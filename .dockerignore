@@ -1,0 +1,32 @@
+# Node modules (already installed inside Docker)
+node_modules
+
+# Angular build output
+dist
+.tmp
+out-tsc
+
+# Environment files (avoid exposing secrets)
+*.env
+.env.local
+.env.development
+.env.production
+src/environments/environment*.ts
+
+# Editor & OS-specific files
+.vscode
+.idea
+*.swp
+*.swo
+*.swn
+*.bak
+*.log
+.DS_Store
+Thumbs.db
+
+# Git-related files
+.git
+.gitignore
+
+# Docker-related files (optional)
+docker-compose.override.yml
