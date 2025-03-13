@@ -17,4 +17,8 @@ export class AuthService {
     const { permissions } = userData;
     this.permissionService.setPermissions(permissions);
   }
+
+  logout() {
+    
+  }
 }
