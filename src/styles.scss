@@ -1,2 +1,9 @@
 @use "primeicons/primeicons.css";
 @use './tailwind.css';
+
+:root {
+  --primary-color: #3B82F6 !important;
+  --primary-lighter-color: #93C5FD !important;
+  --primary-darker-color: #2563EB !important;
+  --primary-text-color: #FFFFFF !important;
+}

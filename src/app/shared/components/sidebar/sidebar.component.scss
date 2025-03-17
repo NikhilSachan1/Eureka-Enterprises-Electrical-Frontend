@@ -1,0 +1,176 @@
+:host {
+  display: block;
+  height: 100vh;
+  width: 100%;
+
+  // Override theme colors for sidebar with more professional colors
+  --sidebar-primary-color: #00a389; // Teal color instead of blue
+  --sidebar-surface-100: #e6f7f4; // Light teal background
+  --sidebar-hover-bg: #f5f5f5; // Light gray for hover
+  --sidebar-active-bg: #f0f9f7; // Very light teal for active
+}
+
+// Make the sidebar fixed position
+.h-full {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: hidden;
+  z-index: 1000;
+}
+
+// Adjust main content to account for fixed sidebar
+.flex-1 {
+  margin-left: 80px; // Default margin for collapsed sidebar
+  transition: margin-left 0.3s ease;
+
+  &.ml-80 {
+    margin-left: 320px; // 80px * 4 for expanded sidebar
+  }
+}
+
+.menu-container {
+  .menu-item {
+    margin-bottom: 0.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Custom scrollbar styling
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 163, 137, 0.3); // More subtle scrollbar
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 163, 137, 0.5); // Darker on hover
+}
+
+// Animation for submenu
+.menu-item {
+  .submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+
+    &.expanded {
+      max-height: 500px;
+    }
+  }
+}
+
+// Add subtle hover effects
+.menu-item > div:hover {
+  background-color: var(--sidebar-hover-bg);
+  transform: translateX(2px);
+}
+
+// Active menu item styling - more subtle
+.active-menu-item {
+  font-weight: 600 !important;
+  background-color: var(--sidebar-active-bg) !important;
+  border-left: 3px solid var(--sidebar-primary-color) !important;
+  border-right: none !important; // Remove the right border
+}
+
+// Remove p-avatar background
+.avatar-container {
+  display: inline-block;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+// Fix for the sidebar background
+:host ::ng-deep {
+  .p-avatar {
+    background: transparent !important;
+  }
+
+  // Update icon colors to match the new theme
+  .pi {
+    color: #555 !important;
+  }
+
+  .active-menu-item .pi {
+    color: var(--sidebar-primary-color) !important;
+  }
+}
+
+// Collapsed sidebar styling
+.collapsed-sidebar {
+  width: 70px !important;
+  position: fixed !important;
+  left: 0 !important;
+  z-index: 100 !important;
+
+  .logo-container {
+    justify-content: center !important;
+    padding: 1rem 0 !important;
+  }
+
+  .menu-label,
+  .user-details,
+  .menu-arrow,
+  .submenu {
+    display: none !important;
+  }
+
+  .menu-icon {
+    margin: 0 !important;
+    font-size: 1.5rem !important;
+  }
+
+  .menu-item > div {
+    justify-content: center !important;
+    padding: 0.75rem 0 !important;
+  }
+
+  // Center the icons in the collapsed state
+  .p-3 {
+    padding: 0.75rem 0 !important;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+// Add cursor pointer to logo
+.logo-container img {
+  cursor: pointer;
+}
+
+// Adjust main content margin when sidebar is collapsed
+.ml-16 {
+  margin-left: 70px !important;
+}
+
+// Tooltip for collapsed menu items
+.menu-tooltip {
+  position: absolute;
+  left: 75px;
+  background-color: var(--surface-900);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+
+  &.visible {
+    opacity: 1;
+  }
+}
