@@ -15,92 +15,87 @@
       'w-80': sidebarVisible(),
       'w-0': !sidebarVisible()
     }"
-    class="h-full bg-white shadow-xl transition-all duration-300 overflow-hidden border-r border-surface-200"
+    class="h-full bg-white shadow-xl transition-all duration-300 border-r border-surface-200"
   >
-    <!-- Sidebar Header with Logo -->
-    <div class="flex items-center justify-between p-5 border-b border-surface-200">
-      <div class="flex items-center gap-3">
-        <img
-          src="https://i.postimg.cc/3w9krVGY/Untitled-design.png"
-          alt="Eureka Logo"
-          class="w-12 h-12 rounded-lg shadow-sm"
-        />
-        <div class="transition-all duration-300">
-          <h1 class="text-xl font-bold text-primary tracking-tight whitespace-nowrap">
-            Eureka PeopleOps
-          </h1>
-          <h2 class="text-sm font-medium text-surface-600 whitespace-nowrap">
-            Eureka Enterprises
-          </h2>
+    <!-- Fixed Header -->
+    <div class="sidebar-header">
+      <div class="flex items-center justify-between p-5">
+        <div class="flex items-center gap-3">
+          <img
+            src="https://i.postimg.cc/3w9krVGY/Untitled-design.png"
+            alt="Eureka Logo"
+            class="w-12 h-12 rounded-lg shadow-sm"
+          />
+          <div class="transition-all duration-300">
+            <h1 class="text-xl font-bold text-primary tracking-tight whitespace-nowrap">
+              Eureka PeopleOps
+            </h1>
+            <h2 class="text-sm font-medium text-surface-600 whitespace-nowrap">
+              Eureka Enterprises
+            </h2>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- User Profile Section -->
-    <div
-      class="flex flex-col items-center py-6 border-b border-surface-200"
-    >
-      <div class="mb-3">
-        <img
-          [src]="user.avatar"
-          alt="User Avatar"
-          class="rounded-full w-16 h-16 object-cover border-3 border-primary shadow-md"
-        />
+    <!-- Fixed User Profile -->
+    <div class="user-profile">
+      <div class="flex flex-col items-center py-6">
+        <div class="mb-3">
+          <img
+            [src]="user.avatar"
+            alt="User Avatar"
+            class="rounded-full w-16 h-16 object-cover border-3 border-primary shadow-md"
+          />
+        </div>
+        <h2 class="text-lg font-bold text-surface-900">{{ user.name }}</h2>
+        <p class="text-sm font-medium text-surface-600">{{ user.designation }}</p>
       </div>
-      <h2 class="text-lg font-bold text-surface-900">{{ user.name }}</h2>
-      <p class="text-sm font-medium text-surface-600">{{ user.designation }}</p>
     </div>
 
-    <!-- Navigation Menu -->
-    <div class="flex flex-col h-[calc(100vh-220px)]">
-      <div class="flex-1 overflow-y-auto">
-        <div class="p-4">
-          <h3
-            class="text-xs uppercase font-extrabold text-primary mb-3 tracking-wider px-3"
+    <!-- Scrollable Menu Container -->
+    <div class="menu-scroll-container">
+      <div class="menu-wrapper">
+        <h3 class="text-xs uppercase font-extrabold text-primary mb-3 tracking-wider px-3">
+          {{ items[0].label }}
+        </h3>
+
+        <div class="menu-container">
+          <div
+            *ngFor="let category of items[0].items"
+            class="menu-item"
+            [class.active]="category.routerLink === router.url"
           >
-            {{ items[0].label }}
-          </h3>
-
-          <div class="menu-container">
+            <!-- Parent Menu Item -->
             <div
-              *ngFor="let category of items[0].items"
-              class="menu-item"
-              [class.active]="category.routerLink === router.url"
+              class="flex items-center rounded-lg cursor-pointer"
+              [class.active-menu-item]="category.routerLink === router.url"
+              (click)="toggleSubmenu(category)"
+              [routerLink]="!category.items ? category.routerLink : null"
             >
-              <!-- Parent Menu Item -->
-              <div
-                class="flex items-center rounded-lg cursor-pointer"
-                [class.active-menu-item]="category.routerLink === router.url"
-                (click)="toggleSubmenu(category)"
-              >
-                <i [class]="category.icon" class="text-xl"></i>
-                <span class="flex-1">
-                  {{ category.label }}
-                </span>
-                <i
-                  *ngIf="category.items"
-                  class="pi pi-chevron-down text-sm transition-transform"
-                  [class.rotate-180]="category.expanded"
-                ></i>
-              </div>
-
-              <!-- Submenu -->
-              <div
+              <i [class]="category.icon" class="text-xl"></i>
+              <span class="flex-1">{{ category.label }}</span>
+              <i
                 *ngIf="category.items"
-                class="submenu"
-                [class.submenu-expanded]="category.expanded"
+                class="pi pi-chevron-down text-sm transition-transform"
+                [class.rotate-180]="category.expanded"
+              ></i>
+            </div>
+
+            <!-- Submenu -->
+            <div
+              *ngIf="category.items"
+              class="submenu"
+              [class.submenu-expanded]="category.expanded"
+            >
+              <div
+                *ngFor="let subItem of category.items"
+                class="submenu-item"
+                [routerLink]="subItem.routerLink"
+                routerLinkActive="active"
               >
-                <div
-                  *ngFor="let subItem of category.items"
-                  class="submenu-item"
-                  [routerLink]="subItem.routerLink"
-                  routerLinkActive="active"
-                >
-                  <i [class]="subItem.icon"></i>
-                  <span>
-                    {{ subItem.label }}
-                  </span>
-                </div>
+                <i [class]="subItem.icon"></i>
+                <span>{{ subItem.label }}</span>
               </div>
             </div>
           </div>

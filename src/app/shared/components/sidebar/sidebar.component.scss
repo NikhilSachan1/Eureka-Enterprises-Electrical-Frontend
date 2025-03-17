@@ -11,6 +11,7 @@
   :host {
     .h-full {
       position: fixed;
+      height: 100vh;
       transform: translateX(-100%);
       background-color: white;
       box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
@@ -21,6 +22,15 @@
 
       &:not(.w-0) {
         transform: translateX(0);
+      }
+
+      .menu-scroll-container {
+        flex: 1;
+        min-height: 0;
+        
+        .menu-wrapper {
+          -webkit-overflow-scrolling: touch; // Smooth scroll on iOS
+        }
       }
     }
 
@@ -60,17 +70,69 @@
   position: fixed;
   top: 0;
   left: 0;
-  height: calc(100vh - 3px);
-  overflow-y: hidden;
+  height: 100vh;
   z-index: 1000;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateX(0);
   will-change: transform, width;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  overflow: hidden;
+  width: 320px;
 
   &.w-0 {
     transform: translateX(-100%);
+    width: 0;
+    visibility: hidden;
+  }
+
+  // Fixed header with divider
+  .sidebar-header {
+    flex-shrink: 0;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  // Fixed user profile with divider
+  .user-profile {
+    flex-shrink: 0;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  // Scrollable menu container
+  .menu-scroll-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    
+    .menu-wrapper {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      height: 100%;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 163, 137, 0.3);
+        border-radius: 20px;
+
+        &:hover {
+          background-color: rgba(0, 163, 137, 0.5);
+        }
+      }
+    }
   }
 }
 
@@ -85,8 +147,7 @@
 }
 
 .menu-container {
-  height: 100%;
-  padding-bottom: 1rem;
+  height: auto;
 
   .menu-item {
     position: relative;
@@ -157,22 +218,12 @@
     }
 
     .submenu {
-      max-height: 0;
-      overflow: hidden;
-      transition: all 0.3s ease;
       padding-left: 2.5rem;
       margin-top: 0.25rem;
-      opacity: 0;
-      transform: translateY(-10px);
-      pointer-events: none;
+      display: none;
 
       &.submenu-expanded {
-        max-height: 500px;
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem;
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
+        display: block;
       }
 
       .submenu-item {
@@ -192,11 +243,14 @@
         &:hover {
           background-color: var(--sidebar-surface-100);
           color: var(--sidebar-primary-color);
-          transform: translateX(4px);
 
-          i, span {
+          i {
             transform: scale(1.1);
             color: var(--sidebar-primary-color) !important;
+          }
+
+          span {
+            color: var(--sidebar-primary-color);
           }
         }
 
@@ -227,28 +281,11 @@
         }
 
         span {
-          transition: all 0.2s ease;
+          transition: color 0.2s ease;
           color: #555;
         }
       }
     }
-  }
-}
-
-::-webkit-scrollbar {
-  width: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 163, 137, 0.3);
-  border-radius: 20px;
-
-  &:hover {
-    background-color: rgba(0, 163, 137, 0.5);
   }
 }
 
@@ -309,11 +346,7 @@
 }
 
 .overflow-y-auto {
-  height: calc(100vh - 160px);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--sidebar-primary-color) transparent;
-  padding-bottom: 1rem;
+  display: none;
 }
 
 .hidden {

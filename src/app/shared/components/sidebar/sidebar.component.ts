@@ -245,6 +245,46 @@ export class SidebarComponent implements OnInit {
                 icon: 'pi pi-file-pdf',
                 routerLink: '/payroll/tax',
               },
+              {
+                label: 'Salary Slips',
+                icon: 'pi pi-file',
+                routerLink: '/payroll/slips',
+              },
+              {
+                label: 'Tax Documents',
+                icon: 'pi pi-file-pdf',
+                routerLink: '/payroll/tax',
+              },
+              {
+                label: 'Salary Slips',
+                icon: 'pi pi-file',
+                routerLink: '/payroll/slips',
+              },
+              {
+                label: 'Tax Documents',
+                icon: 'pi pi-file-pdf',
+                routerLink: '/payroll/tax',
+              },
+              {
+                label: 'Salary Slips',
+                icon: 'pi pi-file',
+                routerLink: '/payroll/slips',
+              },
+              {
+                label: 'Tax Documents',
+                icon: 'pi pi-file-pdf',
+                routerLink: '/payroll/tax',
+              },
+              {
+                label: 'Salary Slips',
+                icon: 'pi pi-file',
+                routerLink: '/payroll/slips',
+              },
+              {
+                label: 'Tax Documents',
+                icon: 'pi pi-file-pdf',
+                routerLink: '/payroll/tax',
+              },
             ],
           },
           {
