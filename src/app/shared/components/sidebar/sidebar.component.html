@@ -32,17 +32,6 @@
       </div>
     </div>
 
-    <!-- User Profile -->
-    <div class="py-6 text-center">
-      <img
-        [src]="user.avatar"
-        alt="User Avatar"
-        class="w-16 h-16 rounded-full object-cover border-3 border-primary shadow-md mx-auto mb-3"
-      />
-      <h2 class="text-lg font-bold text-surface-900">{{ user.name }}</h2>
-      <p class="text-sm font-medium text-surface-600">{{ user.designation }}</p>
-    </div>
-
     <!-- Menu Container -->
     <div class="menu-scroll-container">
       <div class="menu-wrapper">
@@ -87,6 +76,46 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Options Menu -->
+    <div class="user-options">
+      <!-- Trigger Button -->
+      <div class="options-trigger" (click)="toggleOptionsMenu()">
+        <img [src]="user.avatar" [alt]="user.name">
+        <div class="user-info">
+          <h3>{{ user.name }}</h3>
+          <p>{{ user.designation }}</p>
+        </div>
+        <i class="pi pi-chevron-up" [class.rotate-180]="showOptionsMenu"></i>
+      </div>
+
+      <!-- Options Menu -->
+      <div class="options-menu" *ngIf="showOptionsMenu">
+        <div class="option-item" routerLink="/settings">
+          <i class="pi pi-cog"></i>
+          <span>Settings</span>
+        </div>
+        <div class="option-item" routerLink="/profile">
+          <i class="pi pi-user"></i>
+          <span>My Profile</span>
+        </div>
+        <div class="option-item" routerLink="/my-id">
+          <i class="pi pi-id-card"></i>
+          <span>My ID</span>
+        </div>
+        <div class="theme-toggle" (click)="toggleTheme()">
+          <span>Theme</span>
+          <div class="theme-icons">
+            <i class="pi pi-sun" [class.active]="!isDarkTheme()"></i>
+            <i class="pi pi-moon" [class.active]="isDarkTheme()"></i>
+          </div>
+        </div>
+        <div class="option-item danger" (click)="logout()">
+          <i class="pi pi-power-off"></i>
+          <span>Logout</span>
         </div>
       </div>
     </div>
