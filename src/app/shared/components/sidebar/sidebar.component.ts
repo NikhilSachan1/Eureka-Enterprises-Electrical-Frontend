@@ -1,274 +1,176 @@
+import { Component, OnInit, signal, HostListener } from '@angular/core';
+import { MenuItem } from 'primeng/api';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnInit, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { AvatarModule } from 'primeng/avatar';
+import { SidebarModule } from 'primeng/sidebar';
+import { DividerModule } from 'primeng/divider';
+import { RippleModule } from 'primeng/ripple';
 
-interface MenuItem {
-  label: string;
-  icon?: string;
-  routerLink?: string;
-  items?: MenuItem[];
+interface CustomMenuItem extends MenuItem {
   expanded?: boolean;
-}
-
-interface SidebarItem {
-  label: string;
-  items: MenuItem[];
 }
 
 @Component({
   selector: 'app-sidebar',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterLinkActive,
+    ButtonModule,
+    AvatarModule,
+    SidebarModule,
+    DividerModule,
+    RippleModule,
+  ],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss'],
-  imports: [CommonModule, RouterLink]
+  styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent implements OnInit {
+  items: CustomMenuItem[] = [];
   sidebarVisible = signal(true);
-  showOptionsMenu = false;
+  showUserMenu = false;
   isMobile = window.innerWidth <= 768;
-  isDarkTheme = signal(false);
 
+  // User data - in a real app, this would come from a service
   user = {
     name: 'John Doe',
-    designation: 'Admin',
-    avatar: 'https://i.pravatar.cc/150?img=3'
+    designation: 'Senior Engineer',
+    avatar: 'https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png',
   };
 
-  items: SidebarItem[] = [
-    {
-      label: 'Services',
-      items: [
-        {
-          label: 'Dashboard',
-          icon: 'pi pi-home',
-          routerLink: '/dashboard'
-        },
-        {
-          label: 'Employees',
-          icon: 'pi pi-users',
-          routerLink: '/employees'
-        },
-        {
-          label: 'Reports',
-          icon: 'pi pi-chart-bar',
-          items: [
-            {
-              label: 'Daily Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/daily'
-            },
-            {
-              label: 'Monthly Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/monthly'
-            }
-          ]
-        },
-        {
-          label: 'Dashboard',
-          icon: 'pi pi-home',
-          routerLink: '/dashboard'
-        },
-        {
-          label: 'Employees',
-          icon: 'pi pi-users',
-          routerLink: '/employees'
-        },
-        {
-          label: 'Reports',
-          icon: 'pi pi-chart-bar',
-          items: [
-            {
-              label: 'Daily Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/daily'
-            },
-            {
-              label: 'Monthly Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/monthly'
-            }
-          ]
-        },
-        {
-          label: 'Dashboard',
-          icon: 'pi pi-home',
-          routerLink: '/dashboard'
-        },
-        {
-          label: 'Employees',
-          icon: 'pi pi-users',
-          routerLink: '/employees'
-        },
-        {
-          label: 'Reports',
-          icon: 'pi pi-chart-bar',
-          items: [
-            {
-              label: 'Daily Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/daily'
-            },
-            {
-              label: 'Monthly Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/monthly'
-            }
-          ]
-        },
-        {
-          label: 'Dashboard',
-          icon: 'pi pi-home',
-          routerLink: '/dashboard'
-        },
-        {
-          label: 'Employees',
-          icon: 'pi pi-users',
-          routerLink: '/employees'
-        },
-        {
-          label: 'Reports',
-          icon: 'pi pi-chart-bar',
-          items: [
-            {
-              label: 'Daily Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/daily'
-            },
-            {
-              label: 'Monthly Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/monthly'
-            }
-          ]
-        },
-        {
-          label: 'Dashboard',
-          icon: 'pi pi-home',
-          routerLink: '/dashboard'
-        },
-        {
-          label: 'Employees',
-          icon: 'pi pi-users',
-          routerLink: '/employees'
-        },
-        {
-          label: 'Reports',
-          icon: 'pi pi-chart-bar',
-          items: [
-            {
-              label: 'Daily Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/daily'
-            },
-            {
-              label: 'Monthly Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/monthly'
-            },
-            {
-              label: 'Daily Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/daily'
-            },
-            {
-              label: 'Monthly Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/monthly'
-            },
-            {
-              label: 'Daily Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/daily'
-            },
-            {
-              label: 'Monthly Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/monthly'
-            },
-            {
-              label: 'Daily Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/daily'
-            },
-            {
-              label: 'Monthly Reports',
-              icon: 'pi pi-calendar',
-              routerLink: '/reports/monthly'
-            }
-          ]
-        }
-      ]
-    }
-  ];
-
   constructor(public router: Router) {
-    window.addEventListener('resize', () => {
-      this.isMobile = window.innerWidth <= 768;
-    });
-
-    // Load theme preference from localStorage
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      this.toggleTheme(true);
-    }
+    this.sidebarVisible.set(!this.isMobile);
   }
 
-  ngOnInit(): void {
-    // Initialize any necessary data
-  }
-
-  toggleSidebar(): void {
-    this.sidebarVisible.set(!this.sidebarVisible());
-  }
-
-  toggleSubmenu(item: MenuItem): void {
-    if (item.items) {
-      item.expanded = !item.expanded;
-    } else if (item.routerLink) {
-      this.router.navigate([item.routerLink]);
-      if (this.isMobile) {
-        this.sidebarVisible.set(false);
-      }
-    }
-  }
-
-  toggleOptionsMenu(): void {
-    this.showOptionsMenu = !this.showOptionsMenu;
-  }
-
-  toggleTheme(value?: boolean): void {
-    const newValue = value !== undefined ? value : !this.isDarkTheme();
-    this.isDarkTheme.set(newValue);
+  @HostListener('window:resize')
+  onResize() {
+    const wasNotMobile = !this.isMobile;
+    this.isMobile = window.innerWidth <= 768;
     
-    // Update host class
-    const hostElement = document.querySelector('app-sidebar');
-    if (hostElement) {
-      if (newValue) {
-        hostElement.classList.add('dark-theme');
-      } else {
-        hostElement.classList.remove('dark-theme');
-      }
-    }
-
-    // Save preference to localStorage
-    localStorage.setItem('theme', newValue ? 'dark' : 'light');
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const optionsMenu = document.querySelector('.options-menu');
-    const optionsTrigger = document.querySelector('.options-trigger');
-    
-    if (this.showOptionsMenu && optionsMenu && optionsTrigger) {
-      const clickedElement = event.target as HTMLElement;
-      if (!optionsMenu.contains(clickedElement) && !optionsTrigger.contains(clickedElement)) {
-        this.showOptionsMenu = false;
-      }
+    if (wasNotMobile && this.isMobile) {
+      this.sidebarVisible.set(false);
+    } else if (!wasNotMobile && !this.isMobile) {
+      this.sidebarVisible.set(true);
     }
   }
 
-  logout(): void {
-    console.log('Logging out...');
-    this.router.navigate(['/login']);
+  toggleSidebar() {
+    this.sidebarVisible.update((value) => !value);
+    if (this.isMobile) {
+      document.body.style.overflow = this.sidebarVisible() ? 'hidden' : '';
+    }
+  }
+
+  toggleSubmenu(category: CustomMenuItem) {
+    if (category.items) {
+      this.items[0].items?.forEach(item => {
+        if (item !== category && item.items) {
+          item.expanded = false;
+        }
+      });
+      category.expanded = !category.expanded;
+    } else {
+      this.items[0].items?.forEach(item => {
+        if (item.items) {
+          item.expanded = false;
+        }
+      });
+    }
+  }
+
+  toggleUserMenu() {
+    this.showUserMenu = !this.showUserMenu;
+  }
+
+  ngOnInit() {
+    this.items = [
+      {
+        label: 'Services',
+        items: [
+          {
+            label: 'Dashboard',
+            icon: 'pi pi-home',
+            routerLink: '/dashboard',
+          },
+          {
+            label: 'Attendance',
+            icon: 'pi pi-calendar',
+            items: [
+              {
+                label: 'Check In/Out',
+                icon: 'pi pi-clock',
+                routerLink: '/attendance/check',
+              },
+              {
+                label: 'History',
+                icon: 'pi pi-history',
+                routerLink: '/attendance/history',
+              },
+            ],
+          },
+          {
+            label: 'Leave',
+            icon: 'pi pi-calendar-minus',
+            items: [
+              {
+                label: 'Apply Leave',
+                icon: 'pi pi-plus-circle',
+                routerLink: '/leave/apply',
+              },
+              {
+                label: 'Leave Status',
+                icon: 'pi pi-list',
+                routerLink: '/leave/status',
+              },
+            ],
+          },
+          {
+            label: 'Expenses',
+            icon: 'pi pi-wallet',
+            items: [
+              {
+                label: 'Add Expense',
+                icon: 'pi pi-plus',
+                routerLink: '/expenses/add',
+              },
+              {
+                label: 'Ledger',
+                icon: 'pi pi-book',
+                routerLink: '/expenses/ledger',
+              },
+            ],
+          },
+          {
+            label: 'Payroll',
+            icon: 'pi pi-dollar',
+            items: [
+              {
+                label: 'Salary Slips',
+                icon: 'pi pi-file',
+                routerLink: '/payroll/slips',
+              },
+              {
+                label: 'Tax Documents',
+                icon: 'pi pi-file-pdf',
+                routerLink: '/payroll/tax',
+              },
+            ],
+          },
+          {
+            label: 'Projects',
+            icon: 'pi pi-briefcase',
+            routerLink: '/projects',
+          },
+          {
+            label: 'Team',
+            icon: 'pi pi-users',
+            routerLink: '/team',
+          }
+        ],
+      },
+    ];
   }
 }
