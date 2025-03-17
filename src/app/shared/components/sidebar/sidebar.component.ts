@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, HostListener } from '@angular/core';
+import { Component, OnInit, signal, HostListener, Renderer2 } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -7,6 +7,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { SidebarModule } from 'primeng/sidebar';
 import { DividerModule } from 'primeng/divider';
 import { RippleModule } from 'primeng/ripple';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 interface CustomMenuItem extends MenuItem {
   expanded?: boolean;
@@ -26,23 +27,65 @@ interface CustomMenuItem extends MenuItem {
     RippleModule,
   ],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.scss'
+  styleUrl: './sidebar.component.scss',
+  animations: [
+    trigger('slideInOut', [
+      transition(':enter', [
+        style({
+          opacity: 0,
+          transform: 'translate3d(-50%, -8px, 0)',
+          transformOrigin: 'top',
+          transformStyle: 'preserve-3d',
+          backfaceVisibility: 'hidden',
+          perspective: 1000
+        }),
+        animate('80ms cubic-bezier(0.4, 0, 0.2, 1)',
+          style({
+            opacity: 1,
+            transform: 'translate3d(-50%, 0, 0)'
+          })
+        )
+      ]),
+      transition(':leave', [
+        style({
+          transformOrigin: 'top',
+          transformStyle: 'preserve-3d',
+          backfaceVisibility: 'hidden',
+          perspective: 1000
+        }),
+        animate('60ms cubic-bezier(0.4, 0, 0.2, 1)',
+          style({
+            opacity: 0,
+            transform: 'translate3d(-50%, -8px, 0)'
+          })
+        )
+      ])
+    ])
+  ]
 })
 export class SidebarComponent implements OnInit {
   items: CustomMenuItem[] = [];
   sidebarVisible = signal(true);
-  showUserMenu = false;
+  showUserOptions = signal(false);
+  isDarkTheme = signal(false);
   isMobile = window.innerWidth <= 768;
 
   // User data - in a real app, this would come from a service
   user = {
     name: 'John Doe',
-    designation: 'Senior Engineer',
-    avatar: 'https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png',
+    designation: 'Software Engineer',
+    avatar: 'https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png'
   };
 
-  constructor(public router: Router) {
+  constructor(
+    public router: Router,
+    private renderer: Renderer2
+  ) {
     this.sidebarVisible.set(!this.isMobile);
+    // Initialize theme from localStorage
+    const savedTheme = localStorage.getItem('theme');
+    this.isDarkTheme.set(savedTheme === 'dark');
+    this.applyTheme(this.isDarkTheme());
   }
 
   @HostListener('window:resize')
@@ -55,6 +98,54 @@ export class SidebarComponent implements OnInit {
     } else if (!wasNotMobile && !this.isMobile) {
       this.sidebarVisible.set(true);
     }
+  }
+
+  @HostListener('window:click', ['$event'])
+  onClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-options') && !target.matches('img')) {
+      this.showUserOptions.set(false);
+    }
+  }
+
+  toggleUserOptions() {
+    this.showUserOptions.update(v => !v);
+  }
+
+  toggleTheme() {
+    this.isDarkTheme.update(v => !v);
+    this.applyTheme(this.isDarkTheme());
+    // Save theme preference
+    localStorage.setItem('theme', this.isDarkTheme() ? 'dark' : 'light');
+  }
+
+  private applyTheme(isDark: boolean) {
+    if (isDark) {
+      this.renderer.addClass(document.body, 'dark-theme');
+    } else {
+      this.renderer.removeClass(document.body, 'dark-theme');
+    }
+  }
+
+  // Navigation methods
+  navigateToProfile() {
+    this.router.navigate(['/profile']);
+    this.showUserOptions.set(false);
+  }
+
+  navigateToSettings() {
+    this.router.navigate(['/settings']);
+    this.showUserOptions.set(false);
+  }
+
+  navigateToResetPassword() {
+    this.router.navigate(['/reset-password']);
+    this.showUserOptions.set(false);
+  }
+
+  logout() {
+    // Add your logout logic here
+    this.router.navigate(['/login']);
   }
 
   toggleSidebar() {
@@ -79,10 +170,6 @@ export class SidebarComponent implements OnInit {
         }
       });
     }
-  }
-
-  toggleUserMenu() {
-    this.showUserMenu = !this.showUserMenu;
   }
 
   ngOnInit() {
@@ -172,5 +259,7 @@ export class SidebarComponent implements OnInit {
         ],
       },
     ];
+    // Apply initial theme
+    this.applyTheme(this.isDarkTheme());
   }
 }

@@ -33,14 +33,46 @@
     </div>
 
     <!-- User Profile -->
-    <div class="py-6 text-center">
+    <div class="py-6">
       <img
         [src]="user.avatar"
-        alt="User Avatar"
+        [alt]="user.name"
         class="w-16 h-16 rounded-full object-cover border-3 border-primary shadow-md mx-auto mb-3"
+        (click)="toggleUserOptions()"
       />
       <h2 class="text-lg font-bold text-surface-900">{{ user.name }}</h2>
       <p class="text-sm font-medium text-surface-600">{{ user.designation }}</p>
+
+      <!-- User Options Menu -->
+      <div class="user-options" *ngIf="showUserOptions()" [@slideInOut]>
+        <div class="options-group">
+          <a class="option-item" (click)="navigateToProfile()">
+            <i class="pi pi-user"></i>
+            <span>My Profile</span>
+          </a>
+          <a class="option-item" (click)="navigateToSettings()">
+            <i class="pi pi-cog"></i>
+            <span>Settings</span>
+          </a>
+          <a class="option-item" (click)="navigateToResetPassword()">
+            <i class="pi pi-lock"></i>
+            <span>Reset Password</span>
+          </a>
+        </div>
+        
+        <div class="options-divider"></div>
+        
+        <div class="options-group">
+          <a class="option-item theme-toggle" (click)="toggleTheme()">
+            <i class="pi" [class.pi-moon]="!isDarkTheme()" [class.pi-sun]="isDarkTheme()"></i>
+            <span>{{ isDarkTheme() ? 'Light Mode' : 'Dark Mode' }}</span>
+          </a>
+          <a class="option-item logout" (click)="logout()">
+            <i class="pi pi-power-off"></i>
+            <span>Logout</span>
+          </a>
+        </div>
+      </div>
     </div>
 
     <!-- Menu Container -->
