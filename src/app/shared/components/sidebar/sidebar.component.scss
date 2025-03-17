@@ -146,35 +146,39 @@
   }
 }
 
+// Menu Container
 .menu-container {
-  height: auto;
+  padding-bottom: 1rem;
 
   .menu-item {
     position: relative;
-    margin-bottom: 0.25rem;
+    margin: 0.5rem 0;
 
+    // Parent Menu Item
     > div:first-child {
       padding: 0.75rem 1rem;
       border-radius: 0.5rem;
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       gap: 0.75rem;
       cursor: pointer;
       position: relative;
       overflow: hidden;
+      margin: 0.25rem 0.5rem;
 
-      &:hover, &.active-menu-item {
+      &:hover {
         background-color: var(--sidebar-surface-100);
-        color: var(--sidebar-primary-color);
+        transform: translateX(4px);
 
         i {
-          transform: scale(1.1);
           color: var(--sidebar-primary-color) !important;
+          transform: scale(1.05);
         }
 
         span {
           color: var(--sidebar-primary-color);
+          transform: scale(1.05);
         }
       }
 
@@ -194,58 +198,85 @@
           border-radius: 0 4px 4px 0;
         }
 
-        i, span {
+        i {
           color: var(--sidebar-primary-color) !important;
+        }
+
+        span {
+          color: var(--sidebar-primary-color);
         }
       }
 
       i {
-        transition: transform 0.2s ease;
-        color: #555 !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        color: #555;
+        font-size: 1.25rem;
       }
 
       span {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         color: #555;
-        transition: color 0.2s ease;
+        font-size: 0.95rem;
       }
 
       .pi-chevron-down {
-        transition: transform 0.2s ease;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.85rem;
+        opacity: 0.7;
+        
         &.rotate-180 {
           transform: rotate(180deg);
         }
       }
     }
 
+    // Submenu
     .submenu {
-      padding-left: 2.5rem;
-      margin-top: 0.25rem;
+      padding-left: 2.75rem;
+      margin: 0.25rem 0;
       display: none;
-
+      
       &.submenu-expanded {
         display: block;
+        animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       .submenu-item {
-        padding: 0.75rem 1rem;
+        padding: 0.65rem 1rem;
         border-radius: 0.5rem;
         display: flex;
         align-items: center;
         gap: 0.75rem;
         cursor: pointer;
-        transition: all 0.2s ease;
-        margin-bottom: 0.25rem;
-        color: #555;
-        background-color: transparent;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        margin: 0.2rem 0.5rem;
+        color: #666;
+        font-size: 0.9rem;
         position: relative;
         overflow: hidden;
 
         &:hover {
           background-color: var(--sidebar-surface-100);
           color: var(--sidebar-primary-color);
+          transform: translateX(4px);
 
           i {
-            transform: scale(1.1);
+            color: var(--sidebar-primary-color) !important;
+            transform: scale(1.05);
+          }
+
+          span {
+            color: var(--sidebar-primary-color);
+            transform: scale(1.05);
+          }
+        }
+
+        &.active {
+          background-color: var(--sidebar-surface-100);
+          color: var(--sidebar-primary-color);
+          font-weight: 500;
+
+          i {
             color: var(--sidebar-primary-color) !important;
           }
 
@@ -254,38 +285,29 @@
           }
         }
 
-        &.active {
-          background-color: var(--sidebar-surface-100);
-          color: var(--sidebar-primary-color);
-          font-weight: 600;
-
-          &::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background-color: var(--sidebar-primary-color);
-            border-radius: 0 4px 4px 0;
-          }
-
-          i, span {
-            color: var(--sidebar-primary-color) !important;
-          }
-        }
-
         i {
-          transition: transform 0.2s ease;
-          color: #555 !important;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          color: #666;
+          font-size: 1rem;
         }
 
         span {
-          transition: color 0.2s ease;
-          color: #555;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          color: #666;
         }
       }
     }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -294,17 +316,26 @@
     background: transparent !important;
   }
 
-  .pi {
-    color: #555 !important;
-  }
-
   .p-button {
     background-color: var(--sidebar-primary-color) !important;
     border-color: var(--sidebar-primary-color) !important;
+    color: white !important;
 
     &:hover {
       background-color: color-mix(in srgb, var(--sidebar-primary-color) 95%, black) !important;
       border-color: color-mix(in srgb, var(--sidebar-primary-color) 95%, black) !important;
+    }
+
+    .pi {
+      color: white !important;
+    }
+  }
+
+  .toggle-button {
+    &:hover {
+      .pi {
+        color: white !important;
+      }
     }
 
     .pi {
@@ -318,30 +349,35 @@
   left: 0;
   top: 1.5rem;
   z-index: 1001;
-  background-color: white;
+  background-color: var(--sidebar-primary-color);
   border-radius: 0 8px 8px 0;
-  width: 24px;
-  height: 32px;
+  width: 28px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 0 8px rgba(0, 163, 137, 0.2);
   border: none;
-  color: var(--sidebar-primary-color);
 
   &.sidebar-visible {
     left: 320px;
   }
 
   &:hover {
-    background-color: var(--sidebar-surface-100);
+    background-color: color-mix(in srgb, var(--sidebar-primary-color) 90%, black);
+    box-shadow: 3px 0 12px rgba(0, 163, 137, 0.3);
+
+    .pi {
+      transform: scale(1.1);
+    }
   }
 
   .pi {
-    color: var(--sidebar-primary-color) !important;
-    font-size: 0.875rem;
+    color: white;
+    font-size: 0.9rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
