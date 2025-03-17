@@ -132,7 +132,6 @@
 
       &:hover {
         background-color: var(--sidebar-surface-100);
-        transform: translateX(4px);
 
         i, span {
           color: var(--sidebar-primary-color);
@@ -199,7 +198,6 @@
         &:hover, &.active {
           background-color: var(--sidebar-surface-100);
           color: var(--sidebar-primary-color);
-          transform: translateX(4px);
 
           i, span {
             color: var(--sidebar-primary-color);
