@@ -2,8 +2,7 @@
   <!-- Toggle Button -->
   <button
     pButton
-    icon="pi"
-    [class]="sidebarVisible() ? 'pi pi-angle-left' : 'pi pi-angle-right'"
+    [class]="'pi ' + (sidebarVisible() ? 'pi-angle-left' : 'pi-angle-right')"
     class="p-button-rounded p-button-text p-button-primary toggle-button"
     [ngClass]="{ 'sidebar-visible': sidebarVisible() }"
     (click)="toggleSidebar()"
@@ -11,49 +10,40 @@
 
   <!-- Sidebar -->
   <div
-    [ngClass]="{
-      'w-80': sidebarVisible(),
-      'w-0': !sidebarVisible()
-    }"
     class="h-full bg-white shadow-xl transition-all duration-300 border-r border-surface-200"
+    [ngClass]="sidebarVisible() ? 'w-80' : 'w-0'"
   >
     <!-- Fixed Header -->
-    <div class="sidebar-header">
-      <div class="flex items-center justify-between p-5">
-        <div class="flex items-center gap-3">
-          <img
-            src="https://i.postimg.cc/3w9krVGY/Untitled-design.png"
-            alt="Eureka Logo"
-            class="w-12 h-12 rounded-lg shadow-sm"
-          />
-          <div class="transition-all duration-300">
-            <h1 class="text-xl font-bold text-primary tracking-tight whitespace-nowrap">
-              Eureka PeopleOps
-            </h1>
-            <h2 class="text-sm font-medium text-surface-600 whitespace-nowrap">
-              Eureka Enterprises
-            </h2>
-          </div>
+    <div class="p-5">
+      <div class="flex items-center gap-3">
+        <img
+          src="https://i.postimg.cc/3w9krVGY/Untitled-design.png"
+          alt="Eureka Logo"
+          class="w-12 h-12 rounded-lg shadow-sm"
+        />
+        <div class="transition-all duration-300">
+          <h1 class="text-xl font-bold text-primary tracking-tight whitespace-nowrap">
+            Eureka PeopleOps
+          </h1>
+          <h2 class="text-sm font-medium text-surface-600 whitespace-nowrap">
+            Eureka Enterprises
+          </h2>
         </div>
       </div>
     </div>
 
-    <!-- Fixed User Profile -->
-    <div class="user-profile">
-      <div class="flex flex-col items-center py-6">
-        <div class="mb-3">
-          <img
-            [src]="user.avatar"
-            alt="User Avatar"
-            class="rounded-full w-16 h-16 object-cover border-3 border-primary shadow-md"
-          />
-        </div>
-        <h2 class="text-lg font-bold text-surface-900">{{ user.name }}</h2>
-        <p class="text-sm font-medium text-surface-600">{{ user.designation }}</p>
-      </div>
+    <!-- User Profile -->
+    <div class="py-6 text-center">
+      <img
+        [src]="user.avatar"
+        alt="User Avatar"
+        class="w-16 h-16 rounded-full object-cover border-3 border-primary shadow-md mx-auto mb-3"
+      />
+      <h2 class="text-lg font-bold text-surface-900">{{ user.name }}</h2>
+      <p class="text-sm font-medium text-surface-600">{{ user.designation }}</p>
     </div>
 
-    <!-- Scrollable Menu Container -->
+    <!-- Menu Container -->
     <div class="menu-scroll-container">
       <div class="menu-wrapper">
         <h3 class="text-xs uppercase font-extrabold text-primary mb-3 tracking-wider px-3">
@@ -66,7 +56,6 @@
             class="menu-item"
             [class.active]="category.routerLink === router.url"
           >
-            <!-- Parent Menu Item -->
             <div
               class="flex items-center rounded-lg cursor-pointer"
               [class.active-menu-item]="category.routerLink === router.url"
@@ -82,7 +71,6 @@
               ></i>
             </div>
 
-            <!-- Submenu -->
             <div
               *ngIf="category.items"
               class="submenu"
@@ -114,8 +102,8 @@
 
   <!-- Mobile backdrop -->
   <div 
-    class="mobile-backdrop" 
-    [class.visible]="isMobile && sidebarVisible()"
-    (click)="closeSidebarOnMobile($event)">
-  </div>
+    *ngIf="isMobile && sidebarVisible()"
+    class="mobile-backdrop"
+    (click)="toggleSidebar()"
+  ></div>
 </div>
