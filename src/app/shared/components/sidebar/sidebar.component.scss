@@ -2,45 +2,239 @@
   display: block;
   height: 100vh;
   width: 100%;
-
-  // Override theme colors for sidebar with more professional colors
-  --sidebar-primary-color: #00a389; // Teal color instead of blue
-  --sidebar-surface-100: #e6f7f4; // Light teal background
-  --sidebar-hover-bg: #f5f5f5; // Light gray for hover
-  --sidebar-active-bg: #f0f9f7; // Very light teal for active
+  --sidebar-primary-color: #00a389;
+  --sidebar-surface-100: #e6f7f4;
 }
 
-// Make the sidebar fixed position
-.h-full {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  overflow-y: hidden;
-  z-index: 1000;
-}
+// Media query for mobile devices
+@media screen and (max-width: 768px) {
+  :host {
+    .h-full {
+      position: fixed;
+      transform: translateX(-100%);
+      background-color: white;
+      box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+      
+      &.w-0 {
+        transform: translateX(-100%);
+      }
 
-// Adjust main content to account for fixed sidebar
-.flex-1 {
-  margin-left: 80px; // Default margin for collapsed sidebar
-  transition: margin-left 0.3s ease;
+      &:not(.w-0) {
+        transform: translateX(0);
+      }
+    }
 
-  &.ml-80 {
-    margin-left: 320px; // 80px * 4 for expanded sidebar
-  }
-}
+    .flex-1 {
+      margin-left: 0 !important;
+    }
 
-.menu-container {
-  .menu-item {
-    margin-bottom: 0.5rem;
+    .toggle-button {
+      left: 0 !important;
 
-    &:last-child {
-      margin-bottom: 0;
+      &.sidebar-visible {
+        left: 320px !important;
+      }
+    }
+
+    .mobile-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+
+      &.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
     }
   }
 }
 
-// Custom scrollbar styling
+.h-full {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: calc(100vh - 3px);
+  overflow-y: hidden;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(0);
+  will-change: transform, width;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  &.w-0 {
+    transform: translateX(-100%);
+  }
+}
+
+.flex-1 {
+  margin-left: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: margin-left;
+
+  &.ml-80 {
+    margin-left: 320px;
+  }
+}
+
+.menu-container {
+  height: 100%;
+  padding-bottom: 1rem;
+
+  .menu-item {
+    position: relative;
+    margin-bottom: 0.25rem;
+
+    > div:first-child {
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+
+      &:hover, &.active-menu-item {
+        background-color: var(--sidebar-surface-100);
+        color: var(--sidebar-primary-color);
+
+        i {
+          transform: scale(1.1);
+          color: var(--sidebar-primary-color) !important;
+        }
+
+        span {
+          color: var(--sidebar-primary-color);
+        }
+      }
+
+      &.active-menu-item {
+        background-color: var(--sidebar-surface-100);
+        color: var(--sidebar-primary-color);
+        font-weight: 600;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 100%;
+          width: 4px;
+          background-color: var(--sidebar-primary-color);
+          border-radius: 0 4px 4px 0;
+        }
+
+        i, span {
+          color: var(--sidebar-primary-color) !important;
+        }
+      }
+
+      i {
+        transition: transform 0.2s ease;
+        color: #555 !important;
+      }
+
+      span {
+        color: #555;
+        transition: color 0.2s ease;
+      }
+
+      .pi-chevron-down {
+        transition: transform 0.2s ease;
+        &.rotate-180 {
+          transform: rotate(180deg);
+        }
+      }
+    }
+
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      padding-left: 2.5rem;
+      margin-top: 0.25rem;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+
+      &.submenu-expanded {
+        max-height: 500px;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .submenu-item {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-bottom: 0.25rem;
+        color: #555;
+        background-color: transparent;
+        position: relative;
+        overflow: hidden;
+
+        &:hover {
+          background-color: var(--sidebar-surface-100);
+          color: var(--sidebar-primary-color);
+          transform: translateX(4px);
+
+          i, span {
+            transform: scale(1.1);
+            color: var(--sidebar-primary-color) !important;
+          }
+        }
+
+        &.active {
+          background-color: var(--sidebar-surface-100);
+          color: var(--sidebar-primary-color);
+          font-weight: 600;
+
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: var(--sidebar-primary-color);
+            border-radius: 0 4px 4px 0;
+          }
+
+          i, span {
+            color: var(--sidebar-primary-color) !important;
+          }
+        }
+
+        i {
+          transition: transform 0.2s ease;
+          color: #555 !important;
+        }
+
+        span {
+          transition: all 0.2s ease;
+          color: #555;
+        }
+      }
+    }
+  }
+}
+
 ::-webkit-scrollbar {
   width: 5px;
 }
@@ -50,127 +244,86 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 163, 137, 0.3); // More subtle scrollbar
+  background-color: rgba(0, 163, 137, 0.3);
   border-radius: 20px;
-}
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 163, 137, 0.5); // Darker on hover
-}
-
-// Animation for submenu
-.menu-item {
-  .submenu {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
-
-    &.expanded {
-      max-height: 500px;
-    }
+  &:hover {
+    background-color: rgba(0, 163, 137, 0.5);
   }
 }
 
-// Add subtle hover effects
-.menu-item > div:hover {
-  background-color: var(--sidebar-hover-bg);
-  transform: translateX(2px);
-}
-
-// Active menu item styling - more subtle
-.active-menu-item {
-  font-weight: 600 !important;
-  background-color: var(--sidebar-active-bg) !important;
-  border-left: 3px solid var(--sidebar-primary-color) !important;
-  border-right: none !important; // Remove the right border
-}
-
-// Remove p-avatar background
-.avatar-container {
-  display: inline-block;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-// Fix for the sidebar background
 :host ::ng-deep {
   .p-avatar {
     background: transparent !important;
   }
 
-  // Update icon colors to match the new theme
   .pi {
     color: #555 !important;
   }
 
-  .active-menu-item .pi {
-    color: var(--sidebar-primary-color) !important;
+  .p-button {
+    background-color: var(--sidebar-primary-color) !important;
+    border-color: var(--sidebar-primary-color) !important;
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--sidebar-primary-color) 95%, black) !important;
+      border-color: color-mix(in srgb, var(--sidebar-primary-color) 95%, black) !important;
+    }
+
+    .pi {
+      color: white !important;
+    }
   }
 }
 
-// Collapsed sidebar styling
-.collapsed-sidebar {
-  width: 70px !important;
-  position: fixed !important;
-  left: 0 !important;
-  z-index: 100 !important;
-
-  .logo-container {
-    justify-content: center !important;
-    padding: 1rem 0 !important;
-  }
-
-  .menu-label,
-  .user-details,
-  .menu-arrow,
-  .submenu {
-    display: none !important;
-  }
-
-  .menu-icon {
-    margin: 0 !important;
-    font-size: 1.5rem !important;
-  }
-
-  .menu-item > div {
-    justify-content: center !important;
-    padding: 0.75rem 0 !important;
-  }
-
-  // Center the icons in the collapsed state
-  .p-3 {
-    padding: 0.75rem 0 !important;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-}
-
-// Add cursor pointer to logo
-.logo-container img {
+.toggle-button {
+  position: fixed;
+  left: 0;
+  top: 1.5rem;
+  z-index: 1001;
+  background-color: white;
+  border-radius: 0 8px 8px 0;
+  width: 24px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-}
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  color: var(--sidebar-primary-color);
 
-// Adjust main content margin when sidebar is collapsed
-.ml-16 {
-  margin-left: 70px !important;
-}
-
-// Tooltip for collapsed menu items
-.menu-tooltip {
-  position: absolute;
-  left: 75px;
-  background-color: var(--surface-900);
-  color: white;
-  padding: 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  z-index: 1000;
-  opacity: 0;
-  transition: opacity 0.2s;
-  pointer-events: none;
-
-  &.visible {
-    opacity: 1;
+  &.sidebar-visible {
+    left: 320px;
   }
+
+  &:hover {
+    background-color: var(--sidebar-surface-100);
+  }
+
+  .pi {
+    color: var(--sidebar-primary-color) !important;
+    font-size: 0.875rem;
+  }
+}
+
+.overflow-y-auto {
+  height: calc(100vh - 160px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-primary-color) transparent;
+  padding-bottom: 1rem;
+}
+
+.hidden {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.border-t {
+  margin-top: auto;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }

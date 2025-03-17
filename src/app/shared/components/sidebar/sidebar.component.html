@@ -1,56 +1,46 @@
 <div class="flex h-screen">
+  <!-- Toggle Button -->
+  <button
+    pButton
+    icon="pi"
+    [class]="sidebarVisible() ? 'pi pi-angle-left' : 'pi pi-angle-right'"
+    class="p-button-rounded p-button-text p-button-primary toggle-button"
+    [ngClass]="{ 'sidebar-visible': sidebarVisible() }"
+    (click)="toggleSidebar()"
+  ></button>
+
   <!-- Sidebar -->
   <div
     [ngClass]="{
       'w-80': sidebarVisible(),
-      'collapsed-sidebar': !sidebarVisible(),
+      'w-0': !sidebarVisible()
     }"
     class="h-full bg-white shadow-xl transition-all duration-300 overflow-hidden border-r border-surface-200"
   >
     <!-- Sidebar Header with Logo -->
-    <div
-      class="flex items-center justify-between p-5 border-b border-surface-200 logo-container"
-    >
-      <div class="flex items-center gap-3" *ngIf="sidebarVisible()">
-        <!-- Logo with rounded corners -->
+    <div class="flex items-center justify-between p-5 border-b border-surface-200">
+      <div class="flex items-center gap-3">
         <img
           src="https://i.postimg.cc/3w9krVGY/Untitled-design.png"
           alt="Eureka Logo"
-          class="w-12 h-12 rounded-lg shadow-sm cursor-pointer"
-          (click)="toggleSidebar()"
+          class="w-12 h-12 rounded-lg shadow-sm"
         />
-        <div>
-          <h1 class="text-xl font-bold text-primary tracking-tight">
+        <div class="transition-all duration-300">
+          <h1 class="text-xl font-bold text-primary tracking-tight whitespace-nowrap">
             Eureka PeopleOps
           </h1>
-          <h2 class="text-sm font-medium text-surface-600">
+          <h2 class="text-sm font-medium text-surface-600 whitespace-nowrap">
             Eureka Enterprises
           </h2>
         </div>
       </div>
-      <!-- Logo only when collapsed - clickable to expand -->
-      <img
-        *ngIf="!sidebarVisible()"
-        src="https://i.postimg.cc/3w9krVGY/Untitled-design.png"
-        alt="Eureka Logo"
-        class="w-12 h-12 rounded-lg shadow-sm cursor-pointer"
-        (click)="toggleSidebar()"
-      />
-      <button
-        pButton
-        icon="pi pi-angle-left"
-        class="p-button-rounded p-button-text p-button-primary"
-        (click)="toggleSidebar()"
-        *ngIf="sidebarVisible()"
-      ></button>
     </div>
 
     <!-- User Profile Section -->
     <div
-      class="flex flex-col items-center py-6 border-b border-surface-200 user-details"
-      *ngIf="sidebarVisible()"
+      class="flex flex-col items-center py-6 border-b border-surface-200"
     >
-      <div class="avatar-container mb-3">
+      <div class="mb-3">
         <img
           [src]="user.avatar"
           alt="User Avatar"
@@ -62,100 +52,75 @@
     </div>
 
     <!-- Navigation Menu -->
-    <div class="overflow-y-auto h-[calc(100%-220px)]">
-      <div class="p-4">
-        <h3
-          *ngIf="sidebarVisible()"
-          class="text-xs uppercase font-extrabold text-primary mb-3 tracking-wider px-3 menu-label"
-        >
-          {{ items[0].label }}
-        </h3>
+    <div class="flex flex-col h-[calc(100vh-220px)]">
+      <div class="flex-1 overflow-y-auto">
+        <div class="p-4">
+          <h3
+            class="text-xs uppercase font-extrabold text-primary mb-3 tracking-wider px-3"
+          >
+            {{ items[0].label }}
+          </h3>
 
-        <div class="menu-container">
-          <ng-container *ngFor="let category of items[0].items">
-            <div class="menu-item mb-2">
+          <div class="menu-container">
+            <div
+              *ngFor="let category of items[0].items"
+              class="menu-item"
+              [class.active]="category.routerLink === router.url"
+            >
               <!-- Parent Menu Item -->
               <div
-                class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-100 cursor-pointer transition-colors"
-                [routerLink]="category.routerLink ? category.routerLink : null"
-                [routerLinkActive]="
-                  category.routerLink ? 'active-menu-item' : ''
-                "
-                (click)="
-                  category.items && sidebarVisible()
-                    ? (category.expanded = !category.expanded)
-                    : null
-                "
-                (mouseenter)="
-                  !sidebarVisible() ? showTooltip($event, category.label) : null
-                "
-                (mouseleave)="!sidebarVisible() ? hideTooltip() : null"
+                class="flex items-center rounded-lg cursor-pointer"
+                [class.active-menu-item]="category.routerLink === router.url"
+                (click)="toggleSubmenu(category)"
               >
-                <!-- Inside the Parent Menu Item div, change the icon class -->
-                <div class="flex items-center gap-3">
-                  <i
-                    [class]="category.icon + ' text-primary text-xl menu-icon'"
-                  ></i>
-                  <span class="font-semibold menu-label">{{
-                    category.label
-                  }}</span>
-                </div>
-
+                <i [class]="category.icon" class="text-xl"></i>
+                <span class="flex-1">
+                  {{ category.label }}
+                </span>
                 <i
-                  *ngIf="category.items && sidebarVisible()"
-                  class="pi text-primary menu-arrow"
-                  [ngClass]="{
-                    'pi-chevron-down': category.expanded,
-                    'pi-chevron-right': !category.expanded,
-                  }"
-                >
-                </i>
+                  *ngIf="category.items"
+                  class="pi pi-chevron-down text-sm transition-transform"
+                  [class.rotate-180]="category.expanded"
+                ></i>
               </div>
 
-              <!-- Submenu Items -->
+              <!-- Submenu -->
               <div
-                *ngIf="category.items && category.expanded && sidebarVisible()"
-                class="pl-10 overflow-hidden transition-all duration-300 mt-1 submenu"
-                [ngClass]="{
-                  'max-h-0': !category.expanded,
-                  'max-h-96': category.expanded,
-                }"
+                *ngIf="category.items"
+                class="submenu"
+                [class.submenu-expanded]="category.expanded"
               >
                 <div
                   *ngFor="let subItem of category.items"
-                  class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-100 cursor-pointer transition-colors mb-1"
-                  [routerLink]="subItem.routerLink ? subItem.routerLink : null"
-                  [routerLinkActive]="
-                    subItem.routerLink ? 'active-menu-item' : ''
-                  "
+                  class="submenu-item"
+                  [routerLink]="subItem.routerLink"
+                  routerLinkActive="active"
                 >
-                  <i [class]="subItem.icon + ' text-primary'"></i>
-                  <span>{{ subItem.label }}</span>
+                  <i [class]="subItem.icon"></i>
+                  <span>
+                    {{ subItem.label }}
+                  </span>
                 </div>
               </div>
             </div>
-          </ng-container>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Tooltip for collapsed menu -->
-  <div
-    class="menu-tooltip"
-    [ngClass]="{ visible: tooltipVisible }"
-    [style.top.px]="tooltipPosition.top"
-    [style.left.px]="tooltipPosition.left"
-  >
-    {{ tooltipText }}
-  </div>
-
   <!-- Main Content Area -->
   <div
     class="flex-1 transition-all duration-300 p-4 bg-white"
-    [ngClass]="{ 'ml-80': sidebarVisible(), 'ml-16': !sidebarVisible() }"
+    [ngClass]="{ 'ml-80': sidebarVisible(), 'ml-0': !sidebarVisible() }"
   >
-    <!-- Your main content goes here -->
     <ng-content></ng-content>
+  </div>
+
+  <!-- Mobile backdrop -->
+  <div 
+    class="mobile-backdrop" 
+    [class.visible]="isMobile && sidebarVisible()"
+    (click)="closeSidebarOnMobile($event)">
   </div>
 </div>
