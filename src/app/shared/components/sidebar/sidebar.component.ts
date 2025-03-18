@@ -1,5 +1,4 @@
-import { Component, OnInit, signal, HostListener, Renderer2 } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -7,11 +6,11 @@ import { AvatarModule } from 'primeng/avatar';
 import { SidebarModule } from 'primeng/sidebar';
 import { DividerModule } from 'primeng/divider';
 import { RippleModule } from 'primeng/ripple';
-import { trigger, transition, style, animate } from '@angular/animations';
-
-interface CustomMenuItem extends MenuItem {
-  expanded?: boolean;
-}
+import { ThemeService } from '../../../core/services/theme.service';
+import { MenuService } from '../../../core/services/menu.service';
+import { PermissionService } from '../../../core/services/permission.service';
+import { slideInOut, fadeInOut } from '../../animations/index';
+import { SidebarUser, MenuItem } from '../../models/index';
 
 @Component({
   selector: 'app-sidebar',
@@ -28,238 +27,137 @@ interface CustomMenuItem extends MenuItem {
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
-    trigger('slideInOut', [
-      transition(':enter', [
-        style({
-          opacity: 0,
-          transform: 'translate3d(-50%, -8px, 0)',
-          transformOrigin: 'top',
-          transformStyle: 'preserve-3d',
-          backfaceVisibility: 'hidden',
-          perspective: 1000
-        }),
-        animate('80ms cubic-bezier(0.4, 0, 0.2, 1)',
-          style({
-            opacity: 1,
-            transform: 'translate3d(-50%, 0, 0)'
-          })
-        )
-      ]),
-      transition(':leave', [
-        style({
-          transformOrigin: 'top',
-          transformStyle: 'preserve-3d',
-          backfaceVisibility: 'hidden',
-          perspective: 1000
-        }),
-        animate('60ms cubic-bezier(0.4, 0, 0.2, 1)',
-          style({
-            opacity: 0,
-            transform: 'translate3d(-50%, -8px, 0)'
-          })
-        )
-      ])
-    ])
+    slideInOut,
+    fadeInOut,
   ]
 })
 export class SidebarComponent implements OnInit {
-  items: CustomMenuItem[] = [];
-  sidebarVisible = signal(true);
-  showUserOptions = signal(false);
-  isDarkTheme = signal(false);
-  isMobile = window.innerWidth <= 768;
+  private router = inject(Router);
+  readonly themeService = inject(ThemeService);
+  readonly menuService = inject(MenuService);
+  readonly permissionService = inject(PermissionService);
 
-  // User data - in a real app, this would come from a service
-  user = {
+  // Reactive state with signals
+  readonly sidebarVisible = signal(true);
+  readonly showUserOptions = signal(false);
+  readonly isMobile = signal(window.innerWidth <= 768);
+
+  // Demo user data - in a real app, this would come from a user service
+  readonly user: SidebarUser = {
     name: 'John Doe',
     designation: 'Software Engineer',
     avatar: 'https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png'
   };
 
-  constructor(
-    public router: Router,
-    private renderer: Renderer2
-  ) {
-    this.sidebarVisible.set(!this.isMobile);
-    // Initialize theme from localStorage
-    const savedTheme = localStorage.getItem('theme');
-    this.isDarkTheme.set(savedTheme === 'dark');
-    this.applyTheme(this.isDarkTheme());
+  constructor() {
+    // Initialize sidebar visibility based on screen size
+    this.sidebarVisible.set(!this.isMobile());
   }
 
   @HostListener('window:resize')
-  onResize() {
-    const wasNotMobile = !this.isMobile;
-    this.isMobile = window.innerWidth <= 768;
+  onResize(): void {
+    const wasNotMobile = !this.isMobile();
+    this.isMobile.set(window.innerWidth <= 768);
     
-    if (wasNotMobile && this.isMobile) {
+    // Update sidebar visibility when transitioning between mobile/desktop
+    if (wasNotMobile && this.isMobile()) {
       this.sidebarVisible.set(false);
-    } else if (!wasNotMobile && !this.isMobile) {
+    } else if (!wasNotMobile && !this.isMobile()) {
       this.sidebarVisible.set(true);
     }
   }
 
   @HostListener('window:click', ['$event'])
-  onClick(event: MouseEvent) {
+  onClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (!target.closest('.user-options') && !target.matches('img')) {
       this.showUserOptions.set(false);
     }
   }
 
-  toggleUserOptions() {
+  toggleUserOptions(): void {
     this.showUserOptions.update(v => !v);
   }
 
-  toggleTheme() {
-    this.isDarkTheme.update(v => !v);
-    this.applyTheme(this.isDarkTheme());
-    // Save theme preference
-    localStorage.setItem('theme', this.isDarkTheme() ? 'dark' : 'light');
-  }
-
-  private applyTheme(isDark: boolean) {
-    if (isDark) {
-      this.renderer.addClass(document.body, 'dark-theme');
-    } else {
-      this.renderer.removeClass(document.body, 'dark-theme');
-    }
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   // Navigation methods
-  navigateToProfile() {
-    this.router.navigate(['/profile']);
+  navigateTo(path: string): void {
+    this.router.navigate([path]);
     this.showUserOptions.set(false);
   }
 
-  navigateToSettings() {
-    this.router.navigate(['/settings']);
-    this.showUserOptions.set(false);
-  }
-
-  navigateToResetPassword() {
-    this.router.navigate(['/reset-password']);
-    this.showUserOptions.set(false);
-  }
-
-  logout() {
-    // Add your logout logic here
+  logout(): void {
+    // In a real app, call auth service logout method
     this.router.navigate(['/login']);
   }
 
-  toggleSidebar() {
-    this.sidebarVisible.update((value) => !value);
-    if (this.isMobile) {
+  toggleSidebar(): void {
+    const wasVisible = this.sidebarVisible();
+    this.sidebarVisible.update(value => !value);
+    
+    // Prevent body scrolling when sidebar is open on mobile
+    if (this.isMobile()) {
       document.body.style.overflow = this.sidebarVisible() ? 'hidden' : '';
     }
-  }
-
-  toggleSubmenu(category: CustomMenuItem) {
-    if (category.items) {
-      this.items[0].items?.forEach(item => {
-        if (item !== category && item.items) {
-          item.expanded = false;
-        }
-      });
-      category.expanded = !category.expanded;
-    } else {
-      this.items[0].items?.forEach(item => {
-        if (item.items) {
-          item.expanded = false;
-        }
-      });
+    
+    // Close all submenus when closing the sidebar
+    if (wasVisible) {
+      this.closeAllSubmenus();
     }
   }
 
-  ngOnInit() {
-    this.items = [
-      {
-        label: 'Services',
-        items: [
-          {
-            label: 'Dashboard',
-            icon: 'pi pi-home',
-            routerLink: '/dashboard',
-          },
-          {
-            label: 'Attendance',
-            icon: 'pi pi-calendar',
-            items: [
-              {
-                label: 'Check In/Out',
-                icon: 'pi pi-clock',
-                routerLink: '/attendance/check',
-              },
-              {
-                label: 'History',
-                icon: 'pi pi-history',
-                routerLink: '/attendance/history',
-              },
-            ],
-          },
-          {
-            label: 'Leave',
-            icon: 'pi pi-calendar-minus',
-            items: [
-              {
-                label: 'Apply Leave',
-                icon: 'pi pi-plus-circle',
-                routerLink: '/leave/apply',
-              },
-              {
-                label: 'Leave Status',
-                icon: 'pi pi-list',
-                routerLink: '/leave/status',
-              },
-            ],
-          },
-          {
-            label: 'Expenses',
-            icon: 'pi pi-wallet',
-            items: [
-              {
-                label: 'Add Expense',
-                icon: 'pi pi-plus',
-                routerLink: '/expenses/add',
-              },
-              {
-                label: 'Ledger',
-                icon: 'pi pi-book',
-                routerLink: '/expenses/ledger',
-              },
-            ],
-          },
-          {
-            label: 'Payroll',
-            icon: 'pi pi-dollar',
-            items: [
-              {
-                label: 'Salary Slips',
-                icon: 'pi pi-file',
-                routerLink: '/payroll/slips',
-              },
-              {
-                label: 'Tax Documents',
-                icon: 'pi pi-file-pdf',
-                routerLink: '/payroll/tax',
-              },
-            ],
-          },
-          {
-            label: 'Projects',
-            icon: 'pi pi-briefcase',
-            routerLink: '/projects',
-          },
-          {
-            label: 'Team',
-            icon: 'pi pi-users',
-            routerLink: '/team',
-          }
-        ],
-      },
-    ];
-    // Apply initial theme
-    this.applyTheme(this.isDarkTheme());
+  /**
+   * Toggle a submenu item's expanded state
+   * Only one submenu can be open at a time
+   */
+  toggleSubmenu(item: MenuItem): void {
+    if (item.type !== 'parent') {
+      return;
+    }
+    
+    this.menuService.toggleMenuItem(item);
+  }
+  
+  /**
+   * Close all submenus
+   * Used when clicking on route menu items to ensure all submenus are closed
+   */
+  closeAllSubmenus(): void {
+    this.menuService.closeAllMenuItems();
+  }
+  
+  /**
+   * Check if a menu item is expanded
+   */
+  isMenuItemExpanded(item: MenuItem): boolean {
+    return this.menuService.isMenuItemExpanded(item);
+  }
+  
+  /**
+   * Check if a menu item is active based on the current route
+   */
+  isMenuItemActive(item: MenuItem): boolean {
+    return this.menuService.isMenuItemActive(item);
+  }
+
+  /**
+   * Check if a specific route is active
+   * Used for simple route matching
+   */
+  isRouteActive(route?: string): boolean {
+    if (!route) return false;
+    return this.router.url === route;
+  }
+
+  ngOnInit(): void {
+    // Initialize the menu with the user's permissions
+    this.menuService.initializeMenuWithPermissions(
+      permission => this.permissionService.hasPermission(permission)
+    );
   }
 }
