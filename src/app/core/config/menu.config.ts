@@ -13,7 +13,6 @@ export const appMenu: ApplicationMenu = {
           label: 'Dashboard',
           icon: 'pi pi-home',
           routerLink: '/dashboard',
-          permissions: ['users.view']
         },
         {
           label: 'Attendance',
@@ -28,7 +27,6 @@ export const appMenu: ApplicationMenu = {
               label: 'History',
               icon: 'pi pi-history',
               routerLink: '/attendance/history',
-              permissions: ['users.view']
             },
           ],
         },

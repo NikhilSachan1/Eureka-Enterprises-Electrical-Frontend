@@ -1,5 +1,3 @@
-import { PermissionType } from './permission.model';
-
 /**
  * Interface for menu items
  */
@@ -8,7 +6,6 @@ export interface MenuItem {
   icon?: string;
   routerLink?: string;
   children?: MenuItem[];
-  permissions?: PermissionType[];
 }
 
 /**

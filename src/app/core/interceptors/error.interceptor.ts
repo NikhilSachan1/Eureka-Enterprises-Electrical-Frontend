@@ -11,7 +11,7 @@ export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
             console.error('API Error:', error.message);
 
             if (error.status === 401) {
-                authService.logout();
+                // authService.logout();
             }
 
             return throwError(() => new Error(error.message));

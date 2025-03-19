@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from
 import { ButtonModule } from 'primeng/button';
 import { fadeInOut } from '../../animations/index';
 import { MenuService } from '../../../core/services/menu.service';
-import { PermissionService } from '../../../core/services/permission.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { SidebarHeaderComponent } from './sidebar-header/sidebar-header.component';
 import { SidebarUserProfileComponent } from './sidebar-user-profile/sidebar-user-profile.component';
@@ -28,7 +27,6 @@ import { NgClass } from '@angular/common';
 })
 export class SidebarComponent {
   readonly menuService = inject(MenuService);
-  readonly permissionService = inject(PermissionService);
   readonly themeService = inject(ThemeService);
 
   // Reactive state with signals
