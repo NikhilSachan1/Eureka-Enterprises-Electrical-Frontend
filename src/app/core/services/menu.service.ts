@@ -1,9 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ApplicationMenu, MenuItem, MenuSection } from '../../shared/models';
 import { appMenu } from '../config/menu.config';
-import { PermissionType } from '../../shared/models';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +20,9 @@ export class MenuService {
   // Track the current active parent menu
   private readonly activeParentItem = signal<string | null>(null);
 
-  constructor(private router: Router) {
+  private readonly router = inject(Router);
+
+  constructor() {
     // Listen to route changes to update active route
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -32,27 +33,10 @@ export class MenuService {
   }
 
   /**
-   * Get the current application menu
-   */
-  getMenu(): ApplicationMenu {
-    return this.menuState();
-  }
-
-  /**
    * Get menu sections
    */
   getMenuSections(): MenuSection[] {
     return this.menuState().sections;
-  }
-
-  /**
-   * Filter the menu based on user permissions
-   * @param hasPermission Function to check if user has a specific permission
-   */
-  initializeMenuWithPermissions(hasPermission: (permission: PermissionType) => boolean): void {
-    const filteredMenu = this.filterMenuByPermissions(appMenu, hasPermission);
-    this.menuState.set(filteredMenu);
-    this.expandMenuForActiveRoute();
   }
 
   /**
@@ -81,10 +65,10 @@ export class MenuService {
 
     const itemId = this.getMenuItemId(item);
     const currentlyExpanded = this.isMenuItemExpanded(item);
-    
+
     // Create a new Set for expanded items
     let newExpanded = new Set<string>();
-    
+
     // If this item is not currently expanded, add only this item to the expanded set
     // Otherwise, leave the set empty to close all items
     if (!currentlyExpanded) {
@@ -93,7 +77,7 @@ export class MenuService {
     } else {
       this.activeParentItem.set(null);
     }
-    
+
     // Update the expanded items
     this.expandedItems.set(newExpanded);
   }
@@ -107,13 +91,6 @@ export class MenuService {
 
     const itemId = this.getMenuItemId(item);
     return this.expandedItems().has(itemId);
-  }
-
-  /**
-   * Get the currently active parent menu item
-   */
-  getActiveParentItem(): string | null {
-    return this.activeParentItem();
   }
 
   /**
@@ -144,7 +121,7 @@ export class MenuService {
    */
   private hasActiveChild(item: MenuItem): boolean {
     if (!item.children?.length) return false;
-    
+
     return item.children.some(child => {
       if (child.routerLink) {
         return this.activeRoute() === child.routerLink;
@@ -196,42 +173,5 @@ export class MenuService {
     this.expandedItems.set(newExpanded);
   }
 
-  /**
-   * Helper function to filter menu items based on user permissions
-   * @param menu The menu to filter
-   * @param hasPermission Function to check if user has a permission
-   * @returns Filtered menu with only accessible items
-   */
-  private filterMenuByPermissions = (
-    menu: ApplicationMenu,
-    hasPermission: (permission: PermissionType) => boolean
-  ): ApplicationMenu => ({
-    sections: menu.sections
-      .map(section => ({
-        ...section,
-        items: this.filterMenuItems(section.items, hasPermission)
-      }))
-      .filter(section => section.items.length > 0)
-  });
 
-  /**
-   * Recursively filter menu items based on permissions
-   */
-  private filterMenuItems = (
-    items: MenuItem[],
-    hasPermission: (permission: PermissionType) => boolean
-  ): MenuItem[] =>
-    items
-      .filter(item =>
-        !item.permissions?.length ||
-        item.permissions?.every(hasPermission)
-      )
-      .map(item => {
-        if (item.children?.length) {
-          const filteredChildren = this.filterMenuItems(item.children, hasPermission);
-          return filteredChildren.length ? { ...item, children: filteredChildren } : null;
-        }
-        return item;
-      })
-      .filter(Boolean) as MenuItem[]; // Remove null items
 } 
