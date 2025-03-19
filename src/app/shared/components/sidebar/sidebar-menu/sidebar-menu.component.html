@@ -1,0 +1,91 @@
+<nav class="menu-scroll-container">
+  <div class="menu-wrapper">
+    <!-- Loop through menu sections -->
+    <ng-container *ngFor="let section of menuService.getMenuSections()">
+      <h3 class="text-xs uppercase font-extrabold text-primary mb-3 tracking-wider px-3">
+        {{ section.label }}
+      </h3>
+
+      <div class="menu-container">
+        <ng-container *ngFor="let item of section.items">
+          <!-- Route Menu Item -->
+          <div *ngIf="item.type === 'route'" class="menu-item">
+            <div
+              class="flex items-center rounded-lg cursor-pointer"
+              [class.active-menu-item]="isMenuItemActive(item)"
+              [routerLink]="item.routerLink"
+              [routerLinkActive]="'active-route'"
+              role="link"
+              tabindex="0"
+              (click)="closeAllSubmenus()"
+            >
+              <i *ngIf="item.icon" [class]="item.icon" class="text-xl" aria-hidden="true"></i>
+              <span class="flex-1">{{ item.label }}</span>
+            </div>
+          </div>
+
+          <!-- Parent Menu Item with Submenu -->
+          <div *ngIf="item.type === 'parent'" class="menu-item">
+            <div
+              class="flex items-center rounded-lg cursor-pointer"
+              [class.active-menu-item]="isMenuItemActive(item)"
+              (click)="toggleSubmenu(item)"
+              role="button"
+              [attr.aria-expanded]="isMenuItemExpanded(item)"
+              tabindex="0"
+            >
+              <i *ngIf="item.icon" [class]="item.icon" class="text-xl" aria-hidden="true"></i>
+              <span class="flex-1">{{ item.label }}</span>
+              <i
+                class="pi pi-chevron-down text-sm transition-transform"
+                [class.rotate-180]="isMenuItemExpanded(item)"
+                aria-hidden="true"
+              ></i>
+            </div>
+
+            <div
+              class="submenu"
+              [class.submenu-expanded]="isMenuItemExpanded(item)"
+              @slideInOut
+              role="menu"
+              [attr.aria-hidden]="!isMenuItemExpanded(item)"
+            >
+              <!-- Loop through child items - Recursive rendering -->
+              <ng-container *ngFor="let child of item.children">
+                <!-- Child Route Items -->
+                <a
+                  *ngIf="child.type === 'route'"
+                  class="submenu-item"
+                  [routerLink]="child.routerLink"
+                  routerLinkActive="active"
+                  [attr.aria-current]="isMenuItemActive(child) ? 'page' : null"
+                  role="menuitem"
+                  tabindex="0"
+                >
+                  <i *ngIf="child.icon" [class]="child.icon" aria-hidden="true"></i>
+                  <span>{{ child.label }}</span>
+                </a>
+                
+                <!-- Nested parent items (for multi-level menus) -->
+                <div *ngIf="child.type === 'parent'">
+                  <div 
+                    (click)="toggleSubmenu(child)"
+                    [attr.aria-expanded]="isMenuItemExpanded(child)"
+                    role="button"
+                    tabindex="0"
+                  >
+                    <i *ngIf="child.icon" [class]="child.icon" aria-hidden="true"></i>
+                    <span>{{ child.label }}</span>
+                    <i class="pi pi-chevron-right" [class.rotate-90]="isMenuItemExpanded(child)"></i>
+                  </div>
+                  
+                  <!-- This would be another level of submenu if needed -->
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </ng-container>
+  </div>
+</nav> 

@@ -1,0 +1,42 @@
+.p-5 {
+  height: var(--header-height);
+  border-bottom: 1px solid var(--sidebar-border-color);
+  background: var(--sidebar-bg, white);
+  padding: 0 1.5rem !important;
+  display: flex;
+  align-items: center;
+
+  .flex {
+    gap: 1rem !important;
+  }
+
+  img {
+    width: 2.5rem;
+    height: 2.5rem;
+    transition: var(--transition-smooth);
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
+    
+    &:hover {
+      transform: scale(1.02) rotate(-2deg);
+      filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07));
+    }
+  }
+
+  h1 {
+    color: var(--sidebar-text-primary);
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  h2 {
+    color: var(--sidebar-text-secondary);
+    font-size: 0.813rem;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    margin: 0;
+  }
+} 

@@ -1,0 +1,126 @@
+.py-6 {
+  padding: 1.5rem !important;
+  background: linear-gradient(to bottom, var(--sidebar-bg, white), var(--sidebar-surface-50));
+  border-bottom: 1px solid var(--sidebar-border-color);
+  text-align: center;
+  position: relative;
+
+  img {
+    width: 4rem;
+    height: 4rem;
+    border: 2px solid var(--sidebar-bg, white);
+    border-radius: 50%;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-smooth);
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+
+  h2 {
+    color: var(--sidebar-text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.025em;
+  }
+
+  p {
+    color: var(--sidebar-text-secondary);
+    font-size: 0.813rem;
+    font-weight: 500;
+    margin: 0;
+    letter-spacing: -0.025em;
+  }
+}
+
+// User Options Menu
+.user-options {
+  position: absolute;
+  top: calc(100% - 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  background: var(--sidebar-bg, white);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--sidebar-border-color);
+  z-index: 1000;
+  padding: 0.25rem;
+  transform-origin: top;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 12px;
+    height: 12px;
+    background: var(--sidebar-bg, white);
+    border-left: 1px solid var(--sidebar-border-color);
+    border-top: 1px solid var(--sidebar-border-color);
+  }
+
+  .options-group {
+    padding: 0.25rem;
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      color: var(--sidebar-text-primary);
+      margin: 0.125rem 0;
+
+      i {
+        font-size: 1rem;
+        color: var(--sidebar-text-secondary);
+        width: 1.25rem;
+        text-align: center;
+        transition: var(--transition-smooth);
+      }
+
+      span {
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      &:hover, &:focus {
+        background: var(--sidebar-hover-bg);
+        transform: translateX(2px);
+        outline: none;
+        
+        i {
+          color: var(--sidebar-primary-color);
+        }
+      }
+
+      &.logout {
+        color: #dc2626;
+
+        i {
+          color: #dc2626;
+        }
+
+        &:hover, &:focus {
+          background: rgba(220, 38, 38, 0.1);
+        }
+      }
+    }
+  }
+
+  .options-divider {
+    height: 1px;
+    background: var(--sidebar-border-color);
+    margin: 0.25rem;
+    opacity: 0.7;
+  }
+} 
