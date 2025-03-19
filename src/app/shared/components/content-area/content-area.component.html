@@ -1,0 +1,6 @@
+<main
+  class="flex-1 transition-all duration-300 p-4"
+  [ngClass]="{ 'ml-80': sidebarVisible && !isMobile, 'ml-0': !sidebarVisible || isMobile }"
+>
+  <ng-content></ng-content>
+</main> 

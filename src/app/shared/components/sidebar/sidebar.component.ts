@@ -7,6 +7,7 @@ import { PermissionService } from '../../../core/services/permission.service';
 import { SidebarHeaderComponent } from './sidebar-header/sidebar-header.component';
 import { SidebarUserProfileComponent } from './sidebar-user-profile/sidebar-user-profile.component';
 import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
+import { ContentAreaComponent } from '../content-area/content-area.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -16,7 +17,8 @@ import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
     ButtonModule,
     SidebarHeaderComponent,
     SidebarUserProfileComponent,
-    SidebarMenuComponent
+    SidebarMenuComponent,
+    ContentAreaComponent
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
