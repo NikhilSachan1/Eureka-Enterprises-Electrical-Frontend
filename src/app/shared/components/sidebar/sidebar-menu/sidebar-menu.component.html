@@ -2,14 +2,18 @@
   <div class="menu-wrapper">
     <!-- Loop through menu sections -->
     @for (section of menuService.getMenuSections(); track section) {
-      <h3 class="text-xs uppercase font-extrabold text-primary mb-3 tracking-wider px-3">
-        {{ section.label }}
-      </h3>
+      <!-- Only show section heading if a label is provided -->
+      @if (section.label) {
+        <h3 class="text-xs uppercase font-extrabold text-primary mb-3 tracking-wider px-3">
+          {{ section.label }}
+        </h3>
+      }
 
       <div class="menu-container">
         @for (item of section.items; track item) {
-          <!-- Route Menu Item -->
-          @if (item.type === 'route') {
+
+          <!-- Route Menu Item (has routerLink but no children) -->
+          @if (item.routerLink && !item.children?.length) {
             <div class="menu-item">
               <div
                 class="flex items-center rounded-lg cursor-pointer"
@@ -28,8 +32,8 @@
             </div>
           }
 
-          <!-- Parent Menu Item with Submenu -->
-          @if (item.type === 'parent') {
+          <!-- Parent Menu Item with Submenu (has children) -->
+          @if (item.children?.length) {
             <div class="menu-item">
               <div
                 class="flex items-center rounded-lg cursor-pointer"
@@ -57,10 +61,10 @@
                 role="menu"
                 [attr.aria-hidden]="!isMenuItemExpanded(item)"
               >
-                <!-- Loop through child items - Recursive rendering -->
+                <!-- Loop through child items -->
                 @for (child of item.children; track child) {
                   <!-- Child Route Items -->
-                  @if (child.type === 'route') {
+                  @if (child.routerLink) {
                     <a
                       class="submenu-item"
                       [routerLink]="child.routerLink"
@@ -74,26 +78,6 @@
                       }
                       <span>{{ child.label }}</span>
                     </a>
-                  }
-                  
-                  <!-- Nested parent items (for multi-level menus) -->
-                  @if (child.type === 'parent') {
-                    <div>
-                      <div 
-                        (click)="toggleSubmenu(child)"
-                        [attr.aria-expanded]="isMenuItemExpanded(child)"
-                        role="button"
-                        tabindex="0"
-                      >
-                        @if (child.icon) {
-                          <i [class]="child.icon" aria-hidden="true"></i>
-                        }
-                        <span>{{ child.label }}</span>
-                        <i class="pi pi-chevron-right" [class.rotate-90]="isMenuItemExpanded(child)"></i>
-                      </div>
-                      
-                      <!-- This would be another level of submenu if needed -->
-                    </div>
                   }
                 }
               </div>

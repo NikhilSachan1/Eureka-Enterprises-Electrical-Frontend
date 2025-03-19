@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { ApplicationMenu, MenuItem, ParentMenuItem, MenuSection, RouteMenuItem, GroupMenuItem } from '../../shared/models';
+import { ApplicationMenu, MenuItem, MenuSection } from '../../shared/models';
 import { appMenu } from '../config/menu.config';
 import { PermissionType } from '../../shared/models';
 
@@ -60,11 +60,11 @@ export class MenuService {
    * @param item Menu item to check
    */
   isMenuItemActive(item: MenuItem): boolean {
-    if (item.type === 'route') {
+    if (item.routerLink) {
       return this.activeRoute() === item.routerLink;
     }
 
-    if (item.type === 'parent') {
+    if (item.children?.length) {
       return this.hasActiveChild(item);
     }
 
@@ -77,7 +77,7 @@ export class MenuService {
    * @param item Menu item to toggle
    */
   toggleMenuItem(item: MenuItem): void {
-    if (item.type !== 'parent') return;
+    if (!item.children?.length) return;
 
     const itemId = this.getMenuItemId(item);
     const currentlyExpanded = this.isMenuItemExpanded(item);
@@ -103,7 +103,7 @@ export class MenuService {
    * @param item Menu item to check
    */
   isMenuItemExpanded(item: MenuItem): boolean {
-    if (item.type !== 'parent') return false;
+    if (!item.children?.length) return false;
 
     const itemId = this.getMenuItemId(item);
     return this.expandedItems().has(itemId);
@@ -128,31 +128,29 @@ export class MenuService {
    * Generate a unique ID for a menu item
    */
   private getMenuItemId(item: MenuItem): string {
-    if (item.type === 'route') {
+    if (item.routerLink) {
       return `route_${item.routerLink}`;
     }
 
-    if (item.type === 'parent') {
+    if (item.children?.length) {
       return `parent_${item.label}`;
     }
 
-    if (item.type === 'group') {
-      return `group_${item.label}`;
-    }
-
-    return `separator_${Math.random()}`;
+    return `item_${item.label}_${Math.random()}`;
   }
 
   /**
    * Check if a parent menu item has an active child
    */
-  private hasActiveChild(item: ParentMenuItem): boolean {
+  private hasActiveChild(item: MenuItem): boolean {
+    if (!item.children?.length) return false;
+    
     return item.children.some(child => {
-      if (child.type === 'route') {
+      if (child.routerLink) {
         return this.activeRoute() === child.routerLink;
       }
 
-      if (child.type === 'parent') {
+      if (child.children?.length) {
         return this.hasActiveChild(child);
       }
 
@@ -170,11 +168,11 @@ export class MenuService {
     // Function to recursively find and expand parents of active route
     const findActiveParents = (items: MenuItem[]): boolean => {
       for (const item of items) {
-        if (item.type === 'route' && this.activeRoute() === item.routerLink) {
+        if (item.routerLink && this.activeRoute() === item.routerLink) {
           return true;
         }
 
-        if (item.type === 'parent') {
+        if (item.children?.length) {
           const hasActive = findActiveParents(item.children);
           if (hasActive && !foundActiveParent) {
             // Only expand the first parent with active route
@@ -199,11 +197,11 @@ export class MenuService {
   }
 
   /**
- * Helper function to filter menu items based on user permissions
- * @param menu The menu to filter
- * @param hasPermission Function to check if user has a permission
- * @returns Filtered menu with only accessible items
- */
+   * Helper function to filter menu items based on user permissions
+   * @param menu The menu to filter
+   * @param hasPermission Function to check if user has a permission
+   * @returns Filtered menu with only accessible items
+   */
   private filterMenuByPermissions = (
     menu: ApplicationMenu,
     hasPermission: (permission: PermissionType) => boolean
@@ -225,17 +223,15 @@ export class MenuService {
   ): MenuItem[] =>
     items
       .filter(item =>
-        item.type === 'separator' ||
-        !(item as RouteMenuItem | ParentMenuItem | GroupMenuItem).permissions?.length ||
-        (item as RouteMenuItem | ParentMenuItem | GroupMenuItem).permissions?.every(hasPermission)
+        !item.permissions?.length ||
+        item.permissions?.every(hasPermission)
       )
       .map(item => {
-        if (item.type === 'parent' || item.type === 'group') {
-          const filteredChildren = this.filterMenuItems((item as ParentMenuItem | GroupMenuItem).children, hasPermission);
+        if (item.children?.length) {
+          const filteredChildren = this.filterMenuItems(item.children, hasPermission);
           return filteredChildren.length ? { ...item, children: filteredChildren } : null;
         }
         return item;
       })
       .filter(Boolean) as MenuItem[]; // Remove null items
-
 } 

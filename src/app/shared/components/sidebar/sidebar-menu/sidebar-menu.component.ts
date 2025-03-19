@@ -21,7 +21,7 @@ export class SidebarMenuComponent {
    * Only one submenu can be open at a time
    */
   toggleSubmenu(item: MenuItem): void {
-    if (item.type !== 'parent') {
+    if (!item.children?.length) {
       return;
     }
     
