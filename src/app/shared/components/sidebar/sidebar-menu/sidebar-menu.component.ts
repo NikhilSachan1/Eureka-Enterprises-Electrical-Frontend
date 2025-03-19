@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuService } from '../../../../core/services/menu.service';
 import { slideInOut } from '../../../animations/index';
@@ -8,7 +7,7 @@ import { MenuItem } from '../../../models/index';
 @Component({
   selector: 'app-sidebar-menu',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './sidebar-menu.component.html',
   styleUrls: ['./sidebar-menu.component.scss'],
   animations: [slideInOut]

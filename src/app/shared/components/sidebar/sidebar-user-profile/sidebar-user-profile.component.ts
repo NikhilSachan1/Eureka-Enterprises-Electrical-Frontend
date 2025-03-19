@@ -1,14 +1,14 @@
 import { Component, HostListener, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { fadeInOut } from '../../../animations/index';
 import { SidebarUser } from '../../../models/index';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-sidebar-user-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [NgClass],
   templateUrl: './sidebar-user-profile.component.html',
   styleUrls: ['./sidebar-user-profile.component.scss'],
   animations: [fadeInOut]

@@ -1,23 +1,14 @@
 <div class="sidebar-layout" [ngClass]="{'dark-theme-active': themeService.isDarkMode()}">
   <!-- Toggle Button -->
-  <button
-    type="button"
-    class="sidebar-toggle"
-    [class.sidebar-toggle--visible]="sidebarVisible()"
-    [attr.aria-expanded]="sidebarVisible()"
-    [attr.aria-label]="sidebarVisible() ? 'Hide sidebar' : 'Show sidebar'"
-    (click)="toggleSidebar()"
-    @fadeInOut
-  >
+  <button type="button" class="sidebar-toggle" [class.sidebar-toggle--visible]="sidebarVisible()"
+    [attr.aria-expanded]="sidebarVisible()" [attr.aria-label]="sidebarVisible() ? 'Hide sidebar' : 'Show sidebar'"
+    (click)="toggleSidebar()" @fadeInOut>
     <i class="pi" [ngClass]="sidebarVisible() ? 'pi-times' : 'pi-bars'"></i>
   </button>
 
   <!-- Sidebar -->
-  <aside
-    class="sidebar"
-    [ngClass]="sidebarVisible() ? 'sidebar--expanded' : 'sidebar--collapsed'"
-    [attr.aria-hidden]="!sidebarVisible()"
-  >
+  <aside class="sidebar" [ngClass]="sidebarVisible() ? 'sidebar--expanded' : 'sidebar--collapsed'"
+    [attr.aria-hidden]="!sidebarVisible()">
     <app-sidebar-header></app-sidebar-header>
     <app-sidebar-user-profile></app-sidebar-user-profile>
     <app-sidebar-menu></app-sidebar-menu>
@@ -29,10 +20,7 @@
   </app-content-area>
 
   <!-- Mobile backdrop -->
-  <div 
-    *ngIf="isMobile() && sidebarVisible()"
-    class="sidebar-backdrop"
-    (click)="toggleSidebar()"
-    aria-hidden="true"
-  ></div>
+  @if (isMobile() && sidebarVisible()) {
+  <div class="sidebar-backdrop" (click)="toggleSidebar()" aria-hidden="true"></div>
+  }
 </div>

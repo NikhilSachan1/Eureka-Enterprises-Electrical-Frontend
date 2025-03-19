@@ -1,11 +1,11 @@
 import { Component, Input, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../../core/services/theme.service';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-content-area',
   standalone: true,
-  imports: [CommonModule],
+  imports: [NgClass],
   templateUrl: './content-area.component.html',
   styleUrls: ['./content-area.component.scss']
 })

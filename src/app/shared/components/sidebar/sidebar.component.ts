@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { fadeInOut } from '../../animations/index';
 import { MenuService } from '../../../core/services/menu.service';
@@ -9,13 +8,14 @@ import { SidebarHeaderComponent } from './sidebar-header/sidebar-header.componen
 import { SidebarUserProfileComponent } from './sidebar-user-profile/sidebar-user-profile.component';
 import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
 import { ContentAreaComponent } from '../content-area/content-area.component';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [
-    CommonModule,
     ButtonModule,
+    NgClass,
     SidebarHeaderComponent,
     SidebarUserProfileComponent,
     SidebarMenuComponent,

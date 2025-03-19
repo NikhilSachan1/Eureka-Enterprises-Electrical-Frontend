@@ -13,38 +13,39 @@
   <p class="text-sm font-medium text-surface-600">{{ user.designation }}</p>
 
   <!-- User Options Menu -->
-  <div 
-    class="user-options" 
-    *ngIf="showUserOptions()" 
-    @fadeInOut
-    role="menu"
-  >
-    <div class="options-group">
-      <a class="option-item" role="menuitem" tabindex="0" (click)="navigateTo('/profile')">
-        <i class="pi pi-user" aria-hidden="true"></i>
-        <span>My Profile</span>
-      </a>
-      <a class="option-item" role="menuitem" tabindex="0" (click)="navigateTo('/settings')">
-        <i class="pi pi-cog" aria-hidden="true"></i>
-        <span>Settings</span>
-      </a>
-      <a class="option-item" role="menuitem" tabindex="0" (click)="navigateTo('/reset-password')">
-        <i class="pi pi-lock" aria-hidden="true"></i>
-        <span>Reset Password</span>
-      </a>
+  @if (showUserOptions()) {
+    <div 
+      class="user-options"
+      @fadeInOut
+      role="menu"
+    >
+      <div class="options-group">
+        <a class="option-item" role="menuitem" tabindex="0" (click)="navigateTo('/profile')">
+          <i class="pi pi-user" aria-hidden="true"></i>
+          <span>My Profile</span>
+        </a>
+        <a class="option-item" role="menuitem" tabindex="0" (click)="navigateTo('/settings')">
+          <i class="pi pi-cog" aria-hidden="true"></i>
+          <span>Settings</span>
+        </a>
+        <a class="option-item" role="menuitem" tabindex="0" (click)="navigateTo('/reset-password')">
+          <i class="pi pi-lock" aria-hidden="true"></i>
+          <span>Reset Password</span>
+        </a>
+      </div>
+      
+      <div class="options-divider" role="separator"></div>
+      
+      <div class="options-group">
+        <a class="option-item theme-toggle" role="menuitem" tabindex="0" (click)="toggleTheme()">
+          <i class="pi" [ngClass]="themeService.isDarkMode() ? 'pi-sun' : 'pi-moon'" aria-hidden="true"></i>
+          <span>{{ themeService.isDarkMode() ? 'Light Mode' : 'Dark Mode' }}</span>
+        </a>
+        <a class="option-item logout" role="menuitem" tabindex="0" (click)="logout()">
+          <i class="pi pi-power-off" aria-hidden="true"></i>
+          <span>Logout</span>
+        </a>
+      </div>
     </div>
-    
-    <div class="options-divider" role="separator"></div>
-    
-    <div class="options-group">
-      <a class="option-item theme-toggle" role="menuitem" tabindex="0" (click)="toggleTheme()">
-        <i class="pi" [ngClass]="themeService.isDarkMode() ? 'pi-sun' : 'pi-moon'" aria-hidden="true"></i>
-        <span>{{ themeService.isDarkMode() ? 'Light Mode' : 'Dark Mode' }}</span>
-      </a>
-      <a class="option-item logout" role="menuitem" tabindex="0" (click)="logout()">
-        <i class="pi pi-power-off" aria-hidden="true"></i>
-        <span>Logout</span>
-      </a>
-    </div>
-  </div>
+  }
 </div> 
