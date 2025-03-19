@@ -19,32 +19,42 @@
       @fadeInOut
       role="menu"
     >
+      <!-- Primary options group -->
       <div class="options-group">
-        <a class="option-item" role="menuitem" tabindex="0" (click)="navigateTo('/profile')">
-          <i class="pi pi-user" aria-hidden="true"></i>
-          <span>My Profile</span>
-        </a>
-        <a class="option-item" role="menuitem" tabindex="0" (click)="navigateTo('/settings')">
-          <i class="pi pi-cog" aria-hidden="true"></i>
-          <span>Settings</span>
-        </a>
-        <a class="option-item" role="menuitem" tabindex="0" (click)="navigateTo('/reset-password')">
-          <i class="pi pi-lock" aria-hidden="true"></i>
-          <span>Reset Password</span>
-        </a>
+        @for (option of primaryOptions; track option.id) {
+          <a 
+            class="option-item" 
+            role="menuitem" 
+            tabindex="0" 
+            (click)="handleOptionClick(option)"
+          >
+            <i [class]="option.icon" aria-hidden="true"></i>
+            <span>{{ option.label }}</span>
+          </a>
+        }
       </div>
       
       <div class="options-divider" role="separator"></div>
       
+      <!-- Secondary options group -->
       <div class="options-group">
-        <a class="option-item theme-toggle" role="menuitem" tabindex="0" (click)="toggleTheme()">
-          <i class="pi" [ngClass]="themeService.isDarkMode() ? 'pi-sun' : 'pi-moon'" aria-hidden="true"></i>
-          <span>{{ themeService.isDarkMode() ? 'Light Mode' : 'Dark Mode' }}</span>
-        </a>
-        <a class="option-item logout" role="menuitem" tabindex="0" (click)="logout()">
-          <i class="pi pi-power-off" aria-hidden="true"></i>
-          <span>Logout</span>
-        </a>
+        @for (option of secondaryOptions; track option.id) {
+          <a 
+            class="option-item" 
+            [class.theme-toggle]="option.variant === 'theme'"
+            [class.logout]="option.variant === 'danger'"
+            role="menuitem" 
+            tabindex="0" 
+            (click)="handleOptionClick(option)"
+          >
+            <i 
+              class="pi" 
+              [ngClass]="option.id === 'theme' ? getThemeIcon() : option.icon" 
+              aria-hidden="true"
+            ></i>
+            <span>{{ option.id === 'theme' ? getThemeLabel() : option.label }}</span>
+          </a>
+        }
       </div>
     </div>
   }

@@ -2,8 +2,9 @@ import { Component, HostListener, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { fadeInOut } from '../../../animations/index';
-import { SidebarUser } from '../../../models/index';
+import { SidebarUser, UserOption } from '../../../models/index';
 import { NgClass } from '@angular/common';
+import { primaryUserOptions, secondaryUserOptions } from '../../../../core/config/user-options.config';
 
 @Component({
   selector: 'app-sidebar-user-profile',
@@ -25,6 +26,19 @@ export class SidebarUserProfileComponent {
     designation: 'Software Engineer',
     avatar: 'https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png'
   };
+
+  // User options from configuration
+  readonly primaryOptions = primaryUserOptions;
+  readonly secondaryOptions = secondaryUserOptions;
+
+  // Dynamic properties
+  getThemeIcon(): string {
+    return this.themeService.isDarkMode() ? 'pi-sun' : 'pi-moon';
+  }
+
+  getThemeLabel(): string {
+    return this.themeService.isDarkMode() ? 'Light Mode' : 'Dark Mode';
+  }
 
   @HostListener('window:click', ['$event'])
   onClick(event: MouseEvent): void {
@@ -50,5 +64,16 @@ export class SidebarUserProfileComponent {
   logout(): void {
     // In a real app, call auth service logout method
     this.router.navigate(['/login']);
+  }
+  
+  // Method to handle option click
+  handleOptionClick(option: UserOption): void {
+    if (option.id === 'theme') {
+      this.toggleTheme();
+    } else if (option.id === 'logout') {
+      this.logout();
+    } else if (option.path) {
+      this.navigateTo(option.path);
+    }
   }
 } 
