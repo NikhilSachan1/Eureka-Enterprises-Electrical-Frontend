@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { fadeInOut } from '../../animations/index';
 import { MenuService } from '../../../core/services/menu.service';
 import { PermissionService } from '../../../core/services/permission.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { SidebarHeaderComponent } from './sidebar-header/sidebar-header.component';
 import { SidebarUserProfileComponent } from './sidebar-user-profile/sidebar-user-profile.component';
 import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
@@ -28,6 +29,7 @@ import { ContentAreaComponent } from '../content-area/content-area.component';
 export class SidebarComponent {
   readonly menuService = inject(MenuService);
   readonly permissionService = inject(PermissionService);
+  readonly themeService = inject(ThemeService);
 
   // Reactive state with signals
   readonly sidebarVisible = signal(true);
@@ -64,5 +66,9 @@ export class SidebarComponent {
     if (wasVisible) {
       this.menuService.closeAllMenuItems();
     }
+  }
+  
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 }

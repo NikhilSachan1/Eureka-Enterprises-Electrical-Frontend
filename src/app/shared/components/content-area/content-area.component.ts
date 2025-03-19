@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-content-area',
@@ -11,4 +12,6 @@ import { CommonModule } from '@angular/common';
 export class ContentAreaComponent {
   @Input() sidebarVisible = true;
   @Input() isMobile = false;
+  
+  readonly themeService = inject(ThemeService);
 } 

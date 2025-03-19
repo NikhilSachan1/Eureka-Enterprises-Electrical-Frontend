@@ -1,6 +1,9 @@
 <main
-  class="flex-1 transition-all duration-300 p-4"
-  [ngClass]="{ 'ml-80': sidebarVisible && !isMobile, 'ml-0': !sidebarVisible || isMobile }"
+  class="content-area"
+  [ngClass]="{
+    'content-area--with-sidebar': sidebarVisible && !isMobile,
+    'content-area--dark': themeService.isDarkMode()
+  }"
 >
   <ng-content></ng-content>
 </main> 

@@ -3,11 +3,33 @@
   flex: 1;
 }
 
-.flex-1 {
-  margin-left: 0;
-  transition: var(--transition-smooth);
+// Content area component with light/dark theme support
+.content-area {
+  flex: 1;
+  height: 100%;
+  min-height: 100vh;
+  padding: 1rem;
+  background-color: var(--background-default-color, white);
+  color: var(--text-primary-color, #1e293b);
+  transition: margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.3s ease,
+              color 0.3s ease;
+  
+  // With sidebar variant
+  &--with-sidebar {
+    margin-left: var(--sidebar-width, 300px);
+  }
+  
+  // Dark theme variant
+  &--dark {
+    background-color: var(--background-default-color, #0f172a);
+    color: var(--text-primary-color, #f8fafc);
+  }
+}
 
-  &.ml-80 {
-    margin-left: var(--sidebar-width);
+// Media query optimization
+@media (max-width: 768px) {
+  .content-area {
+    margin-left: 0 !important;
   }
 } 

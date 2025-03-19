@@ -46,21 +46,21 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
 }
 
-// Main layout elements
-.flex {
+// Main layout
+.sidebar-layout {
   display: flex;
   height: 100%;
 }
 
-// Main Sidebar Container
-.h-full {
+// Sidebar container
+.sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
   width: var(--sidebar-width);
   z-index: 1000;
-  background: var(--sidebar-bg, white);
+  background: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -70,17 +70,19 @@
   box-shadow: var(--shadow-md);
   border-right: 1px solid var(--sidebar-border-color);
 
-  &.w-0 {
+  &--collapsed {
     transform: translateX(-100%);
     width: 0;
     visibility: hidden;
   }
-
-  // Add these styles to ensure proper height distribution
-  app-sidebar-header {
-    flex-shrink: 0;
+  
+  &--expanded {
+    transform: translateX(0);
+    width: var(--sidebar-width);
   }
 
+  // Child component styles
+  app-sidebar-header,
   app-sidebar-user-profile {
     flex-shrink: 0;
   }
@@ -94,7 +96,7 @@
 }
 
 // Toggle Button
-.toggle-button {
+.sidebar-toggle {
   position: fixed;
   left: 0;
   top: calc(var(--header-height) + 1rem);
@@ -105,20 +107,21 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background-color: var(--sidebar-bg, white);
+  background-color: var(--sidebar-bg);
   border-radius: 0 6px 6px 0;
   border: 1px solid var(--sidebar-border-color);
   box-shadow: var(--shadow-md);
   transition: var(--transition-smooth);
+  padding: 0;
 
-  &.sidebar-visible {
+  &--visible {
     left: var(--sidebar-width);
   }
 
   &:hover, &:focus {
     background-color: var(--sidebar-primary-color);
     border-color: var(--sidebar-primary-color);
-    box-shadow: 4px 0 20px rgba(0, 163, 137, 0.2);
+    box-shadow: 0 0 12px rgba(0, 163, 137, 0.3);
     outline: none;
 
     .pi {
@@ -135,7 +138,7 @@
 }
 
 // Mobile Backdrop
-.mobile-backdrop {
+.sidebar-backdrop {
   position: fixed;
   top: 0;
   left: 0;
@@ -149,26 +152,26 @@
 
 // Media Queries
 @media screen and (max-width: 768px) {
-  .h-full {
+  .sidebar {
     transform: translateX(-100%);
     box-shadow: var(--shadow-lg);
     
-    &.w-0 {
+    &--collapsed {
       transform: translateX(-100%);
     }
 
-    &:not(.w-0) {
+    &--expanded {
       transform: translateX(0);
     }
   }
 
-  .toggle-button {
+  .sidebar-toggle {
     left: 0 !important;
     top: 1rem;
     width: 28px;
     height: 36px;
 
-    &.sidebar-visible {
+    &--visible {
       left: var(--sidebar-width) !important;
     }
   }
