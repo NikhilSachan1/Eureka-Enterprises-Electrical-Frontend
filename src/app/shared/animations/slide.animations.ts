@@ -3,12 +3,12 @@ import { trigger, transition, style, animate, state } from '@angular/animations'
 export const slideInOut = trigger('slideInOut', [
   transition(':enter', [
     style({ transform: 'translateX(-100%)' }),
-    animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', 
+    animate('200ms ease-out', 
       style({ transform: 'translateX(0)' })
     )
   ]),
   transition(':leave', [
-    animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', 
+    animate('200ms ease-out', 
       style({ transform: 'translateX(-100%)' })
     )
   ])
