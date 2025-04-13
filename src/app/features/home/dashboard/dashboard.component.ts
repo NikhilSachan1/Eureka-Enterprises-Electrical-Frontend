@@ -6,9 +6,11 @@ import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
+import { StatsCardComponent } from '../../../shared/components/stats-card/stats-card.component';
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -16,7 +18,8 @@ import { ChartModule } from 'primeng/chart';
     CalendarModule,
     DropdownModule,
     TableModule,
-    ChartModule
+    ChartModule,
+    StatsCardComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

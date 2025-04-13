@@ -24,89 +24,41 @@
 
   <!-- Stats Overview -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div
-      class="stats-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500"
-    >
-      <div class="flex justify-between">
-        <div>
-          <h3 class="text-gray-500 text-sm font-medium">Available Leave</h3>
-          <p class="text-2xl font-bold text-gray-800">
-            {{ availableLeave }} days
-          </p>
-        </div>
-        <div
-          class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100"
-        >
-          <i class="pi pi-calendar text-blue-500 text-xl"></i>
-        </div>
-      </div>
-      <p class="text-xs text-gray-500 mt-2">
-        {{ usedLeave }} days used this year
-      </p>
-    </div>
+    <app-stats-card
+      title="Available Leave"
+      [value]="availableLeave + ' days'"
+      [subtitle]="usedLeave + ' days used this year'"
+      icon="calendar"
+      iconColor="blue"
+      borderColor="blue"
+    ></app-stats-card>
 
-    <div
-      class="stats-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500"
-    >
-      <div class="flex justify-between">
-        <div>
-          <h3 class="text-gray-500 text-sm font-medium">Expense Claims</h3>
-          <p class="text-2xl font-bold text-gray-800">
-            ₹{{ totalExpenseClaims | number }}
-          </p>
-        </div>
-        <div
-          class="flex items-center justify-center w-12 h-12 rounded-full bg-green-100"
-        >
-          <i class="pi pi-wallet text-green-500 text-xl"></i>
-        </div>
-      </div>
-      <p class="text-xs text-gray-500 mt-2">
-        {{ pendingExpenseClaims }} pending approvals
-      </p>
-    </div>
+    <app-stats-card
+      title="Expense Claims"
+      [value]="'₹' + (totalExpenseClaims | number)"
+      [subtitle]="pendingExpenseClaims + ' pending approvals'"
+      icon="wallet"
+      iconColor="green"
+      borderColor="green"
+    ></app-stats-card>
 
-    <div
-      class="stats-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-purple-500"
-    >
-      <div class="flex justify-between">
-        <div>
-          <h3 class="text-gray-500 text-sm font-medium">Attendance</h3>
-          <p class="text-2xl font-bold text-gray-800">
-            {{ attendancePercentage }}%
-          </p>
-        </div>
-        <div
-          class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-100"
-        >
-          <i class="pi pi-check-circle text-purple-500 text-xl"></i>
-        </div>
-      </div>
-      <p class="text-xs text-gray-500 mt-2">
-        {{ daysPresent }} days present this month
-      </p>
-    </div>
+    <app-stats-card
+      title="Attendance"
+      [value]="attendancePercentage + '%'"
+      [subtitle]="daysPresent + ' days present this month'"
+      icon="check-circle"
+      iconColor="purple"
+      borderColor="purple"
+    ></app-stats-card>
 
-    <div
-      class="stats-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-amber-500"
-    >
-      <div class="flex justify-between">
-        <div>
-          <h3 class="text-gray-500 text-sm font-medium">Fuel Expenses</h3>
-          <p class="text-2xl font-bold text-gray-800">
-            ₹{{ fuelExpenses | number }}
-          </p>
-        </div>
-        <div
-          class="flex items-center justify-center w-12 h-12 rounded-full bg-amber-100"
-        >
-          <i class="pi pi-car text-amber-500 text-xl"></i>
-        </div>
-      </div>
-      <p class="text-xs text-gray-500 mt-2">
-        {{ fuelExpenseChange }}% from last month
-      </p>
-    </div>
+    <app-stats-card
+      title="Fuel Expenses"
+      [value]="'₹' + (fuelExpenses | number)"
+      [subtitle]="fuelExpenseChange + ' pending approvals'"
+      icon="car"
+      iconColor="amber"
+      borderColor="amber"
+    ></app-stats-card>
   </div>
 
   <!-- Main Content -->
