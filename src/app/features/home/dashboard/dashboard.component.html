@@ -1,364 +1,192 @@
-<div class="dashboard-container p-3">
-  <!-- Header Section -->
-  <div class="header-section mb-3">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+<div class="dashboard-container p-4">
+  <!-- Welcome Section -->
+  <div class="welcome-section mb-6">
+    <div
+      class="flex flex-col md:flex-row justify-between items-start md:items-center"
+    >
       <div>
-        <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+        <h1 class="text-3xl font-bold text-gray-800">
+          Welcome back, {{ userName }}!
+        </h1>
         <p class="text-gray-600 mt-1">
           {{ currentDate | date: "EEEE, MMMM d, y" }}
         </p>
       </div>
-      <div class="mt-3 md:mt-0 flex gap-2">
+      <div class="mt-4 md:mt-0">
         <p-button
-          label="Generate Report"
-          icon="pi pi-file"
-          styleClass="p-button-outlined"
-        ></p-button>
-        <p-button
-          label="Export Data"
-          icon="pi pi-download"
+          label="Quick Actions"
+          icon="pi pi-bolt"
           styleClass="p-button-outlined"
         ></p-button>
       </div>
     </div>
   </div>
 
-  <!-- All Metrics in Single Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-    <!-- Row 1: Key Metrics -->
-    <div class="col-span-1">
-      <div class="stats-card bg-white rounded-lg shadow-sm p-3 border-l-4 border-blue-500">
-        <div class="flex justify-between">
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Total Employees</h3>
-            <p class="text-2xl font-bold text-gray-800">{{ totalEmployees }}</p>
-          </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100">
-            <i class="pi pi-users text-blue-500 text-xl"></i>
-          </div>
+  <!-- Stats Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div
+      class="stats-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500"
+    >
+      <div class="flex justify-between">
+        <div>
+          <h3 class="text-gray-500 text-sm font-medium">Available Leave</h3>
+          <p class="text-2xl font-bold text-gray-800">
+            {{ availableLeave }} days
+          </p>
         </div>
-        <div class="mt-2 flex items-center">
-          <span class="text-xs text-gray-500">{{ activeEmployees }} active</span>
-          <span class="mx-2 text-gray-300">|</span>
-          <span class="text-xs text-gray-500">{{ totalEmployees - activeEmployees }} inactive</span>
+        <div
+          class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100"
+        >
+          <i class="pi pi-calendar text-blue-500 text-xl"></i>
         </div>
       </div>
+      <p class="text-xs text-gray-500 mt-2">
+        {{ usedLeave }} days used this year
+      </p>
     </div>
 
-    <div class="col-span-1">
-      <div class="stats-card bg-white rounded-lg shadow-sm p-3 border-l-4 border-green-500">
-        <div class="flex justify-between">
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Today's Attendance</h3>
-            <p class="text-2xl font-bold text-gray-800">{{ attendance.present }} / {{ totalEmployees }}</p>
-          </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-green-100">
-            <i class="pi pi-check-circle text-green-500 text-xl"></i>
-          </div>
+    <div
+      class="stats-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500"
+    >
+      <div class="flex justify-between">
+        <div>
+          <h3 class="text-gray-500 text-sm font-medium">Expense Claims</h3>
+          <p class="text-2xl font-bold text-gray-800">
+            ₹{{ totalExpenseClaims | number }}
+          </p>
         </div>
-        <div class="mt-2 flex items-center justify-between">
-          <span class="text-xs text-gray-500">Present: {{ attendance.present }}</span>
-          <span class="text-xs text-gray-500">Absent: {{ attendance.absent }}</span>
-          <span class="text-xs text-gray-500">Leave: {{ attendance.leave }}</span>
+        <div
+          class="flex items-center justify-center w-12 h-12 rounded-full bg-green-100"
+        >
+          <i class="pi pi-wallet text-green-500 text-xl"></i>
         </div>
       </div>
+      <p class="text-xs text-gray-500 mt-2">
+        {{ pendingExpenseClaims }} pending approvals
+      </p>
     </div>
 
-    <div class="col-span-1">
-      <div class="stats-card bg-white rounded-lg shadow-sm p-3 border-l-4 border-indigo-500">
-        <div class="flex justify-between">
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Leave Status</h3>
-            <p class="text-2xl font-bold text-gray-800">{{ leaveStatusCount.total }}</p>
-          </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100">
-            <i class="pi pi-calendar text-indigo-500 text-xl"></i>
-          </div>
+    <div
+      class="stats-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-purple-500"
+    >
+      <div class="flex justify-between">
+        <div>
+          <h3 class="text-gray-500 text-sm font-medium">Attendance</h3>
+          <p class="text-2xl font-bold text-gray-800">
+            {{ attendancePercentage }}%
+          </p>
         </div>
-        <div class="mt-2 flex items-center justify-between">
-          <span class="text-xs text-green-500">Approved: {{ leaveStatusCount.approved }}</span>
-          <span class="text-xs text-yellow-500">Pending: {{ leaveStatusCount.pending }}</span>
-          <span class="text-xs text-red-500">Rejected: {{ leaveStatusCount.rejected }}</span>
+        <div
+          class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-100"
+        >
+          <i class="pi pi-check-circle text-purple-500 text-xl"></i>
         </div>
       </div>
+      <p class="text-xs text-gray-500 mt-2">
+        {{ daysPresent }} days present this month
+      </p>
     </div>
 
-    <div class="col-span-1">
-      <div class="stats-card bg-white rounded-lg shadow-sm p-3 border-l-4 border-purple-500">
-        <div class="flex justify-between">
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Site Analytics</h3>
-            <p class="text-2xl font-bold text-gray-800">₹{{ siteAnalytics.totalProfit | number }}</p>
-          </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-100">
-            <i class="pi pi-chart-line text-purple-500 text-xl"></i>
-          </div>
+    <div
+      class="stats-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-amber-500"
+    >
+      <div class="flex justify-between">
+        <div>
+          <h3 class="text-gray-500 text-sm font-medium">Fuel Expenses</h3>
+          <p class="text-2xl font-bold text-gray-800">
+            ₹{{ fuelExpenses | number }}
+          </p>
         </div>
-        <div class="mt-2 flex items-center justify-between">
-          <span class="text-xs text-green-500">Completed: {{ siteAnalytics.completed }}</span>
-          <span class="text-xs text-blue-500">Ongoing: {{ siteAnalytics.ongoing }}</span>
-          <span class="text-xs text-amber-500">Upcoming: {{ siteAnalytics.upcoming }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Row 2: Detailed Metrics -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
-    <!-- Total Expenses -->
-    <div class="col-span-1 lg:col-span-2">
-      <div class="stats-card bg-white rounded-lg shadow-sm p-3 border-l-4 border-amber-500 h-full">
-        <div class="flex justify-between">
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Total Expenses</h3>
-            <p class="text-2xl font-bold text-gray-800">₹{{ (expenseStatus.approved * averageClaimAmount) + expenseStatus.pendingAmount | number }}</p>
-            <p class="text-sm text-gray-500 mt-1">Total Claims Amount</p>
-          </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-amber-100">
-            <i class="pi pi-wallet text-amber-500 text-xl"></i>
-          </div>
-        </div>
-        <div class="mt-4 grid grid-cols-3 gap-3">
-          <!-- Approved Section -->
-          <div class="bg-blue-50 rounded-lg p-3">
-            <div class="flex items-center mb-2">
-              <div class="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-              <p class="text-sm text-gray-500">Approved</p>
-            </div>
-            <div class="bg-white rounded-lg p-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Claims</span>
-                <span class="text-base font-semibold text-blue-500">{{ expenseStatus.approved }}</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <span class="text-sm text-gray-600">Amount</span>
-                <span class="text-base font-semibold text-blue-500">₹{{ expenseStatus.approved * averageClaimAmount | number }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pending Section -->
-          <div class="bg-yellow-50 rounded-lg p-3">
-            <div class="flex items-center mb-2">
-              <div class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></div>
-              <p class="text-sm text-gray-500">Pending</p>
-            </div>
-            <div class="bg-white rounded-lg p-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Claims</span>
-                <span class="text-base font-semibold text-yellow-500">{{ expenseStatus.pending }}</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <span class="text-sm text-gray-600">Amount</span>
-                <span class="text-base font-semibold text-yellow-500">₹{{ expenseStatus.pendingAmount | number }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Reimbursement Section -->
-          <div class="bg-green-50 rounded-lg p-3">
-            <div class="flex items-center mb-2">
-              <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-              <p class="text-sm text-gray-500">Reimbursed</p>
-            </div>
-            <div class="bg-white rounded-lg p-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Amount</span>
-                <span class="text-base font-semibold text-green-500">₹{{ expenseStatus.reimbursed | number }}</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <span class="text-sm text-gray-600">Remaining</span>
-                <span class="text-base font-semibold text-green-500">₹{{ (expenseStatus.approved * averageClaimAmount) - expenseStatus.reimbursed | number }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="mt-3 w-full bg-gray-100 rounded-full h-2">
-          <div class="flex h-full rounded-full overflow-hidden">
-            <div class="bg-blue-500 h-full" [style.width]="((expenseStatus.approved * averageClaimAmount) / ((expenseStatus.approved * averageClaimAmount) + expenseStatus.pendingAmount) * 100) + '%'"></div>
-            <div class="bg-yellow-500 h-full" [style.width]="(expenseStatus.pendingAmount / ((expenseStatus.approved * averageClaimAmount) + expenseStatus.pendingAmount) * 100) + '%'"></div>
-          </div>
+        <div
+          class="flex items-center justify-center w-12 h-12 rounded-full bg-amber-100"
+        >
+          <i class="pi pi-car text-amber-500 text-xl"></i>
         </div>
       </div>
-    </div>
-
-    <!-- Fuel Expenses -->
-    <div class="col-span-1 lg:col-span-2">
-      <div class="stats-card bg-white rounded-lg shadow-sm p-3 border-l-4 border-orange-500 h-full">
-        <div class="flex justify-between">
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Fuel Expenses</h3>
-            <p class="text-2xl font-bold text-gray-800">₹{{ (fuelExpenseStatus.approved * averageFuelAmount) + fuelExpenseStatus.pendingAmount | number }}</p>
-            <p class="text-sm text-gray-500 mt-1">Total Claims Amount</p>
-          </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-orange-100">
-            <i class="pi pi-car text-orange-500 text-xl"></i>
-          </div>
-        </div>
-        <div class="mt-4 grid grid-cols-3 gap-3">
-          <!-- Approved Section -->
-          <div class="bg-blue-50 rounded-lg p-3">
-            <div class="flex items-center mb-2">
-              <div class="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-              <p class="text-sm text-gray-500">Approved</p>
-            </div>
-            <div class="bg-white rounded-lg p-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Claims</span>
-                <span class="text-base font-semibold text-blue-500">{{ fuelExpenseStatus.approved }}</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <span class="text-sm text-gray-600">Amount</span>
-                <span class="text-base font-semibold text-blue-500">₹{{ fuelExpenseStatus.approved * averageFuelAmount | number }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pending Section -->
-          <div class="bg-yellow-50 rounded-lg p-3">
-            <div class="flex items-center mb-2">
-              <div class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></div>
-              <p class="text-sm text-gray-500">Pending</p>
-            </div>
-            <div class="bg-white rounded-lg p-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Claims</span>
-                <span class="text-base font-semibold text-yellow-500">{{ fuelExpenseStatus.pending }}</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <span class="text-sm text-gray-600">Amount</span>
-                <span class="text-base font-semibold text-yellow-500">₹{{ fuelExpenseStatus.pendingAmount | number }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Reimbursement Section -->
-          <div class="bg-green-50 rounded-lg p-3">
-            <div class="flex items-center mb-2">
-              <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-              <p class="text-sm text-gray-500">Reimbursed</p>
-            </div>
-            <div class="bg-white rounded-lg p-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Amount</span>
-                <span class="text-base font-semibold text-green-500">₹{{ fuelExpenseStatus.reimbursed | number }}</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <span class="text-sm text-gray-600">Remaining</span>
-                <span class="text-base font-semibold text-green-500">₹{{ (fuelExpenseStatus.approved * averageFuelAmount) - fuelExpenseStatus.reimbursed | number }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="mt-3 w-full bg-gray-100 rounded-full h-2">
-          <div class="flex h-full rounded-full overflow-hidden">
-            <div class="bg-blue-500 h-full" [style.width]="((fuelExpenseStatus.approved * averageFuelAmount) / ((fuelExpenseStatus.approved * averageFuelAmount) + fuelExpenseStatus.pendingAmount) * 100) + '%'"></div>
-            <div class="bg-yellow-500 h-full" [style.width]="(fuelExpenseStatus.pendingAmount / ((fuelExpenseStatus.approved * averageFuelAmount) + fuelExpenseStatus.pendingAmount) * 100) + '%'"></div>
-          </div>
-        </div>
-      </div>
+      <p class="text-xs text-gray-500 mt-2">
+        {{ fuelExpenseChange }}% from last month
+      </p>
     </div>
   </div>
 
-  <!-- Row 3: Management & Lists -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
-    <!-- Asset Analytics -->
-    <div class="col-span-1 lg:col-span-2">
-      <div class="stats-card bg-white rounded-lg shadow-sm p-3 border-l-4 border-blue-500 h-full">
-        <div class="flex justify-between mb-4">
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Asset Analytics</h3>
-            <p class="text-2xl font-bold text-gray-800">{{ assetManagement.total }}</p>
-            <p class="text-sm text-gray-500 mt-1">Total Assets</p>
-          </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100">
-            <i class="pi pi-box text-blue-500 text-xl"></i>
-          </div>
+  <!-- Main Content -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Leave Calendar -->
+    <div class="lg:col-span-2 bg-white rounded-lg shadow-sm p-5">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Leave Calendar</h2>
+        <div>
+          <p-dropdown
+            [options]="months"
+            [(ngModel)]="selectedMonth"
+            optionLabel="name"
+            placeholder="Select Month"
+          ></p-dropdown>
         </div>
-        <div class="mt-2 flex items-center">
-          <span class="text-xs text-gray-500">{{ assetManagement.available }} available</span>
-          <span class="mx-2 text-gray-300">|</span>
-          <span class="text-xs text-gray-500">{{ assetManagement.assigned }} assigned</span>
+      </div>
+      <p-calendar
+        [inline]="true"
+        [showWeek]="true"
+        [monthNavigator]="true"
+        [yearNavigator]="true"
+        yearRange="2020:2030"
+        [style]="{ width: '100%' }"
+        [readonlyInput]="true"
+      >
+        <ng-template pTemplate="date" let-date>
+          <div
+            [ngClass]="{
+              'leave-day': isLeaveDay(date),
+              holiday: isHoliday(date),
+            }"
+            class="calendar-date"
+          >
+            <span>{{ date.day }}</span>
+            <div *ngIf="isLeaveDay(date)" class="leave-indicator"></div>
+            <div *ngIf="isHoliday(date)" class="holiday-indicator"></div>
+          </div>
+        </ng-template>
+      </p-calendar>
+
+      <div class="flex flex-wrap gap-4 mt-4">
+        <div class="flex items-center">
+          <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+          <span class="text-sm text-gray-600">Your Leave</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
+          <span class="text-sm text-gray-600">Team Leave</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+          <span class="text-sm text-gray-600">Holidays</span>
         </div>
       </div>
     </div>
 
-    <!-- Vehicle Analytics -->
-    <div class="col-span-1 lg:col-span-2">
-      <div class="stats-card bg-white rounded-lg shadow-sm p-3 border-l-4 border-amber-500 h-full">
-        <div class="flex justify-between mb-4">
-          <div>
-            <h3 class="text-gray-500 text-sm font-medium">Vehicle Analytics</h3>
-            <p class="text-2xl font-bold text-gray-800">{{ vehicleManagement.total }}</p>
-            <p class="text-sm text-gray-500 mt-1">Total Vehicles</p>
-          </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-amber-100">
-            <i class="pi pi-car text-amber-500 text-xl"></i>
-          </div>
-        </div>
-        <div class="mt-2 flex items-center">
-          <span class="text-xs text-gray-500">{{ vehicleManagement.available }} available</span>
-          <span class="mx-2 text-gray-300">|</span>
-          <span class="text-xs text-gray-500">{{ vehicleManagement.assigned }} assigned</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Row 4: Lists -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mt-3">
-    <!-- Leave Status List -->
-    <div class="lg:col-span-2">
-      <div class="bg-white rounded-lg shadow-sm p-3">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-gray-800">Leave Status</h2>
-          <p-button label="View All" icon="pi pi-list" styleClass="p-button-text"></p-button>
-        </div>
-        <div class="space-y-3">
-          <div *ngFor="let leave of leaveStatus" class="flex items-center p-3 hover:bg-gray-50 rounded-lg">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center" [ngClass]="{
-              'bg-green-100': leave.status === 'Approved',
-              'bg-yellow-100': leave.status === 'Pending',
-              'bg-red-100': leave.status === 'Rejected'
-            }">
-              <i [class]="leave.icon" [ngClass]="{
-                'text-green-500': leave.status === 'Approved',
-                'text-yellow-500': leave.status === 'Pending',
-                'text-red-500': leave.status === 'Rejected'
-              }"></i>
-            </div>
-            <div class="ml-3 flex-1">
-              <p class="text-sm font-medium text-gray-800">{{ leave.employeeName }}</p>
-              <p class="text-xs text-gray-500">{{ leave.department }} • {{ leave.leaveType }}</p>
-              <p class="text-xs text-gray-400 mt-1">{{ leave.duration }} days</p>
-            </div>
-            <span class="text-xs px-2 py-1 rounded-full" [ngClass]="{
-              'bg-green-100 text-green-800': leave.status === 'Approved',
-              'bg-yellow-100 text-yellow-800': leave.status === 'Pending',
-              'bg-red-100 text-red-800': leave.status === 'Rejected'
-            }">
-              {{ leave.status }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Sidebar -->
-    <div class="lg:col-span-1 space-y-3">
+    <!-- Right Column -->
+    <div class="lg:col-span-1">
       <!-- Today's Birthdays -->
-      <div class="bg-white rounded-lg shadow-sm p-3">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-gray-800">Today's Birthdays</h2>
-          <p-button icon="pi pi-gift" styleClass="p-button-text"></p-button>
-        </div>
-        <div *ngIf="todaysBirthdays.length > 0" class="space-y-3">
-          <div *ngFor="let person of todaysBirthdays" class="flex items-center p-2 hover:bg-gray-50 rounded-lg">
-            <img [src]="person.avatar" [alt]="person.name" class="w-10 h-10 rounded-full">
-            <div class="ml-3">
-              <p class="text-sm font-medium text-gray-800">{{ person.name }}</p>
-              <p class="text-xs text-gray-500">{{ person.department }}</p>
+      <div class="bg-white rounded-lg shadow-sm p-5 mb-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Today's Birthdays</h2>
+        <div *ngIf="todaysBirthdays.length > 0">
+          <div
+            *ngFor="let person of todaysBirthdays"
+            class="flex items-center mb-4"
+          >
+            <img
+              [src]="person.avatar"
+              alt="{{ person.name }}"
+              class="w-10 h-10 rounded-full mr-3"
+            />
+            <div>
+              <h3 class="font-medium text-gray-800">{{ person.name }}</h3>
+              <p class="text-sm text-gray-500">{{ person.department }}</p>
             </div>
+            <p-button
+              icon="pi pi-gift"
+              styleClass="p-button-rounded p-button-text p-button-sm ml-auto"
+            ></p-button>
           </div>
         </div>
         <div *ngIf="todaysBirthdays.length === 0" class="text-center py-4">
@@ -367,25 +195,180 @@
         </div>
       </div>
 
-      <!-- Holiday Calendar -->
-      <div class="bg-white rounded-lg shadow-sm p-3">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-gray-800">Upcoming Holidays</h2>
-          <p-button icon="pi pi-calendar" styleClass="p-button-text"></p-button>
-        </div>
-        <div class="space-y-3">
-          <div *ngFor="let holiday of upcomingHolidays" class="flex items-center p-2 hover:bg-gray-50 rounded-lg">
-            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-              <i class="pi pi-calendar-times text-red-500"></i>
+      <!-- Important Contacts -->
+      <div class="bg-white rounded-lg shadow-sm p-5">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Important Contacts</h2>
+        <div class="space-y-4">
+          <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+            <div
+              class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 mr-3"
+            >
+              <i class="pi pi-user text-blue-500"></i>
             </div>
-            <div class="ml-3">
-              <p class="text-sm font-medium text-gray-800">{{ holiday.name }}</p>
-              <p class="text-xs text-gray-500">{{ holiday.date | date: 'MMM d, y' }}</p>
+            <div>
+              <h3 class="font-medium text-gray-800">HR Admin</h3>
+              <p class="text-sm text-gray-500">+91 98765 43210</p>
             </div>
+            <p-button
+              icon="pi pi-phone"
+              styleClass="p-button-rounded p-button-text p-button-sm ml-auto"
+            ></p-button>
+          </div>
+
+          <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+            <div
+              class="flex items-center justify-center w-10 h-10 rounded-full bg-purple-100 mr-3"
+            >
+              <i class="pi pi-desktop text-purple-500"></i>
+            </div>
+            <div>
+              <h3 class="font-medium text-gray-800">IT Support</h3>
+              <p class="text-sm text-gray-500">+91 98765 12345</p>
+            </div>
+            <p-button
+              icon="pi pi-phone"
+              styleClass="p-button-rounded p-button-text p-button-sm ml-auto"
+            ></p-button>
+          </div>
+
+          <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+            <div
+              class="flex items-center justify-center w-10 h-10 rounded-full bg-green-100 mr-3"
+            >
+              <i class="pi pi-shield text-green-500"></i>
+            </div>
+            <div>
+              <h3 class="font-medium text-gray-800">Security</h3>
+              <p class="text-sm text-gray-500">+91 98765 67890</p>
+            </div>
+            <p-button
+              icon="pi pi-phone"
+              styleClass="p-button-rounded p-button-text p-button-sm ml-auto"
+            ></p-button>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Expense Reports -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    <!-- Employee Expenses -->
+    <div class="bg-white rounded-lg shadow-sm p-5">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Employee Expenses</h2>
+        <p-dropdown
+          [options]="months"
+          [(ngModel)]="selectedExpenseMonth"
+          optionLabel="name"
+          placeholder="Select Month"
+        ></p-dropdown>
+      </div>
+
+      <p-chart
+        type="bar"
+        [data]="employeeExpensesData"
+        [options]="chartOptions"
+        height="300px"
+      ></p-chart>
+
+      <div class="mt-4">
+        <p-table
+          [value]="topEmployeeExpenses"
+          [paginator]="true"
+          [rows]="5"
+          styleClass="p-datatable-sm"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-expense>
+            <tr>
+              <td>
+                <div class="flex items-center">
+                  <img
+                    [src]="expense.avatar"
+                    class="w-8 h-8 rounded-full mr-2"
+                    [alt]="expense.name"
+                  />
+                  <span>{{ expense.name }}</span>
+                </div>
+              </td>
+              <td>{{ expense.department }}</td>
+              <td>₹{{ expense.amount | number }}</td>
+              <td>
+                <span
+                  [class]="
+                    'status-badge status-' + expense.status.toLowerCase()
+                  "
+                >
+                  {{ expense.status }}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+
+    <!-- Fuel Expenses -->
+    <div class="bg-white rounded-lg shadow-sm p-5">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Fuel Expenses</h2>
+        <p-dropdown
+          [options]="months"
+          [(ngModel)]="selectedFuelMonth"
+          optionLabel="name"
+          placeholder="Select Month"
+        ></p-dropdown>
+      </div>
+
+      <p-chart
+        type="line"
+        [data]="fuelExpensesData"
+        [options]="lineChartOptions"
+        height="300px"
+      ></p-chart>
+
+      <div class="mt-4">
+        <p-table
+          [value]="topFuelExpenses"
+          [paginator]="true"
+          [rows]="5"
+          styleClass="p-datatable-sm"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Employee</th>
+              <th>Vehicle</th>
+              <th>Distance</th>
+              <th>Amount</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-expense>
+            <tr>
+              <td>
+                <div class="flex items-center">
+                  <img
+                    [src]="expense.avatar"
+                    class="w-8 h-8 rounded-full mr-2"
+                    [alt]="expense.name"
+                  />
+                  <span>{{ expense.name }}</span>
+                </div>
+              </td>
+              <td>{{ expense.vehicle }}</td>
+              <td>{{ expense.distance }} km</td>
+              <td>₹{{ expense.amount | number }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
 </div>
-  

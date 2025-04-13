@@ -23,106 +23,24 @@ import { ChartModule } from 'primeng/chart';
 })
 export class DashboardComponent implements OnInit {
   // User data
-  userName = 'Admin';
+  userName = 'John Doe';
   currentDate = new Date();
 
-  // Key metrics
-  totalEmployees = 150;
-  activeEmployees = 145;
+  // Leave stats
+  availableLeave = 15;
+  usedLeave = 7;
+
+  // Expense stats
   totalExpenseClaims = 24500;
   pendingExpenseClaims = 3;
+
+  // Attendance stats
+  attendancePercentage = 95;
+  daysPresent = 19;
+
+  // Fuel stats
   fuelExpenses = 8750;
   fuelExpenseChange = 12;
-  pendingApprovals = 8;
-
-  // Expense status counts
-  expenseStatus = {
-    approved: 12,
-    pending: 5,
-    rejected: 3,
-    reimbursed: 20000,
-    pendingAmount: 3500,
-    rejectedAmount: 1000
-  };
-
-  // Fuel expense status counts
-  fuelExpenseStatus = {
-    approved: 8,
-    pending: 3,
-    rejected: 2,
-    reimbursed: 6500,
-    pendingAmount: 1500,
-    rejectedAmount: 750
-  };
-
-  // Attendance data
-  attendance = {
-    present: 63,
-    absent: 55,
-    leave: 44
-  };
-
-  // Site analytics
-  siteAnalytics = {
-    totalProfit: 125000,
-    profitPercentage: 8.5,
-    completed: 15,
-    ongoing: 8,
-    upcoming: 5,
-    targetAchieved: 85
-  };
-
-  // Leave status
-  leaveStatus = [
-    {
-      employeeName: 'Rajesh Kumar',
-      department: 'Engineering',
-      leaveType: 'Sick Leave',
-      duration: 3,
-      status: 'Pending',
-      icon: 'pi pi-clock'
-    },
-    {
-      employeeName: 'Priya Sharma',
-      department: 'Marketing',
-      leaveType: 'Annual Leave',
-      duration: 5,
-      status: 'Approved',
-      icon: 'pi pi-check'
-    },
-    {
-      employeeName: 'Amit Patel',
-      department: 'Sales',
-      leaveType: 'Personal Leave',
-      duration: 2,
-      status: 'Rejected',
-      icon: 'pi pi-times'
-    }
-  ];
-
-  // Leave status counts
-  leaveStatusCount = {
-    total: 15,
-    approved: 8,
-    pending: 5,
-    rejected: 2
-  };
-
-  // Asset management
-  assetManagement = {
-    total: 250,
-    assigned: 180,
-    available: 65,
-    maintenance: 5
-  };
-
-  // Vehicle management
-  vehicleManagement = {
-    total: 15,
-    assigned: 10,
-    available: 4,
-    maintenance: 1
-  };
 
   // Dropdown options
   months = [
@@ -141,79 +59,20 @@ export class DashboardComponent implements OnInit {
   ];
 
   selectedMonth = this.months[new Date().getMonth()];
+  selectedExpenseMonth = this.months[new Date().getMonth()];
+  selectedFuelMonth = this.months[new Date().getMonth()];
 
   // Calendar data
+  leaveDays = [
+    new Date(2023, 9, 5),
+    new Date(2023, 9, 6),
+    new Date(2023, 9, 15),
+    new Date(2023, 9, 16)
+  ];
+
   holidays = [
-    new Date(2023, 9, 2),  // Gandhi Jayanti
-    new Date(2023, 9, 24), // Dussehra
-    new Date(2023, 10, 12), // Diwali
-    new Date(2023, 10, 13), // Diwali
-    new Date(2023, 10, 14), // Diwali
-    new Date(2023, 11, 25), // Christmas
-    new Date(2024, 0, 1),   // New Year
-    new Date(2024, 0, 26),  // Republic Day
-    new Date(2024, 2, 25),  // Holi
-    new Date(2024, 3, 9),   // Good Friday
-    new Date(2024, 4, 1),   // May Day
-    new Date(2024, 7, 15),  // Independence Day
-    new Date(2024, 8, 2),   // Ganesh Chaturthi
-    new Date(2024, 8, 10)   // Muharram
-  ];
-
-  // Recent activities
-  recentActivities = [
-    {
-      type: 'expense',
-      icon: 'pi pi-wallet',
-      title: 'New Expense Claim',
-      description: 'Rajesh Patel submitted a claim for ₹2,500',
-      time: '2 hours ago',
-      needsAction: true
-    },
-    {
-      type: 'fuel',
-      icon: 'pi pi-car',
-      title: 'Fuel Expense',
-      description: 'Meera Reddy added fuel expense of ₹1,200',
-      time: '3 hours ago',
-      needsAction: true
-    },
-    {
-      type: 'employee',
-      icon: 'pi pi-user',
-      title: 'New Employee',
-      description: 'Amit Kumar joined the Engineering team',
-      time: '1 day ago',
-      needsAction: false
-    },
-    {
-      type: 'expense',
-      icon: 'pi pi-wallet',
-      title: 'Expense Approved',
-      description: 'Priya Sharma\'s claim of ₹3,000 was approved',
-      time: '1 day ago',
-      needsAction: false
-    }
-  ];
-
-  // Upcoming holidays
-  upcomingHolidays = [
-    {
-      name: 'Diwali',
-      date: new Date(2023, 10, 12)
-    },
-    {
-      name: 'Christmas',
-      date: new Date(2023, 11, 25)
-    },
-    {
-      name: 'New Year',
-      date: new Date(2024, 0, 1)
-    },
-    {
-      name: 'Republic Day',
-      date: new Date(2024, 0, 26)
-    }
+    new Date(2023, 9, 2),
+    new Date(2023, 9, 24)
   ];
 
   // Birthdays
@@ -314,10 +173,6 @@ export class DashboardComponent implements OnInit {
     }
   ];
 
-  // Average amounts for expense calculations
-  averageClaimAmount: number = 0;
-  averageFuelAmount: number = 0;
-
   ngOnInit() {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color');
@@ -407,10 +262,15 @@ export class DashboardComponent implements OnInit {
         }
       }
     };
+  }
 
-    // Calculate average amounts
-    this.averageClaimAmount = this.totalExpenseClaims / (this.expenseStatus.approved + this.expenseStatus.pending);
-    this.averageFuelAmount = this.fuelExpenses / (this.fuelExpenseStatus.approved + this.fuelExpenseStatus.pending);
+  isLeaveDay(date: any): boolean {
+    return this.leaveDays.some(
+      leaveDate =>
+        leaveDate.getDate() === date.day &&
+        leaveDate.getMonth() === date.month &&
+        leaveDate.getFullYear() === date.year
+    );
   }
 
   isHoliday(date: any): boolean {
@@ -421,4 +281,5 @@ export class DashboardComponent implements OnInit {
         holiday.getFullYear() === date.year
     );
   }
+
 }
