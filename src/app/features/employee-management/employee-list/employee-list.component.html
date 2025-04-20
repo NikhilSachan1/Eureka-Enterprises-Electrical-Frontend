@@ -18,79 +18,62 @@
 
     <div class="container mx-auto px-4 py-6">
         <!-- Metrics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <!-- Total Employees Card -->
-            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-slate-100">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-sm font-medium text-slate-600">Total Employees</span>
-                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                        <i class="pi pi-users text-blue-500 text-lg"></i>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Employee Distribution -->
+            <div class="bg-white rounded-lg p-5 shadow-sm border border-slate-100">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-md bg-blue-50 flex items-center justify-center">
+                            <i class="pi pi-chart-pie text-blue-500"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-700">Employee Distribution</h3>
+                            <p class="text-xs text-slate-400">Current workforce status</p>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-slate-800">{{customers.length}}</span>
-                    <span class="text-sm text-slate-500">employees</span>
-                </div>
-                <div class="flex items-center gap-2 mt-3 text-sm text-slate-500">
-                    <span class="flex items-center gap-1">
-                        <i class="pi pi-check-circle text-green-500"></i>
-                        Active: {{getActiveEmployeesCount()}}
-                    </span>
-                    <span class="flex items-center gap-1">
-                        <i class="pi pi-clock text-orange-500"></i>
-                        Other: {{getOtherEmployeesCount()}}
-                    </span>
+                <div class="grid grid-cols-3 divide-x divide-slate-100">
+                    <div class="px-3">
+                        <div class="text-lg font-semibold text-slate-800">{{getActiveEmployeesCount()}}</div>
+                        <div class="text-xs text-slate-500">Active</div>
+                    </div>
+                    <div class="px-3">
+                        <div class="text-lg font-semibold text-slate-800">{{getOnLeaveCount()}}</div>
+                        <div class="text-xs text-slate-500">On Leave</div>
+                    </div>
+                    <div class="px-3">
+                        <div class="text-lg font-semibold text-slate-800">{{getTerminatedCount()}}</div>
+                        <div class="text-xs text-slate-500">Terminated</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Department Balance -->
-            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-slate-100">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-sm font-medium text-slate-600">Departments</span>
-                    <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center">
-                        <i class="pi pi-building text-purple-500 text-lg"></i>
+            <!-- Department Strength -->
+            <div class="bg-white rounded-lg p-5 shadow-sm border border-slate-100">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-md bg-purple-50 flex items-center justify-center">
+                            <i class="pi pi-users text-purple-500"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-700">Department Strength</h3>
+                            <p class="text-xs text-slate-400">Employee by department</p>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-slate-800">3</span>
-                    <span class="text-sm text-slate-500">total</span>
-                </div>
-                <div class="mt-3 text-sm text-slate-500">
-                    Active departments across functions
-                </div>
-            </div>
-
-            <!-- Pending Actions -->
-            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-slate-100">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-sm font-medium text-slate-600">Pending Actions</span>
-                    <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
-                        <i class="pi pi-clock text-amber-500 text-lg"></i>
+                <div class="grid grid-cols-3 divide-x divide-slate-100">
+                    <div class="px-3">
+                        <div class="text-lg font-semibold text-slate-800">{{getDepartmentCount('IT Department')}}</div>
+                        <div class="text-xs text-slate-500">IT</div>
                     </div>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-slate-800">0</span>
-                    <span class="text-sm text-slate-500">pending</span>
-                </div>
-                <div class="mt-3 text-sm text-slate-500">
-                    No pending approvals
-                </div>
-            </div>
-
-            <!-- Active Roles -->
-            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-slate-100">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-sm font-medium text-slate-600">Active Roles</span>
-                    <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
-                        <i class="pi pi-id-card text-green-500 text-lg"></i>
+                    <div class="px-3">
+                        <div class="text-lg font-semibold text-slate-800">{{getDepartmentCount('HR Department')}}</div>
+                        <div class="text-xs text-slate-500">HR</div>
                     </div>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-slate-800">4</span>
-                    <span class="text-sm text-slate-500">roles</span>
-                </div>
-                <div class="mt-3 text-sm text-slate-500">
-                    Different positions available
+                    <div class="px-3">
+                        <div class="text-lg font-semibold text-slate-800">{{getDepartmentCount('Finance Department')}}</div>
+                        <div class="text-xs text-slate-500">Finance</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -100,6 +83,24 @@
             <!-- Table Toolbar -->
             <p-toolbar styleClass="mb-0 px-4 py-2 border-x-0 border-t-0 border-b border-slate-200 bg-white">
                 <ng-template pTemplate="start">
+                    <div class="flex items-center gap-3">
+                        <p-dropdown [options]="statuses" 
+                                   [(ngModel)]="selectedStatus"
+                                   optionLabel="label"
+                                   placeholder="Filter by Status"
+                                   [showClear]="true"
+                                   styleClass="w-[200px]"
+                                   (onChange)="onStatusChange($event, dt1)">
+                            <ng-template let-option pTemplate="item">
+                                <span class="text-sm">{{option.label}}</span>
+                            </ng-template>
+                            <ng-template let-option pTemplate="selectedItem">
+                                <span class="text-sm">{{option.label}}</span>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="end">
                     <div class="flex items-center gap-3">
                         <p-iconfield class="w-80">
                             <p-inputicon styleClass="pi pi-search" />
@@ -173,14 +174,14 @@
                             </th>
                             <th style="min-width:200px" class="bg-slate-50">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Employee</span>
+                                    <span class="text-sm font-semibold text-slate-700">Employee Name</span>
                                     <p-columnFilter type="text" field="name" display="menu" />
                                 </div>
                             </th>
-                            <th style="min-width:180px" class="bg-slate-50">
+                            <th style="min-width:250px" class="bg-slate-50">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Department</span>
-                                    <p-columnFilter type="text" field="country.name" display="menu" />
+                                    <span class="text-sm font-semibold text-slate-700">Role & Department</span>
+                                    <p-columnFilter type="text" field="designation" display="menu" />
                                 </div>
                             </th>
                             <th style="min-width:140px" class="bg-slate-50">
@@ -204,64 +205,25 @@
                                     </p-columnFilter>
                                 </div>
                             </th>
-                            <th style="min-width:180px" class="bg-slate-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Manager</span>
-                                    <p-columnFilter field="representative" matchMode="in" display="menu">
-                                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                            <p-multiSelect [ngModel]="selectedRepresentatives" 
-                                                         (ngModelChange)="onRepresentativeChange($event, filter)" 
-                                                         [options]="representatives" 
-                                                         placeholder="Any" 
-                                                         optionLabel="name"
-                                                         class="w-full">
-                                                <ng-template let-option pTemplate="item">
-                                                    <div class="flex items-center gap-2">
-                                                        <img [alt]="option.label" 
-                                                             src="https://primefaces.org/cdn/primeng/images/demo/avatar/{{ option.image }}" 
-                                                             class="w-8 h-8 rounded-full" />
-                                                        <span>{{ option.name }}</span>
-                                                    </div>
-                                                </ng-template>
-                                            </p-multiSelect>
-                                        </ng-template>
-                                    </p-columnFilter>
-                                </div>
-                            </th>
                             <th style="min-width:140px" class="bg-slate-50">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Join Date</span>
+                                    <span class="text-sm font-semibold text-slate-700">Contact Number</span>
+                                    <p-columnFilter type="text" field="contactNumber" display="menu" />
+                                </div>
+                            </th>
+                            <th style="min-width:200px" class="bg-slate-50">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-semibold text-slate-700">Email Address</span>
+                                    <p-columnFilter type="text" field="email" display="menu" />
+                                </div>
+                            </th>
+                            <th style="min-width:200px" class="bg-slate-50">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-semibold text-slate-700">Employment Period</span>
                                     <p-columnFilter type="date" field="date" display="menu"></p-columnFilter>
                                 </div>
                             </th>
-                            <th style="min-width:140px" class="bg-slate-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Activity</span>
-                                    <p-columnFilter field="activity" matchMode="between" display="menu">
-                                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                            <p-slider [ngModel]="selectedActivity" 
-                                                     (ngModelChange)="onActivityChange($event, filter)" 
-                                                     [range]="true" 
-                                                     class="w-full mt-4" />
-                                            <div class="flex justify-between text-sm text-slate-600 mt-2">
-                                                <span>{{selectedActivity ? selectedActivity[0] : 0}}%</span>
-                                                <span>{{selectedActivity ? selectedActivity[1] : 100}}%</span>
-                                            </div>
-                                        </ng-template>
-                                    </p-columnFilter>
-                                </div>
-                            </th>
-                            <th style="width:100px" class="text-center bg-slate-50">
-                                <div class="flex items-center justify-center">
-                                    <button pButton 
-                                            type="button" 
-                                            icon="pi pi-filter-slash" 
-                                            class="p-button-text p-button-sm"
-                                            (click)="clear(dt1)"
-                                            pTooltip="Clear all filters">
-                                    </button>
-                                </div>
-                            </th>
+                            <th class="bg-slate-50">Actions</th>
                         </tr>
                     </ng-template>
 
@@ -284,7 +246,10 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="text-slate-600">{{ customer.country.name }}</span>
+                                <div class="flex flex-col gap-1">
+                                    <div class="font-medium text-slate-900">{{ customer.designation }}</div>
+                                    <div class="text-sm text-slate-500">{{ customer.department.name }}</div>
+                                </div>
                             </td>
                             <td>
                                 <p-tag [value]="customer.status" 
@@ -293,29 +258,18 @@
                                 </p-tag>
                             </td>
                             <td>
-                                <div class="flex items-center gap-2">
-                                    <img [alt]="customer.representative.name" 
-                                         [src]="'https://primefaces.org/cdn/primeng/images/demo/avatar/' + customer.representative.image" 
-                                         class="w-8 h-8 rounded-full" />
-                                    <div>
-                                        <div class="font-medium text-slate-900">{{ customer.representative.name }}</div>
-                                        <div class="text-sm text-slate-500">Manager</div>
-                                    </div>
-                                </div>
+                                <span class="text-slate-600">{{ customer.contactNumber }}</span>
                             </td>
                             <td>
-                                <div class="text-slate-600">{{ customer.date | date: 'MMM d, yyyy' }}</div>
+                                <a href="mailto:{{customer.email}}" 
+                                   class="text-blue-600 hover:text-blue-800 hover:underline">
+                                    {{ customer.email }}
+                                </a>
                             </td>
                             <td>
-                                <div class="flex items-center gap-2">
-                                    <div class="flex-1">
-                                        <p-progressbar [value]="customer.activity" 
-                                                      [showValue]="false"
-                                                      [style]="{'height': '6px'}"
-                                                      styleClass="rounded-full">
-                                        </p-progressbar>
-                                    </div>
-                                    <span class="text-sm text-slate-600 min-w-[40px] text-right">{{customer.activity}}%</span>
+                                <div class="flex flex-col gap-1">
+                                    <div class="text-slate-600">Start: {{ customer.date | date: 'MMM d, yyyy' }}</div>
+                                    <div class="text-slate-600">End: {{ customer.lastWorkingDate ? (customer.lastWorkingDate | date: 'MMM d, yyyy') : 'Present' }}</div>
                                 </div>
                             </td>
                             <td>
@@ -358,4 +312,6 @@
 
     <p-toast></p-toast>
 </div>
+
+
 

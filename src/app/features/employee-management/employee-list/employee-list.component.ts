@@ -14,7 +14,6 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
-import { ProgressBar } from 'primeng/progressbar';
 import { SliderModule } from 'primeng/slider';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -39,7 +38,6 @@ import { DividerModule } from 'primeng/divider';
     TagModule,
     SelectModule,
     MultiSelectModule,
-    ProgressBar,
     ButtonModule,
     IconFieldModule,
     InputIconModule,
@@ -77,6 +75,62 @@ export class EmployeeListComponent implements OnInit {
 
   getOtherEmployeesCount(): number {
     return this.customers.filter(c => c.status !== 'Active').length;
+  }
+
+  getOnLeaveCount(): number {
+    return this.customers.filter(customer => customer.status === 'On Leave').length;
+  }
+
+  getTerminatedCount(): number {
+    return this.customers.filter(customer => customer.status === 'Terminated').length;
+  }
+
+  getDepartmentCount(departmentName: string): number {
+    return this.customers.filter(customer => customer.department.name === departmentName).length;
+  }
+
+  getRecentHiresCount(): number {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return this.customers.filter(customer => {
+      const joinDate = new Date(customer.date);
+      return joinDate >= thirtyDaysAgo;
+    }).length;
+  }
+
+  getPromotionsCount(): number {
+    // This would typically come from a separate promotions tracking system
+    // For now, returning a placeholder value
+    return 0;
+  }
+
+  getPendingReviewsCount(): number {
+    // This would typically come from a performance review system
+    // For now, returning a placeholder value
+    return 0;
+  }
+
+  getAverageTenure(): number {
+    const now = new Date();
+    const totalMonths = this.customers.reduce((sum, customer) => {
+      const joinDate = new Date(customer.date);
+      const months = (now.getFullYear() - joinDate.getFullYear()) * 12 + 
+                    (now.getMonth() - joinDate.getMonth());
+      return sum + months;
+    }, 0);
+    return Math.round(totalMonths / this.customers.length);
+  }
+
+  getAttritionRate(): number {
+    const terminatedCount = this.getTerminatedCount();
+    const totalEmployees = this.customers.length;
+    return Math.round((terminatedCount / totalEmployees) * 100);
+  }
+
+  getTrainingCompletion(): number {
+    // This would typically come from a training management system
+    // For now, returning a placeholder value
+    return 85;
   }
 
   clearSelection(): void {
@@ -135,78 +189,79 @@ export class EmployeeListComponent implements OnInit {
       {
         id: 1001,
         name: 'James Wilson',
-        country: {
+        designation: 'Senior Software Engineer',
+        department: {
           name: 'IT Department',
           code: 'it'
         },
         company: 'Eureka Enterprises',
         date: '2024-01-15',
+        lastWorkingDate: null,
         status: 'Active',
         verified: true,
-        activity: 85,
-        representative: {
-          name: 'Amy Elsner',
-          image: 'amyelsner.png'
-        },
+        contactNumber: '+1 (555) 123-4567',
+        email: 'james.wilson@eureka.com',
         balance: 65000
       },
       {
         id: 1002,
         name: 'Sarah Johnson',
-        country: {
+        designation: 'HR Manager',
+        department: {
           name: 'HR Department',
           code: 'hr'
         },
         company: 'Eureka Enterprises',
         date: '2023-11-20',
+        lastWorkingDate: null,
         status: 'On Leave',
         verified: true,
-        activity: 45,
-        representative: {
-          name: 'Ioni Bowcher',
-          image: 'ionibowcher.png'
-        },
+        contactNumber: '+1 (555) 234-5678',
+        email: 'sarah.johnson@eureka.com',
         balance: 55000
       },
       {
         id: 1003,
         name: 'Michael Brown',
-        country: {
+        designation: 'Financial Analyst',
+        department: {
           name: 'Finance Department',
           code: 'fin'
         },
         company: 'Eureka Enterprises',
         date: '2024-02-01',
+        lastWorkingDate: null,
         status: 'Active',
         verified: true,
-        activity: 92,
-        representative: {
-          name: 'Xuxue Feng',
-          image: 'xuxuefeng.png'
-        },
+        contactNumber: '+1 (555) 345-6789',
+        email: 'michael.brown@eureka.com',
         balance: 72000
       },
       {
         id: 1004,
         name: 'Emily Davis',
-        country: {
+        designation: 'Software Developer',
+        department: {
           name: 'IT Department',
           code: 'it'
         },
         company: 'Eureka Enterprises',
         date: '2023-08-15',
+        lastWorkingDate: '2024-01-31',
         status: 'Terminated',
         verified: false,
-        activity: 0,
-        representative: {
-          name: 'Ivan Magalhaes',
-          image: 'ivanmagalhaes.png'
-        },
+        contactNumber: '+1 (555) 456-7890',
+        email: 'emily.davis@eureka.com',
         balance: 0
       }
     ];
 
-    this.customers.forEach((customer) => (customer.date = new Date(customer.date)));
+    this.customers.forEach((customer) => {
+      customer.date = new Date(customer.date);
+      if (customer.lastWorkingDate) {
+        customer.lastWorkingDate = new Date(customer.lastWorkingDate);
+      }
+    });
 
     this.representatives = [
       { name: 'Amy Elsner', image: 'amyelsner.png' },
@@ -222,12 +277,10 @@ export class EmployeeListComponent implements OnInit {
     ];
 
     this.statuses = [
-      { label: 'Unqualified', value: 'unqualified' },
-      { label: 'Qualified', value: 'qualified' },
-      { label: 'New', value: 'new' },
-      { label: 'Negotiation', value: 'negotiation' },
-      { label: 'Renewal', value: 'renewal' },
-      { label: 'Proposal', value: 'proposal' }
+      { label: 'Active', value: 'Active' },
+      { label: 'Inactive', value: 'Inactive' },
+      { label: 'On Leave', value: 'On Leave' },
+      { label: 'Terminated', value: 'Terminated' }
     ];
 
     if (this.dt1) {
@@ -266,8 +319,12 @@ export class EmployeeListComponent implements OnInit {
     }
   }
 
-  onStatusChange(value: any, filter: Function) {
-    filter(value);
+  onStatusChange(event: any, table: Table) {
+    if (event.value) {
+      table.filter(event.value.value, 'status', 'equals');
+    } else {
+      table.filter(null, 'status', 'equals');
+    }
   }
 
   onActivityChange(value: any, filter: Function) {
