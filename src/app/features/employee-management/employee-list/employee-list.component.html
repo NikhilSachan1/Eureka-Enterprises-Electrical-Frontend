@@ -162,29 +162,29 @@
                          [loading]="loading" 
                          [paginator]="true" 
                          [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
-                         [tableStyle]="{'min-width': '60rem'}"
-                         styleClass="p-datatable-lg">
+                         [rowHover]="true"
+                         >
                     
                     <ng-template pTemplate="header">
                         <tr class="bg-slate-50 border-t border-slate-200">
-                            <th style="width: 4rem" class="bg-slate-50">
+                            <th class="bg-slate-50">
                                 <div class="flex justify-center">
                                     <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                                 </div>
                             </th>
-                            <th style="min-width:200px" class="bg-slate-50">
+                            <th class="bg-slate-50">
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-semibold text-slate-700">Employee Name</span>
                                     <p-columnFilter type="text" field="name" display="menu" />
                                 </div>
                             </th>
-                            <th style="min-width:250px" class="bg-slate-50">
+                            <th class="bg-slate-50">
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-semibold text-slate-700">Role & Department</span>
                                     <p-columnFilter type="text" field="designation" display="menu" />
                                 </div>
                             </th>
-                            <th style="min-width:140px" class="bg-slate-50">
+                            <th class="bg-slate-50">
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-semibold text-slate-700">Status</span>
                                     <p-columnFilter field="status" matchMode="equals" display="menu">
@@ -205,19 +205,19 @@
                                     </p-columnFilter>
                                 </div>
                             </th>
-                            <th style="min-width:140px" class="bg-slate-50">
+                            <th class="bg-slate-50">
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-semibold text-slate-700">Contact Number</span>
                                     <p-columnFilter type="text" field="contactNumber" display="menu" />
                                 </div>
                             </th>
-                            <th style="min-width:200px" class="bg-slate-50">
+                            <th class="bg-slate-50">
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-semibold text-slate-700">Email Address</span>
                                     <p-columnFilter type="text" field="email" display="menu" />
                                 </div>
                             </th>
-                            <th style="min-width:200px" class="bg-slate-50">
+                            <th class="bg-slate-50">
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-semibold text-slate-700">Employment Period</span>
                                     <p-columnFilter type="date" field="date" display="menu"></p-columnFilter>
