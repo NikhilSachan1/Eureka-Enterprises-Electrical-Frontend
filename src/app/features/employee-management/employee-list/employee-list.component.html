@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-slate-50">
-    <!-- Compact Header Section -->
-    <div class="bg-white border-b border-slate-200 shadow-sm">
-        <div class="container mx-auto px-4 py-4">
+<div class="p-4">
+    <!-- Header Section -->
+    <div class="border-b border-slate-200 shadow-sm w-full rounded-xl mb-6">
+        <div class="px-4 py-4">
             <div class="flex justify-between items-center">
                 <div>
                     <h1 class="text-xl font-semibold text-slate-800">Employee Management</h1>
@@ -16,11 +16,11 @@
         </div>
     </div>
 
-    <div class="container mx-auto px-4 py-6">
+    <div class="px-4 py-6">
         <!-- Metrics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <!-- Employee Distribution -->
-            <div class="bg-white rounded-lg p-5 shadow-sm border border-slate-100">
+            <div class="rounded-lg p-5 shadow-sm border border-slate-100">
                 <div class="flex items-center justify-between mb-5">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-md bg-blue-50 flex items-center justify-center">
@@ -34,22 +34,22 @@
                 </div>
                 <div class="grid grid-cols-3 divide-x divide-slate-100">
                     <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">{{getActiveEmployeesCount()}}</div>
+                        <div class="text-lg font-semibold text-slate-800">{{statusCounts['Active']}}</div>
                         <div class="text-xs text-slate-500">Active</div>
                     </div>
                     <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">{{getOnLeaveCount()}}</div>
+                        <div class="text-lg font-semibold text-slate-800">{{statusCounts['On Leave']}}</div>
                         <div class="text-xs text-slate-500">On Leave</div>
                     </div>
                     <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">{{getTerminatedCount()}}</div>
+                        <div class="text-lg font-semibold text-slate-800">{{statusCounts['Terminated']}}</div>
                         <div class="text-xs text-slate-500">Terminated</div>
                     </div>
                 </div>
             </div>
 
             <!-- Department Strength -->
-            <div class="bg-white rounded-lg p-5 shadow-sm border border-slate-100">
+            <div class="rounded-lg p-5 shadow-sm border border-slate-100">
                 <div class="flex items-center justify-between mb-5">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-md bg-purple-50 flex items-center justify-center">
@@ -63,15 +63,15 @@
                 </div>
                 <div class="grid grid-cols-3 divide-x divide-slate-100">
                     <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">{{getDepartmentCount('IT Department')}}</div>
+                        <div class="text-lg font-semibold text-slate-800">{{departmentCounts['IT Department']}}</div>
                         <div class="text-xs text-slate-500">IT</div>
                     </div>
                     <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">{{getDepartmentCount('HR Department')}}</div>
+                        <div class="text-lg font-semibold text-slate-800">{{departmentCounts['HR Department']}}</div>
                         <div class="text-xs text-slate-500">HR</div>
                     </div>
                     <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">{{getDepartmentCount('Finance Department')}}</div>
+                        <div class="text-lg font-semibold text-slate-800">{{departmentCounts['Finance Department']}}</div>
                         <div class="text-xs text-slate-500">Finance</div>
                     </div>
                 </div>
@@ -79,7 +79,7 @@
         </div>
 
         <!-- Employee Records Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="rounded-xl shadow-sm border border-slate-100">
             <!-- Table Toolbar -->
             <p-toolbar styleClass="mb-0 px-4 py-2 border-x-0 border-t-0 border-b border-slate-200 bg-white">
                 <ng-template pTemplate="start">
@@ -114,9 +114,7 @@
                                 type="button" 
                                 icon="pi pi-filter-slash" 
                                 class="p-button-text p-button-secondary" 
-                                (click)="clear(dt1)"
-                                pTooltip="Clear all filters"
-                                tooltipPosition="left">
+                                (click)="clear(dt1)">
                         </button>
                     </div>
                 </ng-template>
@@ -136,24 +134,27 @@
                                 label="Set Inactive" 
                                 icon="pi pi-user-minus"
                                 (click)="confirmSetInactive()" 
-                                class="p-button-secondary p-button-sm"></button>
+                                class="p-button-secondary p-button-sm">
+                        </button>
                         <button pButton 
                                 type="button" 
                                 label="Delete" 
                                 icon="pi pi-trash"
                                 (click)="confirmDeleteSelected()" 
-                                class="p-button-danger p-button-sm"></button>
+                                class="p-button-danger p-button-sm">
+                        </button>
                     </div>
                 </div>
                 <button pButton 
                         type="button" 
                         icon="pi pi-times"
                         (click)="clearSelection()" 
-                        class="p-button-text p-button-secondary p-button-sm"
-                        pTooltip="Clear selection"></button>
+                        class="p-button-text p-button-secondary p-button-sm">
+                </button>
             </div>
             
-            <div class="p-0">
+            <!-- Table -->
+            <div class="overflow-auto">
                 <p-table #dt1 [value]="customers" 
                          [(selection)]="selectedCustomers"
                          dataKey="id" 
@@ -161,9 +162,9 @@
                          [rowsPerPageOptions]="[10, 25, 50]" 
                          [loading]="loading" 
                          [paginator]="true" 
-                         [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
+                         [globalFilterFields]="['name', 'designation', 'department.name', 'status', 'email']"
                          [rowHover]="true"
-                         >
+                         styleClass="w-full">
                     
                     <ng-template pTemplate="header">
                         <tr class="bg-slate-50 border-t border-slate-200">
@@ -189,18 +190,19 @@
                                     <span class="text-sm font-semibold text-slate-700">Status</span>
                                     <p-columnFilter field="status" matchMode="equals" display="menu">
                                         <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                            <p-select [ngModel]="selectedStatus" 
-                                                     (ngModelChange)="onStatusChange($event, filter)" 
-                                                     [options]="statuses" 
-                                                     placeholder="Select Status" 
-                                                     styleClass="w-full">
+                                            <p-dropdown [options]="statuses" 
+                                                      [(ngModel)]="selectedStatus"
+                                                      optionLabel="label"
+                                                      [showClear]="true"
+                                                      (onChange)="onStatusChange($event, dt1)"
+                                                      styleClass="w-full">
                                                 <ng-template let-option pTemplate="item">
                                                     <p-tag [value]="option.label" 
                                                           [severity]="getSeverity(option.value)"
                                                           [rounded]="true">
                                                     </p-tag>
                                                 </ng-template>
-                                            </p-select>
+                                            </p-dropdown>
                                         </ng-template>
                                     </p-columnFilter>
                                 </div>
@@ -277,11 +279,13 @@
                                     <button pButton 
                                             type="button" 
                                             icon="pi pi-pencil" 
-                                            class="p-button-text p-button-sm p-button-secondary"></button>
+                                            class="p-button-text p-button-sm p-button-secondary">
+                                    </button>
                                     <button pButton 
                                             type="button" 
                                             icon="pi pi-trash" 
-                                            class="p-button-text p-button-sm p-button-danger"></button>
+                                            class="p-button-text p-button-sm p-button-danger">
+                                    </button>
                                 </div>
                             </td>
                         </tr>

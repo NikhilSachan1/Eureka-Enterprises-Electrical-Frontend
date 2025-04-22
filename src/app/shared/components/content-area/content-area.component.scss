@@ -1,14 +1,16 @@
 :host {
   display: block;
   flex: 1;
+  height: 100vh;
+  overflow: hidden;
 }
 
 // Content area component with light/dark theme support
 .content-area {
   flex: 1;
   height: 100%;
-  min-height: 100vh;
-  padding: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
   background-color: var(--background-default-color, white);
   color: var(--text-primary-color, #1e293b);
   transition: margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -24,6 +26,25 @@
   &--dark {
     background-color: var(--background-default-color, #0f172a);
     color: var(--text-primary-color, #f8fafc);
+  }
+
+  // Scrollbar styling
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
   }
 }
 

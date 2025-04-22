@@ -5,17 +5,12 @@ import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
-import { MenuModule } from 'primeng/menu';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { SelectModule } from 'primeng/select';
-import { SliderModule } from 'primeng/slider';
-import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
 
@@ -29,20 +24,11 @@ import { DividerModule } from 'primeng/divider';
     ButtonModule,
     InputTextModule,
     DropdownModule,
-    MenuModule,
     ConfirmDialogModule,
     ToastModule,
-    TableModule,
-    CommonModule,
-    InputTextModule,
     TagModule,
-    SelectModule,
-    MultiSelectModule,
-    ButtonModule,
     IconFieldModule,
     InputIconModule,
-    SliderModule,
-    TooltipModule,
     ToolbarModule,
     DividerModule
   ],
@@ -53,14 +39,23 @@ import { DividerModule } from 'primeng/divider';
 export class EmployeeListComponent implements OnInit {
   customers: any[] = [];
   selectedCustomers: any[] = [];
-  representatives: any[] = [];
   statuses: any[] = [];
   loading: boolean = true;
-  activityValues: number[] = [0, 100];
-  searchValue: string | undefined;
-  selectedRepresentatives: any[] = [];
   selectedStatus: any = null;
-  selectedActivity: number[] = [0, 100];
+
+  // Static department counts
+  departmentCounts = {
+    'IT Department': 2,
+    'HR Department': 1,
+    'Finance Department': 1
+  };
+
+  // Static status counts
+  statusCounts = {
+    'Active': 2,
+    'On Leave': 1,
+    'Terminated': 1
+  };
 
   @ViewChild('dt1') dt1: Table | undefined;
 
@@ -68,70 +63,6 @@ export class EmployeeListComponent implements OnInit {
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {}
-
-  getActiveEmployeesCount(): number {
-    return this.customers.filter(c => c.status === 'Active').length;
-  }
-
-  getOtherEmployeesCount(): number {
-    return this.customers.filter(c => c.status !== 'Active').length;
-  }
-
-  getOnLeaveCount(): number {
-    return this.customers.filter(customer => customer.status === 'On Leave').length;
-  }
-
-  getTerminatedCount(): number {
-    return this.customers.filter(customer => customer.status === 'Terminated').length;
-  }
-
-  getDepartmentCount(departmentName: string): number {
-    return this.customers.filter(customer => customer.department.name === departmentName).length;
-  }
-
-  getRecentHiresCount(): number {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    return this.customers.filter(customer => {
-      const joinDate = new Date(customer.date);
-      return joinDate >= thirtyDaysAgo;
-    }).length;
-  }
-
-  getPromotionsCount(): number {
-    // This would typically come from a separate promotions tracking system
-    // For now, returning a placeholder value
-    return 0;
-  }
-
-  getPendingReviewsCount(): number {
-    // This would typically come from a performance review system
-    // For now, returning a placeholder value
-    return 0;
-  }
-
-  getAverageTenure(): number {
-    const now = new Date();
-    const totalMonths = this.customers.reduce((sum, customer) => {
-      const joinDate = new Date(customer.date);
-      const months = (now.getFullYear() - joinDate.getFullYear()) * 12 + 
-                    (now.getMonth() - joinDate.getMonth());
-      return sum + months;
-    }, 0);
-    return Math.round(totalMonths / this.customers.length);
-  }
-
-  getAttritionRate(): number {
-    const terminatedCount = this.getTerminatedCount();
-    const totalEmployees = this.customers.length;
-    return Math.round((terminatedCount / totalEmployees) * 100);
-  }
-
-  getTrainingCompletion(): number {
-    // This would typically come from a training management system
-    // For now, returning a placeholder value
-    return 85;
-  }
 
   clearSelection(): void {
     this.selectedCustomers = [];
@@ -143,7 +74,6 @@ export class EmployeeListComponent implements OnInit {
       header: 'Confirm Status Change',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        // Update status to inactive for selected employees
         this.selectedCustomers.forEach(customer => {
           const index = this.customers.findIndex(c => c.id === customer.id);
           if (index !== -1) {
@@ -200,8 +130,7 @@ export class EmployeeListComponent implements OnInit {
         status: 'Active',
         verified: true,
         contactNumber: '+1 (555) 123-4567',
-        email: 'james.wilson@eureka.com',
-        balance: 65000
+        email: 'james.wilson@eureka.com'
       },
       {
         id: 1002,
@@ -217,8 +146,7 @@ export class EmployeeListComponent implements OnInit {
         status: 'On Leave',
         verified: true,
         contactNumber: '+1 (555) 234-5678',
-        email: 'sarah.johnson@eureka.com',
-        balance: 55000
+        email: 'sarah.johnson@eureka.com'
       },
       {
         id: 1003,
@@ -234,8 +162,7 @@ export class EmployeeListComponent implements OnInit {
         status: 'Active',
         verified: true,
         contactNumber: '+1 (555) 345-6789',
-        email: 'michael.brown@eureka.com',
-        balance: 72000
+        email: 'michael.brown@eureka.com'
       },
       {
         id: 1004,
@@ -251,8 +178,7 @@ export class EmployeeListComponent implements OnInit {
         status: 'Terminated',
         verified: false,
         contactNumber: '+1 (555) 456-7890',
-        email: 'emily.davis@eureka.com',
-        balance: 0
+        email: 'emily.davis@eureka.com'
       }
     ];
 
@@ -262,19 +188,6 @@ export class EmployeeListComponent implements OnInit {
         customer.lastWorkingDate = new Date(customer.lastWorkingDate);
       }
     });
-
-    this.representatives = [
-      { name: 'Amy Elsner', image: 'amyelsner.png' },
-      { name: 'Anna Fali', image: 'annafali.png' },
-      { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-      { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-      { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-      { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-      { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-      { name: 'Onyama Limba', image: 'onyamalimba.png' },
-      { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-      { name: 'Xuxue Feng', image: 'xuxuefeng.png' }
-    ];
 
     this.statuses = [
       { label: 'Active', value: 'Active' },
@@ -290,7 +203,6 @@ export class EmployeeListComponent implements OnInit {
 
   clear(table: Table) {
     table.clear();
-    this.searchValue = '';
   }
 
   getSeverity(status: string): 'success' | 'warn' | 'info' | 'danger' {
@@ -308,10 +220,6 @@ export class EmployeeListComponent implements OnInit {
     }
   }
 
-  onRepresentativeChange(event: any, filter: Function) {
-    filter(event);
-  }
-
   onGlobalFilter(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     if (this.dt1) {
@@ -325,9 +233,5 @@ export class EmployeeListComponent implements OnInit {
     } else {
       table.filter(null, 'status', 'equals');
     }
-  }
-
-  onActivityChange(value: any, filter: Function) {
-    filter(value);
   }
 }
