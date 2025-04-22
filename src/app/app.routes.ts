@@ -1,12 +1,7 @@
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './features/home/dashboard/dashboard.component';
 import { ROUTE_BASE_PATHS } from './shared/constants/index';
 
 export const routes: Routes = [
-  {
-    path: 'dashboard',
-    component: DashboardComponent
-  },
   {
     path: ROUTE_BASE_PATHS.EMPLOYEE,
     loadChildren: () => import('./features/employee-management/employee-management.routes')
