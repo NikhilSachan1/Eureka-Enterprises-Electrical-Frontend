@@ -78,48 +78,57 @@
             </div>
         </div>
 
-        <!-- Employee Records Table -->
-        <div class="rounded-xl shadow-sm border border-slate-100">
-            <!-- Table Toolbar -->
-            <p-toolbar styleClass="mb-0 px-4 py-2 border-x-0 border-t-0 border-b border-slate-200 bg-white">
-                <ng-template pTemplate="start">
-                    <div class="flex items-center gap-3">
-                        <p-dropdown [options]="statuses" 
-                                   [(ngModel)]="selectedStatus"
-                                   optionLabel="label"
-                                   placeholder="Filter by Status"
-                                   [showClear]="true"
-                                   styleClass="w-[200px]"
-                                   (onChange)="onStatusChange($event, dt1)">
-                            <ng-template let-option pTemplate="item">
-                                <span class="text-sm">{{option.label}}</span>
+        <!-- Enterprise Filter Dashboard -->
+        <div class="bg-white border-b border-slate-200">
+            <!-- Search & Filter Bar -->
+            <div class="px-6 py-4">
+                <div class="flex flex-col sm:flex-row items-stretch gap-4">
+                    <!-- Status Filter -->
+                    <div class="w-full sm:w-[200px]">
+                        <p-select [options]="statuses" 
+                                [(ngModel)]="selectedStatus"
+                                optionLabel="label"
+                                [showClear]="true"
+                                [checkmark]="true"
+                                placeholder="Filter by Status"
+                                class="w-full"
+                                (onChange)="onStatusChange($event, dt1)">
+                            <ng-template let-item pTemplate="item">
+                                <div class="flex items-center py-1">
+                                    <p-tag [value]="item.label" 
+                                          [severity]="getSeverity(item.value)"
+                                          [rounded]="true">
+                                    </p-tag>
+                                </div>
                             </ng-template>
-                            <ng-template let-option pTemplate="selectedItem">
-                                <span class="text-sm">{{option.label}}</span>
+                            <ng-template let-value pTemplate="value">
+                                <div class="flex items-center">
+                                    <p-tag [value]="value.label" 
+                                          [severity]="getSeverity(value.value)"
+                                          [rounded]="true">
+                                    </p-tag>
+                                </div>
                             </ng-template>
-                        </p-dropdown>
+                        </p-select>
                     </div>
-                </ng-template>
-                <ng-template pTemplate="end">
-                    <div class="flex items-center gap-3">
-                        <p-iconfield class="w-80">
-                            <p-inputicon styleClass="pi pi-search" />
+
+                    <!-- Search Bar -->
+                    <div class="w-full">
+                        <p-iconfield styleClass="w-full">
+                            <p-inputicon styleClass="pi pi-search text-slate-400" />
                             <input type="text" 
                                    pInputText 
-                                   class="w-full" 
+                                   class="w-full border-slate-200 rounded-lg" 
                                    (input)="onGlobalFilter($event)" 
                                    placeholder="Search employees..." />
                         </p-iconfield>
-                        <button pButton 
-                                type="button" 
-                                icon="pi pi-filter-slash" 
-                                class="p-button-text p-button-secondary" 
-                                (click)="clear(dt1)">
-                        </button>
                     </div>
-                </ng-template>
-            </p-toolbar>
+                </div>
+            </div>
+        </div>
 
+        <!-- Employee Records Table -->
+        <div class="rounded-xl shadow-sm border border-slate-100">
             <!-- Bulk Actions -->
             <div *ngIf="selectedCustomers.length > 0" 
                  class="px-4 py-2 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
@@ -154,7 +163,7 @@
             </div>
             
             <!-- Table -->
-            <div class="overflow-auto">
+            <div>
                 <p-table #dt1 [value]="customers" 
                          [(selection)]="selectedCustomers"
                          dataKey="id" 
@@ -190,7 +199,7 @@
                                     <span class="text-sm font-semibold text-slate-700">Status</span>
                                     <p-columnFilter field="status" matchMode="equals" display="menu">
                                         <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                            <p-dropdown [options]="statuses" 
+                                            <p-select [options]="statuses" 
                                                       [(ngModel)]="selectedStatus"
                                                       optionLabel="label"
                                                       [showClear]="true"
@@ -202,7 +211,7 @@
                                                           [rounded]="true">
                                                     </p-tag>
                                                 </ng-template>
-                                            </p-dropdown>
+                                            </p-select>
                                         </ng-template>
                                     </p-columnFilter>
                                 </div>

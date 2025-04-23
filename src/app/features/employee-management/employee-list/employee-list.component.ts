@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
+import { Select } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -23,7 +23,7 @@ import { DividerModule } from 'primeng/divider';
     TableModule,
     ButtonModule,
     InputTextModule,
-    DropdownModule,
+    Select,
     ConfirmDialogModule,
     ToastModule,
     TagModule,
