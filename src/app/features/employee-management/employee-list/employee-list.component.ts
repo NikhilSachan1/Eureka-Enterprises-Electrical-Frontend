@@ -43,20 +43,6 @@ export class EmployeeListComponent implements OnInit {
   loading: boolean = true;
   selectedStatus: any = null;
 
-  // Static department counts
-  departmentCounts = {
-    'IT Department': 2,
-    'HR Department': 1,
-    'Finance Department': 1
-  };
-
-  // Static status counts
-  statusCounts = {
-    'Active': 2,
-    'On Leave': 1,
-    'Terminated': 1
-  };
-
   @ViewChild('dt1') dt1: Table | undefined;
 
   constructor(
@@ -128,7 +114,6 @@ export class EmployeeListComponent implements OnInit {
         date: '2024-01-15',
         lastWorkingDate: null,
         status: 'Active',
-        verified: true,
         contactNumber: '+1 (555) 123-4567',
         email: 'james.wilson@eureka.com'
       },
@@ -144,7 +129,6 @@ export class EmployeeListComponent implements OnInit {
         date: '2023-11-20',
         lastWorkingDate: null,
         status: 'On Leave',
-        verified: true,
         contactNumber: '+1 (555) 234-5678',
         email: 'sarah.johnson@eureka.com'
       },
@@ -160,7 +144,6 @@ export class EmployeeListComponent implements OnInit {
         date: '2024-02-01',
         lastWorkingDate: null,
         status: 'Active',
-        verified: true,
         contactNumber: '+1 (555) 345-6789',
         email: 'michael.brown@eureka.com'
       },
@@ -176,7 +159,6 @@ export class EmployeeListComponent implements OnInit {
         date: '2023-08-15',
         lastWorkingDate: '2024-01-31',
         status: 'Terminated',
-        verified: false,
         contactNumber: '+1 (555) 456-7890',
         email: 'emily.davis@eureka.com'
       }
@@ -199,10 +181,6 @@ export class EmployeeListComponent implements OnInit {
     if (this.dt1) {
       this.dt1.filter('Active', 'status', 'equals');
     }
-  }
-
-  clear(table: Table) {
-    table.clear();
   }
 
   getSeverity(status: string): 'success' | 'warn' | 'info' | 'danger' {
