@@ -1,107 +1,155 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Table, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { TagModule } from 'primeng/tag';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
+import { MetricsCardComponent } from '../../../shared/components/metrics-card/metrics-card.component';
+import { TableColumn } from '../../../shared/interfaces/table-column.interface';
+import { TableFilter } from '../../../shared/interfaces/table-filter.interface';
+
+// Type definitions for better type safety
+interface Department {
+  name: string;
+  code: string;
+}
+
+interface Employee {
+  id: number;
+  name: string;
+  designation: string;
+  department: Department;
+  company: string;
+  date: Date | string;
+  lastWorkingDate: Date | string | null;
+  status: string;
+  contactNumber: string;
+  email: string;
+}
 
 @Component({
   selector: 'app-employee-list',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    TableModule,
-    ButtonModule,
-    InputTextModule,
-    Select,
     ConfirmDialogModule,
     ToastModule,
-    TagModule,
-    IconFieldModule,
-    InputIconModule,
-    ToolbarModule,
-    DividerModule
+    PageHeaderComponent,
+    DataTableComponent,
+    MetricsCardComponent
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss'
 })
 export class EmployeeListComponent implements OnInit {
-  customers: any[] = [];
-  selectedCustomers: any[] = [];
-  statuses: any[] = [];
+  employees: Employee[] = [];
+  selectedEmployees: Employee[] = [];
   loading: boolean = true;
-  selectedStatus: any = null;
-
-  @ViewChild('dt1') dt1: Table | undefined;
+  
+  // Dynamic filters configuration
+  tableFilters: TableFilter[] = [];
+  
+  // Table column configuration
+  tableColumns: TableColumn[] = [
+    { 
+      field: 'name', 
+      header: 'Employee Name', 
+      filterType: 'text',
+      bodyTemplate: 'nameWithAvatar',
+      secondaryField: 'company'
+    },
+    { 
+      field: 'designation', 
+      header: 'Role & Department', 
+      filterType: 'text',
+      bodyTemplate: 'textWithSubtitle',
+      secondaryField: 'department.name',
+    },
+    { 
+      field: 'status', 
+      header: 'Status', 
+      filterType: 'text',
+      bodyTemplate: 'status'
+    },
+    { 
+      field: 'contactNumber', 
+      header: 'Contact Number', 
+      filterType: 'text'
+    },
+    { 
+      field: 'email', 
+      header: 'Email Address', 
+      filterType: 'text',
+      bodyTemplate: 'email'
+    },
+    { 
+      field: 'date', 
+      header: 'Employment Period', 
+      filterType: 'date',
+      bodyTemplate: 'dateRange',
+      secondaryField: 'lastWorkingDate',
+      labelPrimary: 'Start',
+      labelSecondary: 'End'
+    }
+  ];
+  
+  // Global filter fields
+  globalFilterFields: string[] = ['name', 'designation', 'department.name', 'status', 'email'];
+  
+  // Employee distribution metrics
+  employeeDistribution = {
+    title: 'Employee Distribution',
+    subtitle: 'Current workforce status',
+    iconClass: 'pi pi-chart-pie text-blue-500',
+    iconBgClass: 'bg-blue-50',
+    metrics: [
+      { label: 'Active', value: 2 },
+      { label: 'On Leave', value: 1 },
+      { label: 'Terminated', value: 1 }
+    ]
+  };
+  
+  // Department metrics
+  departmentMetrics = {
+    title: 'Department Strength',
+    subtitle: 'Employee by department',
+    iconClass: 'pi pi-users text-purple-500',
+    iconBgClass: 'bg-purple-50',
+    metrics: [
+      { label: 'IT', value: 2 },
+      { label: 'HR', value: 1 },
+      { label: 'Finance', value: 1 }
+    ]
+  };
+  
+  // Row actions
+  rowActions = [
+    { id: 'edit', icon: 'pi pi-pencil', class: 'p-button-text p-button-sm p-button-secondary' },
+    { id: 'delete', icon: 'pi pi-trash', class: 'p-button-text p-button-sm p-button-danger' }
+  ];
+  
+  // Bulk actions
+  bulkActions = [
+    { id: 'setInactive', label: 'Set Inactive', icon: 'pi pi-user-minus', class: 'p-button-secondary p-button-sm' },
+    { id: 'delete', label: 'Delete', icon: 'pi pi-trash', class: 'p-button-danger p-button-sm' },
+  ];
 
   constructor(
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {}
 
-  clearSelection(): void {
-    this.selectedCustomers = [];
-  }
-
-  confirmSetInactive(): void {
-    this.confirmationService.confirm({
-      message: `Are you sure you want to set ${this.selectedCustomers.length} employee(s) as inactive?`,
-      header: 'Confirm Status Change',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.selectedCustomers.forEach(customer => {
-          const index = this.customers.findIndex(c => c.id === customer.id);
-          if (index !== -1) {
-            this.customers[index] = { ...customer, status: 'Inactive' };
-          }
-        });
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `${this.selectedCustomers.length} employee(s) set to inactive`
-        });
-        
-        this.selectedCustomers = [];
-      }
-    });
-  }
-
-  confirmDeleteSelected(): void {
-    this.confirmationService.confirm({
-      message: `Are you sure you want to delete ${this.selectedCustomers.length} selected employee(s)?`,
-      header: 'Confirm Delete',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.customers = this.customers.filter(
-          c => !this.selectedCustomers.some(sc => sc.id === c.id)
-        );
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `${this.selectedCustomers.length} employee(s) deleted successfully`
-        });
-        
-        this.selectedCustomers = [];
-      }
-    });
-  }
-
   ngOnInit() {
-    this.loading = false;
-    this.customers = [
+    this.initializeEmployees();
+    this.configureFilters();
+  }
+
+  // Initialize test employee data
+  private initializeEmployees(): void {
+    this.loading = true;
+    const employeeData: Partial<Employee>[] = [
       {
         id: 1001,
         name: 'James Wilson',
@@ -164,52 +212,138 @@ export class EmployeeListComponent implements OnInit {
       }
     ];
 
-    this.customers.forEach((customer) => {
-      customer.date = new Date(customer.date);
-      if (customer.lastWorkingDate) {
-        customer.lastWorkingDate = new Date(customer.lastWorkingDate);
+    // Convert to proper employee objects with date formatting
+    this.employees = employeeData as Employee[];
+    this.employees.forEach((employee) => {
+      if (typeof employee.date === 'string') {
+        employee.date = new Date(employee.date);
+      }
+      if (employee.lastWorkingDate && typeof employee.lastWorkingDate === 'string') {
+        employee.lastWorkingDate = new Date(employee.lastWorkingDate);
       }
     });
+    
+    this.loading = false;
+  }
 
-    this.statuses = [
-      { label: 'Active', value: 'Active' },
-      { label: 'Inactive', value: 'Inactive' },
-      { label: 'On Leave', value: 'On Leave' },
-      { label: 'Terminated', value: 'Terminated' }
+  // Configure dynamic filters for the data table
+  private configureFilters(): void {
+    this.tableFilters = [
+      {
+        field: 'status',
+        options: [
+          { label: 'Active', value: 'Active' },
+          { label: 'Inactive', value: 'Inactive' },
+          { label: 'On Leave', value: 'On Leave' },
+          { label: 'Terminated', value: 'Terminated' }
+        ],
+        selected: null,
+        placeholder: 'Filter by Status',
+        showTags: false
+      },
+      {
+        field: 'department.code',
+        options: [
+          { label: 'IT Department', value: 'it' },
+          { label: 'HR Department', value: 'hr' },
+          { label: 'Finance Department', value: 'fin' }
+        ],
+        selected: null,
+        placeholder: 'Filter by Department',
+        showTags: false
+      }
     ];
+  }
 
-    if (this.dt1) {
-      this.dt1.filter('Active', 'status', 'equals');
+  onAddEmployee() {
+    // Logic to handle adding a new employee
+    console.log('Add new employee clicked');
+  }
+
+  onFilterChange(event: {field: string, value: any}) {
+    console.log('Filter changed:', event);
+  }
+
+  onRowAction(event: {actionId: string, item: any}) {
+    const { actionId, item } = event;
+    
+    if (actionId === 'edit') {
+      console.log('Edit employee:', item);
+      // Handle edit logic
+    } else if (actionId === 'delete') {
+      this.confirmDeleteEmployee(item);
     }
   }
 
-  getSeverity(status: string): 'success' | 'warn' | 'info' | 'danger' {
-    switch (status) {
-      case 'Active':
-        return 'success';
-      case 'Inactive':
-        return 'warn';
-      case 'On Leave':
-        return 'info';
-      case 'Terminated':
-        return 'danger';
-      default:
-        return 'info';
+  onBulkAction(event: {actionId: string, items: any[]}) {
+    const { actionId, items } = event;
+    
+    if (actionId === 'setInactive') {
+      this.confirmSetInactive(items);
+    } else if (actionId === 'delete') {
+      this.confirmDeleteSelected(items);
     }
   }
 
-  onGlobalFilter(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    if (this.dt1) {
-      this.dt1.filterGlobal(value, 'contains');
-    }
+  confirmSetInactive(employees: Employee[]): void {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to set ${employees.length} employee(s) as inactive?`,
+      header: 'Confirm Status Change',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        employees.forEach(employee => {
+          const index = this.employees.findIndex(e => e.id === employee.id);
+          if (index !== -1) {
+            this.employees[index] = { ...employee, status: 'Inactive' };
+          }
+        });
+        
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `${employees.length} employee(s) set to inactive`
+        });
+        
+        this.selectedEmployees = [];
+      }
+    });
   }
 
-  onStatusChange(event: any, table: Table) {
-    if (event.value) {
-      table.filter(event.value.value, 'status', 'equals');
-    } else {
-      table.filter(null, 'status', 'equals');
-    }
+  confirmDeleteEmployee(employee: Employee): void {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to delete ${employee.name}?`,
+      header: 'Confirm Delete',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.employees = this.employees.filter(e => e.id !== employee.id);
+        
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Employee deleted successfully'
+        });
+      }
+    });
+  }
+
+  confirmDeleteSelected(employees: Employee[]): void {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to delete ${employees.length} selected employee(s)?`,
+      header: 'Confirm Delete',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.employees = this.employees.filter(
+          e => !employees.some(se => se.id === e.id)
+        );
+        
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `${employees.length} employee(s) deleted successfully`
+        });
+        
+        this.selectedEmployees = [];
+      }
+    });
   }
 }

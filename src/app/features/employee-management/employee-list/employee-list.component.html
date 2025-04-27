@@ -1,326 +1,59 @@
 <div class="p-4">
     <!-- Header Section -->
-    <div class="border-b border-slate-200 shadow-sm w-full rounded-xl mb-6">
-        <div class="px-4 py-4">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-xl font-semibold text-slate-800">Employee Management</h1>
-                    <p class="text-sm text-slate-500 mt-0.5">Track, manage, and monitor employee information</p>
-                </div>
-                <button pButton type="button" 
-                        label="Add New Employee"
-                        icon="pi pi-plus"
-                        class="p-button-success text-sm">
-                </button>
-            </div>
-        </div>
-    </div>
+    <app-page-header 
+        title="Employee Management"
+        subtitle="Track, manage, and monitor employee information"
+        [showAddButton]="true"
+        addButtonLabel="Add New Employee"
+        buttonClass="p-button-success text-sm"
+        (addButtonClick)="onAddEmployee()">
+    </app-page-header>
 
     <div class="px-4 py-6">
         <!-- Metrics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <!-- Employee Distribution -->
-            <div class="rounded-lg p-5 shadow-sm border border-slate-100">
-                <div class="flex items-center justify-between mb-5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-md bg-blue-50 flex items-center justify-center">
-                            <i class="pi pi-chart-pie text-blue-500"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-semibold text-slate-700">Employee Distribution</h3>
-                            <p class="text-xs text-slate-400">Current workforce status</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 divide-x divide-slate-100">
-                    <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">2</div>
-                        <div class="text-xs text-slate-500">Active</div>
-                    </div>
-                    <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">1</div>
-                        <div class="text-xs text-slate-500">On Leave</div>
-                    </div>
-                    <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">1</div>
-                        <div class="text-xs text-slate-500">Terminated</div>
-                    </div>
-                </div>
-            </div>
+            <app-metrics-card
+                [title]="employeeDistribution.title"
+                [subtitle]="employeeDistribution.subtitle"
+                [iconClass]="employeeDistribution.iconClass"
+                [iconBgClass]="employeeDistribution.iconBgClass"
+                [metrics]="employeeDistribution.metrics">
+            </app-metrics-card>
 
             <!-- Department Strength -->
-            <div class="rounded-lg p-5 shadow-sm border border-slate-100">
-                <div class="flex items-center justify-between mb-5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-md bg-purple-50 flex items-center justify-center">
-                            <i class="pi pi-users text-purple-500"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-semibold text-slate-700">Department Strength</h3>
-                            <p class="text-xs text-slate-400">Employee by department</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 divide-x divide-slate-100">
-                    <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">2</div>
-                        <div class="text-xs text-slate-500">IT</div>
-                    </div>
-                    <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">1</div>
-                        <div class="text-xs text-slate-500">HR</div>
-                    </div>
-                    <div class="px-3">
-                        <div class="text-lg font-semibold text-slate-800">1</div>
-                        <div class="text-xs text-slate-500">Finance</div>
-                    </div>
-                </div>
-            </div>
+            <app-metrics-card
+                [title]="departmentMetrics.title"
+                [subtitle]="departmentMetrics.subtitle"
+                [iconClass]="departmentMetrics.iconClass"
+                [iconBgClass]="departmentMetrics.iconBgClass"
+                [metrics]="departmentMetrics.metrics">
+            </app-metrics-card>
         </div>
 
-        <!-- Enterprise Filter Dashboard -->
-        <div class="bg-white border-b border-slate-200">
-            <!-- Search & Filter Bar -->
-            <div class="px-6 py-4">
-                <div class="flex flex-col sm:flex-row items-stretch gap-4">
-                    <!-- Status Filter -->
-                    <div class="w-full sm:w-[200px]">
-                        <p-select [options]="statuses" 
-                                [(ngModel)]="selectedStatus"
-                                optionLabel="label"
-                                [showClear]="true"
-                                [checkmark]="true"
-                                placeholder="Filter by Status"
-                                class="w-full"
-                                (onChange)="onStatusChange($event, dt1)">
-                            <ng-template let-item pTemplate="item">
-                                <div class="flex items-center py-1">
-                                    <p-tag [value]="item.label" 
-                                          [severity]="getSeverity(item.value)"
-                                          [rounded]="true">
-                                    </p-tag>
-                                </div>
-                            </ng-template>
-                            <ng-template let-value pTemplate="value">
-                                <div class="flex items-center">
-                                    <p-tag [value]="value.label" 
-                                          [severity]="getSeverity(value.value)"
-                                          [rounded]="true">
-                                    </p-tag>
-                                </div>
-                            </ng-template>
-                        </p-select>
-                    </div>
-
-                    <!-- Search Bar -->
-                    <div class="w-full">
-                        <p-iconfield styleClass="w-full">
-                            <p-inputicon styleClass="pi pi-search text-slate-400" />
-                            <input type="text" 
-                                   pInputText 
-                                   class="w-full border-slate-200 rounded-lg" 
-                                   (input)="onGlobalFilter($event)" 
-                                   placeholder="Search employees..." />
-                        </p-iconfield>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Employee Records Table -->
-        <div class="rounded-xl shadow-sm border border-slate-100">
-            <!-- Bulk Actions -->
-            <div *ngIf="selectedCustomers.length > 0" 
-                 class="px-4 py-2 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-sm font-medium text-slate-600">
-                        2 employees selected
-                    </span>
-                    <p-divider layout="vertical"></p-divider>
-                    <div class="flex gap-2">
-                        <button pButton 
-                                type="button" 
-                                label="Set Inactive" 
-                                icon="pi pi-user-minus"
-                                (click)="confirmSetInactive()" 
-                                class="p-button-secondary p-button-sm">
-                        </button>
-                        <button pButton 
-                                type="button" 
-                                label="Delete" 
-                                icon="pi pi-trash"
-                                (click)="confirmDeleteSelected()" 
-                                class="p-button-danger p-button-sm">
-                        </button>
-                    </div>
-                </div>
-                <button pButton 
-                        type="button" 
-                        icon="pi pi-times"
-                        (click)="clearSelection()" 
-                        class="p-button-text p-button-secondary p-button-sm">
-                </button>
-            </div>
-            
-            <!-- Table -->
-            <div>
-                <p-table #dt1 [value]="customers" 
-                         [(selection)]="selectedCustomers"
-                         dataKey="id" 
-                         [rows]="10" 
-                         [rowsPerPageOptions]="[10, 25, 50]" 
-                         [loading]="loading" 
-                         [paginator]="true" 
-                         [globalFilterFields]="['name', 'designation', 'department.name', 'status', 'email']"
-                         [rowHover]="true"
-                         styleClass="w-full">
-                    
-                    <ng-template pTemplate="header">
-                        <tr class="bg-slate-50 border-t border-slate-200">
-                            <th class="bg-slate-50">
-                                <div class="flex justify-center">
-                                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                                </div>
-                            </th>
-                            <th class="bg-slate-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Employee Name</span>
-                                    <p-columnFilter type="text" field="name" display="menu" />
-                                </div>
-                            </th>
-                            <th class="bg-slate-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Role & Department</span>
-                                    <p-columnFilter type="text" field="designation" display="menu" />
-                                </div>
-                            </th>
-                            <th class="bg-slate-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Status</span>
-                                    <p-columnFilter field="status" matchMode="equals" display="menu">
-                                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                            <p-select [options]="statuses" 
-                                                      [(ngModel)]="selectedStatus"
-                                                      optionLabel="label"
-                                                      [showClear]="true"
-                                                      (onChange)="onStatusChange($event, dt1)"
-                                                      styleClass="w-full">
-                                                <ng-template let-option pTemplate="item">
-                                                    <p-tag [value]="option.label" 
-                                                          [severity]="getSeverity(option.value)"
-                                                          [rounded]="true">
-                                                    </p-tag>
-                                                </ng-template>
-                                            </p-select>
-                                        </ng-template>
-                                    </p-columnFilter>
-                                </div>
-                            </th>
-                            <th class="bg-slate-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Contact Number</span>
-                                    <p-columnFilter type="text" field="contactNumber" display="menu" />
-                                </div>
-                            </th>
-                            <th class="bg-slate-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Email Address</span>
-                                    <p-columnFilter type="text" field="email" display="menu" />
-                                </div>
-                            </th>
-                            <th class="bg-slate-50">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-700">Employment Period</span>
-                                    <p-columnFilter type="date" field="date" display="menu"></p-columnFilter>
-                                </div>
-                            </th>
-                            <th class="bg-slate-50">Actions</th>
-                        </tr>
-                    </ng-template>
-
-                    <ng-template pTemplate="body" let-customer>
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td>
-                                <div class="flex justify-center">
-                                    <p-tableCheckbox [value]="customer"></p-tableCheckbox>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="flex items-center gap-3">
-                                    <img [src]="'https://ui-avatars.com/api/?name=' + customer.name" 
-                                         [alt]="customer.name"
-                                         class="w-8 h-8 rounded-full bg-slate-100" />
-                                    <div>
-                                        <div class="font-medium text-slate-900">{{ customer.name }}</div>
-                                        <div class="text-sm text-slate-500">{{ customer.company }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="flex flex-col gap-1">
-                                    <div class="font-medium text-slate-900">{{ customer.designation }}</div>
-                                    <div class="text-sm text-slate-500">{{ customer.department.name }}</div>
-                                </div>
-                            </td>
-                            <td>
-                                <p-tag [value]="customer.status" 
-                                      [severity]="getSeverity(customer.status)"
-                                      [rounded]="true">
-                                </p-tag>
-                            </td>
-                            <td>
-                                <span class="text-slate-600">{{ customer.contactNumber }}</span>
-                            </td>
-                            <td>
-                                <a href="mailto:{{customer.email}}" 
-                                   class="text-blue-600 hover:text-blue-800 hover:underline">
-                                    {{ customer.email }}
-                                </a>
-                            </td>
-                            <td>
-                                <div class="flex flex-col gap-1">
-                                    <div class="text-slate-600">Start: {{ customer.date | date: 'MMM d, yyyy' }}</div>
-                                    <div class="text-slate-600">End: {{ customer.lastWorkingDate ? (customer.lastWorkingDate | date: 'MMM d, yyyy') : 'Present' }}</div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="flex justify-center gap-1">
-                                    <button pButton 
-                                            type="button" 
-                                            icon="pi pi-pencil" 
-                                            class="p-button-text p-button-sm p-button-secondary">
-                                    </button>
-                                    <button pButton 
-                                            type="button" 
-                                            icon="pi pi-trash" 
-                                            class="p-button-text p-button-sm p-button-danger">
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
-
-                    <ng-template pTemplate="emptymessage">
-                        <tr>
-                            <td colspan="8">
-                                <div class="text-center py-6">
-                                    <i class="pi pi-search text-slate-300 text-4xl mb-4"></i>
-                                    <h3 class="text-lg font-medium text-slate-900">No employees found</h3>
-                                    <p class="text-slate-500 mt-2">Try adjusting your search or filter to find what you're looking for.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </div>
-        </div>
+        <!-- Employee Data Table -->
+        <app-data-table
+            [columns]="tableColumns"
+            [data]="employees"
+            [loading]="loading"
+            [globalFilterFields]="globalFilterFields"
+            [filters]="tableFilters"
+            searchPlaceholder="Search employees..."
+            [selectedItems]="selectedEmployees"
+            (selectionChange)="selectedEmployees = $event"
+            [rowActions]="rowActions"
+            [bulkActions]="bulkActions"
+            (filterChange)="onFilterChange($event)"
+            (rowActionClick)="onRowAction($event)"
+            (bulkActionClick)="onBulkAction($event)">
+        </app-data-table>
     </div>
 
     <p-confirmDialog [style]="{width: '450px'}" 
-                     styleClass="rounded-xl shadow-xl"
-                     [closeOnEscape]="true"
-                     acceptButtonStyleClass="p-button-danger"
-                     rejectButtonStyleClass="p-button-text">
+                    styleClass="rounded-xl shadow-xl"
+                    [closeOnEscape]="true"
+                    acceptButtonStyleClass="p-button-danger"
+                    rejectButtonStyleClass="p-button-text">
     </p-confirmDialog>
 
     <p-toast></p-toast>
