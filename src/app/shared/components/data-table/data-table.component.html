@@ -159,39 +159,39 @@
         </td>
         <td *ngFor="let col of columns">
           <ng-container *ngIf="!col.bodyTemplate">
-            {{ item[col.field] }}
+            {{ resolveNestedProperty(item, col.field) }}
           </ng-container>
           <ng-container *ngIf="col.bodyTemplate === 'nameWithAvatar'">
             <div class="flex items-center gap-3">
-              <img [src]="'https://ui-avatars.com/api/?name=' + item[col.field]" 
-                   [alt]="item[col.field]"
+              <img [src]="'https://ui-avatars.com/api/?name=' + resolveNestedProperty(item, col.field)" 
+                   [alt]="resolveNestedProperty(item, col.field)"
                    class="w-8 h-8 rounded-full bg-slate-100" />
               <div>
-                <div class="font-medium text-slate-900">{{ item[col.field] }}</div>
-                <div class="text-sm text-slate-500" *ngIf="col.secondaryField && item[col.secondaryField]">
-                  {{ item[col.secondaryField] }}
+                <div class="font-medium text-slate-900">{{ resolveNestedProperty(item, col.field) }}</div>
+                <div class="text-sm text-slate-500" *ngIf="col.secondaryField && resolveNestedProperty(item, col.secondaryField)">
+                  {{ resolveNestedProperty(item, col.secondaryField) }}
                 </div>
               </div>
             </div>
           </ng-container>
           <ng-container *ngIf="col.bodyTemplate === 'textWithSubtitle'">
             <div class="flex flex-col gap-1">
-              <div class="font-medium text-slate-900">{{ item[col.field] }}</div>
+              <div class="font-medium text-slate-900">{{ resolveNestedProperty(item, col.field) }}</div>
               <div class="text-sm text-slate-500" *ngIf="col.secondaryField && resolveNestedProperty(item, col.secondaryField)">
                 {{ resolveNestedProperty(item, col.secondaryField) }}
               </div>
             </div>
           </ng-container>
           <ng-container *ngIf="col.bodyTemplate === 'status'">
-            <p-tag [value]="item[col.field]" 
-                  [severity]="getSeverity(item[col.field])"
+            <p-tag [value]="resolveNestedProperty(item, col.field)" 
+                  [severity]="getSeverity(resolveNestedProperty(item, col.field))"
                   [rounded]="true">
             </p-tag>
           </ng-container>
           <ng-container *ngIf="col.bodyTemplate === 'email'">
-            <a [href]="'mailto:' + item[col.field]" 
+            <a [href]="'mailto:' + resolveNestedProperty(item, col.field)" 
                class="text-blue-600 hover:text-blue-800 hover:underline">
-                {{ item[col.field] }}
+                {{ resolveNestedProperty(item, col.field) }}
             </a>
           </ng-container>
           <ng-container *ngIf="col.bodyTemplate === 'nestedProperty'">
@@ -199,9 +199,9 @@
           </ng-container>
           <ng-container *ngIf="col.bodyTemplate === 'dateRange'">
             <div class="flex flex-col gap-1">
-              <div class="text-slate-600">{{ col.labelPrimary || 'From' }}: {{ item[col.field] | date: 'MMM d, yyyy' }}</div>
+              <div class="text-slate-600">{{ col.labelPrimary || 'From' }}: {{ resolveNestedProperty(item, col.field) | date: 'MMM d, yyyy' }}</div>
               <div class="text-slate-600" *ngIf="col.secondaryField">
-                {{ col.labelSecondary || 'To' }}: {{ item[col.secondaryField] ? (item[col.secondaryField] | date: 'MMM d, yyyy') : 'Present' }}
+                {{ col.labelSecondary || 'To' }}: {{ resolveNestedProperty(item, col.secondaryField) ? (resolveNestedProperty(item, col.secondaryField) | date: 'MMM d, yyyy') : 'Present' }}
               </div>
             </div>
           </ng-container>
