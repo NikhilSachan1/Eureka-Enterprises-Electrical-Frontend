@@ -142,9 +142,16 @@ export class DataTableComponent {
             const column = this.columns().find(col => 
               col.field === key || col.filterField === key
             );
-            const displayValue = typeof constraint.value === 'object' 
-              ? constraint.value.label || constraint.value.toString()
-              : constraint.value.toString();
+            
+            // Format the display value based on the field type
+            let displayValue: string;
+            if (key === 'employmentStatus') {
+              displayValue = constraint.value.label || constraint.value;
+            } else {
+              displayValue = typeof constraint.value === 'object' 
+                ? constraint.value.label || constraint.value.toString()
+                : constraint.value.toString();
+            }
               
             result.push({
               field: key,
@@ -223,14 +230,14 @@ export class DataTableComponent {
   }
 
   getSeverity(status: string): 'success' | 'warn' | 'info' | 'danger' {
-    switch (status) {
-      case 'Active':
+    switch (status?.toLowerCase()) {
+      case 'active':
         return 'success';
-      case 'Inactive':
+      case 'inactive':
         return 'warn';
-      case 'On Leave':
+      case 'on leave':
         return 'info';
-      case 'Terminated':
+      case 'terminated':
         return 'danger';
       default:
         return 'info';
@@ -250,7 +257,13 @@ export class DataTableComponent {
       if (event.value) {
         const filter = this.filters().find(f => f.field === field);
         const matchMode = filter?.matchMode || 'equals';
-        this.dt1.filter(event.value.value, field, matchMode);
+        
+        // Handle employment status filtering
+        if (field === 'employmentStatus') {
+          this.dt1.filter(event.value.value, field, 'equals');
+        } else {
+          this.dt1.filter(event.value.value, field, matchMode);
+        }
       } else {
         this.dt1.filter(null, field, 'equals');
       }
