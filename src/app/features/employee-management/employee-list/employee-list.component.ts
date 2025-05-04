@@ -292,20 +292,11 @@ export class EmployeeListComponent implements OnInit {
       header: 'Confirm Status Change',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        employees.forEach(employee => {
-          const index = this.employees.findIndex(e => e.id === employee.id);
-          if (index !== -1) {
-            this.employees[index] = { ...employee, status: 'Inactive' };
-          }
-        });
-        
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
           detail: `${employees.length} employee(s) set to inactive`
         });
-        
-        this.selectedEmployees = [];
       }
     });
   }
@@ -315,9 +306,7 @@ export class EmployeeListComponent implements OnInit {
       message: `Are you sure you want to delete ${employee.name}?`,
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.employees = this.employees.filter(e => e.id !== employee.id);
-        
+      accept: () => {        
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -333,17 +322,11 @@ export class EmployeeListComponent implements OnInit {
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.employees = this.employees.filter(
-          e => !employees.some(se => se.id === e.id)
-        );
-        
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
           detail: `${employees.length} employee(s) deleted successfully`
         });
-        
-        this.selectedEmployees = [];
       }
     });
   }
