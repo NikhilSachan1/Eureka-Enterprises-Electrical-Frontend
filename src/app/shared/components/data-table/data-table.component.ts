@@ -1,5 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ViewChild, model, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -14,6 +13,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
+import { DatePipe } from '@angular/common';
 
 interface FilterMetadata {
   field: string;
@@ -26,7 +26,6 @@ interface FilterMetadata {
   selector: 'app-data-table',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TableModule,
     ButtonModule,
@@ -38,7 +37,8 @@ interface FilterMetadata {
     ConfirmDialogModule,
     ToastModule,
     ToolbarModule,
-    DividerModule
+    DividerModule,
+    DatePipe
   ],
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss']
@@ -46,47 +46,55 @@ interface FilterMetadata {
 export class DataTableComponent {
   @ViewChild('dt1') dt1!: Table;
 
-  @Input() columns: TableColumn[] = [];
-  @Input() data: any[] = [];
-  @Input() loading: boolean = false;
-  @Input() selectable: boolean = true;
-  @Input() showActions: boolean = true;
-  @Input() showFilters: boolean = true;
-  @Input() rows: number = 10;
-  @Input() rowsPerPageOptions: number[] = [10, 25, 50];
-  @Input() globalFilterFields: string[] = [];
-  
-  @Input() selectedStatus: any = null;
-  
-  // New dynamic filters
-  @Input() filters: TableFilter[] = [];
-  
-  @Input() searchPlaceholder: string = 'Search...';
-  @Input() emptyMessage: string = 'No records found';
-  @Input() emptySubMessage: string = 'Try adjusting your search or filter to find what you\'re looking for.';
-  @Input() selectionItemName: string = 'records';
-  @Input() rowActions: { id: string, icon: string, class: string }[] = [
+  // Required inputs
+  columns = input.required<TableColumn[]>();
+  data = input.required<any[]>();
+
+  // Optional inputs with defaults
+  loading = input(false);
+  selectable = input(true);
+  showActions = input(true);
+  showFilters = input(true);
+  rows = input(10);
+  rowsPerPageOptions = input([10, 25, 50]);
+  globalFilterFields = input<string[]>([]);
+  selectedStatus = input<any>(null);
+  filters = input<TableFilter[]>([]);
+  searchPlaceholder = input('Search...');
+  emptyMessage = input('No records found');
+  emptySubMessage = input('Try adjusting your search or filter to find what you\'re looking for.');
+  selectionItemName = input('records');
+  rowActions = input<{ id: string, icon: string, class: string }[]>([
     { id: 'edit', icon: 'pi pi-pencil', class: 'p-button-text p-button-sm p-button-secondary' },
     { id: 'delete', icon: 'pi pi-trash', class: 'p-button-text p-button-sm p-button-danger' }
-  ];
-  @Input() bulkActions: { id: string, label: string, icon: string, class: string }[] = [
+  ]);
+  bulkActions = input<{ id: string, label: string, icon: string, class: string }[]>([
     { id: 'setInactive', label: 'Set Inactive', icon: 'pi pi-user-minus', class: 'p-button-secondary p-button-sm' },
     { id: 'delete', label: 'Delete', icon: 'pi pi-trash', class: 'p-button-danger p-button-sm' }
-  ];
+  ]);
 
-  @Input() selectedItems: any[] = [];
+  // Two-way binding for selected items
+  selectedItems = model<any[]>([]);
 
-  @Output() filterChange = new EventEmitter<{field: string, value: any}>();
-  @Output() globalFilter = new EventEmitter<string>();
-  @Output() selectionChange = new EventEmitter<any[]>();
-  @Output() rowActionClick = new EventEmitter<{actionId: string, item: any}>();
-  @Output() bulkActionClick = new EventEmitter<{actionId: string, items: any[]}>();
+  // Sorting properties
+  sortField = model<string>('');
+  sortOrder = model<number>(1);
+
+  // Outputs
+  filterChange = output<{field: string, value: any}>();
+  globalFilter = output<string>();
+  selectionChange = output<any[]>();
+  rowActionClick = output<{actionId: string, item: any}>();
+  bulkActionClick = output<{actionId: string, items: any[]}>();
+
+  // Signals for derived state
+  private readonly hasActiveFilters = signal(false);
 
   /**
    * Checks if there's a filter configured for the given field
    */
   hasFilterForField(field: string): boolean {
-    return this.filters.some(filter => filter.field === field);
+    return this.filters().some(filter => filter.field === field);
   }
 
   /**
@@ -131,7 +139,7 @@ export class DataTableComponent {
           
           if (constraint && constraint.value !== null && constraint.value !== undefined) {
             // Find the column for display name
-            const column = this.columns.find(col => 
+            const column = this.columns().find(col => 
               col.field === key || col.filterField === key
             );
             const displayValue = typeof constraint.value === 'object' 
@@ -176,7 +184,7 @@ export class DataTableComponent {
         }
         
         // Update any dynamic filters if they match this field
-        const dynamicFilter = this.filters.find(f => f.field === field);
+        const dynamicFilter = this.filters().find(f => f.field === field);
         if (dynamicFilter) {
           dynamicFilter.selected = null;
         }
@@ -195,7 +203,7 @@ export class DataTableComponent {
       this.dt1.reset();
       
       // Reset dynamic filters
-      this.filters.forEach(filter => {
+      this.filters().forEach(filter => {
         filter.selected = null;
       });
     }
@@ -240,7 +248,7 @@ export class DataTableComponent {
   onFilterChange(field: string, event: any) {
     if (this.dt1) {
       if (event.value) {
-        const filter = this.filters.find(f => f.field === field);
+        const filter = this.filters().find(f => f.field === field);
         const matchMode = filter?.matchMode || 'equals';
         this.dt1.filter(event.value.value, field, matchMode);
       } else {
@@ -251,8 +259,8 @@ export class DataTableComponent {
   }
 
   clearSelection() {
-    this.selectedItems = [];
-    this.selectionChange.emit(this.selectedItems);
+    this.selectedItems.set([]);
+    this.selectionChange.emit([]);
   }
 
   onRowAction(actionId: string, item: any) {
@@ -260,6 +268,11 @@ export class DataTableComponent {
   }
 
   onBulkAction(actionId: string) {
-    this.bulkActionClick.emit({ actionId, items: this.selectedItems });
+    this.bulkActionClick.emit({ actionId, items: this.selectedItems() });
+  }
+
+  onSort(event: { field: string, order: number }) {
+    this.sortField.set(event.field);
+    this.sortOrder.set(event.order);
   }
 } 

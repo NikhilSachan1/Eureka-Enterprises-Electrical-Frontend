@@ -1,233 +1,269 @@
 <!-- Enterprise Filter Dashboard -->
-<div class="bg-white border-b border-slate-200" *ngIf="showFilters">
-  <!-- Search & Filter Bar -->
-  <div class="px-6 py-4">
-    <div class="flex flex-col sm:flex-row items-stretch gap-4">
-      <!-- Dynamic Filters -->
-      <ng-container *ngFor="let filter of filters">
-        <div class="w-full sm:w-[200px]" *ngIf="filter.options && filter.options.length > 0">
-          <p-select [options]="filter.options" 
-                  [(ngModel)]="filter.selected"
-                  optionLabel="label"
-                  [showClear]="true"
-                  [checkmark]="true"
-                  [placeholder]="filter.placeholder"
-                  class="w-full"
-                  (onChange)="onFilterChange(filter.field, $event)">
-            <ng-template let-item pTemplate="item">
-              <div class="flex items-center py-1">
-                <p-tag *ngIf="filter.showTags" [value]="item.label" 
-                      [severity]="filter.getSeverity ? filter.getSeverity(item.value) : getSeverity(item.value)"
-                      [rounded]="true">
-                </p-tag>
-                <span *ngIf="!filter.showTags">{{ item.label }}</span>
-              </div>
-            </ng-template>
-            <ng-template let-value pTemplate="value">
-              <div class="flex items-center">
-                <p-tag *ngIf="filter.showTags" [value]="value.label" 
-                      [severity]="filter.getSeverity ? filter.getSeverity(value.value) : getSeverity(value.value)"
-                      [rounded]="true">
-                </p-tag>
-                <span *ngIf="!filter.showTags">{{ value.label }}</span>
-              </div>
-            </ng-template>
-          </p-select>
-        </div>
-      </ng-container>
+@if (showFilters()) {
+  <div class="bg-white border-b border-slate-200">
+    <!-- Search & Filter Bar -->
+    <div class="px-6 py-4">
+      <div class="flex flex-col sm:flex-row items-stretch gap-4">
+        <!-- Dynamic Filters -->
+        @for (filter of filters(); track filter.field) {
+          @if (filter.options && filter.options.length > 0) {
+            <div class="w-full sm:w-[200px]">
+              <p-select [options]="filter.options" 
+                      [(ngModel)]="filter.selected"
+                      optionLabel="label"
+                      [showClear]="true"
+                      [checkmark]="true"
+                      [placeholder]="filter.placeholder"
+                      class="w-full"
+                      (onChange)="onFilterChange(filter.field, $event)">
+                <ng-template let-item pTemplate="item">
+                  <div class="flex items-center py-1">
+                    @if (filter.showTags) {
+                      <p-tag [value]="item.label" 
+                            [severity]="filter.getSeverity ? filter.getSeverity(item.value) : getSeverity(item.value)"
+                            [rounded]="true">
+                      </p-tag>
+                    } @else {
+                      <span>{{ item.label }}</span>
+                    }
+                  </div>
+                </ng-template>
+                <ng-template let-value pTemplate="value">
+                  <div class="flex items-center">
+                    @if (filter.showTags) {
+                      <p-tag [value]="value.label" 
+                            [severity]="filter.getSeverity ? filter.getSeverity(value.value) : getSeverity(value.value)"
+                            [rounded]="true">
+                      </p-tag>
+                    } @else {
+                      <span>{{ value.label }}</span>
+                    }
+                  </div>
+                </ng-template>
+              </p-select>
+            </div>
+          }
+        }
 
-      <!-- Search Bar -->
-      <div class="w-full">
-        <p-iconfield styleClass="w-full">
-          <p-inputicon styleClass="pi pi-search text-slate-400" />
-          <input type="text" 
-                 pInputText 
-                 class="w-full border-slate-200 rounded-lg" 
-                 (input)="onGlobalFilter($event)" 
-                 [placeholder]="searchPlaceholder" />
-        </p-iconfield>
+        <!-- Search Bar -->
+        <div class="w-full">
+          <p-iconfield styleClass="w-full">
+            <p-inputicon styleClass="pi pi-search text-slate-400" />
+            <input type="text" 
+                   pInputText 
+                   class="w-full border-slate-200 rounded-lg" 
+                   (input)="onGlobalFilter($event)" 
+                   [placeholder]="searchPlaceholder()" />
+          </p-iconfield>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}
 
 <!-- Active Column Filters Toolbar -->
-<div *ngIf="hasActiveColumnFilters()" 
-      class="px-4 py-2 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-  <div class="flex items-center gap-3">
-    <span class="text-sm font-medium text-slate-600">
-      Active filters:
-    </span>
-    <p-divider layout="vertical"></p-divider>
-    <div class="flex flex-wrap gap-2">
-      <ng-container *ngFor="let filterMeta of getActiveColumnFilters()">
-        <p-tag [value]="filterMeta.display" 
-               [severity]="'info'"
-               [rounded]="true"
-               [icon]="'pi pi-filter'">
-          <ng-template pTemplate="content">
-            <div class="flex items-center gap-2">
-              <span>{{ filterMeta.display }}</span>
-              <button pButton 
-                      type="button" 
-                      icon="pi pi-times"
-                      (click)="clearColumnFilter(filterMeta.field, filterMeta.matchMode)" 
-                      class="p-button-rounded p-button-text p-button-sm">
-              </button>
-            </div>
-          </ng-template>
-        </p-tag>
-      </ng-container>
+@if (hasActiveColumnFilters()) {
+  <div class="px-4 py-2 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-sm font-medium text-slate-600">
+        Active filters:
+      </span>
+      <p-divider layout="vertical"></p-divider>
+      <div class="flex flex-wrap gap-2">
+        @for (filterMeta of getActiveColumnFilters(); track filterMeta.field) {
+          <p-tag [value]="filterMeta.display" 
+                 [severity]="'info'"
+                 [rounded]="true"
+                 [icon]="'pi pi-filter'">
+            <ng-template pTemplate="content">
+              <div class="flex items-center gap-2">
+                <span>{{ filterMeta.display }}</span>
+                <button pButton 
+                        type="button" 
+                        icon="pi pi-times"
+                        (click)="clearColumnFilter(filterMeta.field, filterMeta.matchMode)" 
+                        class="p-button-rounded p-button-text p-button-sm">
+                </button>
+              </div>
+            </ng-template>
+          </p-tag>
+        }
+      </div>
     </div>
+    <button pButton 
+            type="button" 
+            icon="pi pi-filter-slash"
+            label="Clear All Filters"
+            (click)="clearAllFilters()" 
+            class="p-button-text p-button-secondary p-button-sm">
+    </button>
   </div>
-  <button pButton 
-          type="button" 
-          icon="pi pi-filter-slash"
-          label="Clear All Filters"
-          (click)="clearAllFilters()" 
-          class="p-button-text p-button-secondary p-button-sm">
-  </button>
-</div>
+}
 
 <!-- Selected Records Actions -->
-<div *ngIf="selectedItems.length > 0" 
-      class="px-4 py-2 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-  <div class="flex items-center gap-3">
-    <span class="text-sm font-medium text-slate-600">
-      {{ selectedItems.length }} {{ selectionItemName || 'records' }} selected
-    </span>
-    <p-divider layout="vertical"></p-divider>
-    <div class="flex gap-2">
-      <ng-container *ngFor="let action of bulkActions">
-        <button pButton 
-                type="button" 
-                [label]="action.label" 
-                [icon]="action.icon"
-                (click)="onBulkAction(action.id)" 
-                [class]="action.class">
-        </button>
-      </ng-container>
+@if (selectedItems().length > 0) {
+  <div class="px-4 py-2 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-sm font-medium text-slate-600">
+        {{ selectedItems().length }} {{ selectionItemName() || 'records' }} selected
+      </span>
+      <p-divider layout="vertical"></p-divider>
+      <div class="flex gap-2">
+        @for (action of bulkActions(); track action.id) {
+          <button pButton 
+                  type="button" 
+                  [label]="action.label" 
+                  [icon]="action.icon"
+                  (click)="onBulkAction(action.id)" 
+                  [class]="action.class">
+          </button>
+        }
+      </div>
     </div>
+    <button pButton 
+            type="button" 
+            icon="pi pi-times"
+            (click)="clearSelection()" 
+            class="p-button-text p-button-secondary p-button-sm">
+    </button>
   </div>
-  <button pButton 
-          type="button" 
-          icon="pi pi-times"
-          (click)="clearSelection()" 
-          class="p-button-text p-button-secondary p-button-sm">
-  </button>
-</div>
+}
 
 <!-- Data Table -->
 <div class="rounded-xl shadow-sm border border-slate-100">
-  <p-table #dt1 [value]="data" 
+  <p-table #dt1 [value]="data()" 
           [(selection)]="selectedItems"
           dataKey="id" 
-          [rows]="rows" 
-          [rowsPerPageOptions]="rowsPerPageOptions" 
-          [loading]="loading" 
+          [rows]="rows()" 
+          [rowsPerPageOptions]="rowsPerPageOptions()" 
+          [loading]="loading()"
           [paginator]="true" 
-          [globalFilterFields]="globalFilterFields"
+          [globalFilterFields]="globalFilterFields()"
           [rowHover]="true"
-          styleClass="w-full">
+          [sortMode]="'single'"
+          [sortField]="sortField()"
+          [sortOrder]="sortOrder()"
+          (onSort)="onSort($event)">
     
     <ng-template pTemplate="header">
       <tr class="bg-slate-50 border-t border-slate-200">
-        <th class="bg-slate-50" *ngIf="selectable">
-          <div class="flex justify-center">
-            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-          </div>
-        </th>
-        <th class="bg-slate-50" *ngFor="let col of columns">
-          <div class="flex items-center gap-2">
-            <span class="text-sm font-semibold text-slate-700">{{ col.header }}</span>
-            <p-columnFilter *ngIf="col.filterType" 
-                            [type]="col.filterType" 
-                            [field]="col.filterField || col.field" 
-                            display="menu" />
-          </div>
-        </th>
-        <th class="bg-slate-50" *ngIf="showActions">Actions</th>
+        @if (selectable()) {
+          <th class="bg-slate-50">
+            <div class="flex justify-center">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </div>
+          </th>
+        }
+        @for (col of columns(); track col.field) {
+          <th class="bg-slate-50" [pSortableColumn]="col.sortable !== false ? col.field : undefined">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-semibold text-slate-700">{{ col.header }}</span>
+              @if (col.sortable !== false) {
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+              }
+              @if (col.filterType) {
+                <p-columnFilter [type]="col.filterType" 
+                              [field]="col.filterField || col.field" 
+                              display="menu" />
+              }
+            </div>
+          </th>
+        }
+        @if (showActions()) {
+          <th class="bg-slate-50">Actions</th>
+        }
       </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-item>
       <tr class="hover:bg-slate-50 transition-colors">
-        <td *ngIf="selectable">
-          <div class="flex justify-center">
-            <p-tableCheckbox [value]="item"></p-tableCheckbox>
-          </div>
-        </td>
-        <td *ngFor="let col of columns">
-          <ng-container *ngIf="!col.bodyTemplate">
-            {{ resolveNestedProperty(item, col.field) }}
-          </ng-container>
-          <ng-container *ngIf="col.bodyTemplate === 'nameWithAvatar'">
-            <div class="flex items-center gap-3">
-              <img [src]="'https://ui-avatars.com/api/?name=' + resolveNestedProperty(item, col.field)" 
-                   [alt]="resolveNestedProperty(item, col.field)"
-                   class="w-8 h-8 rounded-full bg-slate-100" />
-              <div>
-                <div class="font-medium text-slate-900">{{ resolveNestedProperty(item, col.field) }}</div>
-                <div class="text-sm text-slate-500" *ngIf="col.secondaryField && resolveNestedProperty(item, col.secondaryField)">
-                  {{ resolveNestedProperty(item, col.secondaryField) }}
+        @if (selectable()) {
+          <td>
+            <div class="flex justify-center">
+              <p-tableCheckbox [value]="item"></p-tableCheckbox>
+            </div>
+          </td>
+        }
+        @for (col of columns(); track col.field) {
+          <td>
+            @if (!col.bodyTemplate) {
+              {{ resolveNestedProperty(item, col.field) }}
+            }
+            @if (col.bodyTemplate === 'nameWithAvatar') {
+              <div class="flex items-center gap-3">
+                <img [src]="'https://ui-avatars.com/api/?name=' + resolveNestedProperty(item, col.field)" 
+                     [alt]="resolveNestedProperty(item, col.field)"
+                     class="w-8 h-8 rounded-full bg-slate-100" />
+                <div>
+                  <div class="font-medium text-slate-900">{{ resolveNestedProperty(item, col.field) }}</div>
+                  @if (col.secondaryField && resolveNestedProperty(item, col.secondaryField)) {
+                    <div class="text-sm text-slate-500">
+                      {{ resolveNestedProperty(item, col.secondaryField) }}
+                    </div>
+                  }
                 </div>
               </div>
-            </div>
-          </ng-container>
-          <ng-container *ngIf="col.bodyTemplate === 'textWithSubtitle'">
-            <div class="flex flex-col gap-1">
-              <div class="font-medium text-slate-900">{{ resolveNestedProperty(item, col.field) }}</div>
-              <div class="text-sm text-slate-500" *ngIf="col.secondaryField && resolveNestedProperty(item, col.secondaryField)">
-                {{ resolveNestedProperty(item, col.secondaryField) }}
+            }
+            @if (col.bodyTemplate === 'textWithSubtitle') {
+              <div class="flex flex-col gap-1">
+                <div class="font-medium text-slate-900">{{ resolveNestedProperty(item, col.field) }}</div>
+                @if (col.secondaryField && resolveNestedProperty(item, col.secondaryField)) {
+                  <div class="text-sm text-slate-500">
+                    {{ resolveNestedProperty(item, col.secondaryField) }}
+                  </div>
+                }
               </div>
-            </div>
-          </ng-container>
-          <ng-container *ngIf="col.bodyTemplate === 'status'">
-            <p-tag [value]="resolveNestedProperty(item, col.field)" 
-                  [severity]="getSeverity(resolveNestedProperty(item, col.field))"
-                  [rounded]="true">
-            </p-tag>
-          </ng-container>
-          <ng-container *ngIf="col.bodyTemplate === 'email'">
-            <a [href]="'mailto:' + resolveNestedProperty(item, col.field)" 
-               class="text-blue-600 hover:text-blue-800 hover:underline">
-                {{ resolveNestedProperty(item, col.field) }}
-            </a>
-          </ng-container>
-          <ng-container *ngIf="col.bodyTemplate === 'nestedProperty'">
-            {{ resolveNestedProperty(item, col.field) }}
-          </ng-container>
-          <ng-container *ngIf="col.bodyTemplate === 'dateRange'">
-            <div class="flex flex-col gap-1">
-              <div class="text-slate-600">{{ col.labelPrimary || 'From' }}: {{ resolveNestedProperty(item, col.field) | date: 'MMM d, yyyy' }}</div>
-              <div class="text-slate-600" *ngIf="col.secondaryField">
-                {{ col.labelSecondary || 'To' }}: {{ resolveNestedProperty(item, col.secondaryField) ? (resolveNestedProperty(item, col.secondaryField) | date: 'MMM d, yyyy') : 'Present' }}
+            }
+            @if (col.bodyTemplate === 'status') {
+              <p-tag [value]="resolveNestedProperty(item, col.field)" 
+                    [severity]="getSeverity(resolveNestedProperty(item, col.field))"
+                    [rounded]="true">
+              </p-tag>
+            }
+            @if (col.bodyTemplate === 'dateRange') {
+              <div class="flex flex-col gap-1">
+                <div class="text-slate-600">
+                  @if (col.labelPrimary) {
+                    <span class="font-medium text-slate-900">{{ col.labelPrimary }}:</span>
+                  }
+                  {{ resolveNestedProperty(item, col.field) | date: 'MMM d, yyyy' }}
+                </div>
+                @if (col.secondaryField) {
+                  <div class="text-slate-600">
+                    @if (col.labelSecondary) {
+                      <span class="font-medium text-slate-900">{{ col.labelSecondary }}:</span>
+                    }
+                    {{ resolveNestedProperty(item, col.secondaryField) ? (resolveNestedProperty(item, col.secondaryField) | date: 'MMM d, yyyy') : 'Present' }}
+                  </div>
+                }
               </div>
+            }
+          </td>
+        }
+        @if (showActions()) {
+          <td>
+            <div class="flex justify-center gap-1">
+              @for (action of rowActions(); track action.id) {
+                <button pButton 
+                        type="button" 
+                        [icon]="action.icon" 
+                        [class]="action.class"
+                        (click)="onRowAction(action.id, item)">
+                </button>
+              }
             </div>
-          </ng-container>
-        </td>
-        <td *ngIf="showActions">
-          <div class="flex justify-center gap-1">
-            <ng-container *ngFor="let action of rowActions">
-              <button pButton 
-                      type="button" 
-                      [icon]="action.icon" 
-                      [class]="action.class"
-                      (click)="onRowAction(action.id, item)">
-              </button>
-            </ng-container>
-          </div>
-        </td>
+          </td>
+        }
       </tr>
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td [attr.colspan]="(selectable ? 1 : 0) + columns.length + (showActions ? 1 : 0)">
+        <td [attr.colspan]="(selectable() ? 1 : 0) + columns().length + (showActions() ? 1 : 0)">
           <div class="text-center py-6">
             <i class="pi pi-search text-slate-300 text-4xl mb-4"></i>
-            <h3 class="text-lg font-medium text-slate-900">{{ emptyMessage }}</h3>
-            <p class="text-slate-500 mt-2">{{ emptySubMessage }}</p>
+            <h3 class="text-lg font-medium text-slate-900">{{ emptyMessage() }}</h3>
+            <p class="text-slate-500 mt-2">{{ emptySubMessage() }}</p>
           </div>
         </td>
       </tr>

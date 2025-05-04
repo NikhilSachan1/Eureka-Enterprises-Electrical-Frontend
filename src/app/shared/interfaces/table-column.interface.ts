@@ -9,6 +9,5 @@ export interface TableColumn {
   secondaryField?: string;
   labelPrimary?: string;
   labelSecondary?: string;
-  width?: string;
   sortable?: boolean;
 } 

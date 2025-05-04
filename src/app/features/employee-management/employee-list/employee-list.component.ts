@@ -58,7 +58,8 @@ export class EmployeeListComponent implements OnInit {
       header: 'Employee Name', 
       filterType: 'text',
       bodyTemplate: 'nameWithAvatar',
-      secondaryField: 'company'
+      secondaryField: 'company',
+      sortable: false
     },
     { 
       field: 'designation', 
@@ -76,13 +77,13 @@ export class EmployeeListComponent implements OnInit {
     { 
       field: 'contactNumber', 
       header: 'Contact Number', 
-      filterType: 'text'
+      filterType: 'text',
+      sortable: false
     },
     { 
       field: 'email', 
       header: 'Email Address', 
       filterType: 'text',
-      bodyTemplate: 'email'
     },
     { 
       field: 'date', 
