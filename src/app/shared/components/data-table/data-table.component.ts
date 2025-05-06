@@ -1,291 +1,392 @@
-import { Component, ViewChild, model, input, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Table, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
+import { Component, ViewChild } from '@angular/core';
+import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { TableColumn } from '../../interfaces/table-column.interface';
-import { TableFilter } from '../../interfaces/table-filter.interface';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { DatePipe } from '@angular/common';
-
-interface FilterMetadata {
-  field: string;
-  value: any;
-  matchMode: string;
-  display: string;
-}
+import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
+import { CommonModule } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { ProgressBar } from 'primeng/progressbar';
+import { ButtonModule } from 'primeng/button';
+import { SliderModule } from 'primeng/slider';
+import { FormsModule } from '@angular/forms';
+import { SortEvent } from 'primeng/api';
 
 @Component({
   selector: 'app-data-table',
   standalone: true,
   imports: [
-    FormsModule,
     TableModule,
-    ButtonModule,
+    CommonModule,
     InputTextModule,
-    Select,
     TagModule,
+    SelectModule,
+    MultiSelectModule,
+    ProgressBar,
+    ButtonModule,
     IconFieldModule,
     InputIconModule,
-    ConfirmDialogModule,
-    ToastModule,
-    ToolbarModule,
-    DividerModule,
-    DatePipe
+    SliderModule,
+    FormsModule,
   ],
+
   templateUrl: './data-table.component.html',
-  styleUrls: ['./data-table.component.scss']
+  styleUrls: ['./data-table.component.scss'],
 })
 export class DataTableComponent {
-  @ViewChild('dt1') dt1!: Table;
 
-  // Required inputs
-  columns = input.required<TableColumn[]>();
-  data = input.required<any[]>();
+  @ViewChild('dt') dt!: Table;
+  tableData!: any[];
+  representatives!: any[];
+  statuses!: any[];
+  loading: boolean = true;
+  activityValues: number[] = [0, 100];
+  searchValue: string | undefined;
+  selectedProducts!: any;
+  isSorted: boolean | null = null;
+  initialValue!: any[];
 
-  // Optional inputs with defaults
-  loading = input(false);
-  selectable = input(true);
-  showActions = input(true);
-  showFilters = input(true);
-  rows = input(10);
-  rowsPerPageOptions = input([10, 25, 50]);
-  globalFilterFields = input<string[]>([]);
-  selectedStatus = input<any>(null);
-  filters = input<TableFilter[]>([]);
-  searchPlaceholder = input('Search...');
-  emptyMessage = input('No records found');
-  emptySubMessage = input('Try adjusting your search or filter to find what you\'re looking for.');
-  selectionItemName = input('records');
-  rowActions = input<{ id: string, icon: string, class: string }[]>([
-    { id: 'edit', icon: 'pi pi-pencil', class: 'p-button-text p-button-sm p-button-secondary' },
-    { id: 'delete', icon: 'pi pi-trash', class: 'p-button-text p-button-sm p-button-danger' }
-  ]);
-  bulkActions = input<{ id: string, label: string, icon: string, class: string }[]>([
-    { id: 'setInactive', label: 'Set Inactive', icon: 'pi pi-user-minus', class: 'p-button-secondary p-button-sm' },
-    { id: 'delete', label: 'Delete', icon: 'pi pi-trash', class: 'p-button-danger p-button-sm' }
-  ]);
+  tableConfig: any = {
+    tableUniqueId: 'id',
+    displayRows: 10,
+    rowsPerPageOptions: [10, 25, 50],
+    showPaginator: true,
+    globalFilterFields: ['name', 'country.name', 'representative.name', 'status'],
+    showCheckbox: true,
+  };
 
-  // Two-way binding for selected items
-  selectedItems = model<any[]>([]);
-
-  // Sorting properties
-  sortField = model<string>('');
-  sortOrder = model<number>(1);
-
-  // Outputs
-  filterChange = output<{field: string, value: any}>();
-  globalFilter = output<string>();
-  selectionChange = output<any[]>();
-  rowActionClick = output<{actionId: string, item: any}>();
-  bulkActionClick = output<{actionId: string, items: any[]}>();
-
-  // Signals for derived state
-  private readonly hasActiveFilters = signal(false);
-
-  /**
-   * Checks if there's a filter configured for the given field
-   */
-  hasFilterForField(field: string): boolean {
-    return this.filters().some(filter => filter.field === field);
-  }
-
-  /**
-   * Check if any column filters are active
-   */
-  hasActiveColumnFilters(): boolean {
-    if (!this.dt1 || !this.dt1.filters) return false;
-    
-    // Get all filter keys
-    const filterKeys = Object.keys(this.dt1.filters);
-    if (filterKeys.length === 0) return false;
-    
-    // Check if any filter actually has values
-    return filterKeys.some(key => {
-      const filter = this.dt1.filters[key as keyof typeof this.dt1.filters];
-      if (!filter) return false;
-      
-      // Check if any constraint within the filter has a value
-      return Object.entries(filter).some(([_, constraintValue]) => {
-        const constraint = constraintValue as { value: any };
-        return constraint && constraint.value !== null && constraint.value !== undefined && constraint.value !== '';
-      });
-    });
-  }
-
-  /**
-   * Get a list of active column filters
-   */
-  getActiveColumnFilters(): FilterMetadata[] {
-    if (!this.dt1 || !this.dt1.filters) return [];
-    
-    const result: FilterMetadata[] = [];
-    
-    Object.entries(this.dt1.filters).forEach(([key, filterValue]) => {
-      if (filterValue) {
-        // Type assertion to handle dynamic filtering object
-        const filterObj = filterValue as Record<string, any>;
-        
-        Object.entries(filterObj).forEach(([matchMode, constraintValue]) => {
-          // Type assertion for the constraint object
-          const constraint = constraintValue as { value: any };
-          
-          if (constraint && constraint.value !== null && constraint.value !== undefined) {
-            // Find the column for display name
-            const column = this.columns().find(col => 
-              col.field === key || col.filterField === key
-            );
-            
-            // Format the display value based on the field type
-            let displayValue: string;
-            if (key === 'employmentStatus') {
-              displayValue = constraint.value.label || constraint.value;
-            } else {
-              displayValue = typeof constraint.value === 'object' 
-                ? constraint.value.label || constraint.value.toString()
-                : constraint.value.toString();
-            }
-              
-            result.push({
-              field: key,
-              value: constraint.value,
-              matchMode: matchMode,
-              display: `${column?.header || key}: ${displayValue}`
-            });
-          }
-        });
-      }
-    });
-    
-    return result;
-  }
-
-  /**
-   * Clear a specific column filter
-   */
-  clearColumnFilter(field: string, matchMode: string): void {
-    if (this.dt1 && this.dt1.filters) {
-      const filters = this.dt1.filters as Record<string, Record<string, any>>;
-      
-      if (filters[field]) {
-        if (matchMode) {
-          // Clear specific match mode
-          if (filters[field][matchMode]) {
-            delete filters[field][matchMode];
-            
-            // If no match modes left, delete the whole field
-            if (Object.keys(filters[field]).length === 0) {
-              delete filters[field];
-            }
-          }
-        } else {
-          // Clear all match modes for this field
-          delete filters[field];
-        }
-        
-        // Update any dynamic filters if they match this field
-        const dynamicFilter = this.filters().find(f => f.field === field);
-        if (dynamicFilter) {
-          dynamicFilter.selected = null;
-        }
-        
-        // Apply the filter change
-        this.dt1.filter('', field, 'contains');
-      }
+  tableHeader: any[] = [
+    {
+      field: 'name',
+      header: 'Employee Name',
+      showFilter: true,
+      filterConfig: {
+        filterField: 'name',
+        searchInputType: 'dropdown', //'text', 'numeric', 'date', 'boolean', 'dropdown', 'custom'
+        displayType: 'menu', //'menu', 'row', 'chip'
+        showMatchModes: true,
+        defaultMatchMode: 'contains',
+        matchModeOptions: [
+          { label: 'Equals', value: 'equals' },
+          { label: 'Contains', value: 'contains' },
+          { label: 'Starts With', value: 'startsWith' },
+          { label: 'Ends With', value: 'endsWith' },
+          { label: 'Greater Than', value: 'greaterThan' }, 
+        ],
+        showOperator: true,
+        defaultOperator: 'and', //'and', 'or'
+        showClearButton: true,
+        showApplyButton: true,
+        showAddButton: true,
+        hideOnClear: false,
+        placeholder: 'Search Employee Name',
+        maxAddRuleConstraints: 1,
+        numberFormatting: true,
+        filterDropdownOptions: [
+          { label: 'Unqualified', value: 'unqualified' },
+          { label: 'Qualified', value: 'qualified' },
+          { label: 'New', value: 'new' },
+          { label: 'Negotiation', value: 'negotiation' },
+          { label: 'Renewal', value: 'renewal' },
+          { label: 'Proposal', value: 'proposal' },
+        ],
+      },
+      showSort: true,
+    },
+    {
+      field: 'role',
+      header: 'Role & Department',
+      showFilter: true,
+      filterConfig: {
+        filterField: 'name',
+        searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
+        displayType: 'menu', //'menu', 'row', 'chip'
+        showMatchModes: true,
+        defaultMatchMode: 'contains',
+        showOperator: true,
+        defaultOperator: 'and', //'and', 'or'
+        showClearButton: true,
+        showApplyButton: true,
+        showAddButton: true,
+        hideOnClear: true,
+        placeholder: 'Search Employee Name',
+        matchModeOptions: [
+          { label: 'Equals', value: 'equals' },
+          { label: 'Contains', value: 'contains' },
+          { label: 'Starts With', value: 'startsWith' },
+          { label: 'Ends With', value: 'endsWith' },
+          { label: 'Greater Than', value: 'greaterThan' }, 
+        ],
+        operatorOptions: [
+          { label: 'And', value: 'and' },
+          { label: 'Or', value: 'or' },
+        ],
+        maxAddRuleConstraints: 1,
+        numberFormatting: true,
+      },
+      showSort: true,
+    },
+    {
+      field: 'status',
+      header: 'Status',
+      showFilter: true,
+      filterConfig: {
+        filterField: 'name',
+        searchInputType: 'numeric', //'text', 'numeric', 'date', 'boolean', 'custom'
+        displayType: 'menu', //'menu', 'row', 'chip'
+        showMatchModes: true,
+        defaultMatchMode: 'contains',
+        showOperator: true,
+        defaultOperator: 'and', //'and', 'or'
+        showClearButton: true,
+        showApplyButton: true,
+        showAddButton: true,
+        hideOnClear: true,
+        placeholder: 'Search Employee Name',
+        matchModeOptions: [
+          { label: 'Equals', value: 'equals' },
+          { label: 'Contains', value: 'contains' },
+          { label: 'Starts With', value: 'startsWith' },
+          { label: 'Ends With', value: 'endsWith' },
+          { label: 'Greater Than', value: 'greaterThan' }, 
+        ],
+        operatorOptions: [
+          { label: 'And', value: 'and' },
+          { label: 'Or', value: 'or' },
+        ],
+        maxAddRuleConstraints: 1,
+        numberFormatting: true,
+      },
+      showSort: true,
+    },
+    {
+      field: 'contactNumber',
+      header: 'Contact Number',
+      showFilter: true,
+      filterConfig: {
+        filterField: 'name',
+        searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
+        displayType: 'menu', //'menu', 'row', 'chip'
+        showMatchModes: true,
+        defaultMatchMode: 'contains',
+        showOperator: true,
+        defaultOperator: 'and', //'and', 'or'
+        showClearButton: true,
+        showApplyButton: true,
+        showAddButton: true,
+        hideOnClear: true,
+        placeholder: 'Search Employee Name',
+        matchModeOptions: [
+          { label: 'Equals', value: 'equals' },
+          { label: 'Contains', value: 'contains' },
+          { label: 'Starts With', value: 'startsWith' },
+          { label: 'Ends With', value: 'endsWith' },
+          { label: 'Greater Than', value: 'greaterThan' }, 
+        ],
+        operatorOptions: [
+          { label: 'And', value: 'and' },
+          { label: 'Or', value: 'or' },
+        ],
+        maxAddRuleConstraints: 1,
+        numberFormatting: true,
+      },
+      showSort: true,
+    },
+    {
+      field: 'email',
+      header: 'Email',
+      showFilter: true,
+      filterConfig: {
+        filterField: 'name',
+        searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
+        displayType: 'menu', //'menu', 'row', 'chip'
+        showMatchModes: true,
+        defaultMatchMode: 'contains',
+        showOperator: true,
+        defaultOperator: 'and', //'and', 'or'
+        showClearButton: true,
+        showApplyButton: true,
+        showAddButton: true,
+        hideOnClear: true,
+        placeholder: 'Search Employee Name',
+        matchModeOptions: [
+          { label: 'Equals', value: 'equals' },
+          { label: 'Contains', value: 'contains' },
+          { label: 'Starts With', value: 'startsWith' },
+          { label: 'Ends With', value: 'endsWith' },
+          { label: 'Greater Than', value: 'greaterThan' }, 
+        ],
+        operatorOptions: [
+          { label: 'And', value: 'and' },
+          { label: 'Or', value: 'or' },
+        ],
+        maxAddRuleConstraints: 1,
+        numberFormatting: true,
+      },
+      showSort: true,
+    },
+    {
+      field: 'employmentPeriod',
+      header: 'Employment Period',
+      showFilter: true,
+      filterConfig: {
+        filterField: 'name',
+        searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
+        displayType: 'menu', //'menu', 'row', 'chip'
+        showMatchModes: true,
+        defaultMatchMode: 'contains',
+        showOperator: true,
+        defaultOperator: 'and', //'and', 'or'
+        showClearButton: true,
+        showApplyButton: true,
+        showAddButton: true,
+        hideOnClear: true,
+        placeholder: 'Search Employee Name',
+        matchModeOptions: [
+          { label: 'Equals', value: 'equals' },
+          { label: 'Contains', value: 'contains' },
+          { label: 'Starts With', value: 'startsWith' },
+          { label: 'Ends With', value: 'endsWith' },
+          { label: 'Greater Than', value: 'greaterThan' }, 
+        ],
+        operatorOptions: [
+          { label: 'And', value: 'and' },
+          { label: 'Or', value: 'or' },
+        ],
+        maxAddRuleConstraints: 1,
+        numberFormatting: true,
+      },
+      showSort: true,
     }
-  }
+  ];
 
-  /**
-   * Clear all column filters
-   */
-  clearAllFilters(): void {
-    if (this.dt1) {
-      this.dt1.reset();
+  ngOnInit() {
+    setTimeout(() => {
+      this.tableData = [
+        {
+          id: 1001,
+          name: 'James Butt',
+          role: 'Software Engineer',
+          status: 'Active',
+          contactNumber: '9876543210',
+          email: 'james.butt@example.com',
+          employmentPeriod: '2020-01-01',
+        },
+        {
+          id: 1002,
+          name: 'Mary Smith',
+          role: 'Product Manager',
+          status: 'On Leave',
+          contactNumber: '9123456789',
+          email: 'mary.smith@example.com',
+          employmentPeriod: '2019-03-15',
+        },
+        {
+          id: 1003,
+          name: 'John Doe',
+          role: 'UX Designer',
+          status: 'Active',
+          contactNumber: '9988776655',
+          email: 'john.doe@example.com',
+          employmentPeriod: '2021-07-10',
+        },
+        {
+          id: 1004,
+          name: 'Sara Lee',
+          role: 'QA Analyst',
+          status: 'Inactive',
+          contactNumber: '8899776655',
+          email: 'sara.lee@example.com',
+          employmentPeriod: '2018-11-20',
+        },
+        {
+          id: 1005,
+          name: 'Michael Brown',
+          role: 'DevOps Engineer',
+          status: 'Active',
+          contactNumber: '9011223344',
+          email: 'michael.brown@example.com',
+          employmentPeriod: '2022-04-01',
+        },
+        {
+          id: 1006,
+          name: 'Emily Clark',
+          role: 'Frontend Developer',
+          status: 'Active',
+          contactNumber: '9345678901',
+          email: 'emily.clark@example.com',
+          employmentPeriod: '2020-09-25',
+        }
+      ];
       
-      // Reset dynamic filters
-      this.filters().forEach(filter => {
-        filter.selected = null;
-      });
-    }
+      this.loading = false;
+
+      this.tableData.forEach(
+        (customer) => (customer.date = new Date(<Date>customer.date)),
+      );
+    }, 150);
   }
 
-  /**
-   * Resolves a nested property from an object using dot notation
-   * Example: resolveNestedProperty(user, 'department.name')
-   */
-  resolveNestedProperty(item: any, path: string): any {
-    if (!item || !path) return null;
+  clear(table: Table) {
+    table.clear();
+    this.searchValue = '';
     
-    const properties = path.split('.');
-    return properties.reduce((prev, curr) => {
-      return prev && prev[curr] !== undefined ? prev[curr] : null;
-    }, item);
+    console.log(this.selectedProducts);
+    
   }
 
-  getSeverity(status: string): 'success' | 'warn' | 'info' | 'danger' {
-    switch (status?.toLowerCase()) {
-      case 'active':
-        return 'success';
-      case 'inactive':
-        return 'warn';
-      case 'on leave':
-        return 'info';
-      case 'terminated':
+  onGlobalFilter(event: Event, table: Table) {
+    const target = event.target as HTMLInputElement;
+    table.filterGlobal(target.value, 'contains');
+  }
+
+  getSeverity(status: string) {
+    switch (status.toLowerCase()) {
+      case 'unqualified':
         return 'danger';
-      default:
+
+      case 'qualified':
+        return 'success';
+
+      case 'new':
         return 'info';
+
+      case 'negotiation':
+        return 'warn';
+
+      default:
+        return 'secondary';
     }
   }
 
-  onGlobalFilter(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    if (this.dt1) {
-      this.dt1.filterGlobal(value, 'contains');
+  customSort(event: SortEvent) {
+    if (this.isSorted == null || this.isSorted === undefined) {
+        this.isSorted = true;
+        this.sortTableData(event);
+    } else if (this.isSorted == true) {
+        this.isSorted = false;
+        this.sortTableData(event);
+    } else if (this.isSorted == false) {
+        this.isSorted = null;
+        this.tableData = [...this.initialValue];
+        this.dt.reset();
     }
-    this.globalFilter.emit(value);
-  }
+}
 
-  onFilterChange(field: string, event: any) {
-    if (this.dt1) {
-      if (event.value) {
-        const filter = this.filters().find(f => f.field === field);
-        const matchMode = filter?.matchMode || 'equals';
-        
-        // Handle employment status filtering
-        if (field === 'employmentStatus') {
-          this.dt1.filter(event.value.value, field, 'equals');
-        } else {
-          this.dt1.filter(event.value.value, field, matchMode);
-        }
-      } else {
-        this.dt1.filter(null, field, 'equals');
-      }
-    }
-    this.filterChange.emit({ field, value: event });
-  }
+sortTableData(event: any) {
+  event.data.sort((data1: any, data2: any) => {
+      let value1 = data1[event.field];
+      let value2 = data2[event.field];
+      let result = null;
+      if (value1 == null && value2 != null) result = -1;
+      else if (value1 != null && value2 == null) result = 1;
+      else if (value1 == null && value2 == null) result = 0;
+      else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
+      else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
 
-  clearSelection() {
-    this.selectedItems.set([]);
-    this.selectionChange.emit([]);
-  }
-
-  onRowAction(actionId: string, item: any) {
-    this.rowActionClick.emit({ actionId, item });
-  }
-
-  onBulkAction(actionId: string) {
-    this.bulkActionClick.emit({ actionId, items: this.selectedItems() });
-  }
-
-  onSort(event: { field: string, order: number }) {
-    this.sortField.set(event.field);
-    this.sortOrder.set(event.order);
-  }
-} 
+      return event.order * result;
+  });
+}
+}

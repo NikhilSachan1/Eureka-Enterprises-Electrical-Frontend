@@ -32,20 +32,7 @@
         </div>
 
         <!-- Employee Data Table -->
-        <app-data-table
-            [columns]="tableColumns"
-            [data]="employees"
-            [loading]="loading"
-            [globalFilterFields]="globalFilterFields"
-            [filters]="tableFilters"
-            searchPlaceholder="Search employees..."
-            [selectedItems]="selectedEmployees"
-            (selectionChange)="selectedEmployees = $event"
-            [rowActions]="rowActions"
-            [bulkActions]="bulkActions"
-            (filterChange)="onFilterChange($event)"
-            (rowActionClick)="onRowAction($event)"
-            (bulkActionClick)="onBulkAction($event)">
+        <app-data-table>
         </app-data-table>
     </div>
 
