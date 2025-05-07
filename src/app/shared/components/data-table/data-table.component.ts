@@ -65,26 +65,21 @@ export class DataTableComponent {
       header: 'Employee Name',
       bodyTemplate: 'textWithSubtitleAndImage',
       textWithSubtitleAndImageConfig: {
-        primaryFieldLabel: 'Name',
-        secondaryFieldLabel: 'Employee Id',
         secondaryField: 'employeeId',
         showImage: true,
         dummyImageField: 'name',
-        primaryFieldHighlight: false,
+        primaryFieldHighlight: true,
       },
       showFilter: true,
       filterConfig: {
         filterField: 'name',
-        searchInputType: 'dropdown', //'text', 'numeric', 'date', 'boolean', 'dropdown', 'custom'
+        searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'dropdown', 'custom'
         displayType: 'menu', //'menu', 'row', 'chip'
         showMatchModes: true,
         defaultMatchMode: 'contains',
         matchModeOptions: [
           { label: 'Equals', value: 'equals' },
           { label: 'Contains', value: 'contains' },
-          { label: 'Starts With', value: 'startsWith' },
-          { label: 'Ends With', value: 'endsWith' },
-          { label: 'Greater Than', value: 'greaterThan' },
         ],
         showOperator: true,
         defaultOperator: 'and', //'and', 'or'
@@ -93,16 +88,8 @@ export class DataTableComponent {
         showAddButton: true,
         hideOnClear: false,
         placeholder: 'Search Employee Name',
-        maxAddRuleConstraints: 1,
-        numberFormatting: true,
-        filterDropdownOptions: [
-          { label: 'Unqualified', value: 'unqualified' },
-          { label: 'Qualified', value: 'qualified' },
-          { label: 'New', value: 'new' },
-          { label: 'Negotiation', value: 'negotiation' },
-          { label: 'Renewal', value: 'renewal' },
-          { label: 'Proposal', value: 'proposal' },
-        ],
+        maxAddRuleConstraints: 2,
+        numberFormatting: false,
       },
       showSort: true,
     },
