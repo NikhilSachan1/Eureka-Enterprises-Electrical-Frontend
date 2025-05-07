@@ -1,6 +1,7 @@
 <div class="card">
   <p-table 
     #dt 
+    [rowHover]="tableConfig.rowHover"
     [value]="tableData" 
     [dataKey]="tableConfig.tableUniqueId"
     [rows]="tableConfig.displayRows" 
@@ -38,7 +39,7 @@
         @for (item of columns; track $index) {
           <th [pSortableColumn]="(item.showSort ? item.field : null)">
             <div class="flex items-center">
-              {{ item.header }}
+              <span class="text-sm font-semibold text-slate-700">{{ item.header }}</span>
 
               @if (item.showSort) {
                 <p-sortIcon class="ml-2" [field]="item.field" />
@@ -100,14 +101,62 @@
         @for (column of columns; track $index) {
           <td>
             @switch (column.bodyTemplate) {
-              @case ('textWithSubtitle') {
-                <div class="flex flex-column">
-                  <span class="text-sm">{{ rowData[column.field] }}</span>
-                  <span class="text-xs">{{ rowData[column.field] }}</span>
+              @case ('textWithSubtitleAndImage') {
+
+                <div class="flex items-center gap-3">
+                  @let textWithSubtitleAndImageConfig = column.textWithSubtitleAndImageConfig;
+                  <!-- Image -->
+                  @if (textWithSubtitleAndImageConfig.showImage) {
+                    <img 
+                      [src]="'https://ui-avatars.com/api/?name=' + resolveNestedProperty(rowData, textWithSubtitleAndImageConfig.dummyImageField)" 
+                      [alt]="resolveNestedProperty(rowData, rowData[textWithSubtitleAndImageConfig.dummyImageField])"
+                      class="w-8 h-8 rounded-full bg-slate-100" />
+                  }
+
+                  <div>
+                    <!-- Primary Field -->
+                    <div>
+                      @if (textWithSubtitleAndImageConfig.primaryFieldLabel) {
+                        <span class="font-medium text-slate-900">
+                          {{ textWithSubtitleAndImageConfig.primaryFieldLabel }}: 
+                        </span>
+                      }
+                      <span [ngClass]="{'font-medium text-slate-700': textWithSubtitleAndImageConfig.primaryFieldHighlight}">
+                        {{ resolveNestedProperty(rowData, column.field) }}
+                      </span>
+                    </div>
+
+                    <!-- Secondary Field -->
+                    @if (textWithSubtitleAndImageConfig.secondaryField) {
+                      <div>
+                        @if (textWithSubtitleAndImageConfig.secondaryFieldLabel) {
+                          <span [ngClass]="{'text-sm text-slate-600': !textWithSubtitleAndImageConfig.secondaryFieldLabel, 'font-medium text-slate-900': textWithSubtitleAndImageConfig.secondaryFieldLabel}">
+                            {{ textWithSubtitleAndImageConfig.secondaryFieldLabel }}: 
+                          </span>
+                        }
+                        @if (textWithSubtitleAndImageConfig.secondaryField) {
+                          <span [ngClass]="{'text-sm text-slate-600': !textWithSubtitleAndImageConfig.secondaryFieldLabel, 'text-slate-700': textWithSubtitleAndImageConfig.secondaryFieldLabel}">
+                            {{ resolveNestedProperty(rowData, textWithSubtitleAndImageConfig.secondaryField) }}
+                          </span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              @case ('status') {
+                @let statusConfig = column.statusConfig;
+                @let statusValue = resolveNestedProperty(rowData, column.field);
+                @let statusSeverity = getSeverity(statusValue);
+
+                <div class="flex items-center gap-3">
+                  <p-tag [severity]="statusSeverity" [value]="statusValue" [rounded]="statusConfig.rounded" />
                 </div>
               }
               @default {
-                {{ rowData[column.field] }}
+                <div class="flex items-center gap-3">
+                  <span>{{ resolveNestedProperty(rowData, column.field) }}</span>
+                </div>
               }
             }
           </td>

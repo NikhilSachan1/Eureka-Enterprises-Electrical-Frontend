@@ -34,7 +34,6 @@ import { SortEvent } from 'primeng/api';
   styleUrls: ['./data-table.component.scss'],
 })
 export class DataTableComponent {
-
   @ViewChild('dt') dt!: Table;
   tableData!: any[];
   representatives!: any[];
@@ -47,11 +46,17 @@ export class DataTableComponent {
   initialValue!: any[];
 
   tableConfig: any = {
-    tableUniqueId: 'id',
+    rowHover: true,
+    tableUniqueemployeeId: 'id',
     displayRows: 10,
     rowsPerPageOptions: [10, 25, 50],
     showPaginator: true,
-    globalFilterFields: ['name', 'country.name', 'representative.name', 'status'],
+    globalFilterFields: [
+      'name',
+      'country.name',
+      'representative.name',
+      'status',
+    ],
     showCheckbox: true,
   };
 
@@ -59,7 +64,15 @@ export class DataTableComponent {
     {
       field: 'name',
       header: 'Employee Name',
-      bodyTemplate: 'textWithSubtitle',
+      bodyTemplate: 'textWithSubtitleAndImage',
+      textWithSubtitleAndImageConfig: {
+        primaryFieldLabel: 'Name',
+        secondaryFieldLabel: 'Employee Id',
+        secondaryField: 'employeeId',
+        showImage: true,
+        dummyImageField: 'name',
+        primaryFieldHighlight: false,
+      },
       showFilter: true,
       filterConfig: {
         filterField: 'name',
@@ -72,7 +85,7 @@ export class DataTableComponent {
           { label: 'Contains', value: 'contains' },
           { label: 'Starts With', value: 'startsWith' },
           { label: 'Ends With', value: 'endsWith' },
-          { label: 'Greater Than', value: 'greaterThan' }, 
+          { label: 'Greater Than', value: 'greaterThan' },
         ],
         showOperator: true,
         defaultOperator: 'and', //'and', 'or'
@@ -116,7 +129,7 @@ export class DataTableComponent {
           { label: 'Contains', value: 'contains' },
           { label: 'Starts With', value: 'startsWith' },
           { label: 'Ends With', value: 'endsWith' },
-          { label: 'Greater Than', value: 'greaterThan' }, 
+          { label: 'Greater Than', value: 'greaterThan' },
         ],
         operatorOptions: [
           { label: 'And', value: 'and' },
@@ -130,6 +143,10 @@ export class DataTableComponent {
     {
       field: 'status',
       header: 'Status',
+      bodyTemplate: 'status',
+      statusConfig: {
+        rounded: 'false',
+      },
       showFilter: true,
       filterConfig: {
         filterField: 'name',
@@ -149,7 +166,7 @@ export class DataTableComponent {
           { label: 'Contains', value: 'contains' },
           { label: 'Starts With', value: 'startsWith' },
           { label: 'Ends With', value: 'endsWith' },
-          { label: 'Greater Than', value: 'greaterThan' }, 
+          { label: 'Greater Than', value: 'greaterThan' },
         ],
         operatorOptions: [
           { label: 'And', value: 'and' },
@@ -182,7 +199,7 @@ export class DataTableComponent {
           { label: 'Contains', value: 'contains' },
           { label: 'Starts With', value: 'startsWith' },
           { label: 'Ends With', value: 'endsWith' },
-          { label: 'Greater Than', value: 'greaterThan' }, 
+          { label: 'Greater Than', value: 'greaterThan' },
         ],
         operatorOptions: [
           { label: 'And', value: 'and' },
@@ -215,7 +232,7 @@ export class DataTableComponent {
           { label: 'Contains', value: 'contains' },
           { label: 'Starts With', value: 'startsWith' },
           { label: 'Ends With', value: 'endsWith' },
-          { label: 'Greater Than', value: 'greaterThan' }, 
+          { label: 'Greater Than', value: 'greaterThan' },
         ],
         operatorOptions: [
           { label: 'And', value: 'and' },
@@ -248,7 +265,7 @@ export class DataTableComponent {
           { label: 'Contains', value: 'contains' },
           { label: 'Starts With', value: 'startsWith' },
           { label: 'Ends With', value: 'endsWith' },
-          { label: 'Greater Than', value: 'greaterThan' }, 
+          { label: 'Greater Than', value: 'greaterThan' },
         ],
         operatorOptions: [
           { label: 'And', value: 'and' },
@@ -258,14 +275,14 @@ export class DataTableComponent {
         numberFormatting: true,
       },
       showSort: true,
-    }
+    },
   ];
 
   ngOnInit() {
     setTimeout(() => {
       this.tableData = [
         {
-          id: 1001,
+          employeeId: 1001,
           name: 'James Butt',
           role: 'Software Engineer',
           status: 'Active',
@@ -274,7 +291,7 @@ export class DataTableComponent {
           employmentPeriod: '2020-01-01',
         },
         {
-          id: 1002,
+          employeeId: 1002,
           name: 'Mary Smith',
           role: 'Product Manager',
           status: 'On Leave',
@@ -283,7 +300,7 @@ export class DataTableComponent {
           employmentPeriod: '2019-03-15',
         },
         {
-          id: 1003,
+          employeeId: 1003,
           name: 'John Doe',
           role: 'UX Designer',
           status: 'Active',
@@ -292,7 +309,7 @@ export class DataTableComponent {
           employmentPeriod: '2021-07-10',
         },
         {
-          id: 1004,
+          employeeId: 1004,
           name: 'Sara Lee',
           role: 'QA Analyst',
           status: 'Inactive',
@@ -301,7 +318,7 @@ export class DataTableComponent {
           employmentPeriod: '2018-11-20',
         },
         {
-          id: 1005,
+          employeeId: 1005,
           name: 'Michael Brown',
           role: 'DevOps Engineer',
           status: 'Active',
@@ -310,16 +327,16 @@ export class DataTableComponent {
           employmentPeriod: '2022-04-01',
         },
         {
-          id: 1006,
+          employeeId: 1006,
           name: 'Emily Clark',
           role: 'Frontend Developer',
           status: 'Active',
           contactNumber: '9345678901',
           email: 'emily.clark@example.com',
           employmentPeriod: '2020-09-25',
-        }
+        },
       ];
-      
+
       this.loading = false;
 
       this.tableData.forEach(
@@ -331,9 +348,8 @@ export class DataTableComponent {
   clear(table: Table) {
     table.clear();
     this.searchValue = '';
-    
+
     console.log(this.selectedProducts);
-    
   }
 
   onGlobalFilter(event: Event, table: Table) {
@@ -343,16 +359,16 @@ export class DataTableComponent {
 
   getSeverity(status: string) {
     switch (status.toLowerCase()) {
-      case 'unqualified':
+      case 'inactive':
         return 'danger';
 
-      case 'qualified':
+      case 'active':
         return 'success';
 
       case 'new':
         return 'info';
 
-      case 'negotiation':
+      case 'on leave':
         return 'warn';
 
       default:
@@ -362,30 +378,40 @@ export class DataTableComponent {
 
   customSort(event: SortEvent) {
     if (this.isSorted == null || this.isSorted === undefined) {
-        this.isSorted = true;
-        this.sortTableData(event);
+      this.isSorted = true;
+      this.sortTableData(event);
     } else if (this.isSorted == true) {
-        this.isSorted = false;
-        this.sortTableData(event);
+      this.isSorted = false;
+      this.sortTableData(event);
     } else if (this.isSorted == false) {
-        this.isSorted = null;
-        this.tableData = [...this.initialValue];
-        this.dt.reset();
+      this.isSorted = null;
+      this.tableData = [...this.initialValue];
+      this.dt.reset();
     }
-}
+  }
 
-sortTableData(event: any) {
-  event.data.sort((data1: any, data2: any) => {
+  sortTableData(event: any) {
+    event.data.sort((data1: any, data2: any) => {
       let value1 = data1[event.field];
       let value2 = data2[event.field];
       let result = null;
       if (value1 == null && value2 != null) result = -1;
       else if (value1 != null && value2 == null) result = 1;
       else if (value1 == null && value2 == null) result = 0;
-      else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
+      else if (typeof value1 === 'string' && typeof value2 === 'string')
+        result = value1.localeCompare(value2);
       else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
 
       return event.order * result;
-  });
-}
+    });
+  }
+
+  resolveNestedProperty(item: any, path: string): any {
+    if (!item || !path) return null;
+    
+    const properties = path.split('.');
+    return properties.reduce((prev, curr) => {
+      return prev && prev[curr] !== undefined ? prev[curr] : null;
+    }, item);
+  }
 }
