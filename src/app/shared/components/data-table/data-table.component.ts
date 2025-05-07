@@ -8,7 +8,6 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
-import { ProgressBar } from 'primeng/progressbar';
 import { ButtonModule } from 'primeng/button';
 import { SliderModule } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
@@ -24,7 +23,6 @@ import { SortEvent } from 'primeng/api';
     TagModule,
     SelectModule,
     MultiSelectModule,
-    ProgressBar,
     ButtonModule,
     IconFieldModule,
     InputIconModule,
@@ -61,6 +59,7 @@ export class DataTableComponent {
     {
       field: 'name',
       header: 'Employee Name',
+      bodyTemplate: 'textWithSubtitle',
       showFilter: true,
       filterConfig: {
         filterField: 'name',

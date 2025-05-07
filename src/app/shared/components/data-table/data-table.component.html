@@ -99,7 +99,17 @@
 
         @for (column of columns; track $index) {
           <td>
-            {{ rowData[column.field] }}
+            @switch (column.bodyTemplate) {
+              @case ('textWithSubtitle') {
+                <div class="flex flex-column">
+                  <span class="text-sm">{{ rowData[column.field] }}</span>
+                  <span class="text-xs">{{ rowData[column.field] }}</span>
+                </div>
+              }
+              @default {
+                {{ rowData[column.field] }}
+              }
+            }
           </td>
         }
       </tr>
