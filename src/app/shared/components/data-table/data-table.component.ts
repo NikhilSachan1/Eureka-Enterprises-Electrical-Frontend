@@ -11,6 +11,8 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { SliderModule } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-data-table',
@@ -27,6 +29,8 @@ import { FormsModule } from '@angular/forms';
     InputIconModule,
     SliderModule,
     FormsModule,
+    ToolbarModule,
+    TooltipModule,
   ],
 
   templateUrl: './data-table.component.html',
@@ -40,9 +44,10 @@ export class DataTableComponent {
   loading: boolean = true;
   activityValues: number[] = [0, 100];
   searchValue: string | undefined;
-  selectedProducts!: any;
+  selectedTableRows!: any;
   isSorted: boolean | null = null;
   initialValue!: any[];
+  bulkActionButtons: any[] = [];
 
   tableConfig: any = {
     rowHover: true,
@@ -96,9 +101,15 @@ export class DataTableComponent {
     {
       field: 'role',
       header: 'Role & Department',
+      bodyTemplate: 'textWithSubtitleAndImage',
+      textWithSubtitleAndImageConfig: {
+        secondaryField: 'department',
+        primaryFieldLabel: 'Role',
+        secondaryFieldLabel: 'Department',
+      },
       showFilter: true,
       filterConfig: {
-        filterField: 'name',
+        filterField: 'role',
         searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
         displayType: 'menu', //'menu', 'row', 'chip'
         showMatchModes: true,
@@ -109,22 +120,15 @@ export class DataTableComponent {
         showApplyButton: true,
         showAddButton: true,
         hideOnClear: true,
-        placeholder: 'Search Employee Name',
+        placeholder: 'Search By Role or Department',
         matchModeOptions: [
           { label: 'Equals', value: 'equals' },
           { label: 'Contains', value: 'contains' },
-          { label: 'Starts With', value: 'startsWith' },
-          { label: 'Ends With', value: 'endsWith' },
-          { label: 'Greater Than', value: 'greaterThan' },
         ],
-        operatorOptions: [
-          { label: 'And', value: 'and' },
-          { label: 'Or', value: 'or' },
-        ],
-        maxAddRuleConstraints: 1,
+        maxAddRuleConstraints: 2,
         numberFormatting: true,
       },
-      showSort: true,
+      showSort: false,
     },
     {
       field: 'status',
@@ -135,28 +139,22 @@ export class DataTableComponent {
       },
       showFilter: true,
       filterConfig: {
-        filterField: 'name',
-        searchInputType: 'numeric', //'text', 'numeric', 'date', 'boolean', 'custom'
+        filterField: 'status',
+        searchInputType: 'dropdown', //'text', 'numeric', 'date', 'boolean', 'custom'
+        filterDropdownOptions: ['Active', 'Inactive', 'On Leave'],
         displayType: 'menu', //'menu', 'row', 'chip'
         showMatchModes: true,
-        defaultMatchMode: 'contains',
+        defaultMatchMode: 'equals',
         showOperator: true,
         defaultOperator: 'and', //'and', 'or'
         showClearButton: true,
         showApplyButton: true,
         showAddButton: true,
         hideOnClear: true,
-        placeholder: 'Search Employee Name',
+        placeholder: 'Search By Status',
         matchModeOptions: [
           { label: 'Equals', value: 'equals' },
           { label: 'Contains', value: 'contains' },
-          { label: 'Starts With', value: 'startsWith' },
-          { label: 'Ends With', value: 'endsWith' },
-          { label: 'Greater Than', value: 'greaterThan' },
-        ],
-        operatorOptions: [
-          { label: 'And', value: 'and' },
-          { label: 'Or', value: 'or' },
         ],
         maxAddRuleConstraints: 1,
         numberFormatting: true,
@@ -166,7 +164,7 @@ export class DataTableComponent {
     {
       field: 'contactNumber',
       header: 'Contact Number',
-      showFilter: true,
+      showFilter: false,
       filterConfig: {
         filterField: 'name',
         searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
@@ -194,12 +192,12 @@ export class DataTableComponent {
         maxAddRuleConstraints: 1,
         numberFormatting: true,
       },
-      showSort: true,
+      showSort: false,
     },
     {
       field: 'email',
       header: 'Email',
-      showFilter: true,
+      showFilter: false,
       filterConfig: {
         filterField: 'name',
         searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
@@ -227,11 +225,20 @@ export class DataTableComponent {
         maxAddRuleConstraints: 1,
         numberFormatting: true,
       },
-      showSort: true,
+      showSort: false,
     },
     {
-      field: 'employmentPeriod',
+      field: 'dateOfJoining',
       header: 'Employment Period',
+      bodyTemplate: 'textWithSubtitleAndImage',
+      dataType: 'date',
+      dateFormat: 'dd-MM-yyyy',
+      textWithSubtitleAndImageConfig: {
+        secondaryField: 'dateOfLeaving',
+        primaryFieldLabel: 'Joined On',
+        secondaryFieldLabel: 'Left On',
+        dataType: 'date',
+      },
       showFilter: true,
       filterConfig: {
         filterField: 'name',
@@ -260,57 +267,68 @@ export class DataTableComponent {
         maxAddRuleConstraints: 1,
         numberFormatting: true,
       },
-      showSort: true,
+      showSort: false,
     },
   ];
 
   ngOnInit() {
+    this.bulkActionButtons = this.getBulkActionButtons();
     setTimeout(() => {
       this.tableData = [
         {
           employeeId: 1001,
           name: 'James Butt',
           role: 'Software Engineer',
+          department: 'IT',
           status: 'Active',
           contactNumber: '9876543210',
           email: 'james.butt@example.com',
-          employmentPeriod: '2020-01-01',
+          dateOfJoining: '2020-01-01',
+          dateOfLeaving: '2022-01-01',
         },
         {
           employeeId: 1002,
           name: 'Mary Smith',
           role: 'Product Manager',
+          department: 'IT',
           status: 'On Leave',
           contactNumber: '9123456789',
           email: 'mary.smith@example.com',
-          employmentPeriod: '2019-03-15',
+          dateOfJoining: '2019-03-15',
+          dateOfLeaving: '2021-03-15',
         },
         {
           employeeId: 1003,
           name: 'John Doe',
           role: 'UX Designer',
+          department: 'IT',
           status: 'Active',
           contactNumber: '9988776655',
           email: 'john.doe@example.com',
-          employmentPeriod: '2021-07-10',
+          dateOfJoining: '2021-07-10',
+          dateOfLeaving: '2022-07-10',
         },
         {
           employeeId: 1004,
           name: 'Sara Lee',
           role: 'QA Analyst',
+          department: 'Driver',
           status: 'Inactive',
           contactNumber: '8899776655',
           email: 'sara.lee@example.com',
-          employmentPeriod: '2018-11-20',
+          dateOfJoining: '2018-11-20',
+          dateOfLeaving: '2020-11-20',
         },
         {
           employeeId: 1005,
           name: 'Michael Brown',
           role: 'DevOps Engineer',
+          department: 'IT',
           status: 'Active',
           contactNumber: '9011223344',
           email: 'michael.brown@example.com',
-          employmentPeriod: '2022-04-01',
+          dateOfJoining: '2022-04-01',
+          dateOfLeaving: '2023-04-01',
         },
         {
           employeeId: 1006,
@@ -319,23 +337,22 @@ export class DataTableComponent {
           status: 'Active',
           contactNumber: '9345678901',
           email: 'emily.clark@example.com',
-          employmentPeriod: '2020-09-25',
+          dateOfJoining: '2020-09-25',
+          dateOfLeaving: '2021-09-25',
         },
       ];
 
       this.loading = false;
-
-      this.tableData.forEach(
-        (customer) => (customer.date = new Date(<Date>customer.date)),
-      );
     }, 150);
   }
 
   clear(table: Table) {
     table.clear();
     this.searchValue = '';
+  }
 
-    console.log(this.selectedProducts);
+  clearSelection() {
+    this.selectedTableRows = [];
   }
 
   onGlobalFilter(event: Event, table: Table) {
@@ -369,5 +386,32 @@ export class DataTableComponent {
     return properties.reduce((prev, curr) => {
       return prev && prev[curr] !== undefined ? prev[curr] : null;
     }, item);
+  }
+
+  getBulkActionButtons() {
+    const bulkActionButtons = [
+      {
+        label: 'Set In-active',
+        icon: 'pi pi-download',
+        styleClass: 'p-button-sm',
+        outlined: true,
+        click: () => {
+          console.log('Export');
+        },
+        severity: 'primary',
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        styleClass: 'p-button-sm',
+        outlined: true,
+        click: () => {
+          console.log('Delete');
+        },
+        severity: 'danger',
+      },
+    ];
+
+    return bulkActionButtons;
   }
 }

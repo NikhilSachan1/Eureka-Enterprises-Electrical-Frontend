@@ -9,19 +9,53 @@
     [loading]="loading"
     [paginator]="tableConfig.showPaginator"
     [columns]="tableHeader"
-    [(selection)]="selectedProducts"
+    [(selection)]="selectedTableRows"
     [globalFilterFields]="tableConfig.globalFilterFields">
 
     <ng-template #caption>
-      <div class="flex">
-        <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt)" />
-        <p-iconfield iconPosition="left" class="ml-auto">
-          <p-inputicon>
-            <i class="pi pi-search"></i>
-          </p-inputicon>
-          <input pInputText type="text" (input)="onGlobalFilter($event, dt)"
-            placeholder="Search keyword" />
-        </p-iconfield>
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <p-iconfield iconPosition="left" class="w-96">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input pInputText type="text" (input)="onGlobalFilter($event, dt)"
+              placeholder="Search keyword" class="w-full" />
+          </p-iconfield>
+        </div>
+
+        @if (selectedTableRows && selectedTableRows.length > 0) {
+          <p-toolbar styleClass="border-1 border-gray-200 shadow-sm">
+            <ng-template #start>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-check-circle text-primary"></i>
+                  <span class="font-medium text-gray-700">{{selectedTableRows.length}} items selected</span>
+                </div>
+                <div class="h-6 w-px bg-gray-200"></div>
+                <div class="flex items-center gap-2">
+                  @for (button of bulkActionButtons; track $index) {
+                    <p-button 
+                      [label]="button.label" 
+                      [icon]="button.icon" 
+                      [outlined]="button.outlined"
+                      [styleClass]="button.styleClass"
+                      [severity]="button.severity"
+                      (click)="button.click()" />
+                  }
+                </div>
+              </div>
+            </ng-template>
+
+            <ng-template #end>
+              <div class="flex items-center gap-2">
+                <p-button label="Clear Selection" icon="pi pi-times" [outlined]="true" 
+                  (click)="clearSelection()" pTooltip="Clear Selected Rows" tooltipPosition="top" 
+                  styleClass="p-button-sm" />
+              </div>
+            </ng-template>
+          </p-toolbar>
+        }
       </div>
     </ng-template>
 
@@ -117,12 +151,19 @@
                     <!-- Primary Field -->
                     <div>
                       @if (textWithSubtitleAndImageConfig.primaryFieldLabel) {
-                        <span class="font-medium text-slate-900">
+                        <span class="font-medium text-slate-600">
                           {{ textWithSubtitleAndImageConfig.primaryFieldLabel }}: 
                         </span>
                       }
                       <span [ngClass]="{'font-medium text-slate-700': textWithSubtitleAndImageConfig.primaryFieldHighlight}">
-                        {{ resolveNestedProperty(rowData, column.field) }}
+                        @switch (column.dataType) {
+                          @case ('date') {
+                            {{ resolveNestedProperty(rowData, column.field) | date: column.dateFormat }}
+                          }
+                          @default {
+                            {{ resolveNestedProperty(rowData, column.field) }}
+                          }
+                        }
                       </span>
                     </div>
 
@@ -130,13 +171,20 @@
                     @if (textWithSubtitleAndImageConfig.secondaryField) {
                       <div>
                         @if (textWithSubtitleAndImageConfig.secondaryFieldLabel) {
-                          <span [ngClass]="{'text-sm text-slate-600': !textWithSubtitleAndImageConfig.secondaryFieldLabel, 'font-medium text-slate-900': textWithSubtitleAndImageConfig.secondaryFieldLabel}">
+                          <span [ngClass]="{'text-sm text-slate-600': !textWithSubtitleAndImageConfig.secondaryFieldLabel, 'font-medium text-slate-600': textWithSubtitleAndImageConfig.secondaryFieldLabel}">
                             {{ textWithSubtitleAndImageConfig.secondaryFieldLabel }}: 
                           </span>
                         }
                         @if (textWithSubtitleAndImageConfig.secondaryField) {
                           <span [ngClass]="{'text-sm text-slate-600': !textWithSubtitleAndImageConfig.secondaryFieldLabel, 'text-slate-700': textWithSubtitleAndImageConfig.secondaryFieldLabel}">
-                            {{ resolveNestedProperty(rowData, textWithSubtitleAndImageConfig.secondaryField) }}
+                            @switch (textWithSubtitleAndImageConfig.dataType) {
+                              @case ('date') {
+                                {{ resolveNestedProperty(rowData, textWithSubtitleAndImageConfig.secondaryField) | date: column.dateFormat }}
+                              }
+                              @default {
+                                {{ resolveNestedProperty(rowData, textWithSubtitleAndImageConfig.secondaryField) }}
+                              }
+                            }
                           </span>
                         }
                       </div>
