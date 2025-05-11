@@ -364,22 +364,25 @@ export class EmployeeListComponent {
         id: 'view',
         icon: 'pi pi-eye',
         tooltip: 'View Profile',
-        styleClass: 'p-button-info',
+        severity: 'info',
+        styleClass: 'p-button-text p-button-sm',
       },
       {
         id: 'edit',
         icon: 'pi pi-pencil',
         tooltip: 'Edit Employee',
-        styleClass: 'p-button-warning',
+        severity: 'warning',
         disabledWhen: (rowData: any) => rowData.status === 'Active',
+        styleClass: 'p-button-text p-button-sm',
       },
       {
         id: 'delete',
         icon: 'pi pi-trash',
         tooltip: 'Delete Employee',
-        styleClass: 'p-button-danger',
+        severity: 'danger',
         disabledWhen: (rowData: any) => rowData.status === 'Active',
-      }
+        styleClass: 'p-button-text p-button-sm',
+      },
     ];
   }
 
