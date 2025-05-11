@@ -32,7 +32,9 @@
             [tableData]="tableData()"
             [loading]="loading()"
             [bulkActionButtons]="bulkActionButtons()"
-            [rowActions]="rowActions()">
+            [rowActions]="rowActions()"
+            (bulkActionClick)="handleBulkActionClick($event)"
+            (rowActionClick)="handleRowActionClick($event)">
         </app-data-table>
     </div>
 </div>

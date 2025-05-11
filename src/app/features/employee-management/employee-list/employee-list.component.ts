@@ -389,4 +389,12 @@ export class EmployeeListComponent {
   protected onAddEmployee(): void {
     console.log('Add new employee clicked');
   }
+
+  protected handleBulkActionClick(action: any): void {
+    console.log(action);
+  }
+
+  protected handleRowActionClick(action: any): void {
+    console.log(action);
+  }
 }

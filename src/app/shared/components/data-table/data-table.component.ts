@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, ViewChild, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewChild, signal } from '@angular/core';
 import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -50,7 +50,9 @@ export class DataTableComponent {
   @Input({ required: true }) tableData!: any[];
   @Input({ required: true }) bulkActionButtons!: any[];
   @Input() rowActions: any[] = [];
-  
+
+  @Output() bulkActionClick = new EventEmitter<string>();
+  @Output() rowActionClick = new EventEmitter<string>();
   protected selectedTableRows = signal<any[]>([]);
 
 
@@ -97,5 +99,13 @@ export class DataTableComponent {
   protected isActionDisabled(action: any, rowData: any): boolean {
     if (!action.disabledWhen) return false;
     return action.disabledWhen(rowData);
+  }
+
+  protected onBulkActionClick(action: any): void {
+    this.bulkActionClick.emit(action);
+  }
+
+  protected onRowActionClick(action: any): void {
+    this.rowActionClick.emit(action);
   }
 }
