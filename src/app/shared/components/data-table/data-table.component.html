@@ -219,7 +219,7 @@
 
         @if (rowActions && rowActions.length > 0) {
           <td>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center">
               @for (action of rowActions; track action.id) {
                 <p-button
                   [icon]="action.icon"
