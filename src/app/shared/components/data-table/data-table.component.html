@@ -10,6 +10,7 @@
     [paginator]="tableConfig.showPaginator"
     [columns]="tableHeader"
     [(selection)]="selectedTableRows"
+    (onFilter)="onFilterChange($event)"
     [globalFilterFields]="tableConfig.globalFilterFields">
 
     <ng-template #caption>

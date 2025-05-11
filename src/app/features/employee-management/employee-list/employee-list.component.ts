@@ -1,104 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { MetricsCardComponent } from '../../../shared/components/metrics-card/metrics-card.component';
-import { TableColumn } from '../../../shared/interfaces/table-column.interface';
-import { TableFilter } from '../../../shared/interfaces/table-filter.interface';
-
-// Type definitions for better type safety
-interface Department {
-  name: string;
-  code: string;
-}
-
-interface Employee {
-  id: number;
-  name: string;
-  designation: string;
-  department: Department;
-  company: string;
-  date: Date | string;
-  lastWorkingDate: Date | string | null;
-  status: string;
-  contactNumber: string;
-  email: string;
-}
 
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    ConfirmDialogModule,
-    ToastModule,
-    PageHeaderComponent,
-    DataTableComponent,
-    MetricsCardComponent
-  ],
-  providers: [ConfirmationService, MessageService],
+  imports: [PageHeaderComponent, DataTableComponent, MetricsCardComponent],
   templateUrl: './employee-list.component.html',
-  styleUrl: './employee-list.component.scss'
+  styleUrl: './employee-list.component.scss',
 })
-export class EmployeeListComponent implements OnInit {
-  employees: Employee[] = [];
-  selectedEmployees: Employee[] = [];
-  loading: boolean = true;
-  
-  // Dynamic filters configuration
-  tableFilters: TableFilter[] = [];
-  
-  // Table column configuration
-  tableColumns: TableColumn[] = [
-    { 
-      field: 'name', 
-      header: 'Employee Name', 
-      filterType: 'text',
-      bodyTemplate: 'nameWithAvatar',
-      secondaryField: 'company',
-      sortable: false
-    },
-    { 
-      field: 'designation', 
-      header: 'Role & Department', 
-      filterType: 'text',
-      bodyTemplate: 'textWithSubtitle',
-      secondaryField: 'department.name',
-    },
-    { 
-      field: 'status', 
-      header: 'Status', 
-      filterType: 'text',
-      bodyTemplate: 'status'
-    },
-    { 
-      field: 'contactNumber', 
-      header: 'Contact Number', 
-      filterType: 'text',
-      sortable: false
-    },
-    { 
-      field: 'email', 
-      header: 'Email Address', 
-      filterType: 'text',
-    },
-    { 
-      field: 'date', 
-      header: 'Employment Period', 
-      filterType: 'date',
-      bodyTemplate: 'dateRange',
-      secondaryField: 'lastWorkingDate',
-      labelPrimary: 'Start',
-      labelSecondary: 'End'
-    }
-  ];
-  
-  // Global filter fields
-  globalFilterFields: string[] = ['name', 'designation', 'department.name', 'status', 'email'];
-  
+export class EmployeeListComponent {
   // Employee distribution metrics
   employeeDistribution = {
     title: 'Employee Distribution',
@@ -108,10 +20,10 @@ export class EmployeeListComponent implements OnInit {
     metrics: [
       { label: 'Active', value: 2 },
       { label: 'On Leave', value: 1 },
-      { label: 'Terminated', value: 1 }
-    ]
+      { label: 'Terminated', value: 1 },
+    ],
   };
-  
+
   // Department metrics
   departmentMetrics = {
     title: 'Department Strength',
@@ -121,213 +33,317 @@ export class EmployeeListComponent implements OnInit {
     metrics: [
       { label: 'IT', value: 2 },
       { label: 'HR', value: 1 },
-      { label: 'Finance', value: 1 }
-    ]
+      { label: 'Finance', value: 1 },
+    ],
   };
-  
-  // Row actions
-  rowActions = [
-    { id: 'edit', icon: 'pi pi-pencil', class: 'p-button-text p-button-sm p-button-secondary' },
-    { id: 'delete', icon: 'pi pi-trash', class: 'p-button-text p-button-sm p-button-danger' }
-  ];
-  
-  // Bulk actions
-  bulkActions = [
-    { id: 'setInactive', label: 'Set Inactive', icon: 'pi pi-user-minus', class: 'p-button-secondary p-button-sm' },
-    { id: 'delete', label: 'Delete', icon: 'pi pi-trash', class: 'p-button-danger p-button-sm' },
-  ];
 
-  constructor(
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService
-  ) {}
+  loading: boolean = true;
+  tableData: any[] = [];
+  tableConfig: any = {};
+  tableHeader: any[] = [];
 
   ngOnInit() {
-    this.initializeEmployees();
-    this.configureFilters();
+    this.getTableData();
+    this.tableConfig = this.getTableConfig();
+    this.tableHeader = this.getTableHeader();
   }
 
-  // Initialize test employee data
-  private initializeEmployees(): void {
-    this.loading = true;
-    const employeeData: Partial<Employee>[] = [
-      {
-        id: 1001,
-        name: 'James Wilson',
-        designation: 'Senior Software Engineer',
-        department: {
-          name: 'IT Department',
-          code: 'it'
+  getTableData() {
+    setTimeout(() => {
+      this.tableData = [
+        {
+          employeeId: 1001,
+          name: 'James Butt',
+          role: 'Software Engineer',
+          department: 'IT',
+          status: 'Active',
+          contactNumber: '9876543210',
+          email: 'james.butt@example.com',
+          dateOfJoining: '2020-01-01',
+          dateOfLeaving: '2022-01-01',
         },
-        company: 'Eureka Enterprises',
-        date: '2024-01-15',
-        lastWorkingDate: null,
-        status: 'Active',
-        contactNumber: '+1 (555) 123-4567',
-        email: 'james.wilson@eureka.com'
-      },
-      {
-        id: 1002,
-        name: 'Sarah Johnson',
-        designation: 'HR Manager',
-        department: {
-          name: 'HR Department',
-          code: 'hr'
+        {
+          employeeId: 1002,
+          name: 'Mary Smith',
+          role: 'Product Manager',
+          department: 'IT',
+          status: 'On Leave',
+          contactNumber: '9123456789',
+          email: 'mary.smith@example.com',
+          dateOfJoining: '2019-03-15',
+          dateOfLeaving: '2021-03-15',
         },
-        company: 'Eureka Enterprises',
-        date: '2023-11-20',
-        lastWorkingDate: null,
-        status: 'On Leave',
-        contactNumber: '+1 (555) 234-5678',
-        email: 'sarah.johnson@eureka.com'
-      },
-      {
-        id: 1003,
-        name: 'Michael Brown',
-        designation: 'Financial Analyst',
-        department: {
-          name: 'Finance Department',
-          code: 'fin'
+        {
+          employeeId: 1003,
+          name: 'John Doe',
+          role: 'UX Designer',
+          department: 'IT',
+          status: 'Active',
+          contactNumber: '9988776655',
+          email: 'john.doe@example.com',
+          dateOfJoining: '2021-07-10',
+          dateOfLeaving: '2022-07-10',
         },
-        company: 'Eureka Enterprises',
-        date: '2024-02-01',
-        lastWorkingDate: null,
-        status: 'Active',
-        contactNumber: '+1 (555) 345-6789',
-        email: 'michael.brown@eureka.com'
-      },
-      {
-        id: 1004,
-        name: 'Emily Davis',
-        designation: 'Software Developer',
-        department: {
-          name: 'IT Department',
-          code: 'it'
+        {
+          employeeId: 1004,
+          name: 'Sara Lee',
+          role: 'QA Analyst',
+          department: 'Driver',
+          status: 'Inactive',
+          contactNumber: '8899776655',
+          email: 'sara.lee@example.com',
+          dateOfJoining: '2018-11-20',
+          dateOfLeaving: '2020-11-20',
         },
-        company: 'Eureka Enterprises',
-        date: '2023-08-15',
-        lastWorkingDate: '2024-01-31',
-        status: 'Terminated',
-        contactNumber: '+1 (555) 456-7890',
-        email: 'emily.davis@eureka.com'
-      }
-    ];
+        {
+          employeeId: 1005,
+          name: 'Michael Brown',
+          role: 'DevOps Engineer',
+          department: 'IT',
+          status: 'Active',
+          contactNumber: '9011223344',
+          email: 'michael.brown@example.com',
+          dateOfJoining: '2022-04-01',
+          dateOfLeaving: '2023-04-01',
+        },
+        {
+          employeeId: 1006,
+          name: 'Emily Clark',
+          role: 'Frontend Developer',
+          status: 'Active',
+          contactNumber: '9345678901',
+          email: 'emily.clark@example.com',
+          dateOfJoining: '2020-09-25',
+          dateOfLeaving: '2021-09-25',
+        },
+      ];
 
-    // Convert to proper employee objects with date formatting
-    this.employees = employeeData as Employee[];
-    this.employees.forEach((employee) => {
-      if (typeof employee.date === 'string') {
-        employee.date = new Date(employee.date);
-      }
-      if (employee.lastWorkingDate && typeof employee.lastWorkingDate === 'string') {
-        employee.lastWorkingDate = new Date(employee.lastWorkingDate);
-      }
-    });
-    
-    this.loading = false;
+      this.loading = false;
+    }, 150);
   }
 
-  // Configure dynamic filters for the data table
-  private configureFilters(): void {
-    this.tableFilters = [
+  getTableConfig() {
+    return {
+      rowHover: true,
+      tableUniqueemployeeId: 'id',
+      displayRows: 10,
+      rowsPerPageOptions: [10, 25, 50],
+      showPaginator: true,
+      globalFilterFields: ['name', 'role', 'email', 'status'],
+      showCheckbox: true,
+    };
+  }
+
+  getTableHeader() {
+    return [
+      {
+        field: 'name',
+        header: 'Employee Name',
+        bodyTemplate: 'textWithSubtitleAndImage',
+        textWithSubtitleAndImageConfig: {
+          secondaryField: 'employeeId',
+          showImage: true,
+          dummyImageField: 'name',
+          primaryFieldHighlight: true,
+        },
+        showFilter: true,
+        filterConfig: {
+          filterField: 'name',
+          searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'dropdown', 'custom'
+          displayType: 'menu', //'menu', 'row', 'chip'
+          showMatchModes: true,
+          defaultMatchMode: 'contains',
+          matchModeOptions: [
+            { label: 'Equals', value: 'equals' },
+            { label: 'Contains', value: 'contains' },
+          ],
+          showOperator: true,
+          defaultOperator: 'and', //'and', 'or'
+          showClearButton: true,
+          showApplyButton: true,
+          showAddButton: true,
+          hideOnClear: false,
+          placeholder: 'Search Employee Name',
+          maxAddRuleConstraints: 2,
+          numberFormatting: false,
+        },
+        showSort: true,
+      },
+      {
+        field: 'role',
+        header: 'Role & Department',
+        bodyTemplate: 'textWithSubtitleAndImage',
+        textWithSubtitleAndImageConfig: {
+          secondaryField: 'department',
+          primaryFieldLabel: 'Role',
+          secondaryFieldLabel: 'Department',
+        },
+        showFilter: true,
+        filterConfig: {
+          filterField: 'role',
+          searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
+          displayType: 'menu', //'menu', 'row', 'chip'
+          showMatchModes: true,
+          defaultMatchMode: 'contains',
+          showOperator: true,
+          defaultOperator: 'and', //'and', 'or'
+          showClearButton: true,
+          showApplyButton: true,
+          showAddButton: true,
+          hideOnClear: true,
+          placeholder: 'Search By Role or Department',
+          matchModeOptions: [
+            { label: 'Equals', value: 'equals' },
+            { label: 'Contains', value: 'contains' },
+          ],
+          maxAddRuleConstraints: 2,
+          numberFormatting: true,
+        },
+        showSort: false,
+      },
       {
         field: 'status',
-        options: [
-          { label: 'Active', value: 'Active' },
-          { label: 'Inactive', value: 'Inactive' },
-          { label: 'On Leave', value: 'On Leave' },
-          { label: 'Terminated', value: 'Terminated' }
-        ],
-        selected: null,
-        placeholder: 'Filter by Status',
-        showTags: false
+        header: 'Status',
+        bodyTemplate: 'status',
+        statusConfig: {
+          rounded: 'false',
+        },
+        showFilter: true,
+        filterConfig: {
+          filterField: 'status',
+          searchInputType: 'dropdown', //'text', 'numeric', 'date', 'boolean', 'custom'
+          filterDropdownOptions: ['Active', 'Inactive', 'On Leave'],
+          displayType: 'menu', //'menu', 'row', 'chip'
+          showMatchModes: true,
+          defaultMatchMode: 'equals',
+          showOperator: true,
+          defaultOperator: 'and', //'and', 'or'
+          showClearButton: true,
+          showApplyButton: true,
+          showAddButton: true,
+          hideOnClear: true,
+          placeholder: 'Search By Status',
+          matchModeOptions: [
+            { label: 'Equals', value: 'equals' },
+            { label: 'Contains', value: 'contains' },
+          ],
+          maxAddRuleConstraints: 1,
+          numberFormatting: true,
+        },
+        showSort: true,
       },
       {
-        field: 'department.code',
-        options: [
-          { label: 'IT Department', value: 'it' },
-          { label: 'HR Department', value: 'hr' },
-          { label: 'Finance Department', value: 'fin' }
-        ],
-        selected: null,
-        placeholder: 'Filter by Department',
-        showTags: false
-      }
+        field: 'contactNumber',
+        header: 'Contact Number',
+        showFilter: false,
+        filterConfig: {
+          filterField: 'name',
+          searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
+          displayType: 'menu', //'menu', 'row', 'chip'
+          showMatchModes: true,
+          defaultMatchMode: 'contains',
+          showOperator: true,
+          defaultOperator: 'and', //'and', 'or'
+          showClearButton: true,
+          showApplyButton: true,
+          showAddButton: true,
+          hideOnClear: true,
+          placeholder: 'Search Employee Name',
+          matchModeOptions: [
+            { label: 'Equals', value: 'equals' },
+            { label: 'Contains', value: 'contains' },
+            { label: 'Starts With', value: 'startsWith' },
+            { label: 'Ends With', value: 'endsWith' },
+            { label: 'Greater Than', value: 'greaterThan' },
+          ],
+          operatorOptions: [
+            { label: 'And', value: 'and' },
+            { label: 'Or', value: 'or' },
+          ],
+          maxAddRuleConstraints: 1,
+          numberFormatting: true,
+        },
+        showSort: false,
+      },
+      {
+        field: 'email',
+        header: 'Email',
+        showFilter: false,
+        filterConfig: {
+          filterField: 'name',
+          searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
+          displayType: 'menu', //'menu', 'row', 'chip'
+          showMatchModes: true,
+          defaultMatchMode: 'contains',
+          showOperator: true,
+          defaultOperator: 'and', //'and', 'or'
+          showClearButton: true,
+          showApplyButton: true,
+          showAddButton: true,
+          hideOnClear: true,
+          placeholder: 'Search Employee Name',
+          matchModeOptions: [
+            { label: 'Equals', value: 'equals' },
+            { label: 'Contains', value: 'contains' },
+            { label: 'Starts With', value: 'startsWith' },
+            { label: 'Ends With', value: 'endsWith' },
+            { label: 'Greater Than', value: 'greaterThan' },
+          ],
+          operatorOptions: [
+            { label: 'And', value: 'and' },
+            { label: 'Or', value: 'or' },
+          ],
+          maxAddRuleConstraints: 1,
+          numberFormatting: true,
+        },
+        showSort: false,
+      },
+      {
+        field: 'dateOfJoining',
+        header: 'Employment Period',
+        bodyTemplate: 'textWithSubtitleAndImage',
+        dataType: 'date',
+        dateFormat: 'dd-MM-yyyy',
+        textWithSubtitleAndImageConfig: {
+          secondaryField: 'dateOfLeaving',
+          primaryFieldLabel: 'Joined On',
+          secondaryFieldLabel: 'Left On',
+          dataType: 'date',
+        },
+        showFilter: true,
+        filterConfig: {
+          filterField: 'name',
+          searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
+          displayType: 'menu', //'menu', 'row', 'chip'
+          showMatchModes: true,
+          defaultMatchMode: 'contains',
+          showOperator: true,
+          defaultOperator: 'and', //'and', 'or'
+          showClearButton: true,
+          showApplyButton: true,
+          showAddButton: true,
+          hideOnClear: true,
+          placeholder: 'Search Employee Name',
+          matchModeOptions: [
+            { label: 'Equals', value: 'equals' },
+            { label: 'Contains', value: 'contains' },
+            { label: 'Starts With', value: 'startsWith' },
+            { label: 'Ends With', value: 'endsWith' },
+            { label: 'Greater Than', value: 'greaterThan' },
+          ],
+          operatorOptions: [
+            { label: 'And', value: 'and' },
+            { label: 'Or', value: 'or' },
+          ],
+          maxAddRuleConstraints: 1,
+          numberFormatting: true,
+        },
+        showSort: false,
+      },
     ];
   }
 
   onAddEmployee() {
-    // Logic to handle adding a new employee
     console.log('Add new employee clicked');
-  }
-
-  onFilterChange(event: {field: string, value: any}) {
-    console.log('Filter changed:', event);
-  }
-
-  onRowAction(event: {actionId: string, item: any}) {
-    const { actionId, item } = event;
-    
-    if (actionId === 'edit') {
-      console.log('Edit employee:', item);
-      // Handle edit logic
-    } else if (actionId === 'delete') {
-      this.confirmDeleteEmployee(item);
-    }
-  }
-
-  onBulkAction(event: {actionId: string, items: any[]}) {
-    const { actionId, items } = event;
-    
-    if (actionId === 'setInactive') {
-      this.confirmSetInactive(items);
-    } else if (actionId === 'delete') {
-      this.confirmDeleteSelected(items);
-    }
-  }
-
-  confirmSetInactive(employees: Employee[]): void {
-    this.confirmationService.confirm({
-      message: `Are you sure you want to set ${employees.length} employee(s) as inactive?`,
-      header: 'Confirm Status Change',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `${employees.length} employee(s) set to inactive`
-        });
-      }
-    });
-  }
-
-  confirmDeleteEmployee(employee: Employee): void {
-    this.confirmationService.confirm({
-      message: `Are you sure you want to delete ${employee.name}?`,
-      header: 'Confirm Delete',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {        
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Employee deleted successfully'
-        });
-      }
-    });
-  }
-
-  confirmDeleteSelected(employees: Employee[]): void {
-    this.confirmationService.confirm({
-      message: `Are you sure you want to delete ${employees.length} selected employee(s)?`,
-      header: 'Confirm Delete',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `${employees.length} employee(s) deleted successfully`
-        });
-      }
-    });
   }
 }

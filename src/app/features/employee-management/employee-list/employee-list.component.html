@@ -32,18 +32,14 @@
         </div>
 
         <!-- Employee Data Table -->
-        <app-data-table>
+        <app-data-table
+            [tableConfig]="tableConfig"
+            [tableHeader]="tableHeader"
+            [tableData]="tableData"
+            [loading]="loading"
+        >
         </app-data-table>
     </div>
-
-    <p-confirmDialog [style]="{width: '450px'}" 
-                    styleClass="rounded-xl shadow-xl"
-                    [closeOnEscape]="true"
-                    acceptButtonStyleClass="p-button-danger"
-                    rejectButtonStyleClass="p-button-text">
-    </p-confirmDialog>
-
-    <p-toast></p-toast>
 </div>
 
 
