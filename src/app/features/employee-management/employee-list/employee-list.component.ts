@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { MetricsCardComponent } from '../../../shared/components/metrics-card/metrics-card.component';
@@ -11,46 +11,51 @@ import { MetricsCardComponent } from '../../../shared/components/metrics-card/me
   styleUrl: './employee-list.component.scss',
 })
 export class EmployeeListComponent {
-  // Employee distribution metrics
-  employeeDistribution = {
-    title: 'Employee Distribution',
-    subtitle: 'Current workforce status',
-    iconClass: 'pi pi-chart-pie text-blue-500',
-    iconBgClass: 'bg-blue-50',
-    metrics: [
-      { label: 'Active', value: 2 },
-      { label: 'On Leave', value: 1 },
-      { label: 'Terminated', value: 1 },
-    ],
-  };
+  protected loading = signal<boolean>(true);
+  protected tableData = signal<any[]>([]);
+  protected tableConfig = signal<any>(this.getTableConfig());
+  protected tableHeader = signal<any[]>(this.getTableHeader());
+  protected metricsCards = signal<any[]>(this.getMetricCardsData());
+  protected bulkActionButtons = signal<any[]>(this.getBulkActionButtons());
+  protected rowActions = signal<any[]>(this.getRowActions());
 
-  // Department metrics
-  departmentMetrics = {
-    title: 'Department Strength',
-    subtitle: 'Employee by department',
-    iconClass: 'pi pi-users text-purple-500',
-    iconBgClass: 'bg-purple-50',
-    metrics: [
-      { label: 'IT', value: 2 },
-      { label: 'HR', value: 1 },
-      { label: 'Finance', value: 1 },
-    ],
-  };
-
-  loading: boolean = true;
-  tableData: any[] = [];
-  tableConfig: any = {};
-  tableHeader: any[] = [];
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.getTableData();
-    this.tableConfig = this.getTableConfig();
-    this.tableHeader = this.getTableHeader();
   }
 
-  getTableData() {
+  private getMetricCardsData(): any[] {
+    
+    const metricData = [
+      {
+        title: 'Employee Distribution',
+        subtitle: 'Current workforce status',
+        iconClass: 'pi pi-chart-pie text-blue-500',
+        iconBgClass: 'bg-blue-50',
+        metrics: [
+          { label: 'Active', value: 2 },
+          { label: 'On Leave', value: 1 },
+          { label: 'Terminated', value: 1 },
+        ],
+      },
+      {
+        title: 'Department Strength',
+        subtitle: 'Employee by department',
+        iconClass: 'pi pi-users text-purple-500',
+        iconBgClass: 'bg-purple-50',
+        metrics: [
+          { label: 'IT', value: 2 },
+          { label: 'HR', value: 1 },
+          { label: 'Finance', value: 1 },
+        ],
+      }
+    ];
+
+    return metricData;
+  }
+
+  private getTableData(): void {
     setTimeout(() => {
-      this.tableData = [
+      this.tableData.set([
         {
           employeeId: 1001,
           name: 'James Butt',
@@ -110,22 +115,23 @@ export class EmployeeListComponent {
           employeeId: 1006,
           name: 'Emily Clark',
           role: 'Frontend Developer',
+          department: 'IT',
           status: 'Active',
           contactNumber: '9345678901',
           email: 'emily.clark@example.com',
           dateOfJoining: '2020-09-25',
           dateOfLeaving: '2021-09-25',
         },
-      ];
+      ]);
 
-      this.loading = false;
+      this.loading.set(false);
     }, 150);
   }
 
-  getTableConfig() {
+  private getTableConfig(): any {
     return {
       rowHover: true,
-      tableUniqueemployeeId: 'id',
+      tableUniqueId: 'employeeId',
       displayRows: 10,
       rowsPerPageOptions: [10, 25, 50],
       showPaginator: true,
@@ -134,7 +140,7 @@ export class EmployeeListComponent {
     };
   }
 
-  getTableHeader() {
+  private getTableHeader(): any[] {
     return [
       {
         field: 'name',
@@ -149,8 +155,8 @@ export class EmployeeListComponent {
         showFilter: true,
         filterConfig: {
           filterField: 'name',
-          searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'dropdown', 'custom'
-          displayType: 'menu', //'menu', 'row', 'chip'
+          searchInputType: 'text',
+          displayType: 'menu',
           showMatchModes: true,
           defaultMatchMode: 'contains',
           matchModeOptions: [
@@ -158,7 +164,7 @@ export class EmployeeListComponent {
             { label: 'Contains', value: 'contains' },
           ],
           showOperator: true,
-          defaultOperator: 'and', //'and', 'or'
+          defaultOperator: 'and',
           showClearButton: true,
           showApplyButton: true,
           showAddButton: true,
@@ -181,12 +187,12 @@ export class EmployeeListComponent {
         showFilter: true,
         filterConfig: {
           filterField: 'role',
-          searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
-          displayType: 'menu', //'menu', 'row', 'chip'
+          searchInputType: 'text',
+          displayType: 'menu',
           showMatchModes: true,
           defaultMatchMode: 'contains',
           showOperator: true,
-          defaultOperator: 'and', //'and', 'or'
+          defaultOperator: 'and',
           showClearButton: true,
           showApplyButton: true,
           showAddButton: true,
@@ -206,18 +212,18 @@ export class EmployeeListComponent {
         header: 'Status',
         bodyTemplate: 'status',
         statusConfig: {
-          rounded: 'false',
+          rounded: false,
         },
         showFilter: true,
         filterConfig: {
           filterField: 'status',
-          searchInputType: 'dropdown', //'text', 'numeric', 'date', 'boolean', 'custom'
+          searchInputType: 'dropdown',
           filterDropdownOptions: ['Active', 'Inactive', 'On Leave'],
-          displayType: 'menu', //'menu', 'row', 'chip'
+          displayType: 'menu',
           showMatchModes: true,
           defaultMatchMode: 'equals',
           showOperator: true,
-          defaultOperator: 'and', //'and', 'or'
+          defaultOperator: 'and',
           showClearButton: true,
           showApplyButton: true,
           showAddButton: true,
@@ -238,12 +244,12 @@ export class EmployeeListComponent {
         showFilter: false,
         filterConfig: {
           filterField: 'name',
-          searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
-          displayType: 'menu', //'menu', 'row', 'chip'
+          searchInputType: 'text',
+          displayType: 'menu',
           showMatchModes: true,
           defaultMatchMode: 'contains',
           showOperator: true,
-          defaultOperator: 'and', //'and', 'or'
+          defaultOperator: 'and',
           showClearButton: true,
           showApplyButton: true,
           showAddButton: true,
@@ -255,10 +261,6 @@ export class EmployeeListComponent {
             { label: 'Starts With', value: 'startsWith' },
             { label: 'Ends With', value: 'endsWith' },
             { label: 'Greater Than', value: 'greaterThan' },
-          ],
-          operatorOptions: [
-            { label: 'And', value: 'and' },
-            { label: 'Or', value: 'or' },
           ],
           maxAddRuleConstraints: 1,
           numberFormatting: true,
@@ -271,12 +273,12 @@ export class EmployeeListComponent {
         showFilter: false,
         filterConfig: {
           filterField: 'name',
-          searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
-          displayType: 'menu', //'menu', 'row', 'chip'
+          searchInputType: 'text',
+          displayType: 'menu',
           showMatchModes: true,
           defaultMatchMode: 'contains',
           showOperator: true,
-          defaultOperator: 'and', //'and', 'or'
+          defaultOperator: 'and',
           showClearButton: true,
           showApplyButton: true,
           showAddButton: true,
@@ -288,10 +290,6 @@ export class EmployeeListComponent {
             { label: 'Starts With', value: 'startsWith' },
             { label: 'Ends With', value: 'endsWith' },
             { label: 'Greater Than', value: 'greaterThan' },
-          ],
-          operatorOptions: [
-            { label: 'And', value: 'and' },
-            { label: 'Or', value: 'or' },
           ],
           maxAddRuleConstraints: 1,
           numberFormatting: true,
@@ -313,12 +311,12 @@ export class EmployeeListComponent {
         showFilter: true,
         filterConfig: {
           filterField: 'name',
-          searchInputType: 'text', //'text', 'numeric', 'date', 'boolean', 'custom'
-          displayType: 'menu', //'menu', 'row', 'chip'
+          searchInputType: 'text',
+          displayType: 'menu',
           showMatchModes: true,
           defaultMatchMode: 'contains',
           showOperator: true,
-          defaultOperator: 'and', //'and', 'or'
+          defaultOperator: 'and',
           showClearButton: true,
           showApplyButton: true,
           showAddButton: true,
@@ -331,10 +329,6 @@ export class EmployeeListComponent {
             { label: 'Ends With', value: 'endsWith' },
             { label: 'Greater Than', value: 'greaterThan' },
           ],
-          operatorOptions: [
-            { label: 'And', value: 'and' },
-            { label: 'Or', value: 'or' },
-          ],
           maxAddRuleConstraints: 1,
           numberFormatting: true,
         },
@@ -343,7 +337,53 @@ export class EmployeeListComponent {
     ];
   }
 
-  onAddEmployee() {
+  private getBulkActionButtons(): any[] {
+    return [
+      {
+        id: 'setInactive',
+        label: 'Set In-active',
+        icon: 'pi pi-user-minus',
+        styleClass: 'p-button-sm',
+        outlined: true,
+        severity: 'primary',
+      },
+      {
+        id: 'delete',
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        styleClass: 'p-button-sm',
+        outlined: true,
+        severity: 'danger',
+      },
+    ];
+  }
+
+  private getRowActions(): any[] {
+    return [
+      {
+        id: 'view',
+        icon: 'pi pi-eye',
+        tooltip: 'View Profile',
+        styleClass: 'p-button-info',
+      },
+      {
+        id: 'edit',
+        icon: 'pi pi-pencil',
+        tooltip: 'Edit Employee',
+        styleClass: 'p-button-warning',
+        disabledWhen: (rowData: any) => rowData.status === 'Active',
+      },
+      {
+        id: 'delete',
+        icon: 'pi pi-trash',
+        tooltip: 'Delete Employee',
+        styleClass: 'p-button-danger',
+        disabledWhen: (rowData: any) => rowData.status === 'Active',
+      }
+    ];
+  }
+
+  protected onAddEmployee(): void {
     console.log('Add new employee clicked');
   }
 }

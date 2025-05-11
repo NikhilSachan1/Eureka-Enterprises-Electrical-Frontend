@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, ViewChild, signal } from '@angular/core';
 import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -13,6 +13,8 @@ import { SliderModule } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
+import { MenuModule } from 'primeng/menu';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 @Component({
   selector: 'app-data-table',
@@ -31,6 +33,8 @@ import { TooltipModule } from 'primeng/tooltip';
     FormsModule,
     ToolbarModule,
     TooltipModule,
+    MenuModule,
+    OverlayPanelModule,
   ],
 
   templateUrl: './data-table.component.html',
@@ -40,87 +44,58 @@ import { TooltipModule } from 'primeng/tooltip';
 export class DataTableComponent {
   @ViewChild('dt') dt!: Table;
 
-  @Input() loading: boolean = true;
-  @Input() tableConfig: any = {};
-  @Input() tableHeader: any[] = [];
-  @Input() tableData!: any[];
-  @Input() bulkActionButtons: any[] = [];
+  @Input({ required: true }) loading!: boolean;
+  @Input({ required: true }) tableConfig!: any;
+  @Input({ required: true }) tableHeader!: any[];
+  @Input({ required: true }) tableData!: any[];
+  @Input({ required: true }) bulkActionButtons!: any[];
+  @Input() rowActions: any[] = [];
   
-  selectedTableRows!: any;
-  
-  ngOnInit() {
-    this.bulkActionButtons = this.getBulkActionButtons();
-  }
+  protected selectedTableRows = signal<any[]>([]);
 
-  clear(table: Table) {
+
+  protected clear(table: Table): void {
     table.clear();
   }
 
-  clearSelection() {
-    this.selectedTableRows = [];
+  protected clearSelection(): void {
+    this.selectedTableRows.set([]);
   }
 
-  onGlobalFilter(event: Event, table: Table) {
+  protected onGlobalFilter(event: Event, table: Table): void {
     const target = event.target as HTMLInputElement;
     table.filterGlobal(target.value, 'contains');
   }
 
-  getSeverity(status: string) {
+  protected getSeverity(status: string): 'danger' | 'success' | 'info' | 'warn' | 'secondary' {
     switch (status.toLowerCase()) {
       case 'inactive':
         return 'danger';
-
       case 'active':
         return 'success';
-
       case 'new':
         return 'info';
-
       case 'on leave':
         return 'warn';
-
       default:
         return 'secondary';
     }
   }
 
-  resolveNestedProperty(item: any, path: string): any {
+  protected resolveNestedProperty(item: any, path: string): any {
     if (!item || !path) return null;
     
-    const properties = path.split('.');
-    return properties.reduce((prev, curr) => {
+    return path.split('.').reduce((prev, curr) => {
       return prev && prev[curr] !== undefined ? prev[curr] : null;
     }, item);
   }
 
-  getBulkActionButtons() {
-    const bulkActionButtons = [
-      {
-        label: 'Set In-active',
-        icon: 'pi pi-download',
-        styleClass: 'p-button-sm',
-        outlined: true,
-        click: () => {
-          console.log('Export');
-        },
-        severity: 'primary',
-      },
-      {
-        label: 'Delete',
-        icon: 'pi pi-trash',
-        styleClass: 'p-button-sm',
-        outlined: true,
-        click: () => {
-          console.log('Delete');
-        },
-        severity: 'danger',
-      },
-    ];
-
-    return bulkActionButtons;
+  protected onFilterChange(event: any): void {
+    console.log(event);
   }
 
-  onFilterChange(event: any) {
-    console.log(event);
+  protected isActionDisabled(action: any, rowData: any): boolean {
+    if (!action.disabledWhen) return false;
+    return action.disabledWhen(rowData);
   }
 }

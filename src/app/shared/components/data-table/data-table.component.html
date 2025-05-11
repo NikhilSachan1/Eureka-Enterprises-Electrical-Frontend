@@ -25,13 +25,13 @@
           </p-iconfield>
         </div>
 
-        @if (selectedTableRows && selectedTableRows.length > 0) {
+        @if (selectedTableRows() && selectedTableRows().length > 0) {
           <p-toolbar styleClass="border-1 border-gray-200 shadow-sm">
             <ng-template #start>
               <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2">
                   <i class="pi pi-check-circle text-primary"></i>
-                  <span class="font-medium text-gray-700">{{selectedTableRows.length}} items selected</span>
+                  <span class="font-medium text-gray-700">{{selectedTableRows().length}} items selected</span>
                 </div>
                 <div class="h-6 w-px bg-gray-200"></div>
                 <div class="flex items-center gap-2">
@@ -41,8 +41,7 @@
                       [icon]="button.icon" 
                       [outlined]="button.outlined"
                       [styleClass]="button.styleClass"
-                      [severity]="button.severity"
-                      (click)="button.click()" />
+                      [severity]="button.severity" />
                   }
                 </div>
               </div>
@@ -120,7 +119,14 @@
             </div>
           </th>
         }
-        
+
+        @if (rowActions && rowActions.length > 0) {
+          <th class="w-[100px]">
+            <div class="flex items-center">
+              <span class="text-sm font-semibold text-slate-700">Actions</span>
+            </div>
+          </th>
+        }
       </tr>
     </ng-template>
 
@@ -208,6 +214,22 @@
                 </div>
               }
             }
+          </td>
+        }
+
+        @if (rowActions && rowActions.length > 0) {
+          <td>
+            <div class="flex items-center gap-2">
+              @for (action of rowActions; track action.id) {
+                <p-button
+                  [icon]="action.icon"
+                  [outlined]="true"
+                  [styleClass]="action.styleClass"
+                  [pTooltip]="action.tooltip"
+                  [disabled]="isActionDisabled(action, rowData)">
+                </p-button>
+              }
+            </div>
           </td>
         }
       </tr>
