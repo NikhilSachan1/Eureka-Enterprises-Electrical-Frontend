@@ -57,6 +57,7 @@ export class EmployeeListComponent {
     setTimeout(() => {
       this.tableData.set([
         {
+          id: '8d44bc51-d400-45f9-9092-69b46a5bd755',
           employeeId: 1001,
           name: 'James Butt',
           role: 'Software Engineer',
@@ -68,6 +69,7 @@ export class EmployeeListComponent {
           dateOfLeaving: '2022-01-01',
         },
         {
+          id: '8d44bc51-d400-45f9-9092-69b46a5bd756',
           employeeId: 1002,
           name: 'Mary Smith',
           role: 'Product Manager',
@@ -79,6 +81,7 @@ export class EmployeeListComponent {
           dateOfLeaving: '2021-03-15',
         },
         {
+          id: '8d44bc51-d400-45f9-9092-69b46a5bd757',
           employeeId: 1003,
           name: 'John Doe',
           role: 'UX Designer',
@@ -90,6 +93,7 @@ export class EmployeeListComponent {
           dateOfLeaving: '2022-07-10',
         },
         {
+          id: '8d44bc51-d400-45f9-9092-69b46a5bd758',
           employeeId: 1004,
           name: 'Sara Lee',
           role: 'QA Analyst',
@@ -101,6 +105,7 @@ export class EmployeeListComponent {
           dateOfLeaving: '2020-11-20',
         },
         {
+          id: '8d44bc51-d400-45f9-9092-69b46a5bd759',
           employeeId: 1005,
           name: 'Michael Brown',
           role: 'DevOps Engineer',
@@ -112,6 +117,7 @@ export class EmployeeListComponent {
           dateOfLeaving: '2023-04-01',
         },
         {
+          id: '8d44bc51-d400-45f9-9092-69b46a5bd760',
           employeeId: 1006,
           name: 'Emily Clark',
           role: 'Frontend Developer',
@@ -131,7 +137,7 @@ export class EmployeeListComponent {
   private getTableConfig(): any {
     return {
       rowHover: true,
-      tableUniqueId: 'employeeId',
+      tableUniqueId: 'id',
       displayRows: 10,
       rowsPerPageOptions: [10, 25, 50],
       showPaginator: true,
