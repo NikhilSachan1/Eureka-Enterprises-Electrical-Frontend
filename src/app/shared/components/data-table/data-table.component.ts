@@ -83,26 +83,19 @@ export class DataTableComponent {
     table.filterGlobal(target.value, 'contains');
   }
 
-  protected getSeverity(
-    status: string | ESeverity | undefined,
-  ): PrimeNGSeverity {
-    switch (status?.toLowerCase()) {
-      case ESeverity.SUCCESS:
-      case 'active':
-        return 'success';
-      case ESeverity.INFO:
-        return 'info';
-      case ESeverity.WARNING:
-      case 'on leave':
-        return 'warn';
-      case ESeverity.DANGER:
-      case 'inactive':
-        return 'danger';
-      case ESeverity.SECONDARY:
-        return 'secondary';
-      default:
-        return 'secondary';
-    }
+  protected getSeverity(status: string | ESeverity | undefined): PrimeNGSeverity {
+    const severityMap: Record<string, PrimeNGSeverity> = {
+      [ESeverity.SUCCESS]: 'success',
+      [ESeverity.INFO]: 'info',
+      [ESeverity.WARNING]: 'warn',
+      [ESeverity.DANGER]: 'danger',
+      [ESeverity.SECONDARY]: 'secondary',
+      'active': 'success',
+      'on leave': 'warn',
+      'inactive': 'danger',
+    };
+
+    return severityMap[status?.toLowerCase() ?? ''] ?? 'secondary';
   }
 
   protected resolveNestedProperty(item: any, path: string): any {
