@@ -4,7 +4,7 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { MetricsCardComponent } from '../../../shared/components/metrics-card/metrics-card.component';
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
-import { MATCH_MODE_OPTIONS } from '../../../shared/config/data-table.config';
+import { EMPLOYEE_LIST_TABLE_CONFIG, EMPLOYEE_LIST_TABLE_HEADER, EMPLOYEE_LIST_BULK_ACTIONS_CONFIG, EMPLOYEE_LIST_ROW_ACTIONS_CONFIG } from './employee-list.config';
 
 @Component({
   selector: 'app-employee-list',
@@ -14,14 +14,13 @@ import { MATCH_MODE_OPTIONS } from '../../../shared/config/data-table.config';
   styleUrl: './employee-list.component.scss',
 })
 export class EmployeeListComponent {
-
   private readonly dataTableConfigService = inject(DataTableConfigService);
   
-  protected loading = signal<boolean>(true);
+  protected loading = signal(true);
   protected tableData = signal<any[]>([]);
   protected tableConfig = signal<IDataTableConfig>(this.getTableConfig());
   protected tableHeader = signal<IDataTableHeaderConfig[]>(this.getTableHeader());
-  protected metricsCards = signal<any[]>(this.getMetricCardsData());
+  protected metricsCards = signal(this.getMetricCardsData());
   protected bulkActionButtons = signal<IBulkActionConfig[]>(this.getBulkActionButtons());
   protected rowActions = signal<IRowActionConfig[]>(this.getRowActions());
 
@@ -141,141 +140,30 @@ export class EmployeeListComponent {
   }
 
   private getTableConfig(): IDataTableConfig {
-    return this.dataTableConfigService.getTableConfig({
-      globalFilterFields: ['name', 'role', 'email', 'status'],
-    });
+    return this.dataTableConfigService.getTableConfig(EMPLOYEE_LIST_TABLE_CONFIG);
   }
 
   private getTableHeader(): IDataTableHeaderConfig[] {
-    const tableHeaderConfig: Partial<IDataTableHeaderConfig>[] = [
-      {
-        field: 'name',
-        header: 'Employee Name',
-        bodyTemplate: 'textWithSubtitleAndImage', 
-        textWithSubtitleAndImageConfig: {
-          secondaryField: 'employeeId',
-          showImage: true,
-          dummyImageField: 'name',
-          primaryFieldHighlight: true,
-        },
-        filterConfig: {
-          filterField: 'name',
-          placeholder: 'Search Employee Name',
-        },
-      },
-      {
-        field: 'role',
-        header: 'Role & Department',
-        bodyTemplate: 'textWithSubtitleAndImage',
-        textWithSubtitleAndImageConfig: {
-          secondaryField: 'department',
-          primaryFieldLabel: 'Role',
-          secondaryFieldLabel: 'Department',
-        },
-        filterConfig: {
-          filterField: 'role',
-          placeholder: 'Search By Role or Department',
-        },
-      },
-      {
-        field: 'status',
-        header: 'Status',
-        bodyTemplate: 'status',
-        filterConfig: {
-          filterField: 'status',
-          searchInputType: 'dropdown',
-          filterDropdownOptions: ['Active', 'Inactive', 'On Leave'],
-          placeholder: 'Search By Status',
-          matchModeOptions: MATCH_MODE_OPTIONS.dropdown,
-          defaultMatchMode: 'equals',
-        },
-      },
-      {
-        field: 'contactNumber',
-        header: 'Contact Number',
-        showFilter: false,
-        showSort: false,
-      },
-      {
-        field: 'email',
-        header: 'Email',
-        showFilter: false,
-        showSort: false,
-      },
-      {
-        field: 'dateOfJoining',
-        header: 'Employment Period',
-        bodyTemplate: 'textWithSubtitleAndImage',
-        dataType: 'date',
-        textWithSubtitleAndImageConfig: {
-          secondaryField: 'dateOfLeaving',
-          primaryFieldLabel: 'Joined On',
-          secondaryFieldLabel: 'Left On',
-          dataType: 'date',
-        },
-        filterConfig: {
-          filterField: 'dateOfJoining',
-          placeholder: 'Search By Date',
-          matchModeOptions: MATCH_MODE_OPTIONS.date,
-          defaultMatchMode: 'equals',
-        },
-      },
-    ];
-    const newTableHeaderConfig = this.dataTableConfigService.getTableHeaderConfig(tableHeaderConfig);
-    return newTableHeaderConfig;
+    return this.dataTableConfigService.getTableHeaderConfig(EMPLOYEE_LIST_TABLE_HEADER);
   }
 
   private getBulkActionButtons(): IBulkActionConfig[] {
-    const bulkActionButtons: Partial<IBulkActionConfig>[] = [
-      {
-        id: 'setInactive',
-        label: 'Set In-active',
-        icon: 'pi pi-user-minus',
-        severity: 'primary',
-      },
-      {
-        id: 'delete',
-        label: 'Delete',
-        icon: 'pi pi-trash',
-        severity: 'danger',
-      },
-    ];
-    return this.dataTableConfigService.getBulkActionsConfig(bulkActionButtons);
+    return this.dataTableConfigService.getBulkActionsConfig(EMPLOYEE_LIST_BULK_ACTIONS_CONFIG);
   }
 
   private getRowActions(): IRowActionConfig[] {
-    const rowActions: Partial<IRowActionConfig>[] = [
-      {
-        id: 'view',
-        icon: 'pi pi-eye',
-        tooltip: 'View Profile',
-        severity: 'info',
-      },
-      {
-        id: 'edit',
-        icon: 'pi pi-pencil',
-        tooltip: 'Edit Employee',
-        severity: 'warning',
-      },
-      {
-        id: 'delete',
-        icon: 'pi pi-trash',
-        tooltip: 'Delete Employee',
-        severity: 'danger',
-      },
-    ];
-    return this.dataTableConfigService.getRowActionsConfig(rowActions);
+    return this.dataTableConfigService.getRowActionsConfig(EMPLOYEE_LIST_ROW_ACTIONS_CONFIG);
   }
 
   protected onAddEmployee(): void {
     console.log('Add new employee clicked');
   }
 
-  protected handleBulkActionClick(action: IBulkActionConfig): void {
+  protected handleBulkActionClick(action: string): void {
     console.log(action);
   }
 
-  protected handleRowActionClick(action: IRowActionConfig): void {
+  protected handleRowActionClick(action: string): void {
     console.log(action);
   }
 }
