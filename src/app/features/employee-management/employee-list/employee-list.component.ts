@@ -5,7 +5,7 @@ import { MetricsCardComponent } from '../../../shared/components/metrics-card/me
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
 import { EMPLOYEE_LIST_TABLE_CONFIG, EMPLOYEE_LIST_TABLE_HEADER, EMPLOYEE_LIST_BULK_ACTIONS_CONFIG, EMPLOYEE_LIST_ROW_ACTIONS_CONFIG } from './employee-list.config';
-
+import { BulkActionType, RowActionType } from '../../../shared/types/action-type.types';
 @Component({
   selector: 'app-employee-list',
   standalone: true,
@@ -23,6 +23,17 @@ export class EmployeeListComponent {
   protected metricsCards = signal(this.getMetricCardsData());
   protected bulkActionButtons = signal<IBulkActionConfig[]>(this.getBulkActionButtons());
   protected rowActions = signal<IRowActionConfig[]>(this.getRowActions());
+
+  private readonly bulkActionHandlers = {
+    [BulkActionType.SET_INACTIVE]: () => this.handleSetInactive(),
+    [BulkActionType.DELETE]: () => this.handleDelete(),
+  } as const;
+
+  private readonly rowActionHandlers = {
+    [RowActionType.VIEW]: () => this.handleView(),
+    [RowActionType.EDIT]: () => this.handleEdit(),
+    [RowActionType.DELETE]: () => this.handleDelete(),
+  } as const;
 
   ngOnInit(): void {
     this.getTableData();
@@ -159,11 +170,27 @@ export class EmployeeListComponent {
     console.log('Add new employee clicked');
   }
 
-  protected handleBulkActionClick(action: string): void {
-    console.log(action);
+  protected handleBulkActionClick(action: BulkActionType): void {
+    this.bulkActionHandlers[action]?.();
   }
 
-  protected handleRowActionClick(action: string): void {
-    console.log(action);
+  protected handleRowActionClick(action: RowActionType): void {
+    this.rowActionHandlers[action]?.();
+  }
+
+  private handleSetInactive(): void {
+    console.log('Setting selected employees as inactive');
+  }
+
+  private handleView(): void {
+    console.log('Viewing employee details');
+  }
+
+  private handleEdit(): void {
+    console.log('Editing employee details');
+  }
+
+  private handleDelete(): void {
+    console.log('Deleting single employee');
   }
 }

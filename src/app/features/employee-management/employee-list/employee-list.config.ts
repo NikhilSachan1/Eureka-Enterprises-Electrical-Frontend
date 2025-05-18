@@ -1,15 +1,16 @@
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
 import { MATCH_MODE_OPTIONS } from '../../../shared/config/data-table.config';
+import { BulkActionType, RowActionType } from '../../../shared/types/action-type.types';
 
 export const EMPLOYEE_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
   {
-    id: 'setInactive',
+    id: BulkActionType.SET_INACTIVE,
     label: 'Set In-active',
     icon: 'pi pi-user-minus',
     severity: 'primary',
   },
   {
-    id: 'delete',
+    id: BulkActionType.DELETE,
     label: 'Delete',
     icon: 'pi pi-trash',
     severity: 'danger',
@@ -18,19 +19,19 @@ export const EMPLOYEE_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
 
 export const EMPLOYEE_LIST_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
   {
-    id: 'view',
+    id: RowActionType.VIEW,
     icon: 'pi pi-eye',
     tooltip: 'View Profile',
     severity: 'info',
   },
   {
-    id: 'edit',
+    id: RowActionType.EDIT,
     icon: 'pi pi-pencil',
     tooltip: 'Edit Employee',
     severity: 'warning',
   },
   {
-    id: 'delete',
+    id: RowActionType.DELETE,
     icon: 'pi pi-trash',
     tooltip: 'Delete Employee',
     severity: 'danger',

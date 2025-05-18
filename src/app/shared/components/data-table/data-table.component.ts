@@ -15,6 +15,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuModule } from 'primeng/menu';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { BulkActionType, RowActionType } from '../../types/action-type.types';
 
 @Component({
   selector: 'app-data-table',
@@ -51,8 +52,8 @@ export class DataTableComponent {
   @Input({ required: true }) bulkActionButtons!: any[];
   @Input() rowActions: any[] = [];
 
-  @Output() bulkActionClick = new EventEmitter<string>();
-  @Output() rowActionClick = new EventEmitter<string>();
+  @Output() bulkActionClick = new EventEmitter<BulkActionType>();
+  @Output() rowActionClick = new EventEmitter<RowActionType>();
   protected selectedTableRows = signal<any[]>([]);
 
 
@@ -101,11 +102,11 @@ export class DataTableComponent {
     return action.disabledWhen(rowData);
   }
 
-  protected onBulkActionClick(action: any): void {
+  protected onBulkActionClick(action: BulkActionType): void {
     this.bulkActionClick.emit(action);
   }
 
-  protected onRowActionClick(action: any): void {
+  protected onRowActionClick(action: RowActionType): void {
     this.rowActionClick.emit(action);
   }
 }
