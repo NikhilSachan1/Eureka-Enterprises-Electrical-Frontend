@@ -6,6 +6,7 @@ import { DataTableConfigService } from '../../../shared/services/data-table-conf
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
 import { EMPLOYEE_LIST_TABLE_CONFIG, EMPLOYEE_LIST_TABLE_HEADER, EMPLOYEE_LIST_BULK_ACTIONS_CONFIG, EMPLOYEE_LIST_ROW_ACTIONS_CONFIG } from './employee-list.config';
 import { BulkActionType, RowActionType } from '../../../shared/types/action-type.types';
+
 @Component({
   selector: 'app-employee-list',
   standalone: true,
@@ -24,51 +25,84 @@ export class EmployeeListComponent {
   protected bulkActionButtons = signal<IBulkActionConfig[]>(this.getBulkActionButtons());
   protected rowActions = signal<IRowActionConfig[]>(this.getRowActions());
 
-  private readonly bulkActionHandlers = {
-    [BulkActionType.SET_INACTIVE]: () => this.handleSetInactive(),
-    [BulkActionType.DELETE]: () => this.handleDelete(),
-  } as const;
-
-  private readonly rowActionHandlers = {
-    [RowActionType.VIEW]: () => this.handleView(),
-    [RowActionType.EDIT]: () => this.handleEdit(),
-    [RowActionType.DELETE]: () => this.handleDelete(),
-  } as const;
-
   ngOnInit(): void {
     this.getTableData();
   }
 
-  private getMetricCardsData(): any[] {
-    
-    const metricData = [
-      {
-        title: 'Employee Distribution',
-        subtitle: 'Current workforce status',
-        iconClass: 'pi pi-chart-pie text-blue-500',
-        iconBgClass: 'bg-blue-50',
-        metrics: [
-          { label: 'Active', value: 2 },
-          { label: 'On Leave', value: 1 },
-          { label: 'Terminated', value: 1 },
-        ],
-      },
-      {
-        title: 'Department Strength',
-        subtitle: 'Employee by department',
-        iconClass: 'pi pi-users text-purple-500',
-        iconBgClass: 'bg-purple-50',
-        metrics: [
-          { label: 'IT', value: 2 },
-          { label: 'HR', value: 1 },
-          { label: 'Finance', value: 1 },
-        ],
-      }
-    ];
-
-    return metricData;
+  // Table Configuration Methods
+  private getTableConfig(): IDataTableConfig {
+    return this.dataTableConfigService.getTableConfig(EMPLOYEE_LIST_TABLE_CONFIG);
   }
 
+  private getTableHeader(): IDataTableHeaderConfig[] {
+    return this.dataTableConfigService.getTableHeaderConfig(EMPLOYEE_LIST_TABLE_HEADER);
+  }
+
+  private getBulkActionButtons(): IBulkActionConfig[] {
+    return this.dataTableConfigService.getBulkActionsConfig(EMPLOYEE_LIST_BULK_ACTIONS_CONFIG);
+  }
+
+  private getRowActions(): IRowActionConfig[] {
+    return this.dataTableConfigService.getRowActionsConfig(EMPLOYEE_LIST_ROW_ACTIONS_CONFIG);
+  }
+
+  // Action Handler Methods
+  protected handleBulkActionClick(action: BulkActionType, selectedIds: string[]): void {
+    switch (action) {
+      case BulkActionType.SET_INACTIVE:
+        this.setEmployeesInactive(selectedIds);
+        break;
+      case BulkActionType.DELETE:
+        this.deleteEmployees(selectedIds);
+        break;
+      default:
+        console.warn('Unknown bulk action:', action);
+    }
+  }
+
+  protected handleRowActionClick(action: RowActionType, id: string): void {
+    switch (action) {
+      case RowActionType.VIEW:
+        this.viewEmployeeDetails(id);
+        break;
+      case RowActionType.EDIT:
+        this.editEmployeeDetails(id);
+        break;
+      case RowActionType.DELETE:
+        this.deleteEmployee(id);
+        break;
+      default:
+        console.warn('Unknown row action:', action);
+    }
+  }
+
+  // Business Logic Methods
+  private setEmployeesInactive(ids: string[]): void {
+    console.log('Setting employees as inactive:', ids);
+    // Implement actual logic here
+  }
+
+  private deleteEmployees(ids: string[]): void {
+    console.log('Deleting multiple employees:', ids);
+    // Implement actual logic here
+  }
+
+  private viewEmployeeDetails(id: string): void {
+    console.log('Viewing employee details:', id);
+    // Implement actual logic here
+  }
+
+  private editEmployeeDetails(id: string): void {
+    console.log('Editing employee details:', id);
+    // Implement actual logic here
+  }
+
+  private deleteEmployee(id: string): void {
+    console.log('Deleting single employee:', id);
+    // Implement actual logic here
+  }
+
+  // Data Methods
   private getTableData(): void {
     setTimeout(() => {
       this.tableData.set([
@@ -145,52 +179,34 @@ export class EmployeeListComponent {
           dateOfLeaving: '2021-09-25',
         },
       ]);
-
       this.loading.set(false);
     }, 150);
   }
 
-  private getTableConfig(): IDataTableConfig {
-    return this.dataTableConfigService.getTableConfig(EMPLOYEE_LIST_TABLE_CONFIG);
-  }
-
-  private getTableHeader(): IDataTableHeaderConfig[] {
-    return this.dataTableConfigService.getTableHeaderConfig(EMPLOYEE_LIST_TABLE_HEADER);
-  }
-
-  private getBulkActionButtons(): IBulkActionConfig[] {
-    return this.dataTableConfigService.getBulkActionsConfig(EMPLOYEE_LIST_BULK_ACTIONS_CONFIG);
-  }
-
-  private getRowActions(): IRowActionConfig[] {
-    return this.dataTableConfigService.getRowActionsConfig(EMPLOYEE_LIST_ROW_ACTIONS_CONFIG);
-  }
-
-  protected onAddEmployee(): void {
-    console.log('Add new employee clicked');
-  }
-
-  protected handleBulkActionClick(action: BulkActionType): void {
-    this.bulkActionHandlers[action]?.();
-  }
-
-  protected handleRowActionClick(action: RowActionType): void {
-    this.rowActionHandlers[action]?.();
-  }
-
-  private handleSetInactive(): void {
-    console.log('Setting selected employees as inactive');
-  }
-
-  private handleView(): void {
-    console.log('Viewing employee details');
-  }
-
-  private handleEdit(): void {
-    console.log('Editing employee details');
-  }
-
-  private handleDelete(): void {
-    console.log('Deleting single employee');
+  private getMetricCardsData(): any[] {
+    return [
+      {
+        title: 'Employee Distribution',
+        subtitle: 'Current workforce status',
+        iconClass: 'pi pi-chart-pie text-blue-500',
+        iconBgClass: 'bg-blue-50',
+        metrics: [
+          { label: 'Active', value: 2 },
+          { label: 'On Leave', value: 1 },
+          { label: 'Terminated', value: 1 },
+        ],
+      },
+      {
+        title: 'Department Strength',
+        subtitle: 'Employee by department',
+        iconClass: 'pi pi-users text-purple-500',
+        iconBgClass: 'bg-purple-50',
+        metrics: [
+          { label: 'IT', value: 2 },
+          { label: 'HR', value: 1 },
+          { label: 'Finance', value: 1 },
+        ],
+      }
+    ];
   }
 }
