@@ -207,7 +207,7 @@
                 @let statusSeverity = getSeverity(statusValue);
 
                 <div class="flex items-center gap-3">
-                  <p-tag [severity]="statusSeverity" [value]="statusValue" [rounded]="statusConfig.rounded" />
+                  <p-tag [severity]="statusSeverity" [value]="statusValue" [rounded]="statusConfig?.rounded" />
                 </div>
               }
               @default {

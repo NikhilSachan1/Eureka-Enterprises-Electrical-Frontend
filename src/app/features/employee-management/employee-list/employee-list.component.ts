@@ -1,7 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { MetricsCardComponent } from '../../../shared/components/metrics-card/metrics-card.component';
+import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
+import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
+import { MATCH_MODE_OPTIONS } from '../../../shared/config/data-table.config';
 
 @Component({
   selector: 'app-employee-list',
@@ -11,13 +14,16 @@ import { MetricsCardComponent } from '../../../shared/components/metrics-card/me
   styleUrl: './employee-list.component.scss',
 })
 export class EmployeeListComponent {
+
+  private readonly dataTableConfigService = inject(DataTableConfigService);
+  
   protected loading = signal<boolean>(true);
   protected tableData = signal<any[]>([]);
-  protected tableConfig = signal<any>(this.getTableConfig());
-  protected tableHeader = signal<any[]>(this.getTableHeader());
+  protected tableConfig = signal<IDataTableConfig>(this.getTableConfig());
+  protected tableHeader = signal<IDataTableHeaderConfig[]>(this.getTableHeader());
   protected metricsCards = signal<any[]>(this.getMetricCardsData());
-  protected bulkActionButtons = signal<any[]>(this.getBulkActionButtons());
-  protected rowActions = signal<any[]>(this.getRowActions());
+  protected bulkActionButtons = signal<IBulkActionConfig[]>(this.getBulkActionButtons());
+  protected rowActions = signal<IRowActionConfig[]>(this.getRowActions());
 
   ngOnInit(): void {
     this.getTableData();
@@ -134,52 +140,28 @@ export class EmployeeListComponent {
     }, 150);
   }
 
-  private getTableConfig(): any {
-    return {
-      rowHover: true,
-      tableUniqueId: 'id',
-      displayRows: 10,
-      rowsPerPageOptions: [10, 25, 50],
-      showPaginator: true,
+  private getTableConfig(): IDataTableConfig {
+    return this.dataTableConfigService.getTableConfig({
       globalFilterFields: ['name', 'role', 'email', 'status'],
-      showCheckbox: true,
-    };
+    });
   }
 
-  private getTableHeader(): any[] {
-    return [
+  private getTableHeader(): IDataTableHeaderConfig[] {
+    const tableHeaderConfig: Partial<IDataTableHeaderConfig>[] = [
       {
         field: 'name',
         header: 'Employee Name',
-        bodyTemplate: 'textWithSubtitleAndImage',
+        bodyTemplate: 'textWithSubtitleAndImage', 
         textWithSubtitleAndImageConfig: {
           secondaryField: 'employeeId',
           showImage: true,
           dummyImageField: 'name',
           primaryFieldHighlight: true,
         },
-        showFilter: true,
         filterConfig: {
           filterField: 'name',
-          searchInputType: 'text',
-          displayType: 'menu',
-          showMatchModes: true,
-          defaultMatchMode: 'contains',
-          matchModeOptions: [
-            { label: 'Equals', value: 'equals' },
-            { label: 'Contains', value: 'contains' },
-          ],
-          showOperator: true,
-          defaultOperator: 'and',
-          showClearButton: true,
-          showApplyButton: true,
-          showAddButton: true,
-          hideOnClear: false,
           placeholder: 'Search Employee Name',
-          maxAddRuleConstraints: 2,
-          numberFormatting: false,
         },
-        showSort: true,
       },
       {
         field: 'role',
@@ -190,116 +172,34 @@ export class EmployeeListComponent {
           primaryFieldLabel: 'Role',
           secondaryFieldLabel: 'Department',
         },
-        showFilter: true,
         filterConfig: {
           filterField: 'role',
-          searchInputType: 'text',
-          displayType: 'menu',
-          showMatchModes: true,
-          defaultMatchMode: 'contains',
-          showOperator: true,
-          defaultOperator: 'and',
-          showClearButton: true,
-          showApplyButton: true,
-          showAddButton: true,
-          hideOnClear: true,
           placeholder: 'Search By Role or Department',
-          matchModeOptions: [
-            { label: 'Equals', value: 'equals' },
-            { label: 'Contains', value: 'contains' },
-          ],
-          maxAddRuleConstraints: 2,
-          numberFormatting: true,
         },
-        showSort: false,
       },
       {
         field: 'status',
         header: 'Status',
         bodyTemplate: 'status',
-        statusConfig: {
-          rounded: false,
-        },
-        showFilter: true,
         filterConfig: {
           filterField: 'status',
           searchInputType: 'dropdown',
           filterDropdownOptions: ['Active', 'Inactive', 'On Leave'],
-          displayType: 'menu',
-          showMatchModes: true,
-          defaultMatchMode: 'equals',
-          showOperator: true,
-          defaultOperator: 'and',
-          showClearButton: true,
-          showApplyButton: true,
-          showAddButton: true,
-          hideOnClear: true,
           placeholder: 'Search By Status',
-          matchModeOptions: [
-            { label: 'Equals', value: 'equals' },
-            { label: 'Contains', value: 'contains' },
-          ],
-          maxAddRuleConstraints: 1,
-          numberFormatting: true,
+          matchModeOptions: MATCH_MODE_OPTIONS.dropdown,
+          defaultMatchMode: 'equals',
         },
-        showSort: true,
       },
       {
         field: 'contactNumber',
         header: 'Contact Number',
         showFilter: false,
-        filterConfig: {
-          filterField: 'name',
-          searchInputType: 'text',
-          displayType: 'menu',
-          showMatchModes: true,
-          defaultMatchMode: 'contains',
-          showOperator: true,
-          defaultOperator: 'and',
-          showClearButton: true,
-          showApplyButton: true,
-          showAddButton: true,
-          hideOnClear: true,
-          placeholder: 'Search Employee Name',
-          matchModeOptions: [
-            { label: 'Equals', value: 'equals' },
-            { label: 'Contains', value: 'contains' },
-            { label: 'Starts With', value: 'startsWith' },
-            { label: 'Ends With', value: 'endsWith' },
-            { label: 'Greater Than', value: 'greaterThan' },
-          ],
-          maxAddRuleConstraints: 1,
-          numberFormatting: true,
-        },
         showSort: false,
       },
       {
         field: 'email',
         header: 'Email',
         showFilter: false,
-        filterConfig: {
-          filterField: 'name',
-          searchInputType: 'text',
-          displayType: 'menu',
-          showMatchModes: true,
-          defaultMatchMode: 'contains',
-          showOperator: true,
-          defaultOperator: 'and',
-          showClearButton: true,
-          showApplyButton: true,
-          showAddButton: true,
-          hideOnClear: true,
-          placeholder: 'Search Employee Name',
-          matchModeOptions: [
-            { label: 'Equals', value: 'equals' },
-            { label: 'Contains', value: 'contains' },
-            { label: 'Starts With', value: 'startsWith' },
-            { label: 'Ends With', value: 'endsWith' },
-            { label: 'Greater Than', value: 'greaterThan' },
-          ],
-          maxAddRuleConstraints: 1,
-          numberFormatting: true,
-        },
         showSort: false,
       },
       {
@@ -307,100 +207,75 @@ export class EmployeeListComponent {
         header: 'Employment Period',
         bodyTemplate: 'textWithSubtitleAndImage',
         dataType: 'date',
-        dateFormat: 'dd-MM-yyyy',
         textWithSubtitleAndImageConfig: {
           secondaryField: 'dateOfLeaving',
           primaryFieldLabel: 'Joined On',
           secondaryFieldLabel: 'Left On',
           dataType: 'date',
         },
-        showFilter: true,
         filterConfig: {
-          filterField: 'name',
-          searchInputType: 'text',
-          displayType: 'menu',
-          showMatchModes: true,
-          defaultMatchMode: 'contains',
-          showOperator: true,
-          defaultOperator: 'and',
-          showClearButton: true,
-          showApplyButton: true,
-          showAddButton: true,
-          hideOnClear: true,
-          placeholder: 'Search Employee Name',
-          matchModeOptions: [
-            { label: 'Equals', value: 'equals' },
-            { label: 'Contains', value: 'contains' },
-            { label: 'Starts With', value: 'startsWith' },
-            { label: 'Ends With', value: 'endsWith' },
-            { label: 'Greater Than', value: 'greaterThan' },
-          ],
-          maxAddRuleConstraints: 1,
-          numberFormatting: true,
+          filterField: 'dateOfJoining',
+          placeholder: 'Search By Date',
+          matchModeOptions: MATCH_MODE_OPTIONS.date,
+          defaultMatchMode: 'equals',
         },
-        showSort: false,
       },
     ];
+    const newTableHeaderConfig = this.dataTableConfigService.getTableHeaderConfig(tableHeaderConfig);
+    return newTableHeaderConfig;
   }
 
-  private getBulkActionButtons(): any[] {
-    return [
+  private getBulkActionButtons(): IBulkActionConfig[] {
+    const bulkActionButtons: Partial<IBulkActionConfig>[] = [
       {
         id: 'setInactive',
         label: 'Set In-active',
         icon: 'pi pi-user-minus',
-        styleClass: 'p-button-sm',
-        outlined: true,
         severity: 'primary',
       },
       {
         id: 'delete',
         label: 'Delete',
         icon: 'pi pi-trash',
-        styleClass: 'p-button-sm',
-        outlined: true,
         severity: 'danger',
       },
     ];
+    return this.dataTableConfigService.getBulkActionsConfig(bulkActionButtons);
   }
 
-  private getRowActions(): any[] {
-    return [
+  private getRowActions(): IRowActionConfig[] {
+    const rowActions: Partial<IRowActionConfig>[] = [
       {
         id: 'view',
         icon: 'pi pi-eye',
         tooltip: 'View Profile',
         severity: 'info',
-        styleClass: 'p-button-text p-button-sm',
       },
       {
         id: 'edit',
         icon: 'pi pi-pencil',
         tooltip: 'Edit Employee',
         severity: 'warning',
-        disabledWhen: (rowData: any) => rowData.status === 'Active',
-        styleClass: 'p-button-text p-button-sm',
       },
       {
         id: 'delete',
         icon: 'pi pi-trash',
         tooltip: 'Delete Employee',
         severity: 'danger',
-        disabledWhen: (rowData: any) => rowData.status === 'Active',
-        styleClass: 'p-button-text p-button-sm',
       },
     ];
+    return this.dataTableConfigService.getRowActionsConfig(rowActions);
   }
 
   protected onAddEmployee(): void {
     console.log('Add new employee clicked');
   }
 
-  protected handleBulkActionClick(action: any): void {
+  protected handleBulkActionClick(action: IBulkActionConfig): void {
     console.log(action);
   }
 
-  protected handleRowActionClick(action: any): void {
+  protected handleRowActionClick(action: IRowActionConfig): void {
     console.log(action);
   }
 }
