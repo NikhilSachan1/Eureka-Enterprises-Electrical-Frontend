@@ -1,4 +1,5 @@
 import { IDataTableConfig, IDataTableHeaderConfig, IFilterConfig, IStatusConfig, ITextWithSubtitleAndImageConfig, IMatchModeOption, IBulkActionConfig, IRowActionConfig } from "../models/data-table-config.model";
+import { ESeverity, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
 
 // Default table config
 export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -41,14 +42,14 @@ export const MATCH_MODE_OPTIONS = {
 };
 
 export const DEFAULT_TABLE_FILTER_CONFIG: Partial<IFilterConfig> = {
-  searchInputType: 'text',
-  displayType: 'menu',
+  searchInputType: ETableSearchInputType.TEXT,
+  displayType: ETableFilterDisplayType.MENU,
   showMatchModes: true,
-  defaultMatchMode: 'contains',
+  defaultMatchMode: ETableFilterMatchMode.CONTAINS,
   matchModeOptions: MATCH_MODE_OPTIONS.text,
   filterDropdownOptions: [],
   showOperator: true,
-  defaultOperator: 'and',
+  defaultOperator: ETableFilterOperator.AND,
   showClearButton: true,
   showApplyButton: true,
   showAddButton: true,
@@ -63,12 +64,12 @@ export const STATUS_CONFIG: IStatusConfig = {
 }
 
 export const TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG: Partial<ITextWithSubtitleAndImageConfig> = {
-  dataType: 'text',
+  dataType: ETableDataType.TEXT,
 }
 
 export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
-  bodyTemplate: 'text',
-  dataType: 'text',
+  bodyTemplate: ETableBodyTemplate.TEXT,
+  dataType: ETableDataType.TEXT,
   dateFormat: 'dd-MM-yyyy',
   textWithSubtitleAndImageConfig: TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG,
   statusConfig: STATUS_CONFIG,
@@ -82,13 +83,13 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
 export const DEFAULT_BULK_ACTION_CONFIG: Partial<IBulkActionConfig> = {
   styleClass: 'p-button-sm',
   outlined: true,
-  severity: 'primary',
+  severity: ESeverity.PRIMARY,
 }
 
 // default row action config
 export const DEFAULT_ROW_ACTION_CONFIG: Partial<IRowActionConfig> = {
   styleClass: 'p-button-text p-button-sm',
   outlined: false,
-  severity: 'primary',
+  severity: ESeverity.PRIMARY,
 }
 

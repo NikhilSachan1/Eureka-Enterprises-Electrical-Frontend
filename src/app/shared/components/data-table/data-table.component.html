@@ -41,7 +41,7 @@
                       [icon]="button.icon" 
                       [outlined]="button.outlined"
                       [styleClass]="button.styleClass"
-                      [severity]="button.severity" 
+                      [severity]="getSeverity(button.severity)" 
                       (click)="onBulkActionClick(button.id)" />
                   }
                 </div>
@@ -226,7 +226,7 @@
                 <p-button
                   [icon]="action.icon"
                   [outlined]="true"
-                  [severity]="action.severity"
+                  [severity]="getSeverity(action.severity)"
                   [styleClass]="action.styleClass"
                   [pTooltip]="action.tooltip"
                   [disabled]="isActionDisabled(action, rowData)"

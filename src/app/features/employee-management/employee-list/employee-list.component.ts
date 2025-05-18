@@ -5,7 +5,7 @@ import { MetricsCardComponent } from '../../../shared/components/metrics-card/me
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
 import { EMPLOYEE_LIST_TABLE_CONFIG, EMPLOYEE_LIST_TABLE_HEADER, EMPLOYEE_LIST_BULK_ACTIONS_CONFIG, EMPLOYEE_LIST_ROW_ACTIONS_CONFIG } from './employee-list.config';
-import { BulkActionType, RowActionType } from '../../../shared/types/action-type.types';
+import { EBulkActionType, ERowActionType } from '../../../shared/types';
 
 @Component({
   selector: 'app-employee-list',
@@ -47,29 +47,29 @@ export class EmployeeListComponent {
   }
 
   // Action Handler Methods
-  protected handleBulkActionClick(action: BulkActionType, selectedIds: string[]): void {
+  protected handleBulkActionClick(action: string): void {
     switch (action) {
-      case BulkActionType.SET_INACTIVE:
-        this.setEmployeesInactive(selectedIds);
+      case EBulkActionType.SET_INACTIVE:
+        this.setEmployeesInactive();
         break;
-      case BulkActionType.DELETE:
-        this.deleteEmployees(selectedIds);
+      case EBulkActionType.DELETE:
+        this.deleteEmployees();
         break;
       default:
         console.warn('Unknown bulk action:', action);
-    }
+    } 
   }
 
-  protected handleRowActionClick(action: RowActionType, id: string): void {
+  protected handleRowActionClick(action: string): void {
     switch (action) {
-      case RowActionType.VIEW:
-        this.viewEmployeeDetails(id);
+      case ERowActionType.VIEW:
+        this.viewEmployeeDetails();
         break;
-      case RowActionType.EDIT:
-        this.editEmployeeDetails(id);
+      case ERowActionType.EDIT:
+        this.editEmployeeDetails();
         break;
-      case RowActionType.DELETE:
-        this.deleteEmployee(id);
+      case ERowActionType.DELETE:
+        this.deleteEmployee();
         break;
       default:
         console.warn('Unknown row action:', action);
@@ -77,28 +77,33 @@ export class EmployeeListComponent {
   }
 
   // Business Logic Methods
-  private setEmployeesInactive(ids: string[]): void {
-    console.log('Setting employees as inactive:', ids);
+  private setEmployeesInactive(): void {
+    console.log('Setting employees as inactive:');
     // Implement actual logic here
   }
 
-  private deleteEmployees(ids: string[]): void {
-    console.log('Deleting multiple employees:', ids);
+  private deleteEmployees(): void {
+    console.log('Deleting multiple employees:');
     // Implement actual logic here
   }
 
-  private viewEmployeeDetails(id: string): void {
-    console.log('Viewing employee details:', id);
+  private viewEmployeeDetails(): void {
+    console.log('Viewing employee details:');
     // Implement actual logic here
   }
 
-  private editEmployeeDetails(id: string): void {
-    console.log('Editing employee details:', id);
+  private editEmployeeDetails(): void {
+    console.log('Editing employee details:');
     // Implement actual logic here
   }
 
-  private deleteEmployee(id: string): void {
-    console.log('Deleting single employee:', id);
+  private deleteEmployee(): void {
+    console.log('Deleting single employee:');
+    // Implement actual logic here
+  }
+
+  protected onAddEmployee(): void {
+    console.log('Adding new employee:');
     // Implement actual logic here
   }
 

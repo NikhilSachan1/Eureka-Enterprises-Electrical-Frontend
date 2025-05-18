@@ -1,3 +1,6 @@
+import { ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
+import { ESeverity } from "../types/severity.types";
+
 export interface IDataTableConfig {
     rowHover: boolean;
     tableUniqueId: string;
@@ -11,8 +14,8 @@ export interface IDataTableConfig {
 export interface IDataTableHeaderConfig {
     field: string;
     header: string;
-    bodyTemplate?: 'text' | 'textWithSubtitleAndImage' | 'status';
-    dataType?: 'text' | 'number' | 'date' | 'boolean';
+    bodyTemplate?: ETableBodyTemplate;
+    dataType?: ETableDataType;
     dateFormat?: string;
     textWithSubtitleAndImageConfig?: ITextWithSubtitleAndImageConfig;
     statusConfig?: IStatusConfig;
@@ -28,7 +31,7 @@ export interface ITextWithSubtitleAndImageConfig {
     primaryFieldHighlight?: boolean;
     primaryFieldLabel?: string;
     secondaryFieldLabel?: string;
-    dataType?: 'text' | 'number' | 'date' | 'boolean';
+    dataType?: ETableDataType;
 }
 
 export interface IStatusConfig {
@@ -37,14 +40,14 @@ export interface IStatusConfig {
 
 export interface IFilterConfig {
     filterField: string;
-    searchInputType: 'text' | 'dropdown';
+    searchInputType: ETableSearchInputType;
     filterDropdownOptions?: string[];
-    displayType: 'menu' | 'chip';
+    displayType: ETableFilterDisplayType;
     showMatchModes: boolean;
-    defaultMatchMode: 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'in' | 'any';
+    defaultMatchMode: ETableFilterMatchMode;
     matchModeOptions?: IMatchModeOption[];
     showOperator: boolean;
-    defaultOperator: 'and' | 'or';
+    defaultOperator: ETableFilterOperator;
     showClearButton: boolean;
     showApplyButton: boolean;
     showAddButton: boolean;
@@ -65,7 +68,7 @@ export interface IRowActionConfig {
     tooltip?: string;
     styleClass?: string;
     outlined?: boolean;
-    severity?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'danger';
+    severity?: ESeverity;
 }
 
 export interface IBulkActionConfig {
@@ -74,5 +77,5 @@ export interface IBulkActionConfig {
     icon?: string;
     styleClass?: string;
     outlined?: boolean;
-    severity?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'danger';
+    severity?: ESeverity;
 }

@@ -1,40 +1,40 @@
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
 import { MATCH_MODE_OPTIONS } from '../../../shared/config/data-table.config';
-import { BulkActionType, RowActionType } from '../../../shared/types/action-type.types';
+import { EBulkActionType, ERowActionType, ESeverity, ETableBodyTemplate, ETableDataType, ETableFilterMatchMode, ETableSearchInputType } from '../../../shared/types';
 
 export const EMPLOYEE_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
   {
-    id: BulkActionType.SET_INACTIVE,
+    id: EBulkActionType.SET_INACTIVE,
     label: 'Set In-active',
     icon: 'pi pi-user-minus',
-    severity: 'primary',
+    severity: ESeverity.SUCCESS,
   },
   {
-    id: BulkActionType.DELETE,
+    id: EBulkActionType.DELETE,
     label: 'Delete',
     icon: 'pi pi-trash',
-    severity: 'danger',
+    severity: ESeverity.DANGER,
   },
 ];
 
 export const EMPLOYEE_LIST_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
   {
-    id: RowActionType.VIEW,
+    id: ERowActionType.VIEW,
     icon: 'pi pi-eye',
     tooltip: 'View Profile',
-    severity: 'info',
+    severity: ESeverity.INFO,
   },
   {
-    id: RowActionType.EDIT,
+    id: ERowActionType.EDIT,
     icon: 'pi pi-pencil',
     tooltip: 'Edit Employee',
-    severity: 'warning',
+    severity: ESeverity.WARNING,
   },
   {
-    id: RowActionType.DELETE,
+    id: ERowActionType.DELETE,
     icon: 'pi pi-trash',
     tooltip: 'Delete Employee',
-    severity: 'danger',
+    severity: ESeverity.DANGER,
   },
 ];
 
@@ -46,7 +46,7 @@ export const EMPLOYEE_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'name',
     header: 'Employee Name',
-    bodyTemplate: 'textWithSubtitleAndImage', 
+    bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
     textWithSubtitleAndImageConfig: {
       secondaryField: 'employeeId',
       showImage: true,
@@ -61,7 +61,7 @@ export const EMPLOYEE_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'role',
     header: 'Role & Department',
-    bodyTemplate: 'textWithSubtitleAndImage',
+    bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
     textWithSubtitleAndImageConfig: {
       secondaryField: 'department',
       primaryFieldLabel: 'Role',
@@ -75,14 +75,14 @@ export const EMPLOYEE_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'status',
     header: 'Status',
-    bodyTemplate: 'status',
+    bodyTemplate: ETableBodyTemplate.STATUS,
     filterConfig: {
       filterField: 'status',
-      searchInputType: 'dropdown',
+      searchInputType: ETableSearchInputType.DROPDOWN,
       filterDropdownOptions: ['Active', 'Inactive', 'On Leave'],
       placeholder: 'Search By Status',
       matchModeOptions: MATCH_MODE_OPTIONS.dropdown,
-      defaultMatchMode: 'equals',
+      defaultMatchMode: ETableFilterMatchMode.EQUALS,
     },
   },
   {
@@ -100,19 +100,19 @@ export const EMPLOYEE_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'dateOfJoining',
     header: 'Employment Period',
-    bodyTemplate: 'textWithSubtitleAndImage',
-    dataType: 'date',
+    bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
+    dataType: ETableDataType.DATE,
     textWithSubtitleAndImageConfig: {
       secondaryField: 'dateOfLeaving',
       primaryFieldLabel: 'Joined On',
       secondaryFieldLabel: 'Left On',
-      dataType: 'date',
+      dataType: ETableDataType.DATE,
     },
     filterConfig: {
       filterField: 'dateOfJoining',
       placeholder: 'Search By Date',
       matchModeOptions: MATCH_MODE_OPTIONS.date,
-      defaultMatchMode: 'equals',
+      defaultMatchMode: ETableFilterMatchMode.EQUALS,
     },
   },
 ]; 

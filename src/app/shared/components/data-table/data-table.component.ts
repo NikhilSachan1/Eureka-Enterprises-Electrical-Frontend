@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewChild, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ViewChild,
+  signal,
+} from '@angular/core';
 import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -15,7 +23,13 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuModule } from 'primeng/menu';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { BulkActionType, RowActionType } from '../../types/action-type.types';
+import {
+  IDataTableConfig,
+  IDataTableHeaderConfig,
+  IBulkActionConfig,
+  IRowActionConfig,
+} from '../../models';
+import { ESeverity, PrimeNGSeverity } from '../../types';
 
 @Component({
   selector: 'app-data-table',
@@ -46,16 +60,15 @@ export class DataTableComponent {
   @ViewChild('dt') dt!: Table;
 
   @Input({ required: true }) loading!: boolean;
-  @Input({ required: true }) tableConfig!: any;
-  @Input({ required: true }) tableHeader!: any[];
-  @Input({ required: true }) tableData!: any[];
-  @Input({ required: true }) bulkActionButtons!: any[];
-  @Input() rowActions: any[] = [];
+  @Input({ required: true }) tableConfig!: IDataTableConfig;
+  @Input({ required: true }) tableHeader!: IDataTableHeaderConfig[];
+  @Input({ required: true }) tableData!: Record<string, unknown>[];
+  @Input({ required: true }) bulkActionButtons!: IBulkActionConfig[];
+  @Input() rowActions: IRowActionConfig[] = [];
 
-  @Output() bulkActionClick = new EventEmitter<BulkActionType>();
-  @Output() rowActionClick = new EventEmitter<RowActionType>();
-  protected selectedTableRows = signal<any[]>([]);
-
+  @Output() bulkActionClick = new EventEmitter<string>();
+  @Output() rowActionClick = new EventEmitter<string>();
+  protected selectedTableRows = signal<Record<string, unknown>[]>([]);
 
   protected clear(table: Table): void {
     table.clear();
@@ -70,16 +83,23 @@ export class DataTableComponent {
     table.filterGlobal(target.value, 'contains');
   }
 
-  protected getSeverity(status: string): 'danger' | 'success' | 'info' | 'warn' | 'secondary' {
-    switch (status.toLowerCase()) {
-      case 'inactive':
-        return 'danger';
+  protected getSeverity(
+    status: string | ESeverity | undefined,
+  ): PrimeNGSeverity {
+    switch (status?.toLowerCase()) {
+      case ESeverity.SUCCESS:
       case 'active':
         return 'success';
-      case 'new':
+      case ESeverity.INFO:
         return 'info';
+      case ESeverity.WARNING:
       case 'on leave':
         return 'warn';
+      case ESeverity.DANGER:
+      case 'inactive':
+        return 'danger';
+      case ESeverity.SECONDARY:
+        return 'secondary';
       default:
         return 'secondary';
     }
@@ -87,7 +107,7 @@ export class DataTableComponent {
 
   protected resolveNestedProperty(item: any, path: string): any {
     if (!item || !path) return null;
-    
+
     return path.split('.').reduce((prev, curr) => {
       return prev && prev[curr] !== undefined ? prev[curr] : null;
     }, item);
@@ -102,11 +122,11 @@ export class DataTableComponent {
     return action.disabledWhen(rowData);
   }
 
-  protected onBulkActionClick(action: BulkActionType): void {
+  protected onBulkActionClick(action: string): void {
     this.bulkActionClick.emit(action);
   }
 
-  protected onRowActionClick(action: RowActionType): void {
+  protected onRowActionClick(action: string): void {
     this.rowActionClick.emit(action);
   }
 }
