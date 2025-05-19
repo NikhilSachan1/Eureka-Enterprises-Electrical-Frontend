@@ -1,0 +1,23 @@
+<p-confirmdialog #cd>
+    <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+        <div class="flex flex-col items-center p-8 rounded">
+            <div
+                class="rounded-full bg-primary text-primary-contrast inline-flex justify-center items-center h-24 w-24 -mt-20">
+                <i class="pi pi-question !text-5xl"></i>
+            </div>
+            <span class="font-bold text-2xl block mb-2 mt-6">{{ message.header }}</span>
+            <p class="mb-4">{{ message.message }}</p>
+
+            <div class="w-full mb-4">
+                <label for="comment" class="block text-sm font-medium mb-2">Add a comment (optional)</label>
+                <input id="comment" type="text" pInputText [(ngModel)]="comment" class="w-full p-2 border rounded"
+                    placeholder="Enter your comment here..." />
+            </div>
+
+            <div class="flex items-center gap-2 mt-2">
+                <p-button label="Save" (click)="handleAccept()" styleClass="w-32"></p-button>
+                <p-button label="Cancel" [outlined]="true" (click)="handleReject()" styleClass="w-32"></p-button>
+            </div>
+        </div>
+    </ng-template>
+</p-confirmdialog>

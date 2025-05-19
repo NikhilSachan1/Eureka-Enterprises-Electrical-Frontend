@@ -7,6 +7,7 @@ import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { LoggingInterceptor } from './core/interceptors/logging.interceptor';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
+import { ConfirmationService } from 'primeng/api';
 import Aura from '@primeng/themes/aura';
 
 export const appConfig: ApplicationConfig = {
@@ -26,6 +27,7 @@ export const appConfig: ApplicationConfig = {
         }),
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideHttpClient(withInterceptors([AuthInterceptor, ErrorInterceptor, LoggingInterceptor])),
-        provideRouter(routes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation())
+        provideRouter(routes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
+        { provide: ConfirmationService, useClass: ConfirmationService }
     ]
 };

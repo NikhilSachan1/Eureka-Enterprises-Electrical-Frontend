@@ -3,6 +3,8 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { MetricsCardComponent } from '../../../shared/components/metrics-card/metrics-card.component';
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
+import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog.service';
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
 import { EMPLOYEE_LIST_TABLE_CONFIG, EMPLOYEE_LIST_TABLE_HEADER, EMPLOYEE_LIST_BULK_ACTIONS_CONFIG, EMPLOYEE_LIST_ROW_ACTIONS_CONFIG } from './employee-list.config';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
@@ -10,12 +12,18 @@ import { EBulkActionType, ERowActionType } from '../../../shared/types';
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [PageHeaderComponent, DataTableComponent, MetricsCardComponent],
+  imports: [
+    PageHeaderComponent, 
+    DataTableComponent, 
+    MetricsCardComponent,
+    ConfirmationDialogComponent
+  ],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss',
 })
 export class EmployeeListComponent {
   private readonly dataTableConfigService = inject(DataTableConfigService);
+  private readonly confirmationDialogService = inject(ConfirmationDialogService);
   
   protected loading = signal(true);
   protected tableData = signal<any[]>([]);
@@ -53,7 +61,7 @@ export class EmployeeListComponent {
         this.setEmployeesInactive();
         break;
       case EBulkActionType.DELETE:
-        this.deleteEmployees();
+        this.confirmDeleteEmployees();
         break;
       default:
         console.warn('Unknown bulk action:', action);
@@ -69,7 +77,7 @@ export class EmployeeListComponent {
         this.editEmployeeDetails();
         break;
       case ERowActionType.DELETE:
-        this.deleteEmployee();
+        this.confirmDeleteEmployee();
         break;
       default:
         console.warn('Unknown row action:', action);
@@ -105,6 +113,37 @@ export class EmployeeListComponent {
   protected onAddEmployee(): void {
     console.log('Adding new employee:');
     // Implement actual logic here
+  }
+
+  private confirmDeleteEmployees(): void {
+    this.confirmationDialogService.confirm({
+      message: 'Are you sure you want to delete the selected employees?',
+      header: 'Delete Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.deleteEmployees();
+      }
+    });
+  }
+
+  private confirmDeleteEmployee(): void {
+    this.confirmationDialogService.confirm({
+      header: 'Are you sure?',
+            message: 'Please confirm to proceed.',
+            accept: () => {
+              alert('You have accepted');
+                // this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
+            },
+            reject: () => {
+              alert('You have rejected');
+                // this.messageService.add({ severity: 'info', summary: 'Rejected', detail: 'You have rejected' });
+            },
+    });
   }
 
   // Data Methods
