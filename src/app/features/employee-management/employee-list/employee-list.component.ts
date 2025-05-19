@@ -8,6 +8,7 @@ import { ConfirmationDialogComponent } from '../../../shared/components/confirma
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
 import { EMPLOYEE_LIST_TABLE_CONFIG, EMPLOYEE_LIST_TABLE_HEADER, EMPLOYEE_LIST_BULK_ACTIONS_CONFIG, EMPLOYEE_LIST_ROW_ACTIONS_CONFIG } from './employee-list.config';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
+import { ConfirmationActionType, CONFIRMATION_DIALOG_CONFIG } from '../../../shared/config/confirmation-dialog.config';
 
 @Component({
   selector: 'app-employee-list',
@@ -58,7 +59,7 @@ export class EmployeeListComponent {
   protected handleBulkActionClick(action: string): void {
     switch (action) {
       case EBulkActionType.SET_INACTIVE:
-        this.setEmployeesInactive();
+        this.confirmSetInactive();
         break;
       case EBulkActionType.DELETE:
         this.confirmDeleteEmployees();
@@ -117,32 +118,51 @@ export class EmployeeListComponent {
 
   private confirmDeleteEmployees(): void {
     this.confirmationDialogService.confirm({
-      message: 'Are you sure you want to delete the selected employees?',
-      header: 'Delete Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-secondary'
-    }).subscribe(confirmed => {
-      if (confirmed) {
+      actionType: ConfirmationActionType.DELETE,
+      itemName: 'employee',
+      isPlural: true
+    }).subscribe(result => {
+      if (result.confirmed) {
         this.deleteEmployees();
+        console.log(result.message); // "Action confirmed successfully"
+        console.log('Comment:', result.comment);
+      } else {
+        console.log(result.message); // "Action cancelled"
       }
     });
   }
 
   private confirmDeleteEmployee(): void {
     this.confirmationDialogService.confirm({
-      header: 'Are you sure?',
-            message: 'Please confirm to proceed.',
-            accept: () => {
-              alert('You have accepted');
-                // this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
-            },
-            reject: () => {
-              alert('You have rejected');
-                // this.messageService.add({ severity: 'info', summary: 'Rejected', detail: 'You have rejected' });
-            },
+      actionType: ConfirmationActionType.DELETE,
+      itemName: 'employee',
+      isPlural: false
+    }).subscribe(result => {
+      if (result.confirmed) {
+        this.deleteEmployee();
+        console.log(result.message); // "Action confirmed successfully"
+        console.log('Comment:', result.comment);
+      } else {
+        console.log(result.message); // "Action cancelled"
+      }
+    });
+  }
+
+  private confirmSetInactive(): void {
+    this.confirmationDialogService.confirm({
+      actionType: ConfirmationActionType.DELETE,
+      itemName: 'employee',
+      isPlural: true,
+      customMessage: 'Are you sure you want to set the selected employees as inactive?',
+      customHeader: 'Set Inactive'
+    }).subscribe(result => {
+      if (result.confirmed) {
+        this.setEmployeesInactive();
+        console.log(result.message); // "Action confirmed successfully"
+        console.log('Comment:', result.comment);
+      } else {
+        console.log(result.message); // "Action cancelled"
+      }
     });
   }
 

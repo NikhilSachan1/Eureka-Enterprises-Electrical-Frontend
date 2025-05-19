@@ -1,56 +1,127 @@
 import { Injectable } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { Observable, Subject } from 'rxjs';
+import { ConfirmationOptions } from '../models/confirmation-dialog.model';
+import { ConfirmationActionType, ConfirmationConfig, CONFIRMATION_DIALOG_CONFIG } from '../config/confirmation-dialog.config';
 
-export interface IConfirmationDialogConfig {
+export interface IConfirmationResult {
+  confirmed: boolean;
+  comment: string;
   message: string;
-  header?: string;
-  icon?: string;
-  acceptLabel?: string;
-  rejectLabel?: string;
-  acceptButtonStyleClass?: string;
-  rejectButtonStyleClass?: string;
-  acceptButtonProps?: {
-    label?: string;
-    icon?: string;
-    outlined?: boolean;
-    size?: string;
-  };
-  rejectButtonProps?: {
-    label?: string;
-    icon?: string;
-    outlined?: boolean;
-    size?: string;
-  };
-  accept?: () => void;
-  reject?: () => void;
+}
+
+export interface IConfirmationParams {
+  actionType: ConfirmationActionType;
+  itemName?: string;
+  isPlural?: boolean;
+  customMessage?: string;
+  customHeader?: string;
+  // Optional overrides for default settings
+  position?: 'center' | 'top' | 'bottom' | 'left' | 'right' | 'topleft' | 'topright' | 'bottomleft' | 'bottomright';
+  closeOnEscape?: boolean;
+  dismissableMask?: boolean;
+  blockScroll?: boolean;
+  acceptVisible?: boolean;
+  rejectVisible?: boolean;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConfirmationDialogService {
+  // Default configuration that can be overridden
+  private readonly defaultConfig: Partial<ConfirmationOptions> = {
+    position: 'center',
+    closeOnEscape: true,
+    dismissableMask: false,
+    blockScroll: true,
+    acceptVisible: true,
+    rejectVisible: true,
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    acceptButtonProps: {
+      outlined: false,
+      size: 'normal'
+    },
+    rejectButtonProps: {
+      outlined: true,
+      size: 'normal'
+    }
+  };
+
   constructor(private confirmationService: ConfirmationService) {}
 
-  confirm(config: IConfirmationDialogConfig): Observable<boolean> {
-    const result = new Subject<boolean>();
+  confirm(params: IConfirmationParams): Observable<IConfirmationResult> {
+    const result = new Subject<IConfirmationResult>();
+    const config = CONFIRMATION_DIALOG_CONFIG[params.actionType];
+    
+    // Create a copy of the config to avoid modifying the original
+    const dialogConfig: ConfirmationConfig = {
+      ...config,
+      isPlural: params.isPlural ?? config.isPlural
+    };
+
+    // Customize message if itemName is provided
+    if (params.itemName) {
+      const itemText = dialogConfig.isPlural ? `${params.itemName}s` : params.itemName;
+      dialogConfig.message = dialogConfig.message.replace('this item', itemText);
+      dialogConfig.message = dialogConfig.message.replace('the item', itemText);
+    }
+
+    // Override with custom message/header if provided
+    if (params.customMessage) {
+      dialogConfig.message = params.customMessage;
+    }
+    if (params.customHeader) {
+      dialogConfig.header = params.customHeader;
+    }
+
+    // Merge default config with provided overrides
+    const finalConfig = {
+      ...this.defaultConfig,
+      ...dialogConfig,
+      // Override with any explicitly provided params
+      position: params.position ?? this.defaultConfig.position,
+      closeOnEscape: params.closeOnEscape ?? this.defaultConfig.closeOnEscape,
+      dismissableMask: params.dismissableMask ?? this.defaultConfig.dismissableMask,
+      blockScroll: params.blockScroll ?? this.defaultConfig.blockScroll,
+      acceptVisible: params.acceptVisible ?? this.defaultConfig.acceptVisible,
+      rejectVisible: params.rejectVisible ?? this.defaultConfig.rejectVisible
+    };
 
     this.confirmationService.confirm({
-      message: config.message,
-      header: config.header || 'Confirmation',
-      icon: config.icon || 'pi pi-exclamation-triangle',
-      acceptLabel: config.acceptLabel || 'Yes',
-      rejectLabel: config.rejectLabel || 'No',
-      acceptButtonStyleClass: config.acceptButtonStyleClass || 'p-button-danger',
-      rejectButtonStyleClass: config.rejectButtonStyleClass || 'p-button-secondary',
-      acceptButtonProps: config.acceptButtonProps,
-      rejectButtonProps: config.rejectButtonProps,
+      message: finalConfig.message,
+      header: finalConfig.header,
+      icon: finalConfig.icon,
+      acceptLabel: finalConfig.acceptLabel,
+      rejectLabel: finalConfig.rejectLabel,
+      acceptButtonStyleClass: finalConfig.acceptButtonStyleClass,
+      rejectButtonStyleClass: finalConfig.rejectButtonStyleClass,
+      position: finalConfig.position,
+      acceptIcon: finalConfig.acceptIcon,
+      rejectIcon: finalConfig.rejectIcon,
+      acceptVisible: finalConfig.acceptVisible,
+      rejectVisible: finalConfig.rejectVisible,
+      blockScroll: finalConfig.blockScroll,
+      closeOnEscape: finalConfig.closeOnEscape,
+      dismissableMask: finalConfig.dismissableMask,
+      defaultFocus: finalConfig.defaultFocus,
+      acceptButtonProps: finalConfig.acceptButtonProps,
+      rejectButtonProps: finalConfig.rejectButtonProps,
       accept: () => {
-        result.next(true);
+        result.next({
+          confirmed: true,
+          comment: '',
+          message: 'Action confirmed successfully'
+        });
         result.complete();
       },
       reject: () => {
-        result.next(false);
+        result.next({
+          confirmed: false,
+          comment: '',
+          message: 'Action cancelled'
+        });
         result.complete();
       }
     });
