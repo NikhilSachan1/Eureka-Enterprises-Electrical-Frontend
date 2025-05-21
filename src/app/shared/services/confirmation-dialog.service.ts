@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { Observable, Subject } from 'rxjs';
-import { ConfirmationOptions } from '../models/confirmation-dialog.model';
-import { ConfirmationActionType, ConfirmationConfig, CONFIRMATION_DIALOG_CONFIG } from '../config/confirmation-dialog.config';
+import { CONFIRMATION_DIALOG_CONFIG } from '../config/confirmation-dialog.config';
 
 export interface IConfirmationResult {
   confirmed: boolean;
@@ -11,7 +10,7 @@ export interface IConfirmationResult {
 }
 
 export interface IConfirmationParams {
-  actionType: ConfirmationActionType;
+  actionType: any;
   itemName?: string;
   isPlural?: boolean;
   customMessage?: string;
@@ -30,7 +29,7 @@ export interface IConfirmationParams {
 })
 export class ConfirmationDialogService {
   // Default configuration that can be overridden
-  private readonly defaultConfig: Partial<ConfirmationOptions> = {
+  private readonly defaultConfig: any = {
     position: 'center',
     closeOnEscape: true,
     dismissableMask: false,
@@ -53,20 +52,12 @@ export class ConfirmationDialogService {
 
   confirm(params: IConfirmationParams): Observable<IConfirmationResult> {
     const result = new Subject<IConfirmationResult>();
-    const config = CONFIRMATION_DIALOG_CONFIG[params.actionType];
+    const config = CONFIRMATION_DIALOG_CONFIG;
     
     // Create a copy of the config to avoid modifying the original
-    const dialogConfig: ConfirmationConfig = {
+    const dialogConfig = {
       ...config,
-      isPlural: params.isPlural ?? config.isPlural
     };
-
-    // Customize message if itemName is provided
-    if (params.itemName) {
-      const itemText = dialogConfig.isPlural ? `${params.itemName}s` : params.itemName;
-      dialogConfig.message = dialogConfig.message.replace('this item', itemText);
-      dialogConfig.message = dialogConfig.message.replace('the item', itemText);
-    }
 
     // Override with custom message/header if provided
     if (params.customMessage) {

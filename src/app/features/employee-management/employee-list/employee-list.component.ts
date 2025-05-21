@@ -8,7 +8,6 @@ import { ConfirmationDialogComponent } from '../../../shared/components/confirma
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
 import { EMPLOYEE_LIST_TABLE_CONFIG, EMPLOYEE_LIST_TABLE_HEADER, EMPLOYEE_LIST_BULK_ACTIONS_CONFIG, EMPLOYEE_LIST_ROW_ACTIONS_CONFIG } from './employee-list.config';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
-import { ConfirmationActionType, CONFIRMATION_DIALOG_CONFIG } from '../../../shared/config/confirmation-dialog.config';
 
 @Component({
   selector: 'app-employee-list',
@@ -118,7 +117,7 @@ export class EmployeeListComponent {
 
   private confirmDeleteEmployees(): void {
     this.confirmationDialogService.confirm({
-      actionType: ConfirmationActionType.DELETE,
+      actionType: 'DELETE',
       itemName: 'employee',
       isPlural: true
     }).subscribe(result => {
@@ -133,37 +132,12 @@ export class EmployeeListComponent {
   }
 
   private confirmDeleteEmployee(): void {
-    this.confirmationDialogService.confirm({
-      actionType: ConfirmationActionType.DELETE,
-      itemName: 'employee',
-      isPlural: false
-    }).subscribe(result => {
-      if (result.confirmed) {
-        this.deleteEmployee();
-        console.log(result.message); // "Action confirmed successfully"
-        console.log('Comment:', result.comment);
-      } else {
-        console.log(result.message); // "Action cancelled"
-      }
-    });
+    this.confirmDeleteEmployees();
+    
   }
 
   private confirmSetInactive(): void {
-    this.confirmationDialogService.confirm({
-      actionType: ConfirmationActionType.DELETE,
-      itemName: 'employee',
-      isPlural: true,
-      customMessage: 'Are you sure you want to set the selected employees as inactive?',
-      customHeader: 'Set Inactive'
-    }).subscribe(result => {
-      if (result.confirmed) {
-        this.setEmployeesInactive();
-        console.log(result.message); // "Action confirmed successfully"
-        console.log('Comment:', result.comment);
-      } else {
-        console.log(result.message); // "Action cancelled"
-      }
-    });
+    this.confirmDeleteEmployees();
   }
 
   // Data Methods
