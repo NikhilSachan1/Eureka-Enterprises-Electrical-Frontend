@@ -4,4 +4,20 @@ export enum EInputType {
     DATE = 'date',
     BOOLEAN = 'boolean',
     DROPDOWN = 'dropdown',
+    RADIO = 'radio',
+    CHECKBOX = 'checkbox',
+    TEL = 'tel',
+    EMAIL = 'email',
+    PASSWORD = 'password',
+}
+
+export enum EFormVariant {
+    DEFAULT = '',
+    IN = 'in',
+    ON =  'on'
+}
+
+export enum ENumberMode {
+    DECIMAL = 'decimal',
+    CURRENCY = 'currency',
 }
