@@ -5,32 +5,50 @@ import { MetricsCardComponent } from '../../../shared/components/metrics-card/me
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
 import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog.service';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
-import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
-import { EMPLOYEE_LIST_TABLE_CONFIG, EMPLOYEE_LIST_TABLE_HEADER, EMPLOYEE_LIST_BULK_ACTIONS_CONFIG, EMPLOYEE_LIST_ROW_ACTIONS_CONFIG } from './employee-list.config';
+import {
+  IBulkActionConfig,
+  IDataTableConfig,
+  IDataTableHeaderConfig,
+  IRowActionConfig,
+} from '../../../shared/models/data-table-config.model';
+import {
+  EMPLOYEE_LIST_TABLE_CONFIG,
+  EMPLOYEE_LIST_TABLE_HEADER,
+  EMPLOYEE_LIST_BULK_ACTIONS_CONFIG,
+  EMPLOYEE_LIST_ROW_ACTIONS_CONFIG,
+  DELETE_EMPLOYEE_CONFIRMATION_DIALOG_CONFIG,
+} from './employee-list.config';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
+import { EDialogType } from '../../../shared/types/confirmation-dialog.types';
 
 @Component({
   selector: 'app-employee-list',
   standalone: true,
   imports: [
-    PageHeaderComponent, 
-    DataTableComponent, 
+    PageHeaderComponent,
+    DataTableComponent,
     MetricsCardComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
   ],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss',
 })
 export class EmployeeListComponent {
   private readonly dataTableConfigService = inject(DataTableConfigService);
-  private readonly confirmationDialogService = inject(ConfirmationDialogService);
-  
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService,
+  );
+
   protected loading = signal(true);
   protected tableData = signal<any[]>([]);
   protected tableConfig = signal<IDataTableConfig>(this.getTableConfig());
-  protected tableHeader = signal<IDataTableHeaderConfig[]>(this.getTableHeader());
+  protected tableHeader = signal<IDataTableHeaderConfig[]>(
+    this.getTableHeader(),
+  );
   protected metricsCards = signal(this.getMetricCardsData());
-  protected bulkActionButtons = signal<IBulkActionConfig[]>(this.getBulkActionButtons());
+  protected bulkActionButtons = signal<IBulkActionConfig[]>(
+    this.getBulkActionButtons(),
+  );
   protected rowActions = signal<IRowActionConfig[]>(this.getRowActions());
 
   ngOnInit(): void {
@@ -39,33 +57,40 @@ export class EmployeeListComponent {
 
   // Table Configuration Methods
   private getTableConfig(): IDataTableConfig {
-    return this.dataTableConfigService.getTableConfig(EMPLOYEE_LIST_TABLE_CONFIG);
+    return this.dataTableConfigService.getTableConfig(
+      EMPLOYEE_LIST_TABLE_CONFIG,
+    );
   }
 
   private getTableHeader(): IDataTableHeaderConfig[] {
-    return this.dataTableConfigService.getTableHeaderConfig(EMPLOYEE_LIST_TABLE_HEADER);
+    return this.dataTableConfigService.getTableHeaderConfig(
+      EMPLOYEE_LIST_TABLE_HEADER,
+    );
   }
 
   private getBulkActionButtons(): IBulkActionConfig[] {
-    return this.dataTableConfigService.getBulkActionsConfig(EMPLOYEE_LIST_BULK_ACTIONS_CONFIG);
+    return this.dataTableConfigService.getBulkActionsConfig(
+      EMPLOYEE_LIST_BULK_ACTIONS_CONFIG,
+    );
   }
 
   private getRowActions(): IRowActionConfig[] {
-    return this.dataTableConfigService.getRowActionsConfig(EMPLOYEE_LIST_ROW_ACTIONS_CONFIG);
+    return this.dataTableConfigService.getRowActionsConfig(
+      EMPLOYEE_LIST_ROW_ACTIONS_CONFIG,
+    );
   }
 
   // Action Handler Methods
   protected handleBulkActionClick(action: string): void {
     switch (action) {
       case EBulkActionType.SET_INACTIVE:
-        this.confirmSetInactive();
         break;
       case EBulkActionType.DELETE:
-        this.confirmDeleteEmployees();
+        this.confirmDeleteEmployeeDialog();
         break;
       default:
         console.warn('Unknown bulk action:', action);
-    } 
+    }
   }
 
   protected handleRowActionClick(action: string): void {
@@ -77,7 +102,7 @@ export class EmployeeListComponent {
         this.editEmployeeDetails();
         break;
       case ERowActionType.DELETE:
-        this.confirmDeleteEmployee();
+        this.confirmDeleteEmployeeDialog();
         break;
       default:
         console.warn('Unknown row action:', action);
@@ -85,15 +110,6 @@ export class EmployeeListComponent {
   }
 
   // Business Logic Methods
-  private setEmployeesInactive(): void {
-    console.log('Setting employees as inactive:');
-    // Implement actual logic here
-  }
-
-  private deleteEmployees(): void {
-    console.log('Deleting multiple employees:');
-    // Implement actual logic here
-  }
 
   private viewEmployeeDetails(): void {
     console.log('Viewing employee details:');
@@ -115,29 +131,13 @@ export class EmployeeListComponent {
     // Implement actual logic here
   }
 
-  private confirmDeleteEmployees(): void {
-    this.confirmationDialogService.confirm({
-      actionType: 'DELETE',
-      itemName: 'employee',
-      isPlural: true
-    }).subscribe(result => {
-      if (result.confirmed) {
-        this.deleteEmployees();
-        console.log(result.message); // "Action confirmed successfully"
-        console.log('Comment:', result.comment);
-      } else {
-        console.log(result.message); // "Action cancelled"
-      }
-    });
-  }
-
-  private confirmDeleteEmployee(): void {
-    this.confirmDeleteEmployees();
-    
-  }
-
-  private confirmSetInactive(): void {
-    this.confirmDeleteEmployees();
+  private confirmDeleteEmployeeDialog(): void {
+    this.confirmationDialogService.showDialog(
+      EDialogType.DELETE,
+      () => this.deleteEmployee(),
+      () => console.log('Delete operation cancelled'),
+      DELETE_EMPLOYEE_CONFIRMATION_DIALOG_CONFIG,
+    );
   }
 
   // Data Methods
@@ -244,7 +244,7 @@ export class EmployeeListComponent {
           { label: 'HR', value: 1 },
           { label: 'Finance', value: 1 },
         ],
-      }
+      },
     ];
   }
 }

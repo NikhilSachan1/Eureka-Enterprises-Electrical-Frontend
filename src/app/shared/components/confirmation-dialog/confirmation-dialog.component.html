@@ -1,29 +1,61 @@
-<p-confirmdialog #cd>
+<p-confirmdialog #cd [style]="{width: '500px'}">
     <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
-        <div class="flex flex-col items-center p-8 rounded">
-            <div
-                class="rounded-full bg-primary text-primary-contrast inline-flex justify-center items-center h-24 w-24 -mt-20">
-                <i [class]="message.icon + ' !text-5xl'"></i>
-            </div>
-            <span class="font-bold text-2xl block mb-2 mt-6">{{ message.header }}</span>
-            <p class="mb-4">{{ message.message }}</p>
-
-            <div class="w-full mb-4">
-                <label for="comment" class="block text-sm font-medium mb-2">Add a comment (optional)</label>
-                <textarea 
-                    id="comment" 
-                    pInputTextarea 
-                    [(ngModel)]="comment" 
-                    class="w-full p-2 border rounded"
-                    [rows]="3"
-                    placeholder="Enter your comment here..."
-                    style="resize: none;"
-                ></textarea>
+        @let dialog = message;
+        <div class="flex flex-col items-center p-8 rounded-lg bg-white">
+            <!-- Icon Section -->
+            <div class="rounded-full bg-primary text-primary-contrast inline-flex justify-center items-center h-24 w-24 -mt-20 shadow-lg">
+                <i [class]="dialog.icon + ' !text-5xl'"></i>
             </div>
 
-            <div class="flex items-center gap-2 mt-2">
-                <p-button [label]="message.acceptLabel" (click)="handleAccept()" [styleClass]="message.acceptButtonStyleClass + ' w-32'"></p-button>
-                <p-button [label]="message.rejectLabel" [outlined]="true" (click)="handleReject()" [styleClass]="message.rejectButtonStyleClass + ' w-32'"></p-button>
+            <!-- Header Section -->
+            <div class="text-center mt-6">
+                <span class="font-bold text-2xl block mb-2">{{ dialog.header }}</span>
+                <p class="text-gray-600 mb-6">{{ dialog.message }}</p>
+            </div>
+
+            <!-- Input Fields Section -->
+            @if (dialog.inputProps?.length) {
+                <div class="w-full space-y-4">
+                    @for (input of dialog.inputProps; track input.label) {
+                        <div class="mb-4">
+                            <label [for]="input.label" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ input.label }}
+                            </label>
+                            
+                            @switch (input.type) {
+                                @case (inputFieldsType.TEXT) {
+                                    <textarea 
+                                        pTextarea
+                                        [(ngModel)]="comment" 
+                                        class="w-full"
+                                        [rows]="3"
+                                        [placeholder]="input.placeholder"
+                                    ></textarea>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Buttons Section -->
+            <div class="flex items-center justify-center gap-4 mt-4">
+                <p-button 
+                    [label]="dialog.acceptButtonProps?.label"
+                    [icon]="dialog.acceptButtonProps?.icon"
+                    [outlined]="dialog.acceptButtonProps?.outlined"
+                    [styleClass]="dialog.acceptButtonProps?.styleClass + ' min-w-[120px]'"
+                    (click)="handleAccept()"
+                    [disabled]="!dialog.acceptButtonProps?.visible"
+                ></p-button>
+                <p-button 
+                    [label]="dialog.rejectButtonProps?.label"
+                    [icon]="dialog.rejectButtonProps?.icon"
+                    [outlined]="dialog.rejectButtonProps?.outlined"
+                    [styleClass]="dialog.rejectButtonProps?.styleClass + ' min-w-[120px]'"
+                    (click)="handleReject()"
+                    [disabled]="!dialog.rejectButtonProps?.visible"
+                ></p-button>
             </div>
         </div>
     </ng-template>

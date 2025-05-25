@@ -1,3 +1,5 @@
+import { EInputType } from "./input.types";
+
 export enum EBulkActionType {
   SET_INACTIVE = 'setInactive',
   DELETE = 'delete',
@@ -16,15 +18,15 @@ export enum ETableBodyTemplate {
 }
 
 export enum ETableDataType {
-    TEXT = 'text',
-    NUMBER = 'number',
-    DATE = 'date',
-    BOOLEAN = 'boolean',
+    TEXT = EInputType.TEXT,
+    NUMBER = EInputType.NUMBER,
+    DATE = EInputType.DATE,
+    BOOLEAN = EInputType.BOOLEAN,
 }
 
 export enum ETableSearchInputType {
-    TEXT = 'text',
-    DROPDOWN = 'dropdown',
+    TEXT = EInputType.TEXT,
+    DROPDOWN = EInputType.DROPDOWN,
 }
 
 export enum ETableFilterDisplayType {

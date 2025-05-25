@@ -1,6 +1,20 @@
-import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models/data-table-config.model';
+import {
+  IBulkActionConfig,
+  IDataTableConfig,
+  IDataTableHeaderConfig,
+  IRowActionConfig,
+} from '../../../shared/models/data-table-config.model';
 import { MATCH_MODE_OPTIONS } from '../../../shared/config/data-table.config';
-import { EBulkActionType, ERowActionType, ESeverity, ETableBodyTemplate, ETableDataType, ETableFilterMatchMode, ETableSearchInputType } from '../../../shared/types';
+import {
+  EBulkActionType,
+  ERowActionType,
+  ESeverity,
+  ETableBodyTemplate,
+  ETableDataType,
+  ETableFilterMatchMode,
+  ETableSearchInputType,
+} from '../../../shared/types';
+import { IConfirmationDialogConfig } from '../../../shared/models/confirmation-dialog.model';
 
 export const EMPLOYEE_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
   {
@@ -39,7 +53,7 @@ export const EMPLOYEE_LIST_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
 ];
 
 export const EMPLOYEE_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
-    globalFilterFields: ['name', 'role', 'email', 'status'],
+  globalFilterFields: ['name', 'role', 'email', 'status'],
 };
 
 export const EMPLOYEE_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
@@ -115,4 +129,15 @@ export const EMPLOYEE_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
       defaultMatchMode: ETableFilterMatchMode.EQUALS,
     },
   },
-]; 
+];
+
+export const DELETE_EMPLOYEE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfig> =
+  {
+    inputProps: [
+      {
+        label: 'Comment',
+        type: 'text',
+        placeholder: 'Enter comment',
+      },
+    ],
+  };

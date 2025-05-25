@@ -1,43 +1,64 @@
 import { Component, inject, EventEmitter, Output, ViewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { InputTextarea } from 'primeng/inputtextarea';
 import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { CommonModule } from '@angular/common';
+import { IConfirmationDialogConfig } from '../../models/confirmation-dialog.model';
+import { EInputType } from '../../types/input.types';
 
 @Component({
   selector: 'app-confirmation-dialog',
   standalone: true,
-  imports: [ConfirmDialogModule, ButtonModule, InputTextarea, FormsModule],
+  imports: [
+    CommonModule,
+    ConfirmDialogModule, 
+    ButtonModule, 
+    FormsModule,
+    InputTextModule,
+    TextareaModule
+  ],
   templateUrl: './confirmation-dialog.component.html',
   styleUrls: ['./confirmation-dialog.component.scss']
 })
 export class ConfirmationDialogComponent {
-  @ViewChild('cd') confirmDialog: any;
-  comment: string = '';
 
-  @Output() onConfirm = new EventEmitter<{ confirmed: boolean; comment: string; message: string }>();
+  @ViewChild('cd') confirmDialog: any;
+
+  inputFieldsType = EInputType;
+  
+  comment: string = '';
+  inputValues = {};
+
+  @Output() onConfirm = new EventEmitter();
 
   handleAccept(): void {
     const message = 'Action confirmed successfully';
-    console.log(message, 'with comment:', this.comment);
     this.onConfirm.emit({ 
       confirmed: true, 
       comment: this.comment,
-      message: message 
+      message: message,
+      inputValues: this.inputValues
     });
     this.confirmDialog.close();
-    this.comment = ''; // Reset comment after confirmation
+    this.resetForm();
   }
 
   handleReject(): void {
     const message = 'Action cancelled';
-    console.log(message);
     this.onConfirm.emit({ 
       confirmed: false, 
       comment: '',
-      message: message 
+      message: message,
+      inputValues: this.inputValues
     });
     this.confirmDialog.close();
-    this.comment = ''; // Reset comment after rejection
+    this.resetForm();
+  }
+
+  private resetForm(): void {
+    this.comment = '';
+    this.inputValues = {};
   }
 } 
