@@ -1,0 +1,150 @@
+<div [formGroup]="formGroup">
+
+    @let isFieldInvalid = checkIsFieldInvalid(inputFieldConfig.fieldName);
+    @let errorMessage = getErrorMessage(inputFieldConfig.fieldName);
+
+    @switch (inputFieldConfig.fieldType) {
+        @case (ALL_FIELD_TYPES.Text) {
+            <p-floatlabel [variant]="inputFieldConfig.floatLabelVariant">
+                <input 
+                    pInputText 
+                    [id]="inputFieldConfig.id" 
+                    [autocomplete]="inputFieldConfig.autocomplete" 
+                    [fluid]="inputFieldConfig.haveFullWidth" 
+                    [pSize]="inputFieldConfig.fieldSize" 
+                    [formControlName]="inputFieldConfig.fieldName" 
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}" 
+                />
+                <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
+            </p-floatlabel>
+
+            @if (isFieldInvalid) {
+                <small class="p-error">{{errorMessage }}</small>   
+            }
+        }
+        @case (ALL_FIELD_TYPES.Number) {
+            <p-floatlabel [variant]="inputFieldConfig.floatLabelVariant">
+
+                @let numberConfig = inputFieldConfig.numberConfig || {};
+                
+                <p-inputnumber
+                    [inputId]="inputFieldConfig.id" 
+                    [autocomplete]="inputFieldConfig.autocomplete"
+                    [fluid]="inputFieldConfig.haveFullWidth" 
+                    [size]="inputFieldConfig.fieldSize" 
+                    [formControlName]="inputFieldConfig.fieldName" 
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}" 
+                    [mode]="numberConfig?.mode" 
+                    [min]="numberConfig?.minimumBoundaryValue" 
+                    [max]="numberConfig?.maximumBoundaryValue" 
+                    [minFractionDigits]="numberConfig?.minimumFractionDigits" 
+                    [maxFractionDigits]="numberConfig?.maximumFractionDigits"
+                    [useGrouping]="numberConfig?.allowNumberFormatting" 
+                    [locale]="numberConfig?.locale" 
+                    [currencyDisplay]="numberConfig?.currencyDisplay" 
+                    [currency]="numberConfig?.currency" 
+                    [prefix]="numberConfig?.prefix"
+                    [suffix]="numberConfig?.suffix" 
+                    [showButtons]="numberConfig?.showUpAndDownButtons" 
+                    [buttonLayout]="numberConfig?.upAndDownButtonLayout || ALL_UP_AND_DOWN_BUTTON_LAYOUTS.Default" 
+                    [step]="numberConfig?.step"
+                ></p-inputnumber>
+                <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
+            </p-floatlabel>
+
+            @if (isFieldInvalid) {
+                <small class="p-error">{{errorMessage }}</small>   
+            }
+        }
+        @case (ALL_FIELD_TYPES.Select) {
+            <p-floatlabel [variant]="inputFieldConfig.floatLabelVariant">
+
+                @let selectConfig = inputFieldConfig.selectConfig;
+
+                <p-select
+                    [id]="inputFieldConfig.id"
+                    [fluid]="inputFieldConfig.haveFullWidth"
+                    [size]="inputFieldConfig.fieldSize"
+                    [formControlName]="inputFieldConfig.fieldName"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
+                    [options]="selectConfig?.optionsDropdown" 
+                    [optionLabel]="selectConfig?.optionLabel" 
+                    [checkmark]="selectConfig?.showCheckmark"
+                    [filter]="selectConfig?.haveFilter" 
+                    [filterBy]="selectConfig?.filterBy" 
+                    [loading]="selectConfig?.loading" 
+                    [showClear]="selectConfig?.showClearButton" 
+                    [editable]="selectConfig?.isEditable"
+                    [virtualScroll]="selectConfig?.virtualScroll" 
+                    [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize" 
+                ></p-select>
+                <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
+            </p-floatlabel>
+
+            @if (isFieldInvalid) {
+                <small class="p-error">{{errorMessage }}</small>   
+            }
+        }
+        @case (ALL_FIELD_TYPES.MultiSelect) {
+            <p-floatlabel [variant]="inputFieldConfig.floatLabelVariant">
+
+                @let multiSelectConfig = inputFieldConfig.multiSelectConfig;
+
+                <p-multiselect
+                    [id]="inputFieldConfig.id"
+                    [fluid]="inputFieldConfig.haveFullWidth"
+                    [size]="inputFieldConfig.fieldSize"
+                    [formControlName]="inputFieldConfig.fieldName"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
+                    [options]="multiSelectConfig?.optionsDropdown" 
+                    [optionLabel]="multiSelectConfig?.optionLabel" 
+                    [maxSelectedLabels]="multiSelectConfig?.maxSelectedLabels"
+                    [filter]="multiSelectConfig?.haveFilter" 
+                    [filterBy]="multiSelectConfig?.filterBy" 
+                    [loading]="multiSelectConfig?.loading" 
+                    [showToggleAll]="multiSelectConfig?.showToggleAll" 
+                    [selectAll]="multiSelectConfig?.selectAll"
+                    [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip" 
+                    [showClear]="multiSelectConfig?.showClearButton"
+                ></p-multiselect>
+                <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
+            </p-floatlabel>
+
+            @if (isFieldInvalid) {
+                <small class="p-error">{{errorMessage }}</small>   
+            }
+        }
+        @case (ALL_FIELD_TYPES.Date) {
+            <p-floatlabel [variant]="inputFieldConfig.floatLabelVariant">
+
+                @let dateConfig = inputFieldConfig.dateConfig;
+
+                <p-datepicker 
+                    [id]="inputFieldConfig.id"
+                    [fluid]="inputFieldConfig.haveFullWidth"
+                    [size]="inputFieldConfig.fieldSize"
+                    [formControlName]="inputFieldConfig.fieldName"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
+                    [dateFormat]="dateConfig?.dateFormat" 
+                    [showIcon]="dateConfig?.showCalendarIcon"
+                    [iconDisplay]="dateConfig?.iconDisplay || ALL_DATE_ICON_DISPLAY_TYPES.Input" 
+                    [timeOnly]="dateConfig?.timeOnly" 
+                    [minDate]="dateConfig?.minDate" 
+                    [maxDate]="dateConfig?.maxDate"
+                    [showButtonBar]="dateConfig?.showButtonBar" 
+                    [selectionMode]="dateConfig?.selectionMode || ALL_DATE_SELECTION_MODES.Single" 
+                    [readonlyInput]="inputFieldConfig.readonlyInput" 
+                    [showTime]="dateConfig?.showTime || false"
+                    [hourFormat]="dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve" 
+                    [view]="dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date" 
+                    [numberOfMonths]="dateConfig?.numberOfMonths || 1"
+                ></p-datepicker>
+                <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
+            </p-floatlabel>
+
+            @if (isFieldInvalid) {
+                <small class="p-error">{{errorMessage }}</small>   
+            }
+        }
+    }
+</div>

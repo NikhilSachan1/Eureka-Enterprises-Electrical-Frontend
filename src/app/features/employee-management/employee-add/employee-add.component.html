@@ -1,39 +1,16 @@
 <div style="padding: 50px;">
     <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
-        <p-floatlabel variant="on" style="margin-bottom: 10px;">
-            <input pInputText id="on_label" autocomplete="off" fluid="true" pSize="large" formControlName="textInput" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('textInput')}" />
-            <label for="on_label">Text Input</label>
-        </p-floatlabel>
-        <small class="p-error" *ngIf="isFieldInvalid('textInput')">{{ getErrorMessage('textInput') }}</small>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="ADD_EMPLOYEE_INPUT_FIELDS_CONFIG['fname']"></app-input-field>
 
-        <p-floatlabel variant="on" style="margin-bottom: 10px;">
-            <p-inputnumber mode="decimal" [min]="5" [max]="10" [minFractionDigits]="2" [maxFractionDigits]="5"
-                [useGrouping]="true" locale="en-IN" currencyDisplay="code" currency="INR" prefix="Expires in "
-                suffix=" days" [showButtons]="true" buttonLayout="horizontal" spinnerMode="horizontal" [step]="0.25"
-                fluid="true" pSize="large" formControlName="numberInput" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('numberInput')}" />
-            <label for="on_label">Number Input</label>
-        </p-floatlabel>
-        <small class="p-error" *ngIf="isFieldInvalid('numberInput')">{{ getErrorMessage('numberInput') }}</small>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="ADD_EMPLOYEE_INPUT_FIELDS_CONFIG['aadharNumber']"></app-input-field>
 
-        <p-floatlabel variant="on" style="margin-bottom: 10px;">
-            <p-select [options]="cities" optionLabel="name" [checkmark]="true"
-                [filter]="true" filterBy="name" [loading]="false" [showClear]="true" [editable]="false"
-                formControlName="selectInput" fluid="true" pSize="large" [virtualScroll]="true" [virtualScrollItemSize]="2" 
-                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('selectInput')}" />
-            <label for="on_label">Select Input</label>
-        </p-floatlabel>
-        <small class="p-error" *ngIf="isFieldInvalid('selectInput')">{{ getErrorMessage('selectInput') }}</small>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="ADD_EMPLOYEE_INPUT_FIELDS_CONFIG['role']"></app-input-field>
 
-        <p-floatlabel variant="on" style="margin-bottom: 10px;">
-            <p-multiselect [options]="cities" optionLabel="name" [maxSelectedLabels]="13"
-                filter="true" filterBy="name" [loading]="false" [showToggleAll]="true" [selectAll]="selectAll"
-                formControlName="multiSelectInput" display="chip" fluid="true" pSize="large" [maxSelectedLabels]="3"
-                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('multiSelectInput')}" />
-            <label for="on_label">Multi Select Input</label>
-        </p-floatlabel>
-        <small class="p-error" *ngIf="isFieldInvalid('multiSelectInput')">{{ getErrorMessage('multiSelectInput') }}</small>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="ADD_EMPLOYEE_INPUT_FIELDS_CONFIG['workOn']"></app-input-field>
 
-        <p-floatlabel variant="on" style="margin-bottom: 10px;">
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="ADD_EMPLOYEE_INPUT_FIELDS_CONFIG['dob']"></app-input-field>
+
+        <!-- <p-floatlabel variant="on" style="margin-bottom: 10px;">
             <p-datepicker formControlName="dateInput" fluid="true" pSize="large" dateFormat="dd.mm.yy" showIcon="true"
                 [iconDisplay]="'input'" [timeOnly]="false" [minDate]="minDate" [maxDate]="maxDate"
                 [showButtonBar]="true" selectionMode="multiple" [readonlyInput]="true" [showTime]="true"
@@ -105,7 +82,7 @@
                 [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('fileInput')}">
             </p-fileupload>
             <small class="p-error" *ngIf="isFieldInvalid('fileInput')">{{ getErrorMessage('fileInput') }}</small>
-        </div>
+        </div> -->
 
         <div class="flex gap-2 mt-4">
             <button pButton type="submit" 
