@@ -1,1 +1,98 @@
-<p>employee-add works!</p>
+<div style="padding: 50px;">
+    <form [formGroup]="formGroup">
+        <p-floatlabel variant="on" style="margin-bottom: 10px;">
+            <input pInputText id="on_label" autocomplete="off" fluid="true" pSize="large" formControlName="textInput" />
+            <label for="on_label">Text Input</label>
+        </p-floatlabel>
+        <small id="username-help">Enter your username to reset your password.</small>
+
+        <p-floatlabel variant="on" style="margin-bottom: 10px;">
+            <p-inputnumber mode="decimal" [min]="5" [max]="10" [minFractionDigits]="2" [maxFractionDigits]="5"
+                [useGrouping]="true" locale="en-IN" currencyDisplay="code" currency="INR" prefix="Expires in "
+                suffix=" days" [showButtons]="true" buttonLayout="horizontal" spinnerMode="horizontal" [step]="0.25"
+                fluid="true" pSize="large" formControlName="numberInput" />
+            <label for="on_label">Number Input</label>
+        </p-floatlabel>
+
+        <p-floatlabel variant="on" style="margin-bottom: 10px;">
+            <p-select [options]="cities" optionLabel="name" [checkmark]="true"
+                [filter]="true" filterBy="name" [loading]="false" [showClear]="true" [editable]="false"
+                formControlName="selectInput" fluid="true" pSize="large" [virtualScroll]="true" [virtualScrollItemSize]="2" />
+            <label for="on_label">Select Input</label>
+        </p-floatlabel>
+
+        <p-floatlabel variant="on" style="margin-bottom: 10px;">
+            <p-multiselect [options]="cities" optionLabel="name" [maxSelectedLabels]="13"
+                filter="true" filterBy="name" [loading]="false" [showToggleAll]="true" [selectAll]="selectAll"
+                formControlName="multiSelectInput" display="chip" fluid="true" pSize="large" [maxSelectedLabels]="3" />
+            <label for="on_label">Multi Select Input</label>
+        </p-floatlabel>
+
+        <p-floatlabel variant="on" style="margin-bottom: 10px;">
+            <p-datepicker formControlName="dateInput" fluid="true" pSize="large" dateFormat="dd.mm.yy" showIcon="true"
+                [iconDisplay]="'input'" [timeOnly]="false" [minDate]="minDate" [maxDate]="maxDate"
+                [showButtonBar]="true" selectionMode="multiple" [readonlyInput]="true" [showTime]="true"
+                [hourFormat]="'12'" view="date" [numberOfMonths]="1">
+                <ng-template #date let-date>
+                    @if (date.day > 10 && date.day < 15) { <strong style="text-decoration: line-through">{{ date.day
+                        }}</strong>
+                        } @else {
+                        {{ date.day }}
+                        }
+                </ng-template>
+            </p-datepicker>
+            <label for="on_label">Date Input</label>
+        </p-floatlabel>
+
+        <p-floatlabel variant="on" style="margin-bottom: 10px;">
+            <p-password [feedback]="true" formControlName="passwordInput" fluid="true" pSize="large"
+                promptLabel="Choose a password" weakLabel="Too simple" mediumLabel="Average complexity"
+                strongLabel="Complex password" [toggleMask]="true" autocomplete="off">
+            </p-password>
+            <label for="on_label">Password Input</label>
+        </p-floatlabel>
+
+        <div style="margin-bottom: 10px;">
+            <label for="on_label">Checkbox Input</label>
+            <div class="flex flex-col gap-4">
+                @for (category of categories; track category.key) {
+                    <div class="flex items-center">
+                        <p-checkbox [formControlName]="'checkboxInput'" [inputId]="'checkbox-' + category.key" [name]="'checkboxInput'" [value]="category" [binary]="false" [indeterminate]="true" size="large"/>
+                        <label [for]="'checkbox-' + category.key" class="ml-2"> {{ category.name }} </label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label for="on_label">Radio Button Input</label>
+            <div class="flex flex-col gap-4">
+                @for (category of categories; track category.key) {
+                    <div class="flex items-center">
+                        <p-radioButton [formControlName]="'radioInput'" [inputId]="'radio-' + category.key" [name]="'radioInput'" [value]="category" size="large"/>
+                        <label [for]="'radio-' + category.key" class="ml-2">{{ category.name }}</label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <p-fileupload name="demo[]" 
+                [customUpload]="true"
+                (uploadHandler)="onUpload($event)" 
+                [multiple]="false" 
+                accept="image/*" 
+                maxFileSize="1000000" 
+                mode="advanced"
+                [auto]="true"
+                chooseLabel="Choose Image"
+                cancelLabel="Cancel"
+                [showUploadButton]="false"
+                [showCancelButton]="false">
+            </p-fileupload>
+        </div>
+    </form>
+    <div class="mt-4">
+        <button pButton type="submit" label="Submit" (click)="onSubmit()" class="p-button-primary"></button>
+    </div>
+</div>
