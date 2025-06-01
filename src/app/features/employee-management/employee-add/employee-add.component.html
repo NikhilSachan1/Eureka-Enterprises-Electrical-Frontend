@@ -1,38 +1,44 @@
 <div style="padding: 50px;">
-    <form [formGroup]="formGroup">
+    <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
         <p-floatlabel variant="on" style="margin-bottom: 10px;">
-            <input pInputText id="on_label" autocomplete="off" fluid="true" pSize="large" formControlName="textInput" />
+            <input pInputText id="on_label" autocomplete="off" fluid="true" pSize="large" formControlName="textInput" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('textInput')}" />
             <label for="on_label">Text Input</label>
         </p-floatlabel>
-        <small id="username-help">Enter your username to reset your password.</small>
+        <small class="p-error" *ngIf="isFieldInvalid('textInput')">{{ getErrorMessage('textInput') }}</small>
 
         <p-floatlabel variant="on" style="margin-bottom: 10px;">
             <p-inputnumber mode="decimal" [min]="5" [max]="10" [minFractionDigits]="2" [maxFractionDigits]="5"
                 [useGrouping]="true" locale="en-IN" currencyDisplay="code" currency="INR" prefix="Expires in "
                 suffix=" days" [showButtons]="true" buttonLayout="horizontal" spinnerMode="horizontal" [step]="0.25"
-                fluid="true" pSize="large" formControlName="numberInput" />
+                fluid="true" pSize="large" formControlName="numberInput" [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('numberInput')}" />
             <label for="on_label">Number Input</label>
         </p-floatlabel>
+        <small class="p-error" *ngIf="isFieldInvalid('numberInput')">{{ getErrorMessage('numberInput') }}</small>
 
         <p-floatlabel variant="on" style="margin-bottom: 10px;">
             <p-select [options]="cities" optionLabel="name" [checkmark]="true"
                 [filter]="true" filterBy="name" [loading]="false" [showClear]="true" [editable]="false"
-                formControlName="selectInput" fluid="true" pSize="large" [virtualScroll]="true" [virtualScrollItemSize]="2" />
+                formControlName="selectInput" fluid="true" pSize="large" [virtualScroll]="true" [virtualScrollItemSize]="2" 
+                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('selectInput')}" />
             <label for="on_label">Select Input</label>
         </p-floatlabel>
+        <small class="p-error" *ngIf="isFieldInvalid('selectInput')">{{ getErrorMessage('selectInput') }}</small>
 
         <p-floatlabel variant="on" style="margin-bottom: 10px;">
             <p-multiselect [options]="cities" optionLabel="name" [maxSelectedLabels]="13"
                 filter="true" filterBy="name" [loading]="false" [showToggleAll]="true" [selectAll]="selectAll"
-                formControlName="multiSelectInput" display="chip" fluid="true" pSize="large" [maxSelectedLabels]="3" />
+                formControlName="multiSelectInput" display="chip" fluid="true" pSize="large" [maxSelectedLabels]="3"
+                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('multiSelectInput')}" />
             <label for="on_label">Multi Select Input</label>
         </p-floatlabel>
+        <small class="p-error" *ngIf="isFieldInvalid('multiSelectInput')">{{ getErrorMessage('multiSelectInput') }}</small>
 
         <p-floatlabel variant="on" style="margin-bottom: 10px;">
             <p-datepicker formControlName="dateInput" fluid="true" pSize="large" dateFormat="dd.mm.yy" showIcon="true"
                 [iconDisplay]="'input'" [timeOnly]="false" [minDate]="minDate" [maxDate]="maxDate"
                 [showButtonBar]="true" selectionMode="multiple" [readonlyInput]="true" [showTime]="true"
-                [hourFormat]="'12'" view="date" [numberOfMonths]="1">
+                [hourFormat]="'12'" view="date" [numberOfMonths]="1"
+                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('dateInput')}">
                 <ng-template #date let-date>
                     @if (date.day > 10 && date.day < 15) { <strong style="text-decoration: line-through">{{ date.day
                         }}</strong>
@@ -43,25 +49,30 @@
             </p-datepicker>
             <label for="on_label">Date Input</label>
         </p-floatlabel>
+        <small class="p-error" *ngIf="isFieldInvalid('dateInput')">{{ getErrorMessage('dateInput') }}</small>
 
         <p-floatlabel variant="on" style="margin-bottom: 10px;">
             <p-password [feedback]="true" formControlName="passwordInput" fluid="true" pSize="large"
                 promptLabel="Choose a password" weakLabel="Too simple" mediumLabel="Average complexity"
-                strongLabel="Complex password" [toggleMask]="true" autocomplete="off">
+                strongLabel="Complex password" [toggleMask]="true" autocomplete="off"
+                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('passwordInput')}">
             </p-password>
             <label for="on_label">Password Input</label>
         </p-floatlabel>
+        <small class="p-error" *ngIf="isFieldInvalid('passwordInput')">{{ getErrorMessage('passwordInput') }}</small>
 
         <div style="margin-bottom: 10px;">
             <label for="on_label">Checkbox Input</label>
             <div class="flex flex-col gap-4">
                 @for (category of categories; track category.key) {
                     <div class="flex items-center">
-                        <p-checkbox [formControlName]="'checkboxInput'" [inputId]="'checkbox-' + category.key" [name]="'checkboxInput'" [value]="category" [binary]="false" [indeterminate]="true" size="large"/>
+                        <p-checkbox [formControlName]="'checkboxInput'" [inputId]="'checkbox-' + category.key" [name]="'checkboxInput'" [value]="category" [binary]="false" [indeterminate]="true" size="large"
+                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('checkboxInput')}"/>
                         <label [for]="'checkbox-' + category.key" class="ml-2"> {{ category.name }} </label>
                     </div>
                 }
             </div>
+            <small class="p-error" *ngIf="isFieldInvalid('checkboxInput')">{{ getErrorMessage('checkboxInput') }}</small>
         </div>
 
         <div style="margin-bottom: 10px;">
@@ -69,11 +80,13 @@
             <div class="flex flex-col gap-4">
                 @for (category of categories; track category.key) {
                     <div class="flex items-center">
-                        <p-radioButton [formControlName]="'radioInput'" [inputId]="'radio-' + category.key" [name]="'radioInput'" [value]="category" size="large"/>
+                        <p-radioButton [formControlName]="'radioInput'" [inputId]="'radio-' + category.key" [name]="'radioInput'" [value]="category" size="large"
+                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('radioInput')}"/>
                         <label [for]="'radio-' + category.key" class="ml-2">{{ category.name }}</label>
                     </div>
                 }
             </div>
+            <small class="p-error" *ngIf="isFieldInvalid('radioInput')">{{ getErrorMessage('radioInput') }}</small>
         </div>
 
         <div style="margin-bottom: 10px;">
@@ -88,11 +101,25 @@
                 chooseLabel="Choose Image"
                 cancelLabel="Cancel"
                 [showUploadButton]="false"
-                [showCancelButton]="false">
+                [showCancelButton]="false"
+                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('fileInput')}">
             </p-fileupload>
+            <small class="p-error" *ngIf="isFieldInvalid('fileInput')">{{ getErrorMessage('fileInput') }}</small>
+        </div>
+
+        <div class="flex gap-2 mt-4">
+            <button pButton type="submit" 
+                label="Submit" 
+                [loading]="isSubmitting"
+                [disabled]="isSubmitting || isFormPristine()"
+                class="p-button-primary">
+            </button>
+            <button pButton type="button" 
+                label="Reset" 
+                (click)="resetForm()"
+                [disabled]="isSubmitting"
+                class="p-button-secondary">
+            </button>
         </div>
     </form>
-    <div class="mt-4">
-        <button pButton type="submit" label="Submit" (click)="onSubmit()" class="p-button-primary"></button>
-    </div>
 </div>

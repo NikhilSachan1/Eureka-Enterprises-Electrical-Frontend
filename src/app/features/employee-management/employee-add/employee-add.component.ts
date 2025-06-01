@@ -1,10 +1,16 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import {
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+  ValidatorFn,
+  FormBuilder
 } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
@@ -17,9 +23,36 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
 
+// Form model interface
+interface EmployeeFormModel {
+  textInput: string;
+  numberInput: number;
+  selectInput: any;
+  multiSelectInput: any[];
+  dateInput: Date;
+  passwordInput: string;
+  checkboxInput: any[];
+  radioInput: any;
+  fileInput: File | null;
+}
+
+// Custom validator function
+function noSpecialCharactersValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (!value) {
+      return null;
+    }
+    
+    const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value);
+    return hasSpecialChars ? { hasSpecialChars: true } : null;
+  };
+}
+
 @Component({
   selector: 'app-employee-add',
   imports: [
+    CommonModule,
     FloatLabelModule,
     InputTextModule,
     FormsModule,
@@ -37,13 +70,24 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './employee-add.component.html',
   styleUrl: './employee-add.component.scss',
 })
-export class EmployeeAddComponent {
+export class EmployeeAddComponent implements OnInit, OnDestroy {
   @ViewChild('ms') ms!: MultiSelect;
+  
+  // Form group
   formGroup!: FormGroup;
-  value1: number = 1234;
+  
+  // Form state
+  isSubmitting = false;
+  formSubmitted = false;
+
+  // Date constraints
   minDate: Date = new Date(2025, 4, 1);
   maxDate: Date = new Date();
+
+  // File handling
   uploadedFiles: any[] = [];
+
+  // Dropdown options
   cities = [
     { name: 'New York', code: 'NY' },
     { name: 'Rome', code: 'RM' },
@@ -51,6 +95,7 @@ export class EmployeeAddComponent {
     { name: 'Istanbul', code: 'IST' },
     { name: 'Paris', code: 'PRS' },
   ];
+
   categories = [
     { name: 'Category 1', key: 'C1' },
     { name: 'Category 2', key: 'C2' },
@@ -58,55 +103,54 @@ export class EmployeeAddComponent {
     { name: 'Category 4', key: 'C4' }
   ];
 
-  selectAll: boolean = false;
-  selectedItems!: any[];
+  // Multi-select state
+  selectAll = false;
+  selectedItems: any[] = [];
 
-  onSelectAllChange(event: any) {
-    this.selectedItems = event.checked ? [...this.ms.visibleOptions()] : [];
-    this.selectAll = event.checked;
+  constructor(private fb: FormBuilder) {}
+
+  ngOnInit(): void {
+    this.initializeForm();
   }
 
-  onUpload(event: any) {
-    const file = event.files[0];
-    if (file) {
-      // Create object URL for preview
-      file.objectURL = URL.createObjectURL(file);
-      this.uploadedFiles = [file];
-      
-      // Update form control value
-      this.formGroup.patchValue({
-        fileInput: file
-      });
-    }
+  ngOnDestroy(): void {
+    this.cleanupFileUrls();
   }
 
-  removeFile(file: any) {
-    // Revoke object URL to prevent memory leaks
-    if (file.objectURL) {
-      URL.revokeObjectURL(file.objectURL);
-    }
-    this.uploadedFiles = [];
-    this.formGroup.patchValue({
-      fileInput: null
+  private initializeForm(): void {
+    this.formGroup = this.fb.group({
+      textInput: ['', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(50),
+        noSpecialCharactersValidator()
+      ]],
+      numberInput: [1234, [
+        Validators.required,
+        Validators.min(5),
+        Validators.max(10)
+      ]],
+      selectInput: [null, [Validators.required]],
+      multiSelectInput: [[], [
+        Validators.required,
+        Validators.minLength(1)
+      ]],
+      dateInput: ['', [Validators.required]],
+      passwordInput: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+      ]],
+      checkboxInput: [[], [
+        Validators.required,
+        Validators.minLength(1)
+      ]],
+      radioInput: ['', [Validators.required]],
+      fileInput: [null, [Validators.required]]
     });
   }
 
-  ngOnInit() {
-    this.formGroup = new FormGroup({
-      textInput: new FormControl({ value: '', disabled: false }),
-      numberInput: new FormControl({ value: 1234, disabled: false }),
-      selectInput: new FormControl({ value: null, disabled: false }),
-      multiSelectInput: new FormControl({ value: [], disabled: false }),
-      dateInput: new FormControl({ value: '', disabled: false }),
-      passwordInput: new FormControl({ value: '', disabled: false }),
-      checkboxInput: new FormControl({ value: [], disabled: false }),
-      radioInput: new FormControl({ value: '', disabled: false }),
-      fileInput: new FormControl({ value: null, disabled: false })
-    });
-  }
-
-  ngOnDestroy() {
-    // Clean up object URLs when component is destroyed
+  private cleanupFileUrls(): void {
     this.uploadedFiles.forEach(file => {
       if (file.objectURL) {
         URL.revokeObjectURL(file.objectURL);
@@ -114,17 +158,93 @@ export class EmployeeAddComponent {
     });
   }
 
-  onSubmit() {
-    if (this.formGroup.valid) {
-      console.log('Form submitted successfully!');
-      console.log('Form values:', this.formGroup.value);
-    } else {
-      console.log('Form is invalid!');
-      // Mark all fields as touched to show validation errors
-      Object.keys(this.formGroup.controls).forEach(key => {
-        const control = this.formGroup.get(key);
-        control?.markAsTouched();
-      });
+  onSelectAllChange(event: any): void {
+    this.selectedItems = event.checked ? [...this.ms.visibleOptions()] : [];
+    this.selectAll = event.checked;
+  }
+
+  onUpload(event: any): void {
+    const file = event.files[0];
+    if (file) {
+      file.objectURL = URL.createObjectURL(file);
+      this.uploadedFiles = [file];
+      this.formGroup.patchValue({ fileInput: file });
     }
+  }
+
+  removeFile(file: any): void {
+    if (file.objectURL) {
+      URL.revokeObjectURL(file.objectURL);
+    }
+    this.uploadedFiles = [];
+    this.formGroup.patchValue({ fileInput: null });
+  }
+
+  onSubmit(): void {
+    this.formSubmitted = true;
+    
+    if (this.formGroup.valid && !this.isSubmitting) {
+      this.isSubmitting = true;
+      
+      try {
+        const formData: EmployeeFormModel = this.formGroup.value;
+        console.log('Form submitted successfully!');
+        console.log('Form values:', formData);
+        
+        // Here you would typically make an API call
+        // await this.employeeService.createEmployee(formData);
+        
+      } catch (error) {
+        console.error('Error submitting form:', error);
+      } finally {
+        this.isSubmitting = false;
+      }
+    } else {
+      this.markFormGroupTouched(this.formGroup);
+    }
+  }
+
+  private markFormGroupTouched(formGroup: FormGroup): void {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const control = this.formGroup.get(fieldName);
+    return control ? (control.invalid && (control.dirty || control.touched || this.formSubmitted)) : false;
+  }
+
+  getErrorMessage(fieldName: string): string {
+    const control = this.formGroup.get(fieldName);
+    if (!control) return '';
+
+    const errors = control.errors;
+    if (!errors) return '';
+
+    if (errors['required']) return 'This field is required';
+    if (errors['minlength']) return `Minimum length is ${errors['minlength'].requiredLength} characters`;
+    if (errors['maxlength']) return `Maximum length is ${errors['maxlength'].requiredLength} characters`;
+    if (errors['min']) return `Minimum value is ${errors['min'].min}`;
+    if (errors['max']) return `Maximum value is ${errors['max'].max}`;
+    if (errors['pattern']) return 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
+    if (errors['hasSpecialChars']) return 'Text should not contain any special characters';
+
+    return 'Invalid value';
+  }
+
+  // Helper method to check if form is pristine
+  isFormPristine(): boolean {
+    return this.formGroup.pristine;
+  }
+
+  // Helper method to reset form
+  resetForm(): void {
+    this.formGroup.reset();
+    this.formSubmitted = false;
+    this.uploadedFiles = [];
   }
 }
