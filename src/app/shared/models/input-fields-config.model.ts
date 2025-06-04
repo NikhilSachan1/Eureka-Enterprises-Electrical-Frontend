@@ -1,7 +1,7 @@
 import { ValidatorFn } from "@angular/forms";
 
 export interface IFormConfig {
-  [key: string]: IInputFieldsConfig;
+  [key: string]: Partial<IInputFieldsConfig>;
 }
 
 export interface IInputFieldsConfig {
@@ -19,6 +19,10 @@ export interface IInputFieldsConfig {
   selectConfig?: Partial<ISelectFieldConfig>;
   multiSelectConfig?: Partial<IMultiSelectFieldConfig>;
   dateConfig?: Partial<IDateFieldConfig>;
+  passwordConfig?: Partial<IPasswordFieldConfig>;
+  checkboxConfig?: Partial<ICheckboxFieldConfig>;
+  radioConfig?: Partial<IRadioFieldConfig>;
+  fileConfig?: Partial<IFileFieldConfig>;
   validators?: ValidatorFn[];
 }
 
@@ -79,6 +83,49 @@ export interface IDateFieldConfig {
   hourFormat: EHourFormat;
   numberOfMonths: number;
   calendarView: ECalendarView;
+}
+
+export interface IPasswordFieldConfig {
+  feedback: boolean;
+  promptLabel: string;
+  weakLabel: string;
+  mediumLabel: string;
+  strongLabel: string;
+  toggleMask: boolean;
+  strongRegex: string;
+  mediumRegex: string;
+}
+
+export interface ICheckboxFieldConfig {
+  options: IOptionDropdown[];
+  binary: boolean;
+  indeterminate: boolean;
+  align: ECheckBoxAndRadioAlign;
+}
+
+export interface IRadioFieldConfig {
+  options: IOptionDropdown[];
+  align: ECheckBoxAndRadioAlign;
+}
+
+export interface IFileFieldConfig {
+  customUpload: boolean;
+  multiple: boolean;
+  accept: string;
+  maxFileSize: number;
+  multipleFiles: boolean;
+  mode: EFileMode;
+  acceptFileTypes: string;
+  automaticUpload: boolean;
+  chooseLabel: string;
+  cancelLabel: string;
+  showUploadButton: boolean;
+  showCancelButton: boolean;
+}
+
+export enum EFileMode {
+  Basic = 'basic',
+  Advanced = 'advanced',
 }
 
 export enum EHourFormat {
@@ -161,4 +208,9 @@ export enum EDateSelectionMode {
   Single = 'single',
   Multiple = 'multiple',
   Range = 'range',
+}
+
+export enum ECheckBoxAndRadioAlign {
+  Horizontal = 'row',
+  Vertical = 'col',
 }

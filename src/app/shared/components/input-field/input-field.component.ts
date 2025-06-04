@@ -7,11 +7,15 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DatePickerModule } from 'primeng/datepicker';
-import { ECalendarView, EDateIconDisplay, EDateSelectionMode, EFieldType, EHourFormat, EMultiSelectDisplayType, EUpAndDownButtonLayout, IInputFieldsConfig } from '../../models/input-fields-config.model';
+import { PasswordModule } from 'primeng/password';
+import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelectionMode, EFieldType, EFileMode, EHourFormat, EMultiSelectDisplayType, EUpAndDownButtonLayout, IInputFieldsConfig } from '../../models/input-fields-config.model';
 
 @Component({
   selector: 'app-input-field',
-  imports: [ReactiveFormsModule, FloatLabelModule, InputTextModule, NgClass, InputNumberModule, SelectModule, MultiSelectModule, DatePickerModule],
+  imports: [ReactiveFormsModule, FloatLabelModule, InputTextModule, NgClass, InputNumberModule, SelectModule, MultiSelectModule, DatePickerModule, PasswordModule, CheckboxModule, RadioButtonModule, FileUploadModule],
   templateUrl: './input-field.component.html',
   styleUrl: './input-field.component.scss'
 })
@@ -24,6 +28,8 @@ export class InputFieldComponent {
   ALL_DATE_SELECTION_MODES = EDateSelectionMode;
   ALL_HOUR_FORMATS = EHourFormat;
   ALL_CALENDAR_VIEWS = ECalendarView;
+  ALL_CHECKBOX_AND_RADIO_ALIGN = ECheckBoxAndRadioAlign;
+  ALL_FILE_MODES = EFileMode;
 
   @Input() formGroup!: FormGroup;
   @Input() inputFieldConfig!: IInputFieldsConfig;

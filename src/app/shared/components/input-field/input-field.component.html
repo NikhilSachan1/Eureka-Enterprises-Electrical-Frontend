@@ -17,10 +17,6 @@
                 />
                 <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
             </p-floatlabel>
-
-            @if (isFieldInvalid) {
-                <small class="p-error">{{errorMessage }}</small>   
-            }
         }
         @case (ALL_FIELD_TYPES.Number) {
             <p-floatlabel [variant]="inputFieldConfig.floatLabelVariant">
@@ -51,10 +47,6 @@
                 ></p-inputnumber>
                 <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
             </p-floatlabel>
-
-            @if (isFieldInvalid) {
-                <small class="p-error">{{errorMessage }}</small>   
-            }
         }
         @case (ALL_FIELD_TYPES.Select) {
             <p-floatlabel [variant]="inputFieldConfig.floatLabelVariant">
@@ -80,10 +72,6 @@
                 ></p-select>
                 <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
             </p-floatlabel>
-
-            @if (isFieldInvalid) {
-                <small class="p-error">{{errorMessage }}</small>   
-            }
         }
         @case (ALL_FIELD_TYPES.MultiSelect) {
             <p-floatlabel [variant]="inputFieldConfig.floatLabelVariant">
@@ -109,10 +97,6 @@
                 ></p-multiselect>
                 <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
             </p-floatlabel>
-
-            @if (isFieldInvalid) {
-                <small class="p-error">{{errorMessage }}</small>   
-            }
         }
         @case (ALL_FIELD_TYPES.Date) {
             <p-floatlabel [variant]="inputFieldConfig.floatLabelVariant">
@@ -141,10 +125,98 @@
                 ></p-datepicker>
                 <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
             </p-floatlabel>
-
-            @if (isFieldInvalid) {
-                <small class="p-error">{{errorMessage }}</small>   
-            }
         }
+        @case (ALL_FIELD_TYPES.Password) {
+            <p-floatlabel [variant]="inputFieldConfig.floatLabelVariant">
+
+                @let passwordConfig = inputFieldConfig.passwordConfig;
+
+                <p-password
+                    [inputId]="inputFieldConfig.id"
+                    [fluid]="inputFieldConfig.haveFullWidth"
+                    [size]="inputFieldConfig.fieldSize"
+                    [formControlName]="inputFieldConfig.fieldName"
+                    [autocomplete]="inputFieldConfig.autocomplete"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
+                    [feedback]="passwordConfig?.feedback || false"
+                    [promptLabel]="passwordConfig?.promptLabel"
+                    [weakLabel]="passwordConfig?.weakLabel"
+                    [mediumLabel]="passwordConfig?.mediumLabel"
+                    [strongLabel]="passwordConfig?.strongLabel"
+                    [toggleMask]="passwordConfig?.toggleMask"
+                    [strongRegex]="passwordConfig?.strongRegex || ''"
+                    [mediumRegex]="passwordConfig?.mediumRegex || ''"
+                ></p-password>
+                <label [for]="inputFieldConfig.id">{{inputFieldConfig.label}}</label>
+            </p-floatlabel>
+        }
+        @case (ALL_FIELD_TYPES.Checkbox) {
+
+            <label>{{inputFieldConfig.label}}</label>
+
+            @let checkboxConfig = inputFieldConfig.checkboxConfig;
+            
+            <div class="flex flex-{{checkboxConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical}} gap-4">
+
+                @for (option of checkboxConfig?.options; track option.key) {
+                    <div class="flex items-center">
+                        <p-checkbox 
+                            [inputId]="'checkbox-' + option.key" 
+                            [formControlName]="'checkboxInput'" 
+                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
+                            [value]="option" 
+                            [binary]="checkboxConfig?.binary || false" 
+                            [indeterminate]="checkboxConfig?.indeterminate || false" 
+                            [size]="inputFieldConfig.fieldSize"
+                        ></p-checkbox>
+                        <label [for]="'checkbox-' + option.key" class="ml-2"> {{ option.value }} </label>
+                    </div>
+                }
+            </div>
+        }
+        @case (ALL_FIELD_TYPES.Radio) {
+
+            <label>{{inputFieldConfig.label}}</label>
+
+            @let radioConfig = inputFieldConfig.radioConfig;
+            
+            <div class="flex flex-{{radioConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical}} gap-4">
+
+                @for (option of radioConfig?.options; track option.key) {
+                    <div class="flex items-center">
+                        <p-radioButton 
+                            [inputId]="'radio-' + option.key" 
+                            [formControlName]="'radioInput'" 
+                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
+                            [value]="option" 
+                            [size]="inputFieldConfig.fieldSize"
+                        ></p-radioButton>
+                        <label [for]="'radio-' + option.key" class="ml-2">{{ option.value }}</label>
+                    </div>
+                }
+            </div>
+        }
+        @case (ALL_FIELD_TYPES.File) {
+
+            @let fileConfig = inputFieldConfig.fileConfig;
+
+            <p-fileupload 
+                [name]="inputFieldConfig.fieldName" 
+                [customUpload]="fileConfig?.customUpload || false"
+                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}" 
+                [multiple]="fileConfig?.multipleFiles || false" 
+                [accept]="fileConfig?.acceptFileTypes || ''" 
+                [maxFileSize]="fileConfig?.maxFileSize || 1000000" 
+                [mode]="fileConfig?.mode || ALL_FILE_MODES.Advanced"
+                [auto]="fileConfig?.automaticUpload || false"
+                [chooseLabel]="fileConfig?.chooseLabel || 'Choose Image'"
+                [cancelLabel]="fileConfig?.cancelLabel || 'Cancel'"
+                [showUploadButton]="fileConfig?.showUploadButton || false"
+                [showCancelButton]="fileConfig?.showCancelButton || false"
+            ></p-fileupload>
+        }
+    }
+    @if (isFieldInvalid) {
+        <small class="p-error">{{errorMessage }}</small>   
     }
 </div>

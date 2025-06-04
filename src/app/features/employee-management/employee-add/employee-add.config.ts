@@ -1,5 +1,5 @@
 import { Validators } from '@angular/forms';
-import { EAutocomplete, ECalendarView, EDateIconDisplay, EFieldSize, EFieldType, EFloatLabelVariant, EInputNumberMode, EMultiSelectDisplayType, EUpAndDownButtonLayout, IFormConfig } from '../../../shared/models/input-fields-config.model';
+import { EAutocomplete, ECalendarView, EDateIconDisplay, EFieldSize, EFieldType, EFileMode, EFloatLabelVariant, EInputNumberMode, EMultiSelectDisplayType, EUpAndDownButtonLayout, IFormConfig } from '../../../shared/models/input-fields-config.model';
 import { noSpecialCharactersValidator } from '../../../shared/utility/validators.utils';
 
 export const ADD_EMPLOYEE_INPUT_FIELDS_CONFIG: IFormConfig = {
@@ -80,5 +80,65 @@ export const ADD_EMPLOYEE_INPUT_FIELDS_CONFIG: IFormConfig = {
       calendarView: ECalendarView.Date,
       numberOfMonths: 1,
     }
-  }
+  },
+  password: {
+    fieldType: EFieldType.Password,
+    id: 'password',
+    haveFullWidth: true,
+    fieldSize: EFieldSize.Large,
+    fieldName: 'password',
+    floatLabelVariant: EFloatLabelVariant.On,
+    label: 'Password',
+    passwordConfig: {
+      feedback: true,
+      promptLabel: 'Choose a password',
+      weakLabel: 'Too simple',
+      mediumLabel: 'Average complexity',
+      strongLabel: 'Complex password',
+      toggleMask: true,
+      strongRegex: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,}$',
+      mediumRegex: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{6,}$',
+    },
+    validators: [Validators.required, Validators.minLength(8), Validators.maxLength(20)],
+  },
+  checkboxInput: {
+    fieldType: EFieldType.Checkbox,
+    id: 'checkboxInput',
+    fieldSize: EFieldSize.Large,
+    fieldName: 'checkboxInput',
+    label: 'Checkbox',
+    checkboxConfig: {
+      options: [{value: 'Admin', key: 'admin'}, {value: 'Employee', key: 'employee'}],
+      binary: false,
+      indeterminate: false,
+    },
+    validators: [Validators.required],
+  },
+  radioInput: {
+    fieldType: EFieldType.Radio,
+    id: 'radioInput',
+    fieldSize: EFieldSize.Large,
+    fieldName: 'radioInput',
+    label: 'Radio',
+    radioConfig: {
+      options: [{value: 'Admin', key: 'admin'}, {value: 'Employee', key: 'employee'}],
+    },
+    validators: [Validators.required],
+  },
+  fileInput: {
+    fieldType: EFieldType.File,
+    fieldName: 'fileInput',
+    fileConfig: {
+      customUpload: true,
+      multipleFiles: true,
+      acceptFileTypes: 'image/*',
+      maxFileSize: 1000000,
+      mode: EFileMode.Advanced,
+      automaticUpload: true,
+      chooseLabel: 'Choose Images',
+      cancelLabel: 'Cancel',
+      showUploadButton: true,
+      showCancelButton: true,
+    }
+  },
 };

@@ -1,94 +1,28 @@
 <div style="padding: 50px;">
     <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="ADD_EMPLOYEE_INPUT_FIELDS_CONFIG['fname']"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('fname')"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="ADD_EMPLOYEE_INPUT_FIELDS_CONFIG['aadharNumber']"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('aadharNumber')"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="ADD_EMPLOYEE_INPUT_FIELDS_CONFIG['role']"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('role')"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="ADD_EMPLOYEE_INPUT_FIELDS_CONFIG['workOn']"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('workOn')"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="ADD_EMPLOYEE_INPUT_FIELDS_CONFIG['dob']"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('dob')"></app-input-field>
 
-        <!-- <p-floatlabel variant="on" style="margin-bottom: 10px;">
-            <p-datepicker formControlName="dateInput" fluid="true" pSize="large" dateFormat="dd.mm.yy" showIcon="true"
-                [iconDisplay]="'input'" [timeOnly]="false" [minDate]="minDate" [maxDate]="maxDate"
-                [showButtonBar]="true" selectionMode="multiple" [readonlyInput]="true" [showTime]="true"
-                [hourFormat]="'12'" view="date" [numberOfMonths]="1"
-                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('dateInput')}">
-                <ng-template #date let-date>
-                    @if (date.day > 10 && date.day < 15) { <strong style="text-decoration: line-through">{{ date.day
-                        }}</strong>
-                        } @else {
-                        {{ date.day }}
-                        }
-                </ng-template>
-            </p-datepicker>
-            <label for="on_label">Date Input</label>
-        </p-floatlabel>
-        <small class="p-error" *ngIf="isFieldInvalid('dateInput')">{{ getErrorMessage('dateInput') }}</small>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('password')"></app-input-field>
 
-        <p-floatlabel variant="on" style="margin-bottom: 10px;">
-            <p-password [feedback]="true" formControlName="passwordInput" fluid="true" pSize="large"
-                promptLabel="Choose a password" weakLabel="Too simple" mediumLabel="Average complexity"
-                strongLabel="Complex password" [toggleMask]="true" autocomplete="off"
-                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('passwordInput')}">
-            </p-password>
-            <label for="on_label">Password Input</label>
-        </p-floatlabel>
-        <small class="p-error" *ngIf="isFieldInvalid('passwordInput')">{{ getErrorMessage('passwordInput') }}</small>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('checkboxInput')"></app-input-field>
 
-        <div style="margin-bottom: 10px;">
-            <label for="on_label">Checkbox Input</label>
-            <div class="flex flex-col gap-4">
-                @for (category of categories; track category.key) {
-                    <div class="flex items-center">
-                        <p-checkbox [formControlName]="'checkboxInput'" [inputId]="'checkbox-' + category.key" [name]="'checkboxInput'" [value]="category" [binary]="false" [indeterminate]="true" size="large"
-                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('checkboxInput')}"/>
-                        <label [for]="'checkbox-' + category.key" class="ml-2"> {{ category.name }} </label>
-                    </div>
-                }
-            </div>
-            <small class="p-error" *ngIf="isFieldInvalid('checkboxInput')">{{ getErrorMessage('checkboxInput') }}</small>
-        </div>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('radioInput')"></app-input-field>
 
-        <div style="margin-bottom: 10px;">
-            <label for="on_label">Radio Button Input</label>
-            <div class="flex flex-col gap-4">
-                @for (category of categories; track category.key) {
-                    <div class="flex items-center">
-                        <p-radioButton [formControlName]="'radioInput'" [inputId]="'radio-' + category.key" [name]="'radioInput'" [value]="category" size="large"
-                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('radioInput')}"/>
-                        <label [for]="'radio-' + category.key" class="ml-2">{{ category.name }}</label>
-                    </div>
-                }
-            </div>
-            <small class="p-error" *ngIf="isFieldInvalid('radioInput')">{{ getErrorMessage('radioInput') }}</small>
-        </div>
-
-        <div style="margin-bottom: 10px;">
-            <p-fileupload name="demo[]" 
-                [customUpload]="true"
-                (uploadHandler)="onUpload($event)" 
-                [multiple]="false" 
-                accept="image/*" 
-                maxFileSize="1000000" 
-                mode="advanced"
-                [auto]="true"
-                chooseLabel="Choose Image"
-                cancelLabel="Cancel"
-                [showUploadButton]="false"
-                [showCancelButton]="false"
-                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('fileInput')}">
-            </p-fileupload>
-            <small class="p-error" *ngIf="isFieldInvalid('fileInput')">{{ getErrorMessage('fileInput') }}</small>
-        </div> -->
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('fileInput')"></app-input-field>
 
         <div class="flex gap-2 mt-4">
             <button pButton type="submit" 
                 label="Submit" 
                 [loading]="isSubmitting"
-                [disabled]="isSubmitting || isFormPristine()"
+                [disabled]="isSubmitting"
                 class="p-button-primary">
             </button>
             <button pButton type="button" 
