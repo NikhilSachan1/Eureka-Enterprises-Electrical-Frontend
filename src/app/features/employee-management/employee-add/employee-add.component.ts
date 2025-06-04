@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {
   FormGroup,
-  FormsModule,
   ReactiveFormsModule,
   FormBuilder
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputFieldComponent } from "../../../shared/components/input-field/input-field.component";
 import { ADD_EMPLOYEE_INPUT_FIELDS_CONFIG } from './employee-add.config';
@@ -14,8 +12,6 @@ import { IInputFieldsConfig } from '../../../shared/models/input-fields-config.m
 @Component({
   selector: 'app-employee-add',
   imports: [
-    CommonModule,
-    FormsModule,
     ReactiveFormsModule,
     ButtonModule,
     InputFieldComponent
