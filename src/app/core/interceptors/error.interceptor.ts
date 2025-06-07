@@ -1,11 +1,9 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
 import { catchError, retry, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 
 export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
-    const authService = inject(AuthService);
     const messageService = inject(MessageService);
 
     // Don't retry POST, PUT, DELETE requests

@@ -2,7 +2,6 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { LoggingInterceptor } from './core/interceptors/logging.interceptor';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -26,7 +25,7 @@ export const appConfig: ApplicationConfig = {
             }
         }),
         provideZoneChangeDetection({ eventCoalescing: true }),
-        provideHttpClient(withInterceptors([AuthInterceptor, ErrorInterceptor, LoggingInterceptor])),
+        provideHttpClient(withInterceptors([ErrorInterceptor, LoggingInterceptor])),
         provideRouter(routes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         { provide: ConfirmationService, useClass: ConfirmationService }
     ]

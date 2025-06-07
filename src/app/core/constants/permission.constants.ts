@@ -1,5 +1,3 @@
-import { PermissionType } from '../../shared/models/permission.model';
-
 export const PERMISSIONS = {
     USERS: {
         CREATE: 'users.create',
@@ -15,5 +13,3 @@ export const PERMISSIONS = {
     },
 } as const;
 
-// Re-export for backwards compatibility
-export type { PermissionType };
