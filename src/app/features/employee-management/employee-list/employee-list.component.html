@@ -1,43 +1,39 @@
-<div class="p-4">
-    <!-- Header Section -->
-    <app-page-header 
-        title="Employee Management"
-        subtitle="Track, manage, and monitor employee information"
-        [showAddButton]="true"
-        addButtonLabel="Add New Employee"
-        buttonClass="p-button-success text-sm"
-        (addButtonClick)="onAddEmployee()">
-    </app-page-header>
+<!-- Header Section -->
+<app-page-header 
+    title="Employee Management"
+    subtitle="Track, manage, and monitor employee information"
+    [showAddButton]="true"
+    addButtonLabel="Add New Employee"
+    buttonClass="p-button-success text-sm"
+    (addButtonClick)="onAddEmployee()">
+</app-page-header>
 
-    <div class="px-4 py-6">
-        <!-- Metrics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-
-            @for (metric of metricsCards(); track metric.title) {
-                <app-metrics-card
-                    [title]="metric.title"
-                    [subtitle]="metric.subtitle"
-                    [iconClass]="metric.iconClass"
-                    [iconBgClass]="metric.iconBgClass"
-                    [metrics]="metric.metrics">
-                </app-metrics-card>
-            }
-
-        </div>
-
-        <!-- Employee Data Table -->
-        <app-data-table
-            [tableConfig]="tableConfig()"
-            [tableHeader]="tableHeader()"
-            [tableData]="tableData()"
-            [loading]="loading()"
-            [bulkActionButtons]="bulkActionButtons()"
-            [rowActions]="rowActions()"
-            (bulkActionClick)="handleBulkActionClick($event)"
-            (rowActionClick)="handleRowActionClick($event)">
-        </app-data-table>
+<div class="content-wrapper">
+    <!-- Metrics Cards -->
+    <div class="metrics-grid">
+        @for (metric of metricsCards(); track metric.title) {
+            <app-metrics-card
+                [title]="metric.title"
+                [subtitle]="metric.subtitle"
+                [iconClass]="metric.iconClass"
+                [iconBgClass]="metric.iconBgClass"
+                [metrics]="metric.metrics">
+            </app-metrics-card>
+        }
     </div>
 
-    <!-- Confirmation Dialog -->
-    <app-confirmation-dialog></app-confirmation-dialog>
+    <!-- Employee Data Table -->
+    <app-data-table
+        [tableConfig]="tableConfig()"
+        [tableHeader]="tableHeader()"
+        [tableData]="tableData()"
+        [loading]="loading()"
+        [bulkActionButtons]="bulkActionButtons()"
+        [rowActions]="rowActions()"
+        (bulkActionClick)="handleBulkActionClick($event)"
+        (rowActionClick)="handleRowActionClick($event)"
+    ></app-data-table>
 </div>
+
+<!-- Confirmation Dialog -->
+<app-confirmation-dialog></app-confirmation-dialog>

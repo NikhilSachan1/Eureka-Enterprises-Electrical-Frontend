@@ -1,5 +1,5 @@
-<div style="padding: 50px;">
-    <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+<div class="form-container">
+    <form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="form">
         <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['fname']"></app-input-field>
 
         <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['aadharNumber']"></app-input-field>
@@ -18,7 +18,7 @@
 
         <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['fileInput']"></app-input-field>
 
-        <div class="flex gap-2 mt-4">
+        <div class="button-container">
             <button pButton type="submit" 
                 label="Submit" 
                 [loading]="isSubmitting()"
