@@ -3,6 +3,7 @@
  */
 
 export const ROUTE_BASE_PATHS = {
+  AUTH: 'auth',
   EMPLOYEE: 'employee',
   ATTENDANCE: 'attendance',
   EXPENSE: 'expense',
@@ -17,6 +18,13 @@ export const ROUTE_BASE_PATHS = {
 } as const;
 
 export const ROUTES = {
+
+  AUTH: {
+    LOGIN: 'login',
+    REGISTER: 'register',
+    FORGOT_PASSWORD: 'forgot-password',
+    RESET_PASSWORD: 'reset-password'
+  },
 
   EMPLOYEE: {
     LIST: `list`,

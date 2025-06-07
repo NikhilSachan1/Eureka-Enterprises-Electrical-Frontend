@@ -1,0 +1,481 @@
+// Custom styles for the login component
+.login-container {
+  background: linear-gradient(135deg, var(--surface-50) 0%, var(--surface-100) 100%);
+}
+
+// Login Card Styling
+.login-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(0, 163, 137, 0.05);
+  backdrop-filter: blur(20px);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 163, 137, 0.4), transparent);
+  }
+}
+
+// Form Group Styling
+.form-group {
+  position: relative;
+}
+
+// Wave animations
+.wave-primary, .wave-secondary, .wave-tertiary {
+  animation: waveFloat 8s ease-in-out infinite;
+}
+
+.wave-secondary {
+  animation-delay: -2s;
+}
+
+.wave-tertiary {
+  animation-delay: -4s;
+}
+
+@keyframes waveFloat {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  33% {
+    transform: translateY(-8px) translateX(3px);
+  }
+  66% {
+    transform: translateY(4px) translateX(-2px);
+  }
+}
+
+// Floating geometric shapes
+.floating-shapes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(45deg, var(--primary-color), var(--primary-light-color));
+  opacity: 0.08;
+  animation: float 25s infinite linear;
+}
+
+.shape-1 {
+  width: 80px;
+  height: 80px;
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.shape-2 {
+  width: 60px;
+  height: 60px;
+  top: 20%;
+  right: 10%;
+  animation-delay: -8s;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  border-radius: 0;
+}
+
+.shape-3 {
+  width: 100px;
+  height: 100px;
+  bottom: 20%;
+  left: 15%;
+  animation-delay: -16s;
+}
+
+.shape-4 {
+  width: 40px;
+  height: 40px;
+  top: 60%;
+  right: 20%;
+  animation-delay: -12s;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  border-radius: 0;
+}
+
+.shape-5 {
+  width: 70px;
+  height: 70px;
+  bottom: 40%;
+  right: 5%;
+  animation-delay: -4s;
+}
+
+.shape-6 {
+  width: 50px;
+  height: 50px;
+  top: 40%;
+  left: 5%;
+  animation-delay: -20s;
+  clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+  border-radius: 0;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.08;
+  }
+  50% {
+    transform: translateY(-30px) rotate(180deg);
+    opacity: 0.12;
+  }
+  100% {
+    transform: translateY(0px) rotate(360deg);
+    opacity: 0.08;
+  }
+}
+
+// Enhanced PrimeNG component styling
+::ng-deep {
+  // Input Text Styling
+  .p-inputtext {
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    background: #ffffff !important;
+    transition: all 0.2s ease !important;
+    
+    &:focus {
+      border-color: var(--primary-color) !important;
+      box-shadow: 0 0 0 3px rgba(0, 163, 137, 0.1) !important;
+      outline: none !important;
+    }
+    
+    &::placeholder {
+      color: #9ca3af !important;
+    }
+  }
+
+  // Password Field Styling
+  .p-password {
+    width: 100%;
+    
+    .p-inputtext {
+      width: 100% !important;
+      border-radius: 8px !important;
+      border: 1px solid #d1d5db !important;
+      
+      &:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 3px rgba(0, 163, 137, 0.1) !important;
+      }
+    }
+    
+    .p-password-toggle-icon {
+      color: #6b7280 !important;
+    }
+  }
+
+  // Checkbox Styling
+  .p-checkbox {
+    .p-checkbox-box {
+      border: 2px solid #d1d5db !important;
+      border-radius: 4px !important;
+      background: #ffffff !important;
+      width: 18px !important;
+      height: 18px !important;
+      
+      &.p-highlight {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        
+        .p-checkbox-icon {
+          color: white !important;
+          font-size: 12px !important;
+        }
+      }
+      
+      &:focus {
+        box-shadow: 0 0 0 2px rgba(0, 163, 137, 0.2) !important;
+      }
+    }
+  }
+
+  // Button Styling
+  .login-btn {
+    .p-button {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark-color) 100%) !important;
+      border: none !important;
+      border-radius: 8px !important;
+      padding: 12px 24px !important;
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      transition: all 0.2s ease !important;
+      position: relative !important;
+      overflow: hidden !important;
+      
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--primary-dark-color) 0%, var(--primary-color) 100%) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 10px 20px rgba(0, 163, 137, 0.3) !important;
+      }
+      
+      &:active {
+        transform: translateY(0) !important;
+      }
+      
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(0, 163, 137, 0.2) !important;
+      }
+      
+      &:disabled {
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+      }
+    }
+  }
+
+  .social-btn {
+    .p-button {
+      border: 1px solid #d1d5db !important;
+      background: #ffffff !important;
+      color: #374151 !important;
+      border-radius: 8px !important;
+      padding: 12px 16px !important;
+      font-weight: 500 !important;
+      transition: all 0.2s ease !important;
+      
+      &:hover {
+        border-color: var(--primary-color) !important;
+        background: #f9fafb !important;
+        color: var(--primary-color) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+      }
+    }
+  }
+
+  // Toast Styling
+  .p-toast {
+    .p-toast-message {
+      border-radius: 12px !important;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+      backdrop-filter: blur(10px) !important;
+    }
+  }
+
+  // Password Strength Meter
+  .p-password-meter {
+    margin-top: 8px !important;
+    
+    .p-password-strength {
+      border-radius: 2px !important;
+      
+      &.weak {
+        background-color: #ef4444 !important;
+      }
+      
+      &.medium {
+        background-color: #f59e0b !important;
+      }
+      
+      &.strong {
+        background-color: var(--primary-color) !important;
+      }
+    }
+  }
+
+  // Google Button Styling
+  .google-btn {
+    .p-button {
+      border: 1px solid #dadce0 !important;
+      background: #ffffff !important;
+      color: #3c4043 !important;
+      border-radius: 8px !important;
+      padding: 12px 16px !important;
+      font-weight: 500 !important;
+      transition: all 0.2s ease !important;
+      position: relative !important;
+      
+      // Hide the default icon
+      .pi-google {
+        display: none !important;
+      }
+      
+      // Add custom Google icon
+      &::before {
+        content: '';
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%23FFC107' d='M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z'/%3E%3Cpath fill='%23FF3D00' d='M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z'/%3E%3Cpath fill='%234CAF50' d='M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z'/%3E%3Cpath fill='%231976D2' d='M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z'/%3E%3C/svg%3E");
+        background-size: contain;
+        background-repeat: no-repeat;
+        vertical-align: middle;
+      }
+      
+      .p-button-label {
+        color: #3c4043 !important;
+        font-weight: 500 !important;
+      }
+      
+      &:hover {
+        background: #f8f9fa !important;
+        border-color: #dadce0 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24) !important;
+        transform: translateY(-1px) !important;
+        
+        .p-button-label {
+          color: #1a73e8 !important;
+        }
+      }
+      
+      &:focus {
+        box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.3) !important;
+        border-color: #4285f4 !important;
+      }
+    }
+  }
+
+  // Microsoft Button Styling
+  .microsoft-btn {
+    .p-button {
+      border: 1px solid #8a8886 !important;
+      background: #ffffff !important;
+      color: #323130 !important;
+      border-radius: 8px !important;
+      padding: 12px 16px !important;
+      font-weight: 500 !important;
+      transition: all 0.2s ease !important;
+      position: relative !important;
+      
+      // Hide default icon
+      .pi-microsoft {
+        display: none !important;
+      }
+      
+      // Add custom Microsoft icon
+      &::before {
+        content: '';
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%23ff5722' d='M6 6h18v18H6z'/%3E%3Cpath fill='%234caf50' d='M26 6h16v18H26z'/%3E%3Cpath fill='%23ffc107' d='M6 26h18v16H6z'/%3E%3Cpath fill='%2303a9f4' d='M26 26h16v16H26z'/%3E%3C/svg%3E");
+        background-size: contain;
+        background-repeat: no-repeat;
+        vertical-align: middle;
+      }
+      
+      .p-button-label {
+        color: #323130 !important;
+        font-weight: 500 !important;
+      }
+      
+      &:hover {
+        background: #f3f2f1 !important;
+        border-color: #0078d4 !important;
+        box-shadow: 0 2px 4px rgba(0, 120, 212, 0.15) !important;
+        transform: translateY(-1px) !important;
+        
+        .p-button-label {
+          color: #0078d4 !important;
+        }
+      }
+      
+      &:focus {
+        box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.3) !important;
+        border-color: #0078d4 !important;
+      }
+    }
+  }
+
+  // Alternative: If you want to use custom SVG icons for more accurate branding
+  .google-btn .p-button-icon::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE3LjY0IDkuMjA0NTVDMTcuNjQgOC41NjgyNyAxNy41ODI3IDcuOTUyNzMgMTcuNDggNy4zNjM2NEg5VjEwLjg0SDTDTNE44NEgxMy45NGMtLjA5IDEuNjgtLjcxOCAzLjEwOC0xLjUgNC4wNEwxNS4yNiAxNi43OUMxNi43IDE1LjQwOSAxNy42NCAxMi41IDEyIDkuMjA0NTVaIiBmaWxsPSIjNDI4NUY0Ii8+CjxwYXRoIGQ9Ik05IDE4QzExLjUxODIgMTggMTMuNjE4MiAxNy4xOSAxNS4yNiAxNS43OUwxMi42NDU1IDE0LjExQzExLjA3MjcgMTMuNSA5LjY1IDEzLjUgOS42NSAxMS41SDE3LjY0QzkuNjUgMTAuNSA5LjY1IDkuNSA5IDlINy4zNjM2NEw1LjE0MzY0IDkuNTkwOTFDNy4xMDkwOSAxNi42NTQ1IDkuNjUgMTggOSAxOFoiIGZpbGw9IiMzNEE4NTMiLz4KPHBhdGggZD0iTTcuMzYzNjQgNy4zNjM2NEw1LjE0MzY0IDUuMTQzNjRDMi42NTkwOSA3LjQxODE4IDEuMjQwOTEgMTAuNSA5IDEwLjVWOUg5LjY1SDE3LjY0VjcuMzYzNjRIOS42NUgxMUg5VjcuMzYzNjRaIiBmaWxsPSIjRkJCQzA0Ii8+CjxwYXRoIGQ9Ik05IDBDNS41NzI3MyAwIDIuOTUgMS43MjA5MSAxLjE0MzY0IDQuMjg2MzZMMy43NTA5MSA2LjMyNzI3QzQuNSA0LjMzNjM2IDYuNTgxODIgMyA5IDNDMTAuNjYzNiAzIDEyLjE5IDMuNjkgMTMuMzYzNiA0LjgxODE4TDE1LjQ1IDIuNzI3MjdDMTMuNDUgMC45OTA5MSAxMS4yMTgyIDAgOSAwWiIgZmlsbD0iI0VBNDMzNSIvPgo8L3N2Zz4K');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  // Remove the original icon when using custom SVG
+  .google-btn .pi-google {
+    display: none;
+  }
+}
+
+// Form transitions
+.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1.5rem;
+}
+
+// Responsive design
+@media (max-width: 640px) {
+  .login-card {
+    margin: 1rem;
+    padding: 2rem 1.5rem;
+  }
+  
+  .floating-shapes .shape {
+    display: none;
+  }
+}
+
+// Animation for form switching
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-transition {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+// Logo pulse animation
+.inline-flex.items-center.justify-center.w-16.h-16 {
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 20px rgba(0, 163, 137, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(0, 163, 137, 0.4);
+  }
+}
+
+// Additional hover effects
+button:hover {
+  transition: all 0.2s ease;
+}
+
+// Focus states for accessibility
+*:focus {
+  outline: none;
+}
+
+input:focus, 
+button:focus {
+  outline: 2px solid rgba(0, 163, 137, 0.5);
+  outline-offset: 2px;
+}
