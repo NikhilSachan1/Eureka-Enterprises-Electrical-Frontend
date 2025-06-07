@@ -10,11 +10,6 @@ export const routes: Routes = [
     component: PublicLayoutComponent,
     children: [
       {
-        path: ROUTE_BASE_PATHS.AUTH,
-        loadChildren: () => import('./features/auth/auth.routes')
-          .then(m => m.AUTH_ROUTES)
-      },
-      {
         path: '',
         redirectTo: ROUTE_BASE_PATHS.AUTH,
         pathMatch: 'full'
