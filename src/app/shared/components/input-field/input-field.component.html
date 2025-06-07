@@ -202,17 +202,17 @@
 
             <p-fileupload 
                 [name]="inputFieldConfig.fieldName" 
-                [customUpload]="fileConfig?.customUpload || false"
+                [customUpload]="fileConfig?.customUpload"
                 [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}" 
-                [multiple]="fileConfig?.multipleFiles || false" 
-                [accept]="fileConfig?.acceptFileTypes || ''" 
-                [maxFileSize]="fileConfig?.maxFileSize || 1000000" 
-                [mode]="fileConfig?.mode || ALL_FILE_MODES.Advanced"
-                [auto]="fileConfig?.automaticUpload || false"
-                [chooseLabel]="fileConfig?.chooseLabel || 'Choose Image'"
-                [cancelLabel]="fileConfig?.cancelLabel || 'Cancel'"
-                [showUploadButton]="fileConfig?.showUploadButton || false"
-                [showCancelButton]="fileConfig?.showCancelButton || false"
+                [multiple]="fileConfig?.multipleFiles" 
+                [accept]="fileConfig?.acceptFileTypes" 
+                [maxFileSize]="fileConfig?.maxFileSize" 
+                [mode]="fileConfig?.mode"
+                [auto]="fileConfig?.automaticUpload"
+                [chooseLabel]="fileConfig?.chooseLabel"
+                [cancelLabel]="fileConfig?.cancelLabel"
+                [showUploadButton]="fileConfig?.showUploadButton"
+                [showCancelButton]="fileConfig?.showCancelButton"
             ></p-fileupload>
         }
     }
