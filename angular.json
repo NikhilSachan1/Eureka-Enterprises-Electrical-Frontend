@@ -48,7 +48,9 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/scss/form.scss",
+              "src/scss/table.scss"
             ],
             "scripts": []
           },
