@@ -1,15 +1,13 @@
-<!-- Header Section -->
 <app-page-header 
     title="Employee Management"
     subtitle="Track, manage, and monitor employee information"
     [showAddButton]="true"
     addButtonLabel="Add New Employee"
     buttonClass="p-button-success text-sm"
-    (addButtonClick)="onAddEmployee()">
-</app-page-header>
+    (addButtonClick)="onAddEmployee()"
+></app-page-header>
 
 <div class="content-wrapper">
-    <!-- Metrics Cards -->
     <div class="metrics-grid">
         @for (metric of metricsCards(); track metric.title) {
             <app-metrics-card
@@ -17,12 +15,11 @@
                 [subtitle]="metric.subtitle"
                 [iconClass]="metric.iconClass"
                 [iconBgClass]="metric.iconBgClass"
-                [metrics]="metric.metrics">
-            </app-metrics-card>
+                [metrics]="metric.metrics"
+            ></app-metrics-card>
         }
     </div>
 
-    <!-- Employee Data Table -->
     <app-data-table
         [tableConfig]="tableConfig()"
         [tableHeader]="tableHeader()"
@@ -35,5 +32,4 @@
     ></app-data-table>
 </div>
 
-<!-- Confirmation Dialog -->
 <app-confirmation-dialog></app-confirmation-dialog>

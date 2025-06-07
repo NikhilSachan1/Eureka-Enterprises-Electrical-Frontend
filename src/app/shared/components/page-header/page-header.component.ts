@@ -13,8 +13,8 @@ import { ButtonModule } from 'primeng/button';
   styleUrls: ['./page-header.component.scss']
 })
 export class PageHeaderComponent {
-  @Input() title: string = '';
-  @Input() subtitle: string = '';
+  @Input({required: true}) title: string = '';
+  @Input({required: true}) subtitle: string = '';
   @Input() showAddButton: boolean = false;
   @Input() addButtonLabel: string = 'Add New';
   @Input() buttonClass: string = 'p-button-success text-sm';
