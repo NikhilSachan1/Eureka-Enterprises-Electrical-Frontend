@@ -3,7 +3,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { MetricsCardComponent } from '../../../shared/components/metrics-card/metrics-card.component';
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
-import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog.service';
+import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog-config.service';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import {
   IBulkActionConfig,

@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -17,7 +17,8 @@ import { ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelection
   selector: 'app-input-field',
   imports: [ReactiveFormsModule, FloatLabelModule, InputTextModule, NgClass, InputNumberModule, SelectModule, MultiSelectModule, DatePickerModule, PasswordModule, CheckboxModule, RadioButtonModule, FileUploadModule],
   templateUrl: './input-field.component.html',
-  styleUrl: './input-field.component.scss'
+  styleUrl: './input-field.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputFieldComponent {
 
@@ -31,8 +32,8 @@ export class InputFieldComponent {
   ALL_CHECKBOX_AND_RADIO_ALIGN = ECheckBoxAndRadioAlign;
   ALL_FILE_MODES = EFileMode;
 
-  @Input() formGroup!: FormGroup;
-  @Input() inputFieldConfig!: IInputFieldsConfig;
+  @Input({ required: true }) formGroup!: FormGroup;
+  @Input({ required: true }) inputFieldConfig!: IInputFieldsConfig;
 
   checkIsFieldInvalid(fieldName: string): boolean {
     const control = this.formGroup.get(fieldName);

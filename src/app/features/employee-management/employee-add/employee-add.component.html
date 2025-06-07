@@ -1,34 +1,34 @@
 <div style="padding: 50px;">
     <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('fname')"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['fname']"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('aadharNumber')"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['aadharNumber']"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('role')"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['role']"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('workOn')"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['workOn']"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('dob')"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['dob']"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('password')"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['password']"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('checkboxInput')"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['checkboxInput']"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('radioInput')"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['radioInput']"></app-input-field>
 
-        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="getFieldConfig('fileInput')"></app-input-field>
+        <app-input-field [formGroup]="formGroup" [inputFieldConfig]="fieldConfigs()['fileInput']"></app-input-field>
 
         <div class="flex gap-2 mt-4">
             <button pButton type="submit" 
                 label="Submit" 
-                [loading]="isSubmitting"
-                [disabled]="isSubmitting"
+                [loading]="isSubmitting()"
+                [disabled]="isSubmitting()"
                 class="p-button-primary">
             </button>
             <button pButton type="button" 
                 label="Reset" 
                 (click)="resetForm()"
-                [disabled]="isSubmitting"
+                [disabled]="isSubmitting()"
                 class="p-button-secondary">
             </button>
         </div>

@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   FormGroup,
   ReactiveFormsModule,
-  FormBuilder
+  FormBuilder,
+  ValidatorFn
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputFieldComponent } from "../../../shared/components/input-field/input-field.component";
 import { ADD_EMPLOYEE_INPUT_FIELDS_CONFIG } from './employee-add.config';
 import { IInputFieldsConfig } from '../../../shared/models/input-fields-config.model';
+import { InputFieldConfigService } from '../../../shared/services/input-field-config.service';
 
 @Component({
   selector: 'app-employee-add',
@@ -21,77 +23,71 @@ import { IInputFieldsConfig } from '../../../shared/models/input-fields-config.m
 })
 export class EmployeeAddComponent implements OnInit {
 
-  ADD_EMPLOYEE_INPUT_FIELDS_CONFIG = ADD_EMPLOYEE_INPUT_FIELDS_CONFIG;
+  private readonly inputFieldConfigService = inject(InputFieldConfigService);
+  private readonly fb = inject(FormBuilder);
 
-  getFieldConfig(key: keyof typeof ADD_EMPLOYEE_INPUT_FIELDS_CONFIG): IInputFieldsConfig {
-    return this.ADD_EMPLOYEE_INPUT_FIELDS_CONFIG[key] as IInputFieldsConfig;
-  }
+  protected isSubmitting = signal(false);
+  protected formSubmitted = signal(false);
+  protected fieldConfigs = signal<Record<string, IInputFieldsConfig>>({});
   
-  // Form group
-  formGroup!: FormGroup;
-  
-  // Form state
-  isSubmitting = false;
-  formSubmitted = false;
-
-  constructor(private fb: FormBuilder) {}
+  protected formGroup!: FormGroup;
 
   ngOnInit(): void {
+    this.initializeFieldConfigs();
     this.initializeForm();
   }
 
-  private initializeForm(): void {
+  private initializeFieldConfigs(): void {
+    const configs = this.inputFieldConfigService.initializeFieldConfigs(ADD_EMPLOYEE_INPUT_FIELDS_CONFIG);
+    console.log('configs', configs);
+    this.fieldConfigs.set(configs);
+  }
 
+  private getFormValidators(): Record<string, ValidatorFn[]> {
+    const configs = this.fieldConfigs();
+    return Object.keys(configs).reduce((acc, key) => {
+      acc[key] = configs[key].validators || [];
+      return acc;
+    }, {} as Record<string, ValidatorFn[]>);
+  }
+
+  private initializeForm(): void {
+    const validators = this.getFormValidators();
     this.formGroup = this.fb.group({
-      fname: ['', this.getFieldConfig('fname').validators],
-      aadharNumber: ['', this.getFieldConfig('aadharNumber').validators],
-      role: ['', this.getFieldConfig('role').validators],
-      workOn: ['', this.getFieldConfig('workOn').validators],
-      dob: ['', this.getFieldConfig('dob').validators],
-      password: ['', this.getFieldConfig('password').validators],
-      checkboxInput: ['', this.getFieldConfig('checkboxInput').validators],
-      radioInput: ['', this.getFieldConfig('radioInput').validators],
-      fileInput: ['', this.getFieldConfig('fileInput').validators],
+      fname: ['', validators['fname']],
+      aadharNumber: ['', validators['aadharNumber']],
+      role: ['', validators['role']],
+      workOn: ['', validators['workOn']],
+      dob: ['', validators['dob']],
+      password: ['', validators['password']],
+      checkboxInput: ['', validators['checkboxInput']],
+      radioInput: ['', validators['radioInput']],
+      fileInput: ['', validators['fileInput']],
     });
   }
 
   onSubmit(): void {
-    this.formSubmitted = true;
+    this.formSubmitted.set(true);
     
-    if (this.formGroup.valid && !this.isSubmitting) {
-      this.isSubmitting = true;
+    if (this.formGroup.valid && !this.isSubmitting()) {
+      this.isSubmitting.set(true);
       
       try {
         const formData: any = this.formGroup.value;
-        console.log('Form submitted successfully!');
         console.log('Form values:', formData);
-        
-        // Here you would typically make an API call
-        // await this.employeeService.createEmployee(formData);
-        
       } catch (error) {
         console.error('Error submitting form:', error);
       } finally {
-        this.isSubmitting = false;
+        this.isSubmitting.set(false);
       }
-    } else {
-      this.markFormGroupTouched(this.formGroup);
+    }
+    else {
+      this.formGroup.markAllAsTouched();
     }
   }
 
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.values(formGroup.controls).forEach(control => {
-      control.markAsTouched();
-      if (control instanceof FormGroup) {
-        this.markFormGroupTouched(control);
-      }
-    });
-  }
-
-
-  // Helper method to reset form
   resetForm(): void {
     this.formGroup.reset();
-    this.formSubmitted = false;
+    this.formSubmitted.set(false);
   }
 }
