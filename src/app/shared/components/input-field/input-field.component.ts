@@ -11,7 +11,9 @@ import { PasswordModule } from 'primeng/password';
 import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
-import { ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelectionMode, EFieldType, EFileMode, EHourFormat, EMultiSelectDisplayType, EUpAndDownButtonLayout, IInputFieldsConfig } from '../../models/input-fields-config.model';
+import { ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelectionMode, EFileMode, EHourFormat, EMultiSelectDisplayType, EUpAndDownButtonLayout } from '../../types/form-input.types';
+import { EFieldType } from '../../types/form-input.types';
+import { IInputFieldsConfig } from '../../models/input-fields-config.model';
 
 @Component({
   selector: 'app-input-field',

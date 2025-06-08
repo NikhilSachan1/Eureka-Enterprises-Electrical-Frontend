@@ -4,7 +4,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { EInputType } from '../../types/input.types';
+import { EInputType } from '../../types/data-table-input.types';
 
 @Component({
   selector: 'app-confirmation-dialog',

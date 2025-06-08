@@ -1,4 +1,4 @@
-import { EInputType } from "./input.types";
+import { EInputType } from "./data-table-input.types";
 
 export enum EBulkActionType {
   SET_INACTIVE = 'setInactive',

@@ -1,6 +1,7 @@
 import { Validators } from '@angular/forms';
-import { ECurrencyDisplay, EFieldSize, EFieldType, EInputNumberMode, IFormConfig } from '../../../shared/models/input-fields-config.model';
 import { noSpecialCharactersValidator } from '../../../shared/utility/validators.utils';
+import { IFormConfig } from '../../../shared/models/input-fields-config.model';
+import { EFieldSize, EFieldType } from '../../../shared/types/form-input.types';
 
 export const ADD_EMPLOYEE_INPUT_FIELDS_CONFIG: IFormConfig = {
   fname: {

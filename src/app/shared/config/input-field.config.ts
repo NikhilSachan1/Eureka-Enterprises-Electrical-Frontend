@@ -1,4 +1,5 @@
-import { EAutocomplete, ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelectionMode, EFieldSize, EFileMode, EFloatLabelVariant, EInputNumberMode, EMultiSelectDisplayType, ESpinnerMode, EUpAndDownButtonLayout, IInputFieldsConfig } from "../models/input-fields-config.model";
+import { IInputFieldsConfig } from "../models/input-fields-config.model";
+import { EAutocomplete, ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelectionMode, EFieldSize, EFileMode, EFloatLabelVariant, EInputNumberMode, EMultiSelectDisplayType, ESpinnerMode, EUpAndDownButtonLayout } from "../types/form-input.types";
 
 export const DEFAULT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
     autocomplete: EAutocomplete.Off,

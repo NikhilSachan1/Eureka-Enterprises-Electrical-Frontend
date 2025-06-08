@@ -4,6 +4,7 @@ import { ConfirmationDialogComponent } from '../../../shared/components/confirma
 import { MetricsCardComponent } from '../../../shared/components/metrics-card/metrics-card.component';
 import { LoggerService } from '../../../core/services/logger.service';
 import { inject, ChangeDetectionStrategy } from '@angular/core';
+import { IMetricData } from '../../../shared/models/metric-data.model';
 
 @Component({
   selector: 'app-attendance-list',
@@ -18,7 +19,7 @@ export class AttendanceListComponent {
 
   protected metricsCards = signal(this.getMetricCardsData());
 
-  private getMetricCardsData(): any[] {
+  private getMetricCardsData(): IMetricData[] {
     return [
       {
         title: 'Approval Status',

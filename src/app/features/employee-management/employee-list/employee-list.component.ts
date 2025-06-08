@@ -20,6 +20,7 @@ import {
 } from './employee-list.config';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
 import { EDialogType } from '../../../shared/types/confirmation-dialog.types';
+import { IMetricData } from '../../../shared/models/metric-data.model';
 
 @Component({
   selector: 'app-employee-list',
@@ -221,7 +222,7 @@ export class EmployeeListComponent {
     }, 150);
   }
 
-  private getMetricCardsData(): any[] {
+  private getMetricCardsData(): IMetricData[] {
     return [
       {
         title: 'Employee Distribution',

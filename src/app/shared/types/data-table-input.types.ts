@@ -10,14 +10,3 @@ export enum EInputType {
     EMAIL = 'email',
     PASSWORD = 'password',
 }
-
-export enum EFormVariant {
-    DEFAULT = '',
-    IN = 'in',
-    ON =  'on'
-}
-
-export enum ENumberMode {
-    DECIMAL = 'decimal',
-    CURRENCY = 'currency',
-}
