@@ -1,6 +1,8 @@
 export enum EDialogType {
     DEFAULT = 'default',
     DELETE = 'delete',
+    APPROVE = 'approve',
+    REJECT = 'reject',
 }
 
 export enum EDialogPosition {

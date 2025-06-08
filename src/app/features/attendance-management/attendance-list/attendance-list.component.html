@@ -1,8 +1,8 @@
 <app-page-header 
     title="Attendance Management"
-    subtitle="Track, manage, and monitor employee attendance"
+    subtitle="Track, manage, and monitor attendance information"
     [showAddButton]="true"
-    addButtonLabel="Apply Attendance"
+    addButtonLabel="Add New Employee"
     buttonClass="p-button-success text-sm"
     (addButtonClick)="onAddButtonClick()"
 ></app-page-header>
@@ -20,7 +20,7 @@
         }
     </div>
 
-    <!-- <app-data-table
+    <app-data-table
         [tableConfig]="tableConfig()"
         [tableHeader]="tableHeader()"
         [tableData]="tableData()"
@@ -29,7 +29,7 @@
         [rowActions]="rowActions()"
         (bulkActionClick)="handleBulkActionClick($event)"
         (rowActionClick)="handleRowActionClick($event)"
-    ></app-data-table> -->
+    ></app-data-table>
 </div>
 
 <app-confirmation-dialog></app-confirmation-dialog>

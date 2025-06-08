@@ -1,11 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import {
+  APPROVE_CONFIRMATION_DIALOG_CONFIG,
   CONFIRMATION_DIALOG_CONFIG,
   DELETE_CONFIRMATION_DIALOG_CONFIG,
+  REJECT_CONFIRMATION_DIALOG_CONFIG,
 } from '../config/confirmation-dialog.config';
 import { IConfirmationDialogConfig } from '../models/confirmation-dialog.model';
 import { EDialogType } from '../types/confirmation-dialog.types';
 import { ConfirmationService } from 'primeng/api';
+import { deepMerge } from '../utility/object.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +18,10 @@ export class ConfirmationDialogService {
     CONFIRMATION_DIALOG_CONFIG;
   private readonly defaultDeleteConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
     DELETE_CONFIRMATION_DIALOG_CONFIG;
+  private readonly defaultApproveConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
+    APPROVE_CONFIRMATION_DIALOG_CONFIG;
+  private readonly defaultRejectConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
+    REJECT_CONFIRMATION_DIALOG_CONFIG;
   private readonly confirmationService = inject(ConfirmationService);
 
   getConfirmationDialogConfig(
@@ -22,10 +29,7 @@ export class ConfirmationDialogService {
     options?: Partial<IConfirmationDialogConfig>,
   ): IConfirmationDialogConfig {
     const defaultConfig = this.getDialogDefaultConfigByDialogType(dialogType);
-    return {
-      ...defaultConfig,
-      ...options,
-    } as IConfirmationDialogConfig;
+    return deepMerge(defaultConfig, options || {}) as IConfirmationDialogConfig;
   }
 
   getDialogDefaultConfigByDialogType(
@@ -34,6 +38,10 @@ export class ConfirmationDialogService {
     switch (dialogType) {
       case EDialogType.DELETE:
         return this.defaultDeleteConfirmationDialogConfig;
+      case EDialogType.APPROVE:
+        return this.defaultApproveConfirmationDialogConfig;
+      case EDialogType.REJECT:
+        return this.defaultRejectConfirmationDialogConfig;
       default:
         return this.defaultConfirmationDialogConfig;
     }

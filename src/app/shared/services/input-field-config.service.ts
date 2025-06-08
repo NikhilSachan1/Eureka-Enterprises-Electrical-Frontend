@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { DEFAULT_CHECKBOX_INPUT_FIELD_CONFIG, DEFAULT_DATE_INPUT_FIELD_CONFIG, DEFAULT_FILE_INPUT_FIELD_CONFIG, DEFAULT_INPUT_FIELD_CONFIG, DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG, DEFAULT_NUMBER_INPUT_FIELD_CONFIG, DEFAULT_PASSWORD_INPUT_FIELD_CONFIG, DEFAULT_RADIO_INPUT_FIELD_CONFIG, DEFAULT_SELECT_INPUT_FIELD_CONFIG } from '../config/input-field.config';
 import { IFormConfig, IInputFieldsConfig } from '../models/input-fields-config.model';
 import { EFieldType } from '../types/form-input.types';
+import { deepMerge } from '../utility/object.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -25,23 +26,9 @@ export class InputFieldConfigService {
     const defaultConfig = this.getDefaultConfigByFieldType(fieldType);
     
     // Deep merge the configurations
-    const mergedConfig = this.deepMerge(defaultConfig, options || {});
+    const mergedConfig = deepMerge(defaultConfig, options || {});
     
     return mergedConfig as IInputFieldsConfig;
-  }
-
-  private deepMerge(target: any, source: any): any {
-    const result = { ...target };
-    
-    for (const key in source) {
-      if (source[key] instanceof Object && key in target) {
-        result[key] = this.deepMerge(target[key], source[key]);
-      } else {
-        result[key] = source[key];
-      }
-    }
-    
-    return result;
   }
 
   initializeFieldConfigs(formConfig: IFormConfig): Record<string, IInputFieldsConfig> {

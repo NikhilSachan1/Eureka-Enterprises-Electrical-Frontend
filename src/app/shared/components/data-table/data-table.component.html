@@ -212,6 +212,11 @@
                   <p-tag [severity]="statusSeverity" [value]="statusValue" [rounded]="statusConfig?.rounded" />
                 </div>
               }
+              @case ('date') {
+                <div class="flex items-center gap-3">
+                  <span>{{ columnData | date: column.dateFormat }}</span>
+                </div>
+              }
               @default {
                 <div class="flex items-center gap-3">
                   <span>{{ columnData }}</span>

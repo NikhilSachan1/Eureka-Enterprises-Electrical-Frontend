@@ -3,7 +3,12 @@
         @let dialog = message;
         <div class="flex flex-col items-center p-8 rounded-lg bg-white">
             <!-- Icon Section -->
-            <div class="rounded-full bg-primary text-primary-contrast inline-flex justify-center items-center h-24 w-24 -mt-20 shadow-lg">
+            <div 
+                class="rounded-full inline-flex justify-center items-center h-24 w-24 -mt-20 shadow-lg"
+                [class]="dialog.iconContainerClass || 'bg-primary text-primary-contrast'"
+                [style.background-color]="dialog.iconBackgroundColor"
+                [style.color]="dialog.iconTextColor"
+            >
                 <i [class]="dialog.icon + ' !text-5xl'"></i>
             </div>
 

@@ -3,6 +3,9 @@ import { EDialogPosition } from "../types/confirmation-dialog.types";
 export interface IConfirmationDialogConfig {
     header: string;
     icon: string;
+    iconBackgroundColor?: string;
+    iconTextColor?: string;
+    iconContainerClass?: string;
     message: string;
     closeOnEscape: boolean;
     dismissableMask: boolean;
@@ -10,9 +13,9 @@ export interface IConfirmationDialogConfig {
     position: EDialogPosition;
     blockScroll: boolean;
     styleClass: string;
-    acceptButtonProps: IConfirmationDialogButtonProps;
-    rejectButtonProps: IConfirmationDialogButtonProps;
-    inputProps: IConfirmationDialogInputProps[];
+    acceptButtonProps: Partial<IConfirmationDialogButtonProps>;
+    rejectButtonProps: Partial<IConfirmationDialogButtonProps>;
+    inputProps: Partial<IConfirmationDialogInputProps>[];
     accept?: () => void;
     reject?: () => void;
 }

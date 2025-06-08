@@ -93,6 +93,17 @@ export class DataTableComponent {
       'active': 'success',
       'on leave': 'warn',
       'inactive': 'danger',
+      'pending': 'warn',
+      'approved': 'success',
+      'rejected': 'danger',
+      'present': 'success',
+      'absent': 'danger',
+      'leave': 'warn',
+      'holiday': 'contrast',
+      'checked in': 'info',
+      'checked out': 'info',
+      'not checked in': 'info',
+      'not checked out': 'info',
     };
 
     return severityMap[status?.toLowerCase() ?? ''] ?? 'secondary';

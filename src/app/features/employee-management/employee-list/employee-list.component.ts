@@ -36,20 +36,14 @@ import { IMetricData } from '../../../shared/models/metric-data.model';
 })
 export class EmployeeListComponent {
   private readonly dataTableConfigService = inject(DataTableConfigService);
-  private readonly confirmationDialogService = inject(
-    ConfirmationDialogService,
-  );
+  private readonly confirmationDialogService = inject(ConfirmationDialogService,);
 
   protected loading = signal(true);
   protected tableData = signal<any[]>([]);
   protected tableConfig = signal<IDataTableConfig>(this.getTableConfig());
-  protected tableHeader = signal<IDataTableHeaderConfig[]>(
-    this.getTableHeader(),
-  );
+  protected tableHeader = signal<IDataTableHeaderConfig[]>(this.getTableHeader(),);
   protected metricsCards = signal(this.getMetricCardsData());
-  protected bulkActionButtons = signal<IBulkActionConfig[]>(
-    this.getBulkActionButtons(),
-  );
+  protected bulkActionButtons = signal<IBulkActionConfig[]>(this.getBulkActionButtons(),);
   protected rowActions = signal<IRowActionConfig[]>(this.getRowActions());
 
   ngOnInit(): void {
