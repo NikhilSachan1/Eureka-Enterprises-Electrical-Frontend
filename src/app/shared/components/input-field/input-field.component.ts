@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -32,16 +32,17 @@ export class InputFieldComponent {
   ALL_CHECKBOX_AND_RADIO_ALIGN = ECheckBoxAndRadioAlign;
   ALL_FILE_MODES = EFileMode;
 
-  @Input({ required: true }) formGroup!: FormGroup;
-  @Input({ required: true }) inputFieldConfig!: IInputFieldsConfig;
+  // Modern input signals - required inputs
+  formGroup = input.required<FormGroup>();
+  inputFieldConfig = input.required<IInputFieldsConfig>();
 
   checkIsFieldInvalid(fieldName: string): boolean {
-    const control = this.formGroup.get(fieldName);
+    const control = this.formGroup().get(fieldName);
     return control ? (control.invalid && (control.dirty || control.touched)) : false;
   }
 
   getErrorMessage(fieldName: string): string {
-    const control = this.formGroup.get(fieldName);
+    const control = this.formGroup().get(fieldName);
     if (!control) return '';
 
     const errors = control.errors;

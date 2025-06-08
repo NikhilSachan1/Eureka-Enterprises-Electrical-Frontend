@@ -1,6 +1,8 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { HttpEvent, HttpResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { tap } from 'rxjs';
+import { LoggerService } from '../services/logger.service';
 
 interface LogEntry {
   timestamp: string;
@@ -15,6 +17,7 @@ interface LogEntry {
 export const LoggingInterceptor: HttpInterceptorFn = (req, next) => {
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(7);
+  const logger = inject(LoggerService);
 
   const logEntry: LogEntry = {
     timestamp: new Date().toISOString(),
@@ -24,14 +27,7 @@ export const LoggingInterceptor: HttpInterceptorFn = (req, next) => {
   };
 
   // Log request
-  console.group(`📤 [${requestId}] API Request`);
-  console.log('Method:', req.method);
-  console.log('URL:', req.urlWithParams);
-  console.log('Headers:', req.headers);
-  if (req.body) {
-    console.log('Body:', req.body);
-  }
-  console.groupEnd();
+  logger.logApiRequest(req.method, req.urlWithParams, req.body);
 
   return next(req).pipe(
     tap({
@@ -43,16 +39,10 @@ export const LoggingInterceptor: HttpInterceptorFn = (req, next) => {
           logEntry.body = event.body;
 
           // Log response
-          console.group(`✅ [${requestId}] API Response`);
-          console.log('Status:', event.status);
-          console.log('Duration:', `${duration}ms`);
-          console.log('Body:', event.body);
-          console.groupEnd();
+          logger.logApiResponse(req.method, req.urlWithParams, event.status, duration, event.body);
 
           // Log performance metrics
-          if (duration > 1000) {
-            console.warn(`⚠️ [${requestId}] Slow API Response: ${duration}ms for ${req.method} ${req.urlWithParams}`);
-          }
+          logger.logSlowResponse(req.method, req.urlWithParams, duration);
         }
       },
       error: (error) => {
@@ -62,14 +52,7 @@ export const LoggingInterceptor: HttpInterceptorFn = (req, next) => {
         logEntry.error = error;
 
         // Log error
-        console.group(`❌ [${requestId}] API Error`);
-        console.error('Status:', error.status);
-        console.error('Duration:', `${duration}ms`);
-        console.error('Error:', error);
-        console.groupEnd();
-
-        // Log error metrics
-        console.error(`🔴 [${requestId}] Failed API Call: ${req.method} ${req.urlWithParams} - ${error.status} (${duration}ms)`);
+        logger.logApiError(req.method, req.urlWithParams, error, duration);
       }
     })
   );

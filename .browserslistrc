@@ -1,0 +1,11 @@
+# Angular V19 "Widely Available" Baseline
+# Targets browsers released in the last 30 months
+# Supporting approximately 95% of web users
+
+Chrome >= 107
+ChromeAndroid >= 107
+Edge >= 107
+Firefox >= 104
+FirefoxAndroid >= 104
+Safari >= 16
+iOS >= 16 

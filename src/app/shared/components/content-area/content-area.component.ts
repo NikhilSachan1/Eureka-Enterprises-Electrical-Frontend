@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, input, inject } from '@angular/core';
 import { ThemeService } from '../../../core/services/theme.service';
 import { NgClass } from '@angular/common';
 
@@ -10,8 +10,9 @@ import { NgClass } from '@angular/common';
   styleUrls: ['./content-area.component.scss']
 })
 export class ContentAreaComponent {
-  @Input() sidebarVisible = true;
-  @Input() isMobile = false;
+  // Input signals
+  sidebarVisible = input<boolean>(true);
+  isMobile = input<boolean>(false);
   
   readonly themeService = inject(ThemeService);
 } 

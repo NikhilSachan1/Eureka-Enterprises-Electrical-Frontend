@@ -2,15 +2,19 @@ import { Component, signal } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { MetricsCardComponent } from '../../../shared/components/metrics-card/metrics-card.component';
-import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
+import { LoggerService } from '../../../core/services/logger.service';
+import { inject, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-attendance-list',
-  imports: [PageHeaderComponent, MetricsCardComponent, ConfirmationDialogComponent, DataTableComponent],
+  standalone: true,
+  imports: [PageHeaderComponent, MetricsCardComponent, ConfirmationDialogComponent],
   templateUrl: './attendance-list.component.html',
-  styleUrl: './attendance-list.component.scss'
+  styleUrl: './attendance-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttendanceListComponent {
+  private readonly logger = inject(LoggerService);
 
   protected metricsCards = signal(this.getMetricCardsData());
 
@@ -42,8 +46,12 @@ export class AttendanceListComponent {
     ];
   }
 
-
-  onClickAddButton() {
-    console.log('Add button clicked');
+  protected onAddButtonClick(): void {
+    try {
+      this.logger.logUserAction('Attendance Add Button Click');
+      // TODO: Implement add attendance functionality
+    } catch (error) {
+      this.logger.error('Error handling add button click', error);
+    }
   }
 }

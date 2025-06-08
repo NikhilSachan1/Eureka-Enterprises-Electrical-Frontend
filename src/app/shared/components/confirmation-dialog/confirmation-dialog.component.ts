@@ -1,18 +1,15 @@
-import { Component, inject, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, output, ViewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { CommonModule } from '@angular/common';
-import { IConfirmationDialogConfig } from '../../models/confirmation-dialog.model';
 import { EInputType } from '../../types/input.types';
 
 @Component({
   selector: 'app-confirmation-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     ConfirmDialogModule, 
     ButtonModule, 
     FormsModule,
@@ -31,7 +28,13 @@ export class ConfirmationDialogComponent {
   comment: string = '';
   inputValues = {};
 
-  @Output() onConfirm = new EventEmitter();
+  // Modern output signal
+  onConfirm = output<{
+    confirmed: boolean;
+    comment: string;
+    message: string;
+    inputValues: any;
+  }>();
 
   handleAccept(): void {
     const message = 'Action confirmed successfully';

@@ -2,9 +2,11 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, retry, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
+import { LoggerService } from '../services/logger.service';
 
 export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
     const messageService = inject(MessageService);
+    const logger = inject(LoggerService);
 
     // Don't retry POST, PUT, DELETE requests
     const shouldRetry = req.method === 'GET';
@@ -13,9 +15,9 @@ export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req).pipe(
         retry({ count: maxRetries, delay: 1000 }),
         catchError((error) => {
-            console.error('API Error:', error);
+            logger.error(`API Error: ${req.method} ${req.url}`, error);
 
-            let errorMessage = 'An unexpected error occurred';
+            let errorMessage: string = 'An unexpected error occurred';
 
             if (error.status === 401) {
                 errorMessage = 'Your session has expired. Please login again.';

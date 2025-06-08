@@ -1,23 +1,23 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-page-header',
   standalone: true,
   imports: [
-    CommonModule,
     ButtonModule
   ],
   templateUrl: './page-header.component.html',
   styleUrls: ['./page-header.component.scss']
 })
 export class PageHeaderComponent {
-  @Input({required: true}) title: string = '';
-  @Input({required: true}) subtitle: string = '';
-  @Input() showAddButton: boolean = false;
-  @Input() addButtonLabel: string = 'Add New';
-  @Input() buttonClass: string = 'p-button-success text-sm';
+  // Input signals
+  title = input.required<string>();
+  subtitle = input.required<string>();
+  showAddButton = input<boolean>(false);
+  addButtonLabel = input<string>('Add New');
+  buttonClass = input<string>('p-button-success text-sm');
   
-  @Output() addButtonClick = new EventEmitter<void>();
+  // Output signals
+  addButtonClick = output<void>();
 } 

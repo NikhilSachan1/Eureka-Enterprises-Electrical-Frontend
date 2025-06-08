@@ -20,15 +20,21 @@
     <div class="button-container">
         <button pButton type="submit" 
             label="Submit" 
-            [loading]="isSubmitting()"
-            [disabled]="isSubmitting()"
+            [loading]="loading()"
+            [disabled]="loading()"
             class="p-button-primary">
         </button>
         <button pButton type="button" 
             label="Reset" 
             (click)="resetForm()"
-            [disabled]="isSubmitting()"
+            [disabled]="loading()"
             class="p-button-secondary">
+        </button>
+        <button pButton type="button" 
+            label="Cancel" 
+            (click)="onCancel()"
+            [disabled]="loading()"
+            class="p-button-text">
         </button>
     </div>
 </form>

@@ -1,21 +1,18 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  Input,
-  Output,
+  input,
+  output,
   ViewChild,
   signal,
 } from '@angular/core';
-import { Table } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
-import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { SliderModule } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
@@ -30,13 +27,13 @@ import {
   IRowActionConfig,
 } from '../../models';
 import { ESeverity, PrimeNGSeverity } from '../../types';
+import { DatePipe, NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-data-table',
   standalone: true,
   imports: [
     TableModule,
-    CommonModule,
     InputTextModule,
     TagModule,
     SelectModule,
@@ -50,6 +47,8 @@ import { ESeverity, PrimeNGSeverity } from '../../types';
     TooltipModule,
     MenuModule,
     OverlayPanelModule,
+    NgClass,
+    DatePipe
   ],
 
   templateUrl: './data-table.component.html',
@@ -59,15 +58,17 @@ import { ESeverity, PrimeNGSeverity } from '../../types';
 export class DataTableComponent {
   @ViewChild('dt') dt!: Table;
 
-  @Input({ required: true }) loading!: boolean;
-  @Input({ required: true }) tableConfig!: IDataTableConfig;
-  @Input({ required: true }) tableHeader!: IDataTableHeaderConfig[];
-  @Input({ required: true }) tableData!: Record<string, unknown>[];
-  @Input({ required: true }) bulkActionButtons!: IBulkActionConfig[];
-  @Input() rowActions: IRowActionConfig[] = [];
+  // Input signals
+  loading = input.required<boolean>();
+  tableConfig = input.required<IDataTableConfig>();
+  tableHeader = input.required<IDataTableHeaderConfig[]>();
+  tableData = input.required<Record<string, unknown>[]>();
+  bulkActionButtons = input<IBulkActionConfig[]>([]);
+  rowActions = input<IRowActionConfig[]>([]);
 
-  @Output() bulkActionClick = new EventEmitter<string>();
-  @Output() rowActionClick = new EventEmitter<string>();
+  bulkActionClick = output<string>();
+  rowActionClick = output<string>();
+  
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
 
   protected clear(table: Table): void {
@@ -78,9 +79,8 @@ export class DataTableComponent {
     this.selectedTableRows.set([]);
   }
 
-  protected onGlobalFilter(event: Event, table: Table): void {
-    const target = event.target as HTMLInputElement;
-    table.filterGlobal(target.value, 'contains');
+  protected applyFilterGlobal($event: any, stringVal: string): void {
+    this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
   protected getSeverity(status: string | ESeverity | undefined): PrimeNGSeverity {
@@ -98,28 +98,24 @@ export class DataTableComponent {
     return severityMap[status?.toLowerCase() ?? ''] ?? 'secondary';
   }
 
-  protected resolveNestedProperty(item: any, path: string): any {
-    if (!item || !path) return null;
-
-    return path.split('.').reduce((prev, curr) => {
-      return prev && prev[curr] !== undefined ? prev[curr] : null;
-    }, item);
+  protected resolveNestedProperty(obj: any, path: string): any {
+    return path.split('.').reduce((current, key) => current?.[key], obj);
   }
 
   protected onFilterChange(event: any): void {
-    console.log(event);
+    // Handle filter changes if needed
   }
 
-  protected isActionDisabled(action: any, rowData: any): boolean {
-    if (!action.disabledWhen) return false;
-    return action.disabledWhen(rowData);
+  protected isActionDisabled(action: IRowActionConfig, rowData: any): boolean {
+    // Implement action disabled logic based on your requirements
+    return false;
   }
 
-  protected onBulkActionClick(action: string): void {
-    this.bulkActionClick.emit(action);
+  protected onBulkActionClick(actionType: string): void {
+    this.bulkActionClick.emit(actionType);
   }
 
-  protected onRowActionClick(action: string): void {
-    this.rowActionClick.emit(action);
+  protected onRowActionClick(actionType: string): void {
+    this.rowActionClick.emit(actionType);
   }
 }

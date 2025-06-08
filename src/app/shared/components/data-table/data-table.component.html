@@ -1,17 +1,17 @@
 <div class="card">
   <p-table 
     #dt 
-    [rowHover]="tableConfig.rowHover"
-    [value]="tableData" 
-    [dataKey]="tableConfig.tableUniqueId"
-    [rows]="tableConfig.displayRows" 
-    [rowsPerPageOptions]="tableConfig.rowsPerPageOptions"
-    [loading]="loading"
-    [paginator]="tableConfig.showPaginator"
-    [columns]="tableHeader"
+    [rowHover]="tableConfig().rowHover"
+    [value]="tableData()" 
+    [dataKey]="tableConfig().tableUniqueId"
+    [rows]="tableConfig().displayRows" 
+    [rowsPerPageOptions]="tableConfig().rowsPerPageOptions"
+    [loading]="loading()"
+    [paginator]="tableConfig().showPaginator"
+    [columns]="tableHeader()"
     [(selection)]="selectedTableRows"
     (onFilter)="onFilterChange($event)"
-    [globalFilterFields]="tableConfig.globalFilterFields">
+    [globalFilterFields]="tableConfig().globalFilterFields">
 
     <ng-template #caption>
       <div class="flex flex-col gap-4">
@@ -20,22 +20,23 @@
             <p-inputicon>
               <i class="pi pi-search"></i>
             </p-inputicon>
-            <input pInputText type="text" (input)="onGlobalFilter($event, dt)"
+            <input pInputText type="text" (input)="applyFilterGlobal($event, 'contains')"
               placeholder="Search keyword" class="w-full" />
           </p-iconfield>
         </div>
 
-        @if (selectedTableRows() && selectedTableRows().length > 0) {
+        @let selectedCount = selectedTableRows().length;
+        @if (selectedCount > 0) {
           <p-toolbar styleClass="border-1 border-gray-200 shadow-sm">
             <ng-template #start>
               <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2">
                   <i class="pi pi-check-circle text-primary"></i>
-                  <span class="font-medium text-gray-700">{{selectedTableRows().length}} items selected</span>
+                  <span class="font-medium text-gray-700">{{selectedCount}} items selected</span>
                 </div>
                 <div class="h-6 w-px bg-gray-200"></div>
                 <div class="flex items-center gap-2">
-                  @for (button of bulkActionButtons; track $index) {
+                  @for (button of bulkActionButtons(); track $index) {
                     <p-button 
                       [label]="button.label" 
                       [icon]="button.icon" 
@@ -64,7 +65,7 @@
     <ng-template #header let-columns>
       <tr>
 
-        @if (tableConfig.showCheckbox) {
+        @if (tableConfig().showCheckbox) {
           <th>
             <div class="flex">
               <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
@@ -73,17 +74,19 @@
         }
         
         @for (item of columns; track $index) {
-          <th [pSortableColumn]="(item.showSort ? item.field : null)">
+          @let shouldShowSort = item.showSort;
+          @let shouldShowFilter = item.showFilter;
+          @let filterConfig = item.filterConfig;
+          
+          <th [pSortableColumn]="(shouldShowSort ? item.field : null)">
             <div class="flex items-center">
               <span class="text-sm font-semibold text-slate-700">{{ item.header }}</span>
 
-              @if (item.showSort) {
+              @if (shouldShowSort) {
                 <p-sortIcon class="ml-2" [field]="item.field" />
               }
 
-              @if (item.showFilter) {
-
-                @let filterConfig = item.filterConfig;
+              @if (shouldShowFilter && filterConfig) {
                 <p-columnFilter 
                   [field]="filterConfig.filterField" 
                   [type]="filterConfig.searchInputType" 
@@ -104,9 +107,7 @@
 
                   @switch (filterConfig.searchInputType) {
                     @case ('dropdown') {
-                      
                       @if (filterConfig.filterDropdownOptions) {
-
                         <ng-template #filter let-value let-filter="filterCallback">
                           <p-select [ngModel]="value" [options]="filterConfig.filterDropdownOptions" (onChange)="filter($event.value)"
                             [placeholder]="filterConfig.placeholder" styleClass="w-full">
@@ -122,7 +123,8 @@
           </th>
         }
 
-        @if (rowActions && rowActions.length > 0) {
+        @let hasRowActions = rowActions() && rowActions().length > 0;
+        @if (hasRowActions) {
           <th class="w-[100px]">
             <div class="flex items-center">
               <span class="text-sm font-semibold text-slate-700">Actions</span>
@@ -135,67 +137,67 @@
     <ng-template #body let-rowData let-columns="columns">
       <tr>
 
-        @if (tableConfig.showCheckbox) {
+        @if (tableConfig().showCheckbox) {
           <td>
             <p-tableCheckbox [value]="rowData" />
           </td>
         }
 
         @for (column of columns; track $index) {
+          @let columnData = resolveNestedProperty(rowData, column.field);
+          @let bodyTemplate = column.bodyTemplate;
+          
           <td>
-            @switch (column.bodyTemplate) {
+            @switch (bodyTemplate) {
               @case ('textWithSubtitleAndImage') {
-
+                @let config = column.textWithSubtitleAndImageConfig;
+                
                 <div class="flex items-center gap-3">
-                  @let textWithSubtitleAndImageConfig = column.textWithSubtitleAndImageConfig;
-                  <!-- Image -->
-                  @if (textWithSubtitleAndImageConfig.showImage) {
+                  @if (config.showImage) {
+                    @let imageName = resolveNestedProperty(rowData, config.dummyImageField);
                     <img 
-                      [src]="'https://ui-avatars.com/api/?name=' + resolveNestedProperty(rowData, textWithSubtitleAndImageConfig.dummyImageField)" 
-                      [alt]="resolveNestedProperty(rowData, rowData[textWithSubtitleAndImageConfig.dummyImageField])"
+                      [src]="'https://ui-avatars.com/api/?name=' + imageName" 
+                      [alt]="imageName"
                       class="w-8 h-8 rounded-full bg-slate-100" />
                   }
 
                   <div>
-                    <!-- Primary Field -->
                     <div>
-                      @if (textWithSubtitleAndImageConfig.primaryFieldLabel) {
+                      @if (config.primaryFieldLabel) {
                         <span class="font-medium text-slate-600">
-                          {{ textWithSubtitleAndImageConfig.primaryFieldLabel }}: 
+                          {{ config.primaryFieldLabel }}: 
                         </span>
                       }
-                      <span [ngClass]="{'font-medium text-slate-700': textWithSubtitleAndImageConfig.primaryFieldHighlight}">
+                      <span [ngClass]="{'font-medium text-slate-700': config.primaryFieldHighlight}">
                         @switch (column.dataType) {
                           @case ('date') {
-                            {{ resolveNestedProperty(rowData, column.field) | date: column.dateFormat }}
+                            {{ columnData | date: column.dateFormat }}
                           }
                           @default {
-                            {{ resolveNestedProperty(rowData, column.field) }}
+                            {{ columnData }}
                           }
                         }
                       </span>
                     </div>
 
-                    <!-- Secondary Field -->
-                    @if (textWithSubtitleAndImageConfig.secondaryField) {
+                    @if (config.secondaryField) {
+                      @let secondaryData = resolveNestedProperty(rowData, config.secondaryField);
                       <div>
-                        @if (textWithSubtitleAndImageConfig.secondaryFieldLabel) {
-                          <span [ngClass]="{'text-sm text-slate-600': !textWithSubtitleAndImageConfig.secondaryFieldLabel, 'font-medium text-slate-600': textWithSubtitleAndImageConfig.secondaryFieldLabel}">
-                            {{ textWithSubtitleAndImageConfig.secondaryFieldLabel }}: 
+                        @if (config.secondaryFieldLabel) {
+                          <span [ngClass]="{'text-sm text-slate-600': !config.secondaryFieldLabel, 'font-medium text-slate-600': config.secondaryFieldLabel}">
+                            {{ config.secondaryFieldLabel }}: 
                           </span>
                         }
-                        @if (textWithSubtitleAndImageConfig.secondaryField) {
-                          <span [ngClass]="{'text-sm text-slate-600': !textWithSubtitleAndImageConfig.secondaryFieldLabel, 'text-slate-700': textWithSubtitleAndImageConfig.secondaryFieldLabel}">
-                            @switch (textWithSubtitleAndImageConfig.dataType) {
-                              @case ('date') {
-                                {{ resolveNestedProperty(rowData, textWithSubtitleAndImageConfig.secondaryField) | date: column.dateFormat }}
-                              }
-                              @default {
-                                {{ resolveNestedProperty(rowData, textWithSubtitleAndImageConfig.secondaryField) }}
-                              }
+                        <span [ngClass]="{'text-sm text-slate-600': !config.secondaryFieldLabel, 'text-slate-700': config.secondaryFieldLabel}">
+                          @switch (config.dataType) {
+                            @case ('date') {
+                              {{ secondaryData | date: column.dateFormat }}
                             }
-                          </span>
-                        }
+                            @default {
+                              {{ secondaryData }}
+                            }
+                          }
+                        </span>
                       </div>
                     }
                   </div>
@@ -203,7 +205,7 @@
               }
               @case ('status') {
                 @let statusConfig = column.statusConfig;
-                @let statusValue = resolveNestedProperty(rowData, column.field);
+                @let statusValue = columnData;
                 @let statusSeverity = getSeverity(statusValue);
 
                 <div class="flex items-center gap-3">
@@ -212,17 +214,18 @@
               }
               @default {
                 <div class="flex items-center gap-3">
-                  <span>{{ resolveNestedProperty(rowData, column.field) }}</span>
+                  <span>{{ columnData }}</span>
                 </div>
               }
             }
           </td>
         }
 
-        @if (rowActions && rowActions.length > 0) {
+        @let shouldShowRowActions = rowActions() && rowActions().length > 0;
+        @if (shouldShowRowActions) {
           <td>
             <div class="flex items-center">
-              @for (action of rowActions; track action.id) {
+              @for (action of rowActions(); track action.id) {
                 <p-button
                   [icon]="action.icon"
                   [outlined]="true"
