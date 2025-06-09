@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FormBuilder, FormGroup, ValidatorFn } from '@angular/forms';
 import { DEFAULT_CHECKBOX_INPUT_FIELD_CONFIG, DEFAULT_DATE_INPUT_FIELD_CONFIG, DEFAULT_FILE_INPUT_FIELD_CONFIG, DEFAULT_INPUT_FIELD_CONFIG, DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG, DEFAULT_NUMBER_INPUT_FIELD_CONFIG, DEFAULT_PASSWORD_INPUT_FIELD_CONFIG, DEFAULT_RADIO_INPUT_FIELD_CONFIG, DEFAULT_SELECT_INPUT_FIELD_CONFIG } from '../config/input-field.config';
 import { IFormConfig, IInputFieldsConfig } from '../models/input-fields-config.model';
 import { EFieldType } from '../types/form-input.types';
@@ -41,6 +42,42 @@ export class InputFieldConfigService {
       );
     });
     return configs;
+  }
+
+  /**
+   * Extracts validators from field configurations
+   * @param fieldConfigs - The field configurations object
+   * @returns Record of field validators
+   */
+  getFormValidators(fieldConfigs: Record<string, IInputFieldsConfig>): Record<string, ValidatorFn[]> {
+    return Object.keys(fieldConfigs).reduce((acc, key) => {
+      acc[key] = fieldConfigs[key].validators || [];
+      return acc;
+    }, {} as Record<string, ValidatorFn[]>);
+  }
+
+  /**
+   * Creates a FormGroup from form configuration
+   * @param formConfig - The form configuration
+   * @param fb - FormBuilder instance
+   * @param defaultValues - Optional default values to override config defaults
+   * @returns FormGroup
+   */
+  createFormGroup(
+    formConfig: IFormConfig, 
+    fb: FormBuilder, 
+    defaultValues?: Record<string, any>
+  ): FormGroup {
+    const fieldConfigs = this.initializeFieldConfigs(formConfig);
+    const validators = this.getFormValidators(fieldConfigs);
+    
+      const formControls: Record<string, any> = {};
+      Object.keys(formConfig).forEach(key => {
+        const defaultValue = defaultValues?.[key] ?? fieldConfigs[key].defaultValue ?? null;
+        formControls[key] = [defaultValue, validators[key]];
+      });
+    
+    return fb.group(formControls);
   }
 
   private getDefaultConfigByFieldType(fieldType: EFieldType): Partial<IInputFieldsConfig> {

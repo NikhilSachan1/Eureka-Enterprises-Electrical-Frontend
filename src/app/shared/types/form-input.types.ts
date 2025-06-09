@@ -24,6 +24,7 @@ export enum EFieldType {
   Checkbox = 'checkbox',
   Radio = 'radio',
   File = 'file',
+  TextArea = 'textarea',
 }
 
 export enum EFloatLabelVariant {

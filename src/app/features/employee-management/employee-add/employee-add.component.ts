@@ -2,8 +2,7 @@ import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@ang
 import {
   FormGroup,
   FormBuilder,
-  ReactiveFormsModule,
-  ValidatorFn
+  ReactiveFormsModule
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputFieldComponent } from '../../../shared/components/input-field/input-field.component';
@@ -52,18 +51,12 @@ export class EmployeeAddComponent implements OnInit {
   }
 
   private initializeForm(): void {
-    const validators = this.getFormValidators();
-    this.formGroup = this.fb.group({
-      fname: ['', validators['fname']],
-      aadharNumber: ['', validators['aadharNumber']],
-      role: ['', validators['role']],
-      workOn: ['', validators['workOn']],
-      dob: ['', validators['dob']],
-      password: ['', validators['password']],
-      checkboxInput: ['', validators['checkboxInput']],
-      radioInput: ['', validators['radioInput']],
-      fileInput: ['', validators['fileInput']],
-    });
+    try {
+      // Using the new service method to create form group
+      this.formGroup = this.inputFieldConfigService.createFormGroup(ADD_EMPLOYEE_INPUT_FIELDS_CONFIG, this.fb);
+    } catch (error) {
+      this.logger.error('Error initializing form', error);
+    }
   }
 
   onSubmit(): void {
@@ -106,13 +99,5 @@ export class EmployeeAddComponent implements OnInit {
     this.formGroup.reset();
     this.formSubmitted.set(false);
     this.logger.debug('Form reset');
-  }
-
-  private getFormValidators(): Record<string, ValidatorFn[]> {
-    const configs = this.fieldConfigs();
-    return Object.keys(configs).reduce((acc, key) => {
-      acc[key] = configs[key].validators || [];
-      return acc;
-    }, {} as Record<string, ValidatorFn[]>);
   }
 }

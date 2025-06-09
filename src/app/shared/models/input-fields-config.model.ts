@@ -16,6 +16,7 @@ export interface IInputFieldsConfig {
   fieldName: string;
   floatLabelVariant: EFloatLabelVariant;
   label: string;
+  defaultValue?: any;
   numberConfig?: Partial<IInputNumberFieldConfig>;
   selectConfig?: Partial<ISelectFieldConfig>;
   multiSelectConfig?: Partial<IMultiSelectFieldConfig>;
@@ -24,6 +25,7 @@ export interface IInputFieldsConfig {
   checkboxConfig?: Partial<ICheckboxFieldConfig>;
   radioConfig?: Partial<IRadioFieldConfig>;
   fileConfig?: Partial<IFileFieldConfig>;
+  textAreaConfig?: Partial<ITextAreaFieldConfig>;
   validators?: ValidatorFn[];
 }
 
@@ -48,6 +50,7 @@ export interface IInputNumberFieldConfig {
 export interface ISelectFieldConfig {
   optionsDropdown: IOptionDropdown[];
   optionLabel: string;
+  optionValue?: string;
   showCheckmark: boolean;
   haveFilter: boolean;
   filterBy: string;
@@ -61,6 +64,7 @@ export interface ISelectFieldConfig {
 export interface IMultiSelectFieldConfig {
   optionsDropdown: IOptionDropdown[];
   optionLabel: string;
+  optionValue?: string;
   maxSelectedLabels: number;
   haveFilter: boolean;
   filterBy: string;
@@ -122,6 +126,12 @@ export interface IFileFieldConfig {
   cancelLabel: string;
   showUploadButton: boolean;
   showCancelButton: boolean;
+}
+
+export interface ITextAreaFieldConfig {
+  rows: number;
+  cols: number;
+  autoResize: boolean;
 }
 
 export interface IOptionDropdown {

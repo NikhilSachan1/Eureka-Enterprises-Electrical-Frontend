@@ -61,6 +61,7 @@
                     [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                     [options]="selectConfig?.optionsDropdown" 
                     [optionLabel]="selectConfig?.optionLabel" 
+                    [optionValue]="selectConfig?.optionValue"
                     [checkmark]="selectConfig?.showCheckmark"
                     [filter]="selectConfig?.haveFilter" 
                     [filterBy]="selectConfig?.filterBy" 
@@ -86,6 +87,7 @@
                     [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                     [options]="multiSelectConfig?.optionsDropdown" 
                     [optionLabel]="multiSelectConfig?.optionLabel" 
+                    [optionValue]="multiSelectConfig?.optionValue"
                     [maxSelectedLabels]="multiSelectConfig?.maxSelectedLabels"
                     [filter]="multiSelectConfig?.haveFilter" 
                     [filterBy]="multiSelectConfig?.filterBy" 
@@ -214,6 +216,25 @@
                 [showUploadButton]="fileConfig?.showUploadButton"
                 [showCancelButton]="fileConfig?.showCancelButton"
             ></p-fileupload>
+        }
+        @case (ALL_FIELD_TYPES.TextArea) {
+            <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
+
+                @let textAreaConfig = inputFieldConfig().textAreaConfig;
+
+                <textarea 
+                    pTextarea 
+                    [id]="inputFieldConfig().id"
+                    [fluid]="inputFieldConfig().haveFullWidth"
+                    [pSize]="inputFieldConfig().fieldSize"
+                    [formControlName]="inputFieldConfig().fieldName"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
+                    [rows]="textAreaConfig?.rows"
+                    [cols]="textAreaConfig?.cols"
+                    [autoResize]="textAreaConfig?.autoResize"
+                ></textarea>
+                <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
+            </p-floatlabel>
         }
     }
     @if (isFieldInvalid) {
