@@ -11,7 +11,7 @@ import { IInputFieldsConfig } from '../../../shared/models/input-fields-config.m
 import { InputFieldConfigService } from '../../../shared/services/input-field-config.service';
 import { LoggerService } from '../../../core/services/logger.service';
 import { Router } from '@angular/router';
-import { FORCE_ATTENDANCE_INPUT_FIELDS_CONFIG } from './force-attendance.config';
+import { FORCE_ATTENDANCE_INPUT_FIELDS_CONFIG } from '../config/form/force-attendance-form.config';
 
 @Component({
   selector: 'app-force-attendance',

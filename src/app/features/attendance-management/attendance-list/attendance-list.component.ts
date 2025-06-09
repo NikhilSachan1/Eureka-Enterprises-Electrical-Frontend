@@ -9,7 +9,8 @@ import { DataTableComponent } from "../../../shared/components/data-table/data-t
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
 import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog-config.service';
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models';
-import { ATTENDANCE_LIST_BULK_ACTIONS_CONFIG, ATTENDANCE_LIST_ROW_ACTIONS_CONFIG, ATTENDANCE_LIST_TABLE_CONFIG, ATTENDANCE_LIST_TABLE_HEADER, REGULARIZE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG } from './attendance-list.config';
+import { ATTENDANCE_LIST_BULK_ACTIONS_CONFIG, ATTENDANCE_LIST_ROW_ACTIONS_CONFIG, ATTENDANCE_LIST_TABLE_CONFIG, ATTENDANCE_LIST_TABLE_HEADER } from '../config/table/attendance-list-table.config';
+import { REGULARIZE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG } from '../config/dialog/attendance-list-dialog.config';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
 import { EDialogType } from '../../../shared/types/confirmation-dialog.types';
 

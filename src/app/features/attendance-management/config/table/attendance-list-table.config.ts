@@ -1,22 +1,6 @@
-import {
-  IBulkActionConfig,
-  IDataTableConfig,
-  IDataTableHeaderConfig,
-  IRowActionConfig,
-} from '../../../shared/models/data-table-config.model';
-import { MATCH_MODE_OPTIONS } from '../../../shared/config/data-table.config';
-import {
-  EBulkActionType,
-  EFieldType,
-  ERowActionType,
-  ESeverity,
-  ETableBodyTemplate,
-  ETableDataType,
-  ETableFilterMatchMode,
-  ETableSearchInputType,
-} from '../../../shared/types';
-import { IConfirmationDialogConfig } from '../../../shared/models/confirmation-dialog.model';
-import { Validators } from '@angular/forms';
+import { MATCH_MODE_OPTIONS } from "../../../../shared/config/data-table.config";
+import { IBulkActionConfig, IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig } from "../../../../shared/models";
+import { EBulkActionType, ESeverity, ERowActionType, ETableBodyTemplate, ETableDataType, ETableFilterMatchMode, ETableSearchInputType } from "../../../../shared/types";
 
 export const ATTENDANCE_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] =
   [
@@ -151,33 +135,3 @@ export const ATTENDANCE_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
     },
   },
 ];
-
-export const REGULARIZE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfig> =
-  {
-    header: 'Regularize Attendance',
-    message: 'Are you sure you want to regularize this attendance?',
-    icon: 'pi pi-clock',
-    iconContainerClass: 'bg-primary text-primary-contrast',
-    inputFieldConfigs: [
-      {
-        fieldType: EFieldType.Select,
-        fieldName: 'attendanceStatus',
-        label: 'Attendance Status',
-        selectConfig: {
-          optionsDropdown: [
-            { key: 'present', value: 'Present' },
-            { key: 'absent', value: 'Absent' },
-            { key: 'onLeave', value: 'On Leave' },
-            { key: 'holiday', value: 'Holiday' },
-            { key: 'checkedIn', value: 'Checked In' },
-          ],
-        },
-      },
-      {
-        fieldType: EFieldType.TextArea,
-        fieldName: 'comment',
-        label: 'Comment (Required)',
-        validators: [Validators.required, Validators.minLength(10)],
-      },
-    ],
-  };
