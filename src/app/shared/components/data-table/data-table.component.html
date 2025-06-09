@@ -149,7 +149,7 @@
           
           <td>
             @switch (bodyTemplate) {
-              @case ('textWithSubtitleAndImage') {
+              @case (ALL_TABLE_BODY_TEMPLATES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
                 @let config = column.textWithSubtitleAndImageConfig;
                 
                 <div class="flex items-center gap-3">
@@ -203,7 +203,7 @@
                   </div>
                 </div>
               }
-              @case ('status') {
+              @case (ALL_TABLE_BODY_TEMPLATES.STATUS) {
                 @let statusConfig = column.statusConfig;
                 @let statusValue = columnData;
                 @let statusSeverity = getSeverity(statusValue);
@@ -212,10 +212,39 @@
                   <p-tag [severity]="statusSeverity" [value]="statusValue" [rounded]="statusConfig?.rounded" />
                 </div>
               }
-              @case ('date') {
+              @case (ALL_TABLE_BODY_TEMPLATES.DATE) {
                 <div class="flex items-center gap-3">
                   <span>{{ columnData | date: column.dateFormat }}</span>
                 </div>
+              }
+              @case (ALL_TABLE_BODY_TEMPLATES.CURRENCY) {
+                @let entryType = resolveNestedProperty(rowData, 'entryType');
+                @let colorClass = entryType === 'Credit' ? 'text-green-600 font-semibold' : entryType === 'Debit' ? 'text-red-600 font-semibold' : '';
+                
+                <div class="flex items-center gap-3">
+                  <span [ngClass]="colorClass">{{ columnData | currency: column.currencyFormat }}</span>
+                </div>
+              }
+              @case (ALL_TABLE_BODY_TEMPLATES.FILE_LINK) {
+                @if (columnData) {
+                  <div class="flex items-center gap-3">
+                    <a 
+                      [href]="columnData" 
+                      target="_blank" 
+                      class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 cursor-pointer"
+                      (click)="$event.stopPropagation()">
+                      <i class="pi pi-file text-sm"></i>
+                      View
+                    </a>
+                  </div>
+                } @else {
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-50 border border-gray-200 rounded-md">
+                      <i class="pi pi-ban text-sm"></i>
+                      No Proof
+                    </span>
+                  </div>
+                }
               }
               @default {
                 <div class="flex items-center gap-3">

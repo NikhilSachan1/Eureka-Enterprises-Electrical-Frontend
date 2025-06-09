@@ -71,6 +71,7 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   bodyTemplate: ETableBodyTemplate.TEXT,
   dataType: ETableDataType.TEXT,
   dateFormat: 'dd-MM-yyyy',
+  currencyFormat: 'INR',
   textWithSubtitleAndImageConfig: TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG,
   statusConfig: STATUS_CONFIG,
   showFilter: true,

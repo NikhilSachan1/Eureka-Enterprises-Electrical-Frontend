@@ -17,6 +17,7 @@ export interface IDataTableHeaderConfig {
     bodyTemplate?: ETableBodyTemplate;
     dataType?: ETableDataType;
     dateFormat?: string;
+    currencyFormat?: string;
     textWithSubtitleAndImageConfig?: ITextWithSubtitleAndImageConfig;
     statusConfig?: IStatusConfig;
     showFilter: boolean;

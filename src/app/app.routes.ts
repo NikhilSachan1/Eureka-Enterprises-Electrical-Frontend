@@ -32,6 +32,11 @@ export const routes: Routes = [
         loadChildren: () => import('./features/attendance-management/attendance-management.routes')
           .then(m => m.ATTENDANCE_MANAGEMENT_ROUTES)
       },
+      {
+        path: ROUTE_BASE_PATHS.EXPENSE,
+        loadChildren: () => import('./features/regular-expense-management/regular-expense-management.routes')
+          .then(m => m.REGULAR_EXPENSE_MANAGEMENT_ROUTES)
+      },
     ]
   },
   

@@ -1,0 +1,35 @@
+<app-page-header 
+    title="Expense Management"
+    subtitle="Track, manage, and monitor expense information"
+    [showAddButton]="true"
+    addButtonLabel="Add New Expense"
+    buttonClass="p-button-success text-sm"
+    (addButtonClick)="onAddButtonClick()"
+></app-page-header>
+
+<div class="content-wrapper">
+    <div class="metrics-grid">
+        @for (metric of metricsCards(); track metric.title) {
+            <app-metrics-card
+                [title]="metric.title"
+                [subtitle]="metric.subtitle"
+                [iconClass]="metric.iconClass"
+                [iconBgClass]="metric.iconBgClass"
+                [metrics]="metric.metrics"
+            ></app-metrics-card>
+        }
+    </div>
+
+    <app-data-table
+        [tableConfig]="tableConfig()"
+        [tableHeader]="tableHeader()"
+        [tableData]="tableData()"
+        [loading]="loading()"
+        [bulkActionButtons]="bulkActionButtons()"
+        [rowActions]="rowActions()"
+        (bulkActionClick)="handleBulkActionClick($event)"
+        (rowActionClick)="handleRowActionClick($event)"
+    ></app-data-table>
+</div>
+
+<app-confirmation-dialog></app-confirmation-dialog>

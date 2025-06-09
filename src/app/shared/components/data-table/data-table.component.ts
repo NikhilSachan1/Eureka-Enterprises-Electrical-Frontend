@@ -26,8 +26,8 @@ import {
   IBulkActionConfig,
   IRowActionConfig,
 } from '../../models';
-import { ESeverity, PrimeNGSeverity } from '../../types';
-import { DatePipe, NgClass } from '@angular/common';
+import { ESeverity, ETableBodyTemplate, PrimeNGSeverity } from '../../types';
+import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-data-table',
@@ -48,7 +48,8 @@ import { DatePipe, NgClass } from '@angular/common';
     MenuModule,
     OverlayPanelModule,
     NgClass,
-    DatePipe
+    DatePipe,
+    CurrencyPipe
   ],
 
   templateUrl: './data-table.component.html',
@@ -57,6 +58,8 @@ import { DatePipe, NgClass } from '@angular/common';
 })
 export class DataTableComponent {
   @ViewChild('dt') dt!: Table;
+
+  protected ALL_TABLE_BODY_TEMPLATES = ETableBodyTemplate;
 
   // Input signals
   loading = input.required<boolean>();

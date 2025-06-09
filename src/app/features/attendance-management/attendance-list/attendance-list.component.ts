@@ -73,7 +73,6 @@ export class AttendanceListComponent implements OnInit {
   }
 
   private getTableHeader(): IDataTableHeaderConfig[] {
-    console.log('ATTENDANCE_LIST_TABLE_HEADER', this.dataTableConfigService.getTableHeaderConfig(ATTENDANCE_LIST_TABLE_HEADER));
     return this.dataTableConfigService.getTableHeaderConfig(ATTENDANCE_LIST_TABLE_HEADER);
   }
 

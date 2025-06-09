@@ -21,6 +21,8 @@ export enum ETableBodyTemplate {
     TEXT_WITH_SUBTITLE_AND_IMAGE = 'textWithSubtitleAndImage',
     STATUS = 'status',
     DATE = 'date',
+    CURRENCY = 'currency',
+    FILE_LINK = 'fileLink',
 }
 
 export enum ETableDataType {
