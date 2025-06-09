@@ -1,0 +1,9 @@
+.p-toast {
+  max-width: calc(100vw - 2rem) !important;
+}
+
+@media (min-width: 640px) {
+  .p-toast {
+    max-width: 25rem !important;
+  }
+}

@@ -7,4 +7,9 @@ export const ATTENDANCE_MANAGEMENT_ROUTES: Routes = [
     loadComponent: () => import('./attendance-list/attendance-list.component')
       .then(m => m.AttendanceListComponent)
   },
+  {
+    path: ROUTES.ATTENDANCE.APPLY,
+    loadComponent: () => import('./apply-attendance/apply-attendance.component')
+      .then(m => m.ApplyAttendanceComponent)
+  }
 ]; 
