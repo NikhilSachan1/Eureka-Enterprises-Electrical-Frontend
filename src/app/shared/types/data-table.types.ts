@@ -13,6 +13,7 @@ export enum ERowActionType {
   DELETE = 'delete',
   APPROVE = 'approve',
   REJECT = 'reject',
+  REGULARIZE = 'regularize',
 }
 
 export enum ETableBodyTemplate {

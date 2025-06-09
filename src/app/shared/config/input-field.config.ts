@@ -28,9 +28,11 @@ export const DEFAULT_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
         haveFilter: true,
         filterBy: 'value',
         showClearButton: true,
-        isEditable: true,
+        isEditable: false,
         virtualScroll: true,
         virtualScrollItemSize: 10,
+        optionLabel: 'value',
+        optionValue: 'key',
     }
 };
 
@@ -108,6 +110,6 @@ export const DEFAULT_TEXT_AREA_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> =
     ...DEFAULT_INPUT_FIELD_CONFIG,
     textAreaConfig: {
         rows: 3,
-        autoResize: false,
+        autoResize: true,
     }
 }

@@ -9,7 +9,7 @@ import { DataTableComponent } from "../../../shared/components/data-table/data-t
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
 import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog-config.service';
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../shared/models';
-import { APPROVE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG, ATTENDANCE_LIST_BULK_ACTIONS_CONFIG, ATTENDANCE_LIST_ROW_ACTIONS_CONFIG, ATTENDANCE_LIST_TABLE_CONFIG, ATTENDANCE_LIST_TABLE_HEADER, REJECT_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG } from './attendance-list.config';
+import { ATTENDANCE_LIST_BULK_ACTIONS_CONFIG, ATTENDANCE_LIST_ROW_ACTIONS_CONFIG, ATTENDANCE_LIST_TABLE_CONFIG, ATTENDANCE_LIST_TABLE_HEADER, REGULARIZE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG } from './attendance-list.config';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
 import { EDialogType } from '../../../shared/types/confirmation-dialog.types';
 
@@ -185,7 +185,8 @@ export class AttendanceListComponent implements OnInit {
     switch (action) {
       case ERowActionType.VIEW:
         break;
-      case ERowActionType.EDIT:
+      case ERowActionType.REGULARIZE:
+        this.handleRegularizeAttendance();
         break;
       case ERowActionType.APPROVE:
         this.confirmApproveAttendanceDialog();
@@ -203,7 +204,6 @@ export class AttendanceListComponent implements OnInit {
       EDialogType.APPROVE,
       () => alert('Approve attendance'),
       () => console.log('Approve operation cancelled'),
-      APPROVE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG,
     );
   }
 
@@ -212,7 +212,15 @@ export class AttendanceListComponent implements OnInit {
       EDialogType.REJECT,
       () => alert('Reject attendance'),
       () => console.log('Reject operation cancelled'),
-      REJECT_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG,
+    );
+  }
+
+  private handleRegularizeAttendance(): void {
+    this.confirmationDialogService.showDialog(
+      EDialogType.DEFAULT,
+      () => alert('Reject attendance'),
+      () => console.log('Reject operation cancelled'),
+      REGULARIZE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG,
     );
   }
 }

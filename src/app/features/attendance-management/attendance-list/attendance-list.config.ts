@@ -42,9 +42,9 @@ export const ATTENDANCE_LIST_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
     severity: ESeverity.INFO,
   },
   {
-    id: ERowActionType.EDIT,
-    icon: 'pi pi-pencil',
-    tooltip: 'Edit Attendance',
+    id: ERowActionType.REGULARIZE,
+    icon: 'pi pi-calendar-plus',
+    tooltip: 'Regularize Attendance',
     severity: ESeverity.WARNING,
   },
   {
@@ -152,33 +152,31 @@ export const ATTENDANCE_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-export const APPROVE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfig> =
+export const REGULARIZE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfig> =
   {
+    header: 'Regularize Attendance',
+    message: 'Are you sure you want to regularize this attendance?',
+    icon: 'pi pi-clock',
+    iconContainerClass: 'bg-primary text-primary-contrast',
     inputFieldConfigs: [
       {
-        fieldType: EFieldType.TextArea,
-        fieldName: 'comment',
-        label: 'Comment (Required)',
-        textAreaConfig: {
-          rows: 3,
-          autoResize: true,
+        fieldType: EFieldType.Select,
+        fieldName: 'attendanceStatus',
+        label: 'Attendance Status',
+        selectConfig: {
+          optionsDropdown: [
+            { key: 'present', value: 'Present' },
+            { key: 'absent', value: 'Absent' },
+            { key: 'onLeave', value: 'On Leave' },
+            { key: 'holiday', value: 'Holiday' },
+            { key: 'checkedIn', value: 'Checked In' },
+          ],
         },
-        validators: [Validators.required, Validators.minLength(10)],
       },
-    ],
-  };
-
-export const REJECT_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfig> =
-  {
-    inputFieldConfigs: [
       {
         fieldType: EFieldType.TextArea,
         fieldName: 'comment',
         label: 'Comment (Required)',
-        textAreaConfig: {
-          rows: 3,
-          autoResize: false,
-        },
         validators: [Validators.required, Validators.minLength(10)],
       },
     ],
