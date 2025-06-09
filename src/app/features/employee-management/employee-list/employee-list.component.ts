@@ -16,7 +16,6 @@ import {
   EMPLOYEE_LIST_TABLE_HEADER,
   EMPLOYEE_LIST_BULK_ACTIONS_CONFIG,
   EMPLOYEE_LIST_ROW_ACTIONS_CONFIG,
-  DELETE_EMPLOYEE_CONFIRMATION_DIALOG_CONFIG,
 } from './employee-list.config';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
 import { EDialogType } from '../../../shared/types/confirmation-dialog.types';
@@ -116,11 +115,6 @@ export class EmployeeListComponent {
     // Implement actual logic here
   }
 
-  private deleteEmployee(): void {
-    console.log('Deleting single employee:');
-    // Implement actual logic here
-  }
-
   protected onAddEmployee(): void {
     console.log('Adding new employee:');
     // Implement actual logic here
@@ -131,8 +125,31 @@ export class EmployeeListComponent {
       EDialogType.DELETE,
       () => this.deleteEmployee(),
       () => console.log('Delete operation cancelled'),
-      DELETE_EMPLOYEE_CONFIRMATION_DIALOG_CONFIG,
     );
+  }
+
+  private deleteEmployee(): void {
+    console.log('Deleting employee with form data from input field component');
+  }
+
+  protected handleConfirmation(event: any): void {
+    if (event.confirmed) {
+      console.log('Confirmation successful:', event);
+      console.log('Form data from input fields:', event.formData);
+      
+      // Example of accessing specific form fields
+      if (event.formData) {
+        const deleteComment = event.formData.deleteComment;
+        const deleteReason = event.formData.deleteReason;
+        
+        console.log('Delete Comment:', deleteComment);
+        console.log('Delete Reason:', deleteReason);
+        
+        // Proceed with your business logic using the form data
+      }
+    } else {
+      console.log('Confirmation cancelled:', event);
+    }
   }
 
   // Data Methods

@@ -103,3 +103,11 @@ export const DEFAULT_FILE_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
         showCancelButton: true,
     }
 }
+
+export const DEFAULT_TEXT_AREA_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
+    ...DEFAULT_INPUT_FIELD_CONFIG,
+    textAreaConfig: {
+        rows: 3,
+        autoResize: false,
+    }
+}

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, ValidatorFn } from '@angular/forms';
-import { DEFAULT_CHECKBOX_INPUT_FIELD_CONFIG, DEFAULT_DATE_INPUT_FIELD_CONFIG, DEFAULT_FILE_INPUT_FIELD_CONFIG, DEFAULT_INPUT_FIELD_CONFIG, DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG, DEFAULT_NUMBER_INPUT_FIELD_CONFIG, DEFAULT_PASSWORD_INPUT_FIELD_CONFIG, DEFAULT_RADIO_INPUT_FIELD_CONFIG, DEFAULT_SELECT_INPUT_FIELD_CONFIG } from '../config/input-field.config';
+import { DEFAULT_CHECKBOX_INPUT_FIELD_CONFIG, DEFAULT_DATE_INPUT_FIELD_CONFIG, DEFAULT_FILE_INPUT_FIELD_CONFIG, DEFAULT_INPUT_FIELD_CONFIG, DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG, DEFAULT_NUMBER_INPUT_FIELD_CONFIG, DEFAULT_PASSWORD_INPUT_FIELD_CONFIG, DEFAULT_RADIO_INPUT_FIELD_CONFIG, DEFAULT_SELECT_INPUT_FIELD_CONFIG, DEFAULT_TEXT_AREA_INPUT_FIELD_CONFIG } from '../config/input-field.config';
 import { IFormConfig, IInputFieldsConfig } from '../models/input-fields-config.model';
 import { EFieldType } from '../types/form-input.types';
 import { deepMerge } from '../utility/object.utils';
@@ -19,6 +19,7 @@ export class InputFieldConfigService {
   private readonly defaultCheckboxInputFieldConfig: Partial<IInputFieldsConfig> = DEFAULT_CHECKBOX_INPUT_FIELD_CONFIG;
   private readonly defaultRadioInputFieldConfig: Partial<IInputFieldsConfig> = DEFAULT_RADIO_INPUT_FIELD_CONFIG;
   private readonly defaultFileInputFieldConfig: Partial<IInputFieldsConfig> = DEFAULT_FILE_INPUT_FIELD_CONFIG;
+  private readonly defaultTextAreaInputFieldConfig: Partial<IInputFieldsConfig> = DEFAULT_TEXT_AREA_INPUT_FIELD_CONFIG;
 
   getInputFieldConfig(
     fieldType: EFieldType = EFieldType.Text,
@@ -98,6 +99,8 @@ export class InputFieldConfigService {
         return this.defaultRadioInputFieldConfig;
       case EFieldType.File:
         return this.defaultFileInputFieldConfig;
+      case EFieldType.TextArea:
+        return this.defaultTextAreaInputFieldConfig;
       default:
         return this.defaultInputFieldConfig;
     }

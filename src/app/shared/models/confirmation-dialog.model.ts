@@ -1,4 +1,5 @@
 import { EDialogPosition } from "../types/confirmation-dialog.types";
+import { IInputFieldsConfig } from "./input-fields-config.model";
 
 export interface IConfirmationDialogConfig {
     header: string;
@@ -15,7 +16,7 @@ export interface IConfirmationDialogConfig {
     styleClass: string;
     acceptButtonProps: Partial<IConfirmationDialogButtonProps>;
     rejectButtonProps: Partial<IConfirmationDialogButtonProps>;
-    inputProps: Partial<IConfirmationDialogInputProps>[];
+    inputFieldConfigs?: Partial<IInputFieldsConfig>[];
     accept?: () => void;
     reject?: () => void;
 }
@@ -28,8 +29,7 @@ export interface IConfirmationDialogButtonProps {
     styleClass: string;
 }
 
-export interface IConfirmationDialogInputProps {
-    label: string;
-    type: string;
-    placeholder: string;
+export interface IConfirmationDialogOutput {
+    confirmed: boolean;
+    formData?: any;
 }

@@ -9,6 +9,8 @@ import { IConfirmationDialogConfig } from '../models/confirmation-dialog.model';
 import { EDialogType } from '../types/confirmation-dialog.types';
 import { ConfirmationService } from 'primeng/api';
 import { deepMerge } from '../utility/object.utils';
+import { BehaviorSubject } from 'rxjs';
+import { IInputFieldsConfig } from '../models/input-fields-config.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +25,10 @@ export class ConfirmationDialogService {
   private readonly defaultRejectConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
     REJECT_CONFIRMATION_DIALOG_CONFIG;
   private readonly confirmationService = inject(ConfirmationService);
+
+  // Subject to emit input field configurations to components
+  private inputFieldConfigsSubject = new BehaviorSubject<Partial<IInputFieldsConfig>[]>([]);
+  public inputFieldConfigs$ = this.inputFieldConfigsSubject.asObservable();
 
   getConfirmationDialogConfig(
     dialogType: EDialogType = EDialogType.DEFAULT,
@@ -75,13 +81,21 @@ export class ConfirmationDialogService {
         }
       : undefined;
 
-    // Show dialog with config
+    // Get the final configuration
     const config = this.getConfirmationDialogConfig(dialogType, {
       ...options,
       accept: acceptCallback,
       reject: rejectCallback,
     });
 
+    // If there are input field configurations, emit them to the component
+    if (config.inputFieldConfigs?.length) {
+      this.inputFieldConfigsSubject.next(config.inputFieldConfigs);
+    } else {
+      this.inputFieldConfigsSubject.next([]);
+    }
+
+    // Show dialog with config
     this.confirmationService.confirm(config);
   }
 }

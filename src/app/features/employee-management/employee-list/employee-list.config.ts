@@ -14,7 +14,6 @@ import {
   ETableFilterMatchMode,
   ETableSearchInputType,
 } from '../../../shared/types';
-import { IConfirmationDialogConfig } from '../../../shared/models/confirmation-dialog.model';
 
 export const EMPLOYEE_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
   {
@@ -129,15 +128,4 @@ export const EMPLOYEE_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
       defaultMatchMode: ETableFilterMatchMode.EQUALS,
     },
   },
-];
-
-export const DELETE_EMPLOYEE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfig> =
-  {
-    inputProps: [
-      {
-        label: 'Comment',
-        type: 'text',
-        placeholder: 'Enter comment',
-      },
-    ],
-  };
+];  
