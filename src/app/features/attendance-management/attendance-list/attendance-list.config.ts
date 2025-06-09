@@ -43,7 +43,7 @@ export const ATTENDANCE_LIST_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
   },
   {
     id: ERowActionType.REGULARIZE,
-    icon: 'pi pi-calendar-plus',
+    icon: 'pi pi-clock',
     tooltip: 'Regularize Attendance',
     severity: ESeverity.WARNING,
   },
