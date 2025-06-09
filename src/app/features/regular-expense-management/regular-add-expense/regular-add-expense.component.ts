@@ -14,18 +14,18 @@ import { Router } from '@angular/router';
 import { ADD_EXPENSE_INPUT_FIELDS_CONFIG } from '../config/form/add-expense-form.config';
 
 @Component({
-  selector: 'app-add-expense',
+  selector: 'app-regular-add-expense',
   imports: [
     PageHeaderComponent,
     ReactiveFormsModule,
     ButtonModule,
     InputFieldComponent
   ],
-  templateUrl: './add-expense.component.html',
-  styleUrl: './add-expense.component.scss',
+  templateUrl: './regular-add-expense.component.html',
+  styleUrl: './regular-add-expense.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddExpenseComponent implements OnInit {
+export class RegularAddExpenseComponent implements OnInit {
 
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
   private readonly fb = inject(FormBuilder);

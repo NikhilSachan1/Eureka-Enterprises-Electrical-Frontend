@@ -9,7 +9,7 @@ export const REGULAR_EXPENSE_MANAGEMENT_ROUTES: Routes = [
     },
     {
         path: ROUTES.EXPENSE.ADD,
-        loadComponent: () => import('./add-expense/add-expense.component')
-            .then(m => m.AddExpenseComponent)
+        loadComponent: () => import('./regular-add-expense/regular-add-expense.component')
+            .then(m => m.RegularAddExpenseComponent)
     },
 ]; 
