@@ -34,13 +34,13 @@ export const FORCE_ATTENDANCE_INPUT_FIELDS_CONFIG: IFormConfig = {
     id: 'attendanceDate',
     fieldName: 'attendanceDate',
     label: 'Attendance Date',
-    defaultValue: new Date(), // Default to today's date
+    defaultValue: new Date(),
     validators: [Validators.required],
     dateConfig: {
       dateFormat: 'dd/mm/yy',
       showCalendarIcon: true,
       showButtonBar: true,
-      maxDate: new Date() // Cannot select future dates
+      maxDate: new Date()
     }
   },
   attendanceStatus: {
@@ -48,7 +48,7 @@ export const FORCE_ATTENDANCE_INPUT_FIELDS_CONFIG: IFormConfig = {
     id: 'attendanceStatus',
     fieldName: 'attendanceStatus',
     label: 'Attendance Status',
-    defaultValue: 'present', // Default to Present
+    defaultValue: 'present',
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
