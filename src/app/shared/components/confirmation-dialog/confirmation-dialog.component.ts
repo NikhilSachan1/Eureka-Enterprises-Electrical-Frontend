@@ -64,9 +64,8 @@ export class ConfirmationDialogComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (configs) => {
-          if (configs.length > 0) {
-            this.updateFormForInputFields(configs);
-          }
+          // Always update form, whether configs exist or not
+          this.updateFormForInputFields(configs);
         },
         error: (error) => this.logger.error('Error in dialog listener', error)
       }
@@ -91,8 +90,13 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   updateFormForInputFields(inputFieldConfigs: Partial<IInputFieldsConfig>[]): void {
+    // Reset form state first
+    this.resetForm();
+    
     if (!inputFieldConfigs?.length) {
       this.fieldConfigs.set({});
+      // Ensure form group is clean for dialogs without input fields
+      this.formGroup = this.fb.group({});
       return;
     }
 
