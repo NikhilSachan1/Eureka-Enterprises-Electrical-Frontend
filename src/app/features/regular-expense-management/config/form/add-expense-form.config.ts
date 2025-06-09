@@ -20,7 +20,7 @@ export const ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
         { value: 'Marketing', key: 'marketing' },
         { value: 'Utilities', key: 'utilities' },
         { value: 'Other', key: 'other' }
-      ],
+      ]
     }
   },
   paymentMode: {
@@ -38,7 +38,7 @@ export const ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
         { value: 'UPI', key: 'upi' },
         { value: 'Cheque', key: 'cheque' },
         { value: 'Digital Wallet', key: 'digital_wallet' }
-      ],
+      ]
     }
   },
   dateOfExpense: {
@@ -75,11 +75,6 @@ export const ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     fieldName: 'comment',
     label: 'Comment',
     validators: [Validators.maxLength(500)],
-    textAreaConfig: {
-      rows: 4,
-      cols: 30,
-      autoResize: true
-    }
   },
   expenseProof: {
     fieldType: EFieldType.File,
@@ -88,16 +83,7 @@ export const ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     label: 'Upload Expense Proof',
     validators: [],
     fileConfig: {
-      customUpload: true,
-      multiple: false,
       acceptFileTypes: 'image/*,.pdf',
-      maxFileSize: 5000000, // 5MB
-      mode: EFileMode.Advanced,
-      automaticUpload: false,
-      showUploadButton: true,
-      showCancelButton: true,
-      chooseLabel: 'Choose File',
-      cancelLabel: 'Cancel'
     }
   }
 }; 

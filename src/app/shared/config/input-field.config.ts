@@ -45,6 +45,8 @@ export const DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig
         showToggleAll: true,
         selectAll: true,
         display: EMultiSelectDisplayType.Chip,
+        optionLabel: 'value',
+        optionValue: 'key',
     }
 };
 

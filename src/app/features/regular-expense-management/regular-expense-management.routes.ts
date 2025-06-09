@@ -12,4 +12,9 @@ export const REGULAR_EXPENSE_MANAGEMENT_ROUTES: Routes = [
         loadComponent: () => import('./regular-add-expense/regular-add-expense.component')
             .then(m => m.RegularAddExpenseComponent)
     },
+    {
+        path: ROUTES.EXPENSE.FORCE,
+        loadComponent: () => import('./regular-force-expense/regular-force-expense.component')
+            .then(m => m.RegularForceExpenseComponent)
+    }
 ]; 

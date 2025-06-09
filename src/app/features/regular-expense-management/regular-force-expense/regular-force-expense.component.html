@@ -1,0 +1,65 @@
+<app-page-header 
+    title="Force Expense"
+    subtitle="Add expense record for employees"
+></app-page-header>
+
+<form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="form">
+            
+    <app-input-field 
+        [formGroup]="formGroup" 
+        [inputFieldConfig]="fieldConfigs()['employeeNames']">
+    </app-input-field>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <app-input-field 
+            [formGroup]="formGroup" 
+            [inputFieldConfig]="fieldConfigs()['expenseType']">
+        </app-input-field>
+
+        <app-input-field 
+            [formGroup]="formGroup" 
+            [inputFieldConfig]="fieldConfigs()['paymentMode']">
+        </app-input-field>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <app-input-field 
+            [formGroup]="formGroup" 
+            [inputFieldConfig]="fieldConfigs()['dateOfExpense']">
+        </app-input-field>
+
+        <app-input-field 
+            [formGroup]="formGroup" 
+            [inputFieldConfig]="fieldConfigs()['amount']">
+        </app-input-field>
+    </div>
+
+    <app-input-field 
+        [formGroup]="formGroup" 
+        [inputFieldConfig]="fieldConfigs()['comment']">
+    </app-input-field>
+
+    <app-input-field 
+        [formGroup]="formGroup" 
+        [inputFieldConfig]="fieldConfigs()['expenseProof']">
+    </app-input-field>
+
+    <div class="pt-4 border-t border-gray-200 button-container">
+        <button pButton 
+            type="submit" 
+            label="Add Force Expense" 
+            [loading]="loading()"
+            [disabled]="loading()"
+            class="p-button-primary flex-1 md:flex-none">
+        </button>
+        
+        <button pButton 
+            type="button" 
+            label="Reset" 
+            (click)="resetForm()"
+            [disabled]="loading()"
+            class="p-button-outlined flex-1 md:flex-none">
+        </button>
+    </div>
+    
+</form>
