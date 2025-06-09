@@ -7,4 +7,9 @@ export const REGULAR_EXPENSE_MANAGEMENT_ROUTES: Routes = [
         loadComponent: () => import('./regular-expense-ledger/regular-expense-ledger.component')
             .then(m => m.RegularExpenseLedgerComponent)
     },
+    {
+        path: ROUTES.EXPENSE.ADD,
+        loadComponent: () => import('./add-expense/add-expense.component')
+            .then(m => m.AddExpenseComponent)
+    },
 ]; 
