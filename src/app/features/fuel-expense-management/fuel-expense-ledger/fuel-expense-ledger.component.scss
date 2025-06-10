@@ -1,0 +1,60 @@
+.content-wrapper {
+  padding: 1.5rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding: 1rem;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+// Fuel-specific styling
+:host ::ng-deep {
+  .p-datatable {
+    .fuel-type-column {
+      font-weight: 600;
+      
+      &.diesel {
+        color: #2563eb;
+      }
+      
+      &.petrol {
+        color: #dc2626;
+      }
+      
+      &.cng {
+        color: #16a34a;
+      }
+      
+      &.electric {
+        color: #7c3aed;
+      }
+    }
+    
+    .vehicle-number-column {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: #374151;
+    }
+    
+    .efficiency-metric {
+      font-weight: 600;
+      color: #059669;
+    }
+  }
+}

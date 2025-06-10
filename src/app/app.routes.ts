@@ -37,6 +37,11 @@ export const routes: Routes = [
         loadChildren: () => import('./features/regular-expense-management/regular-expense-management.routes')
           .then(m => m.REGULAR_EXPENSE_MANAGEMENT_ROUTES)
       },
+      {
+        path: ROUTE_BASE_PATHS.FUEL,
+        loadChildren: () => import('./features/fuel-expense-management/fuel-expense-management.routes')
+          .then(m => m.FUEL_EXPENSE_MANAGEMENT_ROUTES)
+      }
     ]
   },
   
