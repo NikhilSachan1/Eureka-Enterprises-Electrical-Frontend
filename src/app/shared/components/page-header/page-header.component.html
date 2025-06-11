@@ -1,19 +1,18 @@
-<div class="border-b border-slate-200 shadow-sm w-full rounded-xl mb-6">
-  <div class="px-4 py-4">
-    <div class="flex justify-between items-center">
-      <div>
-        <h1 class="text-xl font-semibold text-slate-800">{{ title() }}</h1>
-        <p class="text-sm text-slate-500 mt-0.5">{{ subtitle() }}</p>
-      </div>
-      @if (showAddButton()) {
-        <button pButton 
-                type="button" 
-                [label]="addButtonLabel()"
-                icon="pi pi-plus"
-                [class]="buttonClass()"
-                (click)="addButtonClick.emit()">
-        </button>
-      }
+<div class="border-b border-slate-200 mb-6 pb-4">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-xl font-semibold text-slate-800">{{ title() }}</h1>
+      <p class="text-sm text-slate-500">{{ subtitle() }}</p>
     </div>
+    @if (showAddButton()) {
+      <button pButton 
+              type="button" 
+              [label]="addButtonLabel()"
+              icon="pi pi-plus"
+              severity="success"
+              size="small"
+              (click)="addButtonClick.emit()">
+      </button>
+    }
   </div>
 </div> 

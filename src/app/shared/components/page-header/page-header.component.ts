@@ -4,9 +4,7 @@ import { ButtonModule } from 'primeng/button';
 @Component({
   selector: 'app-page-header',
   standalone: true,
-  imports: [
-    ButtonModule
-  ],
+  imports: [ButtonModule],
   templateUrl: './page-header.component.html',
   styleUrls: ['./page-header.component.scss']
 })
@@ -16,7 +14,6 @@ export class PageHeaderComponent {
   subtitle = input.required<string>();
   showAddButton = input<boolean>(false);
   addButtonLabel = input<string>('Add New');
-  buttonClass = input<string>('p-button-success text-sm');
   
   // Output signals
   addButtonClick = output<void>();
