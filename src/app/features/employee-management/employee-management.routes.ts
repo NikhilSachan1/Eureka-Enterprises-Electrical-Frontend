@@ -3,6 +3,11 @@ import { ROUTES } from '../../shared/constants';
 
 export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
   {
+    path: '',
+    redirectTo: ROUTES.EMPLOYEE.LIST,
+    pathMatch: 'full'
+  },
+  {
     path: ROUTES.EMPLOYEE.LIST,
     loadComponent: () => import('./employee-list/employee-list.component')
       .then(m => m.EmployeeListComponent)

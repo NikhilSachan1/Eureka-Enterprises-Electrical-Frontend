@@ -11,7 +11,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: ROUTE_BASE_PATHS.AUTH,
+        redirectTo: `${ROUTE_BASE_PATHS.EMPLOYEE}/list`,
         pathMatch: 'full'
       }
     ]
@@ -47,6 +47,6 @@ export const routes: Routes = [
   
   {
     path: '**',
-    redirectTo: ROUTE_BASE_PATHS.AUTH
+    redirectTo: `${ROUTE_BASE_PATHS.EMPLOYEE}/list`
   }
 ];
