@@ -23,6 +23,10 @@ export class MenuService {
   private readonly router = inject(Router);
 
   constructor() {
+    // Set initial active route on service initialization
+    this.activeRoute.set(this.router.url);
+    this.expandMenuForActiveRoute();
+
     // Listen to route changes to update active route
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -44,8 +48,16 @@ export class MenuService {
    * @param item Menu item to check
    */
   isMenuItemActive(item: MenuItem): boolean {
+    const currentRoute = this.activeRoute();
+    
     if (item.routerLink) {
-      return this.activeRoute() === item.routerLink;
+      // Normalize routes by ensuring they start with /
+      const normalizedCurrentRoute = currentRoute.startsWith('/') ? currentRoute : '/' + currentRoute;
+      const normalizedItemRoute = item.routerLink.startsWith('/') ? item.routerLink : '/' + item.routerLink;
+      
+      // Exact match or starts with the route (for child routes)
+      return normalizedCurrentRoute === normalizedItemRoute || 
+             normalizedCurrentRoute.startsWith(normalizedItemRoute + '/');
     }
 
     if (item.children?.length) {
@@ -122,9 +134,17 @@ export class MenuService {
   private hasActiveChild(item: MenuItem): boolean {
     if (!item.children?.length) return false;
 
+    const currentRoute = this.activeRoute();
+    
     return item.children.some(child => {
       if (child.routerLink) {
-        return this.activeRoute() === child.routerLink;
+        // Normalize routes by ensuring they start with /
+        const normalizedCurrentRoute = currentRoute.startsWith('/') ? currentRoute : '/' + currentRoute;
+        const normalizedChildRoute = child.routerLink.startsWith('/') ? child.routerLink : '/' + child.routerLink;
+        
+        // Exact match or starts with the route (for child routes)
+        return normalizedCurrentRoute === normalizedChildRoute || 
+               normalizedCurrentRoute.startsWith(normalizedChildRoute + '/');
       }
 
       if (child.children?.length) {
@@ -144,15 +164,22 @@ export class MenuService {
 
     // Function to recursively find and expand parents of active route
     const findActiveParents = (items: MenuItem[]): boolean => {
+      const currentRoute = this.activeRoute();
+      
       for (const item of items) {
-        if (item.routerLink && this.activeRoute() === item.routerLink) {
-          return true;
+        if (item.routerLink) {
+          // Normalize routes by ensuring they start with /
+          const normalizedCurrentRoute = currentRoute.startsWith('/') ? currentRoute : '/' + currentRoute;
+          const normalizedItemRoute = item.routerLink.startsWith('/') ? item.routerLink : '/' + item.routerLink;
+          
+          if (normalizedCurrentRoute === normalizedItemRoute || normalizedCurrentRoute.startsWith(normalizedItemRoute + '/')) {
+            return true;
+          }
         }
 
         if (item.children?.length) {
           const hasActive = findActiveParents(item.children);
           if (hasActive && !foundActiveParent) {
-            // Only expand the first parent with active route
             const itemId = this.getMenuItemId(item);
             newExpanded.add(itemId);
             this.activeParentItem.set(itemId);
