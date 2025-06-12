@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { PageHeaderComponent } from "../../../shared/components/page-header/page-header.component";
 import { LoggerService } from '../../../core/services/logger.service';
 import { IDataTableConfig, IDataTableHeaderConfig, IBulkActionConfig, IRowActionConfig } from '../../../shared/models';
@@ -21,6 +22,7 @@ import { FUEL_EXPENSE_LIST_BULK_ACTIONS_CONFIG, FUEL_EXPENSE_LIST_ROW_ACTIONS_CO
 export class FuelExpenseLedgerComponent implements OnInit {
 
   private readonly logger = inject(LoggerService);
+  private readonly router = inject(Router);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
   private readonly dataTableConfigService = inject(DataTableConfigService);
 
@@ -100,8 +102,8 @@ export class FuelExpenseLedgerComponent implements OnInit {
   }
 
   protected onAddButtonClick(): void {
-    console.log('Adding new fuel expense:');
-    // Implement actual logic here
+    this.logger.logUserAction('Navigate to Add Fuel Expense Form');
+    this.router.navigate(['/fuel-expenses/add']);
   }
 
   private getTableData(): void {

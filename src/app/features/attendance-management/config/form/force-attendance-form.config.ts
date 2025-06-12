@@ -71,10 +71,5 @@ export const FORCE_ATTENDANCE_INPUT_FIELDS_CONFIG: IFormConfig = {
     label: 'Comment',
     defaultValue: 'This is a default comment',
     validators: [Validators.maxLength(500)],
-    textAreaConfig: {
-      rows: 4,
-      cols: 30,
-      autoResize: true
-    }
   }
 }; 

@@ -112,6 +112,6 @@ export const DEFAULT_TEXT_AREA_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> =
     ...DEFAULT_INPUT_FIELD_CONFIG,
     textAreaConfig: {
         rows: 3,
-        autoResize: true,
+        autoResize: false,
     }
 }
