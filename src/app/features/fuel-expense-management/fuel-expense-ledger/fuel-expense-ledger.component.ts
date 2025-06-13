@@ -7,7 +7,7 @@ import { IMetricData } from '../../../shared/models/metric-data.model';
 import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog-config.service';
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
-import { EDialogType } from '../../../shared/types/confirmation-dialog.types';
+import { EConfirmationDialogRecordDetailInputType, EDialogType } from '../../../shared/types/confirmation-dialog.types';
 import { MetricsCardComponent } from "../../../shared/components/metrics-card/metrics-card.component";
 import { DataTableComponent } from "../../../shared/components/data-table/data-table.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
@@ -233,24 +233,60 @@ export class FuelExpenseLedgerComponent implements OnInit {
   private confirmApproveFuelExpenseDialog(): void {
     this.confirmationDialogService.showDialog(
       EDialogType.APPROVE,
+      {
+        recordDetails: {
+          title: 'Fuel Expense Details',
+          details: [
+            { label: 'Date', value: new Date(), type: EConfirmationDialogRecordDetailInputType.DATE },
+            { label: 'Fuel Type', value: 'Diesel' },
+            { label: 'Amount', value: 2500, type: EConfirmationDialogRecordDetailInputType.CURRENCY },
+            { label: 'Payment Mode', value: 'Cash' },
+            { label: 'Vehicle Number', value: 'MH01AB1234' }
+          ]
+        }
+      },
       () => alert('Approve fuel expense'),
-      () => console.log('Approve operation cancelled'),
+      () => console.log('Approve operation cancelled')
     );
   }
 
   private confirmRejectFuelExpenseDialog(): void {
     this.confirmationDialogService.showDialog(
       EDialogType.REJECT,
+      {
+        recordDetails: {
+          title: 'Fuel Expense Details',
+          details: [
+            { label: 'Date', value: new Date(), type: EConfirmationDialogRecordDetailInputType.DATE },
+            { label: 'Fuel Type', value: 'Diesel' },
+            { label: 'Amount', value: 2500, type: EConfirmationDialogRecordDetailInputType.CURRENCY },
+            { label: 'Payment Mode', value: 'Cash' },
+            { label: 'Vehicle Number', value: 'MH01AB1234' }
+          ]
+        }
+      },
       () => alert('Reject fuel expense'),
-      () => console.log('Reject operation cancelled'),
+      () => console.log('Reject operation cancelled')
     );
   }
 
   private confirmDeleteFuelExpenseDialog(): void {
     this.confirmationDialogService.showDialog(
       EDialogType.DELETE,
+      {
+        recordDetails: {
+          title: 'Fuel Expense Details',
+          details: [
+            { label: 'Date', value: new Date(), type: EConfirmationDialogRecordDetailInputType.DATE },
+            { label: 'Fuel Type', value: 'Diesel' },
+            { label: 'Amount', value: 2500, type: EConfirmationDialogRecordDetailInputType.CURRENCY },
+            { label: 'Payment Mode', value: 'Cash' },
+            { label: 'Vehicle Number', value: 'MH01AB1234' }
+          ]
+        }
+      },
       () => alert('Delete fuel expense'),
-      () => console.log('Delete operation cancelled'),
+      () => console.log('Delete operation cancelled')
     );
   }
 }

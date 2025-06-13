@@ -1,4 +1,12 @@
-import { EInputType } from "./data-table-input.types";
+export enum EDataTableInputType {
+    TEXT = 'text',
+    NUMBER = 'number',
+    DATE = 'date',
+    BOOLEAN = 'boolean',
+    DROPDOWN = 'dropdown',
+    CURRENCY = 'currency',
+}
+
 
 export enum EBulkActionType {
   SET_INACTIVE = 'setInactive',
@@ -26,15 +34,15 @@ export enum ETableBodyTemplate {
 }
 
 export enum ETableDataType {
-    TEXT = EInputType.TEXT,
-    NUMBER = EInputType.NUMBER,
-    DATE = EInputType.DATE,
-    BOOLEAN = EInputType.BOOLEAN,
+    TEXT = EDataTableInputType.TEXT,
+    NUMBER = EDataTableInputType.NUMBER,
+    DATE = EDataTableInputType.DATE,
+    BOOLEAN = EDataTableInputType.BOOLEAN,
 }
 
 export enum ETableSearchInputType {
-    TEXT = EInputType.TEXT,
-    DROPDOWN = EInputType.DROPDOWN,
+    TEXT = EDataTableInputType.TEXT,
+    DROPDOWN = EDataTableInputType.DROPDOWN,
 }
 
 export enum ETableFilterDisplayType {
@@ -55,8 +63,3 @@ export enum ETableFilterMatchMode {
     IN = 'in',
     ANY = 'any',
 }
-
-
-
-
-

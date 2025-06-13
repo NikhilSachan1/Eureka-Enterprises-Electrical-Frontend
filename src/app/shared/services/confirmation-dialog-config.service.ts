@@ -55,9 +55,9 @@ export class ConfirmationDialogService {
 
   showDialog(
     dialogType: EDialogType = EDialogType.DEFAULT,
+    options?: Partial<IConfirmationDialogConfig>,
     onAccept?: () => void,
     onReject?: () => void,
-    options?: Partial<IConfirmationDialogConfig>,
   ): void {
     // Create accept callback
     const acceptCallback = onAccept 

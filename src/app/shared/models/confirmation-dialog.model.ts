@@ -1,4 +1,4 @@
-import { EDialogPosition } from "../types/confirmation-dialog.types";
+import { EConfirmationDialogRecordDetailInputType, EDialogPosition } from "../types/confirmation-dialog.types";
 import { IInputFieldsConfig } from "./input-fields-config.model";
 
 export interface IConfirmationDialogConfig {
@@ -17,6 +17,14 @@ export interface IConfirmationDialogConfig {
     acceptButtonProps: Partial<IConfirmationDialogButtonProps>;
     rejectButtonProps: Partial<IConfirmationDialogButtonProps>;
     inputFieldConfigs?: Partial<IInputFieldsConfig>[];
+    recordDetails?: {
+        title?: string;
+        details: Array<{
+            label: string;
+            value: string | number | Date;
+            type?: EConfirmationDialogRecordDetailInputType;
+        }>;
+    };
     accept?: () => void;
     reject?: () => void;
 }

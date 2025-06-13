@@ -18,7 +18,7 @@ import {
   EMPLOYEE_LIST_ROW_ACTIONS_CONFIG,
 } from './employee-list.config';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
-import { EDialogType } from '../../../shared/types/confirmation-dialog.types';
+import { EConfirmationDialogRecordDetailInputType, EDialogType } from '../../../shared/types/confirmation-dialog.types';
 import { IMetricData } from '../../../shared/models/metric-data.model';
 
 @Component({
@@ -123,8 +123,20 @@ export class EmployeeListComponent {
   private confirmDeleteEmployeeDialog(): void {
     this.confirmationDialogService.showDialog(
       EDialogType.DELETE,
+      {
+        recordDetails: {
+          title: 'Employee Details',
+          details: [
+            { label: 'Name', value: 'John Doe' },
+            { label: 'Employee ID', value: 'EMP001' },
+            { label: 'Department', value: 'IT' },
+            { label: 'Designation', value: 'Software Engineer' },
+            { label: 'Joining Date', value: new Date(), type: EConfirmationDialogRecordDetailInputType.DATE }
+          ]
+        }
+      },
       () => this.deleteEmployee(),
-      () => console.log('Delete operation cancelled'),
+      () => console.log('Delete operation cancelled')
     );
   }
 

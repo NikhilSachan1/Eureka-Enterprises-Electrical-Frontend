@@ -6,7 +6,7 @@ import { IMetricData } from '../../../shared/models/metric-data.model';
 import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog-config.service';
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
-import { EDialogType } from '../../../shared/types/confirmation-dialog.types';
+import { EConfirmationDialogRecordDetailInputType, EDialogType } from '../../../shared/types/confirmation-dialog.types';
 import { MetricsCardComponent } from "../../../shared/components/metrics-card/metrics-card.component";
 import { DataTableComponent } from "../../../shared/components/data-table/data-table.component";
 import { ConfirmationDialogComponent } from "../../../shared/components/confirmation-dialog/confirmation-dialog.component";
@@ -194,24 +194,60 @@ export class RegularExpenseLedgerComponent implements OnInit {
   private confirmApproveExpenseDialog(): void {
     this.confirmationDialogService.showDialog(
       EDialogType.APPROVE,
+      {
+        recordDetails: {
+          title: 'Expense Details',
+          details: [
+            { label: 'Date', value: new Date(), type: EConfirmationDialogRecordDetailInputType.DATE },
+            { label: 'Category', value: 'Office Supplies' },
+            { label: 'Amount', value: 1500, type: EConfirmationDialogRecordDetailInputType.CURRENCY },
+            { label: 'Payment Mode', value: 'Credit Card' },
+            { label: 'Description', value: 'Monthly office supplies' }
+          ]
+        }
+      },
       () => alert('Approve expense'),
-      () => console.log('Approve operation cancelled'),
+      () => console.log('Approve operation cancelled')
     );
   }
 
   private confirmRejectExpenseDialog(): void {
     this.confirmationDialogService.showDialog(
       EDialogType.REJECT,
+      {
+        recordDetails: {
+          title: 'Expense Details',
+          details: [
+            { label: 'Date', value: new Date(), type: EConfirmationDialogRecordDetailInputType.DATE },
+            { label: 'Category', value: 'Office Supplies' },
+            { label: 'Amount', value: 1500, type: EConfirmationDialogRecordDetailInputType.CURRENCY },
+            { label: 'Payment Mode', value: 'Credit Card' },
+            { label: 'Description', value: 'Monthly office supplies' }
+          ]
+        }
+      },
       () => alert('Reject expense'),
-      () => console.log('Reject operation cancelled'),
+      () => console.log('Reject operation cancelled')
     );
   }
 
   private confirmDeleteExpenseDialog(): void {
     this.confirmationDialogService.showDialog(
       EDialogType.DELETE,
+      {
+        recordDetails: {
+          title: 'Expense Details',
+          details: [
+            { label: 'Date', value: new Date(), type: EConfirmationDialogRecordDetailInputType.DATE },
+            { label: 'Category', value: 'Office Supplies' },
+            { label: 'Amount', value: 1500, type: EConfirmationDialogRecordDetailInputType.CURRENCY },
+            { label: 'Payment Mode', value: 'Credit Card' },
+            { label: 'Description', value: 'Monthly office supplies' }
+          ]
+        }
+      },
       () => alert('Delete expense'),
-      () => console.log('Delete operation cancelled'),
+      () => console.log('Delete operation cancelled')
     );
   }
 

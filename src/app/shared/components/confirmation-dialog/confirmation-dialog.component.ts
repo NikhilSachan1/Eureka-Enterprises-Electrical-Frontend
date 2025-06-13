@@ -4,7 +4,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { EInputType } from '../../types/data-table-input.types';
+import { EDataTableInputType } from '../../types/data-table.types';
 import { InputFieldComponent } from '../input-field/input-field.component';
 import { IInputFieldsConfig, IFormConfig } from '../../models/input-fields-config.model';
 import { InputFieldConfigService } from '../../services/input-field-config.service';
@@ -12,7 +12,7 @@ import { ConfirmationDialogService } from '../../services/confirmation-dialog-co
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IConfirmationDialogOutput } from '../../models/confirmation-dialog.model';
 import { LoggerService } from '../../../core/services/logger.service';
-import { KeyValuePipe } from '@angular/common';
+import { KeyValuePipe, DatePipe, CurrencyPipe, DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-confirmation-dialog',
@@ -25,7 +25,10 @@ import { KeyValuePipe } from '@angular/common';
     InputTextModule,
     TextareaModule,
     InputFieldComponent,
-    KeyValuePipe
+    KeyValuePipe,
+    DatePipe,
+    CurrencyPipe,
+    DecimalPipe
   ],
   templateUrl: './confirmation-dialog.component.html',
   styleUrls: ['./confirmation-dialog.component.scss'],
@@ -44,7 +47,7 @@ export class ConfirmationDialogComponent implements OnInit {
   protected readonly fieldConfigs = signal<Record<string, IInputFieldsConfig>>({});
   protected readonly formSubmitted = signal(false);
 
-  inputFieldsType = EInputType;  
+  inputFieldsType = EDataTableInputType;  
   protected formGroup!: FormGroup;
 
   // Modern output signal

@@ -12,7 +12,7 @@ import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowAction
 import { ATTENDANCE_LIST_BULK_ACTIONS_CONFIG, ATTENDANCE_LIST_ROW_ACTIONS_CONFIG, ATTENDANCE_LIST_TABLE_CONFIG, ATTENDANCE_LIST_TABLE_HEADER } from '../config/table/attendance-list-table.config';
 import { REGULARIZE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG } from '../config/dialog/attendance-list-dialog.config';
 import { EBulkActionType, ERowActionType } from '../../../shared/types';
-import { EDialogType } from '../../../shared/types/confirmation-dialog.types';
+import { EConfirmationDialogRecordDetailInputType, EDialogType } from '../../../shared/types/confirmation-dialog.types';
 
 @Component({
   selector: 'app-attendance-list',
@@ -202,25 +202,49 @@ export class AttendanceListComponent implements OnInit {
   private confirmApproveAttendanceDialog(): void {
     this.confirmationDialogService.showDialog(
       EDialogType.APPROVE,
+      {
+        recordDetails: {
+          title: 'Attendance Details',
+          details: [
+            { label: 'Date', value: new Date(), type: EConfirmationDialogRecordDetailInputType.DATE },
+            { label: 'Employee', value: 'John Doe' },
+            { label: 'Status', value: 'Present' },
+            { label: 'Check In', value: '09:00 AM' },
+            { label: 'Check Out', value: '06:00 PM' }
+          ]
+        }
+      },
       () => alert('Approve attendance'),
-      () => console.log('Approve operation cancelled'),
+      () => console.log('Approve operation cancelled')
     );
   }
 
   private confirmRejectAttendanceDialog(): void {
     this.confirmationDialogService.showDialog(
       EDialogType.REJECT,
+      {
+        recordDetails: {
+          title: 'Attendance Details',
+          details: [
+            { label: 'Date', value: new Date(), type: EConfirmationDialogRecordDetailInputType.DATE },
+            { label: 'Employee', value: 'John Doe' },
+            { label: 'Status', value: 'Present' },
+            { label: 'Check In', value: '09:00 AM' },
+            { label: 'Check Out', value: '06:00 PM' }
+          ]
+        }
+      },
       () => alert('Reject attendance'),
-      () => console.log('Reject operation cancelled'),
+      () => console.log('Reject operation cancelled')
     );
   }
 
   private handleRegularizeAttendance(): void {
     this.confirmationDialogService.showDialog(
       EDialogType.DEFAULT,
-      () => alert('Reject attendance'),
-      () => console.log('Reject operation cancelled'),
       REGULARIZE_ATTENDANCE_CONFIRMATION_DIALOG_CONFIG,
+      () => alert('Reject attendance'),
+      () => console.log('Reject operation cancelled')
     );
   }
 }
