@@ -13,6 +13,7 @@ export enum EBulkActionType {
   DELETE = 'delete',
   APPROVE = 'approve',
   REJECT = 'reject',
+  CANCEL = 'cancel',
 }
 
 export enum ERowActionType {
@@ -21,6 +22,7 @@ export enum ERowActionType {
   DELETE = 'delete',
   APPROVE = 'approve',
   REJECT = 'reject',
+  CANCEL = 'cancel',
   REGULARIZE = 'regularize',
 }
 

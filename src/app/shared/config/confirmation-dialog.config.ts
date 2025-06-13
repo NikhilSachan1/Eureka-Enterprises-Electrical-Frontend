@@ -67,3 +67,19 @@ export const REJECT_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfi
     },
   ]
 };
+
+export const CANCEL_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfig> = {
+  ...CONFIRMATION_DIALOG_CONFIG,
+  header: 'Cancel Confirmation',
+  icon: 'pi pi-ban',
+  iconContainerClass: 'bg-orange-500 text-white',
+  message: 'Are you sure you want to cancel this item?',
+  inputFieldConfigs: [
+    {
+      fieldType: EFieldType.TextArea,
+      fieldName: 'comment',
+      label: 'Comment (Required)',
+      validators: [Validators.required, Validators.minLength(10)],
+    },
+  ]
+};
