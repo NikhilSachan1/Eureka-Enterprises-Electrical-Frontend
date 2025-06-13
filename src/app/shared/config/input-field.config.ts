@@ -103,8 +103,8 @@ export const DEFAULT_FILE_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
         automaticUpload: false,
         chooseLabel: 'Choose Image',
         cancelLabel: 'Cancel',
-        showUploadButton: true,
-        showCancelButton: true,
+        showUploadButton: false,
+        showCancelButton: false,
     }
 }
 

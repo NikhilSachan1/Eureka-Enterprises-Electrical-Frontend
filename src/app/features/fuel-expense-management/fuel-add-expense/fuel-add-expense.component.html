@@ -10,36 +10,17 @@
             [formGroup]="formGroup" 
             [inputFieldConfig]="fieldConfigs()['selectVehicle']">
         </app-input-field>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <app-input-field 
             [formGroup]="formGroup" 
             [inputFieldConfig]="fieldConfigs()['fuelType']">
         </app-input-field>
+    </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <app-input-field 
             [formGroup]="formGroup" 
             [inputFieldConfig]="fieldConfigs()['fuelFilledDate']">
-        </app-input-field>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <app-input-field 
-            [formGroup]="formGroup" 
-            [inputFieldConfig]="fieldConfigs()['fuelFilledInKms']">
-        </app-input-field>
-
-        <app-input-field 
-            [formGroup]="formGroup" 
-            [inputFieldConfig]="fieldConfigs()['fuelQuantityInLtr']">
-        </app-input-field>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <app-input-field 
-            [formGroup]="formGroup" 
-            [inputFieldConfig]="fieldConfigs()['fuelFilledAmount']">
         </app-input-field>
 
         <app-input-field 
@@ -48,23 +29,39 @@
         </app-input-field>
     </div>
 
-    <!-- Proof Fields Section -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <app-input-field 
             [formGroup]="formGroup" 
-            [inputFieldConfig]="fieldConfigs()['vehicleMeterReadingProof']">
+            [inputFieldConfig]="fieldConfigs()['fuelQuantityInLtr']">
         </app-input-field>
-
         <app-input-field 
             [formGroup]="formGroup" 
             [inputFieldConfig]="fieldConfigs()['pumpMeterReadingProof']">
         </app-input-field>
     </div>
 
-    <app-input-field 
-        [formGroup]="formGroup" 
-        [inputFieldConfig]="fieldConfigs()['fuelFilledReceiptProof']">
-    </app-input-field>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <app-input-field 
+            [formGroup]="formGroup" 
+            [inputFieldConfig]="fieldConfigs()['fuelFilledAmount']">
+        </app-input-field>
+        <app-input-field 
+            [formGroup]="formGroup" 
+            [inputFieldConfig]="fieldConfigs()['fuelFilledReceiptProof']">
+        </app-input-field>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <app-input-field 
+            [formGroup]="formGroup" 
+            [inputFieldConfig]="fieldConfigs()['odometerReading']">
+        </app-input-field>
+
+        <app-input-field 
+            [formGroup]="formGroup" 
+            [inputFieldConfig]="fieldConfigs()['odometerReadingProof']">
+        </app-input-field>
+    </div>
 
     <app-input-field 
         [formGroup]="formGroup" 

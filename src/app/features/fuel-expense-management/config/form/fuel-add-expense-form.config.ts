@@ -47,11 +47,11 @@ export const FUEL_ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
       maxDate: new Date()
     }
   },
-  fuelFilledInKms: {
+  odometerReading: {
     fieldType: EFieldType.Number,
-    id: 'fuelFilledInKms',
-    fieldName: 'fuelFilledInKms',
-    label: 'Fuel Filled (in Kms.)',
+    id: 'odometerReading',
+    fieldName: 'odometerReading',
+    label: 'Odometer Reading (in Kms.)',
     validators: [Validators.required, Validators.min(0)],
     numberConfig: {
       minimumBoundaryValue: 0,
@@ -62,13 +62,13 @@ export const FUEL_ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
       upAndDownButtonLayout: EUpAndDownButtonLayout.Default
     }
   },
-  vehicleMeterReadingProof: {
+  odometerReadingProof: {
     fieldType: EFieldType.File,
-    id: 'vehicleMeterReadingProof',
-    fieldName: 'vehicleMeterReadingProof',
-    label: 'Upload Vehicle Meter Reading Proof',
+    id: 'odometerReadingProof',
+    fieldName: 'odometerReadingProof',
     validators: [Validators.required],
     fileConfig: {
+      chooseLabel: 'Upload Odometer Reading',
       acceptFileTypes: 'image/*,.pdf',
     }
   },
@@ -91,9 +91,9 @@ export const FUEL_ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     fieldType: EFieldType.File,
     id: 'pumpMeterReadingProof',
     fieldName: 'pumpMeterReadingProof',
-    label: 'Upload Pump Meter Reading Proof',
     validators: [Validators.required],
     fileConfig: {
+      chooseLabel: 'Upload Pump Meter Reading',
       acceptFileTypes: 'image/*,.pdf',
     }
   },
@@ -118,9 +118,9 @@ export const FUEL_ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     fieldType: EFieldType.File,
     id: 'fuelFilledReceiptProof',
     fieldName: 'fuelFilledReceiptProof',
-    label: 'Upload Fuel Filled Receipt Proof',
     validators: [Validators.required],
     fileConfig: {
+      chooseLabel: 'Upload Fuel Filled Receipt',
       acceptFileTypes: 'image/*,.pdf',
     }
   },
