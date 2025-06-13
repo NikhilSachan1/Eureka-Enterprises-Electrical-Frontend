@@ -1,26 +1,23 @@
 import { Validators } from '@angular/forms';
 import { IFormConfig } from '../../../../shared/models/input-fields-config.model';
-import { EFieldType, EInputNumberMode, EFileMode, EUpAndDownButtonLayout } from '../../../../shared/types/form-input.types';
+import { EFieldType, EInputNumberMode, EUpAndDownButtonLayout } from '../../../../shared/types/form-input.types';
 
-export const ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
-  expenseType: {
-    fieldType: EFieldType.Select,
-    id: 'expenseType',
-    fieldName: 'expenseType',
-    label: 'Expense Type',
+export const REGULAR_REIMBURSE_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
+  employeeName: {
+    fieldType: EFieldType.MultiSelect,
+    id: 'employeeName',
+    fieldName: 'employeeName',
+    label: 'Employee Name',
     validators: [Validators.required],
-    selectConfig: {
+    multiSelectConfig: {
       optionsDropdown: [
-        { value: 'Travel', key: 'travel' },
-        { value: 'Food & Entertainment', key: 'food_entertainment' },
-        { value: 'Office Supplies', key: 'office_supplies' },
-        { value: 'Equipment', key: 'equipment' },
-        { value: 'Software & Tools', key: 'software_tools' },
-        { value: 'Training & Development', key: 'training_development' },
-        { value: 'Marketing', key: 'marketing' },
-        { value: 'Utilities', key: 'utilities' },
-        { value: 'Other', key: 'other' }
-      ]
+        { value: 'James Butt', key: 'james_butt' },
+        { value: 'Mary Smith', key: 'mary_smith' },
+        { value: 'John Doe', key: 'john_doe' },
+        { value: 'Sara Lee', key: 'sara_lee' },
+        { value: 'Michael Johnson', key: 'michael_johnson' },
+        { value: 'Emily Davis', key: 'emily_davis' },
+      ],
     }
   },
   paymentMode: {
@@ -41,22 +38,22 @@ export const ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
       ]
     }
   },
-  dateOfExpense: {
+  dateOfSettlement: {
     fieldType: EFieldType.Date,
-    id: 'dateOfExpense',
-    fieldName: 'dateOfExpense',
-    label: 'Date Of Expense',
+    id: 'dateOfSettlement',
+    fieldName: 'dateOfSettlement',
+    label: 'Date of Settlement',
     defaultValue: new Date(),
     validators: [Validators.required],
     dateConfig: {
       maxDate: new Date()
     }
   },
-  amount: {
+  creditAmount: {
     fieldType: EFieldType.Number,
-    id: 'amount',
-    fieldName: 'amount',
-    label: 'Amount',
+    id: 'creditAmount',
+    fieldName: 'creditAmount',
+    label: 'Credit Amount',
     validators: [Validators.required, Validators.min(0.01)],
     numberConfig: {
       minimumBoundaryValue: 0,
@@ -69,21 +66,28 @@ export const ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
       upAndDownButtonLayout: EUpAndDownButtonLayout.Default
     }
   },
-  comment: {
+  description: {
     fieldType: EFieldType.TextArea,
-    id: 'comment',
-    fieldName: 'comment',
-    label: 'Comment',
-    validators: [Validators.maxLength(500)],
+    id: 'description',
+    fieldName: 'description',
+    label: 'Description',
+    validators: [Validators.required, Validators.maxLength(500)],
   },
-  expenseProof: {
+  transactionScreenshot: {
     fieldType: EFieldType.File,
-    id: 'expenseProof',
-    fieldName: 'expenseProof',
-    label: 'Upload Expense Proof',
-    validators: [],
+    id: 'transactionScreenshot',
+    fieldName: 'transactionScreenshot',
+    label: 'Upload Transaction Screenshot',
+    validators: [Validators.required],
     fileConfig: {
       acceptFileTypes: 'image/*,.pdf',
     }
+  },
+  transactionId: {
+    fieldType: EFieldType.Text,
+    id: 'transactionId',
+    fieldName: 'transactionId',
+    label: 'Transaction ID',
+    validators: [Validators.required],
   }
 }; 

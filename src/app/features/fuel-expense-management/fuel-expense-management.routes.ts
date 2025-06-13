@@ -16,5 +16,10 @@ export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
         path: ROUTES.FUEL.FORCE,
         loadComponent: () => import('./fuel-force-expense/fuel-force-expense.component')
             .then(m => m.FuelForceExpenseComponent)
+    },
+    {
+        path: ROUTES.FUEL.REIMBURSEMENT,
+        loadComponent: () => import('./fuel-reimburse-expense/fuel-reimburse-expense.component')
+            .then(m => m.FuelReimburseExpenseComponent)
     }
 ]; 

@@ -1,7 +1,7 @@
 import { Validators } from '@angular/forms';
 import { IFormConfig } from '../../../../shared/models/input-fields-config.model';
-import { EFieldType, EInputNumberMode, EFileMode, EUpAndDownButtonLayout } from '../../../../shared/types/form-input.types';
-import { ADD_EXPENSE_INPUT_FIELDS_CONFIG } from './add-expense-form.config';
+import { EFieldType } from '../../../../shared/types/form-input.types';
+import { REGULAR_ADD_EXPENSE_INPUT_FIELDS_CONFIG } from './regular-add-expense-form.config';
 
 export const REGULAR_FORCE_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
   employeeNames: {
@@ -23,5 +23,5 @@ export const REGULAR_FORCE_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
       ],
     }
   },
-  ...ADD_EXPENSE_INPUT_FIELDS_CONFIG
+  ...REGULAR_ADD_EXPENSE_INPUT_FIELDS_CONFIG
 }; 

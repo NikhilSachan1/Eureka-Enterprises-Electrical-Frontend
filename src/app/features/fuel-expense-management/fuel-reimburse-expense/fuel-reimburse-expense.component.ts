@@ -11,22 +11,21 @@ import { IInputFieldsConfig } from '../../../shared/models/input-fields-config.m
 import { InputFieldConfigService } from '../../../shared/services/input-field-config.service';
 import { LoggerService } from '../../../core/services/logger.service';
 import { Router } from '@angular/router';
-import { REGULAR_ADD_EXPENSE_INPUT_FIELDS_CONFIG } from '../config/form/regular-add-expense-form.config';
+import { FUEL_REIMBURSE_EXPENSE_INPUT_FIELDS_CONFIG } from '../config/form/fuel-reimburse-expense-form.config';
 
 @Component({
-  selector: 'app-regular-add-expense',
+  selector: 'app-fuel-reimburse-expense',
   imports: [
     PageHeaderComponent,
     ReactiveFormsModule,
     ButtonModule,
     InputFieldComponent
   ],
-  templateUrl: './regular-add-expense.component.html',
-  styleUrl: './regular-add-expense.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './fuel-reimburse-expense.component.html',
+  styleUrl: './fuel-reimburse-expense.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RegularAddExpenseComponent implements OnInit {
-
+export class FuelReimburseExpenseComponent implements OnInit {
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
   private readonly fb = inject(FormBuilder);
   private readonly logger = inject(LoggerService);
@@ -45,7 +44,7 @@ export class RegularAddExpenseComponent implements OnInit {
 
   private initializeFieldConfigs(): void {
     try {
-      const configs = this.inputFieldConfigService.initializeFieldConfigs(REGULAR_ADD_EXPENSE_INPUT_FIELDS_CONFIG);
+      const configs = this.inputFieldConfigService.initializeFieldConfigs(FUEL_REIMBURSE_EXPENSE_INPUT_FIELDS_CONFIG);
       this.fieldConfigs.set(configs);
     } catch (error) {
       this.logger.error('Error initializing field configs', error);
@@ -54,7 +53,7 @@ export class RegularAddExpenseComponent implements OnInit {
 
   private initializeForm(): void {
     try {
-      this.formGroup = this.inputFieldConfigService.createFormGroup(REGULAR_ADD_EXPENSE_INPUT_FIELDS_CONFIG, this.fb);
+      this.formGroup = this.inputFieldConfigService.createFormGroup(FUEL_REIMBURSE_EXPENSE_INPUT_FIELDS_CONFIG, this.fb);
     } catch (error) {
       this.logger.error('Error initializing form', error);
     }
@@ -64,7 +63,7 @@ export class RegularAddExpenseComponent implements OnInit {
     try {
       this.formGroup.reset();
       this.formSubmitted.set(false);
-      this.logger.logUserAction('Reset Add Expense Form');
+      this.logger.logUserAction('Reset Reimburse Expense Form');
     } catch (error) {
       this.logger.error('Error resetting form', error);
     }
@@ -78,20 +77,21 @@ export class RegularAddExpenseComponent implements OnInit {
         this.loading.set(true);
         
         const formData = this.formGroup.value;
-        this.logger.logUserAction('Submit Add Expense Form', { hasFormData: !!formData });
+        this.logger.logUserAction('Submit Reimburse Expense Form', { hasFormData: !!formData });
         
-        // TODO: Replace with proper expense submission logic using expenseService
+        // TODO: Replace with proper reimbursement submission logic using expenseService
         setTimeout(() => {
-          this.logger.info('Add expense form submitted successfully', {
-            expenseType: formData.expenseType,
+          this.logger.info('Reimburse expense form submitted successfully', {
+            employeeName: formData.employeeName,
             paymentMode: formData.paymentMode,
-            dateOfExpense: formData.dateOfExpense,
-            amount: formData.amount,
-            comment: formData.comment,
-            hasExpenseProof: !!formData.expenseProof
+            dateOfSettlement: formData.dateOfSettlement,
+            creditAmount: formData.creditAmount,
+            description: formData.description,
+            hasTransactionScreenshot: !!formData.transactionScreenshot,
+            transactionId: formData.transactionId
           });
           this.loading.set(false);
-          this.router.navigate(['/regular-expenses']);
+          this.router.navigate(['/fuel-expenses']);
         }, 1000);
         
       } else {

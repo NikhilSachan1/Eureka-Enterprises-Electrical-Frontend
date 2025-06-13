@@ -1,0 +1,67 @@
+<app-page-header
+  title="Reimburse Expense"
+  subtitle="Fill in the details to reimburse an expense"
+></app-page-header>
+
+<form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="form">
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <app-input-field
+      [inputFieldConfig]="fieldConfigs()['employeeName']"
+      [formGroup]="formGroup"
+    ></app-input-field>
+
+    <app-input-field
+      [inputFieldConfig]="fieldConfigs()['dateOfSettlement']"
+      [formGroup]="formGroup"
+    ></app-input-field>
+  
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <app-input-field
+      [inputFieldConfig]="fieldConfigs()['paymentMode']"
+      [formGroup]="formGroup"
+    ></app-input-field>
+
+    <app-input-field
+      [inputFieldConfig]="fieldConfigs()['creditAmount']"
+      [formGroup]="formGroup"
+    ></app-input-field>
+
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <app-input-field
+      [inputFieldConfig]="fieldConfigs()['transactionId']"
+      [formGroup]="formGroup"
+    ></app-input-field>
+
+    <app-input-field
+      [inputFieldConfig]="fieldConfigs()['transactionScreenshot']"
+      [formGroup]="formGroup"
+    ></app-input-field>
+  </div>
+
+  <app-input-field
+    [inputFieldConfig]="fieldConfigs()['description']"
+    [formGroup]="formGroup"
+  ></app-input-field>
+
+  <div class="flex justify-end gap-4 mt-6">
+    <p-button
+      label="Reset"
+      severity="secondary"
+      (onClick)="resetForm()"
+      [disabled]="loading()"
+    ></p-button>
+    <p-button
+      label="Submit"
+      type="submit"
+      [loading]="loading()"
+    ></p-button>
+  </div>
+</form>

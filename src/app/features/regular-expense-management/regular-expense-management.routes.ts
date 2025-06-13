@@ -16,5 +16,10 @@ export const REGULAR_EXPENSE_MANAGEMENT_ROUTES: Routes = [
         path: ROUTES.EXPENSE.FORCE,
         loadComponent: () => import('./regular-force-expense/regular-force-expense.component')
             .then(m => m.RegularForceExpenseComponent)
+    },
+    {
+        path: ROUTES.EXPENSE.REIMBURSEMENT,
+        loadComponent: () => import('./regular-reimburse-expense/regular-reimburse-expense.component')
+            .then(m => m.RegularReimburseExpenseComponent)
     }
 ]; 
