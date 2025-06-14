@@ -1,8 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import {
+  ALLOCATE_CONFIRMATION_DIALOG_CONFIG,
   APPROVE_CONFIRMATION_DIALOG_CONFIG,
   CANCEL_CONFIRMATION_DIALOG_CONFIG,
   CONFIRMATION_DIALOG_CONFIG,
+  DEALLOCATE_CONFIRMATION_DIALOG_CONFIG,
   DELETE_CONFIRMATION_DIALOG_CONFIG,
   REJECT_CONFIRMATION_DIALOG_CONFIG,
 } from '../config/confirmation-dialog.config';
@@ -27,6 +29,10 @@ export class ConfirmationDialogService {
     REJECT_CONFIRMATION_DIALOG_CONFIG;
   private readonly defaultCancelConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
     CANCEL_CONFIRMATION_DIALOG_CONFIG;
+  private readonly defaultAllocateConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
+    ALLOCATE_CONFIRMATION_DIALOG_CONFIG;
+  private readonly defaultDeallocateConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
+    DEALLOCATE_CONFIRMATION_DIALOG_CONFIG;
   private readonly confirmationService = inject(ConfirmationService);
 
   // Subject to emit input field configurations to components
@@ -53,6 +59,10 @@ export class ConfirmationDialogService {
         return this.defaultRejectConfirmationDialogConfig;
       case EDialogType.CANCEL:
         return this.defaultCancelConfirmationDialogConfig;
+      case EDialogType.ALLOCATE:
+        return this.defaultAllocateConfirmationDialogConfig;
+      case EDialogType.DEALLOCATE:
+        return this.defaultDeallocateConfirmationDialogConfig;
       default:
         return this.defaultConfirmationDialogConfig;
     }

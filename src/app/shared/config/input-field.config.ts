@@ -98,7 +98,7 @@ export const DEFAULT_FILE_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
     fileConfig: {
         customUpload: true,
         multipleFiles: false,
-        maxFileSize: 50000,
+        maxFileSize: 5000000,
         mode: EFileMode.Advanced,
         automaticUpload: false,
         chooseLabel: 'Choose Image',

@@ -6,6 +6,8 @@ export enum EDialogType {
     APPROVE = 'approve',
     REJECT = 'reject',
     CANCEL = 'cancel',
+    ALLOCATE = 'allocate',
+    DEALLOCATE = 'deallocate',
 }
 
 export enum EDialogPosition {

@@ -14,6 +14,8 @@ export enum EBulkActionType {
   APPROVE = 'approve',
   REJECT = 'reject',
   CANCEL = 'cancel',
+  ALLOCATE = 'allocate',
+  DEALLOCATE = 'deallocate',
 }
 
 export enum ERowActionType {
@@ -24,6 +26,8 @@ export enum ERowActionType {
   REJECT = 'reject',
   CANCEL = 'cancel',
   REGULARIZE = 'regularize',
+  ALLOCATE = 'allocate',
+  DEALLOCATE = 'deallocate',
 }
 
 export enum ETableBodyTemplate {

@@ -83,3 +83,44 @@ export const CANCEL_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfi
     },
   ]
 };
+
+export const ALLOCATE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfig> = {
+  ...CONFIRMATION_DIALOG_CONFIG,
+  header: 'Allocate Confirmation',
+  icon: 'pi pi-user-plus',
+  iconContainerClass: 'bg-green-500 text-white',
+  message: 'Are you sure you want to allocate this item?',
+  inputFieldConfigs: [
+    {
+      fieldType: EFieldType.Select,
+      fieldName: 'Employee Name',
+      label: 'Employee',
+      selectConfig: {
+        optionsDropdown: [
+          { key: 'John Doe', value: '1' },
+          { key: 'Jane Smith', value: '2' },
+          { key: 'Mike Johnson', value: '3' },
+        ],
+      },
+      validators: [Validators.required],
+    },
+    {
+      fieldType: EFieldType.TextArea,
+      fieldName: 'comment',
+    }
+  ]
+}
+
+export const DEALLOCATE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfig> = {
+  ...CONFIRMATION_DIALOG_CONFIG,
+  header: 'Deallocate Confirmation',
+  icon: 'pi pi-user-minus',
+  iconContainerClass: 'bg-orange-500 text-white',
+  message: 'Are you sure you want to deallocate this item?',
+  inputFieldConfigs: [
+    {
+      fieldType: EFieldType.TextArea,
+      fieldName: 'comment',
+    }
+  ]
+}
