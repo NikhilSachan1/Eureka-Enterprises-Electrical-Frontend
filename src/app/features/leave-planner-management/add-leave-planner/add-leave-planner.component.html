@@ -1,0 +1,79 @@
+<app-page-header 
+    title="Add Leave Planner"
+    subtitle="Configure leave policy for Financial Year"
+></app-page-header>
+
+<form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="form">
+            
+    <app-input-field 
+        [formGroup]="formGroup" 
+        [inputFieldConfig]="fieldConfigs()['financialYear']">
+    </app-input-field>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <app-input-field 
+            [formGroup]="formGroup" 
+            [inputFieldConfig]="fieldConfigs()['casualLeaveCount']">
+        </app-input-field>
+
+        <app-input-field 
+            [formGroup]="formGroup" 
+            [inputFieldConfig]="fieldConfigs()['optionalLeaveCount']">
+        </app-input-field>
+    </div>
+
+    <!-- Instructions for Holiday Details -->
+    @if (showHolidayFields()) {
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">Optional Holidays Configuration</h3>
+            <p class="text-sm text-blue-600 mb-4">
+                You've set {{ getHolidayCount() }} optional holidays. Please specify the details for each holiday below:
+            </p>
+            
+            <div class="space-y-4">
+                @for (i of getHolidayArray(); track i) {
+                    @let nameFieldKey = 'holiday' + i + 'Name';
+                    @let dateFieldKey = 'holiday' + i + 'Date';
+                    
+                    <div class="bg-white p-4 rounded border border-blue-200">
+                        <h4 class="font-medium text-gray-700 mb-3">Holiday {{ i }}</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @if (fieldConfigs()[nameFieldKey]) {
+                                <app-input-field 
+                                    [formGroup]="formGroup" 
+                                    [inputFieldConfig]="fieldConfigs()[nameFieldKey]">
+                                </app-input-field>
+                            }
+
+                            @if (fieldConfigs()[dateFieldKey]) {
+                                <app-input-field 
+                                    [formGroup]="formGroup" 
+                                    [inputFieldConfig]="fieldConfigs()[dateFieldKey]">
+                                </app-input-field>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="pt-4 border-t border-gray-200 button-container">
+        <button pButton 
+            type="submit" 
+            label="Setup Leave Policy" 
+            [loading]="loading()"
+            [disabled]="loading()"
+            class="p-button-primary flex-1 md:flex-none">
+        </button>
+        
+        <button pButton 
+            type="button" 
+            label="Reset" 
+            (click)="resetForm()"
+            [disabled]="loading()"
+            class="p-button-outlined flex-1 md:flex-none">
+        </button>
+    </div>
+    
+</form>

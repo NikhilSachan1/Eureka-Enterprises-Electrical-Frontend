@@ -46,6 +46,11 @@ export const routes: Routes = [
         path: ROUTE_BASE_PATHS.LEAVE,
         loadChildren: () => import('./features/leave-management/leave-management.routes')
           .then(m => m.LEAVE_MANAGEMENT_ROUTES)
+      },
+      {
+        path: ROUTE_BASE_PATHS.CALENDAR,
+        loadChildren: () => import('./features/leave-planner-management/leave-planner-management.routes')
+          .then(m => m.LEAVE_PLANNER_MANAGEMENT_ROUTES)
       }
     ]
   },
