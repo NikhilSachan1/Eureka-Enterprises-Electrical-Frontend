@@ -26,6 +26,7 @@ export interface IInputFieldsConfig {
   radioConfig?: Partial<IRadioFieldConfig>;
   fileConfig?: Partial<IFileFieldConfig>;
   textAreaConfig?: Partial<ITextAreaFieldConfig>;
+  individualNumberConfig?: Partial<IIndividualNumberFieldConfig>;
   validators?: ValidatorFn[];
 }
 
@@ -137,4 +138,15 @@ export interface ITextAreaFieldConfig {
 export interface IOptionDropdown {
   value: string;
   key: string;
+}
+
+export interface IIndividualNumberFieldConfig {
+  length: number;
+  integerOnly: boolean;
+  separators?: IInputSeparator[];
+}
+
+export interface IInputSeparator {
+  position: number;
+  content: string;
 }

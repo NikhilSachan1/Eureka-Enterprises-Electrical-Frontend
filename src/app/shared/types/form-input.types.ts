@@ -25,6 +25,7 @@ export enum EFieldType {
   Radio = 'radio',
   File = 'file',
   TextArea = 'textarea',
+  Individual_Number = 'individual-number',
 }
 
 export enum EFloatLabelVariant {

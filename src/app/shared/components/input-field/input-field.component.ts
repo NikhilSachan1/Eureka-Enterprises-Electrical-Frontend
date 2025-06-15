@@ -12,13 +12,14 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TextareaModule } from 'primeng/textarea';
+import { InputOtpModule } from 'primeng/inputotp';
 import { ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelectionMode, EFileMode, EHourFormat, EMultiSelectDisplayType, EUpAndDownButtonLayout } from '../../types/form-input.types';
 import { EFieldType } from '../../types/form-input.types';
 import { IInputFieldsConfig } from '../../models/input-fields-config.model';
 
 @Component({
   selector: 'app-input-field',
-  imports: [ReactiveFormsModule, FloatLabelModule, InputTextModule, NgClass, InputNumberModule, SelectModule, MultiSelectModule, DatePickerModule, PasswordModule, CheckboxModule, RadioButtonModule, FileUploadModule, TextareaModule],
+  imports: [ReactiveFormsModule, FloatLabelModule, InputTextModule, NgClass, InputNumberModule, SelectModule, MultiSelectModule, DatePickerModule, PasswordModule, CheckboxModule, RadioButtonModule, FileUploadModule, TextareaModule, InputOtpModule],
   templateUrl: './input-field.component.html',
   styleUrl: './input-field.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

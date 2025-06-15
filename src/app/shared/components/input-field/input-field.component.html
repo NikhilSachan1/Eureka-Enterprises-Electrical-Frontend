@@ -237,6 +237,41 @@
                 <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
             </p-floatlabel>
         }
+        @case (ALL_FIELD_TYPES.Individual_Number) {
+
+            @let individualNumberConfig = inputFieldConfig().individualNumberConfig;
+
+                <p-inputotp 
+                    [id]="inputFieldConfig().id"
+                    [length]="individualNumberConfig?.length || 2"
+                    [size]="inputFieldConfig().fieldSize"
+                    [integerOnly]="individualNumberConfig?.integerOnly || true"
+                    [formControlName]="inputFieldConfig().fieldName"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
+                >
+                    <ng-template #input let-token let-events="events" let-index="index">
+                        <input 
+                            type="text" 
+                            [maxLength]="1" 
+                            (input)="events.input($event)" 
+                            (keydown)="events.keydown($event)" 
+                            [attr.value]="token" 
+                            class="p-inputtext p-component individual-number-input"
+                        />
+                        @let separators = individualNumberConfig?.separators;
+                        @if (separators && separators.length > 0) {
+                            @for (separator of separators; track separator.position) {
+                                @if (index === separator.position) {
+                                    <div class="px-2">
+                                        <span [innerHTML]="separator.content"></span>
+                                    </div>
+                                }
+                            }
+                        }
+                    </ng-template>
+                </p-inputotp>
+                <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
+        }
     }
     @if (isFieldInvalid) {
         <small class="p-error">{{errorMessage }}</small>   

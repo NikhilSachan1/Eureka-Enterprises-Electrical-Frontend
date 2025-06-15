@@ -115,3 +115,17 @@ export const DEFAULT_TEXT_AREA_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> =
         autoResize: false,
     }
 }
+
+export const DEFAULT_INDIVIDUAL_NUMBER_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
+    ...DEFAULT_INPUT_FIELD_CONFIG,
+    individualNumberConfig: {
+        length: 4,
+        integerOnly: true,
+        separators: [
+            {
+                position: 2,
+                content: '/',
+            }
+        ]
+    }
+}

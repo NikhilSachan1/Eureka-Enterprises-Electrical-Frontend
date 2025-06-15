@@ -1,0 +1,11 @@
+// Individual Number Input Field Styling
+:host ::ng-deep {
+  .p-inputotp {
+    
+    .individual-number-input {
+      width: 2.5rem !important;
+      height: 2.5rem !important;
+      text-align: center !important;      
+    }
+  }
+}
