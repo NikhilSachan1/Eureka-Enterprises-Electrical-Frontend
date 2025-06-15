@@ -56,6 +56,11 @@ export const routes: Routes = [
         path: ROUTE_BASE_PATHS.ASSET,
         loadChildren: () => import('./features/asset-management/asset-management.routes')
           .then(m => m.ASSET_MANAGEMENT_ROUTES)
+      },
+      {
+        path: ROUTE_BASE_PATHS.VEHICLE,
+        loadChildren: () => import('./features/vehicle-management/vehicle-management.routes')
+          .then(m => m.VEHICLE_MANAGEMENT_ROUTES)
       }
     ]
   },
