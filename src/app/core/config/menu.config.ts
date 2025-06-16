@@ -171,6 +171,16 @@ export const appMenu: ApplicationMenu = {
               icon: ICONS.COMMON.ADD,
               routerLink: `${ROUTE_BASE_PATHS.CARD}/${ROUTES.CARD.ADD}`,
             },
+            {
+              label: 'Recharge History',
+              icon: ICONS.COMMON.LIST,
+              routerLink: `${ROUTE_BASE_PATHS.CARD}/${ROUTES.CARD.RECHARGE_HISTORY}`,
+            },
+            {
+              label: 'Add Recharge',
+              icon: ICONS.COMMON.ADD,
+              routerLink: `${ROUTE_BASE_PATHS.CARD}/${ROUTES.CARD.ADD_RECHARGE}`,
+            },
           ],
         },
         {

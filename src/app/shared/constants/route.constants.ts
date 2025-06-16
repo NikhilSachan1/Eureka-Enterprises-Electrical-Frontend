@@ -75,7 +75,9 @@ export const ROUTES = {
   CARD: {
     LIST: `list`,
     ADD: `add`,
-    EDIT: `edit/:id`
+    EDIT: `edit/:id`,
+    RECHARGE_HISTORY: `recharge-history`,
+    ADD_RECHARGE: `add-recharge`
   },
 
   VEHICLE: {
