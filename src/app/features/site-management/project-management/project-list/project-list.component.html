@@ -1,1 +1,34 @@
-<p>project-list works!</p>
+<app-page-header 
+    title="Project Management"
+    subtitle="Manage and monitor project information"
+    [showAddButton]="true"
+    addButtonLabel="Add New Project"
+    (addButtonClick)="onAddButtonClick()"
+></app-page-header>
+
+<div class="content-wrapper">
+    <div class="metrics-grid">
+        @for (metric of metricsCards(); track metric.title) {
+            <app-metrics-card
+                [title]="metric.title"
+                [subtitle]="metric.subtitle"
+                [iconClass]="metric.iconClass"
+                [iconBgClass]="metric.iconBgClass"
+                [metrics]="metric.metrics"
+            ></app-metrics-card>
+        }
+    </div>
+
+    <app-data-table
+        [tableConfig]="tableConfig()"
+        [tableHeader]="tableHeader()"
+        [tableData]="tableData()"
+        [loading]="loading()"
+        [bulkActionButtons]="bulkActionButtons()"
+        [rowActions]="rowActions()"
+        (bulkActionClick)="handleBulkActionClick($event)"
+        (rowActionClick)="handleRowActionClick($event)"
+    ></app-data-table>
+</div>
+
+<app-confirmation-dialog></app-confirmation-dialog>
