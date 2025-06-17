@@ -105,6 +105,42 @@ export const appMenu: ApplicationMenu = {
           ],
         },
         {
+          label: 'Site Management',
+          icon: ICONS.SITE.BUILDING,
+          children: [
+            {
+              label: 'View Companies',
+              icon: ICONS.COMMON.LIST,
+              routerLink: `${ROUTE_BASE_PATHS.SITE.BASE}/${ROUTE_BASE_PATHS.SITE.COMPANY}/${ROUTES.SITE.COMPANY.LIST}`,
+            },
+            {
+              label: 'Register Company',
+              icon: ICONS.COMMON.ADD,
+              routerLink: `${ROUTE_BASE_PATHS.SITE.BASE}/${ROUTE_BASE_PATHS.SITE.COMPANY}/${ROUTES.SITE.COMPANY.ADD}`,
+            },
+            {
+              label: 'View Contractors',
+              icon: ICONS.COMMON.LIST,
+              routerLink: `${ROUTE_BASE_PATHS.SITE.BASE}/${ROUTE_BASE_PATHS.SITE.CONTRACTOR}/${ROUTES.SITE.CONTRACTOR.LIST}`,
+            },
+            {
+              label: 'Register Contractor',
+              icon: ICONS.COMMON.ADD,
+              routerLink: `${ROUTE_BASE_PATHS.SITE.BASE}/${ROUTE_BASE_PATHS.SITE.CONTRACTOR}/${ROUTES.SITE.CONTRACTOR.ADD}`,
+            },
+            {
+              label: 'View Projects',
+              icon: ICONS.COMMON.LIST,
+              routerLink: `${ROUTE_BASE_PATHS.SITE.BASE}/${ROUTE_BASE_PATHS.SITE.PROJECT}/${ROUTES.SITE.PROJECT.LIST}`,
+            },
+            {
+              label: 'Register Project',
+              icon: ICONS.COMMON.ADD,
+              routerLink: `${ROUTE_BASE_PATHS.SITE.BASE}/${ROUTE_BASE_PATHS.SITE.PROJECT}/${ROUTES.SITE.PROJECT.ADD}`,
+            },
+          ],
+        },
+        {
           label: 'Leave Management',
           icon: ICONS.LEAVE.CALENDAR_MINUS,
           children: [

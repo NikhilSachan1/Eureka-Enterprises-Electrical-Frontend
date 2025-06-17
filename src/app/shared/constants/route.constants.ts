@@ -14,7 +14,13 @@ export const ROUTE_BASE_PATHS = {
   CARD: 'card',
   VEHICLE: 'vehicle',
   PAYROLL: 'payroll',
-  DASHBOARD: 'dashboard'
+  DASHBOARD: 'dashboard',
+  SITE: {
+    BASE: 'site',
+    COMPANY: 'company',
+    CONTRACTOR: 'contractor',
+    PROJECT: 'project'
+  }
 } as const;
 
 export const ROUTES = {
@@ -58,6 +64,21 @@ export const ROUTES = {
     APPLY: `apply`,
     LIST: `list`,
     FORCE: `force`
+  },
+
+  SITE: {
+    CONTRACTOR: {
+      LIST: `list`,
+      ADD: `add`,
+    },
+    COMPANY: {
+      LIST: `list`,
+      ADD: `add`,
+    },
+    PROJECT: {
+      LIST: `list`,
+      ADD: `add`,
+    }
   },
 
   CALENDAR: {

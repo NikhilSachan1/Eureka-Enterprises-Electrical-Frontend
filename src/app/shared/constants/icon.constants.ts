@@ -12,7 +12,7 @@ export const ICONS = {
     CHART: 'pi pi-chart-bar',
     FILE: 'pi pi-file',
     ARROW_UP: 'pi pi-arrow-up',
-    SITEMAP: 'pi pi-sitemap'
+    SITEMAP: 'pi pi-sitemap',
   },
   EMPLOYEE: {
     GROUP: 'pi pi-users',
@@ -36,5 +36,8 @@ export const ICONS = {
   },
   PAYROLL: {
     WALLET: 'pi pi-wallet'
+  },
+  SITE: {
+    BUILDING: 'pi pi-building'
   }
 } as const; 

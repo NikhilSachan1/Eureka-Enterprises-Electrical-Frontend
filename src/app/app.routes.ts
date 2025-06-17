@@ -43,6 +43,11 @@ export const routes: Routes = [
           .then(m => m.FUEL_EXPENSE_MANAGEMENT_ROUTES)
       },
       {
+        path: ROUTE_BASE_PATHS.SITE.BASE,
+        loadChildren: () => import('./features/site-management/site-management.routes')
+          .then(m => m.SITE_MANAGEMENT_ROUTES)
+      },
+      {
         path: ROUTE_BASE_PATHS.LEAVE,
         loadChildren: () => import('./features/leave-management/leave-management.routes')
           .then(m => m.LEAVE_MANAGEMENT_ROUTES)
