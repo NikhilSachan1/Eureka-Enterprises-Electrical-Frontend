@@ -1,0 +1,282 @@
+// Theme color variables
+$primary-color: #00a389;
+$primary-light: #00bf9f;
+$primary-dark: #008975;
+$primary-contrast: #ffffff;
+
+$text-primary: #1e293b;
+$text-secondary: #64748b;
+
+$background-paper: #f8fafc;
+$surface-100: #e6f7f4;
+$surface-200: #d1ebe7;
+
+$border-light: #e2e8f0;
+
+$shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+$shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+// Dark theme variables
+$dark-primary-color: #00d1ae;
+$dark-primary-dark: #00bf9f;
+
+$dark-text-primary: #f8fafc;
+$dark-text-secondary: #94a3b8;
+
+$dark-background-paper: #1e293b;
+$dark-surface-100: #1e293b;
+$dark-surface-200: #334155;
+
+$dark-border-light: #334155;
+
+$dark-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+$dark-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to bottom right, #f8fafc, #dbeafe, #e0e7ff);
+    padding: 1rem;
+
+    .auth-card {
+        width: 100%;
+        max-width: 28rem;
+
+        .auth-card-inner {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            box-shadow: $shadow-lg;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+
+            .auth-decorative-border {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 4px;
+                background: linear-gradient(to right, $primary-color, $primary-light, $primary-dark);
+            }
+
+            .auth-logo-container {
+                text-align: center;
+                margin-bottom: 2rem;
+                position: relative;
+                z-index: 10;
+
+                .auth-logo-wrapper {
+                    margin-bottom: 1.5rem;
+
+                    .auth-logo {
+                        width: 4rem;
+                        height: 4rem;
+                        margin: 0 auto;
+                        background: linear-gradient(to bottom right, $primary-color, $primary-dark);
+                        border-radius: 1rem;
+                        padding: 0.75rem;
+                        box-shadow: $shadow-md;
+
+                        .auth-logo-image {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: contain;
+                        }
+                    }
+                }
+
+                .auth-title {
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: $text-primary;
+                    margin-bottom: 0.25rem;
+                }
+
+                .auth-subtitle {
+                    color: $text-secondary;
+                    font-size: 0.875rem;
+                }
+            }
+
+            .auth-form {
+                position: relative;
+                z-index: 10;
+
+                .auth-submit-button {
+                    width: 100%;
+                    background: linear-gradient(to right, $primary-color, $primary-dark);
+                    border: none;
+                    box-shadow: $shadow-md;
+                    transition: all 0.3s ease;
+                    transform: scale(1);
+                    color: $primary-contrast;
+
+                    &:hover {
+                        background: linear-gradient(to right, $primary-dark, $primary-color);
+                        box-shadow: $shadow-lg;
+                        transform: scale(1.02);
+                    }
+                }
+            }
+
+            .auth-footer {
+                text-align: center;
+                margin-top: 2rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid $border-light;
+                position: relative;
+                z-index: 10;
+
+                .auth-footer-text {
+                    font-size: 0.875rem;
+                    color: $text-secondary;
+                }
+            }
+
+            // Global auth-link styles
+            .auth-link {
+                color: $primary-color;
+                font-weight: 500;
+                text-decoration: none;
+                transition: color 0.3s ease;
+                cursor: pointer;
+                background: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+                font-family: inherit;
+                font-size: inherit;
+                text-align: left;
+                line-height: 1.5;
+
+                &:hover {
+                    color: $primary-dark;
+                    text-decoration: underline;
+                }
+
+                &:focus {
+                    outline: 2px solid $primary-color;
+                    outline-offset: 2px;
+                    border-radius: 2px;
+                }
+
+                &:active {
+                    color: $primary-dark;
+                }
+            }
+        }
+
+        .auth-version {
+            text-align: center;
+            margin-top: 1.5rem;
+
+            .auth-version-text {
+                color: $text-secondary;
+                font-size: 0.75rem;
+            }
+        }
+    }
+}
+
+// Dark theme overrides
+.dark-theme {
+    .auth-container {
+        background: linear-gradient(to bottom right, $dark-background-paper, $dark-surface-100, $dark-surface-200);
+
+        .auth-card {
+            .auth-card-inner {
+                box-shadow: $dark-shadow-lg;
+
+                .auth-decorative-border {
+                    background: linear-gradient(to right, $dark-primary-color, $dark-primary-dark);
+                }
+
+                .auth-logo-container {
+                    .auth-logo {
+                        background: linear-gradient(to bottom right, $dark-primary-color, $dark-primary-dark);
+                        box-shadow: $dark-shadow-md;
+                    }
+
+                    .auth-title {
+                        color: $dark-text-primary;
+                    }
+
+                    .auth-subtitle {
+                        color: $dark-text-secondary;
+                    }
+                }
+
+                .auth-form {
+                    .auth-submit-button {
+                        background: linear-gradient(to right, $dark-primary-color, $dark-primary-dark);
+                        box-shadow: $dark-shadow-md;
+                        color: $primary-contrast;
+
+                        &:hover {
+                            background: linear-gradient(to right, $dark-primary-dark, $dark-primary-color);
+                            box-shadow: $dark-shadow-lg;
+                        }
+                    }
+                }
+
+                .auth-footer {
+                    border-top: 1px solid $dark-border-light;
+
+                    .auth-footer-text {
+                        color: $dark-text-secondary;
+                    }
+                }
+
+                .auth-link {
+                    color: $dark-primary-color;
+
+                    &:hover {
+                        color: $dark-primary-dark;
+                    }
+
+                    &:focus {
+                        outline-color: $dark-primary-color;
+                    }
+
+                    &:active {
+                        color: $dark-primary-dark;
+                    }
+                }
+            }
+
+            .auth-version {
+                .auth-version-text {
+                    color: $dark-text-secondary;
+                }
+            }
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+    .auth-container {
+        .auth-card {
+            .auth-card-inner {
+                padding: 1.5rem;
+
+                .auth-logo-container {
+                    .auth-title {
+                        font-size: 1.25rem;
+                    }
+
+                    .auth-logo-wrapper {
+                        .auth-logo {
+                            width: 3.5rem;
+                            height: 3.5rem;
+                        }
+                    }
+                }
+            }
+        }
+    }
+} 

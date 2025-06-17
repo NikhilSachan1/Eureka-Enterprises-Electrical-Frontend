@@ -164,7 +164,7 @@
                     <div class="flex items-center">
                         <p-checkbox 
                             [inputId]="'checkbox-' + option.key" 
-                            [formControlName]="'checkboxInput'" 
+                            [formControlName]="inputFieldConfig().fieldName" 
                             [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                             [value]="option" 
                             [binary]="checkboxConfig?.binary || false" 

@@ -1,0 +1,44 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <!-- Auth card -->
+    <div class="auth-card-inner">
+      <!-- Decorative background elements -->
+      <div class="auth-decorative-border"></div>
+      
+      <!-- Logo and branding -->
+      <div class="auth-logo-container">
+        <div class="auth-logo-wrapper">
+          <div class="auth-logo">
+            <img src="https://i.postimg.cc/3w9krVGY/Untitled-design.png" alt="Eureka Enterprises" class="auth-logo-image" />
+          </div>
+        </div>
+        <h1 class="auth-title">{{ title() }}</h1>
+        <p class="auth-subtitle">{{ subtitle() }}</p>
+      </div>
+
+      <!-- Auth form -->
+      <form class="form auth-form" (ngSubmit)="onSubmit()?.()">
+        <!-- Form content projection -->
+        <ng-container *ngTemplateOutlet="formContent || null"></ng-container>
+      </form>
+
+      <!-- Footer -->
+      <div class="auth-footer">
+        <p class="auth-footer-text">
+          {{ footerText() }}
+          <button 
+            type="button"
+            class="auth-link"
+            (click)="footerLinkAction()?.()">
+            {{ footerLinkText() }}
+          </button>
+        </p>
+      </div>
+    </div>
+
+    <!-- Version info -->
+    <div class="auth-version">
+      <p class="auth-version-text">Version 1.0.0</p>
+    </div>
+  </div>
+</div> 

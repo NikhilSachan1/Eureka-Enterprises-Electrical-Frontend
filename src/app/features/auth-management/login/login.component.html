@@ -1,1 +1,53 @@
-<p>login works!</p>
+<app-auth-layout
+  [title]="'Sign in'"
+  [subtitle]="'to Eureka Enterprises'"
+  [submitButtonLabel]="'Sign in'"
+  [footerText]="'Don\'t have an account?'"
+  [footerLinkText]="'Contact Administrator'"
+  [footerLinkAction]="onContactAdmin"
+  [onSubmit]="onSubmit">
+  
+  <ng-template #formContent>
+    <!-- Username field -->
+    <app-input-field 
+      [formGroup]="formGroup" 
+      [inputFieldConfig]="fieldConfigs()['username']">
+    </app-input-field>
+
+    <!-- Password field -->
+    <app-input-field 
+      [formGroup]="formGroup" 
+      [inputFieldConfig]="fieldConfigs()['password']">
+    </app-input-field>
+
+    <!-- Remember me and forgot password -->
+    <div class="flex items-center justify-between mb-6 gap-4">
+      <div class="flex-shrink-0">
+        <app-input-field
+          [formGroup]="formGroup"
+          [inputFieldConfig]="fieldConfigs()['rememberMe']">
+        </app-input-field>
+      </div>
+      <div class="flex-shrink-0">
+        <button 
+          type="button" 
+          class="auth-link text-sm"
+          (click)="onForgotPassword()">
+          Forgot password?
+        </button>
+      </div>
+    </div>
+
+    <!-- Sign in button -->
+    <button pButton 
+      type="submit" 
+      label="Sign in" 
+      [loading]="loading()"
+      [disabled]="loading()"
+      class="auth-submit-button">
+    </button>
+  </ng-template>
+</app-auth-layout>
+
+<!-- Toast notifications -->
+<p-toast></p-toast>
