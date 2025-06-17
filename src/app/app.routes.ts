@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ROUTE_BASE_PATHS } from './shared/constants/index';
+import { ROUTE_BASE_PATHS, ROUTES } from './shared/constants/index';
 import { PublicLayoutComponent } from './shared/components/layouts/public-layout/public-layout.component';
 import { PrivateLayoutComponent } from './shared/components/layouts/private-layout/private-layout.component';
 
@@ -11,8 +11,13 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: `${ROUTE_BASE_PATHS.EMPLOYEE}/list`,
+        redirectTo: `${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`,
         pathMatch: 'full'
+      },
+      {
+        path: ROUTE_BASE_PATHS.AUTH,
+        loadChildren: () => import('./features/auth-management/auth-management.routes')
+          .then(m => m.AUTH_MANAGEMENT_ROUTES)
       }
     ]
   },
@@ -77,6 +82,6 @@ export const routes: Routes = [
   
   {
     path: '**',
-    redirectTo: `${ROUTE_BASE_PATHS.EMPLOYEE}/list`
+    redirectTo: `${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`
   }
 ];
