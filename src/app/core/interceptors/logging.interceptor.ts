@@ -1,59 +1,104 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { HttpEvent, HttpResponse } from '@angular/common/http';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { tap } from 'rxjs';
-import { LoggerService } from '../services/logger.service';
+import { Observable, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
+import { EnvironmentService } from '../services/environment.service';
 
-interface LogEntry {
-  timestamp: string;
-  method: string;
-  url: string;
-  duration: number;
-  status?: number;
-  body?: any;
-  error?: any;
-}
+export const LoggingInterceptor: HttpInterceptorFn = (
+  request: HttpRequest<unknown>,
+  next: HttpHandlerFn
+): Observable<any> => {
+  
+  const environmentService = inject(EnvironmentService);
+  
+  // Only log if logging is enabled
+  if (!environmentService.isLoggingEnabled) {
+    return next(request);
+  }
 
-export const LoggingInterceptor: HttpInterceptorFn = (req, next) => {
+  const requestId = generateRequestId();
   const startTime = Date.now();
-  const requestId = Math.random().toString(36).substring(7);
-  const logger = inject(LoggerService);
 
-  const logEntry: LogEntry = {
-    timestamp: new Date().toISOString(),
-    method: req.method,
-    url: req.urlWithParams,
-    duration: 0
-  };
+  // Log the request
+  logRequest(request, requestId, environmentService);
 
-  // Log request
-  logger.logApiRequest(req.method, req.urlWithParams, req.body);
-
-  return next(req).pipe(
-    tap({
-      next: (event: HttpEvent<any>) => {
-        if (event instanceof HttpResponse) {
-          const duration = Date.now() - startTime;
-          logEntry.duration = duration;
-          logEntry.status = event.status;
-          logEntry.body = event.body;
-
-          // Log response
-          logger.logApiResponse(req.method, req.urlWithParams, event.status, duration, event.body);
-
-          // Log performance metrics
-          logger.logSlowResponse(req.method, req.urlWithParams, duration);
-        }
-      },
-      error: (error) => {
-        const duration = Date.now() - startTime;
-        logEntry.duration = duration;
-        logEntry.status = error.status;
-        logEntry.error = error;
-
-        // Log error
-        logger.logApiError(req.method, req.urlWithParams, error, duration);
+  return next(request).pipe(
+    tap((event) => {
+      // Log successful response
+      if (event.type === 4) { // HttpResponse
+        const responseTime = Date.now() - startTime;
+        logResponse(request, event, requestId, responseTime);
       }
+    }),
+    catchError((error: HttpErrorResponse) => {
+      // Log error response
+      const responseTime = Date.now() - startTime;
+      logError(request, error, requestId, responseTime);
+      return throwError(() => error);
     })
   );
 };
+
+/**
+ * Generate unique request ID for tracking
+ */
+function generateRequestId(): string {
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
+ * Log outgoing request
+ */
+function logRequest(request: HttpRequest<any>, requestId: string, environmentService: EnvironmentService): void {
+  console.group(`🌐 API Request [${requestId}]`);
+  console.log('Method:', request.method);
+  console.log('URL:', request.url);
+  console.log('Headers:', request.headers);
+  if (request.params.keys().length > 0) {
+    console.log('Params:', paramsToObject(request.params));
+  }
+  if (request.body) {
+    console.log('Body:', request.body);
+  }
+  console.log('Environment:', environmentService.currentEnvironment);
+  console.groupEnd();
+}
+
+/**
+ * Log successful response
+ */
+function logResponse(request: HttpRequest<any>, response: any, requestId: string, responseTime: number): void {
+  console.group(`✅ API Response [${requestId}]`);
+  console.log('Method:', request.method);
+  console.log('URL:', request.url);
+  console.log('Status:', `${response.status} ${response.statusText}`);
+  console.log('Response Time:', `${responseTime}ms`);
+  console.log('Response:', response.body);
+  console.log('Headers:', response.headers);
+  console.groupEnd();
+}
+
+/**
+ * Log error response
+ */
+function logError(request: HttpRequest<any>, error: HttpErrorResponse, requestId: string, responseTime: number): void {
+  console.group(`❌ API Error [${requestId}]`);
+  console.log('Method:', request.method);
+  console.log('URL:', request.url);
+  console.log('Status:', `${error.status} ${error.statusText}`);
+  console.log('Response Time:', `${responseTime}ms`);
+  console.log('Error:', error.error);
+  console.log('Headers:', error.headers);
+  console.groupEnd();
+}
+
+/**
+ * Convert HttpParams to plain object
+ */
+function paramsToObject(params: any): any {
+  const result: any = {};
+  params.keys().forEach((key: string) => {
+    result[key] = params.get(key);
+  });
+  return result;
+}

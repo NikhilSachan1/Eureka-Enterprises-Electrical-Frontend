@@ -3,11 +3,11 @@ import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScroll
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
-import { LoggingInterceptor } from './core/interceptors/logging.interceptor';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import Aura from '@primeng/themes/aura';
+import { LoggingInterceptor } from './core/interceptors/logging.interceptor';
 
 export const appConfig: ApplicationConfig = {
     providers: [
