@@ -15,8 +15,8 @@ import { InputFieldComponent } from '../../../shared/components/input-field/inpu
 import { IInputFieldsConfig } from '../../../shared/models/input-fields-config.model';
 import { InputFieldConfigService } from '../../../shared/services/input-field-config.service';
 import { LoggerService } from '../../../core/services/logger.service';
-import { ROUTES } from '../../../shared/constants';
-import { LOGIN_INPUT_FIELDS_CONFIG } from './login-form.config';
+import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
+import { LOGIN_INPUT_FIELDS_CONFIG } from '../config/login-form.config';
 import { AuthLayoutComponent } from '../shared/auth-layout.component';
 
 @Component({
@@ -132,7 +132,7 @@ export class LoginComponent implements OnInit {
   protected onForgotPassword(): void {
     try {
       this.logger.logUserAction('Navigate to Forgot Password');
-      this.router.navigate([`/auth/${ROUTES.AUTH.FORGOT_PASSWORD}`]);
+      this.router.navigate([`/${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.FORGOT_PASSWORD}`]);
     } catch (error) {
       this.logger.error('Error navigating to forgot password', error);
     }
@@ -140,16 +140,10 @@ export class LoginComponent implements OnInit {
 
   protected onContactAdmin(): void {
     try {
-      this.logger.logUserAction('Contact Administrator');
-      // TODO: Implement contact administrator functionality
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Contact Administrator',
-        detail: 'Please contact your system administrator to create an account.',
-        life: 5000
-      });
+      alert('Contact Admin');
+      this.logger.logUserAction('Navigate to Contact Admin');
     } catch (error) {
-      this.logger.error('Error contacting administrator', error);
+      this.logger.error('Error navigating to contact admin', error);
     }
   }
 }

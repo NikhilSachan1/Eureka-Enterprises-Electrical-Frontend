@@ -2,14 +2,9 @@
 $primary-color: #00a389;
 $primary-light: #00bf9f;
 $primary-dark: #008975;
-$primary-contrast: #ffffff;
 
 $text-primary: #1e293b;
 $text-secondary: #64748b;
-
-$background-paper: #f8fafc;
-$surface-100: #e6f7f4;
-$surface-200: #d1ebe7;
 
 $border-light: #e2e8f0;
 
@@ -102,27 +97,6 @@ $dark-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0
                 }
             }
 
-            .auth-form {
-                position: relative;
-                z-index: 10;
-
-                .auth-submit-button {
-                    width: 100%;
-                    background: linear-gradient(to right, $primary-color, $primary-dark);
-                    border: none;
-                    box-shadow: $shadow-md;
-                    transition: all 0.3s ease;
-                    transform: scale(1);
-                    color: $primary-contrast;
-
-                    &:hover {
-                        background: linear-gradient(to right, $primary-dark, $primary-color);
-                        box-shadow: $shadow-lg;
-                        transform: scale(1.02);
-                    }
-                }
-            }
-
             .auth-footer {
                 text-align: center;
                 margin-top: 2rem;
@@ -135,48 +109,6 @@ $dark-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0
                     font-size: 0.875rem;
                     color: $text-secondary;
                 }
-            }
-
-            // Global auth-link styles
-            .auth-link {
-                color: $primary-color;
-                font-weight: 500;
-                text-decoration: none;
-                transition: color 0.3s ease;
-                cursor: pointer;
-                background: none;
-                border: none;
-                padding: 0;
-                margin: 0;
-                font-family: inherit;
-                font-size: inherit;
-                text-align: left;
-                line-height: 1.5;
-
-                &:hover {
-                    color: $primary-dark;
-                    text-decoration: underline;
-                }
-
-                &:focus {
-                    outline: 2px solid $primary-color;
-                    outline-offset: 2px;
-                    border-radius: 2px;
-                }
-
-                &:active {
-                    color: $primary-dark;
-                }
-            }
-        }
-
-        .auth-version {
-            text-align: center;
-            margin-top: 1.5rem;
-
-            .auth-version-text {
-                color: $text-secondary;
-                font-size: 0.75rem;
             }
         }
     }
@@ -210,19 +142,6 @@ $dark-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0
                     }
                 }
 
-                .auth-form {
-                    .auth-submit-button {
-                        background: linear-gradient(to right, $dark-primary-color, $dark-primary-dark);
-                        box-shadow: $dark-shadow-md;
-                        color: $primary-contrast;
-
-                        &:hover {
-                            background: linear-gradient(to right, $dark-primary-dark, $dark-primary-color);
-                            box-shadow: $dark-shadow-lg;
-                        }
-                    }
-                }
-
                 .auth-footer {
                     border-top: 1px solid $dark-border-light;
 
@@ -230,53 +149,7 @@ $dark-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0
                         color: $dark-text-secondary;
                     }
                 }
-
-                .auth-link {
-                    color: $dark-primary-color;
-
-                    &:hover {
-                        color: $dark-primary-dark;
-                    }
-
-                    &:focus {
-                        outline-color: $dark-primary-color;
-                    }
-
-                    &:active {
-                        color: $dark-primary-dark;
-                    }
-                }
-            }
-
-            .auth-version {
-                .auth-version-text {
-                    color: $dark-text-secondary;
-                }
             }
         }
     }
 }
-
-// Responsive adjustments
-@media (max-width: 640px) {
-    .auth-container {
-        .auth-card {
-            .auth-card-inner {
-                padding: 1.5rem;
-
-                .auth-logo-container {
-                    .auth-title {
-                        font-size: 1.25rem;
-                    }
-
-                    .auth-logo-wrapper {
-                        .auth-logo {
-                            width: 3.5rem;
-                            height: 3.5rem;
-                        }
-                    }
-                }
-            }
-        }
-    }
-} 

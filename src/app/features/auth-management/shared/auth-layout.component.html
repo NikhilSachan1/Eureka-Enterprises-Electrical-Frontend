@@ -17,28 +17,20 @@
       </div>
 
       <!-- Auth form -->
-      <form class="form auth-form" (ngSubmit)="onSubmit()?.()">
-        <!-- Form content projection -->
-        <ng-container *ngTemplateOutlet="formContent || null"></ng-container>
-      </form>
+      <ng-content></ng-content>
 
       <!-- Footer -->
       <div class="auth-footer">
         <p class="auth-footer-text">
           {{ footerText() }}
-          <button 
-            type="button"
-            class="auth-link"
-            (click)="footerLinkAction()?.()">
-            {{ footerLinkText() }}
-          </button>
+          <p-button
+            (click)="footerLinkAction.emit()"
+            [link]="true"
+            [label]="footerLinkText()"
+            [size]="'small'"
+          ></p-button>
         </p>
       </div>
-    </div>
-
-    <!-- Version info -->
-    <div class="auth-version">
-      <p class="auth-version-text">Version 1.0.0</p>
     </div>
   </div>
 </div> 

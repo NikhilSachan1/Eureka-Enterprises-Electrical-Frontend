@@ -3,7 +3,7 @@ import {
   FormGroup,
   FormBuilder,
   ReactiveFormsModule,
-  Validators
+  FormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -13,8 +13,9 @@ import { InputFieldComponent } from '../../../shared/components/input-field/inpu
 import { IInputFieldsConfig } from '../../../shared/models/input-fields-config.model';
 import { InputFieldConfigService } from '../../../shared/services/input-field-config.service';
 import { LoggerService } from '../../../core/services/logger.service';
-import { RESET_PASSWORD_INPUT_FIELDS_CONFIG } from './reset-password-form.config';
+import { RESET_PASSWORD_INPUT_FIELDS_CONFIG } from '../config/reset-password-form.config';
 import { AuthLayoutComponent } from '../shared/auth-layout.component';
+import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
 
 @Component({
   selector: 'app-reset-password',
@@ -23,7 +24,8 @@ import { AuthLayoutComponent } from '../shared/auth-layout.component';
     ButtonModule,
     ToastModule,
     InputFieldComponent,
-    AuthLayoutComponent
+    AuthLayoutComponent,
+    FormsModule,
   ],
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.scss'],
@@ -126,7 +128,7 @@ export class ResetPasswordComponent implements OnInit {
   protected onBackToLogin(): void {
     try {
       this.logger.logUserAction('Navigate back to Login');
-      this.router.navigate(['/auth/login']);
+      this.router.navigate([`${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`]);
     } catch (error) {
       this.logger.error('Error navigating back to login', error);
     }

@@ -3,7 +3,7 @@ import {
   FormGroup,
   FormBuilder,
   ReactiveFormsModule,
-  Validators
+  FormsModule
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -13,14 +13,15 @@ import { InputFieldComponent } from '../../../shared/components/input-field/inpu
 import { IInputFieldsConfig } from '../../../shared/models/input-fields-config.model';
 import { InputFieldConfigService } from '../../../shared/services/input-field-config.service';
 import { LoggerService } from '../../../core/services/logger.service';
-import { ROUTES } from '../../../shared/constants';
-import { FORGOT_PASSWORD_INPUT_FIELDS_CONFIG } from './forgot-password-form.config';
+import { FORGOT_PASSWORD_INPUT_FIELDS_CONFIG } from '../config/forgot-password-form.config';
 import { AuthLayoutComponent } from '../shared/auth-layout.component';
+import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
 
 @Component({
   selector: 'app-forgot-password',
   imports: [
     ReactiveFormsModule,
+    FormsModule,
     ButtonModule,
     ToastModule,
     InputFieldComponent,
@@ -40,7 +41,6 @@ export class ForgotPasswordComponent implements OnInit {
   private readonly messageService = inject(MessageService);
 
   protected readonly loading = signal(false);
-  protected readonly formSubmitted = signal(false);
   protected readonly fieldConfigs = signal<Record<string, IInputFieldsConfig>>({});
   
   protected formGroup!: FormGroup;
@@ -69,8 +69,6 @@ export class ForgotPasswordComponent implements OnInit {
 
   onSubmit(): void {
     try {
-      this.formSubmitted.set(true);
-      
       if (this.formGroup.valid && !this.loading()) {
         this.loading.set(true);
         
@@ -126,7 +124,7 @@ export class ForgotPasswordComponent implements OnInit {
   protected onBackToLogin(): void {
     try {
       this.logger.logUserAction('Navigate back to Login');
-      this.router.navigate(['/auth/login']);
+      this.router.navigate([`${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`]);
     } catch (error) {
       this.logger.error('Error navigating back to login', error);
     }

@@ -16,5 +16,10 @@ export const AUTH_MANAGEMENT_ROUTES: Routes = [
         path: ROUTES.AUTH.RESET_PASSWORD,
         loadComponent: () => import('./reset-password/reset-password.component')
             .then(m => m.ResetPasswordComponent)
+    },
+    {
+        path: '**',
+        redirectTo: ROUTES.AUTH.LOGIN,
+        pathMatch: 'full'
     }
 ]; 
