@@ -1,98 +1,164 @@
-import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
-
-export enum LogLevel {
-  ERROR = 0,
-  WARN = 1,
-  INFO = 2,
-  DEBUG = 3
-}
+import { Injectable, inject } from '@angular/core';
+import { EnvironmentService } from './environment.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoggerService {
-  private readonly isDev = !environment.PRODUCTION;
-  private readonly logLevel = this.isDev ? LogLevel.DEBUG : LogLevel.ERROR;
-
-  error(message: string, ...args: any[]): void {
-    if (this.logLevel >= LogLevel.ERROR) {
-      console.error(`🔴 [ERROR] ${message}`, ...args);
-    }
-  }
-
-  warn(message: string, ...args: any[]): void {
-    if (this.logLevel >= LogLevel.WARN) {
-      console.warn(`🟡 [WARN] ${message}`, ...args);
-    }
-  }
-
-  info(message: string, ...args: any[]): void {
-    if (this.logLevel >= LogLevel.INFO) {
-      console.info(`🔵 [INFO] ${message}`, ...args);
-    }
-  }
-
-  debug(message: string, ...args: any[]): void {
-    if (this.logLevel >= LogLevel.DEBUG) {
-      console.log(`🟢 [DEBUG] ${message}`, ...args);
-    }
-  }
+  private readonly environmentService = inject(EnvironmentService);
 
   /**
-   * Log API requests and responses
+   * Log debug information
    */
-  logApiRequest(method: string, url: string, body?: any): void {
-    if (this.isDev) {
-      console.group(`📤 API Request: ${method} ${url}`);
-      if (body) {
-        console.log('Body:', body);
-      }
-      console.groupEnd();
+  debug(message: string, data?: any): void {
+    if (this.shouldLog('debug')) {
+      this.log('🔍 DEBUG', message, data, 'debug');
     }
-  }
-
-  logApiResponse(method: string, url: string, status: number, duration: number, body?: any): void {
-    if (this.isDev) {
-      const statusIcon = status >= 200 && status < 300 ? '✅' : '❌';
-      console.group(`${statusIcon} API Response: ${method} ${url} (${status}) - ${duration}ms`);
-      if (body) {
-        console.log('Response:', body);
-      }
-      console.groupEnd();
-    }
-  }
-
-  logApiError(method: string, url: string, error: any, duration: number): void {
-    console.group(`❌ API Error: ${method} ${url} - ${duration}ms`);
-    console.error('Error:', error);
-    console.groupEnd();
   }
 
   /**
-   * Log performance warnings
+   * Log general information
    */
-  logSlowResponse(method: string, url: string, duration: number): void {
-    if (duration > 1000) {
-      this.warn(`Slow API Response: ${duration}ms for ${method} ${url}`);
+  info(message: string, data?: any): void {
+    if (this.shouldLog('info')) {
+      this.log('ℹ️ INFO', message, data, 'info');
     }
   }
 
   /**
-   * Log user actions for debugging
+   * Log warnings
+   */
+  warn(message: string, data?: any): void {
+    if (this.shouldLog('warn')) {
+      this.log('⚠️ WARN', message, data, 'warn');
+    }
+  }
+
+  /**
+   * Log errors
+   */
+  error(message: string, error?: any): void {
+    if (this.shouldLog('error')) {
+      this.log('❌ ERROR', message, error, 'error');
+    }
+  }
+
+  /**
+   * Log user actions
    */
   logUserAction(action: string, data?: any): void {
-    if (this.isDev) {
-      this.debug(`User Action: ${action}`, data);
+    if (this.shouldLog('info')) {
+      this.log('👤 USER ACTION', action, data, 'info');
     }
   }
 
   /**
-   * Log component lifecycle events
+   * Log API requests
    */
-  logComponentLifecycle(component: string, event: string, data?: any): void {
-    if (this.isDev) {
-      this.debug(`${component} - ${event}`, data);
+  logApiRequest(method: string, url: string, data?: any): void {
+    if (this.shouldLog('info')) {
+      this.log('🌐 API REQUEST', `${method} ${url}`, data, 'info');
     }
+  }
+
+  /**
+   * Log API responses
+   */
+  logApiResponse(method: string, url: string, status: number, data?: any, responseTime?: number): void {
+    if (this.shouldLog('info')) {
+      const message = `${method} ${url} - ${status}`;
+      const logData = { ...data, responseTime: responseTime ? `${responseTime}ms` : undefined };
+      this.log('✅ API RESPONSE', message, logData, 'info');
+    }
+  }
+
+  /**
+   * Log API errors
+   */
+  logApiError(method: string, url: string, error: any, responseTime?: number): void {
+    if (this.shouldLog('error')) {
+      const message = `${method} ${url} - Error`;
+      const logData = { error, responseTime: responseTime ? `${responseTime}ms` : undefined };
+      this.log('❌ API ERROR', message, logData, 'error');
+    }
+  }
+
+  /**
+   * Centralized logging method
+   */
+  private log(level: string, message: string, data?: any, consoleMethod: 'debug' | 'info' | 'warn' | 'error' = 'info'): void {
+    const timestamp = new Date().toISOString();
+    const logId = this.generateLogId();
+    const sanitizedData = data;
+
+    const logEntry = {
+      id: logId,
+      timestamp,
+      level,
+      message,
+      data: sanitizedData,
+      url: window.location.href,
+      userAgent: navigator.userAgent
+    };
+
+    // Use console method based on log level
+    switch (consoleMethod) {
+      case 'debug':
+        console.group(`${level} [${logId}]`);
+        console.debug(`📅 Time: ${timestamp}`);
+        console.debug(`🎯 Message: ${message}`);
+        if (sanitizedData) console.debug(`📊 Data:`, sanitizedData);
+        console.debug(`📍 URL: ${window.location.href}`);
+        console.groupEnd();
+        break;
+      case 'info':
+        console.group(`${level} [${logId}]`);
+        console.info(`📅 Time: ${timestamp}`);
+        console.info(`🎯 Message: ${message}`);
+        if (sanitizedData) console.info(`📊 Data:`, sanitizedData);
+        console.info(`📍 URL: ${window.location.href}`);
+        console.groupEnd();
+        break;
+      case 'warn':
+        console.group(`${level} [${logId}]`);
+        console.warn(`📅 Time: ${timestamp}`);
+        console.warn(`🎯 Message: ${message}`);
+        if (sanitizedData) console.warn(`📊 Data:`, sanitizedData);
+        console.warn(`📍 URL: ${window.location.href}`);
+        console.groupEnd();
+        break;
+      case 'error':
+        console.group(`${level} [${logId}]`);
+        console.error(`📅 Time: ${timestamp}`);
+        console.error(`🎯 Message: ${message}`);
+        if (sanitizedData) console.error(`📊 Data:`, sanitizedData);
+        console.error(`📍 URL: ${window.location.href}`);
+        console.groupEnd();
+        break;
+    }
+  }
+
+  /**
+   * Check if logging should be enabled based on environment and level
+   */
+  private shouldLog(level: string): boolean {
+    if (!this.environmentService.isLoggingEnabled) {
+      return false;
+    }
+
+    // In production, only log warnings and errors
+    if (this.environmentService.isProduction) {
+      return level === 'warn' || level === 'error';
+    }
+
+    // In development, log everything
+    return true;
+  }
+
+  /**
+   * Generate unique log ID
+   */
+  private generateLogId(): string {
+    return `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 } 

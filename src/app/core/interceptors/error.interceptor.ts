@@ -19,17 +19,22 @@ export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
             let errorMessage: string = 'An unexpected error occurred';
 
-            if (error.status === 401) {
-                errorMessage = 'Your session has expired. Please login again.';
-                // authService.logout();
+            if (error.status === 0) {
+                errorMessage = 'Network error. Please check your connection.';
+            } else if (error.status === 401) {
+                errorMessage = 'Unauthorized. Please log in again.';
             } else if (error.status === 403) {
-                errorMessage = 'You do not have permission to perform this action.';
+                errorMessage = 'Access denied. You don\'t have permission for this action.';
             } else if (error.status === 404) {
-                errorMessage = 'The requested resource was not found.';
+                errorMessage = 'Resource not found.';
+            } else if (error.status === 422) {
+                errorMessage = 'Validation error. Please check your input.';
             } else if (error.status === 500) {
                 errorMessage = 'Server error. Please try again later.';
-            } else if (error.status === 0) {
-                errorMessage = 'Network error. Please check your connection.';
+            } else if (error.error?.message) {
+                errorMessage = error.error.message;
+            } else if (error.message) {
+                errorMessage = error.message;
             }
 
             messageService.add({
