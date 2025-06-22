@@ -12,22 +12,22 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DividerModule } from 'primeng/divider';
-import { InputFieldComponent } from '../../../shared/components/input-field/input-field.component';
-import { LoggerService } from '../../../core/services/logger.service';
+import { InputFieldComponent } from '../../../../shared/components/input-field/input-field.component';
+import { LoggerService } from '../../../../core/services/logger.service';
 import {
   ROUTE_BASE_PATHS,
   ROUTES,
   FORM_VALIDATION_MESSAGES,
-} from '../../../shared/constants';
-import { LOGIN_INPUT_FIELDS_CONFIG } from '../config/login-form.config';
-import { AuthLayoutComponent } from '../shared/auth-layout.component';
-import { FormService } from '../../../shared/services/form.service';
-import { NotificationService } from '../../../shared/services/notification.service';
+} from '../../../../shared/constants';
+import { LOGIN_INPUT_FIELDS_CONFIG } from '../../config/login-form.config';
+import { AuthLayoutComponent } from '../../shared/auth-layout.component';
+import { FormService } from '../../../../shared/services/form.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import { ToastModule } from 'primeng/toast';
-import { IEnhancedForm } from '../../../shared/models/form.model';
-import { AuthService } from '../services/auth.service';
+import { IEnhancedForm } from '../../../../shared/models/form.model';
+import { AuthService } from '../../services/auth.service';
 import { finalize } from 'rxjs/operators';
-import { ILoginRequestDto } from '../models/auth-api.model';
+import { ILoginRequestDto } from '../../models/auth-api.model';
 
 @Component({
   selector: 'app-login',

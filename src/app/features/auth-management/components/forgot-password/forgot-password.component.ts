@@ -9,13 +9,13 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { InputFieldComponent } from '../../../shared/components/input-field/input-field.component';
-import { IInputFieldsConfig } from '../../../shared/models/input-fields-config.model';
-import { InputFieldConfigService } from '../../../shared/services/input-field-config.service';
-import { LoggerService } from '../../../core/services/logger.service';
-import { FORGOT_PASSWORD_INPUT_FIELDS_CONFIG } from '../config/forgot-password-form.config';
-import { AuthLayoutComponent } from '../shared/auth-layout.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
+import { InputFieldComponent } from '../../../../shared/components/input-field/input-field.component';
+import { IInputFieldsConfig } from '../../../../shared/models/input-fields-config.model';
+import { InputFieldConfigService } from '../../../../shared/services/input-field-config.service';
+import { LoggerService } from '../../../../core/services/logger.service';
+import { FORGOT_PASSWORD_INPUT_FIELDS_CONFIG } from '../../config/forgot-password-form.config';
+import { AuthLayoutComponent } from '../../shared/auth-layout.component';
+import { ROUTE_BASE_PATHS, ROUTES } from '../../../../shared/constants';
 
 @Component({
   selector: 'app-forgot-password',
