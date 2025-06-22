@@ -1,0 +1,95 @@
+// SCSS Variables
+$overlay-z-index: 9999;
+$backdrop-z-index: 50;
+$backdrop-blur: 4px;
+$border-radius: 12px;
+$transition-duration: 0.3s;
+$spinner-size: 3rem;
+$spinner-border-width: 4px;
+
+// Colors
+$backdrop-color: rgba(0, 0, 0, 0.5);
+$content-bg: white;
+$text-primary: #111827;
+$text-secondary: #6b7280;
+$border-color: rgba(0, 0, 0, 0.1);
+$spinner-track: var(--surface-300, #e5e7eb); // Theme-aware track color
+$spinner-active: var(--primary-color, #3b82f6); // Theme-aware primary color
+$shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+// Host component styles
+:host {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: $overlay-z-index;
+}
+
+// Main overlay structure
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $backdrop-color;
+  backdrop-filter: blur($backdrop-blur);
+  pointer-events: auto;
+  z-index: $backdrop-z-index;
+
+  // Overlay content card
+  .overlay-content {
+    background: $content-bg;
+    color: $text-primary;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    box-shadow: $shadow;
+    padding: 2rem;
+    max-width: 20rem;
+    margin: 1rem;
+    text-align: center;
+    transition: all $transition-duration ease;
+
+    // Spinner section
+    .spinner-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+
+      .spinner {
+        width: $spinner-size;
+        height: $spinner-size;
+        border: $spinner-border-width solid $spinner-track;
+        border-top: $spinner-border-width solid $spinner-active;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+    }
+
+    // Text content
+    .overlay-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin-bottom: 0.5rem;
+    }
+
+    .overlay-message {
+      font-size: 0.875rem;
+      color: $text-secondary;
+    }
+  }
+}
+
+// Animations
+@keyframes spin {
+  0% { 
+    transform: rotate(0deg); 
+  }
+  100% { 
+    transform: rotate(360deg); 
+  }
+} 

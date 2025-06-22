@@ -1,0 +1,18 @@
+@if (isVisible()) {
+  <div class="overlay-backdrop" @fadeInOut>
+    <div class="overlay-content">
+      <!-- Loading Spinner -->
+      <div class="spinner-container">
+        <div class="spinner"></div>
+      </div>
+      
+      <!-- Loading Message -->
+      <h3 class="overlay-title">
+        {{ title() }}
+      </h3>
+      <p class="overlay-message">
+        {{ message() }}
+      </p>
+    </div>
+  </div>
+} 

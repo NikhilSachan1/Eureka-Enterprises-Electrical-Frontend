@@ -59,9 +59,9 @@ export class SidebarUserProfileComponent {
     this.showUserOptions.set(false);
   }
 
-  logout(): void {
-    this.authService.logout();
+  async logout(): Promise<void> {
     this.showUserOptions.set(false);
+    await this.authService.logout();
   }
   
   // Method to handle option click

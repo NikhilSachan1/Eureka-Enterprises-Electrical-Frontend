@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap, finalize, map } from 'rxjs/operators';
 import { ApiService } from '../../../core/services/api.service';
 import { LoggerService } from '../../../core/services/logger.service';
+import { LoadingService } from '../../../shared/services/loading.service';
 import { API_ROUTES } from '../../../core/constants/api.constants';
 import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
 import { ILoggedInUserDetails } from '../models/logged-in-user.model';
@@ -18,6 +19,7 @@ export class AuthService {
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
   private readonly logger = inject(LoggerService);
+  private readonly loadingService = inject(LoadingService);
 
   // Signal-based state management
   private readonly _isAuthenticated = signal<boolean>(false);
@@ -46,7 +48,6 @@ export class AuthService {
   public readonly loggedInUserAvatar = computed(() => {
     const user = this._user();
     let avatarUrl = '';
-    console.log(user);
     if(!user || !user.avatarUrl) {
       avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || '')}`;
     } else {
@@ -84,7 +85,13 @@ export class AuthService {
   }
 
   login(formData: ILoginRequestDto, rememberMe: boolean): Observable<ILoginResponseDto> {
-    this._isLoading.set(true);
+    this._isLoading.set(true);    
+    // Show general loading overlay
+    this.loadingService.show({
+      title: 'Logging In',
+      message: 'Please wait while we log you in...'
+    });
+    
     this.logger.logUserAction('Login Attempt', formData);
 
     return this.apiService.postValidated(
@@ -102,16 +109,27 @@ export class AuthService {
       }),
       finalize(() => {
         this._isLoading.set(false);
+        // Hide general loading overlay
+        this.loadingService.hide();
       })
     );
   }
 
   /**
-   * Logout user
+   * Logout user with loading state and delay
    */
-  logout(): void {
+  async logout(): Promise<void> {
     try {
       this.logger.logUserAction('User Logout');
+      this._isLoading.set(true);
+      // Show general loading overlay
+      this.loadingService.show({
+        title: 'Logging Out',
+        message: 'Please wait while we log you out...'
+      });
+      
+      // Add 3.5 second delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 3500));
       
       // Clear authentication state
       this.clearAuthState();
@@ -122,6 +140,11 @@ export class AuthService {
       this.logger.info('User logged out successfully');
     } catch (error) {
       this.logger.error('Error during logout', error);
+    } finally {
+      // Always clear logout loading state
+      this._isLoading.set(false);
+      // Hide general loading overlay
+      this.loadingService.hide();
     }
   }
 

@@ -82,12 +82,16 @@ export class LoginComponent implements OnInit {
 
   private executeLogin(loginData: ILoginRequestDto): void {
     this.isSubmitting.set(true);
+    this.form.disable();
 
     const rememberMe = this.form.getData()['rememberMe'];
 
     this.authService.login(loginData, rememberMe)
       .pipe(
-        finalize(() => this.isSubmitting.set(false)),
+        finalize(() => {
+          this.isSubmitting.set(false);
+          this.form.enable();
+        }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
