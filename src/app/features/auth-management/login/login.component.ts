@@ -1,138 +1,107 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
-  FormGroup,
-  FormBuilder,
-  ReactiveFormsModule,
-  FormsModule
-} from '@angular/forms';
+  Component,
+  inject,
+  OnInit,
+  ChangeDetectionStrategy,
+  signal,
+  DestroyRef,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DividerModule } from 'primeng/divider';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { InputFieldComponent } from '../../../shared/components/input-field/input-field.component';
-import { IInputFieldsConfig } from '../../../shared/models/input-fields-config.model';
-import { InputFieldConfigService } from '../../../shared/services/input-field-config.service';
 import { LoggerService } from '../../../core/services/logger.service';
-import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
+import {
+  ROUTE_BASE_PATHS,
+  ROUTES,
+  FORM_VALIDATION_MESSAGES,
+} from '../../../shared/constants';
 import { LOGIN_INPUT_FIELDS_CONFIG } from '../config/login-form.config';
 import { AuthLayoutComponent } from '../shared/auth-layout.component';
+import { FormService } from '../../../shared/services/form.service';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ToastModule } from 'primeng/toast';
+import { IEnhancedForm } from '../../../shared/models/form.model';
+import { AuthService } from '../services/auth.service';
+import { finalize } from 'rxjs/operators';
+import { ILoginRequestDto } from '../models/auth-api.model';
 
 @Component({
   selector: 'app-login',
   imports: [
     ReactiveFormsModule,
-    FormsModule,
     ButtonModule,
     CheckboxModule,
     DividerModule,
-    ToastModule,
     InputFieldComponent,
-    AuthLayoutComponent
+    AuthLayoutComponent,
+    ToastModule,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [MessageService]
 })
 export class LoginComponent implements OnInit {
-
-  private readonly inputFieldConfigService = inject(InputFieldConfigService);
-  private readonly fb = inject(FormBuilder);
+  private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly router = inject(Router);
-  private readonly messageService = inject(MessageService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly loading = signal(false);
-  protected readonly formSubmitted = signal(false);
-  protected readonly fieldConfigs = signal<Record<string, IInputFieldsConfig>>({});
-  
-  protected formGroup!: FormGroup;
+  protected form!: IEnhancedForm;
+  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    this.initializeFieldConfigs();
-    this.initializeForm();
-  }
-
-  private initializeFieldConfigs(): void {
-    try {
-      const configs = this.inputFieldConfigService.initializeFieldConfigs(LOGIN_INPUT_FIELDS_CONFIG);
-      this.fieldConfigs.set(configs);
-    } catch (error) {
-      this.logger.error('Error initializing field configs', error);
-    }
-  }
-
-  private initializeForm(): void {
-    try {
-      this.formGroup = this.inputFieldConfigService.createFormGroup(LOGIN_INPUT_FIELDS_CONFIG, this.fb);
-    } catch (error) {
-      this.logger.error('Error initializing form', error);
-    }
+    this.form = this.formService.createForm(LOGIN_INPUT_FIELDS_CONFIG, {
+      email: 'akhil.sachan@coditas.com',
+      password: 'Admin@123',
+    });
   }
 
   onSubmit(): void {
-    try {
-      this.formSubmitted.set(true);
-      
-      if (this.formGroup.valid && !this.loading()) {
-        this.loading.set(true);
-        
-        const formData = this.formGroup.value;
-        this.logger.logUserAction('Submit Login Form', { 
-          username: formData.username,
-          rememberMe: formData.rememberMe
-        });
-        
-        // TODO: Replace with proper authentication logic using authService
-        setTimeout(() => {
-          this.logger.info('Login form submitted successfully');
-          this.loading.set(false);
-          
-          // Show success message
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Login successful! Redirecting to dashboard...',
-            life: 3000
-          });
-          
-          // Navigate to dashboard after a short delay
-          setTimeout(() => {
-            this.router.navigate(['/dashboard']);
-          }, 1000);
-          
-        }, 1500);
-        
-      } else {
-        this.logger.warn('Form submission failed - form invalid or already submitting');
-        this.formGroup.markAllAsTouched();
-        
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Please check your credentials and try again.',
-          life: 5000
-        });
-      }
-    } catch (error) {
-      this.logger.error('Error submitting form', error);
-      this.loading.set(false);
-      
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'An unexpected error occurred. Please try again.',
-        life: 5000
-      });
+    if (this.isSubmitting() || !this.validateForm()) {
+      return;
     }
+
+    const loginData = this.prepareFormData();
+    this.executeLogin(loginData);
+  }
+
+  private validateForm(): boolean {
+    if (!this.form.validateAndMarkTouched()) {
+      this.notificationService.validationError(FORM_VALIDATION_MESSAGES.FORM_INVALID);
+      this.logger.warn('Login form validation failed');
+      return false;
+    }
+    return true;
+  }
+
+  private executeLogin(loginData: ILoginRequestDto): void {
+    this.isSubmitting.set(true);
+
+    const rememberMe = this.form.getData()['rememberMe'];
+
+    this.authService.login(loginData, rememberMe)
+      .pipe(
+        finalize(() => this.isSubmitting.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: () => {},
+        error: (error) => {}
+      });
   }
 
   protected onForgotPassword(): void {
     try {
       this.logger.logUserAction('Navigate to Forgot Password');
-      this.router.navigate([`/${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.FORGOT_PASSWORD}`]);
+      this.router.navigate([
+        `/${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.FORGOT_PASSWORD}`,
+      ]);
     } catch (error) {
       this.logger.error('Error navigating to forgot password', error);
     }
@@ -140,10 +109,21 @@ export class LoginComponent implements OnInit {
 
   protected onContactAdmin(): void {
     try {
-      alert('Contact Admin');
       this.logger.logUserAction('Navigate to Contact Admin');
+      this.notificationService.info(
+        'Please contact your system administrator for account assistance.',
+        'Contact Admin',
+      );
     } catch (error) {
-      this.logger.error('Error navigating to contact admin', error);
+      this.logger.error('Error in contact admin action', error);
     }
+  }
+
+  private prepareFormData(): ILoginRequestDto {
+    const formData = this.form.getData();
+    return {
+      email: formData['email'],
+      password: formData['password'],
+    };
   }
 }

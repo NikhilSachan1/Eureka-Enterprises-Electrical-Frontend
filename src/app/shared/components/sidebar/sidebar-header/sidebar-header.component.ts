@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { AppConfigService } from '../../../../core/services/app-config.service';
 
 @Component({
   selector: 'app-sidebar-header',
@@ -7,4 +8,10 @@ import { Component } from '@angular/core';
   templateUrl: './sidebar-header.component.html',
   styleUrls: ['./sidebar-header.component.scss']
 })
-export class SidebarHeaderComponent {} 
+export class SidebarHeaderComponent {
+  private readonly appConfigService = inject(AppConfigService);
+
+  // Using computed signals for reactive data - Angular v19 best practice
+  readonly companyName = computed(() => this.appConfigService.appName);
+  readonly companyDescription = computed(() => this.appConfigService.appDescription);
+} 

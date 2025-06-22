@@ -8,19 +8,20 @@
 
 	<form 
 		(ngSubmit)="onSubmit()"
+		[formGroup]="form.formGroup"
 		class="form auth-form"
 	>
-		<!-- Username field -->
+		<!-- Email field -->
 		<app-input-field 
-			[formGroup]="formGroup" 
-			[inputFieldConfig]="fieldConfigs()['username']"
+			[formGroup]="form.formGroup" 
+			[inputFieldConfig]="form.fieldConfigs['email']"
 		></app-input-field>
 
 
 		<!-- Password field -->
 		<app-input-field 
-			[formGroup]="formGroup"
-			[inputFieldConfig]="fieldConfigs()['password']"
+			[formGroup]="form.formGroup"
+			[inputFieldConfig]="form.fieldConfigs['password']"
 		></app-input-field>
 
 
@@ -28,8 +29,8 @@
 		<div class="flex items-center justify-between mb-6 gap-4">
 			<div class="flex-shrink-0">
 				<app-input-field 
-					[formGroup]="formGroup"
-					[inputFieldConfig]="fieldConfigs()['rememberMe']"
+					[formGroup]="form.formGroup"
+					[inputFieldConfig]="form.fieldConfigs['rememberMe']"
 				></app-input-field>
 			</div>
 
@@ -46,8 +47,7 @@
 
 		<!-- Sign in button -->
 		<p-button 
-			[loading]="loading()"
-			[disabled]="loading()"
+			[loading]="isSubmitting()"
 			label="Sign in"
 			size="large"
 			type="submit"

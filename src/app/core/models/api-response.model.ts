@@ -4,6 +4,6 @@ export interface IApiErrorResponse {
     timestamp: string;
     path: string;
     method: string;
-    message: string;
+    message: string[] | string;
   }
 }

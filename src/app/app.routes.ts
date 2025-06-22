@@ -2,12 +2,16 @@ import { Routes } from '@angular/router';
 import { ROUTE_BASE_PATHS, ROUTES } from './shared/constants/index';
 import { PublicLayoutComponent } from './shared/components/layouts/public-layout/public-layout.component';
 import { PrivateLayoutComponent } from './shared/components/layouts/private-layout/private-layout.component';
+import { DasboardComponent } from './features/dashboard-management/dasboard/dasboard.component';
+import { guestGuard } from './core/guards/guest.guard';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   // Public routes (no sidebar)
   {
     path: '',
     component: PublicLayoutComponent,
+    canActivate: [guestGuard],
     children: [
       {
         path: '',
@@ -26,7 +30,12 @@ export const routes: Routes = [
   {
     path: '',
     component: PrivateLayoutComponent,
+    canActivate: [authGuard],
     children: [
+      {
+        path: ROUTE_BASE_PATHS.DASHBOARD,
+        component: DasboardComponent
+      },
       {
         path: ROUTE_BASE_PATHS.EMPLOYEE,
         loadChildren: () => import('./features/employee-management/employee-management.routes')

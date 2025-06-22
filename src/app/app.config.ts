@@ -1,18 +1,20 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling, withComponentInputBinding } from '@angular/router';
-import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import Aura from '@primeng/themes/aura';
-import { LoggingInterceptor } from './core/interceptors/logging.interceptor';
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { routes } from './app.routes';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
     providers: [
         // Animations with async loading
-        provideAnimationsAsync(),
+        provideAnimations(),
         
         // PrimeNG configuration
         providePrimeNG({
@@ -37,7 +39,10 @@ export const appConfig: ApplicationConfig = {
         // Angular V19: HTTP client with Fetch API and interceptors
         provideHttpClient(
             withFetch(),
-            withInterceptors([ErrorInterceptor, LoggingInterceptor])
+            withInterceptors([
+                authInterceptor,      // Handle authentication tokens
+                ErrorInterceptor,     // Handle HTTP errors
+            ])
         ),
         
         // Angular V19: Enhanced router with component input binding
@@ -53,6 +58,9 @@ export const appConfig: ApplicationConfig = {
         
         // Services
         { provide: ConfirmationService, useClass: ConfirmationService },
-        { provide: MessageService, useClass: MessageService }
+        { provide: MessageService },
+        
+        // Import PrimeNG modules
+        importProvidersFrom(BrowserAnimationsModule)
     ]
 };

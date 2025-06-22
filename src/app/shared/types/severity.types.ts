@@ -3,11 +3,12 @@ export enum ESeverity {
     SECONDARY = 'secondary',
     SUCCESS = 'success',
     INFO = 'info',
-    WARNING = 'warning',
+    WARNING = 'warn',
     DANGER = 'danger',
+    ERROR = 'error',
 }
 
-export type PrimeNGSeverity =
+export type EPrimeNGSeverity =
   | 'success'
   | 'info'
   | 'warn'
@@ -15,3 +16,5 @@ export type PrimeNGSeverity =
   | 'secondary'
   | 'contrast'
   | undefined;
+
+export type EPrimeNGNotificationSeverity = EPrimeNGSeverity | 'error';

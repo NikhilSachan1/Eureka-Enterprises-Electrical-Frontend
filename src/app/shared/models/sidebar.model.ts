@@ -1,13 +1,4 @@
 /**
- * Interface representing a user in the sidebar
- */
-export interface SidebarUser {
-  name: string;
-  designation: string;
-  avatar: string;
-}
-
-/**
  * Interface representing a menu item in the sidebar
  * Supports nested menu items through the items property
  */

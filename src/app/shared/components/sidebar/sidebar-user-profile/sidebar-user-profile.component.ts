@@ -1,14 +1,14 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, computed, HostListener, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { fadeInOut } from '../../../animations/index';
-import { SidebarUser, UserOption } from '../../../models/index';
+import { UserOption } from '../../../models/index';
 import { NgClass } from '@angular/common';
 import { primaryUserOptions, secondaryUserOptions } from '../../../../core/config/user-options.config';
+import { AuthService } from '../../../../features/auth-management/services/auth.service';
 
 @Component({
   selector: 'app-sidebar-user-profile',
-  standalone: true,
   imports: [NgClass],
   templateUrl: './sidebar-user-profile.component.html',
   styleUrls: ['./sidebar-user-profile.component.scss'],
@@ -16,16 +16,14 @@ import { primaryUserOptions, secondaryUserOptions } from '../../../../core/confi
 })
 export class SidebarUserProfileComponent {
   private router = inject(Router);
-  readonly themeService = inject(ThemeService);
+  private readonly themeService = inject(ThemeService);
+  private readonly authService = inject(AuthService);
+
+  readonly user = computed(() => this.authService.user());  
+  readonly userAvatar = computed(() => this.authService.loggedInUserAvatar());
+  
 
   readonly showUserOptions = signal(false);
-
-  // Demo user data - in a real app, this would come from a user service
-  readonly user: SidebarUser = {
-    name: 'John Doe',
-    designation: 'Software Engineer',
-    avatar: 'https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png'
-  };
 
   // User options from configuration
   readonly primaryOptions = primaryUserOptions;
@@ -62,8 +60,8 @@ export class SidebarUserProfileComponent {
   }
 
   logout(): void {
-    // In a real app, call auth service logout method
-    this.router.navigate(['/login']);
+    this.authService.logout();
+    this.showUserOptions.set(false);
   }
   
   // Method to handle option click

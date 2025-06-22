@@ -1,7 +1,7 @@
 <div class="py-6">
   <img
-    [src]="user.avatar"
-    [alt]="user.name"
+    [src]="userAvatar()"
+    [alt]="user()?.fullName"
     class="w-16 h-16 rounded-full object-cover border-3 border-primary shadow-md mx-auto mb-3"
     (click)="toggleUserOptions()"
     [attr.aria-expanded]="showUserOptions()"
@@ -9,8 +9,8 @@
     tabindex="0"
     loading="lazy"
   />
-  <h2 class="text-lg font-bold text-surface-900">{{ user.name }}</h2>
-  <p class="text-sm font-medium text-surface-600">{{ user.designation }}</p>
+  <h2 class="text-lg font-bold text-surface-900">{{ user()?.fullName }}</h2>
+  <p class="text-sm font-medium text-surface-600">{{ user()?.designation }}</p>
 
   <!-- User Options Menu -->
   @if (showUserOptions()) {

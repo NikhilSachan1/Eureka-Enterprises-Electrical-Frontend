@@ -26,7 +26,7 @@ import {
   IBulkActionConfig,
   IRowActionConfig,
 } from '../../models';
-import { ESeverity, ETableBodyTemplate, PrimeNGSeverity } from '../../types';
+import { ESeverity, ETableBodyTemplate, EPrimeNGSeverity } from '../../types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 
 @Component({
@@ -86,8 +86,8 @@ export class DataTableComponent {
     this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
-  protected getSeverity(status: string | ESeverity | undefined): PrimeNGSeverity {
-    const severityMap: Record<string, PrimeNGSeverity> = {
+  protected getSeverity(status: string | ESeverity | undefined): EPrimeNGSeverity {
+    const severityMap: Record<string, EPrimeNGSeverity> = {
       [ESeverity.SUCCESS]: 'success',
       [ESeverity.INFO]: 'info',
       [ESeverity.WARNING]: 'warn',
