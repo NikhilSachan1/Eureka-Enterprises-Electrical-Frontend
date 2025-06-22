@@ -6,8 +6,8 @@ export const environment: Environment = {
     ENVIRONMENT: 'production',
     
     // API Configuration (environment-specific)
-    API_BASE_URL: 'https://your-live-api.com/api',
+    API_BASE_URL: 'https://european-union.onrender.com/api/v1',
     
     // Feature Flags (environment-specific)
-    ENABLE_LOGGING: false, // Disable logging in production
+    ENABLE_LOGGING: true, // Disable logging in production
 };
