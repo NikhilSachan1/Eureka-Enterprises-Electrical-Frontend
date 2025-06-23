@@ -262,6 +262,17 @@ export const appMenu: ApplicationMenu = {
           ],
         },
         {
+          label: 'Settings',
+          icon: ICONS.SETTINGS.COG,
+          children: [
+            {
+              label: 'Permission Management',
+              icon: ICONS.SECURITY.SHIELD,
+              routerLink: `${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}`,
+            },
+          ],
+        },
+        {
           label: 'Permission Management',
           icon: ICONS.SECURITY.SHIELD,
           children: [
