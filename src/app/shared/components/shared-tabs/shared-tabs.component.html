@@ -1,0 +1,37 @@
+<p-tabs 
+    [scrollable]="true" 
+    [value]="currentActiveTab()" 
+>
+    <p-tablist>
+        @for(tab of tabs(); track tab.route) {
+            @if(tab.visible !== false) {
+                <p-tab 
+                    [value]="tab.route" 
+                    [routerLink]="tab.route" 
+                    [disabled]="tab.disabled" 
+                    [pTooltip]="tab.tooltip"
+                    tooltipPosition="top"
+                >
+
+                    @if(tab.icon) {
+                        <i [class]="tab.icon"></i>
+                    }
+
+                    <span>{{ tab.label }}</span>
+
+                    @if(tab.badge) {
+                        <span class="badge">
+                            {{ tab.badge }}
+                        </span>
+                    }
+                </p-tab>
+            }
+        }
+    </p-tablist>
+</p-tabs>
+
+@if(showRouterOutlet()) {
+<div class="tab-content mt-4">
+    <router-outlet></router-outlet>
+</div>
+}

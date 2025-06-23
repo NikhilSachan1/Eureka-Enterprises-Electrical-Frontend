@@ -1,1 +1,12 @@
-<p>users-permission-list works!</p>
+<app-data-table
+    [tableConfig]="tableConfig()"
+    [tableHeader]="tableHeader()"
+    [tableData]="tableData()"
+    [loading]="loading()"
+    [bulkActionButtons]="bulkActionButtons()"
+    [rowActions]="rowActions()"
+    (bulkActionClick)="handleBulkActionClick($event)"
+    (rowActionClick)="handleRowActionClick($event)"
+></app-data-table>
+
+<app-confirmation-dialog></app-confirmation-dialog>
