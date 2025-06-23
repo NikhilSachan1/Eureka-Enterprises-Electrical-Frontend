@@ -1,0 +1,251 @@
+<app-page-header 
+  title="Permission Assignment"
+  subtitle="Assign permissions to roles and users"
+  [showAddButton]="false"
+></app-page-header>
+
+<div class="content-wrapper">
+  <p-tabView 
+    [activeIndex]="activeTabIndex()"
+    (onChange)="onTabChange($event)"
+    styleClass="permission-assignment-tabs"
+  >
+    <!-- Role Permissions Tab -->
+    <p-tabPanel header="Role Permissions" leftIcon="pi pi-users">
+        <div class="tab-content">
+        <form [formGroup]="rolePermissionForm" (ngSubmit)="onRolePermissionSave()">
+          <!-- Role Selection -->
+          <div class="form-section">
+            <div class="section-header">
+              <h3 class="section-title">Select Role</h3>
+              <p class="section-subtitle">Choose a role to manage its permissions</p>
+            </div>
+            
+            <div class="form-group">
+              <label for="roleSelect" class="form-label">Role</label>
+              <p-select
+                id="roleSelect"
+                formControlName="selectedRole"
+                [options]="roleOptions()"
+                placeholder="Select a role"
+                [fluid]="true"
+                [filter]="true"
+                filterBy="label"
+                [showClear]="true"
+                styleClass="role-select"
+              ></p-select>
+            </div>
+          </div>
+
+          <!-- Permission Assignment -->
+          @if (selectedRole()) {
+            <div class="form-section">
+              <div class="section-header">
+                <h3 class="section-title">
+                  Permissions for "{{ selectedRole()?.name }}"
+                </h3>
+                <p class="section-subtitle">
+                  Select the permissions to assign to this role
+                </p>
+              </div>
+
+              <div class="permissions-grid">
+                @for (module of modules(); track module.id) {
+                  <div class="permission-module-card">
+                    <div class="module-header">
+                      <div class="module-info">
+                        <h4 class="module-name">{{ module.name }}</h4>
+                        <p class="module-description">{{ module.description }}</p>
+                      </div>
+                      
+                      <div class="module-actions">
+                        <p-checkbox
+                          [binary]="true"
+                          [ngModel]="isModuleFullySelected(module.id, 'role')"
+                          [ngModelOptions]="{standalone: true}"
+                          [indeterminate]="isModulePartiallySelected(module.id, 'role')"
+                          (ngModelChange)="toggleModulePermissions(module.id, 'role')"
+                          label="Select All"
+                        ></p-checkbox>
+                      </div>
+                    </div>
+
+                    <div class="permissions-list">
+                      @for (permission of permissions(); track permission.id) {
+                        @if (permission.module === module.id) {
+                          <div class="permission-item">
+                            <p-checkbox
+                              [binary]="true"
+                              [ngModel]="isPermissionSelected(permission.id, 'role')"
+                              [ngModelOptions]="{standalone: true}"
+                              (ngModelChange)="togglePermission(permission.id, 'role')"
+                              [inputId]="'role-permission-' + permission.id"
+                            ></p-checkbox>
+                            <label [for]="'role-permission-' + permission.id" class="permission-label">
+                              <span class="permission-name">{{ permission.name }}</span>
+                              <span class="permission-description">{{ permission.description }}</span>
+                            </label>
+                          </div>
+                        }
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="form-actions">
+                <p-button
+                  type="submit"
+                  label="Save Role Permissions"
+                  icon="pi pi-check"
+                  severity="success"
+                  [loading]="saving()"
+                  [disabled]="rolePermissionForm.invalid"
+                ></p-button>
+                
+                <p-button
+                  type="button"
+                  label="Cancel"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  [outlined]="true"
+                  (onClick)="rolePermissionForm.reset()"
+                ></p-button>
+              </div>
+            </div>
+          }
+        </form>
+      </div>
+    </p-tabPanel>
+
+    <!-- User Permissions Tab -->
+    <p-tabPanel header="User Permissions" leftIcon="pi pi-user">
+      <div class="tab-content">
+        <form [formGroup]="userPermissionForm" (ngSubmit)="onUserPermissionSave()">
+          <!-- User Selection -->
+          <div class="form-section">
+            <div class="section-header">
+              <h3 class="section-title">Select User</h3>
+              <p class="section-subtitle">Choose a user to manage their direct permissions</p>
+            </div>
+            
+            <div class="form-group">
+              <label for="userSelect" class="form-label">User</label>
+              <p-select
+                id="userSelect"
+                formControlName="selectedUser"
+                [options]="userOptions()"
+                placeholder="Select a user"
+                [fluid]="true"
+                [filter]="true"
+                filterBy="label"
+                [showClear]="true"
+                styleClass="user-select"
+              ></p-select>
+            </div>
+
+            @if (selectedUser()) {
+              <div class="user-info-card">
+                <div class="user-details">
+                  <h4>{{ selectedUser()?.name }}</h4>
+                  <p>{{ selectedUser()?.email }}</p>
+                  <div class="user-role">
+                    <span class="role-label">Current Role:</span>
+                    <span class="role-name">{{ selectedUser()?.role?.name || 'No Role' }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Permission Assignment -->
+          @if (selectedUser()) {
+            <div class="form-section">
+              <div class="section-header">
+                <h3 class="section-title">
+                  Direct Permissions for "{{ selectedUser()?.name }}"
+                </h3>
+                <p class="section-subtitle">
+                  These permissions are in addition to role-based permissions
+                </p>
+              </div>
+
+              <div class="permissions-grid">
+                @for (module of modules(); track module.id) {
+                  <div class="permission-module-card">
+                    <div class="module-header">
+                      <div class="module-info">
+                        <h4 class="module-name">{{ module.name }}</h4>
+                        <p class="module-description">{{ module.description }}</p>
+                      </div>
+                      
+                      <div class="module-actions">
+                        <p-checkbox
+                          [binary]="true"
+                          [ngModel]="isModuleFullySelected(module.id, 'user')"
+                          [ngModelOptions]="{standalone: true}"
+                          [indeterminate]="isModulePartiallySelected(module.id, 'user')"
+                          (ngModelChange)="toggleModulePermissions(module.id, 'user')"
+                          label="Select All"
+                        ></p-checkbox>
+                      </div>
+                    </div>
+
+                    <div class="permissions-list">
+                      @for (permission of permissions(); track permission.id) {
+                        @if (permission.module === module.id) {
+                          <div class="permission-item" 
+                               [ngClass]="{ 'inherited': isPermissionInherited(permission.id) }">
+                            <p-checkbox
+                              [binary]="true"
+                              [ngModel]="isPermissionSelected(permission.id, 'user')"
+                              [ngModelOptions]="{standalone: true}"
+                              [disabled]="isPermissionInherited(permission.id)"
+                              (ngModelChange)="togglePermission(permission.id, 'user')"
+                              [inputId]="'user-permission-' + permission.id"
+                            ></p-checkbox>
+                            <label [for]="'user-permission-' + permission.id" class="permission-label">
+                              <span class="permission-name">
+                                {{ permission.name }}
+                                @if (isPermissionInherited(permission.id)) {
+                                  <span class="inherited-badge">From Role</span>
+                                }
+                              </span>
+                              <span class="permission-description">{{ permission.description }}</span>
+                            </label>
+                          </div>
+                        }
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="form-actions">
+                <p-button
+                  type="submit"
+                  label="Save User Permissions"
+                  icon="pi pi-check"
+                  severity="success"
+                  [loading]="saving()"
+                  [disabled]="userPermissionForm.invalid"
+                ></p-button>
+                
+                <p-button
+                  type="button"
+                  label="Cancel"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  [outlined]="true"
+                  (onClick)="userPermissionForm.reset()"
+                ></p-button>
+              </div>
+            </div>
+          }
+        </form>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+</div>
+
+<p-toast></p-toast> 

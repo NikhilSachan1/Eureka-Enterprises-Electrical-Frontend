@@ -1,0 +1,130 @@
+<app-page-header 
+  title="Permission Management"
+  subtitle="Manage permissions, roles, and user access"
+  [showAddButton]="false"
+></app-page-header>
+
+<div class="content-wrapper">
+  <!-- Metrics Cards -->
+  <div class="metrics-grid">
+    @for (metric of metricsCards(); track metric.title) {
+      <app-metrics-card
+        [title]="metric.title"
+        [subtitle]="metric.subtitle"
+        [iconClass]="metric.iconClass"
+        [iconBgClass]="metric.iconBgClass"
+        [metrics]="metric.metrics"
+      ></app-metrics-card>
+    }
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons-wrapper">
+    <div class="flex gap-3 flex-wrap">
+      <p-button
+        type="button"
+        label="Add Permission"
+        icon="pi pi-plus"
+        severity="success"
+        size="small"
+        (onClick)="onAddPermission()"
+      ></p-button>
+      
+      <p-button
+        type="button"
+        label="Manage Assignments"
+        icon="pi pi-cog"
+        severity="primary"
+        size="small"
+        [outlined]="true"
+        (onClick)="onManagePermissions()"
+      ></p-button>
+    </div>
+  </div>
+
+  <!-- Permission Management Tabs -->
+  <div class="permission-tabs-container">
+    <p-tabView 
+      [activeIndex]="activeTabIndex()"
+      (onChange)="onTabChange($event)"
+      styleClass="permission-tabs"
+    >
+      <!-- Permissions Tab -->
+      <p-tabPanel header="Permissions" leftIcon="pi pi-shield">
+        <div class="tab-content">
+          <div class="tab-header">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              System Permissions
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Manage individual permissions and their assignments
+            </p>
+          </div>
+
+          <app-data-table
+            [tableConfig]="permissionTableConfig()"
+            [tableHeader]="permissionTableHeader()"
+            [tableData]="permissionTableData()"
+            [loading]="loading()"
+            [bulkActionButtons]="permissionBulkActions()"
+            [rowActions]="permissionRowActions()"
+            (bulkActionClick)="handlePermissionBulkAction($event)"
+            (rowActionClick)="handlePermissionRowAction($event)"
+          ></app-data-table>
+        </div>
+      </p-tabPanel>
+
+      <!-- Roles Tab -->
+      <p-tabPanel header="Roles" leftIcon="pi pi-users">
+        <div class="tab-content">
+          <div class="tab-header">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              Role Management
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Manage roles and their permission assignments
+            </p>
+          </div>
+
+          <app-data-table
+            [tableConfig]="roleTableConfig()"
+            [tableHeader]="roleTableHeader()"
+            [tableData]="roleTableData()"
+            [loading]="loading()"
+            [bulkActionButtons]="permissionBulkActions()"
+            [rowActions]="permissionRowActions()"
+            (bulkActionClick)="handleRoleBulkAction($event)"
+            (rowActionClick)="handleRoleRowAction($event)"
+          ></app-data-table>
+        </div>
+      </p-tabPanel>
+
+      <!-- Users Tab -->
+      <p-tabPanel header="Users" leftIcon="pi pi-user">
+        <div class="tab-content">
+          <div class="tab-header">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              User Permissions
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Manage user-specific permission assignments
+            </p>
+          </div>
+
+          <app-data-table
+            [tableConfig]="userTableConfig()"
+            [tableHeader]="userTableHeader()"
+            [tableData]="userTableData()"
+            [loading]="loading()"
+            [bulkActionButtons]="permissionBulkActions()"
+            [rowActions]="permissionRowActions()"
+            (bulkActionClick)="handleUserBulkAction($event)"
+            (rowActionClick)="handleUserRowAction($event)"
+          ></app-data-table>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</div>
+
+<app-confirmation-dialog></app-confirmation-dialog> 

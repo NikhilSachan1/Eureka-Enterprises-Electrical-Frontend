@@ -39,5 +39,16 @@ export const ICONS = {
   },
   SITE: {
     BUILDING: 'pi pi-building'
+  },
+  SECURITY: {
+    SHIELD: 'pi pi-shield',
+    KEY: 'pi pi-key',
+    LOCK: 'pi pi-lock',
+    UNLOCK: 'pi pi-unlock'
+  },
+  SETTINGS: {
+    COG: 'pi pi-cog',
+    SLIDERS: 'pi pi-sliders-h',
+    WRENCH: 'pi pi-wrench'
   }
 } as const; 

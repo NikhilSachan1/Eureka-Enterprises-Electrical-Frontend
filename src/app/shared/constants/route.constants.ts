@@ -20,7 +20,8 @@ export const ROUTE_BASE_PATHS = {
     COMPANY: 'company',
     CONTRACTOR: 'contractor',
     PROJECT: 'project'
-  }
+  },
+  PERMISSION: 'permission',
 } as const;
 
 export const ROUTES = {
@@ -111,5 +112,12 @@ export const ROUTES = {
     INCREMENT: `increment`,
     MONTHLY_REPORT: `monthly-report`,
     STRUCTURE: `structure`
+  },
+
+  PERMISSION: {
+    LIST: `list`,
+    MANAGE: `manage`,
+    ADD: `add`,
+    EDIT: `edit/:id`
   }
 } as const; 

@@ -85,6 +85,11 @@ export const routes: Routes = [
         path: ROUTE_BASE_PATHS.CARD,
         loadChildren: () => import('./features/petro-card-management/petro-card-management.routes')
           .then(m => m.PETRO_CARD_MANAGEMENT_ROUTES)
+      },
+      {
+        path: ROUTE_BASE_PATHS.PERMISSION,
+        loadChildren: () => import('./features/setting-management--1/setting-management.routes')
+          .then(m => m.SETTING_MANAGEMENT_ROUTES)
       }
     ]
   },
