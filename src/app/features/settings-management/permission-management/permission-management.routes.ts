@@ -1,7 +1,12 @@
 import { Routes } from '@angular/router';
-import { ROUTE_BASE_PATHS } from '../../../shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
 
 export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
+    {
+        path: ROUTES.SETTINGS.PERMISSION.LIST,
+        loadComponent: () => import('./permission-list/permission-list.component')
+            .then(m => m.PermissionListComponent)
+    },
     {
         path: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
         loadChildren: () => import('./system-permission-management/system-permission-management.routes')

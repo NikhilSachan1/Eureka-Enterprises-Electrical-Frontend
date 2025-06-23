@@ -1,0 +1,21 @@
+<app-page-header 
+    title="Permission Management"
+    subtitle="Manage permissions, roles, and user access"
+    [showAddButton]="true"
+    addButtonLabel="Add New Permission"
+    (addButtonClick)="onAddButtonClick()"
+></app-page-header>
+
+<div class="content-wrapper">
+    <div class="metrics-grid">
+        @for (metric of metricsCards(); track metric.title) {
+            <app-metrics-card
+                [title]="metric.title"
+                [subtitle]="metric.subtitle"
+                [iconClass]="metric.iconClass"
+                [iconBgClass]="metric.iconBgClass"
+                [metrics]="metric.metrics"
+            ></app-metrics-card>
+        }
+    </div>
+</div>

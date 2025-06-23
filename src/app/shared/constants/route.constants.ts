@@ -132,6 +132,7 @@ export const ROUTES = {
 
   SETTINGS: {
     PERMISSION: {
+      LIST: `list`,
       SYSTEM_PERMISSION: {
         LIST: `list`,
         ADD: `add`,
