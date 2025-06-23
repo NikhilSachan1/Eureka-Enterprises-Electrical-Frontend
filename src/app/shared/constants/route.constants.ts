@@ -22,6 +22,15 @@ export const ROUTE_BASE_PATHS = {
     PROJECT: 'project'
   },
   PERMISSION: 'permission',
+  SETTINGS: {
+    BASE: 'settings',
+    PERMISSION: {
+      BASE: 'permission',
+      SYSTEM: 'system',
+      USER: 'user',
+      ROLE: 'role'
+    }
+  },
 } as const;
 
 export const ROUTES = {
@@ -119,5 +128,25 @@ export const ROUTES = {
     MANAGE: `manage`,
     ADD: `add`,
     EDIT: `edit/:id`
+  },
+
+  SETTINGS: {
+    PERMISSION: {
+      SYSTEM_PERMISSION: {
+        LIST: `list`,
+        ADD: `add`,
+        EDIT: `edit/:id`
+      },
+      USER_PERMISSION: {
+        LIST: `list`,
+        ADD: `add`,
+        EDIT: `edit/:id`
+      },
+      ROLE_PERMISSION: {
+        LIST: `list`,
+        ADD: `add`,
+        EDIT: `edit/:id`
+      }
+    }
   }
 } as const; 

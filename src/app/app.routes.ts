@@ -87,6 +87,11 @@ export const routes: Routes = [
           .then(m => m.PETRO_CARD_MANAGEMENT_ROUTES)
       },
       {
+        path: ROUTE_BASE_PATHS.SETTINGS.BASE,
+        loadChildren: () => import('./features/settings-management/setting-management.routes')
+          .then(m => m.SETTING_MANAGEMENT_ROUTES)
+      },
+      {
         path: ROUTE_BASE_PATHS.PERMISSION,
         loadChildren: () => import('./features/setting-management--1/setting-management.routes')
           .then(m => m.SETTING_MANAGEMENT_ROUTES)
