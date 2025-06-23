@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap, finalize, map } from 'rxjs/operators';
 import { ApiService } from '../../../core/services/api.service';
 import { LoggerService } from '../../../core/services/logger.service';
-import { LoadingService } from '../../../shared/services/loading.service';
+import { LoadingService, AvatarService } from '../../../shared/services';
 import { API_ROUTES } from '../../../core/constants/api.constants';
 import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
 import { ILoggedInUserDetails } from '../models/logged-in-user.model';
@@ -20,6 +20,7 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly logger = inject(LoggerService);
   private readonly loadingService = inject(LoadingService);
+  private readonly avatarService = inject(AvatarService);
 
   // Signal-based state management
   private readonly _isAuthenticated = signal<boolean>(false);
@@ -49,7 +50,7 @@ export class AuthService {
     const user = this._user();
     let avatarUrl = '';
     if(!user || !user.avatarUrl) {
-      avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || '')}`;
+      avatarUrl = this.avatarService.getAvatarFromName(user?.fullName || '');
     } else {
       avatarUrl = user.avatarUrl;
     }

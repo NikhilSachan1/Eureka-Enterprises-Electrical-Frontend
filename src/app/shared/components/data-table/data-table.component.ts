@@ -5,6 +5,7 @@ import {
   output,
   ViewChild,
   signal,
+  inject,
 } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -28,6 +29,7 @@ import {
 } from '../../models';
 import { ESeverity, ETableBodyTemplate, EPrimeNGSeverity } from '../../types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
+import { AvatarService } from '../../services';
 
 @Component({
   selector: 'app-data-table',
@@ -60,6 +62,8 @@ export class DataTableComponent {
   @ViewChild('dt') dt!: Table;
 
   protected ALL_TABLE_BODY_TEMPLATES = ETableBodyTemplate;
+  
+  private avatarService = inject(AvatarService);
 
   // Input signals
   loading = input.required<boolean>();
@@ -133,5 +137,9 @@ export class DataTableComponent {
 
   protected onRowActionClick(actionType: string): void {
     this.rowActionClick.emit(actionType);
+  }
+
+  protected getAvatarUrl(name: string): string {
+    return this.avatarService.getAvatarFromName(name);
   }
 }
