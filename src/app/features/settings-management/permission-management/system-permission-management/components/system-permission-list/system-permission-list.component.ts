@@ -1,9 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DataTableComponent } from '../../../../../../shared/components/data-table/data-table.component';
 import { ConfirmationDialogComponent } from '../../../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
-import { DataTableConfigService } from '../../../../../../shared/services/data-table-config.service';
-import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../../../../shared/models';
-import { SYSTEM_PERMISSION_LIST_BULK_ACTIONS_CONFIG, SYSTEM_PERMISSION_LIST_ROW_ACTIONS_CONFIG, SYSTEM_PERMISSION_LIST_TABLE_CONFIG, SYSTEM_PERMISSION_LIST_TABLE_HEADER } from '../../config/table/system-permission-list-table.config';
+import { TableService } from '../../../../../../shared/services/table.service';
+import { IEnhancedTable } from '../../../../../../shared/models';
+import { SYSTEM_PERMISSION_LIST_ENHANCED_TABLE_CONFIG  } from '../../config/table/system-permission-list-table.config';
 import { EBulkActionType, ERowActionType } from '../../../../../../shared/types';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { IGetSystemPermissionListResponseDto } from '../../models/system-permission.api.model';
@@ -18,47 +18,19 @@ import { LoggerService } from '../../../../../../core/services/logger.service';
 })
 export class SystemPermissionListComponent implements OnInit {
 
-  protected tableConfig = signal<IDataTableConfig>({} as IDataTableConfig);
-  protected tableHeader = signal<IDataTableHeaderConfig[]>([]);
-  protected tableData = signal<any[]>([]);
-  protected loading = signal<boolean>(true);
-  protected bulkActionButtons = signal<IBulkActionConfig[]>([]);
-  protected rowActions = signal<IRowActionConfig[]>([]);
+  protected table!: IEnhancedTable;
 
   private readonly systemPermissionService = inject(SystemPermissionService);
-  private readonly dataTableConfigService = inject(DataTableConfigService);
+  private readonly tableService = inject(TableService);
   private readonly logger = inject(LoggerService);
 
   ngOnInit(): void {
-    this.initializeTableConfig();
+    this.table = this.tableService.createTable(SYSTEM_PERMISSION_LIST_ENHANCED_TABLE_CONFIG );
     this.getTableData();
   }
 
-  private initializeTableConfig(): void {
-    this.tableConfig.set(this.getTableConfig());
-    this.tableHeader.set(this.getTableHeader());
-    this.bulkActionButtons.set(this.getBulkActionButtons());
-    this.rowActions.set(this.getRowActions());
-  }
-
-  private getTableConfig(): IDataTableConfig {
-    return this.dataTableConfigService.getTableConfig(SYSTEM_PERMISSION_LIST_TABLE_CONFIG);
-  }
-
-  private getTableHeader(): IDataTableHeaderConfig[] {
-    return this.dataTableConfigService.getTableHeaderConfig(SYSTEM_PERMISSION_LIST_TABLE_HEADER);
-  }
-
-  private getBulkActionButtons(): IBulkActionConfig[] {
-    return this.dataTableConfigService.getBulkActionsConfig(SYSTEM_PERMISSION_LIST_BULK_ACTIONS_CONFIG);
-  }
-
-  private getRowActions(): IRowActionConfig[] {
-    return this.dataTableConfigService.getRowActionsConfig(SYSTEM_PERMISSION_LIST_ROW_ACTIONS_CONFIG);
-  }
-
   private getTableData(): void {
-    this.loading.set(true);
+    this.table.setLoading(true);
     
     this.systemPermissionService.getSystemPermissionList()
       .pipe(
@@ -71,13 +43,13 @@ export class SystemPermissionListComponent implements OnInit {
         next: (response: IGetSystemPermissionListResponseDto) => {
           this.logger.info('System permissions fetched successfully', response);
           const mappedData = this.mapTableData(response);          
-          this.tableData.set(mappedData);
-          this.loading.set(false);
+          this.table.setData(mappedData);
+          this.table.setLoading(false);
         },
         error: (error) => {
           this.logger.error('Unexpected error:', error);
-          this.tableData.set([]);
-          this.loading.set(false);
+          this.table.setData([]);
+          this.table.setLoading(false);
         }
       });
   }

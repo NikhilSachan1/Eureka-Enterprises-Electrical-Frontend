@@ -1,5 +1,6 @@
 import { MATCH_MODE_OPTIONS } from "../../../../../../shared/config/data-table.config";
 import { IBulkActionConfig, IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig } from "../../../../../../shared/models";
+import { IEnhancedTableConfig } from "../../../../../../shared/models/table.model";
 import { EBulkActionType, ESeverity, ERowActionType, ETableBodyTemplate, ETableDataType, ETableFilterMatchMode, ETableSearchInputType } from "../../../../../../shared/types";
 
 export const SYSTEM_PERMISSION_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
@@ -104,4 +105,11 @@ export const SYSTEM_PERMISSION_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig
     },
     showSort: true,
   },
-]; 
+];
+
+export const SYSTEM_PERMISSION_LIST_ENHANCED_TABLE_CONFIG : IEnhancedTableConfig = {
+  tableConfig: SYSTEM_PERMISSION_LIST_TABLE_CONFIG,
+  headers: SYSTEM_PERMISSION_LIST_TABLE_HEADER,
+  bulkActions: SYSTEM_PERMISSION_LIST_BULK_ACTIONS_CONFIG,
+  rowActions: SYSTEM_PERMISSION_LIST_ROW_ACTIONS_CONFIG,
+}; 
