@@ -1,13 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import { ApiService } from '../../../../../core/services/api.service';
-import { IAddSystemPermissionRequestDto, IAddSystemPermissionResponseDto } from '../models/system-permission.api.model';
+import { IAddSystemPermissionRequestDto, IAddSystemPermissionResponseDto, IGetSystemPermissionListResponseDto } from '../models/system-permission.api.model';
 import { LoggerService } from '../../../../../core/services/logger.service';
 import { LoadingService } from '../../../../../shared/services/loading.service';
 import { API_ROUTES } from '../../../../../core/constants/api.constants';
 import { ROUTE_BASE_PATHS } from '../../../../../shared/constants/route.constants';
-import { AddSystemPermissionRequestSchema, AddSystemPermissionResponseSchema } from '../dto/system-permission-management.dto';
+import { AddSystemPermissionRequestSchema, AddSystemPermissionResponseSchema } from '../dto/add-system-permission-management.dto';
 import { Router } from '@angular/router';
+import { GetSystemPermissionListResponseSchema } from '../dto/system-permission-management-list.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,32 @@ export class SystemPermissionService {
       }),
       catchError((error) => {
         this.logger.logUserAction('Add System Permission Error', error);
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    );
+  }
+
+  getSystemPermissionList(): Observable<IGetSystemPermissionListResponseDto> {
+
+    this.loadingService.show({
+      title: 'Getting System Permission List',
+      message: 'Please wait while we get the system permission list...'
+    });
+
+    this.logger.logUserAction('Get System Permission List Attempt');
+
+    return this.apiService.getValidated(
+      API_ROUTES.SETTINGS.PERMISSION.SYSTEM.LIST,
+      GetSystemPermissionListResponseSchema
+    ).pipe(
+      tap((response: IGetSystemPermissionListResponseDto) => {
+        this.logger.info('Get System Permission List Success', response);
+      }),
+      catchError((error) => {
+        this.logger.error('Get System Permission List Error', error);
         return throwError(() => error);
       }),
       finalize(() => {

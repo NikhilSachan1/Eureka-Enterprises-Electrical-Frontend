@@ -9,6 +9,7 @@ export interface IDataTableConfig {
     showPaginator: boolean;
     globalFilterFields: string[];
     showCheckbox: boolean;
+    emptyMessage: string;
 }
 
 export interface IDataTableHeaderConfig {

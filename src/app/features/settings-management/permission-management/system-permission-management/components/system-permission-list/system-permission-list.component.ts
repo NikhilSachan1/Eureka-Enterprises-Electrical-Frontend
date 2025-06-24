@@ -1,11 +1,14 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { DataTableComponent } from '../../../../../../shared/components/data-table/data-table.component';
 import { ConfirmationDialogComponent } from '../../../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { DataTableConfigService } from '../../../../../../shared/services/data-table-config.service';
-import { ConfirmationDialogService } from '../../../../../../shared/services/confirmation-dialog-config.service';
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../../../../shared/models';
 import { SYSTEM_PERMISSION_LIST_BULK_ACTIONS_CONFIG, SYSTEM_PERMISSION_LIST_ROW_ACTIONS_CONFIG, SYSTEM_PERMISSION_LIST_TABLE_CONFIG, SYSTEM_PERMISSION_LIST_TABLE_HEADER } from '../../config/table/system-permission-list-table.config';
 import { EBulkActionType, ERowActionType } from '../../../../../../shared/types';
+import { SystemPermissionService } from '../../services/system-permission.service';
+import { IGetSystemPermissionListResponseDto } from '../../models/system-permission.api.model';
+import { catchError, of } from 'rxjs';
+import { LoggerService } from '../../../../../../core/services/logger.service';
 
 @Component({
   selector: 'app-system-permission-list',
@@ -22,10 +25,9 @@ export class SystemPermissionListComponent implements OnInit {
   protected bulkActionButtons = signal<IBulkActionConfig[]>([]);
   protected rowActions = signal<IRowActionConfig[]>([]);
 
-  constructor(
-    private dataTableConfigService: DataTableConfigService,
-    private confirmationDialogService: ConfirmationDialogService
-  ) {}
+  private readonly systemPermissionService = inject(SystemPermissionService);
+  private readonly dataTableConfigService = inject(DataTableConfigService);
+  private readonly logger = inject(LoggerService);
 
   ngOnInit(): void {
     this.initializeTableConfig();
@@ -56,43 +58,39 @@ export class SystemPermissionListComponent implements OnInit {
   }
 
   private getTableData(): void {
-    setTimeout(() => {
-      this.tableData.set([
-        {
-          id: '2715b251-c614-4463-a15e-47792bfa700',
-          name: 'LEAVE_ADD_BUTTON',
-          module: 'Leave',
-          label: 'Add Leave Button',
-          description: 'Allows user to add new leave requests',
-          status: 'Active'
+    this.loading.set(true);
+    
+    this.systemPermissionService.getSystemPermissionList()
+      .pipe(
+        catchError((error) => {
+          this.logger.error('Error fetching system permissions:', error);
+          return of({ records: [], totalRecords: 0 } as IGetSystemPermissionListResponseDto);
+        })
+      )
+      .subscribe({
+        next: (response: IGetSystemPermissionListResponseDto) => {
+          this.logger.info('System permissions fetched successfully', response);
+          const mappedData = this.mapTableData(response);          
+          this.tableData.set(mappedData);
+          this.loading.set(false);
         },
-        {
-          id: '345be73-9341-43b7-9dec-8cc66a9a842',
-          name: 'LEAVE_CANCEL_BUTTON',
-          module: 'Leave',
-          label: 'Cancel Leave Button',
-          description: 'Allows user to cancel leave requests',
-          status: 'Active'
-        },
-        {
-          id: '98d6c10c-d394-4bd4-8a8c-6a0ad47866a2',
-          name: 'LEAVE_APPROVE_BUTTON',
-          module: 'Leave',
-          label: 'Approve Leave Button',
-          description: 'Allows user to approve leave requests',
-          status: 'Inactive'
-        },
-        {
-          id: '9c76c8af-3b26-43cb-9e82-a604ff5e6392',
-          name: 'ATTENDANCE_ADD_BUTTON',
-          module: 'Attendance',
-          label: 'Add Attendance Button',
-          description: 'Allows user to add new attendance requests',
-          status: 'Active'
+        error: (error) => {
+          this.logger.error('Unexpected error:', error);
+          this.tableData.set([]);
+          this.loading.set(false);
         }
-      ]);
-      this.loading.set(false);
-    }, 1000);
+      });
+  }
+
+  private mapTableData(response: IGetSystemPermissionListResponseDto) {
+    return response.records.map(record => ({
+      id: record.id,
+      name: record.name,
+      module: record.module,
+      label: record.label,
+      description: record.description,
+      status: record.deletedAt ? 'Inactive' : 'Active'
+    }));
   }
 
   protected handleBulkActionClick(action: string): void {

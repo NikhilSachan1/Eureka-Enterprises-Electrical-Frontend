@@ -9,7 +9,7 @@ import { ToastModule } from 'primeng/toast';
 import { NotificationService } from '../../../../../../shared/services/notification.service';
 import { LoggerService } from '../../../../../../core/services/logger.service';
 import { FormService } from '../../../../../../shared/services/form.service';
-import { ROUTE_BASE_PATHS, FORM_VALIDATION_MESSAGES } from '../../../../../../shared/constants';
+import { FORM_VALIDATION_MESSAGES } from '../../../../../../shared/constants';
 import { IEnhancedForm } from '../../../../../../shared/models/form.model';
 import { ADD_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG } from '../../config/form/add-system-permission-form.config';
 import { MODULE_ACTIONS_DATA } from '../../../../../../shared/config/static-data.config';
@@ -36,7 +36,6 @@ export class AddSystemPermissionComponent implements OnInit {
 
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
-  private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
   private readonly systemPermissionService = inject(SystemPermissionService);
   private readonly destroyRef = inject(DestroyRef);

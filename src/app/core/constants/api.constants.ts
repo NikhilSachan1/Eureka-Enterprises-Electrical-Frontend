@@ -8,6 +8,7 @@ export const API_ROUTES = {
         PERMISSION: {
             SYSTEM: {
                 ADD: 'permissions',
+                LIST: 'permissions',
             }
         }
     }

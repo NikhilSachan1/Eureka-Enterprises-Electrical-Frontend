@@ -9,6 +9,7 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   rowsPerPageOptions: [5, 10, 25, 50],
   showPaginator: true,
   showCheckbox: true,
+  emptyMessage: 'No data found',
 };
 
 // default table header config

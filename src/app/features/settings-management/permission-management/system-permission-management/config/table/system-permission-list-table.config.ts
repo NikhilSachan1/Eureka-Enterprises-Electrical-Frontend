@@ -45,6 +45,7 @@ export const SYSTEM_PERMISSION_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
     'description',
     'status',
   ],
+  emptyMessage: 'No system permissions found.',
 };
 
 export const SYSTEM_PERMISSION_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
