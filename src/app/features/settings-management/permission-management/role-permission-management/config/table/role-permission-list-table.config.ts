@@ -48,7 +48,6 @@ export const ROLE_PERMISSION_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
   globalFilterFields: [
     'name',
     'description',
-    'level',
     'status',
   ],
 };
@@ -66,26 +65,6 @@ export const ROLE_PERMISSION_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[
     filterConfig: {
       filterField: 'name',
       placeholder: 'Search Role Name',
-    },
-    showSort: true,
-  },
-  {
-    field: 'level',
-    header: 'Access Level',
-    bodyTemplate: ETableBodyTemplate.TEXT,
-    filterConfig: {
-      filterField: 'level',
-      searchInputType: ETableSearchInputType.DROPDOWN,
-      filterDropdownOptions: [
-        'Admin',
-        'Manager',
-        'Supervisor',
-        'Employee',
-        'Guest'
-      ],
-      placeholder: 'Search By Level',
-      matchModeOptions: MATCH_MODE_OPTIONS.dropdown,
-      defaultMatchMode: ETableFilterMatchMode.EQUALS,
     },
     showSort: true,
   },
