@@ -26,12 +26,10 @@ export class AuthService {
   private readonly _isAuthenticated = signal<boolean>(false);
   private readonly _user = signal<ILoggedInUserDetails | null>(null);
   private readonly _token = signal<string | null>(null);
-  private readonly _isLoading = signal<boolean>(false);
 
   public readonly isAuthenticated = this._isAuthenticated.asReadonly();
   public readonly user = this._user.asReadonly();
   public readonly token = this._token.asReadonly();
-  public readonly isLoading = this._isLoading.asReadonly();
 
   public readonly loggedInUserInitials = computed(() => {
     const user = this._user();
@@ -86,7 +84,6 @@ export class AuthService {
   }
 
   login(formData: ILoginRequestDto, rememberMe: boolean): Observable<ILoginResponseDto> {
-    this._isLoading.set(true);    
     // Show general loading overlay
     this.loadingService.show({
       title: 'Logging In',
@@ -109,7 +106,6 @@ export class AuthService {
         return throwError(() => error);
       }),
       finalize(() => {
-        this._isLoading.set(false);
         // Hide general loading overlay
         this.loadingService.hide();
       })
@@ -122,7 +118,6 @@ export class AuthService {
   async logout(): Promise<void> {
     try {
       this.logger.logUserAction('User Logout');
-      this._isLoading.set(true);
       // Show general loading overlay
       this.loadingService.show({
         title: 'Logging Out',
@@ -142,8 +137,6 @@ export class AuthService {
     } catch (error) {
       this.logger.error('Error during logout', error);
     } finally {
-      // Always clear logout loading state
-      this._isLoading.set(false);
       // Hide general loading overlay
       this.loadingService.hide();
     }

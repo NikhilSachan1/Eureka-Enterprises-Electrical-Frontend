@@ -4,6 +4,13 @@ export const API_ROUTES = {
         FORGOT_PASSWORD: 'auth/forget-password',
         RESET_PASSWORD: 'auth/reset-password',
     },
+    SETTINGS: {
+        PERMISSION: {
+            SYSTEM: {
+                ADD: 'permissions',
+            }
+        }
+    }
 } as const;
 
 /**

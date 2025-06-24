@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
@@ -13,6 +13,10 @@ import { ROUTE_BASE_PATHS, FORM_VALIDATION_MESSAGES } from '../../../../../../sh
 import { IEnhancedForm } from '../../../../../../shared/models/form.model';
 import { ADD_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG } from '../../config/form/add-system-permission-form.config';
 import { MODULE_ACTIONS_DATA } from '../../../../../../shared/config/static-data.config';
+import { IAddSystemPermissionRequestDto } from '../../models/system-permission.api.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SystemPermissionService } from '../../services/system-permission.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-add-system-permission',
@@ -34,6 +38,8 @@ export class AddSystemPermissionComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
+  private readonly systemPermissionService = inject(SystemPermissionService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected form!: IEnhancedForm;
   protected readonly isSubmitting = signal(false);
@@ -54,7 +60,7 @@ export class AddSystemPermissionComponent implements OnInit {
     }
 
     const formData = this.prepareFormData();
-    this.executeCreatePermission(formData);
+    this.executeAddPermission(formData);
   }
 
   private validateForm(): boolean {
@@ -66,17 +72,22 @@ export class AddSystemPermissionComponent implements OnInit {
     return true;
   }
 
-  private executeCreatePermission(formData: any): void {
+  private executeAddPermission(formData: IAddSystemPermissionRequestDto): void {
     this.isSubmitting.set(true);
     this.form.disable();
-
-    // Simulate API call
-    setTimeout(() => {
-      this.notificationService.success('Permission created successfully!');
-      this.isSubmitting.set(false);
-      this.form.enable();
-      this.router.navigate([`/${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}`]);
-    }, 1500);
+    
+    this.systemPermissionService.addSystemPermission(formData)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting.set(false);
+          this.form.enable();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: () => {},
+        error: (error) => {}
+      });
   }
 
   protected onReset(): void {
@@ -88,12 +99,13 @@ export class AddSystemPermissionComponent implements OnInit {
     }
   }
 
-  private prepareFormData(): any {
+  private prepareFormData(): IAddSystemPermissionRequestDto {
     const formData = this.form.getData();
     return {
-      moduleName: formData['moduleName'],
-      action: formData['action'],
-      description: formData['description'],
+      module: formData['moduleName'],
+      name: `${formData['action']}_${formData['moduleName']}`,
+      label: `${formData['action']} ${formData['moduleName']}`,
+      description: formData['comment'],
     };
   }
 }
