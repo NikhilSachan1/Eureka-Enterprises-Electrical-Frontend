@@ -20,4 +20,5 @@ export interface IEnhancedForm {
     validateAndMarkTouched(): boolean;
     getData(): Record<string, any>;
     getRawData(): Record<string, any>;
+    getFieldData(fieldName: string): any;
 }

@@ -52,7 +52,7 @@
             <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
 
                 @let selectConfig = inputFieldConfig().selectConfig;
-
+                @let optionsDropdownLength = selectConfig?.optionsDropdown?.length;
                 <p-select
                     [id]="inputFieldConfig().id"
                     [fluid]="inputFieldConfig().haveFullWidth"
@@ -63,13 +63,14 @@
                     [optionLabel]="selectConfig?.optionLabel" 
                     [optionValue]="selectConfig?.optionValue"
                     [checkmark]="selectConfig?.showCheckmark"
-                    [filter]="selectConfig?.haveFilter" 
+                    [filter]="(optionsDropdownLength) ? selectConfig?.haveFilter : false" 
                     [filterBy]="selectConfig?.filterBy" 
                     [loading]="selectConfig?.loading" 
                     [showClear]="selectConfig?.showClearButton" 
                     [editable]="selectConfig?.isEditable"
                     [virtualScroll]="selectConfig?.virtualScroll" 
-                    [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize" 
+                    [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize"
+                    (onChange)="onChange()"
                 ></p-select>
                 <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
             </p-floatlabel>
@@ -78,6 +79,7 @@
             <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
 
                 @let multiSelectConfig = inputFieldConfig().multiSelectConfig;
+                @let optionsDropdownLength = multiSelectConfig?.optionsDropdown?.length;
 
                 <p-multiselect
                     [id]="inputFieldConfig().id"
@@ -89,7 +91,7 @@
                     [optionLabel]="multiSelectConfig?.optionLabel" 
                     [optionValue]="multiSelectConfig?.optionValue"
                     [maxSelectedLabels]="multiSelectConfig?.maxSelectedLabels"
-                    [filter]="multiSelectConfig?.haveFilter" 
+                    [filter]="(optionsDropdownLength) ? multiSelectConfig?.haveFilter : false" 
                     [filterBy]="multiSelectConfig?.filterBy" 
                     [loading]="multiSelectConfig?.loading" 
                     [showToggleAll]="multiSelectConfig?.showToggleAll" 

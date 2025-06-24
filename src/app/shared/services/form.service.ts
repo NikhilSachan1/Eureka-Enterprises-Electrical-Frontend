@@ -62,7 +62,8 @@ export class FormService {
       updateValidation: () => formGroup.updateValueAndValidity(), // Force validation to run again.
       validateAndMarkTouched: () => this.validateAndMarkTouched(formGroup), // Validate and mark touched in one method
       getData: () => formGroup.value, // Get form data (enabled controls only)
-      getRawData: () => formGroup.getRawValue() // Get raw form data (includes disabled controls)
+      getRawData: () => formGroup.getRawValue(), // Get raw form data (includes disabled controls)
+      getFieldData: (fieldName: string) => formGroup.get(fieldName)?.value, // Get data for a specific field
     };
   }
 }

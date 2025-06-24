@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -39,10 +39,15 @@ export class InputFieldComponent {
   // Modern input signals - required inputs
   formGroup = input.required<FormGroup>();
   inputFieldConfig = input.required<IInputFieldsConfig>();
+  onFieldChange = output<boolean>();
 
   checkIsFieldInvalid(fieldName: string): boolean {
     const control = this.formGroup().get(fieldName);
     return control ? (control.invalid && (control.dirty || control.touched)) : false;
+  }
+
+  onChange(): void {
+    this.onFieldChange.emit(true);
   }
 
   getErrorMessage(fieldName: string): string {

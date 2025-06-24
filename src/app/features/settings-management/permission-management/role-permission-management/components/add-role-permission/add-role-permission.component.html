@@ -1,0 +1,45 @@
+<app-page-header 
+    title="Add New Role"
+    subtitle="Create a new user role with permissions"
+></app-page-header>
+
+<form  
+    (ngSubmit)="onSubmit()"
+    [formGroup]="form.formGroup"
+    class="form"
+>
+
+    <app-input-field 
+            [formGroup]="form.formGroup" 
+            [inputFieldConfig]="form.fieldConfigs['roleName']">
+    </app-input-field>
+
+    <app-input-field 
+        [formGroup]="form.formGroup" 
+        [inputFieldConfig]="form.fieldConfigs['description']">
+    </app-input-field>
+
+    <div class="pt-4 border-t border-gray-200 button-container">
+
+        <p-button 
+            type="button"
+            label="Reset" 
+            severity="secondary" 
+            size="large"
+            (click)="onReset()"
+            [disabled]="isSubmitting()"
+        ></p-button>
+                
+        <p-button 
+            [loading]="isSubmitting()"
+            label="Create Role" 
+            severity="primary" 
+            size="large"
+            type="submit"
+        ></p-button>
+    </div>
+
+</form>
+
+<!-- Toast notifications -->
+<p-toast></p-toast> 

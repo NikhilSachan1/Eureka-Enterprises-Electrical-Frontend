@@ -11,5 +11,10 @@ export const ROLE_PERMISSION_MANAGEMENT_ROUTES: Routes = [
         path: ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.LIST,
         loadComponent: () => import('./components/role-permission-list/role-permission-list.component')
             .then(m => m.RolePermissionListComponent)
+    },
+    {
+        path: ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.ADD,
+        loadComponent: () => import('./components/add-role-permission/add-role-permission.component')
+            .then(m => m.AddRolePermissionComponent)
     }
 ];

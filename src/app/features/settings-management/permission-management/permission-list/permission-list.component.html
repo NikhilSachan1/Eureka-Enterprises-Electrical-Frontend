@@ -1,8 +1,8 @@
 <app-page-header 
     title="Permission Management"
     subtitle="Manage permissions, roles, and user access"
-    [showAddButton]="true"
-    addButtonLabel="Add New Permission"
+    [showAddButton]="shouldShowAddButton()"
+    [addButtonLabel]="getAddButtonLabel()"
     (addButtonClick)="onAddButtonClick()"
 ></app-page-header>
 

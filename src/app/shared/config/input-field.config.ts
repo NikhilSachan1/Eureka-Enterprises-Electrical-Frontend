@@ -29,7 +29,7 @@ export const DEFAULT_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
         filterBy: 'value',
         showClearButton: true,
         isEditable: false,
-        virtualScroll: true,
+        virtualScroll: false,
         virtualScrollItemSize: 10,
         optionLabel: 'value',
         optionValue: 'key',
