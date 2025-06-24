@@ -2,7 +2,8 @@
   class="content-area"
   [ngClass]="{
     'content-area--with-sidebar': sidebarVisible() && !isMobile(),
-    'content-area--dark': themeService.isDarkMode()
+    'content-area--dark': themeService.isDarkMode(),
+    'transition-enabled': transitionEnabled()
   }"
 >
   <div class="p-4">

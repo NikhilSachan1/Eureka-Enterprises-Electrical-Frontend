@@ -96,7 +96,7 @@
 .sidebar-toggle {
   position: fixed;
   left: 0;
-  top: calc(var(--header-height) + 1rem);
+  top: calc(var(--header-height) + 0.5rem);
   z-index: 1001;
   width: 24px;
   height: 32px;
@@ -108,8 +108,12 @@
   border-radius: 0 6px 6px 0;
   border: 1px solid var(--sidebar-border-color);
   box-shadow: var(--shadow-md);
-  transition: var(--transition-smooth);
   padding: 0;
+  
+  // Enable transition only when explicitly requested (not on page load)
+  &.transition-enabled {
+    transition: var(--transition-smooth);
+  }
 
   &--visible {
     left: var(--sidebar-width);
@@ -164,7 +168,7 @@
 
   .sidebar-toggle {
     left: 0 !important;
-    top: 1rem;
+    top: calc(var(--header-height) + 0.5rem);
     width: 28px;
     height: 36px;
 

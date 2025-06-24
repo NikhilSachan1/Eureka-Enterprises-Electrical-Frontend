@@ -13,9 +13,15 @@
   overflow-x: hidden;
   background-color: var(--background-default-color, white);
   color: var(--text-primary-color, #1e293b);
-  transition: margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 0.3s ease,
+  transition: background-color 0.3s ease,
               color 0.3s ease;
+  
+  // Enable margin transition only when explicitly requested (not on page load)
+  &.transition-enabled {
+    transition: margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.3s ease,
+                color 0.3s ease;
+  }
   
   // With sidebar variant
   &--with-sidebar {

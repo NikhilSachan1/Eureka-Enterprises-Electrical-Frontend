@@ -32,10 +32,18 @@ export class SidebarComponent {
   // Reactive state with signals
   readonly sidebarVisible = signal(true);
   readonly isMobile = signal(window.innerWidth <= 768);
+  
+  // Signal to control when transition should be enabled
+  protected transitionEnabled = signal<boolean>(false);
 
   constructor() {
     // Initialize sidebar visibility based on screen size
     this.sidebarVisible.set(!this.isMobile());
+    
+    // Enable transitions after initial render to prevent page refresh animation
+    setTimeout(() => {
+      this.transitionEnabled.set(true);
+    }, 100); // Small delay to ensure initial positioning is complete
   }
 
   @HostListener('window:resize')

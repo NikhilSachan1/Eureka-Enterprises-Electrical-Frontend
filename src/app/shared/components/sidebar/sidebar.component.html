@@ -1,6 +1,8 @@
 <div class="sidebar-layout" [ngClass]="{'dark-theme-active': themeService.isDarkMode()}">
   <!-- Toggle Button -->
-  <button type="button" class="sidebar-toggle" [class.sidebar-toggle--visible]="sidebarVisible()"
+  <button type="button" class="sidebar-toggle" 
+    [class.sidebar-toggle--visible]="sidebarVisible()"
+    [class.transition-enabled]="transitionEnabled()"
     [attr.aria-expanded]="sidebarVisible()" [attr.aria-label]="sidebarVisible() ? 'Hide sidebar' : 'Show sidebar'"
     (click)="toggleSidebar()" @fadeInOut>
     <i class="pi" [ngClass]="sidebarVisible() ? 'pi-times' : 'pi-bars'"></i>
