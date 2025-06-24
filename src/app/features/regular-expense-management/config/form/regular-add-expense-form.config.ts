@@ -11,15 +11,15 @@ export const REGULAR_ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
-        { value: 'Travel', key: 'travel' },
-        { value: 'Food & Entertainment', key: 'food_entertainment' },
-        { value: 'Office Supplies', key: 'office_supplies' },
-        { value: 'Equipment', key: 'equipment' },
-        { value: 'Software & Tools', key: 'software_tools' },
-        { value: 'Training & Development', key: 'training_development' },
-        { value: 'Marketing', key: 'marketing' },
-        { value: 'Utilities', key: 'utilities' },
-        { value: 'Other', key: 'other' }
+        { label: 'Travel', value: 'travel' },
+        { label: 'Food & Entertainment', value: 'food_entertainment' },
+        { label: 'Office Supplies', value: 'office_supplies' },
+        { label: 'Equipment', value: 'equipment' },
+        { label: 'Software & Tools', value: 'software_tools' },
+        { label: 'Training & Development', value: 'training_development' },
+        { label: 'Marketing', value: 'marketing' },
+        { label: 'Utilities', value: 'utilities' },
+        { label: 'Other', value: 'other' }
       ]
     }
   },
@@ -31,13 +31,13 @@ export const REGULAR_ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
-        { value: 'Cash', key: 'cash' },
-        { value: 'Credit Card', key: 'credit_card' },
-        { value: 'Debit Card', key: 'debit_card' },
-        { value: 'Bank Transfer', key: 'bank_transfer' },
-        { value: 'UPI', key: 'upi' },
-        { value: 'Cheque', key: 'cheque' },
-        { value: 'Digital Wallet', key: 'digital_wallet' }
+        { label: 'Cash', value: 'cash' },
+        { label: 'Credit Card', value: 'credit_card' },
+        { label: 'Debit Card', value: 'debit_card' },
+        { label: 'Bank Transfer', value: 'bank_transfer' },
+        { label: 'UPI', value: 'upi' },
+        { label: 'Cheque', value: 'cheque' },
+        { label: 'Digital Wallet', value: 'digital_wallet' }
       ]
     }
   },

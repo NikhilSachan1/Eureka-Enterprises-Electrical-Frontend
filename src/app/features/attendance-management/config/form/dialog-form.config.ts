@@ -9,11 +9,11 @@ export const REGULARIZE_ATTENDANCE_FORM_CONFIG: Partial<IInputFieldsConfig>[] = 
         label: 'Attendance Status',
         selectConfig: {
             optionsDropdown: [
-                { key: 'present', value: 'Present' },
-                { key: 'absent', value: 'Absent' },
-                { key: 'onLeave', value: 'On Leave' },
-                { key: 'holiday', value: 'Holiday' },
-                { key: 'checkedIn', value: 'Checked In' },
+                { label: 'Present', value: 'Present' },
+                { label: 'Absent', value: 'Absent' },
+                { label: 'On Leave', value: 'On Leave' },
+                { label: 'Holiday', value: 'Holiday' },
+                { label: 'Checked In', value: 'Checked In' },
             ],
         },
         validators: [Validators.required],

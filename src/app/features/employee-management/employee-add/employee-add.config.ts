@@ -24,7 +24,7 @@ export const ADD_EMPLOYEE_INPUT_FIELDS_CONFIG: IFormConfig = {
     fieldName: 'role',
     label: 'Role',
     selectConfig: {
-      optionsDropdown: [{value: 'Admin', key: 'admin'}, {value: 'Employee', key: 'employee'}],
+      optionsDropdown: [{label: 'Admin', value: 'admin'}, {label: 'Employee', value: 'employee'}],
       optionLabel: 'value',
     }
   },
@@ -34,7 +34,7 @@ export const ADD_EMPLOYEE_INPUT_FIELDS_CONFIG: IFormConfig = {
     fieldName: 'workOn',
     label: 'Work On',
     multiSelectConfig: {
-      optionsDropdown: [{value: 'Admin', key: 'admin'}, {value: 'Employee', key: 'employee'}],
+      optionsDropdown: [{label: 'Admin', value: 'admin'}, {label: 'Employee', value: 'employee'}],
       optionLabel: 'value',
     }
   },
@@ -58,7 +58,7 @@ export const ADD_EMPLOYEE_INPUT_FIELDS_CONFIG: IFormConfig = {
     fieldName: 'checkboxInput',
     label: 'Checkbox',
     checkboxConfig: {
-      options: [{value: 'Admin', key: 'admin'}, {value: 'Employee', key: 'employee'}],
+      options: [{label: 'Admin', value: 'admin'}, {label: 'Employee', value: 'employee'}],
     },
     validators: [Validators.required],
   },
@@ -69,7 +69,7 @@ export const ADD_EMPLOYEE_INPUT_FIELDS_CONFIG: IFormConfig = {
     fieldName: 'radioInput',
     label: 'Radio',
     radioConfig: {
-      options: [{value: 'Admin', key: 'admin'}, {value: 'Employee', key: 'employee'}],
+      options: [{label: 'Admin', value: 'admin'}, {label: 'Employee', value: 'employee'}],
     },
     validators: [Validators.required],
   },

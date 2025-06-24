@@ -26,7 +26,7 @@ export const LOGIN_INPUT_FIELDS_CONFIG: IFormConfig = {
     fieldName: 'rememberMe',
     fieldSize: EFieldSize.Large,
     checkboxConfig: {
-      options: [{value: 'Remember me', key: 'rememberMe'}],
+      options: [{label: 'Remember me', value: 'rememberMe'}],
       binary: true,
     },
   }

@@ -11,10 +11,10 @@ export const ADD_LEAVE_PLANNER_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
-        { value: 'FY 2024-25', key: '2024-25' },
-        { value: 'FY 2025-26', key: '2025-26' },
-        { value: 'FY 2026-27', key: '2026-27' },
-        { value: 'FY 2027-28', key: '2027-28' }
+        { label: 'FY 2024-25', value: '2024-25' },
+        { label: 'FY 2025-26', value: '2025-26' },
+        { label: 'FY 2026-27', value: '2026-27' },
+        { label: 'FY 2027-28', value: '2027-28' }
       ],
     }
   },

@@ -97,9 +97,9 @@ export const ALLOCATE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogCon
       label: 'Employee',
       selectConfig: {
         optionsDropdown: [
-          { key: 'John Doe', value: '1' },
-          { key: 'Jane Smith', value: '2' },
-          { key: 'Mike Johnson', value: '3' },
+          { label: 'John Doe', value: '1' },
+          { label: 'Jane Smith', value: '2' },
+          { label: 'Mike Johnson', value: '3' },
         ],
       },
       validators: [Validators.required],

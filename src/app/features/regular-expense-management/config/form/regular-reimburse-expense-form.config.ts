@@ -11,12 +11,12 @@ export const REGULAR_REIMBURSE_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     multiSelectConfig: {
       optionsDropdown: [
-        { value: 'James Butt', key: 'james_butt' },
-        { value: 'Mary Smith', key: 'mary_smith' },
-        { value: 'John Doe', key: 'john_doe' },
-        { value: 'Sara Lee', key: 'sara_lee' },
-        { value: 'Michael Johnson', key: 'michael_johnson' },
-        { value: 'Emily Davis', key: 'emily_davis' },
+        { label: 'James Butt', value: 'james_butt' },
+        { label: 'Mary Smith', value: 'mary_smith' },
+        { label: 'John Doe', value: 'john_doe' },
+        { label: 'Sara Lee', value: 'sara_lee' },
+        { label: 'Michael Johnson', value: 'michael_johnson' },
+        { label: 'Emily Davis', value: 'emily_davis' },
       ],
     }
   },
@@ -28,13 +28,13 @@ export const REGULAR_REIMBURSE_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
-        { value: 'Cash', key: 'cash' },
-        { value: 'Credit Card', key: 'credit_card' },
-        { value: 'Debit Card', key: 'debit_card' },
-        { value: 'Bank Transfer', key: 'bank_transfer' },
-        { value: 'UPI', key: 'upi' },
-        { value: 'Cheque', key: 'cheque' },
-        { value: 'Digital Wallet', key: 'digital_wallet' }
+        { label: 'Cash', value: 'cash' },
+        { label: 'Credit Card', value: 'credit_card' },
+        { label: 'Debit Card', value: 'debit_card' },
+        { label: 'Bank Transfer', value: 'bank_transfer' },
+        { label: 'UPI', value: 'upi' },
+        { label: 'Cheque', value: 'cheque' },
+        { label: 'Digital Wallet', value: 'digital_wallet' }
       ]
     }
   },

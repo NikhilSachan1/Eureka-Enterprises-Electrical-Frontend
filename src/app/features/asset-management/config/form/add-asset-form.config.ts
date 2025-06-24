@@ -39,16 +39,16 @@ export const ADD_ASSET_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
-        { value: 'TechCal Services', key: 'techcal_services' },
-        { value: 'ProCal Labs', key: 'procal_labs' },
-        { value: 'MetriCal Inc', key: 'metrical_inc' },
-        { value: 'CalTech Solutions', key: 'caltech_solutions' },
-        { value: 'ThermalCal Pro', key: 'thermalcal_pro' },
-        { value: 'ElectriCal Services', key: 'electrical_services' },
-        { value: 'PrecisionCal', key: 'precisioncal' },
-        { value: 'InstruCal Labs', key: 'instrucal_labs' },
-        { value: 'QualiCal Systems', key: 'qualical_systems' },
-        { value: 'Other', key: 'other' }
+        { label: 'TechCal Services', value: 'techcal_services' },
+        { label: 'ProCal Labs', value: 'procal_labs' },
+        { label: 'MetriCal Inc', value: 'metrical_inc' },
+        { label: 'CalTech Solutions', value: 'caltech_solutions' },
+        { label: 'ThermalCal Pro', value: 'thermalcal_pro' },
+        { label: 'ElectriCal Services', value: 'electrical_services' },
+        { label: 'PrecisionCal', value: 'precisioncal' },
+        { label: 'InstruCal Labs', value: 'instrucal_labs' },
+        { label: 'QualiCal Systems', value: 'qualical_systems' },
+        { label: 'Other', value: 'other' }
       ]
     }
   },

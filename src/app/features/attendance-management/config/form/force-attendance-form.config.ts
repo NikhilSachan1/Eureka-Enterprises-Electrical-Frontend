@@ -11,14 +11,14 @@ export const FORCE_ATTENDANCE_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     multiSelectConfig: {
       optionsDropdown: [
-        { value: 'James Butt', key: 'james_butt' },
-        { value: 'Mary Smith', key: 'mary_smith' },
-        { value: 'John Doe', key: 'john_doe' },
-        { value: 'Sara Lee', key: 'sara_lee' },
-        { value: 'Michael Johnson', key: 'michael_johnson' },
-        { value: 'Emily Davis', key: 'emily_davis' },
-        { value: 'David Wilson', key: 'david_wilson' },
-        { value: 'Linda Brown', key: 'linda_brown' }
+        { label: 'James Butt', value: 'james_butt' },
+        { label: 'Mary Smith', value: 'mary_smith' },
+        { label: 'John Doe', value: 'john_doe' },
+        { label: 'Sara Lee', value: 'sara_lee' },
+        { label: 'Michael Johnson', value: 'michael_johnson' },
+        { label: 'Emily Davis', value: 'emily_davis' },
+        { label: 'David Wilson', value: 'david_wilson' },
+        { label: 'Linda Brown', value: 'linda_brown' }
       ],
       optionLabel: 'value',
       optionValue: 'key',
@@ -52,10 +52,10 @@ export const FORCE_ATTENDANCE_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
-        { value: 'Present', key: 'present' },
-        { value: 'Absent', key: 'absent' },
-        { value: 'Leave', key: 'leave' },
-        { value: 'Holiday', key: 'holiday' }
+        { label: 'Present', value: 'present' },
+        { label: 'Absent', value: 'absent' },
+        { label: 'Leave', value: 'leave' },
+        { label: 'Holiday', value: 'holiday' }
       ],
       optionLabel: 'value',
       optionValue: 'key',

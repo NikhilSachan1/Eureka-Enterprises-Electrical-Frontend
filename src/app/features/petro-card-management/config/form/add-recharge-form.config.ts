@@ -30,11 +30,11 @@ export const ADD_RECHARGE_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
-        { value: 'credit_card', key: 'Credit Card' },
-        { value: 'bank_transfer', key: 'Bank Transfer' },
-        { value: 'cash', key: 'Cash' },
-        { value: 'check', key: 'Check' },
-        { value: 'online_transfer', key: 'Online Transfer' },
+        { label: 'Credit Card', value: 'credit_card' },
+        { label: 'Bank Transfer', value: 'bank_transfer' },
+        { label: 'Cash', value: 'cash' },
+        { label: 'Check', value: 'check' },
+        { label: 'Online Transfer', value: 'online_transfer' },
       ],
     }
   },

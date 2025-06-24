@@ -11,13 +11,13 @@ export const FUEL_ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
-        { value: 'KA01AB1234 - Maruti Swift', key: 'ka01ab1234' },
-        { value: 'KA02CD5678 - Hyundai i20', key: 'ka02cd5678' },
-        { value: 'KA03EF9012 - Tata Nexon', key: 'ka03ef9012' },
-        { value: 'KA04GH3456 - Honda City', key: 'ka04gh3456' },
-        { value: 'KA05IJ7890 - Toyota Innova', key: 'ka05ij7890' },
-        { value: 'DL01MN2345 - Mahindra Scorpio', key: 'dl01mn2345' },
-        { value: 'MH02PQ6789 - Ford EcoSport', key: 'mh02pq6789' }
+        { label: 'KA01AB1234 - Maruti Swift', value: 'ka01ab1234' },
+        { label: 'KA02CD5678 - Hyundai i20', value: 'ka02cd5678' },
+        { label: 'KA03EF9012 - Tata Nexon', value: 'ka03ef9012' },
+        { label: 'KA04GH3456 - Honda City', value: 'ka04gh3456' },
+        { label: 'KA05IJ7890 - Toyota Innova', value: 'ka05ij7890' },
+        { label: 'DL01MN2345 - Mahindra Scorpio', value: 'dl01mn2345' },
+        { label: 'MH02PQ6789 - Ford EcoSport', value: 'mh02pq6789' }
       ]
     }
   },
@@ -29,10 +29,10 @@ export const FUEL_ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
-        { value: 'Petrol', key: 'petrol' },
-        { value: 'Diesel', key: 'diesel' },
-        { value: 'CNG', key: 'cng' },
-        { value: 'Electric', key: 'electric' }
+        { label: 'Petrol', value: 'petrol' },
+        { label: 'Diesel', value: 'diesel' },
+        { label: 'CNG', value: 'cng' },
+        { label: 'Electric', value: 'electric' }
       ]
     }
   },
@@ -132,13 +132,13 @@ export const FUEL_ADD_EXPENSE_INPUT_FIELDS_CONFIG: IFormConfig = {
     validators: [Validators.required],
     selectConfig: {
       optionsDropdown: [
-        { value: 'Cash', key: 'cash' },
-        { value: 'Credit Card', key: 'credit_card' },
-        { value: 'Debit Card', key: 'debit_card' },
-        { value: 'Bank Transfer', key: 'bank_transfer' },
-        { value: 'UPI', key: 'upi' },
-        { value: 'Cheque', key: 'cheque' },
-        { value: 'Digital Wallet', key: 'digital_wallet' }
+        { label: 'Cash', value: 'cash' },
+        { label: 'Credit Card', value: 'credit_card' },
+        { label: 'Debit Card', value: 'debit_card' },
+        { label: 'Bank Transfer', value: 'bank_transfer' },
+        { label: 'UPI', value: 'upi' },
+        { label: 'Cheque', value: 'cheque' },
+        { label: 'Digital Wallet', value: 'digital_wallet' }
       ]
     }
   },

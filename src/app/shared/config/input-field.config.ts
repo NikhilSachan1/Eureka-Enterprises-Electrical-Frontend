@@ -26,13 +26,13 @@ export const DEFAULT_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
     selectConfig: {
         showCheckmark: true,
         haveFilter: true,
-        filterBy: 'value',
+        filterBy: 'label',
         showClearButton: true,
         isEditable: false,
         virtualScroll: false,
         virtualScrollItemSize: 10,
-        optionLabel: 'value',
-        optionValue: 'key',
+        optionLabel: 'label',
+        optionValue: 'value',
     }
 };
 
@@ -40,13 +40,13 @@ export const DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig
     ...DEFAULT_INPUT_FIELD_CONFIG,
     multiSelectConfig: {
         haveFilter: true,
-        filterBy: 'value',
+        filterBy: 'label',
         showClearButton: true,
         showToggleAll: true,
         selectAll: true,
         display: EMultiSelectDisplayType.Chip,
-        optionLabel: 'value',
-        optionValue: 'key',
+        optionLabel: 'label',
+        optionValue: 'value',
     }
 };
 

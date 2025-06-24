@@ -136,8 +136,8 @@ export interface ITextAreaFieldConfig {
 }
 
 export interface IOptionDropdown {
+  label: string;
   value: string;
-  key: string;
 }
 
 export interface IIndividualNumberFieldConfig {

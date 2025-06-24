@@ -162,10 +162,10 @@
             
             <div class="flex flex-{{checkboxConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical}} gap-4">
 
-                @for (option of checkboxConfig?.options; track option.key) {
+                @for (option of checkboxConfig?.options; track option.value) {
                     <div class="flex items-center">
                         <p-checkbox 
-                            [inputId]="'checkbox-' + option.key" 
+                            [inputId]="'checkbox-' + option.value" 
                             [formControlName]="inputFieldConfig().fieldName" 
                             [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                             [value]="option" 
@@ -173,7 +173,7 @@
                             [indeterminate]="checkboxConfig?.indeterminate || false" 
                             [size]="inputFieldConfig().fieldSize"
                         ></p-checkbox>
-                        <label [for]="'checkbox-' + option.key" class="ml-2"> {{ option.value }} </label>
+                        <label [for]="'checkbox-' + option.value" class="ml-2"> {{ option.label }} </label>
                     </div>
                 }
             </div>
@@ -186,16 +186,16 @@
             
             <div class="flex flex-{{radioConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical}} gap-4">
 
-                @for (option of radioConfig?.options; track option.key) {
+                @for (option of radioConfig?.options; track option.value) {
                     <div class="flex items-center">
                         <p-radioButton 
-                            [inputId]="'radio-' + option.key" 
+                            [inputId]="'radio-' + option.value" 
                             [formControlName]="'radioInput'" 
                             [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                             [value]="option" 
                             [size]="inputFieldConfig().fieldSize"
                         ></p-radioButton>
-                        <label [for]="'radio-' + option.key" class="ml-2">{{ option.value }}</label>
+                        <label [for]="'radio-' + option.value" class="ml-2">{{ option.label }}</label>
                     </div>
                 }
             </div>
