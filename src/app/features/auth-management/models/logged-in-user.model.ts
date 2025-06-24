@@ -4,5 +4,5 @@ export interface ILoggedInUserDetails {
     email: string;
     fullName: string;
     designation: string;
-    avatarUrl: string;
+    profilePicture: string;
 }

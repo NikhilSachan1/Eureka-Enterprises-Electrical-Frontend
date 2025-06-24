@@ -48,14 +48,14 @@ export class AuthService {
 
   public readonly loggedInUserAvatar = computed(() => {
     const user = this._user();
-    let avatarUrl = '';
-    if(!user || !user.avatarUrl) {
-      avatarUrl = this.avatarService.getAvatarFromName(user?.fullName || '');
+    let profilePicture = '';
+    if(!user || !user.profilePicture) {
+      profilePicture = this.avatarService.getAvatarFromName(user?.fullName || '');
     } else {
-      avatarUrl = user.avatarUrl;
+      profilePicture = user.profilePicture;
     }
 
-    return avatarUrl;
+    return profilePicture;
   });
 
   constructor() {
@@ -193,7 +193,7 @@ export class AuthService {
    */
   private handleLoginSuccess(response: ILoginResponseDto, rememberMe = false): void {
     try {
-      const { token, firstName, lastName, email, name, designation } = response;
+      const { token, firstName, lastName, email, name, designation, profilePicture } = response;
 
       const user: ILoggedInUserDetails = {
         firstName,
@@ -201,7 +201,7 @@ export class AuthService {
         email,
         fullName: name,
         designation: designation,
-        avatarUrl: ''
+        profilePicture: profilePicture || ''
       };
 
       // Update signals
