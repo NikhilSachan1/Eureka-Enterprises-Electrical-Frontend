@@ -23,13 +23,6 @@ export const ADD_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG: IFormConfig = {
     label: 'Actions',
     validators: [Validators.required],
   },
-  label: {
-    fieldType: EFieldType.Text,
-    id: 'label',
-    fieldName: 'label',
-    label: 'Label',
-    validators: [Validators.required, Validators.minLength(5)],
-  },
   description: {
     fieldType: EFieldType.TextArea,
     id: 'description',

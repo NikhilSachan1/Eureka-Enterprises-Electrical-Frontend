@@ -94,7 +94,6 @@ export class AddSystemPermissionComponent implements OnInit {
       moduleName: formData['moduleName'],
       action: formData['action'],
       description: formData['description'],
-      label: formData['label'],
     };
   }
 }
