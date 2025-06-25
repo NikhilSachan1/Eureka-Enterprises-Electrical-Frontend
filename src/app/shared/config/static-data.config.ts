@@ -1,4 +1,4 @@
-import { IOptionDropdown } from "../models/input-fields-config.model";
+import { IOptionDropdown } from "../models";
 
 export const MODULES_DATA: IOptionDropdown[] = [
   { label: 'Employee', value: 'employee' },

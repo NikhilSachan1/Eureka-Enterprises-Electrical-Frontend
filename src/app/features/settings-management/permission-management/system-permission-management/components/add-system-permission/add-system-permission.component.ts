@@ -1,5 +1,4 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
-import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
@@ -10,9 +9,9 @@ import { NotificationService } from '../../../../../../shared/services/notificat
 import { LoggerService } from '../../../../../../core/services/logger.service';
 import { FormService } from '../../../../../../shared/services/form.service';
 import { FORM_VALIDATION_MESSAGES } from '../../../../../../shared/constants';
-import { IEnhancedForm } from '../../../../../../shared/models/form.model';
+import { IEnhancedForm } from '../../../../../../shared/models';
 import { ADD_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG } from '../../config/form/add-system-permission-form.config';
-import { MODULE_ACTIONS_DATA } from '../../../../../../shared/config/static-data.config';
+import { MODULE_ACTIONS_DATA } from '../../../../../../shared/config';
 import { IAddSystemPermissionRequestDto } from '../../models/system-permission.api.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SystemPermissionService } from '../../services/system-permission.service';

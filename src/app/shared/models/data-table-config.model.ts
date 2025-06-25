@@ -1,5 +1,5 @@
 import { ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
-import { ESeverity } from "../types/severity.types";
+import { ESeverity } from "../types";
 
 export interface IDataTableConfig {
     rowHover: boolean;

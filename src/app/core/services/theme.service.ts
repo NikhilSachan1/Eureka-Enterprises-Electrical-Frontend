@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ThemeMode, ThemeColors, ThemeConfig } from '../../shared/models';
-import { themeConfig } from '../config/theme.config';
+import { themeConfig } from '../config';
 
 @Injectable({
   providedIn: 'root'

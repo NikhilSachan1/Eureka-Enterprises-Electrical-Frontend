@@ -10,7 +10,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { InputFieldComponent } from '../../../../shared/components/input-field/input-field.component';
-import { IInputFieldsConfig } from '../../../../shared/models/input-fields-config.model';
+import { IInputFieldsConfig } from '../../../../shared/models';
 import { InputFieldConfigService } from '../../../../shared/services/input-field-config.service';
 import { LoggerService } from '../../../../core/services/logger.service';
 import { RESET_PASSWORD_INPUT_FIELDS_CONFIG } from '../../config/reset-password-form.config';

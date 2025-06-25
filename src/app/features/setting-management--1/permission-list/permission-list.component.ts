@@ -10,14 +10,13 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { MetricsCardComponent } from '../../../shared/components/metrics-card/metrics-card.component';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 
-import { PermissionService, Permission, Role, User, Module } from '../../../core/services/permission.service';
+import { PermissionService, Permission, Role, User } from '../../../core/services/permission.service';
 import { DataTableConfigService } from '../../../shared/services/data-table-config.service';
 import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog-config.service';
 import { LoggerService } from '../../../core/services/logger.service';
 
-import { IDataTableConfig, IDataTableHeaderConfig, IBulkActionConfig, IRowActionConfig } from '../../../shared/models';
-import { ERowActionType, EBulkActionType, ESeverity, ETableBodyTemplate } from '../../../shared/types';
-import { EDialogType } from '../../../shared/types/confirmation-dialog.types';
+import { IDataTableHeaderConfig } from '../../../shared/models';
+import { EBulkActionType, ETableBodyTemplate, EDialogType } from '../../../shared/types';
 import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
 import { PERMISSION_LIST_TABLE_CONFIG, PERMISSION_LIST_TABLE_HEADER, PERMISSION_LIST_BULK_ACTIONS_CONFIG, PERMISSION_LIST_ROW_ACTIONS_CONFIG } from '../config/table/permission-list-table.config';
 

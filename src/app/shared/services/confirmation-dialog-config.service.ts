@@ -7,13 +7,12 @@ import {
   DEALLOCATE_CONFIRMATION_DIALOG_CONFIG,
   DELETE_CONFIRMATION_DIALOG_CONFIG,
   REJECT_CONFIRMATION_DIALOG_CONFIG,
-} from '../config/confirmation-dialog.config';
-import { IConfirmationDialogConfig } from '../models/confirmation-dialog.model';
-import { EDialogType } from '../types/confirmation-dialog.types';
+} from '../config';
+import { IConfirmationDialogConfig, IInputFieldsConfig } from '../models';
+import { EDialogType } from '../types';
 import { ConfirmationService } from 'primeng/api';
-import { deepMerge } from '../utility/object.utils';
+import { deepMerge } from '../utility';
 import { BehaviorSubject } from 'rxjs';
-import { IInputFieldsConfig } from '../models/input-fields-config.model';
 
 @Injectable({
   providedIn: 'root',

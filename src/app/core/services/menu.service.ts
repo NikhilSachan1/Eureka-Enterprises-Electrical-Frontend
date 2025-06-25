@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ApplicationMenu, MenuItem, MenuSection } from '../../shared/models';
-import { appMenu } from '../config/menu.config';
+import { appMenu } from '../config';
 
 @Injectable({
   providedIn: 'root'

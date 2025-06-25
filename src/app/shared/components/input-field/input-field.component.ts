@@ -13,9 +13,8 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TextareaModule } from 'primeng/textarea';
 import { InputOtpModule } from 'primeng/inputotp';
-import { ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelectionMode, EFileMode, EHourFormat, EMultiSelectDisplayType, EUpAndDownButtonLayout } from '../../types/form-input.types';
-import { EFieldType } from '../../types/form-input.types';
-import { IInputFieldsConfig } from '../../models/input-fields-config.model';
+import { ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelectionMode, EFieldType, EFileMode, EHourFormat, EMultiSelectDisplayType, EUpAndDownButtonLayout } from '../../types';
+import { IInputFieldsConfig } from '../../models';
 
 @Component({
   selector: 'app-input-field',

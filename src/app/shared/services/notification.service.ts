@@ -1,12 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { INotificationOptions } from '../models/notification.model';
+import { INotificationOptions } from '../models';
 import { EPrimeNGNotificationSeverity, ESeverity } from '../types';
 import { 
   DEFAULT_NOTIFICATION_OPTIONS_CONFIG, 
   DEFAULT_NOTIFICATION_MESSAGES, 
   DEFAULT_NOTIFICATION_TITLES 
-} from '../config/notification.config';
+} from '../config';
 
 @Injectable({
   providedIn: 'root'

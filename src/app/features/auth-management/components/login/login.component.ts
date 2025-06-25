@@ -24,7 +24,7 @@ import { AuthLayoutComponent } from '../../shared/auth-layout.component';
 import { FormService } from '../../../../shared/services/form.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ToastModule } from 'primeng/toast';
-import { IEnhancedForm } from '../../../../shared/models/form.model';
+import { IEnhancedForm } from '../../../../shared/models';
 import { AuthService } from '../../services/auth.service';
 import { finalize } from 'rxjs/operators';
 import { ILoginRequestDto } from '../../models/auth-api.model';

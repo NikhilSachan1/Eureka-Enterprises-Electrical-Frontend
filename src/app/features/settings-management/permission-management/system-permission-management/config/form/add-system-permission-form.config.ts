@@ -1,9 +1,9 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig } from '../../../../../../shared/models/input-fields-config.model';
-import { EFieldType } from '../../../../../../shared/types/form-input.types';
+import { IFormConfig } from '../../../../../../shared/models';
+import { EFieldType } from '../../../../../../shared/types';
 import { 
   MODULES_DATA, 
-} from '../../../../../../shared/config/static-data.config';
+} from '../../../../../../shared/config';
 
 export const ADD_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG: IFormConfig = {
   moduleName: {

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../models/data-table-config.model';
-import { DEFAULT_BULK_ACTION_CONFIG, DEFAULT_ROW_ACTION_CONFIG, DEFAULT_TABLE_CONFIG, DEFAULT_TABLE_HEADER_CONFIG } from '../config/data-table.config';
+import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../models';
+import { DEFAULT_BULK_ACTION_CONFIG, DEFAULT_ROW_ACTION_CONFIG, DEFAULT_TABLE_CONFIG, DEFAULT_TABLE_HEADER_CONFIG } from '../config';
 
 @Injectable({
   providedIn: 'root',

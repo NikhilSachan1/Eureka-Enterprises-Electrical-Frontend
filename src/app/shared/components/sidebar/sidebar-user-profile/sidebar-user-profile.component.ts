@@ -4,7 +4,7 @@ import { ThemeService } from '../../../../core/services/theme.service';
 import { fadeInOut } from '../../../animations/index';
 import { UserOption } from '../../../models/index';
 import { NgClass } from '@angular/common';
-import { primaryUserOptions, secondaryUserOptions } from '../../../../core/config/user-options.config';
+import { primaryUserOptions, secondaryUserOptions } from '../../../../core/config';
 import { AuthService } from '../../../../features/auth-management/services/auth.service';
 
 @Component({

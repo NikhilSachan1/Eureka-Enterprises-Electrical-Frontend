@@ -1,4 +1,4 @@
-import { IDataTableConfig, IDataTableHeaderConfig, IFilterConfig, IStatusConfig, ITextWithSubtitleAndImageConfig, IMatchModeOption, IBulkActionConfig, IRowActionConfig } from "../models/data-table-config.model";
+import { IDataTableConfig, IDataTableHeaderConfig, IFilterConfig, IStatusConfig, ITextWithSubtitleAndImageConfig, IMatchModeOption, IBulkActionConfig, IRowActionConfig } from "../models";
 import { ESeverity, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
 
 // Default table config

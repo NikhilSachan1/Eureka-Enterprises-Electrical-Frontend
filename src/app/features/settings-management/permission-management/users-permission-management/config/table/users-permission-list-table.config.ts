@@ -1,4 +1,4 @@
-import { MATCH_MODE_OPTIONS } from "../../../../../../shared/config/data-table.config";
+import { MATCH_MODE_OPTIONS } from "../../../../../../shared/config";
 import { IBulkActionConfig, IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig } from "../../../../../../shared/models";
 import { EBulkActionType, ESeverity, ERowActionType, ETableBodyTemplate, ETableDataType, ETableFilterMatchMode, ETableSearchInputType } from "../../../../../../shared/types";
 

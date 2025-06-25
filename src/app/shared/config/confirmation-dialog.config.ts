@@ -1,7 +1,7 @@
 import { Validators } from "@angular/forms";
-import { IConfirmationDialogConfig } from "../models/confirmation-dialog.model";
+import { IConfirmationDialogConfig } from "../models";
 import { EFieldType } from "../types";
-import { EDialogPosition } from "../types/confirmation-dialog.types";
+import { EDialogPosition } from "../types";
 
 export const CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogConfig> = {
   header: 'Delete Confirmation',

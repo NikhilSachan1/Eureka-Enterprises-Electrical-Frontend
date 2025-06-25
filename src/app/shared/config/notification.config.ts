@@ -1,4 +1,4 @@
-import { INotificationOptions } from "../models/notification.model";
+import { INotificationOptions } from "../models";
 
 export const DEFAULT_NOTIFICATION_OPTIONS_CONFIG: INotificationOptions = {
     life: 3000,

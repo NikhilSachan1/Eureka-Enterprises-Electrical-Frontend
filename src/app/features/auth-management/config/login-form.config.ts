@@ -1,6 +1,6 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig } from '../../../shared/models/input-fields-config.model';
-import { EFieldType, EFieldSize, EAutocomplete } from '../../../shared/types/form-input.types';
+import { IFormConfig } from '../../../shared/models';
+import { EFieldType, EFieldSize } from '../../../shared/types';
 
 export const LOGIN_INPUT_FIELDS_CONFIG: IFormConfig = {
   email: {

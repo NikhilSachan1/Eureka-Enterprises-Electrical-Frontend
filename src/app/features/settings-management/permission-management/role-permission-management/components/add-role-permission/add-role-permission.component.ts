@@ -10,7 +10,7 @@ import { NotificationService } from '../../../../../../shared/services/notificat
 import { LoggerService } from '../../../../../../core/services/logger.service';
 import { FormService } from '../../../../../../shared/services/form.service';
 import { ROUTE_BASE_PATHS, FORM_VALIDATION_MESSAGES } from '../../../../../../shared/constants';
-import { IEnhancedForm } from '../../../../../../shared/models/form.model';
+import { IEnhancedForm } from '../../../../../../shared/models';
 import { ADD_ROLE_PERMISSION_INPUT_FIELDS_CONFIG } from '../../config/form/add-role-permission-form.config';
 
 @Component({

@@ -1,6 +1,6 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig } from '../../../shared/models/input-fields-config.model';
-import { EFieldType, EFieldSize, EAutocomplete } from '../../../shared/types/form-input.types';
+import { IFormConfig } from '../../../shared/models';
+import { EFieldType, EFieldSize, EAutocomplete } from '../../../shared/types';
 
 export const FORGOT_PASSWORD_INPUT_FIELDS_CONFIG: IFormConfig = {
   email: {

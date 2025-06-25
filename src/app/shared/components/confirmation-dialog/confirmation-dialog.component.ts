@@ -4,13 +4,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { EDataTableInputType } from '../../types/data-table.types';
+import { EDataTableInputType } from '../../types';
 import { InputFieldComponent } from '../input-field/input-field.component';
-import { IInputFieldsConfig, IFormConfig } from '../../models/input-fields-config.model';
+import { IInputFieldsConfig, IFormConfig, IConfirmationDialogOutput } from '../../models';
 import { InputFieldConfigService } from '../../services/input-field-config.service';
 import { ConfirmationDialogService } from '../../services/confirmation-dialog-config.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IConfirmationDialogOutput } from '../../models/confirmation-dialog.model';
 import { LoggerService } from '../../../core/services/logger.service';
 import { KeyValuePipe, DatePipe, CurrencyPipe, DecimalPipe } from '@angular/common';
 

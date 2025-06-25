@@ -1,6 +1,6 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig } from '../../../../../../shared/models/input-fields-config.model';
-import { EFieldType } from '../../../../../../shared/types/form-input.types';
+import { IFormConfig } from '../../../../../../shared/models';
+import { EFieldType } from '../../../../../../shared/types';
 
 export const ADD_ROLE_PERMISSION_INPUT_FIELDS_CONFIG: IFormConfig = {
 

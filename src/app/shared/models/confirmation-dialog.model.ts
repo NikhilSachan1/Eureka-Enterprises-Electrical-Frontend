@@ -1,4 +1,4 @@
-import { EConfirmationDialogRecordDetailInputType, EDialogPosition } from "../types/confirmation-dialog.types";
+import { EConfirmationDialogRecordDetailInputType, EDialogPosition } from "../types";
 import { IInputFieldsConfig } from "./input-fields-config.model";
 
 export interface IConfirmationDialogConfig {

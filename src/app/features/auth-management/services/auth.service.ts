@@ -5,7 +5,7 @@ import { catchError, tap, finalize, map } from 'rxjs/operators';
 import { ApiService } from '../../../core/services/api.service';
 import { LoggerService } from '../../../core/services/logger.service';
 import { LoadingService, AvatarService } from '../../../shared/services';
-import { API_ROUTES } from '../../../core/constants/api.constants';
+import { API_ROUTES } from '../../../core/constants';
 import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
 import { ILoggedInUserDetails } from '../models/logged-in-user.model';
 import { ILoginRequestDto, ILoginResponseDto } from '../models/auth-api.model';
