@@ -1,8 +1,8 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig } from '../../../shared/models';
-import { EFieldType, EFieldSize } from '../../../shared/types';
+import { IFormButtonConfig, IFormConfig, IFormInputFieldsConfig } from '../../../shared/models';
+import { EFieldType, EFieldSize, EButtonSize, EButtonSeverity } from '../../../shared/types';
 
-export const LOGIN_INPUT_FIELDS_CONFIG: IFormConfig = {
+const LOGIN_FIELDS_CONFIG: IFormInputFieldsConfig = {
   email: {
     fieldType: EFieldType.Text,
     id: 'email',
@@ -30,4 +30,31 @@ export const LOGIN_INPUT_FIELDS_CONFIG: IFormConfig = {
       binary: true,
     },
   }
-}; 
+};
+
+const LOGIN_BUTTONS_CONFIG: IFormButtonConfig = {
+  forgotPassword: {
+    label: 'Forgot password?',
+    link: true,
+    size: EButtonSize.SMALL,
+    severity: EButtonSeverity.PRIMARY,
+  },
+  signIn: {
+    label: 'Sign in',
+    type: 'submit',
+    size: EButtonSize.LARGE,
+    severity: EButtonSeverity.PRIMARY,
+    fluid: true,
+  },
+  contactAdmin: {
+    label: 'Contact Administrator',
+    link: true,
+    size: EButtonSize.SMALL,
+    severity: EButtonSeverity.PRIMARY,
+  }
+};
+
+export const LOGIN_FORM_CONFIG: IFormConfig = {
+  fields: LOGIN_FIELDS_CONFIG,
+  buttons: LOGIN_BUTTONS_CONFIG,
+};

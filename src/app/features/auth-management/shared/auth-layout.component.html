@@ -23,12 +23,10 @@
       <div class="auth-footer">
         <p class="auth-footer-text">
           {{ footerText() }}
-          <p-button
-            (click)="footerLinkAction.emit()"
-            [link]="true"
-            [label]="footerLinkText()"
-            [size]="'small'"
-          ></p-button>
+            <app-button
+              [buttonConfig]="footerLinkButton()"
+              (onButtonClick)="footerLinkAction.emit()"
+            ></app-button>
         </p>
       </div>
     </div>

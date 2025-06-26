@@ -8,108 +8,101 @@ import {
   DELETE_CONFIRMATION_DIALOG_CONFIG,
   REJECT_CONFIRMATION_DIALOG_CONFIG,
 } from '../config';
-import { IConfirmationDialogConfig, IInputFieldsConfig } from '../models';
+import { 
+  IConfirmationDialogConfig, 
+  IEnhancedConfirmationDialogConfig
+} from '../models';
 import { EDialogType } from '../types';
 import { ConfirmationService } from 'primeng/api';
 import { deepMerge } from '../utility';
+import { FormService } from './form.service';
+import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+
+interface IDialogState {
+  formGroup: FormGroup | null;
+  config: IConfirmationDialogConfig | null;
+  onAccept?: (formData?: any) => void;
+  onReject?: (formData?: any) => void;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConfirmationDialogService {
-  private readonly defaultConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
-    CONFIRMATION_DIALOG_CONFIG;
-  private readonly defaultDeleteConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
-    DELETE_CONFIRMATION_DIALOG_CONFIG;
-  private readonly defaultApproveConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
-    APPROVE_CONFIRMATION_DIALOG_CONFIG;
-  private readonly defaultRejectConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
-    REJECT_CONFIRMATION_DIALOG_CONFIG;
-  private readonly defaultCancelConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
-    CANCEL_CONFIRMATION_DIALOG_CONFIG;
-  private readonly defaultAllocateConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
-    ALLOCATE_CONFIRMATION_DIALOG_CONFIG;
-  private readonly defaultDeallocateConfirmationDialogConfig: Partial<IConfirmationDialogConfig> =
-    DEALLOCATE_CONFIRMATION_DIALOG_CONFIG;
+  private readonly defaultConfigs = {
+    [EDialogType.DEFAULT]: CONFIRMATION_DIALOG_CONFIG,
+    [EDialogType.DELETE]: DELETE_CONFIRMATION_DIALOG_CONFIG,
+    [EDialogType.APPROVE]: APPROVE_CONFIRMATION_DIALOG_CONFIG,
+    [EDialogType.REJECT]: REJECT_CONFIRMATION_DIALOG_CONFIG,
+    [EDialogType.CANCEL]: CANCEL_CONFIRMATION_DIALOG_CONFIG,
+    [EDialogType.ALLOCATE]: ALLOCATE_CONFIRMATION_DIALOG_CONFIG,
+    [EDialogType.DEALLOCATE]: DEALLOCATE_CONFIRMATION_DIALOG_CONFIG,
+  };
+
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly formService = inject(FormService);
 
-  // Subject to emit input field configurations to components
-  private inputFieldConfigsSubject = new BehaviorSubject<Partial<IInputFieldsConfig>[]>([]);
-  public inputFieldConfigs$ = this.inputFieldConfigsSubject.asObservable();
+  private dialogState$ = new BehaviorSubject<IDialogState>({
+    formGroup: null,
+    config: null
+  });
 
-  getConfirmationDialogConfig(
+  getDialogState() {
+    return this.dialogState$.asObservable();
+  }
+
+  createConfirmationDialog(
     dialogType: EDialogType = EDialogType.DEFAULT,
-    options?: Partial<IConfirmationDialogConfig>,
+    dialogConfig?: IEnhancedConfirmationDialogConfig
+  ) {
+    const finalConfig = this.getConfirmationDialogConfig(dialogType, dialogConfig?.dialogConfig);
+    const formGroup = this.createFormGroup(dialogConfig, finalConfig);
+
+    return {
+      show: () => this.showDialog(finalConfig, formGroup, dialogConfig?.onAccept, dialogConfig?.onReject)
+    };
+  }
+
+  private getConfirmationDialogConfig(
+    dialogType: EDialogType,
+    options?: Partial<IConfirmationDialogConfig>
   ): IConfirmationDialogConfig {
-    const defaultConfig = this.getDialogDefaultConfigByDialogType(dialogType);
+    const defaultConfig = this.defaultConfigs[dialogType] || this.defaultConfigs[EDialogType.DEFAULT];
     return deepMerge(defaultConfig, options || {}) as IConfirmationDialogConfig;
   }
 
-  getDialogDefaultConfigByDialogType(
-    dialogType: EDialogType,
-  ): Partial<IConfirmationDialogConfig> {
-    switch (dialogType) {
-      case EDialogType.DELETE:
-        return this.defaultDeleteConfirmationDialogConfig;
-      case EDialogType.APPROVE:
-        return this.defaultApproveConfirmationDialogConfig;
-      case EDialogType.REJECT:
-        return this.defaultRejectConfirmationDialogConfig;
-      case EDialogType.CANCEL:
-        return this.defaultCancelConfirmationDialogConfig;
-      case EDialogType.ALLOCATE:
-        return this.defaultAllocateConfirmationDialogConfig;
-      case EDialogType.DEALLOCATE:
-        return this.defaultDeallocateConfirmationDialogConfig;
-      default:
-        return this.defaultConfirmationDialogConfig;
-    }
+  private createFormGroup(
+    dialogConfig?: IEnhancedConfirmationDialogConfig,
+    finalConfig?: IConfirmationDialogConfig
+  ): FormGroup | null {
+    const inputFields = dialogConfig?.inputFields || finalConfig?.inputFieldConfigs;
+    if (!inputFields?.length) return null;
+
+    const formConfig = {
+      fields: this.convertInputFieldsToFormConfig(inputFields),
+      buttons: {}
+    };
+    return this.formService.createForm(formConfig).formGroup;
   }
 
-  showDialog(
-    dialogType: EDialogType = EDialogType.DEFAULT,
-    options?: Partial<IConfirmationDialogConfig>,
-    onAccept?: () => void,
-    onReject?: () => void,
+  private showDialog(
+    config: IConfirmationDialogConfig,
+    formGroup: FormGroup | null,
+    onAccept?: (formData?: any) => void,
+    onReject?: (formData?: any) => void
   ): void {
-    // Create accept callback
-    const acceptCallback = onAccept 
-      ? () => {
-          try {
-            onAccept();
-          } catch (error) {
-            console.error('Error in accept action:', error);
-          }
-        }
-      : undefined;
-
-    // Create reject callback
-    const rejectCallback = onReject
-      ? () => {
-          try {
-            onReject();
-          } catch (error) {
-            console.error('Error in reject action:', error);
-          }
-        }
-      : undefined;
-
-    // Get the final configuration
-    const config = this.getConfirmationDialogConfig(dialogType, {
-      ...options,
-      accept: acceptCallback,
-      reject: rejectCallback,
-    });
-
-    // If there are input field configurations, emit them to the component
-    if (config.inputFieldConfigs?.length) {
-      this.inputFieldConfigsSubject.next(config.inputFieldConfigs);
-    } else {
-      this.inputFieldConfigsSubject.next([]);
-    }
-
-    // Show dialog with config
+    this.dialogState$.next({ formGroup, config, onAccept, onReject });
     this.confirmationService.confirm(config);
+  }
+
+  private convertInputFieldsToFormConfig(inputFields: Partial<any>[]): Record<string, any> {
+    const formConfig: Record<string, any> = {};
+    inputFields.forEach((field) => {
+      if (field['fieldName']) {
+        formConfig[field['fieldName']] = field;
+      }
+    });
+    return formConfig;
   }
 }

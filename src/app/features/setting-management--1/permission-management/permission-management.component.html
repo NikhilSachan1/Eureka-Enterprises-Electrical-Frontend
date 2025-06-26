@@ -11,7 +11,7 @@
     styleClass="permission-assignment-tabs"
   >
     <!-- Role Permissions Tab -->
-    <p-tabPanel header="Role Permissions" leftIcon="pi pi-users">
+    <p-tabPanel header="Role Permissions" [leftIcon]="icons.EMPLOYEE.GROUP">
         <div class="tab-content">
         <form [formGroup]="rolePermissionForm" (ngSubmit)="onRolePermissionSave()">
           <!-- Role Selection -->
@@ -97,7 +97,7 @@
                 <p-button
                   type="submit"
                   label="Save Role Permissions"
-                  icon="pi pi-check"
+                  [icon]="icons.ACTIONS.CHECK"
                   severity="success"
                   [loading]="saving()"
                   [disabled]="rolePermissionForm.invalid"
@@ -106,7 +106,7 @@
                 <p-button
                   type="button"
                   label="Cancel"
-                  icon="pi pi-times"
+                  [icon]="icons.ACTIONS.TIMES"
                   severity="secondary"
                   [outlined]="true"
                   (onClick)="rolePermissionForm.reset()"
@@ -119,7 +119,7 @@
     </p-tabPanel>
 
     <!-- User Permissions Tab -->
-    <p-tabPanel header="User Permissions" leftIcon="pi pi-user">
+    <p-tabPanel header="User Permissions" [leftIcon]="icons.EMPLOYEE.USER">
       <div class="tab-content">
         <form [formGroup]="userPermissionForm" (ngSubmit)="onUserPermissionSave()">
           <!-- User Selection -->
@@ -225,7 +225,7 @@
                 <p-button
                   type="submit"
                   label="Save User Permissions"
-                  icon="pi pi-check"
+                  [icon]="icons.ACTIONS.CHECK"
                   severity="success"
                   [loading]="saving()"
                   [disabled]="userPermissionForm.invalid"
@@ -234,7 +234,7 @@
                 <p-button
                   type="button"
                   label="Cancel"
-                  icon="pi pi-times"
+                  [icon]="icons.ACTIONS.TIMES"
                   severity="secondary"
                   [outlined]="true"
                   (onClick)="userPermissionForm.reset()"

@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
 import { fadeInOut } from '../../animations/index';
 import { MenuService } from '../../../core/services/menu.service';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -13,7 +12,6 @@ import { NgClass } from '@angular/common';
   selector: 'app-sidebar',
   standalone: true,
   imports: [
-    ButtonModule,
     NgClass,
     SidebarHeaderComponent,
     SidebarUserProfileComponent,

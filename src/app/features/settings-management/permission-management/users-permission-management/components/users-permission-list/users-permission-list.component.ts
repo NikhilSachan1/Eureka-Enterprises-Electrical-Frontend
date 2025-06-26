@@ -1,11 +1,11 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { DataTableComponent } from '../../../../../../shared/components/data-table/data-table.component';
 import { ConfirmationDialogComponent } from '../../../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { DataTableConfigService } from '../../../../../../shared/services/data-table-config.service';
 import { ConfirmationDialogService } from '../../../../../../shared/services/confirmation-dialog-config.service';
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../../../../shared/models';
 import { USERS_PERMISSION_LIST_BULK_ACTIONS_CONFIG, USERS_PERMISSION_LIST_ROW_ACTIONS_CONFIG, USERS_PERMISSION_LIST_TABLE_CONFIG, USERS_PERMISSION_LIST_TABLE_HEADER } from '../../config/table/users-permission-list-table.config';
-import { EBulkActionType, ERowActionType } from '../../../../../../shared/types';
+import { EBulkActionType, ERowActionType, EDialogType, EFieldType } from '../../../../../../shared/types';
 
 @Component({
   selector: 'app-users-permission-list',
@@ -15,17 +15,15 @@ import { EBulkActionType, ERowActionType } from '../../../../../../shared/types'
 })
 export class UsersPermissionListComponent implements OnInit {
 
+  private readonly dataTableConfigService = inject(DataTableConfigService);
+  private readonly confirmationDialogService = inject(ConfirmationDialogService);
+
   protected tableConfig = signal<IDataTableConfig>({} as IDataTableConfig);
   protected tableHeader = signal<IDataTableHeaderConfig[]>([]);
   protected tableData = signal<any[]>([]);
   protected loading = signal<boolean>(true);
   protected bulkActionButtons = signal<IBulkActionConfig[]>([]);
   protected rowActions = signal<IRowActionConfig[]>([]);
-
-  constructor(
-    private dataTableConfigService: DataTableConfigService,
-    private confirmationDialogService: ConfirmationDialogService
-  ) {}
 
   ngOnInit(): void {
     this.initializeTableConfig();
@@ -127,13 +125,13 @@ export class UsersPermissionListComponent implements OnInit {
     }, 1000);
   }
 
-  protected handleBulkActionClick(action: string): void {
+  protected handleBulkActionClick(action: string): void {    
     switch (action) {
       case EBulkActionType.APPROVE:
-        console.log('Activate users');
+        this.handleBulkActivateUsers();
         break;
       case EBulkActionType.REJECT:
-        console.log('Deactivate users');
+        console.log('Bulk deactivate users');
         break;
       default:
         console.warn('Unknown bulk action:', action);
@@ -143,16 +141,37 @@ export class UsersPermissionListComponent implements OnInit {
   protected handleRowActionClick(action: string): void {
     switch (action) {
       case ERowActionType.VIEW:
-        console.log('Change role');
+        console.log('View user');
         break;
       case ERowActionType.EDIT:
-        console.log('Edit permissions');
+        console.log('Edit user');
         break;
       case ERowActionType.DELETE:
-        console.log('Delete permissions');
+        console.log('Delete user');
         break;
       default:
         console.warn('Unknown row action:', action);
     }
+  }
+
+  private handleBulkActivateUsers(): void {
+    const dialog = this.confirmationDialogService.createConfirmationDialog(
+      EDialogType.APPROVE,
+      {
+        dialogConfig: {
+          header: 'Activate Users',
+          message: `Are you sure you want to activate?`
+        },
+        onAccept: () => {
+          console.log('Bulk activate users confirmed');
+          // Implement activation logic here
+        },
+        onReject: () => {
+          console.log('Bulk activate users cancelled');
+        }
+      }
+    );
+
+    dialog.show();
   }
 }

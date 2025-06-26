@@ -2,7 +2,7 @@ import { Component, OnInit, signal, inject, ChangeDetectionStrategy, DestroyRef 
 import { ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
-import { ButtonModule } from 'primeng/button';
+import { ButtonComponent } from '../../../../../../shared/components/button/button.component';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { NotificationService } from '../../../../../../shared/services/notification.service';
@@ -22,8 +22,8 @@ import { finalize } from 'rxjs';
   imports: [
     PageHeaderComponent,
     InputFieldComponent,
+    ButtonComponent,
     ReactiveFormsModule,
-    ButtonModule,
     CardModule,
     ToastModule
   ],

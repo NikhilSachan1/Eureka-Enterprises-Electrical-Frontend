@@ -1,8 +1,7 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { DataTableComponent } from '../../../../../../shared/components/data-table/data-table.component';
 import { ConfirmationDialogComponent } from '../../../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { DataTableConfigService } from '../../../../../../shared/services/data-table-config.service';
-import { ConfirmationDialogService } from '../../../../../../shared/services/confirmation-dialog-config.service';
 import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../../../../shared/models';
 import { ROLE_PERMISSION_LIST_BULK_ACTIONS_CONFIG, ROLE_PERMISSION_LIST_ROW_ACTIONS_CONFIG, ROLE_PERMISSION_LIST_TABLE_CONFIG, ROLE_PERMISSION_LIST_TABLE_HEADER } from '../../config/table/role-permission-list-table.config';
 import { EBulkActionType, ERowActionType } from '../../../../../../shared/types';
@@ -15,17 +14,14 @@ import { EBulkActionType, ERowActionType } from '../../../../../../shared/types'
 })
 export class RolePermissionListComponent implements OnInit {
 
+  private readonly dataTableConfigService = inject(DataTableConfigService);
+
   protected tableConfig = signal<IDataTableConfig>({} as IDataTableConfig);
   protected tableHeader = signal<IDataTableHeaderConfig[]>([]);
   protected tableData = signal<any[]>([]);
   protected loading = signal<boolean>(true);
   protected bulkActionButtons = signal<IBulkActionConfig[]>([]);
   protected rowActions = signal<IRowActionConfig[]>([]);
-
-  constructor(
-    private dataTableConfigService: DataTableConfigService,
-    private confirmationDialogService: ConfirmationDialogService
-  ) {}
 
   ngOnInit(): void {
     this.initializeTableConfig();

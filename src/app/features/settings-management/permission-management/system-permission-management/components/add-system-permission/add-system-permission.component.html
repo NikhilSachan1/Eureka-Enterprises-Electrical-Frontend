@@ -28,22 +28,15 @@
     ></app-input-field>
 
     <div class="pt-4 border-t border-gray-200 button-container">
-        <p-button 
-            type="button"
-            label="Reset" 
-            severity="secondary" 
-            size="large"
-            (click)="onReset()"
-            [disabled]="isSubmitting()"
-        ></p-button>
+        <app-button 
+            [buttonConfig]="form.buttonConfigs['cancel']"
+            (onButtonClick)="onReset()"
+        ></app-button>
         
-        <p-button 
-            [loading]="isSubmitting()"
-            label="Create Permission" 
-            severity="primary" 
-            size="large"
-            type="submit"
-        ></p-button>
+        <app-button 
+            [buttonConfig]="form.buttonConfigs['submit']"
+            [showButtonLoader]="isSubmitting()"
+        ></app-button>
     </div>
 
 </form>

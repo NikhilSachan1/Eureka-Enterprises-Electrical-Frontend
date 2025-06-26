@@ -1,18 +1,19 @@
 import { MATCH_MODE_OPTIONS } from "../../../../../../shared/config";
 import { IBulkActionConfig, IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig } from "../../../../../../shared/models";
 import { EBulkActionType, ESeverity, ERowActionType, ETableBodyTemplate, ETableDataType, ETableFilterMatchMode, ETableSearchInputType } from "../../../../../../shared/types";
+import { ICONS } from "../../../../../../shared/constants";
 
 export const ROLE_PERMISSION_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
   {
     id: EBulkActionType.APPROVE,
     label: 'Activate',
-    icon: 'pi pi-check',
+    icon: ICONS.ACTIONS.CHECK,
     severity: ESeverity.SUCCESS,
   },
   {
     id: EBulkActionType.REJECT,
     label: 'Deactivate',
-    icon: 'pi pi-times',
+    icon: ICONS.ACTIONS.TIMES,
     severity: ESeverity.WARNING,
   },
 ];
@@ -20,25 +21,25 @@ export const ROLE_PERMISSION_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig
 export const ROLE_PERMISSION_LIST_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
   {
     id: ERowActionType.APPROVE,
-    icon: 'pi pi-check',
+    icon: ICONS.ACTIONS.CHECK,
     tooltip: 'Activate',
     severity: ESeverity.SUCCESS,
   },
   {
     id: ERowActionType.REJECT,
-    icon: 'pi pi-times',
+    icon: ICONS.ACTIONS.TIMES,
     tooltip: 'Deactivate',
     severity: ESeverity.DANGER,
   },
   {
     id: ERowActionType.EDIT,
-    icon: 'pi pi-pencil',
+    icon: ICONS.ACTIONS.EDIT,
     tooltip: 'Edit',
     severity: ESeverity.WARNING,
   },
   {
     id: ERowActionType.VIEW,
-    icon: 'pi pi-cog',
+    icon: ICONS.SETTINGS.COG,
     tooltip: 'Edit Permissions',
     severity: ESeverity.INFO,
   },

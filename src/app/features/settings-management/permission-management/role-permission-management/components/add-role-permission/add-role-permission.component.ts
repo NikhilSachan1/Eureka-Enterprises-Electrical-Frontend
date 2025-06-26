@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
-import { ButtonModule } from 'primeng/button';
+import { ButtonComponent } from '../../../../../../shared/components/button/button.component';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { NotificationService } from '../../../../../../shared/services/notification.service';
@@ -18,8 +18,8 @@ import { ADD_ROLE_PERMISSION_INPUT_FIELDS_CONFIG } from '../../config/form/add-r
   imports: [
     PageHeaderComponent,
     InputFieldComponent,
+    ButtonComponent,
     ReactiveFormsModule,
-    ButtonModule,
     CardModule,
     ToastModule
   ],

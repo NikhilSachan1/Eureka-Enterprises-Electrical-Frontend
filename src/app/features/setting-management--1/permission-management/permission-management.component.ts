@@ -14,6 +14,7 @@ import { MessageService } from 'primeng/api';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PermissionService, Permission, Role, User, Module } from '../../../core/services/permission.service';
 import { LoggerService } from '../../../core/services/logger.service';
+import { ICONS } from '../../../shared/constants';
 
 @Component({
   selector: 'app-permission-management',
@@ -40,6 +41,8 @@ export class PermissionManagementComponent implements OnInit {
   private readonly permissionService = inject(PermissionService);
   private readonly logger = inject(LoggerService);
   private readonly messageService = inject(MessageService);
+  
+  protected readonly icons = ICONS;
 
   // Form groups
   rolePermissionForm: FormGroup;

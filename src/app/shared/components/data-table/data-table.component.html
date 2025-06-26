@@ -3,7 +3,7 @@
   <div class="flex items-center justify-end">
     <p-iconfield iconPosition="left" class="w-96">
       <p-inputicon>
-        <i class="pi pi-search"></i>
+        <i class="{{ icons.COMMON.SEARCH }}"></i>
       </p-inputicon>
       <input pInputText type="text" (input)="applyFilterGlobal($event, 'contains')"
         placeholder="Search keyword" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500" />
@@ -33,27 +33,33 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
               <div class="flex items-center gap-2">
-                <i class="pi pi-check-circle"></i>
+                <i class="{{ icons.ACTIONS.CHECK_CIRCLE }}"></i>
                 <span class="font-semibold">{{selectedCount}} items selected</span>
               </div>
               <div class="h-5 w-px"></div>
               <div class="flex items-center gap-3">
                 @for (button of bulkActionButtons(); track $index) {
-                  <p-button 
-                    [label]="button.label" 
-                    [icon]="button.icon" 
-                    [outlined]="button.outlined"
-                    [styleClass]="'p-button-sm ' + (button.styleClass || '')"
-                    [severity]="getSeverity(button.severity)" 
-                    (click)="onBulkActionClick(button.id)" />
+                  <app-button 
+                    [buttonConfig]="{
+                      label: button.label,
+                      icon: button.icon,
+                    }"
+                    (onButtonClick)="onBulkActionClick(button.id)"
+                  ></app-button>
                 }
               </div>
             </div>
 
             <div class="flex items-center">
-              <p-button label="Clear Selection" icon="pi pi-times" [outlined]="true" 
-                (click)="clearSelection()" pTooltip="Clear Selected Rows" tooltipPosition="top" 
-                styleClass="p-button-sm" />
+              <app-button 
+                [buttonConfig]="{
+                  label: 'Clear Selection',
+                  icon: icons.ACTIONS.TIMES,
+                }"
+                (onButtonClick)="clearSelection()"
+                pTooltip="Clear Selected Rows" 
+                tooltipPosition="top"
+              ></app-button>
             </div>
           </div>
         </div>
@@ -231,14 +237,14 @@
                       target="_blank" 
                       class="inline-flex items-center gap-2 px-3 py-1.5 font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 cursor-pointer"
                       (click)="$event.stopPropagation()">
-                      <i class="pi pi-file text-sm"></i>
+                      <i class="{{ icons.COMMON.FILE }} text-sm"></i>
                       View
                     </a>
                   </div>
                 } @else {
                   <div class="flex items-center gap-3">
                     <span class="inline-flex items-center gap-2 px-3 py-1.5 font-medium text-gray-500 bg-gray-50 border border-gray-200 rounded-md">
-                      <i class="pi pi-ban text-sm"></i>
+                      <i class="{{ icons.ACTIONS.BAN }} text-sm"></i>
                       No Proof
                     </span>
                   </div>
@@ -274,15 +280,14 @@
           <td>
             <div class="flex items-center">
               @for (action of rowActions(); track action.id) {
-                <p-button
-                  [icon]="action.icon"
-                  [outlined]="true"
-                  [severity]="getSeverity(action.severity)"
-                  [styleClass]="action.styleClass"
+                <app-button
+                  [buttonConfig]="{
+                    icon: action.icon,
+                  }"
+                  [showDisabledButton]="isActionDisabled(action, rowData)"
                   [pTooltip]="action.tooltip"
-                  [disabled]="isActionDisabled(action, rowData)"
-                  (click)="onRowActionClick(action.id)">
-                </p-button>
+                  (onButtonClick)="onRowActionClick(action.id)"
+                ></app-button>
               }
             </div>
           </td>
@@ -294,7 +299,7 @@
       <tr>
         <td [colSpan]="tableHeader().length + 2" class="text-center text-slate-700 py-12">
           <div class="flex flex-col items-center justify-center space-y-2">
-            <i class="pi pi-info-circle text-2xl text-slate-400"></i>
+            <i class="{{ icons.COMMON.INFO_CIRCLE }} text-2xl text-slate-400"></i>
             <span class="text-lg font-medium">{{ tableConfig().emptyMessage }}</span>
           </div>
         </td>

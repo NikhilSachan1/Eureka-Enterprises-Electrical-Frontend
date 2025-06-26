@@ -41,3 +41,10 @@ export interface IConfirmationDialogOutput {
     confirmed: boolean;
     formData?: any;
 }
+
+export interface IEnhancedConfirmationDialogConfig {
+    dialogConfig?: Partial<IConfirmationDialogConfig>;
+    inputFields?: Partial<IInputFieldsConfig>[];
+    onAccept?: (formData?: any) => void;
+    onReject?: (formData?: any) => void;
+}

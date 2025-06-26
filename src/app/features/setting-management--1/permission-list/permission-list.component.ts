@@ -17,7 +17,7 @@ import { LoggerService } from '../../../core/services/logger.service';
 
 import { IDataTableHeaderConfig } from '../../../shared/models';
 import { EBulkActionType, ETableBodyTemplate, EDialogType } from '../../../shared/types';
-import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '../../../shared/constants';
 import { PERMISSION_LIST_TABLE_CONFIG, PERMISSION_LIST_TABLE_HEADER, PERMISSION_LIST_BULK_ACTIONS_CONFIG, PERMISSION_LIST_ROW_ACTIONS_CONFIG } from '../config/table/permission-list-table.config';
 
 @Component({
@@ -42,6 +42,8 @@ export class PermissionListComponent implements OnInit {
   private readonly dataTableConfigService = inject(DataTableConfigService);
   private readonly confirmationDialogConfigService = inject(ConfirmationDialogService);
   private readonly logger = inject(LoggerService);
+  
+  protected readonly icons = ICONS;
 
   // Signal-based reactive state
   private readonly _activeTabIndex = signal<number>(0);
@@ -171,7 +173,7 @@ export class PermissionListComponent implements OnInit {
     {
       title: 'Total Permissions',
       subtitle: 'System-wide permissions',
-      iconClass: 'pi pi-shield',
+      iconClass: ICONS.SECURITY.SHIELD,
       iconBgClass: 'bg-blue-100 text-blue-600',
       metrics: [
         {
@@ -186,7 +188,7 @@ export class PermissionListComponent implements OnInit {
     {
       title: 'Total Roles',
       subtitle: 'Available roles',
-      iconClass: 'pi pi-users',
+      iconClass: ICONS.EMPLOYEE.GROUP,
       iconBgClass: 'bg-green-100 text-green-600',
       metrics: [
         {
@@ -201,7 +203,7 @@ export class PermissionListComponent implements OnInit {
     {
       title: 'Active Users',
       subtitle: 'Users with permissions',
-      iconClass: 'pi pi-user',
+      iconClass: ICONS.EMPLOYEE.USER,
       iconBgClass: 'bg-purple-100 text-purple-600',
       metrics: [
         {
@@ -216,7 +218,7 @@ export class PermissionListComponent implements OnInit {
     {
       title: 'Modules',
       subtitle: 'Permission modules',
-      iconClass: 'pi pi-th-large',
+      iconClass: ICONS.COMMON.TH_LARGE,
       iconBgClass: 'bg-orange-100 text-orange-600',
       metrics: [
         {
@@ -253,7 +255,7 @@ export class PermissionListComponent implements OnInit {
     
     switch (actionId) {
       case EBulkActionType.DELETE:
-        this.handleBulkDeletePermissions(selectedPermissions);
+        console.log('Delete permissions');
         break;
       default:
         this.logger.warn('Unknown bulk action', { actionId });
@@ -271,7 +273,7 @@ export class PermissionListComponent implements OnInit {
     
     switch (actionId) {
       case EBulkActionType.DELETE:
-        this.handleBulkDeleteRoles(selectedRoles);
+        console.log('Delete roles');
         break;
       default:
         this.logger.warn('Unknown bulk action', { actionId });
@@ -290,34 +292,6 @@ export class PermissionListComponent implements OnInit {
 
   handleUserRowAction(actionId: string): void {
     this.logger.info('User row action', { actionId });
-  }
-
-  private handleBulkDeletePermissions(permissions: Permission[]): void {
-    this.confirmationDialogConfigService.showDialog(
-      EDialogType.DELETE,
-      {
-        header: 'Delete Permissions',
-        message: `Are you sure you want to delete ${permissions.length} permission(s)? This action cannot be undone.`
-      },
-      () => {
-        // Handle deletion logic here
-        this.logger.info('Bulk delete permissions confirmed', { permissions });
-      }
-    );
-  }
-
-  private handleBulkDeleteRoles(roles: Role[]): void {
-    this.confirmationDialogConfigService.showDialog(
-      EDialogType.DELETE,
-      {
-        header: 'Delete Roles',
-        message: `Are you sure you want to delete ${roles.length} role(s)? This action cannot be undone.`
-      },
-      () => {
-        // Handle deletion logic here
-        this.logger.info('Bulk delete roles confirmed', { roles });
-      }
-    );
   }
 
   // Transform data for tables

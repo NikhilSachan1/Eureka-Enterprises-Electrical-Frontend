@@ -1,4 +1,5 @@
 import { UserOption } from '../../shared/models';
+import { ICONS } from '../../shared/constants';
 
 /**
  * Primary user menu options
@@ -7,19 +8,19 @@ export const primaryUserOptions: UserOption[] = [
   {
     id: 'profile',
     label: 'My Profile',
-    icon: 'pi pi-user',
+    icon: ICONS.EMPLOYEE.USER,
     path: '/profile'
   },
   {
     id: 'settings',
     label: 'Settings',
-    icon: 'pi pi-cog',
+    icon: ICONS.SETTINGS.COG,
     path: '/settings'
   },
   {
     id: 'reset-password',
     label: 'Reset Password',
-    icon: 'pi pi-lock',
+    icon: ICONS.SECURITY.LOCK,
     path: '/reset-password'
   }
 ];
@@ -31,13 +32,13 @@ export const secondaryUserOptions: UserOption[] = [
   {
     id: 'theme',
     label: 'Dark Mode',
-    icon: 'pi pi-moon',
+    icon: ICONS.THEME.MOON,
     variant: 'theme'
   },
   {
     id: 'logout',
     label: 'Logout',
-    icon: 'pi pi-power-off',
+    icon: ICONS.ACTIONS.POWER_OFF,
     variant: 'danger'
   }
 ]; 

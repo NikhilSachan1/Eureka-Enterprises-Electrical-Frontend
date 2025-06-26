@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ValidatorFn } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { InputFieldConfigService } from './input-field-config.service';
-import { IFormConfig, IInputFieldsConfig, IEnhancedForm } from '../models';
+import { IFormConfig, IInputFieldsConfig, IEnhancedForm, IFormButtonConfig } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +12,10 @@ export class FormService {
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
 
   createForm(formConfig: IFormConfig, defaultValues?: Record<string, any>): IEnhancedForm {
-    const fieldConfigs = this.inputFieldConfigService.initializeFieldConfigs(formConfig);
-    const formGroup = this.createReactiveFormGroup(fieldConfigs, defaultValues);
+    const inputFieldsConfigs = this.inputFieldConfigService.initializeFieldConfigs(formConfig.fields);
+    const formGroup = this.createReactiveFormGroup(inputFieldsConfigs, defaultValues);
     
-    return this.createEnhancedForm(formGroup, fieldConfigs);
+    return this.createEnhancedForm(formGroup, inputFieldsConfigs, formConfig.buttons);
   }
   
   validateAndMarkTouched(formGroup: FormGroup): boolean {
@@ -42,11 +42,15 @@ export class FormService {
     return this.fb.group(formControls);
   }
 
-  private createEnhancedForm(formGroup: FormGroup, fieldConfigs: Record<string, IInputFieldsConfig>): IEnhancedForm {
+  private createEnhancedForm(
+    formGroup: FormGroup, 
+    fieldConfigs: Record<string, IInputFieldsConfig>, 
+    buttonConfigs: IFormButtonConfig = {}
+  ): IEnhancedForm {
     return {
       formGroup,
       fieldConfigs,
-      
+      buttonConfigs,
       isValid: () => formGroup.valid, // true if all fields are valid, no errors.
       isInvalid: () => formGroup.invalid, // true if any field has an error.
       isDirty: () => formGroup.dirty, // true if any field has been modified.

@@ -88,7 +88,7 @@
           <p-button
             type="submit"
             label="Create Permission"
-            icon="pi pi-check"
+            [icon]="icons.ACTIONS.CHECK"
             severity="success"
             [loading]="saving()"
             [disabled]="permissionForm.invalid"
@@ -97,7 +97,7 @@
           <p-button
             type="button"
             label="Cancel"
-            icon="pi pi-times"
+            [icon]="icons.ACTIONS.TIMES"
             severity="secondary"
             [outlined]="true"
             (onClick)="onCancel()"

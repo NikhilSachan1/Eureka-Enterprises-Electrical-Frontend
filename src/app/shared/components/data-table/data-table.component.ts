@@ -14,7 +14,6 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
-import { ButtonModule } from 'primeng/button';
 import { SliderModule } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -30,6 +29,8 @@ import {
 import { ESeverity, ETableBodyTemplate, EPrimeNGSeverity } from '../../types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { AvatarService } from '../../services';
+import { ButtonComponent } from '../button/button.component';
+import { ICONS } from '../../constants';
 
 @Component({
   selector: 'app-data-table',
@@ -40,7 +41,7 @@ import { AvatarService } from '../../services';
     TagModule,
     SelectModule,
     MultiSelectModule,
-    ButtonModule,
+    ButtonComponent,
     IconFieldModule,
     InputIconModule,
     SliderModule,
@@ -62,6 +63,7 @@ export class DataTableComponent {
   @ViewChild('dt') dt!: Table;
 
   protected ALL_TABLE_BODY_TEMPLATES = ETableBodyTemplate;
+  protected icons = ICONS;
   
   private avatarService = inject(AvatarService);
 

@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuService } from '../../../../core/services/menu.service';
 import { slideInOut } from '../../../animations/index';
 import { MenuItem } from '../../../models/index';
+import { ICONS } from '../../../constants';
 
 @Component({
   selector: 'app-sidebar-menu',
@@ -14,6 +15,7 @@ import { MenuItem } from '../../../models/index';
 })
 export class SidebarMenuComponent {
   readonly menuService = inject(MenuService);
+  readonly icons = ICONS;
 
   /**
    * Toggle a submenu item's expanded state

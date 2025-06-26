@@ -1,151 +1,87 @@
-import { Component, output, ViewChild, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
+import { Component, ViewChild, ChangeDetectionStrategy, inject, signal, OnInit, OnDestroy, computed } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
-import { EDataTableInputType } from '../../types';
+import { ButtonComponent } from '../button/button.component';
 import { InputFieldComponent } from '../input-field/input-field.component';
-import { IInputFieldsConfig, IFormConfig, IConfirmationDialogOutput } from '../../models';
-import { InputFieldConfigService } from '../../services/input-field-config.service';
 import { ConfirmationDialogService } from '../../services/confirmation-dialog-config.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '../../../core/services/logger.service';
-import { KeyValuePipe, DatePipe, CurrencyPipe, DecimalPipe } from '@angular/common';
+import { IButtonConfig } from '../../models';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-confirmation-dialog',
   standalone: true,
-  imports: [
-    ConfirmDialogModule, 
-    ButtonModule, 
-    FormsModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    TextareaModule,
-    InputFieldComponent,
-    KeyValuePipe,
-    DatePipe,
-    CurrencyPipe,
-    DecimalPipe
-  ],
+  imports: [ConfirmDialogModule, ButtonComponent, InputFieldComponent, ReactiveFormsModule],
   templateUrl: './confirmation-dialog.component.html',
   styleUrls: ['./confirmation-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ConfirmationDialogComponent implements OnInit {
+export class ConfirmationDialogComponent implements OnInit, OnDestroy {
 
   @ViewChild('cd') confirmDialog: any;
 
-  private readonly inputFieldConfigService = inject(InputFieldConfigService);
-  private readonly fb = inject(FormBuilder);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
-  private readonly logger = inject(LoggerService);
-  private readonly destroyRef = inject(DestroyRef);
+  private destroy$ = new Subject<void>();
 
-  protected readonly fieldConfigs = signal<Record<string, IInputFieldsConfig>>({});
-  protected readonly formSubmitted = signal(false);
+  // Essential state signals
+  protected currentFormGroup = signal<FormGroup | null>(null);
+  protected onAcceptCallback = signal<((formData?: any) => void) | undefined>(undefined);
+  protected onRejectCallback = signal<((formData?: any) => void) | undefined>(undefined);
+  protected currentDialogConfig = signal<any>(null);
 
-  inputFieldsType = EDataTableInputType;  
-  protected formGroup!: FormGroup;
+  // Button configurations
+  acceptButtonConfig = computed<Partial<IButtonConfig>>(() => {
+    const dialog = this.currentDialogConfig();
+    return {
+      label: dialog?.acceptButtonProps?.label,
+      icon: dialog?.acceptButtonProps?.icon,
+      fluid: false
+    };
+  });
 
-  // Modern output signal
-  onConfirm = output<IConfirmationDialogOutput>();
+  rejectButtonConfig = computed<Partial<IButtonConfig>>(() => {
+    const dialog = this.currentDialogConfig();
+    return {
+      label: dialog?.rejectButtonProps?.label,
+      icon: dialog?.rejectButtonProps?.icon,
+      fluid: false
+    };
+  });
 
   ngOnInit(): void {
-    this.initializeForm();
-    this.setupDialogListener();
+    this.confirmationDialogService.getDialogState()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((state) => {
+        this.currentFormGroup.set(state.formGroup);
+        this.onAcceptCallback.set(state.onAccept);
+        this.onRejectCallback.set(state.onReject);
+        this.currentDialogConfig.set(state.config);
+      });
   }
 
-  private initializeForm(): void {
-    this.formGroup = this.fb.group({});
-  }
-
-  private setupDialogListener(): void {
-    this.confirmationDialogService.inputFieldConfigs$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (configs) => {
-          // Always update form, whether configs exist or not
-          this.updateFormForInputFields(configs);
-        },
-        error: (error) => this.logger.error('Error in dialog listener', error)
-      }
-    );
-  }
-
-  private initializeFieldConfigs(formConfig: IFormConfig): void {
-    try {
-      const configs = this.inputFieldConfigService.initializeFieldConfigs(formConfig);
-      this.fieldConfigs.set(configs);
-    } catch (error) {
-      this.logger.error('Error initializing field configs', error);
-    }
-  }
-
-  private initializeFormGroup(formConfig: IFormConfig): void {
-    try {
-      this.formGroup = this.inputFieldConfigService.createFormGroup(formConfig, this.fb);
-    } catch (error) {
-      this.logger.error('Error creating form group', error);
-    }
-  }
-
-  updateFormForInputFields(inputFieldConfigs: Partial<IInputFieldsConfig>[]): void {
-    // Reset form state first
-    this.resetForm();
-    
-    if (!inputFieldConfigs?.length) {
-      this.fieldConfigs.set({});
-      // Ensure form group is clean for dialogs without input fields
-      this.formGroup = this.fb.group({});
-      return;
-    }
-
-    // Convert array of partial configs to IFormConfig format
-    const formConfig: IFormConfig = {};
-    inputFieldConfigs.forEach((config, index) => {
-      const fieldName = config.fieldName || `field_${index}`;
-      formConfig[fieldName] = config;
-    });
-
-    this.initializeFieldConfigs(formConfig);
-    this.initializeFormGroup(formConfig);
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   handleDialog(confirmed: boolean): void {
-    try {
-      // Only set form submitted and validate for accept action
-      if (confirmed) {
-        this.formSubmitted.set(true);
-        
-        // Check if form is valid when using input field components
-        if (Object.keys(this.fieldConfigs()).length > 0 && this.formGroup.invalid) {
-          // Mark all fields as touched to show validation errors
-          this.formGroup.markAllAsTouched();
-          this.logger.warn('Form submission failed - form invalid');
-          return;
-        }
+    const formGroup = this.currentFormGroup();
+    let formData = null;
+
+    if (formGroup) {
+      if (confirmed && formGroup.invalid) {
+        formGroup.markAllAsTouched();
+        return;
       }
-
-      const formData = confirmed ? this.formGroup.value : null;
-            
-      this.onConfirm.emit({ 
-        confirmed, 
-        formData
-      });
-      
-      this.confirmDialog.close();
-      this.resetForm();
-      
-    } catch (error) {
-      this.logger.error(`Error handling dialog ${confirmed ? 'accept' : 'reject'}`, error);
+      formData = formGroup.value;
     }
-  }
 
-  resetForm(): void {
-    this.formGroup?.reset();
-    this.formSubmitted.set(false);
-    this.logger.debug('Confirmation dialog form reset');
+    // Execute callbacks
+    if (confirmed) {
+      this.onAcceptCallback()?.(formData);
+    } else {
+      this.onRejectCallback()?.(formData);
+    }
+
+    this.confirmDialog?.close();
   }
 } 

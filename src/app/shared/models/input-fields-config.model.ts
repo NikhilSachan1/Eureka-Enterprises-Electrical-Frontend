@@ -1,10 +1,6 @@
 import { ValidatorFn } from "@angular/forms";
 import { EAutocomplete, ECalendarView, ECheckBoxAndRadioAlign, ECurrencyDisplay, EDateIconDisplay, EDateSelectionMode, EFieldSize, EFileMode, EFloatLabelVariant, EHourFormat, EInputNumberMode, EMultiSelectDisplayType, ESpinnerMode, EUpAndDownButtonLayout } from "../types";
 
-export interface IFormConfig {
-  [key: string]: Partial<IInputFieldsConfig>;
-}
-
 export interface IInputFieldsConfig {
   fieldType: string;
   id: string;

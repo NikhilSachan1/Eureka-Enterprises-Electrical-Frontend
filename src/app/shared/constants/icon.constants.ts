@@ -6,17 +6,37 @@ export const ICONS = {
     HOME: 'pi pi-home',
     LIST: 'pi pi-list',
     ADD: 'pi pi-plus-circle',
+    PLUS: 'pi pi-plus',
     MANUAL: 'pi pi-exclamation-triangle',
     SYNC: 'pi pi-sync',
     BOOK: 'pi pi-book',
     CHART: 'pi pi-chart-bar',
+    CHART_PIE: 'pi pi-chart-pie',
     FILE: 'pi pi-file',
     ARROW_UP: 'pi pi-arrow-up',
     SITEMAP: 'pi pi-sitemap',
+    SEARCH: 'pi pi-search',
+    INFO_CIRCLE: 'pi pi-info-circle',
+    CHEVRON_DOWN: 'pi pi-chevron-down',
+    TH_LARGE: 'pi pi-th-large',
+  },
+  ACTIONS: {
+    CHECK: 'pi pi-check',
+    CHECK_CIRCLE: 'pi pi-check-circle',
+    TIMES: 'pi pi-times',
+    PENCIL: 'pi pi-pencil',
+    EDIT: 'pi pi-pencil',
+    TRASH: 'pi pi-trash',
+    EYE: 'pi pi-eye',
+    BAN: 'pi pi-ban',
+    POWER_OFF: 'pi pi-power-off',
   },
   EMPLOYEE: {
     GROUP: 'pi pi-users',
-    ADD_USER: 'pi pi-user-plus'
+    USER: 'pi pi-user',
+    ADD_USER: 'pi pi-user-plus',
+    REMOVE_USER: 'pi pi-user-minus',
+    EDIT_USER: 'pi pi-user-edit',
   },
   ATTENDANCE: {
     CALENDAR: 'pi pi-calendar',
@@ -50,5 +70,8 @@ export const ICONS = {
     COG: 'pi pi-cog',
     SLIDERS: 'pi pi-sliders-h',
     WRENCH: 'pi pi-wrench'
+  },
+  THEME: {
+    MOON: 'pi pi-moon',
   }
 } as const; 

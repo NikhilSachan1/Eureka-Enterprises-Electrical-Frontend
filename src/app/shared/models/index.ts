@@ -11,3 +11,4 @@ export * from './tab-item.model';
 export * from './table.model';
 export * from './theme.model';
 export * from './user-option.model';
+export * from './button.model';

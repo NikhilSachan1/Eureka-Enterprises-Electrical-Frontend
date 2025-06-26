@@ -5,7 +5,7 @@ import { MetricsCardComponent } from '../../../../shared/components/metrics-card
 import { SharedTabsComponent } from '../../../../shared/components/shared-tabs/shared-tabs.component';
 import { IMetricData, ITabItem } from '../../../../shared/models';
 import { CardModule } from 'primeng/card';
-import { ROUTE_BASE_PATHS, ROUTES } from '../../../../shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '../../../../shared/constants';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
@@ -52,7 +52,7 @@ export class PermissionListComponent implements OnInit, OnDestroy {
       {
         title: 'Employee Access',
         subtitle: 'Active workforce permissions',
-        iconClass: 'pi pi-users text-blue-500',
+        iconClass: `${ICONS.EMPLOYEE.GROUP} text-blue-500`,
         iconBgClass: 'bg-blue-100',
         metrics: [
           { label: 'Field Workers', value: 42 },
@@ -63,7 +63,7 @@ export class PermissionListComponent implements OnInit, OnDestroy {
       {
         title: 'Department Roles',
         subtitle: 'Team-based access control',
-        iconClass: 'pi pi-building text-green-500',
+        iconClass: `${ICONS.SITE.BUILDING} text-green-500`,
         iconBgClass: 'bg-green-100',
         metrics: [
           { label: 'Operations', value: 35 },
@@ -110,19 +110,19 @@ export class PermissionListComponent implements OnInit, OnDestroy {
       {
         route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
         label: 'Permissions',
-        icon: 'pi pi-shield',
+        icon: ICONS.SECURITY.SHIELD,
         tooltip: 'Manage system permissions',
       },
       {
         route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
         label: 'Roles',
-        icon: 'pi pi-users',
+        icon: ICONS.EMPLOYEE.GROUP,
         tooltip: 'Manage user roles'
       },
       {
         route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
         label: 'Users',
-        icon: 'pi pi-user',
+        icon: ICONS.EMPLOYEE.USER,
         tooltip: 'Manage system users'
       },
     ];

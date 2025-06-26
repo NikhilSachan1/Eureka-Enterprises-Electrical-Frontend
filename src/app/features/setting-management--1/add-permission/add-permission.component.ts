@@ -14,7 +14,7 @@ import { MessageService } from 'primeng/api';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PermissionService, Permission, Module } from '../../../core/services/permission.service';
 import { LoggerService } from '../../../core/services/logger.service';
-import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '../../../shared/constants';
 
 @Component({
   selector: 'app-add-permission',
@@ -41,6 +41,8 @@ export class AddPermissionComponent implements OnInit {
   private readonly permissionService = inject(PermissionService);
   private readonly logger = inject(LoggerService);
   private readonly messageService = inject(MessageService);
+  
+  protected readonly icons = ICONS;
 
   // Form
   permissionForm: FormGroup;

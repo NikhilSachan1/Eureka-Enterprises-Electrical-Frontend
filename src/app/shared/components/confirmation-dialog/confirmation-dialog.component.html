@@ -1,13 +1,11 @@
 <p-confirmdialog #cd [style]="{width: '500px'}">
-    <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+    <ng-template #headless let-message>
         @let dialog = message;
         <div class="flex flex-col items-center p-8 rounded-lg bg-white">
             <!-- Icon Section -->
             <div 
                 class="rounded-full inline-flex justify-center items-center h-24 w-24 -mt-20 shadow-lg"
                 [class]="dialog.iconContainerClass || 'bg-primary text-primary-contrast'"
-                [style.background-color]="dialog.iconBackgroundColor"
-                [style.color]="dialog.iconTextColor"
             >
                 <i [class]="dialog.icon + ' !text-5xl'"></i>
             </div>
@@ -29,22 +27,7 @@
                             @for (detail of dialog.recordDetails.details; track detail.label) {
                                 <div class="flex flex-col">
                                     <span class="text-sm text-gray-500 mb-1">{{ detail.label }}</span>
-                                    <span class="text-gray-800 font-medium">
-                                        @switch (detail.type) {
-                                            @case ('date') {
-                                                {{ detail.value | date:'mediumDate' }}
-                                            }
-                                            @case ('currency') {
-                                                {{ detail.value | currency:'INR' }}
-                                            }
-                                            @case ('number') {
-                                                {{ detail.value | number }}
-                                            }
-                                            @default {
-                                                {{ detail.value }}
-                                            }
-                                        }
-                                    </span>
+                                    <span class="text-gray-800 font-medium">{{ detail.value }}</span>
                                 </div>
                             }
                         </div>
@@ -52,37 +35,34 @@
                 </div>
             }
 
-            <!-- Input Fields Section using Input Field Component -->
-            @if (dialog.inputFieldConfigs?.length) {
+            <!-- Form Section -->
+            @if (currentFormGroup() && dialog.inputFieldConfigs?.length) {
                 <div class="w-full space-y-4">
-                    <form [formGroup]="formGroup" class="form">
-                        @for (inputConfig of fieldConfigs() | keyvalue; track inputConfig.value.fieldName) {
-                            <app-input-field 
-                                [formGroup]="formGroup"
-                                [inputFieldConfig]="inputConfig.value">
-                            </app-input-field>
+                    <form [formGroup]="currentFormGroup()!" class="form">
+                        @for (fieldConfig of dialog.inputFieldConfigs; track fieldConfig.fieldName) {
+                            <div class="w-full">
+                                <app-input-field
+                                    [formGroup]="currentFormGroup()!"
+                                    [inputFieldConfig]="fieldConfig"
+                                />
+                            </div>
                         }
                     </form>
                 </div>
             }
+
             <!-- Buttons Section -->
             <div class="flex items-center justify-center gap-4 mt-4">
-                <p-button 
-                    [label]="dialog.acceptButtonProps?.label"
-                    [icon]="dialog.acceptButtonProps?.icon"
-                    [outlined]="dialog.acceptButtonProps?.outlined"
-                    [styleClass]="dialog.acceptButtonProps?.styleClass + ' min-w-[120px]'"
-                    (click)="handleDialog(true)"
-                    [disabled]="!dialog.acceptButtonProps?.visible"
-                ></p-button>
-                <p-button 
-                    [label]="dialog.rejectButtonProps?.label"
-                    [icon]="dialog.rejectButtonProps?.icon"
-                    [outlined]="dialog.rejectButtonProps?.outlined"
-                    [styleClass]="dialog.rejectButtonProps?.styleClass + ' min-w-[120px]'"
-                    (click)="handleDialog(false)"
-                    [disabled]="!dialog.rejectButtonProps?.visible"
-                ></p-button>
+                <app-button 
+                    [buttonConfig]="acceptButtonConfig()"
+                    [showDisabledButton]="!dialog.acceptButtonProps?.visible"
+                    (onButtonClick)="handleDialog(true)"
+                ></app-button>
+                <app-button 
+                    [buttonConfig]="rejectButtonConfig()"
+                    [showDisabledButton]="!dialog.rejectButtonProps?.visible"
+                    (onButtonClick)="handleDialog(false)"
+                ></app-button>
             </div>
         </div>
     </ng-template>

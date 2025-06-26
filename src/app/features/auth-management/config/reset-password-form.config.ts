@@ -1,8 +1,8 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig } from '../../../shared/models';
-import { EFieldType, EFieldSize, EAutocomplete } from '../../../shared/types';
+import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '../../../shared/models';
+import { EFieldType, EFieldSize, EAutocomplete, EButtonSize, EButtonSeverity } from '../../../shared/types';
 
-export const RESET_PASSWORD_INPUT_FIELDS_CONFIG: IFormConfig = {
+const RESET_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig = {
   password: {
     fieldType: EFieldType.Password,
     id: 'password',
@@ -39,4 +39,25 @@ export const RESET_PASSWORD_INPUT_FIELDS_CONFIG: IFormConfig = {
       strongLabel: 'Complex password'
     }
   }
+};
+
+const RESET_PASSWORD_BUTTONS_CONFIG: IFormButtonConfig = {
+  submit: {
+    label: 'Reset Password',
+    type: 'submit',
+    size: EButtonSize.LARGE,
+    severity: EButtonSeverity.PRIMARY,
+    fluid: true,
+  },
+  backToLogin: {
+    label: 'Back to Login',
+    link: true,
+    size: EButtonSize.SMALL,
+    severity: EButtonSeverity.PRIMARY,
+  }
+};
+
+export const RESET_PASSWORD_INPUT_FIELDS_CONFIG: IFormConfig = {
+  fields: RESET_PASSWORD_FIELDS_CONFIG,
+  buttons: RESET_PASSWORD_BUTTONS_CONFIG,
 }; 

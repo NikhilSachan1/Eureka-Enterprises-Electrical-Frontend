@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ICONS } from '../../constants';
 
 @Component({
   selector: 'app-metrics-card',
@@ -12,7 +13,7 @@ import { CommonModule } from '@angular/common';
 export class MetricsCardComponent {
   title = input<string>('');
   subtitle = input<string>('');
-  iconClass = input<string>('pi pi-chart-pie text-blue-500');
+  iconClass = input<string>(`${ICONS.COMMON.CHART_PIE} text-blue-500`);
   iconBgClass = input<string>('bg-blue-50');
   metrics = input<{ label: string, value: string | number }[]>([]);
 

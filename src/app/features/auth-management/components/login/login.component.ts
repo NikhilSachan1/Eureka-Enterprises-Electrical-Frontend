@@ -9,17 +9,17 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DividerModule } from 'primeng/divider';
 import { InputFieldComponent } from '../../../../shared/components/input-field/input-field.component';
+import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { LoggerService } from '../../../../core/services/logger.service';
 import {
   ROUTE_BASE_PATHS,
   ROUTES,
   FORM_VALIDATION_MESSAGES,
 } from '../../../../shared/constants';
-import { LOGIN_INPUT_FIELDS_CONFIG } from '../../config/login-form.config';
+import { LOGIN_FORM_CONFIG } from '../../config/login-form.config';
 import { AuthLayoutComponent } from '../../shared/auth-layout.component';
 import { FormService } from '../../../../shared/services/form.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
@@ -33,7 +33,7 @@ import { ILoginRequestDto } from '../../models/auth-api.model';
   selector: 'app-login',
   imports: [
     ReactiveFormsModule,
-    ButtonModule,
+    ButtonComponent,
     CheckboxModule,
     DividerModule,
     InputFieldComponent,
@@ -56,7 +56,7 @@ export class LoginComponent implements OnInit {
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(LOGIN_INPUT_FIELDS_CONFIG, {
+    this.form = this.formService.createForm(LOGIN_FORM_CONFIG, {
       email: 'akhil.sachan@coditas.com',
       password: 'Admin@123',
     });

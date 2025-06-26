@@ -24,7 +24,7 @@
       <p-button
         type="button"
         label="Add Permission"
-        icon="pi pi-plus"
+        [icon]="icons.COMMON.PLUS"
         severity="success"
         size="small"
         (onClick)="onAddPermission()"
@@ -33,7 +33,7 @@
       <p-button
         type="button"
         label="Manage Assignments"
-        icon="pi pi-cog"
+        [icon]="icons.SETTINGS.COG"
         severity="primary"
         size="small"
         [outlined]="true"
@@ -50,7 +50,7 @@
       styleClass="permission-tabs"
     >
       <!-- Permissions Tab -->
-      <p-tabPanel header="Permissions" leftIcon="pi pi-shield">
+      <p-tabPanel header="Permissions" [leftIcon]="icons.SECURITY.SHIELD">
         <div class="tab-content">
           <div class="tab-header">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
@@ -75,7 +75,7 @@
       </p-tabPanel>
 
       <!-- Roles Tab -->
-      <p-tabPanel header="Roles" leftIcon="pi pi-users">
+      <p-tabPanel header="Roles" [leftIcon]="icons.EMPLOYEE.GROUP">
         <div class="tab-content">
           <div class="tab-header">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
@@ -100,7 +100,7 @@
       </p-tabPanel>
 
       <!-- Users Tab -->
-      <p-tabPanel header="Users" leftIcon="pi pi-user">
+      <p-tabPanel header="Users" [leftIcon]="icons.EMPLOYEE.USER">
         <div class="tab-content">
           <div class="tab-header">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">

@@ -1,0 +1,20 @@
+@if (hasConfig()) {
+  <p-button
+      [type]="finalButtonConfig().type || ALL_BUTTON_TYPES.BUTTON"
+      [label]="finalButtonConfig().label"
+      [icon]="finalButtonConfig().icon"
+      [iconPos]="finalButtonConfig().iconPosition || ALL_BUTTON_ICON_POSITIONS.LEFT"
+      [loading]="showButtonLoader()"
+      [severity]="finalButtonConfig().severity"
+      [disabled]="showDisabledButton()"
+      [raised]="finalButtonConfig().shadow"
+      [rounded]="finalButtonConfig().rounded"
+      [variant]="finalButtonConfig().variant"
+      [badge]="finalButtonConfig().badge"
+      [badgeSeverity]="finalButtonConfig().badgeSeverity"
+      [size]="finalButtonConfig().size"
+      [link]="finalButtonConfig().link"
+      [fluid]="finalButtonConfig().fluid"
+      (onClick)="onClick()"
+  ></p-button>
+}
