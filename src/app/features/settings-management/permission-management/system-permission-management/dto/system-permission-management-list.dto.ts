@@ -14,7 +14,14 @@ export const SystemPermissionListBaseResponseSchema = z.object({
         return toTitleCase(label);
     }),
     description: CommonSystemPermissionFields.description.transform((val) => toSentenceCase(val)),
-}).merge(AuditFieldsSchema).strict();
+}).merge(AuditFieldsSchema.pick({
+    createdBy: true,
+    updatedBy: true,
+    deletedBy: true,
+    createdAt: true,
+    updatedAt: true,
+    deletedAt: true,
+})).strict();
 
 export const GetSystemPermissionListResponseSchema = z.object({
     records: z.array(SystemPermissionListBaseResponseSchema),

@@ -31,23 +31,23 @@ export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
     },
     // Add/Edit routes as separate pages (outside tab container)
     {
-        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM_PERMISSION.ADD}`,
+        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD}`,
         loadComponent: () => import('./system-permission-management/components/add-system-permission/add-system-permission.component')
             .then(m => m.AddSystemPermissionComponent)
     },
     {
-        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM_PERMISSION.EDIT}/:id`,
+        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM.EDIT}/:id`,
         loadComponent: () => import('./system-permission-management/components/edit-system-permission/edit-system-permission.component')
             .then(m => m.EditSystemPermissionComponent)
     },
     {
-        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.ADD}`,
-        loadComponent: () => import('./role-permission-management/components/add-role-permission/add-role-permission.component')
-            .then(m => m.AddRolePermissionComponent)
+        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE.ADD}`,
+        loadComponent: () => import('./role-permission-management/components/add-role/add-role.component')
+            .then(m => m.AddRoleComponent)
     },
     {
-        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.EDIT}`,
-        loadComponent: () => import('./role-permission-management/components/add-role-permission/add-role-permission.component')
-            .then(m => m.AddRolePermissionComponent)
+        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE.EDIT}/:id`,
+        loadComponent: () => import('./role-permission-management/components/edit-role/edit-role.component')
+            .then(m => m.EditRoleComponent)
     }
 ];

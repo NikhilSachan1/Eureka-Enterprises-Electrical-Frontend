@@ -12,7 +12,7 @@ import { IEditSystemPermissionRequestDto, IGetSingleSystemPermissionListResponse
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { finalize } from 'rxjs';
-import { EDIT_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG } from '../../config/form/edit-system-permission-form.config';
+import { EDIT_SYSTEM_PERMISSION_FORM_CONFIG } from '../../config/form/edit-system-permission-form.config';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -45,14 +45,14 @@ export class EditSystemPermissionComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSystemPermissionDataFromRoute();
-    this.form = this.formService.createForm(EDIT_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG, this.editSystemPermissionData());
+    this.form = this.formService.createForm(EDIT_SYSTEM_PERMISSION_FORM_CONFIG, this.editSystemPermissionData());
   }
 
   private loadSystemPermissionDataFromRoute(){
     const editSystemPermissionRouteData = this.routerService.getRouterDataFromState<IGetSingleSystemPermissionListResponseDto>('permissionData');
 
     if(!editSystemPermissionRouteData) {
-      this.routerService.navigate([ROUTE_BASE_PATHS.SETTINGS.BASE, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM, ROUTES.SETTINGS.PERMISSION.SYSTEM_PERMISSION.LIST]);
+      this.routerService.navigate([ROUTE_BASE_PATHS.SETTINGS.BASE, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM, ROUTES.SETTINGS.PERMISSION.SYSTEM.LIST]);
       return;
     }
 

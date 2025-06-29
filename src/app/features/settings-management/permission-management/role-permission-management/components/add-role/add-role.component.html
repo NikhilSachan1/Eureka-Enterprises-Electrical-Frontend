@@ -1,6 +1,5 @@
 <app-page-header 
-    title="Add New Role"
-    subtitle="Create a new user role with permissions"
+    [pageHeaderConfig]="pageHeaderConfig()"
 ></app-page-header>
 
 <form  
@@ -16,15 +15,15 @@
 
     <app-input-field 
         [formGroup]="form.formGroup" 
-        [inputFieldConfig]="form.fieldConfigs['description']">
+        [inputFieldConfig]="form.fieldConfigs['comment']">
     </app-input-field>
 
     <div class="pt-4 border-t border-gray-200 button-container">
         <app-button 
-            [buttonConfig]="form.buttonConfigs['cancel']"
+            [buttonConfig]="form.buttonConfigs['reset']"
             (onButtonClick)="onReset()"
         ></app-button>
-                
+        
         <app-button 
             [buttonConfig]="form.buttonConfigs['submit']"
             [showButtonLoader]="isSubmitting()"

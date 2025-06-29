@@ -8,6 +8,6 @@ export const AddSystemPermissionRequestSchema = z.object({
     module: CommonSystemPermissionFields.module.transform((val) => toLowerCase(val)),
     label: CommonSystemPermissionFields.label.transform((val) => toLowerCase(val)),
     description: CommonSystemPermissionFields.description.transform((val) => toLowerCase(val)),
-});
+}).strict();
 
 export const AddSystemPermissionResponseSchema = SystemPermissionListBaseResponseSchema

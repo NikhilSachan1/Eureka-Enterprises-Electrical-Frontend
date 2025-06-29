@@ -1,6 +1,6 @@
 import { APP_CONFIG } from "../../core/config";
 import { IDataTableConfig, IDataTableHeaderConfig, IFilterConfig, IStatusConfig, ITextWithSubtitleAndImageConfig, IMatchModeOption, IBulkActionConfig, IRowActionConfig } from "../models";
-import { EButtonSeverity, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
+import { EButtonSeverity, EButtonVariant, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
 
 // Default table config
 export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -90,5 +90,6 @@ export const DEFAULT_BULK_ACTION_CONFIG: Partial<IBulkActionConfig> = {
 // default row action config
 export const DEFAULT_ROW_ACTION_CONFIG: Partial<IRowActionConfig> = {
   severity: EButtonSeverity.DANGER,
+  variant: EButtonVariant.TEXT,
 }
 

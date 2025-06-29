@@ -101,13 +101,13 @@ export class PermissionListComponent implements OnInit, OnDestroy {
     const baseRoute = `/${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}`;
     
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM)) {
-      this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM_PERMISSION.ADD}`]);
+      this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD}`]);
     }
     else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
-      this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.ADD}`]);
+      this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE.ADD}`]);
     }
     else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
-      this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER}/${ROUTES.SETTINGS.PERMISSION.USER_PERMISSION.ADD}`]);
+      this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER}/${ROUTES.SETTINGS.PERMISSION.USER.ADD}`]);
     }
     else {
       this.logger.logUserAction('Add button clicked - no action defined', currentUrl);

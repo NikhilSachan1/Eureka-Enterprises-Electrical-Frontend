@@ -3,7 +3,6 @@ import { DataTableComponent } from '../../../../../../shared/components/data-tab
 import { TableService, RouterService } from '../../../../../../shared/services/';
 import { LoggerService } from '../../../../../../core/services/logger.service';
 import { SystemPermissionService } from '../../services/system-permission.service';
-
 import { IEnhancedTable, IRowActionClickEvent } from '../../../../../../shared/models';
 import { SYSTEM_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '../../config/table/system-permission-list-table.config';
 import { IGetSingleSystemPermissionListResponseDto, IGetSystemPermissionListResponseDto } from '../../models/system-permission.api.model';
@@ -22,6 +21,7 @@ import { ROUTE_BASE_PATHS, ROUTES } from '../../../../../../shared/constants';
 export class SystemPermissionListComponent implements OnInit, OnDestroy {
 
   protected table!: IEnhancedTable;
+  
   private readonly destroy$ = new Subject<void>();
 
   private readonly systemPermissionService = inject(SystemPermissionService);
@@ -80,7 +80,7 @@ export class SystemPermissionListComponent implements OnInit, OnDestroy {
     
     this.routerService.navigate(
       [
-        `${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM_PERMISSION.EDIT}`, 
+        `${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM.EDIT}`, 
         rowData['id']
       ],
       {

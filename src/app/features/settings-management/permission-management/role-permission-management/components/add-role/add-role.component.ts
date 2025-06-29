@@ -1,44 +1,46 @@
-import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy, DestroyRef, computed } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
 import { ButtonComponent } from '../../../../../../shared/components/button/button.component';
-import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { NotificationService } from '../../../../../../shared/services/notification.service';
 import { LoggerService } from '../../../../../../core/services/logger.service';
 import { FormService } from '../../../../../../shared/services/form.service';
-import { ROUTE_BASE_PATHS, FORM_VALIDATION_MESSAGES } from '../../../../../../shared/constants';
-import { IEnhancedForm } from '../../../../../../shared/models';
-import { ADD_ROLE_PERMISSION_INPUT_FIELDS_CONFIG } from '../../config/form/add-role-permission-form.config';
+import { FORM_VALIDATION_MESSAGES } from '../../../../../../shared/constants';
+import { IEnhancedForm, IPageHeaderConfig } from '../../../../../../shared/models';
+import { ADD_ROLE_FORM_CONFIG } from '../../config/form/add-role-form.config';
+import { RolePermissionService } from '../../services/role-permission.service';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-add-role-permission',
+  selector: 'app-add-role',
   imports: [
     PageHeaderComponent,
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
-    CardModule,
     ToastModule
   ],
-  templateUrl: './add-role-permission.component.html',
-  styleUrl: './add-role-permission.component.scss',
+  templateUrl: './add-role.component.html',
+  styleUrl: './add-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddRolePermissionComponent implements OnInit {
+export class AddRoleComponent implements OnInit {
 
-  private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
-  private readonly router = inject(Router);
-  private readonly notificationService = inject(NotificationService);
-
+  protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() => this.getPageHeaderConfig());
   protected form!: IEnhancedForm;
   protected readonly isSubmitting = signal(false);
 
+  private readonly formService = inject(FormService);
+  private readonly logger = inject(LoggerService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly rolePermissionService = inject(RolePermissionService);
+  private readonly destroyRef = inject(DestroyRef);
+
   ngOnInit(): void {
-    this.form = this.formService.createForm(ADD_ROLE_PERMISSION_INPUT_FIELDS_CONFIG);
+    this.form = this.formService.createForm(ADD_ROLE_FORM_CONFIG);
   }
 
   protected onSubmit(): void {
@@ -47,7 +49,7 @@ export class AddRolePermissionComponent implements OnInit {
     }
 
     const formData = this.prepareFormData();
-    this.executeCreateRole(formData);
+    this.executeAddRole(formData);
   }
 
   private validateForm(): boolean {
@@ -59,17 +61,22 @@ export class AddRolePermissionComponent implements OnInit {
     return true;
   }
 
-  private executeCreateRole(formData: any): void {
+  private executeAddRole(formData: any): void {
     this.isSubmitting.set(true);
     this.form.disable();
 
-    // Simulate API call
-    setTimeout(() => {
-      this.notificationService.success('Role created successfully!');
-      this.isSubmitting.set(false);
-      this.form.enable();
-      this.router.navigate([`/${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}`]);
-    }, 1500);
+    this.rolePermissionService.addRole(formData)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting.set(false);
+          this.form.enable();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: () => {},
+        error: () => {}
+      });
   }
 
   protected onReset(): void {
@@ -81,11 +88,19 @@ export class AddRolePermissionComponent implements OnInit {
     }
   }
 
+  private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
+    return {
+      title: 'Add Role',
+      subtitle: 'Add a new role to the system',
+    };
+  }
+
+
   private prepareFormData(): any {
     const formData = this.form.getData();
     return {
-      roleName: formData['roleName'],
-      description: formData['description'],
+      name: formData['roleName'],
+      description: formData['comment'],
     };
   }
 } 

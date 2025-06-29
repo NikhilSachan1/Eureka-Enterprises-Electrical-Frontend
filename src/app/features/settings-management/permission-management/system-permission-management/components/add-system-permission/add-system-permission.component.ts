@@ -9,7 +9,7 @@ import { LoggerService } from '../../../../../../core/services/logger.service';
 import { FormService } from '../../../../../../shared/services/form.service';
 import { FORM_VALIDATION_MESSAGES } from '../../../../../../shared/constants';
 import { IEnhancedForm, IPageHeaderConfig } from '../../../../../../shared/models';
-import { ADD_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG } from '../../config/form/add-system-permission-form.config';
+import { ADD_SYSTEM_PERMISSION_FORM_CONFIG } from '../../config/form/add-system-permission-form.config';
 import { MODULE_ACTIONS_DATA } from '../../../../../../shared/config';
 import { IAddSystemPermissionRequestDto } from '../../models/system-permission.api.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -42,7 +42,7 @@ export class AddSystemPermissionComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(ADD_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG);
+    this.form = this.formService.createForm(ADD_SYSTEM_PERMISSION_FORM_CONFIG);
   }
 
   protected onModuleNameChange(): void {
@@ -83,7 +83,7 @@ export class AddSystemPermissionComponent implements OnInit {
       )
       .subscribe({
         next: () => {},
-        error: (error) => {}
+        error: () => {}
       });
   }
 

@@ -5,6 +5,10 @@ import { SystemPermissionListBaseResponseSchema } from './system-permission-mana
 
 export const EditSystemPermissionRequestSchema = z.object({
     description: CommonSystemPermissionFields.description.transform((val) => toLowerCase(val)),
-});
+}).strict();
 
-export const EditSystemPermissionResponseSchema = SystemPermissionListBaseResponseSchema;
+export const EditSystemPermissionResponseSchema = z.object({
+    message: z
+        .string({required_error: 'Message is required'})
+        .nonempty()
+}).strict();

@@ -124,20 +124,20 @@ export const ROUTES = {
 
   SETTINGS: {
     PERMISSION: {
-      SYSTEM_PERMISSION: {
+      SYSTEM: {
         LIST: `list`,
         ADD: `add`,
         EDIT: `edit`
       },
-      USER_PERMISSION: {
+      USER: {
         LIST: `list`,
         ADD: `add`,
-        EDIT: `edit/:id`
+        EDIT: `edit`
       },
-      ROLE_PERMISSION: {
+      ROLE: {
         LIST: `list`,
         ADD: `add`,
-        EDIT: `edit/:id`
+        EDIT: `edit`
       }
     }
   }
