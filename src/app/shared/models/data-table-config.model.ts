@@ -1,5 +1,5 @@
 import { ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
-import { ESeverity } from "../types";
+import { IButtonConfig } from "./button.model";
 
 export interface IDataTableConfig {
     rowHover: boolean;
@@ -64,20 +64,5 @@ export interface IMatchModeOption {
     value: string;
 }
 
-export interface IRowActionConfig {
-    id: string;
-    icon?: string;
-    tooltip?: string;
-    styleClass?: string;
-    outlined?: boolean;
-    severity?: ESeverity;
-}
-
-export interface IBulkActionConfig {
-    id: string;
-    label: string;
-    icon?: string;
-    styleClass?: string;
-    outlined?: boolean;
-    severity?: ESeverity;
-}
+export interface IRowActionConfig extends IButtonConfig {};
+export interface IBulkActionConfig extends IButtonConfig {};

@@ -1,9 +1,10 @@
 import { INotificationOptions } from "../models";
+import { APP_CONFIG } from "../../core/config";
 
 export const DEFAULT_NOTIFICATION_OPTIONS_CONFIG: INotificationOptions = {
-    life: 3000,
-    sticky: false,
-    closable: true,
+    life: APP_CONFIG.NOTIFICATION_CONFIG.life,
+    sticky: APP_CONFIG.NOTIFICATION_CONFIG.sticky,
+    closable: APP_CONFIG.NOTIFICATION_CONFIG.closable,
 };
 
 // Common notification messages

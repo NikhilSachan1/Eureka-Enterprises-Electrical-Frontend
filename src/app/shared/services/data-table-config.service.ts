@@ -40,13 +40,6 @@ export class DataTableConfigService {
     } as IDataTableHeaderConfig)) as IDataTableHeaderConfig[];
   }
 
-  getBulkActionConfig(options?: Partial<IBulkActionConfig>): IBulkActionConfig {
-    return {
-      ...this.defaultBulkActionConfig,
-      ...options,
-    } as IBulkActionConfig;
-  }
-
   getBulkActionsConfig(options?: Partial<IBulkActionConfig>[]): IBulkActionConfig[] {
     if (!options?.length) {
       return [];

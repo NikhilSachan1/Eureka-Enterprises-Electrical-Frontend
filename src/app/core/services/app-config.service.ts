@@ -96,4 +96,39 @@ export class AppConfigService {
   get appDescription(): string {
     return this._config.description;
   }
+
+  /**
+   * Get the application notification configuration
+   */
+  get notificationConfig(): IAppConfig['NOTIFICATION_CONFIG'] {
+    return this._config.NOTIFICATION_CONFIG;
+  }
+
+  /**
+   * Get the application date formats
+   */
+  get dateFormats(): IAppConfig['DATE_FORMATS'] {
+    return this._config.DATE_FORMATS;
+  }
+
+  /**
+   * Get the application currency configuration
+   */
+  get currencyConfig(): IAppConfig['CURRENCY_CONFIG'] {
+    return this._config.CURRENCY_CONFIG;
+  }
+
+  /**
+   * Get the application table configuration
+   */
+  get tablePaginationConfig(): IAppConfig['TABLE_PAGINATION_CONFIG'] {
+    return this._config.TABLE_PAGINATION_CONFIG;
+  }
+
+  /**
+   * Get the application dialog configuration
+   */
+  get confirmationDialogConfig(): IAppConfig['CONFIRMATION_DIALOG_CONFIG'] {
+    return this._config.CONFIRMATION_DIALOG_CONFIG;
+  }
 } 

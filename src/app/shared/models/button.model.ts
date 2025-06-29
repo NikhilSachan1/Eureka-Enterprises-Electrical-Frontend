@@ -1,6 +1,7 @@
 import { EButtonBadgeSeverity, EButtonIconPosition, EButtonSeverity, EButtonSize, EButtonVariant } from "../types";
 
 export interface IButtonConfig {
+    id: string;
     type: string;
     label: string;
     icon: string;
@@ -15,4 +16,5 @@ export interface IButtonConfig {
     link: boolean;
     fluid: boolean;
     visible?: boolean;
+    tooltip?: string;
 }

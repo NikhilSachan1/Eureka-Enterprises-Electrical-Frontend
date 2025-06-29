@@ -1,12 +1,13 @@
+import { APP_CONFIG } from "../../core/config";
 import { IDataTableConfig, IDataTableHeaderConfig, IFilterConfig, IStatusConfig, ITextWithSubtitleAndImageConfig, IMatchModeOption, IBulkActionConfig, IRowActionConfig } from "../models";
-import { ESeverity, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
+import { EButtonSeverity, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
 
 // Default table config
 export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   rowHover: true,
   tableUniqueId: 'id',
-  displayRows: 5,
-  rowsPerPageOptions: [5, 10, 25, 50],
+  displayRows: APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
+  rowsPerPageOptions: APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE_OPTIONS,
   showPaginator: true,
   showCheckbox: true,
   emptyMessage: 'No data found',
@@ -71,8 +72,8 @@ export const TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG: Partial<ITextWithSubtitleAndIm
 export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   bodyTemplate: ETableBodyTemplate.TEXT,
   dataType: ETableDataType.TEXT,
-  dateFormat: 'dd-MM-yyyy',
-  currencyFormat: 'INR',
+  dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
+  currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
   textWithSubtitleAndImageConfig: TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG,
   statusConfig: STATUS_CONFIG,
   showFilter: true,
@@ -83,15 +84,11 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
 // default bulk action config
 
 export const DEFAULT_BULK_ACTION_CONFIG: Partial<IBulkActionConfig> = {
-  styleClass: 'p-button-sm',
-  outlined: true,
-  severity: ESeverity.PRIMARY,
+  severity: EButtonSeverity.DANGER,
 }
 
 // default row action config
 export const DEFAULT_ROW_ACTION_CONFIG: Partial<IRowActionConfig> = {
-  styleClass: 'p-button-text p-button-sm',
-  outlined: false,
-  severity: ESeverity.PRIMARY,
+  severity: EButtonSeverity.DANGER,
 }
 

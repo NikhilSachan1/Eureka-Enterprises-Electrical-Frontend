@@ -1,6 +1,6 @@
 import { MATCH_MODE_OPTIONS } from "../../../../../../shared/config";
 import { IBulkActionConfig, IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig } from "../../../../../../shared/models";
-import { EBulkActionType, ESeverity, ERowActionType, ETableBodyTemplate, ETableDataType, ETableFilterMatchMode, ETableSearchInputType } from "../../../../../../shared/types";
+import { EBulkActionType, ERowActionType, ETableBodyTemplate, ETableFilterMatchMode, ETableSearchInputType, EButtonSeverity } from "../../../../../../shared/types";
 import { ICONS } from "../../../../../../shared/constants";
 
 export const SYSTEM_PERMISSION_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
@@ -8,13 +8,13 @@ export const SYSTEM_PERMISSION_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConf
     id: EBulkActionType.APPROVE,
     label: 'Activate',
     icon: ICONS.ACTIONS.CHECK,
-    severity: ESeverity.SUCCESS,
+    severity: EButtonSeverity.SUCCESS,
   },
   {
     id: EBulkActionType.REJECT,
     label: 'Deactivate',
     icon: ICONS.ACTIONS.TIMES,
-    severity: ESeverity.WARNING,
+    severity: EButtonSeverity.WARNING,
   },
 ];
 
@@ -23,19 +23,19 @@ export const SYSTEM_PERMISSION_LIST_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig
     id: ERowActionType.APPROVE,
     icon: ICONS.ACTIONS.CHECK,
     tooltip: 'Activate Permission',
-    severity: ESeverity.SUCCESS,
+    severity: EButtonSeverity.SUCCESS,
   },
   {
     id: ERowActionType.EDIT,
     icon: ICONS.ACTIONS.EDIT,
     tooltip: 'Edit Permission',
-    severity: ESeverity.WARNING,
+    severity: EButtonSeverity.WARNING,
   },
   {
     id: ERowActionType.REJECT,
     icon: ICONS.ACTIONS.TIMES,
     tooltip: 'Deactivate Permission',
-    severity: ESeverity.WARNING,
+    severity: EButtonSeverity.WARNING,
   },
 ];
 
