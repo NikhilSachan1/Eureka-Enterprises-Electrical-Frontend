@@ -1,4 +1,4 @@
-import { ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
+import { EPrimeNGSeverity, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
 import { IButtonConfig } from "./button.model";
 
 export interface IDataTableConfig {
@@ -37,7 +37,8 @@ export interface ITextWithSubtitleAndImageConfig {
 }
 
 export interface IStatusConfig {
-    rounded: boolean;
+    rounded?: boolean;
+    customSeverityMap?: Record<string, EPrimeNGSeverity>;
 }
 
 export interface IFilterConfig {

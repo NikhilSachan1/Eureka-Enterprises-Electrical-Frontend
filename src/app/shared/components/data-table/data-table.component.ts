@@ -26,10 +26,11 @@ import {
   IBulkActionConfig,
   IRowActionConfig,
 } from '../../models';
-import { ESeverity, ETableBodyTemplate, EPrimeNGSeverity } from '../../types';
+import { ETableBodyTemplate } from '../../types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { AvatarService } from '../../services';
 import { ButtonComponent } from '../button/button.component';
+import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { ICONS } from '../../constants';
 
 @Component({
@@ -42,6 +43,7 @@ import { ICONS } from '../../constants';
     SelectModule,
     MultiSelectModule,
     ButtonComponent,
+    StatusTagComponent,
     IconFieldModule,
     InputIconModule,
     SliderModule,
@@ -92,33 +94,7 @@ export class DataTableComponent {
     this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
-  protected getSeverity(status: string | ESeverity | undefined): EPrimeNGSeverity {
-    const severityMap: Record<string, EPrimeNGSeverity> = {
-      [ESeverity.SUCCESS]: 'success',
-      [ESeverity.INFO]: 'info',
-      [ESeverity.WARNING]: 'warn',
-      [ESeverity.DANGER]: 'danger',
-      [ESeverity.SECONDARY]: 'secondary',
-      'active': 'success',
-      'allocated': 'success',
-      'on leave': 'warn',
-      'available': 'warn',
-      'inactive': 'danger',
-      'pending': 'warn',
-      'approved': 'success',
-      'rejected': 'danger',
-      'present': 'success',
-      'absent': 'danger',
-      'leave': 'warn',
-      'holiday': 'contrast',
-      'checked in': 'info',
-      'checked out': 'info',
-      'not checked in': 'info',
-      'not checked out': 'info',
-    };
 
-    return severityMap[status?.toLowerCase() ?? ''] ?? 'secondary';
-  }
 
   protected resolveNestedProperty(obj: any, path: string): any {
     return path.split('.').reduce((current, key) => current?.[key], obj);
