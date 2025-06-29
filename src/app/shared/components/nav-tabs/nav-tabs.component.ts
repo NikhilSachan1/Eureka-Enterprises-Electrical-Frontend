@@ -6,17 +6,17 @@ import { ITabItem } from '../../models';
 import { filter } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-shared-tabs',
+  selector: 'app-nav-tabs',
   standalone: true,
   imports: [
     RouterModule,
     TabsModule,
     TooltipModule
   ],
-  templateUrl: './shared-tabs.component.html',
-  styleUrl: './shared-tabs.component.scss'
+  templateUrl: './nav-tabs.component.html',
+  styleUrl: './nav-tabs.component.scss'
 })
-export class SharedTabsComponent {
+export class NavTabsComponent {
 
   tabs = input.required<ITabItem[]>();
   activeTabIndex = input<number>(0);

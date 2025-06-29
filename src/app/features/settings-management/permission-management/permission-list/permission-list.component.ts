@@ -2,7 +2,7 @@ import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
-import { SharedTabsComponent } from '../../../../shared/components/shared-tabs/shared-tabs.component';
+import { NavTabsComponent } from '../../../../shared/components/nav-tabs/nav-tabs.component';
 import { IMetricData, ITabItem } from '../../../../shared/models';
 import { CardModule } from 'primeng/card';
 import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '../../../../shared/constants';
@@ -14,7 +14,7 @@ import { Subject } from 'rxjs';
   imports: [
     PageHeaderComponent,
     MetricsCardComponent,
-    SharedTabsComponent,
+    NavTabsComponent,  
     CardModule
   ],
   templateUrl: './permission-list.component.html',
