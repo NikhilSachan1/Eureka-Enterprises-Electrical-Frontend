@@ -1,9 +1,6 @@
 <app-page-header 
-    title="Permission Management"
-    subtitle="Manage permissions, roles, and user access"
-    [showAddButton]="shouldShowAddButton()"
-    [addButtonLabel]="getAddButtonLabel()"
-    (addButtonClick)="onAddButtonClick()"
+    [pageHeaderConfig]="pageHeaderConfig()"
+    (headerButtonClick)="onAddButtonClick()"
 ></app-page-header>
 
 <div class="content-wrapper">
@@ -19,13 +16,8 @@
         }
     </div>
 
-    <!-- <p-card
-        styleClass="card-container"
-    > -->
-        <app-nav-tabs 
-            [tabs]="tabs()" 
-            [activeTabIndex]="0"
-            [showRouterOutlet]="true"
-        ></app-nav-tabs>
-    <!-- </p-card> -->
+    <app-nav-tabs 
+        [tabs]="tabs()" 
+        [showRouterOutlet]="true"
+    ></app-nav-tabs>
 </div>

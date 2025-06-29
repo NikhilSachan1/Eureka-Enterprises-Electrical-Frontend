@@ -36,9 +36,9 @@ export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
             .then(m => m.AddSystemPermissionComponent)
     },
     {
-        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM_PERMISSION.EDIT}`,
-        loadComponent: () => import('./system-permission-management/components/add-system-permission/add-system-permission.component')
-            .then(m => m.AddSystemPermissionComponent)
+        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM_PERMISSION.EDIT}/:id`,
+        loadComponent: () => import('./system-permission-management/components/edit-system-permission/edit-system-permission.component')
+            .then(m => m.EditSystemPermissionComponent)
     },
     {
         path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.ADD}`,

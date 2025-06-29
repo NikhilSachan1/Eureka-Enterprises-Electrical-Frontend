@@ -9,6 +9,7 @@ export const API_ROUTES = {
             SYSTEM: {
                 ADD: 'permissions',
                 LIST: 'permissions',
+                UPDATE: 'permissions',
             }
         }
     }
