@@ -21,7 +21,6 @@ export const ROUTE_BASE_PATHS = {
     CONTRACTOR: 'contractor',
     PROJECT: 'project'
   },
-  PERMISSION: 'permission',
   SETTINGS: {
     BASE: 'settings',
     PERMISSION: {
@@ -121,13 +120,6 @@ export const ROUTES = {
     INCREMENT: `increment`,
     MONTHLY_REPORT: `monthly-report`,
     STRUCTURE: `structure`
-  },
-
-  PERMISSION: {
-    LIST: `list`,
-    MANAGE: `manage`,
-    ADD: `add`,
-    EDIT: `edit/:id`
   },
 
   SETTINGS: {

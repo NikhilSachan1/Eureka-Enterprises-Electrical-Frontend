@@ -37,11 +37,6 @@ export const routes: Routes = [
           .then(m => m.SETTING_MANAGEMENT_ROUTES)
       },
       {
-        path: ROUTE_BASE_PATHS.PERMISSION,
-        loadChildren: () => import('./features/setting-management--1/setting-management.routes')
-          .then(m => m.SETTING_MANAGEMENT_ROUTES)
-      },
-      {
         path: '**',
         redirectTo: `${ROUTE_BASE_PATHS.SETTINGS.BASE}`
       }

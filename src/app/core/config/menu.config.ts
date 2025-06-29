@@ -22,27 +22,6 @@ export const appMenu: ApplicationMenu = {
             },
           ],
         },
-        {
-          label: 'Permission Management',
-          icon: ICONS.SECURITY.SHIELD,
-          children: [
-            {
-              label: 'View Permissions',
-              icon: ICONS.COMMON.LIST,
-              routerLink: `${ROUTE_BASE_PATHS.PERMISSION}/${ROUTES.PERMISSION.LIST}`,
-            },
-            {
-              label: 'Add Permission',
-              icon: ICONS.COMMON.ADD,
-              routerLink: `${ROUTE_BASE_PATHS.PERMISSION}/${ROUTES.PERMISSION.ADD}`,
-            },
-            {
-              label: 'Manage Assignments',
-              icon: ICONS.SETTINGS.COG,
-              routerLink: `${ROUTE_BASE_PATHS.PERMISSION}/${ROUTES.PERMISSION.MANAGE}`,
-            },
-          ],
-        },
       ],
     },
   ],
