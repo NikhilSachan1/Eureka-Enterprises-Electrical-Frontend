@@ -55,7 +55,6 @@ export interface ISelectFieldConfig {
   isEditable: boolean;
   virtualScroll: boolean;
   virtualScrollItemSize: number;
-  loading: boolean;
 }
 
 export interface IMultiSelectFieldConfig {
