@@ -11,13 +11,13 @@ export const MODULE_ACTIONS_DATA: Record<string, IOptionDropdown[]> = {
     { value: 'delete', label: 'Delete' },
     { value: 'edit', label: 'Edit' },
     { value: 'view', label: 'Table View' },
-    { value: 'view-details', label: 'View Detail' }
+    { value: 'view_detail', label: 'View Detail' }
   ],
   attendance: [
     { value: 'apply', label: 'Apply' },
     { value: 'force', label: 'Force' },
     { value: 'view', label: 'Table View' },
-    { value: 'view-details', label: 'View Detail' },
+    { value: 'view_detail', label: 'View Detail' },
     { value: 'regularize', label: 'Regularize' },
     { value: 'approve', label: 'Approve' },
     { value: 'reject', label: 'Reject' }

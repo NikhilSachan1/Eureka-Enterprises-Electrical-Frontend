@@ -49,3 +49,11 @@ export const stringToArray = (text: string, separator: string = ' '): string[] =
 
   return text.split(separator);
 };
+
+export const replaceTextWithSeparator = (text: string, replaceText: string, separator: string = ' '): string => {
+  if (!text || typeof text !== 'string') {
+    return text;
+  }
+
+  return text.replace(replaceText, separator);
+};
