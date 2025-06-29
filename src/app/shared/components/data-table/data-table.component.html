@@ -24,7 +24,8 @@
     [columns]="tableHeader()"
     [(selection)]="selectedTableRows"
     (onFilter)="onFilterChange($event)"
-    [globalFilterFields]="tableConfig().globalFilterFields">
+    [globalFilterFields]="tableConfig().globalFilterFields"
+  >
 
     @let selectedCount = selectedTableRows().length;
     @if (selectedCount > 0) {
@@ -40,10 +41,7 @@
               <div class="flex items-center gap-3">
                 @for (button of bulkActionButtons(); track $index) {
                   <app-button 
-                    [buttonConfig]="{
-                      label: button.label,
-                      icon: button.icon,
-                    }"
+                    [buttonConfig]="button"
                     (onButtonClick)="onBulkActionClick(button.id)"
                   ></app-button>
                 }
@@ -52,10 +50,7 @@
 
             <div class="flex items-center">
               <app-button 
-                [buttonConfig]="{
-                  label: 'Clear Selection',
-                  icon: icons.ACTIONS.TIMES,
-                }"
+                [buttonConfig]="getClearSelectionButtonConfig()"
                 (onButtonClick)="clearSelection()"
                 pTooltip="Clear Selected Rows" 
                 tooltipPosition="top"
@@ -283,12 +278,10 @@
             <div class="flex items-center">
               @for (action of rowActions(); track action.id) {
                 <app-button
-                  [buttonConfig]="{
-                    icon: action.icon,
-                  }"
+                  [buttonConfig]="action"
                   [showDisabledButton]="isActionDisabled(action, rowData)"
                   [pTooltip]="action.tooltip"
-                  (onButtonClick)="onRowActionClick(action.id)"
+                  (onButtonClick)="onRowActionClick(action.id, rowData)"
                 ></app-button>
               }
             </div>

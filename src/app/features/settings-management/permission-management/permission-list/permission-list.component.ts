@@ -1,13 +1,14 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
 import { NavTabsComponent } from '../../../../shared/components/nav-tabs/nav-tabs.component';
-import { IMetricData, ITabItem } from '../../../../shared/models';
+import { IMetricData, IPageHeaderConfig, ITabItem } from '../../../../shared/models';
 import { CardModule } from 'primeng/card';
 import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '../../../../shared/constants';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { LoggerService } from '../../../../core/services/logger.service';
 
 @Component({
   selector: 'app-permission-list',
@@ -22,12 +23,14 @@ import { Subject } from 'rxjs';
 })
 export class PermissionListComponent implements OnInit, OnDestroy {
 
-  protected metricsCards = signal(this.getMetricCardsData());
+  protected pageHeaderConfig = computed<IPageHeaderConfig>(() => this.getPageHeaderConfig());
   protected tabs = signal(this.getTabsData());
+  protected metricsCards = signal(this.getMetricCardsData());
   protected currentRoute = signal<string>('');
   private destroy$ = new Subject<void>();
 
-  constructor(private router: Router) {}
+  private readonly router = inject(Router);
+  private readonly logger = inject(LoggerService);
 
   ngOnInit(): void {
     // Set initial route
@@ -42,9 +45,16 @@ export class PermissionListComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  private getPageHeaderConfig(): IPageHeaderConfig {
+    return {
+      title: 'Permission Management',
+      subtitle: 'Manage permissions, roles, and user access',
+      showHeaderButton: true,
+      headerButtonConfig: {
+        label: this.getPageHeaderButtonLabel(),
+        icon: ICONS.COMMON.PLUS,
+      },
+    };
   }
 
   private getMetricCardsData(): IMetricData[] {
@@ -74,22 +84,16 @@ export class PermissionListComponent implements OnInit, OnDestroy {
     ];
   }
 
-  protected getAddButtonLabel(): string {
+  protected getPageHeaderButtonLabel(): string {
     const currentUrl = this.currentRoute();
     
-    if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM)) {
-      return 'Add New Permission';
-    } else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
+    if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
       return 'Add New Role';
+    } else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
+      return 'Add New User Permission';
     }
     
     return 'Add New Permission';
-  }
-
-  protected shouldShowAddButton(): boolean {
-    const currentUrl = this.currentRoute();
-    return currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM) || 
-           currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE);
   }
 
   protected onAddButtonClick(): void {
@@ -98,10 +102,15 @@ export class PermissionListComponent implements OnInit, OnDestroy {
     
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM)) {
       this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM_PERMISSION.ADD}`]);
-    } else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
+    }
+    else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
       this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.ADD}`]);
-    } else {
-      console.log('Add button clicked - no action defined');
+    }
+    else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
+      this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER}/${ROUTES.SETTINGS.PERMISSION.USER_PERMISSION.ADD}`]);
+    }
+    else {
+      this.logger.logUserAction('Add button clicked - no action defined', currentUrl);
     }
   }
 
@@ -126,5 +135,10 @@ export class PermissionListComponent implements OnInit, OnDestroy {
         tooltip: 'Manage system users'
       },
     ];
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

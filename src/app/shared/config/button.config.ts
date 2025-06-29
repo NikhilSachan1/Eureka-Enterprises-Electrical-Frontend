@@ -8,7 +8,7 @@ export const DEFAULT_BUTTON_CONFIG: Partial<IButtonConfig> = {
     shadow: false,
     rounded: false,
     variant: undefined,
-    size: EButtonSize.LARGE,
+    size: EButtonSize.SMALL,
     link: false,
     fluid: false,
 }

@@ -2,7 +2,7 @@ import { Validators } from '@angular/forms';
 import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '../../../../../../shared/models';
 import { EFieldType, EButtonSize, EButtonSeverity } from '../../../../../../shared/types';
 import { 
-  MODULES_DATA, 
+  MODULES_NAME_DATA, 
 } from '../../../../../../shared/config';
 
 const ADD_SYSTEM_PERMISSION_FIELDS_CONFIG: IFormInputFieldsConfig = {
@@ -12,7 +12,7 @@ const ADD_SYSTEM_PERMISSION_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'moduleName',
     label: 'Module Name',
     selectConfig: {
-      optionsDropdown: MODULES_DATA,
+      optionsDropdown: MODULES_NAME_DATA,
     },
     validators: [Validators.required],
   },
@@ -33,16 +33,16 @@ const ADD_SYSTEM_PERMISSION_FIELDS_CONFIG: IFormInputFieldsConfig = {
 };
 
 const ADD_SYSTEM_PERMISSION_BUTTONS_CONFIG: IFormButtonConfig = {
-  cancel: {
-    label: 'Cancel',
-    size: EButtonSize.SMALL,
+  reset: {
+    label: 'Reset',
     severity: EButtonSeverity.SECONDARY,
+    tooltip: 'Reset the form',
   },
   submit: {
     label: 'Add Permission',
     type: 'submit',
-    size: EButtonSize.SMALL,
     severity: EButtonSeverity.PRIMARY,
+    tooltip: 'Add a new permission to the system',
   }
 };
 

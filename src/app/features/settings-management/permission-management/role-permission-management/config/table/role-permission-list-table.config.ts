@@ -1,5 +1,5 @@
 import { MATCH_MODE_OPTIONS } from "../../../../../../shared/config";
-import { IBulkActionConfig, IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig } from "../../../../../../shared/models";
+import { IBulkActionConfig, IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig } from "../../../../../../shared/models";
 import { EBulkActionType, ERowActionType, ETableBodyTemplate, ETableFilterMatchMode, ETableSearchInputType, EButtonSeverity } from "../../../../../../shared/types";
 import { ICONS } from "../../../../../../shared/constants";
 
@@ -86,4 +86,12 @@ export const ROLE_PERMISSION_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[
     },
     showSort: true,
   },
-]; 
+];
+
+// Enhanced table configuration for the unified TableService
+export const ROLE_PERMISSION_LIST_ENHANCED_TABLE_CONFIG: IEnhancedTableConfig = {
+  tableConfig: ROLE_PERMISSION_LIST_TABLE_CONFIG,
+  headers: ROLE_PERMISSION_LIST_TABLE_HEADER,
+  bulkActions: ROLE_PERMISSION_LIST_BULK_ACTIONS_CONFIG,
+  rowActions: ROLE_PERMISSION_LIST_ROW_ACTIONS_CONFIG,
+}; 

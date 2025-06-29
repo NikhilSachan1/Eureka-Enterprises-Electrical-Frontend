@@ -11,14 +11,14 @@ export class FormService {
   private readonly fb = inject(FormBuilder);
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
 
-  createForm(formConfig: IFormConfig, defaultValues?: Record<string, any>): IEnhancedForm {
+  createForm(formConfig: IFormConfig, defaultValues?: Record<string, any> | null): IEnhancedForm {
 
     if (!formConfig.fields || Object.keys(formConfig.fields).length === 0) {
       return {} as IEnhancedForm;
     }
 
     const inputFieldsConfigs = this.inputFieldConfigService.initializeFieldConfigs(formConfig.fields);
-    const formGroup = this.createReactiveFormGroup(inputFieldsConfigs, defaultValues);
+    const formGroup = this.createReactiveFormGroup(inputFieldsConfigs, defaultValues || {});
     
     return this.createEnhancedForm(formGroup, inputFieldsConfigs, formConfig.buttons);
   }

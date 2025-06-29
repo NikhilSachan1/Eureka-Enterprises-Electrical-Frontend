@@ -1,13 +1,13 @@
 import { z } from "zod";
 import { AuditFieldsSchema } from "../../../../../shared/dto/api-response-audit-fields.dto";
-import { toTitleCase, toSentenceCase } from "../../../../../shared/utility";
+import { toTitleCase, toSentenceCase, toLowerCase } from "../../../../../shared/utility";
 import { CommonSystemPermissionFields } from "./common-system-permission-management.dto";
 
 export const SystemPermissionListBaseResponseSchema = z.object({
     id: z
         .string()
         .uuid(),
-    name: CommonSystemPermissionFields.name.transform((val) => toTitleCase(val)),
+    name: CommonSystemPermissionFields.name.transform((val) => toLowerCase(val)),
     module: CommonSystemPermissionFields.module.transform((val) => toTitleCase(val)),
     label: CommonSystemPermissionFields.label.transform((val) => toTitleCase(val)),
     description: CommonSystemPermissionFields.description.transform((val) => toSentenceCase(val)),

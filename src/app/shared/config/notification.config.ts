@@ -10,6 +10,7 @@ export const DEFAULT_NOTIFICATION_OPTIONS_CONFIG: INotificationOptions = {
 // Common notification messages
 export const DEFAULT_NOTIFICATION_MESSAGES = {
     VALIDATION_FAILED: 'Please fill all fields correctly.',
+    SOMETHING_WENT_WRONG: 'Something went wrong',
 } as const;
 
 // Notification titles

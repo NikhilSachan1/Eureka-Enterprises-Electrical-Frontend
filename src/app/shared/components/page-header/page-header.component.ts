@@ -1,7 +1,7 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { ButtonComponent } from '../button/button.component';
-import { EButtonSeverity, EButtonSize } from '../../types';
-import { ICONS } from '../../constants';
+import { IPageHeaderConfig } from '../../models';
+import { DEFAULT_PAGE_HEADER_CONFIG } from '../../config';
 
 @Component({
   selector: 'app-page-header',
@@ -11,17 +11,19 @@ import { ICONS } from '../../constants';
   styleUrls: ['./page-header.component.scss']
 })
 export class PageHeaderComponent {
-  // Expose enums for template use
-  EButtonSeverity = EButtonSeverity;
-  EButtonSize = EButtonSize;
-  icons = ICONS;
   
   // Input signals
-  title = input.required<string>();
-  subtitle = input<string>('');
-  showAddButton = input<boolean>(false);
-  addButtonLabel = input<string>('Add New');
+  pageHeaderConfig = input<Partial<IPageHeaderConfig>>();
+
+  protected finalPageHeaderConfig = computed<IPageHeaderConfig>(() => this.getPageHeaderConfig());
   
   // Output signals
-  addButtonClick = output<void>();
+  headerButtonClick = output<void>();
+
+  protected getPageHeaderConfig(): IPageHeaderConfig {
+    return {
+      ...DEFAULT_PAGE_HEADER_CONFIG,
+      ...this.pageHeaderConfig()
+    } as IPageHeaderConfig;
+  }
 } 

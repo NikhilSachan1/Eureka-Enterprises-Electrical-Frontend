@@ -67,3 +67,8 @@ export interface IMatchModeOption {
 
 export interface IRowActionConfig extends IButtonConfig {};
 export interface IBulkActionConfig extends IButtonConfig {};
+
+export interface IRowActionClickEvent {
+    actionType: string;
+    rowData: Record<string, any>;
+}

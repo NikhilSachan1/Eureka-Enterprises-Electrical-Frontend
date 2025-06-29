@@ -25,6 +25,8 @@ import {
   IDataTableHeaderConfig,
   IBulkActionConfig,
   IRowActionConfig,
+  IButtonConfig,
+  IRowActionClickEvent,
 } from '../../models';
 import { ETableBodyTemplate } from '../../types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
@@ -78,7 +80,7 @@ export class DataTableComponent {
   rowActions = input<IRowActionConfig[]>([]);
 
   bulkActionClick = output<string>();
-  rowActionClick = output<string>();
+  rowActionClick = output<IRowActionClickEvent>();
   
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
 
@@ -93,8 +95,6 @@ export class DataTableComponent {
   protected applyFilterGlobal($event: any, stringVal: string): void {
     this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
-
-
 
   protected resolveNestedProperty(obj: any, path: string): any {
     return path.split('.').reduce((current, key) => current?.[key], obj);
@@ -113,11 +113,18 @@ export class DataTableComponent {
     this.bulkActionClick.emit(actionType);
   }
 
-  protected onRowActionClick(actionType: string): void {
-    this.rowActionClick.emit(actionType);
+  protected onRowActionClick(actionType: string, rowData: any): void {
+    this.rowActionClick.emit({ actionType, rowData });
   }
 
   protected getAvatarUrl(name: string): string {
     return this.avatarService.getAvatarFromName(name);
+  }
+
+  protected getClearSelectionButtonConfig(): Partial<IButtonConfig> {
+    return {
+      label: 'Clear Selection',
+      icon: this.icons.ACTIONS.TIMES
+    };
   }
 }

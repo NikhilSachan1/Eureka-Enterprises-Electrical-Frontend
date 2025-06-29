@@ -1,24 +1,35 @@
-import { Injectable } from '@angular/core';
-import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../models';
+import { Injectable, signal } from '@angular/core';
+import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig, IEnhancedTable, IEnhancedTableConfig } from '../models';
 import { DEFAULT_BULK_ACTION_CONFIG, DEFAULT_ROW_ACTION_CONFIG, DEFAULT_TABLE_CONFIG, DEFAULT_TABLE_HEADER_CONFIG } from '../config';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
-export class DataTableConfigService {
-    private readonly defaultTableConfig: Partial<IDataTableConfig> = DEFAULT_TABLE_CONFIG;
-    private readonly defaultTableHeaderConfig: Partial<IDataTableHeaderConfig> = DEFAULT_TABLE_HEADER_CONFIG;
-    private readonly defaultBulkActionConfig: Partial<IBulkActionConfig> = DEFAULT_BULK_ACTION_CONFIG;
-    private readonly defaultRowActionConfig: Partial<IRowActionConfig> = DEFAULT_ROW_ACTION_CONFIG;
+export class TableService {
 
-  getTableConfig(options?: Partial<IDataTableConfig>) {
+  private readonly defaultTableConfig: Partial<IDataTableConfig> = DEFAULT_TABLE_CONFIG;
+  private readonly defaultTableHeaderConfig: Partial<IDataTableHeaderConfig> = DEFAULT_TABLE_HEADER_CONFIG;
+  private readonly defaultBulkActionConfig: Partial<IBulkActionConfig> = DEFAULT_BULK_ACTION_CONFIG;
+  private readonly defaultRowActionConfig: Partial<IRowActionConfig> = DEFAULT_ROW_ACTION_CONFIG;
+
+  createTable(tableConfig: IEnhancedTableConfig): IEnhancedTable {
+    
+    const tableConfigData = this.getTableConfig(tableConfig.tableConfig);
+    const tableHeaders = this.getTableHeaderConfig(tableConfig.headers);
+    const bulkActions = this.getBulkActionsConfig(tableConfig.bulkActions);
+    const rowActions = this.getRowActionsConfig(tableConfig.rowActions);
+    
+    return this.createEnhancedTable(tableConfigData, tableHeaders, bulkActions, rowActions);
+  }
+
+  private getTableConfig(options?: Partial<IDataTableConfig>): IDataTableConfig {
     return {
       ...this.defaultTableConfig,
       ...options,
     } as IDataTableConfig;
   }
 
-  getTableHeaderConfig(options?: Partial<IDataTableHeaderConfig>[]): IDataTableHeaderConfig[] {
+  private getTableHeaderConfig(options?: Partial<IDataTableHeaderConfig>[]): IDataTableHeaderConfig[] {
     if (!options?.length) {
       return [];
     }
@@ -40,7 +51,7 @@ export class DataTableConfigService {
     } as IDataTableHeaderConfig)) as IDataTableHeaderConfig[];
   }
 
-  getBulkActionsConfig(options?: Partial<IBulkActionConfig>[]): IBulkActionConfig[] {
+  private getBulkActionsConfig(options?: Partial<IBulkActionConfig>[]): IBulkActionConfig[] {
     if (!options?.length) {
       return [];
     }
@@ -50,7 +61,7 @@ export class DataTableConfigService {
     } as IBulkActionConfig));
   }
 
-  getRowActionsConfig(options?: Partial<IRowActionConfig>[]): IRowActionConfig[] {
+  private getRowActionsConfig(options?: Partial<IRowActionConfig>[]): IRowActionConfig[] {
     if (!options?.length) {
       return [];
     }
@@ -59,5 +70,65 @@ export class DataTableConfigService {
       ...override,
     } as IRowActionConfig));
   }
-  
-}
+
+  private createEnhancedTable(
+    tableConfig: IDataTableConfig,
+    headers: IDataTableHeaderConfig[],
+    bulkActions: IBulkActionConfig[],
+    rowActions: IRowActionConfig[]
+  ): IEnhancedTable {
+    // Create writable signals
+    const tableConfigSignal = signal(tableConfig);
+    const headersSignal = signal(headers);
+    const bulkActionsSignal = signal(bulkActions);
+    const rowActionsSignal = signal(rowActions);
+    const dataSignal = signal<any[]>([]);
+    const loadingSignal = signal<boolean>(false);
+
+    return {
+      tableConfig: tableConfigSignal,
+      headers: headersSignal,
+      bulkActions: bulkActionsSignal,
+      rowActions: rowActionsSignal,
+      data: dataSignal,
+      loading: loadingSignal,
+      
+      setData: (data: any[]) => {
+        dataSignal.set(data);
+        return dataSignal;
+      },
+      
+      setLoading: (loading: boolean) => {
+        loadingSignal.set(loading);
+        return loadingSignal;
+      },
+      
+      updateTableConfig: (config: Partial<IDataTableConfig>) => {
+        const updatedConfig = { ...tableConfigSignal(), ...config };
+        tableConfigSignal.set(updatedConfig);
+        return tableConfigSignal;
+      },
+      
+      updateHeaders: (headers: IDataTableHeaderConfig[]) => {
+        headersSignal.set(headers);
+        return headersSignal;
+      },
+      
+      updateBulkActions: (actions: IBulkActionConfig[]) => {
+        bulkActionsSignal.set(actions);
+        return bulkActionsSignal;
+      },
+      
+      updateRowActions: (actions: IRowActionConfig[]) => {
+        rowActionsSignal.set(actions);
+        return rowActionsSignal;
+      },
+      
+      getTableData: () => dataSignal(),
+      getTableConfig: () => tableConfigSignal(),
+      getHeaders: () => headersSignal(),
+      getBulkActions: () => bulkActionsSignal(),
+      getRowActions: () => rowActionsSignal(),
+    };
+  }
+} 

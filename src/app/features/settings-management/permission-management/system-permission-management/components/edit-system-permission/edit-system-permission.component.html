@@ -8,19 +8,6 @@
     class="form"
 >
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <app-input-field 
-            [formGroup]="form.formGroup" 
-            [inputFieldConfig]="form.fieldConfigs['moduleName']"
-            (onFieldChange)="onModuleNameChange()"
-        ></app-input-field>
-
-        <app-input-field 
-            [formGroup]="form.formGroup" 
-            [inputFieldConfig]="form.fieldConfigs['action']"
-        ></app-input-field>
-    </div>
-
     <app-input-field 
         [formGroup]="form.formGroup" 
         [inputFieldConfig]="form.fieldConfigs['comment']"

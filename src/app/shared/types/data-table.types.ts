@@ -7,7 +7,6 @@ export enum EDataTableInputType {
     CURRENCY = 'currency',
 }
 
-
 export enum EBulkActionType {
   SET_INACTIVE = 'setInactive',
   DELETE = 'delete',

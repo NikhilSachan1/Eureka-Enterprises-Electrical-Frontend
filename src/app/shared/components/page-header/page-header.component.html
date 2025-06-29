@@ -1,16 +1,14 @@
 <div class="flex justify-between items-center mb-6 pb-4">
   <div>
-    <h1 class="text-3xl font-bold text-gray-800">{{ title() }}</h1>
-    <p class="text-gray-600">{{ subtitle() }}</p>
+    <h1 class="text-3xl font-bold text-gray-800">{{ finalPageHeaderConfig().title }}</h1>
+    <p class="text-gray-600">{{ finalPageHeaderConfig().subtitle }}</p>
   </div>
-  @if (showAddButton()) {
-    <app-button 
-      [buttonConfig]="{
-        label: addButtonLabel(),
-        icon: icons.COMMON.PLUS,
-        severity: EButtonSeverity.SUCCESS,
-      }"
-      (onButtonClick)="addButtonClick.emit()"
-    ></app-button>
+  @if (finalPageHeaderConfig().showHeaderButton) {
+    @if (finalPageHeaderConfig().headerButtonConfig) {
+      <app-button 
+        [buttonConfig]="finalPageHeaderConfig().headerButtonConfig"
+        (onButtonClick)="headerButtonClick.emit()"
+      ></app-button>
+    }
   }
 </div>

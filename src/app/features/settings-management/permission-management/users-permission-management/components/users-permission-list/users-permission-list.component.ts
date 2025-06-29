@@ -1,9 +1,9 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { DataTableComponent } from '../../../../../../shared/components/data-table/data-table.component';
 import { ConfirmationDialogComponent } from '../../../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
-import { DataTableConfigService } from '../../../../../../shared/services/data-table-config.service';
-import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '../../../../../../shared/models';
-import { USERS_PERMISSION_LIST_BULK_ACTIONS_CONFIG, USERS_PERMISSION_LIST_ROW_ACTIONS_CONFIG, USERS_PERMISSION_LIST_TABLE_CONFIG, USERS_PERMISSION_LIST_TABLE_HEADER } from '../../config/table/users-permission-list-table.config';
+import { TableService } from '../../../../../../shared/services/data-table-config.service';
+import { IEnhancedTable } from '../../../../../../shared/models';
+import { USERS_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '../../config/table/users-permission-list-table.config';
 import { EBulkActionType, ERowActionType, EDialogType, EFieldType } from '../../../../../../shared/types';
 
 @Component({
@@ -14,46 +14,20 @@ import { EBulkActionType, ERowActionType, EDialogType, EFieldType } from '../../
 })
 export class UsersPermissionListComponent implements OnInit {
 
-  private readonly dataTableConfigService = inject(DataTableConfigService);
+  private readonly tableService = inject(TableService);
 
-  protected tableConfig = signal<IDataTableConfig>({} as IDataTableConfig);
-  protected tableHeader = signal<IDataTableHeaderConfig[]>([]);
-  protected tableData = signal<any[]>([]);
-  protected loading = signal<boolean>(true);
-  protected bulkActionButtons = signal<IBulkActionConfig[]>([]);
-  protected rowActions = signal<IRowActionConfig[]>([]);
+  protected table!: IEnhancedTable;
 
   ngOnInit(): void {
-    this.initializeTableConfig();
+    this.table = this.tableService.createTable(USERS_PERMISSION_LIST_ENHANCED_TABLE_CONFIG);
     this.getTableData();
   }
 
-  private initializeTableConfig(): void {
-    this.tableConfig.set(this.getTableConfig());
-    this.tableHeader.set(this.getTableHeader());
-    this.bulkActionButtons.set(this.getBulkActionButtons());
-    this.rowActions.set(this.getRowActions());
-  }
-
-  private getTableConfig(): IDataTableConfig {
-    return this.dataTableConfigService.getTableConfig(USERS_PERMISSION_LIST_TABLE_CONFIG);
-  }
-
-  private getTableHeader(): IDataTableHeaderConfig[] {
-    return this.dataTableConfigService.getTableHeaderConfig(USERS_PERMISSION_LIST_TABLE_HEADER);
-  }
-
-  private getBulkActionButtons(): IBulkActionConfig[] {
-    return this.dataTableConfigService.getBulkActionsConfig(USERS_PERMISSION_LIST_BULK_ACTIONS_CONFIG);
-  }
-
-  private getRowActions(): IRowActionConfig[] {
-    return this.dataTableConfigService.getRowActionsConfig(USERS_PERMISSION_LIST_ROW_ACTIONS_CONFIG);
-  }
-
   private getTableData(): void {
+    this.table.setLoading(true);
+    
     setTimeout(() => {
-      this.tableData.set([
+      this.table.setData([
         {
           id: '1',
           name: 'John Smith',
@@ -119,7 +93,7 @@ export class UsersPermissionListComponent implements OnInit {
           status: 'Inactive'
         }
       ]);
-      this.loading.set(false);
+      this.table.setLoading(false);
     }, 1000);
   }
 

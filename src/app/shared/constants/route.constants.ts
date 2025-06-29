@@ -127,7 +127,7 @@ export const ROUTES = {
       SYSTEM_PERMISSION: {
         LIST: `list`,
         ADD: `add`,
-        EDIT: `edit/:id`
+        EDIT: `edit`
       },
       USER_PERMISSION: {
         LIST: `list`,

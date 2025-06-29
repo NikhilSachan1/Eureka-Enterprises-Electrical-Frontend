@@ -1,15 +1,14 @@
-import { Component, OnInit, signal, inject, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy, DestroyRef, computed } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
 import { ButtonComponent } from '../../../../../../shared/components/button/button.component';
-import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { NotificationService } from '../../../../../../shared/services/notification.service';
 import { LoggerService } from '../../../../../../core/services/logger.service';
 import { FormService } from '../../../../../../shared/services/form.service';
 import { FORM_VALIDATION_MESSAGES } from '../../../../../../shared/constants';
-import { IEnhancedForm } from '../../../../../../shared/models';
+import { IEnhancedForm, IPageHeaderConfig } from '../../../../../../shared/models';
 import { ADD_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG } from '../../config/form/add-system-permission-form.config';
 import { MODULE_ACTIONS_DATA } from '../../../../../../shared/config';
 import { IAddSystemPermissionRequestDto } from '../../models/system-permission.api.model';
@@ -24,7 +23,6 @@ import { finalize } from 'rxjs';
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
-    CardModule,
     ToastModule
   ],
   templateUrl: './add-system-permission.component.html',
@@ -33,14 +31,15 @@ import { finalize } from 'rxjs';
 })
 export class AddSystemPermissionComponent implements OnInit {
 
+  protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() => this.getPageHeaderConfig());
+  protected form!: IEnhancedForm;
+  protected readonly isSubmitting = signal(false);
+
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly systemPermissionService = inject(SystemPermissionService);
   private readonly destroyRef = inject(DestroyRef);
-
-  protected form!: IEnhancedForm;
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     this.form = this.formService.createForm(ADD_SYSTEM_PERMISSION_INPUT_FIELDS_CONFIG);
@@ -92,9 +91,17 @@ export class AddSystemPermissionComponent implements OnInit {
     try {
       this.logger.logUserAction('Reset Add Permission Form');
       this.form.reset();
+      this.form.fieldConfigs['action'].selectConfig!.optionsDropdown = [];
     } catch (error) {
       this.logger.error('Error resetting form', error);
     }
+  }
+
+  private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
+    return {
+      title: 'Add Permission',
+      subtitle: 'Add a new permission to the system',
+    };
   }
 
   private prepareFormData(): IAddSystemPermissionRequestDto {
