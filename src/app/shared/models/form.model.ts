@@ -12,7 +12,7 @@ export interface IFormButtonConfig {
 
 export interface IFormConfig {
   fields: IFormInputFieldsConfig;
-  buttons: IFormButtonConfig;
+  buttons?: IFormButtonConfig;
 }
 
 export interface IEnhancedForm {

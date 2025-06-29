@@ -12,6 +12,11 @@ export class FormService {
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
 
   createForm(formConfig: IFormConfig, defaultValues?: Record<string, any>): IEnhancedForm {
+
+    if (!formConfig.fields || Object.keys(formConfig.fields).length === 0) {
+      return {} as IEnhancedForm;
+    }
+
     const inputFieldsConfigs = this.inputFieldConfigService.initializeFieldConfigs(formConfig.fields);
     const formGroup = this.createReactiveFormGroup(inputFieldsConfigs, defaultValues);
     
@@ -25,6 +30,14 @@ export class FormService {
     
     formGroup.markAllAsTouched();
     return false;
+  }
+
+  getData(formGroup: FormGroup): any {
+    return formGroup.value;
+  }
+
+  getRawData(formGroup: FormGroup): any {
+    return formGroup.getRawValue();
   }
 
   private createReactiveFormGroup(

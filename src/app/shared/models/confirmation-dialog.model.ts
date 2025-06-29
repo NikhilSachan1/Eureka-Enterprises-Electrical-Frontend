@@ -1,7 +1,10 @@
+import { FormGroup } from "@angular/forms";
+import { Signal } from "@angular/core";
 import { EConfirmationDialogRecordDetailInputType, EDialogPosition } from "../types";
-import { IInputFieldsConfig } from "./input-fields-config.model";
+import { IButtonConfig } from "./button.model";
+import { IFormInputFieldsConfig } from "./form.model";
 
-export interface IConfirmationDialogConfig {
+export interface IConfirmationDialogSettingConfig {
     header: string;
     icon: string;
     iconBackgroundColor?: string;
@@ -14,37 +17,41 @@ export interface IConfirmationDialogConfig {
     position: EDialogPosition;
     blockScroll: boolean;
     styleClass: string;
-    acceptButtonProps: Partial<IConfirmationDialogButtonProps>;
-    rejectButtonProps: Partial<IConfirmationDialogButtonProps>;
-    inputFieldConfigs?: Partial<IInputFieldsConfig>[];
-    recordDetails?: {
-        title?: string;
-        details: Array<{
-            label: string;
-            value: string | number | Date;
-            type?: EConfirmationDialogRecordDetailInputType;
-        }>;
-    };
-    accept?: () => void;
-    reject?: () => void;
+    acceptButtonProps: Partial<IButtonConfig>;
+    rejectButtonProps: Partial<IButtonConfig>;
 }
 
-export interface IConfirmationDialogButtonProps {
-    label: string;
-    icon: string;
-    outlined: boolean;
-    visible: boolean;
-    styleClass: string;
+export interface IConfirmationDialogRecordDetailConfig {
+    title?: string;
+    details: Array<{
+        label: string;
+        value: string | number | Date;
+        type?: EConfirmationDialogRecordDetailInputType;
+    }>;
 }
 
-export interface IConfirmationDialogOutput {
-    confirmed: boolean;
-    formData?: any;
+export interface IConfirmationDialogConfig {
+    dialogSettingConfig?: Partial<IConfirmationDialogSettingConfig>;
+    inputFields?: IFormInputFieldsConfig;
+    recordDetails?: IConfirmationDialogRecordDetailConfig;
+    onAccept?: (formData?: Record<string, any>) => void;
+    onReject?: (formData?: Record<string, any>) => void;
 }
 
-export interface IEnhancedConfirmationDialogConfig {
-    dialogConfig?: Partial<IConfirmationDialogConfig>;
-    inputFields?: Partial<IInputFieldsConfig>[];
-    onAccept?: (formData?: any) => void;
-    onReject?: (formData?: any) => void;
+export interface IDialogState {
+    formGroup: FormGroup | null;
+    config: IConfirmationDialogConfig;
+    onAccept?: (formData?: Record<string, any>) => void;
+    onReject?: (formData?: Record<string, any>) => void;
+}
+
+export interface IEnhancedConfirmationDialog {
+    config: Signal<IConfirmationDialogConfig>;
+    formGroup: Signal<FormGroup | null>;
+    isOpen: Signal<boolean>; // Signal indicating whether the dialog is currently visible/open
+    isLoading: Signal<boolean>; // Signal indicating whether the dialog is in a loading state (e.g., during async operations)
+    show: () => void; // Opens/displays the confirmation dialog
+    hide: () => void; // Closes/hides the confirmation dialog
+    setLoading: (loading: boolean) => void; // Sets the loading state of the dialog (shows/hides loading indicators)
+    updateConfig: (config: Partial<IConfirmationDialogConfig>) => IConfirmationDialogConfig; // Updates the dialog configuration dynamically and returns the updated config
 }

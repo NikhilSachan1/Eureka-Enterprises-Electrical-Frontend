@@ -1,30 +1,30 @@
-<p-confirmdialog #cd [style]="{width: '500px'}">
+<p-confirmdialog #cd>
     <ng-template #headless let-message>
-        @let dialog = message;
+        @let settings = currentDialogConfig().dialogSettingConfig;
         <div class="flex flex-col items-center p-8 rounded-lg bg-white">
             <!-- Icon Section -->
             <div 
                 class="rounded-full inline-flex justify-center items-center h-24 w-24 -mt-20 shadow-lg"
-                [class]="dialog.iconContainerClass || 'bg-primary text-primary-contrast'"
+                [class]="settings?.iconContainerClass || 'bg-primary text-primary-contrast'"
             >
-                <i [class]="dialog.icon + ' !text-5xl'"></i>
+                <i [class]="settings?.icon + ' !text-5xl'"></i>
             </div>
 
             <!-- Header Section -->
             <div class="text-center mt-6">
-                <span class="font-bold text-2xl block mb-2">{{ dialog.header }}</span>
-                <p class="text-gray-600 mb-6">{{ dialog.message }}</p>
+                <span class="font-bold text-2xl block mb-2">{{ settings?.header }}</span>
+                <p class="text-gray-600 mb-6">{{ settings?.message }}</p>
             </div>
 
             <!-- Record Details Section -->
-            @if (dialog.recordDetails?.details?.length) {
+            @if (hasRecordDetails()) {
                 <div class="w-full mb-6">
-                    @if (dialog.recordDetails.title) {
-                        <h3 class="text-lg font-semibold mb-3 text-gray-700">{{ dialog.recordDetails.title }}</h3>
+                    @if (currentDialogConfig().recordDetails?.title) {
+                        <h3 class="text-lg font-semibold mb-3 text-gray-700">{{ currentDialogConfig().recordDetails?.title }}</h3>
                     }
                     <div class="bg-gray-50 rounded-lg p-6">
                         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
-                            @for (detail of dialog.recordDetails.details; track detail.label) {
+                            @for (detail of currentDialogConfig().recordDetails?.details; track detail.label) {
                                 <div class="flex flex-col">
                                     <span class="text-sm text-gray-500 mb-1">{{ detail.label }}</span>
                                     <span class="text-gray-800 font-medium">{{ detail.value }}</span>
@@ -36,10 +36,10 @@
             }
 
             <!-- Form Section -->
-            @if (currentFormGroup() && dialog.inputFieldConfigs?.length) {
+            @if (currentFormGroup() && hasFormFields()) {
                 <div class="w-full space-y-4">
                     <form [formGroup]="currentFormGroup()!" class="form">
-                        @for (fieldConfig of dialog.inputFieldConfigs; track fieldConfig.fieldName) {
+                        @for (fieldConfig of formFieldConfigs(); track fieldConfig.fieldName) {
                             <div class="w-full">
                                 <app-input-field
                                     [formGroup]="currentFormGroup()!"
@@ -53,16 +53,18 @@
 
             <!-- Buttons Section -->
             <div class="flex items-center justify-center gap-4 mt-4">
-                <app-button 
-                    [buttonConfig]="acceptButtonConfig()"
-                    [showDisabledButton]="!dialog.acceptButtonProps?.visible"
-                    (onButtonClick)="handleDialog(true)"
-                ></app-button>
-                <app-button 
-                    [buttonConfig]="rejectButtonConfig()"
-                    [showDisabledButton]="!dialog.rejectButtonProps?.visible"
-                    (onButtonClick)="handleDialog(false)"
-                ></app-button>
+                @if (isAcceptButtonVisible()) {
+                    <app-button 
+                        [buttonConfig]="acceptButtonConfig()"
+                        (onButtonClick)="handleDialog(true)"
+                    ></app-button>
+                }
+                @if (isRejectButtonVisible()) {
+                    <app-button 
+                        [buttonConfig]="rejectButtonConfig()"
+                        (onButtonClick)="handleDialog(false)"
+                    ></app-button>
+                }
             </div>
         </div>
     </ng-template>

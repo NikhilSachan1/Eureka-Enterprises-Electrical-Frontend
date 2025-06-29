@@ -14,4 +14,5 @@ export interface IButtonConfig {
     size: EButtonSize | undefined;
     link: boolean;
     fluid: boolean;
+    visible?: boolean;
 }
