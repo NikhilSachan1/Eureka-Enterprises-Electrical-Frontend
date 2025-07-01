@@ -7,11 +7,7 @@
     <div class="metrics-grid">
         @for (metric of metricsCards(); track metric.title) {
             <app-metrics-card
-                [title]="metric.title"
-                [subtitle]="metric.subtitle"
-                [iconClass]="metric.iconClass"
-                [iconBgClass]="metric.iconBgClass"
-                [metrics]="metric.metrics"
+                [metricCardConfig]="metric"
             ></app-metrics-card>
         }
     </div>

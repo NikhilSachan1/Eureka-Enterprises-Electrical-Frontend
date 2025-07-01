@@ -8,5 +8,9 @@ export const CommonRoleFields = {
     description: z
         .string({ required_error: 'Description is required' })
         .trim()
-        .min(1, 'Description cannot be empty')
+        .min(1, 'Description cannot be empty'),
+    label: z
+        .string({ required_error: 'Label is required' })
+        .trim()
+        .min(1, 'Label cannot be empty'),
 };

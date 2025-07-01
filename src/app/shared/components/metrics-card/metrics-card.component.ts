@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ICONS } from '../../constants';
+import { IMetricData } from '../../models';
 
 @Component({
   selector: 'app-metrics-card',
@@ -11,11 +11,8 @@ import { ICONS } from '../../constants';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MetricsCardComponent {
-  title = input<string>('');
-  subtitle = input<string>('');
-  iconClass = input<string>(`${ICONS.COMMON.CHART_PIE} text-blue-500`);
-  iconBgClass = input<string>('bg-blue-50');
-  metrics = input<{ label: string, value: string | number }[]>([]);
+  
+  metricCardConfig = input<IMetricData>();
 
   getMetricClasses(label: string): { background: string; textColor: string } {
     switch (label) {

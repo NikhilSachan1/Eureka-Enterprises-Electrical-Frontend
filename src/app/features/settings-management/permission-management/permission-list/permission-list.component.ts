@@ -33,10 +33,8 @@ export class PermissionListComponent implements OnInit, OnDestroy {
   private readonly logger = inject(LoggerService);
 
   ngOnInit(): void {
-    // Set initial route
     this.currentRoute.set(this.router.url);
 
-    // Listen to route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       takeUntil(this.destroy$)

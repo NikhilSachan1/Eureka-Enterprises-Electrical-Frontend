@@ -8,6 +8,7 @@ export const RoleListBaseResponseSchema = z.object({
         .string()
         .uuid(),
     name: CommonRoleFields.name.transform((val) => toTitleCase(val)),
+    label: CommonRoleFields.label.transform((val) => toTitleCase(val)),
     description: CommonRoleFields.description.transform((val) => toSentenceCase(val)),
 }).merge(AuditFieldsSchema.pick({
     createdAt: true,
