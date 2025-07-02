@@ -7,23 +7,23 @@ import {
   IEditRoleManagementRequestDto,
   IEditRoleManagementResponseDto,
   IGetRoleListResponseDto,
-} from '../models/role-permission.api.model';
+} from '../models/role-management.api.model';
 import { catchError, Observable, tap, throwError } from 'rxjs';
-import { GetRoleListResponseSchema } from '../dto/role-permission-management-list.dto';
+import { GetRoleListResponseSchema } from '../dto/role-list-management.dto';
 import { API_ROUTES } from '../../../../../core/constants';
 import {
   AddRoleManagementDto,
   AddRoleManagementResponseSchema,
-} from '../dto/add-role-permission-management.dto';
+} from '../dto/add-role-management.dto';
 import {
   EditRoleManagementRequestSchema,
   EditRoleManagementResponseSchema,
-} from '../dto/edit-role-permission-management.dto';
+} from '../dto/edit-role-management.dto';
 
 @Injectable({
   providedIn: 'root',
 })
-export class RolePermissionService {
+  export class RoleManagementService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 

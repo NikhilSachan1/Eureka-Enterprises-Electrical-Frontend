@@ -24,7 +24,7 @@ export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
             },
             {
                 path: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
-                loadChildren: () => import('./role-permission-management/role-permission-management.routes')
+                loadChildren: () => import('./role-management/role-management.routes')
                     .then(m => m.ROLE_PERMISSION_MANAGEMENT_ROUTES)
             }
         ]
@@ -42,12 +42,12 @@ export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
     },
     {
         path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE.ADD}`,
-        loadComponent: () => import('./role-permission-management/components/add-role/add-role.component')
+        loadComponent: () => import('./role-management/components/add-role/add-role.component')
             .then(m => m.AddRoleComponent)
     },
     {
         path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE.EDIT}/:id`,
-        loadComponent: () => import('./role-permission-management/components/edit-role/edit-role.component')
+        loadComponent: () => import('./role-management/components/edit-role/edit-role.component')
             .then(m => m.EditRoleComponent)
     }
 ];

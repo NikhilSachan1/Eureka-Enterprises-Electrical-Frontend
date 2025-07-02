@@ -18,11 +18,11 @@ import {
   IEnhancedForm,
   IPageHeaderConfig,
 } from '../../../../../../shared/models';
-import { ADD_ROLE_FORM_CONFIG } from '../../config/form/add-role-form.config';
-import { RolePermissionService } from '../../services/role-permission.service';
+import { ADD_ROLE_FORM_CONFIG } from '../../config/form/add-role-management-form.config';
+import { RoleManagementService } from '../../services/role-management.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IAddRoleManagementRequestDto } from '../../models/role-permission.api.model';
+import { IAddRoleManagementRequestDto } from '../../models/role-management.api.model';
 
 @Component({
   selector: 'app-add-role',
@@ -50,7 +50,7 @@ export class AddRoleComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly loadingService = inject(LoadingService);
-  private readonly rolePermissionService = inject(RolePermissionService);
+  private readonly roleManagementService = inject(RoleManagementService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
 
@@ -87,7 +87,7 @@ export class AddRoleComponent implements OnInit {
     });
     this.form.disable();
 
-    this.rolePermissionService
+    this.roleManagementService
       .addRole(formData)
       .pipe(
         finalize(() => {

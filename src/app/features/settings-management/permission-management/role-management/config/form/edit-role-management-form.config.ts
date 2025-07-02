@@ -1,7 +1,7 @@
 import { IFormConfig, IFormInputFieldsConfig } from "../../../../../../shared/models";
 import { IFormButtonConfig } from "../../../../../../shared/models";
 import { EButtonSeverity } from "../../../../../../shared/types";
-import { ADD_ROLE_FORM_CONFIG } from "./add-role-form.config";
+import { ADD_ROLE_FORM_CONFIG } from "./add-role-management-form.config";
 
 const EDIT_ROLE_FIELDS_CONFIG: IFormInputFieldsConfig = {
   roleName: ADD_ROLE_FORM_CONFIG.fields['roleName'],

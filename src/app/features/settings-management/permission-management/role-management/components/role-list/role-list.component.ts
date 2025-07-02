@@ -5,15 +5,15 @@ import {
   IEnhancedTable,
   IRowActionClickEvent,
 } from '../../../../../../shared/models';
-import { ROLE_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '../../config/table/role-permission-list-table.config';
+import { ROLE_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '../../config/table/role-list-management-table.config';
 import { ERowActionType } from '../../../../../../shared/types';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { LoggerService } from '../../../../../../core/services/logger.service';
-import { RolePermissionService } from '../../services/role-permission.service';
+import { RoleManagementService } from '../../services/role-management.service';
 import {
   IGetRoleListResponseDto,
   IGetSingleRoleListResponseDto,
-} from '../../models/role-permission.api.model';
+} from '../../models/role-management.api.model';
 import { ROUTE_BASE_PATHS, ROUTES } from '../../../../../../shared/constants';
 import { LoadingService, RouterNavigationService, TableService } from '../../../../../../shared/services';
 
@@ -30,7 +30,7 @@ export class RoleListComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  private readonly rolePermissionService = inject(RolePermissionService);
+  private readonly roleManagementService = inject(RoleManagementService);
   private readonly dataTableService = inject(TableService);
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
@@ -51,7 +51,7 @@ export class RoleListComponent implements OnInit, OnDestroy {
       message: 'Fetching roles...',
     });
 
-    this.rolePermissionService
+    this.roleManagementService
       .getRoleList()
       .pipe(
         finalize(() => {
@@ -74,7 +74,7 @@ export class RoleListComponent implements OnInit, OnDestroy {
   }
 
   private mapTableData(response: IGetRoleListResponseDto) {
-    return response.records.map((record) => ({
+    return response.records.map((record: IGetSingleRoleListResponseDto) => ({
       id: record.id,
       name: record.name,
       description: record.description,

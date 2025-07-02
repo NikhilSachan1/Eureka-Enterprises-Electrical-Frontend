@@ -78,7 +78,7 @@ export class SystemPermissionListComponent implements OnInit, OnDestroy {
   }
 
   private mapTableData(response: IGetSystemPermissionListResponseDto) {
-    return response.records.map((record) => ({
+    return response.records.map((record: IGetSingleSystemPermissionListResponseDto) => ({
       id: record.id,
       name: record.name,
       module: record.module,

@@ -10,13 +10,12 @@ import {
   NotificationService,
   RouterNavigationService,
 } from '../../../../../../shared/services';
-import { RolePermissionService } from '../../services/role-permission.service';
 import { LoggerService } from '../../../../../../core/services/logger.service';
-import { EDIT_ROLE_FORM_CONFIG } from '../../config/form/edit-role-form.config';
+import { EDIT_ROLE_FORM_CONFIG } from '../../config/form/edit-role-management-form.config';
 import {
   IEditRoleManagementRequestDto,
   IGetSingleRoleListResponseDto,
-} from '../../models/role-permission.api.model';
+} from '../../models/role-management.api.model';
 import {
   FORM_VALIDATION_MESSAGES,
   ROUTE_BASE_PATHS,
@@ -27,6 +26,7 @@ import { PageHeaderComponent } from '../../../../../../shared/components/page-he
 import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
 import { ButtonComponent } from '../../../../../../shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { RoleManagementService } from '../../services/role-management.service';
 
 @Component({
   selector: 'app-edit-role',
@@ -54,7 +54,7 @@ export class EditRoleComponent {
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly loadingService = inject(LoadingService);
-  private readonly roleService = inject(RolePermissionService);
+  private readonly roleManagementService = inject(RoleManagementService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -131,7 +131,7 @@ export class EditRoleComponent {
     });
     this.form.disable();
 
-    this.roleService
+    this.roleManagementService
       .updateRole(formData, roleId)
       .pipe(
         finalize(() => {

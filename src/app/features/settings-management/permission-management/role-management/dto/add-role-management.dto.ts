@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { CommonRoleFields } from "./common-role-permission-management.dto";
-import { RoleListBaseResponseSchema } from "./role-permission-management-list.dto";
+import { CommonRoleFields } from "./common-role-management.dto";
+import { RoleListBaseResponseSchema } from "./role-list-management.dto";
 import { replaceTextWithSeparator, toLowerCase } from "../../../../../shared/utility";
 
 export const AddRoleManagementDto = z.object({

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CommonRoleFields } from "./common-role-permission-management.dto";
+import { CommonRoleFields } from "./common-role-management.dto";
 import { toLowerCase, toSentenceCase, toTitleCase } from "../../../../../shared/utility";
 import { AuditFieldsSchema } from "../../../../../shared/dto/api-response-audit-fields.dto";
 
