@@ -1,61 +1,92 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { IEnhancedForm, IPageHeaderConfig } from '../../../../../../shared/models';
 import { ActivatedRoute } from '@angular/router';
-import { FormService, NotificationService, RouterService } from '../../../../../../shared/services';
+import {
+  IEnhancedForm,
+  IPageHeaderConfig,
+} from '../../../../../../shared/models';
+import {
+  FormService,
+  LoadingService,
+  NotificationService,
+  RouterNavigationService,
+} from '../../../../../../shared/services';
 import { RolePermissionService } from '../../services/role-permission.service';
 import { LoggerService } from '../../../../../../core/services/logger.service';
 import { EDIT_ROLE_FORM_CONFIG } from '../../config/form/edit-role-form.config';
-import { IEditRoleManagementRequestDto, IGetSingleRoleListResponseDto } from '../../models/role-permission.api.model';
-import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS, ROUTES } from '../../../../../../shared/constants';
+import {
+  IEditRoleManagementRequestDto,
+  IGetSingleRoleListResponseDto,
+} from '../../models/role-permission.api.model';
+import {
+  FORM_VALIDATION_MESSAGES,
+  ROUTE_BASE_PATHS,
+} from '../../../../../../shared/constants';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PageHeaderComponent } from "../../../../../../shared/components/page-header/page-header.component";
-import { InputFieldComponent } from "../../../../../../shared/components/input-field/input-field.component";
-import { ButtonComponent } from "../../../../../../shared/components/button/button.component";
-import { ToastModule } from 'primeng/toast';
+import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
+import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
+import { ButtonComponent } from '../../../../../../shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-edit-role',
   imports: [
-    PageHeaderComponent, 
-    InputFieldComponent, 
-    ButtonComponent, 
-    ToastModule,
-    ReactiveFormsModule
+    PageHeaderComponent,
+    InputFieldComponent,
+    ButtonComponent,
+    ReactiveFormsModule,
   ],
   templateUrl: './edit-role.component.html',
-  styleUrl: './edit-role.component.scss'
+  styleUrl: './edit-role.component.scss',
 })
-export class EditRoleComponent {
 
-  protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() => this.getPageHeaderConfig());
+export class EditRoleComponent {
+  
   protected form!: IEnhancedForm;
+  
+  protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
+    this.getPageHeaderConfig(),
+  );
   protected readonly isSubmitting = signal(false);
   protected readonly editRoleData = signal<Record<string, any> | null>(null);
 
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
+  private readonly loadingService = inject(LoadingService);
   private readonly roleService = inject(RolePermissionService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly routerService = inject(RouterService);
-  private readonly route = inject(ActivatedRoute);
+  private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   ngOnInit(): void {
     this.loadRoleDataFromRoute();
-    this.form = this.formService.createForm(EDIT_ROLE_FORM_CONFIG, this.editRoleData());
+    this.form = this.formService.createForm(
+      EDIT_ROLE_FORM_CONFIG,
+      this.editRoleData(),
+    );
   }
 
   private loadRoleDataFromRoute() {
-    const editRoleRouteData = this.routerService.getRouterDataFromState<IGetSingleRoleListResponseDto>('roleData');
+      
+    const editRoleRouteData =
+      this.routerNavigationService.getRouterStateData<IGetSingleRoleListResponseDto>(
+        'roleData',
+      );
 
     if (!editRoleRouteData) {
-      this.routerService.navigate([ROUTE_BASE_PATHS.SETTINGS.BASE, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM, ROUTES.SETTINGS.PERMISSION.SYSTEM.LIST]);
+      this.logger.logUserAction('No role data found in route');
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SETTINGS.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+      ];
+      this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
 
     const editRoleData = {
+      roleName: editRoleRouteData.label,
       comment: editRoleRouteData.description,
     };
 
@@ -68,34 +99,61 @@ export class EditRoleComponent {
     }
 
     const formData = this.prepareFormData();
-    const roleId = this.route.snapshot.paramMap.get('id') as string;
+    const roleId = this.activatedRoute.snapshot.paramMap.get('id');
+
+    if (!roleId) {
+      this.logger.logUserAction('No role id found in route');
+      this.notificationService.error(FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG);
+      return;
+    }
     this.executeEditRole(formData, roleId);
   }
 
   private validateForm(): boolean {
     if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(FORM_VALIDATION_MESSAGES.FORM_INVALID);
+      this.notificationService.validationError(
+        FORM_VALIDATION_MESSAGES.FORM_INVALID,
+      );
       this.logger.warn('Edit role form validation failed');
       return false;
     }
     return true;
   }
 
-  private executeEditRole(formData: IEditRoleManagementRequestDto, roleId: string): void {
-
+  private executeEditRole(
+    formData: IEditRoleManagementRequestDto,
+    roleId: string,
+  ): void {
     this.isSubmitting.set(true);
+    this.loadingService.show({
+      title: 'Updating Role',
+      message: 'Please wait while we update the role...',
+    });
     this.form.disable();
 
-    this.roleService.updateRole(formData, roleId).pipe(
-      finalize(() => {
-        this.isSubmitting.set(false);
-        this.form.enable();
-      }),
-      takeUntilDestroyed(this.destroyRef)
-    )
+    this.roleService
+      .updateRole(formData, roleId)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting.set(false);
+          this.form.enable();
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => { },
-        error: (error) => { }
+        next: () => {
+          this.notificationService.success('Role updated successfully', 'Success');
+          const routeSegments = [
+            ROUTE_BASE_PATHS.SETTINGS.BASE,
+            ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+            ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+          ];
+          this.routerNavigationService.navigateToRoute(routeSegments);
+        },
+        error: () => {
+          this.notificationService.error('Failed to update role', 'Error');
+        },
       });
   }
 
@@ -119,8 +177,7 @@ export class EditRoleComponent {
     const formData = this.form.getData();
     return {
       description: formData['comment'],
+      label: formData['roleName'],
     };
   }
-
-
 }

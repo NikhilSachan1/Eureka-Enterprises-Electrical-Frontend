@@ -138,10 +138,14 @@ export class ApiService {
     requestSchema: z.ZodSchema<TRequest>,
     responseSchema: z.ZodSchema<TResponse>
   ): Observable<TResponse> {
-    const validatedBody = this.validateRequest(body, requestSchema);
-    return this.post<unknown>(endpoint, validatedBody).pipe(
-      map((response: unknown) => this.validateResponse(response, responseSchema))
-    );
+    try {
+      const validatedBody = this.validateRequest(body, requestSchema);
+      return this.post<unknown>(endpoint, validatedBody).pipe(
+        map((response: unknown) => this.validateResponse(response, responseSchema))
+      );
+    } catch (zodError: any) {
+      return throwError(() => zodError);
+    }
   }
 
   getValidated<TResponse>(
@@ -150,9 +154,13 @@ export class ApiService {
     params?: any,
     useCache = false
   ): Observable<TResponse> {
-    return this.get<unknown>(endpoint, params, useCache).pipe(
-      map((response: unknown) => this.validateResponse(response, responseSchema))
-    );
+    try {
+      return this.get<unknown>(endpoint, params, useCache).pipe(
+        map((response: unknown) => this.validateResponse(response, responseSchema))
+      );
+    } catch (zodError: any) {
+      return throwError(() => zodError);
+    }
   }
 
   putValidated<TRequest, TResponse>(
@@ -161,10 +169,14 @@ export class ApiService {
     requestSchema: z.ZodSchema<TRequest>,
     responseSchema: z.ZodSchema<TResponse>
   ): Observable<TResponse> {
-    const validatedBody = this.validateRequest(body, requestSchema);
-    return this.put<unknown>(endpoint, validatedBody).pipe(
-      map((response: unknown) => this.validateResponse(response, responseSchema))
-    );
+    try {
+      const validatedBody = this.validateRequest(body, requestSchema);
+      return this.put<unknown>(endpoint, validatedBody).pipe(
+        map((response: unknown) => this.validateResponse(response, responseSchema))
+      );
+    } catch (zodError: any) {
+      return throwError(() => zodError);
+    }
   }
 
   patchValidated<TRequest, TResponse>(
@@ -173,10 +185,14 @@ export class ApiService {
     requestSchema: z.ZodSchema<TRequest>,
     responseSchema: z.ZodSchema<TResponse>
   ): Observable<TResponse> {
-    const validatedBody = this.validateRequest(body, requestSchema);
-    return this.patch<unknown>(endpoint, validatedBody).pipe(
-      map((response: unknown) => this.validateResponse(response, responseSchema))
-    );
+    try {
+      const validatedBody = this.validateRequest(body, requestSchema);
+      return this.patch<unknown>(endpoint, validatedBody).pipe(
+        map((response: unknown) => this.validateResponse(response, responseSchema))
+      );
+    } catch (zodError: any) {
+      return throwError(() => zodError);
+    }
   }
 
   deleteValidated<TResponse>(
@@ -184,9 +200,13 @@ export class ApiService {
     responseSchema: z.ZodSchema<TResponse>,
     params?: any
   ): Observable<TResponse> {
-    return this.delete<unknown>(endpoint, params).pipe(
-      map((response: unknown) => this.validateResponse(response, responseSchema))
-    );
+    try {
+      return this.delete<unknown>(endpoint, params).pipe(
+        map((response: unknown) => this.validateResponse(response, responseSchema))
+      );
+    } catch (zodError: any) {
+      return throwError(() => zodError);
+    }
   }
 
   // Utility methods
@@ -253,7 +273,7 @@ export class ApiService {
     try {
       return schema.parse(data);
     } catch (zodError: any) {
-      this.logger.logDtoValidationErrors('Request validation failed:', zodError);
+      this.logger.error('Request validation failed');
       const errorMessage = this.formatZodError(zodError);
       this.notificationService.error(`Request validation failed: ${errorMessage}`);
       throw zodError;
@@ -264,7 +284,7 @@ export class ApiService {
     try {
       return schema.parse(response);
     } catch (zodError: any) {
-      this.logger.logDtoValidationErrors('Response validation failed:', zodError);
+      this.logger.error('Response validation failed');
       const errorMessage = this.formatZodError(zodError);
       this.notificationService.error(`Response validation failed: ${errorMessage}`);
       throw zodError;

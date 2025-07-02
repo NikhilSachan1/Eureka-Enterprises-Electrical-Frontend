@@ -1,13 +1,13 @@
 import { z } from "zod";
 import { CommonRoleFields } from "./common-role-permission-management.dto";
-import { toSentenceCase, toTitleCase } from "../../../../../shared/utility";
+import { toLowerCase, toSentenceCase, toTitleCase } from "../../../../../shared/utility";
 import { AuditFieldsSchema } from "../../../../../shared/dto/api-response-audit-fields.dto";
 
 export const RoleListBaseResponseSchema = z.object({
     id: z
         .string()
         .uuid(),
-    name: CommonRoleFields.name.transform((val) => toTitleCase(val)),
+    name: CommonRoleFields.name.transform((val) => toLowerCase(val)),
     label: CommonRoleFields.label.transform((val) => toTitleCase(val)),
     description: CommonRoleFields.description.transform((val) => toSentenceCase(val)),
 }).merge(AuditFieldsSchema.pick({

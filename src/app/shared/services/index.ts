@@ -5,4 +5,4 @@ export * from './input-field-config.service';
 export * from './loading.service';
 export * from './notification.service';
 export * from './data-table-config.service';
-export * from './router.service';
+export * from './router-navigation.service';

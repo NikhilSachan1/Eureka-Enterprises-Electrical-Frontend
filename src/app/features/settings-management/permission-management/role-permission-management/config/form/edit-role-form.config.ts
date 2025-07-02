@@ -4,9 +4,8 @@ import { EButtonSeverity } from "../../../../../../shared/types";
 import { ADD_ROLE_FORM_CONFIG } from "./add-role-form.config";
 
 const EDIT_ROLE_FIELDS_CONFIG: IFormInputFieldsConfig = {
-
+  roleName: ADD_ROLE_FORM_CONFIG.fields['roleName'],
   comment: ADD_ROLE_FORM_CONFIG.fields['comment'],
-  
 };
 
 const EDIT_ROLE_BUTTONS_CONFIG: IFormButtonConfig = {

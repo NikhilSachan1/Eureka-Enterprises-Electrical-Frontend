@@ -44,4 +44,8 @@ export const LoginResponseSchema = z.object({
     .string({ required_error: 'Profile picture is REQUIRED from API' })
     .min(1, 'Profile picture cannot be empty')
     .nullable(),
-}).strict(); // API cannot send extra fields
+
+  role: z
+    .string({ required_error: 'Role is REQUIRED from API' })
+    .min(1, 'Role cannot be empty'),
+}).strict();

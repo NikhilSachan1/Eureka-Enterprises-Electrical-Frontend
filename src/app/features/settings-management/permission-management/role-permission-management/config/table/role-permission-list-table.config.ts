@@ -5,7 +5,7 @@ import { ICONS } from "../../../../../../shared/constants";
 export const ROLE_PERMISSION_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
   showCheckbox: false,
   globalFilterFields: [
-    'name',
+    'label',
     'description',
   ],
   emptyMessage: 'No roles found.',
@@ -13,7 +13,7 @@ export const ROLE_PERMISSION_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
 
 export const ROLE_PERMISSION_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [
   {
-    field: 'name',
+    field: 'label',
     header: 'Role Details',
     bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
     textWithSubtitleAndImageConfig: {
@@ -22,9 +22,15 @@ export const ROLE_PERMISSION_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[
       showImage: false,
     },
     filterConfig: {
-      filterField: 'name',
+      filterField: 'label',
       placeholder: 'Search Role Name',
     },
+  },
+  {
+    field: 'name',
+    header: 'Role Code',
+    showSort: false,
+    showFilter: false,
   },
   {
     field: 'permissionCount',

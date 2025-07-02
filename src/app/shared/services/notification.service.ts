@@ -33,8 +33,6 @@ export class NotificationService {
     this.showNotification(ESeverity.INFO, message, title, options);
   }
 
-  // Specific methods for common use cases - just pass the message!
-  
   validationError(message: string): void {    
     this.showNotification(
       ESeverity.ERROR, 

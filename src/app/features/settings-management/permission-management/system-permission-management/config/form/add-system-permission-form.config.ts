@@ -1,6 +1,6 @@
 import { Validators } from '@angular/forms';
 import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '../../../../../../shared/models';
-import { EFieldType, EButtonSize, EButtonSeverity } from '../../../../../../shared/types';
+import { EFieldType, EButtonSeverity } from '../../../../../../shared/types';
 import { 
   MODULES_NAME_DATA, 
 } from '../../../../../../shared/config';

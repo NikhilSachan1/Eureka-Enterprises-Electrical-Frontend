@@ -8,7 +8,7 @@ const ADD_ROLE_FIELDS_CONFIG: IFormInputFieldsConfig = {
     id: 'roleName',
     fieldName: 'roleName',
     label: 'Role Name',
-    validators: [Validators.required, Validators.minLength(3)],
+    validators: [Validators.required, Validators.minLength(2)],
   },
 
   comment: {

@@ -1,103 +1,118 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { ApiService } from '../../../../../core/services/api.service';
-import { IAddSystemPermissionRequestDto, IAddSystemPermissionResponseDto, IEditSystemPermissionRequestDto, IEditSystemPermissionResponseDto, IGetSystemPermissionListResponseDto } from '../models/system-permission.api.model';
+import {
+  IAddSystemPermissionRequestDto,
+  IAddSystemPermissionResponseDto,
+  IEditSystemPermissionRequestDto,
+  IEditSystemPermissionResponseDto,
+  IGetSystemPermissionListResponseDto,
+} from '../models/system-permission.api.model';
 import { LoggerService } from '../../../../../core/services/logger.service';
-import { LoadingService } from '../../../../../shared/services/loading.service';
 import { API_ROUTES } from '../../../../../core/constants';
-import { ROUTE_BASE_PATHS } from '../../../../../shared/constants';
-import { AddSystemPermissionRequestSchema, AddSystemPermissionResponseSchema } from '../dto/add-system-permission-management.dto';
+import {
+  AddSystemPermissionRequestSchema,
+  AddSystemPermissionResponseSchema,
+} from '../dto/add-system-permission-management.dto';
 import { GetSystemPermissionListResponseSchema } from '../dto/system-permission-management-list.dto';
-import { EditSystemPermissionRequestSchema, EditSystemPermissionResponseSchema } from '../dto/edit-system-permission-management.dto';
-import { RouterService } from '../../../../../shared/services';
+import {
+  EditSystemPermissionRequestSchema,
+  EditSystemPermissionResponseSchema,
+} from '../dto/edit-system-permission-management.dto';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SystemPermissionService {
-
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly routerService = inject(RouterService);
 
-  addSystemPermission(formData: IAddSystemPermissionRequestDto): Observable<IAddSystemPermissionResponseDto> {
+  addSystemPermission(
+    formData: IAddSystemPermissionRequestDto,
+  ): Observable<IAddSystemPermissionResponseDto> {
+    this.logger.logUserAction('Add System Permission Request', formData);
 
-    this.loadingService.show({
-      title: 'Adding System Permission',
-      message: 'Please wait while we add the system permission...'
-    });
-
-    this.logger.logUserAction('Add System Permission Attempt', formData);
-    
-    return this.apiService.postValidated(
-      API_ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD, 
-      formData, 
-      AddSystemPermissionRequestSchema, 
-      AddSystemPermissionResponseSchema
-    ).pipe(
-      tap((response: IAddSystemPermissionResponseDto) => {
-        this.logger.logUserAction('Add System Permission Success', response);
-        this.routerService.navigate([`${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}`]);
-      }),
-      catchError((error) => {
-        this.logger.logUserAction('Add System Permission Error', error);
-        return throwError(() => error);
-      }),
-      finalize(() => {
-        this.loadingService.hide();
-      })
-    );
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD,
+        formData,
+        AddSystemPermissionRequestSchema,
+        AddSystemPermissionResponseSchema,
+      )
+      .pipe(
+        tap((response: IAddSystemPermissionResponseDto) => {
+          this.logger.logUserAction('Add System Permission Success', response);
+        }),
+        catchError((error) => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Add System Permission Error', error);
+          } else {
+            this.logger.logUserAction('Add System Permission Error', error);
+          }
+          return throwError(() => error);
+        }),
+      );
   }
 
-  updateSystemPermission(formData: IEditSystemPermissionRequestDto, permissionId: string): Observable<IEditSystemPermissionResponseDto> {
-    this.loadingService.show({
-      title: 'Updating System Permission',
-      message: 'Please wait while we update the system permission...'
+  updateSystemPermission(
+    formData: IEditSystemPermissionRequestDto,
+    permissionId: string,
+  ): Observable<IEditSystemPermissionResponseDto> {
+    this.logger.logUserAction('Update System Permission Request', {
+      permissionId,
+      formData,
     });
 
-    return this.apiService.patchValidated(
-      `${API_ROUTES.SETTINGS.PERMISSION.SYSTEM.UPDATE}/${permissionId}`,
-      formData,
-      EditSystemPermissionRequestSchema,
-      EditSystemPermissionResponseSchema
-    ).pipe(
-      tap((response: IEditSystemPermissionResponseDto) => {
-        this.logger.logUserAction('Update System Permission Success', response);
-      }),
-      catchError((error) => {
-        this.logger.logUserAction('Update System Permission Error', error);
-        return throwError(() => error);
-      }),
-      finalize(() => {
-        this.loadingService.hide();
-      })
-    );
+    return this.apiService
+      .patchValidated(
+        `${API_ROUTES.SETTINGS.PERMISSION.SYSTEM.UPDATE}/${permissionId}`,
+        formData,
+        EditSystemPermissionRequestSchema,
+        EditSystemPermissionResponseSchema,
+      )
+      .pipe(
+        tap((response: IEditSystemPermissionResponseDto) => {
+          this.logger.logUserAction('Update System Permission Success', {
+            id: permissionId,
+            response,
+          });
+        }),
+        catchError((error) => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Update System Permission Error', error);
+          } else {
+          this.logger.logUserAction('Update System Permission Error', {
+              id: permissionId,
+              error,
+            });
+          }
+          return throwError(() => error);
+        }),
+      );
   }
 
   getSystemPermissionList(): Observable<IGetSystemPermissionListResponseDto> {
+    this.logger.logUserAction('Get System Permission List Request');
 
-    this.loadingService.show({
-      title: 'Getting System Permission List',
-      message: 'Please wait while we get the system permission list...'
-    });
-
-    this.logger.logUserAction('Get System Permission List Attempt');
-
-    return this.apiService.getValidated(
-      API_ROUTES.SETTINGS.PERMISSION.SYSTEM.LIST,
-      GetSystemPermissionListResponseSchema
-    ).pipe(
-      tap((response: IGetSystemPermissionListResponseDto) => {
-        this.logger.info('Get System Permission List Success', response);
-      }),
-      catchError((error) => {
-        this.logger.error('Get System Permission List Error', error);
-        return throwError(() => error);
-      }),
-      finalize(() => {
-        this.loadingService.hide();
-      })
-    );
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SETTINGS.PERMISSION.SYSTEM.LIST,
+        GetSystemPermissionListResponseSchema,
+      )
+      .pipe(
+        tap((response: IGetSystemPermissionListResponseDto) => {
+          this.logger.logUserAction('Get System Permission List Success', {
+            count: response.records?.length || 0,
+          });
+        }),
+        catchError((error) => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Get System Permission List Error', error);
+          } else {
+            this.logger.logUserAction('Get System Permission List Error', error);
+          }
+          return throwError(() => error);
+        }),
+      );
   }
 }

@@ -1,29 +1,43 @@
-import { Component, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
+import {
+  Component,
+  signal,
+  computed,
+  OnInit,
+  OnDestroy,
+  inject,
+} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
 import { NavTabsComponent } from '../../../../shared/components/nav-tabs/nav-tabs.component';
-import { IMetricData, IPageHeaderConfig, ITabItem } from '../../../../shared/models';
+import {
+  IMetricData,
+  IPageHeaderConfig,
+  ITabItem,
+} from '../../../../shared/models';
 import { CardModule } from 'primeng/card';
 import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '../../../../shared/constants';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { LoggerService } from '../../../../core/services/logger.service';
+import { RouterNavigationService } from '../../../../shared/services/router-navigation.service';
 
 @Component({
   selector: 'app-permission-list',
   imports: [
     PageHeaderComponent,
     MetricsCardComponent,
-    NavTabsComponent,  
-    CardModule
+    NavTabsComponent,
+    CardModule,
   ],
+  standalone: true,
   templateUrl: './permission-list.component.html',
-  styleUrl: './permission-list.component.scss'
+  styleUrl: './permission-list.component.scss',
 })
 export class PermissionListComponent implements OnInit, OnDestroy {
-
-  protected pageHeaderConfig = computed<IPageHeaderConfig>(() => this.getPageHeaderConfig());
+  protected pageHeaderConfig = computed<IPageHeaderConfig>(() =>
+    this.getPageHeaderConfig(),
+  );
   protected tabs = signal(this.getTabsData());
   protected metricsCards = signal(this.getMetricCardsData());
   protected currentRoute = signal<string>('');
@@ -31,16 +45,19 @@ export class PermissionListComponent implements OnInit, OnDestroy {
 
   private readonly router = inject(Router);
   private readonly logger = inject(LoggerService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
 
   ngOnInit(): void {
     this.currentRoute.set(this.router.url);
 
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      takeUntil(this.destroy$)
-    ).subscribe((event: NavigationEnd) => {
-      this.currentRoute.set(event.url);
-    });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((event: NavigationEnd) => {
+        this.currentRoute.set(event.url);
+      });
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
@@ -84,32 +101,66 @@ export class PermissionListComponent implements OnInit, OnDestroy {
 
   protected getPageHeaderButtonLabel(): string {
     const currentUrl = this.currentRoute();
-    
+
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
       return 'Add New Role';
     } else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
       return 'Add New User Permission';
     }
-    
+
     return 'Add New Permission';
   }
 
-  protected onAddButtonClick(): void {
+  protected async onAddButtonClick(): Promise<void> {
     const currentUrl = this.currentRoute();
-    const baseRoute = `/${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}`;
-    
+    const navigationRoute = this.buildNavigationRoute(currentUrl);
+
+    if (navigationRoute) {
+      const success =
+        await this.routerNavigationService.navigateToRoute(navigationRoute);
+
+      if (!success) {
+        this.logger.logUserAction(
+          'Navigation failed for add button',
+          currentUrl,
+        );
+      }
+    } else {
+      this.logger.logUserAction(
+        'Add button clicked - no matching route found',
+        currentUrl,
+      );
+    }
+  }
+
+  private buildNavigationRoute(currentUrl: string): string[] | null {
+    const basePaths = [
+      ROUTE_BASE_PATHS.SETTINGS.BASE,
+      ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+    ];
+
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM)) {
-      this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD}`]);
+      return this.routerNavigationService.buildRouteSegments(
+        [...basePaths, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM],
+        ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD,
+      );
     }
-    else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
-      this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE.ADD}`]);
+
+    if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
+      return this.routerNavigationService.buildRouteSegments(
+        [...basePaths, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE],
+        ROUTES.SETTINGS.PERMISSION.ROLE.ADD,
+      );
     }
-    else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
-      this.router.navigate([`${baseRoute}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER}/${ROUTES.SETTINGS.PERMISSION.USER.ADD}`]);
+
+    if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
+      return this.routerNavigationService.buildRouteSegments(
+        [...basePaths, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER],
+        ROUTES.SETTINGS.PERMISSION.USER.ADD,
+      );
     }
-    else {
-      this.logger.logUserAction('Add button clicked - no action defined', currentUrl);
-    }
+
+    return null;
   }
 
   private getTabsData(): ITabItem[] {
@@ -124,13 +175,13 @@ export class PermissionListComponent implements OnInit, OnDestroy {
         route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
         label: 'Roles',
         icon: ICONS.EMPLOYEE.GROUP,
-        tooltip: 'Manage user roles'
+        tooltip: 'Manage user roles',
       },
       {
         route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
         label: 'Users',
         icon: ICONS.EMPLOYEE.USER,
-        tooltip: 'Manage system users'
+        tooltip: 'Manage system users',
       },
     ];
   }
