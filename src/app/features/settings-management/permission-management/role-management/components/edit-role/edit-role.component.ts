@@ -99,7 +99,7 @@ export class EditRoleComponent {
     }
 
     const formData = this.prepareFormData();
-    const roleId = this.activatedRoute.snapshot.paramMap.get('id');
+    const roleId = this.activatedRoute.snapshot.paramMap.get('roleId');
 
     if (!roleId) {
       this.logger.logUserAction('No role id found in route');

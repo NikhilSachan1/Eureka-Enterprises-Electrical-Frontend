@@ -87,12 +87,13 @@ export class RoleListComponent implements OnInit, OnDestroy {
 
     const { actionType, rowData } = event;
 
+
     switch (actionType) {
       case ERowActionType.EDIT:
         this.navigateToEditRole(rowData as IGetSingleRoleListResponseDto);
         break;
       case ERowActionType.EDIT_PERMISSIONS:
-        console.log('Edit permissions');
+        this.navigateToSetRolePermissions(rowData as IGetSingleRoleListResponseDto);
         break;
       default:
         this.logger.warn('Unknown row action:', actionType);
@@ -123,6 +124,28 @@ export class RoleListComponent implements OnInit, OnDestroy {
         this.logger.logUserAction('Navigation failed for edit button', {
           roleId: rowData.id,
         });
+      }
+    } catch (error) {
+      this.logger.logUserAction('Navigation error', error);
+    }
+  }
+
+  private navigateToSetRolePermissions(rowData: IGetSingleRoleListResponseDto) {
+    this.logger.logUserAction('Navigating to set role permissions');
+
+    try {
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SETTINGS.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+        ROUTES.SETTINGS.PERMISSION.ROLE.SET_PERMISSIONS,
+        rowData.id,
+      ];
+
+      const success = this.routerNavigationService.navigateToRoute(routeSegments);
+
+      if (!success) {
+        this.logger.logUserAction('Navigation failed for set role permissions');
       }
     } catch (error) {
       this.logger.logUserAction('Navigation error', error);

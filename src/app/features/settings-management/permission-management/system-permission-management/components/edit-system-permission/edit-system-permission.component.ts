@@ -108,7 +108,7 @@ export class EditSystemPermissionComponent implements OnInit {
     }
 
     const formData = this.prepareFormData();
-    const permissionId = this.activatedRoute.snapshot.paramMap.get('id');
+    const permissionId = this.activatedRoute.snapshot.paramMap.get('permissionId');
 
     if (!permissionId) {
       this.logger.logUserAction('No permission id found in route');

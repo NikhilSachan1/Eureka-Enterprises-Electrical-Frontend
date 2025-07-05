@@ -137,7 +137,8 @@ export const ROUTES = {
       ROLE: {
         LIST: `list`,
         ADD: `add`,
-        EDIT: `edit`
+        EDIT: `edit`,
+        SET_PERMISSIONS: `set-permissions`
       }
     }
   }

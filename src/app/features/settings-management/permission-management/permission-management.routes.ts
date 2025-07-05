@@ -36,7 +36,7 @@ export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
             .then(m => m.AddSystemPermissionComponent)
     },
     {
-        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM.EDIT}/:id`,
+        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}/${ROUTES.SETTINGS.PERMISSION.SYSTEM.EDIT}/:permissionId`,
         loadComponent: () => import('./system-permission-management/components/edit-system-permission/edit-system-permission.component')
             .then(m => m.EditSystemPermissionComponent)
     },
@@ -46,8 +46,13 @@ export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
             .then(m => m.AddRoleComponent)
     },
     {
-        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE.EDIT}/:id`,
+        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE.EDIT}/:roleId`,
         loadComponent: () => import('./role-management/components/edit-role/edit-role.component')
             .then(m => m.EditRoleComponent)
+    },
+    {
+        path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE.SET_PERMISSIONS}/:roleId`,
+        loadComponent: () => import('./role-management/components/set-role-permission/set-role-permission.component')
+            .then(m => m.SetRolePermissionComponent)
     }
 ];
