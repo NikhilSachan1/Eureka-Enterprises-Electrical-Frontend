@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { retry, timeout, share, map, tap, catchError } from 'rxjs/operators';
+import { retry, timeout, map, tap, catchError } from 'rxjs/operators';
 import { EnvironmentService } from './environment.service';
 import { LoggerService } from './logger.service';
 import { NotificationService } from '../../shared/services/notification.service';
@@ -19,9 +19,6 @@ export class ApiService {
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   
-  // Request deduplication cache
-  private readonly requestCache = new Map<string, Observable<any>>();
-
   private get baseUrl(): string {
     return this.environmentService.apiBaseUrl;
   }
@@ -34,19 +31,13 @@ export class ApiService {
     return this.appConfigService.apiRetryAttempts;
   }
 
-  get<T>(endpoint: string, params?: any, useCache = false): Observable<T> {
+  get<T>(endpoint: string, params?: any): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
     const httpParams = this.buildHttpParams(params);
-    const cacheKey = useCache ? `GET:${url}:${JSON.stringify(params)}` : null;
-    
-    if (useCache && cacheKey && this.requestCache.has(cacheKey)) {
-      this.logger.debug('Cache hit', { method: 'GET', url, cacheKey });
-      return this.requestCache.get(cacheKey)!;
-    }
     
     this.logger.logApiRequest('GET', url, params);
     
-    const request$ = this.http.get<T>(url, { params: httpParams })
+    return this.http.get<T>(url, { params: httpParams })
       .pipe(
         timeout(this.timeout),
         tap(response => this.logger.logApiResponse('GET', url, response)),
@@ -54,16 +45,8 @@ export class ApiService {
         catchError((error: HttpErrorResponse) => {
           this.showFinalErrorNotification(error);
           return throwError(() => error);
-        }),
-        share()
+        })
       );
-    
-    if (useCache && cacheKey) {
-      this.requestCache.set(cacheKey, request$);
-      setTimeout(() => this.requestCache.delete(cacheKey), this.appConfigService.cacheDefaultDuration);
-    }
-    
-    return request$;
   }
 
   post<T>(endpoint: string, body: any): Observable<T> {
@@ -151,11 +134,10 @@ export class ApiService {
   getValidated<TResponse>(
     endpoint: string,
     responseSchema: z.ZodSchema<TResponse>,
-    params?: any,
-    useCache = false
+    params?: any
   ): Observable<TResponse> {
     try {
-      return this.get<unknown>(endpoint, params, useCache).pipe(
+      return this.get<unknown>(endpoint, params).pipe(
         map((response: unknown) => this.validateResponse(response, responseSchema))
       );
     } catch (zodError: any) {
@@ -207,16 +189,6 @@ export class ApiService {
     } catch (zodError: any) {
       return throwError(() => zodError);
     }
-  }
-
-  // Utility methods
-  clearCache(): void {
-    this.requestCache.clear();
-  }
-
-  clearCachedRequest(method: string, endpoint: string, params?: any): void {
-    const cacheKey = `${method.toUpperCase()}:${this.baseUrl}/${endpoint}:${JSON.stringify(params)}`;
-    this.requestCache.delete(cacheKey);
   }
 
   private buildHttpParams(params: any): HttpParams | undefined {
