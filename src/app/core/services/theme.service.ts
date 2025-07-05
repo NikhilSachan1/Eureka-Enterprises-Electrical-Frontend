@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+// import { DOCUMENT } from '@angular/common';
 import { ThemeMode, ThemeColors, ThemeConfig } from '../../shared/models';
 import { themeConfig } from '../config';
 
@@ -7,7 +7,7 @@ import { themeConfig } from '../config';
   providedIn: 'root'
 })
 export class ThemeService {
-  private readonly document = inject(DOCUMENT);
+  // private readonly document = inject(DOCUMENT);
   private readonly STORAGE_KEY = 'theme';
 
   // Reactive state
@@ -19,12 +19,12 @@ export class ThemeService {
   }
 
   private initializeTheme(): void {
-    const savedTheme = localStorage.getItem(this.STORAGE_KEY) as ThemeMode;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // const savedTheme = localStorage.getItem(this.STORAGE_KEY) as ThemeMode;
+    // const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-    // Use saved preference or system preference
-    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
-    this.setTheme(theme);
+    // // Use saved preference or system preference
+    // const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    // this.setTheme(theme);
   }
 
   toggleTheme(): void {
@@ -41,17 +41,17 @@ export class ThemeService {
 
   private applyTheme(theme: ThemeMode): void {
     const colors = themeConfig[theme];
-    const root = this.document.documentElement;
+    // const root = this.document.documentElement;
 
     // Apply theme class to body
-    if (theme === 'dark') {
-      this.document.body.classList.add('dark-theme');
-    } else {
-      this.document.body.classList.remove('dark-theme');
-    }
+    // if (theme === 'dark') {
+    //   this.document.body.classList.add('dark-theme');
+    // } else {
+    //   this.document.body.classList.remove('dark-theme');
+    // }
 
     // Apply CSS variables
-    this.applyColorVariables(root, colors);
+    // this.applyColorVariables(root, colors);
   }
 
   private applyColorVariables(root: HTMLElement, colors: ThemeConfig['light']): void {

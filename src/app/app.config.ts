@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     providers: [
         // Animations with async loading
         provideAnimations(),
-        
+
         // PrimeNG configuration
         providePrimeNG({
             theme: {
@@ -29,13 +29,13 @@ export const appConfig: ApplicationConfig = {
                 }
             }
         }),
-        
+
         // Angular V19: Optimized change detection with event coalescing
-        provideZoneChangeDetection({ 
+        provideZoneChangeDetection({
             eventCoalescing: true,
-            runCoalescing: true 
+            runCoalescing: true
         }),
-        
+
         // Angular V19: HTTP client with Fetch API and interceptors
         provideHttpClient(
             withFetch(),
@@ -44,22 +44,28 @@ export const appConfig: ApplicationConfig = {
                 ErrorInterceptor,     // Handle HTTP errors
             ])
         ),
-        
+
         // Angular V19: Enhanced router with component input binding
         provideRouter(
-            routes, 
+            routes,
             withComponentInputBinding(),
-            withInMemoryScrolling({ 
-                anchorScrolling: 'enabled', 
-                scrollPositionRestoration: 'enabled' 
-            }), 
+            withInMemoryScrolling({
+                anchorScrolling: 'enabled',
+                scrollPositionRestoration: 'enabled'
+            }),
             withEnabledBlockingInitialNavigation()
         ),
-        
+
         // Services
-        { provide: ConfirmationService, useClass: ConfirmationService },
-        { provide: MessageService },
-        
+        { 
+            provide: ConfirmationService, 
+            useClass: ConfirmationService 
+        },
+        { 
+            provide: MessageService, 
+            useClass: MessageService 
+        },
+
         // Import PrimeNG modules
         importProvidersFrom(BrowserAnimationsModule)
     ]
