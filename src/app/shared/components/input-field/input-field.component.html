@@ -172,6 +172,7 @@
                             [binary]="checkboxConfig?.binary || false" 
                             [indeterminate]="checkboxConfig?.indeterminate || false" 
                             [size]="inputFieldConfig().fieldSize"
+                            (onChange)="onChange()"
                         ></p-checkbox>
                         <label [for]="'checkbox-' + option.value" class="ml-2"> {{ option.label }} </label>
                     </div>
