@@ -3,6 +3,8 @@ import { IOptionDropdown } from "../models";
 export const MODULES_NAME_DATA: IOptionDropdown[] = [
   { label: 'Employee', value: 'employee' },
   { label: 'Attendance', value: 'attendance' },
+  { label: 'Leave', value: 'leave' },
+  { label: 'Payroll', value: 'payroll' },
 ];
 
 export const MODULE_ACTIONS_DATA: Record<string, IOptionDropdown[]> = {
