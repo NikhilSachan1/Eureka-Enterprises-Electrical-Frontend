@@ -1,9 +1,13 @@
-import { Component, input, computed, signal } from '@angular/core';
-import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { Component, input, computed, signal, output, OnInit, OnDestroy, inject } from '@angular/core';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { TabsModule } from 'primeng/tabs';
+import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
-import { ITabItem } from '../../models';
-import { filter } from 'rxjs/operators';
+import { ITabChange, ITabItem } from '../../models';
+import { ETabMode } from '../../types/tab-items.types';
+import { RouterNavigationService } from '../../services/router-navigation.service';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-nav-tabs',
@@ -11,45 +15,90 @@ import { filter } from 'rxjs/operators';
   imports: [
     RouterModule,
     TabsModule,
-    TooltipModule
+    BadgeModule,
+    TooltipModule,
   ],
   templateUrl: './nav-tabs.component.html',
   styleUrl: './nav-tabs.component.scss'
 })
-export class NavTabsComponent {
+export class NavTabsComponent implements OnInit, OnDestroy {
 
   tabs = input.required<ITabItem[]>();
   activeTabIndex = input<number>(0);
-  showRouterOutlet = input<boolean>(true);
+  tabMode = input<ETabMode>(ETabMode.ROUTER_OUTLET);
+  allTabMode = ETabMode;
+
+  tabChanged = output<ITabChange>();
 
   private currentRoute = signal<string>('');
+  private destroy$ = new Subject<void>();
 
-  constructor(private router: Router) {
-    // Listen to route changes
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.currentRoute.set(event.url);
-    });
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+  private routerNavigationService = inject(RouterNavigationService);
 
-    // Set initial route
-    this.currentRoute.set(this.router.url);
+  ngOnInit(): void {
+    if (this.tabMode() === this.allTabMode.CONTENT) {
+      this.activatedRoute.queryParams.pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(params => {
+        const tabIndexParam = params['tab'];
+        if (tabIndexParam !== undefined) {
+          const tabIndex = parseInt(tabIndexParam, 10);
+          if (!isNaN(tabIndex) && tabIndex >= 0 && tabIndex < this.tabs().length) {
+            this.setActiveTabByIndex(tabIndex);
+          }
+        }
+      });
+    } else {
+      this.currentRoute.set(this.router.url);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   protected currentActiveTab = computed(() => {
-    const currentUrl = this.currentRoute();
     const tabs = this.tabs();
     
-    // Find the tab that matches the current route
-    const matchingTab = tabs.find(tab => currentUrl.includes(tab.route));
-
-    if (matchingTab) {
-      return matchingTab.route;
+    if (this.tabMode() === this.allTabMode.ROUTER_OUTLET) {
+      const currentUrl = this.currentRoute();
+      const matchingTab = tabs.find(tab => currentUrl.includes(tab.route));
+      return matchingTab ? matchingTab.route : tabs[0]?.route || '';
+    } else {
+      const tabIndexParam = this.routerNavigationService.getRouteQueryParam('tab');
+      if (tabIndexParam !== null) {
+        const tabIndex = parseInt(tabIndexParam, 10);
+        if (!isNaN(tabIndex) && tabIndex >= 0 && tabIndex < tabs.length) {
+          return tabs[tabIndex]?.route || tabs[0]?.route || '';
+        }
+      }
+      
+      return tabs[this.activeTabIndex()]?.route || tabs[0]?.route || '';
     }
-
-    // Fallback to first tab
-    return tabs[0]?.route || '';
   });
 
+  onTabClick(tab: ITabItem, index: number): void {
+    if (this.tabMode() === this.allTabMode.CONTENT) {
+      this.routerNavigationService.navigateWithQueryParams(
+        [],
+        { tab: index },
+        { 
+          queryParamsHandling: 'merge',
+          relativeTo: this.activatedRoute
+        }
+      );
+      
+      this.tabChanged.emit({ tab, index });
+    }
+  }
 
+  private setActiveTabByIndex(index: number): void {
+    const tab = this.tabs()[index];
+    if (tab) {
+      this.tabChanged.emit({ tab, index });
+    }
+  }
 } 

@@ -7,4 +7,9 @@ export interface ITabItem {
   cssClass?: string;
   badge?: string | number;
   visible?: boolean;
-} 
+}
+
+export interface ITabChange {
+  tab: ITabItem;
+  index: number;
+}

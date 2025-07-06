@@ -33,25 +33,6 @@
     background-color: var(--background-default-color, #0f172a);
     color: var(--text-primary-color, #f8fafc);
   }
-
-  // Scrollbar styling
-  &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
-  }
 }
 
 // Media query optimization

@@ -21,6 +21,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { LoggerService } from '../../../../core/services/logger.service';
 import { RouterNavigationService } from '../../../../shared/services/router-navigation.service';
+import { ETabMode } from '../../../../shared/types/tab-items.types';
 
 @Component({
   selector: 'app-permission-list',
@@ -35,6 +36,9 @@ import { RouterNavigationService } from '../../../../shared/services/router-navi
   styleUrl: './permission-list.component.scss',
 })
 export class PermissionListComponent implements OnInit, OnDestroy {
+
+  readonly tabModeType = ETabMode.ROUTER_OUTLET;
+  
   protected pageHeaderConfig = computed<IPageHeaderConfig>(() =>
     this.getPageHeaderConfig(),
   );

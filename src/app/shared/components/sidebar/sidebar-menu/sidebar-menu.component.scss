@@ -33,15 +33,9 @@
     }
 
     &::-webkit-scrollbar {
-      width: 4px;
-      
-      &-track {
-        background: transparent;
-      }
 
       &-thumb {
         background-color: var(--sidebar-surface-200);
-        border-radius: 20px;
 
         &:hover {
           background-color: var(--sidebar-text-secondary);

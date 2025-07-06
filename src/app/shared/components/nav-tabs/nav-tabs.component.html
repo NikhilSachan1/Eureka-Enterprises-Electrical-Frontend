@@ -3,14 +3,15 @@
     [value]="currentActiveTab()" 
 >
     <p-tablist>
-        @for(tab of tabs(); track tab.route) {
+        @for(tab of tabs(); track tab.route; let i = $index) {
             @if(tab.visible !== false) {
                 <p-tab 
                     [value]="tab.route" 
-                    [routerLink]="tab.route" 
+                    [routerLink]="tabMode() === allTabMode.ROUTER_OUTLET ? tab.route : null"
                     [disabled]="tab.disabled" 
                     [pTooltip]="tab.tooltip"
                     tooltipPosition="top"
+                    (click)="onTabClick(tab, i)"
                 >
 
                     @if(tab.icon) {
@@ -20,9 +21,9 @@
                     <span>{{ tab.label }}</span>
 
                     @if(tab.badge) {
-                        <span class="badge">
-                            {{ tab.badge }}
-                        </span>
+                        <p-badge 
+                            [value]="tab.badge.toString()"
+                        />
                     }
                 </p-tab>
             }
@@ -30,8 +31,10 @@
     </p-tablist>
 </p-tabs>
 
-@if(showRouterOutlet()) {
 <div class="tab-content mt-4">
-    <router-outlet></router-outlet>
+    @if(tabMode() === allTabMode.ROUTER_OUTLET) {
+        <router-outlet></router-outlet>
+    } @else {
+        <ng-content></ng-content>
+    }
 </div>
-}
