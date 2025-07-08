@@ -1,0 +1,49 @@
+@import "tailwindcss" reference;
+
+// Color utility classes for stats
+.text-stat-total { @apply text-slate-700; }
+.text-stat-granted { @apply text-emerald-600; }
+.text-stat-new { @apply text-blue-600; }
+.text-stat-revoked { @apply text-red-600; }
+.text-stat-not-granted { @apply text-gray-500; }
+
+// Permission card state classes
+:host ::ng-deep {
+  .p-card {
+    &.card-disabled {
+      @apply border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed;
+    }
+    
+    &.card-granted {
+      @apply border-emerald-200 bg-emerald-50;
+      
+      &:hover {
+        @apply bg-emerald-100;
+      }
+    }
+    
+    &.card-new {
+      @apply border-blue-200 bg-blue-50;
+      
+      &:hover {
+        @apply bg-blue-100;
+      }
+    }
+    
+    &.card-revoked {
+      @apply border-red-200 bg-red-50;
+      
+      &:hover {
+        @apply bg-red-100;
+      }
+    }
+    
+    &.card-not-granted {
+      @apply border-gray-200 bg-white;
+      
+      &:hover {
+        @apply bg-gray-100;
+      }
+    }
+  }
+}

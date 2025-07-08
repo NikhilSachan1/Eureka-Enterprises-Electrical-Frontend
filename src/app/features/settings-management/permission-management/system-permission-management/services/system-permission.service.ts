@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, Observable, tap, throwError, map } from 'rxjs';
 import { ApiService } from '../../../../../core/services/api.service';
 import {
   IAddSystemPermissionRequestDto,
@@ -19,6 +19,8 @@ import {
   EditSystemPermissionRequestSchema,
   EditSystemPermissionResponseSchema,
 } from '../dto/edit-system-permission-management.dto';
+import { IModulePermission } from '../models/system-permission.model';
+import { MODULES_NAME_DATA } from '../../../../../shared/config/static-data.config';
 
 @Injectable({
   providedIn: 'root',
@@ -114,5 +116,45 @@ export class SystemPermissionService {
           return throwError(() => error);
         }),
       );
+  }
+
+  getSystemPermissionModuleWise(): Observable<IModulePermission[]> {
+    this.logger.logUserAction('Get System Permission Module Wise Request');
+
+    return this.getSystemPermissionList().pipe(
+      map((response: IGetSystemPermissionListResponseDto) => {
+
+        const moduleMap = MODULES_NAME_DATA.reduce((acc, staticModule) => {
+          const moduleKey = staticModule.value.toLowerCase();
+          acc.set(moduleKey, {
+            id: `module-${moduleKey}`,
+            moduleName: staticModule.label,
+            permissions: []
+          });
+          return acc;
+        }, new Map<string, IModulePermission>());
+
+        response.records.forEach(permission => {
+          const moduleKey = permission.module.toLowerCase();
+          
+          if (moduleMap.has(moduleKey)) {
+            moduleMap.get(moduleKey)!.permissions.push({
+              id: permission.id,
+              label: permission.label,
+              description: permission.description,
+            });
+          }
+        });
+
+        return Array.from(moduleMap.values());
+      }),
+      tap(() => {
+        this.logger.logUserAction('Get System Permission Module Wise Success');
+      }),
+      catchError((error) => {
+        this.logger.logUserAction('Get System Permission Module Wise Error', error);
+        return throwError(() => error);
+      })
+    );
   }
 }
