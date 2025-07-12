@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, OnInit, output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -23,7 +23,7 @@ import { IInputFieldsConfig } from '../../models';
   styleUrl: './input-field.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InputFieldComponent {
+export class InputFieldComponent implements OnInit {
 
   ALL_FIELD_TYPES = EFieldType;
   ALL_UP_AND_DOWN_BUTTON_LAYOUTS = EUpAndDownButtonLayout;
@@ -39,6 +39,12 @@ export class InputFieldComponent {
   formGroup = input.required<FormGroup>();
   inputFieldConfig = input.required<IInputFieldsConfig>();
   onFieldChange = output<boolean>();
+
+  ngOnInit(): void {
+    if (this.inputFieldConfig().disabledInput) {
+      this.formGroup().controls[this.inputFieldConfig().fieldName].disable();
+    }
+  }
 
   checkIsFieldInvalid(fieldName: string): boolean {
     const control = this.formGroup().get(fieldName);

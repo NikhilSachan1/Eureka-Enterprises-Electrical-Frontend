@@ -7,59 +7,20 @@
                 [autocomplete]="inputFieldConfig().autocomplete" 
                 [fluid]="inputFieldConfig().haveFullWidth" 
                 [pSize]="inputFieldConfig().fieldSize" 
-                [value]="getCurrentValue()"
-                [disabled]="disabled() || inputFieldConfig().disabledInput || false"
+                [disabled]=" inputFieldConfig().disabledInput || false"
                 [readonly]="inputFieldConfig().readonlyInput || false"
+                [(ngModel)]="inputFieldConfig().defaultValue"
+                [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (input)="onStandaloneChange($event)"
             />
             <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
         </p-floatlabel>
     }
-    @case (ALL_FIELD_TYPES.Checkbox) {
-        <label>{{inputFieldConfig().label}}</label>
-        @let checkboxConfig = inputFieldConfig().checkboxConfig;
-        <div class="flex flex-{{checkboxConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical}} gap-4">
-            @for (option of checkboxConfig?.options; track option.value) {
-                <div class="flex items-center">
-                    <p-checkbox 
-                        [inputId]="'checkbox-' + option.value" 
-                        [value]="option" 
-                        [binary]="checkboxConfig?.binary || false" 
-                        [indeterminate]="checkboxConfig?.indeterminate || false" 
-                        [size]="inputFieldConfig().fieldSize"
-                        [disabled]="disabled() || inputFieldConfig().disabledInput || false"
-                        (onChange)="onStandaloneChange($event.checked)"
-                    ></p-checkbox>
-                    <label [for]="'checkbox-' + option.value" class="ml-2"> {{ option.label }} </label>
-                </div>
-            }
-        </div>
-    }
-    @case (ALL_FIELD_TYPES.Select) {
-        <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
-            @let selectConfig = inputFieldConfig().selectConfig;
-            @let optionsDropdownLength = selectConfig?.optionsDropdown?.length;
-            <p-select
-                [id]="inputFieldConfig().id"
-                [fluid]="inputFieldConfig().haveFullWidth"
-                [size]="inputFieldConfig().fieldSize"
-                [options]="selectConfig?.optionsDropdown" 
-                [optionLabel]="selectConfig?.optionLabel" 
-                [optionValue]="selectConfig?.optionValue"
-                [checkmark]="selectConfig?.showCheckmark"
-                [filter]="(optionsDropdownLength) ? selectConfig?.haveFilter : false" 
-                [filterBy]="selectConfig?.filterBy" 
-                [loading]="(optionsDropdownLength) ? false : true" 
-                [showClear]="selectConfig?.showClearButton" 
-                [disabled]="disabled() || inputFieldConfig().disabledInput || false"
-                (onChange)="onStandaloneChange($event)"
-            ></p-select>
-            <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
-        </p-floatlabel>
-    }
     @case (ALL_FIELD_TYPES.Number) {
         <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
+
             @let numberConfig = inputFieldConfig().numberConfig || {};
+
             <p-inputnumber
                 [inputId]="inputFieldConfig().id" 
                 [autocomplete]="inputFieldConfig().autocomplete"
@@ -79,16 +40,50 @@
                 [showButtons]="numberConfig?.showUpAndDownButtons" 
                 [buttonLayout]="numberConfig?.upAndDownButtonLayout || ALL_UP_AND_DOWN_BUTTON_LAYOUTS.Default" 
                 [step]="numberConfig?.step"
-                [disabled]="disabled() || inputFieldConfig().disabledInput || false"
+                [disabled]="inputFieldConfig().disabledInput || false"
+                [readonly]="inputFieldConfig().readonlyInput || false"
+                [(ngModel)]="inputFieldConfig().defaultValue"
+                [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (onInput)="onStandaloneChange($event)"
             ></p-inputnumber>
             <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
         </p-floatlabel>
     }
+    @case (ALL_FIELD_TYPES.Select) {
+        <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
+
+            @let selectConfig = inputFieldConfig().selectConfig;
+            @let optionsDropdownLength = selectConfig?.optionsDropdown?.length;
+
+            <p-select
+                [id]="inputFieldConfig().id"
+                [fluid]="inputFieldConfig().haveFullWidth"
+                [size]="inputFieldConfig().fieldSize"
+                [options]="selectConfig?.optionsDropdown" 
+                [optionLabel]="selectConfig?.optionLabel" 
+                [optionValue]="selectConfig?.optionValue"
+                [checkmark]="selectConfig?.showCheckmark"
+                [filter]="(optionsDropdownLength) ? selectConfig?.haveFilter : false" 
+                [filterBy]="selectConfig?.filterBy" 
+                [loading]="(optionsDropdownLength) ? false : true" 
+                [showClear]="selectConfig?.showClearButton"
+                [editable]="selectConfig?.isEditable"
+                [virtualScroll]="selectConfig?.virtualScroll" 
+                [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize" 
+                [disabled]="inputFieldConfig().disabledInput || false"
+                [(ngModel)]="inputFieldConfig().defaultValue"
+                [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
+                (onChange)="onStandaloneChange($event)"
+            ></p-select>
+            <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
+        </p-floatlabel>
+    }
     @case (ALL_FIELD_TYPES.MultiSelect) {
         <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
+
             @let multiSelectConfig = inputFieldConfig().multiSelectConfig;
             @let optionsDropdownLength = multiSelectConfig?.optionsDropdown?.length;
+
             <p-multiselect
                 [id]="inputFieldConfig().id"
                 [fluid]="inputFieldConfig().haveFullWidth"
@@ -104,7 +99,9 @@
                 [selectAll]="multiSelectConfig?.selectAll"
                 [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip" 
                 [showClear]="multiSelectConfig?.showClearButton"
-                [disabled]="disabled() || inputFieldConfig().disabledInput || false"
+                [disabled]="inputFieldConfig().disabledInput || false"
+                [(ngModel)]="inputFieldConfig().defaultValue"
+                [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (onChange)="onStandaloneChange($event)"
             ></p-multiselect>
             <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
@@ -112,7 +109,9 @@
     }
     @case (ALL_FIELD_TYPES.Date) {
         <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
+
             @let dateConfig = inputFieldConfig().dateConfig;
+
             <p-datepicker 
                 [id]="inputFieldConfig().id"
                 [fluid]="inputFieldConfig().haveFullWidth"
@@ -125,12 +124,14 @@
                 [maxDate]="dateConfig?.maxDate"
                 [showButtonBar]="dateConfig?.showButtonBar" 
                 [selectionMode]="dateConfig?.selectionMode || ALL_DATE_SELECTION_MODES.Single" 
-                [readonlyInput]="inputFieldConfig().readonlyInput || false" 
                 [showTime]="dateConfig?.showTime || false"
                 [hourFormat]="dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve" 
                 [view]="dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date" 
                 [numberOfMonths]="dateConfig?.numberOfMonths || 1"
-                [disabled]="disabled() || inputFieldConfig().disabledInput || false"
+                [disabled]="inputFieldConfig().disabledInput || false"
+                [readonlyInput]="inputFieldConfig().readonlyInput || false" 
+                [(ngModel)]="inputFieldConfig().defaultValue"
+                [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (onSelect)="onStandaloneChange($event)"
             ></p-datepicker>
             <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
@@ -138,7 +139,9 @@
     }
     @case (ALL_FIELD_TYPES.Password) {
         <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
+
             @let passwordConfig = inputFieldConfig().passwordConfig;
+
             <p-password
                 [inputId]="inputFieldConfig().id"
                 [fluid]="inputFieldConfig().haveFullWidth"
@@ -152,47 +155,64 @@
                 [toggleMask]="passwordConfig?.toggleMask"
                 [strongRegex]="passwordConfig?.strongRegex || ''"
                 [mediumRegex]="passwordConfig?.mediumRegex || ''"
-                [disabled]="disabled() || inputFieldConfig().disabledInput || false"
-                (onInput)="onStandaloneChange($event)"
+                [disabled]="inputFieldConfig().disabledInput || false"
+                [(ngModel)]="inputFieldConfig().defaultValue"
+                [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
+                (onBlur)="onStandaloneChange($event)"
             ></p-password>
             <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
         </p-floatlabel>
     }
-    @case (ALL_FIELD_TYPES.Radio) {
+    @case (ALL_FIELD_TYPES.Checkbox) {
+
         <label>{{inputFieldConfig().label}}</label>
+
+        @let checkboxConfig = inputFieldConfig().checkboxConfig;
+
+        <div class="flex flex-{{checkboxConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical}} gap-4">
+            
+            @for (option of checkboxConfig?.options; track option.value) {
+                <div class="flex items-center">
+                    <p-checkbox 
+                        [inputId]="'checkbox-' + option.value" 
+                        [value]="option" 
+                        [binary]="checkboxConfig?.binary || false" 
+                        [indeterminate]="checkboxConfig?.indeterminate || false" 
+                        [size]="inputFieldConfig().fieldSize"
+                        [disabled]="inputFieldConfig().disabledInput || false"
+                        [readonly]="inputFieldConfig().readonlyInput || false"
+                        [(ngModel)]="inputFieldConfig().defaultValue"
+                        [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
+                        (onChange)="onStandaloneChange($event)"
+                    ></p-checkbox>
+                    <label [for]="'checkbox-' + option.value" class="ml-2"> {{ option.label }} </label>
+                </div>
+            }
+        </div>
+    }
+    @case (ALL_FIELD_TYPES.Radio) {
+
+        <label>{{inputFieldConfig().label}}</label>
+
         @let radioConfig = inputFieldConfig().radioConfig;
+
         <div class="flex flex-{{radioConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical}} gap-4">
+            
             @for (option of radioConfig?.options; track option.value) {
                 <div class="flex items-center">
                     <p-radioButton 
                         [inputId]="'radio-' + option.value" 
                         [value]="option" 
                         [size]="inputFieldConfig().fieldSize"
-                        [disabled]="disabled() || inputFieldConfig().disabledInput || false"
-                        (onChange)="onStandaloneChange($event)"
+                        [disabled]="inputFieldConfig().disabledInput || false"
+                        [(ngModel)]="inputFieldConfig().defaultValue"
+                        [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
+                        (onClick)="onStandaloneChange($event)"
                     ></p-radioButton>
                     <label [for]="'radio-' + option.value" class="ml-2">{{ option.label }}</label>
                 </div>
             }
         </div>
-    }
-    @case (ALL_FIELD_TYPES.File) {
-        @let fileConfig = inputFieldConfig().fileConfig;
-        <p-fileupload
-            [name]="inputFieldConfig().fieldName" 
-            [id]="inputFieldConfig().id"
-            [customUpload]="fileConfig?.customUpload"
-            [multiple]="fileConfig?.multipleFiles" 
-            [accept]="fileConfig?.acceptFileTypes" 
-            [maxFileSize]="fileConfig?.maxFileSize" 
-            [mode]="fileConfig?.mode"
-            [auto]="fileConfig?.automaticUpload"
-            [chooseLabel]="fileConfig?.chooseLabel"
-            [cancelLabel]="fileConfig?.cancelLabel"
-            [showUploadButton]="fileConfig?.showUploadButton"
-            [showCancelButton]="fileConfig?.showCancelButton"
-            (onSelect)="onStandaloneChange($event)"
-        ></p-fileupload>
     }
     @case (ALL_FIELD_TYPES.TextArea) {
         <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
@@ -205,44 +225,13 @@
                 [rows]="textAreaConfig?.rows"
                 [cols]="textAreaConfig?.cols"
                 [autoResize]="textAreaConfig?.autoResize"
-                [disabled]="disabled() || inputFieldConfig().disabledInput || false"
+                [disabled]="inputFieldConfig().disabledInput || false"
                 [readonly]="inputFieldConfig().readonlyInput || false"
+                [(ngModel)]="inputFieldConfig().defaultValue"
+                [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (input)="onStandaloneChange($event)"
             ></textarea>
             <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
         </p-floatlabel>
-    }
-    @case (ALL_FIELD_TYPES.Individual_Number) {
-        @let individualNumberConfig = inputFieldConfig().individualNumberConfig;
-        <p-inputotp 
-            [id]="inputFieldConfig().id"
-            [length]="individualNumberConfig?.length || 2"
-            [size]="inputFieldConfig().fieldSize"
-            [integerOnly]="individualNumberConfig?.integerOnly || true"
-            [disabled]="disabled() || inputFieldConfig().disabledInput || false"
-            (onComplete)="onStandaloneChange($event)"
-        >
-            <ng-template #input let-token let-events="events" let-index="index">
-                <input 
-                    type="text" 
-                    [maxLength]="1" 
-                    (input)="events.input($event)" 
-                    (keydown)="events.keydown($event)" 
-                    [attr.value]="token" 
-                    class="p-inputtext p-component individual-number-input"
-                />
-                @let separators = individualNumberConfig?.separators;
-                @if (separators && separators.length > 0) {
-                    @for (separator of separators; track separator.position) {
-                        @if (index === separator.position) {
-                            <div class="px-2">
-                                <span [innerHTML]="separator.content"></span>
-                            </div>
-                        }
-                    }
-                }
-            </ng-template>
-        </p-inputotp>
-        <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
     }
 } 

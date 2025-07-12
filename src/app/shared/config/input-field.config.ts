@@ -6,6 +6,8 @@ export const DEFAULT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
     haveFullWidth: true,
     fieldSize: EFieldSize.Large,
     floatLabelVariant: EFloatLabelVariant.On,
+    disabledInput: false,
+    readonlyInput: false,
 };
 
 export const DEFAULT_NUMBER_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {

@@ -12,6 +12,7 @@
                     [autocomplete]="inputFieldConfig().autocomplete" 
                     [fluid]="inputFieldConfig().haveFullWidth" 
                     [pSize]="inputFieldConfig().fieldSize" 
+                    [readonly]="inputFieldConfig().readonlyInput || false"
                     [formControlName]="inputFieldConfig().fieldName" 
                     [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}" 
                 />
@@ -28,8 +29,6 @@
                     [autocomplete]="inputFieldConfig().autocomplete"
                     [fluid]="inputFieldConfig().haveFullWidth" 
                     [size]="inputFieldConfig().fieldSize" 
-                    [formControlName]="inputFieldConfig().fieldName" 
-                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}" 
                     [mode]="numberConfig?.mode" 
                     [min]="numberConfig?.minimumBoundaryValue" 
                     [max]="numberConfig?.maximumBoundaryValue" 
@@ -44,6 +43,9 @@
                     [showButtons]="numberConfig?.showUpAndDownButtons" 
                     [buttonLayout]="numberConfig?.upAndDownButtonLayout || ALL_UP_AND_DOWN_BUTTON_LAYOUTS.Default" 
                     [step]="numberConfig?.step"
+                    [readonly]="inputFieldConfig().readonlyInput || false"
+                    [formControlName]="inputFieldConfig().fieldName" 
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}" 
                 ></p-inputnumber>
                 <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
             </p-floatlabel>
@@ -53,12 +55,11 @@
 
                 @let selectConfig = inputFieldConfig().selectConfig;
                 @let optionsDropdownLength = selectConfig?.optionsDropdown?.length;
+
                 <p-select
                     [id]="inputFieldConfig().id"
                     [fluid]="inputFieldConfig().haveFullWidth"
                     [size]="inputFieldConfig().fieldSize"
-                    [formControlName]="inputFieldConfig().fieldName"
-                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                     [options]="selectConfig?.optionsDropdown" 
                     [optionLabel]="selectConfig?.optionLabel" 
                     [optionValue]="selectConfig?.optionValue"
@@ -70,6 +71,8 @@
                     [editable]="selectConfig?.isEditable"
                     [virtualScroll]="selectConfig?.virtualScroll" 
                     [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize"
+                    [formControlName]="inputFieldConfig().fieldName"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                     (onChange)="onChange()"
                 ></p-select>
                 <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
@@ -85,8 +88,6 @@
                     [id]="inputFieldConfig().id"
                     [fluid]="inputFieldConfig().haveFullWidth"
                     [size]="inputFieldConfig().fieldSize"
-                    [formControlName]="inputFieldConfig().fieldName"
-                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                     [options]="multiSelectConfig?.optionsDropdown" 
                     [optionLabel]="multiSelectConfig?.optionLabel" 
                     [optionValue]="multiSelectConfig?.optionValue"
@@ -98,6 +99,9 @@
                     [selectAll]="multiSelectConfig?.selectAll"
                     [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip" 
                     [showClear]="multiSelectConfig?.showClearButton"
+                    [formControlName]="inputFieldConfig().fieldName"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
+                    (onChange)="onChange()"
                 ></p-multiselect>
                 <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
             </p-floatlabel>
@@ -111,8 +115,6 @@
                     [id]="inputFieldConfig().id"
                     [fluid]="inputFieldConfig().haveFullWidth"
                     [size]="inputFieldConfig().fieldSize"
-                    [formControlName]="inputFieldConfig().fieldName"
-                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                     [dateFormat]="dateConfig?.dateFormat" 
                     [showIcon]="dateConfig?.showCalendarIcon"
                     [iconDisplay]="dateConfig?.iconDisplay || ALL_DATE_ICON_DISPLAY_TYPES.Input" 
@@ -121,11 +123,13 @@
                     [maxDate]="dateConfig?.maxDate"
                     [showButtonBar]="dateConfig?.showButtonBar" 
                     [selectionMode]="dateConfig?.selectionMode || ALL_DATE_SELECTION_MODES.Single" 
-                    [readonlyInput]="inputFieldConfig().readonlyInput" 
                     [showTime]="dateConfig?.showTime || false"
                     [hourFormat]="dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve" 
                     [view]="dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date" 
                     [numberOfMonths]="dateConfig?.numberOfMonths || 1"
+                    [readonlyInput]="inputFieldConfig().readonlyInput" 
+                    [formControlName]="inputFieldConfig().fieldName"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                 ></p-datepicker>
                 <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
             </p-floatlabel>
@@ -139,9 +143,7 @@
                     [inputId]="inputFieldConfig().id"
                     [fluid]="inputFieldConfig().haveFullWidth"
                     [size]="inputFieldConfig().fieldSize"
-                    [formControlName]="inputFieldConfig().fieldName"
                     [autocomplete]="inputFieldConfig().autocomplete"
-                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                     [feedback]="passwordConfig?.feedback || false"
                     [promptLabel]="passwordConfig?.promptLabel"
                     [weakLabel]="passwordConfig?.weakLabel"
@@ -150,6 +152,8 @@
                     [toggleMask]="passwordConfig?.toggleMask"
                     [strongRegex]="passwordConfig?.strongRegex || ''"
                     [mediumRegex]="passwordConfig?.mediumRegex || ''"
+                    [formControlName]="inputFieldConfig().fieldName"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                 ></p-password>
                 <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
             </p-floatlabel>
@@ -166,12 +170,13 @@
                     <div class="flex items-center">
                         <p-checkbox 
                             [inputId]="'checkbox-' + option.value" 
-                            [formControlName]="inputFieldConfig().fieldName" 
-                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                             [value]="option" 
                             [binary]="checkboxConfig?.binary || false" 
                             [indeterminate]="checkboxConfig?.indeterminate || false" 
                             [size]="inputFieldConfig().fieldSize"
+                            [readonly]="inputFieldConfig().readonlyInput || false"
+                            [formControlName]="inputFieldConfig().fieldName" 
+                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                             (onChange)="onChange()"
                         ></p-checkbox>
                         <label [for]="'checkbox-' + option.value" class="ml-2"> {{ option.label }} </label>
@@ -191,10 +196,10 @@
                     <div class="flex items-center">
                         <p-radioButton 
                             [inputId]="'radio-' + option.value" 
-                            [formControlName]="'radioInput'" 
-                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                             [value]="option" 
                             [size]="inputFieldConfig().fieldSize"
+                            [formControlName]="inputFieldConfig().fieldName" 
+                            [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                         ></p-radioButton>
                         <label [for]="'radio-' + option.value" class="ml-2">{{ option.label }}</label>
                     </div>
@@ -206,10 +211,8 @@
             @let fileConfig = inputFieldConfig().fileConfig;
 
             <p-fileupload
-                [name]="inputFieldConfig().fieldName" 
                 [id]="inputFieldConfig().id"
                 [customUpload]="fileConfig?.customUpload"
-                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}" 
                 [multiple]="fileConfig?.multipleFiles" 
                 [accept]="fileConfig?.acceptFileTypes" 
                 [maxFileSize]="fileConfig?.maxFileSize" 
@@ -219,6 +222,8 @@
                 [cancelLabel]="fileConfig?.cancelLabel"
                 [showUploadButton]="fileConfig?.showUploadButton"
                 [showCancelButton]="fileConfig?.showCancelButton"
+                [name]="inputFieldConfig().fieldName" 
+                [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}" 
             ></p-fileupload>
         }
         @case (ALL_FIELD_TYPES.TextArea) {
@@ -231,11 +236,12 @@
                     [id]="inputFieldConfig().id"
                     [fluid]="inputFieldConfig().haveFullWidth"
                     [pSize]="inputFieldConfig().fieldSize"
-                    [formControlName]="inputFieldConfig().fieldName"
-                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                     [rows]="textAreaConfig?.rows"
                     [cols]="textAreaConfig?.cols"
                     [autoResize]="textAreaConfig?.autoResize"
+                    [readonly]="inputFieldConfig().readonlyInput || false"
+                    [formControlName]="inputFieldConfig().fieldName"
+                    [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                 ></textarea>
                 <label [for]="inputFieldConfig().id">{{inputFieldConfig().label}}</label>
             </p-floatlabel>
@@ -249,6 +255,7 @@
                     [length]="individualNumberConfig?.length || 2"
                     [size]="inputFieldConfig().fieldSize"
                     [integerOnly]="individualNumberConfig?.integerOnly || true"
+                    [readonly]="inputFieldConfig().readonlyInput || false"
                     [formControlName]="inputFieldConfig().fieldName"
                     [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid}"
                 >
