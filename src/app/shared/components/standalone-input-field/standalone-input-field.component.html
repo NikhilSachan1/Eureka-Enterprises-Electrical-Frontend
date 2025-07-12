@@ -9,7 +9,7 @@
                 [pSize]="inputFieldConfig().fieldSize" 
                 [disabled]=" inputFieldConfig().disabledInput || false"
                 [readonly]="inputFieldConfig().readonlyInput || false"
-                [(ngModel)]="inputFieldConfig().defaultValue"
+                [ngModel]="currentValue()"
                 [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (input)="onStandaloneChange($event)"
             />
@@ -42,7 +42,7 @@
                 [step]="numberConfig?.step"
                 [disabled]="inputFieldConfig().disabledInput || false"
                 [readonly]="inputFieldConfig().readonlyInput || false"
-                [(ngModel)]="inputFieldConfig().defaultValue"
+                [ngModel]="currentValue()"
                 [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (onInput)="onStandaloneChange($event)"
             ></p-inputnumber>
@@ -71,7 +71,7 @@
                 [virtualScroll]="selectConfig?.virtualScroll" 
                 [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize" 
                 [disabled]="inputFieldConfig().disabledInput || false"
-                [(ngModel)]="inputFieldConfig().defaultValue"
+                [ngModel]="currentValue()"
                 [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (onChange)="onStandaloneChange($event)"
             ></p-select>
@@ -100,7 +100,7 @@
                 [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip" 
                 [showClear]="multiSelectConfig?.showClearButton"
                 [disabled]="inputFieldConfig().disabledInput || false"
-                [(ngModel)]="inputFieldConfig().defaultValue"
+                [ngModel]="currentValue()"
                 [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (onChange)="onStandaloneChange($event)"
             ></p-multiselect>
@@ -130,7 +130,7 @@
                 [numberOfMonths]="dateConfig?.numberOfMonths || 1"
                 [disabled]="inputFieldConfig().disabledInput || false"
                 [readonlyInput]="inputFieldConfig().readonlyInput || false" 
-                [(ngModel)]="inputFieldConfig().defaultValue"
+                [ngModel]="currentValue()"
                 [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (onSelect)="onStandaloneChange($event)"
             ></p-datepicker>
@@ -156,7 +156,7 @@
                 [strongRegex]="passwordConfig?.strongRegex || ''"
                 [mediumRegex]="passwordConfig?.mediumRegex || ''"
                 [disabled]="inputFieldConfig().disabledInput || false"
-                [(ngModel)]="inputFieldConfig().defaultValue"
+                [ngModel]="currentValue()"
                 [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (onBlur)="onStandaloneChange($event)"
             ></p-password>
@@ -181,7 +181,7 @@
                         [size]="inputFieldConfig().fieldSize"
                         [disabled]="inputFieldConfig().disabledInput || false"
                         [readonly]="inputFieldConfig().readonlyInput || false"
-                        [(ngModel)]="inputFieldConfig().defaultValue"
+                        [ngModel]="currentValue()"
                         [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                         (onChange)="onStandaloneChange($event)"
                     ></p-checkbox>
@@ -205,7 +205,7 @@
                         [value]="option" 
                         [size]="inputFieldConfig().fieldSize"
                         [disabled]="inputFieldConfig().disabledInput || false"
-                        [(ngModel)]="inputFieldConfig().defaultValue"
+                        [ngModel]="currentValue()"
                         [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                         (onClick)="onStandaloneChange($event)"
                     ></p-radioButton>
@@ -227,7 +227,7 @@
                 [autoResize]="textAreaConfig?.autoResize"
                 [disabled]="inputFieldConfig().disabledInput || false"
                 [readonly]="inputFieldConfig().readonlyInput || false"
-                [(ngModel)]="inputFieldConfig().defaultValue"
+                [ngModel]="currentValue()"
                 [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
                 (input)="onStandaloneChange($event)"
             ></textarea>

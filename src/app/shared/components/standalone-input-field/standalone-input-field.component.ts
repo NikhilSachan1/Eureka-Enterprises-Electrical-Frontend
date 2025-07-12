@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal, computed, effect } from '@angular/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -36,22 +36,18 @@ export class StandaloneInputFieldComponent {
 
   // Inputs
   inputFieldConfig = input.required<IInputFieldsConfig>();
-  isFieldInvalid = input<boolean>(true);
+  isFieldInvalid = input<boolean>(false);
+  fieldValue = input<any>(undefined);
+  
+  protected currentValue = computed(() => {
+    const externalValue = this.fieldValue();
+    return externalValue !== undefined ? externalValue : this.inputFieldConfig().defaultValue;
+  });
   
   // Outputs
-  valueChange = output<any>();
-  onFieldChange = output<boolean>();
-
-  setValue(value: any): void {
-    this.valueChange.emit(value);
-  }
-
-  onChange(): void {
-    this.onFieldChange.emit(true);
-  }
+  onFieldChange = output<any>();
 
   onStandaloneChange(event: any): void {
-
     let value: any;
     if(event.target?.value) {
       value = event.target.value;
@@ -59,10 +55,7 @@ export class StandaloneInputFieldComponent {
       value = event.checked;
     } else {
       value = event;
-    }
-    console.log('value', value);
-    console.log('event', event);
-    this.setValue(value);
-    this.onChange();
+    }    
+    this.onFieldChange.emit(value);
   }
 } 
