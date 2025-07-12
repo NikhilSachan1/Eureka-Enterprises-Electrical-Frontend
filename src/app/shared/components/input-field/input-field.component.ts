@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -35,13 +35,53 @@ export class InputFieldComponent {
   ALL_CHECKBOX_AND_RADIO_ALIGN = ECheckBoxAndRadioAlign;
   ALL_FILE_MODES = EFileMode;
 
-  // Modern input signals - required inputs
-  formGroup = input.required<FormGroup>();
+  // Form-based inputs (optional now)
+  formGroup = input<FormGroup | null>(null);
   inputFieldConfig = input.required<IInputFieldsConfig>();
+  
+  // Standalone mode inputs
+  value = input<any>(null);
+  disabled = input<boolean>(false);
+  
+  // Outputs
   onFieldChange = output<boolean>();
+  valueChange = output<any>();
+  
+  // Internal state for standalone mode
+  private _standaloneValue = signal<any>(null);
+
+  // Computed property to determine if we're in standalone mode
+  get isStandaloneMode(): boolean {
+    return this.formGroup() === null;
+  }
+
+  // Get current value (form or standalone)
+  getCurrentValue(): any {
+    if (this.isStandaloneMode) {
+      return this._standaloneValue();
+    }
+    const control = this.formGroup()?.get(this.inputFieldConfig().fieldName);
+    return control?.value;
+  }
+
+  // Set value (form or standalone)
+  setValue(value: any): void {
+    if (this.isStandaloneMode) {
+      this._standaloneValue.set(value);
+      this.valueChange.emit(value);
+    } else {
+      const control = this.formGroup()?.get(this.inputFieldConfig().fieldName);
+      if (control) {
+        control.setValue(value);
+      }
+    }
+  }
 
   checkIsFieldInvalid(fieldName: string): boolean {
-    const control = this.formGroup().get(fieldName);
+    if (this.isStandaloneMode) {
+      return false; // No validation in standalone mode
+    }
+    const control = this.formGroup()?.get(fieldName);
     return control ? (control.invalid && (control.dirty || control.touched)) : false;
   }
 
@@ -49,8 +89,16 @@ export class InputFieldComponent {
     this.onFieldChange.emit(true);
   }
 
+  onStandaloneChange(value: any): void {
+    this.setValue(value);
+    this.onChange();
+  }
+
   getErrorMessage(fieldName: string): string {
-    const control = this.formGroup().get(fieldName);
+    if (this.isStandaloneMode) {
+      return ''; // No error messages in standalone mode
+    }
+    const control = this.formGroup()?.get(fieldName);
     if (!control) return '';
 
     const errors = control.errors;
@@ -65,5 +113,12 @@ export class InputFieldComponent {
     if (errors['hasSpecialChars']) return 'Text should not contain any special characters';
 
     return 'Invalid value';
+  }
+
+  ngOnInit(): void {
+    // Initialize standalone value from input
+    if (this.isStandaloneMode) {
+      this._standaloneValue.set(this.value() || this.inputFieldConfig().defaultValue);
+    }
   }
 }
