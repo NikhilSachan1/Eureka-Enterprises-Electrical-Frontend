@@ -11,6 +11,12 @@ import { PageHeaderComponent } from "../../../../../../shared/components/page-he
 })
 export class SetRolePermissionComponent {
 
+  protected readonly default = {
+    'module-attendance_64d7b50b-6a8a-4d0b-9b59-ccb6c03ba832': true,
+    'module-employee_e7c8fc0c-a227-4d44-a397-6145c4077b3f': true,
+    'module-attendance_b0dfd0d9-14df-42e2-a9b8-c7b6dcfcc80d': true,
+  }
+
   protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
     this.getPageHeaderConfig(),
   );
