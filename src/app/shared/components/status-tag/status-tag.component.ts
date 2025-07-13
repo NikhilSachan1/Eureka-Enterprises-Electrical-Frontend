@@ -4,7 +4,8 @@ import { ESeverity, EPrimeNGSeverity } from '../../types';
 
 export interface IStatusTagConfig {
   rounded?: boolean;
-  customSeverityMap?: Record<string, EPrimeNGSeverity>;
+  severity?: EPrimeNGSeverity;
+  icon?: string;
 }
 
 @Component({
@@ -16,23 +17,20 @@ export interface IStatusTagConfig {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusTagComponent {
-  // Input signals
+
   value = input.required<string>();
   config = input<IStatusTagConfig>();
 
-  // Computed severity based on the value
   protected get severity(): EPrimeNGSeverity {
     return this.getSeverity(this.value());
   }
 
   private getSeverity(status: string | ESeverity | undefined): EPrimeNGSeverity {
-    // Use custom severity map if provided, otherwise use default
-    const customMap = this.config()?.customSeverityMap;
-    if (customMap && status && customMap[status.toLowerCase()]) {
-      return customMap[status.toLowerCase()];
+
+    if (this.config()?.severity) {
+      return this.config()?.severity;
     }
 
-    // Default severity mapping
     const severityMap: Record<string, EPrimeNGSeverity> = {
       [ESeverity.SUCCESS]: 'success',
       [ESeverity.INFO]: 'info',

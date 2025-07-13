@@ -10,6 +10,8 @@ export interface IDataTableConfig {
     globalFilterFields: string[];
     showCheckbox: boolean;
     emptyMessage: string;
+    emptyMessageIcon: string;
+    emptyMessageDescription: string;
 }
 
 export interface IDataTableHeaderConfig {

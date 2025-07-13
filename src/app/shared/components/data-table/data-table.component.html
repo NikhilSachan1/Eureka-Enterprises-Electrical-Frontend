@@ -293,10 +293,11 @@
     <ng-template #emptymessage>
       <tr>
         <td [colSpan]="tableHeader().length + 2" class="text-center text-slate-700 py-12">
-          <div class="flex flex-col items-center justify-center space-y-2">
-            <i class="{{ icons.COMMON.INFO_CIRCLE }} text-2xl text-slate-400"></i>
-            <span class="text-lg font-medium">{{ tableConfig().emptyMessage }}</span>
-          </div>
+          <app-empty-messages
+            [icon]="tableConfig().emptyMessageIcon"
+            [title]="tableConfig().emptyMessage"
+            [description]="tableConfig().emptyMessageDescription"
+          ></app-empty-messages>
         </td>
       </tr>
     </ng-template>

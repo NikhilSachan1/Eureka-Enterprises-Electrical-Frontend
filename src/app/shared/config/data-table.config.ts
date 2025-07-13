@@ -11,6 +11,8 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   showPaginator: true,
   showCheckbox: true,
   emptyMessage: 'No data found',
+  emptyMessageIcon: 'pi pi-info-circle',
+  emptyMessageDescription: 'No data found',
 };
 
 // default table header config

@@ -12,6 +12,8 @@ export const SYSTEM_PERMISSION_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
     'description',
   ],
   emptyMessage: 'No system permissions found.',
+  emptyMessageIcon: ICONS.COMMON.INFO_CIRCLE,
+  emptyMessageDescription: 'You don\'t have any system permissions yet. Please set up system permissions.',
 };
 
 export const SYSTEM_PERMISSION_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [

@@ -9,6 +9,8 @@ export const ROLE_PERMISSION_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
     'description',
   ],
   emptyMessage: 'No roles found.',
+  emptyMessageIcon: ICONS.COMMON.INFO_CIRCLE,
+  emptyMessageDescription: 'You don\'t have any roles yet. Please set up roles.',
 };
 
 export const ROLE_PERMISSION_LIST_TABLE_HEADER: Partial<IDataTableHeaderConfig>[] = [

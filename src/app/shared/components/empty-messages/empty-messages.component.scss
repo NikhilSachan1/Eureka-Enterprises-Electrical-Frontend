@@ -1,0 +1,21 @@
+@import "tailwindcss" reference;
+
+.empty-state-container {
+  @apply flex items-center justify-center p-8 text-center;
+}
+
+.empty-state-content {
+  @apply flex flex-col items-center gap-2;
+}
+
+.empty-state-icon {
+  @apply text-5xl text-gray-500;
+}
+
+.empty-state-title {
+  @apply text-xl font-medium text-gray-700 m-0;
+}
+
+.empty-state-description {
+  @apply text-sm text-gray-500 m-0 leading-relaxed;
+}

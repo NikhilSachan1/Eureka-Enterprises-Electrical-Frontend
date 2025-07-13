@@ -34,6 +34,7 @@ import { AvatarService } from '../../services';
 import { ButtonComponent } from '../button/button.component';
 import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { ICONS } from '../../constants';
+import { EmptyMessagesComponent } from "../empty-messages/empty-messages.component";
 
 @Component({
   selector: 'app-data-table',
@@ -56,8 +57,9 @@ import { ICONS } from '../../constants';
     OverlayPanelModule,
     NgClass,
     DatePipe,
-    CurrencyPipe
-  ],
+    CurrencyPipe,
+    EmptyMessagesComponent
+],
 
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
