@@ -16,5 +16,9 @@ export const CommonSystemPermissionFields = {
     description: z
         .string({ required_error: 'Description is required' })
         .trim()
-        .min(1, 'Description cannot be empty')
+        .min(1, 'Description cannot be empty'),
+    isEditable: z
+        .boolean({ required_error: 'Is Editable is required' }),
+    isDeletable: z
+        .boolean({ required_error: 'Is Deletable is required' }),
 };

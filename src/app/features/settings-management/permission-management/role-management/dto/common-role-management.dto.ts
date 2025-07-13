@@ -13,4 +13,10 @@ export const CommonRoleFields = {
         .string({ required_error: 'Label is required' })
         .trim()
         .min(1, 'Label cannot be empty'),
+    isEditable: z
+        .boolean({ required_error: 'Is Editable is required' }),
+    isDeletable: z
+        .boolean({ required_error: 'Is Deletable is required' }),
+    permissionCount: z
+        .number({ required_error: 'Permission Count is required' }),
 };

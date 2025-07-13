@@ -81,13 +81,12 @@ export class ApiService {
     );
   }
 
-  delete<T>(endpoint: string, params?: any): Observable<T> {
+  delete<T>(endpoint: string, body?: any): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    const httpParams = this.buildHttpParams(params);
     
-    this.logger.logApiRequest('DELETE', url, params);
+    this.logger.logApiRequest('DELETE', url, body);
     
-    return this.http.delete<T>(url, { params: httpParams }).pipe(
+    return this.http.delete<T>(url, { body }).pipe(
       timeout(this.timeout),
       tap(response => this.logger.logApiResponse('DELETE', url, response)),
       this.createRetryConfig<T>('DELETE', url),
@@ -177,13 +176,15 @@ export class ApiService {
     }
   }
 
-  deleteValidated<TResponse>(
+  deleteValidated<TRequest, TResponse>(
     endpoint: string,
+    body: TRequest,
+    requestSchema: z.ZodSchema<TRequest>,
     responseSchema: z.ZodSchema<TResponse>,
-    params?: any
   ): Observable<TResponse> {
     try {
-      return this.delete<unknown>(endpoint, params).pipe(
+      const validatedBody = this.validateRequest(body, requestSchema);
+      return this.delete<unknown>(endpoint, validatedBody).pipe(
         map((response: unknown) => this.validateResponse(response, responseSchema))
       );
     } catch (zodError: any) {

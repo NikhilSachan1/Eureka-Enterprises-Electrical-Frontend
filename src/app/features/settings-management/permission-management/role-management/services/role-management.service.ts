@@ -4,6 +4,8 @@ import { LoggerService } from '../../../../../core/services/logger.service';
 import {
   IAddRoleManagementRequestDto,
   IAddRoleManagementResponseDto,
+  IDeleteRoleManagementRequestDto,
+  IDeleteRoleManagementResponseDto,
   IEditRoleManagementRequestDto,
   IEditRoleManagementResponseDto,
   IGetRoleListResponseDto,
@@ -19,6 +21,9 @@ import {
   EditRoleManagementRequestSchema,
   EditRoleManagementResponseSchema,
 } from '../dto/edit-role-management.dto';
+import { IGetRolePermissionsResponseDto } from '../models/role-permission.api.model';
+import { GetRolePermissionsResponseSchema } from '../dto/get-role-permissions.dto';
+import { DeleteRoleRequestSchema, DeleteRoleResponseSchema } from '../dto/delete-role-management.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -101,9 +106,7 @@ import {
       )
       .pipe(
         tap((response: IGetRoleListResponseDto) => {
-          this.logger.logUserAction('Get Role List Success', {
-            count: response.records?.length || 0,
-          });
+          this.logger.logUserAction('Get Role List Success');
         }),
         catchError((error) => {
           if (error?.name === 'ZodError') {
@@ -114,5 +117,54 @@ import {
           return throwError(() => error);
         }),
       );
+  }
+
+  getRolePermission(roleId: string): Observable<IGetRolePermissionsResponseDto> {
+    this.logger.logUserAction('Get Role Permission Request', { roleId });
+
+    return this.apiService.getValidated(
+      `${API_ROUTES.SETTINGS.PERMISSION.ROLE.PERMISSION_LIST}`,
+      GetRolePermissionsResponseSchema,
+      {
+        roleId,
+      }
+    )
+    .pipe(
+      tap((response: IGetRolePermissionsResponseDto) => {
+        this.logger.logUserAction('Get Role Permission Success');
+      }),
+      catchError((error) => {
+        if (error?.name === 'ZodError') {
+          this.logger.logDtoValidationErrors('Get Role Permission Error', error);
+        } else {
+          this.logger.logUserAction('Get Role Permission Error', error);
+        }
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  deleteRole(formData: IDeleteRoleManagementRequestDto): Observable<IDeleteRoleManagementResponseDto> {
+    this.logger.logUserAction('Delete Role Request', formData);
+
+    return this.apiService.deleteValidated(
+      `${API_ROUTES.SETTINGS.PERMISSION.ROLE.DELETE}`,
+      formData,
+      DeleteRoleRequestSchema,
+      DeleteRoleResponseSchema,
+    )
+    .pipe(
+      tap((response: IDeleteRoleManagementResponseDto) => {
+        this.logger.logUserAction('Delete Role Success', response);
+      }),
+      catchError((error) => {
+        if (error?.name === 'ZodError') {
+          this.logger.logDtoValidationErrors('Delete Role Error', error);
+        } else {
+          this.logger.logUserAction('Delete Role Error', error);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 }

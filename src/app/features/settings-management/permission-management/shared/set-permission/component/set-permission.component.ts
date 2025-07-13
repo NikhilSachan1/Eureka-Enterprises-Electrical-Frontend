@@ -2,22 +2,22 @@ import { Component, signal, inject, OnInit, input, computed } from '@angular/cor
 import { ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
-import { NavTabsComponent } from '../../../../../shared/components/nav-tabs/nav-tabs.component';
-import { InputFieldComponent } from '../../../../../shared/components/input-field/input-field.component';
-import { StandaloneInputFieldComponent } from '../../../../../shared/components/standalone-input-field/standalone-input-field.component';
-import { ICONS } from '../../../../../shared/constants';
-import { ETabMode, EFieldType, EPrimeNGSeverity } from '../../../../../shared/types';
-import { IEnhancedForm, ITabChange, ITabItem, IFormInputFieldsConfig, IInputFieldsConfig } from '../../../../../shared/models';
-import { MODULES_NAME_DATA } from '../../../../../shared/config/static-data.config';
-import { SystemPermissionService } from '../../system-permission-management/services/system-permission.service';
-import { IModulePermission } from '../../system-permission-management/models/system-permission.model';
-import { LoadingService, FormService, InputFieldConfigService } from '../../../../../shared/services';
-import { SET_PERMISSION_FORM_CONFIG } from './set-permission-form.config';
-import { ButtonComponent } from "../../../../../shared/components/button/button.component";
+import { NavTabsComponent } from '../../../../../../shared/components/nav-tabs/nav-tabs.component';
+import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
+import { StandaloneInputFieldComponent } from '../../../../../../shared/components/standalone-input-field/standalone-input-field.component';
+import { ICONS } from '../../../../../../shared/constants';
+import { ETabMode, EFieldType, EPrimeNGSeverity } from '../../../../../../shared/types';
+import { IEnhancedForm, ITabChange, ITabItem, IFormInputFieldsConfig, IInputFieldsConfig } from '../../../../../../shared/models';
+import { MODULES_NAME_DATA } from '../../../../../../shared/config/static-data.config';
+import { SystemPermissionService } from '../../../system-permission-management/services/system-permission.service';
+import { IModulePermission } from '../../../system-permission-management/models/system-permission.model';
+import { LoadingService, FormService, InputFieldConfigService } from '../../../../../../shared/services';
+import { SET_PERMISSION_FORM_CONFIG } from '../config/form/set-permission-form.config';
+import { ButtonComponent } from "../../../../../../shared/components/button/button.component";
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { NgClass } from '@angular/common';
-import { EmptyMessagesComponent } from "../../../../../shared/components/empty-messages/empty-messages.component";
+import { EmptyMessagesComponent } from "../../../../../../shared/components/empty-messages/empty-messages.component";
 
 @Component({
   selector: 'app-set-permission',
@@ -43,7 +43,7 @@ export class SetPermissionComponent implements OnInit {
   icons = ICONS;
   tabModeType = ETabMode.CONTENT;
   protected form!: IEnhancedForm;
-  readonly defaultPermissionSelected = input<{ [key: string]: boolean }>({});
+  readonly defaultPermissionSelected = input<{ [key: string]: boolean } | null>({});
 
   protected standaloneInputFieldConfig = signal<Record<string, IInputFieldsConfig>>({});
   protected modulePermissions = signal<IModulePermission[]>([]);
@@ -92,7 +92,7 @@ export class SetPermissionComponent implements OnInit {
     
     modules.forEach(module => {
       const allChecked = module.permissions.every(permission => {
-        const fieldName = `${module.id}_${permission.id}`;
+        const fieldName = `${permission.id}`;
         const control = formGroup.get(fieldName);
         return control && control.value === true;
       });
@@ -128,8 +128,8 @@ export class SetPermissionComponent implements OnInit {
       let moduleNew = 0;
       
       module.permissions.forEach(permission => {
-        const fieldName = `${module.id}_${permission.id}`;
-        const wasOriginallyGranted = defaultPermissions[fieldName] === true;
+        const fieldName = `${permission.id}`;
+        const wasOriginallyGranted = defaultPermissions?.[fieldName] === true;
         const isCurrentlyChecked = formGroup?.get(fieldName)?.value === true;
         
         if (wasOriginallyGranted) {
@@ -204,14 +204,14 @@ export class SetPermissionComponent implements OnInit {
     };
   });
 
-  protected getPermissionStatus = (moduleId: string, permissionId: string) => computed(() => {
+  protected getPermissionStatus = (permissionId: string) => computed(() => {
     this.formChangeTrigger();
     
     const defaultPermissions = this.defaultPermissionSelected();
     const formGroup = this.form?.formGroup;
     
-    const fieldName = `${moduleId}_${permissionId}`;
-    const wasOriginallyGranted = defaultPermissions[fieldName] === true;
+    const fieldName = `${permissionId}`;
+    const wasOriginallyGranted = defaultPermissions?.[fieldName] === true;
     const isCurrentlyChecked = formGroup?.get(fieldName)?.value === true;
     
     if (wasOriginallyGranted) {
@@ -293,7 +293,7 @@ export class SetPermissionComponent implements OnInit {
 
       module.permissions.forEach((permission) => {
         if (permission.id) {
-          const fieldName = `${module.id}_${permission.id}`;
+          const fieldName = `${permission.id}`;
           dynamicFields[fieldName] = {
             fieldType: EFieldType.Checkbox,
             fieldName: fieldName,
@@ -328,26 +328,23 @@ export class SetPermissionComponent implements OnInit {
   }
 
   private groupPermissionsByModule(formData: any): { [key: string]: string[] } {
-
-    const allModuleIds = [...new Set(
-      Object.keys(formData)
-        .filter(fieldName => fieldName.includes('_'))
-        .map(fieldName => fieldName.split('_')[0])
-    )];
-
-    const initialGrouped = allModuleIds.reduce((acc, moduleId) => {
-      acc[moduleId] = [];
+    const modules = this.modulePermissions();
+    const initialGrouped = modules.reduce((acc, module) => {
+      acc[module.id] = [];
       return acc;
     }, {} as { [key: string]: string[] });
 
     return Object.entries(formData)
-      .filter(([fieldName, value]) => fieldName.includes('_') && value === true)
-      .map(([fieldName]) => {
-        const [moduleId, permissionId] = fieldName.split('_');
-        return { moduleId, permissionId };
-      })
-      .reduce((grouped, { moduleId, permissionId }) => {
-        grouped[moduleId].push(permissionId);
+      .filter(([fieldName, value]) => value === true)
+      .reduce((grouped, [fieldName]) => {
+        const module = modules.find(m => 
+          m.permissions.some(p => p.id === fieldName)
+        );
+        
+        if (module) {
+          grouped[module.id].push(fieldName);
+        }
+        
         return grouped;
       }, initialGrouped);
   }
@@ -357,7 +354,7 @@ export class SetPermissionComponent implements OnInit {
   }
 
   protected onClickPermissionCard(moduleId: string, permissionId: string): void {
-    const fieldName = `${moduleId}_${permissionId}`;
+    const fieldName = `${permissionId}`;
     const control = this.form.formGroup.get(fieldName);
     
     if (control) {
@@ -373,7 +370,7 @@ export class SetPermissionComponent implements OnInit {
     if (!module) return;
   
     module.permissions.forEach(permission => {
-      const controlName = `${moduleId}_${permission.id}`;
+      const controlName = `${permission.id}`;
       const control = formGroup.get(controlName);
       if (control) {
         control.setValue(checked);

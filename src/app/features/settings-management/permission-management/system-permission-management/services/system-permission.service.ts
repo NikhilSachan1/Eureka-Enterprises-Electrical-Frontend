@@ -4,6 +4,8 @@ import { ApiService } from '../../../../../core/services/api.service';
 import {
   IAddSystemPermissionRequestDto,
   IAddSystemPermissionResponseDto,
+  IDeleteSystemPermissionRequestDto,
+  IDeleteSystemPermissionResponseDto,
   IEditSystemPermissionRequestDto,
   IEditSystemPermissionResponseDto,
   IGetSystemPermissionListResponseDto,
@@ -21,6 +23,7 @@ import {
 } from '../dto/edit-system-permission-management.dto';
 import { IModulePermission } from '../models/system-permission.model';
 import { MODULES_NAME_DATA } from '../../../../../shared/config/static-data.config';
+import { DeleteSystemPermissionRequestSchema, DeleteSystemPermissionResponseSchema } from '../dto/delete-system-permisson-management.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -103,9 +106,7 @@ export class SystemPermissionService {
       )
       .pipe(
         tap((response: IGetSystemPermissionListResponseDto) => {
-          this.logger.logUserAction('Get System Permission List Success', {
-            count: response.records?.length || 0,
-          });
+          this.logger.logUserAction('Get System Permission List Success', response);
         }),
         catchError((error) => {
           if (error?.name === 'ZodError') {
@@ -116,6 +117,30 @@ export class SystemPermissionService {
           return throwError(() => error);
         }),
       );
+  }
+
+  deleteSystemPermission(formData: IDeleteSystemPermissionRequestDto): Observable<IDeleteSystemPermissionResponseDto> {
+    this.logger.logUserAction('Delete System Permission Request', formData);
+
+    return this.apiService.deleteValidated(
+      `${API_ROUTES.SETTINGS.PERMISSION.SYSTEM.DELETE}`,
+      formData,
+      DeleteSystemPermissionRequestSchema,
+      DeleteSystemPermissionResponseSchema,
+    )
+    .pipe(
+      tap((response: IDeleteSystemPermissionResponseDto) => {
+        this.logger.logUserAction('Delete System Permission Success', response);
+      }),
+      catchError((error) => {
+        if (error?.name === 'ZodError') {
+          this.logger.logDtoValidationErrors('Delete System Permission Error', error);
+        } else {
+          this.logger.logUserAction('Delete System Permission Error', error);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   getSystemPermissionModuleWise(): Observable<IModulePermission[]> {

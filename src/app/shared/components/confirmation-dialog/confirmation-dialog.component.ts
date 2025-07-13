@@ -69,6 +69,8 @@ export class ConfirmationDialogComponent implements OnInit {
     return {
       label: dialog?.dialogSettingConfig?.acceptButtonProps?.label,
       icon: dialog?.dialogSettingConfig?.acceptButtonProps?.icon,
+      severity: dialog?.dialogSettingConfig?.acceptButtonProps?.severity,
+      visible: dialog?.dialogSettingConfig?.acceptButtonProps?.visible,
     };
   });
 
@@ -77,6 +79,8 @@ export class ConfirmationDialogComponent implements OnInit {
     return {
       label: dialog?.dialogSettingConfig?.rejectButtonProps?.label,
       icon: dialog?.dialogSettingConfig?.rejectButtonProps?.icon,
+      severity: dialog?.dialogSettingConfig?.rejectButtonProps?.severity,
+      visible: dialog?.dialogSettingConfig?.rejectButtonProps?.visible,
     };
   });
 

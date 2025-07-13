@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
+import { RolePermissionResolver } from '../resolver/role-permission.resolver';
 
 export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
     {
@@ -53,6 +54,9 @@ export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
     {
         path: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE}/${ROUTES.SETTINGS.PERMISSION.ROLE.SET_PERMISSIONS}/:roleId`,
         loadComponent: () => import('./role-management/components/set-role-permission/set-role-permission.component')
-            .then(m => m.SetRolePermissionComponent)
+            .then(m => m.SetRolePermissionComponent),
+        resolve: {
+            rolePermissionData: RolePermissionResolver
+        }
     }
 ];

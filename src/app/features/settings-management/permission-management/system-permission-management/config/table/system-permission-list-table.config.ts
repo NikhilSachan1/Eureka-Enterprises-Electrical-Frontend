@@ -1,11 +1,11 @@
 import { MATCH_MODE_OPTIONS, MODULES_NAME_DATA } from "../../../../../../shared/config";
-import { IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig } from "../../../../../../shared/models";
-import { ERowActionType, ETableBodyTemplate, ETableFilterMatchMode, ETableSearchInputType, EButtonSeverity } from "../../../../../../shared/types";
+import { IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig, IBulkActionConfig } from "../../../../../../shared/models";
+import { ERowActionType, ETableBodyTemplate, ETableFilterMatchMode, ETableSearchInputType, EButtonSeverity, EBulkActionType } from "../../../../../../shared/types";
 import { ICONS } from "../../../../../../shared/constants";
 import { getDataFromArrayOfObjects } from "../../../../../../shared/utility";
+import { IGetSingleSystemPermissionListResponseDto } from "../../models/system-permission.api.model";
 
 export const SYSTEM_PERMISSION_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
-  showCheckbox: false,
   globalFilterFields: [
     'label',
     'module',
@@ -59,6 +59,25 @@ export const SYSTEM_PERMISSION_LIST_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig
     icon: ICONS.ACTIONS.EDIT,
     tooltip: 'Edit Permission',
     severity: EButtonSeverity.WARNING,
+    disabledCondition: (rowData: IGetSingleSystemPermissionListResponseDto) => rowData.isEditable === false,
+  },
+  {
+    id: ERowActionType.DELETE,
+    icon: ICONS.ACTIONS.TRASH,
+    tooltip: 'Delete Permission',
+    severity: EButtonSeverity.DANGER,
+    disabledCondition: (rowData: IGetSingleSystemPermissionListResponseDto) => rowData.isDeletable === false,
+  },
+];
+
+export const SYSTEM_PERMISSION_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
+  {
+    id: EBulkActionType.DELETE,
+    label: 'Delete',
+    icon: ICONS.ACTIONS.TRASH,
+    disabledCondition: (selectedRows: IGetSingleSystemPermissionListResponseDto[]) => {
+      return selectedRows.some(row => (row as IGetSingleSystemPermissionListResponseDto).isDeletable === false);
+    },
   },
 ];
 
@@ -66,4 +85,5 @@ export const SYSTEM_PERMISSION_LIST_ENHANCED_TABLE_CONFIG : IEnhancedTableConfig
   tableConfig: SYSTEM_PERMISSION_LIST_TABLE_CONFIG,
   headers: SYSTEM_PERMISSION_LIST_TABLE_HEADER,
   rowActions: SYSTEM_PERMISSION_LIST_ROW_ACTIONS_CONFIG,
+  bulkActions: SYSTEM_PERMISSION_LIST_BULK_ACTIONS_CONFIG,
 }; 

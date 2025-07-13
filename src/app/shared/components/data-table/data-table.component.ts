@@ -27,6 +27,7 @@ import {
   IRowActionConfig,
   IButtonConfig,
   IRowActionClickEvent,
+  IBulkActionClickEvent,
 } from '../../models';
 import { ETableBodyTemplate } from '../../types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
@@ -81,7 +82,7 @@ export class DataTableComponent {
   bulkActionButtons = input<IBulkActionConfig[]>([]);
   rowActions = input<IRowActionConfig[]>([]);
 
-  bulkActionClick = output<string>();
+  bulkActionClick = output<IBulkActionClickEvent>();
   rowActionClick = output<IRowActionClickEvent>();
   
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
@@ -107,12 +108,21 @@ export class DataTableComponent {
   }
 
   protected isActionDisabled(action: IRowActionConfig, rowData: any): boolean {
-    // Implement action disabled logic based on your requirements
+    if (action.disabledCondition) {
+      return action.disabledCondition(rowData);
+    }
+    return false;
+  }
+
+  protected isBulkActionDisabled(action: IBulkActionConfig): boolean {
+    if (action.disabledCondition) {
+      return action.disabledCondition(this.selectedTableRows());
+    }
     return false;
   }
 
   protected onBulkActionClick(actionType: string): void {
-    this.bulkActionClick.emit(actionType);
+    this.bulkActionClick.emit({ actionType, selectedRows: this.selectedTableRows() });
   }
 
   protected onRowActionClick(actionType: string, rowData: any): void {

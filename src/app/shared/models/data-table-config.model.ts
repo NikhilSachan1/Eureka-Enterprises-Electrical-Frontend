@@ -67,10 +67,19 @@ export interface IMatchModeOption {
     value: string;
 }
 
-export interface IRowActionConfig extends IButtonConfig {};
-export interface IBulkActionConfig extends IButtonConfig {};
+export interface IRowActionConfig extends IButtonConfig {
+    disabledCondition?: (rowData: any) => boolean;
+};
+export interface IBulkActionConfig extends IButtonConfig {
+  disabledCondition?: (selectedRows: any[]) => boolean;
+};
 
 export interface IRowActionClickEvent {
     actionType: string;
     rowData: Record<string, any>;
+}
+
+export interface IBulkActionClickEvent {
+    actionType: string;
+    selectedRows: Record<string, any>[];
 }

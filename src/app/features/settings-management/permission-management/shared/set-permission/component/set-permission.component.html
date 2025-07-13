@@ -86,14 +86,14 @@
                   <p-card 
                     (click)="onClickPermissionCard(module.id, permission.id)"
                     class="permission-card"
-                    [ngClass]="getPermissionStatus(module.id, permission.id)().cardStyle"
+                    [ngClass]="getPermissionStatus(permission.id)().cardStyle"
                   >
                     <!-- Permission Content -->
                     <div class="permission-content-row">
                       <div class="permission-checkbox-col" (click)="$event.stopPropagation()">
                         <app-input-field
                           [formGroup]="form.formGroup"
-                          [inputFieldConfig]="form.fieldConfigs[`${module.id}_${permission.id}`]"
+                          [inputFieldConfig]="form.fieldConfigs[`${permission.id}`]"
                           (onFieldChange)="onPermissionChange(module.id)"
                         ></app-input-field>
                       </div>
@@ -104,7 +104,7 @@
                             <h4 class="permission-label">{{ permission.label }}</h4>
                             <p class="permission-description line-clamp-3">{{ permission.description }}</p>
                           </div>
-                          @let permissionInfo = getPermissionStatus(module.id, permission.id)();
+                          @let permissionInfo = getPermissionStatus(permission.id)();
                           <p-tag
                             [value]="permissionInfo.label"
                             [icon]="permissionInfo.icon"

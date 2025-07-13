@@ -1,9 +1,9 @@
-import { IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig } from "../../../../../../shared/models";
-import { ERowActionType, ETableBodyTemplate, EButtonSeverity } from "../../../../../../shared/types";
+import { IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig, IBulkActionConfig } from "../../../../../../shared/models";
+import { ERowActionType, ETableBodyTemplate, EButtonSeverity, EBulkActionType } from "../../../../../../shared/types";
 import { ICONS } from "../../../../../../shared/constants";
+import { IGetSingleRoleListResponseDto } from "../../models/role-management.api.model";
 
 export const ROLE_PERMISSION_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
-  showCheckbox: false,
   globalFilterFields: [
     'label',
     'description',
@@ -49,12 +49,31 @@ export const ROLE_PERMISSION_LIST_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[
     icon: ICONS.ACTIONS.EDIT,
     tooltip: 'Edit Role',
     severity: EButtonSeverity.WARNING,
+    disabledCondition: (rowData: IGetSingleRoleListResponseDto) => rowData.isEditable === false,
+  },
+  {
+    id: ERowActionType.DELETE,
+    icon: ICONS.ACTIONS.TRASH,
+    tooltip: 'Delete Role',
+    severity: EButtonSeverity.DANGER,
+    disabledCondition: (rowData: IGetSingleRoleListResponseDto) => rowData.isDeletable === false,
   },
   {
     id: ERowActionType.EDIT_PERMISSIONS,
     icon: ICONS.SETTINGS.COG,
-    tooltip: 'Edit Permissions',
+    tooltip: 'Edit Role Permissions',
     severity: EButtonSeverity.INFO,
+  },
+];
+
+export const ROLE_PERMISSION_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
+  {
+    id: EBulkActionType.DELETE,
+    label: 'Delete',
+    icon: ICONS.ACTIONS.TRASH,
+    disabledCondition: (selectedRows: IGetSingleRoleListResponseDto[]) => {
+      return selectedRows.some(row => (row as IGetSingleRoleListResponseDto).isDeletable === false);
+    },
   },
 ];
 
@@ -62,4 +81,5 @@ export const ROLE_PERMISSION_LIST_ENHANCED_TABLE_CONFIG: IEnhancedTableConfig = 
   tableConfig: ROLE_PERMISSION_LIST_TABLE_CONFIG,
   headers: ROLE_PERMISSION_LIST_TABLE_HEADER,
   rowActions: ROLE_PERMISSION_LIST_ROW_ACTIONS_CONFIG,
+  bulkActions: ROLE_PERMISSION_LIST_BULK_ACTIONS_CONFIG,
 }; 

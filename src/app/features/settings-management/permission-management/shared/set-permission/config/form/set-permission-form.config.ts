@@ -1,5 +1,5 @@
-import { IFormButtonConfig, IFormConfig, IFormInputFieldsConfig } from "../../../../../shared/models";
-import { EButtonSeverity } from "../../../../../shared/types";
+import { IFormButtonConfig, IFormConfig, IFormInputFieldsConfig } from "../../../../../../../shared/models";
+import { EButtonSeverity } from "../../../../../../../shared/types";
 
 export const SET_PERMISSION_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {

@@ -14,6 +14,8 @@ export const SystemPermissionListBaseResponseSchema = z.object({
         return toTitleCase(label);
     }),
     description: CommonSystemPermissionFields.description.transform((val) => toSentenceCase(val)),
+    isEditable: CommonSystemPermissionFields.isEditable,
+    isDeletable: CommonSystemPermissionFields.isDeletable,
 }).merge(AuditFieldsSchema.pick({
     createdBy: true,
     updatedBy: true,

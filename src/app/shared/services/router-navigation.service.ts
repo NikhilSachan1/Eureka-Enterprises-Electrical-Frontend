@@ -146,6 +146,19 @@ export class RouterNavigationService {
     }
   }
 
+  getRouterStateDataFromRoute(key: string) {
+    try {
+      const data = this.activatedRoute.snapshot.data[key];
+      if (data) {
+        this.logger.logUserAction(`Router state data retrieved from route for key: ${key}`);
+        return data;
+      }
+    } catch (error) {
+      this.logger.logUserAction(`Error retrieving router state data from route for key ${key}: ${error}`);
+      return null;
+    }
+  }
+
   buildRouteSegments(basePaths: string[], targetPath: string): string[] {
     return ['/', ...basePaths, targetPath];
   }

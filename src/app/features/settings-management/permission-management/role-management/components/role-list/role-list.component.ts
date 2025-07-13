@@ -4,18 +4,22 @@ import { ConfirmationDialogComponent } from '../../../../../../shared/components
 import {
   IEnhancedTable,
   IRowActionClickEvent,
+  IBulkActionClickEvent,
 } from '../../../../../../shared/models';
 import { ROLE_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '../../config/table/role-list-management-table.config';
-import { ERowActionType } from '../../../../../../shared/types';
+import { EBulkActionType, EDialogType, ERowActionType } from '../../../../../../shared/types';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { LoggerService } from '../../../../../../core/services/logger.service';
 import { RoleManagementService } from '../../services/role-management.service';
 import {
   IGetRoleListResponseDto,
   IGetSingleRoleListResponseDto,
+  IDeleteRoleManagementRequestDto,
+  IDeleteRoleManagementResponseDto,
 } from '../../models/role-management.api.model';
 import { ROUTE_BASE_PATHS, ROUTES } from '../../../../../../shared/constants';
-import { LoadingService, RouterNavigationService, TableService } from '../../../../../../shared/services';
+import { ConfirmationDialogService, LoadingService, NotificationService, RouterNavigationService, TableService } from '../../../../../../shared/services';
+import { createRoleBulkDeleteDialogConfig, createRoleDeleteDialogConfig } from '../../config/dialog/role-dialog.config';
 
 @Component({
   selector: 'app-role-list',
@@ -35,6 +39,8 @@ export class RoleListComponent implements OnInit, OnDestroy {
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
+  private readonly confirmationDialogService = inject(ConfirmationDialogService);
+  private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -79,7 +85,24 @@ export class RoleListComponent implements OnInit, OnDestroy {
       name: record.name,
       description: record.description,
       label: record.label,
+      permissionCount: `${record.permissionCount} / ${response.totalPermissions}`,
+      isDeletable: record.isDeletable,
+      isEditable: record.isEditable,
     }));
+  }
+
+  protected handleBulkActionClick(event: IBulkActionClickEvent): void {
+    this.logger.logUserAction('Bulk action clicked', event);
+
+    const { actionType, selectedRows } = event;
+
+    switch (actionType) {
+      case EBulkActionType.DELETE:
+        this.showBulkDeleteConfirmationDialog(selectedRows as IGetSingleRoleListResponseDto[]);
+        break;
+      default:
+        this.logger.warn('Unknown bulk action:', actionType);
+    }
   }
 
   protected handleRowActionClick(event: IRowActionClickEvent): void {
@@ -87,10 +110,12 @@ export class RoleListComponent implements OnInit, OnDestroy {
 
     const { actionType, rowData } = event;
 
-
     switch (actionType) {
       case ERowActionType.EDIT:
         this.navigateToEditRole(rowData as IGetSingleRoleListResponseDto);
+        break;
+      case ERowActionType.DELETE:
+        this.showSingleDeleteConfirmationDialog(rowData as IGetSingleRoleListResponseDto);
         break;
       case ERowActionType.EDIT_PERMISSIONS:
         this.navigateToSetRolePermissions(rowData as IGetSingleRoleListResponseDto);
@@ -150,6 +175,76 @@ export class RoleListComponent implements OnInit, OnDestroy {
     } catch (error) {
       this.logger.logUserAction('Navigation error', error);
     }
+  }
+
+  private showSingleDeleteConfirmationDialog(rowData: IGetSingleRoleListResponseDto): void {
+    this.logger.logUserAction('Single role delete action triggered', rowData);
+
+    const formattedRoleData = this.formatSingleDeleteRoleData(rowData);
+    const formData = this.prepareDeleteRoleFormData(formattedRoleData);
+    const dialogConfig = createRoleDeleteDialogConfig(
+      rowData,
+      () => this.executeDeleteRole(formData),
+    );
+
+    const confirmationDialog = this.confirmationDialogService.createConfirmationDialog(EDialogType.DELETE, dialogConfig);
+    confirmationDialog.show();
+  }
+
+  private showBulkDeleteConfirmationDialog(selectedRows: IGetSingleRoleListResponseDto[]): void {
+    this.logger.logUserAction('Bulk role delete action triggered', selectedRows);
+
+    const formattedRoleData = this.formatBulkDeleteRoleData(selectedRows);
+    const formData = this.prepareDeleteRoleFormData(formattedRoleData);
+    const dialogConfig = createRoleBulkDeleteDialogConfig(
+      selectedRows,
+      () => this.executeDeleteRole(formData),
+    );
+
+    const confirmationDialog = this.confirmationDialogService.createConfirmationDialog(EDialogType.DELETE, dialogConfig);
+    confirmationDialog.show();
+  }
+
+  private executeDeleteRole(formData: IDeleteRoleManagementRequestDto): void {
+    this.logger.logUserAction('Executing delete role', formData);
+
+    this.loadingService.show({
+      title: 'Deleting Roles',
+      message: 'Deleting roles...',
+    });
+
+    this.roleManagementService
+      .deleteRole(formData)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+          this.table.setData([]);
+          this.loadRoleList();
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+      next: (response: IDeleteRoleManagementResponseDto) => {
+        this.logger.logUserAction('Delete role response', response);
+        this.notificationService.success('Role(s) deleted successfully', 'Success');
+      },
+      error: (error) => {
+        this.logger.logUserAction('Delete role error', error);
+        this.notificationService.error('Failed to delete role(s)', 'Error');
+      }
+    });
+  }
+
+  private formatSingleDeleteRoleData(rowData: IGetSingleRoleListResponseDto): string[] {
+    return [rowData.id];
+  }
+
+  private formatBulkDeleteRoleData(selectedRows: IGetSingleRoleListResponseDto[]): string[] {
+    return selectedRows.map(row => row.id);
+  }
+
+  private prepareDeleteRoleFormData(roleIds: string[]): IDeleteRoleManagementRequestDto {
+    return { ids: roleIds };
   }
 
   ngOnDestroy(): void {

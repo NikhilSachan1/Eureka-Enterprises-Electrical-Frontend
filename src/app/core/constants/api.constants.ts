@@ -10,11 +10,14 @@ export const API_ROUTES = {
                 ADD: 'permissions',
                 LIST: 'permissions',
                 UPDATE: 'permissions',
+                DELETE: 'permissions/bulk',
             },
             ROLE: {
                 LIST: 'role',
                 ADD: 'role',
                 UPDATE: 'role',
+                PERMISSION_LIST: 'role-permissions',
+                DELETE: 'role/bulk',
             }
         }
     }
