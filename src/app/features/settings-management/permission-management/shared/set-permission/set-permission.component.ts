@@ -253,8 +253,6 @@ export class SetPermissionComponent implements OnInit {
     this.activeTabIndex.set(event.index);
   }
 
-
-
   private loadModulePermissions(): void {
     this.loadingService.show({
       title: 'Loading module permissions...',
@@ -355,7 +353,7 @@ export class SetPermissionComponent implements OnInit {
   }
 
   protected onReset(): void {
-    this.form?.reset();
+    this.form.reset(this.defaultPermissionSelected());
   }
 
   protected onClickPermissionCard(moduleId: string, permissionId: string): void {
