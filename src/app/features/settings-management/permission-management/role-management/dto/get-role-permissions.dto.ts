@@ -14,6 +14,13 @@ export const RolePermissionsBaseResponseSchema = z.object({
     isActive: z.boolean(),
 }).merge(AuditFieldsSchema).strict();
 
+export const GetRolePermissionRequestSchema = z.object({
+    roleId: z
+        .string()
+        .uuid(),
+    isActive: z.boolean(),
+}).strict();
+
 export const GetRolePermissionsResponseSchema = z.object({
     records: z.array(RolePermissionsBaseResponseSchema),
     totalRecords: z.number()

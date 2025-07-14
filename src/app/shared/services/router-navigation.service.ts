@@ -20,7 +20,7 @@ export class RouterNavigationService {
     try {
       const success = await this.router.navigate(segments, {
         relativeTo: options?.relativeTo || null,
-        queryParamsHandling: options?.queryParamsHandling || 'preserve',
+        queryParamsHandling: options?.queryParamsHandling || '',
         replaceUrl: options?.replaceUrl || false
       });
 

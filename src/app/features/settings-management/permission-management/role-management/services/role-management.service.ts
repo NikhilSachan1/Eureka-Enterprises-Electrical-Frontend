@@ -21,9 +21,10 @@ import {
   EditRoleManagementRequestSchema,
   EditRoleManagementResponseSchema,
 } from '../dto/edit-role-management.dto';
-import { IGetRolePermissionsResponseDto } from '../models/role-permission.api.model';
+import { IGetRolePermissionRequestDto, IGetRolePermissionsResponseDto, ISetRolePermissionRequestDto, ISetRolePermissionResponseDto } from '../models/role-permission.api.model';
 import { GetRolePermissionsResponseSchema } from '../dto/get-role-permissions.dto';
 import { DeleteRoleRequestSchema, DeleteRoleResponseSchema } from '../dto/delete-role-management.dto';
+import { SetRolePermissionRequestSchema, SetRolePermissionResponseSchema } from '../dto/set-role-permission.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -119,15 +120,13 @@ import { DeleteRoleRequestSchema, DeleteRoleResponseSchema } from '../dto/delete
       );
   }
 
-  getRolePermission(roleId: string): Observable<IGetRolePermissionsResponseDto> {
-    this.logger.logUserAction('Get Role Permission Request', { roleId });
+  getRolePermission(params: IGetRolePermissionRequestDto): Observable<IGetRolePermissionsResponseDto> {
+    this.logger.logUserAction('Get Role Permission Request', params);
 
     return this.apiService.getValidated(
       `${API_ROUTES.SETTINGS.PERMISSION.ROLE.PERMISSION_LIST}`,
       GetRolePermissionsResponseSchema,
-      {
-        roleId,
-      }
+      params
     )
     .pipe(
       tap((response: IGetRolePermissionsResponseDto) => {
@@ -162,6 +161,31 @@ import { DeleteRoleRequestSchema, DeleteRoleResponseSchema } from '../dto/delete
           this.logger.logDtoValidationErrors('Delete Role Error', error);
         } else {
           this.logger.logUserAction('Delete Role Error', error);
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  setRolePermission(formData: ISetRolePermissionRequestDto): Observable<ISetRolePermissionResponseDto> {
+
+    this.logger.logUserAction('Set Role Permission Request', formData);
+
+    return this.apiService.postValidated(
+      `${API_ROUTES.SETTINGS.PERMISSION.ROLE.SET_PERMISSION}`,
+      formData,
+      SetRolePermissionRequestSchema,
+      SetRolePermissionResponseSchema,
+    )
+    .pipe(
+      tap((response: ISetRolePermissionResponseDto) => {
+        this.logger.logUserAction('Set Role Permission Success', response);
+      }),
+      catchError((error) => {
+        if (error?.name === 'ZodError') {
+          this.logger.logDtoValidationErrors('Set Role Permission Error', error);
+        } else {
+          this.logger.logUserAction('Set Role Permission Error', error);
         }
         return throwError(() => error);
       })

@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, Resolve } from "@angular/router";
-import { IGetRolePermissionsResponseDto } from "../permission-management/role-management/models/role-permission.api.model";
+import { IGetRolePermissionRequestDto, IGetRolePermissionsResponseDto } from "../permission-management/role-management/models/role-permission.api.model";
 import { RoleManagementService } from "../permission-management/role-management/services/role-management.service";
 import { Observable, catchError, finalize, of, tap } from "rxjs";
 import { LoggerService } from "../../../core/services/logger.service";
@@ -35,8 +35,10 @@ export class RolePermissionResolver implements Resolve<IGetRolePermissionsRespon
             title: 'Loading Role Permission',
             message: 'Please wait while we load the role permission...',
         });
+
+        const paramData = this.prepareParamData(roleId);
     
-        return this.roleManagementService.getRolePermission(roleId).pipe(
+        return this.roleManagementService.getRolePermission(paramData).pipe(
             tap((response: IGetRolePermissionsResponseDto) => {
                 this.logger.logUserAction('Role Permission Resolver: Data resolved successfully', response.records);
             }),
@@ -58,5 +60,12 @@ export class RolePermissionResolver implements Resolve<IGetRolePermissionsRespon
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
         ];
         this.routerNavigationService.navigateToRoute(routeSegments);
+    }
+
+    private prepareParamData(roleId: string): IGetRolePermissionRequestDto {
+        return {
+            roleId,
+            isActive: true,
+        };
     }
 }
