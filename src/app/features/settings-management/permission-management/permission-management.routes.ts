@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
-import { RolePermissionResolver } from '../resolver/role-permission.resolver';
+import { RolePermissionResolver } from './role-management/resolvers/role-permission.resolver';
 
 export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
     {

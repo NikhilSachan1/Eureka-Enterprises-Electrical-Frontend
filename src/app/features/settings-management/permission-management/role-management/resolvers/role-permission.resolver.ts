@@ -1,11 +1,11 @@
 import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, Resolve } from "@angular/router";
-import { IGetRolePermissionRequestDto, IGetRolePermissionsResponseDto } from "../permission-management/role-management/models/role-permission.api.model";
-import { RoleManagementService } from "../permission-management/role-management/services/role-management.service";
+import { IGetRolePermissionRequestDto, IGetRolePermissionsResponseDto } from "../models/role-permission.api.model";
+import { RoleManagementService } from "../services/role-management.service";
 import { Observable, catchError, finalize, of, tap } from "rxjs";
-import { LoggerService } from "../../../core/services/logger.service";
-import { LoadingService, RouterNavigationService } from "../../../shared/services";
-import { ROUTE_BASE_PATHS } from "../../../shared/constants/route.constants";
+import { LoggerService } from "../../../../../core/services/logger.service";
+import { LoadingService, RouterNavigationService } from "../../../../../shared/services";
+import { ROUTE_BASE_PATHS } from "../../../../../shared/constants/route.constants";
 
 @Injectable({
     providedIn: 'root'
