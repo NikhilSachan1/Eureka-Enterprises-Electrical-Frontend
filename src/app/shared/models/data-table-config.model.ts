@@ -1,5 +1,5 @@
-import { EPrimeNGSeverity, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
-import { IButtonConfig } from "./button.model";
+import { EPrimeNGSeverity, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "@shared/types";
+import { IButtonConfig } from "@shared/models/button.model";
 
 export interface IDataTableConfig {
     rowHover: boolean;

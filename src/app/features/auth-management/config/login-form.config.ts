@@ -1,6 +1,6 @@
 import { Validators } from '@angular/forms';
-import { IFormButtonConfig, IFormConfig, IFormInputFieldsConfig } from '../../../shared/models';
-import { EFieldType, EFieldSize, EButtonSize, EButtonSeverity } from '../../../shared/types';
+import { IFormButtonConfig, IFormConfig, IFormInputFieldsConfig } from '@shared/models';
+import { EFieldType, EFieldSize, EButtonSize, EButtonSeverity } from '@shared/types';
 
 const LOGIN_FIELDS_CONFIG: IFormInputFieldsConfig = {
   email: {

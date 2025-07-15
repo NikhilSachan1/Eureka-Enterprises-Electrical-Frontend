@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { EButtonSize } from '../../../shared/types';
-import { IButtonConfig } from '../../../shared/models';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { EButtonSize } from '@shared/types';
+import { IButtonConfig } from '@shared/models';
 
 @Component({
   selector: 'app-auth-layout',

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { AuditFieldsSchema } from "../../../../../shared/dto/api-response-audit-fields.dto";
-import { toTitleCase, toSentenceCase, toLowerCase, replaceTextWithSeparator } from "../../../../../shared/utility";
-import { CommonSystemPermissionFields } from "./common-system-permission-management.dto";
+import { AuditFieldsSchema } from "@shared/dto/api-response-audit-fields.dto";
+import { toTitleCase, toSentenceCase, toLowerCase, replaceTextWithSeparator } from "@shared/utility";
+import { CommonSystemPermissionFields } from "@features/settings-management/permission-management/system-permission-management/dto/common-system-permission-management.dto";
 
 export const SystemPermissionListBaseResponseSchema = z.object({
     id: z

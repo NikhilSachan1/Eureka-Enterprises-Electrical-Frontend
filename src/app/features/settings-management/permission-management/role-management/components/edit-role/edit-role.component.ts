@@ -3,30 +3,30 @@ import { ActivatedRoute } from '@angular/router';
 import {
   IEnhancedForm,
   IPageHeaderConfig,
-} from '../../../../../../shared/models';
+} from '@shared/models';
 import {
   FormService,
   LoadingService,
   NotificationService,
   RouterNavigationService,
-} from '../../../../../../shared/services';
-import { LoggerService } from '../../../../../../core/services/logger.service';
-import { EDIT_ROLE_FORM_CONFIG } from '../../config/form/edit-role-management-form.config';
+} from '@shared/services';
+import { LoggerService } from '@core/services/logger.service';
+import { EDIT_ROLE_FORM_CONFIG } from '@features/settings-management/permission-management/role-management/config/form/edit-role-management-form.config';
 import {
   IEditRoleManagementRequestDto,
   IGetSingleRoleListResponseDto,
-} from '../../models/role-management.api.model';
+} from '@features/settings-management/permission-management/role-management/models/role-management.api.model';
 import {
   FORM_VALIDATION_MESSAGES,
   ROUTE_BASE_PATHS,
-} from '../../../../../../shared/constants';
+} from '@shared/constants';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
-import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
-import { ButtonComponent } from '../../../../../../shared/components/button/button.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { RoleManagementService } from '../../services/role-management.service';
+import { RoleManagementService } from '@features/settings-management/permission-management/role-management/services/role-management.service';
 
 @Component({
   selector: 'app-edit-role',

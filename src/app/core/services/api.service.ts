@@ -2,11 +2,11 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { retry, timeout, map, tap, catchError } from 'rxjs/operators';
-import { EnvironmentService } from './environment.service';
-import { LoggerService } from './logger.service';
-import { NotificationService } from '../../shared/services/notification.service';
+import { EnvironmentService } from '@core/services/environment.service';
+import { LoggerService } from '@core/services/logger.service';
+import { NotificationService } from '@shared/services/notification.service';
 import { z } from 'zod';
-import { AppConfigService } from './app-config.service';
+import { AppConfigService } from '@core/services/app-config.service';
 
 @Injectable({
   providedIn: 'root'

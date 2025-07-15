@@ -1,4 +1,4 @@
-import { IOptionDropdown } from "../models";
+import { IOptionDropdown } from "@shared/models";
 
 export const MODULES_NAME_DATA: IOptionDropdown[] = [
   { label: 'Employee', value: 'employee' },

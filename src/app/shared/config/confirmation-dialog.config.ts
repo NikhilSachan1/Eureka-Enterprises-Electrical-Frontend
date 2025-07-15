@@ -1,6 +1,6 @@
-import { IConfirmationDialogSettingConfig } from "../models";
-import { EDialogPosition } from "../types";
-import { ICONS } from "../constants";
+import { IConfirmationDialogSettingConfig } from "@shared/models";
+import { EDialogPosition } from "@shared/types";
+import { ICONS } from "@shared/constants";
 
 export const CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfig> = {
   header: 'Delete Confirmation',

@@ -8,21 +8,21 @@ import {
   computed,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
-import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
-import { ButtonComponent } from '../../../../../../shared/components/button/button.component';
-import { LoggerService } from '../../../../../../core/services/logger.service';
-import { FormService, LoadingService, NotificationService, RouterNavigationService } from '../../../../../../shared/services/';
-import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS, ROUTES } from '../../../../../../shared/constants';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { LoggerService } from '@core/services/logger.service';
+import { FormService, LoadingService, NotificationService, RouterNavigationService } from '@shared/services/';
+import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   IEnhancedForm,
   IPageHeaderConfig,
-} from '../../../../../../shared/models';
-import { ADD_SYSTEM_PERMISSION_FORM_CONFIG } from '../../config/form/add-system-permission-form.config';
-import { MODULE_ACTIONS_DATA } from '../../../../../../shared/config';
-import { IAddSystemPermissionRequestDto } from '../../models/system-permission.api.model';
+} from '@shared/models';
+import { ADD_SYSTEM_PERMISSION_FORM_CONFIG } from '@features/settings-management/permission-management/system-permission-management/config/form/add-system-permission-form.config';
+import { MODULE_ACTIONS_DATA } from '@shared/config';
+import { IAddSystemPermissionRequestDto } from '@features/settings-management/permission-management/system-permission-management/models/system-permission.api.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SystemPermissionService } from '../../services/system-permission.service';
+import { SystemPermissionService } from '@features/settings-management/permission-management/system-permission-management/services/system-permission.service';
 import { finalize } from 'rxjs';
 
 @Component({

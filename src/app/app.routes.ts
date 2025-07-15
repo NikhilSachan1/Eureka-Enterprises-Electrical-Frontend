@@ -1,16 +1,16 @@
 import { Routes } from '@angular/router';
-import { ROUTE_BASE_PATHS, ROUTES } from './shared/constants/index';
-import { PublicLayoutComponent } from './shared/components/layouts/public-layout/public-layout.component';
-import { PrivateLayoutComponent } from './shared/components/layouts/private-layout/private-layout.component';
-import { guestGuard } from './core/guards/guest.guard';
-import { authGuard } from './core/guards/auth.guard';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants/index';
+import { PublicLayoutComponent } from '@shared/components/layouts/public-layout/public-layout.component';
+import { PrivateLayoutComponent } from '@shared/components/layouts/private-layout/private-layout.component';
+import { authGuard } from '@core/guards/auth.guard';
+import { GuestGuard } from '@core/guards/guest.guard';
 
 export const routes: Routes = [
   // Public routes (no sidebar)
   {
     path: '',
     component: PublicLayoutComponent,
-    canActivate: [guestGuard],
+    canActivate: [GuestGuard],
     children: [
       {
         path: '',

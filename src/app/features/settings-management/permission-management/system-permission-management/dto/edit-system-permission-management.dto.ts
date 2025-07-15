@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { CommonSystemPermissionFields } from './common-system-permission-management.dto';
-import { toLowerCase } from '../../../../../shared/utility';
+import { CommonSystemPermissionFields } from '@features/settings-management/permission-management/system-permission-management/dto/common-system-permission-management.dto';
+import { toLowerCase } from '@shared/utility';
 
 export const EditSystemPermissionRequestSchema = z.object({
     description: CommonSystemPermissionFields.description.transform((val) => toLowerCase(val)),

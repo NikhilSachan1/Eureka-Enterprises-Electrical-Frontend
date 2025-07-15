@@ -11,8 +11,8 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TextareaModule } from 'primeng/textarea';
 import { InputOtpModule } from 'primeng/inputotp';
-import { ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelectionMode, EFieldType, EFileMode, EHourFormat, EMultiSelectDisplayType, EUpAndDownButtonLayout } from '../../types';
-import { IInputFieldsConfig } from '../../models';
+import { EAutocomplete, ECalendarView, ECheckBoxAndRadioAlign, ECurrencyDisplay, EDateIconDisplay, EDateSelectionMode, EFieldSize, EFieldType, EFileMode, EFloatLabelVariant, EHourFormat, EInputNumberMode, EMultiSelectDisplayType, ESpinnerMode, EUpAndDownButtonLayout } from '@shared/types';
+import { IInputFieldsConfig } from '@shared/models';
 import { FormsModule } from '@angular/forms';
 
 @Component({

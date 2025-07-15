@@ -2,14 +2,14 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap, finalize, map } from 'rxjs/operators';
-import { ApiService } from '../../../core/services/api.service';
-import { LoggerService } from '../../../core/services/logger.service';
-import { LoadingService, AvatarService } from '../../../shared/services';
-import { API_ROUTES } from '../../../core/constants';
-import { ROUTE_BASE_PATHS, ROUTES } from '../../../shared/constants';
-import { ILoggedInUserDetails } from '../models/logged-in-user.model';
-import { ILoginRequestDto, ILoginResponseDto } from '../models/auth-api.model';
-import { LoginRequestSchema, LoginResponseSchema } from '../dto/auth.dto';
+import { ApiService } from '@core/services/api.service';
+import { LoggerService } from '@core/services/logger.service';
+import { LoadingService, AvatarService } from '@shared/services';
+import { API_ROUTES } from '@core/constants';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ILoggedInUserDetails } from '@features/auth-management/models/logged-in-user.model';
+import { ILoginRequestDto, ILoginResponseDto } from '@features/auth-management/models/auth-api.model';
+import { LoginRequestSchema, LoginResponseSchema } from '@features/auth-management/dto/auth.dto';
 
 @Injectable({
   providedIn: 'root'

@@ -1,6 +1,6 @@
-import { APP_CONFIG } from "../../core/config";
-import { IDataTableConfig, IDataTableHeaderConfig, IFilterConfig, IStatusConfig, ITextWithSubtitleAndImageConfig, IMatchModeOption, IBulkActionConfig, IRowActionConfig } from "../models";
-import { EButtonSeverity, EButtonVariant, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "../types";
+import { APP_CONFIG } from "@core/config";
+import { IDataTableConfig, IDataTableHeaderConfig, IFilterConfig, IStatusConfig, ITextWithSubtitleAndImageConfig, IMatchModeOption, IBulkActionConfig, IRowActionConfig } from "@shared/models";
+import { EButtonSeverity, EButtonVariant, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "@shared/types";
 
 // Default table config
 export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {

@@ -1,7 +1,7 @@
-import { IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig, IBulkActionConfig } from "../../../../../../shared/models";
-import { ERowActionType, ETableBodyTemplate, EButtonSeverity, EBulkActionType } from "../../../../../../shared/types";
-import { ICONS } from "../../../../../../shared/constants";
-import { IGetSingleRoleListResponseDto } from "../../models/role-management.api.model";
+import { IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig, IBulkActionConfig } from "@shared/models";
+import { ERowActionType, ETableBodyTemplate, EButtonSeverity, EBulkActionType } from "@shared/types";
+import { ICONS } from "@shared/constants";
+import { IGetSingleRoleListResponseDto } from "@features/settings-management/permission-management/role-management/models/role-management.api.model";
 
 export const ROLE_PERMISSION_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
   globalFilterFields: [

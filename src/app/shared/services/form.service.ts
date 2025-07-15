@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { InputFieldConfigService } from './input-field-config.service';
-import { IFormConfig, IInputFieldsConfig, IEnhancedForm, IFormButtonConfig } from '../models';
+import { InputFieldConfigService } from '@shared/services/input-field-config.service';
+import { IFormConfig, IInputFieldsConfig, IEnhancedForm, IFormButtonConfig } from '@shared/models';
 
 @Injectable({
   providedIn: 'root'

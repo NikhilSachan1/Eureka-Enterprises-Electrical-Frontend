@@ -1,9 +1,9 @@
-import { MATCH_MODE_OPTIONS, MODULES_NAME_DATA } from "../../../../../../shared/config";
-import { IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig, IBulkActionConfig } from "../../../../../../shared/models";
-import { ERowActionType, ETableBodyTemplate, ETableFilterMatchMode, ETableSearchInputType, EButtonSeverity, EBulkActionType } from "../../../../../../shared/types";
-import { ICONS } from "../../../../../../shared/constants";
-import { getDataFromArrayOfObjects } from "../../../../../../shared/utility";
-import { IGetSingleSystemPermissionListResponseDto } from "../../models/system-permission.api.model";
+import { MATCH_MODE_OPTIONS, MODULES_NAME_DATA } from "@shared/config";
+import { IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig, IBulkActionConfig } from "@shared/models";
+import { ERowActionType, ETableBodyTemplate, ETableFilterMatchMode, ETableSearchInputType, EButtonSeverity, EBulkActionType } from "@shared/types";
+import { ICONS } from "@shared/constants";
+import { getDataFromArrayOfObjects } from "@shared/utility";
+import { IGetSingleSystemPermissionListResponseDto } from "@features/settings-management/permission-management/system-permission-management/models/system-permission.api.model";
 
 export const SYSTEM_PERMISSION_LIST_TABLE_CONFIG: Partial<IDataTableConfig> = {
   globalFilterFields: [

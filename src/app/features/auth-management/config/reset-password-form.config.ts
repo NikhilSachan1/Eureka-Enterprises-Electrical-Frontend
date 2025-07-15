@@ -1,6 +1,6 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '../../../shared/models';
-import { EFieldType, EFieldSize, EAutocomplete, EButtonSize, EButtonSeverity } from '../../../shared/types';
+import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '@shared/models';
+import { EFieldType, EFieldSize, EAutocomplete, EButtonSize, EButtonSeverity } from '@shared/types';
 
 const RESET_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig = {
   password: {

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IMetricData } from '../../models';
+import { IMetricData } from '@shared/models';
 
 @Component({
   selector: 'app-metrics-card',

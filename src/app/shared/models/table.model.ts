@@ -1,5 +1,5 @@
 import { Signal } from '@angular/core';
-import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from './data-table-config.model';
+import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig } from '@shared/models/data-table-config.model';
 
 export interface IEnhancedTableConfig {
   tableConfig?: Partial<IDataTableConfig>;

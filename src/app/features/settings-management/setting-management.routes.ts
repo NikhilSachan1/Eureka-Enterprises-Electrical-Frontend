@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ROUTE_BASE_PATHS } from '../../shared/constants';
+import { ROUTE_BASE_PATHS } from '@shared/constants';
 
 export const SETTING_MANAGEMENT_ROUTES: Routes = [
   {

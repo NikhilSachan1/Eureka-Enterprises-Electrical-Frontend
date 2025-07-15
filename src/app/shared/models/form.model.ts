@@ -1,6 +1,6 @@
 import { FormGroup } from "@angular/forms";
-import { IInputFieldsConfig } from "./input-fields-config.model";
-import { IButtonConfig } from "./button.model";
+import { IInputFieldsConfig } from "@shared/models/input-fields-config.model";
+import { IButtonConfig } from "@shared/models/button.model";
 
 export interface IFormInputFieldsConfig {
   [key: string]: Partial<IInputFieldsConfig>;

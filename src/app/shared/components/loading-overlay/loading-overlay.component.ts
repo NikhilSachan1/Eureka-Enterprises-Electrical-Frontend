@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { fadeInOut } from '../../animations';
+import { fadeInOut } from '@shared/animations';
 
 @Component({
   selector: 'app-loading-overlay',

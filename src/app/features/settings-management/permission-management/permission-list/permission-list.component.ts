@@ -7,21 +7,21 @@ import {
   inject,
 } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
-import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
-import { NavTabsComponent } from '../../../../shared/components/nav-tabs/nav-tabs.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import {
   IMetricData,
   IPageHeaderConfig,
   ITabItem,
-} from '../../../../shared/models';
+} from '@shared/models';
 import { CardModule } from 'primeng/card';
-import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '../../../../shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '@shared/constants';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { LoggerService } from '../../../../core/services/logger.service';
-import { RouterNavigationService } from '../../../../shared/services/router-navigation.service';
-import { ETabMode } from '../../../../shared/types/tab-items.types';
+import { LoggerService } from '@core/services/logger.service';
+import { RouterNavigationService } from '@shared/services/router-navigation.service';
+import { ETabMode } from '@shared/types/tab-items.types';
 
 @Component({
   selector: 'app-permission-list',

@@ -28,14 +28,14 @@ import {
   IButtonConfig,
   IRowActionClickEvent,
   IBulkActionClickEvent,
-} from '../../models';
-import { ETableBodyTemplate } from '../../types';
+} from '@shared/models';
+import { ETableBodyTemplate } from '@shared/types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
-import { AvatarService } from '../../services';
-import { ButtonComponent } from '../button/button.component';
-import { StatusTagComponent } from '../status-tag/status-tag.component';
-import { ICONS } from '../../constants';
-import { EmptyMessagesComponent } from "../empty-messages/empty-messages.component";
+import { AvatarService } from '@shared/services';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
+import { ICONS } from '@shared/constants';
+import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 
 @Component({
   selector: 'app-data-table',

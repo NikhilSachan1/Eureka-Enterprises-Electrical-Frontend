@@ -1,5 +1,5 @@
-import { IConfirmationDialogConfig } from "../../../../../../shared/models";
-import { EButtonSeverity } from "../../../../../../shared/types";
+import { IConfirmationDialogConfig } from "@shared/models";
+import { EButtonSeverity } from "@shared/types";
 
 export const ROLE_DELETE_DIALOG_CONFIG: IConfirmationDialogConfig = {
   dialogSettingConfig: {

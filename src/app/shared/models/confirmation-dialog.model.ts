@@ -1,8 +1,8 @@
 import { FormGroup } from "@angular/forms";
 import { Signal } from "@angular/core";
-import { EConfirmationDialogRecordDetailInputType, EDialogPosition } from "../types";
-import { IButtonConfig } from "./button.model";
-import { IFormInputFieldsConfig } from "./form.model";
+import { EConfirmationDialogRecordDetailInputType, EDialogPosition } from "@shared/types";
+import { IButtonConfig } from "@shared/models/button.model";
+import { IFormInputFieldsConfig } from "@shared/models/form.model";
 
 export interface IConfirmationDialogSettingConfig {
     header: string;

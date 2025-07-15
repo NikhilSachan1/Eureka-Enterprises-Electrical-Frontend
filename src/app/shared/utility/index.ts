@@ -1,3 +1,3 @@
-export * from './object.utils';
+export * from './object.util';
 export * from './string.util';
-export * from './validators.utils'; 
+export * from './validators.util'; 

@@ -1,16 +1,16 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { ICategorizedPermissions, ISetPermissionData, SetPermissionComponent } from "../../../shared/set-permission/component/set-permission.component";
-import { IPageHeaderConfig } from '../../../../../../shared/models/page-header-config.model';
-import { PageHeaderComponent } from "../../../../../../shared/components/page-header/page-header.component";
+import { ICategorizedPermissions, ISetPermissionData, SetPermissionComponent } from "@features/settings-management/permission-management/shared/set-permission/component/set-permission.component";
+import { IPageHeaderConfig } from '@shared/models/page-header-config.model';
+import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
 import { ActivatedRoute } from '@angular/router';
-import { RouterNavigationService } from '../../../../../../shared/services/router-navigation.service';
-import { LoggerService } from '../../../../../../core/services/logger.service';
-import { ROUTE_BASE_PATHS } from '../../../../../../shared/constants/route.constants';
-import { IGetRolePermissionsResponseDto, ISetRolePermissionRequestDto } from '../../models/role-permission.api.model';
-import { NotificationService } from '../../../../../../shared/services/notification.service';
-import { FORM_VALIDATION_MESSAGES } from '../../../../../../shared/constants';
-import { LoadingService } from '../../../../../../shared/services';
-import { RoleManagementService } from '../../services/role-management.service';
+import { RouterNavigationService } from '@shared/services/router-navigation.service';
+import { LoggerService } from '@core/services/logger.service';
+import { ROUTE_BASE_PATHS } from '@shared/constants/route.constants';
+import { IGetRolePermissionsResponseDto, ISetRolePermissionRequestDto } from '@features/settings-management/permission-management/role-management/models/role-permission.api.model';
+import { NotificationService } from '@shared/services/notification.service';
+import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { LoadingService } from '@shared/services';
+import { RoleManagementService } from '@features/settings-management/permission-management/role-management/services/role-management.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 

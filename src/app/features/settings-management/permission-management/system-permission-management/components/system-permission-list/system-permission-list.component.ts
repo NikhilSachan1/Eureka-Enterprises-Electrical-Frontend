@@ -1,32 +1,32 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { DataTableComponent } from '../../../../../../shared/components/data-table/data-table.component';
-import { ConfirmationDialogComponent } from '../../../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import {
   TableService,
   RouterNavigationService,
   LoadingService,
   ConfirmationDialogService,
   NotificationService,
-} from '../../../../../../shared/services/';
-import { LoggerService } from '../../../../../../core/services/logger.service';
-import { SystemPermissionService } from '../../services/system-permission.service';
+} from '@shared/services/';
+import { LoggerService } from '@core/services/logger.service';
+import { SystemPermissionService } from '@features/settings-management/permission-management/system-permission-management/services/system-permission.service';
 import {
   IBulkActionClickEvent,
   IEnhancedTable,
   IRowActionClickEvent,
-} from '../../../../../../shared/models';
-import { SYSTEM_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '../../config/table/system-permission-list-table.config';
-import { createSystemPermissionDeleteDialogConfig, createSystemPermissionBulkDeleteDialogConfig } from '../../config/dialog/system-permission-dialog.config';
+} from '@shared/models';
+import { SYSTEM_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '@features/settings-management/permission-management/system-permission-management/config/table/system-permission-list-table.config';
+import { createSystemPermissionDeleteDialogConfig, createSystemPermissionBulkDeleteDialogConfig } from '@features/settings-management/permission-management/system-permission-management/config/dialog/system-permission-dialog.config';
 import {
   IDeleteSystemPermissionRequestDto,
   IDeleteSystemPermissionResponseDto,
   IGetSingleSystemPermissionListResponseDto,
   IGetSystemPermissionListResponseDto,
-} from '../../models/system-permission.api.model';
-import { ERowActionType, EBulkActionType, EDialogType } from '../../../../../../shared/types';
+} from '@features/settings-management/permission-management/system-permission-management/models/system-permission.api.model';
+import { ERowActionType, EBulkActionType, EDialogType } from '@shared/types';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
-import { ROUTE_BASE_PATHS, ROUTES } from '../../../../../../shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
 @Component({
   selector: 'app-system-permission-list',

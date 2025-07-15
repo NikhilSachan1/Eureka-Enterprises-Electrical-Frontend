@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { ApiService } from '../../../../../core/services/api.service';
-import { LoggerService } from '../../../../../core/services/logger.service';
+import { ApiService } from '@core/services/api.service';
+import { LoggerService } from '@core/services/logger.service';
 import {
   IAddRoleManagementRequestDto,
   IAddRoleManagementResponseDto,
@@ -9,22 +9,22 @@ import {
   IEditRoleManagementRequestDto,
   IEditRoleManagementResponseDto,
   IGetRoleListResponseDto,
-} from '../models/role-management.api.model';
+} from '@features/settings-management/permission-management/role-management/models/role-management.api.model';
 import { catchError, Observable, tap, throwError } from 'rxjs';
-import { GetRoleListResponseSchema } from '../dto/role-list-management.dto';
-import { API_ROUTES } from '../../../../../core/constants';
+import { GetRoleListResponseSchema } from '@features/settings-management/permission-management/role-management/dto/role-list-management.dto';
+import { API_ROUTES } from '@core/constants';
 import {
-  AddRoleManagementDto,
+  AddRoleManagementRequestSchema,
   AddRoleManagementResponseSchema,
-} from '../dto/add-role-management.dto';
+} from '@features/settings-management/permission-management/role-management/dto/add-role-management.dto';
 import {
   EditRoleManagementRequestSchema,
   EditRoleManagementResponseSchema,
-} from '../dto/edit-role-management.dto';
-import { IGetRolePermissionRequestDto, IGetRolePermissionsResponseDto, ISetRolePermissionRequestDto, ISetRolePermissionResponseDto } from '../models/role-permission.api.model';
-import { GetRolePermissionsResponseSchema } from '../dto/get-role-permissions.dto';
-import { DeleteRoleRequestSchema, DeleteRoleResponseSchema } from '../dto/delete-role-management.dto';
-import { SetRolePermissionRequestSchema, SetRolePermissionResponseSchema } from '../dto/set-role-permission.dto';
+} from '@features/settings-management/permission-management/role-management/dto/edit-role-management.dto';
+import { IGetRolePermissionRequestDto, IGetRolePermissionsResponseDto, ISetRolePermissionRequestDto, ISetRolePermissionResponseDto } from '@features/settings-management/permission-management/role-management/models/role-permission.api.model';
+import { GetRolePermissionsResponseSchema } from '@features/settings-management/permission-management/role-management/dto/get-role-permissions.dto';
+import { DeleteRoleRequestSchema, DeleteRoleResponseSchema } from '@features/settings-management/permission-management/role-management/dto/delete-role-management.dto';
+import { SetRolePermissionRequestSchema, SetRolePermissionResponseSchema } from '@features/settings-management/permission-management/role-management/dto/set-role-permission.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +42,7 @@ import { SetRolePermissionRequestSchema, SetRolePermissionResponseSchema } from 
       .postValidated(
         API_ROUTES.SETTINGS.PERMISSION.ROLE.ADD,
         formData,
-        AddRoleManagementDto,
+        AddRoleManagementRequestSchema,
         AddRoleManagementResponseSchema,
       )
       .pipe(

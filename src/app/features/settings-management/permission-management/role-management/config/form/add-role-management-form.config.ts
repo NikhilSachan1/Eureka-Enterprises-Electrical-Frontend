@@ -1,6 +1,6 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '../../../../../../shared/models';
-import { EFieldType, EButtonSeverity } from '../../../../../../shared/types';
+import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '@shared/models';
+import { EFieldType, EButtonSeverity } from '@shared/types';
 
 const ADD_ROLE_FIELDS_CONFIG: IFormInputFieldsConfig = {
   roleName: {

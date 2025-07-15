@@ -9,33 +9,33 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
-import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
-import { ButtonComponent } from '../../../../../../shared/components/button/button.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import {
   NotificationService,
   FormService,
   RouterNavigationService,
   LoadingService,
-} from '../../../../../../shared/services';
-import { LoggerService } from '../../../../../../core/services/logger.service';
+} from '@shared/services';
+import { LoggerService } from '@core/services/logger.service';
 import {
   FORM_VALIDATION_MESSAGES,
   ROUTE_BASE_PATHS,
   ROUTES,
-} from '../../../../../../shared/constants';
+} from '@shared/constants';
 import {
   IEnhancedForm,
   IPageHeaderConfig,
-} from '../../../../../../shared/models';
+} from '@shared/models';
 import {
   IEditSystemPermissionRequestDto,
   IGetSingleSystemPermissionListResponseDto,
-} from '../../models/system-permission.api.model';
+} from '@features/settings-management/permission-management/system-permission-management/models/system-permission.api.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SystemPermissionService } from '../../services/system-permission.service';
+import { SystemPermissionService } from '@features/settings-management/permission-management/system-permission-management/services/system-permission.service';
 import { finalize } from 'rxjs';
-import { EDIT_SYSTEM_PERMISSION_FORM_CONFIG } from '../../config/form/edit-system-permission-form.config';
+import { EDIT_SYSTEM_PERMISSION_FORM_CONFIG } from '@features/settings-management/permission-management/system-permission-management/config/form/edit-system-permission-form.config';
 
 @Component({
   selector: 'app-edit-system-permission',

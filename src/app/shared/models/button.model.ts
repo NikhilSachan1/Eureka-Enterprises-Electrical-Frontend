@@ -1,4 +1,4 @@
-import { EButtonBadgeSeverity, EButtonIconPosition, EButtonSeverity, EButtonSize, EButtonVariant } from "../types";
+import { EButtonBadgeSeverity, EButtonIconPosition, EButtonSeverity, EButtonSize, EButtonVariant } from "@shared/types";
 
 export interface IButtonConfig {
     id: string;

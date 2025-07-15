@@ -7,4 +7,4 @@ export const DeleteSystemPermissionRequestSchema = z.object({
 export const DeleteSystemPermissionResponseSchema = z.object({
    failed: z.array(z.string()),
    success: z.array(z.string()),
-}).strict();
+}).strict(); 

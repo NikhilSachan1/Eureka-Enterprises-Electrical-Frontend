@@ -1,6 +1,6 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { TagModule } from 'primeng/tag';
-import { ESeverity, EPrimeNGSeverity } from '../../types';
+import { ESeverity, EPrimeNGSeverity } from '@shared/types';
 
 export interface IStatusTagConfig {
   rounded?: boolean;

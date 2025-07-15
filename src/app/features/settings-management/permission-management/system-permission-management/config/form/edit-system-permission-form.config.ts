@@ -1,7 +1,7 @@
-import { IFormConfig, IFormInputFieldsConfig } from "../../../../../../shared/models";
-import { IFormButtonConfig } from "../../../../../../shared/models";
-import { EButtonSeverity } from "../../../../../../shared/types";
-import { ADD_SYSTEM_PERMISSION_FORM_CONFIG } from "./add-system-permission-form.config";
+import { IFormConfig, IFormInputFieldsConfig } from "@shared/models";
+import { IFormButtonConfig } from "@shared/models";
+import { EButtonSeverity } from "@shared/types";
+import { ADD_SYSTEM_PERMISSION_FORM_CONFIG } from "@features/settings-management/permission-management/system-permission-management/config/form/add-system-permission-form.config";
 
 const EDIT_SYSTEM_PERMISSION_FIELDS_CONFIG: IFormInputFieldsConfig = {
 

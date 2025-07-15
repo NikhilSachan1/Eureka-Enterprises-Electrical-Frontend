@@ -1,25 +1,25 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { DataTableComponent } from '../../../../../../shared/components/data-table/data-table.component';
-import { ConfirmationDialogComponent } from '../../../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import {
   IEnhancedTable,
   IRowActionClickEvent,
   IBulkActionClickEvent,
-} from '../../../../../../shared/models';
-import { ROLE_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '../../config/table/role-list-management-table.config';
-import { EBulkActionType, EDialogType, ERowActionType } from '../../../../../../shared/types';
+} from '@shared/models';
+import { ROLE_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '@features/settings-management/permission-management/role-management/config/table/role-list-management-table.config';
+import { EBulkActionType, EDialogType, ERowActionType } from '@shared/types';
 import { finalize, Subject, takeUntil } from 'rxjs';
-import { LoggerService } from '../../../../../../core/services/logger.service';
-import { RoleManagementService } from '../../services/role-management.service';
+import { LoggerService } from '@core/services/logger.service';
+import { RoleManagementService } from '@features/settings-management/permission-management/role-management/services/role-management.service';
 import {
   IGetRoleListResponseDto,
   IGetSingleRoleListResponseDto,
   IDeleteRoleManagementRequestDto,
   IDeleteRoleManagementResponseDto,
-} from '../../models/role-management.api.model';
-import { ROUTE_BASE_PATHS, ROUTES } from '../../../../../../shared/constants';
-import { ConfirmationDialogService, LoadingService, NotificationService, RouterNavigationService, TableService } from '../../../../../../shared/services';
-import { createRoleBulkDeleteDialogConfig, createRoleDeleteDialogConfig } from '../../config/dialog/role-dialog.config';
+} from '@features/settings-management/permission-management/role-management/models/role-management.api.model';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ConfirmationDialogService, LoadingService, NotificationService, RouterNavigationService, TableService } from '@shared/services';
+import { createRoleBulkDeleteDialogConfig, createRoleDeleteDialogConfig } from '@features/settings-management/permission-management/role-management/config/dialog/role-dialog.config';
 
 @Component({
   selector: 'app-role-list',

@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { GetRolePermissionRequestSchema, GetRolePermissionsResponseSchema } from "../dto/get-role-permissions.dto";
-import { SetRolePermissionRequestSchema, SetRolePermissionResponseSchema } from "../dto/set-role-permission.dto";
+import { GetRolePermissionRequestSchema, GetRolePermissionsResponseSchema } from "@features/settings-management/permission-management/role-management/dto/get-role-permissions.dto";
+import { SetRolePermissionRequestSchema, SetRolePermissionResponseSchema } from "@features/settings-management/permission-management/role-management/dto/set-role-permission.dto";
 
 export type IGetRolePermissionRequestDto = z.infer<typeof GetRolePermissionRequestSchema>;
 export type IGetRolePermissionsResponseDto = z.infer<typeof GetRolePermissionsResponseSchema>;

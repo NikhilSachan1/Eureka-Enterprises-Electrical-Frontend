@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, tap, throwError, map } from 'rxjs';
-import { ApiService } from '../../../../../core/services/api.service';
+import { ApiService } from '@core/services/api.service';
 import {
   IAddSystemPermissionRequestDto,
   IAddSystemPermissionResponseDto,
@@ -9,21 +9,21 @@ import {
   IEditSystemPermissionRequestDto,
   IEditSystemPermissionResponseDto,
   IGetSystemPermissionListResponseDto,
-} from '../models/system-permission.api.model';
-import { LoggerService } from '../../../../../core/services/logger.service';
-import { API_ROUTES } from '../../../../../core/constants';
+} from '@features/settings-management/permission-management/system-permission-management/models/system-permission.api.model';
+import { LoggerService } from '@core/services/logger.service';
+import { API_ROUTES } from '@core/constants';
 import {
   AddSystemPermissionRequestSchema,
   AddSystemPermissionResponseSchema,
-} from '../dto/add-system-permission-management.dto';
-import { GetSystemPermissionListResponseSchema } from '../dto/system-permission-management-list.dto';
+} from '@features/settings-management/permission-management/system-permission-management/dto/add-system-permission-management.dto';
+import { GetSystemPermissionListResponseSchema } from '@features/settings-management/permission-management/system-permission-management/dto/system-permission-management-list.dto';
 import {
   EditSystemPermissionRequestSchema,
   EditSystemPermissionResponseSchema,
-} from '../dto/edit-system-permission-management.dto';
-import { IModulePermission } from '../models/system-permission.model';
-import { MODULES_NAME_DATA } from '../../../../../shared/config/static-data.config';
-import { DeleteSystemPermissionRequestSchema, DeleteSystemPermissionResponseSchema } from '../dto/delete-system-permisson-management.dto';
+} from '@features/settings-management/permission-management/system-permission-management/dto/edit-system-permission-management.dto';
+import { IModulePermission } from '@features/settings-management/permission-management/system-permission-management/models/system-permission.model';
+import { MODULES_NAME_DATA } from '@shared/config/static-data.config';
+import { DeleteSystemPermissionRequestSchema, DeleteSystemPermissionResponseSchema } from '@features/settings-management/permission-management/system-permission-management/dto/delete-system-permission-management.dto';
 
 @Injectable({
   providedIn: 'root',

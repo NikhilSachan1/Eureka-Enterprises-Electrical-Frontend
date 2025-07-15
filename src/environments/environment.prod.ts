@@ -1,4 +1,4 @@
-import { Environment } from '../app/core/models/environment.interface';
+import { Environment } from '@core/models/environment.interface';
 
 export const environment: Environment = {
     // Environment flags

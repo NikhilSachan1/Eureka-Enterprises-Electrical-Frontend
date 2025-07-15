@@ -1,5 +1,5 @@
-import { IInputFieldsConfig } from "../models";
-import { EAutocomplete, ECalendarView, ECheckBoxAndRadioAlign, EDateIconDisplay, EDateSelectionMode, EFieldSize, EFileMode, EFloatLabelVariant, EInputNumberMode, EMultiSelectDisplayType, ESpinnerMode, EUpAndDownButtonLayout } from "../types";
+import { IInputFieldsConfig } from "@shared/models";
+import { EAutocomplete, ECalendarView, ECheckBoxAndRadioAlign, ECurrencyDisplay, EDateIconDisplay, EDateSelectionMode, EFieldSize, EFileMode, EFloatLabelVariant, EHourFormat, EInputNumberMode, EMultiSelectDisplayType, ESpinnerMode, EUpAndDownButtonLayout } from "@shared/types";
 
 export const DEFAULT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
     autocomplete: EAutocomplete.Off,

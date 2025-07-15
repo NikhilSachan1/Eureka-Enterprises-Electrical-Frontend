@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { toLowerCase } from '../../../../../shared/utility';
-import { CommonRoleFields } from './common-role-management.dto';
+import { toLowerCase } from '@shared/utility';
+import { CommonRoleFields } from '@features/settings-management/permission-management/role-management/dto/common-role-management.dto';
 
 export const EditRoleManagementRequestSchema = z.object({
     description: CommonRoleFields.description.transform((val) => toLowerCase(val)),

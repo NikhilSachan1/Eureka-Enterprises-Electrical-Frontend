@@ -1,5 +1,5 @@
-import { ApplicationMenu } from '../../shared/models';
-import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '../../shared/constants';
+import { ApplicationMenu } from '@shared/models';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
 export const appMenu: ApplicationMenu = {
   sections: [

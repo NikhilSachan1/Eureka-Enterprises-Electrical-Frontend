@@ -1,9 +1,9 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '../../../../../../shared/models';
-import { EFieldType, EButtonSeverity } from '../../../../../../shared/types';
+import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '@shared/models';
+import { EFieldType, EButtonSeverity } from '@shared/types';
 import { 
   MODULES_NAME_DATA, 
-} from '../../../../../../shared/config';
+} from '@shared/config';
 
 const ADD_SYSTEM_PERMISSION_FIELDS_CONFIG: IFormInputFieldsConfig = {
   moduleName: {

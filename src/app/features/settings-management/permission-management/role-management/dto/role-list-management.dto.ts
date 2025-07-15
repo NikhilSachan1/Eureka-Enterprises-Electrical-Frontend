@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { CommonRoleFields } from "./common-role-management.dto";
-import { toLowerCase, toSentenceCase, toTitleCase } from "../../../../../shared/utility";
-import { AuditFieldsSchema } from "../../../../../shared/dto/api-response-audit-fields.dto";
+import { CommonRoleFields } from "@features/settings-management/permission-management/role-management/dto/common-role-management.dto";
+import { toLowerCase, toSentenceCase, toTitleCase } from "@shared/utility";
+import { AuditFieldsSchema } from "@shared/dto/api-response-audit-fields.dto";
 
 export const RoleListBaseResponseSchema = z.object({
     id: z

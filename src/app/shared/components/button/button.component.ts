@@ -1,8 +1,8 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { IButtonConfig } from '../../models';
-import { DEFAULT_BUTTON_CONFIG } from '../../config';
-import { EButtonIconPosition, EButtonType } from '../../types';
+import { IButtonConfig } from '@shared/models';
+import { DEFAULT_BUTTON_CONFIG } from '@shared/config';
+import { EButtonIconPosition, EButtonType } from '@shared/types';
 
 @Component({
   selector: 'app-button',

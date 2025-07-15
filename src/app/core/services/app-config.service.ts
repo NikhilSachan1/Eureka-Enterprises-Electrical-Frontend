@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { APP_CONFIG } from '../config';
-import { IAppConfig } from '../models';
+import { APP_CONFIG } from '@core/config';
+import { IAppConfig } from '@core/models';
 
 /**
  * Application Configuration Service

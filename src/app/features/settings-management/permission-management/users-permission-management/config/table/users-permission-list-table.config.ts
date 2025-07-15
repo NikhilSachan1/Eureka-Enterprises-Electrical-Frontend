@@ -1,7 +1,7 @@
-import { MATCH_MODE_OPTIONS } from "../../../../../../shared/config";
-import { IBulkActionConfig, IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig } from "../../../../../../shared/models";
-import { EBulkActionType, EButtonSeverity, ERowActionType, ETableBodyTemplate, ETableFilterMatchMode, ETableSearchInputType } from "../../../../../../shared/types";
-import { ICONS } from "../../../../../../shared/constants";
+import { MATCH_MODE_OPTIONS } from "@shared/config";
+import { IBulkActionConfig, IRowActionConfig, IDataTableConfig, IDataTableHeaderConfig, IEnhancedTableConfig } from "@shared/models";
+import { EBulkActionType, EButtonSeverity, ERowActionType, ETableBodyTemplate, ETableFilterMatchMode, ETableSearchInputType } from "@shared/types";
+import { ICONS } from "@shared/constants";
 
 export const USERS_PERMISSION_LIST_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
   {

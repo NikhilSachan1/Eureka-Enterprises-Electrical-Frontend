@@ -1,4 +1,4 @@
-import { ThemeConfig } from '../../shared/models';
+import { ThemeConfig } from '@shared/models';
 
 export const themeConfig: ThemeConfig = {
   light: {

@@ -8,21 +8,21 @@ import {
   computed,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
-import { InputFieldComponent } from '../../../../../../shared/components/input-field/input-field.component';
-import { ButtonComponent } from '../../../../../../shared/components/button/button.component';
-import { LoggerService } from '../../../../../../core/services/logger.service';
-import { FormService, LoadingService, NotificationService, RouterNavigationService } from '../../../../../../shared/services/';
-import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS, ROUTES } from '../../../../../../shared/constants';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { LoggerService } from '@core/services/logger.service';
+import { FormService, LoadingService, NotificationService, RouterNavigationService } from '@shared/services/';
+import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   IEnhancedForm,
   IPageHeaderConfig,
-} from '../../../../../../shared/models';
-import { ADD_ROLE_FORM_CONFIG } from '../../config/form/add-role-management-form.config';
-import { RoleManagementService } from '../../services/role-management.service';
+} from '@shared/models';
+import { ADD_ROLE_FORM_CONFIG } from '@features/settings-management/permission-management/role-management/config/form/add-role-management-form.config';
+import { RoleManagementService } from '@features/settings-management/permission-management/role-management/services/role-management.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IAddRoleManagementRequestDto } from '../../models/role-management.api.model';
+import { IAddRoleManagementRequestDto } from '@features/settings-management/permission-management/role-management/models/role-management.api.model';
 
 @Component({
   selector: 'app-add-role',

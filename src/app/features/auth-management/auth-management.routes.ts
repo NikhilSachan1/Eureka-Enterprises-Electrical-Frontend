@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ROUTES } from '../../shared/constants';
+import { ROUTES } from '@shared/constants';
 
 export const AUTH_MANAGEMENT_ROUTES: Routes = [
     {

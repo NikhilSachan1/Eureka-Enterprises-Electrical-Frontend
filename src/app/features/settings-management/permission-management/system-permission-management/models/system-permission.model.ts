@@ -1,5 +1,5 @@
-import { PartialExcept } from "../../../../../shared/utility/typescript.utility";
-import { IGetSingleSystemPermissionListResponseDto } from "./system-permission.api.model";
+import { PartialExcept } from "@shared/utility/typescript.utility";
+import { IGetSingleSystemPermissionListResponseDto } from "@features/settings-management/permission-management/system-permission-management/models/system-permission.api.model";
 
 export interface IModulePermission {
     readonly id: string;

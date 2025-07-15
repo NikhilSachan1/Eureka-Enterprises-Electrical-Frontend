@@ -1,5 +1,5 @@
-import { INotificationOptions } from "../models";
-import { APP_CONFIG } from "../../core/config";
+import { INotificationOptions } from "@shared/models";
+import { APP_CONFIG } from "@core/config";
 
 export const DEFAULT_NOTIFICATION_OPTIONS_CONFIG: INotificationOptions = {
     life: APP_CONFIG.NOTIFICATION_CONFIG.life,

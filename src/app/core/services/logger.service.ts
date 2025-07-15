@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { EnvironmentService } from './environment.service';
-import { IApiErrorResponse } from '../models';
+import { EnvironmentService } from '@core/services/environment.service';
+import { IApiErrorResponse } from '@core/models';
 
 @Injectable({
   providedIn: 'root'

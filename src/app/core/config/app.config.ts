@@ -1,4 +1,4 @@
-import { EDialogPosition } from "../../shared/types";
+import { EDialogPosition } from "@shared/types";
 
 export const APP_CONFIG = {
   // Application Information

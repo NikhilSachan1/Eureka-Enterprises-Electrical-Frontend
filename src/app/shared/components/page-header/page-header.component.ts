@@ -1,7 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
-import { ButtonComponent } from '../button/button.component';
-import { IPageHeaderConfig } from '../../models';
-import { DEFAULT_PAGE_HEADER_CONFIG } from '../../config';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { IPageHeaderConfig } from '@shared/models';
+import { DEFAULT_PAGE_HEADER_CONFIG } from '@shared/config';
 
 @Component({
   selector: 'app-page-header',

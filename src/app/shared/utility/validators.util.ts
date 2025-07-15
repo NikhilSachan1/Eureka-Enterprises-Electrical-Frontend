@@ -12,4 +12,4 @@ export const noSpecialCharactersValidator = (): ValidatorFn => {
     );
     return hasSpecialChars ? { hasSpecialChars: true } : null;
   };
-};
+}; 

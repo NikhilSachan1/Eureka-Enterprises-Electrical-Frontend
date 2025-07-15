@@ -1,4 +1,4 @@
-import { IButtonConfig } from "./button.model";
+import { IButtonConfig } from "@shared/models/button.model";
 
 export interface IPageHeaderConfig {
     title: string;

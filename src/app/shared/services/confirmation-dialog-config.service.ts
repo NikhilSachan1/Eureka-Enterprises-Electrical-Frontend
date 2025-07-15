@@ -9,10 +9,10 @@ import {
   IDialogState, 
   IEnhancedConfirmationDialog,
   IFormInputFieldsConfig,
-} from '../models';
-import { EDialogType } from '../types';
-import { FormService } from './form.service';
-import { deepMerge } from '../utility';
+} from '@shared/models';
+import { EDialogType } from '@shared/types';
+import { FormService } from '@shared/services/form.service';
+import { deepMerge } from '@shared/utility';
 import {
   ALLOCATE_CONFIRMATION_DIALOG_CONFIG,
   APPROVE_CONFIRMATION_DIALOG_CONFIG,
@@ -21,7 +21,7 @@ import {
   DEALLOCATE_CONFIRMATION_DIALOG_CONFIG,
   DELETE_CONFIRMATION_DIALOG_CONFIG,
   REJECT_CONFIRMATION_DIALOG_CONFIG,
-} from '../config';
+} from '@shared/config';
 
 @Injectable({
   providedIn: 'root',

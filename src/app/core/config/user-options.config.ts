@@ -1,5 +1,5 @@
-import { UserOption } from '../../shared/models';
-import { ICONS } from '../../shared/constants';
+import { UserOption } from '@shared/models';
+import { ICONS } from '@shared/constants';
 
 /**
  * Primary user menu options

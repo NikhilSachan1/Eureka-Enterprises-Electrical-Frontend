@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig, IEnhancedTable, IEnhancedTableConfig } from '../models';
-import { DEFAULT_BULK_ACTION_CONFIG, DEFAULT_ROW_ACTION_CONFIG, DEFAULT_TABLE_CONFIG, DEFAULT_TABLE_HEADER_CONFIG } from '../config';
+import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig, IEnhancedTable, IEnhancedTableConfig } from '@shared/models';
+import { DEFAULT_BULK_ACTION_CONFIG, DEFAULT_ROW_ACTION_CONFIG, DEFAULT_TABLE_CONFIG, DEFAULT_TABLE_HEADER_CONFIG } from '@shared/config';
 
 @Injectable({
   providedIn: 'root'
