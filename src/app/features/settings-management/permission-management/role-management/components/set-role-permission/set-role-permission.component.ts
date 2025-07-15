@@ -1,13 +1,13 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { ICategorizedPermissions, ISetPermissionData, SetPermissionComponent } from "@features/settings-management/permission-management/shared/set-permission/component/set-permission.component";
-import { IPageHeaderConfig } from '@shared/models/page-header-config.model';
+import { IPageHeaderConfig } from '@shared/models';
 import { PageHeaderComponent } from "@shared/components/page-header/page-header.component";
 import { ActivatedRoute } from '@angular/router';
-import { RouterNavigationService } from '@shared/services/router-navigation.service';
-import { LoggerService } from '@core/services/logger.service';
-import { ROUTE_BASE_PATHS } from '@shared/constants/route.constants';
+import { RouterNavigationService } from '@shared/services';
+import { LoggerService } from '@core/services';
+import { ROUTE_BASE_PATHS } from '@shared/constants';
 import { IGetRolePermissionsResponseDto, ISetRolePermissionRequestDto } from '@features/settings-management/permission-management/role-management/models/role-permission.api.model';
-import { NotificationService } from '@shared/services/notification.service';
+import { NotificationService } from '@shared/services';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { LoadingService } from '@shared/services';
 import { RoleManagementService } from '@features/settings-management/permission-management/role-management/services/role-management.service';

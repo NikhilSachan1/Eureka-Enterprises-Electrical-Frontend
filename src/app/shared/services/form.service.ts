@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { InputFieldConfigService } from '@shared/services/input-field-config.service';
+import { InputFieldConfigService } from '@shared/services';
 import { IFormConfig, IInputFieldsConfig, IEnhancedForm, IFormButtonConfig } from '@shared/models';
 
 @Injectable({

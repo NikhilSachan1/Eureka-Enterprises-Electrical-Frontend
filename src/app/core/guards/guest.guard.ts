@@ -3,7 +3,7 @@ import { AuthService } from '@features/auth-management/services/auth.service';
 import { Router, CanActivate } from '@angular/router';
 import { ROUTE_BASE_PATHS } from '@shared/constants';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services';
 
 @Injectable({
   providedIn: 'root'

@@ -1,5 +1,5 @@
 import { Component, input, inject, signal, effect } from '@angular/core';
-import { ThemeService } from '@core/services/theme.service';
+import { ThemeService } from '@core/services';
 import { NgClass } from '@angular/common';
 
 @Component({

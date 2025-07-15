@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AuditFieldsSchema } from "@shared/dto/api-response-audit-fields.dto";
+import { AuditFieldsSchema } from "@shared/dto";
 import { toTitleCase, toSentenceCase, toLowerCase, replaceTextWithSeparator } from "@shared/utility";
 import { CommonSystemPermissionFields } from "@features/settings-management/permission-management/system-permission-management/dto/common-system-permission-management.dto";
 

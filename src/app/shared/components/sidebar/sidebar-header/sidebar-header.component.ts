@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { AppConfigService } from '@core/services/app-config.service';
+import { AppConfigService } from '@core/services';
 
 @Component({
   selector: 'app-sidebar-header',

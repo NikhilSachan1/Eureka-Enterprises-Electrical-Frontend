@@ -11,7 +11,7 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/models';
 import { EDialogType } from '@shared/types';
-import { FormService } from '@shared/services/form.service';
+import { FormService } from '@shared/services';
 import { deepMerge } from '@shared/utility';
 import {
   ALLOCATE_CONFIRMATION_DIALOG_CONFIG,

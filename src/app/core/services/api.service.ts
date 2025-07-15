@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { retry, timeout, map, tap, catchError } from 'rxjs/operators';
 import { EnvironmentService } from '@core/services/environment.service';
 import { LoggerService } from '@core/services/logger.service';
-import { NotificationService } from '@shared/services/notification.service';
+import { NotificationService } from '@shared/services';
 import { z } from 'zod';
 import { AppConfigService } from '@core/services/app-config.service';
 

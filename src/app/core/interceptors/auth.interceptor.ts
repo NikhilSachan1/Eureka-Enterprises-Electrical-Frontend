@@ -2,7 +2,7 @@ import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from
 import { inject } from '@angular/core';
 import { Observable, throwError, catchError } from 'rxjs';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services';
 import { SKIP_AUTH_ENDPOINTS } from '@core/constants';
 
 /**

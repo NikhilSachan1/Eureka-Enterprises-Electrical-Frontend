@@ -32,10 +32,8 @@ import {
 import { ETableBodyTemplate } from '@shared/types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { AvatarService } from '@shared/services';
-import { ButtonComponent } from '@shared/components/button/button.component';
-import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
+import { ButtonComponent, StatusTagComponent, EmptyMessagesComponent } from '@shared/components';
 import { ICONS } from '@shared/constants';
-import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 
 @Component({
   selector: 'app-data-table',

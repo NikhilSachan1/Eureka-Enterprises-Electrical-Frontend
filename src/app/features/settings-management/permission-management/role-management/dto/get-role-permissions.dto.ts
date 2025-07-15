@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AuditFieldsSchema } from "@shared/dto/api-response-audit-fields.dto";
+import { AuditFieldsSchema } from "@shared/dto";
 
 export const RolePermissionsBaseResponseSchema = z.object({
     id: z

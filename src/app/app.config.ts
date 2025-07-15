@@ -1,7 +1,7 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
-import { ErrorInterceptor } from '@core/interceptors/error.interceptor';
+import { ErrorInterceptor } from '@core/interceptors';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -9,7 +9,7 @@ import Aura from '@primeng/themes/aura';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { routes } from '@app/app.routes';
-import { authInterceptor } from '@core/interceptors/auth.interceptor';
+import { authInterceptor } from '@core/interceptors';
 
 export const appConfig: ApplicationConfig = {
     providers: [

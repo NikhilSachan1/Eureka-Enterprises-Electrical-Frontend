@@ -11,9 +11,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DividerModule } from 'primeng/divider';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ButtonComponent } from '@shared/components/button/button.component';
-import { LoggerService } from '@core/services/logger.service';
+import { InputFieldComponent, ButtonComponent } from '@shared/components';
+import { LoggerService } from '@core/services';
 import {
   ROUTE_BASE_PATHS,
   ROUTES,
@@ -21,8 +20,7 @@ import {
 } from '@shared/constants';
 import { LOGIN_FORM_CONFIG } from '@features/auth-management/config/login-form.config';
 import { AuthLayoutComponent } from '@features/auth-management/shared/auth-layout.component';
-import { FormService } from '@shared/services/form.service';
-import { NotificationService } from '@shared/services/notification.service';
+import { FormService, NotificationService } from '@shared/services';
 import { ToastModule } from 'primeng/toast';
 import { IEnhancedForm } from '@shared/models';
 import { AuthService } from '@features/auth-management/services/auth.service';

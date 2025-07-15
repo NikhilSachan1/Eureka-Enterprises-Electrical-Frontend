@@ -1,9 +1,7 @@
 import { Routes } from '@angular/router';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants/index';
-import { PublicLayoutComponent } from '@shared/components/layouts/public-layout/public-layout.component';
-import { PrivateLayoutComponent } from '@shared/components/layouts/private-layout/private-layout.component';
-import { authGuard } from '@core/guards/auth.guard';
-import { GuestGuard } from '@core/guards/guest.guard';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { PublicLayoutComponent, PrivateLayoutComponent } from '@shared/components';
+import { authGuard, GuestGuard } from '@core/guards';
 
 export const routes: Routes = [
   // Public routes (no sidebar)

@@ -2,22 +2,20 @@ import { Component, signal, inject, OnInit, input, computed, output, effect } fr
 import { ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
-import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { StandaloneInputFieldComponent } from '@shared/components/standalone-input-field/standalone-input-field.component';
+import { NavTabsComponent, InputFieldComponent, StandaloneInputFieldComponent } from '@shared/components';
 import { ICONS } from '@shared/constants';
 import { ETabMode, EFieldType, EPrimeNGSeverity } from '@shared/types';
 import { IEnhancedForm, ITabChange, IFormInputFieldsConfig, IInputFieldsConfig } from '@shared/models';
-import { MODULES_NAME_DATA } from '@shared/config/static-data.config';
+import { MODULES_NAME_DATA } from '@shared/config';
 import { SystemPermissionService } from '@features/settings-management/permission-management/system-permission-management/services/system-permission.service';
 import { IModulePermission } from '@features/settings-management/permission-management/system-permission-management/models/system-permission.model';
 import { LoadingService, FormService, InputFieldConfigService } from '@shared/services';
 import { SET_PERMISSION_FORM_CONFIG } from '@features/settings-management/permission-management/shared/set-permission/config/form/set-permission-form.config';
-import { ButtonComponent } from "@shared/components/button/button.component";
+import { ButtonComponent } from "@shared/components";
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { NgClass } from '@angular/common';
-import { EmptyMessagesComponent } from "@shared/components/empty-messages/empty-messages.component";
+import { EmptyMessagesComponent } from "@shared/components";
 
 export interface ISetPermissionData {
   moduleWisePermissions: { [key: string]: string[] };

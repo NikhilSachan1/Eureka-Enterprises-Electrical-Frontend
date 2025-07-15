@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import { DataTableComponent, ConfirmationDialogComponent } from '@shared/components';
 import {
   IEnhancedTable,
   IRowActionClickEvent,
@@ -9,7 +8,7 @@ import {
 import { ROLE_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '@features/settings-management/permission-management/role-management/config/table/role-list-management-table.config';
 import { EBulkActionType, EDialogType, ERowActionType } from '@shared/types';
 import { finalize, Subject, takeUntil } from 'rxjs';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services';
 import { RoleManagementService } from '@features/settings-management/permission-management/role-management/services/role-management.service';
 import {
   IGetRoleListResponseDto,

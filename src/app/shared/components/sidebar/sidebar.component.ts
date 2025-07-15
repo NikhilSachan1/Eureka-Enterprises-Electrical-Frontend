@@ -1,11 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
-import { fadeInOut } from '@shared/animations/index';
-import { MenuService } from '@core/services/menu.service';
-import { ThemeService } from '@core/services/theme.service';
-import { SidebarHeaderComponent } from '@shared/components/sidebar/sidebar-header/sidebar-header.component';
-import { SidebarUserProfileComponent } from '@shared/components/sidebar/sidebar-user-profile/sidebar-user-profile.component';
-import { SidebarMenuComponent } from '@shared/components/sidebar/sidebar-menu/sidebar-menu.component';
-import { ContentAreaComponent } from '@shared/components/content-area/content-area.component';
+import { fadeInOut } from '@shared/animations';
+import { MenuService, ThemeService } from '@core/services';
+import { SidebarHeaderComponent, SidebarUserProfileComponent, SidebarMenuComponent, ContentAreaComponent } from '@shared/components';
 import { NgClass } from '@angular/common';
 
 @Component({

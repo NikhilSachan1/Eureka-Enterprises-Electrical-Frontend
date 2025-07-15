@@ -8,10 +8,8 @@ import {
   computed,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ButtonComponent } from '@shared/components/button/button.component';
-import { LoggerService } from '@core/services/logger.service';
+import { PageHeaderComponent, InputFieldComponent, ButtonComponent } from '@shared/components';
+import { LoggerService } from '@core/services';
 import { FormService, LoadingService, NotificationService, RouterNavigationService } from '@shared/services/';
 import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {

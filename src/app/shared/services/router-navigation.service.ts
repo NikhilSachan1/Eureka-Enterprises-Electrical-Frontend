@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services';
 
 @Injectable({
   providedIn: 'root'

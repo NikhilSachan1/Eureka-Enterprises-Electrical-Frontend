@@ -1,5 +1,5 @@
 import { Component, computed, input, output } from '@angular/core';
-import { ButtonComponent } from '@shared/components/button/button.component';
+import { ButtonComponent } from '@shared/components';
 import { IPageHeaderConfig } from '@shared/models';
 import { DEFAULT_PAGE_HEADER_CONFIG } from '@shared/config';
 

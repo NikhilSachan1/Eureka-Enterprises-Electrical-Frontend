@@ -9,16 +9,14 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ButtonComponent } from '@shared/components/button/button.component';
+import { PageHeaderComponent, InputFieldComponent, ButtonComponent } from '@shared/components';
 import {
   NotificationService,
   FormService,
   RouterNavigationService,
   LoadingService,
 } from '@shared/services';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services';
 import {
   FORM_VALIDATION_MESSAGES,
   ROUTE_BASE_PATHS,

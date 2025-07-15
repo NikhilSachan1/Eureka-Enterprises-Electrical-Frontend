@@ -1,8 +1,8 @@
 import { Component, computed, HostListener, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { ThemeService } from '@core/services/theme.service';
-import { fadeInOut } from '@shared/animations/index';
-import { UserOption } from '@shared/models/index';
+import { ThemeService } from '@core/services';
+import { fadeInOut } from '@shared/animations';
+import { UserOption } from '@shared/models';
 import { NgClass } from '@angular/common';
 import { primaryUserOptions, secondaryUserOptions } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';

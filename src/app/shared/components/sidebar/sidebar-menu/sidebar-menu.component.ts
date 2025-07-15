@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { MenuService } from '@core/services/menu.service';
-import { slideInOut } from '@shared/animations/index';
-import { MenuItem } from '@shared/models/index';
+import { MenuService } from '@core/services';
+import { slideInOut } from '@shared/animations';
+import { MenuItem } from '@shared/models';
 import { ICONS } from '@shared/constants';
 
 @Component({

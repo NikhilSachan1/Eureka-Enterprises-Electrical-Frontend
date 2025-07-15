@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import { DataTableComponent, ConfirmationDialogComponent } from '@shared/components';
 import {
   TableService,
   RouterNavigationService,
@@ -8,7 +7,7 @@ import {
   ConfirmationDialogService,
   NotificationService,
 } from '@shared/services/';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services';
 import { SystemPermissionService } from '@features/settings-management/permission-management/system-permission-management/services/system-permission.service';
 import {
   IBulkActionClickEvent,

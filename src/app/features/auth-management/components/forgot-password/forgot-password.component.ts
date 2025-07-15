@@ -1,13 +1,11 @@
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ButtonComponent } from '@shared/components/button/button.component';
+import { ButtonComponent, InputFieldComponent } from '@shared/components';
 import { ToastModule } from 'primeng/toast';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { IEnhancedForm } from '@shared/models';
-import { FormService } from '@shared/services/form.service';
-import { NotificationService } from '@shared/services/notification.service';
-import { LoggerService } from '@core/services/logger.service';
+import { FormService, NotificationService } from '@shared/services';
+import { LoggerService } from '@core/services';
 import { FORGOT_PASSWORD_INPUT_FIELDS_CONFIG } from '@features/auth-management/config/forgot-password-form.config';
 import { AuthLayoutComponent } from '@features/auth-management/shared/auth-layout.component';
 import { ROUTE_BASE_PATHS, ROUTES, FORM_VALIDATION_MESSAGES } from '@shared/constants';

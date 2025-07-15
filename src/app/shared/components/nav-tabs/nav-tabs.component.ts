@@ -4,8 +4,8 @@ import { TabsModule } from 'primeng/tabs';
 import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
 import { ITabChange, ITabItem } from '@shared/models';
-import { ETabMode } from '@shared/types/tab-items.types';
-import { RouterNavigationService } from '@shared/services/router-navigation.service';
+import { ETabMode } from '@shared/types';
+import { RouterNavigationService } from '@shared/services';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 

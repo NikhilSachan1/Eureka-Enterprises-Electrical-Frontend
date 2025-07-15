@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { Router, CanActivate } from '@angular/router';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services';
 import { type CanActivateFn, type ActivatedRouteSnapshot, type RouterStateSnapshot } from '@angular/router';
 
 export const authGuard: CanActivateFn = (

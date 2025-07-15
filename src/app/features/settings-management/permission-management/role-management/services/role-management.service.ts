@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ApiService } from '@core/services/api.service';
-import { LoggerService } from '@core/services/logger.service';
+import { ApiService, LoggerService } from '@core/services';
 import {
   IAddRoleManagementRequestDto,
   IAddRoleManagementResponseDto,

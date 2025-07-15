@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
-import { TableService } from '@shared/services/data-table-config.service';
+import { DataTableComponent, ConfirmationDialogComponent } from '@shared/components';
+import { TableService } from '@shared/services';
 import { IEnhancedTable } from '@shared/models';
 import { USERS_PERMISSION_LIST_ENHANCED_TABLE_CONFIG } from '@features/settings-management/permission-management/users-permission-management/config/table/users-permission-list-table.config';
 import { EBulkActionType, ERowActionType } from '@shared/types';

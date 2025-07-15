@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
-import { LoadingOverlayComponent } from '@shared/components/loading-overlay/loading-overlay.component';
-import { LoadingService } from '@shared/services/loading.service';
+import { LoadingOverlayComponent } from '@shared/components';
+import { LoadingService } from '@shared/services';
 
 @Component({
   selector: 'app-root',

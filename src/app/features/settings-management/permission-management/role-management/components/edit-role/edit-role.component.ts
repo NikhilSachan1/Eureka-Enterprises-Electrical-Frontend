@@ -10,7 +10,7 @@ import {
   NotificationService,
   RouterNavigationService,
 } from '@shared/services';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services';
 import { EDIT_ROLE_FORM_CONFIG } from '@features/settings-management/permission-management/role-management/config/form/edit-role-management-form.config';
 import {
   IEditRoleManagementRequestDto,
@@ -22,9 +22,7 @@ import {
 } from '@shared/constants';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ButtonComponent } from '@shared/components/button/button.component';
+import { PageHeaderComponent, InputFieldComponent, ButtonComponent } from '@shared/components';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RoleManagementService } from '@features/settings-management/permission-management/role-management/services/role-management.service';
 

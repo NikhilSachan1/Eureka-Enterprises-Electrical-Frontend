@@ -1,2 +1,2 @@
-export * from './fade.animations';
-export * from './slide.animations';
+export { fadeInOut, fadeInOutScale, fadeInOutSlide, fadeInOutSlideX } from './fade.animations';
+export { slideInOut, slideInOutRight, slideInOutUp, slideInOutDown } from './slide.animations';

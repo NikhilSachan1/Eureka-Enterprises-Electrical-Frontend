@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, tap, throwError, map } from 'rxjs';
-import { ApiService } from '@core/services/api.service';
+import { ApiService } from '@core/services';
 import {
   IAddSystemPermissionRequestDto,
   IAddSystemPermissionResponseDto,
@@ -10,7 +10,7 @@ import {
   IEditSystemPermissionResponseDto,
   IGetSystemPermissionListResponseDto,
 } from '@features/settings-management/permission-management/system-permission-management/models/system-permission.api.model';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services';
 import { API_ROUTES } from '@core/constants';
 import {
   AddSystemPermissionRequestSchema,
@@ -22,7 +22,7 @@ import {
   EditSystemPermissionResponseSchema,
 } from '@features/settings-management/permission-management/system-permission-management/dto/edit-system-permission-management.dto';
 import { IModulePermission } from '@features/settings-management/permission-management/system-permission-management/models/system-permission.model';
-import { MODULES_NAME_DATA } from '@shared/config/static-data.config';
+import { MODULES_NAME_DATA } from '@shared/config';
 import { DeleteSystemPermissionRequestSchema, DeleteSystemPermissionResponseSchema } from '@features/settings-management/permission-management/system-permission-management/dto/delete-system-permission-management.dto';
 
 @Injectable({

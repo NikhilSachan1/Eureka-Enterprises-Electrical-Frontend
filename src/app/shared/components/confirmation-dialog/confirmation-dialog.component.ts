@@ -3,10 +3,8 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { ButtonComponent } from '@shared/components/button/button.component';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ConfirmationDialogService } from '@shared/services/confirmation-dialog-config.service';
-import { FormService } from '@shared/services/form.service';
+import { ButtonComponent, InputFieldComponent } from '@shared/components';
+import { ConfirmationDialogService, FormService } from '@shared/services';
 import { IButtonConfig, IConfirmationDialogConfig, IDialogState, IInputFieldsConfig } from '@shared/models';
 
 @Component({
