@@ -27,7 +27,7 @@
         },
         "@schematics/angular:interceptor": {
           "skipTests": true
-        }        
+        }
       },
       "root": "",
       "sourceRoot": "src",
@@ -135,11 +135,23 @@
             ],
             "scripts": []
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
   },
   "cli": {
-    "analytics": false
+    "analytics": false,
+    "schematicCollections": [
+      "angular-eslint"
+    ]
   }
 }

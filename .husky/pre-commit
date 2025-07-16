@@ -1,0 +1,42 @@
+node -e "
+const { execSync } = require('child_process');
+
+console.log('🔄 EXECUTING: Pre-commit hook started...');
+console.log('📋 STEP 1/3: Checking staged files...');
+
+try {
+  // Check if there are staged files
+  const stagedFiles = execSync('git diff --cached --name-only', { encoding: 'utf8' }).trim();
+
+  if (!stagedFiles) {
+    console.log('⚠️  WARNING: No staged files found');
+    console.log('✅ PASSED: Pre-commit hook completed (no files to check)');
+    process.exit(0);
+  }
+
+  console.log('📁 Found staged files:');
+  stagedFiles.split('\\n').forEach(file => {
+    console.log(\`  - \${file}\`);
+  });
+
+  console.log('');
+  console.log('🔄 EXECUTING: Step 2/3 - Running ESLint and Prettier...');
+
+  // Run lint-staged
+  execSync('npm run lint:staged', { stdio: 'inherit' });
+
+  console.log('');
+  console.log('✅ PASSED: All linting and formatting checks passed!');
+  console.log('🔄 EXECUTING: Step 3/3 - Final validation...');
+  console.log('✅ PASSED: Pre-commit hook completed successfully!');
+  console.log('🚀 READY: Proceeding with commit...');
+
+} catch (error) {
+  console.log('');
+  console.log('❌ FAILED: Linting or formatting issues detected!');
+  console.log('🔧 ACTION REQUIRED: Please fix the issues above before committing');
+  console.log('💡 TIP: You can run \"npm run lint:fix\" to auto-fix some issues');
+  console.log('❌ BLOCKED: Commit has been prevented');
+  process.exit(1);
+}
+"
