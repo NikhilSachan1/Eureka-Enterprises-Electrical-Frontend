@@ -2,6 +2,7 @@
 const eslint = require('@eslint/js');
 const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
+const globals = require('globals');
 
 module.exports = tseslint.config(
   {
@@ -17,6 +18,9 @@ module.exports = tseslint.config(
       parserOptions: {
         project: ['tsconfig.json'],
         createDefaultProgram: true,
+      },
+      globals: {
+        ...globals.browser,
       },
     },
     rules: {
@@ -40,13 +44,13 @@ module.exports = tseslint.config(
       '@angular-eslint/no-empty-lifecycle-method': 'error',
       '@angular-eslint/no-input-rename': 'error',
       '@angular-eslint/no-output-native': 'error',
-      '@angular-eslint/no-output-on-prefix': 'error',
+      '@angular-eslint/no-output-on-prefix': 'off',
       '@angular-eslint/no-output-rename': 'error',
       '@angular-eslint/use-lifecycle-interface': 'error',
       '@angular-eslint/use-pipe-transform-interface': 'error',
       '@angular-eslint/prefer-on-push-component-change-detection': 'warn',
 
-      // TypeScript specific rules
+      // TypeScript rules
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_' },
@@ -56,6 +60,12 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-inferrable-types': 'error',
       '@typescript-eslint/array-type': ['error', { default: 'array' }],
       '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
+      '@typescript-eslint/explicit-function-return-type': 'warn',
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/prefer-nullish-coalescing': 'warn',
+      '@typescript-eslint/prefer-optional-chain': 'warn',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
+      '@typescript-eslint/no-empty-interface': 'error',
 
       // General ESLint rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
@@ -69,11 +79,12 @@ module.exports = tseslint.config(
       'quote-props': ['error', 'as-needed'],
       'no-duplicate-imports': 'error',
       'no-useless-constructor': 'error',
+      'no-useless-escape': 'off',
       'class-methods-use-this': 'off',
       'consistent-return': 'error',
       curly: 'error',
       'default-case': 'error',
-      'dot-notation': 'error',
+      // 'dot-notation': 'error',
       eqeqeq: ['error', 'always'],
       'no-else-return': 'error',
       'no-empty-function': 'error',
@@ -92,11 +103,23 @@ module.exports = tseslint.config(
       'no-unused-expressions': 'error',
       'no-useless-call': 'error',
       'no-useless-concat': 'error',
-      'no-useless-return': 'error',
       'prefer-promise-reject-errors': 'error',
+      'prefer-destructuring': [
+        'warn',
+        {
+          VariableDeclarator: { object: true, array: false },
+          AssignmentExpression: { object: false, array: false },
+        },
+        { enforceForRenamedProperties: false },
+      ],
       radix: 'error',
       'require-await': 'error',
       yoda: 'error',
+      'no-shadow': 'error',
+      'no-undef': 'error',
+      'max-classes-per-file': ['warn', 1],
+      'no-restricted-syntax': ['error', 'WithStatement'],
+      'no-continue': 'warn',
     },
   },
   {
@@ -118,27 +141,15 @@ module.exports = tseslint.config(
       '@angular-eslint/template/no-distracting-elements': 'error',
       '@angular-eslint/template/use-track-by-function': 'error',
       '@angular-eslint/template/no-any': 'warn',
-      '@angular-eslint/template/no-call-expression': 'warn',
+      '@angular-eslint/template/no-call-expression': 'off',
       '@angular-eslint/template/no-duplicate-attributes': 'error',
       '@angular-eslint/template/no-negated-async': 'error',
       '@angular-eslint/template/conditional-complexity': [
         'error',
         { maxComplexity: 3 },
       ],
-      '@angular-eslint/template/cyclomatic-complexity': [
-        'error',
-        { maxComplexity: 5 },
-      ],
-      '@angular-eslint/template/i18n': 'warn',
       '@angular-eslint/template/no-interpolation-in-attributes': 'error',
-    },
-  },
-  {
-    files: ['**/*.spec.ts'],
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-non-null-assertion': 'off',
-      'no-console': 'off',
+      '@angular-eslint/template/banana-in-box': 'error',
     },
   }
 );
