@@ -30,10 +30,10 @@ export class AvatarService {
   ];
 
   /**
-   * Generate avatar URL with random background color
+   * Generate avatar URL with consistent background color for the same name
    */
   getAvatarFromName(name: string): string {
-    const backgroundColor = this.getRandomColor();
+    const backgroundColor = this.getConsistentColor(name);
 
     const params = new URLSearchParams({
       name,
@@ -45,8 +45,15 @@ export class AvatarService {
     return `${this.API_BASE_URL}?${params.toString()}`;
   }
 
-  private getRandomColor(): string {
-    const randomIndex = Math.floor(Math.random() * this.SOLID_COLORS.length);
-    return this.SOLID_COLORS[randomIndex];
+  private getConsistentColor(name: string): string {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      const char = name.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
+    }
+
+    const index = Math.abs(hash) % this.SOLID_COLORS.length;
+    return this.SOLID_COLORS[index];
   }
 }
