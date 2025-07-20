@@ -32,8 +32,10 @@ import {
 import { ETableBodyTemplate } from '@shared/types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { AvatarService } from '@shared/services';
-import { ButtonComponent, StatusTagComponent, EmptyMessagesComponent } from '@shared/components';
 import { ICONS } from '@shared/constants';
+import { ButtonComponent } from '../button/button.component';
+import { StatusTagComponent } from '../status-tag/status-tag.component';
+import { EmptyMessagesComponent } from '../empty-messages/empty-messages.component';
 
 @Component({
   selector: 'app-data-table',
@@ -57,8 +59,8 @@ import { ICONS } from '@shared/constants';
     NgClass,
     DatePipe,
     CurrencyPipe,
-    EmptyMessagesComponent
-],
+    EmptyMessagesComponent,
+  ],
 
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
@@ -69,7 +71,7 @@ export class DataTableComponent {
 
   protected ALL_TABLE_BODY_TEMPLATES = ETableBodyTemplate;
   protected icons = ICONS;
-  
+
   private avatarService = inject(AvatarService);
 
   // Input signals
@@ -82,7 +84,7 @@ export class DataTableComponent {
 
   bulkActionClick = output<IBulkActionClickEvent>();
   rowActionClick = output<IRowActionClickEvent>();
-  
+
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
 
   protected clear(table: Table): void {
@@ -93,19 +95,30 @@ export class DataTableComponent {
     this.selectedTableRows.set([]);
   }
 
-  protected applyFilterGlobal($event: any, stringVal: string): void {
-    this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
+  protected applyFilterGlobal($event: unknown, stringVal: string): void {
+    this.dt.filterGlobal(($event as HTMLInputElement).value, stringVal);
   }
 
-  protected resolveNestedProperty(obj: any, path: string): any {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+  resolveNestedProperty<T = unknown>(
+    obj: Record<string, unknown>,
+    path: string
+  ): T | undefined {
+    return path
+      .split('.')
+      .reduce(
+        (current, key) => (current as Record<string, unknown>)?.[key],
+        obj as unknown
+      ) as T;
   }
 
-  protected onFilterChange(event: any): void {
+  protected onFilterChange(_event: unknown): void {
     // Handle filter changes if needed
   }
 
-  protected isActionDisabled(action: IRowActionConfig, rowData: any): boolean {
+  protected isActionDisabled(
+    action: IRowActionConfig,
+    rowData: Record<string, unknown>
+  ): boolean {
     if (action.disabledCondition) {
       return action.disabledCondition(rowData);
     }
@@ -120,10 +133,16 @@ export class DataTableComponent {
   }
 
   protected onBulkActionClick(actionType: string): void {
-    this.bulkActionClick.emit({ actionType, selectedRows: this.selectedTableRows() });
+    this.bulkActionClick.emit({
+      actionType,
+      selectedRows: this.selectedTableRows(),
+    });
   }
 
-  protected onRowActionClick(actionType: string, rowData: any): void {
+  protected onRowActionClick(
+    actionType: string,
+    rowData: Record<string, unknown>
+  ): void {
     this.rowActionClick.emit({ actionType, rowData });
   }
 
@@ -134,7 +153,7 @@ export class DataTableComponent {
   protected getClearSelectionButtonConfig(): Partial<IButtonConfig> {
     return {
       label: 'Clear Selection',
-      icon: this.icons.ACTIONS.TIMES
+      icon: this.icons.ACTIONS.TIMES,
     };
   }
 }

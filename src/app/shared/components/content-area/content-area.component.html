@@ -3,10 +3,10 @@
   [ngClass]="{
     'content-area--with-sidebar': sidebarVisible() && !isMobile(),
     'content-area--dark': themeService.isDarkMode(),
-    'transition-enabled': transitionEnabled()
+    'transition-enabled': transitionEnabled(),
   }"
 >
   <div class="p-4">
     <ng-content></ng-content>
   </div>
-</main> 
+</main>

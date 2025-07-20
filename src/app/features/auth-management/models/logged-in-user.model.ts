@@ -1,8 +1,8 @@
 export interface ILoggedInUserDetails {
-    firstName: string;
-    lastName: string;
-    email: string;
-    fullName: string;
-    designation: string;
-    profilePicture: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  fullName: string;
+  designation: string;
+  profilePicture: string;
 }

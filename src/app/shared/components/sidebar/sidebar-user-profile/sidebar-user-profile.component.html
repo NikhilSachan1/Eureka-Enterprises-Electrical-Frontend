@@ -14,7 +14,7 @@
 
   <!-- User Options Menu -->
   @if (showUserOptions()) {
-    <div 
+    <div
       class="user-options"
       @fadeInOut
       role="menu"
@@ -22,34 +22,40 @@
       <!-- Primary options group -->
       <div class="options-group">
         @for (option of primaryOptions; track option.id) {
-          <a 
-            class="option-item" 
-            role="menuitem" 
-            tabindex="0" 
+          <a
+            class="option-item"
+            role="menuitem"
+            tabindex="0"
             (click)="handleOptionClick(option)"
           >
-            <i [class]="option.icon" aria-hidden="true"></i>
+            <i
+              [class]="option.icon"
+              aria-hidden="true"
+            ></i>
             <span>{{ option.label }}</span>
           </a>
         }
       </div>
-      
-      <div class="options-divider" role="separator"></div>
-      
+
+      <div
+        class="options-divider"
+        role="separator"
+      ></div>
+
       <!-- Secondary options group -->
       <div class="options-group">
         @for (option of secondaryOptions; track option.id) {
-          <a 
-            class="option-item" 
+          <a
+            class="option-item"
             [class.theme-toggle]="option.variant === 'theme'"
             [class.logout]="option.variant === 'danger'"
-            role="menuitem" 
-            tabindex="0" 
+            role="menuitem"
+            tabindex="0"
             (click)="handleOptionClick(option)"
           >
-            <i 
-              class="pi" 
-              [ngClass]="option.id === 'theme' ? getThemeIcon() : option.icon" 
+            <i
+              class="pi"
+              [ngClass]="option.id === 'theme' ? getThemeIcon() : option.icon"
               aria-hidden="true"
             ></i>
             <span>{{ option.id === 'theme' ? getThemeLabel() : option.label }}</span>
@@ -58,4 +64,4 @@
       </div>
     </div>
   }
-</div> 
+</div>

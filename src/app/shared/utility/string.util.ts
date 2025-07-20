@@ -2,7 +2,7 @@ export const toTitleCase = (text: string): string => {
   if (!text || typeof text !== 'string') {
     return text;
   }
-  
+
   return text
     .toLowerCase()
     .split(' ')
@@ -42,7 +42,7 @@ export const toSentenceCase = (text: string): string => {
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 };
 
-export const stringToArray = (text: string, separator: string = ' '): string[] => {
+export const stringToArray = (text: string, separator = ' '): string[] => {
   if (!text || typeof text !== 'string') {
     return [];
   }
@@ -50,7 +50,11 @@ export const stringToArray = (text: string, separator: string = ' '): string[] =
   return text.split(separator);
 };
 
-export const replaceTextWithSeparator = (text: string, replaceText: string, separator: string = ' '): string => {
+export const replaceTextWithSeparator = (
+  text: string,
+  replaceText: string,
+  separator = ' '
+): string => {
   if (!text || typeof text !== 'string') {
     return text;
   }

@@ -1,40 +1,69 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject, signal, OnInit, computed, DestroyRef } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+  OnInit,
+  computed,
+  DestroyRef,
+} from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-import { ButtonComponent, InputFieldComponent } from '@shared/components';
 import { ConfirmationDialogService, FormService } from '@shared/services';
-import { IButtonConfig, IConfirmationDialogConfig, IDialogState, IInputFieldsConfig } from '@shared/models';
+import {
+  IButtonConfig,
+  IConfirmationDialogConfig,
+  IDialogState,
+  IInputFieldsConfig,
+} from '@shared/models';
+import { ButtonComponent } from '../button/button.component';
+import { InputFieldComponent } from '../input-field/input-field.component';
+import { LoggerService } from '@app/core/services';
 
 @Component({
   selector: 'app-confirmation-dialog',
   standalone: true,
-  imports: [ConfirmDialogModule, ButtonComponent, InputFieldComponent, ReactiveFormsModule],
+  imports: [
+    ConfirmDialogModule,
+    ButtonComponent,
+    InputFieldComponent,
+    ReactiveFormsModule,
+  ],
   templateUrl: './confirmation-dialog.component.html',
   styleUrls: ['./confirmation-dialog.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmationDialogComponent implements OnInit {
+  @ViewChild('cd') confirmDialog!: ConfirmDialog;
 
-  @ViewChild('cd') confirmDialog: any;
-
-  private readonly confirmationDialogService = inject(ConfirmationDialogService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
   private readonly formService = inject(FormService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly logger = inject(LoggerService);
 
   // State signals
   protected readonly currentFormGroup = signal<FormGroup | null>(null);
-  protected readonly currentDialogConfig = signal<IConfirmationDialogConfig>({});
-  protected readonly onAcceptCallback = signal<((formData?: any) => void) | undefined>(undefined);
-  protected readonly onRejectCallback = signal<((formData?: any) => void) | undefined>(undefined);
+  protected readonly currentDialogConfig = signal<IConfirmationDialogConfig>(
+    {}
+  );
+  protected readonly onAcceptCallback = signal<
+    ((formData?: Record<string, unknown>) => void) | undefined
+  >(undefined);
+  protected readonly onRejectCallback = signal<
+    ((formData?: Record<string, unknown>) => void) | undefined
+  >(undefined);
 
   ngOnInit(): void {
     this.initializeDialogStateSubscription();
   }
 
   private initializeDialogStateSubscription(): void {
-    this.confirmationDialogService.getDialogState()
+    this.confirmationDialogService
+      .getDialogState()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((state: IDialogState) => {
         this.updateDialogState(state);
@@ -42,19 +71,22 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   private updateDialogState(state: IDialogState): void {
-    console.log('Dialog state updated:', state);
+    this.logger.info('Dialog state updated:', state);
     this.currentFormGroup.set(state.formGroup);
     this.currentDialogConfig.set(state.config);
     this.onAcceptCallback.set(state.onAccept);
     this.onRejectCallback.set(state.onReject);
   }
 
-  private executeCallback(confirmed: boolean, formData: any): void {
+  private executeCallback(
+    confirmed: boolean,
+    formData: Record<string, unknown> | null
+  ): void {
     try {
       if (confirmed) {
-        this.onAcceptCallback()?.(formData);
+        this.onAcceptCallback()?.(formData ?? undefined);
       } else {
-        this.onRejectCallback()?.(formData);
+        this.onRejectCallback()?.(formData ?? undefined);
       }
     } catch (error) {
       console.error('Error executing dialog callback:', error);
@@ -62,25 +94,29 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   // Button configurations as computed signals
-  protected readonly acceptButtonConfig = computed<Partial<IButtonConfig>>(() => {
-    const dialog = this.currentDialogConfig();
-    return {
-      label: dialog?.dialogSettingConfig?.acceptButtonProps?.label,
-      icon: dialog?.dialogSettingConfig?.acceptButtonProps?.icon,
-      severity: dialog?.dialogSettingConfig?.acceptButtonProps?.severity,
-      visible: dialog?.dialogSettingConfig?.acceptButtonProps?.visible,
-    };
-  });
+  protected readonly acceptButtonConfig = computed<Partial<IButtonConfig>>(
+    () => {
+      const dialog = this.currentDialogConfig();
+      return {
+        label: dialog?.dialogSettingConfig?.acceptButtonProps?.label,
+        icon: dialog?.dialogSettingConfig?.acceptButtonProps?.icon,
+        severity: dialog?.dialogSettingConfig?.acceptButtonProps?.severity,
+        visible: dialog?.dialogSettingConfig?.acceptButtonProps?.visible,
+      };
+    }
+  );
 
-  protected readonly rejectButtonConfig = computed<Partial<IButtonConfig>>(() => {
-    const dialog = this.currentDialogConfig();
-    return {
-      label: dialog?.dialogSettingConfig?.rejectButtonProps?.label,
-      icon: dialog?.dialogSettingConfig?.rejectButtonProps?.icon,
-      severity: dialog?.dialogSettingConfig?.rejectButtonProps?.severity,
-      visible: dialog?.dialogSettingConfig?.rejectButtonProps?.visible,
-    };
-  });
+  protected readonly rejectButtonConfig = computed<Partial<IButtonConfig>>(
+    () => {
+      const dialog = this.currentDialogConfig();
+      return {
+        label: dialog?.dialogSettingConfig?.rejectButtonProps?.label,
+        icon: dialog?.dialogSettingConfig?.rejectButtonProps?.icon,
+        severity: dialog?.dialogSettingConfig?.rejectButtonProps?.severity,
+        visible: dialog?.dialogSettingConfig?.rejectButtonProps?.visible,
+      };
+    }
+  );
 
   // Computed properties for dialog state
   protected readonly hasFormFields = computed(() => {
@@ -90,12 +126,16 @@ export class ConfirmationDialogComponent implements OnInit {
 
   protected readonly formFieldConfigs = computed<IInputFieldsConfig[]>(() => {
     const dialog = this.currentDialogConfig();
-    return dialog?.inputFields ? Object.values(dialog.inputFields) as IInputFieldsConfig[] : [];
+    return dialog?.inputFields
+      ? (Object.values(dialog.inputFields) as IInputFieldsConfig[])
+      : [];
   });
 
   protected readonly hasRecordDetails = computed(() => {
     const dialog = this.currentDialogConfig();
-    return dialog?.recordDetails?.details && dialog.recordDetails.details.length > 0;
+    return (
+      dialog?.recordDetails?.details && dialog.recordDetails.details.length > 0
+    );
   });
 
   protected readonly isAcceptButtonVisible = computed(() => {
@@ -126,4 +166,4 @@ export class ConfirmationDialogComponent implements OnInit {
   private closeDialog(): void {
     this.confirmDialog?.close();
   }
-} 
+}

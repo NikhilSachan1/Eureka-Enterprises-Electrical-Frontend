@@ -1,9 +1,11 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '@shared/models';
+import {
+  IFormConfig,
+  IFormInputFieldsConfig,
+  IFormButtonConfig,
+} from '@shared/models';
 import { EFieldType, EButtonSeverity } from '@shared/types';
-import { 
-  MODULES_NAME_DATA, 
-} from '@shared/config';
+import { MODULES_NAME_DATA } from '@shared/config';
 
 const ADD_SYSTEM_PERMISSION_FIELDS_CONFIG: IFormInputFieldsConfig = {
   moduleName: {
@@ -43,10 +45,10 @@ const ADD_SYSTEM_PERMISSION_BUTTONS_CONFIG: IFormButtonConfig = {
     type: 'submit',
     severity: EButtonSeverity.PRIMARY,
     tooltip: 'Add a new permission to the system',
-  }
+  },
 };
 
 export const ADD_SYSTEM_PERMISSION_FORM_CONFIG: IFormConfig = {
   fields: ADD_SYSTEM_PERMISSION_FIELDS_CONFIG,
   buttons: ADD_SYSTEM_PERMISSION_BUTTONS_CONFIG,
-}; 
+};

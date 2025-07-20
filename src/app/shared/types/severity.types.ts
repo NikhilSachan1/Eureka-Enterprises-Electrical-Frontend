@@ -1,11 +1,11 @@
 export enum ESeverity {
-    PRIMARY = 'primary',
-    SECONDARY = 'secondary',
-    SUCCESS = 'success',
-    INFO = 'info',
-    WARNING = 'warn',
-    DANGER = 'danger',
-    ERROR = 'error',
+  PRIMARY = 'primary',
+  SECONDARY = 'secondary',
+  SUCCESS = 'success',
+  INFO = 'info',
+  WARNING = 'warn',
+  DANGER = 'danger',
+  ERROR = 'error',
 }
 
 export type EPrimeNGSeverity =

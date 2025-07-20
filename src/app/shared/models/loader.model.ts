@@ -1,5 +1,5 @@
 export interface ILoader {
-    isLoading: boolean;
-    title: string;
-    message: string;
+  isLoading: boolean;
+  title: string;
+  message: string;
 }

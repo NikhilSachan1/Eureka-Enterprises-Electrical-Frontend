@@ -1,40 +1,37 @@
-<p-tabs 
-    [scrollable]="true" 
-    [value]="currentActiveTab()" 
+<p-tabs
+  [scrollable]="true"
+  [value]="currentActiveTab()"
 >
-    <p-tablist>
-        @for(tab of tabs(); track tab.route; let i = $index) {
-            @if(tab.visible !== false) {
-                <p-tab 
-                    [value]="tab.route" 
-                    [routerLink]="tabMode() === allTabMode.ROUTER_OUTLET ? tab.route : null"
-                    [disabled]="tab.disabled" 
-                    [pTooltip]="tab.tooltip"
-                    tooltipPosition="top"
-                    (click)="onTabClick(tab, i)"
-                >
+  <p-tablist>
+    @for (tab of tabs(); track tab.route; let i = $index) {
+      @if (tab.visible !== false) {
+        <p-tab
+          [value]="tab.route"
+          [routerLink]="tabMode() === allTabMode.ROUTER_OUTLET ? tab.route : null"
+          [disabled]="tab.disabled"
+          [pTooltip]="tab.tooltip"
+          tooltipPosition="top"
+          (click)="onTabClick(tab, i)"
+        >
+          @if (tab.icon) {
+            <i [class]="tab.icon"></i>
+          }
 
-                    @if(tab.icon) {
-                        <i [class]="tab.icon"></i>
-                    }
+          <span>{{ tab.label }}</span>
 
-                    <span>{{ tab.label }}</span>
-
-                    @if(tab.badge) {
-                        <p-badge 
-                            [value]="tab.badge.toString()"
-                        />
-                    }
-                </p-tab>
-            }
-        }
-    </p-tablist>
+          @if (tab.badge) {
+            <p-badge [value]="tab.badge.toString()" />
+          }
+        </p-tab>
+      }
+    }
+  </p-tablist>
 </p-tabs>
 
 <div class="tab-content mt-4">
-    @if(tabMode() === allTabMode.ROUTER_OUTLET) {
-        <router-outlet></router-outlet>
-    } @else {
-        <ng-content></ng-content>
-    }
+  @if (tabMode() === allTabMode.ROUTER_OUTLET) {
+    <router-outlet></router-outlet>
+  } @else {
+    <ng-content></ng-content>
+  }
 </div>

@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { PublicLayoutComponent, PrivateLayoutComponent } from '@shared/components';
+import {
+  PublicLayoutComponent,
+  PrivateLayoutComponent,
+} from '@shared/components';
 import { authGuard, GuestGuard } from '@core/guards';
 
 export const routes: Routes = [
@@ -13,16 +16,18 @@ export const routes: Routes = [
       {
         path: '',
         redirectTo: `${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`,
-        pathMatch: 'full'
+        pathMatch: 'full',
       },
       {
         path: ROUTE_BASE_PATHS.AUTH,
-        loadChildren: () => import('./features/auth-management/auth-management.routes')
-          .then(m => m.AUTH_MANAGEMENT_ROUTES)
-      }
-    ]
+        loadChildren: () =>
+          import('./features/auth-management/auth-management.routes').then(
+            m => m.AUTH_MANAGEMENT_ROUTES
+          ),
+      },
+    ],
   },
-  
+
   // Private routes (with sidebar)
   {
     path: '',
@@ -31,18 +36,20 @@ export const routes: Routes = [
     children: [
       {
         path: ROUTE_BASE_PATHS.SETTINGS.BASE,
-        loadChildren: () => import('./features/settings-management/setting-management.routes')
-          .then(m => m.SETTING_MANAGEMENT_ROUTES)
+        loadChildren: () =>
+          import(
+            './features/settings-management/setting-management.routes'
+          ).then(m => m.SETTING_MANAGEMENT_ROUTES),
       },
       {
         path: '**',
-        redirectTo: `${ROUTE_BASE_PATHS.SETTINGS.BASE}`
-      }
-    ]
+        redirectTo: `${ROUTE_BASE_PATHS.SETTINGS.BASE}`,
+      },
+    ],
   },
-  
+
   {
     path: '**',
-    redirectTo: `${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`
-  }
+    redirectTo: `${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`,
+  },
 ];

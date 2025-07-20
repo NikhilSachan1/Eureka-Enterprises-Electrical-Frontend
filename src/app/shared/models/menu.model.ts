@@ -21,4 +21,4 @@ export interface MenuSection {
  */
 export interface ApplicationMenu {
   sections: MenuSection[];
-} 
+}

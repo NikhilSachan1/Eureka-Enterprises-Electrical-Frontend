@@ -5,7 +5,7 @@
   </div>
   @if (finalPageHeaderConfig().showHeaderButton) {
     @if (finalPageHeaderConfig().headerButtonConfig) {
-      <app-button 
+      <app-button
         [buttonConfig]="finalPageHeaderConfig().headerButtonConfig"
         (onButtonClick)="headerButtonClick.emit()"
       ></app-button>

@@ -1,4 +1,11 @@
-import { Component, computed, HostListener, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  HostListener,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { ThemeService } from '@core/services';
 import { fadeInOut } from '@shared/animations';
@@ -12,16 +19,16 @@ import { AuthService } from '@features/auth-management/services/auth.service';
   imports: [NgClass],
   templateUrl: './sidebar-user-profile.component.html',
   styleUrls: ['./sidebar-user-profile.component.scss'],
-  animations: [fadeInOut]
+  animations: [fadeInOut],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarUserProfileComponent {
   private router = inject(Router);
   private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
 
-  readonly user = computed(() => this.authService.user());  
+  readonly user = computed(() => this.authService.user());
   readonly userAvatar = computed(() => this.authService.loggedInUserAvatar());
-  
 
   readonly showUserOptions = signal(false);
 
@@ -55,15 +62,15 @@ export class SidebarUserProfileComponent {
   }
 
   navigateTo(path: string): void {
-    this.router.navigate([path]);
+    void this.router.navigate([path]);
     this.showUserOptions.set(false);
   }
 
-  async logout(): Promise<void> {
+  logout(): void {
     this.showUserOptions.set(false);
-    await this.authService.logout();
+    void this.authService.logout();
   }
-  
+
   // Method to handle option click
   handleOptionClick(option: UserOption): void {
     if (option.id === 'theme') {
@@ -74,4 +81,4 @@ export class SidebarUserProfileComponent {
       this.navigateTo(option.path);
     }
   }
-} 
+}

@@ -3,10 +3,10 @@ import { ConfirmationService } from 'primeng/api';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { 
-  IConfirmationDialogConfig, 
+import {
+  IConfirmationDialogConfig,
   IConfirmationDialogSettingConfig,
-  IDialogState, 
+  IDialogState,
   IEnhancedConfirmationDialog,
   IFormInputFieldsConfig,
 } from '@shared/models';
@@ -26,13 +26,14 @@ import {
 @Injectable({
   providedIn: 'root',
 })
-
 export class ConfirmationDialogService {
-
   private readonly confirmationService = inject(ConfirmationService);
   private readonly formService = inject(FormService);
 
-  private readonly defaultConfigs: Record<EDialogType, Partial<IConfirmationDialogSettingConfig>> = {
+  private readonly defaultConfigs: Record<
+    EDialogType,
+    Partial<IConfirmationDialogSettingConfig>
+  > = {
     [EDialogType.DEFAULT]: CONFIRMATION_DIALOG_CONFIG,
     [EDialogType.DELETE]: DELETE_CONFIRMATION_DIALOG_CONFIG,
     [EDialogType.APPROVE]: APPROVE_CONFIRMATION_DIALOG_CONFIG,
@@ -44,9 +45,8 @@ export class ConfirmationDialogService {
 
   private readonly dialogState$ = new BehaviorSubject<IDialogState>({
     formGroup: null,
-    config: {}
+    config: {},
   });
-
 
   getDialogState(): Observable<IDialogState> {
     return this.dialogState$.asObservable();
@@ -56,17 +56,22 @@ export class ConfirmationDialogService {
     dialogType: EDialogType = EDialogType.DEFAULT,
     confirmationDialogConfig?: IConfirmationDialogConfig
   ): IEnhancedConfirmationDialog {
-    const finalDialogSettingConfig = this.buildFinalDialogConfig(dialogType, confirmationDialogConfig);
-    const formGroup = this.createFormGroup(confirmationDialogConfig?.inputFields);
-    
+    const finalDialogSettingConfig = this.buildFinalDialogConfig(
+      dialogType,
+      confirmationDialogConfig
+    );
+    const formGroup = this.createFormGroup(
+      confirmationDialogConfig?.inputFields
+    );
+
     const completeConfig: IConfirmationDialogConfig = {
       dialogSettingConfig: finalDialogSettingConfig,
       inputFields: confirmationDialogConfig?.inputFields,
       recordDetails: confirmationDialogConfig?.recordDetails,
       onAccept: confirmationDialogConfig?.onAccept,
-      onReject: confirmationDialogConfig?.onReject
+      onReject: confirmationDialogConfig?.onReject,
     };
-    
+
     return this.createEnhancedConfirmationDialog(completeConfig, formGroup);
   }
 
@@ -74,61 +79,69 @@ export class ConfirmationDialogService {
     dialogType: EDialogType,
     config?: IConfirmationDialogConfig
   ): IConfirmationDialogSettingConfig {
-    const defaultConfig = this.defaultConfigs[dialogType] || this.defaultConfigs[EDialogType.DEFAULT];
-    const dialogSettingConfig = config?.dialogSettingConfig || {};
-    return deepMerge(defaultConfig, dialogSettingConfig) as IConfirmationDialogSettingConfig;
+    const defaultConfig =
+      this.defaultConfigs[dialogType] ||
+      this.defaultConfigs[EDialogType.DEFAULT];
+    const dialogSettingConfig = config?.dialogSettingConfig ?? {};
+    return deepMerge(
+      defaultConfig,
+      dialogSettingConfig
+    ) as IConfirmationDialogSettingConfig;
   }
 
-  private createFormGroup(
-    inputFields?: IFormInputFieldsConfig
-  ): FormGroup {
-
+  private createFormGroup(inputFields?: IFormInputFieldsConfig): FormGroup {
     const enhancedForm = this.formService.createForm({
-      fields: inputFields || {},
+      fields: inputFields ?? {},
     });
-    
+
     return enhancedForm?.formGroup;
   }
 
   private createEnhancedConfirmationDialog(
     confirmationDialogConfig: IConfirmationDialogConfig,
-    formGroup: FormGroup | null,
+    formGroup: FormGroup | null
   ): IEnhancedConfirmationDialog {
-
     const isOpenSignal = signal(false);
     const isLoadingSignal = signal(false);
-    
+
     return {
       config: signal(confirmationDialogConfig),
       formGroup: signal(formGroup),
       isOpen: isOpenSignal,
       isLoading: isLoadingSignal,
-      
-      show: () => {
-        this.showDialog(confirmationDialogConfig, formGroup, confirmationDialogConfig?.onAccept, confirmationDialogConfig?.onReject);
+
+      show: (): void => {
+        this.showDialog(
+          confirmationDialogConfig,
+          formGroup,
+          confirmationDialogConfig?.onAccept,
+          confirmationDialogConfig?.onReject
+        );
         isOpenSignal.set(true);
       },
-      
-      hide: () => {
+
+      hide: (): void => {
         isOpenSignal.set(false);
       },
-      
-      setLoading: (loading: boolean) => {
+
+      setLoading: (loading: boolean): void => {
         isLoadingSignal.set(loading);
       },
-      
-      updateConfig: (newConfig: Partial<IConfirmationDialogConfig>) => {
+
+      updateConfig: (
+        newConfig: Partial<IConfirmationDialogConfig>
+      ): IConfirmationDialogConfig => {
         const updatedConfig = { ...confirmationDialogConfig, ...newConfig };
         return updatedConfig;
-      },      
+      },
     };
   }
 
   private showDialog(
     config: IConfirmationDialogConfig,
     formGroup: FormGroup | null,
-    onAccept?: (formData?: any) => void,
-    onReject?: (formData?: any) => void
+    onAccept?: (formData?: Record<string, unknown>) => void,
+    onReject?: (formData?: Record<string, unknown>) => void
   ): void {
     this.dialogState$.next({ formGroup, config, onAccept, onReject });
 

@@ -1,28 +1,24 @@
-<app-page-header 
-    [pageHeaderConfig]="pageHeaderConfig()"
-></app-page-header>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()"></app-page-header>
 
-<form 
-    (ngSubmit)="onSubmit()"
-    [formGroup]="form.formGroup"
-    class="form"
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="form.formGroup"
+  class="form"
 >
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs['comment']"
+  ></app-input-field>
 
-    <app-input-field 
-        [formGroup]="form.formGroup" 
-        [inputFieldConfig]="form.fieldConfigs['comment']"
-    ></app-input-field>
+  <div class="button-container">
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    ></app-button>
 
-    <div class="button-container">
-        <app-button 
-            [buttonConfig]="form.buttonConfigs['reset']"
-            (onButtonClick)="onReset()"
-        ></app-button>
-        
-        <app-button 
-            [buttonConfig]="form.buttonConfigs['submit']"
-            [showButtonLoader]="isSubmitting()"
-        ></app-button>
-    </div>
-
+    <app-button
+      [buttonConfig]="form.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+    ></app-button>
+  </div>
 </form>

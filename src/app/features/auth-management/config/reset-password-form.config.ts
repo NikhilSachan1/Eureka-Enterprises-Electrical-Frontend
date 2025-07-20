@@ -1,6 +1,16 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '@shared/models';
-import { EFieldType, EFieldSize, EAutocomplete, EButtonSize, EButtonSeverity } from '@shared/types';
+import {
+  IFormConfig,
+  IFormInputFieldsConfig,
+  IFormButtonConfig,
+} from '@shared/models';
+import {
+  EFieldType,
+  EFieldSize,
+  EAutocomplete,
+  EButtonSize,
+  EButtonSeverity,
+} from '@shared/types';
 
 const RESET_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig = {
   password: {
@@ -18,8 +28,8 @@ const RESET_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig = {
       promptLabel: 'Enter your new password',
       weakLabel: 'Too simple',
       mediumLabel: 'Average complexity',
-      strongLabel: 'Complex password'
-    }
+      strongLabel: 'Complex password',
+    },
   },
   confirmPassword: {
     fieldType: EFieldType.Password,
@@ -36,9 +46,9 @@ const RESET_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig = {
       promptLabel: 'Confirm your new password',
       weakLabel: 'Too simple',
       mediumLabel: 'Average complexity',
-      strongLabel: 'Complex password'
-    }
-  }
+      strongLabel: 'Complex password',
+    },
+  },
 };
 
 const RESET_PASSWORD_BUTTONS_CONFIG: IFormButtonConfig = {
@@ -54,10 +64,10 @@ const RESET_PASSWORD_BUTTONS_CONFIG: IFormButtonConfig = {
     link: true,
     size: EButtonSize.SMALL,
     severity: EButtonSeverity.PRIMARY,
-  }
+  },
 };
 
 export const RESET_PASSWORD_INPUT_FIELDS_CONFIG: IFormConfig = {
   fields: RESET_PASSWORD_FIELDS_CONFIG,
   buttons: RESET_PASSWORD_BUTTONS_CONFIG,
-}; 
+};

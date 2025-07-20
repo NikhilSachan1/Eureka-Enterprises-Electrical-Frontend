@@ -5,5 +5,5 @@ export interface IApiErrorResponse {
     path: string;
     method: string;
     message: string[] | string;
-  }
+  };
 }

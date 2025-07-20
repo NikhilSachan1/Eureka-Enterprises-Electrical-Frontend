@@ -53,4 +53,4 @@ export interface ThemeColors {
 export interface ThemeConfig {
   light: ThemeColors;
   dark: ThemeColors;
-} 
+}

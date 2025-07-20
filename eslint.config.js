@@ -68,7 +68,10 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-empty-interface': 'error',
 
       // General ESLint rules
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-console': [
+        'warn',
+        { allow: ['warn', 'error', 'info', 'debug', 'group', 'groupEnd'] },
+      ],
       'no-debugger': 'error',
       'no-alert': 'error',
       'no-var': 'error',
@@ -135,7 +138,7 @@ module.exports = tseslint.config(
       '@angular-eslint/template/label-has-associated-control': 'error',
       '@angular-eslint/template/table-scope': 'error',
       '@angular-eslint/template/valid-aria': 'error',
-      '@angular-eslint/template/click-events-have-key-events': 'error',
+      '@angular-eslint/template/click-events-have-key-events': 'off',
       '@angular-eslint/template/mouse-events-have-key-events': 'error',
       '@angular-eslint/template/no-autofocus': 'error',
       '@angular-eslint/template/no-distracting-elements': 'error',

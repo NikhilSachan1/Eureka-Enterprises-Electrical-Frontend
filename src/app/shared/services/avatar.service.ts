@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
 export class AvatarService {
-
   private readonly API_BASE_URL = 'https://ui-avatars.com/api/';
-  
+
   private readonly SOLID_COLORS = [
     '007bff', // Blue
     '28a745', // Green
@@ -28,7 +26,7 @@ export class AvatarService {
     '3b82f6', // Blue variant
     '8b5a2b', // Brown
     '6366f1', // Indigo
-    '84cc16'  // Lime
+    '84cc16', // Lime
   ];
 
   /**
@@ -36,9 +34,9 @@ export class AvatarService {
    */
   getAvatarFromName(name: string): string {
     const backgroundColor = this.getRandomColor();
-    
+
     const params = new URLSearchParams({
-      name: name,
+      name,
       background: backgroundColor,
       color: 'ffffff',
       size: '40',
@@ -51,4 +49,4 @@ export class AvatarService {
     const randomIndex = Math.floor(Math.random() * this.SOLID_COLORS.length);
     return this.SOLID_COLORS[randomIndex];
   }
-} 
+}

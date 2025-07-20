@@ -1,5 +1,9 @@
-import { IFormButtonConfig, IFormConfig, IFormInputFieldsConfig } from "@shared/models";
-import { EButtonSeverity } from "@shared/types";
+import {
+  IFormButtonConfig,
+  IFormConfig,
+  IFormInputFieldsConfig,
+} from '@shared/models';
+import { EButtonSeverity } from '@shared/types';
 
 export const SET_PERMISSION_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -12,10 +16,10 @@ export const SET_PERMISSION_BUTTONS_CONFIG: IFormButtonConfig = {
     type: 'submit',
     severity: EButtonSeverity.PRIMARY,
     tooltip: 'Save permissions',
-  }
+  },
 };
 
 export const SET_PERMISSION_FORM_CONFIG: IFormConfig = {
   fields: {} as IFormInputFieldsConfig,
   buttons: SET_PERMISSION_BUTTONS_CONFIG,
-}
+};

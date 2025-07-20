@@ -1,11 +1,11 @@
-import { EDialogPosition } from "@shared/types";
+import { EDialogPosition } from '@shared/types';
 
 export const APP_CONFIG = {
   // Application Information
   name: 'Eureka Enterprises',
   version: '1.0.0',
   description: 'Electrical Management System',
-  
+
   // API Configuration
   API_CONFIG: {
     timeout: 30000, // 30 seconds
@@ -54,4 +54,4 @@ export const APP_CONFIG = {
     CLOSE_ON_ESCAPE: true,
     DISMISSABLE_MASK: false,
   },
-}; 
+};

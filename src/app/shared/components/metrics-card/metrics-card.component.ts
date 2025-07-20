@@ -8,10 +8,9 @@ import { IMetricData } from '@shared/models';
   imports: [CommonModule],
   templateUrl: './metrics-card.component.html',
   styleUrls: ['./metrics-card.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MetricsCardComponent {
-  
   metricCardConfig = input<IMetricData>();
 
   getMetricClasses(label: string): { background: string; textColor: string } {
@@ -40,4 +39,4 @@ export class MetricsCardComponent {
         return { background: 'bg-gray-50', textColor: 'text-gray-600' };
     }
   }
-} 
+}

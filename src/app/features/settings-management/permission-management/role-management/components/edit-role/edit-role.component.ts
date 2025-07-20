@@ -1,9 +1,14 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import {
-  IEnhancedForm,
-  IPageHeaderConfig,
-} from '@shared/models';
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+  OnInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { IEnhancedForm, IPageHeaderConfig } from '@shared/models';
 import {
   FormService,
   LoadingService,
@@ -16,13 +21,14 @@ import {
   IEditRoleManagementRequestDto,
   IGetSingleRoleListResponseDto,
 } from '@features/settings-management/permission-management/role-management/models/role-management.api.model';
-import {
-  FORM_VALIDATION_MESSAGES,
-  ROUTE_BASE_PATHS,
-} from '@shared/constants';
+import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PageHeaderComponent, InputFieldComponent, ButtonComponent } from '@shared/components';
+import {
+  PageHeaderComponent,
+  InputFieldComponent,
+  ButtonComponent,
+} from '@shared/components';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RoleManagementService } from '@features/settings-management/permission-management/role-management/services/role-management.service';
 
@@ -36,17 +42,18 @@ import { RoleManagementService } from '@features/settings-management/permission-
   ],
   templateUrl: './edit-role.component.html',
   styleUrl: './edit-role.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
-export class EditRoleComponent {
-  
+export class EditRoleComponent implements OnInit {
   protected form!: IEnhancedForm;
-  
+
   protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
-    this.getPageHeaderConfig(),
+    this.getPageHeaderConfig()
   );
   protected readonly isSubmitting = signal(false);
-  protected readonly editRoleData = signal<Record<string, any> | null>(null);
+  protected readonly editRoleData = signal<Record<string, unknown> | null>(
+    null
+  );
 
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
@@ -61,15 +68,14 @@ export class EditRoleComponent {
     this.loadRoleDataFromRoute();
     this.form = this.formService.createForm(
       EDIT_ROLE_FORM_CONFIG,
-      this.editRoleData(),
+      this.editRoleData()
     );
   }
 
-  private loadRoleDataFromRoute() {
-      
+  private loadRoleDataFromRoute(): void {
     const editRoleRouteData =
       this.routerNavigationService.getRouterStateData<IGetSingleRoleListResponseDto>(
-        'roleData',
+        'roleData'
       );
 
     if (!editRoleRouteData) {
@@ -79,7 +85,7 @@ export class EditRoleComponent {
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
       ];
-      this.routerNavigationService.navigateToRoute(routeSegments);
+      void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
 
@@ -101,7 +107,9 @@ export class EditRoleComponent {
 
     if (!roleId) {
       this.logger.logUserAction('No role id found in route');
-      this.notificationService.error(FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG);
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
       return;
     }
     this.executeEditRole(formData, roleId);
@@ -110,7 +118,7 @@ export class EditRoleComponent {
   private validateForm(): boolean {
     if (!this.form.validateAndMarkTouched()) {
       this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID,
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
       );
       this.logger.warn('Edit role form validation failed');
       return false;
@@ -120,7 +128,7 @@ export class EditRoleComponent {
 
   private executeEditRole(
     formData: IEditRoleManagementRequestDto,
-    roleId: string,
+    roleId: string
   ): void {
     this.isSubmitting.set(true);
     this.loadingService.show({
@@ -137,17 +145,20 @@ export class EditRoleComponent {
           this.form.enable();
           this.loadingService.hide();
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: () => {
-          this.notificationService.success('Role updated successfully', 'Success');
+          this.notificationService.success(
+            'Role updated successfully',
+            'Success'
+          );
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
           ];
-          this.routerNavigationService.navigateToRoute(routeSegments);
+          void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {
           this.notificationService.error('Failed to update role', 'Error');
@@ -158,7 +169,7 @@ export class EditRoleComponent {
   protected onReset(): void {
     try {
       this.logger.logUserAction('Reset Edit Role Form');
-      this.form.reset(this.editRoleData());
+      this.form.reset(this.editRoleData() ?? {});
     } catch (error) {
       this.logger.error('Error resetting form', error);
     }
@@ -172,10 +183,10 @@ export class EditRoleComponent {
   }
 
   private prepareFormData(): IEditRoleManagementRequestDto {
-    const formData = this.form.getData();
+    const { comment, roleName } = this.form.getData() as Record<string, string>;
     return {
-      description: formData['comment'],
-      label: formData['roleName'],
+      description: comment,
+      label: roleName,
     };
   }
 }

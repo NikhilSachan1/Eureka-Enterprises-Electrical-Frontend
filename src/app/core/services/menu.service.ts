@@ -5,7 +5,7 @@ import { ApplicationMenu, MenuItem, MenuSection } from '@shared/models';
 import { appMenu } from '@core/config';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MenuService {
   // Use signals for reactive state management
@@ -49,15 +49,21 @@ export class MenuService {
    */
   isMenuItemActive(item: MenuItem): boolean {
     const currentRoute = this.activeRoute();
-    
+
     if (item.routerLink) {
       // Normalize routes by ensuring they start with /
-      const normalizedCurrentRoute = currentRoute.startsWith('/') ? currentRoute : '/' + currentRoute;
-      const normalizedItemRoute = item.routerLink.startsWith('/') ? item.routerLink : '/' + item.routerLink;
-      
+      const normalizedCurrentRoute = currentRoute.startsWith('/')
+        ? currentRoute
+        : `/${currentRoute}`;
+      const normalizedItemRoute = item.routerLink.startsWith('/')
+        ? item.routerLink
+        : `/${item.routerLink}`;
+
       // Exact match or starts with the route (for child routes)
-      return normalizedCurrentRoute === normalizedItemRoute || 
-             normalizedCurrentRoute.startsWith(normalizedItemRoute + '/');
+      return (
+        normalizedCurrentRoute === normalizedItemRoute ||
+        normalizedCurrentRoute.startsWith(`${normalizedItemRoute}/`)
+      );
     }
 
     if (item.children?.length) {
@@ -73,13 +79,15 @@ export class MenuService {
    * @param item Menu item to toggle
    */
   toggleMenuItem(item: MenuItem): void {
-    if (!item.children?.length) return;
+    if (!item.children?.length) {
+      return;
+    }
 
     const itemId = this.getMenuItemId(item);
     const currentlyExpanded = this.isMenuItemExpanded(item);
 
     // Create a new Set for expanded items
-    let newExpanded = new Set<string>();
+    const newExpanded = new Set<string>();
 
     // If this item is not currently expanded, add only this item to the expanded set
     // Otherwise, leave the set empty to close all items
@@ -99,7 +107,9 @@ export class MenuService {
    * @param item Menu item to check
    */
   isMenuItemExpanded(item: MenuItem): boolean {
-    if (!item.children?.length) return false;
+    if (!item.children?.length) {
+      return false;
+    }
 
     const itemId = this.getMenuItemId(item);
     return this.expandedItems().has(itemId);
@@ -132,19 +142,27 @@ export class MenuService {
    * Check if a parent menu item has an active child
    */
   private hasActiveChild(item: MenuItem): boolean {
-    if (!item.children?.length) return false;
+    if (!item.children?.length) {
+      return false;
+    }
 
     const currentRoute = this.activeRoute();
-    
+
     return item.children.some(child => {
       if (child.routerLink) {
         // Normalize routes by ensuring they start with /
-        const normalizedCurrentRoute = currentRoute.startsWith('/') ? currentRoute : '/' + currentRoute;
-        const normalizedChildRoute = child.routerLink.startsWith('/') ? child.routerLink : '/' + child.routerLink;
-        
+        const normalizedCurrentRoute = currentRoute.startsWith('/')
+          ? currentRoute
+          : `/${currentRoute}`;
+        const normalizedChildRoute = child.routerLink.startsWith('/')
+          ? child.routerLink
+          : `/${child.routerLink}`;
+
         // Exact match or starts with the route (for child routes)
-        return normalizedCurrentRoute === normalizedChildRoute || 
-               normalizedCurrentRoute.startsWith(normalizedChildRoute + '/');
+        return (
+          normalizedCurrentRoute === normalizedChildRoute ||
+          normalizedCurrentRoute.startsWith(`${normalizedChildRoute}/`)
+        );
       }
 
       if (child.children?.length) {
@@ -165,14 +183,21 @@ export class MenuService {
     // Function to recursively find and expand parents of active route
     const findActiveParents = (items: MenuItem[]): boolean => {
       const currentRoute = this.activeRoute();
-      
+
       for (const item of items) {
         if (item.routerLink) {
           // Normalize routes by ensuring they start with /
-          const normalizedCurrentRoute = currentRoute.startsWith('/') ? currentRoute : '/' + currentRoute;
-          const normalizedItemRoute = item.routerLink.startsWith('/') ? item.routerLink : '/' + item.routerLink;
-          
-          if (normalizedCurrentRoute === normalizedItemRoute || normalizedCurrentRoute.startsWith(normalizedItemRoute + '/')) {
+          const normalizedCurrentRoute = currentRoute.startsWith('/')
+            ? currentRoute
+            : `/${currentRoute}`;
+          const normalizedItemRoute = item.routerLink.startsWith('/')
+            ? item.routerLink
+            : `/${item.routerLink}`;
+
+          if (
+            normalizedCurrentRoute === normalizedItemRoute ||
+            normalizedCurrentRoute.startsWith(`${normalizedItemRoute}/`)
+          ) {
             return true;
           }
         }
@@ -199,6 +224,4 @@ export class MenuService {
 
     this.expandedItems.set(newExpanded);
   }
-
-
-} 
+}

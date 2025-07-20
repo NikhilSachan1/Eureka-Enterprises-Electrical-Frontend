@@ -1,5 +1,6 @@
-import { IConfirmationDialogConfig } from "@shared/models";
-import { EButtonSeverity } from "@shared/types";
+import { IConfirmationDialogConfig } from '@shared/models';
+import { EButtonSeverity } from '@shared/types';
+import { IGetSingleRoleListResponseDto } from '../../models/role-management.api.model';
 
 export const ROLE_DELETE_DIALOG_CONFIG: IConfirmationDialogConfig = {
   dialogSettingConfig: {
@@ -32,7 +33,7 @@ export const ROLE_BULK_DELETE_DIALOG_CONFIG: IConfirmationDialogConfig = {
 };
 
 export const createRoleDeleteDialogConfig = (
-  rowData: any,
+  rowData: IGetSingleRoleListResponseDto,
   onAccept?: () => void,
   onReject?: () => void
 ): IConfirmationDialogConfig => ({
@@ -49,7 +50,7 @@ export const createRoleDeleteDialogConfig = (
 });
 
 export const createRoleBulkDeleteDialogConfig = (
-  selectedRows: any[],
+  selectedRows: IGetSingleRoleListResponseDto[],
   onAccept?: () => void,
   onReject?: () => void
 ): IConfirmationDialogConfig => ({
@@ -57,4 +58,3 @@ export const createRoleBulkDeleteDialogConfig = (
   onAccept,
   onReject,
 });
-

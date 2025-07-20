@@ -1,54 +1,50 @@
-<app-auth-layout 
-	title="Sign in"
-	subtitle="to Eureka Enterprises"
-	footerText="Don't have an account?"
-	[footerLinkButton]="form.buttonConfigs['contactAdmin']"
-	(footerLinkAction)="onContactAdmin()"
+<app-auth-layout
+  title="Sign in"
+  subtitle="to Eureka Enterprises"
+  footerText="Don't have an account?"
+  [footerLinkButton]="form.buttonConfigs['contactAdmin']"
+  (footerLinkAction)="onContactAdmin()"
 >
+  <form
+    (ngSubmit)="onSubmit()"
+    [formGroup]="form.formGroup"
+    class="form auth-form"
+  >
+    <!-- Email field -->
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['email']"
+    ></app-input-field>
 
-	<form 
-		(ngSubmit)="onSubmit()"
-		[formGroup]="form.formGroup"
-		class="form auth-form"
-	>
-		<!-- Email field -->
-		<app-input-field 
-			[formGroup]="form.formGroup" 
-			[inputFieldConfig]="form.fieldConfigs['email']"
-		></app-input-field>
+    <!-- Password field -->
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['password']"
+    ></app-input-field>
 
+    <!-- Remember me and forgot password -->
+    <div class="flex items-center justify-between mb-6 gap-4">
+      <div class="flex-shrink-0">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['rememberMe']"
+        ></app-input-field>
+      </div>
 
-		<!-- Password field -->
-		<app-input-field 
-			[formGroup]="form.formGroup"
-			[inputFieldConfig]="form.fieldConfigs['password']"
-		></app-input-field>
+      <div class="flex-shrink-0">
+        <app-button
+          [buttonConfig]="form.buttonConfigs['forgotPassword']"
+          (onButtonClick)="onForgotPassword()"
+        ></app-button>
+      </div>
+    </div>
 
-
-		<!-- Remember me and forgot password -->
-		<div class="flex items-center justify-between mb-6 gap-4">
-			<div class="flex-shrink-0">
-				<app-input-field 
-					[formGroup]="form.formGroup"
-					[inputFieldConfig]="form.fieldConfigs['rememberMe']"
-				></app-input-field>
-			</div>
-
-			<div class="flex-shrink-0">
-				<app-button
-					[buttonConfig]="form.buttonConfigs['forgotPassword']"
-					(onButtonClick)="onForgotPassword()"
-				></app-button>
-			</div>
-		</div>
-
-
-		<!-- Sign in button -->
-		<app-button 
-			[buttonConfig]="form.buttonConfigs['signIn']"
-			[showButtonLoader]="isSubmitting()"
-		></app-button>
-	</form>
+    <!-- Sign in button -->
+    <app-button
+      [buttonConfig]="form.buttonConfigs['signIn']"
+      [showButtonLoader]="isSubmitting()"
+    ></app-button>
+  </form>
 </app-auth-layout>
 
 <!-- Toast notifications -->

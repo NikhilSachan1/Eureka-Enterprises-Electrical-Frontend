@@ -8,14 +8,20 @@ import {
   computed,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { PageHeaderComponent, InputFieldComponent, ButtonComponent } from '@shared/components';
-import { LoggerService } from '@core/services';
-import { FormService, LoadingService, NotificationService, RouterNavigationService } from '@shared/services/';
-import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
-  IEnhancedForm,
-  IPageHeaderConfig,
-} from '@shared/models';
+  PageHeaderComponent,
+  InputFieldComponent,
+  ButtonComponent,
+} from '@shared/components';
+import { LoggerService } from '@core/services';
+import {
+  FormService,
+  LoadingService,
+  NotificationService,
+  RouterNavigationService,
+} from '@shared/services/';
+import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
+import { IEnhancedForm, IPageHeaderConfig } from '@shared/models';
 import { ADD_ROLE_FORM_CONFIG } from '@features/settings-management/permission-management/role-management/config/form/add-role-management-form.config';
 import { RoleManagementService } from '@features/settings-management/permission-management/role-management/services/role-management.service';
 import { finalize } from 'rxjs';
@@ -34,13 +40,11 @@ import { IAddRoleManagementRequestDto } from '@features/settings-management/perm
   styleUrl: './add-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class AddRoleComponent implements OnInit {
-
   protected form!: IEnhancedForm;
 
   protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
-    this.getPageHeaderConfig(),
+    this.getPageHeaderConfig()
   );
   protected readonly isSubmitting = signal(false);
 
@@ -68,7 +72,7 @@ export class AddRoleComponent implements OnInit {
   private validateForm(): boolean {
     if (!this.form.validateAndMarkTouched()) {
       this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID,
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
       );
       this.logger.warn('Add role form validation failed');
       return false;
@@ -77,7 +81,6 @@ export class AddRoleComponent implements OnInit {
   }
 
   private executeAddRole(formData: IAddRoleManagementRequestDto): void {
-
     this.isSubmitting.set(true);
     this.loadingService.show({
       title: 'Adding Role',
@@ -93,17 +96,20 @@ export class AddRoleComponent implements OnInit {
           this.form.enable();
           this.loadingService.hide();
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: () => {
-          this.notificationService.success('Role added successfully', 'Success');
+          this.notificationService.success(
+            'Role added successfully',
+            'Success'
+          );
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
           ];
-          this.routerNavigationService.navigateToRoute(routeSegments);
+          void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {
           this.notificationService.error('Failed to add role', 'Error');
@@ -128,11 +134,11 @@ export class AddRoleComponent implements OnInit {
   }
 
   private prepareFormData(): IAddRoleManagementRequestDto {
-    const formData = this.form.getData();
+    const { roleName, comment } = this.form.getData();
     return {
-      name: formData['roleName'],
-      description: formData['comment'],
-      label: formData['roleName'],
+      name: roleName as string,
+      description: comment as string,
+      label: roleName as string,
     };
   }
 }

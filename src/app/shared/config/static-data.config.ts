@@ -1,4 +1,4 @@
-import { IOptionDropdown } from "@shared/models";
+import { IOptionDropdown } from '@shared/models';
 
 export const MODULES_NAME_DATA: IOptionDropdown[] = [
   { label: 'Employee', value: 'employee' },
@@ -13,7 +13,7 @@ export const MODULE_ACTIONS_DATA: Record<string, IOptionDropdown[]> = {
     { value: 'delete', label: 'Delete' },
     { value: 'edit', label: 'Edit' },
     { value: 'view', label: 'Table View' },
-    { value: 'view_detail', label: 'View Detail' }
+    { value: 'view_detail', label: 'View Detail' },
   ],
   attendance: [
     { value: 'apply', label: 'Apply' },
@@ -22,6 +22,6 @@ export const MODULE_ACTIONS_DATA: Record<string, IOptionDropdown[]> = {
     { value: 'view_detail', label: 'View Detail' },
     { value: 'regularize', label: 'Regularize' },
     { value: 'approve', label: 'Approve' },
-    { value: 'reject', label: 'Reject' }
+    { value: 'reject', label: 'Reject' },
   ],
 };

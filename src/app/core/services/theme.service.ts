@@ -1,10 +1,10 @@
 import { Injectable, signal } from '@angular/core';
 // import { DOCUMENT } from '@angular/common';
-import { ThemeMode, ThemeColors, ThemeConfig } from '@shared/models';
+import { ThemeMode, ThemeConfig } from '@shared/models';
 import { themeConfig } from '@core/config';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ThemeService {
   // private readonly document = inject(DOCUMENT);
@@ -21,7 +21,6 @@ export class ThemeService {
   private initializeTheme(): void {
     // const savedTheme = localStorage.getItem(this.STORAGE_KEY) as ThemeMode;
     // const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
     // // Use saved preference or system preference
     // const theme = savedTheme || (prefersDark ? 'dark' : 'light');
     // this.setTheme(theme);
@@ -36,25 +35,26 @@ export class ThemeService {
   private setTheme(theme: ThemeMode): void {
     this.currentTheme.set(theme);
     this.isDarkMode.set(theme === 'dark');
-    this.applyTheme(theme);
+    // this.applyTheme(theme);
   }
 
-  private applyTheme(theme: ThemeMode): void {
-    const colors = themeConfig[theme];
-    // const root = this.document.documentElement;
+  // private applyTheme(theme: ThemeMode): void {
+  //   // const colors = themeConfig[theme];
+  //   // const root = this.document.documentElement;
+  //   // Apply theme class to body
+  //   // if (theme === 'dark') {
+  //   //   this.document.body.classList.add('dark-theme');
+  //   // } else {
+  //   //   this.document.body.classList.remove('dark-theme');
+  //   // }
+  //   // Apply CSS variables
+  //   // this.applyColorVariables(root, colors);
+  // }
 
-    // Apply theme class to body
-    // if (theme === 'dark') {
-    //   this.document.body.classList.add('dark-theme');
-    // } else {
-    //   this.document.body.classList.remove('dark-theme');
-    // }
-
-    // Apply CSS variables
-    // this.applyColorVariables(root, colors);
-  }
-
-  private applyColorVariables(root: HTMLElement, colors: ThemeConfig['light']): void {
+  private applyColorVariables(
+    root: HTMLElement,
+    colors: ThemeConfig['light']
+  ): void {
     // Primary colors
     root.style.setProperty('--primary-color', colors.primary.main);
     root.style.setProperty('--primary-light-color', colors.primary.light);
@@ -72,7 +72,10 @@ export class ThemeService {
     root.style.setProperty('--text-disabled-color', colors.text.disabled);
 
     // Background colors
-    root.style.setProperty('--background-default-color', colors.background.default);
+    root.style.setProperty(
+      '--background-default-color',
+      colors.background.default
+    );
     root.style.setProperty('--background-paper-color', colors.background.paper);
 
     // Border colors
@@ -90,4 +93,4 @@ export class ThemeService {
   getCurrentThemeColors(): ThemeConfig['light'] {
     return themeConfig[this.currentTheme()];
   }
-} 
+}

@@ -1,8 +1,17 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+  inject,
+  signal,
+} from '@angular/core';
 import { fadeInOut } from '@shared/animations';
 import { MenuService, ThemeService } from '@core/services';
-import { SidebarHeaderComponent, SidebarUserProfileComponent, SidebarMenuComponent, ContentAreaComponent } from '@shared/components';
 import { NgClass } from '@angular/common';
+import { SidebarHeaderComponent } from './sidebar-header/sidebar-header.component';
+import { SidebarUserProfileComponent } from './sidebar-user-profile/sidebar-user-profile.component';
+import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
+import { ContentAreaComponent } from '../content-area/content-area.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,12 +21,12 @@ import { NgClass } from '@angular/common';
     SidebarHeaderComponent,
     SidebarUserProfileComponent,
     SidebarMenuComponent,
-    ContentAreaComponent
+    ContentAreaComponent,
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [fadeInOut]
+  animations: [fadeInOut],
 })
 export class SidebarComponent {
   readonly menuService = inject(MenuService);
@@ -26,14 +35,14 @@ export class SidebarComponent {
   // Reactive state with signals
   readonly sidebarVisible = signal(true);
   readonly isMobile = signal(window.innerWidth <= 768);
-  
+
   // Signal to control when transition should be enabled
   protected transitionEnabled = signal<boolean>(false);
 
   constructor() {
     // Initialize sidebar visibility based on screen size
     this.sidebarVisible.set(!this.isMobile());
-    
+
     // Enable transitions after initial render to prevent page refresh animation
     setTimeout(() => {
       this.transitionEnabled.set(true);
@@ -44,7 +53,7 @@ export class SidebarComponent {
   onResize(): void {
     const wasNotMobile = !this.isMobile();
     this.isMobile.set(window.innerWidth <= 768);
-    
+
     // Update sidebar visibility when transitioning between mobile/desktop
     if (wasNotMobile && this.isMobile()) {
       this.sidebarVisible.set(false);
@@ -56,18 +65,18 @@ export class SidebarComponent {
   toggleSidebar(): void {
     const wasVisible = this.sidebarVisible();
     this.sidebarVisible.update(value => !value);
-    
+
     // Prevent body scrolling when sidebar is open on mobile
     if (this.isMobile()) {
       document.body.style.overflow = this.sidebarVisible() ? 'hidden' : '';
     }
-    
+
     // Close all submenus when closing the sidebar
     if (wasVisible) {
       this.menuService.closeAllMenuItems();
     }
   }
-  
+
   toggleTheme(): void {
     this.themeService.toggleTheme();
   }

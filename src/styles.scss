@@ -1,17 +1,21 @@
 @use "primeicons/primeicons.css";
-@use './tailwind.css';
+@use "./tailwind.css";
 
 // Base styles
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family:
+    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--background-default-color);
   color: var(--text-primary-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 // Theme variables with fallbacks
@@ -95,29 +99,69 @@ html, body {
 }
 
 // Utility classes
-.text-primary { color: var(--text-primary-color); }
-.text-secondary { color: var(--text-secondary-color); }
-.text-disabled { color: var(--text-disabled-color); }
+.text-primary {
+  color: var(--text-primary-color);
+}
+.text-secondary {
+  color: var(--text-secondary-color);
+}
+.text-disabled {
+  color: var(--text-disabled-color);
+}
 
-.bg-primary { background-color: var(--primary-color); }
-.bg-surface-50 { background-color: var(--surface-50); }
-.bg-surface-100 { background-color: var(--surface-100); }
-.bg-surface-200 { background-color: var(--surface-200); }
-.bg-surface-300 { background-color: var(--surface-300); }
-.bg-surface-400 { background-color: var(--surface-400); }
-.bg-surface-500 { background-color: var(--surface-500); }
-.bg-surface-600 { background-color: var(--surface-600); }
-.bg-surface-700 { background-color: var(--surface-700); }
-.bg-surface-800 { background-color: var(--surface-800); }
-.bg-surface-900 { background-color: var(--surface-900); }
+.bg-primary {
+  background-color: var(--primary-color);
+}
+.bg-surface-50 {
+  background-color: var(--surface-50);
+}
+.bg-surface-100 {
+  background-color: var(--surface-100);
+}
+.bg-surface-200 {
+  background-color: var(--surface-200);
+}
+.bg-surface-300 {
+  background-color: var(--surface-300);
+}
+.bg-surface-400 {
+  background-color: var(--surface-400);
+}
+.bg-surface-500 {
+  background-color: var(--surface-500);
+}
+.bg-surface-600 {
+  background-color: var(--surface-600);
+}
+.bg-surface-700 {
+  background-color: var(--surface-700);
+}
+.bg-surface-800 {
+  background-color: var(--surface-800);
+}
+.bg-surface-900 {
+  background-color: var(--surface-900);
+}
 
-.border-light { border-color: var(--border-light-color); }
-.border-main { border-color: var(--border-main-color); }
-.border-dark { border-color: var(--border-dark-color); }
+.border-light {
+  border-color: var(--border-light-color);
+}
+.border-main {
+  border-color: var(--border-main-color);
+}
+.border-dark {
+  border-color: var(--border-dark-color);
+}
 
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow-md { box-shadow: var(--shadow-md); }
-.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
 
 // Scrollbar styling
 * {

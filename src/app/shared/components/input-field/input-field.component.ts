@@ -1,5 +1,11 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, OnInit, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  OnInit,
+  output,
+} from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,18 +19,42 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TextareaModule } from 'primeng/textarea';
 import { InputOtpModule } from 'primeng/inputotp';
-import { EAutocomplete, ECalendarView, ECheckBoxAndRadioAlign, ECurrencyDisplay, EDateIconDisplay, EDateSelectionMode, EFieldSize, EFieldType, EFileMode, EFloatLabelVariant, EHourFormat, EInputNumberMode, EMultiSelectDisplayType, ESpinnerMode, EUpAndDownButtonLayout } from '@shared/types';
+import {
+  ECalendarView,
+  ECheckBoxAndRadioAlign,
+  EDateIconDisplay,
+  EDateSelectionMode,
+  EFieldType,
+  EFileMode,
+  EHourFormat,
+  EMultiSelectDisplayType,
+  EUpAndDownButtonLayout,
+} from '@shared/types';
 import { IInputFieldsConfig } from '@shared/models';
 
 @Component({
   selector: 'app-input-field',
-  imports: [ReactiveFormsModule, FloatLabelModule, InputTextModule, NgClass, InputNumberModule, SelectModule, MultiSelectModule, DatePickerModule, PasswordModule, CheckboxModule, RadioButtonModule, FileUploadModule, TextareaModule, InputOtpModule],
+  imports: [
+    ReactiveFormsModule,
+    FloatLabelModule,
+    InputTextModule,
+    NgClass,
+    InputNumberModule,
+    SelectModule,
+    MultiSelectModule,
+    DatePickerModule,
+    PasswordModule,
+    CheckboxModule,
+    RadioButtonModule,
+    FileUploadModule,
+    TextareaModule,
+    InputOtpModule,
+  ],
   templateUrl: './input-field.component.html',
   styleUrl: './input-field.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputFieldComponent implements OnInit {
-
   ALL_FIELD_TYPES = EFieldType;
   ALL_UP_AND_DOWN_BUTTON_LAYOUTS = EUpAndDownButtonLayout;
   ALL_MULTI_SELECT_DISPLAY_TYPES = EMultiSelectDisplayType;
@@ -48,7 +78,9 @@ export class InputFieldComponent implements OnInit {
 
   checkIsFieldInvalid(fieldName: string): boolean {
     const control = this.formGroup().get(fieldName);
-    return control ? (control.invalid && (control.dirty || control.touched)) : false;
+    return control
+      ? control.invalid && (control.dirty || control.touched)
+      : false;
   }
 
   onChange(): void {
@@ -57,18 +89,36 @@ export class InputFieldComponent implements OnInit {
 
   getErrorMessage(fieldName: string): string {
     const control = this.formGroup().get(fieldName);
-    if (!control) return '';
+    if (!control) {
+      return '';
+    }
 
-    const errors = control.errors;
-    if (!errors) return '';
+    const { errors } = control;
+    if (!errors) {
+      return '';
+    }
 
-    if (errors['required']) return 'This field is required';
-    if (errors['minlength']) return `Minimum length is ${errors['minlength'].requiredLength} characters`;
-    if (errors['maxlength']) return `Maximum length is ${errors['maxlength'].requiredLength} characters`;
-    if (errors['min']) return `Minimum value is ${errors['min'].min}`;
-    if (errors['max']) return `Maximum value is ${errors['max'].max}`;
-    if (errors['pattern']) return 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
-    if (errors['hasSpecialChars']) return 'Text should not contain any special characters';
+    if (errors['required']) {
+      return 'This field is required';
+    }
+    if (errors['minlength']) {
+      return `Minimum length is ${errors['minlength'].requiredLength} characters`;
+    }
+    if (errors['maxlength']) {
+      return `Maximum length is ${errors['maxlength'].requiredLength} characters`;
+    }
+    if (errors['min']) {
+      return `Minimum value is ${errors['min'].min}`;
+    }
+    if (errors['max']) {
+      return `Maximum value is ${errors['max'].max}`;
+    }
+    if (errors['pattern']) {
+      return 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
+    }
+    if (errors['hasSpecialChars']) {
+      return 'Text should not contain any special characters';
+    }
 
     return 'Invalid value';
   }

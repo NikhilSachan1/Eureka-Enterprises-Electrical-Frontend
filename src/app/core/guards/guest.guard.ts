@@ -1,42 +1,52 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { Router, CanActivate } from '@angular/router';
+import {
+  Router,
+  CanActivate,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+} from '@angular/router';
 import { ROUTE_BASE_PATHS } from '@shared/constants';
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { LoggerService } from '@core/services';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GuestGuard implements CanActivate {
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private logger: LoggerService
-  ) {}
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly logger = inject(LoggerService);
 
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean {
     try {
-
       if (this.authService.isUserAuthenticated()) {
-        this.logger.info('Guest Guard: User is authenticated, redirecting to dashboard', {
-          currentUrl: state.url,
-          user: this.authService.getCurrentUser()
-        });
-        
-        this.router.navigate([`/${ROUTE_BASE_PATHS.DASHBOARD}`]);
+        this.logger.info(
+          'Guest Guard: User is authenticated, redirecting to dashboard',
+          {
+            currentUrl: state.url,
+            user: this.authService.getCurrentUser(),
+          }
+        );
+
+        void this.router.navigate([`/${ROUTE_BASE_PATHS.DASHBOARD}`]);
         return false;
       }
 
-      this.logger.info('Guest Guard: User not authenticated, allowing access to auth page', {
-        requestedUrl: state.url
-      });
+      this.logger.info(
+        'Guest Guard: User not authenticated, allowing access to auth page',
+        {
+          requestedUrl: state.url,
+        }
+      );
       return true;
     } catch (error) {
-      this.logger.error('Guest Guard: Error checking authentication status', error);
+      this.logger.error(
+        'Guest Guard: Error checking authentication status',
+        error
+      );
       return true;
     }
   }

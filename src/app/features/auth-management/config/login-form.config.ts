@@ -1,6 +1,15 @@
 import { Validators } from '@angular/forms';
-import { IFormButtonConfig, IFormConfig, IFormInputFieldsConfig } from '@shared/models';
-import { EFieldType, EFieldSize, EButtonSize, EButtonSeverity } from '@shared/types';
+import {
+  IFormButtonConfig,
+  IFormConfig,
+  IFormInputFieldsConfig,
+} from '@shared/models';
+import {
+  EFieldType,
+  EFieldSize,
+  EButtonSize,
+  EButtonSeverity,
+} from '@shared/types';
 
 const LOGIN_FIELDS_CONFIG: IFormInputFieldsConfig = {
   email: {
@@ -18,7 +27,7 @@ const LOGIN_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required, Validators.minLength(6)],
     passwordConfig: {
       feedback: false,
-    }
+    },
   },
   rememberMe: {
     fieldType: EFieldType.Checkbox,
@@ -26,10 +35,10 @@ const LOGIN_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'rememberMe',
     fieldSize: EFieldSize.Large,
     checkboxConfig: {
-      options: [{label: 'Remember me', value: 'rememberMe'}],
+      options: [{ label: 'Remember me', value: 'rememberMe' }],
       binary: true,
     },
-  }
+  },
 };
 
 const LOGIN_BUTTONS_CONFIG: IFormButtonConfig = {
@@ -51,7 +60,7 @@ const LOGIN_BUTTONS_CONFIG: IFormButtonConfig = {
     link: true,
     size: EButtonSize.SMALL,
     severity: EButtonSeverity.PRIMARY,
-  }
+  },
 };
 
 export const LOGIN_FORM_CONFIG: IFormConfig = {

@@ -1,13 +1,32 @@
-import { APP_CONFIG } from "@core/config";
-import { IDataTableConfig, IDataTableHeaderConfig, IFilterConfig, IStatusConfig, ITextWithSubtitleAndImageConfig, IMatchModeOption, IBulkActionConfig, IRowActionConfig } from "@shared/models";
-import { EButtonSeverity, EButtonVariant, ETableBodyTemplate, ETableDataType, ETableFilterDisplayType, ETableFilterMatchMode, ETableFilterOperator, ETableSearchInputType } from "@shared/types";
+import { APP_CONFIG } from '@core/config';
+import {
+  IDataTableConfig,
+  IDataTableHeaderConfig,
+  IFilterConfig,
+  IStatusConfig,
+  ITextWithSubtitleAndImageConfig,
+  IMatchModeOption,
+  IBulkActionConfig,
+  IRowActionConfig,
+} from '@shared/models';
+import {
+  EButtonSeverity,
+  EButtonVariant,
+  ETableBodyTemplate,
+  ETableDataType,
+  ETableFilterDisplayType,
+  ETableFilterMatchMode,
+  ETableFilterOperator,
+  ETableSearchInputType,
+} from '@shared/types';
 
 // Default table config
 export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   rowHover: true,
   tableUniqueId: 'id',
   displayRows: APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
-  rowsPerPageOptions: APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE_OPTIONS,
+  rowsPerPageOptions:
+    APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE_OPTIONS,
   showPaginator: true,
   showCheckbox: true,
   emptyMessage: 'No data found',
@@ -61,15 +80,16 @@ export const DEFAULT_TABLE_FILTER_CONFIG: Partial<IFilterConfig> = {
   placeholder: 'Search',
   maxAddRuleConstraints: 2,
   numberFormatting: false,
-}
+};
 
 export const STATUS_CONFIG: IStatusConfig = {
   rounded: false,
-}
+};
 
-export const TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG: Partial<ITextWithSubtitleAndImageConfig> = {
-  dataType: ETableDataType.TEXT,
-}
+export const TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG: Partial<ITextWithSubtitleAndImageConfig> =
+  {
+    dataType: ETableDataType.TEXT,
+  };
 
 export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   bodyTemplate: ETableBodyTemplate.TEXT,
@@ -81,17 +101,16 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   showFilter: true,
   showSort: true,
   filterConfig: DEFAULT_TABLE_FILTER_CONFIG,
-}
+};
 
 // default bulk action config
 
 export const DEFAULT_BULK_ACTION_CONFIG: Partial<IBulkActionConfig> = {
   severity: EButtonSeverity.DANGER,
-}
+};
 
 // default row action config
 export const DEFAULT_ROW_ACTION_CONFIG: Partial<IRowActionConfig> = {
   severity: EButtonSeverity.DANGER,
   variant: EButtonVariant.TEXT,
-}
-
+};

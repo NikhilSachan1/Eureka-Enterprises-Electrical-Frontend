@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, input, output, signal, computed, effect } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+  computed,
+} from '@angular/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -11,19 +17,52 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TextareaModule } from 'primeng/textarea';
 import { InputOtpModule } from 'primeng/inputotp';
-import { EAutocomplete, ECalendarView, ECheckBoxAndRadioAlign, ECurrencyDisplay, EDateIconDisplay, EDateSelectionMode, EFieldSize, EFieldType, EFileMode, EFloatLabelVariant, EHourFormat, EInputNumberMode, EMultiSelectDisplayType, ESpinnerMode, EUpAndDownButtonLayout } from '@shared/types';
+import {
+  ECalendarView,
+  ECheckBoxAndRadioAlign,
+  EDateIconDisplay,
+  EDateSelectionMode,
+  EFieldType,
+  EFileMode,
+  EHourFormat,
+  EMultiSelectDisplayType,
+  EUpAndDownButtonLayout,
+} from '@shared/types';
 import { IInputFieldsConfig } from '@shared/models';
 import { FormsModule } from '@angular/forms';
 
+interface InputEventLike {
+  target: {
+    value: unknown;
+  };
+}
+
+interface CheckboxEventLike {
+  checked: unknown;
+}
+
 @Component({
   selector: 'app-standalone-input-field',
-  imports: [FloatLabelModule, InputTextModule, InputNumberModule, SelectModule, MultiSelectModule, DatePickerModule, PasswordModule, CheckboxModule, RadioButtonModule, FileUploadModule, TextareaModule, InputOtpModule, FormsModule],
+  imports: [
+    FloatLabelModule,
+    InputTextModule,
+    InputNumberModule,
+    SelectModule,
+    MultiSelectModule,
+    DatePickerModule,
+    PasswordModule,
+    CheckboxModule,
+    RadioButtonModule,
+    FileUploadModule,
+    TextareaModule,
+    InputOtpModule,
+    FormsModule,
+  ],
   templateUrl: './standalone-input-field.component.html',
   styleUrl: './standalone-input-field.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StandaloneInputFieldComponent {
-
   ALL_FIELD_TYPES = EFieldType;
   ALL_UP_AND_DOWN_BUTTON_LAYOUTS = EUpAndDownButtonLayout;
   ALL_MULTI_SELECT_DISPLAY_TYPES = EMultiSelectDisplayType;
@@ -37,25 +76,43 @@ export class StandaloneInputFieldComponent {
   // Inputs
   inputFieldConfig = input.required<IInputFieldsConfig>();
   isFieldInvalid = input<boolean>(false);
-  fieldValue = input<any>(undefined);
-  
+  fieldValue = input<unknown>(undefined);
+
+  onFieldChange = output<unknown>();
+
   protected currentValue = computed(() => {
     const externalValue = this.fieldValue();
-    return externalValue !== undefined ? externalValue : this.inputFieldConfig().defaultValue;
+    return externalValue !== undefined
+      ? externalValue
+      : this.inputFieldConfig().defaultValue;
   });
-  
-  // Outputs
-  onFieldChange = output<any>();
 
-  onStandaloneChange(event: any): void {
-    let value: any;
-    if(event.target?.value) {
+  onStandaloneChange(event: unknown): void {
+    let value: unknown;
+
+    if (this.isInputEvent(event)) {
       value = event.target.value;
-    } else if(event.checked) {
+    } else if (this.isCheckboxEvent(event)) {
       value = event.checked;
     } else {
       value = event;
-    }    
+    }
+
     this.onFieldChange.emit(value);
   }
-} 
+
+  private isInputEvent(event: unknown): event is InputEventLike {
+    return (
+      typeof event === 'object' &&
+      event !== null &&
+      'target' in event &&
+      typeof event.target === 'object' &&
+      event.target !== null &&
+      'value' in event.target
+    );
+  }
+
+  private isCheckboxEvent(event: unknown): event is CheckboxEventLike {
+    return typeof event === 'object' && event !== null && 'checked' in event;
+  }
+}

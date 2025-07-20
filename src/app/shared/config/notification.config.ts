@@ -1,23 +1,23 @@
-import { INotificationOptions } from "@shared/models";
-import { APP_CONFIG } from "@core/config";
+import { INotificationOptions } from '@shared/models';
+import { APP_CONFIG } from '@core/config';
 
 export const DEFAULT_NOTIFICATION_OPTIONS_CONFIG: INotificationOptions = {
-    life: APP_CONFIG.NOTIFICATION_CONFIG.life,
-    sticky: APP_CONFIG.NOTIFICATION_CONFIG.sticky,
-    closable: APP_CONFIG.NOTIFICATION_CONFIG.closable,
+  life: APP_CONFIG.NOTIFICATION_CONFIG.life,
+  sticky: APP_CONFIG.NOTIFICATION_CONFIG.sticky,
+  closable: APP_CONFIG.NOTIFICATION_CONFIG.closable,
 };
 
 // Common notification messages
 export const DEFAULT_NOTIFICATION_MESSAGES = {
-    VALIDATION_FAILED: 'Please fill all fields correctly.',
-    SOMETHING_WENT_WRONG: 'Something went wrong',
+  VALIDATION_FAILED: 'Please fill all fields correctly.',
+  SOMETHING_WENT_WRONG: 'Something went wrong',
 } as const;
 
 // Notification titles
 export const DEFAULT_NOTIFICATION_TITLES = {
-    success: 'Success',
-    error: 'Error',
-    warning: 'Warning',
-    info: 'Information',
-    validation: 'Validation Error',
+  success: 'Success',
+  error: 'Error',
+  warning: 'Warning',
+  info: 'Information',
+  validation: 'Validation Error',
 } as const;

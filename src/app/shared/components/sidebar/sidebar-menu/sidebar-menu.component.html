@@ -11,7 +11,6 @@
 
       <div class="menu-container">
         @for (item of section.items; track item) {
-
           <!-- Route Menu Item (has routerLink but no children) -->
           @if (item.routerLink && !item.children?.length) {
             <div class="menu-item">
@@ -25,7 +24,10 @@
                 (click)="closeAllSubmenus()"
               >
                 @if (item.icon) {
-                  <i [class]="item.icon" class="text-xl" aria-hidden="true"></i>
+                  <i
+                    [class]="`${item.icon} text-xl`"
+                    aria-hidden="true"
+                  ></i>
                 }
                 <span class="flex-1">{{ item.label }}</span>
               </div>
@@ -44,16 +46,19 @@
                 tabindex="0"
               >
                 @if (item.icon) {
-                  <i [class]="item.icon" class="text-xl" aria-hidden="true"></i>
+                  <i
+                    [class]="`${item.icon} text-xl`"
+                    aria-hidden="true"
+                  ></i>
                 }
                 <span class="flex-1">{{ item.label }}</span>
                 <i
-                  class="{{ icons.COMMON.CHEVRON_DOWN }} text-sm transition-transform"
+                  [class]="`${icons.COMMON.CHEVRON_DOWN} text-sm transition-transform`"
                   [class.rotate-180]="isMenuItemExpanded(item)"
                   aria-hidden="true"
                 ></i>
               </div>
-  
+
               <div
                 class="submenu"
                 [class.submenu-expanded]="isMenuItemExpanded(item)"
@@ -74,7 +79,10 @@
                       tabindex="0"
                     >
                       @if (child.icon) {
-                        <i [class]="child.icon" aria-hidden="true"></i>
+                        <i
+                          [class]="child.icon"
+                          aria-hidden="true"
+                        ></i>
                       }
                       <span>{{ child.label }}</span>
                     </a>
@@ -87,4 +95,4 @@
       </div>
     }
   </div>
-</nav> 
+</nav>

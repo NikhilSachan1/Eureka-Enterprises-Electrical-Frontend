@@ -1,4 +1,10 @@
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpInterceptorFn,
+  HttpRequest,
+  HttpHandlerFn,
+  HttpErrorResponse,
+  HttpEvent,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable, throwError, catchError } from 'rxjs';
 import { AuthService } from '@features/auth-management/services/auth.service';
@@ -8,7 +14,10 @@ import { SKIP_AUTH_ENDPOINTS } from '@core/constants';
 /**
  * Automatically adds JWT tokens to outgoing requests
  */
-export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<any> => {
+export const AuthInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn
+): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
   const logger = inject(LoggerService);
 
@@ -28,7 +37,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && token) {
         logger.warn('Received 401 error, logging out user');
-        authService.logout();
+        void authService.logout();
         return throwError(() => error);
       }
       return throwError(() => error);
@@ -46,11 +55,14 @@ function shouldSkipAuth(req: HttpRequest<unknown>): boolean {
 /**
  * Add authentication token to request headers
  */
-function addTokenToRequest(req: HttpRequest<unknown>, token: string): HttpRequest<unknown> {
+function addTokenToRequest(
+  req: HttpRequest<unknown>,
+  token: string
+): HttpRequest<unknown> {
   return req.clone({
     setHeaders: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': req.headers.get('Content-Type') || 'application/json'
-    }
+      Authorization: `Bearer ${token}`,
+      'Content-Type': req.headers.get('Content-Type') ?? 'application/json',
+    },
   });
 }

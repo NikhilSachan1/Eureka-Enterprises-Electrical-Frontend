@@ -1,4 +1,9 @@
-import { Component, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
 import { ButtonComponent } from '@shared/components';
 import { EButtonSize } from '@shared/types';
 import { IButtonConfig } from '@shared/models';
@@ -6,11 +11,10 @@ import { IButtonConfig } from '@shared/models';
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [
-    ButtonComponent
-  ],
+  imports: [ButtonComponent],
   templateUrl: './auth-layout.component.html',
-  styleUrls: ['./auth-layout.component.scss']
+  styleUrls: ['./auth-layout.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuthLayoutComponent {
   EButtonSize = EButtonSize;
@@ -21,4 +25,4 @@ export class AuthLayoutComponent {
   footerText = input.required<string>();
   footerLinkButton = input.required<Partial<IButtonConfig>>();
   footerLinkAction = output<void>();
-} 
+}

@@ -1,7 +1,10 @@
-import { IFormConfig, IFormInputFieldsConfig } from "@shared/models";
-import { IFormButtonConfig } from "@shared/models";
-import { EButtonSeverity } from "@shared/types";
-import { ADD_ROLE_FORM_CONFIG } from "@features/settings-management/permission-management/role-management/config/form/add-role-management-form.config";
+import {
+  IFormButtonConfig,
+  IFormConfig,
+  IFormInputFieldsConfig,
+} from '@shared/models';
+import { EButtonSeverity } from '@shared/types';
+import { ADD_ROLE_FORM_CONFIG } from '@features/settings-management/permission-management/role-management/config/form/add-role-management-form.config';
 
 const EDIT_ROLE_FIELDS_CONFIG: IFormInputFieldsConfig = {
   roleName: ADD_ROLE_FORM_CONFIG.fields['roleName'],
@@ -19,7 +22,7 @@ const EDIT_ROLE_BUTTONS_CONFIG: IFormButtonConfig = {
     type: 'submit',
     severity: EButtonSeverity.PRIMARY,
     tooltip: 'Update the role in the system',
-  }
+  },
 };
 
 export const EDIT_ROLE_FORM_CONFIG: IFormConfig = {

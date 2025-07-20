@@ -9,7 +9,7 @@
         <h3 class="header-title">Manage Permissions</h3>
         <div class="header-pending-row">
           @let pendingStats = getPendingCounts().global;
-          <span class="header-pending-value" [class]="pendingStats[0].colorClass">
+          <span [class]="`header-pending-value ${pendingStats[0].colorClass}`">
             {{ `${pendingStats[0].value} ${pendingStats[0].label}` }}
           </span>
         </div>
@@ -19,7 +19,9 @@
     <div class="header-stats-row">
       @for (stat of getStats().global; track stat.label) {
         <div class="header-stat">
-          <div class="header-stat-value" [class]="stat.colorClass">{{ stat.value }}</div>
+          <div [class]="`header-stat-value ${stat.colorClass}`">
+            {{ stat.value }}
+          </div>
           <div class="header-stat-label">{{ stat.label }}</div>
         </div>
       }
@@ -28,16 +30,15 @@
 </p-card>
 
 <!-- Main Form -->
-@if(form) {
-  <form 
-    (ngSubmit)="onSubmit()" 
+@if (form) {
+  <form
+    (ngSubmit)="onSubmit()"
     [formGroup]="form.formGroup"
     class="form"
   >
-    
     <!-- Navigation Tabs -->
-    <app-nav-tabs 
-      [tabs]="tabs()" 
+    <app-nav-tabs
+      [tabs]="tabs()"
       [tabMode]="tabModeType"
       (tabChanged)="onTabChanged($event)"
       class="nav-tabs-row"
@@ -51,7 +52,6 @@
               <p-card styleClass="module-card">
                 <div class="module-row">
                   <div class="module-title-row">
-                   
                     <app-standalone-input-field
                       [inputFieldConfig]="standaloneInputFieldConfig()[module.id]"
                       [fieldValue]="selectAllValues()[module.id]"
@@ -62,7 +62,7 @@
                       <h3 class="module-title">{{ module.moduleName }}</h3>
                       <div class="module-pending-row">
                         @let pendingStats = getPendingCounts().modules[module.id];
-                        <span class="module-pending-value" [class]="pendingStats[0].colorClass">
+                        <span [class]="`module-pending-value ${pendingStats[0].colorClass}`">
                           {{ `${pendingStats[0].value} ${pendingStats[0].label}` }}
                         </span>
                       </div>
@@ -72,7 +72,9 @@
                   <div class="module-stats-row">
                     @for (stat of getStats().modules[module.id]; track stat.label) {
                       <div class="module-stat">
-                        <div class="module-stat-value" [class]="stat.colorClass">{{ stat.value }}</div>
+                        <div [class]="`module-stat-value ${stat.colorClass}`">
+                          {{ stat.value }}
+                        </div>
                         <div class="module-stat-label">{{ stat.label }}</div>
                       </div>
                     }
@@ -83,14 +85,18 @@
               <!-- Permissions Grid -->
               <div class="permissions-grid">
                 @for (permission of module.permissions; track permission.id) {
-                  <p-card 
+                  <p-card
                     (click)="onClickPermissionCard(module.id, permission.id)"
                     class="permission-card"
                     [ngClass]="getPermissionStatus(permission.id)().cardStyle"
                   >
                     <!-- Permission Content -->
                     <div class="permission-content-row">
-                      <div class="permission-checkbox-col" (click)="$event.stopPropagation()">
+                      <div
+                        class="permission-checkbox-col"
+                        (click)="$event.stopPropagation()"
+                        tabindex="0"
+                      >
                         <app-input-field
                           [formGroup]="form.formGroup"
                           [inputFieldConfig]="form.fieldConfigs[`${permission.id}`]"
@@ -116,14 +122,15 @@
                   </p-card>
                 }
               </div>
-
             } @else {
               <!-- Empty State -->
-                <app-empty-messages
-                  [icon]="icons.SECURITY.SHIELD"
-                  [title]="'No permissions available'"
-                  [description]="'This module doesn\'t have any permissions configured yet. Contact your administrator to set up permissions for this module.'"
-                ></app-empty-messages>
+              <app-empty-messages
+                [icon]="icons.SECURITY.SHIELD"
+                [title]="'No permissions available'"
+                [description]="
+                  'This module doesn\'t have any permissions configured yet. Contact your administrator to set up permissions for this module.'
+                "
+              ></app-empty-messages>
             }
           </div>
         }
@@ -131,15 +138,15 @@
     </app-nav-tabs>
 
     <!-- Action Buttons -->
-    @if(modulePermissions().length > 0) {
+    @if (modulePermissions().length > 0) {
       <div class="button-container">
         <app-button
-          [buttonConfig]="form.buttonConfigs['reset']" 
+          [buttonConfig]="form.buttonConfigs['reset']"
           (onButtonClick)="onReset()"
         ></app-button>
 
-        <app-button 
-          [buttonConfig]="form.buttonConfigs['submit']" 
+        <app-button
+          [buttonConfig]="form.buttonConfigs['submit']"
           [showButtonLoader]="isSubmitting()"
         ></app-button>
       </div>

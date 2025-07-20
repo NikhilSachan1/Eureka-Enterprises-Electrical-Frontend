@@ -5,14 +5,15 @@ import {
   OnInit,
   OnDestroy,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { PageHeaderComponent, MetricsCardComponent, NavTabsComponent } from '@shared/components';
 import {
-  IMetricData,
-  IPageHeaderConfig,
-  ITabItem,
-} from '@shared/models';
+  PageHeaderComponent,
+  MetricsCardComponent,
+  NavTabsComponent,
+} from '@shared/components';
+import { IMetricData, IPageHeaderConfig, ITabItem } from '@shared/models';
 import { CardModule } from 'primeng/card';
 import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '@shared/constants';
 import { filter, takeUntil } from 'rxjs/operators';
@@ -32,13 +33,13 @@ import { ETabMode } from '@shared/types';
   standalone: true,
   templateUrl: './permission-list.component.html',
   styleUrl: './permission-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PermissionListComponent implements OnInit, OnDestroy {
-
   readonly tabModeType = ETabMode.ROUTER_OUTLET;
-  
+
   protected pageHeaderConfig = computed<IPageHeaderConfig>(() =>
-    this.getPageHeaderConfig(),
+    this.getPageHeaderConfig()
   );
   protected tabs = signal(this.getTabsData());
   protected metricsCards = signal(this.getMetricCardsData());
@@ -54,8 +55,8 @@ export class PermissionListComponent implements OnInit, OnDestroy {
 
     this.router.events
       .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        takeUntil(this.destroy$),
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
       )
       .subscribe((event: NavigationEnd) => {
         this.currentRoute.set(event.url);
@@ -124,13 +125,13 @@ export class PermissionListComponent implements OnInit, OnDestroy {
       if (!success) {
         this.logger.logUserAction(
           'Navigation failed for add button',
-          currentUrl,
+          currentUrl
         );
       }
     } else {
       this.logger.logUserAction(
         'Add button clicked - no matching route found',
-        currentUrl,
+        currentUrl
       );
     }
   }
@@ -144,21 +145,21 @@ export class PermissionListComponent implements OnInit, OnDestroy {
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM)) {
       return this.routerNavigationService.buildRouteSegments(
         [...basePaths, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM],
-        ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD,
+        ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD
       );
     }
 
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
       return this.routerNavigationService.buildRouteSegments(
         [...basePaths, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE],
-        ROUTES.SETTINGS.PERMISSION.ROLE.ADD,
+        ROUTES.SETTINGS.PERMISSION.ROLE.ADD
       );
     }
 
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
       return this.routerNavigationService.buildRouteSegments(
         [...basePaths, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER],
-        ROUTES.SETTINGS.PERMISSION.USER.ADD,
+        ROUTES.SETTINGS.PERMISSION.USER.ADD
       );
     }
 

@@ -17,7 +17,6 @@ export interface IStatusTagConfig {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusTagComponent {
-
   value = input.required<string>();
   config = input<IStatusTagConfig>();
 
@@ -25,8 +24,9 @@ export class StatusTagComponent {
     return this.getSeverity(this.value());
   }
 
-  private getSeverity(status: string | ESeverity | undefined): EPrimeNGSeverity {
-
+  private getSeverity(
+    status: string | ESeverity | undefined
+  ): EPrimeNGSeverity {
     if (this.config()?.severity) {
       return this.config()?.severity;
     }
@@ -37,18 +37,18 @@ export class StatusTagComponent {
       [ESeverity.WARNING]: 'warn',
       [ESeverity.DANGER]: 'danger',
       [ESeverity.SECONDARY]: 'secondary',
-      'active': 'success',
-      'allocated': 'success',
+      active: 'success',
+      allocated: 'success',
       'on leave': 'warn',
-      'available': 'warn',
-      'inactive': 'danger',
-      'pending': 'warn',
-      'approved': 'success',
-      'rejected': 'danger',
-      'present': 'success',
-      'absent': 'danger',
-      'leave': 'warn',
-      'holiday': 'contrast',
+      available: 'warn',
+      inactive: 'danger',
+      pending: 'warn',
+      approved: 'success',
+      rejected: 'danger',
+      present: 'success',
+      absent: 'danger',
+      leave: 'warn',
+      holiday: 'contrast',
       'checked in': 'info',
       'checked out': 'info',
       'not checked in': 'info',
@@ -57,4 +57,4 @@ export class StatusTagComponent {
 
     return severityMap[status?.toLowerCase() ?? ''] ?? 'secondary';
   }
-} 
+}

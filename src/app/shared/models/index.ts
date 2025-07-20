@@ -1,7 +1,44 @@
-export type { IConfirmationDialogSettingConfig, IConfirmationDialogRecordDetailConfig, IConfirmationDialogConfig, IDialogState, IEnhancedConfirmationDialog } from './confirmation-dialog.model';
-export type { IDataTableConfig, IDataTableHeaderConfig, ITextWithSubtitleAndImageConfig, IStatusConfig, IFilterConfig, IMatchModeOption, IRowActionConfig, IBulkActionConfig, IRowActionClickEvent, IBulkActionClickEvent } from './data-table-config.model';
-export type { IFormInputFieldsConfig, IFormButtonConfig, IFormConfig, IEnhancedForm } from './form.model';
-export type { IInputFieldsConfig, IInputNumberFieldConfig, ISelectFieldConfig, IMultiSelectFieldConfig, IDateFieldConfig, IPasswordFieldConfig, ICheckboxFieldConfig, IRadioFieldConfig, IFileFieldConfig, ITextAreaFieldConfig, IOptionDropdown, IIndividualNumberFieldConfig, IInputSeparator } from './input-fields-config.model';
+export type {
+  IConfirmationDialogSettingConfig,
+  IConfirmationDialogRecordDetailConfig,
+  IConfirmationDialogConfig,
+  IDialogState,
+  IEnhancedConfirmationDialog,
+} from './confirmation-dialog.model';
+export type {
+  IDataTableConfig,
+  IDataTableHeaderConfig,
+  ITextWithSubtitleAndImageConfig,
+  IStatusConfig,
+  IFilterConfig,
+  IMatchModeOption,
+  IRowActionConfig,
+  IBulkActionConfig,
+  IRowActionClickEvent,
+  IBulkActionClickEvent,
+  ITableData,
+} from './data-table-config.model';
+export type {
+  IFormInputFieldsConfig,
+  IFormButtonConfig,
+  IFormConfig,
+  IEnhancedForm,
+} from './form.model';
+export type {
+  IInputFieldsConfig,
+  IInputNumberFieldConfig,
+  ISelectFieldConfig,
+  IMultiSelectFieldConfig,
+  IDateFieldConfig,
+  IPasswordFieldConfig,
+  ICheckboxFieldConfig,
+  IRadioFieldConfig,
+  IFileFieldConfig,
+  ITextAreaFieldConfig,
+  IOptionDropdown,
+  IIndividualNumberFieldConfig,
+  IInputSeparator,
+} from './input-fields-config.model';
 export type { ILoader } from './loader.model';
 export type { MenuItem, MenuSection, ApplicationMenu } from './menu.model';
 export type { IMetricData, IMetric } from './metric-data.model';

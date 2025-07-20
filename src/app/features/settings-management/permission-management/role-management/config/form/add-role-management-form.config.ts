@@ -1,5 +1,9 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig, IFormInputFieldsConfig, IFormButtonConfig } from '@shared/models';
+import {
+  IFormConfig,
+  IFormInputFieldsConfig,
+  IFormButtonConfig,
+} from '@shared/models';
 import { EFieldType, EButtonSeverity } from '@shared/types';
 
 const ADD_ROLE_FIELDS_CONFIG: IFormInputFieldsConfig = {
@@ -31,10 +35,10 @@ const ADD_ROLE_BUTTONS_CONFIG: IFormButtonConfig = {
     type: 'submit',
     severity: EButtonSeverity.PRIMARY,
     tooltip: 'Add a new role to the system',
-  }
+  },
 };
 
 export const ADD_ROLE_FORM_CONFIG: IFormConfig = {
   fields: ADD_ROLE_FIELDS_CONFIG,
   buttons: ADD_ROLE_BUTTONS_CONFIG,
-}; 
+};

@@ -8,14 +8,20 @@ import {
   computed,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { PageHeaderComponent, InputFieldComponent, ButtonComponent } from '@shared/components';
-import { LoggerService } from '@core/services';
-import { FormService, LoadingService, NotificationService, RouterNavigationService } from '@shared/services/';
-import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
-  IEnhancedForm,
-  IPageHeaderConfig,
-} from '@shared/models';
+  PageHeaderComponent,
+  InputFieldComponent,
+  ButtonComponent,
+} from '@shared/components';
+import { LoggerService } from '@core/services';
+import {
+  FormService,
+  LoadingService,
+  NotificationService,
+  RouterNavigationService,
+} from '@shared/services/';
+import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
+import { IEnhancedForm, IPageHeaderConfig } from '@shared/models';
 import { ADD_SYSTEM_PERMISSION_FORM_CONFIG } from '@features/settings-management/permission-management/system-permission-management/config/form/add-system-permission-form.config';
 import { MODULE_ACTIONS_DATA } from '@shared/config';
 import { IAddSystemPermissionRequestDto } from '@features/settings-management/permission-management/system-permission-management/models/system-permission.api.model';
@@ -35,13 +41,11 @@ import { finalize } from 'rxjs';
   styleUrl: './add-system-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class AddSystemPermissionComponent implements OnInit {
-  
   protected form!: IEnhancedForm;
 
   protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
-    this.getPageHeaderConfig(),
+    this.getPageHeaderConfig()
   );
   protected readonly isSubmitting = signal(false);
 
@@ -59,8 +63,11 @@ export class AddSystemPermissionComponent implements OnInit {
 
   protected onModuleNameChange(): void {
     const moduleName = this.form.getFieldData('moduleName');
-    const actions = MODULE_ACTIONS_DATA[moduleName];
-    this.form.fieldConfigs['action'].selectConfig!.optionsDropdown = actions;
+    const actions = MODULE_ACTIONS_DATA[moduleName as string];
+    const { selectConfig } = this.form.fieldConfigs['action'];
+    if (selectConfig) {
+      selectConfig.optionsDropdown = actions;
+    }
   }
 
   protected onSubmit(): void {
@@ -75,7 +82,7 @@ export class AddSystemPermissionComponent implements OnInit {
   private validateForm(): boolean {
     if (!this.form.validateAndMarkTouched()) {
       this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID,
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
       );
       this.logger.warn('Add permission form validation failed');
       return false;
@@ -84,7 +91,6 @@ export class AddSystemPermissionComponent implements OnInit {
   }
 
   private executeAddPermission(formData: IAddSystemPermissionRequestDto): void {
-
     this.isSubmitting.set(true);
     this.loadingService.show({
       title: 'Adding Permission',
@@ -100,19 +106,22 @@ export class AddSystemPermissionComponent implements OnInit {
           this.form.enable();
           this.loadingService.hide();
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: () => {
-          this.notificationService.success('Permission added successfully', 'Success');
+          this.notificationService.success(
+            'Permission added successfully',
+            'Success'
+          );
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
           ];
-          this.routerNavigationService.navigateToRoute(routeSegments);
+          void this.routerNavigationService.navigateToRoute(routeSegments);
         },
-        error: (error) => {
+        error: error => {
           if (error?.name !== 'ZodError') {
             this.notificationService.error('Failed to add permission', 'Error');
           }
@@ -124,7 +133,10 @@ export class AddSystemPermissionComponent implements OnInit {
     try {
       this.logger.logUserAction('Reset Add Permission Form');
       this.form.reset();
-      this.form.fieldConfigs['action'].selectConfig!.optionsDropdown = [];
+      const { selectConfig } = this.form.fieldConfigs['action'];
+      if (selectConfig) {
+        selectConfig.optionsDropdown = [];
+      }
     } catch (error) {
       this.logger.error('Error resetting form', error);
     }
@@ -138,12 +150,12 @@ export class AddSystemPermissionComponent implements OnInit {
   }
 
   private prepareFormData(): IAddSystemPermissionRequestDto {
-    const formData = this.form.getData();
+    const { moduleName, action, comment } = this.form.getData();
     return {
-      module: formData['moduleName'],
-      name: `${formData['action']}_${formData['moduleName']}`,
-      label: `${formData['action']} ${formData['moduleName']}`,
-      description: formData['comment'],
+      module: moduleName as string,
+      name: `${action}_${moduleName}`,
+      label: `${action} ${moduleName}`,
+      description: comment as string,
     };
   }
 }

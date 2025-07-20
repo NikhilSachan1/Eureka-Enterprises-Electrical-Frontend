@@ -1,6 +1,10 @@
-import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpParams,
+  HttpErrorResponse,
+} from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, OperatorFunction } from 'rxjs';
 import { retry, timeout, map, tap, catchError } from 'rxjs/operators';
 import { EnvironmentService } from '@core/services/environment.service';
 import { LoggerService } from '@core/services/logger.service';
@@ -9,16 +13,15 @@ import { z } from 'zod';
 import { AppConfigService } from '@core/services/app-config.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
-
   private readonly http = inject(HttpClient);
   private readonly environmentService = inject(EnvironmentService);
   private readonly appConfigService = inject(AppConfigService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
-  
+
   private get baseUrl(): string {
     return this.environmentService.apiBaseUrl;
   }
@@ -31,29 +34,28 @@ export class ApiService {
     return this.appConfigService.apiRetryAttempts;
   }
 
-  get<T>(endpoint: string, params?: any): Observable<T> {
+  get<T>(endpoint: string, params?: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
     const httpParams = this.buildHttpParams(params);
-    
+
     this.logger.logApiRequest('GET', url, params);
-    
-    return this.http.get<T>(url, { params: httpParams })
-      .pipe(
-        timeout(this.timeout),
-        tap(response => this.logger.logApiResponse('GET', url, response)),
-        this.createRetryConfig<T>('GET', url),
-        catchError((error: HttpErrorResponse) => {
-          this.showFinalErrorNotification(error);
-          return throwError(() => error);
-        })
-      );
+
+    return this.http.get<T>(url, { params: httpParams }).pipe(
+      timeout(this.timeout),
+      tap(response => this.logger.logApiResponse('GET', url, response)),
+      this.createRetryConfig<T>('GET', url),
+      catchError((error: HttpErrorResponse) => {
+        this.showFinalErrorNotification(error);
+        return throwError(() => error);
+      })
+    );
   }
 
-  post<T>(endpoint: string, body: any): Observable<T> {
+  post<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    
+
     this.logger.logApiRequest('POST', url, body);
-    
+
     return this.http.post<T>(url, body).pipe(
       timeout(this.timeout),
       tap(response => this.logger.logApiResponse('POST', url, response)),
@@ -65,11 +67,11 @@ export class ApiService {
     );
   }
 
-  put<T>(endpoint: string, body: any): Observable<T> {
+  put<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    
+
     this.logger.logApiRequest('PUT', url, body);
-    
+
     return this.http.put<T>(url, body).pipe(
       timeout(this.timeout),
       tap(response => this.logger.logApiResponse('PUT', url, response)),
@@ -81,11 +83,11 @@ export class ApiService {
     );
   }
 
-  delete<T>(endpoint: string, body?: any): Observable<T> {
+  delete<T>(endpoint: string, body?: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    
+
     this.logger.logApiRequest('DELETE', url, body);
-    
+
     return this.http.delete<T>(url, { body }).pipe(
       timeout(this.timeout),
       tap(response => this.logger.logApiResponse('DELETE', url, response)),
@@ -97,11 +99,11 @@ export class ApiService {
     );
   }
 
-  patch<T>(endpoint: string, body: any): Observable<T> {
+  patch<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    
+
     this.logger.logApiRequest('PATCH', url, body);
-    
+
     return this.http.patch<T>(url, body).pipe(
       timeout(this.timeout),
       tap(response => this.logger.logApiResponse('PATCH', url, response)),
@@ -115,7 +117,7 @@ export class ApiService {
 
   // Validated API methods
   postValidated<TRequest, TResponse>(
-    endpoint: string, 
+    endpoint: string,
     body: TRequest,
     requestSchema: z.ZodSchema<TRequest>,
     responseSchema: z.ZodSchema<TResponse>
@@ -123,9 +125,11 @@ export class ApiService {
     try {
       const validatedBody = this.validateRequest(body, requestSchema);
       return this.post<unknown>(endpoint, validatedBody).pipe(
-        map((response: unknown) => this.validateResponse(response, responseSchema))
+        map((response: unknown) =>
+          this.validateResponse(response, responseSchema)
+        )
       );
-    } catch (zodError: any) {
+    } catch (zodError) {
       return throwError(() => zodError);
     }
   }
@@ -133,13 +137,15 @@ export class ApiService {
   getValidated<TResponse>(
     endpoint: string,
     responseSchema: z.ZodSchema<TResponse>,
-    params?: any
+    params?: unknown
   ): Observable<TResponse> {
     try {
       return this.get<unknown>(endpoint, params).pipe(
-        map((response: unknown) => this.validateResponse(response, responseSchema))
+        map((response: unknown) =>
+          this.validateResponse(response, responseSchema)
+        )
       );
-    } catch (zodError: any) {
+    } catch (zodError) {
       return throwError(() => zodError);
     }
   }
@@ -153,9 +159,11 @@ export class ApiService {
     try {
       const validatedBody = this.validateRequest(body, requestSchema);
       return this.put<unknown>(endpoint, validatedBody).pipe(
-        map((response: unknown) => this.validateResponse(response, responseSchema))
+        map((response: unknown) =>
+          this.validateResponse(response, responseSchema)
+        )
       );
-    } catch (zodError: any) {
+    } catch (zodError) {
       return throwError(() => zodError);
     }
   }
@@ -169,9 +177,11 @@ export class ApiService {
     try {
       const validatedBody = this.validateRequest(body, requestSchema);
       return this.patch<unknown>(endpoint, validatedBody).pipe(
-        map((response: unknown) => this.validateResponse(response, responseSchema))
+        map((response: unknown) =>
+          this.validateResponse(response, responseSchema)
+        )
       );
-    } catch (zodError: any) {
+    } catch (zodError) {
       return throwError(() => zodError);
     }
   }
@@ -180,41 +190,54 @@ export class ApiService {
     endpoint: string,
     body: TRequest,
     requestSchema: z.ZodSchema<TRequest>,
-    responseSchema: z.ZodSchema<TResponse>,
+    responseSchema: z.ZodSchema<TResponse>
   ): Observable<TResponse> {
     try {
       const validatedBody = this.validateRequest(body, requestSchema);
       return this.delete<unknown>(endpoint, validatedBody).pipe(
-        map((response: unknown) => this.validateResponse(response, responseSchema))
+        map((response: unknown) =>
+          this.validateResponse(response, responseSchema)
+        )
       );
-    } catch (zodError: any) {
+    } catch (zodError) {
       return throwError(() => zodError);
     }
   }
 
-  private buildHttpParams(params: any): HttpParams | undefined {
-    if (!params) return undefined;
-    
+  private buildHttpParams(params?: unknown): HttpParams | undefined {
+    if (!params) {
+      return undefined;
+    }
+
     let httpParams = new HttpParams();
-    Object.keys(params).forEach(key => {
-      if (params[key] !== null && params[key] !== undefined) {
-        httpParams = httpParams.set(key, params[key].toString());
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        httpParams = httpParams.set(key, String(value));
       }
     });
-    
+
     return httpParams;
   }
 
-  private createRetryConfig<T>(method: string, url: string) {
+  private createRetryConfig<T>(
+    method: string,
+    url: string
+  ): OperatorFunction<T, T> {
     return retry<T>({
       count: this.retryAttempts,
-      delay: (error: HttpErrorResponse, retryCount: number) => {        
-        if ( error.status === undefined || error.status === 0 || error.status >= 500) {
-          this.logger.info(`Retrying attempt ${retryCount}/${this.retryAttempts} - ${method} request to ${url} due to ${error.status || 'network'} error`);
+      delay: (error: HttpErrorResponse, retryCount: number) => {
+        if (
+          error.status === undefined ||
+          error.status === 0 ||
+          error.status >= 500
+        ) {
+          this.logger.info(
+            `Retrying attempt ${retryCount}/${this.retryAttempts} - ${method} request to ${url} due to ${error.status ?? 'network'} error`
+          );
           return this.calculateRetryDelay();
         }
         throw error;
-      }
+      },
     });
   }
 
@@ -229,11 +252,11 @@ export class ApiService {
   }
 
   private showFinalErrorNotification(error: HttpErrorResponse): void {
-    let errorMessage: string = 'Request failed after all retry attempts';
-    
+    let errorMessage = 'Request failed after all retry attempts';
+
     if (error.status === 0) {
       errorMessage = 'Network error. Please check your connection.';
-    } else if (error.error && error.error.error && error.error.error.message) {
+    } else if (error.error?.error?.message) {
       errorMessage = error.error.error.message;
     } else {
       errorMessage = 'An unexpected error occurred';
@@ -245,10 +268,12 @@ export class ApiService {
   private validateRequest<T>(data: T, schema: z.ZodSchema<T>): T {
     try {
       return schema.parse(data);
-    } catch (zodError: any) {
+    } catch (zodError) {
       this.logger.error('Request validation failed');
-      const errorMessage = this.formatZodError(zodError);
-      this.notificationService.error(`Request validation failed: ${errorMessage}`);
+      const errorMessage = this.formatZodError(zodError as z.ZodError);
+      this.notificationService.error(
+        `Request validation failed: ${errorMessage}`
+      );
       throw zodError;
     }
   }
@@ -256,23 +281,26 @@ export class ApiService {
   private validateResponse<T>(response: unknown, schema: z.ZodSchema<T>): T {
     try {
       return schema.parse(response);
-    } catch (zodError: any) {
+    } catch (zodError) {
       this.logger.error('Response validation failed');
-      const errorMessage = this.formatZodError(zodError);
-      this.notificationService.error(`Response validation failed: ${errorMessage}`);
+      const errorMessage = this.formatZodError(zodError as z.ZodError);
+      this.notificationService.error(
+        `Response validation failed: ${errorMessage}`
+      );
       throw zodError;
     }
   }
 
-  private formatZodError(zodError: any): string {
+  private formatZodError(zodError: z.ZodError): string {
     if (zodError?.issues && Array.isArray(zodError.issues)) {
       return zodError.issues
-        .map((issue: any) => {
-          const path = issue.path?.length > 0 ? `${issue.path.join('.')}` : 'field';
+        .map((issue: z.ZodIssue) => {
+          const path =
+            issue.path?.length > 0 ? `${issue.path.join('.')}` : 'field';
           return `${path}: ${issue.message}`;
         })
         .join(', ');
     }
-    return zodError?.message || 'Validation failed';
+    return zodError?.message ?? 'Validation failed';
   }
 }

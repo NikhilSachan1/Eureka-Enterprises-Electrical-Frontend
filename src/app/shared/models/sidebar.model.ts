@@ -8,4 +8,4 @@ export interface SidebarMenuItem {
   routerLink?: string;
   items?: SidebarMenuItem[];
   expanded?: boolean;
-} 
+}

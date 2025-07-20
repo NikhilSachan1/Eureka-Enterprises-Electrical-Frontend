@@ -1,12 +1,12 @@
 export interface IMetricData {
-    title: string;
-    subtitle: string;
-    iconClass: string;
-    iconBgClass: string;
-    metrics: IMetric[];
+  title: string;
+  subtitle: string;
+  iconClass: string;
+  iconBgClass: string;
+  metrics: IMetric[];
 }
 
 export interface IMetric {
-    label: string;
-    value: number;
+  label: string;
+  value: number;
 }

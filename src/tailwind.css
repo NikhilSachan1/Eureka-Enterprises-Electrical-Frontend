@@ -1,6 +1,6 @@
-@import "tailwindcss-primeui";
+@import 'tailwindcss-primeui';
 @layer tailwind, primeng;
 
 @layer tailwind {
-  @import "tailwindcss";
+  @import 'tailwindcss';
 }

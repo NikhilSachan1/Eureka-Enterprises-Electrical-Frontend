@@ -1,4 +1,7 @@
-export const deepMerge = (target: any, source: any): any => {
+export const deepMerge = <T extends Record<string, unknown>>(
+  target: T,
+  source: Partial<T>
+): T => {
   const result = { ...target };
 
   for (const key in source) {
@@ -10,16 +13,22 @@ export const deepMerge = (target: any, source: any): any => {
       !Array.isArray(source[key]) &&
       !Array.isArray(target[key])
     ) {
-      result[key] = deepMerge(target[key], source[key]);
+      result[key] = deepMerge(
+        target[key] as Record<string, unknown>,
+        source[key] as Record<string, unknown>
+      ) as T[Extract<keyof T, string>];
     } else {
       // For arrays and primitive values, replace completely
-      result[key] = source[key];
+      result[key] = source[key] as T[Extract<keyof T, string>];
     }
   }
 
   return result;
-}
+};
 
-export const getDataFromArrayOfObjects = <T, K extends keyof T>(obj: T[], key: K): T[K][] => {
+export const getDataFromArrayOfObjects = <T, K extends keyof T>(
+  obj: T[],
+  key: K
+): T[K][] => {
   return obj.map((item: T) => item[key]);
-}
+};

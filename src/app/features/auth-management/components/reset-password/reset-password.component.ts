@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonComponent, InputFieldComponent } from '@shared/components';
@@ -8,7 +14,11 @@ import { FormService, NotificationService } from '@shared/services';
 import { LoggerService } from '@core/services';
 import { RESET_PASSWORD_INPUT_FIELDS_CONFIG } from '@features/auth-management/config/reset-password-form.config';
 import { AuthLayoutComponent } from '@features/auth-management/shared/auth-layout.component';
-import { ROUTE_BASE_PATHS, ROUTES, FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import {
+  ROUTE_BASE_PATHS,
+  ROUTES,
+  FORM_VALIDATION_MESSAGES,
+} from '@shared/constants';
 
 @Component({
   selector: 'app-reset-password',
@@ -24,7 +34,6 @@ import { ROUTE_BASE_PATHS, ROUTES, FORM_VALIDATION_MESSAGES } from '@shared/cons
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPasswordComponent implements OnInit {
-
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly router = inject(Router);
@@ -48,27 +57,37 @@ export class ResetPasswordComponent implements OnInit {
 
   private validateForm(): boolean {
     if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(FORM_VALIDATION_MESSAGES.FORM_INVALID);
+      this.notificationService.validationError(
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
+      );
       this.logger.warn('Reset password form validation failed');
       return false;
     }
     return true;
   }
 
-  private executeResetPassword(formData: { password: string; confirmPassword: string }): void {
+  private executeResetPassword(formData: {
+    password: string;
+    confirmPassword: string;
+  }): void {
+    this.logger.info('Reset password form submitted', formData);
     this.isSubmitting.set(true);
     this.form.disable();
 
     // TODO: Replace with proper password reset logic using authService
     setTimeout(() => {
       this.logger.info('Reset password form submitted successfully');
-      this.notificationService.success('Password reset successfully! Redirecting to login...');
-      
+      this.notificationService.success(
+        'Password reset successfully! Redirecting to login...'
+      );
+
       // Navigate to login after a delay
       setTimeout(() => {
-        this.router.navigate([`/${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`]);
+        void this.router.navigate([
+          `/${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`,
+        ]);
       }, 2000);
-      
+
       this.isSubmitting.set(false);
       this.form.enable();
     }, 1500);
@@ -77,17 +96,19 @@ export class ResetPasswordComponent implements OnInit {
   protected onBackToLogin(): void {
     try {
       this.logger.logUserAction('Navigate back to Login');
-      this.router.navigate([`${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`]);
+      void this.router.navigate([
+        `${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`,
+      ]);
     } catch (error) {
       this.logger.error('Error navigating back to login', error);
     }
   }
 
   private prepareFormData(): { password: string; confirmPassword: string } {
-    const formData = this.form.getData();
+    const { password, confirmPassword } = this.form.getData();
     return {
-      password: formData['password'],
-      confirmPassword: formData['confirmPassword'],
+      password: password as string,
+      confirmPassword: confirmPassword as string,
     };
   }
 }

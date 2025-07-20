@@ -9,7 +9,11 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { PageHeaderComponent, InputFieldComponent, ButtonComponent } from '@shared/components';
+import {
+  PageHeaderComponent,
+  InputFieldComponent,
+  ButtonComponent,
+} from '@shared/components';
 import {
   NotificationService,
   FormService,
@@ -17,15 +21,8 @@ import {
   LoadingService,
 } from '@shared/services';
 import { LoggerService } from '@core/services';
-import {
-  FORM_VALIDATION_MESSAGES,
-  ROUTE_BASE_PATHS,
-  ROUTES,
-} from '@shared/constants';
-import {
-  IEnhancedForm,
-  IPageHeaderConfig,
-} from '@shared/models';
+import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
+import { IEnhancedForm, IPageHeaderConfig } from '@shared/models';
 import {
   IEditSystemPermissionRequestDto,
   IGetSingleSystemPermissionListResponseDto,
@@ -47,16 +44,17 @@ import { EDIT_SYSTEM_PERMISSION_FORM_CONFIG } from '@features/settings-managemen
   styleUrl: './edit-system-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class EditSystemPermissionComponent implements OnInit {
-
   protected form!: IEnhancedForm;
 
   protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
-    this.getPageHeaderConfig(),
+    this.getPageHeaderConfig()
   );
   protected readonly isSubmitting = signal(false);
-  protected readonly editSystemPermissionData = signal<Record<string, any> | null>(null);
+  protected readonly editSystemPermissionData = signal<Record<
+    string,
+    unknown
+  > | null>(null);
 
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
@@ -71,15 +69,14 @@ export class EditSystemPermissionComponent implements OnInit {
     this.loadSystemPermissionDataFromRoute();
     this.form = this.formService.createForm(
       EDIT_SYSTEM_PERMISSION_FORM_CONFIG,
-      this.editSystemPermissionData(),
+      this.editSystemPermissionData()
     );
   }
 
-  private loadSystemPermissionDataFromRoute() {
-    
+  private loadSystemPermissionDataFromRoute(): void {
     const editSystemPermissionRouteData =
       this.routerNavigationService.getRouterStateData<IGetSingleSystemPermissionListResponseDto>(
-        'permissionData',
+        'permissionData'
       );
 
     if (!editSystemPermissionRouteData) {
@@ -89,7 +86,7 @@ export class EditSystemPermissionComponent implements OnInit {
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
       ];
-      this.routerNavigationService.navigateToRoute(routeSegments);
+      void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
 
@@ -106,11 +103,14 @@ export class EditSystemPermissionComponent implements OnInit {
     }
 
     const formData = this.prepareFormData();
-    const permissionId = this.activatedRoute.snapshot.paramMap.get('permissionId');
+    const permissionId =
+      this.activatedRoute.snapshot.paramMap.get('permissionId');
 
     if (!permissionId) {
       this.logger.logUserAction('No permission id found in route');
-      this.notificationService.error(FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG);
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
       return;
     }
     this.executeEditSystemPermission(formData, permissionId);
@@ -119,7 +119,7 @@ export class EditSystemPermissionComponent implements OnInit {
   private validateForm(): boolean {
     if (!this.form.validateAndMarkTouched()) {
       this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID,
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
       );
       this.logger.warn('Edit permission form validation failed');
       return false;
@@ -129,7 +129,7 @@ export class EditSystemPermissionComponent implements OnInit {
 
   private executeEditSystemPermission(
     formData: IEditSystemPermissionRequestDto,
-    permissionId: string,
+    permissionId: string
   ): void {
     this.isSubmitting.set(true);
     this.loadingService.show({
@@ -146,28 +146,34 @@ export class EditSystemPermissionComponent implements OnInit {
           this.form.enable();
           this.loadingService.hide();
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: () => {
-          this.notificationService.success('Permission updated successfully', 'Success');
+          this.notificationService.success(
+            'Permission updated successfully',
+            'Success'
+          );
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
           ];
-          this.routerNavigationService.navigateToRoute(routeSegments);
+          void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {
-          this.notificationService.error('Failed to update permission', 'Error');
-        }
+          this.notificationService.error(
+            'Failed to update permission',
+            'Error'
+          );
+        },
       });
   }
 
   protected onReset(): void {
     try {
       this.logger.logUserAction('Reset Edit Permission Form');
-      this.form.reset(this.editSystemPermissionData());
+      this.form.reset(this.editSystemPermissionData() ?? {});
     } catch (error) {
       this.logger.error('Error resetting form', error);
     }
@@ -181,9 +187,9 @@ export class EditSystemPermissionComponent implements OnInit {
   }
 
   private prepareFormData(): IEditSystemPermissionRequestDto {
-    const formData = this.form.getData();
+    const { comment } = this.form.getData() as Record<string, string>;
     return {
-      description: formData['comment'],
+      description: comment,
     };
   }
 }

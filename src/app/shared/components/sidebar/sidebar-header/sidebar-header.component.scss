@@ -15,7 +15,7 @@
     height: 2.5rem;
     transition: var(--transition-smooth);
     filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
-    
+
     &:hover {
       transform: scale(1.02) rotate(-2deg);
       filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07));
@@ -39,4 +39,4 @@
     line-height: 1.25;
     margin: 0;
   }
-} 
+}

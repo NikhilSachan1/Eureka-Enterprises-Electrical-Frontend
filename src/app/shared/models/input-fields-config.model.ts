@@ -1,6 +1,20 @@
-import { TemplateRef } from "@angular/core";
-import { ValidatorFn } from "@angular/forms";
-import { EAutocomplete, ECalendarView, ECheckBoxAndRadioAlign, ECurrencyDisplay, EDateIconDisplay, EDateSelectionMode, EFieldSize, EFileMode, EFloatLabelVariant, EHourFormat, EInputNumberMode, EMultiSelectDisplayType, ESpinnerMode, EUpAndDownButtonLayout } from "@shared/types";
+import { ValidatorFn } from '@angular/forms';
+import {
+  EAutocomplete,
+  ECalendarView,
+  ECheckBoxAndRadioAlign,
+  ECurrencyDisplay,
+  EDateIconDisplay,
+  EDateSelectionMode,
+  EFieldSize,
+  EFileMode,
+  EFloatLabelVariant,
+  EHourFormat,
+  EInputNumberMode,
+  EMultiSelectDisplayType,
+  ESpinnerMode,
+  EUpAndDownButtonLayout,
+} from '@shared/types';
 
 export interface IInputFieldsConfig {
   fieldType: string;
@@ -13,7 +27,7 @@ export interface IInputFieldsConfig {
   fieldName: string;
   floatLabelVariant: EFloatLabelVariant;
   label: string;
-  defaultValue?: any;
+  defaultValue?: unknown;
   numberConfig?: Partial<IInputNumberFieldConfig>;
   selectConfig?: Partial<ISelectFieldConfig>;
   multiSelectConfig?: Partial<IMultiSelectFieldConfig>;

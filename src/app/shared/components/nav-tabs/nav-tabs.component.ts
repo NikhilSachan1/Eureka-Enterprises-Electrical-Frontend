@@ -1,4 +1,14 @@
-import { Component, input, computed, signal, output, OnInit, OnDestroy, inject } from '@angular/core';
+import {
+  Component,
+  input,
+  computed,
+  signal,
+  output,
+  OnInit,
+  OnDestroy,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { TabsModule } from 'primeng/tabs';
 import { BadgeModule } from 'primeng/badge';
@@ -12,17 +22,12 @@ import { Subject } from 'rxjs';
 @Component({
   selector: 'app-nav-tabs',
   standalone: true,
-  imports: [
-    RouterModule,
-    TabsModule,
-    BadgeModule,
-    TooltipModule,
-  ],
+  imports: [RouterModule, TabsModule, BadgeModule, TooltipModule],
   templateUrl: './nav-tabs.component.html',
-  styleUrl: './nav-tabs.component.scss'
+  styleUrl: './nav-tabs.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavTabsComponent implements OnInit, OnDestroy {
-
   tabs = input.required<ITabItem[]>();
   activeTabIndex = input<number>(0);
   tabMode = input<ETabMode>(ETabMode.ROUTER_OUTLET);
@@ -39,17 +44,21 @@ export class NavTabsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.tabMode() === this.allTabMode.CONTENT) {
-      this.activatedRoute.queryParams.pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(params => {
-        const tabIndexParam = params['tab'];
-        if (tabIndexParam !== undefined) {
-          const tabIndex = parseInt(tabIndexParam, 10);
-          if (!isNaN(tabIndex) && tabIndex >= 0 && tabIndex < this.tabs().length) {
-            this.setActiveTabByIndex(tabIndex);
+      this.activatedRoute.queryParams
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(params => {
+          const tabIndexParam = params['tab'];
+          if (tabIndexParam !== undefined) {
+            const tabIndex = parseInt(tabIndexParam, 10);
+            if (
+              !isNaN(tabIndex) &&
+              tabIndex >= 0 &&
+              tabIndex < this.tabs().length
+            ) {
+              this.setActiveTabByIndex(tabIndex);
+            }
           }
-        }
-      });
+        });
     } else {
       this.currentRoute.set(this.router.url);
     }
@@ -62,35 +71,35 @@ export class NavTabsComponent implements OnInit, OnDestroy {
 
   protected currentActiveTab = computed(() => {
     const tabs = this.tabs();
-    
+
     if (this.tabMode() === this.allTabMode.ROUTER_OUTLET) {
       const currentUrl = this.currentRoute();
       const matchingTab = tabs.find(tab => currentUrl.includes(tab.route));
       return matchingTab ? matchingTab.route : tabs[0]?.route || '';
-    } else {
-      const tabIndexParam = this.routerNavigationService.getRouteQueryParam('tab');
-      if (tabIndexParam !== null) {
-        const tabIndex = parseInt(tabIndexParam, 10);
-        if (!isNaN(tabIndex) && tabIndex >= 0 && tabIndex < tabs.length) {
-          return tabs[tabIndex]?.route || tabs[0]?.route || '';
-        }
-      }
-      
-      return tabs[this.activeTabIndex()]?.route || tabs[0]?.route || '';
     }
+    const tabIndexParam =
+      this.routerNavigationService.getRouteQueryParam('tab');
+    if (tabIndexParam !== null) {
+      const tabIndex = parseInt(tabIndexParam, 10);
+      if (!isNaN(tabIndex) && tabIndex >= 0 && tabIndex < tabs.length) {
+        return tabs[tabIndex]?.route || tabs[0]?.route || '';
+      }
+    }
+
+    return tabs[this.activeTabIndex()]?.route || tabs[0]?.route || '';
   });
 
   onTabClick(tab: ITabItem, index: number): void {
     if (this.tabMode() === this.allTabMode.CONTENT) {
-      this.routerNavigationService.navigateWithQueryParams(
+      void this.routerNavigationService.navigateWithQueryParams(
         [],
         { tab: index },
-        { 
+        {
           queryParamsHandling: 'merge',
-          relativeTo: this.activatedRoute
+          relativeTo: this.activatedRoute,
         }
       );
-      
+
       this.tabChanged.emit({ tab, index });
     }
   }
@@ -101,4 +110,4 @@ export class NavTabsComponent implements OnInit, OnDestroy {
       this.tabChanged.emit({ tab, index });
     }
   }
-} 
+}

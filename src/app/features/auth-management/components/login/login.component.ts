@@ -71,7 +71,9 @@ export class LoginComponent implements OnInit {
 
   private validateForm(): boolean {
     if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(FORM_VALIDATION_MESSAGES.FORM_INVALID);
+      this.notificationService.validationError(
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
+      );
       this.logger.warn('Login form validation failed');
       return false;
     }
@@ -82,9 +84,11 @@ export class LoginComponent implements OnInit {
     this.isSubmitting.set(true);
     this.form.disable();
 
-    const rememberMe = this.form.getData()['rememberMe'];
+    const { rememberMe } = this.form.getData();
+    this.logger.info('Login form submitted', loginData);
 
-    this.authService.login(loginData, rememberMe)
+    this.authService
+      .login(loginData, rememberMe as boolean)
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
@@ -93,15 +97,19 @@ export class LoginComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: () => {},
-        error: (error) => {}
+        next: () => {
+          this.logger.logUserAction('Login successful');
+        },
+        error: error => {
+          this.logger.error('Login failed', error);
+        },
       });
   }
 
   protected onForgotPassword(): void {
     try {
       this.logger.logUserAction('Navigate to Forgot Password');
-      this.router.navigate([
+      void this.router.navigate([
         `/${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.FORGOT_PASSWORD}`,
       ]);
     } catch (error) {
@@ -114,7 +122,7 @@ export class LoginComponent implements OnInit {
       this.logger.logUserAction('Navigate to Contact Admin');
       this.notificationService.info(
         'Please contact your system administrator for account assistance.',
-        'Contact Admin',
+        'Contact Admin'
       );
     } catch (error) {
       this.logger.error('Error in contact admin action', error);
@@ -122,10 +130,10 @@ export class LoginComponent implements OnInit {
   }
 
   private prepareFormData(): ILoginRequestDto {
-    const formData = this.form.getData();
+    const { email, password } = this.form.getData();
     return {
-      email: formData['email'],
-      password: formData['password'],
+      email: email as string,
+      password: password as string,
     };
   }
 }

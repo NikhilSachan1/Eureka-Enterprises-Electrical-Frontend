@@ -1,4 +1,9 @@
-import { Component, computed, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { fadeInOut } from '@shared/animations';
 
@@ -8,14 +13,15 @@ import { fadeInOut } from '@shared/animations';
   imports: [CommonModule],
   templateUrl: './loading-overlay.component.html',
   styleUrls: ['./loading-overlay.component.scss'],
-  animations: [fadeInOut]
+  animations: [fadeInOut],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoadingOverlayComponent {
   // Input signals for configuration
   readonly show = input<boolean>(false);
   readonly title = input<string>('Loading...');
   readonly message = input<string>('Please wait a moment');
-  
+
   // Computed signal for visibility
   readonly isVisible = computed(() => this.show());
-} 
+}

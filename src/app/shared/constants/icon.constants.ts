@@ -40,38 +40,38 @@ export const ICONS = {
   },
   ATTENDANCE: {
     CALENDAR: 'pi pi-calendar',
-    CHECK: 'pi pi-check-square'
+    CHECK: 'pi pi-check-square',
   },
   EXPENSE: {
     MONEY: 'pi pi-money-bill',
-    CAR: 'pi pi-car'
+    CAR: 'pi pi-car',
   },
   LEAVE: {
-    CALENDAR_MINUS: 'pi pi-calendar-minus'
+    CALENDAR_MINUS: 'pi pi-calendar-minus',
   },
   ASSET: {
     BOX: 'pi pi-box',
     CARD: 'pi pi-credit-card',
-    CAR: 'pi pi-car'
+    CAR: 'pi pi-car',
   },
   PAYROLL: {
-    WALLET: 'pi pi-wallet'
+    WALLET: 'pi pi-wallet',
   },
   SITE: {
-    BUILDING: 'pi pi-building'
+    BUILDING: 'pi pi-building',
   },
   SECURITY: {
     SHIELD: 'pi pi-shield',
     KEY: 'pi pi-key',
     LOCK: 'pi pi-lock',
-    UNLOCK: 'pi pi-unlock'
+    UNLOCK: 'pi pi-unlock',
   },
   SETTINGS: {
     COG: 'pi pi-cog',
     SLIDERS: 'pi pi-sliders-h',
-    WRENCH: 'pi pi-wrench'
+    WRENCH: 'pi pi-wrench',
   },
   THEME: {
     MOON: 'pi pi-moon',
-  }
-} as const; 
+  },
+} as const;

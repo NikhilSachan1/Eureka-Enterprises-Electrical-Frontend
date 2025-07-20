@@ -4,12 +4,16 @@
     <div class="auth-card-inner">
       <!-- Decorative background elements -->
       <div class="auth-decorative-border"></div>
-      
+
       <!-- Logo and branding -->
       <div class="auth-logo-container">
         <div class="auth-logo-wrapper">
           <div class="auth-logo">
-            <img src="https://i.postimg.cc/3w9krVGY/Untitled-design.png" alt="Eureka Enterprises" class="auth-logo-image" />
+            <img
+              src="https://i.postimg.cc/3w9krVGY/Untitled-design.png"
+              alt="Eureka Enterprises"
+              class="auth-logo-image"
+            />
           </div>
         </div>
         <h1 class="auth-title">{{ title() }}</h1>
@@ -23,12 +27,12 @@
       <div class="auth-footer">
         <p class="auth-footer-text">
           {{ footerText() }}
-            <app-button
-              [buttonConfig]="footerLinkButton()"
-              (onButtonClick)="footerLinkAction.emit()"
-            ></app-button>
+          <app-button
+            [buttonConfig]="footerLinkButton()"
+            (onButtonClick)="footerLinkAction.emit()"
+          ></app-button>
         </p>
       </div>
     </div>
   </div>
-</div> 
+</div>

@@ -1,5 +1,5 @@
 export interface INotificationOptions {
-    life?: number;
-    sticky?: boolean;
-    closable?: boolean;
+  life?: number;
+  sticky?: boolean;
+  closable?: boolean;
 }

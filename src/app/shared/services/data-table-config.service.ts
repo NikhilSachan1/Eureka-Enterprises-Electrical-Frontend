@@ -1,74 +1,117 @@
-import { Injectable, signal } from '@angular/core';
-import { IBulkActionConfig, IDataTableConfig, IDataTableHeaderConfig, IRowActionConfig, IEnhancedTable, IEnhancedTableConfig } from '@shared/models';
-import { DEFAULT_BULK_ACTION_CONFIG, DEFAULT_ROW_ACTION_CONFIG, DEFAULT_TABLE_CONFIG, DEFAULT_TABLE_HEADER_CONFIG } from '@shared/config';
+import { Injectable, signal, WritableSignal } from '@angular/core';
+import {
+  IBulkActionConfig,
+  IDataTableConfig,
+  IDataTableHeaderConfig,
+  IRowActionConfig,
+  IEnhancedTable,
+  IEnhancedTableConfig,
+  ITableData,
+} from '@shared/models';
+import {
+  DEFAULT_BULK_ACTION_CONFIG,
+  DEFAULT_ROW_ACTION_CONFIG,
+  DEFAULT_TABLE_CONFIG,
+  DEFAULT_TABLE_HEADER_CONFIG,
+} from '@shared/config';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TableService {
-
-  private readonly defaultTableConfig: Partial<IDataTableConfig> = DEFAULT_TABLE_CONFIG;
-  private readonly defaultTableHeaderConfig: Partial<IDataTableHeaderConfig> = DEFAULT_TABLE_HEADER_CONFIG;
-  private readonly defaultBulkActionConfig: Partial<IBulkActionConfig> = DEFAULT_BULK_ACTION_CONFIG;
-  private readonly defaultRowActionConfig: Partial<IRowActionConfig> = DEFAULT_ROW_ACTION_CONFIG;
+  private readonly defaultTableConfig: Partial<IDataTableConfig> =
+    DEFAULT_TABLE_CONFIG;
+  private readonly defaultTableHeaderConfig: Partial<IDataTableHeaderConfig> =
+    DEFAULT_TABLE_HEADER_CONFIG;
+  private readonly defaultBulkActionConfig: Partial<IBulkActionConfig> =
+    DEFAULT_BULK_ACTION_CONFIG;
+  private readonly defaultRowActionConfig: Partial<IRowActionConfig> =
+    DEFAULT_ROW_ACTION_CONFIG;
 
   createTable(tableConfig: IEnhancedTableConfig): IEnhancedTable {
-    
     const tableConfigData = this.getTableConfig(tableConfig.tableConfig);
     const tableHeaders = this.getTableHeaderConfig(tableConfig.headers);
     const bulkActions = this.getBulkActionsConfig(tableConfig.bulkActions);
     const rowActions = this.getRowActionsConfig(tableConfig.rowActions);
-    
-    return this.createEnhancedTable(tableConfigData, tableHeaders, bulkActions, rowActions);
+
+    return this.createEnhancedTable(
+      tableConfigData,
+      tableHeaders,
+      bulkActions,
+      rowActions
+    );
   }
 
-  private getTableConfig(options?: Partial<IDataTableConfig>): IDataTableConfig {
+  private getTableConfig(
+    options?: Partial<IDataTableConfig>
+  ): IDataTableConfig {
     return {
       ...this.defaultTableConfig,
       ...options,
     } as IDataTableConfig;
   }
 
-  private getTableHeaderConfig(options?: Partial<IDataTableHeaderConfig>[]): IDataTableHeaderConfig[] {
+  private getTableHeaderConfig(
+    options?: Partial<IDataTableHeaderConfig>[]
+  ): IDataTableHeaderConfig[] {
     if (!options?.length) {
       return [];
     }
-    return options.map(override => ({
-      ...this.defaultTableHeaderConfig,
-      ...override,
-      filterConfig: {
-        ...this.defaultTableHeaderConfig.filterConfig,
-        ...override.filterConfig,
-      },
-      textWithSubtitleAndImageConfig: override.textWithSubtitleAndImageConfig ? {
-        ...this.defaultTableHeaderConfig.textWithSubtitleAndImageConfig,
-        ...override.textWithSubtitleAndImageConfig,
-      } : undefined,
-      statusConfig: override.statusConfig ? {
-        ...this.defaultTableHeaderConfig.statusConfig,
-        ...override.statusConfig,
-      }: this.defaultTableHeaderConfig.statusConfig,
-    } as IDataTableHeaderConfig)) as IDataTableHeaderConfig[];
+    return options.map(
+      override =>
+        ({
+          ...this.defaultTableHeaderConfig,
+          ...override,
+          filterConfig: {
+            ...this.defaultTableHeaderConfig.filterConfig,
+            ...override.filterConfig,
+          },
+          textWithSubtitleAndImageConfig:
+            override.textWithSubtitleAndImageConfig
+              ? {
+                  ...this.defaultTableHeaderConfig
+                    .textWithSubtitleAndImageConfig,
+                  ...override.textWithSubtitleAndImageConfig,
+                }
+              : undefined,
+          statusConfig: override.statusConfig
+            ? {
+                ...this.defaultTableHeaderConfig.statusConfig,
+                ...override.statusConfig,
+              }
+            : this.defaultTableHeaderConfig.statusConfig,
+        }) as IDataTableHeaderConfig
+    );
   }
 
-  private getBulkActionsConfig(options?: Partial<IBulkActionConfig>[]): IBulkActionConfig[] {
+  private getBulkActionsConfig(
+    options?: Partial<IBulkActionConfig>[]
+  ): IBulkActionConfig[] {
     if (!options?.length) {
       return [];
     }
-    return options.map(override => ({
-      ...this.defaultBulkActionConfig,
-      ...override,
-    } as IBulkActionConfig));
+    return options.map(
+      override =>
+        ({
+          ...this.defaultBulkActionConfig,
+          ...override,
+        }) as IBulkActionConfig
+    );
   }
 
-  private getRowActionsConfig(options?: Partial<IRowActionConfig>[]): IRowActionConfig[] {
+  private getRowActionsConfig(
+    options?: Partial<IRowActionConfig>[]
+  ): IRowActionConfig[] {
     if (!options?.length) {
       return [];
     }
-    return options.map(override => ({
-      ...this.defaultRowActionConfig,
-      ...override,
-    } as IRowActionConfig));
+    return options.map(
+      override =>
+        ({
+          ...this.defaultRowActionConfig,
+          ...override,
+        }) as IRowActionConfig
+    );
   }
 
   private createEnhancedTable(
@@ -82,7 +125,7 @@ export class TableService {
     const headersSignal = signal(headers);
     const bulkActionsSignal = signal(bulkActions);
     const rowActionsSignal = signal(rowActions);
-    const dataSignal = signal<any[]>([]);
+    const dataSignal = signal<ITableData[]>([]);
     const loadingSignal = signal<boolean>(false);
 
     return {
@@ -92,43 +135,51 @@ export class TableService {
       rowActions: rowActionsSignal,
       data: dataSignal,
       loading: loadingSignal,
-      
-      setData: (data: any[]) => {
+
+      setData: (data: ITableData[]): WritableSignal<ITableData[]> => {
         dataSignal.set(data);
         return dataSignal;
       },
-      
-      setLoading: (loading: boolean) => {
+
+      setLoading: (loading: boolean): WritableSignal<boolean> => {
         loadingSignal.set(loading);
         return loadingSignal;
       },
-      
-      updateTableConfig: (config: Partial<IDataTableConfig>) => {
+
+      updateTableConfig: (
+        config: Partial<IDataTableConfig>
+      ): WritableSignal<IDataTableConfig> => {
         const updatedConfig = { ...tableConfigSignal(), ...config };
         tableConfigSignal.set(updatedConfig);
         return tableConfigSignal;
       },
-      
-      updateHeaders: (headers: IDataTableHeaderConfig[]) => {
-        headersSignal.set(headers);
+
+      updateHeaders: (
+        updatedHeaders: IDataTableHeaderConfig[]
+      ): WritableSignal<IDataTableHeaderConfig[]> => {
+        headersSignal.set(updatedHeaders);
         return headersSignal;
       },
-      
-      updateBulkActions: (actions: IBulkActionConfig[]) => {
+
+      updateBulkActions: (
+        actions: IBulkActionConfig[]
+      ): WritableSignal<IBulkActionConfig[]> => {
         bulkActionsSignal.set(actions);
         return bulkActionsSignal;
       },
-      
-      updateRowActions: (actions: IRowActionConfig[]) => {
+
+      updateRowActions: (
+        actions: IRowActionConfig[]
+      ): WritableSignal<IRowActionConfig[]> => {
         rowActionsSignal.set(actions);
         return rowActionsSignal;
       },
-      
-      getTableData: () => dataSignal(),
-      getTableConfig: () => tableConfigSignal(),
-      getHeaders: () => headersSignal(),
-      getBulkActions: () => bulkActionsSignal(),
-      getRowActions: () => rowActionsSignal(),
+
+      getTableData: (): ITableData[] => dataSignal(),
+      getTableConfig: (): IDataTableConfig => tableConfigSignal(),
+      getHeaders: (): IDataTableHeaderConfig[] => headersSignal(),
+      getBulkActions: (): IBulkActionConfig[] => bulkActionsSignal(),
+      getRowActions: (): IRowActionConfig[] => rowActionsSignal(),
     };
   }
-} 
+}

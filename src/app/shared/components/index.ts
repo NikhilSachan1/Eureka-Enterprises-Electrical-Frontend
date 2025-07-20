@@ -15,4 +15,4 @@ export { SidebarHeaderComponent } from './sidebar/sidebar-header/sidebar-header.
 export { SidebarMenuComponent } from './sidebar/sidebar-menu/sidebar-menu.component';
 export { SidebarUserProfileComponent } from './sidebar/sidebar-user-profile/sidebar-user-profile.component';
 export { StandaloneInputFieldComponent } from './standalone-input-field/standalone-input-field.component';
-export { StatusTagComponent } from './status-tag/status-tag.component'; 
+export { StatusTagComponent } from './status-tag/status-tag.component';

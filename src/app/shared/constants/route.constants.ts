@@ -19,7 +19,7 @@ export const ROUTE_BASE_PATHS = {
     BASE: 'site',
     COMPANY: 'company',
     CONTRACTOR: 'contractor',
-    PROJECT: 'project'
+    PROJECT: 'project',
   },
   SETTINGS: {
     BASE: 'settings',
@@ -27,29 +27,28 @@ export const ROUTE_BASE_PATHS = {
       BASE: 'permission',
       SYSTEM: 'system',
       USER: 'user',
-      ROLE: 'role'
-    }
+      ROLE: 'role',
+    },
   },
 } as const;
 
 export const ROUTES = {
-
   AUTH: {
     LOGIN: 'login',
     FORGOT_PASSWORD: 'forgot-password',
-    RESET_PASSWORD: 'reset-password'
+    RESET_PASSWORD: 'reset-password',
   },
 
   EMPLOYEE: {
     LIST: `list`,
     ADD: `add`,
-    EDIT: `edit/:id`
+    EDIT: `edit/:id`,
   },
 
   ATTENDANCE: {
     LIST: `list`,
     APPLY: `apply`,
-    FORCE: `force`
+    FORCE: `force`,
   },
 
   EXPENSE: {
@@ -57,7 +56,7 @@ export const ROUTES = {
     FORCE: `force`,
     ADD: `add`,
     EDIT: `edit/:id`,
-    REIMBURSEMENT: `reimbursement`
+    REIMBURSEMENT: `reimbursement`,
   },
 
   FUEL: {
@@ -65,13 +64,13 @@ export const ROUTES = {
     FORCE: `force`,
     ADD: `add`,
     REIMBURSEMENT: `reimbursement`,
-    EDIT: `edit/:id`
+    EDIT: `edit/:id`,
   },
 
   LEAVE: {
     APPLY: `apply`,
     LIST: `list`,
-    FORCE: `force`
+    FORCE: `force`,
   },
 
   SITE: {
@@ -86,19 +85,19 @@ export const ROUTES = {
     PROJECT: {
       LIST: `list`,
       ADD: `add`,
-    }
+    },
   },
 
   CALENDAR: {
     LIST: `list`,
     ADD: `add`,
-    EDIT: `edit/:id`
+    EDIT: `edit/:id`,
   },
 
   ASSET: {
     LIST: `list`,
     ADD: `add`,
-    EDIT: `edit/:id`
+    EDIT: `edit/:id`,
   },
 
   CARD: {
@@ -106,20 +105,20 @@ export const ROUTES = {
     ADD: `add`,
     EDIT: `edit/:id`,
     RECHARGE_HISTORY: `recharge-history`,
-    ADD_RECHARGE: `add-recharge`
+    ADD_RECHARGE: `add-recharge`,
   },
 
   VEHICLE: {
     LIST: `list`,
     ADD: `add`,
-    EDIT: `edit/:id`
+    EDIT: `edit/:id`,
   },
 
   PAYROLL: {
     PAYSLIP: `payslip`,
     INCREMENT: `increment`,
     MONTHLY_REPORT: `monthly-report`,
-    STRUCTURE: `structure`
+    STRUCTURE: `structure`,
   },
 
   SETTINGS: {
@@ -127,19 +126,19 @@ export const ROUTES = {
       SYSTEM: {
         LIST: `list`,
         ADD: `add`,
-        EDIT: `edit`
+        EDIT: `edit`,
       },
       USER: {
         LIST: `list`,
         ADD: `add`,
-        EDIT: `edit`
+        EDIT: `edit`,
       },
       ROLE: {
         LIST: `list`,
         ADD: `add`,
         EDIT: `edit`,
-        SET_PERMISSIONS: `set-permissions`
-      }
-    }
-  }
-} as const; 
+        SET_PERMISSIONS: `set-permissions`,
+      },
+    },
+  },
+} as const;

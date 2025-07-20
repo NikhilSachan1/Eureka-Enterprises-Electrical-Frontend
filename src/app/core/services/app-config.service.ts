@@ -7,12 +7,11 @@ import { IAppConfig } from '@core/models';
  * Provides centralized access to application configuration
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AppConfigService {
-  
   private readonly _config = APP_CONFIG;
-  
+
   /**
    * Get the complete application configuration
    */
@@ -33,14 +32,14 @@ export class AppConfigService {
   get apiTimeout(): number {
     return this._config.API_CONFIG.timeout;
   }
-  
+
   /**
    * Get the API retry attempts configuration
    */
   get apiRetryAttempts(): number {
     return this._config.API_CONFIG.retryAttempts;
   }
-  
+
   /**
    * Get the API retry delay configuration
    */
@@ -61,14 +60,14 @@ export class AppConfigService {
   get cacheDefaultDuration(): number {
     return this._config.CACHE_CONFIG.defaultDuration;
   }
-  
+
   /**
    * Get the cache max entries
    */
   get cacheMaxEntries(): number {
     return this._config.CACHE_CONFIG.maxEntries;
   }
-  
+
   /**
    * Get the cache cleanup interval
    */
@@ -131,4 +130,4 @@ export class AppConfigService {
   get confirmationDialogConfig(): IAppConfig['CONFIRMATION_DIALOG_CONFIG'] {
     return this._config.CONFIRMATION_DIALOG_CONFIG;
   }
-} 
+}

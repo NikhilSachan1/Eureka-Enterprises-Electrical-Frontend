@@ -1,23 +1,32 @@
+<!-- eslint-disable @angular-eslint/template/no-any -->
 <!-- Search bar moved outside table -->
 <div class="mb-4 p-4 border border-slate-100 rounded-lg shadow-sm">
   <div class="flex items-center justify-end">
-    <p-iconfield iconPosition="left" class="w-96">
+    <p-iconfield
+      iconPosition="left"
+      class="w-96"
+    >
       <p-inputicon>
-        <i class="{{ icons.COMMON.SEARCH }}"></i>
+        <i [class]="icons.COMMON.SEARCH"></i>
       </p-inputicon>
-      <input pInputText type="text" (input)="applyFilterGlobal($event, 'contains')"
-        placeholder="Search keyword" class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500" />
+      <input
+        pInputText
+        type="text"
+        (input)="applyFilterGlobal($event, 'contains')"
+        placeholder="Search keyword"
+        class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+      />
     </p-iconfield>
   </div>
 </div>
 
 <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-  <p-table 
-    #dt 
+  <p-table
+    #dt
     [rowHover]="tableConfig().rowHover"
-    [value]="tableData()" 
+    [value]="tableData()"
     [dataKey]="tableConfig().tableUniqueId"
-    [rows]="tableConfig().displayRows" 
+    [rows]="tableConfig().displayRows"
     [rowsPerPageOptions]="tableConfig().rowsPerPageOptions"
     [loading]="loading()"
     [paginator]="tableConfig().showPaginator"
@@ -26,7 +35,6 @@
     (onFilter)="onFilterChange($event)"
     [globalFilterFields]="tableConfig().globalFilterFields"
   >
-
     @let selectedCount = selectedTableRows().length;
     @if (selectedCount > 0) {
       <ng-template #caption>
@@ -34,13 +42,13 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
               <div class="flex items-center gap-2">
-                <i class="{{ icons.ACTIONS.CHECK_CIRCLE }}"></i>
-                <span class="font-semibold">{{selectedCount}} items selected</span>
+                <i [class]="icons.ACTIONS.CHECK_CIRCLE"></i>
+                <span class="font-semibold">{{ selectedCount }} items selected</span>
               </div>
               <div class="h-5 w-px"></div>
               <div class="flex items-center gap-3">
                 @for (button of bulkActionButtons(); track $index) {
-                  <app-button 
+                  <app-button
                     [buttonConfig]="button"
                     [showDisabledButton]="isBulkActionDisabled(button)"
                     (onButtonClick)="onBulkActionClick(button.id)"
@@ -50,21 +58,23 @@
             </div>
 
             <div class="flex items-center">
-              <app-button 
+              <app-button
                 [buttonConfig]="getClearSelectionButtonConfig()"
                 (onButtonClick)="clearSelection()"
-                pTooltip="Clear Selected Rows" 
+                pTooltip="Clear Selected Rows"
                 tooltipPosition="top"
               ></app-button>
             </div>
           </div>
         </div>
       </ng-template>
-      }
+    }
 
-    <ng-template #header let-columns>
+    <ng-template
+      #header
+      let-columns
+    >
       <tr>
-
         @if (tableConfig().showCheckbox) {
           <th>
             <div class="flex">
@@ -72,25 +82,28 @@
             </div>
           </th>
         }
-        
+
         @for (item of columns; track $index) {
           @let shouldShowSort = item.showSort;
           @let shouldShowFilter = item.showFilter;
           @let filterConfig = item.filterConfig;
-          
-          <th [pSortableColumn]="(shouldShowSort ? item.field : null)">
+
+          <th [pSortableColumn]="shouldShowSort ? item.field : null">
             <div class="flex items-center">
               <span class="font-semibold text-slate-700">{{ item.header }}</span>
 
               @if (shouldShowSort) {
-                <p-sortIcon class="ml-2" [field]="item.field" />
+                <p-sortIcon
+                  class="ml-2"
+                  [field]="item.field"
+                />
               }
 
               @if (shouldShowFilter && filterConfig) {
-                <p-columnFilter 
-                  [field]="filterConfig.filterField" 
-                  [type]="filterConfig.searchInputType" 
-                  [display]="filterConfig.displayType" 
+                <p-columnFilter
+                  [field]="filterConfig.filterField"
+                  [type]="filterConfig.searchInputType"
+                  [display]="filterConfig.displayType"
                   [showMatchModes]="filterConfig.showMatchModes"
                   [matchMode]="filterConfig.defaultMatchMode"
                   [matchModeOptions]="filterConfig.matchModeOptions"
@@ -103,20 +116,26 @@
                   [placeholder]="filterConfig.placeholder"
                   [maxConstraints]="filterConfig.maxAddRuleConstraints"
                   [useGrouping]="filterConfig.numberFormatting"
-                  >
-
+                >
                   @switch (filterConfig.searchInputType) {
                     @case ('dropdown') {
                       @if (filterConfig.filterDropdownOptions) {
-                        <ng-template #filter let-value let-filter="filterCallback">
-                          <p-select [ngModel]="value" [options]="filterConfig.filterDropdownOptions" (onChange)="filter($event.value)"
-                            [placeholder]="filterConfig.placeholder" styleClass="w-full">
-                          </p-select>
+                        <ng-template
+                          #filter
+                          let-value
+                          let-filter="filterCallback"
+                        >
+                          <p-select
+                            [ngModel]="value"
+                            [options]="filterConfig.filterDropdownOptions"
+                            (onChange)="filter($event.value)"
+                            [placeholder]="filterConfig.placeholder"
+                            styleClass="w-full"
+                          ></p-select>
                         </ng-template>
                       }
                     }
                   }
-
                 </p-columnFilter>
               }
             </div>
@@ -134,9 +153,12 @@
       </tr>
     </ng-template>
 
-    <ng-template #body let-rowData let-columns="columns">
+    <ng-template
+      #body
+      let-rowData
+      let-columns="columns"
+    >
       <tr>
-
         @if (tableConfig().showCheckbox) {
           <td>
             <p-tableCheckbox [value]="rowData" />
@@ -144,31 +166,35 @@
         }
 
         @for (column of columns; track $index) {
-          @let columnData = resolveNestedProperty(rowData, column.field);
+          @let columnData = $any(resolveNestedProperty(rowData, column.field));
           @let bodyTemplate = column.bodyTemplate;
-          
+
           <td>
             @switch (bodyTemplate) {
               @case (ALL_TABLE_BODY_TEMPLATES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
                 @let config = column.textWithSubtitleAndImageConfig;
-                
+
                 <div class="flex items-center gap-3">
                   @if (config.showImage) {
-                    @let imageName = resolveNestedProperty(rowData, config.dummyImageField);
-                    <img 
-                      [src]="getAvatarUrl(imageName)" 
+                    @let imageName = $any(resolveNestedProperty(rowData, config.dummyImageField));
+                    <img
+                      [src]="getAvatarUrl(imageName)"
                       [alt]="imageName"
-                      class="w-8 h-8 rounded-full bg-slate-100" />
+                      class="w-8 h-8 rounded-full bg-slate-100"
+                    />
                   }
 
                   <div>
                     <div>
                       @if (config.primaryFieldLabel) {
-                        <span class="font-medium text-slate-600">
-                          {{ config.primaryFieldLabel }}: 
-                        </span>
+                        <span class="font-medium text-slate-600">{{ config.primaryFieldLabel }}:</span>
                       }
-                      <span [ngClass]="{'font-medium text-slate-700': config.primaryFieldHighlight, 'text-slate-700': !config.primaryFieldHighlight}">
+                      <span
+                        [ngClass]="{
+                          'font-medium text-slate-700': config.primaryFieldHighlight,
+                          'text-slate-700': !config.primaryFieldHighlight,
+                        }"
+                      >
                         @switch (column.dataType) {
                           @case ('date') {
                             {{ columnData | date: column.dateFormat }}
@@ -181,14 +207,24 @@
                     </div>
 
                     @if (config.secondaryField) {
-                      @let secondaryData = resolveNestedProperty(rowData, config.secondaryField);
+                      @let secondaryData = $any(resolveNestedProperty(rowData, config.secondaryField));
                       <div>
                         @if (config.secondaryFieldLabel) {
-                          <span [ngClass]="{'text-slate-600': !config.secondaryFieldLabel, 'font-medium text-slate-600': config.secondaryFieldLabel}">
-                            {{ config.secondaryFieldLabel }}: 
+                          <span
+                            [ngClass]="{
+                              'text-slate-600': !config.secondaryFieldLabel,
+                              'font-medium text-slate-600': config.secondaryFieldLabel,
+                            }"
+                          >
+                            {{ config.secondaryFieldLabel }}:
                           </span>
                         }
-                        <span [ngClass]="{'text-slate-600': !config.secondaryFieldLabel, 'text-slate-700': config.secondaryFieldLabel}">
+                        <span
+                          [ngClass]="{
+                            'text-slate-600': !config.secondaryFieldLabel,
+                            'text-slate-700': config.secondaryFieldLabel,
+                          }"
+                        >
                           @switch (config.dataType) {
                             @case ('date') {
                               {{ secondaryData | date: column.dateFormat }}
@@ -208,9 +244,9 @@
                 @let statusValue = columnData;
 
                 <div class="flex items-center gap-3">
-                  <app-status-tag 
-                    [value]="statusValue" 
-                    [config]="statusConfig" 
+                  <app-status-tag
+                    [value]="statusValue"
+                    [config]="statusConfig"
                   />
                 </div>
               }
@@ -221,8 +257,13 @@
               }
               @case (ALL_TABLE_BODY_TEMPLATES.CURRENCY) {
                 @let entryType = resolveNestedProperty(rowData, 'entryType');
-                @let colorClass = entryType === 'Credit' ? 'text-green-600 font-semibold' : entryType === 'Debit' ? 'text-red-600 font-semibold' : 'text-slate-700';
-                
+                @let colorClass =
+                  entryType === 'Credit'
+                    ? 'text-green-600 font-semibold'
+                    : entryType === 'Debit'
+                      ? 'text-red-600 font-semibold'
+                      : 'text-slate-700';
+
                 <div class="flex items-center gap-3">
                   <span [ngClass]="colorClass">{{ columnData | currency: column.currencyFormat }}</span>
                 </div>
@@ -230,19 +271,22 @@
               @case (ALL_TABLE_BODY_TEMPLATES.FILE_LINK) {
                 @if (columnData) {
                   <div class="flex items-center gap-3">
-                    <a 
-                      [href]="columnData" 
-                      target="_blank" 
+                    <a
+                      [href]="columnData"
+                      target="_blank"
                       class="inline-flex items-center gap-2 px-3 py-1.5 font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 cursor-pointer"
-                      (click)="$event.stopPropagation()">
-                      <i class="{{ icons.COMMON.FILE }} text-sm"></i>
+                      (click)="$event.stopPropagation()"
+                    >
+                      <i [class]="`${icons.COMMON.FILE} text-sm`"></i>
                       View
                     </a>
                   </div>
                 } @else {
                   <div class="flex items-center gap-3">
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 font-medium text-gray-500 bg-gray-50 border border-gray-200 rounded-md">
-                      <i class="{{ icons.ACTIONS.BAN }} text-sm"></i>
+                    <span
+                      class="inline-flex items-center gap-2 px-3 py-1.5 font-medium text-gray-500 bg-gray-50 border border-gray-200 rounded-md"
+                    >
+                      <i [class]="`{{ icons.ACTIONS.BAN }} text-sm`"></i>
                       No Proof
                     </span>
                   </div>
@@ -290,10 +334,13 @@
         }
       </tr>
     </ng-template>
-    
+
     <ng-template #emptymessage>
       <tr>
-        <td [colSpan]="tableHeader().length + 2" class="text-center text-slate-700 py-12">
+        <td
+          [colSpan]="tableHeader().length + 2"
+          class="text-center text-slate-700 py-12"
+        >
           <app-empty-messages
             [icon]="tableConfig().emptyMessageIcon"
             [title]="tableConfig().emptyMessage"
