@@ -28,18 +28,12 @@ import {
   EMultiSelectDisplayType,
   EUpAndDownButtonLayout,
 } from '@shared/types';
-import { IInputFieldsConfig } from '@shared/models';
+import {
+  IInputFieldsConfig,
+  InputEventLike,
+  CheckboxEventLike,
+} from '@shared/models';
 import { FormsModule } from '@angular/forms';
-
-interface InputEventLike {
-  target: {
-    value: unknown;
-  };
-}
-
-interface CheckboxEventLike {
-  checked: unknown;
-}
 
 @Component({
   selector: 'app-standalone-input-field',

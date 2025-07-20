@@ -47,11 +47,9 @@ import { SYSTEM_PERMISSION_FORM_EDIT_CONFIG } from '../../config';
 export class EditSystemPermissionComponent implements OnInit {
   protected form!: IEnhancedForm;
 
-  protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
-    this.getPageHeaderConfig()
-  );
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
-  protected readonly editSystemPermissionData = signal<Record<
+  protected readonly editSystemPermissionPrefilledData = signal<Record<
     string,
     unknown
   > | null>(null);
@@ -66,35 +64,11 @@ export class EditSystemPermissionComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
 
   ngOnInit(): void {
-    this.loadSystemPermissionDataFromRoute();
+    this.loadPrefilledSystemPermissionDataFromRoute();
     this.form = this.formService.createForm(
       SYSTEM_PERMISSION_FORM_EDIT_CONFIG,
-      this.editSystemPermissionData()
+      this.editSystemPermissionPrefilledData()
     );
-  }
-
-  private loadSystemPermissionDataFromRoute(): void {
-    const editSystemPermissionRouteData =
-      this.routerNavigationService.getRouterStateData<ISystemPermissionGetBaseResponseDto>(
-        'permissionData'
-      );
-
-    if (!editSystemPermissionRouteData) {
-      this.logger.logUserAction('No permission data found in route');
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SETTINGS.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
-      ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
-      return;
-    }
-
-    const editSystemPermissionData = {
-      comment: editSystemPermissionRouteData.description,
-    };
-
-    this.editSystemPermissionData.set(editSystemPermissionData);
   }
 
   protected onSubmit(): void {
@@ -103,43 +77,32 @@ export class EditSystemPermissionComponent implements OnInit {
     }
 
     const formData = this.prepareFormData();
-    const permissionId =
-      this.activatedRoute.snapshot.paramMap.get('permissionId');
+    const systemPermissionId =
+      this.activatedRoute.snapshot.paramMap.get('systemPermissionId');
 
-    if (!permissionId) {
-      this.logger.logUserAction('No permission id found in route');
+    if (!systemPermissionId) {
+      this.logger.logUserAction('No system permission id found in route');
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
       return;
     }
-    this.executeEditSystemPermission(formData, permissionId);
-  }
-
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Edit permission form validation failed');
-      return false;
-    }
-    return true;
+    this.executeEditSystemPermission(formData, systemPermissionId);
   }
 
   private executeEditSystemPermission(
     formData: ISystemPermissionEditRequestDto,
-    permissionId: string
+    systemPermissionId: string
   ): void {
     this.isSubmitting.set(true);
     this.loadingService.show({
-      title: 'Updating Permission',
-      message: 'Please wait while we update the permission...',
+      title: 'Updating System Permission',
+      message: 'Please wait while we update the system permission...',
     });
     this.form.disable();
 
     this.systemPermissionService
-      .updateSystemPermission(formData, permissionId)
+      .updateSystemPermission(formData, systemPermissionId)
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
@@ -151,8 +114,7 @@ export class EditSystemPermissionComponent implements OnInit {
       .subscribe({
         next: () => {
           this.notificationService.success(
-            'Permission updated successfully',
-            'Success'
+            'System permission updated successfully'
           );
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,
@@ -162,18 +124,51 @@ export class EditSystemPermissionComponent implements OnInit {
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {
-          this.notificationService.error(
-            'Failed to update permission',
-            'Error'
-          );
+          this.notificationService.error('Failed to update system permission');
         },
       });
   }
 
+  private validateForm(): boolean {
+    if (!this.form.validateAndMarkTouched()) {
+      this.notificationService.validationError(
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
+      );
+      this.logger.warn('Edit system permission form validation failed');
+      return false;
+    }
+    return true;
+  }
+
+  private loadPrefilledSystemPermissionDataFromRoute(): void {
+    const editSystemPermissionRouteData =
+      this.routerNavigationService.getRouterStateData<ISystemPermissionGetBaseResponseDto>(
+        'systemPermissionData'
+      );
+
+    if (!editSystemPermissionRouteData) {
+      this.logger.logUserAction('No system permission data found in route');
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SETTINGS.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
+      ];
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+      return;
+    }
+
+    const editSystemPermissionPrefilledData = this.preparePrefilledData(
+      editSystemPermissionRouteData
+    );
+    this.editSystemPermissionPrefilledData.set(
+      editSystemPermissionPrefilledData
+    );
+  }
+
   protected onReset(): void {
     try {
-      this.logger.logUserAction('Reset Edit Permission Form');
-      this.form.reset(this.editSystemPermissionData() ?? {});
+      this.logger.logUserAction('Reset Edit System Permission Form');
+      this.form.reset(this.editSystemPermissionPrefilledData() ?? {});
     } catch (error) {
       this.logger.error('Error resetting form', error);
     }
@@ -181,8 +176,17 @@ export class EditSystemPermissionComponent implements OnInit {
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
-      title: 'Edit Permission',
-      subtitle: 'Edit a permission in the system',
+      title: 'Edit System Permission',
+      subtitle: 'Edit a system permission in the system',
+    };
+  }
+
+  private preparePrefilledData(
+    editSystemPermissionPrefilledData: ISystemPermissionGetBaseResponseDto
+  ): Record<string, unknown> {
+    const { description } = editSystemPermissionPrefilledData;
+    return {
+      comment: description,
     };
   }
 

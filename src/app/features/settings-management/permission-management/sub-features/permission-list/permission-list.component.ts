@@ -3,9 +3,9 @@ import {
   signal,
   computed,
   OnInit,
-  OnDestroy,
   inject,
   ChangeDetectionStrategy,
+  DestroyRef,
 } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import {
@@ -16,11 +16,11 @@ import {
 import { IMetricData, IPageHeaderConfig, ITabItem } from '@shared/models';
 import { CardModule } from 'primeng/card';
 import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '@shared/constants';
-import { filter, takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { LoggerService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
 import { ETabMode } from '@shared/types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-permission-list',
@@ -35,20 +35,18 @@ import { ETabMode } from '@shared/types';
   styleUrl: './permission-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PermissionListComponent implements OnInit, OnDestroy {
+export class PermissionListComponent implements OnInit {
   readonly tabModeType = ETabMode.ROUTER_OUTLET;
 
-  protected pageHeaderConfig = computed<IPageHeaderConfig>(() =>
-    this.getPageHeaderConfig()
-  );
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected tabs = signal(this.getTabsData());
   protected metricsCards = signal(this.getMetricCardsData());
   protected currentRoute = signal<string>('');
-  private destroy$ = new Subject<void>();
 
   private readonly router = inject(Router);
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.currentRoute.set(this.router.url);
@@ -56,23 +54,11 @@ export class PermissionListComponent implements OnInit, OnDestroy {
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((event: NavigationEnd) => {
         this.currentRoute.set(event.url);
       });
-  }
-
-  private getPageHeaderConfig(): IPageHeaderConfig {
-    return {
-      title: 'Permission Management',
-      subtitle: 'Manage permissions, roles, and user access',
-      showHeaderButton: true,
-      headerButtonConfig: {
-        label: this.getPageHeaderButtonLabel(),
-        icon: ICONS.COMMON.PLUS,
-      },
-    };
   }
 
   private getMetricCardsData(): IMetricData[] {
@@ -100,18 +86,6 @@ export class PermissionListComponent implements OnInit, OnDestroy {
         ],
       },
     ];
-  }
-
-  protected getPageHeaderButtonLabel(): string {
-    const currentUrl = this.currentRoute();
-
-    if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
-      return 'Add New Role';
-    } else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
-      return 'Add New User Permission';
-    }
-
-    return 'Add New Permission';
   }
 
   protected async onAddButtonClick(): Promise<void> {
@@ -166,6 +140,30 @@ export class PermissionListComponent implements OnInit, OnDestroy {
     return null;
   }
 
+  private getPageHeaderConfig(): IPageHeaderConfig {
+    return {
+      title: 'Permission Management',
+      subtitle: 'Manage system permissions, roles, and user access',
+      showHeaderButton: true,
+      headerButtonConfig: {
+        label: this.getPageHeaderButtonLabel(),
+        icon: ICONS.COMMON.PLUS,
+      },
+    };
+  }
+
+  protected getPageHeaderButtonLabel(): string {
+    const currentUrl = this.currentRoute();
+
+    if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
+      return 'Add New Role';
+    } else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
+      return 'Add New User Permission';
+    }
+
+    return 'Add New Permission';
+  }
+
   private getTabsData(): ITabItem[] {
     return [
       {
@@ -187,10 +185,5 @@ export class PermissionListComponent implements OnInit, OnDestroy {
         tooltip: 'Manage system users',
       },
     ];
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

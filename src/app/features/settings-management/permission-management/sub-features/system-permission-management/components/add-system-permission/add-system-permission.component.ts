@@ -44,9 +44,7 @@ import { ISystemPermissionAddRequestDto } from '../../types/system-permission.dt
 export class AddSystemPermissionComponent implements OnInit {
   protected form!: IEnhancedForm;
 
-  protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
-    this.getPageHeaderConfig()
-  );
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
   private readonly formService = inject(FormService);
@@ -61,40 +59,22 @@ export class AddSystemPermissionComponent implements OnInit {
     this.form = this.formService.createForm(SYSTEM_PERMISSION_FORM_ADD_CONFIG);
   }
 
-  protected onModuleNameChange(): void {
-    const moduleName = this.form.getFieldData('moduleName');
-    const actions = MODULE_ACTIONS_DATA[moduleName as string];
-    const { selectConfig } = this.form.fieldConfigs['action'];
-    if (selectConfig) {
-      selectConfig.optionsDropdown = actions;
-    }
-  }
-
   protected onSubmit(): void {
     if (this.isSubmitting() || !this.validateForm()) {
       return;
     }
 
     const formData = this.prepareFormData();
-    this.executeAddPermission(formData);
+    this.executeAddSystemPermission(formData);
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Add permission form validation failed');
-      return false;
-    }
-    return true;
-  }
-
-  private executeAddPermission(formData: ISystemPermissionAddRequestDto): void {
+  private executeAddSystemPermission(
+    formData: ISystemPermissionAddRequestDto
+  ): void {
     this.isSubmitting.set(true);
     this.loadingService.show({
-      title: 'Adding Permission',
-      message: 'Please wait while we add the permission...',
+      title: 'Adding System Permission',
+      message: 'Please wait while we add the system permission...',
     });
     this.form.disable();
 
@@ -110,10 +90,7 @@ export class AddSystemPermissionComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.notificationService.success(
-            'Permission added successfully',
-            'Success'
-          );
+          this.notificationService.success('Permission added successfully');
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
@@ -121,17 +98,35 @@ export class AddSystemPermissionComponent implements OnInit {
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
-        error: error => {
-          if (error?.name !== 'ZodError') {
-            this.notificationService.error('Failed to add permission', 'Error');
-          }
+        error: () => {
+          this.notificationService.error('Failed to add system permission');
         },
       });
   }
 
+  private validateForm(): boolean {
+    if (!this.form.validateAndMarkTouched()) {
+      this.notificationService.validationError(
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
+      );
+      this.logger.warn('Add system permission form validation failed');
+      return false;
+    }
+    return true;
+  }
+
+  protected onModuleNameChange(): void {
+    const moduleName = this.form.getFieldData('moduleName');
+    const actions = MODULE_ACTIONS_DATA[moduleName as string];
+    const { selectConfig } = this.form.fieldConfigs['action'];
+    if (selectConfig) {
+      selectConfig.optionsDropdown = actions;
+    }
+  }
+
   protected onReset(): void {
     try {
-      this.logger.logUserAction('Reset Add Permission Form');
+      this.logger.logUserAction('Reset Add System Permission Form');
       this.form.reset();
       const { selectConfig } = this.form.fieldConfigs['action'];
       if (selectConfig) {
@@ -144,18 +139,21 @@ export class AddSystemPermissionComponent implements OnInit {
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
-      title: 'Add Permission',
-      subtitle: 'Add a new permission to the system',
+      title: 'Add System Permission',
+      subtitle: 'Add a new system permission to the system',
     };
   }
 
   private prepareFormData(): ISystemPermissionAddRequestDto {
-    const { moduleName, action, comment } = this.form.getData();
+    const { moduleName, action, comment } = this.form.getData() as Record<
+      string,
+      string
+    >;
     return {
-      module: moduleName as string,
+      module: moduleName,
       name: `${action}_${moduleName}`,
       label: `${action} ${moduleName}`,
-      description: comment as string,
+      description: comment,
     };
   }
 }

@@ -43,9 +43,7 @@ import { ROLE_FORM_ADD_CONFIG } from '../../config';
 export class AddRoleComponent implements OnInit {
   protected form!: IEnhancedForm;
 
-  protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
-    this.getPageHeaderConfig()
-  );
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
   private readonly formService = inject(FormService);
@@ -69,17 +67,6 @@ export class AddRoleComponent implements OnInit {
     this.executeAddRole(formData);
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Add role form validation failed');
-      return false;
-    }
-    return true;
-  }
-
   private executeAddRole(formData: IRoleAddRequestDto): void {
     this.isSubmitting.set(true);
     this.loadingService.show({
@@ -100,10 +87,7 @@ export class AddRoleComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.notificationService.success(
-            'Role added successfully',
-            'Success'
-          );
+          this.notificationService.success('Role added successfully');
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
@@ -112,9 +96,20 @@ export class AddRoleComponent implements OnInit {
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {
-          this.notificationService.error('Failed to add role', 'Error');
+          this.notificationService.error('Failed to add role');
         },
       });
+  }
+
+  private validateForm(): boolean {
+    if (!this.form.validateAndMarkTouched()) {
+      this.notificationService.validationError(
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
+      );
+      this.logger.warn('Add role form validation failed');
+      return false;
+    }
+    return true;
   }
 
   protected onReset(): void {
@@ -134,11 +129,11 @@ export class AddRoleComponent implements OnInit {
   }
 
   private prepareFormData(): IRoleAddRequestDto {
-    const { roleName, comment } = this.form.getData();
+    const { roleName, comment } = this.form.getData() as Record<string, string>;
     return {
-      name: roleName as string,
-      description: comment as string,
-      label: roleName as string,
+      name: roleName,
+      description: comment,
+      label: roleName,
     };
   }
 }

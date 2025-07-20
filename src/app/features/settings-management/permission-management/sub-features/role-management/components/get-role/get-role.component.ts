@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnDestroy,
+  DestroyRef,
   OnInit,
   inject,
 } from '@angular/core';
@@ -16,7 +16,7 @@ import {
   IEnhancedTableConfig,
 } from '@shared/models';
 import { EBulkActionType, EDialogType, ERowActionType } from '@shared/types';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize } from 'rxjs';
 import { LoggerService } from '@core/services';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
@@ -38,6 +38,7 @@ import {
   IRoleGetBaseResponseDto,
   IRoleGetResponseDto,
 } from '../../types/role.dto';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-get-role',
@@ -46,10 +47,8 @@ import {
   styleUrl: './get-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RoleListComponent implements OnInit, OnDestroy {
+export class RoleListComponent implements OnInit {
   protected table!: IEnhancedTable;
-
-  private readonly destroy$ = new Subject<void>();
 
   private readonly roleService = inject(RoleService);
   private readonly dataTableService = inject(TableService);
@@ -60,6 +59,7 @@ export class RoleListComponent implements OnInit, OnDestroy {
     ConfirmationDialogService
   );
   private readonly notificationService = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -72,7 +72,7 @@ export class RoleListComponent implements OnInit, OnDestroy {
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Roles',
-      message: 'Fetching roles...',
+      message: 'Please wait while we load the roles...',
     });
 
     this.roleService
@@ -82,7 +82,7 @@ export class RoleListComponent implements OnInit, OnDestroy {
           this.table.setLoading(false);
           this.loadingService.hide();
         }),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response: IRoleGetResponseDto) => {
@@ -97,18 +97,33 @@ export class RoleListComponent implements OnInit, OnDestroy {
       });
   }
 
-  private mapTableData(
-    response: IRoleGetResponseDto
-  ): Partial<IRoleGetBaseResponseDto>[] {
-    return response.records.map((record: IRoleGetBaseResponseDto) => ({
-      id: record.id,
-      name: record.name,
-      description: record.description,
-      label: record.label,
-      permissionCount: record.permissionCount,
-      isDeletable: record.isDeletable,
-      isEditable: record.isEditable,
-    }));
+  private executeDeleteRole(formData: IRoleDeleteRequestDto): void {
+    this.logger.logUserAction('Executing delete role', formData);
+    this.loadingService.show({
+      title: 'Deleting Role(s)',
+      message: 'Please wait while we delete the role(s)...',
+    });
+
+    this.roleService
+      .deleteRole(formData)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+          this.table.setData([]);
+          this.loadRoleList();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IRoleDeleteResponseDto) => {
+          this.logger.logUserAction('Delete role response', response);
+          this.notificationService.success('Role(s) deleted successfully');
+        },
+        error: error => {
+          this.logger.logUserAction('Delete role error', error);
+          this.notificationService.error('Failed to delete role(s)');
+        },
+      });
   }
 
   protected handleBulkActionClick(event: IBulkActionClickEvent): void {
@@ -141,12 +156,26 @@ export class RoleListComponent implements OnInit, OnDestroy {
           rowData as IRoleGetBaseResponseDto
         );
         break;
-      case ERowActionType.EDIT_PERMISSIONS:
+      case ERowActionType.SET_PERMISSIONS:
         this.navigateToSetRolePermissions(rowData as IRoleGetBaseResponseDto);
         break;
       default:
         this.logger.warn('Unknown row action:', actionType);
     }
+  }
+
+  private mapTableData(
+    response: IRoleGetResponseDto
+  ): Partial<IRoleGetBaseResponseDto>[] {
+    return response.records.map((record: IRoleGetBaseResponseDto) => ({
+      id: record.id,
+      name: record.name,
+      description: record.description,
+      label: record.label,
+      permissionCount: record.permissionCount,
+      isDeletable: record.isDeletable,
+      isEditable: record.isEditable,
+    }));
   }
 
   private navigateToEditRole(rowData: IRoleGetBaseResponseDto): void {
@@ -212,12 +241,10 @@ export class RoleListComponent implements OnInit, OnDestroy {
       this.executeDeleteRole(formData)
     );
 
-    const confirmationDialog =
-      this.confirmationDialogService.createConfirmationDialog(
-        EDialogType.DELETE,
-        dialogConfig
-      );
-    confirmationDialog.show();
+    this.confirmationDialogService.showConfirmationDialog(
+      dialogConfig,
+      EDialogType.DELETE
+    );
   }
 
   private showBulkDeleteConfirmationDialog(
@@ -234,45 +261,10 @@ export class RoleListComponent implements OnInit, OnDestroy {
       this.executeDeleteRole(formData)
     );
 
-    const confirmationDialog =
-      this.confirmationDialogService.createConfirmationDialog(
-        EDialogType.DELETE,
-        dialogConfig
-      );
-    confirmationDialog.show();
-  }
-
-  private executeDeleteRole(formData: IRoleDeleteRequestDto): void {
-    this.logger.logUserAction('Executing delete role', formData);
-
-    this.loadingService.show({
-      title: 'Deleting Roles',
-      message: 'Deleting roles...',
-    });
-
-    this.roleService
-      .deleteRole(formData)
-      .pipe(
-        finalize(() => {
-          this.loadingService.hide();
-          this.table.setData([]);
-          this.loadRoleList();
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe({
-        next: (response: IRoleDeleteResponseDto) => {
-          this.logger.logUserAction('Delete role response', response);
-          this.notificationService.success(
-            'Role(s) deleted successfully',
-            'Success'
-          );
-        },
-        error: error => {
-          this.logger.logUserAction('Delete role error', error);
-          this.notificationService.error('Failed to delete role(s)', 'Error');
-        },
-      });
+    this.confirmationDialogService.showConfirmationDialog(
+      dialogConfig,
+      EDialogType.DELETE
+    );
   }
 
   private formatSingleDeleteRoleData(
@@ -289,10 +281,5 @@ export class RoleListComponent implements OnInit, OnDestroy {
 
   private prepareDeleteRoleFormData(roleIds: string[]): IRoleDeleteRequestDto {
     return { ids: roleIds };
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

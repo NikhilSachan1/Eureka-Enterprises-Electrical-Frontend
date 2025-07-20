@@ -20,7 +20,7 @@ export enum EBulkActionType {
 export enum ERowActionType {
   VIEW = 'view',
   EDIT = 'edit',
-  EDIT_PERMISSIONS = 'editPermissions',
+  SET_PERMISSIONS = 'setPermissions',
   DELETE = 'delete',
   APPROVE = 'approve',
   REJECT = 'reject',

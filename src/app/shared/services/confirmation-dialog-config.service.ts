@@ -149,4 +149,15 @@ export class ConfirmationDialogService {
       this.confirmationService.confirm(config.dialogSettingConfig);
     }
   }
+
+  showConfirmationDialog(
+    dialogConfig: IConfirmationDialogConfig,
+    dialogType: EDialogType
+  ): void {
+    const confirmationDialog = this.createConfirmationDialog(
+      dialogType,
+      dialogConfig
+    );
+    confirmationDialog.show();
+  }
 }

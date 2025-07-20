@@ -69,7 +69,7 @@ export const ROLE_TABLE_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
       (rowData as IRoleGetBaseResponseDto).isDeletable === false,
   },
   {
-    id: ERowActionType.EDIT_PERMISSIONS,
+    id: ERowActionType.SET_PERMISSIONS,
     icon: ICONS.SETTINGS.COG,
     tooltip: 'Edit Role Permissions',
     severity: EButtonSeverity.INFO,

@@ -160,3 +160,13 @@ export interface IInputSeparator {
   position: number;
   content: string;
 }
+
+export interface InputEventLike {
+  target: {
+    value: unknown;
+  };
+}
+
+export interface CheckboxEventLike {
+  checked: unknown;
+}

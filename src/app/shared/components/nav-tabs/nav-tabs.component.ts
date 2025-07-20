@@ -5,9 +5,9 @@ import {
   signal,
   output,
   OnInit,
-  OnDestroy,
   inject,
   ChangeDetectionStrategy,
+  DestroyRef,
 } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { TabsModule } from 'primeng/tabs';
@@ -16,8 +16,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ITabChange, ITabItem } from '@shared/models';
 import { ETabMode } from '@shared/types';
 import { RouterNavigationService } from '@shared/services';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-nav-tabs',
@@ -27,7 +26,7 @@ import { Subject } from 'rxjs';
   styleUrl: './nav-tabs.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NavTabsComponent implements OnInit, OnDestroy {
+export class NavTabsComponent implements OnInit {
   tabs = input.required<ITabItem[]>();
   activeTabIndex = input<number>(0);
   tabMode = input<ETabMode>(ETabMode.ROUTER_OUTLET);
@@ -36,8 +35,8 @@ export class NavTabsComponent implements OnInit, OnDestroy {
   tabChanged = output<ITabChange>();
 
   private currentRoute = signal<string>('');
-  private destroy$ = new Subject<void>();
 
+  private readonly destroyRef = inject(DestroyRef);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private routerNavigationService = inject(RouterNavigationService);
@@ -45,7 +44,7 @@ export class NavTabsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.tabMode() === this.allTabMode.CONTENT) {
       this.activatedRoute.queryParams
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(params => {
           const tabIndexParam = params['tab'];
           if (tabIndexParam !== undefined) {
@@ -62,11 +61,6 @@ export class NavTabsComponent implements OnInit, OnDestroy {
     } else {
       this.currentRoute.set(this.router.url);
     }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   protected currentActiveTab = computed(() => {

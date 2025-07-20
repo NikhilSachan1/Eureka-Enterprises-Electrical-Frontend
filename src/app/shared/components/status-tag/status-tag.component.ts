@@ -1,12 +1,7 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { ESeverity, EPrimeNGSeverity } from '@shared/types';
-
-export interface IStatusTagConfig {
-  rounded?: boolean;
-  severity?: EPrimeNGSeverity;
-  icon?: string;
-}
+import { ITagConfig } from '@app/shared/models';
 
 @Component({
   selector: 'app-status-tag',
@@ -18,7 +13,7 @@ export interface IStatusTagConfig {
 })
 export class StatusTagComponent {
   value = input.required<string>();
-  config = input<IStatusTagConfig>();
+  config = input<ITagConfig>();
 
   protected get severity(): EPrimeNGSeverity {
     return this.getSeverity(this.value());

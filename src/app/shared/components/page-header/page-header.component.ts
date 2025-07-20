@@ -21,9 +21,7 @@ export class PageHeaderComponent {
   // Input signals
   pageHeaderConfig = input<Partial<IPageHeaderConfig>>();
 
-  protected finalPageHeaderConfig = computed<IPageHeaderConfig>(() =>
-    this.getPageHeaderConfig()
-  );
+  protected finalPageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
   // Output signals
   headerButtonClick = output<void>();

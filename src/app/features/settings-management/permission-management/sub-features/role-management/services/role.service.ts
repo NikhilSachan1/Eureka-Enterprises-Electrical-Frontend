@@ -100,8 +100,7 @@ export class RoleService {
       )
       .pipe(
         tap((response: IRoleGetResponseDto) => {
-          this.logger.info('Get Role List Response', response);
-          this.logger.logUserAction('Get Role List Success');
+          this.logger.logUserAction('Get Role List Response', response);
         }),
         catchError(error => {
           if (error?.name === 'ZodError') {

@@ -8,6 +8,7 @@ import {
   IRolePermissionsSetResponseDto,
 } from '../types/role-permission.dto';
 import {
+  RolePermissionsGetRequestSchema,
   RolePermissionsGetResponseSchema,
   RolePermissionsSetRequestSchema,
   RolePermissionsSetResponseSchema,
@@ -20,36 +21,6 @@ import { API_ROUTES } from '@app/core/constants';
 export class RolePermissionService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
-
-  getRolePermission(
-    params: IRolePermissionsGetRequestDto
-  ): Observable<IRolePermissionsGetResponseDto> {
-    this.logger.logUserAction('Get Role Permission Request', params);
-
-    return this.apiService
-      .getValidated(
-        `${API_ROUTES.SETTINGS.PERMISSION.ROLE.PERMISSION_LIST}`,
-        RolePermissionsGetResponseSchema,
-        params
-      )
-      .pipe(
-        tap((response: IRolePermissionsGetResponseDto) => {
-          this.logger.info('Get Role Permission Response', response);
-          this.logger.logUserAction('Get Role Permission Success');
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Role Permission Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Role Permission Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
-  }
 
   setRolePermission(
     formData: IRolePermissionsSetRequestDto
@@ -75,6 +46,36 @@ export class RolePermissionService {
             );
           } else {
             this.logger.logUserAction('Set Role Permission Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getRolePermission(
+    params: IRolePermissionsGetRequestDto
+  ): Observable<IRolePermissionsGetResponseDto> {
+    this.logger.logUserAction('Get Role Permission Request', params);
+
+    return this.apiService
+      .getValidated(
+        `${API_ROUTES.SETTINGS.PERMISSION.ROLE.PERMISSION_LIST}`,
+        RolePermissionsGetResponseSchema,
+        params,
+        RolePermissionsGetRequestSchema
+      )
+      .pipe(
+        tap((response: IRolePermissionsGetResponseDto) => {
+          this.logger.logUserAction('Get Role Permission Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Role Permission Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Role Permission Error', error);
           }
           return throwError(() => error);
         })

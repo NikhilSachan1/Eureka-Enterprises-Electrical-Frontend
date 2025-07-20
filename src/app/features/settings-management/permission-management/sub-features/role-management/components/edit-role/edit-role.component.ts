@@ -47,13 +47,12 @@ import { ROLE_FORM_EDIT_CONFIG } from '../../config';
 export class EditRoleComponent implements OnInit {
   protected form!: IEnhancedForm;
 
-  protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
-    this.getPageHeaderConfig()
-  );
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
-  protected readonly editRoleData = signal<Record<string, unknown> | null>(
-    null
-  );
+  protected readonly editRolePrefilledData = signal<Record<
+    string,
+    unknown
+  > | null>(null);
 
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
@@ -65,36 +64,11 @@ export class EditRoleComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
 
   ngOnInit(): void {
-    this.loadRoleDataFromRoute();
+    this.loadPrefilledRoleDataFromRoute();
     this.form = this.formService.createForm(
       ROLE_FORM_EDIT_CONFIG,
-      this.editRoleData()
+      this.editRolePrefilledData()
     );
-  }
-
-  private loadRoleDataFromRoute(): void {
-    const editRoleRouteData =
-      this.routerNavigationService.getRouterStateData<IRoleGetBaseResponseDto>(
-        'roleData'
-      );
-
-    if (!editRoleRouteData) {
-      this.logger.logUserAction('No role data found in route');
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SETTINGS.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
-      ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
-      return;
-    }
-
-    const editRoleData = {
-      roleName: editRoleRouteData.label,
-      comment: editRoleRouteData.description,
-    };
-
-    this.editRoleData.set(editRoleData);
   }
 
   protected onSubmit(): void {
@@ -113,17 +87,6 @@ export class EditRoleComponent implements OnInit {
       return;
     }
     this.executeEditRole(formData, roleId);
-  }
-
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Edit role form validation failed');
-      return false;
-    }
-    return true;
   }
 
   private executeEditRole(formData: IRoleEditRequestDto, roleId: string): void {
@@ -146,10 +109,7 @@ export class EditRoleComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.notificationService.success(
-            'Role updated successfully',
-            'Success'
-          );
+          this.notificationService.success('Role updated successfully');
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,
             ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
@@ -158,15 +118,47 @@ export class EditRoleComponent implements OnInit {
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {
-          this.notificationService.error('Failed to update role', 'Error');
+          this.notificationService.error('Failed to update role');
         },
       });
+  }
+
+  private validateForm(): boolean {
+    if (!this.form.validateAndMarkTouched()) {
+      this.notificationService.validationError(
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
+      );
+      this.logger.warn('Edit role form validation failed');
+      return false;
+    }
+    return true;
+  }
+
+  private loadPrefilledRoleDataFromRoute(): void {
+    const editRoleRouteData =
+      this.routerNavigationService.getRouterStateData<IRoleGetBaseResponseDto>(
+        'roleData'
+      );
+
+    if (!editRoleRouteData) {
+      this.logger.logUserAction('No role data found in route');
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SETTINGS.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+      ];
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+      return;
+    }
+
+    const editRolePrefilledData = this.preparePrefilledData(editRoleRouteData);
+    this.editRolePrefilledData.set(editRolePrefilledData);
   }
 
   protected onReset(): void {
     try {
       this.logger.logUserAction('Reset Edit Role Form');
-      this.form.reset(this.editRoleData() ?? {});
+      this.form.reset(this.editRolePrefilledData() ?? {});
     } catch (error) {
       this.logger.error('Error resetting form', error);
     }
@@ -176,6 +168,16 @@ export class EditRoleComponent implements OnInit {
     return {
       title: 'Edit Role',
       subtitle: 'Edit a role in the system',
+    };
+  }
+
+  private preparePrefilledData(
+    editRolePrefilledData: IRoleGetBaseResponseDto
+  ): Record<string, unknown> {
+    const { label, description } = editRolePrefilledData;
+    return {
+      roleName: label,
+      comment: description,
     };
   }
 

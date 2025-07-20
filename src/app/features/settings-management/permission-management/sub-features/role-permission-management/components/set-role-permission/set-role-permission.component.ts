@@ -24,11 +24,11 @@ import {
   IRolePermissionsGetResponseDto,
   IRolePermissionsSetRequestDto,
 } from '../../types/role-permission.dto';
+import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
 import {
   ICategorizedPermissions,
   ISetPermissionData,
-  SetPermissionComponent,
-} from '../../../../shared/components/set-permission/set-permission.component';
+} from '../../../../shared/types/set-permission.interface';
 
 @Component({
   selector: 'app-set-role-permission',
@@ -38,9 +38,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SetRolePermissionComponent implements OnInit {
-  protected pageHeaderConfig = computed<Partial<IPageHeaderConfig>>(() =>
-    this.getPageHeaderConfig()
-  );
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
   protected readonly isSubmitting = signal(false);
   protected readonly editRolePermissionData = signal<Record<

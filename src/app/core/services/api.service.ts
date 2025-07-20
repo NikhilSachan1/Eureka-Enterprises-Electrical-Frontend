@@ -134,13 +134,19 @@ export class ApiService {
     }
   }
 
-  getValidated<TResponse>(
+  getValidated<TRequest, TResponse>(
     endpoint: string,
     responseSchema: z.ZodSchema<TResponse>,
-    params?: unknown
+    params?: unknown,
+    requestSchema?: z.ZodSchema<TRequest>
   ): Observable<TResponse> {
     try {
-      return this.get<unknown>(endpoint, params).pipe(
+      let validatedParams: unknown;
+      if (requestSchema) {
+        validatedParams = this.validateRequest(params, requestSchema);
+      }
+
+      return this.get<unknown>(endpoint, validatedParams).pipe(
         map((response: unknown) =>
           this.validateResponse(response, responseSchema)
         )

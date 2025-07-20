@@ -20,7 +20,7 @@ export const SYSTEM_PERMISSION_OUTSIDE_TAB_ROUTES: Routes = [
       ).then(m => m.AddSystemPermissionComponent),
   },
   {
-    path: `${ROUTES.SETTINGS.PERMISSION.SYSTEM.EDIT}/:permissionId`,
+    path: `${ROUTES.SETTINGS.PERMISSION.SYSTEM.EDIT}/:systemPermissionId`,
     loadComponent: () =>
       import(
         './components/edit-system-permission/edit-system-permission.component'
