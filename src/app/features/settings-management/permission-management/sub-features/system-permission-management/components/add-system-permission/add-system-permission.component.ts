@@ -42,11 +42,6 @@ import { ISystemPermissionAddRequestDto } from '../../types/system-permission.dt
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddSystemPermissionComponent implements OnInit {
-  protected form!: IEnhancedForm;
-
-  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly isSubmitting = signal(false);
-
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
@@ -54,6 +49,11 @@ export class AddSystemPermissionComponent implements OnInit {
   private readonly systemPermissionService = inject(SystemPermissionService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
+
+  protected form!: IEnhancedForm;
+
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     this.form = this.formService.createForm(SYSTEM_PERMISSION_FORM_ADD_CONFIG);

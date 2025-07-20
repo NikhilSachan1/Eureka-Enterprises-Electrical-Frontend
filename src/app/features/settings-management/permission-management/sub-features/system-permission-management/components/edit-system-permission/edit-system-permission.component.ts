@@ -45,15 +45,6 @@ import { SYSTEM_PERMISSION_FORM_EDIT_CONFIG } from '../../config';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditSystemPermissionComponent implements OnInit {
-  protected form!: IEnhancedForm;
-
-  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly isSubmitting = signal(false);
-  protected readonly editSystemPermissionPrefilledData = signal<Record<
-    string,
-    unknown
-  > | null>(null);
-
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
@@ -62,6 +53,15 @@ export class EditSystemPermissionComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
+
+  protected form!: IEnhancedForm;
+
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly isSubmitting = signal(false);
+  protected readonly editSystemPermissionPrefilledData = signal<Record<
+    string,
+    unknown
+  > | null>(null);
 
   ngOnInit(): void {
     this.loadPrefilledSystemPermissionDataFromRoute();

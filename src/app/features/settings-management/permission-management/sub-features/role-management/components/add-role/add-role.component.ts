@@ -41,11 +41,6 @@ import { ROLE_FORM_ADD_CONFIG } from '../../config';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddRoleComponent implements OnInit {
-  protected form!: IEnhancedForm;
-
-  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly isSubmitting = signal(false);
-
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
@@ -53,6 +48,11 @@ export class AddRoleComponent implements OnInit {
   private readonly roleService = inject(RoleService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
+
+  protected form!: IEnhancedForm;
+
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     this.form = this.formService.createForm(ROLE_FORM_ADD_CONFIG);

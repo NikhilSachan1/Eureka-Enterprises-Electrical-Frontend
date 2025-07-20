@@ -38,14 +38,6 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SetRolePermissionComponent implements OnInit {
-  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-
-  protected readonly isSubmitting = signal(false);
-  protected readonly editRolePermissionData = signal<Record<
-    string,
-    unknown
-  > | null>(null);
-
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -53,6 +45,14 @@ export class SetRolePermissionComponent implements OnInit {
   private readonly loadingService = inject(LoadingService);
   private readonly rolePermissionService = inject(RolePermissionService);
   private readonly destroyRef = inject(DestroyRef);
+
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+
+  protected readonly isSubmitting = signal(false);
+  protected readonly editRolePermissionData = signal<Record<
+    string,
+    unknown
+  > | null>(null);
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {

@@ -48,8 +48,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetSystemPermissionComponent implements OnInit {
-  protected table!: IEnhancedTable;
-
   private readonly systemPermissionService = inject(SystemPermissionService);
   private readonly dataTableService = inject(TableService);
   private readonly logger = inject(LoggerService);
@@ -60,6 +58,8 @@ export class GetSystemPermissionComponent implements OnInit {
   );
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+
+  protected table!: IEnhancedTable;
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(

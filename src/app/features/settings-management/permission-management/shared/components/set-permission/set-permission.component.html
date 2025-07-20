@@ -1,155 +1,165 @@
 <!-- Header Card -->
-<p-card styleClass="header-card">
-  <div class="header-row">
-    <div class="header-title-row">
-      <div class="header-icon">
-        <i [class]="icons.SECURITY.SHIELD"></i>
-      </div>
-      <div class="header-title-col">
-        <h3 class="header-title">Manage Permissions</h3>
-        <div class="header-pending-row">
-          @let pendingStats = computedGetPendingCounts().global;
-          <span [class]="`header-pending-value ${pendingStats[0].colorClass}`">
-            {{ `${pendingStats[0].value} ${pendingStats[0].label}` }}
-          </span>
-        </div>
-      </div>
-    </div>
+@let modulesPermissions = modulePermissions();
 
-    <div class="header-stats-row">
-      @for (stat of computedGetStats().global; track stat.label) {
-        <div class="header-stat">
-          <div [class]="`header-stat-value ${stat.colorClass}`">
-            {{ stat.value }}
+@if (modulesPermissions.length === 0 && !loadingState().isLoading) {
+  <app-empty-messages
+    [icon]="icons.SECURITY.SHIELD"
+    [title]="'No modules available'"
+    [description]="'No modules available'"
+  ></app-empty-messages>
+} @else {
+  <p-card styleClass="header-card">
+    <div class="header-row">
+      <div class="header-title-row">
+        <div class="header-icon">
+          <i [class]="icons.SECURITY.SHIELD"></i>
+        </div>
+        <div class="header-title-col">
+          <h3 class="header-title">Manage Permissions</h3>
+          <div class="header-pending-row">
+            @let pendingStats = computedGetPendingCounts().global;
+            <span [class]="`header-pending-value ${pendingStats[0].colorClass}`">
+              {{ `${pendingStats[0].value} ${pendingStats[0].label}` }}
+            </span>
           </div>
-          <div class="header-stat-label">{{ stat.label }}</div>
         </div>
-      }
-    </div>
-  </div>
-</p-card>
+      </div>
 
-<!-- Main Form -->
-@if (form) {
-  <form
-    (ngSubmit)="onSubmit()"
-    [formGroup]="form.formGroup"
-    class="form"
-  >
-    <!-- Navigation Tabs -->
-    <app-nav-tabs
-      [tabs]="tabs()"
-      [tabMode]="tabModeType"
-      (tabChanged)="onTabChanged($event)"
-      class="nav-tabs-row"
-    >
-      <!-- Module Content -->
-      @for (module of modulePermissions(); track module.id) {
-        @if (activeTabIndex() === $index) {
-          <div class="tab-content">
-            @if (module.permissions && module.permissions.length > 0) {
-              <!-- Module Card -->
-              <p-card styleClass="module-card">
-                <div class="module-row">
-                  <div class="module-title-row">
-                    <app-standalone-input-field
-                      [inputFieldConfig]="standaloneInputFieldConfig()[module.id]"
-                      [fieldValue]="computedSelectAllValues()[module.id]"
-                      (onFieldChange)="selectAllPermissions(module.id, $event)"
-                    ></app-standalone-input-field>
-
-                    <div class="module-title-col">
-                      <h3 class="module-title">{{ module.moduleName }}</h3>
-                      <div class="module-pending-row">
-                        @let pendingStats = computedGetPendingCounts().modules[module.id];
-                        <span [class]="`module-pending-value ${pendingStats[0].colorClass}`">
-                          {{ `${pendingStats[0].value} ${pendingStats[0].label}` }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="module-stats-row">
-                    @for (stat of computedGetStats().modules[module.id]; track stat.label) {
-                      <div class="module-stat">
-                        <div [class]="`module-stat-value ${stat.colorClass}`">
-                          {{ stat.value }}
-                        </div>
-                        <div class="module-stat-label">{{ stat.label }}</div>
-                      </div>
-                    }
-                  </div>
-                </div>
-              </p-card>
-
-              <!-- Permissions Grid -->
-              <div class="permissions-grid">
-                @for (permission of module.permissions; track permission.id) {
-                  <p-card
-                    (click)="onClickPermissionCard(module.id, permission.id)"
-                    class="permission-card"
-                    [ngClass]="computedGetPermissionStatus(permission.id)().cardStyle"
-                  >
-                    <!-- Permission Content -->
-                    <div class="permission-content-row">
-                      <div
-                        class="permission-checkbox-col"
-                        (click)="$event.stopPropagation()"
-                        tabindex="0"
-                      >
-                        <app-input-field
-                          [formGroup]="form.formGroup"
-                          [inputFieldConfig]="form.fieldConfigs[`${permission.id}`]"
-                          (onFieldChange)="onPermissionChange()"
-                        ></app-input-field>
-                      </div>
-
-                      <div class="permission-info-col">
-                        <div class="permission-info-row">
-                          <div class="permission-label-col">
-                            <h4 class="permission-label">{{ permission.label }}</h4>
-                            <p class="permission-description line-clamp-3">{{ permission.description }}</p>
-                          </div>
-                          @let permissionInfo = computedGetPermissionStatus(permission.id)();
-                          <p-tag
-                            [value]="permissionInfo.label"
-                            [icon]="permissionInfo.icon"
-                            [severity]="getBadgeSeverity(permissionInfo.label)"
-                          ></p-tag>
-                        </div>
-                      </div>
-                    </div>
-                  </p-card>
-                }
-              </div>
-            } @else {
-              <!-- Empty State -->
-              <app-empty-messages
-                [icon]="icons.SECURITY.SHIELD"
-                [title]="'No permissions available'"
-                [description]="
-                  'This module doesn\'t have any permissions configured yet. Contact your administrator to set up permissions for this module.'
-                "
-              ></app-empty-messages>
-            }
+      <div class="header-stats-row">
+        @for (stat of computedGetStats().global; track stat.label) {
+          <div class="header-stat">
+            <div [class]="`header-stat-value ${stat.colorClass}`">
+              {{ stat.value }}
+            </div>
+            <div class="header-stat-label">{{ stat.label }}</div>
           </div>
         }
-      }
-    </app-nav-tabs>
-
-    <!-- Action Buttons -->
-    @if (modulePermissions().length > 0) {
-      <div class="button-container">
-        <app-button
-          [buttonConfig]="form.buttonConfigs['reset']"
-          (onButtonClick)="onReset()"
-        ></app-button>
-
-        <app-button
-          [buttonConfig]="form.buttonConfigs['submit']"
-          [showButtonLoader]="isSubmitting()"
-        ></app-button>
       </div>
-    }
-  </form>
+    </div>
+  </p-card>
+  <!-- Main Form -->
+  @if (form) {
+    <form
+      (ngSubmit)="onSubmit()"
+      [formGroup]="form.formGroup"
+      class="form"
+    >
+      <!-- Navigation Tabs -->
+      <app-nav-tabs
+        [tabs]="tabs()"
+        [tabMode]="tabModeType"
+        (tabChanged)="onTabChanged($event)"
+        class="nav-tabs-row"
+      >
+        <!-- Module Content -->
+
+        @for (module of modulesPermissions; track module.id) {
+          @if (activeTabIndex() === $index) {
+            <div class="tab-content">
+              @if (module.permissions && module.permissions.length > 0) {
+                <!-- Module Card -->
+                <p-card styleClass="module-card">
+                  <div class="module-row">
+                    <div class="module-title-row">
+                      <app-standalone-input-field
+                        [inputFieldConfig]="standaloneInputFieldConfig()[module.id]"
+                        [fieldValue]="computedSelectAllValues()[module.id]"
+                        (onFieldChange)="selectAllPermissions(module.id, $event)"
+                      ></app-standalone-input-field>
+
+                      <div class="module-title-col">
+                        <h3 class="module-title">{{ module.moduleName }}</h3>
+                        <div class="module-pending-row">
+                          @let pendingStats = computedGetPendingCounts().modules[module.id];
+                          <span [class]="`module-pending-value ${pendingStats[0].colorClass}`">
+                            {{ `${pendingStats[0].value} ${pendingStats[0].label}` }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="module-stats-row">
+                      @for (stat of computedGetStats().modules[module.id]; track stat.label) {
+                        <div class="module-stat">
+                          <div [class]="`module-stat-value ${stat.colorClass}`">
+                            {{ stat.value }}
+                          </div>
+                          <div class="module-stat-label">{{ stat.label }}</div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </p-card>
+
+                <!-- Permissions Grid -->
+                <div class="permissions-grid">
+                  @for (permission of module.permissions; track permission.id) {
+                    <p-card
+                      (click)="onClickPermissionCard(module.id, permission.id)"
+                      class="permission-card"
+                      [ngClass]="computedGetPermissionStatus(permission.id)().cardStyle"
+                    >
+                      <!-- Permission Content -->
+                      <div class="permission-content-row">
+                        <div
+                          class="permission-checkbox-col"
+                          (click)="$event.stopPropagation()"
+                          tabindex="0"
+                        >
+                          <app-input-field
+                            [formGroup]="form.formGroup"
+                            [inputFieldConfig]="form.fieldConfigs[`${permission.id}`]"
+                            (onFieldChange)="onPermissionChange()"
+                          ></app-input-field>
+                        </div>
+
+                        <div class="permission-info-col">
+                          <div class="permission-info-row">
+                            <div class="permission-label-col">
+                              <h4 class="permission-label">{{ permission.label }}</h4>
+                              <p class="permission-description line-clamp-3">{{ permission.description }}</p>
+                            </div>
+                            @let permissionInfo = computedGetPermissionStatus(permission.id)();
+                            <p-tag
+                              [value]="permissionInfo.label"
+                              [icon]="permissionInfo.icon"
+                              [severity]="getBadgeSeverity(permissionInfo.label)"
+                            ></p-tag>
+                          </div>
+                        </div>
+                      </div>
+                    </p-card>
+                  }
+                </div>
+              } @else {
+                <!-- Empty State -->
+                <app-empty-messages
+                  [icon]="icons.SECURITY.SHIELD"
+                  [title]="'No permissions available'"
+                  [description]="
+                    'This module doesn\'t have any permissions configured yet. Contact your administrator to set up permissions for this module.'
+                  "
+                ></app-empty-messages>
+              }
+            </div>
+          }
+        }
+      </app-nav-tabs>
+
+      <!-- Action Buttons -->
+      @if (modulesPermissions.length > 0) {
+        <div class="button-container">
+          <app-button
+            [buttonConfig]="form.buttonConfigs['reset']"
+            (onButtonClick)="onReset()"
+          ></app-button>
+
+          <app-button
+            [buttonConfig]="form.buttonConfigs['submit']"
+            [showButtonLoader]="isSubmitting()"
+          ></app-button>
+        </div>
+      }
+    </form>
+  }
 }

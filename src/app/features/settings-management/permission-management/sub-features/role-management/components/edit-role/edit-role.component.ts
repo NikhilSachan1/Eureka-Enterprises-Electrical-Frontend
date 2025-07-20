@@ -45,15 +45,6 @@ import { ROLE_FORM_EDIT_CONFIG } from '../../config';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditRoleComponent implements OnInit {
-  protected form!: IEnhancedForm;
-
-  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly isSubmitting = signal(false);
-  protected readonly editRolePrefilledData = signal<Record<
-    string,
-    unknown
-  > | null>(null);
-
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
@@ -62,6 +53,15 @@ export class EditRoleComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
+
+  protected form!: IEnhancedForm;
+
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly isSubmitting = signal(false);
+  protected readonly editRolePrefilledData = signal<Record<
+    string,
+    unknown
+  > | null>(null);
 
   ngOnInit(): void {
     this.loadPrefilledRoleDataFromRoute();

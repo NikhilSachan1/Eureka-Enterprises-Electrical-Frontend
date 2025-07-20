@@ -72,6 +72,13 @@ import { LoggerService } from '@app/core/services';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SetPermissionComponent implements OnInit {
+  private readonly systemPermissionService = inject(SystemPermissionService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly formService = inject(FormService);
+  private readonly inputFieldConfigService = inject(InputFieldConfigService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly logger = inject(LoggerService);
+
   icons = ICONS;
   tabModeType = ETabMode.CONTENT;
 
@@ -99,12 +106,7 @@ export class SetPermissionComponent implements OnInit {
 
   readonly modulePermissionsData = output<ISetPermissionData>();
 
-  private readonly systemPermissionService = inject(SystemPermissionService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly formService = inject(FormService);
-  private readonly inputFieldConfigService = inject(InputFieldConfigService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly logger = inject(LoggerService);
+  protected readonly loadingState = this.loadingService.loadingState;
 
   constructor() {
     effect(() => {

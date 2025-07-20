@@ -18,7 +18,7 @@ export const appMenu: ApplicationMenu = {
             {
               label: 'Permission Management',
               icon: ICONS.SECURITY.SHIELD,
-              routerLink: `${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM}`,
+              routerLink: `${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}`,
             },
           ],
         },

@@ -36,17 +36,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PermissionListComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly logger = inject(LoggerService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly tabModeType = ETabMode.ROUTER_OUTLET;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected tabs = signal(this.getTabsData());
   protected metricsCards = signal(this.getMetricCardsData());
   protected currentRoute = signal<string>('');
-
-  private readonly router = inject(Router);
-  private readonly logger = inject(LoggerService);
-  private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.currentRoute.set(this.router.url);
