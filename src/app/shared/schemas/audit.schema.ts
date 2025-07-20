@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const AuditFieldsSchema = z.object({
+export const AuditSchema = z.object({
   createdBy: z
     .string({ required_error: 'Created by is required' })
     .trim()

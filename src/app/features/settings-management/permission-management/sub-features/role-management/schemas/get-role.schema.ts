@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { toLowerCase, toSentenceCase, toTitleCase } from '@shared/utility';
-import { AuditFieldsSchema } from '@shared/dto';
+import { AuditSchema } from '@app/shared/schemas';
 import { RoleBaseSchema } from './base-role.schema';
 
 const { name, label, description } = RoleBaseSchema.shape;
@@ -20,7 +20,7 @@ export const RoleGetBaseResponseSchema = RoleBaseSchema.pick({
     description: description.transform(val => toSentenceCase(val)),
   })
   .merge(
-    AuditFieldsSchema.pick({
+    AuditSchema.pick({
       createdAt: true,
       updatedAt: true,
       deletedAt: true,

@@ -16,9 +16,14 @@ export const API_ROUTES = {
         LIST: 'role',
         ADD: 'role',
         UPDATE: 'role',
-        PERMISSION_LIST: 'role-permissions',
         DELETE: 'role/bulk',
-        SET_PERMISSION: 'role-permissions/bulk',
+      },
+      ROLE_PERMISSION: {
+        LIST: 'role-permissions',
+        SET: 'role-permissions/bulk',
+      },
+      USER: {
+        LIST: 'user-permissions/stats',
       },
     },
   },

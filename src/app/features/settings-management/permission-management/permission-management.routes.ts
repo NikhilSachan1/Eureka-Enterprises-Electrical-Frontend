@@ -21,13 +21,13 @@ export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
             './sub-features/system-permission-management/system-permission.routes'
           ).then(m => m.SYSTEM_PERMISSION_ROUTES),
       },
-      // {
-      //   path: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
-      //   loadChildren: () =>
-      //     import(
-      //       './sub-features/users-permission-management/users-permission-management.routes'
-      //     ).then(m => m.USERS_PERMISSION_MANAGEMENT_ROUTES),
-      // },
+      {
+        path: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
+        loadChildren: () =>
+          import('./sub-features/user-management/user.routes').then(
+            m => m.USER_ROUTES
+          ),
+      },
       {
         path: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
         loadChildren: () =>

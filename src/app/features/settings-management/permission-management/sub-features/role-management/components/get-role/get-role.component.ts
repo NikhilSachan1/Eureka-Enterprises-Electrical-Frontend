@@ -39,6 +39,7 @@ import {
   IRoleGetResponseDto,
 } from '../../types/role.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { IRole } from '../../types/role.interface';
 
 @Component({
   selector: 'app-get-role',
@@ -164,15 +165,13 @@ export class RoleListComponent implements OnInit {
     }
   }
 
-  private mapTableData(
-    response: IRoleGetResponseDto
-  ): Partial<IRoleGetBaseResponseDto>[] {
+  private mapTableData(response: IRoleGetResponseDto): Partial<IRole>[] {
     return response.records.map((record: IRoleGetBaseResponseDto) => ({
       id: record.id,
       name: record.name,
       description: record.description,
       label: record.label,
-      permissionCount: record.permissionCount,
+      permissionCount: `${record.permissionCount} / ${response.totalPermissions}`,
       isDeletable: record.isDeletable,
       isEditable: record.isEditable,
     }));

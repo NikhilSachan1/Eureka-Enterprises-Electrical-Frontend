@@ -71,7 +71,7 @@ export const ROLE_TABLE_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
   {
     id: ERowActionType.SET_PERMISSIONS,
     icon: ICONS.SETTINGS.COG,
-    tooltip: 'Edit Role Permissions',
+    tooltip: 'Set Role Permissions',
     severity: EButtonSeverity.INFO,
   },
 ];

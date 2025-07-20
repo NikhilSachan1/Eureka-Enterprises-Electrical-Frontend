@@ -29,7 +29,7 @@ export class RolePermissionService {
 
     return this.apiService
       .postValidated(
-        `${API_ROUTES.SETTINGS.PERMISSION.ROLE.SET_PERMISSION}`,
+        `${API_ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.SET}`,
         formData,
         RolePermissionsSetRequestSchema,
         RolePermissionsSetResponseSchema
@@ -59,7 +59,7 @@ export class RolePermissionService {
 
     return this.apiService
       .getValidated(
-        `${API_ROUTES.SETTINGS.PERMISSION.ROLE.PERMISSION_LIST}`,
+        `${API_ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.LIST}`,
         RolePermissionsGetResponseSchema,
         params,
         RolePermissionsGetRequestSchema

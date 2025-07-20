@@ -1,4 +1,4 @@
-import { AuditFieldsSchema } from '@app/shared/dto';
+import { AuditSchema } from '@app/shared/schemas';
 import z from 'zod';
 
 export const RolePermissionsBaseSchema = z
@@ -9,7 +9,7 @@ export const RolePermissionsBaseSchema = z
     isActive: z.boolean(),
   })
   .merge(
-    AuditFieldsSchema.pick({
+    AuditSchema.pick({
       createdBy: true,
       updatedBy: true,
       deletedBy: true,

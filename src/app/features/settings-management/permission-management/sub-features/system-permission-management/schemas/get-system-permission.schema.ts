@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AuditFieldsSchema } from '@shared/dto';
+import { AuditSchema } from '@app/shared/schemas';
 import {
   toTitleCase,
   toSentenceCase,
@@ -30,7 +30,7 @@ export const SystemPermissionGetBaseResponseSchema =
       description: description.transform(val => toSentenceCase(val)),
     })
     .merge(
-      AuditFieldsSchema.pick({
+      AuditSchema.pick({
         createdBy: true,
         updatedBy: true,
         deletedBy: true,
