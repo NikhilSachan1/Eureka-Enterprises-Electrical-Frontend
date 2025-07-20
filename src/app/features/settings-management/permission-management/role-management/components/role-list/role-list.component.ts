@@ -104,7 +104,7 @@ export class RoleListComponent implements OnInit, OnDestroy {
       name: record.name,
       description: record.description,
       label: record.label,
-      permissionCount: `${record.permissionCount} / ${response.totalPermissions}`,
+      permissionCount: record.permissionCount,
       isDeletable: record.isDeletable,
       isEditable: record.isEditable,
     }));
