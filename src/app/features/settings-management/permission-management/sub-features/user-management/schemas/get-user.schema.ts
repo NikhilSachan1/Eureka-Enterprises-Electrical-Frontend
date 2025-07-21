@@ -1,5 +1,6 @@
 import { AuditSchema } from '@app/shared/schemas';
 import { FilterSchema } from '@app/shared/schemas/filter.schema';
+import { toTitleCase } from '@app/shared/utility';
 import { z } from 'zod';
 
 export const UserGetBaseResponseSchema = z
@@ -9,7 +10,7 @@ export const UserGetBaseResponseSchema = z
     lastName: z.string(),
     email: z.string(),
     status: z.string(),
-    role: z.string(),
+    role: z.string().transform(val => toTitleCase(val)),
     rolePermissionsCount: z.number(),
     userPermissionsCount: z.number(),
     totalPermissions: z.number(),
