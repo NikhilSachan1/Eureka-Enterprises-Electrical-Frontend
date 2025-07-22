@@ -21,6 +21,7 @@ export enum ERowActionType {
   VIEW = 'view',
   EDIT = 'edit',
   SET_PERMISSIONS = 'setPermissions',
+  DELETE_PERMISSIONS = 'deletePermissions',
   DELETE = 'delete',
   APPROVE = 'approve',
   REJECT = 'reject',

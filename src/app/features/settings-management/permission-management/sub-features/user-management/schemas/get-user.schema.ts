@@ -9,7 +9,7 @@ export const UserGetBaseResponseSchema = z
     firstName: z.string(),
     lastName: z.string(),
     email: z.string(),
-    status: z.string(),
+    status: z.string().transform(val => toTitleCase(val)),
     role: z.string().transform(val => toTitleCase(val)),
     rolePermissionsCount: z.number(),
     userPermissionsCount: z.number(),

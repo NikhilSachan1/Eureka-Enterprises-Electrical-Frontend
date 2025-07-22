@@ -4,49 +4,49 @@ import { Observable, catchError, finalize, of, tap } from 'rxjs';
 import { LoggerService } from '@core/services/logger.service';
 import { LoadingService, RouterNavigationService } from '@shared/services';
 import { ROUTE_BASE_PATHS } from '@shared/constants/route.constants';
-import { RolePermissionService } from '../services/role-permission.service';
+import { UserPermissionService } from '../services/user-permission.service';
 import {
-  IRolePermissionsGetRequestDto,
-  IRolePermissionsGetResponseDto,
-} from '../types/role-permission.dto';
+  IUserPermissionsGetRequestDto,
+  IUserPermissionsGetResponseDto,
+} from '../types/user-permissions.dto';
 
 @Injectable({
   providedIn: 'root',
 })
-export class RolePermissionResolver
-  implements Resolve<IRolePermissionsGetResponseDto | null>
+export class UserPermissionResolver
+  implements Resolve<IUserPermissionsGetResponseDto | null>
 {
-  private readonly rolePermissionService = inject(RolePermissionService);
+  private readonly userPermissionService = inject(UserPermissionService);
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
 
   resolve(
     route: ActivatedRouteSnapshot
-  ): Observable<IRolePermissionsGetResponseDto | null> {
-    const roleId = route.paramMap.get('roleId');
+  ): Observable<IUserPermissionsGetResponseDto | null> {
+    const userId = route.paramMap.get('userId');
 
-    this.logger.logUserAction('Role Permission Resolver: Starting resolution');
+    this.logger.logUserAction('User Permission Resolver: Starting resolution');
 
-    if (!roleId) {
+    if (!userId) {
       this.logger.logUserAction(
-        'Role Permission Resolver: No roleId found in route'
+        'User Permission Resolver: No userId found in route'
       );
-      this.navigateToRoleList();
+      this.navigateToUserList();
       return of(null);
     }
 
     this.loadingService.show({
-      title: 'Loading Role Permission',
-      message: 'Please wait while we load the role permission...',
+      title: 'Loading User Permission',
+      message: 'Please wait while we load the user permission...',
     });
 
-    const paramData = this.prepareParamData(roleId);
+    const paramData = this.prepareParamData(userId);
 
-    return this.rolePermissionService.getRolePermission(paramData).pipe(
-      tap((response: IRolePermissionsGetResponseDto) => {
+    return this.userPermissionService.getUserPermission(paramData).pipe(
+      tap((response: IUserPermissionsGetResponseDto) => {
         this.logger.logUserAction(
-          'Role Permission Resolver: Data resolved successfully',
+          'User Permission Resolver: Data resolved successfully',
           response
         );
       }),
@@ -55,28 +55,27 @@ export class RolePermissionResolver
       }),
       catchError((error: unknown) => {
         this.logger.logUserAction(
-          'Role Permission Resolver: Error resolving data',
+          'User Permission Resolver: Error resolving data',
           error
         );
-        this.navigateToRoleList();
+        this.navigateToUserList();
         return of(null);
       })
     );
   }
 
-  private navigateToRoleList(): void {
+  private navigateToUserList(): void {
     const routeSegments = [
       ROUTE_BASE_PATHS.SETTINGS.BASE,
       ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
-      ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+      ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
     ];
     void this.routerNavigationService.navigateToRoute(routeSegments);
   }
 
-  private prepareParamData(roleId: string): IRolePermissionsGetRequestDto {
+  private prepareParamData(userId: string): IUserPermissionsGetRequestDto {
     return {
-      roleId,
-      isActive: true,
+      userId,
     };
   }
 }

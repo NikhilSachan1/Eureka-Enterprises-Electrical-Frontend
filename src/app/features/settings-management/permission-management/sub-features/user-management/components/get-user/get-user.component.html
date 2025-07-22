@@ -5,6 +5,7 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
+  (rowActionClick)="handleRowActionClick($event)"
 ></app-data-table>
 
 <app-confirmation-dialog></app-confirmation-dialog>

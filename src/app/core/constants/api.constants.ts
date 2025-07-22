@@ -25,6 +25,11 @@ export const API_ROUTES = {
       USER: {
         LIST: 'user-permissions/stats',
       },
+      USER_PERMISSION: {
+        LIST: 'user-permissions',
+        SET: 'user-permissions/bulk',
+        DELETE: 'user-permissions/bulk',
+      },
     },
   },
 } as const;

@@ -1,0 +1,7 @@
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()"></app-page-header>
+
+<app-set-permission
+  [defaultPermissionSelected]="editUserPermissionData()"
+  [isSubmitting]="isSubmitting()"
+  (modulePermissionsData)="onSubmit($event)"
+></app-set-permission>

@@ -96,6 +96,12 @@ export const USER_TABLE_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
     tooltip: 'Set User Permissions',
     severity: EButtonSeverity.INFO,
   },
+  {
+    id: ERowActionType.DELETE_PERMISSIONS,
+    icon: ICONS.ACTIONS.TRASH,
+    tooltip: 'Delete User Permissions',
+    severity: EButtonSeverity.DANGER,
+  },
 ];
 
 export const USER_TABLE_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [];

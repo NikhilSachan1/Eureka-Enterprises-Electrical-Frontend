@@ -14,10 +14,14 @@ import {
   NotificationService,
   TableService,
 } from '@shared/services';
-import { IEnhancedTable, IEnhancedTableConfig } from '@shared/models';
+import {
+  IEnhancedTable,
+  IEnhancedTableConfig,
+  IRowActionClickEvent,
+} from '@shared/models';
 import { USER_TABLE_ENHANCED_CONFIG } from '../../config/table/get-user.config';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { finalize, switchMap, map } from 'rxjs';
 import {
   IUserGetBaseResponseDto,
   IUserGetRequestDto,
@@ -26,6 +30,15 @@ import {
 import { DataTableComponent } from '@shared/components';
 import { ConfirmationDialogComponent } from '../../../../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { IUser } from '../../types/user.interface';
+import { EDialogType, ERowActionType } from '@shared/types';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { createUserPermissionDeleteDialogConfig } from '../../config';
+import { UserPermissionService } from '../../../user-permission-management/services/user-permission.service';
+import {
+  IUserPermissionsDeleteResponseDto,
+  IUserPermissionsGetRequestDto,
+  IUserPermissionsGetResponseDto,
+} from '../../../user-permission-management/types/user-permissions.dto';
 
 @Component({
   selector: 'app-get-user',
@@ -36,6 +49,7 @@ import { IUser } from '../../types/user.interface';
 })
 export class GetUserComponent implements OnInit {
   private readonly userService = inject(UserService);
+  private readonly userPermissionService = inject(UserPermissionService);
   private readonly dataTableService = inject(TableService);
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
@@ -86,6 +100,83 @@ export class GetUserComponent implements OnInit {
       });
   }
 
+  private executeDeleteUserPermission(rowData: IUser): void {
+    this.logger.logUserAction('Executing delete user permission');
+    this.loadingService.show({
+      title: 'Deleting User Permission(s)',
+      message: 'Please wait while we delete the user permission(s)...',
+    });
+
+    const paramData = this.prepareParamDataForGetUserPermission(rowData);
+
+    this.userPermissionService
+      .getUserPermission(paramData)
+      .pipe(
+        map((response: IUserPermissionsGetResponseDto) => {
+          this.logger.logUserAction('Get user permission response', response);
+
+          const permissionIds = response.permissions
+            .flatMap(module => module.permissions)
+            .filter(permission => permission.source === 'override')
+            .map(permission => permission.id);
+
+          this.logger.logUserAction(
+            'Extracted permission IDs for deletion',
+            permissionIds
+          );
+
+          return {
+            userId: rowData.id,
+            permissionIds,
+          };
+        }),
+        switchMap(deleteRequestFormData => {
+          this.logger.logUserAction(
+            'Calling delete user permissions API',
+            deleteRequestFormData
+          );
+          return this.userPermissionService.deleteUserPermissions(
+            deleteRequestFormData
+          );
+        }),
+        finalize(() => {
+          this.loadingService.hide();
+          this.table.setData([]);
+          this.loadUserList();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IUserPermissionsDeleteResponseDto) => {
+          this.logger.logUserAction('Delete permission response', response);
+          this.notificationService.success(
+            'User Permission(s) deleted successfully'
+          );
+        },
+        error: error => {
+          this.logger.logUserAction('Delete user permission error', error);
+          this.notificationService.error('Failed to delete user permission(s)');
+        },
+      });
+  }
+
+  protected handleRowActionClick(event: IRowActionClickEvent): void {
+    this.logger.logUserAction('Row action clicked', event);
+
+    const { actionType, rowData } = event;
+
+    switch (actionType) {
+      case ERowActionType.SET_PERMISSIONS:
+        this.navigateToSetUserPermissions(rowData as IUserGetBaseResponseDto);
+        break;
+      case ERowActionType.DELETE_PERMISSIONS:
+        this.showSingleDeleteConfirmationDialog(rowData as unknown as IUser);
+        break;
+      default:
+        this.logger.warn('Unknown row action:', actionType);
+    }
+  }
+
   private mapTableData(response: IUserGetResponseDto): Partial<IUser>[] {
     return response.records.map((record: IUserGetBaseResponseDto) => {
       return {
@@ -97,6 +188,53 @@ export class GetUserComponent implements OnInit {
         role: record.role,
       };
     });
+  }
+
+  private navigateToSetUserPermissions(rowData: IUserGetBaseResponseDto): void {
+    this.logger.logUserAction('Navigating to set user permissions');
+
+    try {
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SETTINGS.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER_PERMISSION,
+        ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.SET_PERMISSIONS,
+        rowData.id,
+      ];
+
+      const success =
+        this.routerNavigationService.navigateToRoute(routeSegments);
+
+      if (!success) {
+        this.logger.logUserAction('Navigation failed for set user permissions');
+      }
+    } catch (error) {
+      this.logger.logUserAction('Navigation error', error);
+    }
+  }
+
+  private showSingleDeleteConfirmationDialog(rowData: IUser): void {
+    this.logger.logUserAction(
+      'Single user permission delete action triggered',
+      rowData
+    );
+
+    const dialogConfig = createUserPermissionDeleteDialogConfig(rowData, () =>
+      this.executeDeleteUserPermission(rowData)
+    );
+
+    this.confirmationDialogService.showConfirmationDialog(
+      dialogConfig,
+      EDialogType.DELETE
+    );
+  }
+
+  private prepareParamDataForGetUserPermission(
+    rowData: IUser
+  ): IUserPermissionsGetRequestDto {
+    return {
+      userId: rowData.id,
+    };
   }
 
   private prepareParamData(): IUserGetRequestDto {

@@ -51,40 +51,11 @@ export class SetRolePermissionComponent implements OnInit {
   protected readonly isSubmitting = signal(false);
   protected readonly editRolePermissionData = signal<Record<
     string,
-    unknown
+    boolean
   > | null>(null);
-
-  private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
-    return {
-      title: 'Set Role Permissions',
-      subtitle: 'Set the permissions for the role',
-    };
-  }
 
   ngOnInit(): void {
     this.loadRolePermissionDataFromRoute();
-  }
-
-  private loadRolePermissionDataFromRoute(): void {
-    const rolePermissionRouteData = this.activatedRoute.snapshot.data[
-      'rolePermissionData'
-    ] as IRolePermissionsGetResponseDto | null;
-
-    if (!rolePermissionRouteData) {
-      this.logger.logUserAction('No role permission data found in route');
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SETTINGS.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
-      ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
-      return;
-    }
-
-    const rolePermissionData = this.prepareRolePermissionData(
-      rolePermissionRouteData
-    );
-    this.editRolePermissionData.set(rolePermissionData);
   }
 
   protected onSubmit(setPermissionData: ISetPermissionData): void {
@@ -142,6 +113,35 @@ export class SetRolePermissionComponent implements OnInit {
           this.notificationService.error('Failed to update role permission');
         },
       });
+  }
+
+  private loadRolePermissionDataFromRoute(): void {
+    const rolePermissionRouteData = this.activatedRoute.snapshot.data[
+      'rolePermissionData'
+    ] as IRolePermissionsGetResponseDto | null;
+
+    if (!rolePermissionRouteData) {
+      this.logger.logUserAction('No role permission data found in route');
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SETTINGS.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+      ];
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+      return;
+    }
+
+    const rolePermissionData = this.prepareRolePermissionData(
+      rolePermissionRouteData
+    );
+    this.editRolePermissionData.set(rolePermissionData);
+  }
+
+  private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
+    return {
+      title: 'Set Role Permissions',
+      subtitle: 'Set the permissions for the role',
+    };
   }
 
   private prepareFormData(

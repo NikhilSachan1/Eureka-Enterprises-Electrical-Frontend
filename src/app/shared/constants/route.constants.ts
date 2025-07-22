@@ -28,7 +28,8 @@ export const ROUTE_BASE_PATHS = {
       SYSTEM: 'system',
       USER: 'user',
       ROLE: 'role',
-      ROLE_PERMISSION: 'role',
+      ROLE_PERMISSION: 'role-permission',
+      USER_PERMISSION: 'user-permission',
     },
   },
 } as const;
@@ -140,6 +141,9 @@ export const ROUTES = {
         EDIT: `edit`,
       },
       ROLE_PERMISSION: {
+        SET_PERMISSIONS: `set-permissions`,
+      },
+      USER_PERMISSION: {
         SET_PERMISSIONS: `set-permissions`,
       },
     },
