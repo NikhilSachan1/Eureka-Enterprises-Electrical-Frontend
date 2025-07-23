@@ -118,8 +118,16 @@
                             <div class="permission-label-col">
                               <h4 class="permission-label">{{ permission.label }}</h4>
                               <p class="permission-description line-clamp-3">{{ permission.description }}</p>
+                              @let permissionInfo = computedGetPermissionStatus(permission.id)();
+                              @if (permissionInfo.source) {
+                                <p-tag
+                                  [value]="permissionInfo.source === 'override' ? 'Override' : 'Role'"
+                                  [icon]="permissionInfo.source === 'override' ? 'pi pi-user' : 'pi pi-users'"
+                                  [severity]="permissionInfo.source === 'override' ? 'warning' : 'info'"
+                                  class="mt-1 text-xs"
+                                ></p-tag>
+                              }
                             </div>
-                            @let permissionInfo = computedGetPermissionStatus(permission.id)();
                             <p-tag
                               [value]="permissionInfo.label"
                               [icon]="permissionInfo.icon"

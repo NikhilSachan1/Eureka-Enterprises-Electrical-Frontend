@@ -47,6 +47,7 @@ import {
   IPermissionCard,
   ICategorizedPermissions,
   IPermissionStats,
+  IDefaultPermissions,
 } from '../../types/set-permission.interface';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -99,9 +100,8 @@ export class SetPermissionComponent implements OnInit {
   protected readonly activeTabIndex = signal(0);
   private readonly formChangeTrigger = signal(0);
 
-  readonly defaultPermissionSelected = input<Record<string, unknown> | null>(
-    {}
-  );
+  readonly defaultPermissionSelected = input<IDefaultPermissions | null>({});
+  readonly isUserPermissionComponent = input<boolean>(false);
   readonly isSubmitting = input<boolean>(false);
 
   readonly modulePermissionsData = output<ISetPermissionData>();
@@ -214,9 +214,13 @@ export class SetPermissionComponent implements OnInit {
       fields: dynamicFields,
     };
 
+    const defaultPermissions = this.defaultPermissionSelected();
+    const formInitialValues =
+      this.convertToSimpleBooleanValues(defaultPermissions);
+
     this.form = this.formService.createForm(
       finalSetPermissionFormConfig,
-      this.defaultPermissionSelected()
+      formInitialValues
     );
     const fullStandaloneInputFieldConfig =
       this.inputFieldConfigService.initializeFieldConfigs(
@@ -238,7 +242,8 @@ export class SetPermissionComponent implements OnInit {
     );
 
     allPermissionIds.forEach(permissionId => {
-      const wasOriginallyGranted = defaultPermissions[permissionId] === true;
+      const permissionData = defaultPermissions[permissionId];
+      const wasOriginallyGranted = permissionData?.value === true;
       const isCurrentlyChecked = formData[permissionId] === true;
 
       if (wasOriginallyGranted && isCurrentlyChecked) {
@@ -390,6 +395,7 @@ export class SetPermissionComponent implements OnInit {
     let globalGranted = 0;
     let globalRevoked = 0;
     let globalNew = 0;
+    let globalOverride = 0;
     const moduleStats: Record<string, IModuleStats[]> = {};
 
     modules.forEach(module => {
@@ -397,11 +403,20 @@ export class SetPermissionComponent implements OnInit {
       let moduleGranted = 0;
       let moduleRevoked = 0;
       let moduleNew = 0;
+      let moduleOverride = 0;
 
       module.permissions.forEach(permission => {
         const fieldName = `${permission.id}`;
-        const wasOriginallyGranted = defaultPermissions?.[fieldName] === true;
+        const permissionData = defaultPermissions?.[fieldName];
+        const wasOriginallyGranted = permissionData?.value === true;
         const isCurrentlyChecked = formGroup?.get(fieldName)?.value === true;
+        const isOverride = permissionData?.source === 'override';
+
+        // Count override permissions regardless of their value (true or false)
+        if (isOverride) {
+          moduleOverride++;
+          globalOverride++;
+        }
 
         if (wasOriginallyGranted) {
           moduleGranted++;
@@ -421,7 +436,7 @@ export class SetPermissionComponent implements OnInit {
 
       globalTotal += moduleTotal;
 
-      moduleStats[module.id] = [
+      const moduleStatsArray = [
         { label: 'Total', value: moduleTotal, colorClass: 'text-gray-600' },
         {
           label: 'Granted',
@@ -431,9 +446,19 @@ export class SetPermissionComponent implements OnInit {
         { label: 'Revoked', value: moduleRevoked, colorClass: 'text-red-600' },
         { label: 'New', value: moduleNew, colorClass: 'text-blue-600' },
       ];
+
+      if (this.isUserPermissionComponent()) {
+        moduleStatsArray.push({
+          label: 'Overrides',
+          value: moduleOverride,
+          colorClass: 'text-purple-600',
+        });
+      }
+
+      moduleStats[module.id] = moduleStatsArray;
     });
 
-    const globalStats = [
+    const globalStatsArray = [
       { label: 'Total', value: globalTotal, colorClass: 'text-gray-600' },
       {
         label: 'Granted',
@@ -443,6 +468,16 @@ export class SetPermissionComponent implements OnInit {
       { label: 'Revoked', value: globalRevoked, colorClass: 'text-red-600' },
       { label: 'New', value: globalNew, colorClass: 'text-blue-600' },
     ];
+
+    if (this.isUserPermissionComponent()) {
+      globalStatsArray.push({
+        label: 'Overrides',
+        value: globalOverride,
+        colorClass: 'text-purple-600',
+      });
+    }
+
+    const globalStats = globalStatsArray;
 
     return {
       global: globalStats,
@@ -497,8 +532,10 @@ export class SetPermissionComponent implements OnInit {
     const formGroup = this.form?.formGroup;
 
     const fieldName = `${permissionId}`;
-    const wasOriginallyGranted = defaultPermissions?.[fieldName] === true;
+    const permissionData = defaultPermissions?.[fieldName];
+    const wasOriginallyGranted = permissionData?.value === true;
     const isCurrentlyChecked = formGroup?.get(fieldName)?.value === true;
+    const source = permissionData?.source;
 
     if (wasOriginallyGranted) {
       if (isCurrentlyChecked) {
@@ -506,12 +543,14 @@ export class SetPermissionComponent implements OnInit {
           label: 'Granted',
           icon: this.icons.ACTIONS.CHECK,
           cardStyle: 'border-emerald-300',
+          source,
         };
       }
       return {
         label: 'Revoked',
         icon: this.icons.ACTIONS.TIMES,
         cardStyle: 'border-red-300',
+        source,
       };
     }
     if (isCurrentlyChecked) {
@@ -519,13 +558,31 @@ export class SetPermissionComponent implements OnInit {
         label: 'New',
         icon: this.icons.ACTIONS.CHECK_CIRCLE,
         cardStyle: 'border-blue-300',
+        source,
       };
     }
     return {
       label: 'Not Granted',
       icon: this.icons.ACTIONS.TIMES,
       cardStyle: 'border-gray-300',
+      source,
     };
+  }
+
+  private convertToSimpleBooleanValues(
+    defaultPermissions: IDefaultPermissions | null
+  ): Record<string, boolean> {
+    if (!defaultPermissions) {
+      return {};
+    }
+
+    return Object.entries(defaultPermissions).reduce(
+      (acc, [key, permissionData]) => ({
+        ...acc,
+        [key]: permissionData.value,
+      }),
+      {} as Record<string, boolean>
+    );
   }
 
   protected getBadgeSeverity(label: string): EPrimeNGSeverity {
@@ -544,7 +601,10 @@ export class SetPermissionComponent implements OnInit {
   }
 
   protected onReset(): void {
-    this.form.reset(this.defaultPermissionSelected() ?? {});
+    const defaultPermissions = this.defaultPermissionSelected();
+    const formInitialValues =
+      this.convertToSimpleBooleanValues(defaultPermissions);
+    this.form.reset(formInitialValues);
     this.onPermissionChange();
   }
 }

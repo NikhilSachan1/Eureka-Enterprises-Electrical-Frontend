@@ -28,6 +28,7 @@ import { SetPermissionComponent } from '../../../../shared/components/set-permis
 import {
   ICategorizedPermissions,
   ISetPermissionData,
+  IDefaultPermissions,
 } from '../../../../shared/types/set-permission.interface';
 
 @Component({
@@ -49,10 +50,8 @@ export class SetRolePermissionComponent implements OnInit {
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
   protected readonly isSubmitting = signal(false);
-  protected readonly editRolePermissionData = signal<Record<
-    string,
-    boolean
-  > | null>(null);
+  protected readonly editRolePermissionData =
+    signal<IDefaultPermissions | null>(null);
 
   ngOnInit(): void {
     this.loadRolePermissionDataFromRoute();
@@ -166,14 +165,15 @@ export class SetRolePermissionComponent implements OnInit {
 
   private prepareRolePermissionData(
     rolePermissionRouteData: IRolePermissionsGetResponseDto
-  ): Record<string, boolean> {
-    const rolePermissionData = rolePermissionRouteData.records.reduce(
-      (acc, record) => {
-        acc[record.permissionId] = record.isActive;
-        return acc;
-      },
-      {} as Record<string, boolean>
+  ): IDefaultPermissions {
+    return rolePermissionRouteData.records.reduce(
+      (acc, record) => ({
+        ...acc,
+        [record.permissionId]: {
+          value: record.isActive,
+        },
+      }),
+      {} as IDefaultPermissions
     );
-    return rolePermissionData;
   }
 }

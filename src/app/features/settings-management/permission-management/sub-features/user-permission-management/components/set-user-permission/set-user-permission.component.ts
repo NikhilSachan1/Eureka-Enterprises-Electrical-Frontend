@@ -19,6 +19,7 @@ import {
 import {
   ICategorizedPermissions,
   ISetPermissionData,
+  IDefaultPermissions,
 } from '../../../../shared/types/set-permission.interface';
 import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
 import { IPageHeaderConfig } from '@app/shared/models';
@@ -49,10 +50,8 @@ export class SetUserPermissionComponent implements OnInit {
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
   protected readonly isSubmitting = signal(false);
-  protected readonly editUserPermissionData = signal<Record<
-    string,
-    unknown
-  > | null>(null);
+  protected readonly editUserPermissionData =
+    signal<IDefaultPermissions | null>(null);
 
   ngOnInit(): void {
     this.loadUserPermissionDataFromRoute();
@@ -166,16 +165,18 @@ export class SetUserPermissionComponent implements OnInit {
 
   private prepareUserPermissionData(
     userPermissionRouteData: IUserPermissionsGetResponseDto
-  ): Record<string, boolean> {
-    const userPermissionData = userPermissionRouteData.permissions
+  ): IDefaultPermissions {
+    return userPermissionRouteData.permissions
       .flatMap(module => module.permissions)
       .reduce(
-        (acc, permission) => {
-          acc[permission.id] = permission.isGranted;
-          return acc;
-        },
-        {} as Record<string, boolean>
+        (acc, permission) => ({
+          ...acc,
+          [permission.id]: {
+            value: permission.isGranted,
+            source: permission.source,
+          },
+        }),
+        {} as IDefaultPermissions
       );
-    return userPermissionData;
   }
 }

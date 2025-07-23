@@ -2,6 +2,7 @@
 
 <app-set-permission
   [defaultPermissionSelected]="editRolePermissionData()"
+  [isUserPermissionComponent]="false"
   [isSubmitting]="isSubmitting()"
   (modulePermissionsData)="onSubmit($event)"
 ></app-set-permission>
