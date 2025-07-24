@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { toLowerCase, toSentenceCase, toTitleCase } from '@shared/utility';
-import { AuditSchema } from '@app/shared/schemas';
+import { AuditSchema } from '@shared/schemas';
 import { RoleBaseSchema } from './base-role.schema';
 
 const { name, label, description } = RoleBaseSchema.shape;

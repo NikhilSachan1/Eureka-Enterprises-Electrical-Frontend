@@ -21,7 +21,7 @@ import {
   SystemPermissionEditRequestSchema,
   SystemPermissionEditResponseSchema,
 } from '../schemas';
-import { MODULES_NAME_DATA } from '@app/shared/config';
+import { MODULES_NAME_DATA } from '@shared/config';
 import { IModulePermission } from '../types/system-permission.interface';
 
 @Injectable({

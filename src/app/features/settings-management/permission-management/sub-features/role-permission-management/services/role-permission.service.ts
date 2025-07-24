@@ -13,7 +13,7 @@ import {
   RolePermissionsSetRequestSchema,
   RolePermissionsSetResponseSchema,
 } from '../schemas';
-import { API_ROUTES } from '@app/core/constants';
+import { API_ROUTES } from '@core/constants';
 
 @Injectable({
   providedIn: 'root',

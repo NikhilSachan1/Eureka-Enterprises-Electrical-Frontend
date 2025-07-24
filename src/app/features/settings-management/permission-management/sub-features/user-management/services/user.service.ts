@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService, LoggerService } from '@core/services';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { IUserGetRequestDto, IUserGetResponseDto } from '../types/user.dto';
-import { API_ROUTES } from '@app/core/constants';
+import { API_ROUTES } from '@core/constants';
 import { UserGetRequestSchema, UserGetResponseSchema } from '../schemas';
 
 @Injectable({

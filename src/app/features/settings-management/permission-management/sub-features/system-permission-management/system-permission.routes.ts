@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ROUTES } from '@app/shared/constants';
+import { ROUTES } from '@shared/constants';
 
 export const SYSTEM_PERMISSION_ROUTES: Routes = [
   {

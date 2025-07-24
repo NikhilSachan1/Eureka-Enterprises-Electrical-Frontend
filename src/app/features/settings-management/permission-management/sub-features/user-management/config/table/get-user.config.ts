@@ -1,11 +1,11 @@
-import { MATCH_MODE_OPTIONS } from '@app/shared/config';
+import { MATCH_MODE_OPTIONS } from '@shared/config';
 import {
   EButtonSeverity,
   ERowActionType,
   ETableBodyTemplate,
   ETableFilterMatchMode,
   ETableSearchInputType,
-} from '@app/shared/types';
+} from '@shared/types';
 import { ICONS } from '@shared/constants';
 import {
   IBulkActionConfig,

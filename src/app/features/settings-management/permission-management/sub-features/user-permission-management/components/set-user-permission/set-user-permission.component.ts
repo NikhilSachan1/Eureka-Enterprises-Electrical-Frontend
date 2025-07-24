@@ -22,7 +22,7 @@ import {
   IDefaultPermissions,
 } from '../../../../shared/types/set-permission.interface';
 import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
-import { IPageHeaderConfig } from '@app/shared/models';
+import { IPageHeaderConfig } from '@shared/models';
 import {
   IUserPermissionsGetResponseDto,
   IUserPermissionsSetRequestDto,

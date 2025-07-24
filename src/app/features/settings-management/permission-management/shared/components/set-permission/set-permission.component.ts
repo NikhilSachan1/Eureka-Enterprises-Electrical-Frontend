@@ -51,7 +51,7 @@ import {
 } from '../../types/set-permission.interface';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@app/core/services';
+import { LoggerService } from '@core/services';
 
 @Component({
   selector: 'app-set-permission',

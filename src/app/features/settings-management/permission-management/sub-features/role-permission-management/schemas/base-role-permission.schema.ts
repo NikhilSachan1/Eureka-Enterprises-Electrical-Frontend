@@ -1,4 +1,4 @@
-import { AuditSchema } from '@app/shared/schemas';
+import { AuditSchema } from '@shared/schemas';
 import z from 'zod';
 
 export const RolePermissionsBaseSchema = z

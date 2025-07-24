@@ -20,7 +20,7 @@ import {
 } from '@shared/models';
 import { ButtonComponent } from '../button/button.component';
 import { InputFieldComponent } from '../input-field/input-field.component';
-import { LoggerService } from '@app/core/services';
+import { LoggerService } from '@core/services';
 
 @Component({
   selector: 'app-confirmation-dialog',

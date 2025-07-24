@@ -1,4 +1,4 @@
-import { PartialExcept } from '@app/shared/utility/typescript.utility';
+import { PartialExcept } from '@shared/utility/typescript.utility';
 import { ISystemPermissionGetBaseResponseDto } from './system-permission.dto';
 
 export interface IModulePermission {

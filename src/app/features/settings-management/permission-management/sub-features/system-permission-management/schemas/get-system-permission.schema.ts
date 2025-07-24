@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AuditSchema } from '@app/shared/schemas';
+import { AuditSchema } from '@shared/schemas';
 import {
   toTitleCase,
   toSentenceCase,

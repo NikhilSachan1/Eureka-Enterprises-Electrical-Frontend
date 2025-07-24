@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { API_ROUTES } from '@app/core/constants';
-import { LoggerService, ApiService } from '@app/core/services';
+import { API_ROUTES } from '@core/constants';
+import { LoggerService, ApiService } from '@core/services';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import {
   IUserPermissionsDeleteRequestDto,

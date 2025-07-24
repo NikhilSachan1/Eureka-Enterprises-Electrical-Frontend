@@ -1,7 +1,7 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { ESeverity, EPrimeNGSeverity } from '@shared/types';
-import { ITagConfig } from '@app/shared/models';
+import { ITagConfig } from '@shared/models';
 
 @Component({
   selector: 'app-status-tag',

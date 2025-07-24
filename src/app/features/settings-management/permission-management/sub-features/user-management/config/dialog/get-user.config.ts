@@ -1,4 +1,4 @@
-import { EButtonSeverity } from '@app/shared/types';
+import { EButtonSeverity } from '@shared/types';
 import { IConfirmationDialogConfig } from '@shared/models';
 import { IUser } from '../../types/user.interface';
 

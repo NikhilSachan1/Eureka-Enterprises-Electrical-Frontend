@@ -1,6 +1,6 @@
-import { AuditSchema } from '@app/shared/schemas';
-import { FilterSchema } from '@app/shared/schemas/filter.schema';
-import { toTitleCase } from '@app/shared/utility';
+import { AuditSchema } from '@shared/schemas';
+import { FilterSchema } from '@shared/schemas/filter.schema';
+import { toTitleCase } from '@shared/utility';
 import { z } from 'zod';
 
 export const UserGetBaseResponseSchema = z
