@@ -41,6 +41,7 @@ export const ICONS = {
   ATTENDANCE: {
     CALENDAR: 'pi pi-calendar',
     CHECK: 'pi pi-check-square',
+    FORCE: 'pi pi-user-edit',
   },
   EXPENSE: {
     MONEY: 'pi pi-money-bill',

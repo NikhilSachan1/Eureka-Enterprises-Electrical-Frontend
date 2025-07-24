@@ -17,17 +17,17 @@ export const appMenu: ApplicationMenu = {
           children: [
             {
               label: 'Attendance List',
-              icon: ICONS.COMMON.LIST,
+              icon: ICONS.ATTENDANCE.CALENDAR,
               routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.LIST}`,
             },
             {
               label: 'Apply Attendance',
-              icon: ICONS.COMMON.PLUS,
+              icon: ICONS.ATTENDANCE.CHECK,
               routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.APPLY}`,
             },
             {
               label: 'Force Attendance',
-              icon: ICONS.COMMON.PLUS,
+              icon: ICONS.ATTENDANCE.FORCE,
               routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.FORCE}`,
             },
           ],
