@@ -31,6 +31,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { finalize } from 'rxjs';
 import { SYSTEM_PERMISSION_FORM_EDIT_CONFIG } from '../../config';
+import { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-edit-system-permission',
@@ -44,7 +45,9 @@ import { SYSTEM_PERMISSION_FORM_EDIT_CONFIG } from '../../config';
   styleUrl: './edit-system-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditSystemPermissionComponent implements OnInit {
+export class EditSystemPermissionComponent
+  implements OnInit, ICanComponentDeactivate
+{
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
@@ -69,6 +72,20 @@ export class EditSystemPermissionComponent implements OnInit {
       SYSTEM_PERMISSION_FORM_EDIT_CONFIG,
       this.editSystemPermissionPrefilledData()
     );
+  }
+
+  canDeactivate(): boolean {
+    if (this.form?.formGroup?.dirty) {
+      this.logger.info(
+        'Edit System Permission Component: Form has unsaved changes'
+      );
+      return false;
+    }
+
+    this.logger.info(
+      'Edit System Permission Component: Form has no unsaved changes'
+    );
+    return true;
   }
 
   protected onSubmit(): void {

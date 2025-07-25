@@ -8,6 +8,7 @@ export enum EDialogType {
   CANCEL = 'cancel',
   ALLOCATE = 'allocate',
   DEALLOCATE = 'deallocate',
+  WARNING = 'warning',
 }
 
 export enum EDialogPosition {

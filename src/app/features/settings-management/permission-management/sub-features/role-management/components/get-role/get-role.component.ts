@@ -5,10 +5,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import {
-  DataTableComponent,
-  ConfirmationDialogComponent,
-} from '@shared/components';
+import { DataTableComponent } from '@shared/components';
 import {
   IEnhancedTable,
   IRowActionClickEvent,
@@ -43,7 +40,7 @@ import { IRole } from '../../types/role.interface';
 
 @Component({
   selector: 'app-get-role',
-  imports: [DataTableComponent, ConfirmationDialogComponent],
+  imports: [DataTableComponent],
   templateUrl: './get-role.component.html',
   styleUrl: './get-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

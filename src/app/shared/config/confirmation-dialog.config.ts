@@ -78,3 +78,12 @@ export const DEALLOCATE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogS
     iconContainerClass: 'bg-orange-500 text-white',
     message: 'Are you sure you want to deallocate this item?',
   };
+
+export const WARNING_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfig> =
+  {
+    ...CONFIRMATION_DIALOG_CONFIG,
+    header: 'Warning Confirmation',
+    icon: ICONS.COMMON.MANUAL,
+    iconContainerClass: 'bg-orange-500 text-white',
+    message: 'Are you sure you want to proceed?',
+  };

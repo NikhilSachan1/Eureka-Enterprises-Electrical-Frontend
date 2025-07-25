@@ -5,10 +5,7 @@ import {
   ChangeDetectionStrategy,
   DestroyRef,
 } from '@angular/core';
-import {
-  DataTableComponent,
-  ConfirmationDialogComponent,
-} from '@shared/components';
+import { DataTableComponent } from '@shared/components';
 import {
   TableService,
   RouterNavigationService,
@@ -42,7 +39,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-get-system-permission',
-  imports: [DataTableComponent, ConfirmationDialogComponent],
+  imports: [DataTableComponent],
   templateUrl: './get-system-permission.component.html',
   styleUrl: './get-system-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

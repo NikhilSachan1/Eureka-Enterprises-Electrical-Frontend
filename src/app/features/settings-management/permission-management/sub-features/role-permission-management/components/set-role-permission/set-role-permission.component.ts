@@ -6,6 +6,7 @@ import {
   inject,
   OnInit,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { IPageHeaderConfig } from '@shared/models';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -30,6 +31,7 @@ import {
   ISetPermissionData,
   IDefaultPermissions,
 } from '../../../../shared/types/set-permission.interface';
+import { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-set-role-permission',
@@ -38,7 +40,12 @@ import {
   styleUrl: './set-role-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetRolePermissionComponent implements OnInit {
+export class SetRolePermissionComponent
+  implements OnInit, ICanComponentDeactivate
+{
+  @ViewChild(SetPermissionComponent)
+  setPermissionComponent!: SetPermissionComponent;
+
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -55,6 +62,20 @@ export class SetRolePermissionComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRolePermissionDataFromRoute();
+  }
+
+  canDeactivate(): boolean {
+    if (this.setPermissionComponent?.hasUnsavedChanges()) {
+      this.logger.info(
+        'Set Role Permission Component: Form has unsaved changes'
+      );
+      return false;
+    }
+
+    this.logger.info(
+      'Set Role Permission Component: Form has no unsaved changes'
+    );
+    return true;
   }
 
   protected onSubmit(setPermissionData: ISetPermissionData): void {

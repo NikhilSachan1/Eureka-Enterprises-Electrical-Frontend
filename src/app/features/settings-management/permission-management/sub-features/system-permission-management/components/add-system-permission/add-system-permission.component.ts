@@ -28,6 +28,7 @@ import { finalize } from 'rxjs';
 import { SYSTEM_PERMISSION_FORM_ADD_CONFIG } from '../../config';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { ISystemPermissionAddRequestDto } from '../../types/system-permission.dto';
+import type { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-add-system-permission',
@@ -41,7 +42,9 @@ import { ISystemPermissionAddRequestDto } from '../../types/system-permission.dt
   styleUrl: './add-system-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddSystemPermissionComponent implements OnInit {
+export class AddSystemPermissionComponent
+  implements OnInit, ICanComponentDeactivate
+{
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
@@ -57,6 +60,20 @@ export class AddSystemPermissionComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.formService.createForm(SYSTEM_PERMISSION_FORM_ADD_CONFIG);
+  }
+
+  canDeactivate(): boolean {
+    if (this.form?.formGroup?.dirty) {
+      this.logger.info(
+        'Add System Permission Component: Form has unsaved changes'
+      );
+      return false;
+    }
+
+    this.logger.info(
+      'Add System Permission Component: Form has no unsaved changes'
+    );
+    return true;
   }
 
   protected onSubmit(): void {

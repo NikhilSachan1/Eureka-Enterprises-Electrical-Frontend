@@ -6,6 +6,7 @@ import {
   inject,
   signal,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
 import { PageHeaderComponent } from '@shared/components';
@@ -30,6 +31,7 @@ import {
 import { UserPermissionService } from '../../services/user-permission.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-set-user-permission',
@@ -38,7 +40,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrl: './set-user-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetUserPermissionComponent implements OnInit {
+export class SetUserPermissionComponent
+  implements OnInit, ICanComponentDeactivate
+{
+  @ViewChild(SetPermissionComponent)
+  setPermissionComponent!: SetPermissionComponent;
+
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -55,6 +62,20 @@ export class SetUserPermissionComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserPermissionDataFromRoute();
+  }
+
+  canDeactivate(): boolean {
+    if (this.setPermissionComponent?.hasUnsavedChanges()) {
+      this.logger.info(
+        'Set User Permission Component: Form has unsaved changes'
+      );
+      return false;
+    }
+
+    this.logger.info(
+      'Set User Permission Component: Form has no unsaved changes'
+    );
+    return true;
   }
 
   protected onSubmit(setPermissionData: ISetPermissionData): void {

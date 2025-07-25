@@ -31,6 +31,7 @@ import {
   IRoleGetBaseResponseDto,
 } from '../../types/role.dto';
 import { ROLE_FORM_EDIT_CONFIG } from '../../config';
+import { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-edit-role',
@@ -44,7 +45,7 @@ import { ROLE_FORM_EDIT_CONFIG } from '../../config';
   styleUrl: './edit-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditRoleComponent implements OnInit {
+export class EditRoleComponent implements OnInit, ICanComponentDeactivate {
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
@@ -69,6 +70,16 @@ export class EditRoleComponent implements OnInit {
       ROLE_FORM_EDIT_CONFIG,
       this.editRolePrefilledData()
     );
+  }
+
+  canDeactivate(): boolean {
+    if (this.form?.formGroup?.dirty) {
+      this.logger.info('Edit Role Component: Form has unsaved changes');
+      return false;
+    }
+
+    this.logger.info('Edit Role Component: Form has no unsaved changes');
+    return true;
   }
 
   protected onSubmit(): void {

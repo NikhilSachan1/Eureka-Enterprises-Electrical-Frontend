@@ -27,6 +27,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IRoleAddRequestDto } from '../../types/role.dto';
 import { RoleService } from '../../services/role.service';
 import { ROLE_FORM_ADD_CONFIG } from '../../config';
+import { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-add-role',
@@ -40,7 +41,7 @@ import { ROLE_FORM_ADD_CONFIG } from '../../config';
   styleUrl: './add-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddRoleComponent implements OnInit {
+export class AddRoleComponent implements OnInit, ICanComponentDeactivate {
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
@@ -56,6 +57,16 @@ export class AddRoleComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.formService.createForm(ROLE_FORM_ADD_CONFIG);
+  }
+
+  canDeactivate(): boolean {
+    if (this.form?.formGroup?.dirty) {
+      this.logger.info('Add Role Component: Form has unsaved changes');
+      return false;
+    }
+
+    this.logger.info('Add Role Component: Form has no unsaved changes');
+    return true;
   }
 
   protected onSubmit(): void {

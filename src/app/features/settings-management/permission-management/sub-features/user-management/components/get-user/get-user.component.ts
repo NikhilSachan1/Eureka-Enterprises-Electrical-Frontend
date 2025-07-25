@@ -28,7 +28,6 @@ import {
   IUserGetResponseDto,
 } from '../../types/user.dto';
 import { DataTableComponent } from '@shared/components';
-import { ConfirmationDialogComponent } from '../../../../../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 import { IUser } from '../../types/user.interface';
 import { EDialogType, ERowActionType } from '@shared/types';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
@@ -42,7 +41,7 @@ import {
 
 @Component({
   selector: 'app-get-user',
-  imports: [DataTableComponent, ConfirmationDialogComponent],
+  imports: [DataTableComponent],
   templateUrl: './get-user.component.html',
   styleUrl: './get-user.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

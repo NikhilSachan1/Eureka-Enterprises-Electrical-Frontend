@@ -607,4 +607,14 @@ export class SetPermissionComponent implements OnInit {
     this.form.reset(formInitialValues);
     this.onPermissionChange();
   }
+
+  public hasUnsavedChanges(): boolean {
+    if (this.form?.formGroup?.dirty) {
+      this.logger.info('Set Permission Component: Form has unsaved changes');
+      return false;
+    }
+
+    this.logger.info('Set Permission Component: Form has no unsaved changes');
+    return true;
+  }
 }
