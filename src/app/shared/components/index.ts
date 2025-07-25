@@ -16,3 +16,4 @@ export { SidebarMenuComponent } from './sidebar/sidebar-menu/sidebar-menu.compon
 export { SidebarUserProfileComponent } from './sidebar/sidebar-user-profile/sidebar-user-profile.component';
 export { StandaloneInputFieldComponent } from './standalone-input-field/standalone-input-field.component';
 export { StatusTagComponent } from './status-tag/status-tag.component';
+export { PreventReloadComponent } from './prevent-reload/prevent-reload.component';

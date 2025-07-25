@@ -9,7 +9,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import { IPageHeaderConfig } from '@shared/models';
-import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import {
+  PageHeaderComponent,
+  PreventReloadComponent,
+} from '@shared/components';
 import { ActivatedRoute } from '@angular/router';
 import {
   LoadingService,
@@ -31,7 +34,6 @@ import {
   ISetPermissionData,
   IDefaultPermissions,
 } from '../../../../shared/types/set-permission.interface';
-import { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-set-role-permission',
@@ -41,12 +43,13 @@ import { ICanComponentDeactivate } from '@core/models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SetRolePermissionComponent
-  implements OnInit, ICanComponentDeactivate
+  extends PreventReloadComponent
+  implements OnInit
 {
   @ViewChild(SetPermissionComponent)
   setPermissionComponent!: SetPermissionComponent;
 
-  private readonly logger = inject(LoggerService);
+  protected override readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly notificationService = inject(NotificationService);
@@ -60,7 +63,7 @@ export class SetRolePermissionComponent
   protected readonly editRolePermissionData =
     signal<IDefaultPermissions | null>(null);
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     this.loadRolePermissionDataFromRoute();
   }
 

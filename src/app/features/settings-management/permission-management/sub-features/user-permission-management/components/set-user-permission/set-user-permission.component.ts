@@ -9,7 +9,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
-import { PageHeaderComponent } from '@shared/components';
+import {
+  PageHeaderComponent,
+  PreventReloadComponent,
+} from '@shared/components';
 import { ActivatedRoute } from '@angular/router';
 import { LoggerService } from '@core/services';
 import {
@@ -31,7 +34,6 @@ import {
 import { UserPermissionService } from '../../services/user-permission.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-set-user-permission',
@@ -41,12 +43,13 @@ import { ICanComponentDeactivate } from '@core/models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SetUserPermissionComponent
-  implements OnInit, ICanComponentDeactivate
+  extends PreventReloadComponent
+  implements OnInit
 {
   @ViewChild(SetPermissionComponent)
   setPermissionComponent!: SetPermissionComponent;
 
-  private readonly logger = inject(LoggerService);
+  protected override readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly notificationService = inject(NotificationService);
@@ -60,7 +63,7 @@ export class SetUserPermissionComponent
   protected readonly editUserPermissionData =
     signal<IDefaultPermissions | null>(null);
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     this.loadUserPermissionDataFromRoute();
   }
 

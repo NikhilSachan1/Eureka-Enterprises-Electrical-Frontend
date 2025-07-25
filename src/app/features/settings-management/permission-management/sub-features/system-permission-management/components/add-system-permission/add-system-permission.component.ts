@@ -12,6 +12,7 @@ import {
   PageHeaderComponent,
   InputFieldComponent,
   ButtonComponent,
+  PreventReloadComponent,
 } from '@shared/components';
 import { LoggerService } from '@core/services';
 import {
@@ -28,7 +29,6 @@ import { finalize } from 'rxjs';
 import { SYSTEM_PERMISSION_FORM_ADD_CONFIG } from '../../config';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { ISystemPermissionAddRequestDto } from '../../types/system-permission.dto';
-import type { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-add-system-permission',
@@ -43,10 +43,11 @@ import type { ICanComponentDeactivate } from '@core/models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddSystemPermissionComponent
-  implements OnInit, ICanComponentDeactivate
+  extends PreventReloadComponent
+  implements OnInit
 {
   private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
+  protected override readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly loadingService = inject(LoadingService);
   private readonly systemPermissionService = inject(SystemPermissionService);
@@ -58,12 +59,12 @@ export class AddSystemPermissionComponent
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     this.form = this.formService.createForm(SYSTEM_PERMISSION_FORM_ADD_CONFIG);
   }
 
   canDeactivate(): boolean {
-    if (this.form?.formGroup?.dirty) {
+    if (this.form.isDirty()) {
       this.logger.info(
         'Add System Permission Component: Form has unsaved changes'
       );

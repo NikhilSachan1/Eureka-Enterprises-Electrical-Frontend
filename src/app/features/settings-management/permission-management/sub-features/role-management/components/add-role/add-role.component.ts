@@ -12,6 +12,7 @@ import {
   PageHeaderComponent,
   InputFieldComponent,
   ButtonComponent,
+  PreventReloadComponent,
 } from '@shared/components';
 import { LoggerService } from '@core/services';
 import {
@@ -27,7 +28,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IRoleAddRequestDto } from '../../types/role.dto';
 import { RoleService } from '../../services/role.service';
 import { ROLE_FORM_ADD_CONFIG } from '../../config';
-import { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-add-role',
@@ -41,9 +41,9 @@ import { ICanComponentDeactivate } from '@core/models';
   styleUrl: './add-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddRoleComponent implements OnInit, ICanComponentDeactivate {
+export class AddRoleComponent extends PreventReloadComponent implements OnInit {
   private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
+  protected override readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly loadingService = inject(LoadingService);
   private readonly roleService = inject(RoleService);
@@ -55,12 +55,12 @@ export class AddRoleComponent implements OnInit, ICanComponentDeactivate {
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     this.form = this.formService.createForm(ROLE_FORM_ADD_CONFIG);
   }
 
   canDeactivate(): boolean {
-    if (this.form?.formGroup?.dirty) {
+    if (this.form.isDirty()) {
       this.logger.info('Add Role Component: Form has unsaved changes');
       return false;
     }

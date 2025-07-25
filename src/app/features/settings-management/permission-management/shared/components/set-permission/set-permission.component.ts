@@ -303,6 +303,7 @@ export class SetPermissionComponent implements OnInit {
     if (control) {
       const currentValue = control.value;
       control.setValue(!currentValue);
+      control.markAsDirty();
       this.onPermissionChange();
     }
   }
@@ -319,6 +320,7 @@ export class SetPermissionComponent implements OnInit {
       const control = formGroup.get(controlName);
       if (control) {
         control.setValue(checked as boolean);
+        control.markAsDirty();
       }
     });
     this.onPermissionChange();
@@ -609,12 +611,12 @@ export class SetPermissionComponent implements OnInit {
   }
 
   public hasUnsavedChanges(): boolean {
-    if (this.form?.formGroup?.dirty) {
+    if (this.form.isDirty()) {
       this.logger.info('Set Permission Component: Form has unsaved changes');
-      return false;
+      return true;
     }
 
     this.logger.info('Set Permission Component: Form has no unsaved changes');
-    return true;
+    return false;
   }
 }

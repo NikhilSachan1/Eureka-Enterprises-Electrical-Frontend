@@ -23,6 +23,7 @@ import {
   PageHeaderComponent,
   InputFieldComponent,
   ButtonComponent,
+  PreventReloadComponent,
 } from '@shared/components';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RoleService } from '../../services/role.service';
@@ -31,7 +32,6 @@ import {
   IRoleGetBaseResponseDto,
 } from '../../types/role.dto';
 import { ROLE_FORM_EDIT_CONFIG } from '../../config';
-import { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-edit-role',
@@ -45,9 +45,12 @@ import { ICanComponentDeactivate } from '@core/models';
   styleUrl: './edit-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditRoleComponent implements OnInit, ICanComponentDeactivate {
+export class EditRoleComponent
+  extends PreventReloadComponent
+  implements OnInit
+{
   private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
+  protected override readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly loadingService = inject(LoadingService);
   private readonly roleService = inject(RoleService);
@@ -64,7 +67,7 @@ export class EditRoleComponent implements OnInit, ICanComponentDeactivate {
     unknown
   > | null>(null);
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     this.loadPrefilledRoleDataFromRoute();
     this.form = this.formService.createForm(
       ROLE_FORM_EDIT_CONFIG,
@@ -73,7 +76,7 @@ export class EditRoleComponent implements OnInit, ICanComponentDeactivate {
   }
 
   canDeactivate(): boolean {
-    if (this.form?.formGroup?.dirty) {
+    if (this.form.isDirty()) {
       this.logger.info('Edit Role Component: Form has unsaved changes');
       return false;
     }

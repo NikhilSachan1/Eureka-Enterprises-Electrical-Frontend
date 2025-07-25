@@ -13,6 +13,7 @@ import {
   PageHeaderComponent,
   InputFieldComponent,
   ButtonComponent,
+  PreventReloadComponent,
 } from '@shared/components';
 import {
   NotificationService,
@@ -31,7 +32,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { finalize } from 'rxjs';
 import { SYSTEM_PERMISSION_FORM_EDIT_CONFIG } from '../../config';
-import { ICanComponentDeactivate } from '@core/models';
 
 @Component({
   selector: 'app-edit-system-permission',
@@ -46,10 +46,11 @@ import { ICanComponentDeactivate } from '@core/models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditSystemPermissionComponent
-  implements OnInit, ICanComponentDeactivate
+  extends PreventReloadComponent
+  implements OnInit
 {
   private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
+  protected override readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly loadingService = inject(LoadingService);
   private readonly systemPermissionService = inject(SystemPermissionService);
@@ -66,7 +67,7 @@ export class EditSystemPermissionComponent
     unknown
   > | null>(null);
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     this.loadPrefilledSystemPermissionDataFromRoute();
     this.form = this.formService.createForm(
       SYSTEM_PERMISSION_FORM_EDIT_CONFIG,
@@ -75,7 +76,7 @@ export class EditSystemPermissionComponent
   }
 
   canDeactivate(): boolean {
-    if (this.form?.formGroup?.dirty) {
+    if (this.form.isDirty()) {
       this.logger.info(
         'Edit System Permission Component: Form has unsaved changes'
       );
