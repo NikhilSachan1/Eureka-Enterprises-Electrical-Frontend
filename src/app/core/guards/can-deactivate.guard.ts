@@ -4,7 +4,7 @@ import { ConfirmationDialogService } from '@shared/services';
 import { LoggerService } from '@core/services';
 import { EButtonSeverity, EDialogType } from '@shared/types';
 import { IConfirmationDialogConfig } from '@shared/models';
-import { ICanComponentDeactivate } from '../models';
+import { ICanComponentDeactivate } from '../types';
 
 export const canDeactivateGuard: CanDeactivateFn<ICanComponentDeactivate> = (
   component: ICanComponentDeactivate

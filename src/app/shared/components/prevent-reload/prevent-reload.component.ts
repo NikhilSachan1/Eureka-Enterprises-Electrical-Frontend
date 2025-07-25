@@ -6,7 +6,7 @@ import {
   OnDestroy,
   HostListener,
 } from '@angular/core';
-import { ICanComponentDeactivate } from '@core/models';
+import { ICanComponentDeactivate } from '@core/types';
 import { LoggerService } from '@core/services';
 
 @Component({

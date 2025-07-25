@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { EnvironmentService } from '@core/services/environment.service';
-import { IApiErrorResponse } from '@core/models';
-import { ELogTypes } from '../types';
+import { ELogTypes, IApiErrorResponse } from '@core/types';
 
 @Injectable({
   providedIn: 'root',

@@ -1,1 +1,5 @@
-export { ELogTypes } from './logger.types';
+export { ELogTypes } from './logger.enum';
+export type { IApiErrorResponse } from './api-error-response.interface';
+export type { IAppConfig } from './app-config.interface';
+export type { Environment } from './environment.interface';
+export type { ICanComponentDeactivate } from './can-deactivate.interface';
