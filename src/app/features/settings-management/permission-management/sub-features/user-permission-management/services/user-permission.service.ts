@@ -87,7 +87,7 @@ export class UserPermissionService {
   }
 
   getUserPermission(
-    params: IUserPermissionsGetRequestDto
+    params?: IUserPermissionsGetRequestDto
   ): Observable<IUserPermissionsGetResponseDto> {
     this.logger.logUserAction('Get User Permission Request', params);
 

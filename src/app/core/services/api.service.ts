@@ -142,8 +142,11 @@ export class ApiService {
   ): Observable<TResponse> {
     try {
       let validatedParams: unknown;
-      if (requestSchema) {
-        validatedParams = this.validateRequest(params, requestSchema);
+      if (requestSchema && params) {
+        validatedParams = this.validateRequest(
+          params as TRequest,
+          requestSchema
+        );
       }
 
       return this.get<unknown>(endpoint, validatedParams).pipe(
