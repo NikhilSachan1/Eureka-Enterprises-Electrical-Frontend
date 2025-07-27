@@ -3,9 +3,9 @@ import {
   Component,
   input,
   output,
-  ViewChild,
   signal,
   inject,
+  viewChild,
 } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -65,7 +65,7 @@ import { EmptyMessagesComponent } from '../empty-messages/empty-messages.compone
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataTableComponent {
-  @ViewChild('dt') dt!: Table;
+  readonly dt = viewChild.required<Table>('dt');
 
   protected ALL_TABLE_BODY_TEMPLATES = ETableBodyTemplate;
   protected icons = ICONS;
@@ -94,7 +94,7 @@ export class DataTableComponent {
   }
 
   protected applyFilterGlobal($event: unknown, stringVal: string): void {
-    this.dt.filterGlobal(($event as HTMLInputElement).value, stringVal);
+    this.dt().filterGlobal(($event as HTMLInputElement).value, stringVal);
   }
 
   resolveNestedProperty<T = unknown>(

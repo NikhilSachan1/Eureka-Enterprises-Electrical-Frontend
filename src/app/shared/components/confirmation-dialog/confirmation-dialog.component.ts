@@ -1,12 +1,12 @@
 import {
   Component,
-  ViewChild,
   ChangeDetectionStrategy,
   inject,
   signal,
   OnInit,
   computed,
   DestroyRef,
+  viewChild,
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -36,7 +36,7 @@ import { LoggerService } from '@core/services';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmationDialogComponent implements OnInit {
-  @ViewChild('cd') confirmDialog!: ConfirmDialog;
+  readonly confirmDialog = viewChild.required<ConfirmDialog>('cd');
 
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -164,6 +164,6 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   private closeDialog(): void {
-    this.confirmDialog?.close();
+    this.confirmDialog()?.close();
   }
 }

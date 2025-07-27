@@ -6,7 +6,7 @@ import {
   inject,
   signal,
   OnInit,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
 import {
@@ -46,8 +46,7 @@ export class SetUserPermissionComponent
   extends PreventReloadComponent
   implements OnInit
 {
-  @ViewChild(SetPermissionComponent)
-  setPermissionComponent!: SetPermissionComponent;
+  readonly setPermissionComponent = viewChild.required(SetPermissionComponent);
 
   protected override readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
@@ -68,7 +67,7 @@ export class SetUserPermissionComponent
   }
 
   canDeactivate(): boolean {
-    if (this.setPermissionComponent?.hasUnsavedChanges()) {
+    if (this.setPermissionComponent()?.hasUnsavedChanges()) {
       this.logger.info(
         'Set User Permission Component: Form has unsaved changes'
       );
