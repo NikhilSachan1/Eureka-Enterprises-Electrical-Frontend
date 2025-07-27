@@ -6,7 +6,7 @@
     [icon]="icons.SECURITY.SHIELD"
     [title]="'No modules available'"
     [description]="'No modules available'"
-  ></app-empty-messages>
+  />
 } @else {
   <p-card styleClass="header-card">
     <div class="header-row">
@@ -65,7 +65,7 @@
                         [inputFieldConfig]="standaloneInputFieldConfig()[module.id]"
                         [fieldValue]="computedSelectAllValues()[module.id]"
                         (onFieldChange)="selectAllPermissions(module.id, $event)"
-                      ></app-standalone-input-field>
+                      />
 
                       <div class="module-title-col">
                         <h3 class="module-title">{{ module.moduleName }}</h3>
@@ -110,7 +110,7 @@
                             [formGroup]="form.formGroup"
                             [inputFieldConfig]="form.fieldConfigs[`${permission.id}`]"
                             (onFieldChange)="onPermissionChange()"
-                          ></app-input-field>
+                          />
                         </div>
 
                         <div class="permission-info-col">
@@ -125,14 +125,14 @@
                                   [icon]="permissionInfo.source === 'override' ? 'pi pi-user' : 'pi pi-users'"
                                   [severity]="permissionInfo.source === 'override' ? 'warning' : 'info'"
                                   class="mt-1 text-xs"
-                                ></p-tag>
+                                />
                               }
                             </div>
                             <p-tag
                               [value]="permissionInfo.label"
                               [icon]="permissionInfo.icon"
                               [severity]="getBadgeSeverity(permissionInfo.label)"
-                            ></p-tag>
+                            />
                           </div>
                         </div>
                       </div>
@@ -147,7 +147,7 @@
                   [description]="
                     'This module doesn\'t have any permissions configured yet. Contact your administrator to set up permissions for this module.'
                   "
-                ></app-empty-messages>
+                />
               }
             </div>
           }
@@ -160,12 +160,12 @@
           <app-button
             [buttonConfig]="form.buttonConfigs['reset']"
             (onButtonClick)="onReset()"
-          ></app-button>
+          />
 
           <app-button
             [buttonConfig]="form.buttonConfigs['submit']"
             [showButtonLoader]="isSubmitting()"
-          ></app-button>
+          />
         </div>
       }
     </form>

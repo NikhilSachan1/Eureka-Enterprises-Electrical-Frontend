@@ -44,7 +44,7 @@
           [readonly]="inputFieldConfig().readonlyInput || false"
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-        ></p-inputnumber>
+        />
         <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
       </p-floatlabel>
     }
@@ -71,7 +71,7 @@
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
           (onChange)="onChange()"
-        ></p-select>
+        />
         <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
       </p-floatlabel>
     }
@@ -98,7 +98,7 @@
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
           (onChange)="onChange()"
-        ></p-multiselect>
+        />
         <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
       </p-floatlabel>
     }
@@ -125,7 +125,7 @@
           [readonlyInput]="inputFieldConfig().readonlyInput"
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-        ></p-datepicker>
+        />
         <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
       </p-floatlabel>
     }
@@ -148,7 +148,7 @@
           [mediumRegex]="passwordConfig?.mediumRegex || ''"
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-        ></p-password>
+        />
         <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
       </p-floatlabel>
     }
@@ -170,7 +170,7 @@
               [formControlName]="inputFieldConfig().fieldName"
               [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
               (onChange)="onChange()"
-            ></p-checkbox>
+            />
             <label
               [for]="'checkbox-' + option.value"
               class="ml-2"
@@ -195,7 +195,7 @@
               [size]="inputFieldConfig().fieldSize"
               [formControlName]="inputFieldConfig().fieldName"
               [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-            ></p-radioButton>
+            />
             <label
               [for]="'radio-' + option.value"
               class="ml-2"
@@ -223,7 +223,7 @@
         [showCancelButton]="fileConfig?.showCancelButton"
         [name]="inputFieldConfig().fieldName"
         [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-      ></p-fileupload>
+      />
     }
     @case (ALL_FIELD_TYPES.TextArea) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">

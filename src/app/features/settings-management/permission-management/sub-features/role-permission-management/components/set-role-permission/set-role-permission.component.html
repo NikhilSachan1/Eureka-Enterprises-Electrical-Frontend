@@ -1,8 +1,8 @@
-<app-page-header [pageHeaderConfig]="pageHeaderConfig()"></app-page-header>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
 <app-set-permission
   [defaultPermissionSelected]="editRolePermissionData()"
   [isUserPermissionComponent]="false"
   [isSubmitting]="isSubmitting()"
   (modulePermissionsData)="onSubmit($event)"
-></app-set-permission>
+/>

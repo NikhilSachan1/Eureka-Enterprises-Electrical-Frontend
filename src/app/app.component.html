@@ -1,14 +1,14 @@
-<router-outlet></router-outlet>
+<router-outlet />
 
 <!-- General Loading Overlay -->
 <app-loading-overlay
   [show]="loadingService.isLoading()"
   [title]="loadingService.title()"
   [message]="loadingService.message()"
-></app-loading-overlay>
+/>
 
 <!-- Global Toast Notifications -->
-<p-toast></p-toast>
+<p-toast />
 
 <!-- Global Confirmation Dialog -->
-<app-confirmation-dialog></app-confirmation-dialog>
+<app-confirmation-dialog />

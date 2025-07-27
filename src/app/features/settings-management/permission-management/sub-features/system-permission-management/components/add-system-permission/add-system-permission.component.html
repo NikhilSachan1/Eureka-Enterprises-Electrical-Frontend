@@ -1,4 +1,4 @@
-<app-page-header [pageHeaderConfig]="pageHeaderConfig()"></app-page-header>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
 <form
   (ngSubmit)="onSubmit()"
@@ -10,28 +10,28 @@
       [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs['moduleName']"
       (onFieldChange)="onModuleNameChange()"
-    ></app-input-field>
+    />
 
     <app-input-field
       [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs['action']"
-    ></app-input-field>
+    />
   </div>
 
   <app-input-field
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs['comment']"
-  ></app-input-field>
+  />
 
   <div class="button-container">
     <app-button
       [buttonConfig]="form.buttonConfigs['reset']"
       (onButtonClick)="onReset()"
-    ></app-button>
+    />
 
     <app-button
       [buttonConfig]="form.buttonConfigs['submit']"
       [showButtonLoader]="isSubmitting()"
-    ></app-button>
+    />
   </div>
 </form>

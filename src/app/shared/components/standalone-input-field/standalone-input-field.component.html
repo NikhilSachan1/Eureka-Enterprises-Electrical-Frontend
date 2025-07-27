@@ -44,7 +44,7 @@
         [ngModel]="currentValue()"
         [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
         (onInput)="onStandaloneChange($event)"
-      ></p-inputnumber>
+      />
       <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
     </p-floatlabel>
   }
@@ -72,7 +72,7 @@
         [ngModel]="currentValue()"
         [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
         (onChange)="onStandaloneChange($event)"
-      ></p-select>
+      />
       <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
     </p-floatlabel>
   }
@@ -100,7 +100,7 @@
         [ngModel]="currentValue()"
         [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
         (onChange)="onStandaloneChange($event)"
-      ></p-multiselect>
+      />
       <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
     </p-floatlabel>
   }
@@ -129,7 +129,7 @@
         [ngModel]="currentValue()"
         [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
         (onSelect)="onStandaloneChange($event)"
-      ></p-datepicker>
+      />
       <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
     </p-floatlabel>
   }
@@ -154,7 +154,7 @@
         [ngModel]="currentValue()"
         [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
         (onBlur)="onStandaloneChange($event)"
-      ></p-password>
+      />
       <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
     </p-floatlabel>
   }
@@ -177,7 +177,7 @@
             [ngModel]="currentValue()"
             [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
             (onChange)="onStandaloneChange($event)"
-          ></p-checkbox>
+          />
           <label
             [for]="'checkbox-' + option.value"
             class="ml-2"
@@ -204,7 +204,7 @@
             [ngModel]="currentValue()"
             [class]="isFieldInvalid() ? 'ng-invalid ng-dirty' : ''"
             (onClick)="onStandaloneChange($event)"
-          ></p-radioButton>
+          />
           <label
             [for]="'radio-' + option.value"
             class="ml-2"

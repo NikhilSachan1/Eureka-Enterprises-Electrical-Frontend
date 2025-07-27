@@ -64,13 +64,13 @@
           <app-button
             [buttonConfig]="acceptButtonConfig()"
             (onButtonClick)="handleDialog(true)"
-          ></app-button>
+          />
         }
         @if (isRejectButtonVisible()) {
           <app-button
             [buttonConfig]="rejectButtonConfig()"
             (onButtonClick)="handleDialog(false)"
-          ></app-button>
+          />
         }
       </div>
     </div>

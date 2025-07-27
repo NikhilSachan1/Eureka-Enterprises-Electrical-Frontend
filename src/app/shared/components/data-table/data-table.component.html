@@ -52,7 +52,7 @@
                     [buttonConfig]="button"
                     [showDisabledButton]="isBulkActionDisabled(button)"
                     (onButtonClick)="onBulkActionClick(button.id)"
-                  ></app-button>
+                  />
                 }
               </div>
             </div>
@@ -63,7 +63,7 @@
                 (onButtonClick)="clearSelection()"
                 pTooltip="Clear Selected Rows"
                 tooltipPosition="top"
-              ></app-button>
+              />
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@
         @if (tableConfig().showCheckbox) {
           <th>
             <div class="flex">
-              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              <p-tableHeaderCheckbox />
             </div>
           </th>
         }
@@ -131,7 +131,7 @@
                             (onChange)="filter($event.value)"
                             [placeholder]="filterConfig.placeholder"
                             styleClass="w-full"
-                          ></p-select>
+                          />
                         </ng-template>
                       }
                     }
@@ -327,7 +327,7 @@
                   [showDisabledButton]="isActionDisabled(action, rowData)"
                   [pTooltip]="action.tooltip"
                   (onButtonClick)="onRowActionClick(action.id, rowData)"
-                ></app-button>
+                />
               }
             </div>
           </td>
@@ -345,7 +345,7 @@
             [icon]="tableConfig().emptyMessageIcon"
             [title]="tableConfig().emptyMessage"
             [description]="tableConfig().emptyMessageDescription"
-          ></app-empty-messages>
+          />
         </td>
       </tr>
     </ng-template>

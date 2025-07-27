@@ -1,17 +1,17 @@
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
   (headerButtonClick)="onAddButtonClick()"
-></app-page-header>
+/>
 
 <div class="content-wrapper">
   <div class="metrics-grid">
     @for (metric of metricsCards(); track metric.title) {
-      <app-metrics-card [metricCardConfig]="metric"></app-metrics-card>
+      <app-metrics-card [metricCardConfig]="metric" />
     }
   </div>
 
   <app-nav-tabs
     [tabs]="tabs()"
     [tabMode]="tabModeType"
-  ></app-nav-tabs>
+  />
 </div>

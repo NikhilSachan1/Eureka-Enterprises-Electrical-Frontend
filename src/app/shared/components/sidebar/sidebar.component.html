@@ -25,9 +25,9 @@
     [ngClass]="sidebarVisible() ? 'sidebar--expanded' : 'sidebar--collapsed'"
     [attr.aria-hidden]="!sidebarVisible()"
   >
-    <app-sidebar-header></app-sidebar-header>
-    <app-sidebar-user-profile></app-sidebar-user-profile>
-    <app-sidebar-menu></app-sidebar-menu>
+    <app-sidebar-header />
+    <app-sidebar-user-profile />
+    <app-sidebar-menu />
   </aside>
 
   <!-- Main Content Area -->
@@ -35,7 +35,7 @@
     [sidebarVisible]="sidebarVisible()"
     [isMobile]="isMobile()"
   >
-    <ng-content></ng-content>
+    <ng-content />
   </app-content-area>
 
   <!-- Mobile backdrop -->

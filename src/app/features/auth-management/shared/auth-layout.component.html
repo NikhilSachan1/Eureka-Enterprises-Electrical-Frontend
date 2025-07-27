@@ -21,7 +21,7 @@
       </div>
 
       <!-- Auth form -->
-      <ng-content></ng-content>
+      <ng-content />
 
       <!-- Footer -->
       <div class="auth-footer">
@@ -30,7 +30,7 @@
           <app-button
             [buttonConfig]="footerLinkButton()"
             (onButtonClick)="footerLinkAction.emit()"
-          ></app-button>
+          />
         </p>
       </div>
     </div>
