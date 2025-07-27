@@ -4,6 +4,16 @@ export const API_ROUTES = {
     FORGOT_PASSWORD: 'auth/forget-password',
     RESET_PASSWORD: 'auth/reset-password',
   },
+  ATTENDANCE: {
+    LIST: 'attendance',
+    HISTORY: 'attendance/history',
+    CURRENT_STATUS: 'attendance/current-status',
+    APPLY: 'attendance/action',
+    FORCE: 'attendance/force',
+    REGULARIZE: (attendanceId: string) =>
+      `attendance/${attendanceId}/regularized`,
+    APPROVAL_ACTION: 'attendance/approval',
+  },
   SETTINGS: {
     PERMISSION: {
       SYSTEM: {

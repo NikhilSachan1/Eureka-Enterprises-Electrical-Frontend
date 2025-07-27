@@ -15,6 +15,11 @@ import {
   IRowActionConfig,
 } from '@shared/models';
 import { IUserGetBaseResponseDto } from '../../types/user.dto';
+import {
+  EMPLOYEE_STATUS_DATA,
+  ROLE_NAME_DATA,
+} from '@shared/config/static-data.config';
+import { getDataFromArrayOfObjects } from '@shared/utility';
 
 export const USER_TABLE_CONFIG: Partial<IDataTableConfig> = {
   showCheckbox: false,
@@ -49,14 +54,7 @@ export const USER_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     filterConfig: {
       filterField: 'role',
       searchInputType: ETableSearchInputType.DROPDOWN,
-      filterDropdownOptions: [
-        'Super Admin',
-        'Project Manager',
-        'Site Supervisor',
-        'Field Worker',
-        'HR Manager',
-        'Finance Officer',
-      ],
+      filterDropdownOptions: getDataFromArrayOfObjects(ROLE_NAME_DATA, 'label'),
       placeholder: 'Search By Role',
       matchModeOptions: MATCH_MODE_OPTIONS.dropdown,
       defaultMatchMode: ETableFilterMatchMode.EQUALS,
@@ -80,7 +78,10 @@ export const USER_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     filterConfig: {
       filterField: 'status',
       searchInputType: ETableSearchInputType.DROPDOWN,
-      filterDropdownOptions: ['Active', 'Inactive'],
+      filterDropdownOptions: getDataFromArrayOfObjects(
+        EMPLOYEE_STATUS_DATA,
+        'label'
+      ),
       placeholder: 'Search By Status',
       matchModeOptions: MATCH_MODE_OPTIONS.dropdown,
       defaultMatchMode: ETableFilterMatchMode.EQUALS,

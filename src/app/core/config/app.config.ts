@@ -29,8 +29,8 @@ export const APP_CONFIG = {
 
   // Date Formats
   DATE_FORMATS: {
-    DEFAULT: 'dd-MM-yyyy',
-    WITH_TIME: 'dd-MM-yyyy HH:mm',
+    DEFAULT: 'dd/MM/yyyy',
+    WITH_TIME: 'dd/MM/yyyy HH:mm',
     SHORT: 'dd/MM/yy',
   },
 

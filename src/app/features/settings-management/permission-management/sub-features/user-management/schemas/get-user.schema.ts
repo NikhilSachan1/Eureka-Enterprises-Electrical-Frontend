@@ -1,5 +1,4 @@
-import { AuditSchema } from '@shared/schemas';
-import { FilterSchema } from '@shared/schemas/filter.schema';
+import { AuditSchema, FilterSchema } from '@shared/schemas';
 import { toTitleCase } from '@shared/utility';
 import { z } from 'zod';
 

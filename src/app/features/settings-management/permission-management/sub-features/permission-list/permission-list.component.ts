@@ -88,13 +88,13 @@ export class PermissionListComponent implements OnInit {
     ];
   }
 
-  protected async onAddButtonClick(): Promise<void> {
+  protected onAddButtonClick(): void {
     const currentUrl = this.currentRoute();
     const navigationRoute = this.buildNavigationRoute(currentUrl);
 
     if (navigationRoute) {
       const success =
-        await this.routerNavigationService.navigateToRoute(navigationRoute);
+        void this.routerNavigationService.navigateToRoute(navigationRoute);
 
       if (!success) {
         this.logger.logUserAction(

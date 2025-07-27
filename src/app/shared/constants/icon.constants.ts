@@ -19,6 +19,7 @@ export const ICONS = {
     INFO_CIRCLE: 'pi pi-info-circle',
     CHEVRON_DOWN: 'pi pi-chevron-down',
     TH_LARGE: 'pi pi-th-large',
+    VIEW: 'pi pi-eye',
   },
   ACTIONS: {
     CHECK: 'pi pi-check',
@@ -42,6 +43,7 @@ export const ICONS = {
     CALENDAR: 'pi pi-calendar',
     CHECK: 'pi pi-check-square',
     FORCE: 'pi pi-user-edit',
+    REGULARIZE: 'pi pi-clock',
   },
   EXPENSE: {
     MONEY: 'pi pi-money-bill',

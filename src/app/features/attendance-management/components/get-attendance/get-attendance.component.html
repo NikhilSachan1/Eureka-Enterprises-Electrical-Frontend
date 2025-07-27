@@ -1,1 +1,23 @@
-<p>get-attendance works!</p>
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onAddButtonClick()"
+></app-page-header>
+
+<div class="content-wrapper">
+  <div class="metrics-grid">
+    @for (metric of metricsCards(); track metric.title) {
+      <app-metrics-card [metricCardConfig]="metric"></app-metrics-card>
+    }
+  </div>
+
+  <app-data-table
+    [tableConfig]="table.tableConfig()"
+    [tableHeader]="table.headers()"
+    [tableData]="table.data()"
+    [loading]="table.loading()"
+    [bulkActionButtons]="table.bulkActions()"
+    [rowActions]="table.rowActions()"
+    (rowActionClick)="handleRowActionClick($event)"
+    (bulkActionClick)="handleBulkActionClick($event)"
+  ></app-data-table>
+</div>
