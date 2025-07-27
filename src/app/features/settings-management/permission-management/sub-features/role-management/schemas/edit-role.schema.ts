@@ -16,6 +16,6 @@ export const RoleEditRequestSchema = RoleBaseSchema.pick({
 
 export const RoleEditResponseSchema = z
   .object({
-    message: z.string().nonempty({ message: 'Message is required' }),
+    message: z.string().nonempty(),
   })
   .strict();

@@ -2,10 +2,10 @@ import { AuditSchema } from '@shared/schemas';
 import { z } from 'zod';
 
 export const UserPermissionsSetRequestSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.uuid(),
   userPermissions: z.array(
     z.object({
-      permissionId: z.string().uuid(),
+      permissionId: z.uuid(),
       isGranted: z.boolean(),
     })
   ),
@@ -14,10 +14,10 @@ export const UserPermissionsSetRequestSchema = z.object({
 export const UserPermissionsSetResponseSchema = z.array(
   z
     .object({
-      userId: z.string().uuid(),
-      permissionId: z.string().uuid(),
+      userId: z.uuid(),
+      permissionId: z.uuid(),
       isGranted: z.boolean(),
-      id: z.string().uuid(),
+      id: z.uuid(),
     })
     .merge(
       AuditSchema.pick({

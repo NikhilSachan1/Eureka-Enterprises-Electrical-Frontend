@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const UserPermissionsDeleteRequestSchema = z.object({
-  userId: z.string().uuid(),
-  permissionIds: z.array(z.string().uuid()),
+  userId: z.uuid(),
+  permissionIds: z.array(z.uuid()),
 });
 
 export const UserPermissionsDeleteResponseSchema = z.object({

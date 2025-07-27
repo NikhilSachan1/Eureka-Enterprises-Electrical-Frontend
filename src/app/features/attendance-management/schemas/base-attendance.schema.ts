@@ -3,18 +3,18 @@ import { z } from 'zod';
 
 export const AttendanceBaseSchema = z
   .object({
-    id: z.string().uuid(),
-    userId: z.string().uuid(),
+    id: z.uuid(),
+    userId: z.uuid(),
     attendanceDate: z.string(),
     checkInTime: z.string(),
     checkOutTime: z.string().nullable(),
     status: z.enum(['present', 'absent', 'leave', 'holiday']),
-    shiftConfigId: z.string().uuid(),
+    shiftConfigId: z.uuid(),
     entrySourceType: z.enum(['web', 'mobile']),
     attendanceType: z.enum(['regularized', 'self', 'forced']),
-    regularizedBy: z.string().uuid().nullable(),
+    regularizedBy: z.uuid().nullable(),
     approvalStatus: z.enum(['pending', 'approved', 'rejected']),
-    approvalBy: z.string().uuid().nullable(),
+    approvalBy: z.uuid().nullable(),
     approvalAt: z.string().nullable(),
     approvalComment: z.string().nullable(),
     notes: z.string(),

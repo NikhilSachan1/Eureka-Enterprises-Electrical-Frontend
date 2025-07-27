@@ -15,6 +15,6 @@ export const SystemPermissionEditRequestSchema =
 
 export const SystemPermissionEditResponseSchema = z
   .object({
-    message: z.string({ required_error: 'Message is required' }).nonempty(),
+    message: z.string({ error: 'Message is required' }).nonempty(),
   })
   .strict();

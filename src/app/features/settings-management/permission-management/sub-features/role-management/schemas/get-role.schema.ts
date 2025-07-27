@@ -14,7 +14,7 @@ export const RoleGetBaseResponseSchema = RoleBaseSchema.pick({
   permissionCount: true,
 })
   .extend({
-    id: z.string().uuid(),
+    id: z.uuid(),
     name: name.transform(val => toLowerCase(val)),
     label: label.transform(val => toTitleCase(val)),
     description: description.transform(val => toSentenceCase(val)),

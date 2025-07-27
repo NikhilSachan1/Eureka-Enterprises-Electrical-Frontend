@@ -20,7 +20,7 @@ export const SystemPermissionGetBaseResponseSchema =
     isDeletable: true,
   })
     .extend({
-      id: z.string().uuid(),
+      id: z.uuid(),
       name: name.transform(val => toLowerCase(val)),
       module: module.transform(val => toTitleCase(val)),
       label: label.transform(val => {

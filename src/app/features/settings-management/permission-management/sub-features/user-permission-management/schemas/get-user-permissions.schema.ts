@@ -3,13 +3,13 @@ import { ModulePermissionsBaseSchema } from './base-user-permissions.schema';
 
 export const UserPermissionsGetRequestSchema = z
   .object({
-    userId: z.string().uuid({ message: 'User ID must be a valid UUID' }),
+    userId: z.uuid(),
   })
   .strict();
 
 export const UserPermissionsGetResponseSchema = z
   .object({
-    userId: z.string().uuid({ message: 'User ID must be a valid UUID' }),
+    userId: z.uuid(),
     permissions: z.array(ModulePermissionsBaseSchema),
   })
   .strict();

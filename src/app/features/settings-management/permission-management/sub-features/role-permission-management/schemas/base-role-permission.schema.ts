@@ -3,9 +3,9 @@ import z from 'zod';
 
 export const RolePermissionsBaseSchema = z
   .object({
-    id: z.string().uuid(),
-    roleId: z.string().uuid(),
-    permissionId: z.string().uuid(),
+    id: z.uuid(),
+    roleId: z.uuid(),
+    permissionId: z.uuid(),
     isActive: z.boolean(),
   })
   .merge(

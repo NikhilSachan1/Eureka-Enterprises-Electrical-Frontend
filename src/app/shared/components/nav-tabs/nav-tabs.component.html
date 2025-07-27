@@ -12,6 +12,7 @@
           [pTooltip]="tab.tooltip"
           tooltipPosition="top"
           (click)="onTabClick(tab, i)"
+          class="flex items-center !gap-2 text-inherit"
         >
           @if (tab.icon) {
             <i [class]="tab.icon"></i>

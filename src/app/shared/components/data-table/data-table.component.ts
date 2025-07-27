@@ -19,7 +19,6 @@ import { FormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuModule } from 'primeng/menu';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import {
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -55,7 +54,6 @@ import { EmptyMessagesComponent } from '../empty-messages/empty-messages.compone
     ToolbarModule,
     TooltipModule,
     MenuModule,
-    OverlayPanelModule,
     NgClass,
     DatePipe,
     CurrencyPipe,

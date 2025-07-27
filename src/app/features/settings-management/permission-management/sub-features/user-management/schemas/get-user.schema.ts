@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 export const UserGetBaseResponseSchema = z
   .object({
-    id: z.string().uuid(),
+    id: z.uuid(),
     firstName: z.string(),
     lastName: z.string(),
     email: z.string(),

@@ -3,10 +3,10 @@ import { RolePermissionsBaseSchema } from './base-role-permission.schema';
 
 export const RolePermissionsSetRequestSchema = z
   .object({
-    roleId: z.string().uuid(),
+    roleId: z.uuid(),
     rolePermissions: z.array(
       z.object({
-        permissionId: z.string().uuid(),
+        permissionId: z.uuid(),
         isActive: z.boolean(),
       })
     ),
