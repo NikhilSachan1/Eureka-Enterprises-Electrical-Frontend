@@ -1,16 +1,14 @@
 import { Routes } from '@angular/router';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import {
-  PublicLayoutComponent,
-  PrivateLayoutComponent,
-} from '@shared/components';
+
 import { authGuard, GuestGuard } from '@core/guards';
 
 export const routes: Routes = [
   // Public routes (no sidebar)
   {
     path: '',
-    component: PublicLayoutComponent,
+    loadComponent: () =>
+      import('@shared/components').then(m => m.PublicLayoutComponent),
     canActivate: [GuestGuard],
     children: [
       {
@@ -31,7 +29,8 @@ export const routes: Routes = [
   // Private routes (with sidebar)
   {
     path: '',
-    component: PrivateLayoutComponent,
+    loadComponent: () =>
+      import('@shared/components').then(m => m.PrivateLayoutComponent),
     canActivate: [authGuard],
     children: [
       {

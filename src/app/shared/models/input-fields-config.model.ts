@@ -7,6 +7,7 @@ import {
   EDateIconDisplay,
   EDateSelectionMode,
   EFieldSize,
+  EFieldType,
   EFileMode,
   EFloatLabelVariant,
   EHourFormat,
@@ -17,7 +18,7 @@ import {
 } from '@shared/types';
 
 export interface IInputFieldsConfig {
-  fieldType: string;
+  fieldType: EFieldType;
   id: string;
   autocomplete?: EAutocomplete;
   readonlyInput?: boolean;
