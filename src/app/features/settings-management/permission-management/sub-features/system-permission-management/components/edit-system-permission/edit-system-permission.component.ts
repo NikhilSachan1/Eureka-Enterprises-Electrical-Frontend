@@ -10,12 +10,6 @@ import {
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {
-  PageHeaderComponent,
-  InputFieldComponent,
-  ButtonComponent,
-  PreventReloadComponent,
-} from '@shared/components';
-import {
   NotificationService,
   FormService,
   RouterNavigationService,
@@ -32,6 +26,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { finalize } from 'rxjs';
 import { SYSTEM_PERMISSION_FORM_EDIT_CONFIG } from '../../config';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
 
 @Component({
   selector: 'app-edit-system-permission',

@@ -8,12 +8,6 @@ import {
   computed,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import {
-  PageHeaderComponent,
-  InputFieldComponent,
-  ButtonComponent,
-  PreventReloadComponent,
-} from '@shared/components';
 import { LoggerService } from '@core/services';
 import {
   FormService,
@@ -29,6 +23,10 @@ import { finalize } from 'rxjs';
 import { SYSTEM_PERMISSION_FORM_ADD_CONFIG } from '../../config';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { ISystemPermissionAddRequestDto } from '../../types/system-permission.dto';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
 
 @Component({
   selector: 'app-add-system-permission',

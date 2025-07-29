@@ -8,11 +8,6 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import {
-  PageHeaderComponent,
-  MetricsCardComponent,
-  NavTabsComponent,
-} from '@shared/components';
 import { IMetricData, IPageHeaderConfig, ITabItem } from '@shared/models';
 import { CardModule } from 'primeng/card';
 import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '@shared/constants';
@@ -21,6 +16,9 @@ import { LoggerService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
 import { ETabMode } from '@shared/types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-permission-list',

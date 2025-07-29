@@ -27,7 +27,6 @@ import {
   IUserGetRequestDto,
   IUserGetResponseDto,
 } from '../../types/user.dto';
-import { DataTableComponent } from '@shared/components';
 import { IUser } from '../../types/user.interface';
 import { EDialogType, ERowActionType } from '@shared/types';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
@@ -38,6 +37,7 @@ import {
   IUserPermissionsGetRequestDto,
   IUserPermissionsGetResponseDto,
 } from '../../../user-permission-management/types/user-permissions.dto';
+import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 
 @Component({
   selector: 'app-get-user',

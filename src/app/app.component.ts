@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
-import { LoadingOverlayComponent } from '@shared/components';
+import { LoadingOverlayComponent } from '@shared/components/loading-overlay/loading-overlay.component';
 import { LoadingService } from '@shared/services';
 import { ConfirmationDialogComponent } from './shared/components/confirmation-dialog/confirmation-dialog.component';
 

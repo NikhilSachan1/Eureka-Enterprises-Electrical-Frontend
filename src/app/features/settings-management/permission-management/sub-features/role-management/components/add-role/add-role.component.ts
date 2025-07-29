@@ -8,12 +8,6 @@ import {
   computed,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import {
-  PageHeaderComponent,
-  InputFieldComponent,
-  ButtonComponent,
-  PreventReloadComponent,
-} from '@shared/components';
 import { LoggerService } from '@core/services';
 import {
   FormService,
@@ -28,6 +22,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IRoleAddRequestDto } from '../../types/role.dto';
 import { RoleService } from '../../services/role.service';
 import { ROLE_FORM_ADD_CONFIG } from '../../config';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
 
 @Component({
   selector: 'app-add-role',

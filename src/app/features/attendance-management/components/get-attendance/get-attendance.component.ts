@@ -8,7 +8,8 @@ import {
   signal,
 } from '@angular/core';
 import { AttendanceService } from '../../services/attendance.service';
-import { DataTableComponent, PageHeaderComponent } from '@shared/components';
+import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import {
   IBulkActionClickEvent,
   IEnhancedTable,

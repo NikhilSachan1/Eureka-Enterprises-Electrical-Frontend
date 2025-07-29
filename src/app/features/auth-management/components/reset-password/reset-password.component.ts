@@ -7,13 +7,14 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ButtonComponent, InputFieldComponent } from '@shared/components';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ToastModule } from 'primeng/toast';
 import { IEnhancedForm } from '@shared/models';
 import { FormService, NotificationService } from '@shared/services';
 import { LoggerService } from '@core/services';
-import { RESET_PASSWORD_INPUT_FIELDS_CONFIG } from '@features/auth-management/config/reset-password-form.config';
-import { AuthLayoutComponent } from '@features/auth-management/shared/auth-layout.component';
+import { RESET_PASSWORD_INPUT_FIELDS_CONFIG } from '../../config/reset-password-form.config';
+import { AuthLayoutComponent } from '../../shared/auth-layout.component';
 import {
   ROUTE_BASE_PATHS,
   ROUTES,

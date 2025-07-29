@@ -16,7 +16,7 @@ import {
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import { MATCH_MODE_OPTIONS } from '@shared/config';
-import { IAttendanceGetResponseDto } from '@features/attendance-management/types/attendance.dto';
+import { IAttendanceGetResponseDto } from '../../types/attendance.dto';
 import { getDataFromArrayOfObjects } from '@shared/utility';
 import {
   APPROVAL_STATUS_DATA,

@@ -11,21 +11,22 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DividerModule } from 'primeng/divider';
-import { InputFieldComponent, ButtonComponent } from '@shared/components';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { LoggerService } from '@core/services';
 import {
   ROUTE_BASE_PATHS,
   ROUTES,
   FORM_VALIDATION_MESSAGES,
 } from '@shared/constants';
-import { LOGIN_FORM_CONFIG } from '@features/auth-management/config/login-form.config';
-import { AuthLayoutComponent } from '@features/auth-management/shared/auth-layout.component';
+import { LOGIN_FORM_CONFIG } from '../../config/login-form.config';
+import { AuthLayoutComponent } from '../../shared/auth-layout.component';
 import { FormService, NotificationService } from '@shared/services';
 import { ToastModule } from 'primeng/toast';
 import { IEnhancedForm } from '@shared/models';
-import { AuthService } from '@features/auth-management/services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { finalize } from 'rxjs/operators';
-import { ILoginRequestDto } from '@features/auth-management/models/auth-api.model';
+import { ILoginRequestDto } from '../../models/auth-api.model';
 
 @Component({
   selector: 'app-login',

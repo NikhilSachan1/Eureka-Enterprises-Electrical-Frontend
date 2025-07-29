@@ -4,7 +4,7 @@ import {
   input,
   output,
 } from '@angular/core';
-import { ButtonComponent } from '@shared/components';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { EButtonSize } from '@shared/types';
 import { IButtonConfig } from '@shared/models';
 

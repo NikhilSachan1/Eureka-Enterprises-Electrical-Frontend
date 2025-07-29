@@ -13,13 +13,10 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import {
-  NavTabsComponent,
-  InputFieldComponent,
-  StandaloneInputFieldComponent,
-  EmptyMessagesComponent,
-  ButtonComponent,
-} from '@shared/components';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ICONS } from '@shared/constants';
 import { ETabMode, EFieldType, EPrimeNGSeverity } from '@shared/types';
 import {
@@ -52,6 +49,7 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services';
+import { StandaloneInputFieldComponent } from '@shared/components/standalone-input-field/standalone-input-field.component';
 
 @Component({
   selector: 'app-set-permission',

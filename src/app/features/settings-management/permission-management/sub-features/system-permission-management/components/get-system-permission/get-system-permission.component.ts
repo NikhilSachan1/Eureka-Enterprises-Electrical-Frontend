@@ -5,7 +5,6 @@ import {
   ChangeDetectionStrategy,
   DestroyRef,
 } from '@angular/core';
-import { DataTableComponent } from '@shared/components';
 import {
   TableService,
   RouterNavigationService,
@@ -36,6 +35,7 @@ import {
 } from '../../config';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 
 @Component({
   selector: 'app-get-system-permission',

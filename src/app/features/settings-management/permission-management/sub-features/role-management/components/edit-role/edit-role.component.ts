@@ -19,12 +19,6 @@ import { LoggerService } from '@core/services';
 import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  PageHeaderComponent,
-  InputFieldComponent,
-  ButtonComponent,
-  PreventReloadComponent,
-} from '@shared/components';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RoleService } from '../../services/role.service';
 import {
@@ -32,6 +26,10 @@ import {
   IRoleGetBaseResponseDto,
 } from '../../types/role.dto';
 import { ROLE_FORM_EDIT_CONFIG } from '../../config';
+import { ButtonComponent } from '@shared/components/button/button.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
 
 @Component({
   selector: 'app-edit-role',

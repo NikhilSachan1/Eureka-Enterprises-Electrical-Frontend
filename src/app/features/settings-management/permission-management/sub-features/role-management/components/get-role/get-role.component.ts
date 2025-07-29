@@ -5,7 +5,6 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { DataTableComponent } from '@shared/components';
 import {
   IEnhancedTable,
   IRowActionClickEvent,
@@ -37,6 +36,7 @@ import {
 } from '../../types/role.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IRole } from '../../types/role.interface';
+import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 
 @Component({
   selector: 'app-get-role',

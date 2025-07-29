@@ -9,10 +9,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { IPageHeaderConfig } from '@shared/models';
-import {
-  PageHeaderComponent,
-  PreventReloadComponent,
-} from '@shared/components';
 import { ActivatedRoute } from '@angular/router';
 import {
   LoadingService,
@@ -34,6 +30,8 @@ import {
   ISetPermissionData,
   IDefaultPermissions,
 } from '../../../../shared/types/set-permission.interface';
+import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-set-role-permission',

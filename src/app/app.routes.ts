@@ -8,7 +8,9 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('@shared/components').then(m => m.PublicLayoutComponent),
+      import(
+        '@shared/components/layouts/public-layout/public-layout.component'
+      ).then(m => m.PublicLayoutComponent),
     canActivate: [GuestGuard],
     children: [
       {
@@ -30,7 +32,9 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('@shared/components').then(m => m.PrivateLayoutComponent),
+      import(
+        '@shared/components/layouts/private-layout/private-layout.component'
+      ).then(m => m.PrivateLayoutComponent),
     canActivate: [authGuard],
     children: [
       {

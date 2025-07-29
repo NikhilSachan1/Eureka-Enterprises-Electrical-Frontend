@@ -9,10 +9,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
-import {
-  PageHeaderComponent,
-  PreventReloadComponent,
-} from '@shared/components';
 import { ActivatedRoute } from '@angular/router';
 import { LoggerService } from '@core/services';
 import {
@@ -34,6 +30,8 @@ import {
 import { UserPermissionService } from '../../services/user-permission.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-set-user-permission',
