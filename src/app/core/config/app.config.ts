@@ -31,7 +31,12 @@ export const APP_CONFIG = {
   DATE_FORMATS: {
     DEFAULT: 'dd/MM/yyyy',
     WITH_TIME: 'dd/MM/yyyy HH:mm',
-    SHORT: 'dd/MM/yy',
+  },
+
+  // Time Formats
+  TIME_FORMATS: {
+    DEFAULT: 'HH:mm',
+    WITH_SECONDS: 'HH:mm:ss',
   },
 
   // Currency Configuration

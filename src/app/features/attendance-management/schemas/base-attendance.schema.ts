@@ -19,6 +19,7 @@ export const AttendanceBaseSchema = z
     approvalComment: z.string().nullable(),
     notes: z.string(),
     isActive: z.boolean(),
+    workDuration: z.number(),
   })
   .merge(AuditSchema)
   .strict();

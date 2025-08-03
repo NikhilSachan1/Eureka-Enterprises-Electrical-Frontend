@@ -46,7 +46,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       header: 'Employee Name',
       bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
       textWithSubtitleAndImageConfig: {
-        secondaryField: 'employeeId',
+        secondaryField: 'employeeCode',
         showImage: true,
         dummyImageField: 'employeeName',
         primaryFieldHighlight: true,

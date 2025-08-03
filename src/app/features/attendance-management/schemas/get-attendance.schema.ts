@@ -32,9 +32,9 @@ export const AttendanceGetBaseResponseSchema = AttendanceBaseSchema.pick({
   status: true,
   approvalStatus: true,
   notes: true,
+  workDuration: true,
 })
   .extend({
-    workDuration: z.number(),
     status: status.transform(attendanceStatus => toTitleCase(attendanceStatus)),
     approvalStatus: approvalStatus.transform(attendanceApprovalStatus =>
       toTitleCase(attendanceApprovalStatus)

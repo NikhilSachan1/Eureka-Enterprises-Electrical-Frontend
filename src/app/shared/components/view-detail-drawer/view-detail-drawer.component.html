@@ -1,0 +1,86 @@
+<div class="flex items-center gap-3 mb-4">
+  <img
+    [src]="_avtarImageUrl()"
+    [alt]="drawerEmployeeDetails()?.name"
+    class="w-8 h-8 rounded-full bg-slate-100"
+    loading="lazy"
+  />
+
+  <div>
+    <h3 class="text-sm font-semibold text-slate-800">{{ drawerEmployeeDetails()?.name }}</h3>
+    <p class="text-xs text-slate-500">{{ drawerEmployeeDetails()?.employeeCode }}</p>
+  </div>
+</div>
+
+@for (detail of drawerDetails(); track $index) {
+  <p-card
+    styleClass="mb-4"
+    [ngClass]="getCardColor(detail.status.approvalStatus)"
+  >
+    <div class="flex items-center gap-2 mb-4">
+      <p-tag
+        [value]="detail.status.entryType | textCase: 'title'"
+        severity="info"
+      />
+      <p-tag
+        [value]="detail.status.approvalStatus | textCase: 'title'"
+        [severity]="getApprovalStatusColor(detail.status.approvalStatus)"
+      />
+    </div>
+    <div class="space-y-2 mb-4">
+      @for (entry of detail.entryData; track entry.label) {
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-700">{{ entry.label }}:</span>
+          <span class="text-sm font-medium text-gray-900">
+            @if (entry.value) {
+              @if (entry.type === ALL_DRAWER_DETAIL_TYPES.DATE) {
+                {{ entry.value | date: entry.format }}
+              } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.TIME) {
+                {{ entry.value | date: entry.format }}
+              } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.DURATION) {
+                {{ +entry.value | secondsToDhms }}
+              } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.STATUS) {
+                <span [ngClass]="getStatusColor(entry.value)">
+                  {{ entry.value | textCase: 'title' }}
+                </span>
+              } @else {
+                {{ entry.value }}
+              }
+            } @else {
+              N/A
+            }
+          </span>
+        </div>
+      }
+    </div>
+
+    @if (detail.status.approvalStatus !== 'pending') {
+      <p-divider />
+      <div class="space-y-1">
+        <p class="text-xs text-gray-600">
+          {{ detail.status.approvalStatus | textCase: 'title' }} by
+          <span class="font-semibold">{{ detail.approvalBy.name }}</span>
+          at
+          <span class="font-semibold">{{ detail.approvalBy.date | date: appConfigService.dateFormats.DEFAULT }}</span>
+          on
+          <span class="font-semibold">{{ detail.approvalBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
+        </p>
+        <p class="text-xs text-gray-600 italic">"{{ detail.approvalBy.notes }}"</p>
+      </div>
+    }
+
+    @if (detail.createdBy) {
+      <p-divider />
+      <div class="space-y-1">
+        <p class="text-xs text-gray-600">
+          Created by
+          <span class="font-semibold">{{ detail.createdBy.name }}</span>
+          at
+          <span class="font-semibold">{{ detail.createdBy.date | date: appConfigService.dateFormats.DEFAULT }}</span>
+          on
+          <span class="font-semibold">{{ detail.createdBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
+        </p>
+      </div>
+    }
+  </p-card>
+}

@@ -10,15 +10,10 @@ export const AttendanceHistoryGetRequestSchema = AttendanceBaseSchema.pick({
   date: attendanceDate,
 });
 
-export const AttendanceHistoryGetResponseSchema = z
-  .object({
-    records: z.array(
-      AttendanceBaseSchema.extend({
-        user: UserSchema,
-        createdByUser: UserSchema,
-        approvalByUser: UserSchema,
-      })
-    ),
-    totalRecords: z.number(),
-  })
-  .strict();
+export const AttendanceHistoryGetResponseSchema = z.array(
+  AttendanceBaseSchema.extend({
+    user: UserSchema,
+    createdByUser: UserSchema,
+    approvalByUser: UserSchema,
+  }).strict()
+);

@@ -46,6 +46,10 @@ export class AvatarService {
   }
 
   private getConsistentColor(name: string): string {
+    if (!name) {
+      return this.SOLID_COLORS[0];
+    }
+
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
       const char = name.charCodeAt(i);

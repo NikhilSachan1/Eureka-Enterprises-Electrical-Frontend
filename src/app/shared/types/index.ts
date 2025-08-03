@@ -45,3 +45,4 @@ export {
   EButtonSize,
 } from './button.types';
 export { ETabMode } from './tab-items.types';
+export { EDrawerPosition, EDrawerDetailType } from './drawer.types';

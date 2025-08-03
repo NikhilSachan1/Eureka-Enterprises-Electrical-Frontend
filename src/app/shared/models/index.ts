@@ -53,3 +53,11 @@ export type { UserOption } from './user-option.model';
 export type { IButtonConfig } from './button.model';
 export type { IPageHeaderConfig } from './page-header-config.model';
 export type { ITagConfig } from './tag.model';
+export type {
+  IDrawerConfig,
+  IDrawerState,
+  IEnhancedDrawer,
+  IDrawerEvent,
+  IDrawerDetail,
+  IDrawerEmployeeDetails,
+} from './drawer.model';

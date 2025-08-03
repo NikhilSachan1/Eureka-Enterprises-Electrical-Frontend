@@ -22,6 +22,7 @@ import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
+  DrawerService,
   LoadingService,
   NotificationService,
   RouterNavigationService,
@@ -45,6 +46,7 @@ import { IAttendance } from '../../types/attendance.interface';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
 import { EBulkActionType, EDialogType, ERowActionType } from '@shared/types';
 import { stringToArray } from '@shared/utility';
+import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 
 @Component({
   selector: 'app-get-attendance',
@@ -64,6 +66,7 @@ export class GetAttendanceComponent implements OnInit {
     ConfirmationDialogService
   );
   private readonly notificationService = inject(NotificationService);
+  private readonly drawerService = inject(DrawerService);
 
   protected table!: IEnhancedTable;
 
@@ -155,9 +158,7 @@ export class GetAttendanceComponent implements OnInit {
         );
         break;
       case ERowActionType.VIEW:
-        this.navigateToViewAttendanceHistory(
-          rowData as IAttendanceGetBaseResponseDto
-        );
+        this.showAttendanceDetailsDrawer(rowData as unknown as IAttendance);
         break;
       default:
         this.logger.warn('Unknown row action:', actionType);
@@ -207,7 +208,8 @@ export class GetAttendanceComponent implements OnInit {
       approvalStatus: record.approvalStatus,
       notes: record.notes,
       employeeName: `${record.user.firstName} ${record.user.lastName}`,
-      employeeId: record.user.employeeId,
+      employeeId: record.user.id,
+      employeeCode: record.user.employeeId,
       siteLocation: stringToArray(record.notes, '-')[0] || '',
       clientName: stringToArray(record.notes, '-')[1] || '',
     }));
@@ -241,13 +243,16 @@ export class GetAttendanceComponent implements OnInit {
     this.logger.logUserAction('Regularize action triggered', rowData);
   }
 
-  private navigateToViewAttendanceHistory(
-    rowData: IAttendanceGetBaseResponseDto
-  ): void {
-    this.logger.logUserAction(
-      'View attendance history action triggered',
-      rowData
-    );
+  private showAttendanceDetailsDrawer(rowData: IAttendance): void {
+    this.logger.logUserAction('Opening attendance details drawer', rowData);
+
+    this.drawerService.showDrawer(GetAttendanceDetailComponent, {
+      header: `Attendance Details`,
+      subtitle: `Detailed view of attendance`,
+      componentData: {
+        attendance: rowData,
+      },
+    });
   }
 
   private showBulkApproveConfirmationDialog(selectedRows: IAttendance[]): void {

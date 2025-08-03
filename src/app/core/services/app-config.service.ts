@@ -111,6 +111,13 @@ export class AppConfigService {
   }
 
   /**
+   * Get the application time formats
+   */
+  get timeFormats(): IAppConfig['TIME_FORMATS'] {
+    return this._config.TIME_FORMATS;
+  }
+
+  /**
    * Get the application currency configuration
    */
   get currencyConfig(): IAppConfig['CURRENCY_CONFIG'] {

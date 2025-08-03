@@ -20,7 +20,10 @@ export interface IAppConfig {
   DATE_FORMATS: {
     DEFAULT: string;
     WITH_TIME: string;
-    SHORT: string;
+  };
+  TIME_FORMATS: {
+    DEFAULT: string;
+    WITH_SECONDS: string;
   };
   CURRENCY_CONFIG: {
     DEFAULT: string;

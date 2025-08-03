@@ -8,7 +8,8 @@ import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { LoadingOverlayComponent } from '@shared/components/loading-overlay/loading-overlay.component';
 import { LoadingService } from '@shared/services';
-import { ConfirmationDialogComponent } from './shared/components/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import { DrawerComponent } from '@shared/components/drawer/drawer.component';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ import { ConfirmationDialogComponent } from './shared/components/confirmation-di
     LoadingOverlayComponent,
     ToastModule,
     ConfirmationDialogComponent,
+    DrawerComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
