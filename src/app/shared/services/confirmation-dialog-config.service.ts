@@ -11,7 +11,7 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/models';
 import { EDialogType } from '@shared/types';
-import { FormService } from '@shared/services';
+import { FormService, InputFieldConfigService } from '@shared/services';
 import { deepMerge } from '@shared/utility';
 import {
   ALLOCATE_CONFIRMATION_DIALOG_CONFIG,
@@ -30,6 +30,7 @@ import { WARNING_CONFIRMATION_DIALOG_CONFIG } from '../config/confirmation-dialo
 export class ConfirmationDialogService {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly formService = inject(FormService);
+  private readonly inputFieldConfigService = inject(InputFieldConfigService);
 
   private readonly defaultConfigs: Record<
     EDialogType,
@@ -62,13 +63,15 @@ export class ConfirmationDialogService {
       dialogType,
       confirmationDialogConfig
     );
-    const formGroup = this.createFormGroup(
-      confirmationDialogConfig?.inputFields
-    );
+    const inputFieldsConfigs =
+      this.inputFieldConfigService.initializeFieldConfigs(
+        confirmationDialogConfig?.inputFields ?? {}
+      );
+    const formGroup = this.createFormGroup(inputFieldsConfigs);
 
     const completeConfig: IConfirmationDialogConfig = {
       dialogSettingConfig: finalDialogSettingConfig,
-      inputFields: confirmationDialogConfig?.inputFields,
+      inputFields: inputFieldsConfigs,
       recordDetails: confirmationDialogConfig?.recordDetails,
       onAccept: confirmationDialogConfig?.onAccept,
       onReject: confirmationDialogConfig?.onReject,
