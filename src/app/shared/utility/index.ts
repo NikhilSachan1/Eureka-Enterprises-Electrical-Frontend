@@ -9,3 +9,7 @@ export {
   replaceTextWithSeparator,
 } from './string.util';
 export { noSpecialCharactersValidator } from './validators.util';
+export {
+  convertSecondsToDhms,
+  calculateMinEditableDate,
+} from './dat-time.util';

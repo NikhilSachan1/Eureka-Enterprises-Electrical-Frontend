@@ -20,6 +20,8 @@ export interface IAppConfig {
   DATE_FORMATS: {
     DEFAULT: string;
     WITH_TIME: string;
+    CALENDAR: string;
+    API: string;
   };
   TIME_FORMATS: {
     DEFAULT: string;

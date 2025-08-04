@@ -54,3 +54,33 @@ export const EMPLOYEE_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Active', value: 'active' },
   { label: 'Inactive', value: 'inactive' },
 ];
+
+export const EMPLOYEE_NAME_DATA: IOptionDropdown[] = [
+  { label: 'Akhil Sachan', value: '508eee21-d0fb-45cf-9cfa-a7d83e8531e5' },
+  { label: 'System Admin', value: '41b4006e-c0d5-47cb-93dc-2422890c0c91' },
+];
+
+export const CLIENT_NAME_DATA: IOptionDropdown[] = [
+  { label: 'Client 1', value: 'client_1' },
+  { label: 'Client 2', value: 'client_2' },
+  { label: 'Client 3', value: 'client_3' },
+  { label: 'Client 4', value: 'client_4' },
+  { label: 'Client 5', value: 'client_5' },
+];
+
+export const LOCATION_DATA: IOptionDropdown[] = [
+  { label: 'Location 1', value: 'location_1' },
+  { label: 'Location 2', value: 'location_2' },
+  { label: 'Location 3', value: 'location_3' },
+  { label: 'Location 4', value: 'location_4' },
+  { label: 'Location 5', value: 'location_5' },
+];
+
+export const SHIFT_DATA = {
+  START_TIME: '09:00',
+  END_TIME: '18:00',
+};
+
+export const PAYSLIP_DATE_DATA = {
+  EVERY_MONTH: 5,
+};

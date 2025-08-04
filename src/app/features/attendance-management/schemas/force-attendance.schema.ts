@@ -6,9 +6,13 @@ export const AttendanceForceRequestSchema = AttendanceBaseSchema.pick({
   attendanceDate: true,
   checkInTime: true,
   checkOutTime: true,
-  approvalComment: true,
   notes: true,
-}).strict();
+})
+  .extend({
+    reason: z.string(),
+    timezone: z.string(),
+  })
+  .strict();
 
 export const AttendanceForceResponseSchema = AttendanceBaseSchema.pick({
   checkInTime: true,

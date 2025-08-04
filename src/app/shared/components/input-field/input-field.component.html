@@ -122,6 +122,7 @@
           [hourFormat]="dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve"
           [view]="dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date"
           [numberOfMonths]="dateConfig?.numberOfMonths || 1"
+          [touchUI]="dateConfig?.touchUI"
           [readonlyInput]="inputFieldConfig().readonlyInput"
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"

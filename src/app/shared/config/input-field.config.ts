@@ -1,3 +1,4 @@
+import { APP_CONFIG } from '@core/config';
 import { IInputFieldsConfig } from '@shared/models';
 import {
   EAutocomplete,
@@ -68,7 +69,9 @@ export const DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig
 
 export const DEFAULT_DATE_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
   ...DEFAULT_INPUT_FIELD_CONFIG,
+  readonlyInput: true,
   dateConfig: {
+    dateFormat: APP_CONFIG.DATE_FORMATS.CALENDAR,
     showCalendarIcon: true,
     iconDisplay: EDateIconDisplay.Input,
     timeOnly: false,
@@ -76,6 +79,7 @@ export const DEFAULT_DATE_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
     selectionMode: EDateSelectionMode.Single,
     numberOfMonths: 1,
     calendarView: ECalendarView.Date,
+    touchUI: true,
   },
 };
 

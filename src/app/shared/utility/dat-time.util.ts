@@ -17,3 +17,19 @@ export const convertSecondsToDhms = (seconds: number): string => {
 const pad = (num: number): string => {
   return num.toString().padStart(2, '0');
 };
+
+export const calculateMinEditableDate = (cutOffDate: number): Date => {
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+
+  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const prevMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+  const cutoffDate = new Date(currentYear, currentMonth, cutOffDate);
+
+  if (today <= cutoffDate) {
+    return new Date(prevMonthYear, prevMonth, 1);
+  }
+  return new Date(currentYear, currentMonth, 1);
+};

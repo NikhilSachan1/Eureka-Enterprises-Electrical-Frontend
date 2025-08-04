@@ -31,11 +31,13 @@ export const APP_CONFIG = {
   DATE_FORMATS: {
     DEFAULT: 'dd/MM/yyyy',
     WITH_TIME: 'dd/MM/yyyy HH:mm',
+    CALENDAR: 'dd/mm/yy',
+    API: 'yyyy-MM-dd',
   },
 
   // Time Formats
   TIME_FORMATS: {
-    DEFAULT: 'HH:mm',
+    DEFAULT: 'hh:mm a',
     WITH_SECONDS: 'HH:mm:ss',
   },
 

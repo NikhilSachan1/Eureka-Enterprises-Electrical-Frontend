@@ -1,6 +1,8 @@
 import {
   ApplicationConfig,
   importProvidersFrom,
+  inject,
+  provideAppInitializer,
   provideZoneChangeDetection,
 } from '@angular/core';
 import {
@@ -23,6 +25,7 @@ import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import Aura from '@primeng/themes/aura';
 import { routes } from './app.routes';
+import { TimezoneService } from '@core/services';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -79,7 +82,10 @@ export const appConfig: ApplicationConfig = {
       useClass: MessageService,
     },
 
-    // Import PrimeNG modules
     importProvidersFrom(BrowserAnimationsModule),
+    provideAppInitializer(() => {
+      const timezoneService = inject(TimezoneService);
+      timezoneService.getTimezone();
+    }),
   ],
 };

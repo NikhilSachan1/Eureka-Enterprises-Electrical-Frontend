@@ -100,6 +100,7 @@ export interface IDateFieldConfig {
   hourFormat: EHourFormat;
   numberOfMonths: number;
   calendarView: ECalendarView;
+  touchUI: boolean;
 }
 
 export interface IPasswordFieldConfig {

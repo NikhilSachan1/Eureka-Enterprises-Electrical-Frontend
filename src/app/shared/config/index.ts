@@ -35,7 +35,14 @@ export {
   DEFAULT_NOTIFICATION_MESSAGES,
   DEFAULT_NOTIFICATION_TITLES,
 } from './notification.config';
-export { MODULES_NAME_DATA, MODULE_ACTIONS_DATA } from './static-data.config';
+export {
+  MODULES_NAME_DATA,
+  MODULE_ACTIONS_DATA,
+  EMPLOYEE_NAME_DATA,
+  CLIENT_NAME_DATA,
+  LOCATION_DATA,
+  SHIFT_DATA,
+} from './static-data.config';
 export { DEFAULT_BUTTON_CONFIG } from './button.config';
 export { DEFAULT_PAGE_HEADER_CONFIG } from './page-header.config';
 export { DEFAULT_DRAWER_CONFIG } from './drawer.config';
