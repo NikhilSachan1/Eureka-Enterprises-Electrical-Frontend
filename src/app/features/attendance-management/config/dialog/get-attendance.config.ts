@@ -3,6 +3,10 @@ import { IConfirmationDialogConfig } from '@shared/models';
 import { EButtonSeverity } from '@shared/types';
 import { DatePipe } from '@angular/common';
 import { APP_CONFIG } from '@core/config';
+import {
+  APPROVE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG,
+  REJECT_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG,
+} from '../form/dialog-attendance.config';
 
 const datePipe = new DatePipe('en-IN');
 
@@ -19,6 +23,7 @@ export const ATTENDANCE_DIALOG_APPROVE_CONFIG: IConfirmationDialogConfig = {
       severity: EButtonSeverity.SECONDARY,
     },
   },
+  inputFields: APPROVE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG,
 };
 
 export const ATTENDANCE_DIALOG_BULK_APPROVE_CONFIG: IConfirmationDialogConfig =
@@ -35,6 +40,7 @@ export const ATTENDANCE_DIALOG_BULK_APPROVE_CONFIG: IConfirmationDialogConfig =
         severity: EButtonSeverity.SECONDARY,
       },
     },
+    inputFields: APPROVE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG,
   };
 
 export const ATTENDANCE_DIALOG_REJECT_CONFIG: IConfirmationDialogConfig = {
@@ -50,6 +56,7 @@ export const ATTENDANCE_DIALOG_REJECT_CONFIG: IConfirmationDialogConfig = {
       severity: EButtonSeverity.SECONDARY,
     },
   },
+  inputFields: REJECT_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG,
 };
 
 export const ATTENDANCE_DIALOG_BULK_REJECT_CONFIG: IConfirmationDialogConfig = {
@@ -65,12 +72,13 @@ export const ATTENDANCE_DIALOG_BULK_REJECT_CONFIG: IConfirmationDialogConfig = {
       severity: EButtonSeverity.SECONDARY,
     },
   },
+  inputFields: REJECT_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG,
 };
 
 export const createAttendanceApproveDialogConfig = (
   rowData: IAttendance,
-  onAccept?: () => void,
-  onReject?: () => void
+  onAccept?: (formData?: Record<string, unknown>) => void,
+  onReject?: (formData?: Record<string, unknown>) => void
 ): IConfirmationDialogConfig => {
   return {
     ...ATTENDANCE_DIALOG_APPROVE_CONFIG,

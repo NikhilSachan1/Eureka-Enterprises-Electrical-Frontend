@@ -34,7 +34,7 @@ export const AttendanceActionErrorSchema = z.object({
 export const AttendanceActionResponseSchema = z
   .object({
     message: z.string(),
-    results: z.array(AttendanceActionResultSchema),
+    result: z.array(AttendanceActionResultSchema),
     errors: z.array(AttendanceActionErrorSchema),
   })
   .strict();
