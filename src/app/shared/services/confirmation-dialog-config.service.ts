@@ -21,9 +21,9 @@ import {
   DEALLOCATE_CONFIRMATION_DIALOG_CONFIG,
   DELETE_CONFIRMATION_DIALOG_CONFIG,
   REJECT_CONFIRMATION_DIALOG_CONFIG,
+  REGULARIZE_CONFIRMATION_DIALOG_CONFIG,
+  WARNING_CONFIRMATION_DIALOG_CONFIG,
 } from '@shared/config';
-import { WARNING_CONFIRMATION_DIALOG_CONFIG } from '../config/confirmation-dialog.config';
-
 @Injectable({
   providedIn: 'root',
 })
@@ -44,6 +44,7 @@ export class ConfirmationDialogService {
     [EDialogType.ALLOCATE]: ALLOCATE_CONFIRMATION_DIALOG_CONFIG,
     [EDialogType.DEALLOCATE]: DEALLOCATE_CONFIRMATION_DIALOG_CONFIG,
     [EDialogType.WARNING]: WARNING_CONFIRMATION_DIALOG_CONFIG,
+    [EDialogType.REGULARIZE]: REGULARIZE_CONFIRMATION_DIALOG_CONFIG,
   };
 
   private readonly dialogState$ = new BehaviorSubject<IDialogState>({

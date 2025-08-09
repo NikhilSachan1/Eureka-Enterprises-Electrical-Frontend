@@ -11,15 +11,16 @@ import { AttendanceService } from '../../services/attendance.service';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import {
-  IBulkActionClickEvent,
+  IConfirmationDialogConfig,
+  IConfirmationDialogRecordDetailConfig,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetricData,
   IPageHeaderConfig,
-  IRowActionClickEvent,
+  ITableActionClickEvent,
 } from '@shared/models';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { LoggerService } from '@core/services';
+import { LoggerService, TimezoneService } from '@core/services';
 import {
   ConfirmationDialogService,
   DrawerService,
@@ -30,10 +31,7 @@ import {
 } from '@shared/services';
 import {
   ATTENDANCE_TABLE_ENHANCED_CONFIG,
-  createAttendanceApproveDialogConfig,
-  createAttendanceBulkApproveDialogConfig,
-  createAttendanceBulkRejectDialogConfig,
-  createAttendanceRejectDialogConfig,
+  createAttendanceDialogConfig,
 } from '../../config';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
@@ -43,21 +41,27 @@ import {
   IAttendanceGetBaseResponseDto,
   IAttendanceGetResponseDto,
   IAttendanceGetStatsResponseDto,
+  IAttendanceRegularizedRequestDto,
+  IAttendanceRegularizedResponseDto,
 } from '../../types/attendance.dto';
 import { IAttendance } from '../../types/attendance.interface';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
 import {
-  EActionType,
-  EBulkActionType,
   EDialogType,
-  ERowActionType,
+  ETableActionType,
+  ETableActionTypeValue,
 } from '@shared/types';
 import { stringToArray } from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
+import { APP_CONFIG } from '@core/config';
+import { DatePipe } from '@angular/common';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+import { SHIFT_DATA } from '@shared/config';
 
 @Component({
   selector: 'app-get-attendance',
   imports: [DataTableComponent, PageHeaderComponent, MetricsCardComponent],
+  providers: [DatePipe],
   templateUrl: './get-attendance.component.html',
   styleUrl: './get-attendance.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -74,6 +78,8 @@ export class GetAttendanceComponent implements OnInit {
   );
   private readonly notificationService = inject(NotificationService);
   private readonly drawerService = inject(DrawerService);
+  private readonly datePipe = inject(DatePipe);
+  private readonly timezoneServive = inject(TimezoneService);
 
   protected table!: IEnhancedTable;
 
@@ -94,7 +100,7 @@ export class GetAttendanceComponent implements OnInit {
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Attendance',
-      message: 'Please wait while we load the attendance records...',
+      message: 'Please wait while we load the attendance...',
     });
 
     this.attendanceService
@@ -122,101 +128,21 @@ export class GetAttendanceComponent implements OnInit {
       });
   }
 
-  private executeApproveRejectAction(
-    formData: IAttendanceActionRequestDto,
-    actionType: EActionType
-  ): void {
-    let title = '';
-    let message = '';
-    if (actionType === EActionType.APPROVED) {
-      title = 'Approving Attendance';
-      message = 'Please wait while we approve the attendance...';
-    } else if (actionType === EActionType.REJECTED) {
-      title = 'Rejecting Attendance';
-      message = 'Please wait while we reject the attendance...';
-    }
-    this.loadingService.show({
-      title,
-      message,
-    });
-
-    this.attendanceService
-      .actionAttendance(formData)
-      .pipe(
-        finalize(() => {
-          this.loadingService.hide();
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response: IAttendanceActionResponseDto) => {
-          const { errors, result } = response;
-          if (errors.length > 0) {
-            this.notificationService.error(
-              errors.map(error => error.error).join(', '),
-              'Failed to execute action'
-            );
-          } else {
-            this.notificationService.success(
-              `Action executed successfully for ${result.length} attendance records`
-            );
-          }
-
-          if (result.length > 0) {
-            this.loadAttendanceList();
-          }
-        },
-      });
-  }
-
-  protected handleBulkActionClick(event: IBulkActionClickEvent): void {
-    this.logger.logUserAction('Bulk action clicked', event);
-
-    const { actionType, selectedRows } = event;
-
-    switch (actionType) {
-      case EBulkActionType.APPROVE:
-        this.showBulkApproveConfirmationDialog(
-          selectedRows as unknown as IAttendance[]
-        );
-        break;
-      case EBulkActionType.REJECT:
-        this.showBulkRejectConfirmationDialog(
-          selectedRows as unknown as IAttendance[]
-        );
-        break;
-      default:
-        this.logger.warn('Unknown bulk action:', actionType);
-    }
-  }
-
-  protected handleRowActionClick(event: IRowActionClickEvent): void {
-    this.logger.logUserAction('Row action clicked', event);
-
-    const { actionType, rowData } = event;
-
-    switch (actionType) {
-      case ERowActionType.APPROVE:
-        this.showSingleApproveConfirmationDialog(
-          rowData as unknown as IAttendance
-        );
-        break;
-      case ERowActionType.REJECT:
-        this.showSingleRejectConfirmationDialog(
-          rowData as unknown as IAttendance
-        );
-        break;
-      case ERowActionType.REGULARIZE:
-        this.showRegularizeConfirmationDialog(
-          rowData as IAttendanceGetBaseResponseDto
-        );
-        break;
-      case ERowActionType.VIEW:
-        this.showAttendanceDetailsDrawer(rowData as unknown as IAttendance);
-        break;
-      default:
-        this.logger.warn('Unknown row action:', actionType);
-    }
+  private mapTableData(
+    response: IAttendanceGetBaseResponseDto[]
+  ): Partial<IAttendance>[] {
+    return response.map((record: IAttendanceGetBaseResponseDto) => ({
+      id: record.id,
+      attendanceDate: record.attendanceDate,
+      attendanceStatus: record.status,
+      approvalStatus: record.approvalStatus,
+      notes: record.notes,
+      employeeName: `${record.user.firstName} ${record.user.lastName}`,
+      employeeId: record.user.id,
+      employeeCode: record.user.employeeId,
+      siteLocation: stringToArray(record.notes, '-')[0] || '',
+      clientName: stringToArray(record.notes, '-')[1] || '',
+    }));
   }
 
   private getMetricCardsData(): IMetricData[] {
@@ -252,121 +178,287 @@ export class GetAttendanceComponent implements OnInit {
     ];
   }
 
-  private mapTableData(
-    response: IAttendanceGetBaseResponseDto[]
-  ): Partial<IAttendance>[] {
-    return response.map((record: IAttendanceGetBaseResponseDto) => ({
-      id: record.id,
-      attendanceDate: record.attendanceDate,
-      attendanceStatus: record.status,
-      approvalStatus: record.approvalStatus,
-      notes: record.notes,
-      employeeName: `${record.user.firstName} ${record.user.lastName}`,
-      employeeId: record.user.id,
-      employeeCode: record.user.employeeId,
-      siteLocation: stringToArray(record.notes, '-')[0] || '',
-      clientName: stringToArray(record.notes, '-')[1] || '',
-    }));
+  protected handleAttendanceTableActionClick(
+    event: ITableActionClickEvent<IAttendance>,
+    isBulk: boolean
+  ): void {
+    const { actionType, selectedRows } = event;
+
+    switch (actionType) {
+      case ETableActionType.APPROVE:
+      case ETableActionType.REJECT:
+      case ETableActionType.REGULARIZE:
+        this.showAttendanceActionDialog(actionType, selectedRows, isBulk);
+        break;
+
+      case ETableActionType.VIEW:
+        this.showAttendanceDetailsDrawer(selectedRows);
+        break;
+
+      default:
+        this.logger.warn('Unknown table action:', actionType);
+    }
   }
 
-  private showSingleApproveConfirmationDialog(rowData: IAttendance): void {
-    this.logger.logUserAction('Single approve action triggered', rowData);
+  private showAttendanceActionDialog(
+    actionType: ETableActionType,
+    selectedRows: IAttendance[],
+    isBulk: boolean
+  ): void {
+    let dialogConfig = {} as IConfirmationDialogConfig;
 
-    const dialogConfig = createAttendanceApproveDialogConfig(
-      rowData,
-      this.onSingleApproveReject.bind(this, EActionType.APPROVED, rowData)
-    );
+    switch (actionType) {
+      case ETableActionType.APPROVE:
+      case ETableActionType.REJECT: {
+        const recordDetail = this.prepareAttendanceRecordDetail(selectedRows);
+        dialogConfig = createAttendanceDialogConfig(
+          actionType,
+          recordDetail,
+          isBulk,
+          !isBulk,
+          this.onAttendanceApprovalAction.bind(this, actionType, selectedRows)
+        );
+        break;
+      }
+      case ETableActionType.REGULARIZE: {
+        const recordDetail = this.prepareAttendanceRecordDetail(selectedRows);
+        dialogConfig = createAttendanceDialogConfig(
+          actionType,
+          recordDetail,
+          isBulk,
+          !isBulk,
+          this.onAttendanceRegularizeAction.bind(this, selectedRows)
+        );
+        break;
+      }
+      default:
+        this.logger.warn('Unknown action type:', actionType);
+    }
+
+    let dialogType = EDialogType.DEFAULT;
+
+    if (actionType === ETableActionType.APPROVE) {
+      dialogType = EDialogType.APPROVE;
+    } else if (actionType === ETableActionType.REJECT) {
+      dialogType = EDialogType.REJECT;
+    } else if (actionType === ETableActionType.REGULARIZE) {
+      dialogType = EDialogType.REGULARIZE;
+    }
 
     this.confirmationDialogService.showConfirmationDialog(
       dialogConfig,
-      EDialogType.APPROVE
+      dialogType
     );
   }
 
-  private onSingleApproveReject(
-    actionType: EActionType,
-    rowData: IAttendance,
-    dialogFormData?: Record<string, unknown>
+  private onAttendanceApprovalAction(
+    actionType: ETableActionType,
+    selectedRows: IAttendance[],
+    dialogFormData?: Record<string, string>
   ): void {
-    const formData = this.prepareFormDataForSingleActionDialog(
+    const formData = this.prepareAttendanceApprovalFormData(
       actionType,
-      rowData,
-      dialogFormData as Record<string, unknown>
+      selectedRows,
+      dialogFormData
     );
-    this.executeApproveRejectAction(formData, actionType);
+
+    this.executeAttendanceApprovalAction(formData, actionType);
   }
 
-  private showSingleRejectConfirmationDialog(rowData: IAttendance): void {
-    this.logger.logUserAction('Single reject action triggered', rowData);
+  private prepareAttendanceApprovalFormData(
+    actionType: ETableActionType,
+    selectedRows: IAttendance[],
+    dialogFormData?: Record<string, string>
+  ): IAttendanceActionRequestDto {
+    const { comment } = dialogFormData as { comment: string };
+    let actionTypeValue = '' as ETableActionTypeValue;
 
-    const dialogConfig = createAttendanceRejectDialogConfig(
-      rowData,
-      this.onSingleApproveReject.bind(this, EActionType.REJECTED, rowData)
-    );
+    if (actionType === ETableActionType.APPROVE) {
+      actionTypeValue = ETableActionTypeValue.APPROVED;
+    } else if (actionType === ETableActionType.REJECT) {
+      actionTypeValue = ETableActionTypeValue.REJECTED;
+    }
 
-    this.confirmationDialogService.showConfirmationDialog(
-      dialogConfig,
-      EDialogType.REJECT
-    );
+    return {
+      approvals: selectedRows.map(row => ({
+        attendanceId: row.id,
+        approvalStatus: actionTypeValue,
+        approvalComment: comment,
+      })),
+    };
   }
 
-  private showRegularizeConfirmationDialog(
-    rowData: IAttendanceGetBaseResponseDto
+  private executeAttendanceApprovalAction(
+    formData: IAttendanceActionRequestDto,
+    actionType: ETableActionType
   ): void {
-    this.logger.logUserAction('Regularize action triggered', rowData);
+    let loadingMessage;
+
+    if (actionType === ETableActionType.APPROVE) {
+      loadingMessage = {
+        title: 'Approving Attendance',
+        message: 'Please wait while we approve the attendance...',
+      };
+    } else if (actionType === ETableActionType.REJECT) {
+      loadingMessage = {
+        title: 'Rejecting Attendance',
+        message: 'Please wait while we reject the attendance...',
+      };
+    }
+
+    this.loadingService.show(loadingMessage);
+
+    this.attendanceService
+      .actionAttendance(formData)
+      .pipe(
+        finalize(() => this.loadingService.hide()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IAttendanceActionResponseDto) => {
+          const { errors, result } = response;
+          const hasErrors = errors.length > 0;
+          const hasResult = result.length > 0;
+          const errorCount = errors.length;
+          const resultCount = result.length;
+          const recordsCount = result.length + errors.length;
+
+          if (hasErrors && hasResult) {
+            if (recordsCount === 1) {
+              this.notificationService.error(
+                `Failed to ${actionType} attendance`
+              );
+            } else {
+              this.notificationService.error(
+                `Failed to ${actionType} attendance for ${errorCount} records and executed successfully for ${resultCount} records`
+              );
+            }
+          } else if (hasErrors) {
+            if (recordsCount === 1) {
+              this.notificationService.error(
+                `Failed to ${actionType} attendance`
+              );
+            } else {
+              this.notificationService.error(
+                `Failed to ${actionType} attendance for ${errorCount} records`
+              );
+            }
+          } else if (hasResult) {
+            if (recordsCount === 1) {
+              this.notificationService.success(
+                `Successfully ${actionType} attendance`
+              );
+            } else {
+              this.notificationService.success(
+                `Successfully ${actionType} attendance for ${resultCount} records`
+              );
+            }
+          }
+
+          if (hasResult) {
+            this.loadAttendanceList();
+          }
+        },
+      });
   }
 
-  private showAttendanceDetailsDrawer(rowData: IAttendance): void {
+  private onAttendanceRegularizeAction(
+    selectedRows: IAttendance[],
+    dialogFormData?: Record<string, string>
+  ): void {
+    const formData = this.prepareAttendanceRegularizeFormData(
+      selectedRows,
+      dialogFormData
+    );
+
+    const { id: attendanceId } = selectedRows[0];
+
+    this.executeAttendanceRegularizeAction(formData, attendanceId);
+  }
+
+  private prepareAttendanceRegularizeFormData(
+    selectedRows: IAttendance[],
+    dialogFormData?: Record<string, string>
+  ): IAttendanceRegularizedRequestDto {
+    const { attendanceStatus, clientName, location } = dialogFormData as {
+      attendanceStatus: EAttendanceStatus;
+      clientName: string;
+      location: string;
+    };
+
+    const { employeeId } = selectedRows[0];
+
+    return {
+      checkInTime: SHIFT_DATA.START_TIME,
+      checkOutTime: SHIFT_DATA.END_TIME,
+      notes: `${clientName} - ${location}`,
+      status: attendanceStatus,
+      userId: employeeId,
+      timezone: this.timezoneServive.timezone,
+    };
+  }
+
+  private executeAttendanceRegularizeAction(
+    formData: IAttendanceRegularizedRequestDto,
+    attendanceId: string
+  ): void {
+    this.loadingService.show({
+      title: 'Regularizing Attendance',
+      message: 'Please wait while we regularize the attendance...',
+    });
+
+    this.attendanceService
+      .regularizedAttendance(formData, attendanceId)
+      .pipe(
+        finalize(() => this.loadingService.hide()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IAttendanceRegularizedResponseDto) => {
+          const { message } = response;
+          this.notificationService.success(message);
+          this.loadAttendanceList();
+        },
+        error: () => {
+          this.notificationService.error('Failed to regularize attendance');
+        },
+      });
+  }
+
+  private prepareAttendanceRecordDetail(
+    selectedRows: IAttendance[]
+  ): IConfirmationDialogRecordDetailConfig {
+    const [firstRow] = selectedRows;
+    const recordDetail = [
+      { label: 'Employee Name', value: firstRow.employeeName },
+      {
+        label: 'Attendance Date',
+        value: this.datePipe.transform(
+          firstRow.attendanceDate,
+          APP_CONFIG.DATE_FORMATS.DEFAULT
+        ) as string,
+      },
+      { label: 'Attendance Status', value: firstRow.attendanceStatus },
+      {
+        label: 'Site Location - Client Name',
+        value: `${firstRow.siteLocation} - ${firstRow.clientName}`,
+      },
+    ];
+    return {
+      details: recordDetail,
+    };
+  }
+
+  private showAttendanceDetailsDrawer(rowData: IAttendance[]): void {
     this.logger.logUserAction('Opening attendance details drawer', rowData);
 
     this.drawerService.showDrawer(GetAttendanceDetailComponent, {
       header: `Attendance Details`,
       subtitle: `Detailed view of attendance`,
       componentData: {
-        attendance: rowData,
+        attendance: rowData[0],
       },
     });
-  }
-
-  private showBulkApproveConfirmationDialog(selectedRows: IAttendance[]): void {
-    this.logger.logUserAction('Bulk approve action triggered', selectedRows);
-
-    const dialogConfig = createAttendanceBulkApproveDialogConfig(
-      selectedRows,
-      this.onBulkApproveReject.bind(this, EActionType.APPROVED, selectedRows)
-    );
-
-    this.confirmationDialogService.showConfirmationDialog(
-      dialogConfig,
-      EDialogType.APPROVE
-    );
-  }
-
-  private showBulkRejectConfirmationDialog(selectedRows: IAttendance[]): void {
-    this.logger.logUserAction('Bulk reject action triggered', selectedRows);
-
-    const dialogConfig = createAttendanceBulkRejectDialogConfig(
-      selectedRows,
-      this.onBulkApproveReject.bind(this, EActionType.REJECTED, selectedRows)
-    );
-
-    this.confirmationDialogService.showConfirmationDialog(
-      dialogConfig,
-      EDialogType.REJECT
-    );
-  }
-
-  private onBulkApproveReject(
-    actionType: EActionType,
-    selectedRows: IAttendance[],
-    dialogFormData?: Record<string, unknown>
-  ): void {
-    const formData = this.prepareFormDataForBulkActionDialog(
-      actionType,
-      selectedRows,
-      dialogFormData as Record<string, unknown>
-    );
-    this.executeApproveRejectAction(formData, actionType);
   }
 
   protected onAddButtonClick(): void {
@@ -374,20 +466,11 @@ export class GetAttendanceComponent implements OnInit {
       ROUTE_BASE_PATHS.ATTENDANCE,
       ROUTES.ATTENDANCE.APPLY,
     ];
-
-    if (navigationRoute) {
-      const success =
-        void this.routerNavigationService.navigateToRoute(navigationRoute);
-
-      if (!success) {
-        this.logger.logUserAction(
-          'Navigation failed for add button',
-          navigationRoute
-        );
-      }
-    } else {
+    const success =
+      this.routerNavigationService.navigateToRoute(navigationRoute);
+    if (!success) {
       this.logger.logUserAction(
-        'Add button clicked - no matching route found',
+        'Navigation failed for add button',
         navigationRoute
       );
     }
@@ -402,53 +485,6 @@ export class GetAttendanceComponent implements OnInit {
         label: 'Apply Attendance',
         icon: ICONS.COMMON.PLUS,
       },
-    };
-  }
-
-  private prepareFormDataForSingleActionDialog(
-    actionType: EActionType,
-    rowData: IAttendance,
-    dialogFormData: Record<string, unknown>
-  ): IAttendanceActionRequestDto {
-    const { id } = rowData;
-    let reason = '';
-    if (actionType === EActionType.APPROVED) {
-      const { approveReason } = dialogFormData as Record<string, string>;
-      reason = approveReason;
-    } else if (actionType === EActionType.REJECTED) {
-      const { rejectReason } = dialogFormData as Record<string, string>;
-      reason = rejectReason;
-    }
-    return {
-      approvals: [
-        {
-          attendanceId: id,
-          approvalStatus: actionType,
-          approvalComment: reason,
-        },
-      ],
-    };
-  }
-
-  private prepareFormDataForBulkActionDialog(
-    actionType: EActionType,
-    selectedRows: IAttendance[],
-    dialogFormData: Record<string, unknown>
-  ): IAttendanceActionRequestDto {
-    let reason = '';
-    if (actionType === EActionType.APPROVED) {
-      const { approveReason } = dialogFormData as Record<string, string>;
-      reason = approveReason;
-    } else if (actionType === EActionType.REJECTED) {
-      const { rejectReason } = dialogFormData as Record<string, string>;
-      reason = rejectReason;
-    }
-    return {
-      approvals: selectedRows.map(row => ({
-        attendanceId: row.id,
-        approvalStatus: actionType,
-        approvalComment: reason,
-      })),
     };
   }
 }

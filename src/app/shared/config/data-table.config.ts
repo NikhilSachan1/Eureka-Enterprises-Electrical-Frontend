@@ -6,8 +6,7 @@ import {
   IStatusConfig,
   ITextWithSubtitleAndImageConfig,
   IMatchModeOption,
-  IBulkActionConfig,
-  IRowActionConfig,
+  ITableActionConfig,
 } from '@shared/models';
 import {
   EButtonSeverity,
@@ -105,12 +104,12 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
 
 // default bulk action config
 
-export const DEFAULT_BULK_ACTION_CONFIG: Partial<IBulkActionConfig> = {
+export const DEFAULT_BULK_ACTION_CONFIG: Partial<ITableActionConfig> = {
   severity: EButtonSeverity.DANGER,
 };
 
 // default row action config
-export const DEFAULT_ROW_ACTION_CONFIG: Partial<IRowActionConfig> = {
+export const DEFAULT_ROW_ACTION_CONFIG: Partial<ITableActionConfig> = {
   severity: EButtonSeverity.DANGER,
   variant: EButtonVariant.TEXT,
 };

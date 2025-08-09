@@ -14,10 +14,9 @@ import {
 } from '@shared/services/';
 import { LoggerService } from '@core/services';
 import {
-  IBulkActionClickEvent,
   IEnhancedTable,
   IEnhancedTableConfig,
-  IRowActionClickEvent,
+  ITableActionClickEvent,
 } from '@shared/models';
 import {
   ISystemPermissionDeleteRequestDto,
@@ -25,7 +24,7 @@ import {
   ISystemPermissionGetBaseResponseDto,
   ISystemPermissionGetResponseDto,
 } from '../../types/system-permission.dto';
-import { ERowActionType, EBulkActionType, EDialogType } from '@shared/types';
+import { ETableActionType, EDialogType } from '@shared/types';
 import { finalize } from 'rxjs/operators';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
@@ -128,13 +127,13 @@ export class GetSystemPermissionComponent implements OnInit {
       });
   }
 
-  protected handleBulkActionClick(event: IBulkActionClickEvent): void {
+  protected handleBulkActionClick(event: ITableActionClickEvent): void {
     this.logger.logUserAction('Bulk action clicked', event);
 
     const { actionType, selectedRows } = event;
 
     switch (actionType) {
-      case EBulkActionType.DELETE:
+      case ETableActionType.DELETE:
         this.showBulkDeleteConfirmationDialog(
           selectedRows as ISystemPermissionGetBaseResponseDto[]
         );
@@ -144,20 +143,20 @@ export class GetSystemPermissionComponent implements OnInit {
     }
   }
 
-  protected handleRowActionClick(event: IRowActionClickEvent): void {
+  protected handleRowActionClick(event: ITableActionClickEvent): void {
     this.logger.logUserAction('Row action clicked', event);
 
-    const { actionType, rowData } = event;
+    const { actionType, selectedRows } = event;
 
     switch (actionType) {
-      case ERowActionType.EDIT:
+      case ETableActionType.EDIT:
         this.navigateToEditSystemPermission(
-          rowData as ISystemPermissionGetBaseResponseDto
+          selectedRows as unknown as ISystemPermissionGetBaseResponseDto
         );
         break;
-      case ERowActionType.DELETE:
+      case ETableActionType.DELETE:
         this.showSingleDeleteConfirmationDialog(
-          rowData as ISystemPermissionGetBaseResponseDto
+          selectedRows as unknown as ISystemPermissionGetBaseResponseDto
         );
         break;
       default:

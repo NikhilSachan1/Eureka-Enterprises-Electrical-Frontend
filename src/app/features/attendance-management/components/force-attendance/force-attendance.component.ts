@@ -79,6 +79,30 @@ export class ForceAttendanceComponent implements OnInit {
     this.executeForceAttendance(formData);
   }
 
+  private prepareFormData(): IAttendanceForceRequestDto {
+    const { date, forceReason, clientName, location } =
+      this.form.getData() as Record<string, string>;
+    const { employeeName } = this.form.getData() as {
+      employeeName: string[];
+    };
+
+    const dateStr = new Date(date);
+    const formattedDate = this.datePipe.transform(
+      dateStr,
+      this.appConfigService.dateFormats.API
+    );
+
+    return {
+      userIds: employeeName,
+      attendanceDate: formattedDate as string,
+      checkInTime: SHIFT_DATA.START_TIME,
+      checkOutTime: SHIFT_DATA.END_TIME,
+      notes: `${location} - ${clientName}`,
+      reason: forceReason,
+      timezone: this.timezoneServive.timezone,
+    };
+  }
+
   private executeForceAttendance(formData: IAttendanceForceRequestDto): void {
     this.isSubmitting.set(true);
     this.loadingService.show({
@@ -136,27 +160,6 @@ export class ForceAttendanceComponent implements OnInit {
     return {
       title: 'Force Attendance',
       subtitle: 'Force attendance on behalf of an employee',
-    };
-  }
-
-  private prepareFormData(): IAttendanceForceRequestDto {
-    const { employeeName, date, forceReason, clientName, location } =
-      this.form.getData() as Record<string, string>;
-
-    const dateStr = new Date(date);
-    const formattedDate = this.datePipe.transform(
-      dateStr,
-      this.appConfigService.dateFormats.API
-    );
-
-    return {
-      userId: employeeName,
-      attendanceDate: formattedDate as string,
-      checkInTime: SHIFT_DATA.START_TIME,
-      checkOutTime: SHIFT_DATA.END_TIME,
-      notes: `${location} - ${clientName}`,
-      reason: forceReason,
-      timezone: this.timezoneServive.timezone,
     };
   }
 }

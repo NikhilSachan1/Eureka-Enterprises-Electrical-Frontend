@@ -17,7 +17,7 @@ import {
 import {
   IEnhancedTable,
   IEnhancedTableConfig,
-  IRowActionClickEvent,
+  ITableActionClickEvent,
 } from '@shared/models';
 import { USER_TABLE_ENHANCED_CONFIG } from '../../config/table/get-user.config';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -28,7 +28,7 @@ import {
   IUserGetResponseDto,
 } from '../../types/user.dto';
 import { IUser } from '../../types/user.interface';
-import { EDialogType, ERowActionType } from '@shared/types';
+import { EDialogType, ETableActionType } from '@shared/types';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { createUserPermissionDeleteDialogConfig } from '../../config';
 import { UserPermissionService } from '../../../user-permission-management/services/user-permission.service';
@@ -159,17 +159,21 @@ export class GetUserComponent implements OnInit {
       });
   }
 
-  protected handleRowActionClick(event: IRowActionClickEvent): void {
+  protected handleRowActionClick(event: ITableActionClickEvent): void {
     this.logger.logUserAction('Row action clicked', event);
 
-    const { actionType, rowData } = event;
+    const { actionType, selectedRows } = event;
 
     switch (actionType) {
-      case ERowActionType.SET_PERMISSIONS:
-        this.navigateToSetUserPermissions(rowData as IUserGetBaseResponseDto);
+      case ETableActionType.SET_PERMISSIONS:
+        this.navigateToSetUserPermissions(
+          selectedRows as unknown as IUserGetBaseResponseDto
+        );
         break;
-      case ERowActionType.DELETE_PERMISSIONS:
-        this.showSingleDeleteConfirmationDialog(rowData as unknown as IUser);
+      case ETableActionType.DELETE_PERMISSIONS:
+        this.showSingleDeleteConfirmationDialog(
+          selectedRows as unknown as IUser
+        );
         break;
       default:
         this.logger.warn('Unknown row action:', actionType);

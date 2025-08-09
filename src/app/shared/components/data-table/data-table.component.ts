@@ -22,13 +22,11 @@ import { MenuModule } from 'primeng/menu';
 import {
   IDataTableConfig,
   IDataTableHeaderConfig,
-  IBulkActionConfig,
-  IRowActionConfig,
+  ITableActionConfig,
   IButtonConfig,
-  IRowActionClickEvent,
-  IBulkActionClickEvent,
+  ITableActionClickEvent,
 } from '@shared/models';
-import { ETableBodyTemplate } from '@shared/types';
+import { ETableActionType, ETableBodyTemplate } from '@shared/types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { AvatarService } from '@shared/services';
 import { ICONS } from '@shared/constants';
@@ -77,11 +75,11 @@ export class DataTableComponent {
   tableConfig = input.required<IDataTableConfig>();
   tableHeader = input.required<IDataTableHeaderConfig[]>();
   tableData = input.required<Record<string, unknown>[]>();
-  bulkActionButtons = input<IBulkActionConfig[]>([]);
-  rowActions = input<IRowActionConfig[]>([]);
+  bulkActionButtons = input<ITableActionConfig[]>([]);
+  rowActions = input<ITableActionConfig[]>([]);
 
-  bulkActionClick = output<IBulkActionClickEvent>();
-  rowActionClick = output<IRowActionClickEvent>();
+  bulkActionClick = output<ITableActionClickEvent>();
+  rowActionClick = output<ITableActionClickEvent>();
 
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
 
@@ -114,23 +112,23 @@ export class DataTableComponent {
   }
 
   protected isActionDisabled(
-    action: IRowActionConfig,
+    action: ITableActionConfig,
     rowData: Record<string, unknown>
   ): boolean {
     if (action.disabledCondition) {
-      return action.disabledCondition(rowData);
+      return action.disabledCondition([rowData]);
     }
     return false;
   }
 
-  protected isBulkActionDisabled(action: IBulkActionConfig): boolean {
+  protected isBulkActionDisabled(action: ITableActionConfig): boolean {
     if (action.disabledCondition) {
       return action.disabledCondition(this.selectedTableRows());
     }
     return false;
   }
 
-  protected onBulkActionClick(actionType: string): void {
+  protected onBulkActionClick(actionType: ETableActionType): void {
     this.bulkActionClick.emit({
       actionType,
       selectedRows: this.selectedTableRows(),
@@ -138,10 +136,10 @@ export class DataTableComponent {
   }
 
   protected onRowActionClick(
-    actionType: string,
+    actionType: ETableActionType,
     rowData: Record<string, unknown>
   ): void {
-    this.rowActionClick.emit({ actionType, rowData });
+    this.rowActionClick.emit({ actionType, selectedRows: [rowData] });
   }
 
   protected getAvatarUrl(name: string): string {

@@ -12,10 +12,8 @@ export type {
   IStatusConfig,
   IFilterConfig,
   IMatchModeOption,
-  IRowActionConfig,
-  IBulkActionConfig,
-  IRowActionClickEvent,
-  IBulkActionClickEvent,
+  ITableActionConfig,
+  ITableActionClickEvent,
   ITableData,
 } from './data-table-config.model';
 export type {

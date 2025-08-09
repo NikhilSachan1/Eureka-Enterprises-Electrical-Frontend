@@ -1,9 +1,4 @@
-export {
-  createAttendanceApproveDialogConfig,
-  createAttendanceBulkApproveDialogConfig,
-  createAttendanceBulkRejectDialogConfig,
-  createAttendanceRejectDialogConfig,
-} from './dialog/get-attendance.config';
+export { createAttendanceDialogConfig } from './dialog/get-attendance.config';
 
 export {
   ATTENDANCE_TABLE_CONFIG,

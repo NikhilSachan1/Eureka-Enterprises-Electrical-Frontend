@@ -1,14 +1,15 @@
 import { AuditSchema } from '@shared/schemas';
 import { z } from 'zod';
+import { EAttendanceStatus } from '../types/attendance.enum';
 
 export const AttendanceBaseSchema = z
   .object({
     id: z.uuid(),
     userId: z.uuid(),
     attendanceDate: z.string(),
-    checkInTime: z.string(),
+    checkInTime: z.string().nullable(),
     checkOutTime: z.string().nullable(),
-    status: z.enum(['present', 'absent', 'leave', 'holiday']),
+    status: z.enum(Object.values(EAttendanceStatus)),
     shiftConfigId: z.uuid(),
     entrySourceType: z.enum(['web', 'mobile']),
     attendanceType: z.enum(['regularized', 'self', 'forced']),

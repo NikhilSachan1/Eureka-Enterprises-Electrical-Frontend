@@ -1,5 +1,6 @@
 import {
   EPrimeNGSeverity,
+  ETableActionType,
   ETableBodyTemplate,
   ETableDataType,
   ETableFilterDisplayType,
@@ -75,23 +76,14 @@ export interface IMatchModeOption {
   value: string;
 }
 
-export interface IRowActionConfig<T = Record<string, unknown>>
-  extends IButtonConfig {
-  disabledCondition?: (rowData: T) => boolean;
-}
-export interface IBulkActionConfig<T = Record<string, unknown>>
+export interface ITableActionConfig<T = Record<string, unknown>>
   extends IButtonConfig {
   disabledCondition?: (selectedRows: T[]) => boolean;
 }
 
-export interface IRowActionClickEvent {
-  actionType: string;
-  rowData: Record<string, unknown>;
-}
-
-export interface IBulkActionClickEvent {
-  actionType: string;
-  selectedRows: Record<string, unknown>[];
+export interface ITableActionClickEvent<T = Record<string, unknown>> {
+  actionType: ETableActionType;
+  selectedRows: T[];
 }
 
 export type ITableData = Record<string, unknown>;

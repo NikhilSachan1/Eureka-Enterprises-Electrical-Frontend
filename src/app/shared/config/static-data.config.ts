@@ -38,7 +38,7 @@ export const ROLE_NAME_DATA: IOptionDropdown[] = [
 export const ATTENDANCE_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Present', value: 'present' },
   { label: 'Absent', value: 'absent' },
-  { label: 'On Leave', value: 'on_leave' },
+  { label: 'On Leave', value: 'leave' },
   { label: 'Holiday', value: 'holiday' },
   { label: 'Checked In', value: 'checked_in' },
   { label: 'Checked Out', value: 'checked_out' },

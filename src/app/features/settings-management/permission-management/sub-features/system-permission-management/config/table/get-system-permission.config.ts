@@ -1,18 +1,16 @@
 import { MATCH_MODE_OPTIONS, MODULES_NAME_DATA } from '@shared/config';
 import {
-  IBulkActionConfig,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
-  IRowActionConfig,
+  ITableActionConfig,
 } from '@shared/models';
 import {
-  ERowActionType,
   ETableBodyTemplate,
   ETableFilterMatchMode,
   ETableSearchInputType,
   EButtonSeverity,
-  EBulkActionType,
+  ETableActionType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import { getDataFromArrayOfObjects } from '@shared/utility';
@@ -68,31 +66,37 @@ export const SYSTEM_PERMISSION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConf
   ];
 
 export const SYSTEM_PERMISSION_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  IRowActionConfig<ISystemPermissionGetBaseResponseDto>
+  ITableActionConfig<ISystemPermissionGetBaseResponseDto>
 >[] = [
   {
-    id: ERowActionType.EDIT,
+    id: ETableActionType.EDIT,
     icon: ICONS.ACTIONS.EDIT,
     tooltip: 'Edit Permission',
     severity: EButtonSeverity.WARNING,
-    disabledCondition: (rowData: ISystemPermissionGetBaseResponseDto) =>
-      rowData.isEditable === false,
+    disabledCondition: (
+      selectedRows: ISystemPermissionGetBaseResponseDto[]
+    ): boolean => {
+      return selectedRows.some(row => row.isEditable === false);
+    },
   },
   {
-    id: ERowActionType.DELETE,
+    id: ETableActionType.DELETE,
     icon: ICONS.ACTIONS.TRASH,
     tooltip: 'Delete Permission',
     severity: EButtonSeverity.DANGER,
-    disabledCondition: (rowData: ISystemPermissionGetBaseResponseDto) =>
-      rowData.isDeletable === false,
+    disabledCondition: (
+      selectedRows: ISystemPermissionGetBaseResponseDto[]
+    ): boolean => {
+      return selectedRows.some(row => row.isDeletable === false);
+    },
   },
 ];
 
 export const SYSTEM_PERMISSION_TABLE_BULK_ACTIONS_CONFIG: Partial<
-  IBulkActionConfig<ISystemPermissionGetBaseResponseDto>
+  ITableActionConfig<ISystemPermissionGetBaseResponseDto>
 >[] = [
   {
-    id: EBulkActionType.DELETE,
+    id: ETableActionType.DELETE,
     label: 'Delete',
     icon: ICONS.ACTIONS.TRASH,
     disabledCondition: (

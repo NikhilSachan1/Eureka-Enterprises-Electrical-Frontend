@@ -1,15 +1,13 @@
 import {
-  IRowActionConfig,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
-  IBulkActionConfig,
+  ITableActionConfig,
 } from '@shared/models';
 import {
-  ERowActionType,
+  ETableActionType,
   ETableBodyTemplate,
   EButtonSeverity,
-  EBulkActionType,
   ETableDataType,
   ETableFilterMatchMode,
   ETableSearchInputType,
@@ -118,44 +116,44 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
     },
   ];
 
-export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] =
+export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] =
   [
     {
-      id: ERowActionType.VIEW,
+      id: ETableActionType.VIEW,
       icon: ICONS.COMMON.VIEW,
       tooltip: 'View Details',
       severity: EButtonSeverity.INFO,
     },
     {
-      id: ERowActionType.REGULARIZE,
+      id: ETableActionType.REGULARIZE,
       icon: ICONS.ATTENDANCE.REGULARIZE,
       tooltip: 'Regularize Attendance',
       severity: EButtonSeverity.WARNING,
     },
     {
-      id: ERowActionType.APPROVE,
+      id: ETableActionType.APPROVE,
       icon: ICONS.ACTIONS.CHECK,
       tooltip: 'Approve Attendance',
       severity: EButtonSeverity.SUCCESS,
     },
     {
-      id: ERowActionType.REJECT,
+      id: ETableActionType.REJECT,
       icon: ICONS.ACTIONS.TIMES,
       tooltip: 'Reject Attendance',
       severity: EButtonSeverity.DANGER,
     },
   ];
 
-export const ATTENDANCE_TABLE_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] =
+export const ATTENDANCE_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] =
   [
     {
-      id: EBulkActionType.APPROVE,
+      id: ETableActionType.APPROVE,
       label: 'Approve',
       icon: ICONS.ACTIONS.CHECK,
       severity: EButtonSeverity.SUCCESS,
     },
     {
-      id: EBulkActionType.REJECT,
+      id: ETableActionType.REJECT,
       label: 'Reject',
       icon: ICONS.ACTIONS.TIMES,
       severity: EButtonSeverity.DANGER,

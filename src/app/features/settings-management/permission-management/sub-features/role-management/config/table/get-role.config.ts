@@ -1,15 +1,13 @@
 import {
-  IRowActionConfig,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
-  IBulkActionConfig,
+  ITableActionConfig,
 } from '@shared/models';
 import {
-  ERowActionType,
+  ETableActionType,
   ETableBodyTemplate,
   EButtonSeverity,
-  EBulkActionType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import { IRoleGetBaseResponseDto } from '../../types/role.dto';
@@ -51,40 +49,44 @@ export const ROLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-export const ROLE_TABLE_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
+export const ROLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
+  ITableActionConfig<IRoleGetBaseResponseDto>
+>[] = [
   {
-    id: ERowActionType.EDIT,
+    id: ETableActionType.EDIT,
     icon: ICONS.ACTIONS.EDIT,
     tooltip: 'Edit Role',
     severity: EButtonSeverity.WARNING,
-    disabledCondition: (rowData: Record<string, unknown>) =>
-      (rowData as IRoleGetBaseResponseDto).isEditable === false,
+    disabledCondition: (selectedRows: IRoleGetBaseResponseDto[]): boolean => {
+      return selectedRows.some(row => row.isEditable === false);
+    },
   },
   {
-    id: ERowActionType.DELETE,
+    id: ETableActionType.DELETE,
     icon: ICONS.ACTIONS.TRASH,
     tooltip: 'Delete Role',
     severity: EButtonSeverity.DANGER,
-    disabledCondition: (rowData: Record<string, unknown>) =>
-      (rowData as IRoleGetBaseResponseDto).isDeletable === false,
+    disabledCondition: (selectedRows: IRoleGetBaseResponseDto[]): boolean => {
+      return selectedRows.some(row => row.isDeletable === false);
+    },
   },
   {
-    id: ERowActionType.SET_PERMISSIONS,
+    id: ETableActionType.SET_PERMISSIONS,
     icon: ICONS.SETTINGS.COG,
     tooltip: 'Set Role Permissions',
     severity: EButtonSeverity.INFO,
   },
 ];
 
-export const ROLE_TABLE_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [
+export const ROLE_TABLE_BULK_ACTIONS_CONFIG: Partial<
+  ITableActionConfig<IRoleGetBaseResponseDto>
+>[] = [
   {
-    id: EBulkActionType.DELETE,
+    id: ETableActionType.DELETE,
     label: 'Delete',
     icon: ICONS.ACTIONS.TRASH,
-    disabledCondition: (selectedRows: Record<string, unknown>[]): boolean => {
-      return (selectedRows as IRoleGetBaseResponseDto[]).some(
-        row => row.isDeletable === false
-      );
+    disabledCondition: (selectedRows: IRoleGetBaseResponseDto[]): boolean => {
+      return selectedRows.some(row => row.isDeletable === false);
     },
   },
 ];

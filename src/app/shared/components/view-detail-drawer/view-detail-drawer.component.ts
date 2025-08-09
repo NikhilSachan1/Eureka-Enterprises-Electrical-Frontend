@@ -60,6 +60,8 @@ export class ViewDetailDrawerComponent {
       return 'text-red-500';
     } else if (status === 'leave') {
       return 'text-yellow-500';
+    } else if (status === 'holiday') {
+      return 'text-blue-500';
     }
     return 'text-gray-500';
   }

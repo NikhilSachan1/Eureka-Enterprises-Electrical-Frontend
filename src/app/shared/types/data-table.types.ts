@@ -7,17 +7,7 @@ export enum EDataTableInputType {
   CURRENCY = 'currency',
 }
 
-export enum EBulkActionType {
-  SET_INACTIVE = 'setInactive',
-  DELETE = 'delete',
-  APPROVE = 'approve',
-  REJECT = 'reject',
-  CANCEL = 'cancel',
-  ALLOCATE = 'allocate',
-  DEALLOCATE = 'deallocate',
-}
-
-export enum ERowActionType {
+export enum ETableActionType {
   VIEW = 'view',
   EDIT = 'edit',
   SET_PERMISSIONS = 'setPermissions',
@@ -25,10 +15,12 @@ export enum ERowActionType {
   DELETE = 'delete',
   APPROVE = 'approve',
   REJECT = 'reject',
-  CANCEL = 'cancel',
   REGULARIZE = 'regularize',
-  ALLOCATE = 'allocate',
-  DEALLOCATE = 'deallocate',
+}
+
+export enum ETableActionTypeValue {
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
 }
 
 export enum ETableBodyTemplate {

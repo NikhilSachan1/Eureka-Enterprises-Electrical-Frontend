@@ -7,11 +7,10 @@ import {
 } from '@angular/core';
 import {
   IEnhancedTable,
-  IRowActionClickEvent,
-  IBulkActionClickEvent,
   IEnhancedTableConfig,
+  ITableActionClickEvent,
 } from '@shared/models';
-import { EBulkActionType, EDialogType, ERowActionType } from '@shared/types';
+import { EDialogType, ETableActionType } from '@shared/types';
 import { finalize } from 'rxjs';
 import { LoggerService } from '@core/services';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
@@ -124,13 +123,13 @@ export class RoleListComponent implements OnInit {
       });
   }
 
-  protected handleBulkActionClick(event: IBulkActionClickEvent): void {
+  protected handleBulkActionClick(event: ITableActionClickEvent): void {
     this.logger.logUserAction('Bulk action clicked', event);
 
     const { actionType, selectedRows } = event;
 
     switch (actionType) {
-      case EBulkActionType.DELETE:
+      case ETableActionType.DELETE:
         this.showBulkDeleteConfirmationDialog(
           selectedRows as IRoleGetBaseResponseDto[]
         );
@@ -140,22 +139,26 @@ export class RoleListComponent implements OnInit {
     }
   }
 
-  protected handleRowActionClick(event: IRowActionClickEvent): void {
+  protected handleRowActionClick(event: ITableActionClickEvent): void {
     this.logger.logUserAction('Row action clicked', event);
 
-    const { actionType, rowData } = event;
+    const { actionType, selectedRows } = event;
 
     switch (actionType) {
-      case ERowActionType.EDIT:
-        this.navigateToEditRole(rowData as IRoleGetBaseResponseDto);
-        break;
-      case ERowActionType.DELETE:
-        this.showSingleDeleteConfirmationDialog(
-          rowData as IRoleGetBaseResponseDto
+      case ETableActionType.EDIT:
+        this.navigateToEditRole(
+          selectedRows as unknown as IRoleGetBaseResponseDto
         );
         break;
-      case ERowActionType.SET_PERMISSIONS:
-        this.navigateToSetRolePermissions(rowData as IRoleGetBaseResponseDto);
+      case ETableActionType.DELETE:
+        this.showSingleDeleteConfirmationDialog(
+          selectedRows as unknown as IRoleGetBaseResponseDto
+        );
+        break;
+      case ETableActionType.SET_PERMISSIONS:
+        this.navigateToSetRolePermissions(
+          selectedRows as unknown as IRoleGetBaseResponseDto
+        );
         break;
       default:
         this.logger.warn('Unknown row action:', actionType);

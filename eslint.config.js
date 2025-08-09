@@ -143,7 +143,7 @@ module.exports = tseslint.config(
       '@angular-eslint/template/no-autofocus': 'error',
       '@angular-eslint/template/no-distracting-elements': 'error',
       '@angular-eslint/template/use-track-by-function': 'error',
-      '@angular-eslint/template/no-any': 'warn',
+      // '@angular-eslint/template/no-any': 'warn',
       '@angular-eslint/template/no-call-expression': 'off',
       '@angular-eslint/template/no-duplicate-attributes': 'error',
       '@angular-eslint/template/no-negated-async': 'error',

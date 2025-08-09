@@ -15,11 +15,11 @@ import { calculateMinEditableDate } from '@shared/utility';
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   employeeName: {
-    fieldType: EFieldType.Select,
+    fieldType: EFieldType.MultiSelect,
     id: 'employeeName',
     fieldName: 'employeeName',
     label: 'Employee Name',
-    selectConfig: {
+    multiSelectConfig: {
       optionsDropdown: EMPLOYEE_NAME_DATA,
     },
     validators: [Validators.required],

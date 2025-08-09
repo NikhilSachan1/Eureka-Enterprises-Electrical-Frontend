@@ -1,11 +1,10 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import {
-  IBulkActionConfig,
   IDataTableConfig,
   IDataTableHeaderConfig,
-  IRowActionConfig,
   IEnhancedTable,
   IEnhancedTableConfig,
+  ITableActionConfig,
   ITableData,
 } from '@shared/models';
 import {
@@ -23,9 +22,9 @@ export class TableService {
     DEFAULT_TABLE_CONFIG;
   private readonly defaultTableHeaderConfig: Partial<IDataTableHeaderConfig> =
     DEFAULT_TABLE_HEADER_CONFIG;
-  private readonly defaultBulkActionConfig: Partial<IBulkActionConfig> =
+  private readonly defaultBulkActionConfig: Partial<ITableActionConfig> =
     DEFAULT_BULK_ACTION_CONFIG;
-  private readonly defaultRowActionConfig: Partial<IRowActionConfig> =
+  private readonly defaultRowActionConfig: Partial<ITableActionConfig> =
     DEFAULT_ROW_ACTION_CONFIG;
 
   createTable(tableConfig: IEnhancedTableConfig): IEnhancedTable {
@@ -85,8 +84,8 @@ export class TableService {
   }
 
   private getBulkActionsConfig(
-    options?: Partial<IBulkActionConfig>[]
-  ): IBulkActionConfig[] {
+    options?: Partial<ITableActionConfig>[]
+  ): ITableActionConfig[] {
     if (!options?.length) {
       return [];
     }
@@ -95,13 +94,13 @@ export class TableService {
         ({
           ...this.defaultBulkActionConfig,
           ...override,
-        }) as IBulkActionConfig
+        }) as ITableActionConfig
     );
   }
 
   private getRowActionsConfig(
-    options?: Partial<IRowActionConfig>[]
-  ): IRowActionConfig[] {
+    options?: Partial<ITableActionConfig>[]
+  ): ITableActionConfig[] {
     if (!options?.length) {
       return [];
     }
@@ -110,15 +109,15 @@ export class TableService {
         ({
           ...this.defaultRowActionConfig,
           ...override,
-        }) as IRowActionConfig
+        }) as ITableActionConfig
     );
   }
 
   private createEnhancedTable(
     tableConfig: IDataTableConfig,
     headers: IDataTableHeaderConfig[],
-    bulkActions: IBulkActionConfig[],
-    rowActions: IRowActionConfig[]
+    bulkActions: ITableActionConfig[],
+    rowActions: ITableActionConfig[]
   ): IEnhancedTable {
     // Create writable signals
     const tableConfigSignal = signal(tableConfig);
@@ -162,15 +161,15 @@ export class TableService {
       },
 
       updateBulkActions: (
-        actions: IBulkActionConfig[]
-      ): WritableSignal<IBulkActionConfig[]> => {
+        actions: ITableActionConfig[]
+      ): WritableSignal<ITableActionConfig[]> => {
         bulkActionsSignal.set(actions);
         return bulkActionsSignal;
       },
 
       updateRowActions: (
-        actions: IRowActionConfig[]
-      ): WritableSignal<IRowActionConfig[]> => {
+        actions: ITableActionConfig[]
+      ): WritableSignal<ITableActionConfig[]> => {
         rowActionsSignal.set(actions);
         return rowActionsSignal;
       },
@@ -178,8 +177,8 @@ export class TableService {
       getTableData: (): ITableData[] => dataSignal(),
       getTableConfig: (): IDataTableConfig => tableConfigSignal(),
       getHeaders: (): IDataTableHeaderConfig[] => headersSignal(),
-      getBulkActions: (): IBulkActionConfig[] => bulkActionsSignal(),
-      getRowActions: (): IRowActionConfig[] => rowActionsSignal(),
+      getBulkActions: (): ITableActionConfig[] => bulkActionsSignal(),
+      getRowActions: (): ITableActionConfig[] => rowActionsSignal(),
     };
   }
 }

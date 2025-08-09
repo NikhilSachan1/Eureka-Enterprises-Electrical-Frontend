@@ -7,7 +7,11 @@ export const AttendanceRegularizedRequestSchema = AttendanceBaseSchema.pick({
   notes: true,
   status: true,
   userId: true,
-}).strict();
+})
+  .extend({
+    timezone: z.string(),
+  })
+  .strict();
 
 const { id } = AttendanceBaseSchema.shape;
 

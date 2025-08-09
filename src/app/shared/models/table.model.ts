@@ -1,23 +1,22 @@
 import { Signal } from '@angular/core';
 import {
-  IBulkActionConfig,
   IDataTableConfig,
   IDataTableHeaderConfig,
-  IRowActionConfig,
+  ITableActionConfig,
 } from '@shared/models';
 
 export interface IEnhancedTableConfig<T = Record<string, unknown>> {
   tableConfig?: Partial<IDataTableConfig>;
   headers?: Partial<IDataTableHeaderConfig>[];
-  bulkActions?: Partial<IBulkActionConfig<T>>[];
-  rowActions?: Partial<IRowActionConfig<T>>[];
+  bulkActions?: Partial<ITableActionConfig<T>>[];
+  rowActions?: Partial<ITableActionConfig<T>>[];
 }
 
 export interface IEnhancedTable {
   tableConfig: Signal<IDataTableConfig>;
   headers: Signal<IDataTableHeaderConfig[]>;
-  bulkActions: Signal<IBulkActionConfig[]>;
-  rowActions: Signal<IRowActionConfig[]>;
+  bulkActions: Signal<ITableActionConfig[]>;
+  rowActions: Signal<ITableActionConfig[]>;
   data: Signal<Record<string, unknown>[]>;
   loading: Signal<boolean>;
 
@@ -29,11 +28,13 @@ export interface IEnhancedTable {
   updateHeaders(
     headers: IDataTableHeaderConfig[]
   ): Signal<IDataTableHeaderConfig[]>;
-  updateBulkActions(actions: IBulkActionConfig[]): Signal<IBulkActionConfig[]>;
-  updateRowActions(actions: IRowActionConfig[]): Signal<IRowActionConfig[]>;
+  updateBulkActions(
+    actions: ITableActionConfig[]
+  ): Signal<ITableActionConfig[]>;
+  updateRowActions(actions: ITableActionConfig[]): Signal<ITableActionConfig[]>;
   getTableData(): Record<string, unknown>[];
   getTableConfig(): IDataTableConfig;
   getHeaders(): IDataTableHeaderConfig[];
-  getBulkActions(): IBulkActionConfig[];
-  getRowActions(): IRowActionConfig[];
+  getBulkActions(): ITableActionConfig[];
+  getRowActions(): ITableActionConfig[];
 }

@@ -65,7 +65,9 @@
           on
           <span class="font-semibold">{{ detail.approvalBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
         </p>
-        <p class="text-xs text-gray-600 italic">"{{ detail.approvalBy.notes }}"</p>
+        @if (detail.approvalBy.notes) {
+          <p class="text-xs text-gray-600 italic">"{{ detail.approvalBy.notes }}"</p>
+        }
       </div>
     }
 

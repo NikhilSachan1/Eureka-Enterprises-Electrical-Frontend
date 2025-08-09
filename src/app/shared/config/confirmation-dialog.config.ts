@@ -61,6 +61,15 @@ export const CANCEL_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSetti
     message: 'Are you sure you want to cancel this item?',
   };
 
+export const REGULARIZE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfig> =
+  {
+    ...CONFIRMATION_DIALOG_CONFIG,
+    header: 'Regularize Confirmation',
+    icon: ICONS.ATTENDANCE.REGULARIZE,
+    iconContainerClass: 'bg-orange-500 text-white',
+    message: 'Are you sure you want to regularize this item?',
+  };
+
 export const ALLOCATE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfig> =
   {
     ...CONFIRMATION_DIALOG_CONFIG,

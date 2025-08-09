@@ -76,6 +76,13 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
       });
   }
 
+  private prepareParamData(): IAttendanceHistoryGetRequestDto {
+    return {
+      userId: this.drawerData.attendance.employeeId,
+      date: this.drawerData.attendance.attendanceDate.split('T')[0],
+    };
+  }
+
   private mapDetailData(
     response: IAttendanceHistoryGetResponseDto
   ): IDrawerDetail[] {
@@ -139,12 +146,5 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   protected getEmployeeDetails(): IDrawerEmployeeDetails {
     const { employeeName, employeeCode } = this.drawerData.attendance;
     return { name: employeeName, employeeCode };
-  }
-
-  private prepareParamData(): IAttendanceHistoryGetRequestDto {
-    return {
-      userId: this.drawerData.attendance.employeeId,
-      date: this.drawerData.attendance.attendanceDate.split('T')[0],
-    };
   }
 }

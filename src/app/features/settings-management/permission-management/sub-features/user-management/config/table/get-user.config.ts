@@ -1,18 +1,17 @@
 import { MATCH_MODE_OPTIONS } from '@shared/config';
 import {
   EButtonSeverity,
-  ERowActionType,
+  ETableActionType,
   ETableBodyTemplate,
   ETableFilterMatchMode,
   ETableSearchInputType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import {
-  IBulkActionConfig,
+  ITableActionConfig,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
-  IRowActionConfig,
 } from '@shared/models';
 import { IUserGetBaseResponseDto } from '../../types/user.dto';
 import {
@@ -90,22 +89,22 @@ export const USER_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-export const USER_TABLE_ROW_ACTIONS_CONFIG: Partial<IRowActionConfig>[] = [
+export const USER_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
   {
-    id: ERowActionType.SET_PERMISSIONS,
+    id: ETableActionType.SET_PERMISSIONS,
     icon: ICONS.SETTINGS.COG,
     tooltip: 'Set User Permissions',
     severity: EButtonSeverity.INFO,
   },
   {
-    id: ERowActionType.DELETE_PERMISSIONS,
+    id: ETableActionType.DELETE_PERMISSIONS,
     icon: ICONS.ACTIONS.TRASH,
     tooltip: 'Delete User Permissions',
     severity: EButtonSeverity.DANGER,
   },
 ];
 
-export const USER_TABLE_BULK_ACTIONS_CONFIG: Partial<IBulkActionConfig>[] = [];
+export const USER_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [];
 
 export const USER_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IUserGetBaseResponseDto> =
   {

@@ -11,7 +11,7 @@ export const API_ROUTES = {
     APPLY: 'attendance/action',
     FORCE: 'attendance/force',
     REGULARIZE: (attendanceId: string) =>
-      `attendance/${attendanceId}/regularized`,
+      `attendance/${attendanceId}/regularize`,
     APPROVAL_ACTION: 'attendance/approval',
   },
   SETTINGS: {
