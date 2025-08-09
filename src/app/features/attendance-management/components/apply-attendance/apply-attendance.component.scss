@@ -1,0 +1,180 @@
+@import "tailwindcss" reference;
+
+.attendance-card {
+  @apply max-w-md mx-auto space-y-6;
+}
+
+// Main content card
+.content-card {
+  @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden;
+}
+
+// Status header
+.status-header {
+  @apply relative px-6 py-6 pb-4;
+  @apply bg-gradient-to-r from-slate-500 via-gray-500 to-slate-600;
+
+  // Decorative circles
+  &::before {
+    content: "";
+    @apply absolute top-2 right-4 w-20 h-20 bg-white/10 rounded-full;
+  }
+
+  &::after {
+    content: "";
+    @apply absolute -top-4 -right-2 w-16 h-16 bg-white/5 rounded-full;
+  }
+
+  .status-content {
+    @apply relative flex items-center justify-between text-white;
+  }
+
+  .status-indicator {
+    @apply flex items-center gap-3;
+
+    &__text {
+      @apply font-semibold text-lg;
+    }
+  }
+
+  .time-info {
+    @apply text-right;
+
+    &__current {
+      @apply text-sm font-medium opacity-90;
+    }
+
+    &__date {
+      @apply text-xs opacity-75;
+    }
+  }
+}
+
+// Hours section
+.hours-section {
+  @apply px-6 pt-6 pb-3 text-center;
+
+  .hours-display {
+    @apply inline-block relative;
+
+    &__number {
+      @apply text-4xl font-black font-mono mb-2 tracking-tight bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent;
+    }
+
+    &__underline {
+      @apply absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-0.5 rounded-full;
+
+      &--inactive {
+        @apply bg-gradient-to-r from-gray-300 to-gray-400;
+      }
+    }
+  }
+
+  .hours-label {
+    @apply text-xs font-medium text-gray-500 uppercase tracking-wide mt-3 mb-4;
+  }
+}
+
+// Time summary
+.time-summary {
+  @apply flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm;
+
+  &__item {
+    @apply flex items-center gap-2;
+  }
+
+  &__dot {
+    @apply w-2.5 h-2.5 rounded-full;
+
+    &--started-inactive {
+      @apply bg-emerald-400;
+    }
+
+    &--ended-active {
+      @apply bg-orange-500;
+    }
+  }
+
+  &__label {
+    @apply text-gray-600 text-xs;
+  }
+
+  &__time {
+    @apply font-bold;
+
+    &--started {
+      @apply text-emerald-600;
+    }
+
+    &--ended {
+      @apply text-orange-600;
+    }
+  }
+}
+
+// Divider
+.section-divider {
+  @apply mx-6 border-t border-gray-100;
+}
+
+// Assignment section
+.assignment-section {
+  @apply px-6 pt-6 pb-4;
+
+  .assignment-card {
+    @apply bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4;
+
+    &__item {
+      @apply flex items-center gap-3;
+
+      &:not(:last-child) {
+        @apply mb-3;
+      }
+    }
+
+    &__icon {
+      @apply w-8 h-8 rounded-lg flex items-center justify-center shadow-sm;
+
+      &--location {
+        @apply bg-blue-500;
+      }
+
+      &--client {
+        @apply bg-emerald-500;
+      }
+
+      i {
+        @apply text-white text-xs;
+      }
+    }
+
+    &__content {
+      @apply flex-1;
+    }
+
+    &__label {
+      @apply text-xs font-medium mb-0.5;
+
+      &--location {
+        @apply text-blue-600;
+      }
+
+      &--client {
+        @apply text-emerald-600;
+      }
+    }
+
+    &__value {
+      @apply font-semibold text-gray-800 text-sm;
+    }
+  }
+}
+
+// Action button
+.action-button {
+  @apply mt-4;
+}
+
+:host ::ng-deep .p-button {
+  @apply w-full;
+}

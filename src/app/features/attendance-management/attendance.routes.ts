@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { CurrentStatusResolver } from './resolvers/current-status.resolver';
 
 export const ATTENDANCE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -20,6 +21,9 @@ export const ATTENDANCE_MANAGEMENT_ROUTES: Routes = [
       import('./components/apply-attendance/apply-attendance.component').then(
         m => m.ApplyAttendanceComponent
       ),
+    resolve: {
+      currentStatus: CurrentStatusResolver,
+    },
   },
   {
     path: ROUTES.ATTENDANCE.FORCE,

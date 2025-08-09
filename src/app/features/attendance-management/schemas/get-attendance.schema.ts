@@ -41,7 +41,13 @@ export const AttendanceGetBaseResponseSchema = AttendanceBaseSchema.pick({
     ),
     user: UserSchema,
     createdBy: UserSchema,
-    approvalBy: UserSchema,
+    approvalBy: UserSchema.extend({
+      id: z.uuid().nullable(),
+      firstName: z.string().nullable(),
+      lastName: z.string().nullable(),
+      email: z.email().nullable(),
+      employeeId: z.string().nullable(),
+    }),
   })
   .strict();
 

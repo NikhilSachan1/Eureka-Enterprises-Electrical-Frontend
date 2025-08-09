@@ -1,1 +1,124 @@
-<p>apply-attendance works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()"></app-page-header>
+
+<div class="attendance-card">
+  <!-- Main Content Card -->
+  <div class="content-card">
+    <!-- Status Header -->
+    <header class="status-header">
+      <div class="status-content">
+        <div class="status-indicator">
+          <span class="status-indicator__text">
+            {{ currentStatusData()?.status ?? '' | textCase: 'title' }}
+          </span>
+        </div>
+
+        <div class="time-info">
+          <p class="time-info__current">
+            {{ todayDate | date: appConfig.dateFormats.WITH_SHORT_MONTH }}
+          </p>
+          <p class="time-info__date">
+            {{ todayDate | date: appConfig.timeFormats.DEFAULT }}
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hours Display -->
+    <section class="hours-section">
+      <div class="hours-display">
+        <div class="hours-display__number">
+          {{ currentStatusData()?.workDuration ?? 0 | secondsToDhms }}
+        </div>
+        <div class="hours-display__underline hours-display__underline--inactive"></div>
+      </div>
+
+      <p class="hours-label">Total Hours Today</p>
+
+      <!-- Time Summary -->
+      <div class="time-summary">
+        <div class="time-summary__item">
+          <div class="time-summary__dot time-summary__dot--started-inactive"></div>
+          <span class="time-summary__label">Started</span>
+          <span class="time-summary__time time-summary__time--started">
+            @if (currentStatusData()?.checkInTime) {
+              {{ currentStatusData()?.checkInTime | date: appConfig.timeFormats.DEFAULT }}
+            } @else {
+              N/A
+            }
+          </span>
+        </div>
+
+        <div class="time-summary__item">
+          <div class="time-summary__dot time-summary__dot--ended-active"></div>
+          <span class="time-summary__label">Ended</span>
+          <span class="time-summary__time time-summary__time--ended">
+            @if (currentStatusData()?.checkOutTime) {
+              {{ currentStatusData()?.checkOutTime | date: appConfig.timeFormats.DEFAULT }}
+            } @else {
+              N/A
+            }
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="section-divider"></div>
+
+    <!-- Assignment Details -->
+    <section class="assignment-section">
+      <div class="assignment-card">
+        <!-- Location -->
+        <div class="assignment-card__item">
+          <div class="assignment-card__icon assignment-card__icon--location">
+            <i class="pi pi-map-marker"></i>
+          </div>
+          <div class="assignment-card__content">
+            <p class="assignment-card__label assignment-card__label--location">Location</p>
+            <p class="assignment-card__value">{{ currentStatusData()?.locationName || 'N/A' | textCase: 'title' }}</p>
+          </div>
+        </div>
+
+        <!-- Client -->
+        <div class="assignment-card__item">
+          <div class="assignment-card__icon assignment-card__icon--client">
+            <i class="pi pi-user"></i>
+          </div>
+          <div class="assignment-card__content">
+            <p class="assignment-card__label assignment-card__label--client">Client</p>
+            <p class="assignment-card__value">{{ currentStatusData()?.clientName || 'N/A' | textCase: 'title' }}</p>
+          </div>
+        </div>
+
+        <div class="assignment-card__item">
+          <div class="assignment-card__icon assignment-card__icon--client">
+            <i class="pi pi-user"></i>
+          </div>
+          <div class="assignment-card__content">
+            <p class="assignment-card__label assignment-card__label--client">Associate Employee</p>
+            <p class="assignment-card__value">
+              {{ currentStatusData()?.associateEmployeeName || 'N/A' | textCase: 'title' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="action-button">
+        @if (currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime) {
+          <app-button
+            [buttonConfig]="buttonConfig()['checkOut']"
+            [showButtonLoader]="isSubmitting()"
+            (click)="applyAttendance(allApplyAttendanceAction.CHECK_OUT)"
+          ></app-button>
+        } @else if (!currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime) {
+          <app-button
+            [buttonConfig]="buttonConfig()['checkIn']"
+            [showButtonLoader]="isSubmitting()"
+            (click)="applyAttendance(allApplyAttendanceAction.CHECK_IN)"
+          ></app-button>
+        }
+      </div>
+    </section>
+  </div>
+</div>

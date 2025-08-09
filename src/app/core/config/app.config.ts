@@ -33,6 +33,7 @@ export const APP_CONFIG = {
     WITH_TIME: 'dd/MM/yyyy HH:mm',
     CALENDAR: 'dd/mm/yy',
     API: 'yyyy-MM-dd',
+    WITH_SHORT_MONTH: 'MMM d, yyyy',
   },
 
   // Time Formats

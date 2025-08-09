@@ -22,6 +22,7 @@ export interface IAppConfig {
     WITH_TIME: string;
     CALENDAR: string;
     API: string;
+    WITH_SHORT_MONTH: string;
   };
   TIME_FORMATS: {
     DEFAULT: string;
