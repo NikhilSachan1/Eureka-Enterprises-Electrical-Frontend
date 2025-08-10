@@ -21,6 +21,7 @@ export interface IDataTableConfig {
   emptyMessage: string;
   emptyMessageIcon: string;
   emptyMessageDescription: string;
+  paginationTemplate: string;
 }
 
 export interface IDataTableHeaderConfig {

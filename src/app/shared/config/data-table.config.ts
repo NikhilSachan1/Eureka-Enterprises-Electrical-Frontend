@@ -31,6 +31,7 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No data found',
   emptyMessageIcon: 'pi pi-info-circle',
   emptyMessageDescription: 'No data found',
+  paginationTemplate: 'Showing {first} to {last} of {totalRecords} entries',
 };
 
 // default table header config
@@ -106,10 +107,12 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
 
 export const DEFAULT_BULK_ACTION_CONFIG: Partial<ITableActionConfig> = {
   severity: EButtonSeverity.DANGER,
+  rounded: true,
 };
 
 // default row action config
 export const DEFAULT_ROW_ACTION_CONFIG: Partial<ITableActionConfig> = {
   severity: EButtonSeverity.DANGER,
-  variant: EButtonVariant.TEXT,
+  variant: EButtonVariant.OUTLINED,
+  rounded: true,
 };
