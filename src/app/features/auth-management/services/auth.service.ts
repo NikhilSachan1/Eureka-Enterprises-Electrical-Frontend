@@ -1,11 +1,10 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap, finalize } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, delay, tap } from 'rxjs/operators';
 import { ApiService, LoggerService } from '@core/services';
-import { LoadingService, AvatarService } from '@shared/services';
+import { AvatarService } from '@shared/services';
 import { API_ROUTES } from '@core/constants';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { ILoggedInUserDetails } from '../models/logged-in-user.model';
 import { ILoginRequestDto, ILoginResponseDto } from '../models/auth-api.model';
 import { LoginRequestSchema, LoginResponseSchema } from '../dto/auth.dto';
@@ -17,10 +16,18 @@ export class AuthService {
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
   private readonly logger = inject(LoggerService);
-  private readonly loadingService = inject(LoadingService);
   private readonly avatarService = inject(AvatarService);
 
-  // Signal-based state management
+  public readonly loggedInUserInitials = computed(() =>
+    this.getLoggedInUserInitials()
+  );
+  public readonly loggedInUserShortName = computed(() =>
+    this.getLoggedInUserShortName()
+  );
+  public readonly loggedInUserAvatar = computed(() =>
+    this.getLoggedInUserAvatar()
+  );
+
   private readonly _isAuthenticated = signal<boolean>(false);
   private readonly _user = signal<ILoggedInUserDetails | null>(null);
   private readonly _token = signal<string | null>(null);
@@ -29,42 +36,10 @@ export class AuthService {
   public readonly user = this._user.asReadonly();
   public readonly token = this._token.asReadonly();
 
-  public readonly loggedInUserInitials = computed(() => {
-    const user = this._user();
-    if (!user) {
-      return '';
-    }
-    const firstInitial = user.firstName.charAt(0).toUpperCase();
-    const lastInitial = user.lastName.charAt(0).toUpperCase();
-    return `${firstInitial}${lastInitial}`;
-  });
-
-  public readonly loggedInUserShortName = computed(() => {
-    const user = this._user();
-    return user ? user.firstName : '';
-  });
-
-  public readonly loggedInUserAvatar = computed(() => {
-    const user = this._user();
-    let profilePicture = '';
-    if (!user?.profilePicture) {
-      profilePicture = this.avatarService.getAvatarFromName(
-        user?.fullName ?? ''
-      );
-    } else {
-      profilePicture = user.profilePicture;
-    }
-
-    return profilePicture;
-  });
-
   constructor() {
     this.initializeAuthState();
   }
 
-  /**
-   * Initialize authentication state from localStorage
-   */
   private initializeAuthState(): void {
     try {
       const token = this.getStoredToken();
@@ -85,17 +60,8 @@ export class AuthService {
     }
   }
 
-  login(
-    formData: ILoginRequestDto,
-    rememberMe: boolean
-  ): Observable<ILoginResponseDto> {
-    // Show general loading overlay
-    this.loadingService.show({
-      title: 'Logging In',
-      message: 'Please wait while we log you in...',
-    });
-
-    this.logger.logUserAction('Login Attempt', formData);
+  login(formData: ILoginRequestDto): Observable<ILoginResponseDto> {
+    this.logger.logUserAction('Login Attempt');
 
     return this.apiService
       .postValidated(
@@ -106,49 +72,73 @@ export class AuthService {
       )
       .pipe(
         tap((response: ILoginResponseDto) => {
-          this.handleLoginSuccess(response, rememberMe);
+          this.logger.logUserAction('Login Response', response);
         }),
         catchError(error => {
-          this.clearAuthState(); // Only handle business logic
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Login Error', error);
+          } else {
+            this.logger.logUserAction('Login Error', error);
+          }
+          this.clearAuthState();
           return throwError(() => error);
-        }),
-        finalize(() => {
-          // Hide general loading overlay
-          this.loadingService.hide();
         })
       );
   }
 
-  /**
-   * Logout user with loading state and delay
-   */
-  async logout(): Promise<void> {
+  setAuthState(loginResponse: ILoginResponseDto, rememberMe: boolean): void {
     try {
-      this.logger.logUserAction('User Logout');
-      // Show general loading overlay
-      this.loadingService.show({
-        title: 'Logging Out',
-        message: 'Please wait while we log you out...',
-      });
+      const {
+        token,
+        firstName,
+        lastName,
+        email,
+        name,
+        designation,
+        profilePicture,
+      } = loginResponse;
 
-      // Add 3.5 second delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 3500));
+      const user: ILoggedInUserDetails = {
+        firstName,
+        lastName,
+        email,
+        fullName: name,
+        designation,
+        profilePicture: profilePicture ?? '',
+        permissions: [],
+      };
 
-      // Clear authentication state
-      this.clearAuthState();
+      this._token.set(token);
+      this._user.set(user);
+      this._isAuthenticated.set(true);
 
-      // Navigate to login page
-      void this.router.navigate([
-        `/${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`,
-      ]);
+      const storage = rememberMe ? localStorage : sessionStorage;
+      storage.setItem('auth_token', token);
+      storage.setItem('user_data', JSON.stringify(user));
 
-      this.logger.info('User logged out successfully');
+      this.logger.info('Login successful', user);
     } catch (error) {
-      this.logger.error('Error during logout', error);
-    } finally {
-      // Hide general loading overlay
-      this.loadingService.hide();
+      this.logger.error('Error handling login success', error);
+      this.clearAuthState();
+      throw error;
     }
+  }
+
+  logout(): Observable<null> {
+    return of(null).pipe(
+      tap(() => {
+        this.logger.logUserAction('User Logout');
+
+        this.clearAuthState();
+
+        this.logger.info('User logged out successfully');
+      }),
+      catchError(error => {
+        this.logger.error('Error during logout', error);
+        throw error;
+      }),
+      delay(2000)
+    );
   }
 
   /**
@@ -193,75 +183,6 @@ export class AuthService {
       return null;
     }
   }
-
-  /**
-   * Handle successful login
-   */
-  private handleLoginSuccess(
-    response: ILoginResponseDto,
-    rememberMe = false
-  ): void {
-    try {
-      const {
-        token,
-        firstName,
-        lastName,
-        email,
-        name,
-        designation,
-        profilePicture,
-      } = response;
-
-      const user: ILoggedInUserDetails = {
-        firstName,
-        lastName,
-        email,
-        fullName: name,
-        designation,
-        profilePicture: profilePicture ?? '',
-      };
-
-      // Update signals
-      this._token.set(token);
-      this._user.set(user);
-      this._isAuthenticated.set(true);
-
-      // Store in localStorage/sessionStorage based on rememberMe
-      const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem('auth_token', token);
-      storage.setItem('user_data', JSON.stringify(user));
-
-      this.logger.info('Login successful', user);
-      this.navigateAfterLogin();
-    } catch (error) {
-      this.logger.error('Error handling login success', error);
-      this.clearAuthState();
-      throw error;
-    }
-  }
-
-  private navigateAfterLogin(): void {
-    try {
-      // Check for stored redirect URL
-      const redirectUrl = sessionStorage.getItem('auth_redirect_url');
-
-      if (redirectUrl) {
-        this.logger.info(`Redirecting to stored URL: ${redirectUrl}`);
-        sessionStorage.removeItem('auth_redirect_url');
-        void this.router.navigateByUrl(redirectUrl);
-      } else {
-        this.logger.info(
-          'No valid redirect URL found, navigating to dashboard'
-        );
-        void this.router.navigate([`/${ROUTE_BASE_PATHS.DASHBOARD}`]);
-      }
-    } catch (error) {
-      this.logger.error('Error during post-login navigation', error);
-      // Fallback to dashboard
-      void this.router.navigate([`/${ROUTE_BASE_PATHS.DASHBOARD}`]);
-    }
-  }
-
   /**
    * Clear authentication state
    */
@@ -276,5 +197,34 @@ export class AuthService {
     localStorage.removeItem('user_data');
     sessionStorage.removeItem('auth_token');
     sessionStorage.removeItem('user_data');
+  }
+
+  private getLoggedInUserInitials(): string {
+    const user = this._user();
+    if (!user) {
+      return '';
+    }
+    const firstInitial = user.firstName.charAt(0).toUpperCase();
+    const lastInitial = user.lastName.charAt(0).toUpperCase();
+    return `${firstInitial}${lastInitial}`;
+  }
+
+  private getLoggedInUserShortName(): string {
+    const user = this._user();
+    return user ? user.firstName : '';
+  }
+
+  private getLoggedInUserAvatar(): string {
+    const user = this._user();
+    let profilePicture = '';
+    if (!user?.profilePicture) {
+      profilePicture = this.avatarService.getAvatarFromName(
+        user?.fullName ?? ''
+      );
+    } else {
+      profilePicture = user.profilePicture;
+    }
+
+    return profilePicture;
   }
 }

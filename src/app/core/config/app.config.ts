@@ -27,6 +27,12 @@ export const APP_CONFIG = {
     closable: true,
   },
 
+  // User Permission Configuration
+  USER_PERMISSION_CONFIG: {
+    wantPeriodicRefresh: false,
+    refreshInterval: 1000 * 60 * 0.1, // 1 minute
+  },
+
   // Date Formats
   DATE_FORMATS: {
     DEFAULT: 'dd/MM/yyyy',

@@ -14,12 +14,6 @@ export const AttendanceForceRequestSchema = AttendanceBaseSchema.pick({
   })
   .strict();
 
-export const AttendanceForceResponseSchema = AttendanceBaseSchema.pick({
-  checkInTime: true,
-  checkOutTime: true,
-})
-  .extend({
-    workDuration: z.number(),
-    message: z.string(),
-  })
-  .strict();
+export const AttendanceForceResponseSchema = z.object({
+  message: z.string(),
+});

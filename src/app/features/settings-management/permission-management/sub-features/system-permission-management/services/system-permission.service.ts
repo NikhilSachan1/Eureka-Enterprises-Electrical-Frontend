@@ -23,6 +23,7 @@ import {
 } from '../schemas';
 import { MODULES_NAME_DATA } from '@shared/config';
 import { IModulePermission } from '../types/system-permission.interface';
+import { replaceTextWithSeparator } from '@shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -183,7 +184,11 @@ export class SystemPermissionService {
 
         response.records.forEach(
           (permission: ISystemPermissionGetBaseResponseDto) => {
-            const moduleKey = permission.module.toLowerCase();
+            const moduleKey = replaceTextWithSeparator(
+              permission.module.toLowerCase(),
+              ' ',
+              '_'
+            );
 
             if (moduleMap.has(moduleKey)) {
               moduleMap.get(moduleKey)?.permissions.push({

@@ -17,6 +17,10 @@ export interface IAppConfig {
     sticky: boolean;
     closable: boolean;
   };
+  USER_PERMISSION_CONFIG: {
+    wantPeriodicRefresh: boolean;
+    refreshInterval: number;
+  };
   DATE_FORMATS: {
     DEFAULT: string;
     WITH_TIME: string;

@@ -5,3 +5,4 @@ export { LoggerService } from './logger.service';
 export { MenuService } from './menu.service';
 export { ThemeService } from './theme.service';
 export { TimezoneService } from './timezone.service';
+export { AppPermissionService } from './app-permission.service';

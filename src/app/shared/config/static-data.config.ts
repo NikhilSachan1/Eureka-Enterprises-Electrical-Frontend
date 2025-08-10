@@ -1,20 +1,13 @@
 import { IOptionDropdown } from '@shared/models';
 
 export const MODULES_NAME_DATA: IOptionDropdown[] = [
-  { label: 'Employee', value: 'employee' },
   { label: 'Attendance', value: 'attendance' },
-  { label: 'Leave', value: 'leave' },
-  { label: 'Payroll', value: 'payroll' },
+  { label: 'System Permission', value: 'system_permission' },
+  { label: 'User Permission', value: 'user_permission' },
+  { label: 'Role Permission', value: 'role_permission' },
 ];
 
 export const MODULE_ACTIONS_DATA: Record<string, IOptionDropdown[]> = {
-  employee: [
-    { value: 'add', label: 'Add' },
-    { value: 'delete', label: 'Delete' },
-    { value: 'edit', label: 'Edit' },
-    { value: 'view', label: 'Table View' },
-    { value: 'view_detail', label: 'View Detail' },
-  ],
   attendance: [
     { value: 'apply', label: 'Apply' },
     { value: 'force', label: 'Force' },
@@ -23,6 +16,21 @@ export const MODULE_ACTIONS_DATA: Record<string, IOptionDropdown[]> = {
     { value: 'regularize', label: 'Regularize' },
     { value: 'approve', label: 'Approve' },
     { value: 'reject', label: 'Reject' },
+  ],
+  system_permission: [
+    { value: 'add', label: 'Add' },
+    { value: 'edit', label: 'Edit' },
+    { value: 'delete', label: 'Delete' },
+  ],
+  user_permission: [
+    { value: 'delete', label: 'Delete' },
+    { value: 'set', label: 'Set Permission' },
+  ],
+  role_permission: [
+    { value: 'add', label: 'Add' },
+    { value: 'edit', label: 'Edit' },
+    { value: 'delete', label: 'Delete' },
+    { value: 'set', label: 'Set Permission' },
   ],
 };
 

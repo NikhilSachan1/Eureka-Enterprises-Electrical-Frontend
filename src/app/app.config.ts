@@ -26,6 +26,10 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import Aura from '@primeng/themes/aura';
 import { routes } from './app.routes';
 import { TimezoneService } from '@core/services';
+import { AuthService } from '@features/auth-management/services/auth.service';
+import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
+import { APP_CONFIG } from '@core/config';
+import { lastValueFrom, tap } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -85,7 +89,28 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(BrowserAnimationsModule),
     provideAppInitializer(() => {
       const timezoneService = inject(TimezoneService);
+      const authService = inject(AuthService);
+      const userPermissionService = inject(UserPermissionService);
       timezoneService.getTimezone();
+
+      if (authService.isAuthenticated()) {
+        if (APP_CONFIG.USER_PERMISSION_CONFIG.wantPeriodicRefresh) {
+          return lastValueFrom(
+            userPermissionService.fetchAndStoreLoggedInUserPermissions().pipe(
+              tap(() => {
+                if (APP_CONFIG.USER_PERMISSION_CONFIG.wantPeriodicRefresh) {
+                  userPermissionService.startPeriodicRefresh();
+                }
+              })
+            )
+          );
+        }
+        return lastValueFrom(
+          userPermissionService.fetchAndStoreLoggedInUserPermissions()
+        );
+      }
+
+      return Promise.resolve();
     }),
   ],
 };

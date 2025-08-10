@@ -167,7 +167,7 @@ export class GetUserComponent implements OnInit {
     switch (actionType) {
       case ETableActionType.SET_PERMISSIONS:
         this.navigateToSetUserPermissions(
-          selectedRows as unknown as IUserGetBaseResponseDto
+          selectedRows as unknown as IUserGetBaseResponseDto[]
         );
         break;
       case ETableActionType.DELETE_PERMISSIONS:
@@ -193,7 +193,9 @@ export class GetUserComponent implements OnInit {
     });
   }
 
-  private navigateToSetUserPermissions(rowData: IUserGetBaseResponseDto): void {
+  private navigateToSetUserPermissions(
+    rowData: IUserGetBaseResponseDto[]
+  ): void {
     this.logger.logUserAction('Navigating to set user permissions');
 
     try {
@@ -202,7 +204,7 @@ export class GetUserComponent implements OnInit {
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER_PERMISSION,
         ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.SET_PERMISSIONS,
-        rowData.id,
+        rowData[0].id,
       ];
 
       const success =

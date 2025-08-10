@@ -22,7 +22,10 @@ export const SystemPermissionGetBaseResponseSchema =
     .extend({
       id: z.uuid(),
       name: name.transform(val => toLowerCase(val)),
-      module: module.transform(val => toTitleCase(val)),
+      module: module.transform(val => {
+        const moduleText = replaceTextWithSeparator(val, '_', ' ');
+        return toTitleCase(moduleText);
+      }),
       label: label.transform(val => {
         const labelText = replaceTextWithSeparator(val, '_', ' ');
         return toTitleCase(labelText);

@@ -147,7 +147,7 @@ export class RoleListComponent implements OnInit {
     switch (actionType) {
       case ETableActionType.EDIT:
         this.navigateToEditRole(
-          selectedRows as unknown as IRoleGetBaseResponseDto
+          selectedRows as unknown as IRoleGetBaseResponseDto[]
         );
         break;
       case ETableActionType.DELETE:
@@ -157,7 +157,7 @@ export class RoleListComponent implements OnInit {
         break;
       case ETableActionType.SET_PERMISSIONS:
         this.navigateToSetRolePermissions(
-          selectedRows as unknown as IRoleGetBaseResponseDto
+          selectedRows as unknown as IRoleGetBaseResponseDto[]
         );
         break;
       default:
@@ -177,7 +177,7 @@ export class RoleListComponent implements OnInit {
     }));
   }
 
-  private navigateToEditRole(rowData: IRoleGetBaseResponseDto): void {
+  private navigateToEditRole(rowData: IRoleGetBaseResponseDto[]): void {
     this.logger.logUserAction('Navigating to edit role', rowData);
 
     try {
@@ -186,7 +186,7 @@ export class RoleListComponent implements OnInit {
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
         ROUTES.SETTINGS.PERMISSION.ROLE.EDIT,
-        rowData.id,
+        rowData[0].id,
       ];
 
       const success = this.routerNavigationService.navigateWithState(
@@ -198,7 +198,7 @@ export class RoleListComponent implements OnInit {
 
       if (!success) {
         this.logger.logUserAction('Navigation failed for edit button', {
-          roleId: rowData.id,
+          roleId: rowData[0].id,
         });
       }
     } catch (error) {
@@ -206,7 +206,9 @@ export class RoleListComponent implements OnInit {
     }
   }
 
-  private navigateToSetRolePermissions(rowData: IRoleGetBaseResponseDto): void {
+  private navigateToSetRolePermissions(
+    rowData: IRoleGetBaseResponseDto[]
+  ): void {
     this.logger.logUserAction('Navigating to set role permissions');
 
     try {
@@ -215,7 +217,7 @@ export class RoleListComponent implements OnInit {
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE_PERMISSION,
         ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.SET_PERMISSIONS,
-        rowData.id,
+        rowData[0].id,
       ];
 
       const success =

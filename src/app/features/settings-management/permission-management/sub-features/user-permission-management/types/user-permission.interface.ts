@@ -1,0 +1,1 @@
+export type IAppPermission = string[];
