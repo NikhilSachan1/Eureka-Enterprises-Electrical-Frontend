@@ -1,6 +1,17 @@
 <div [formGroup]="formGroup()">
   @let isFieldInvalid = checkIsFieldInvalid(inputFieldConfig().fieldName);
   @let errorMessage = getErrorMessage(inputFieldConfig().fieldName);
+  @let showStandardLabel = inputFieldConfig().showStandardLabel;
+  @let placeholder = showStandardLabel ? inputFieldConfig().placeholder : '';
+
+  @if (inputFieldConfig().showStandardLabel) {
+    <label
+      [for]="inputFieldConfig().id"
+      class="text-md font-semibold"
+    >
+      {{ inputFieldConfig().label }}
+    </label>
+  }
 
   @switch (inputFieldConfig().fieldType) {
     @case (ALL_FIELD_TYPES.Text) {
@@ -11,11 +22,14 @@
           [autocomplete]="inputFieldConfig().autocomplete"
           [fluid]="inputFieldConfig().haveFullWidth"
           [pSize]="inputFieldConfig().fieldSize"
+          [attr.placeholder]="placeholder ? placeholder : null"
           [readonly]="inputFieldConfig().readonlyInput || false"
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
         />
-        <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        @if (!inputFieldConfig().showStandardLabel) {
+          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        }
       </p-floatlabel>
     }
     @case (ALL_FIELD_TYPES.Number) {
@@ -27,6 +41,7 @@
           [autocomplete]="inputFieldConfig().autocomplete"
           [fluid]="inputFieldConfig().haveFullWidth"
           [size]="inputFieldConfig().fieldSize"
+          [attr.placeholder]="placeholder"
           [mode]="numberConfig?.mode"
           [min]="numberConfig?.minimumBoundaryValue || 1"
           [max]="numberConfig?.maximumBoundaryValue || 1"
@@ -45,7 +60,9 @@
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
         />
-        <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        @if (!inputFieldConfig().showStandardLabel) {
+          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        }
       </p-floatlabel>
     }
     @case (ALL_FIELD_TYPES.Select) {
@@ -57,6 +74,7 @@
           [id]="inputFieldConfig().id"
           [fluid]="inputFieldConfig().haveFullWidth"
           [size]="inputFieldConfig().fieldSize"
+          [placeholder]="placeholder"
           [options]="selectConfig?.optionsDropdown"
           [optionLabel]="selectConfig?.optionLabel"
           [optionValue]="selectConfig?.optionValue"
@@ -72,7 +90,9 @@
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
           (onChange)="onChange()"
         />
-        <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        @if (!inputFieldConfig().showStandardLabel) {
+          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        }
       </p-floatlabel>
     }
     @case (ALL_FIELD_TYPES.MultiSelect) {
@@ -84,6 +104,7 @@
           [id]="inputFieldConfig().id"
           [fluid]="inputFieldConfig().haveFullWidth"
           [size]="inputFieldConfig().fieldSize"
+          [placeholder]="placeholder"
           [options]="multiSelectConfig?.optionsDropdown"
           [optionLabel]="multiSelectConfig?.optionLabel"
           [optionValue]="multiSelectConfig?.optionValue"
@@ -92,14 +113,15 @@
           [filterBy]="multiSelectConfig?.filterBy"
           [loading]="optionsDropdownLength ? false : true"
           [showToggleAll]="multiSelectConfig?.showToggleAll"
-          [selectAll]="multiSelectConfig?.selectAll"
           [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip"
           [showClear]="multiSelectConfig?.showClearButton"
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
           (onChange)="onChange()"
         />
-        <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        @if (!inputFieldConfig().showStandardLabel) {
+          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        }
       </p-floatlabel>
     }
     @case (ALL_FIELD_TYPES.Date) {
@@ -110,6 +132,7 @@
           [id]="inputFieldConfig().id"
           [fluid]="inputFieldConfig().haveFullWidth"
           [size]="inputFieldConfig().fieldSize"
+          [attr.placeholder]="placeholder ? placeholder : ''"
           [dateFormat]="dateConfig?.dateFormat"
           [showIcon]="dateConfig?.showCalendarIcon"
           [iconDisplay]="dateConfig?.iconDisplay || ALL_DATE_ICON_DISPLAY_TYPES.Input"
@@ -127,7 +150,9 @@
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
         />
-        <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        @if (!inputFieldConfig().showStandardLabel) {
+          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        }
       </p-floatlabel>
     }
     @case (ALL_FIELD_TYPES.Password) {
@@ -150,7 +175,9 @@
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
         />
-        <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        @if (!inputFieldConfig().showStandardLabel) {
+          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        }
       </p-floatlabel>
     }
     @case (ALL_FIELD_TYPES.Checkbox) {
@@ -235,6 +262,7 @@
           [id]="inputFieldConfig().id"
           [fluid]="inputFieldConfig().haveFullWidth"
           [pSize]="inputFieldConfig().fieldSize"
+          [placeholder]="placeholder"
           [rows]="textAreaConfig?.rows"
           [cols]="textAreaConfig?.cols"
           [autoResize]="textAreaConfig?.autoResize"
@@ -242,7 +270,9 @@
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
         ></textarea>
-        <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        @if (!inputFieldConfig().showStandardLabel) {
+          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        }
       </p-floatlabel>
     }
     @case (ALL_FIELD_TYPES.Individual_Number) {

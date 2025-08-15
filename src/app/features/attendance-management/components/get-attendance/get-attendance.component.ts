@@ -32,6 +32,7 @@ import {
 import {
   ATTENDANCE_TABLE_ENHANCED_CONFIG,
   createAttendanceDialogConfig,
+  SEARCH_FILTER_ATTENDANCE_FORM_CONFIG,
 } from '../../config';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
@@ -57,10 +58,16 @@ import { APP_CONFIG } from '@core/config';
 import { DatePipe } from '@angular/common';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { SHIFT_DATA } from '@shared/config';
+import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 
 @Component({
   selector: 'app-get-attendance',
-  imports: [DataTableComponent, PageHeaderComponent, MetricsCardComponent],
+  imports: [
+    DataTableComponent,
+    PageHeaderComponent,
+    MetricsCardComponent,
+    SearchFilterComponent,
+  ],
   providers: [DatePipe],
   templateUrl: './get-attendance.component.html',
   styleUrl: './get-attendance.component.scss',
@@ -82,6 +89,7 @@ export class GetAttendanceComponent implements OnInit {
   private readonly timezoneServive = inject(TimezoneService);
 
   protected table!: IEnhancedTable;
+  protected searchFilterConfig = SEARCH_FILTER_ATTENDANCE_FORM_CONFIG;
 
   private readonly attendanceStats =
     signal<IAttendanceGetStatsResponseDto | null>(null);

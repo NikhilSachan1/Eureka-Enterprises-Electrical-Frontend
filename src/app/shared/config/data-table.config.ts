@@ -98,7 +98,7 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
   textWithSubtitleAndImageConfig: TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG,
   statusConfig: STATUS_CONFIG,
-  showFilter: true,
+  showFilter: false,
   showSort: true,
   filterConfig: DEFAULT_TABLE_FILTER_CONFIG,
 };

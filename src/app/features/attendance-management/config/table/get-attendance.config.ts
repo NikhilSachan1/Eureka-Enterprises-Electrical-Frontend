@@ -59,8 +59,6 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       header: 'Attendance Date',
       bodyTemplate: ETableBodyTemplate.DATE,
       dataType: ETableDataType.DATE,
-      showFilter: true,
-      showSort: true,
       filterConfig: {
         filterField: 'attendanceDate',
         placeholder: 'Search By Attendance Date',

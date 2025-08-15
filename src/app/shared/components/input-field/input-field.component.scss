@@ -7,4 +7,21 @@
       text-align: center !important;
     }
   }
+
+  .p-multiselect {
+    .p-multiselect-chip {
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &:hover {
+        transform: translateY(-1px);
+      }
+    }
+
+    .p-chip-remove-icon {
+      font-weight: 600;
+    }
+  }
 }

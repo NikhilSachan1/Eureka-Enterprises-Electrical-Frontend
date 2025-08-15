@@ -10,6 +10,10 @@
     }
   </div>
 
+  <div class="mb-5">
+    <app-search-filter [searchFilterConfig]="searchFilterConfig" />
+  </div>
+
   <app-data-table
     [tableConfig]="table.tableConfig()"
     [tableHeader]="table.headers()"

@@ -1,0 +1,26 @@
+<div class="border border-slate-100 rounded-lg shadow-sm p-6 bg-gray-200">
+  <h3 class="font-bold text-slate-800 text-lg mb-4">What are you looking for?</h3>
+  <form
+    (ngSubmit)="onSubmit()"
+    [formGroup]="form.formGroup"
+  >
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      @for (field of form.fieldConfigs | keyvalue: customSort; track field.key) {
+        <div class="space-y-2">
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="field.value"
+          />
+        </div>
+      }
+    </div>
+
+    <div class="flex items-center justify-end gap-2 mt-4 border-t border-slate-300 pt-4">
+      <app-button
+        [buttonConfig]="form.buttonConfigs['reset']"
+        (onButtonClick)="onReset()"
+      />
+      <app-button [buttonConfig]="form.buttonConfigs['submit']" />
+    </div>
+  </form>
+</div>

@@ -22,6 +22,8 @@ export const DEFAULT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
   floatLabelVariant: EFloatLabelVariant.On,
   disabledInput: false,
   readonlyInput: false,
+  showStandardLabel: false,
+  placeholder: 'Search',
 };
 
 export const DEFAULT_NUMBER_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
@@ -60,7 +62,6 @@ export const DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig
       filterBy: 'label',
       showClearButton: true,
       showToggleAll: true,
-      selectAll: true,
       display: EMultiSelectDisplayType.Chip,
       optionLabel: 'label',
       optionValue: 'value',

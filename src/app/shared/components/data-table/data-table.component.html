@@ -1,25 +1,4 @@
-<!-- Search bar moved outside table -->
-<div class="mb-4 p-4 border border-slate-100 rounded-lg shadow-sm">
-  <div class="flex items-center justify-end">
-    <p-iconfield
-      iconPosition="left"
-      class="w-96"
-    >
-      <p-inputicon>
-        <i [class]="icons.COMMON.SEARCH"></i>
-      </p-inputicon>
-      <input
-        pInputText
-        type="text"
-        (input)="applyFilterGlobal($event, 'contains')"
-        placeholder="Search keyword"
-        class="w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-      />
-    </p-iconfield>
-  </div>
-</div>
-
-<div class="rounded-lg shadow-md border border-gray-200">
+<div class="rounded-sm shadow-md border border-gray-200">
   <p-table
     #dt
     [rowHover]="tableConfig().rowHover"

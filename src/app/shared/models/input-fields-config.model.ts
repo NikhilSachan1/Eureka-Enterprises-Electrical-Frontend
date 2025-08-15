@@ -23,11 +23,13 @@ export interface IInputFieldsConfig {
   autocomplete?: EAutocomplete;
   readonlyInput?: boolean;
   disabledInput?: boolean;
+  showStandardLabel?: boolean;
   haveFullWidth: boolean;
   fieldSize: EFieldSize;
   fieldName: string;
   floatLabelVariant: EFloatLabelVariant;
   label: string;
+  placeholder?: string;
   defaultValue?: unknown;
   numberConfig?: Partial<IInputNumberFieldConfig>;
   selectConfig?: Partial<ISelectFieldConfig>;
@@ -82,7 +84,6 @@ export interface IMultiSelectFieldConfig {
   filterBy: string;
   loading: boolean;
   showToggleAll: boolean;
-  selectAll: boolean;
   display: string | EMultiSelectDisplayType;
   showClearButton: boolean;
 }
