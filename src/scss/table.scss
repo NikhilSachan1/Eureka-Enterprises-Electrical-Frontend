@@ -1,12 +1,8 @@
-.content-wrapper {
-  .metrics-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+// Table layout spacing
+.metrics-card-wrapper {
+  margin-bottom: 1.5rem;
+}
 
-    @media (min-width: 768px) {
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-  }
+.search-filter-wrapper {
+  margin-bottom: 1.5rem;
 }

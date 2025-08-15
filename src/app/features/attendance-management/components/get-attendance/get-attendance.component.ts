@@ -15,7 +15,7 @@ import {
   IConfirmationDialogRecordDetailConfig,
   IEnhancedTable,
   IEnhancedTableConfig,
-  IMetricData,
+  IMetric,
   IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/models';
@@ -153,36 +153,20 @@ export class GetAttendanceComponent implements OnInit {
     }));
   }
 
-  private getMetricCardsData(): IMetricData[] {
+  private getMetricCardsData(): IMetric[] {
     const stats = this.attendanceStats();
     if (!stats) {
       return [];
     }
 
     return [
-      {
-        title: 'Approval Status',
-        subtitle: 'Request approval overview',
-        iconClass: 'pi pi-check-circle',
-        iconBgClass: 'bg-indigo-50',
-        metrics: [
-          { label: 'Approved', value: stats.approval.approved },
-          { label: 'Pending', value: stats.approval.pending },
-          { label: 'Rejected', value: stats.approval.rejected },
-        ],
-      },
-      {
-        title: 'Attendance Status',
-        subtitle: 'Employee attendance overview',
-        iconClass: 'pi pi-clock',
-        iconBgClass: 'bg-indigo-50',
-        metrics: [
-          { label: 'Present', value: stats.attendance.present },
-          { label: 'Absent', value: stats.attendance.absent },
-          { label: 'Leave', value: stats.attendance.leave },
-          { label: 'Holiday', value: stats.attendance.holiday },
-        ],
-      },
+      { label: 'Approved', value: stats.approval.approved },
+      { label: 'Pending', value: stats.approval.pending },
+      { label: 'Rejected', value: stats.approval.rejected },
+      { label: 'Present', value: stats.attendance.present },
+      { label: 'Absent', value: stats.attendance.absent },
+      { label: 'Leave', value: stats.attendance.leave },
+      { label: 'Holiday', value: stats.attendance.holiday },
     ];
   }
 

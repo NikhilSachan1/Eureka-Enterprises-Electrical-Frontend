@@ -8,7 +8,7 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { IMetricData, IPageHeaderConfig, ITabItem } from '@shared/models';
+import { IMetric, IPageHeaderConfig, ITabItem } from '@shared/models';
 import { CardModule } from 'primeng/card';
 import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '@shared/constants';
 import { filter } from 'rxjs/operators';
@@ -59,29 +59,19 @@ export class PermissionListComponent implements OnInit {
       });
   }
 
-  private getMetricCardsData(): IMetricData[] {
+  private getMetricCardsData(): IMetric[] {
     return [
       {
-        title: 'Employee Access',
-        subtitle: 'Active workforce permissions',
-        iconClass: `${ICONS.EMPLOYEE.GROUP} text-blue-500`,
-        iconBgClass: 'bg-blue-100',
-        metrics: [
-          { label: 'Field Workers', value: 42 },
-          { label: 'Supervisors', value: 8 },
-          { label: 'Managers', value: 5 },
-        ],
+        label: 'Employee Access',
+        value: 42,
       },
       {
-        title: 'Department Roles',
-        subtitle: 'Team-based access control',
-        iconClass: `${ICONS.SITE.BUILDING} text-green-500`,
-        iconBgClass: 'bg-green-100',
-        metrics: [
-          { label: 'Operations', value: 35 },
-          { label: 'Finance', value: 6 },
-          { label: 'Admin', value: 14 },
-        ],
+        label: 'Department Roles',
+        value: 35,
+      },
+      {
+        label: 'Department Roles',
+        value: 35,
       },
     ];
   }

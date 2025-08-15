@@ -41,7 +41,7 @@ export type {
 } from './input-fields-config.model';
 export type { ILoader } from './loader.model';
 export type { MenuItem, MenuSection, ApplicationMenu } from './menu.model';
-export type { IMetricData, IMetric } from './metric-data.model';
+export type { IMetric } from './metric-data.model';
 export type { INotificationOptions } from './notification.model';
 export type { SidebarMenuItem } from './sidebar.model';
 export type { ITabItem, ITabChange } from './tab-item.model';

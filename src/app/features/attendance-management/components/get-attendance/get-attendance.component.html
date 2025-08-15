@@ -3,14 +3,12 @@
   (headerButtonClick)="onAddButtonClick()"
 />
 
-<div class="content-wrapper">
-  <div class="metrics-grid">
-    @for (metric of metricsCards(); track metric.title) {
-      <app-metrics-card [metricCardConfig]="metric" />
-    }
+@if (table.data().length > 0) {
+  <div class="metrics-card-wrapper">
+    <app-metrics-card [metricCardConfig]="metricsCards()" />
   </div>
 
-  <div class="mb-5">
+  <div class="search-filter-wrapper">
     <app-search-filter [searchFilterConfig]="searchFilterConfig" />
   </div>
 
@@ -24,4 +22,4 @@
     (rowActionClick)="handleAttendanceTableActionClick($any($event), false)"
     (bulkActionClick)="handleAttendanceTableActionClick($any($event), true)"
   />
-</div>
+}

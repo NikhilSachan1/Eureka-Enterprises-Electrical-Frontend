@@ -5,9 +5,7 @@
 
 <div class="content-wrapper">
   <div class="metrics-grid">
-    @for (metric of metricsCards(); track metric.title) {
-      <app-metrics-card [metricCardConfig]="metric" />
-    }
+    <app-metrics-card [metricCardConfig]="metricsCards()" />
   </div>
 
   <app-nav-tabs
