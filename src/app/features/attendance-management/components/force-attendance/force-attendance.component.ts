@@ -35,6 +35,7 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SHIFT_DATA } from '@shared/config';
 import { DatePipe } from '@angular/common';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 
 @Component({
   selector: 'app-force-attendance',
@@ -80,7 +81,7 @@ export class ForceAttendanceComponent implements OnInit {
   }
 
   private prepareFormData(): IAttendanceForceRequestDto {
-    const { date, forceReason, clientName, location } =
+    const { date, forceReason, clientName, location, attendanceStatus } =
       this.form.getData() as Record<string, string>;
     const { employeeName } = this.form.getData() as {
       employeeName: string[];
@@ -100,6 +101,7 @@ export class ForceAttendanceComponent implements OnInit {
       notes: `${location} - ${clientName}`,
       reason: forceReason,
       timezone: this.timezoneServive.timezone,
+      status: attendanceStatus as EAttendanceStatus,
     };
   }
 

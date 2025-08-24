@@ -7,11 +7,11 @@ const { userId, status, approvalStatus } = AttendanceBaseSchema.shape;
 
 export const AttendanceGetRequestSchema = z
   .object({
-    startDate: z.string(),
-    endDate: z.string(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
     userIds: z.array(userId).optional(),
-    status: z.array(status).optional(),
-    approvalStatus: z.array(approvalStatus).optional(),
+    statuses: z.array(status).optional(),
+    approvalStatuses: z.array(approvalStatus).optional(),
   })
   .merge(
     FilterSchema.pick({

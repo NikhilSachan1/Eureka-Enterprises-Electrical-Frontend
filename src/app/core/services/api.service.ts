@@ -221,7 +221,16 @@ export class ApiService {
     let httpParams = new HttpParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        httpParams = httpParams.set(key, String(value));
+        // Handle array values by adding multiple parameters with the same key
+        if (Array.isArray(value)) {
+          value.forEach(item => {
+            if (item !== null && item !== undefined) {
+              httpParams = httpParams.append(key, String(item));
+            }
+          });
+        } else {
+          httpParams = httpParams.set(key, String(value));
+        }
       }
     });
 

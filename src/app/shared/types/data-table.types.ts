@@ -62,4 +62,5 @@ export enum ETableFilterMatchMode {
   ENDS_WITH = 'endsWith',
   IN = 'in',
   ANY = 'any',
+  BETWEEN = 'between',
 }

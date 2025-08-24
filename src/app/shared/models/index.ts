@@ -15,6 +15,10 @@ export type {
   ITableActionConfig,
   ITableActionClickEvent,
   ITableData,
+  ITableSortingAndPaginationData,
+  ITableSearchFilterInputFieldsConfig,
+  ITableSearchFilterFormConfig,
+  IFilterMapping,
 } from './data-table-config.model';
 export type {
   IFormInputFieldsConfig,

@@ -12,4 +12,4 @@ export { noSpecialCharactersValidator } from './validators.util';
 export {
   convertSecondsToDhms,
   calculateMinEditableDate,
-} from './dat-time.util';
+} from './date-time.util';

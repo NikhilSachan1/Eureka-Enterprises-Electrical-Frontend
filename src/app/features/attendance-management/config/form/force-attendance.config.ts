@@ -4,7 +4,10 @@ import {
   EMPLOYEE_NAME_DATA,
   LOCATION_DATA,
 } from '@shared/config';
-import { PAYSLIP_DATE_DATA } from '@shared/config/static-data.config';
+import {
+  ATTENDANCE_STATUS_DATA,
+  PAYSLIP_DATE_DATA,
+} from '@shared/config/static-data.config';
 import {
   IFormButtonConfig,
   IFormConfig,
@@ -32,6 +35,17 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     dateConfig: {
       minDate: calculateMinEditableDate(PAYSLIP_DATE_DATA.EVERY_MONTH),
       maxDate: new Date(),
+    },
+    validators: [Validators.required],
+  },
+  attendanceStatus: {
+    fieldType: EFieldType.Select,
+    id: 'attendanceStatus',
+    fieldName: 'attendanceStatus',
+    label: 'Attendance Status',
+    selectConfig: {
+      haveFilter: false,
+      optionsDropdown: ATTENDANCE_STATUS_DATA,
     },
     validators: [Validators.required],
   },

@@ -31,6 +31,7 @@ import {
 } from '@shared/services';
 import {
   ATTENDANCE_TABLE_ENHANCED_CONFIG,
+  ATTENDANCE_TABLE_STATE_MAPPING,
   createAttendanceDialogConfig,
   SEARCH_FILTER_ATTENDANCE_FORM_CONFIG,
 } from '../../config';
@@ -40,6 +41,7 @@ import {
   IAttendanceActionRequestDto,
   IAttendanceActionResponseDto,
   IAttendanceGetBaseResponseDto,
+  IAttendanceGetRequestDto,
   IAttendanceGetResponseDto,
   IAttendanceGetStatsResponseDto,
   IAttendanceRegularizedRequestDto,
@@ -59,6 +61,8 @@ import { DatePipe } from '@angular/common';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { SHIFT_DATA } from '@shared/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { buildTableDataWithUnifiedMapping } from '@shared/utility/component.util';
 
 @Component({
   selector: 'app-get-attendance',
@@ -90,6 +94,7 @@ export class GetAttendanceComponent implements OnInit {
 
   protected table!: IEnhancedTable;
   protected searchFilterConfig = SEARCH_FILTER_ATTENDANCE_FORM_CONFIG;
+  private currentTableState: TableLazyLoadEvent | null = null;
 
   private readonly attendanceStats =
     signal<IAttendanceGetStatsResponseDto | null>(null);
@@ -111,8 +116,12 @@ export class GetAttendanceComponent implements OnInit {
       message: 'Please wait while we load the attendance...',
     });
 
+    const requestData = this.currentTableState
+      ? this.prepareParamData(this.currentTableState)
+      : undefined;
+
     this.attendanceService
-      .getAttendanceList()
+      .getAttendanceList(requestData)
       .pipe(
         finalize(() => {
           this.table.setLoading(false);
@@ -122,9 +131,10 @@ export class GetAttendanceComponent implements OnInit {
       )
       .subscribe({
         next: (response: IAttendanceGetResponseDto) => {
-          const { records, stats } = response;
+          const { records, stats, totalRecords } = response;
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
+          this.table.updateTableConfig({ totalRecords });
           this.attendanceStats.set(stats);
           this.logger.logUserAction('Attendance records loaded successfully');
         },
@@ -151,6 +161,20 @@ export class GetAttendanceComponent implements OnInit {
       siteLocation: stringToArray(record.notes, '-')[0] || '',
       clientName: stringToArray(record.notes, '-')[1] || '',
     }));
+  }
+
+  protected onTableStateChange(filterData: TableLazyLoadEvent): void {
+    this.currentTableState = filterData;
+    this.loadAttendanceList();
+  }
+
+  private prepareParamData(
+    filterData: TableLazyLoadEvent
+  ): IAttendanceGetRequestDto {
+    return buildTableDataWithUnifiedMapping<IAttendanceGetRequestDto>(
+      filterData,
+      ATTENDANCE_TABLE_STATE_MAPPING
+    ) as IAttendanceGetRequestDto;
   }
 
   private getMetricCardsData(): IMetric[] {

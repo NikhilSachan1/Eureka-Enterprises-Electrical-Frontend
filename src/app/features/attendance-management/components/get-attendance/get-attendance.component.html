@@ -3,23 +3,26 @@
   (headerButtonClick)="onAddButtonClick()"
 />
 
-@if (table.data().length > 0) {
-  <div class="metrics-card-wrapper">
-    <app-metrics-card [metricCardConfig]="metricsCards()" />
-  </div>
+<div class="metrics-card-wrapper">
+  <app-metrics-card [metricCardConfig]="metricsCards()" />
+</div>
 
-  <div class="search-filter-wrapper">
-    <app-search-filter [searchFilterConfig]="searchFilterConfig" />
-  </div>
-
-  <app-data-table
-    [tableConfig]="table.tableConfig()"
-    [tableHeader]="table.headers()"
-    [tableData]="table.data()"
-    [loading]="table.loading()"
-    [bulkActionButtons]="table.bulkActions()"
-    [rowActions]="table.rowActions()"
-    (rowActionClick)="handleAttendanceTableActionClick($any($event), false)"
-    (bulkActionClick)="handleAttendanceTableActionClick($any($event), true)"
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
   />
-}
+</div>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [bulkActionButtons]="table.bulkActions()"
+  [rowActions]="table.rowActions()"
+  (rowActionClick)="handleAttendanceTableActionClick($any($event), false)"
+  (bulkActionClick)="handleAttendanceTableActionClick($any($event), true)"
+  (filterData)="onTableStateChange($event)"
+/>

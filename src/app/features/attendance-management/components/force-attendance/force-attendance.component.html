@@ -10,10 +10,17 @@
     [inputFieldConfig]="form.fieldConfigs['employeeName']"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['date']"
-  />
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['date']"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['attendanceStatus']"
+    />
+  </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <app-input-field

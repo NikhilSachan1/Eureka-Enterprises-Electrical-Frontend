@@ -6,6 +6,7 @@ export const AttendanceForceRequestSchema = AttendanceBaseSchema.pick({
   checkInTime: true,
   checkOutTime: true,
   notes: true,
+  status: true,
 })
   .extend({
     userIds: z.array(z.string()),

@@ -7,7 +7,12 @@ import {
   inject,
   viewChild,
 } from '@angular/core';
-import { Table, TableModule } from 'primeng/table';
+import {
+  Table,
+  TableFilterEvent,
+  TableLazyLoadEvent,
+  TableModule,
+} from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -33,6 +38,7 @@ import { ICONS } from '@shared/constants';
 import { ButtonComponent } from '../button/button.component';
 import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { EmptyMessagesComponent } from '../empty-messages/empty-messages.component';
+import { LoggerService } from '@core/services';
 
 @Component({
   selector: 'app-data-table',
@@ -69,6 +75,7 @@ export class DataTableComponent {
   protected icons = ICONS;
 
   private avatarService = inject(AvatarService);
+  private logger = inject(LoggerService);
 
   // Input signals
   loading = input.required<boolean>();
@@ -80,6 +87,7 @@ export class DataTableComponent {
 
   bulkActionClick = output<ITableActionClickEvent>();
   rowActionClick = output<ITableActionClickEvent>();
+  filterData = output<TableLazyLoadEvent>();
 
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
 
@@ -89,10 +97,6 @@ export class DataTableComponent {
 
   protected clearSelection(): void {
     this.selectedTableRows.set([]);
-  }
-
-  protected applyFilterGlobal($event: unknown, stringVal: string): void {
-    this.dt().filterGlobal(($event as HTMLInputElement).value, stringVal);
   }
 
   resolveNestedProperty<T = unknown>(
@@ -107,8 +111,13 @@ export class DataTableComponent {
       ) as T;
   }
 
-  protected onFilterChange(_event: unknown): void {
-    // Handle filter changes if needed
+  protected onFilterChange(_event: TableFilterEvent): void {
+    this.logger.logUserAction('Filter changed', _event);
+  }
+
+  protected onLazyLoad(event: TableLazyLoadEvent): void {
+    this.logger.logUserAction('Lazy load', event);
+    this.filterData.emit(event);
   }
 
   protected isActionDisabled(

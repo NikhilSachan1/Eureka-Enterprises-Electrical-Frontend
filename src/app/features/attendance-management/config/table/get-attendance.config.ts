@@ -20,6 +20,8 @@ import {
   APPROVAL_STATUS_DATA,
   ATTENDANCE_STATUS_DATA,
 } from '@shared/config/static-data.config';
+import { APP_CONFIG } from '@core/config';
+import { DatePipe } from '@angular/common';
 
 export const ATTENDANCE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   globalFilterFields: [
@@ -50,7 +52,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
         primaryFieldHighlight: true,
       },
       filterConfig: {
-        filterField: 'employeeName',
+        filterField: 'employeeId',
         placeholder: 'Search Employee Name',
       },
     },
@@ -79,6 +81,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
         filterField: 'siteLocation',
         placeholder: 'Search By Site Location / Client Name',
       },
+      showSort: false,
     },
     {
       field: 'attendanceStatus',
@@ -111,6 +114,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
         matchModeOptions: MATCH_MODE_OPTIONS.dropdown,
         defaultMatchMode: ETableFilterMatchMode.EQUALS,
       },
+      showSort: false,
     },
   ];
 
@@ -165,3 +169,41 @@ export const ATTENDANCE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IAttendanceG
     rowActions: ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG,
     bulkActions: ATTENDANCE_TABLE_BULK_ACTIONS_CONFIG,
   };
+
+export const ATTENDANCE_TABLE_STATE_MAPPING = {
+  employeeName: {
+    sortField: 'USER_NAME',
+  },
+  attendanceDate: {
+    sortField: 'ATTENDANCE_DATE',
+    filterField: 'attendanceDate',
+    distribute: {
+      startDate: 'startDate',
+      endDate: 'endDate',
+    },
+    transform: (value: unknown): { startDate?: string; endDate?: string } => {
+      const [startDateObj, endDateObj] = value as Date[];
+      const datePipe = new DatePipe('en-US');
+      const dateFormat = APP_CONFIG.DATE_FORMATS.API; // Use format from constant
+
+      return {
+        startDate: startDateObj
+          ? (datePipe.transform(startDateObj, dateFormat) ?? undefined)
+          : undefined,
+        endDate: endDateObj
+          ? (datePipe.transform(endDateObj, dateFormat) ?? undefined)
+          : undefined,
+      };
+    },
+  },
+  attendanceStatus: {
+    sortField: 'STATUS',
+    filterField: 'statuses',
+  },
+  employeeId: {
+    filterField: 'userIds',
+  },
+  approvalStatus: {
+    filterField: 'approvalStatuses',
+  },
+};

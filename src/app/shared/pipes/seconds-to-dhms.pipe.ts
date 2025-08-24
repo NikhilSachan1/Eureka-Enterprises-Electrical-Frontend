@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { convertSecondsToDhms } from '@shared/utility/dat-time.util';
+import { convertSecondsToDhms } from '@shared/utility/date-time.util';
 
 @Pipe({
   name: 'secondsToDhms',

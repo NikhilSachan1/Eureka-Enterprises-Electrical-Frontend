@@ -32,6 +32,7 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessageIcon: 'pi pi-info-circle',
   emptyMessageDescription: 'No data found',
   paginationTemplate: 'Showing {first} to {last} of {totalRecords} entries',
+  enableServerSide: true,
 };
 
 // default table header config

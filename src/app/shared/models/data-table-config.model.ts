@@ -9,6 +9,8 @@ import {
   ETableSearchInputType,
 } from '@shared/types';
 import { IButtonConfig } from '@shared/models/button.model';
+import { IInputFieldsConfig } from './input-fields-config.model';
+import { IFormButtonConfig } from './form.model';
 
 export interface IDataTableConfig {
   rowHover: boolean;
@@ -22,6 +24,8 @@ export interface IDataTableConfig {
   emptyMessageIcon: string;
   emptyMessageDescription: string;
   paginationTemplate: string;
+  totalRecords?: number;
+  enableServerSide: boolean;
 }
 
 export interface IDataTableHeaderConfig {
@@ -88,3 +92,30 @@ export interface ITableActionClickEvent<T = Record<string, unknown>> {
 }
 
 export type ITableData = Record<string, unknown>;
+
+export interface ITableSortingAndPaginationData {
+  pageSize: number | null | undefined;
+  page: number | undefined;
+  sortField: string;
+  sortOrder: 'ASC' | 'DESC' | undefined;
+}
+
+export type ITableSearchFilterInputFieldsConfig = Record<
+  string,
+  Partial<IInputFieldsConfig> & { matchmode: ETableFilterMatchMode }
+>;
+
+export interface ITableSearchFilterFormConfig {
+  fields: ITableSearchFilterInputFieldsConfig;
+  buttons?: IFormButtonConfig;
+}
+
+export type IFilterMapping = Record<
+  string,
+  {
+    sortField?: string;
+    filterField?: string;
+    transform?: (value: unknown) => unknown;
+    distribute?: Record<string, string>;
+  }
+>;
