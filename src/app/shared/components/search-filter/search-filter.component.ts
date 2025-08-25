@@ -39,6 +39,7 @@ export class SearchFilterComponent implements OnInit {
   onSearchFilterChange = output<Record<string, unknown>>();
 
   protected form!: IEnhancedForm;
+  protected hasSearched = false;
 
   ngOnInit(): void {
     this.form = this.formService.createForm(
@@ -48,6 +49,8 @@ export class SearchFilterComponent implements OnInit {
 
   protected onSubmit(): void {
     this.setFilterInTable();
+    this.form.formGroup.markAsPristine();
+    this.hasSearched = true;
   }
 
   protected setFilterInTable(): void {
@@ -71,7 +74,10 @@ export class SearchFilterComponent implements OnInit {
 
   protected onReset(): void {
     this.form.formGroup.reset();
-    this.tableRef().reset();
+    if (this.hasSearched) {
+      this.tableRef().reset();
+    }
+    this.hasSearched = false;
   }
 
   protected customSort(): number {
