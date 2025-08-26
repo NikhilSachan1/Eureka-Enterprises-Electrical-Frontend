@@ -39,7 +39,6 @@ export interface IAppConfig {
   TABLE_PAGINATION_CONFIG: {
     DEFAULT_PAGE_SIZE: number;
     DEFAULT_PAGE_SIZE_OPTIONS: number[];
-    DISPLAY_ROWS: number;
   };
   CONFIRMATION_DIALOG_CONFIG: {
     DEFAULT_WIDTH: string;

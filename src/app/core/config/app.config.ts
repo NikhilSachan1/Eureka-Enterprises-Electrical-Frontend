@@ -58,7 +58,6 @@ export const APP_CONFIG = {
   TABLE_PAGINATION_CONFIG: {
     DEFAULT_PAGE_SIZE: 10,
     DEFAULT_PAGE_SIZE_OPTIONS: [5, 10, 20, 50],
-    DISPLAY_ROWS: 5,
   },
 
   // Dialog Configuration
