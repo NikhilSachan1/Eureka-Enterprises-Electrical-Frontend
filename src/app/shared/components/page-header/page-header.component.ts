@@ -4,10 +4,13 @@ import {
   computed,
   input,
   output,
+  inject,
 } from '@angular/core';
-import { IPageHeaderConfig } from '@shared/models';
+import { Location } from '@angular/common';
+import { IButtonConfig, IPageHeaderConfig } from '@shared/models';
 import { DEFAULT_PAGE_HEADER_CONFIG } from '@shared/config';
 import { ButtonComponent } from '../button/button.component';
+import { EButtonSeverity, EButtonVariant } from '@shared/types';
 
 @Component({
   selector: 'app-page-header',
@@ -18,10 +21,13 @@ import { ButtonComponent } from '../button/button.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageHeaderComponent {
+  private readonly location = inject(Location);
+
   // Input signals
   pageHeaderConfig = input<Partial<IPageHeaderConfig>>();
 
   protected finalPageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected goBackButtonConfig = computed(() => this.getGoBackButtonConfig());
 
   // Output signals
   headerButtonClick = output<void>();
@@ -31,5 +37,17 @@ export class PageHeaderComponent {
       ...DEFAULT_PAGE_HEADER_CONFIG,
       ...this.pageHeaderConfig(),
     } as IPageHeaderConfig;
+  }
+
+  private getGoBackButtonConfig(): IButtonConfig {
+    return {
+      icon: 'pi pi-arrow-left',
+      severity: EButtonSeverity.SECONDARY,
+      variant: EButtonVariant.TEXT,
+    } as IButtonConfig;
+  }
+
+  protected onGoBackClick(): void {
+    this.location.back();
   }
 }

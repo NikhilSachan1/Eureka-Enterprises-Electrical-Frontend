@@ -108,7 +108,6 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
 
 export const DEFAULT_BULK_ACTION_CONFIG: Partial<ITableActionConfig> = {
   severity: EButtonSeverity.DANGER,
-  rounded: true,
 };
 
 // default row action config

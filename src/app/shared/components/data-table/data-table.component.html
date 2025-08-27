@@ -1,3 +1,45 @@
+@let selectedCount = selectedTableRows().length;
+
+@if (selectedCount > 0) {
+  <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-l-4 border-l-emerald-500 shadow-sm mb-4 rounded-r-lg">
+    <div class="px-4 py-4 sm:px-6">
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/25"
+            >
+              <i [class]="icons.ACTIONS.CHECK_CIRCLE + ' text-white'"></i>
+            </div>
+            <div>
+              <span class="font-semibold text-emerald-800">{{ selectedCount }} items selected</span>
+              <p class="text-emerald-700 text-sm">Ready for bulk operations</p>
+            </div>
+          </div>
+
+          <app-button
+            [buttonConfig]="getClearSelectionButtonConfig()"
+            (onButtonClick)="clearSelection()"
+            pTooltip="Clear Selected Rows"
+            tooltipPosition="top"
+          />
+        </div>
+
+        @if (bulkActionButtons().length > 0) {
+          <div class="flex flex-wrap gap-2 pt-2 border-t border-emerald-200/50">
+            @for (button of bulkActionButtons(); track $index) {
+              <app-button
+                [buttonConfig]="button"
+                [showDisabledButton]="isBulkActionDisabled(button)"
+                (onButtonClick)="onBulkActionClick(button.id)"
+              />
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
 <div class="rounded-sm shadow-md border border-gray-200">
   <p-table
     #dt
@@ -18,41 +60,6 @@
     (onLazyLoad)="onLazyLoad($event)"
     [totalRecords]="tableConfig().totalRecords ?? 0"
   >
-    @let selectedCount = selectedTableRows().length;
-    @if (selectedCount > 0) {
-      <ng-template #caption>
-        <div class="p-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <div class="flex items-center gap-2">
-                <i [class]="icons.ACTIONS.CHECK_CIRCLE"></i>
-                <span class="font-semibold">{{ selectedCount }} items selected</span>
-              </div>
-              <div class="h-5 w-px"></div>
-              <div class="flex items-center gap-3">
-                @for (button of bulkActionButtons(); track $index) {
-                  <app-button
-                    [buttonConfig]="button"
-                    [showDisabledButton]="isBulkActionDisabled(button)"
-                    (onButtonClick)="onBulkActionClick(button.id)"
-                  />
-                }
-              </div>
-            </div>
-
-            <div class="flex items-center">
-              <app-button
-                [buttonConfig]="getClearSelectionButtonConfig()"
-                (onButtonClick)="clearSelection()"
-                pTooltip="Clear Selected Rows"
-                tooltipPosition="top"
-              />
-            </div>
-          </div>
-        </div>
-      </ng-template>
-    }
-
     <ng-template
       #header
       let-columns
@@ -114,7 +121,7 @@
                             [options]="filterConfig.filterDropdownOptions"
                             (onChange)="filter($event.value)"
                             [placeholder]="filterConfig.placeholder"
-                            styleClass="w-full"
+                            class="w-full"
                           />
                         </ng-template>
                       }

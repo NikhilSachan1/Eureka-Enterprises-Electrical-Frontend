@@ -5,4 +5,5 @@ export interface IPageHeaderConfig {
   subtitle: string;
   showHeaderButton: boolean;
   headerButtonConfig?: Partial<IButtonConfig>;
+  showGoBackButton?: boolean;
 }

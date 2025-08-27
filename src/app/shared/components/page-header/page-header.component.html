@@ -1,14 +1,33 @@
-<div class="flex justify-between items-center mb-6 pb-4">
-  <div>
-    <h1 class="text-3xl font-bold text-gray-800">{{ finalPageHeaderConfig().title }}</h1>
-    <p class="text-gray-600">{{ finalPageHeaderConfig().subtitle }}</p>
-  </div>
-  @if (finalPageHeaderConfig().showHeaderButton) {
-    @if (finalPageHeaderConfig().headerButtonConfig) {
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 mb-4 border-b border-gray-200">
+  @let finalPageHeader = finalPageHeaderConfig();
+  @let goBackButton = goBackButtonConfig();
+
+  <!-- Left Section -->
+  <div class="flex items-center gap-3 flex-1 min-w-0">
+    @if (finalPageHeader.showGoBackButton) {
       <app-button
-        [buttonConfig]="finalPageHeaderConfig().headerButtonConfig"
-        (onButtonClick)="headerButtonClick.emit()"
+        [buttonConfig]="goBackButton"
+        (onButtonClick)="onGoBackClick()"
       />
     }
+
+    <div class="flex-1 min-w-0">
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
+        {{ finalPageHeader.title }}
+      </h1>
+      <p class="text-gray-600 text-sm">
+        {{ finalPageHeader.subtitle }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Right Section -->
+  @if (finalPageHeader.showHeaderButton && finalPageHeader.headerButtonConfig) {
+    <div class="flex sm:block justify-end">
+      <app-button
+        [buttonConfig]="finalPageHeader.headerButtonConfig"
+        (onButtonClick)="headerButtonClick.emit()"
+      />
+    </div>
   }
 </div>
