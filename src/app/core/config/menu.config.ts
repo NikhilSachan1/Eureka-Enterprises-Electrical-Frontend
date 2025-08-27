@@ -4,7 +4,6 @@ import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 export const appMenu: ApplicationMenu = {
   sections: [
     {
-      label: 'Main',
       items: [
         {
           label: 'Dashboard',

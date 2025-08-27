@@ -26,8 +26,10 @@
     [attr.aria-hidden]="!sidebarVisible()"
   >
     <app-sidebar-header />
-    <app-sidebar-user-profile />
-    <app-sidebar-menu />
+    <div class="sidebar-content">
+      <app-sidebar-user-profile />
+      <app-sidebar-menu />
+    </div>
   </aside>
 
   <!-- Main Content Area -->

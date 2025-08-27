@@ -79,16 +79,56 @@
   }
 
   // Child component styles
-  app-sidebar-header,
+  app-sidebar-header {
+    flex-shrink: 0;
+  }
+
+  // Scrollable content area - responsive behavior
+  .sidebar-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    // Mobile: Full scroll (user profile + menu together)
+    @media screen and (max-width: 768px) {
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      // Custom scrollbar styling for mobile
+      &::-webkit-scrollbar {
+        &-thumb {
+          background-color: var(--sidebar-surface-200);
+
+          &:hover {
+            background-color: var(--sidebar-text-secondary);
+          }
+        }
+      }
+    }
+
+    // Desktop: No scrolling here, menu handles its own scrolling
+    @media screen and (min-width: 769px) {
+      overflow: hidden;
+    }
+  }
+
   app-sidebar-user-profile {
     flex-shrink: 0;
   }
 
   app-sidebar-menu {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
+    // Mobile: No individual scrolling
+    @media screen and (max-width: 768px) {
+      flex-shrink: 0;
+    }
+
+    // Desktop: Allow menu to scroll individually
+    @media screen and (min-width: 769px) {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
   }
 }
 
