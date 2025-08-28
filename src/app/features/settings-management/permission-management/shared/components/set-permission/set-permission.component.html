@@ -8,7 +8,7 @@
     [description]="'No modules available'"
   />
 } @else {
-  <p-card styleClass="header-card">
+  <p-card class="header-card">
     <div class="header-row">
       <div class="header-title-row">
         <div class="header-icon">
@@ -58,7 +58,7 @@
             <div class="tab-content">
               @if (module.permissions && module.permissions.length > 0) {
                 <!-- Module Card -->
-                <p-card styleClass="module-card">
+                <p-card class="module-card">
                   <div class="module-row">
                     <div class="module-title-row">
                       <app-standalone-input-field
