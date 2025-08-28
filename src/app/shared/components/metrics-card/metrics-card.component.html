@@ -17,11 +17,11 @@
         'hover:scale-105',
         'cursor-pointer',
         'flex flex-col justify-center',
-        getMetricClasses(metric.label).background,
-        getMetricClasses(metric.label).borderColor,
+        `bg-${getColor(metric.label)}-50`,
+        `border-l-${getColor(metric.label)}-500`,
       ]"
     >
-      <div [ngClass]="['text-xl lg:text-3xl', 'font-bold', 'mb-2', getMetricClasses(metric.label).textColor]">
+      <div [ngClass]="['text-xl lg:text-3xl', 'font-bold', 'mb-2', `text-${getColor(metric.label)}-600`]">
         {{ metric.value }}
       </div>
       <div

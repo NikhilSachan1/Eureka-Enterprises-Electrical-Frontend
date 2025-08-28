@@ -12,6 +12,7 @@ import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import { AvatarService } from '@shared/services';
 import { EDrawerDetailType } from '@shared/types';
+import { ColorUtil } from '@shared/utils/color.util';
 import { CardModule } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { Tag } from 'primeng/tag';
@@ -43,38 +44,11 @@ export class ViewDetailDrawerComponent {
   protected readonly ALL_DRAWER_DETAIL_TYPES = EDrawerDetailType;
 
   protected getApprovalStatusColor(status: string): string {
-    if (status === 'approved') {
-      return 'success';
-    } else if (status === 'rejected') {
-      return 'danger';
-    } else if (status === 'pending') {
-      return 'warn';
-    }
-    return 'info';
+    return ColorUtil.getSeverity(status);
   }
 
-  protected getStatusColor(status: string): string {
-    if (status === 'present') {
-      return 'text-green-500';
-    } else if (status === 'absent') {
-      return 'text-red-500';
-    } else if (status === 'leave') {
-      return 'text-yellow-500';
-    } else if (status === 'holiday') {
-      return 'text-blue-500';
-    }
-    return 'text-gray-500';
-  }
-
-  protected getCardColor(status: string): string {
-    if (status === 'approved') {
-      return '!bg-green-50';
-    } else if (status === 'rejected') {
-      return '!bg-red-50';
-    } else if (status === 'pending') {
-      return '!bg-yellow-50';
-    }
-    return '!bg-gray-50';
+  protected getColor(status: string): string {
+    return ColorUtil.getColor(status);
   }
 
   protected getAvatarUrl(): string {

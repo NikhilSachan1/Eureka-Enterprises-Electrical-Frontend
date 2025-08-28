@@ -7,26 +7,16 @@ export class AvatarService {
   private readonly API_BASE_URL = 'https://ui-avatars.com/api/';
 
   private readonly SOLID_COLORS = [
-    '007bff', // Blue
-    '28a745', // Green
-    'dc3545', // Red
-    'ffc107', // Yellow
-    '17a2b8', // Cyan
-    '6f42c1', // Purple
-    'e83e8c', // Pink
-    'fd7e14', // Orange
-    '20c997', // Teal
-    '6c757d', // Gray
-    '343a40', // Dark gray
-    '495057', // Medium dark gray
-    '8b5cf6', // Violet
-    'f59e0b', // Amber
-    'ef4444', // Red variant
-    '10b981', // Emerald
-    '3b82f6', // Blue variant
-    '8b5a2b', // Brown
-    '6366f1', // Indigo
-    '84cc16', // Lime
+    '1E40AF', // Dark Blue
+    '065F46', // Dark Emerald
+    '92400E', // Dark Amber
+    '991B1B', // Dark Red
+    '5B21B6', // Dark Violet
+    '164E63', // Dark Cyan/Teal
+    '9A3412', // Deep Orange
+    '3730A3', // Dark Indigo
+    '3F6212', // Dark Lime
+    '9D174D', // Deep Pink
   ];
 
   /**

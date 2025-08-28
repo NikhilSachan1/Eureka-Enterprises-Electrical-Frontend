@@ -2,6 +2,7 @@ import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { ESeverity, EPrimeNGSeverity } from '@shared/types';
 import { ITagConfig } from '@shared/models';
+import { ColorUtil } from '@shared/utils/color.util';
 
 @Component({
   selector: 'app-status-tag',
@@ -26,30 +27,6 @@ export class StatusTagComponent {
       return this.config()?.severity;
     }
 
-    const severityMap: Record<string, EPrimeNGSeverity> = {
-      [ESeverity.SUCCESS]: 'success',
-      [ESeverity.INFO]: 'info',
-      [ESeverity.WARNING]: 'warn',
-      [ESeverity.DANGER]: 'danger',
-      [ESeverity.SECONDARY]: 'secondary',
-      active: 'success',
-      allocated: 'success',
-      'on leave': 'warn',
-      available: 'warn',
-      inactive: 'danger',
-      pending: 'warn',
-      approved: 'success',
-      rejected: 'danger',
-      present: 'success',
-      absent: 'danger',
-      leave: 'warn',
-      holiday: 'contrast',
-      'checked in': 'info',
-      'checked out': 'info',
-      'not checked in': 'info',
-      'not checked out': 'info',
-    };
-
-    return severityMap[status?.toLowerCase() ?? ''] ?? 'secondary';
+    return ColorUtil.getSeverity(status ?? '') as EPrimeNGSeverity;
   }
 }
