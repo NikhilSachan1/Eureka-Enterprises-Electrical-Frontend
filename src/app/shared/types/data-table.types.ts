@@ -8,6 +8,7 @@ export enum EDataTableInputType {
 }
 
 export enum ETableActionType {
+  CLEAR_SELECTION = 'clearSelection',
   VIEW = 'view',
   EDIT = 'edit',
   SET_PERMISSIONS = 'setPermissions',

@@ -106,7 +106,6 @@ export class GetAttendanceComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       ATTENDANCE_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
     );
-    this.loadAttendanceList();
   }
 
   private loadAttendanceList(): void {

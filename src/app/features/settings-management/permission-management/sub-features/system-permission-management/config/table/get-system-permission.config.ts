@@ -1,4 +1,9 @@
-import { MATCH_MODE_OPTIONS, MODULES_NAME_DATA } from '@shared/config';
+import {
+  COMMON_BULK_ACTIONS,
+  COMMON_ROW_ACTIONS,
+  MATCH_MODE_OPTIONS,
+  MODULES_NAME_DATA,
+} from '@shared/config';
 import {
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -9,8 +14,6 @@ import {
   ETableBodyTemplate,
   ETableFilterMatchMode,
   ETableSearchInputType,
-  EButtonSeverity,
-  ETableActionType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import { getDataFromArrayOfObjects } from '@shared/utility';
@@ -69,10 +72,8 @@ export const SYSTEM_PERMISSION_TABLE_ROW_ACTIONS_CONFIG: Partial<
   ITableActionConfig<ISystemPermissionGetBaseResponseDto>
 >[] = [
   {
-    id: ETableActionType.EDIT,
-    icon: ICONS.ACTIONS.EDIT,
+    ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Permission',
-    severity: EButtonSeverity.WARNING,
     disabledCondition: (
       selectedRows: ISystemPermissionGetBaseResponseDto[]
     ): boolean => {
@@ -80,10 +81,8 @@ export const SYSTEM_PERMISSION_TABLE_ROW_ACTIONS_CONFIG: Partial<
     },
   },
   {
-    id: ETableActionType.DELETE,
-    icon: ICONS.ACTIONS.TRASH,
+    ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Permission',
-    severity: EButtonSeverity.DANGER,
     disabledCondition: (
       selectedRows: ISystemPermissionGetBaseResponseDto[]
     ): boolean => {
@@ -96,9 +95,8 @@ export const SYSTEM_PERMISSION_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<ISystemPermissionGetBaseResponseDto>
 >[] = [
   {
-    id: ETableActionType.DELETE,
-    label: 'Delete',
-    icon: ICONS.ACTIONS.TRASH,
+    ...COMMON_BULK_ACTIONS.DELETE,
+    tooltip: 'Delete selected Permission',
     disabledCondition: (
       selectedRows: ISystemPermissionGetBaseResponseDto[]
     ): boolean => {

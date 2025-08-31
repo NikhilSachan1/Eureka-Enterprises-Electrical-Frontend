@@ -157,6 +157,7 @@ export class DataTableComponent {
 
   protected getClearSelectionButtonConfig(): Partial<IButtonConfig> {
     return {
+      id: ETableActionType.CLEAR_SELECTION,
       label: 'Clear Selection',
       icon: this.icons.ACTIONS.TIMES,
     };

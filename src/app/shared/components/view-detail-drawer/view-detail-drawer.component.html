@@ -13,9 +13,10 @@
 </div>
 
 @for (detail of drawerDetails(); track $index) {
+  @let colorClass = getColor(detail.status.approvalStatus);
   <p-card
     class="mb-4"
-    [ngClass]="`!bg-${getColor(detail.status.approvalStatus)}-50`"
+    [ngClass]="`${colorClass.bg}`"
   >
     <div class="flex items-center gap-2 mb-4">
       <p-tag
@@ -40,7 +41,8 @@
               } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.DURATION) {
                 {{ +entry.value | secondsToDhms }}
               } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.STATUS) {
-                <span [ngClass]="`text-${getColor(entry.value)}-600`">
+                @let colorClass = getColor(entry.value);
+                <span [ngClass]="`${colorClass.text}`">
                   {{ entry.value | textCase: 'title' }}
                 </span>
               } @else {

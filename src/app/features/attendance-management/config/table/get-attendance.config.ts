@@ -7,13 +7,16 @@ import {
 import {
   ETableActionType,
   ETableBodyTemplate,
-  EButtonSeverity,
   ETableDataType,
   ETableFilterMatchMode,
   ETableSearchInputType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
-import { MATCH_MODE_OPTIONS } from '@shared/config';
+import {
+  COMMON_BULK_ACTIONS,
+  COMMON_ROW_ACTIONS,
+  MATCH_MODE_OPTIONS,
+} from '@shared/config';
 import { IAttendanceGetResponseDto } from '../../types/attendance.dto';
 import { getDataFromArrayOfObjects } from '@shared/utility';
 import {
@@ -121,44 +124,33 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
 export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] =
   [
     {
-      id: ETableActionType.VIEW,
-      icon: ICONS.COMMON.VIEW,
-      tooltip: 'View Details',
-      severity: EButtonSeverity.INFO,
+      ...COMMON_ROW_ACTIONS.VIEW,
+      tooltip: 'View Attendance Details',
     },
     {
       id: ETableActionType.REGULARIZE,
       icon: ICONS.ATTENDANCE.REGULARIZE,
       tooltip: 'Regularize Attendance',
-      severity: EButtonSeverity.WARNING,
     },
     {
-      id: ETableActionType.APPROVE,
-      icon: ICONS.ACTIONS.CHECK,
+      ...COMMON_ROW_ACTIONS.APPROVE,
       tooltip: 'Approve Attendance',
-      severity: EButtonSeverity.SUCCESS,
     },
     {
-      id: ETableActionType.REJECT,
-      icon: ICONS.ACTIONS.TIMES,
+      ...COMMON_ROW_ACTIONS.REJECT,
       tooltip: 'Reject Attendance',
-      severity: EButtonSeverity.DANGER,
     },
   ];
 
 export const ATTENDANCE_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] =
   [
     {
-      id: ETableActionType.APPROVE,
-      label: 'Approve',
-      icon: ICONS.ACTIONS.CHECK,
-      severity: EButtonSeverity.SUCCESS,
+      ...COMMON_BULK_ACTIONS.APPROVE,
+      tooltip: 'Approve Selected Attendance',
     },
     {
-      id: ETableActionType.REJECT,
-      label: 'Reject',
-      icon: ICONS.ACTIONS.TIMES,
-      severity: EButtonSeverity.DANGER,
+      ...COMMON_BULK_ACTIONS.REJECT,
+      tooltip: 'Reject Selected Attendance',
     },
   ];
 

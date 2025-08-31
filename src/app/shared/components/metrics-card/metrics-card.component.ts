@@ -14,7 +14,7 @@ import { ColorUtil } from '@shared/utils/color.util';
 export class MetricsCardComponent {
   metricCardConfig = input<IMetric[]>();
 
-  getColor(label: string): string {
-    return ColorUtil.getColor(label);
+  getColor(label: string): { bg: string; border: string; text: string } {
+    return ColorUtil.getColorClass(label);
   }
 }

@@ -4,13 +4,10 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/models';
-import {
-  ETableActionType,
-  ETableBodyTemplate,
-  EButtonSeverity,
-} from '@shared/types';
+import { ETableActionType, ETableBodyTemplate } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import { IRoleGetBaseResponseDto } from '../../types/role.dto';
+import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 
 export const ROLE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   globalFilterFields: ['label', 'description'],
@@ -53,19 +50,15 @@ export const ROLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IRoleGetBaseResponseDto>
 >[] = [
   {
-    id: ETableActionType.EDIT,
-    icon: ICONS.ACTIONS.EDIT,
+    ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Role',
-    severity: EButtonSeverity.WARNING,
     disabledCondition: (selectedRows: IRoleGetBaseResponseDto[]): boolean => {
       return selectedRows.some(row => row.isEditable === false);
     },
   },
   {
-    id: ETableActionType.DELETE,
-    icon: ICONS.ACTIONS.TRASH,
+    ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Role',
-    severity: EButtonSeverity.DANGER,
     disabledCondition: (selectedRows: IRoleGetBaseResponseDto[]): boolean => {
       return selectedRows.some(row => row.isDeletable === false);
     },
@@ -74,7 +67,6 @@ export const ROLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     id: ETableActionType.SET_PERMISSIONS,
     icon: ICONS.SETTINGS.COG,
     tooltip: 'Set Role Permissions',
-    severity: EButtonSeverity.INFO,
   },
 ];
 
@@ -82,9 +74,8 @@ export const ROLE_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IRoleGetBaseResponseDto>
 >[] = [
   {
-    id: ETableActionType.DELETE,
-    label: 'Delete',
-    icon: ICONS.ACTIONS.TRASH,
+    ...COMMON_BULK_ACTIONS.DELETE,
+    tooltip: 'Delete selected Role',
     disabledCondition: (selectedRows: IRoleGetBaseResponseDto[]): boolean => {
       return selectedRows.some(row => row.isDeletable === false);
     },

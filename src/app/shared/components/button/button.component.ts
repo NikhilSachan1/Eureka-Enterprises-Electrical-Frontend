@@ -8,7 +8,12 @@ import {
 import { ButtonModule } from 'primeng/button';
 import { IButtonConfig } from '@shared/models';
 import { DEFAULT_BUTTON_CONFIG } from '@shared/config';
-import { EButtonIconPosition, EButtonType } from '@shared/types';
+import {
+  EButtonIconPosition,
+  EButtonSeverity,
+  EButtonType,
+} from '@shared/types';
+import { ColorUtil } from '@shared/utils/color.util';
 
 @Component({
   selector: 'app-button',
@@ -34,6 +39,7 @@ export class ButtonComponent {
       return {};
     }
 
+    config.severity = ColorUtil.getSeverity(config.id ?? '') as EButtonSeverity;
     return {
       ...DEFAULT_BUTTON_CONFIG,
       ...config,

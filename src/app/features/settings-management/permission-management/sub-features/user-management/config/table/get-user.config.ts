@@ -1,6 +1,5 @@
-import { MATCH_MODE_OPTIONS } from '@shared/config';
+import { COMMON_ROW_ACTIONS, MATCH_MODE_OPTIONS } from '@shared/config';
 import {
-  EButtonSeverity,
   ETableActionType,
   ETableBodyTemplate,
   ETableFilterMatchMode,
@@ -94,13 +93,10 @@ export const USER_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
     id: ETableActionType.SET_PERMISSIONS,
     icon: ICONS.SETTINGS.COG,
     tooltip: 'Set User Permissions',
-    severity: EButtonSeverity.INFO,
   },
   {
-    id: ETableActionType.DELETE_PERMISSIONS,
-    icon: ICONS.ACTIONS.TRASH,
+    ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete User Permissions',
-    severity: EButtonSeverity.DANGER,
   },
 ];
 

@@ -48,3 +48,7 @@ export {
 export { DEFAULT_BUTTON_CONFIG } from './button.config';
 export { DEFAULT_PAGE_HEADER_CONFIG } from './page-header.config';
 export { DEFAULT_DRAWER_CONFIG } from './drawer.config';
+export {
+  COMMON_ROW_ACTIONS,
+  COMMON_BULK_ACTIONS,
+} from './common-table-actions.config';

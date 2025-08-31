@@ -2,26 +2,15 @@
 
 <div class="flex flex-wrap gap-4">
   @for (metric of metrics; track metric.label) {
+    @let colorClass = getColor(metric.label);
     <div
-      [ngClass]="[
-        'flex-1',
-        'p-3',
-        'min-w-[100px]',
-        'sm:min-w-[160px]',
-        'text-center',
-        'rounded-lg',
-        'border-l-4',
-        'transition-all',
-        'duration-300',
-        'hover:shadow-md',
-        'hover:scale-105',
-        'cursor-pointer',
-        'flex flex-col justify-center',
-        `bg-${getColor(metric.label)}-50`,
-        `border-l-${getColor(metric.label)}-500`,
-      ]"
+      class="flex-1 p-3 min-w-[100px] sm:min-w-[160px] text-center rounded-lg border-l-4 transition-all duration-300 hover:shadow-md hover:scale-105 cursor-pointer flex flex-col justify-center"
+      [ngClass]="[colorClass.bg, colorClass.border]"
     >
-      <div [ngClass]="['text-xl lg:text-3xl', 'font-bold', 'mb-2', `text-${getColor(metric.label)}-600`]">
+      <div
+        class="text-xl lg:text-3xl font-bold mb-2"
+        [ngClass]="colorClass.text"
+      >
         {{ metric.value }}
       </div>
       <div

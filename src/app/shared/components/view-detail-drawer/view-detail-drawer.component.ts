@@ -47,8 +47,12 @@ export class ViewDetailDrawerComponent {
     return ColorUtil.getSeverity(status);
   }
 
-  protected getColor(status: string): string {
-    return ColorUtil.getColor(status);
+  protected getColor(status: string): {
+    bg: string;
+    border: string;
+    text: string;
+  } {
+    return ColorUtil.getColorClass(status);
   }
 
   protected getAvatarUrl(): string {
