@@ -14,6 +14,12 @@ export const API_ROUTES = {
       `attendance/${attendanceId}/regularize`,
     APPROVAL_ACTION: 'attendance/approval',
   },
+  LEAVE: {
+    LIST: 'leave',
+    APPLY: 'leave/apply',
+    FORCE: 'leave/force',
+    APPROVAL_ACTION: 'leave/approval',
+  },
   SETTINGS: {
     PERMISSION: {
       SYSTEM: {

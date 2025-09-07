@@ -12,22 +12,43 @@ export const appMenu: ApplicationMenu = {
         },
         {
           label: 'Attendance',
-          icon: ICONS.COMMON.HOME,
+          icon: ICONS.ATTENDANCE.CALENDAR,
           children: [
             {
               label: 'Attendance List',
-              icon: ICONS.ATTENDANCE.CALENDAR,
+              icon: ICONS.COMMON.LIST,
               routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.LIST}`,
             },
             {
               label: 'Apply Attendance',
-              icon: ICONS.ATTENDANCE.CHECK,
+              icon: ICONS.COMMON.ADD,
               routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.APPLY}`,
             },
             {
               label: 'Force Attendance',
-              icon: ICONS.ATTENDANCE.FORCE,
+              icon: ICONS.ACTIONS.PENCIL,
               routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.FORCE}`,
+            },
+          ],
+        },
+        {
+          label: 'Leave Management',
+          icon: ICONS.LEAVE.GET,
+          children: [
+            {
+              label: 'Get Leave',
+              icon: ICONS.COMMON.VIEW,
+              routerLink: `${ROUTE_BASE_PATHS.LEAVE}/${ROUTES.LEAVE.LIST}`,
+            },
+            {
+              label: 'Apply Leave',
+              icon: ICONS.COMMON.PLUS,
+              routerLink: `${ROUTE_BASE_PATHS.LEAVE}/${ROUTES.LEAVE.APPLY}`,
+            },
+            {
+              label: 'Force Leave',
+              icon: ICONS.ACTIONS.PENCIL,
+              routerLink: `${ROUTE_BASE_PATHS.LEAVE}/${ROUTES.LEAVE.FORCE}`,
             },
           ],
         },

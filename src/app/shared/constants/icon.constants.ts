@@ -50,7 +50,9 @@ export const ICONS = {
     CAR: 'pi pi-car',
   },
   LEAVE: {
-    CALENDAR_MINUS: 'pi pi-calendar-minus',
+    GET: 'pi pi-calendar-minus',
+    PLUS: 'pi pi-plus',
+    FORCE: 'pi pi-user-edit',
   },
   ASSET: {
     BOX: 'pi pi-box',

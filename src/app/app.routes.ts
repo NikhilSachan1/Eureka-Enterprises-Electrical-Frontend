@@ -52,6 +52,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.LEAVE,
+        loadChildren: () =>
+          import('./features/leave-management/leave.routes').then(
+            m => m.LEAVE_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: '**',
         redirectTo: `${ROUTE_BASE_PATHS.SETTINGS.BASE}`,
       },
