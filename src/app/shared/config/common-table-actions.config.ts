@@ -31,6 +31,12 @@ export const COMMON_ROW_ACTIONS = {
     icon: ICONS.ACTIONS.TIMES,
     tooltip: 'Reject',
   },
+
+  CANCEL: {
+    id: ETableActionType.CANCEL,
+    icon: ICONS.ACTIONS.TIMES,
+    tooltip: 'Cancel',
+  },
 } as const;
 
 export const COMMON_BULK_ACTIONS = {
@@ -47,5 +53,10 @@ export const COMMON_BULK_ACTIONS = {
   DELETE: {
     ...COMMON_ROW_ACTIONS.DELETE,
     label: 'Delete',
+  },
+
+  CANCEL: {
+    ...COMMON_ROW_ACTIONS.CANCEL,
+    label: 'Cancel',
   },
 } as const;

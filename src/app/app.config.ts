@@ -30,6 +30,7 @@ import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { APP_CONFIG } from '@core/config';
 import { lastValueFrom, tap } from 'rxjs';
+import { FinancialYearService } from '@core/services/financial-year.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -91,6 +92,10 @@ export const appConfig: ApplicationConfig = {
       const timezoneService = inject(TimezoneService);
       const authService = inject(AuthService);
       const userPermissionService = inject(UserPermissionService);
+      const financialYearService = inject(FinancialYearService);
+
+      const financialYear = financialYearService.getFinancialYear();
+      financialYearService.setFinancialYear(financialYear);
       timezoneService.getTimezone();
 
       if (authService.isAuthenticated()) {

@@ -56,6 +56,7 @@ export const APPROVAL_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Pending', value: 'pending' },
   { label: 'Approved', value: 'approved' },
   { label: 'Rejected', value: 'rejected' },
+  { label: 'Cancelled', value: 'cancelled' },
 ];
 
 export const EMPLOYEE_STATUS_DATA: IOptionDropdown[] = [
@@ -92,3 +93,13 @@ export const SHIFT_DATA = {
 export const PAYSLIP_DATE_DATA = {
   EVERY_MONTH: 5,
 };
+
+export const LEAVE_DAY_TYPE_DATA: IOptionDropdown[] = [
+  { label: 'Full Day', value: 'FULL_DAY' },
+  { label: 'Half Day', value: 'HALF_DAY' },
+];
+
+export const LEAVE_TYPE_DATA: IOptionDropdown[] = [
+  { value: 'earned', label: 'Earned Leave' },
+  { value: 'casual', label: 'Casual Leave' },
+];

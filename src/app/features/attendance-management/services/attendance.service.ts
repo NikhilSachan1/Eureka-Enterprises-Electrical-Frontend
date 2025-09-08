@@ -18,10 +18,6 @@ import {
   IAttendanceRegularizedResponseDto,
 } from '../types/attendance.dto';
 import {
-  AttendanceGetRequestSchema,
-  AttendanceGetResponseSchema,
-} from '../schemas/get-attendance.schema';
-import {
   AttendanceActionRequestSchema,
   AttendanceActionResponseSchema,
   AttendanceApplyRequestSchema,
@@ -33,6 +29,8 @@ import {
   AttendanceHistoryGetResponseSchema,
   AttendanceRegularizedRequestSchema,
   AttendanceRegularizedResponseSchema,
+  AttendanceGetRequestSchema,
+  AttendanceGetResponseSchema,
 } from '../schemas';
 
 @Injectable({

@@ -16,6 +16,7 @@ export enum ETableActionType {
   DELETE = 'delete',
   APPROVE = 'approve',
   REJECT = 'reject',
+  CANCEL = 'cancel',
   REGULARIZE = 'regularize',
 }
 
