@@ -4,8 +4,8 @@ import {
   IFormInputFieldsConfig,
   IFormButtonConfig,
 } from '@shared/models';
-import { EFieldType, EButtonSeverity } from '@shared/types';
-import { MODULES_NAME_DATA } from '@shared/config';
+import { EFieldType } from '@shared/types';
+import { COMMON_FORM_ACTIONS, MODULES_NAME_DATA } from '@shared/config';
 
 const SYSTEM_PERMISSION_FORM_ADD_FIELDS_CONFIG: IFormInputFieldsConfig = {
   moduleName: {
@@ -36,14 +36,11 @@ const SYSTEM_PERMISSION_FORM_ADD_FIELDS_CONFIG: IFormInputFieldsConfig = {
 
 const SYSTEM_PERMISSION_FORM_ADD_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
-    label: 'Reset',
-    severity: EButtonSeverity.SECONDARY,
-    tooltip: 'Reset the form',
+    ...COMMON_FORM_ACTIONS.RESET,
   },
   submit: {
+    ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Add Permission',
-    type: 'submit',
-    severity: EButtonSeverity.PRIMARY,
     tooltip: 'Add a new permission to the system',
   },
 };

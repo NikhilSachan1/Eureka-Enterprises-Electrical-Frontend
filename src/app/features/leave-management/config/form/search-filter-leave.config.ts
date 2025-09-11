@@ -1,3 +1,4 @@
+import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
   APPROVAL_STATUS_DATA,
   EMPLOYEE_NAME_DATA,
@@ -9,7 +10,6 @@ import {
   ITableSearchFilterFormConfig,
 } from '@shared/models';
 import {
-  EButtonSeverity,
   EDateSelectionMode,
   EFieldType,
   ETableFilterMatchMode,
@@ -72,17 +72,10 @@ const SEARCH_FILTER_LEAVE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfi
 
 const SEARCH_FILTER_LEAVE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
-    label: 'Reset',
-    severity: EButtonSeverity.SECONDARY,
-    tooltip: 'Reset filter',
-    icon: 'pi pi-times',
+    ...COMMON_FORM_ACTIONS.RESET,
   },
   submit: {
-    type: 'submit',
-    label: 'Search',
-    severity: EButtonSeverity.PRIMARY,
-    tooltip: 'Apply filter',
-    icon: 'pi pi-search',
+    ...COMMON_FORM_ACTIONS.FILTER,
   },
 };
 

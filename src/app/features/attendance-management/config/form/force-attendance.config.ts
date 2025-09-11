@@ -1,6 +1,7 @@
 import { Validators } from '@angular/forms';
 import {
   CLIENT_NAME_DATA,
+  COMMON_FORM_ACTIONS,
   EMPLOYEE_NAME_DATA,
   LOCATION_DATA,
 } from '@shared/config';
@@ -13,7 +14,7 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/models';
-import { EButtonSeverity, EFieldType } from '@shared/types';
+import { EFieldType } from '@shared/types';
 import { calculateMinEditableDate } from '@shared/utility';
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
@@ -80,14 +81,11 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
 
 const FORCE_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
-    label: 'Reset',
-    severity: EButtonSeverity.SECONDARY,
-    tooltip: 'Reset the form',
+    ...COMMON_FORM_ACTIONS.RESET,
   },
   submit: {
+    ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Force Attendance',
-    type: 'submit',
-    severity: EButtonSeverity.PRIMARY,
     tooltip: 'Force attendance for the selected employee',
   },
 };

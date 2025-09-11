@@ -1,20 +1,17 @@
+import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/models';
-import { EButtonSeverity } from '@shared/types';
 
 export const ROLE_PERMISSION_FORM_SET_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
-    label: 'Reset',
-    severity: EButtonSeverity.SECONDARY,
-    tooltip: 'Reset permissions',
+    ...COMMON_FORM_ACTIONS.RESET,
   },
   submit: {
+    ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Save Permissions',
-    type: 'submit',
-    severity: EButtonSeverity.PRIMARY,
     tooltip: 'Save permissions',
   },
 };

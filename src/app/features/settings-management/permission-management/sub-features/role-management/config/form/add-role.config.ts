@@ -1,10 +1,11 @@
 import { Validators } from '@angular/forms';
+import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
   IFormConfig,
   IFormInputFieldsConfig,
   IFormButtonConfig,
 } from '@shared/models';
-import { EFieldType, EButtonSeverity } from '@shared/types';
+import { EFieldType } from '@shared/types';
 
 const ROLE_FORM_ADD_FIELDS_CONFIG: IFormInputFieldsConfig = {
   roleName: {
@@ -26,14 +27,11 @@ const ROLE_FORM_ADD_FIELDS_CONFIG: IFormInputFieldsConfig = {
 
 const ROLE_FORM_ADD_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
-    label: 'Reset',
-    severity: EButtonSeverity.SECONDARY,
-    tooltip: 'Reset the form',
+    ...COMMON_FORM_ACTIONS.RESET,
   },
   submit: {
+    ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Create Role',
-    type: 'submit',
-    severity: EButtonSeverity.PRIMARY,
     tooltip: 'Add a new role to the system',
   },
 };
