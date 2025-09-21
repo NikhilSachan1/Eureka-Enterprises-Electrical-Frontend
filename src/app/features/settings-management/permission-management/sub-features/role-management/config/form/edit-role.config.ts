@@ -3,8 +3,8 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/models';
-import { EButtonSeverity } from '@shared/types';
 import { ROLE_FORM_ADD_CONFIG } from './add-role.config';
+import { COMMON_FORM_ACTIONS } from '@shared/config';
 
 const ROLE_FORM_EDIT_FIELDS_CONFIG: IFormInputFieldsConfig = {
   roleName: ROLE_FORM_ADD_CONFIG.fields['roleName'],
@@ -13,14 +13,11 @@ const ROLE_FORM_EDIT_FIELDS_CONFIG: IFormInputFieldsConfig = {
 
 const ROLE_FORM_EDIT_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
-    label: 'Reset',
-    severity: EButtonSeverity.SECONDARY,
-    tooltip: 'Reset the form',
+    ...COMMON_FORM_ACTIONS.RESET,
   },
   submit: {
+    ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Update Role',
-    type: 'submit',
-    severity: EButtonSeverity.PRIMARY,
     tooltip: 'Update the role in the system',
   },
 };

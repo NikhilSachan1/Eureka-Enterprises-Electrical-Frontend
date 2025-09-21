@@ -52,3 +52,4 @@ export {
   COMMON_ROW_ACTIONS,
   COMMON_BULK_ACTIONS,
 } from './common-table-actions.config';
+export { COMMON_FORM_ACTIONS } from './common-form-actions.config';
