@@ -60,3 +60,13 @@ export interface IEnhancedConfirmationDialog {
     config: Partial<IConfirmationDialogConfig>
   ) => IConfirmationDialogConfig; // Updates the dialog configuration dynamically and returns the updated config
 }
+
+/**
+ * Interface for configuring dynamic fields that change based on a trigger field's value
+ */
+export interface IDynamicFieldConfig {
+  triggerFieldName: string;
+  getFieldsForValue: (
+    triggerValue: string | number | boolean | null
+  ) => IFormInputFieldsConfig;
+}

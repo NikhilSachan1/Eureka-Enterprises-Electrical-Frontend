@@ -3,6 +3,7 @@ export type {
   IConfirmationDialogRecordDetailConfig,
   IConfirmationDialogConfig,
   IDialogState,
+  IDynamicFieldConfig,
   IEnhancedConfirmationDialog,
 } from './confirmation-dialog.model';
 export type {

@@ -13,8 +13,10 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import {
   IConfirmationDialogConfig,
   IConfirmationDialogRecordDetailConfig,
+  IDynamicFieldConfig,
   IEnhancedTable,
   IEnhancedTableConfig,
+  IFormInputFieldsConfig,
   IMetric,
   IPageHeaderConfig,
   ITableActionClickEvent,
@@ -35,6 +37,7 @@ import {
   createAttendanceDialogConfig,
   SEARCH_FILTER_ATTENDANCE_FORM_CONFIG,
 } from '../../config';
+import { REGULARIZE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG } from '../../config/form/dialog-attendance.config';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import {
@@ -106,6 +109,18 @@ export class GetAttendanceComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       ATTENDANCE_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
     );
+
+    this.registerAttendanceRegularizeConfirmationDialogDynamicField();
+  }
+
+  private registerAttendanceRegularizeConfirmationDialogDynamicField(): void {
+    const dynamicFieldConfig: IDynamicFieldConfig = {
+      triggerFieldName: 'attendanceStatus',
+      getFieldsForValue: (status: string | number | boolean | null) =>
+        this.getDynamicConfirmationDialogInputFields(status as string),
+    };
+
+    this.confirmationDialogService.registerDynamicField(dynamicFieldConfig);
   }
 
   private loadAttendanceList(): void {
@@ -264,6 +279,26 @@ export class GetAttendanceComponent implements OnInit {
       dialogConfig,
       dialogType
     );
+  }
+
+  private getDynamicConfirmationDialogInputFields(
+    status: string
+  ): IFormInputFieldsConfig {
+    const showClientFields = status === EAttendanceStatus.PRESENT;
+
+    const inputFields: IFormInputFieldsConfig = {
+      attendanceStatus:
+        REGULARIZE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG['attendanceStatus'],
+    };
+
+    if (showClientFields) {
+      inputFields['clientName'] =
+        REGULARIZE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG['clientName'];
+      inputFields['location'] =
+        REGULARIZE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG['location'];
+    }
+
+    return inputFields;
   }
 
   private onAttendanceApprovalAction(
