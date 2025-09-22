@@ -1,1 +1,29 @@
-<p>apply-leave works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs['date']"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs['reason']"
+  />
+
+  <div class="button-container">
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    />
+
+    <app-button
+      [buttonConfig]="form.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+    />
+  </div>
+</form>

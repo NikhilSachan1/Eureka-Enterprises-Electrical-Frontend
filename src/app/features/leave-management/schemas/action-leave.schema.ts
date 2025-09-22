@@ -9,7 +9,7 @@ export const LeaveActionBaseRequestSchema = LeaveBaseSchema.pick({
   .extend({
     leaveApplicationId: id,
     approvalComment: reason,
-    attendanceStatus: z.enum(['present', 'absent']),
+    attendanceStatus: z.enum(['present', 'absent']).optional(),
   })
   .strict();
 

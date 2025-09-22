@@ -27,7 +27,7 @@ export const LeaveGetRequestSchema = z
 
 export const LeaveGetBaseResponseSchema = LeaveBaseSchema.extend({
   user: UserSchema.partial(),
-  approvalByUser: UserSchema.partial(),
+  approvalByUser: UserSchema.partial().nullable(),
   createdByUser: UserSchema.partial(),
   approvalStatus: approvalStatus.transform(leaveApprovalStatus =>
     toTitleCase(leaveApprovalStatus)

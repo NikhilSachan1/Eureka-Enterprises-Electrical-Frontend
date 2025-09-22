@@ -1,3 +1,5 @@
+export { createLeaveDialogConfig } from './dialog/get-leave.config';
+
 export {
   LEAVE_TABLE_CONFIG,
   LEAVE_TABLE_HEADER_CONFIG,

@@ -321,7 +321,7 @@ export class GetAttendanceComponent implements OnInit {
     dialogFormData?: Record<string, string>
   ): IAttendanceActionRequestDto {
     const { comment } = dialogFormData as { comment: string };
-    let actionTypeValue = '' as ETableActionTypeValue;
+    let actionTypeValue = ETableActionTypeValue.APPROVED;
 
     if (actionType === ETableActionType.APPROVE) {
       actionTypeValue = ETableActionTypeValue.APPROVED;

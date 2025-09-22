@@ -13,6 +13,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import {
   ConfirmationDialogService,
+  DrawerService,
   LoadingService,
   NotificationService,
   RouterNavigationService,
@@ -22,18 +23,24 @@ import { LeaveService } from '@features/leave-management/services/leave.service'
 import { LoggerService } from '@core/services';
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
+  IConfirmationDialogConfig,
+  IConfirmationDialogRecordDetailConfig,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetric,
   IPageHeaderConfig,
+  ITableActionClickEvent,
 } from '@shared/models';
 import {
+  ILeaveActionRequestDto,
+  ILeaveActionResponseDto,
   ILeaveGetBaseResponseDto,
   ILeaveGetRequestDto,
   ILeaveGetResponseDto,
   ILeaveGetStatsResponseDto,
 } from '@features/leave-management/types/leave.dto';
 import {
+  createLeaveDialogConfig,
   LEAVE_TABLE_ENHANCED_CONFIG,
   LEAVE_TABLE_STATE_MAPPING,
   SEARCH_FILTER_LEAVE_FORM_CONFIG,
@@ -44,6 +51,14 @@ import { buildTableDataWithUnifiedMapping } from '@shared/utility/component.util
 import { ICONS } from '@shared/constants';
 import { FinancialYearService } from '@core/services/financial-year.service';
 import { ILeave } from '@features/leave-management/types/leave.interface';
+import {
+  EDialogType,
+  ETableActionType,
+  ETableActionTypeValue,
+} from '@shared/types';
+import { APP_CONFIG } from '@core/config';
+import { DatePipe } from '@angular/common';
+import { GetLeaveDetailComponent } from '../get-leave-detail/get-leave-detail.component';
 
 @Component({
   selector: 'app-get-leave',
@@ -53,6 +68,7 @@ import { ILeave } from '@features/leave-management/types/leave.interface';
     SearchFilterComponent,
     DataTableComponent,
   ],
+  providers: [DatePipe],
   templateUrl: './get-leave.component.html',
   styleUrl: './get-leave.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,7 +84,9 @@ export class GetLeaveComponent implements OnInit {
     ConfirmationDialogService
   );
   private readonly notificationService = inject(NotificationService);
+  private readonly datePipe = inject(DatePipe);
   private readonly financialYearService = inject(FinancialYearService);
+  private readonly drawerService = inject(DrawerService);
 
   protected table!: IEnhancedTable;
   protected searchFilterConfig = SEARCH_FILTER_LEAVE_FORM_CONFIG;
@@ -129,10 +147,20 @@ export class GetLeaveComponent implements OnInit {
       id: record.id,
       fromDate: record.fromDate,
       toDate: record.toDate,
-      leaveReason: record.reason,
+      reason: record.reason,
       approvalStatus: record.approvalStatus,
+      approvalAt: record.approvalAt ?? null,
+      approvalReason: record.approvalReason ?? null,
+      createdAt: record.createdAt,
+      createdBy: record.createdBy,
+      updatedAt: record.updatedAt,
+      approvalByUser: record.approvalByUser
+        ? `${record.approvalByUser?.firstName} ${record.approvalByUser?.lastName}`
+        : undefined,
+      createdByUser: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
       employeeName: `${record.user.firstName} ${record.user.lastName}`,
       employeeCode: record.user.employeeId,
+      leaveApplicationType: record.leaveApplicationType,
     }));
   }
 
@@ -168,6 +196,230 @@ export class GetLeaveComponent implements OnInit {
       { label: 'Rejected', value: stats.approval.rejected },
       { label: 'Cancelled', value: stats.approval.cancelled },
     ];
+  }
+
+  protected handleLeaveTableActionClick(
+    event: ITableActionClickEvent<ILeave>,
+    isBulk: boolean
+  ): void {
+    const { actionType, selectedRows } = event;
+
+    switch (actionType) {
+      case ETableActionType.APPROVE:
+      case ETableActionType.REJECT:
+      case ETableActionType.CANCEL:
+        this.showLeaveActionDialog(actionType, selectedRows, isBulk);
+        break;
+
+      case ETableActionType.VIEW:
+        this.showLeaveDetailsDrawer(selectedRows);
+        break;
+
+      default:
+        this.logger.warn('Unknown table action:', actionType);
+    }
+  }
+
+  private showLeaveActionDialog(
+    actionType: ETableActionType,
+    selectedRows: ILeave[],
+    isBulk: boolean
+  ): void {
+    let dialogConfig = {} as IConfirmationDialogConfig;
+
+    switch (actionType) {
+      case ETableActionType.APPROVE:
+      case ETableActionType.REJECT:
+      case ETableActionType.CANCEL: {
+        const recordDetail = this.prepareLeaveRecordDetail(selectedRows);
+        dialogConfig = createLeaveDialogConfig(
+          actionType,
+          recordDetail,
+          isBulk,
+          !isBulk,
+          this.onLeaveApprovalAction.bind(this, actionType, selectedRows)
+        );
+        break;
+      }
+      default:
+        this.logger.warn('Unknown action type:', actionType);
+    }
+
+    let dialogType = EDialogType.DEFAULT;
+
+    if (actionType === ETableActionType.APPROVE) {
+      dialogType = EDialogType.APPROVE;
+    } else if (actionType === ETableActionType.REJECT) {
+      dialogType = EDialogType.REJECT;
+    } else if (actionType === ETableActionType.CANCEL) {
+      dialogType = EDialogType.CANCEL;
+    }
+
+    this.confirmationDialogService.showConfirmationDialog(
+      dialogConfig,
+      dialogType
+    );
+  }
+
+  private onLeaveApprovalAction(
+    actionType: ETableActionType,
+    selectedRows: ILeave[],
+    dialogFormData?: Record<string, string>
+  ): void {
+    const formData = this.prepareLeaveApprovalFormData(
+      actionType,
+      selectedRows,
+      dialogFormData
+    );
+
+    this.executeLeaveApprovalAction(formData, actionType);
+  }
+
+  private prepareLeaveApprovalFormData(
+    actionType: ETableActionType,
+    selectedRows: ILeave[],
+    dialogFormData?: Record<string, string>
+  ): ILeaveActionRequestDto {
+    const { comment, attendanceStatus } = dialogFormData as {
+      comment: string;
+      attendanceStatus: string;
+    };
+    let actionTypeValue = ETableActionTypeValue.APPROVED;
+
+    if (actionType === ETableActionType.APPROVE) {
+      actionTypeValue = ETableActionTypeValue.APPROVED;
+    } else if (actionType === ETableActionType.REJECT) {
+      actionTypeValue = ETableActionTypeValue.REJECTED;
+    } else if (actionType === ETableActionType.CANCEL) {
+      actionTypeValue = ETableActionTypeValue.CANCELLED;
+    }
+
+    return {
+      approvals: selectedRows.map(row => ({
+        leaveApplicationId: row.id,
+        attendanceStatus: attendanceStatus as 'present' | 'absent',
+        approvalStatus: actionTypeValue,
+        approvalComment: comment,
+      })),
+    };
+  }
+
+  private executeLeaveApprovalAction(
+    formData: ILeaveActionRequestDto,
+    actionType: ETableActionType
+  ): void {
+    let loadingMessage;
+
+    if (actionType === ETableActionType.APPROVE) {
+      loadingMessage = {
+        title: 'Approving Leave',
+        message: 'Please wait while we approve the leave...',
+      };
+    } else if (actionType === ETableActionType.REJECT) {
+      loadingMessage = {
+        title: 'Rejecting Leave',
+        message: 'Please wait while we reject the leave...',
+      };
+    } else if (actionType === ETableActionType.CANCEL) {
+      loadingMessage = {
+        title: 'Cancelling Leave',
+        message: 'Please wait while we cancel the leave...',
+      };
+    }
+
+    this.loadingService.show(loadingMessage);
+
+    this.leaveServive
+      .actionLeave(formData)
+      .pipe(
+        finalize(() => this.loadingService.hide()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: ILeaveActionResponseDto) => {
+          const { errors, result } = response;
+          const hasErrors = errors.length > 0;
+          const hasResult = result.length > 0;
+          const errorCount = errors.length;
+          const resultCount = result.length;
+          const recordsCount = result.length + errors.length;
+
+          if (hasErrors && hasResult) {
+            if (recordsCount === 1) {
+              this.notificationService.error(`Failed to ${actionType} leave`);
+            } else {
+              this.notificationService.error(
+                `Failed to ${actionType} leave for ${errorCount} records and executed successfully for ${resultCount} records`
+              );
+            }
+          } else if (hasErrors) {
+            if (recordsCount === 1) {
+              this.notificationService.error(`Failed to ${actionType} leave`);
+            } else {
+              this.notificationService.error(
+                `Failed to ${actionType} leave for ${errorCount} records`
+              );
+            }
+          } else if (hasResult) {
+            if (recordsCount === 1) {
+              this.notificationService.success(
+                `Successfully ${actionType} leave`
+              );
+            } else {
+              this.notificationService.success(
+                `Successfully ${actionType} leave for ${resultCount} records`
+              );
+            }
+          }
+
+          if (hasResult) {
+            this.loadLeaveList();
+          }
+        },
+      });
+  }
+
+  private prepareLeaveRecordDetail(
+    selectedRows: ILeave[]
+  ): IConfirmationDialogRecordDetailConfig {
+    const [firstRow] = selectedRows;
+
+    const fromDate = this.datePipe.transform(
+      firstRow.fromDate,
+      APP_CONFIG.DATE_FORMATS.DEFAULT
+    ) as string;
+    const toDate = this.datePipe.transform(
+      firstRow.toDate,
+      APP_CONFIG.DATE_FORMATS.DEFAULT
+    ) as string;
+
+    const recordDetail = [
+      { label: 'Employee Name', value: firstRow.employeeName },
+      {
+        label: 'Leave Date',
+        value: `${fromDate} - ${toDate}`,
+      },
+      { label: 'Leave Status', value: firstRow.approvalStatus },
+      {
+        label: 'Leave Reason',
+        value: firstRow.reason,
+      },
+    ];
+    return {
+      details: recordDetail,
+    };
+  }
+
+  private showLeaveDetailsDrawer(rowData: ILeave[]): void {
+    this.logger.logUserAction('Opening leave details drawer', rowData);
+
+    this.drawerService.showDrawer(GetLeaveDetailComponent, {
+      header: `Leave Details`,
+      subtitle: `Detailed view of leave`,
+      componentData: {
+        leave: rowData[0],
+      },
+    });
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

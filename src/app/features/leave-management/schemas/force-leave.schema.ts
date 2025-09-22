@@ -9,7 +9,11 @@ export const LeaveForceRequestSchema = LeaveBaseSchema.pick({
   toDate: true,
   reason: true,
   approvalReason: true,
-}).strict();
+})
+  .extend({
+    userId: z.array(z.uuid()),
+  })
+  .strict();
 
 export const LeaveForceResponseSchema = z.object({
   message: z.string(),

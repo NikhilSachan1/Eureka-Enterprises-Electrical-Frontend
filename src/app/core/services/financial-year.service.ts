@@ -5,7 +5,8 @@ import { Injectable } from '@angular/core';
 })
 export class FinancialYearService {
   public financialYear = this.getFinancialYearFromStartMonth();
-  private readonly financialYearStartMonth: number = 3;
+  private readonly financialYearStartMonth: number = 3; // April (0-indexed would be 3)
+  private readonly financialYearEndMonth: number = 2; // March (0-indexed would be 2)
 
   getFinancialYear(): string {
     const financialYear = this.getFinancialYearFromStartMonth();
@@ -28,5 +29,15 @@ export class FinancialYearService {
       return `${currentYear}-${currentYear}`;
     }
     return `${currentYear}-${currentYear + 1}`;
+  }
+
+  getFinancialYearStartDate(): Date {
+    const [startYear] = this.financialYear.split('-').map(Number);
+    return new Date(startYear, this.financialYearStartMonth, 1);
+  }
+
+  getFinancialYearEndDate(): Date {
+    const [, endYear] = this.financialYear.split('-').map(Number);
+    return new Date(endYear, this.financialYearEndMonth, 31);
   }
 }

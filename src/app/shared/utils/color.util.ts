@@ -16,7 +16,15 @@ export class ColorUtil {
         border: 'border-l-red-500',
         text: 'text-red-600',
       },
-      statuses: ['inactive', 'rejected', 'reject', 'absent', 'delete'],
+      statuses: [
+        'inactive',
+        'rejected',
+        'reject',
+        'absent',
+        'delete',
+        'cancel',
+        'cancelled',
+      ],
     },
     warning: {
       severity: 'warn',
@@ -34,7 +42,7 @@ export class ColorUtil {
         border: 'border-l-blue-500',
         text: 'text-blue-600',
       },
-      statuses: ['holiday', 'view', 'setpermissions'],
+      statuses: ['holiday', 'view', 'setpermissions', 'total'],
     },
   };
 

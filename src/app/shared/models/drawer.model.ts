@@ -44,6 +44,7 @@ export interface IDrawerEmployeeDetails {
 }
 
 export interface IDrawerDetail {
+  employeeDetails: IDrawerEmployeeDetails;
   status: {
     approvalStatus: string;
     entryType: string;
@@ -55,12 +56,12 @@ export interface IDrawerDetail {
     format?: string;
   }[];
   approvalBy: {
-    name: string;
+    name: string | null;
     date: string | null;
     notes: string | null;
   };
   createdBy: {
-    name: string;
+    name: string | null;
     date: string;
     notes?: string;
   };

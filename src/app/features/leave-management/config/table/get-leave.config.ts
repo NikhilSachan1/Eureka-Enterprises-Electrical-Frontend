@@ -65,11 +65,11 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     },
   },
   {
-    field: 'leaveReason',
+    field: 'reason',
     header: 'Reason',
     bodyTemplate: ETableBodyTemplate.TEXT,
     filterConfig: {
-      filterField: 'leaveReason',
+      filterField: 'reason',
       placeholder: 'Search By Leave Reason',
     },
     showSort: false,

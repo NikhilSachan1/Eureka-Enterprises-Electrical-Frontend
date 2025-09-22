@@ -19,5 +19,7 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
+  (rowActionClick)="handleLeaveTableActionClick($any($event), false)"
+  (bulkActionClick)="handleLeaveTableActionClick($any($event), true)"
   (filterData)="onTableStateChange($event)"
 />

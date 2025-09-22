@@ -23,6 +23,7 @@ export enum ETableActionType {
 export enum ETableActionTypeValue {
   APPROVED = 'approved',
   REJECTED = 'rejected',
+  CANCELLED = 'cancelled',
 }
 
 export enum ETableBodyTemplate {
