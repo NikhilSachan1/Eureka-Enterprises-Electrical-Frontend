@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { LeaveBaseSchema } from './base-leave.schema';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 
 const { id, reason } = LeaveBaseSchema.shape;
 
@@ -9,7 +10,7 @@ export const LeaveActionBaseRequestSchema = LeaveBaseSchema.pick({
   .extend({
     leaveApplicationId: id,
     approvalComment: reason,
-    attendanceStatus: z.enum(['present', 'absent']).optional(),
+    attendanceStatus: z.enum(Object.values(EAttendanceStatus)).optional(),
   })
   .strict();
 

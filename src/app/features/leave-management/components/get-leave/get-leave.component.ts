@@ -59,6 +59,7 @@ import {
 import { APP_CONFIG } from '@core/config';
 import { DatePipe } from '@angular/common';
 import { GetLeaveDetailComponent } from '../get-leave-detail/get-leave-detail.component';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 
 @Component({
   selector: 'app-get-leave',
@@ -282,7 +283,7 @@ export class GetLeaveComponent implements OnInit {
   ): ILeaveActionRequestDto {
     const { comment, attendanceStatus } = dialogFormData as {
       comment: string;
-      attendanceStatus: string;
+      attendanceStatus: EAttendanceStatus;
     };
     let actionTypeValue = ETableActionTypeValue.APPROVED;
 
@@ -294,10 +295,20 @@ export class GetLeaveComponent implements OnInit {
       actionTypeValue = ETableActionTypeValue.CANCELLED;
     }
 
+    const leaveActualDate = new Date(selectedRows[0].fromDate);
+    const isDateIsEarlier = leaveActualDate <= new Date();
+    let attendanceStatusValue = EAttendanceStatus.LEAVE;
+
+    if (isDateIsEarlier && actionType === ETableActionType.APPROVE) {
+      attendanceStatusValue = EAttendanceStatus.LEAVE;
+    } else {
+      attendanceStatusValue = attendanceStatus;
+    }
+
     return {
       approvals: selectedRows.map(row => ({
         leaveApplicationId: row.id,
-        attendanceStatus: attendanceStatus as 'present' | 'absent',
+        attendanceStatus: attendanceStatusValue,
         approvalStatus: actionTypeValue,
         approvalComment: comment,
       })),
