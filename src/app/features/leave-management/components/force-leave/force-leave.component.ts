@@ -80,7 +80,7 @@ export class ForceLeaveComponent implements OnInit {
   private prepareFormData(): ILeaveForceRequestDto {
     const { date, reason } = this.form.getData() as Record<string, string>;
     const { employeeName } = this.form.getData() as {
-      employeeName: string[];
+      employeeName: string;
     };
 
     const fromDate = new Date(date[0]);

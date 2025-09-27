@@ -16,7 +16,6 @@ import {
   DrawerService,
   LoadingService,
   NotificationService,
-  RouterNavigationService,
   TableService,
 } from '@shared/services';
 import { LeaveService } from '@features/leave-management/services/leave.service';
@@ -76,7 +75,6 @@ import { EAttendanceStatus } from '@features/attendance-management/types/attenda
 })
 export class GetLeaveComponent implements OnInit {
   private readonly logger = inject(LoggerService);
-  private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly leaveServive = inject(LeaveService);
