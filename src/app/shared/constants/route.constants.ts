@@ -58,7 +58,7 @@ export const ROUTES = {
     FORCE: `force`,
     ADD: `add`,
     EDIT: `edit/:id`,
-    REIMBURSEMENT: `reimbursement`,
+    REIMBURSE: `reimburse`,
   },
 
   FUEL: {

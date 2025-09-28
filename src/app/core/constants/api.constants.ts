@@ -14,6 +14,16 @@ export const API_ROUTES = {
       `attendance/${attendanceId}/regularize`,
     APPROVAL_ACTION: 'attendance/approval',
   },
+  EXPENSE: {
+    LIST: 'expenses',
+    ADD: 'expense/debit',
+    FORCE: 'expense/force',
+    REIMBURSE: 'expense/credit',
+    EDIT: (expenseId: string) => `expenses/${expenseId}`,
+    DELETE: (expenseId: string) => `expenses/${expenseId}`,
+    APPROVAL_ACTION: 'expenses/approval',
+    GET_EXPENSE_BY_ID: (expenseId: string) => `expenses/${expenseId}/history`,
+  },
   LEAVE: {
     LIST: 'leave',
     APPLY: 'leave/apply',

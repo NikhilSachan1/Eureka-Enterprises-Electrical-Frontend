@@ -32,6 +32,32 @@ export const appMenu: ApplicationMenu = {
           ],
         },
         {
+          label: 'Expense Management',
+          icon: ICONS.LEAVE.GET,
+          children: [
+            {
+              label: 'Expense Ledger',
+              icon: ICONS.COMMON.VIEW,
+              routerLink: `${ROUTE_BASE_PATHS.EXPENSE}/${ROUTES.EXPENSE.LEDGER}`,
+            },
+            {
+              label: 'Add Expense',
+              icon: ICONS.COMMON.PLUS,
+              routerLink: `${ROUTE_BASE_PATHS.EXPENSE}/${ROUTES.EXPENSE.ADD}`,
+            },
+            {
+              label: 'Force Expense',
+              icon: ICONS.ACTIONS.PENCIL,
+              routerLink: `${ROUTE_BASE_PATHS.EXPENSE}/${ROUTES.EXPENSE.FORCE}`,
+            },
+            {
+              label: 'Reimburse Expense',
+              icon: ICONS.ACTIONS.PENCIL,
+              routerLink: `${ROUTE_BASE_PATHS.EXPENSE}/${ROUTES.EXPENSE.REIMBURSE}`,
+            },
+          ],
+        },
+        {
           label: 'Leave Management',
           icon: ICONS.LEAVE.GET,
           children: [

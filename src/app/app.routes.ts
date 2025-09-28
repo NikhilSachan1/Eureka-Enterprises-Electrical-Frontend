@@ -52,6 +52,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.EXPENSE,
+        loadChildren: () =>
+          import('./features/expense-management/expense.routes').then(
+            m => m.EXPENSE_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: ROUTE_BASE_PATHS.LEAVE,
         loadChildren: () =>
           import('./features/leave-management/leave.routes').then(
