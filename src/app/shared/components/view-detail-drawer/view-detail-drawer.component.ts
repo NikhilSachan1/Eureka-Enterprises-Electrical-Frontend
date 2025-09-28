@@ -11,7 +11,7 @@ import { IDrawerDetail, IDrawerEmployeeDetails } from '@shared/models';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import { AvatarService } from '@shared/services';
-import { EDrawerDetailType } from '@shared/types';
+import { EDrawerDetailType, EPrimeNGSeverity } from '@shared/types';
 import { ColorUtil } from '@shared/utils/color.util';
 import { CardModule } from 'primeng/card';
 import { Divider } from 'primeng/divider';
@@ -43,8 +43,8 @@ export class ViewDetailDrawerComponent {
 
   protected readonly ALL_DRAWER_DETAIL_TYPES = EDrawerDetailType;
 
-  protected getApprovalStatusColor(status: string): string {
-    return ColorUtil.getSeverity(status);
+  protected getApprovalStatusColor(status: string): EPrimeNGSeverity {
+    return ColorUtil.getSeverity(status) as EPrimeNGSeverity;
   }
 
   protected getColor(status: string): {
