@@ -18,11 +18,11 @@ const financialYearService = new FinancialYearService();
 
 const FORCE_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   employeeName: {
-    fieldType: EFieldType.MultiSelect,
+    fieldType: EFieldType.Select,
     id: 'employeeName',
     fieldName: 'employeeName',
     label: 'Employee Name',
-    multiSelectConfig: {
+    selectConfig: {
       optionsDropdown: EMPLOYEE_NAME_DATA,
     },
     validators: [Validators.required],
