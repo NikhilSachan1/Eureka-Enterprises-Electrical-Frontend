@@ -1,0 +1,112 @@
+@let config = galleryDefaultConfig();
+
+<p-galleria
+  [value]="mediaComputed()"
+  [(visible)]="displayBasic"
+  [responsiveOptions]="responsiveOptions"
+  [activeIndex]="config.activeIndex"
+  [fullScreen]="config.fullScreen"
+  [numVisible]="config.numVisible"
+  [showItemNavigators]="config.showNavigators"
+  [showThumbnailNavigators]="config.showThumbnailNavigators"
+  [showItemNavigatorsOnHover]="config.showNavigatorsOnHover"
+  [changeItemOnIndicatorHover]="config.changeOnIndicatorHover"
+  [circular]="config.circular"
+  [autoPlay]="config.autoPlay"
+  [transitionInterval]="config.transitionInterval"
+  [showThumbnails]="config.showThumbnails"
+  [thumbnailsPosition]="config.thumbnailsPosition"
+  [showIndicators]="config.showIndicators"
+  [showIndicatorsOnItem]="config.showIndicatorsOnItem"
+  [indicatorsPosition]="config.indicatorsPosition"
+  (activeIndexChange)="onActiveIndexChange($event)"
+  (visibleChange)="onVisibleChange($event)"
+>
+  <!-- Main Item Template -->
+  <ng-template
+    let-file
+    pTemplate="item"
+  >
+    <div class="gallery-viewer">
+      <div class="gallery-viewer__content">
+        <!-- Images -->
+        @if (file.mediaType === 'image') {
+          <p-image
+            [src]="file.actualMediaUrl"
+            [alt]="file.mediaTitle"
+            [preview]="true"
+          >
+            <ng-template pTemplate="indicator">
+              <i class="pi pi-eye"></i>
+              <span>Click to Preview</span>
+            </ng-template>
+          </p-image>
+        }
+
+        <!-- PDF -->
+        @if (file.mediaType === 'pdf') {
+          <div class="gallery-viewer__pdf-wrapper">
+            <div class="gallery-viewer__pdf-actions">
+              <app-button
+                [buttonConfig]="fullScreenButtonConfig"
+                (onButtonClick)="openPdfFullscreen(file.actualMediaUrl)"
+              />
+              <app-button
+                [buttonConfig]="downloadButtonConfig"
+                (onButtonClick)="downloadFile(file.actualMediaUrl, file.mediaTitle)"
+              />
+            </div>
+
+            <iframe
+              [src]="file.actualMediaUrl"
+              class="gallery-viewer__pdf-embed"
+            ></iframe>
+          </div>
+        }
+
+        <!-- Unsupported Files -->
+        @if (file.mediaType !== 'image' && file.mediaType !== 'pdf') {
+          <div class="gallery-viewer__file">
+            <div class="gallery-viewer__file-icon">
+              <i [class]="getFileIcon(file.mediaType)"></i>
+            </div>
+            <span class="gallery-viewer__file-ext">.{{ getFileExtension(file.actualMediaUrl) }}</span>
+            <p class="gallery-viewer__file-msg">Preview not available</p>
+            <div class="gallery-viewer__file-actions">
+              <app-button
+                [buttonConfig]="downloadButtonConfig"
+                (onButtonClick)="downloadFile(file.actualMediaUrl, file.mediaTitle)"
+              />
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Thumbnail Template -->
+  <ng-template
+    let-file
+    pTemplate="thumbnail"
+  >
+    <div class="gallery-thumb__placeholder">
+      <i [class]="getFileIcon(file.mediaType)"></i>
+      <span class="gallery-thumb__label">{{ getFileExtension(file.actualMediaUrl) }}</span>
+    </div>
+  </ng-template>
+</p-galleria>
+
+<!-- PDF Full Screen Dialog -->
+<p-dialog
+  [(visible)]="displayPdfFullscreen"
+  [modal]="true"
+  [style]="{ width: '90vw', height: '90vh' }"
+  [maximizable]="true"
+  styleClass="pdf-modal"
+  (onHide)="closePdfFullscreen()"
+>
+  <iframe
+    [src]="currentPdfUrl()"
+    class="gallery-viewer__pdf-fullscreen"
+  ></iframe>
+</p-dialog>

@@ -7,7 +7,14 @@ export class ColorUtil {
         border: 'border-l-green-500',
         text: 'text-green-600',
       },
-      statuses: ['active', 'approved', 'approve', 'present', 'clearselection'],
+      statuses: [
+        'active',
+        'approved',
+        'approve',
+        'present',
+        'clearselection',
+        'download',
+      ],
     },
     danger: {
       severity: 'danger',

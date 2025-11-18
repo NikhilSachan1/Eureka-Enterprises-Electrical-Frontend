@@ -67,4 +67,12 @@ export const APP_CONFIG = {
     CLOSE_ON_ESCAPE: true,
     DISMISSABLE_MASK: false,
   },
+
+  MEDIA_CONFIG: {
+    IMAGE: ['jpg', 'jpeg', 'png', 'gif', 'heic', 'heif', 'svg', 'webp', 'bmp'],
+    PDF: ['pdf'],
+    DOCUMENT: ['doc', 'docx', 'txt', 'rtf'],
+    SPREADSHEET: ['xls', 'xlsx', 'csv'],
+    PRESENTATION: ['ppt', 'pptx'],
+  },
 };

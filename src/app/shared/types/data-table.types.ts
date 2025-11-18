@@ -8,6 +8,7 @@ export enum EDataTableInputType {
 }
 
 export enum ETableActionType {
+  DOWNLOAD = 'download',
   CLEAR_SELECTION = 'clearSelection',
   VIEW = 'view',
   EDIT = 'edit',

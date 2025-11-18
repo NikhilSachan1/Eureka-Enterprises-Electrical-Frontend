@@ -1,0 +1,221 @@
+// ============================================================================
+// SASS MODULES & VARIABLES
+// ============================================================================
+@use "sass:map";
+
+$colors: (
+  bg: #0f172a,
+  surface: #1e293b,
+  surface-hover: #334155,
+  text: #f8fafc,
+  text-dim: #94a3b8,
+  border: rgba(148, 163, 184, 0.2),
+  accent: #8b5cf6,
+);
+
+// ============================================================================
+// PRIMENG OVERRIDES
+// ============================================================================
+:host ::ng-deep {
+  .p-galleria-nav-button {
+    z-index: 1000;
+  }
+
+  .p-galleria {
+    border: none !important;
+
+    .p-galleria-item-container {
+      position: relative;
+    }
+
+    .p-galleria-item {
+      padding: 1rem;
+      background: map.get($colors, bg);
+      width: 1200px;
+      max-width: 100%;
+      height: 650px;
+      margin: 0 auto;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .p-image-preview-mask {
+    span {
+      margin-left: 0.5rem;
+      color: map.get($colors, text);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 1rem;
+    }
+  }
+
+  .p-image {
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      max-width: 100%;
+      max-height: 600px;
+      object-fit: contain;
+    }
+  }
+
+  .pdf-modal {
+    .p-dialog-header {
+      background: map.get($colors, surface);
+      border-bottom: 1px solid map.get($colors, border);
+      color: map.get($colors, text);
+      padding: 1.5rem;
+    }
+
+    .p-dialog-content {
+      padding: 0;
+      background: map.get($colors, bg);
+    }
+
+    .p-dialog-header-icons button:hover {
+      background: map.get($colors, surface-hover);
+      transform: scale(1.05);
+    }
+  }
+}
+
+// ============================================================================
+// GALLERY VIEWER
+// ============================================================================
+.gallery-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+
+  &__content {
+    padding: 2rem;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__pdf-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    max-height: 600px;
+  }
+
+  &__pdf-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    background: map.get($colors, surface);
+  }
+
+  &__pdf-embed {
+    width: 100%;
+    flex: 1;
+    min-height: 400px;
+    max-height: 550px;
+    border: none;
+  }
+
+  &__pdf-fullscreen {
+    width: 100%;
+    height: 100%;
+    min-height: 80vh;
+    border: none;
+  }
+
+  &__file {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 4rem 3rem;
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 16px;
+  }
+
+  &__file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    background: rgba(139, 92, 246, 0.15);
+    border: 2px solid rgba(139, 92, 246, 0.3);
+    border-radius: 20px;
+
+    i {
+      font-size: 3rem;
+      color: map.get($colors, accent);
+    }
+  }
+
+  &__file-ext {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: map.get($colors, text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__file-msg {
+    font-size: 0.95rem;
+    color: map.get($colors, text-dim);
+    margin: 0;
+  }
+
+  &__file-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+// ============================================================================
+// GALLERY THUMBNAILS
+// ============================================================================
+.gallery-thumb {
+  &__image {
+    display: block;
+    width: 50%;
+    margin: 0 auto;
+    object-fit: contain;
+  }
+
+  &__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: map.get($colors, surface);
+    border-radius: 8px;
+    min-height: 80px;
+
+    i {
+      font-size: 2rem;
+      color: map.get($colors, accent);
+    }
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: map.get($colors, text-dim);
+    text-transform: uppercase;
+  }
+}

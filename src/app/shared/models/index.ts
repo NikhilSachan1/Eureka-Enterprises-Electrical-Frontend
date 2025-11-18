@@ -64,3 +64,8 @@ export type {
   IDrawerDetail,
   IDrawerEmployeeDetails,
 } from './drawer.model';
+export type {
+  IGalleryData,
+  IGalleryConfig,
+  IGalleryInputData,
+} from './gallery.model';

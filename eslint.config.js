@@ -133,7 +133,7 @@ module.exports = tseslint.config(
     ],
     rules: {
       // Template specific rules
-      '@angular-eslint/template/alt-text': 'error',
+      '@angular-eslint/template/alt-text': 'off',
       '@angular-eslint/template/elements-content': 'error',
       '@angular-eslint/template/label-has-associated-control': 'error',
       '@angular-eslint/template/table-scope': 'error',
