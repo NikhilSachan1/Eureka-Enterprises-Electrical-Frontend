@@ -42,3 +42,21 @@ export enum EButtonSize {
   SMALL = 'small',
   LARGE = 'large',
 }
+
+export enum EButtonActionType {
+  PAGE_HEADER_BUTTON_1 = 'pageHeaderButton1',
+  RESET = 'reset',
+  SUBMIT = 'submit',
+  FILTER = 'filter',
+  DOWNLOAD = 'download',
+  CLEAR_SELECTION = 'clearSelection',
+  VIEW = 'view',
+  EDIT = 'edit',
+  SET_PERMISSIONS = 'setPermissions',
+  DELETE_PERMISSIONS = 'deletePermissions',
+  DELETE = 'delete',
+  APPROVE = 'approve',
+  REJECT = 'reject',
+  CANCEL = 'cancel',
+  REGULARIZE = 'regularize',
+}

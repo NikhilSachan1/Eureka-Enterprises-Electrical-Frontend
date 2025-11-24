@@ -1,6 +1,6 @@
 import {
   EPrimeNGSeverity,
-  ETableActionType,
+  EButtonActionType,
   ETableBodyTemplate,
   ETableDataType,
   ETableFilterDisplayType,
@@ -87,7 +87,7 @@ export interface ITableActionConfig<T = Record<string, unknown>>
 }
 
 export interface ITableActionClickEvent<T = Record<string, unknown>> {
-  actionType: ETableActionType;
+  actionType: EButtonActionType;
   selectedRows: T[];
 }
 

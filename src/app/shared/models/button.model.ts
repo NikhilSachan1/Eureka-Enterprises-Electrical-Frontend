@@ -4,11 +4,11 @@ import {
   EButtonSeverity,
   EButtonSize,
   EButtonVariant,
-  ETableActionType,
+  EButtonActionType,
 } from '@shared/types';
 
 export interface IButtonConfig {
-  id: ETableActionType;
+  id: EButtonActionType;
   type: string;
   label: string;
   icon: string;

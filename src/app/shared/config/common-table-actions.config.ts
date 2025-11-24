@@ -1,39 +1,39 @@
-import { ETableActionType } from '@shared/types';
+import { EButtonActionType } from '@shared/types';
 import { ICONS } from '@shared/constants';
 
 export const COMMON_ROW_ACTIONS = {
   VIEW: {
-    id: ETableActionType.VIEW,
+    id: EButtonActionType.VIEW,
     icon: ICONS.COMMON.VIEW,
     tooltip: 'View Details',
   },
 
   EDIT: {
-    id: ETableActionType.EDIT,
+    id: EButtonActionType.EDIT,
     icon: ICONS.ACTIONS.EDIT,
     tooltip: 'Edit',
   },
 
   DELETE: {
-    id: ETableActionType.DELETE,
+    id: EButtonActionType.DELETE,
     icon: ICONS.ACTIONS.TRASH,
     tooltip: 'Delete',
   },
 
   APPROVE: {
-    id: ETableActionType.APPROVE,
+    id: EButtonActionType.APPROVE,
     icon: ICONS.ACTIONS.CHECK,
     tooltip: 'Approve',
   },
 
   REJECT: {
-    id: ETableActionType.REJECT,
+    id: EButtonActionType.REJECT,
     icon: ICONS.ACTIONS.TIMES,
     tooltip: 'Reject',
   },
 
   CANCEL: {
-    id: ETableActionType.CANCEL,
+    id: EButtonActionType.CANCEL,
     icon: ICONS.ACTIONS.TIMES,
     tooltip: 'Cancel',
   },

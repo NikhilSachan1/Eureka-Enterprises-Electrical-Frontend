@@ -20,7 +20,7 @@ import {
   IAttendanceActionResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
 import { IAttendance } from '@features/attendance-management/types/attendance.interface';
-import { ETableActionType, ETableActionTypeValue } from '@shared/types';
+import { EButtonActionType, ETableActionTypeValue } from '@shared/types';
 import { finalize } from 'rxjs';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 
@@ -47,7 +47,7 @@ export class ApprovalAttendanceComponent implements OnInit {
   }
 
   protected onAttendanceApprovalAction(
-    actionType: ETableActionType,
+    actionType: EButtonActionType,
     selectedRows: IAttendance[],
     dialogFormData?: Record<string, string>
   ): void {
@@ -61,16 +61,16 @@ export class ApprovalAttendanceComponent implements OnInit {
   }
 
   private prepareAttendanceApprovalFormData(
-    actionType: ETableActionType,
+    actionType: EButtonActionType,
     selectedRows: IAttendance[],
     dialogFormData?: Record<string, string>
   ): IAttendanceActionRequestDto {
     const { comment } = dialogFormData as { comment: string };
     let actionTypeValue = ETableActionTypeValue.APPROVED;
 
-    if (actionType === ETableActionType.APPROVE) {
+    if (actionType === EButtonActionType.APPROVE) {
       actionTypeValue = ETableActionTypeValue.APPROVED;
-    } else if (actionType === ETableActionType.REJECT) {
+    } else if (actionType === EButtonActionType.REJECT) {
       actionTypeValue = ETableActionTypeValue.REJECTED;
     }
 
@@ -85,16 +85,16 @@ export class ApprovalAttendanceComponent implements OnInit {
 
   private executeAttendanceApprovalAction(
     formData: IAttendanceActionRequestDto,
-    actionType: ETableActionType
+    actionType: EButtonActionType
   ): void {
     let loadingMessage;
 
-    if (actionType === ETableActionType.APPROVE) {
+    if (actionType === EButtonActionType.APPROVE) {
       loadingMessage = {
         title: 'Approving Attendance',
         message: 'Please wait while we approve the attendance...',
       };
-    } else if (actionType === ETableActionType.REJECT) {
+    } else if (actionType === EButtonActionType.REJECT) {
       loadingMessage = {
         title: 'Rejecting Attendance',
         message: 'Please wait while we reject the attendance...',

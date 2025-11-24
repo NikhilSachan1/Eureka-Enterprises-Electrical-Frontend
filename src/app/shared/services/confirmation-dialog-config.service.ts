@@ -7,7 +7,7 @@ import {
   IConfirmationDialogSettingConfig,
   IDialogActionConfig,
 } from '@shared/models';
-import { EDialogType, ETableActionType } from '@shared/types';
+import { EDialogType, EButtonActionType } from '@shared/types';
 import { deepMerge } from '@shared/utility';
 import {
   ALLOCATE_CONFIRMATION_DIALOG_CONFIG,
@@ -84,7 +84,7 @@ export class ConfirmationDialogService {
   }
 
   createDialogConfig(
-    actionType: ETableActionType,
+    actionType: EButtonActionType,
     actionConfigMap: Record<string, IDialogActionConfig>,
     recordDetail: IConfirmationDialogRecordDetailConfig,
     isBulk = false,

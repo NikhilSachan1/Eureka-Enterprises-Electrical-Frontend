@@ -5,7 +5,6 @@ export {
 } from './confirmation-dialog.types';
 export {
   EDataTableInputType,
-  ETableActionType,
   ETableActionTypeValue,
   ETableBodyTemplate,
   ETableDataType,
@@ -43,6 +42,7 @@ export {
   EButtonVariant,
   EButtonBadgeSeverity,
   EButtonSize,
+  EButtonActionType,
 } from './button.types';
 export { ETabMode } from './tab-items.types';
 export { EDrawerPosition, EDrawerDetailType } from './drawer.types';

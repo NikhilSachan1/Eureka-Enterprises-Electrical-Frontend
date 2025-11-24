@@ -14,6 +14,9 @@ export class ColorUtil {
         'present',
         'clearselection',
         'download',
+        'submit',
+        'filter',
+        'pageheaderbutton1',
       ],
     },
     danger: {

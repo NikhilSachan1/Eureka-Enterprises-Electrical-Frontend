@@ -5,7 +5,7 @@ import {
   ITableActionConfig,
 } from '@shared/models';
 import {
-  ETableActionType,
+  EButtonActionType,
   ETableBodyTemplate,
   ETableDataType,
   ETableFilterMatchMode,
@@ -128,7 +128,7 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] 
       tooltip: 'View Attendance Details',
     },
     {
-      id: ETableActionType.REGULARIZE,
+      id: EButtonActionType.REGULARIZE,
       icon: ICONS.ATTENDANCE.REGULARIZE,
       tooltip: 'Regularize Attendance',
     },

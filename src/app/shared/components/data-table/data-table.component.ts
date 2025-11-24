@@ -31,7 +31,7 @@ import {
   IButtonConfig,
   ITableActionClickEvent,
 } from '@shared/models';
-import { ETableActionType, ETableBodyTemplate } from '@shared/types';
+import { EButtonActionType, ETableBodyTemplate } from '@shared/types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { AvatarService } from '@shared/services';
 import { ICONS } from '@shared/constants';
@@ -137,7 +137,7 @@ export class DataTableComponent {
     return false;
   }
 
-  protected onBulkActionClick(actionType: ETableActionType): void {
+  protected onBulkActionClick(actionType: EButtonActionType): void {
     this.bulkActionClick.emit({
       actionType,
       selectedRows: this.selectedTableRows(),
@@ -145,7 +145,7 @@ export class DataTableComponent {
   }
 
   protected onRowActionClick(
-    actionType: ETableActionType,
+    actionType: EButtonActionType,
     rowData: Record<string, unknown>
   ): void {
     this.rowActionClick.emit({ actionType, selectedRows: [rowData] });
@@ -157,7 +157,7 @@ export class DataTableComponent {
 
   protected getClearSelectionButtonConfig(): Partial<IButtonConfig> {
     return {
-      id: ETableActionType.CLEAR_SELECTION,
+      id: EButtonActionType.CLEAR_SELECTION,
       label: 'Clear Selection',
       icon: this.icons.ACTIONS.TIMES,
     };

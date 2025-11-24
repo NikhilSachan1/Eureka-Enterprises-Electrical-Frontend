@@ -18,7 +18,7 @@ import {
   IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/models';
-import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
@@ -43,7 +43,7 @@ import {
 } from '../../types/attendance.dto';
 import { IAttendance } from '../../types/attendance.interface';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
-import { EDialogType, ETableActionType } from '@shared/types';
+import { EDialogType, EButtonActionType } from '@shared/types';
 import { getOriginalDataForSelectedRows, stringToArray } from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 import { APP_CONFIG } from '@core/config';
@@ -51,6 +51,7 @@ import { DatePipe } from '@angular/common';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { buildTableDataWithUnifiedMapping } from '@shared/utility/component.util';
+import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 
 @Component({
   selector: 'app-get-attendance',
@@ -193,15 +194,15 @@ export class GetAttendanceComponent implements OnInit {
       IAttendanceGetBaseResponseDto
     >(selectedRows, this.originalAttendanceData, 'id');
 
-    if (actionType === ETableActionType.VIEW) {
+    if (actionType === EButtonActionType.VIEW) {
       this.showAttendanceDetailsDrawer(originalSelectedRows);
       return;
     }
 
     const dialogTypeMap: Record<string, EDialogType> = {
-      [ETableActionType.APPROVE]: EDialogType.APPROVE,
-      [ETableActionType.REJECT]: EDialogType.REJECT,
-      [ETableActionType.REGULARIZE]: EDialogType.REGULARIZE,
+      [EButtonActionType.APPROVE]: EDialogType.APPROVE,
+      [EButtonActionType.REJECT]: EDialogType.REJECT,
+      [EButtonActionType.REGULARIZE]: EDialogType.REGULARIZE,
     };
 
     const dialogType = dialogTypeMap[actionType];
@@ -290,7 +291,7 @@ export class GetAttendanceComponent implements OnInit {
       showHeaderButton: true,
       headerButtonConfig: {
         label: 'Apply Attendance',
-        icon: ICONS.COMMON.PLUS,
+        ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
       },
     };
   }
