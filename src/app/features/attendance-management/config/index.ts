@@ -1,4 +1,4 @@
-export { createAttendanceDialogConfig } from './dialog/get-attendance.config';
+export { ATTENDANCE_ACTION_CONFIG_MAP } from './dialog/get-attendance.config';
 
 export {
   ATTENDANCE_TABLE_CONFIG,

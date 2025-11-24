@@ -1,11 +1,9 @@
-import { FormGroup } from '@angular/forms';
-import { Signal } from '@angular/core';
 import {
   EConfirmationDialogRecordDetailInputType,
   EDialogPosition,
 } from '@shared/types';
 import { IButtonConfig } from '@shared/models/button.model';
-import { IFormInputFieldsConfig } from '@shared/models/form.model';
+import { Type } from '@angular/core';
 
 export interface IConfirmationDialogSettingConfig {
   header: string;
@@ -33,40 +31,21 @@ export interface IConfirmationDialogRecordDetailConfig {
   }[];
 }
 
+export interface IDialogActionHandler {
+  onDialogAccept?: () => void | Promise<void>;
+  onDialogReject?: () => void | Promise<void>;
+}
+
 export interface IConfirmationDialogConfig {
   dialogSettingConfig?: Partial<IConfirmationDialogSettingConfig>;
-  inputFields?: IFormInputFieldsConfig;
   recordDetails?: IConfirmationDialogRecordDetailConfig;
-  onAccept?: (formData?: Record<string, unknown>) => void;
-  onReject?: (formData?: Record<string, unknown>) => void;
+  dynamicComponent?: Type<unknown>;
+  dynamicComponentInputs?: Record<string, unknown>;
 }
 
-export interface IDialogState {
-  formGroup: FormGroup | null;
-  config: IConfirmationDialogConfig;
-  onAccept?: (formData?: Record<string, unknown>) => void;
-  onReject?: (formData?: Record<string, unknown>) => void;
-}
-
-export interface IEnhancedConfirmationDialog {
-  config: Signal<IConfirmationDialogConfig>;
-  formGroup: Signal<FormGroup | null>;
-  isOpen: Signal<boolean>; // Signal indicating whether the dialog is currently visible/open
-  isLoading: Signal<boolean>; // Signal indicating whether the dialog is in a loading state (e.g., during async operations)
-  show: () => void; // Opens/displays the confirmation dialog
-  hide: () => void; // Closes/hides the confirmation dialog
-  setLoading: (loading: boolean) => void; // Sets the loading state of the dialog (shows/hides loading indicators)
-  updateConfig: (
-    config: Partial<IConfirmationDialogConfig>
-  ) => IConfirmationDialogConfig; // Updates the dialog configuration dynamically and returns the updated config
-}
-
-/**
- * Interface for configuring dynamic fields that change based on a trigger field's value
- */
-export interface IDynamicFieldConfig {
-  triggerFieldName: string;
-  getFieldsForValue: (
-    triggerValue: string | number | boolean | null
-  ) => IFormInputFieldsConfig;
+export interface IDialogActionConfig {
+  actionWord: string;
+  singleLabel: string;
+  bulkLabel: string;
+  dynamicComponent?: Type<unknown>;
 }

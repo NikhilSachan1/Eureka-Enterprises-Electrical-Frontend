@@ -2,9 +2,8 @@ export type {
   IConfirmationDialogSettingConfig,
   IConfirmationDialogRecordDetailConfig,
   IConfirmationDialogConfig,
-  IDialogState,
-  IDynamicFieldConfig,
-  IEnhancedConfirmationDialog,
+  IDialogActionHandler,
+  IDialogActionConfig,
 } from './confirmation-dialog.model';
 export type {
   IDataTableConfig,

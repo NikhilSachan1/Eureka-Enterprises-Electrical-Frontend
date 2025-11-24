@@ -20,7 +20,8 @@ export interface IEnhancedTable {
   data: Signal<Record<string, unknown>[]>;
   loading: Signal<boolean>;
 
-  setData(data: Record<string, unknown>[]): Signal<Record<string, unknown>[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setData(data: Record<string, any>[]): Signal<Record<string, unknown>[]>;
   setLoading(loading: boolean): Signal<boolean>;
   updateTableConfig(
     config: Partial<IDataTableConfig>

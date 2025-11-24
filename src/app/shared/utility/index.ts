@@ -14,3 +14,7 @@ export {
   calculateMinEditableDate,
 } from './date-time.util';
 export { getMediaTypeFromUrl, getFileExtension } from './media.util';
+export {
+  buildTableDataWithUnifiedMapping,
+  getOriginalDataForSelectedRows,
+} from './component.util';

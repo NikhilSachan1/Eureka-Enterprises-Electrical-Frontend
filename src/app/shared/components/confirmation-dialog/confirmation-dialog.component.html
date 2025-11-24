@@ -42,22 +42,10 @@
         </div>
       }
 
-      <!-- Form Section -->
-      @if (currentFormGroup() && hasFormFields()) {
-        <div class="w-full space-y-4">
-          <form
-            [formGroup]="currentFormGroup()!"
-            class="form"
-          >
-            @for (fieldConfig of formFieldConfigs(); track fieldConfig.fieldName) {
-              <div class="w-full">
-                <app-input-field
-                  [formGroup]="currentFormGroup()!"
-                  [inputFieldConfig]="fieldConfig"
-                />
-              </div>
-            }
-          </form>
+      <!-- Dynamic Component Container -->
+      @if (currentDialogConfig().dynamicComponent) {
+        <div class="w-full">
+          <ng-container #dynamicComponentContainer></ng-container>
         </div>
       }
 

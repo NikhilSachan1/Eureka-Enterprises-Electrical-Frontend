@@ -4,14 +4,20 @@ import { EAttendanceStatus } from './attendance.enum';
 export interface IAttendance
   extends Omit<
     IAttendanceGetBaseResponseDto,
-    'checkInTime' | 'checkOutTime' | 'notes' | 'user' | 'status'
+    | 'checkInTime'
+    | 'checkOutTime'
+    | 'notes'
+    | 'user'
+    | 'status'
+    | 'createdBy'
+    | 'approvalBy'
+    | 'workDuration'
   > {
+  attendanceStatus: string;
   siteLocation: string;
   clientName: string;
   employeeName: string;
-  employeeCode: string;
-  employeeId: string;
-  attendanceStatus: string;
+  employeeCode?: string;
 }
 
 export interface IAttendanceCurrentStatus {

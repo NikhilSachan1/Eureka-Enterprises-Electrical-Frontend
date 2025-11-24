@@ -37,13 +37,13 @@ export const routes: Routes = [
       ).then(m => m.PrivateLayoutComponent),
     canActivate: [authGuard],
     children: [
-      {
-        path: ROUTE_BASE_PATHS.SETTINGS.BASE,
-        loadChildren: () =>
-          import(
-            './features/settings-management/setting-management.routes'
-          ).then(m => m.SETTING_MANAGEMENT_ROUTES),
-      },
+      // {
+      //   path: ROUTE_BASE_PATHS.SETTINGS.BASE,
+      //   loadChildren: () =>
+      //     import(
+      //       './features/settings-management/setting-management.routes'
+      //     ).then(m => m.SETTING_MANAGEMENT_ROUTES),
+      // },
       {
         path: ROUTE_BASE_PATHS.ATTENDANCE,
         loadChildren: () =>
@@ -51,23 +51,23 @@ export const routes: Routes = [
             m => m.ATTENDANCE_MANAGEMENT_ROUTES
           ),
       },
-      {
-        path: ROUTE_BASE_PATHS.EXPENSE,
-        loadChildren: () =>
-          import('./features/expense-management/expense.routes').then(
-            m => m.EXPENSE_MANAGEMENT_ROUTES
-          ),
-      },
-      {
-        path: ROUTE_BASE_PATHS.LEAVE,
-        loadChildren: () =>
-          import('./features/leave-management/leave.routes').then(
-            m => m.LEAVE_MANAGEMENT_ROUTES
-          ),
-      },
+      // {
+      //   path: ROUTE_BASE_PATHS.EXPENSE,
+      //   loadChildren: () =>
+      //     import('./features/expense-management/expense.routes').then(
+      //       m => m.EXPENSE_MANAGEMENT_ROUTES
+      //     ),
+      // },
+      // {
+      //   path: ROUTE_BASE_PATHS.LEAVE,
+      //   loadChildren: () =>
+      //     import('./features/leave-management/leave.routes').then(
+      //       m => m.LEAVE_MANAGEMENT_ROUTES
+      //     ),
+      // },
       {
         path: '**',
-        redirectTo: `${ROUTE_BASE_PATHS.SETTINGS.BASE}`,
+        redirectTo: `${ROUTE_BASE_PATHS.ATTENDANCE}`,
       },
     ],
   },

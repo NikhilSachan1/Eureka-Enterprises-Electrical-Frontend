@@ -8,12 +8,12 @@ import {
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { CardModule } from 'primeng/card';
-import { IAttendance } from '../../types/attendance.interface';
 import { AttendanceService } from '../../services/attendance.service';
 import { LoadingService } from '@shared/services/loading.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  IAttendanceGetBaseResponseDto,
   IAttendanceHistoryGetRequestDto,
   IAttendanceHistoryGetResponseDto,
 } from '../../types/attendance.dto';
@@ -31,7 +31,7 @@ import { AppConfigService } from '@core/services';
 })
 export class GetAttendanceDetailComponent extends DrawerDetailBase {
   protected readonly drawerData = inject(DRAWER_DATA) as {
-    attendance: IAttendance;
+    attendance: IAttendanceGetBaseResponseDto;
   };
   private readonly attendanceService = inject(AttendanceService);
   private readonly loadingService = inject(LoadingService);
@@ -78,7 +78,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
 
   private prepareParamData(): IAttendanceHistoryGetRequestDto {
     return {
-      userId: this.drawerData.attendance.employeeId,
+      userId: this.drawerData.attendance?.user?.id ?? '',
       date: this.drawerData.attendance.attendanceDate.split('T')[0],
     };
   }
@@ -144,7 +144,10 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   }
 
   protected getEmployeeDetails(): IDrawerEmployeeDetails {
-    const { employeeName, employeeCode } = this.drawerData.attendance;
-    return { name: employeeName, employeeCode };
+    const { user } = this.drawerData.attendance;
+    return {
+      name: `${user.firstName} ${user.lastName}`,
+      employeeCode: user.employeeId ?? 'N/A',
+    };
   }
 }

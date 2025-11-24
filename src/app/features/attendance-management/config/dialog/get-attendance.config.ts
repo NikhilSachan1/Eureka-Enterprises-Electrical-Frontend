@@ -1,71 +1,26 @@
-import {
-  IConfirmationDialogConfig,
-  IConfirmationDialogRecordDetailConfig,
-  IFormInputFieldsConfig,
-} from '@shared/models';
-import { EButtonSeverity, ETableActionType } from '@shared/types';
-import {
-  APPROVE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG,
-  REJECT_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG,
-  REGULARIZE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG,
-} from '../form/dialog-attendance.config';
+import { ApprovalAttendanceComponent } from '@features/attendance-management/components/approval-attendance/approval-attendance.component';
+import { RegularizeAttendanceComponent } from '@features/attendance-management/components/regularize-attendance/regularize-attendance.component';
+import { IDialogActionConfig } from '@shared/models';
+import { ETableActionType } from '@shared/types';
 
-export const createAttendanceDialogConfig = (
-  actionType: ETableActionType,
-  recordDetail: IConfirmationDialogRecordDetailConfig,
-  isBulk = false,
-  showRecords = true,
-  onAccept?: () => void,
-  onReject?: () => void
-): IConfirmationDialogConfig => {
-  let actionWord = '';
-  let acceptLabel = '';
-  let inputFields = {} as IFormInputFieldsConfig;
-
-  switch (actionType) {
-    case ETableActionType.APPROVE:
-      actionWord = 'approve';
-      acceptLabel = isBulk ? 'Approve All' : 'Approve';
-      inputFields = APPROVE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG;
-      break;
-
-    case ETableActionType.REJECT:
-      actionWord = 'reject';
-      acceptLabel = isBulk ? 'Reject All' : 'Reject';
-      inputFields = REJECT_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG;
-      break;
-
-    case ETableActionType.REGULARIZE:
-      actionWord = 'regularize';
-      acceptLabel = 'Regularize';
-      inputFields = REGULARIZE_ATTENDANCE_DIALOG_FORM_FIELDS_CONFIG;
-      break;
-
-    default:
-      throw new Error(`Unsupported action type: ${actionType}`);
-      break;
-  }
-
-  const header = `${acceptLabel} Attendance`;
-  const message = `Are you sure you want to ${actionWord} ${isBulk ? 'the selected attendance records' : 'this attendance record'}?`;
-
-  const dialogConfig: IConfirmationDialogConfig = {
-    dialogSettingConfig: {
-      header,
-      message,
-      acceptButtonProps: {
-        label: acceptLabel,
-        severity: EButtonSeverity.SUCCESS,
-      },
-      rejectButtonProps: {
-        label: 'Cancel',
-        severity: EButtonSeverity.SECONDARY,
-      },
+export const ATTENDANCE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
+  {
+    [ETableActionType.APPROVE]: {
+      actionWord: 'approve',
+      singleLabel: 'Approve',
+      bulkLabel: 'Approve All',
+      dynamicComponent: ApprovalAttendanceComponent,
     },
-    recordDetails: showRecords ? recordDetail : undefined,
-    inputFields,
-    onAccept,
-    onReject,
+    [ETableActionType.REJECT]: {
+      actionWord: 'reject',
+      singleLabel: 'Reject',
+      bulkLabel: 'Reject All',
+      dynamicComponent: ApprovalAttendanceComponent,
+    },
+    [ETableActionType.REGULARIZE]: {
+      actionWord: 'regularize',
+      singleLabel: 'Regularize',
+      bulkLabel: 'Regularize',
+      dynamicComponent: RegularizeAttendanceComponent,
+    },
   };
-  return dialogConfig;
-};

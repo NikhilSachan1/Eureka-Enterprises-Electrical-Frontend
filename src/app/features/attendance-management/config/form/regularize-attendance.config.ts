@@ -1,0 +1,43 @@
+import { Validators } from '@angular/forms';
+import { CLIENT_NAME_DATA, LOCATION_DATA } from '@shared/config';
+import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
+import { IFormConfig, IFormInputFieldsConfig } from '@shared/models';
+import { EFieldType } from '@shared/types';
+
+const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+  attendanceStatus: {
+    fieldType: EFieldType.Select,
+    id: 'attendanceStatus',
+    fieldName: 'attendanceStatus',
+    label: 'Attendance Status',
+    selectConfig: {
+      haveFilter: false,
+      optionsDropdown: ATTENDANCE_STATUS_DATA,
+    },
+    validators: [Validators.required],
+  },
+  clientName: {
+    fieldType: EFieldType.Select,
+    id: 'clientName',
+    fieldName: 'clientName',
+    label: 'Client Name',
+    selectConfig: {
+      optionsDropdown: CLIENT_NAME_DATA,
+    },
+    validators: [Validators.required],
+  },
+  location: {
+    fieldType: EFieldType.Select,
+    id: 'location',
+    fieldName: 'location',
+    label: 'Location',
+    selectConfig: {
+      optionsDropdown: LOCATION_DATA,
+    },
+    validators: [Validators.required],
+  },
+};
+
+export const REGULARIZE_ATTENDANCE_FORM_CONFIG: IFormConfig = {
+  fields: REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG,
+};

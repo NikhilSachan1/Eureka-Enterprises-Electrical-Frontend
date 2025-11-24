@@ -2,98 +2,56 @@ import {
   Component,
   ChangeDetectionStrategy,
   inject,
-  signal,
-  OnInit,
   computed,
-  DestroyRef,
   viewChild,
+  ViewContainerRef,
+  effect,
+  ComponentRef,
 } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ConfirmationDialogService, FormService } from '@shared/services';
+import { ConfirmationDialogService } from '@shared/services';
 import {
   IButtonConfig,
   IConfirmationDialogConfig,
-  IDialogState,
-  IInputFieldsConfig,
+  IDialogActionHandler,
 } from '@shared/models';
 import { ButtonComponent } from '../button/button.component';
-import { InputFieldComponent } from '../input-field/input-field.component';
-import { LoggerService } from '@core/services';
 
 @Component({
   selector: 'app-confirmation-dialog',
   standalone: true,
-  imports: [
-    ConfirmDialogModule,
-    ButtonComponent,
-    InputFieldComponent,
-    ReactiveFormsModule,
-  ],
+  imports: [ConfirmDialogModule, ButtonComponent],
   templateUrl: './confirmation-dialog.component.html',
   styleUrls: ['./confirmation-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConfirmationDialogComponent implements OnInit {
+export class ConfirmationDialogComponent {
   readonly confirmDialog = viewChild.required<ConfirmDialog>('cd');
+  readonly dynamicComponentContainer = viewChild<unknown, ViewContainerRef>(
+    'dynamicComponentContainer',
+    { read: ViewContainerRef }
+  );
+
+  private dynamicComponentRef?: ComponentRef<unknown>;
 
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly formService = inject(FormService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly logger = inject(LoggerService);
 
-  // State signals
-  protected readonly currentFormGroup = signal<FormGroup | null>(null);
-  protected readonly currentDialogConfig = signal<IConfirmationDialogConfig>(
-    {}
-  );
-  protected readonly onAcceptCallback = signal<
-    ((formData?: Record<string, unknown>) => void) | undefined
-  >(undefined);
-  protected readonly onRejectCallback = signal<
-    ((formData?: Record<string, unknown>) => void) | undefined
-  >(undefined);
+  protected readonly currentDialogConfig =
+    this.confirmationDialogService.dialogState;
 
-  ngOnInit(): void {
-    this.initializeDialogStateSubscription();
+  constructor() {
+    effect(() => {
+      const config = this.currentDialogConfig();
+      this.loadDynamicComponent(config);
+    });
+
+    this.confirmationDialogService.setCloseCallback(() => {
+      this.confirmDialog()?.close();
+    });
   }
 
-  private initializeDialogStateSubscription(): void {
-    this.confirmationDialogService
-      .getDialogState()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((state: IDialogState) => {
-        this.updateDialogState(state);
-      });
-  }
-
-  private updateDialogState(state: IDialogState): void {
-    this.logger.info('Dialog state updated:', state);
-    this.currentFormGroup.set(state.formGroup);
-    this.currentDialogConfig.set(state.config);
-    this.onAcceptCallback.set(state.onAccept);
-    this.onRejectCallback.set(state.onReject);
-  }
-
-  private executeCallback(
-    confirmed: boolean,
-    formData: Record<string, unknown> | null
-  ): void {
-    try {
-      if (confirmed) {
-        this.onAcceptCallback()?.(formData ?? undefined);
-      } else {
-        this.onRejectCallback()?.(formData ?? undefined);
-      }
-    } catch (error) {
-      console.error('Error executing dialog callback:', error);
-    }
-  }
-
-  // Button configurations as computed signals
   protected readonly acceptButtonConfig = computed<Partial<IButtonConfig>>(
     () => {
       const dialog = this.currentDialogConfig();
@@ -118,19 +76,6 @@ export class ConfirmationDialogComponent implements OnInit {
     }
   );
 
-  // Computed properties for dialog state
-  protected readonly hasFormFields = computed(() => {
-    const dialog = this.currentDialogConfig();
-    return dialog?.inputFields && Object.keys(dialog.inputFields).length > 0;
-  });
-
-  protected readonly formFieldConfigs = computed<IInputFieldsConfig[]>(() => {
-    const dialog = this.currentDialogConfig();
-    return dialog?.inputFields
-      ? (Object.values(dialog.inputFields) as IInputFieldsConfig[])
-      : [];
-  });
-
   protected readonly hasRecordDetails = computed(() => {
     const dialog = this.currentDialogConfig();
     return (
@@ -148,22 +93,68 @@ export class ConfirmationDialogComponent implements OnInit {
     return dialog?.dialogSettingConfig?.rejectButtonProps?.visible !== false;
   });
 
-  protected handleDialog(confirmed: boolean): void {
-    const formGroup = this.currentFormGroup();
-    let formData = null;
-
-    if (formGroup) {
-      if (confirmed && !this.formService.validateAndMarkTouched(formGroup)) {
-        return;
-      }
-      formData = this.formService.getData(formGroup);
+  protected async handleDialog(confirmed: boolean): Promise<void> {
+    if (confirmed) {
+      await this.handleAccept();
+    } else {
+      await this.handleReject();
     }
-
-    this.executeCallback(confirmed, formData);
-    this.closeDialog();
   }
 
-  private closeDialog(): void {
-    this.confirmDialog()?.close();
+  private async handleAccept(): Promise<void> {
+    if (this.dynamicComponentRef) {
+      const componentInstance = this.dynamicComponentRef
+        .instance as IDialogActionHandler;
+      if (componentInstance.onDialogAccept) {
+        await componentInstance.onDialogAccept();
+      } else {
+        // If no handler, close immediately
+        this.confirmationDialogService.closeDialog();
+      }
+    } else {
+      // If no component, close immediately
+      this.confirmationDialogService.closeDialog();
+    }
+  }
+
+  private async handleReject(): Promise<void> {
+    if (this.dynamicComponentRef) {
+      const componentInstance = this.dynamicComponentRef
+        .instance as IDialogActionHandler;
+      if (componentInstance.onDialogReject) {
+        await componentInstance.onDialogReject();
+      } else {
+        // If no handler, close immediately
+        this.confirmationDialogService.closeDialog();
+      }
+    } else {
+      // If no component, close immediately
+      this.confirmationDialogService.closeDialog();
+    }
+  }
+
+  private loadDynamicComponent(config: IConfirmationDialogConfig): void {
+    const container = this.dynamicComponentContainer();
+    if (!container) {
+      return;
+    }
+
+    container.clear();
+    this.dynamicComponentRef?.destroy();
+
+    const dynamicComponent = config?.dynamicComponent;
+    if (!dynamicComponent) {
+      return;
+    }
+
+    const ref = container.createComponent(dynamicComponent);
+    this.dynamicComponentRef = ref;
+
+    const inputs = config.dynamicComponentInputs;
+    if (inputs) {
+      Object.entries(inputs).forEach(([key, value]) =>
+        ref.setInput(key, value)
+      );
+    }
   }
 }
