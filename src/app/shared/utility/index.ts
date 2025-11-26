@@ -18,3 +18,4 @@ export {
   buildTableDataWithUnifiedMapping,
   getOriginalDataForSelectedRows,
 } from './component.util';
+export { ColorUtil } from './color.util';

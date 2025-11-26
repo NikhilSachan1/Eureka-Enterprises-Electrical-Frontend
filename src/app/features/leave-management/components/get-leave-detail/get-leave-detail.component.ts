@@ -13,7 +13,7 @@ import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import {
   IDrawerDetail,
   IDrawerEmployeeDetails,
-} from '@shared/models/drawer.model';
+} from '@shared/types/drawer/drawer.interface';
 import { EDrawerDetailType } from '@shared/types';
 import { toLowerCase } from '@shared/utility';
 

@@ -6,7 +6,7 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
   ITableData,
-} from '@shared/models';
+} from '@shared/types';
 import {
   DEFAULT_BULK_ACTION_CONFIG,
   DEFAULT_ROW_ACTION_CONFIG,

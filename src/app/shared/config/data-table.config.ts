@@ -7,8 +7,6 @@ import {
   ITextWithSubtitleAndImageConfig,
   IMatchModeOption,
   ITableActionConfig,
-} from '@shared/models';
-import {
   EButtonSeverity,
   EButtonVariant,
   ETableBodyTemplate,

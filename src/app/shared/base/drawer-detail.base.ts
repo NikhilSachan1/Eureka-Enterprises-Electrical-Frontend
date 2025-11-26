@@ -2,7 +2,7 @@ import { Directive, inject, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DrawerService } from '@shared/services/drawer.service';
 import { LoggerService } from '@core/services';
-import { IDrawerEvent } from '@shared/models';
+import { IDrawerEvent } from '@shared/types';
 
 @Directive()
 export abstract class DrawerDetailBase implements OnInit {

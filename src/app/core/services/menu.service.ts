@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { ApplicationMenu, MenuItem, MenuSection } from '@shared/models';
+import { ApplicationMenu, MenuItem, MenuSection } from '@shared/types';
 import { appMenu } from '@core/config';
 
 @Injectable({

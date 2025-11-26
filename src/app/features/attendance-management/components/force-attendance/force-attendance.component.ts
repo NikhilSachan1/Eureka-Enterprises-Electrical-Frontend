@@ -19,7 +19,7 @@ import {
   NotificationService,
   RouterNavigationService,
 } from '@shared/services';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/models';
+import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
 import { FORCE_ATTENDANCE_FORM_CONFIG } from '../../config';
 import { IAttendanceForceRequestDto } from '@features/attendance-management/types/attendance.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

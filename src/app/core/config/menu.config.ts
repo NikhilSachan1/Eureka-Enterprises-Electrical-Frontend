@@ -1,4 +1,4 @@
-import { ApplicationMenu } from '@shared/models';
+import { ApplicationMenu } from '@shared/types';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
 export const appMenu: ApplicationMenu = {

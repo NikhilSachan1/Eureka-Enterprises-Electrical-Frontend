@@ -7,10 +7,10 @@ import {
   ETableFilterMatchMode,
   ETableFilterOperator,
   ETableSearchInputType,
+  IInputFieldsConfig,
 } from '@shared/types';
-import { IButtonConfig } from '@shared/models/button.model';
-import { IInputFieldsConfig } from './input-fields-config.model';
-import { IFormButtonConfig } from './form.model';
+import { IButtonConfig } from '@shared/types/button/button.interface';
+import { IFormButtonConfig } from '../form/form.interface';
 
 export interface IDataTableConfig {
   rowHover: boolean;

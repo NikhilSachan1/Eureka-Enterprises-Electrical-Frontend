@@ -19,7 +19,11 @@ import {
 import { IAttendanceCurrentStatus } from '@features/attendance-management/types/attendance.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { IFormButtonConfig, IPageHeaderConfig } from '@shared/models';
+import {
+  IFormButtonConfig,
+  EButtonSeverity,
+  IPageHeaderConfig,
+} from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import {
@@ -27,7 +31,6 @@ import {
   NotificationService,
   RouterNavigationService,
 } from '@shared/services';
-import { EButtonSeverity } from '@shared/types';
 import { stringToArray } from '@shared/utility';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import {

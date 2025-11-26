@@ -1,4 +1,4 @@
-import { EPrimeNGSeverity } from '../types';
+import { EPrimeNGSeverity } from '..';
 
 export interface ITagConfig {
   rounded?: boolean;

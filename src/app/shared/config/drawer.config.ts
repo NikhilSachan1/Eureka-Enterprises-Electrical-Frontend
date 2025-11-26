@@ -1,4 +1,4 @@
-import { IDrawerConfig } from '@shared/models/drawer.model';
+import { IDrawerConfig } from '@shared/types/drawer/drawer.interface';
 import { EDrawerPosition } from '@shared/types';
 
 export const DEFAULT_DRAWER_CONFIG: Partial<IDrawerConfig> = {

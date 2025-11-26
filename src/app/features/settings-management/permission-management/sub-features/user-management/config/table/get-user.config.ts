@@ -1,17 +1,15 @@
 import { COMMON_ROW_ACTIONS, MATCH_MODE_OPTIONS } from '@shared/config';
-import {
-  ETableActionType,
-  ETableBodyTemplate,
-  ETableFilterMatchMode,
-  ETableSearchInputType,
-} from '@shared/types';
 import { ICONS } from '@shared/constants';
 import {
   ITableActionConfig,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
-} from '@shared/models';
+  ETableBodyTemplate,
+  ETableFilterMatchMode,
+  ETableSearchInputType,
+  EButtonActionType,
+} from '@shared/types';
 import { IUserGetBaseResponseDto } from '../../types/user.dto';
 import {
   EMPLOYEE_STATUS_DATA,
@@ -90,7 +88,7 @@ export const USER_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
 
 export const USER_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
   {
-    id: ETableActionType.SET_PERMISSIONS,
+    id: EButtonActionType.SET_PERMISSIONS,
     icon: ICONS.SETTINGS.COG,
     tooltip: 'Set User Permissions',
   },

@@ -1,4 +1,4 @@
-import { UserOption } from '@shared/models';
+import { UserOption } from '@shared/types';
 import { ICONS } from '@shared/constants';
 
 /**

@@ -17,7 +17,7 @@ import {
   IDrawerConfig,
   IDrawerPageHeaderConfig,
   IDrawerState,
-} from '@shared/models/drawer.model';
+} from '@shared/types/drawer/drawer.interface';
 import { LoggerService } from '@core/services';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { EDrawerPosition } from '@shared/types';

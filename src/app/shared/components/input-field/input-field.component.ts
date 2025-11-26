@@ -29,8 +29,8 @@ import {
   EHourFormat,
   EMultiSelectDisplayType,
   EUpAndDownButtonLayout,
+  IInputFieldsConfig,
 } from '@shared/types';
-import { IInputFieldsConfig } from '@shared/models';
 
 @Component({
   selector: 'app-input-field',

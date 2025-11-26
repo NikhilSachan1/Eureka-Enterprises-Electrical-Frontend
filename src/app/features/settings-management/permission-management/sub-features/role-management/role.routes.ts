@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
-import { canDeactivateGuard } from '@core/guards';
 
 export const ROLE_ROUTES: Routes = [
   {
@@ -19,7 +18,6 @@ export const ROLE_OUTSIDE_TAB_ROUTES: Routes = [
       import('./components/add-role/add-role.component').then(
         m => m.AddRoleComponent
       ),
-    canDeactivate: [canDeactivateGuard],
   },
   {
     path: `${ROUTES.SETTINGS.PERMISSION.ROLE.EDIT}/:roleId`,
@@ -27,6 +25,5 @@ export const ROLE_OUTSIDE_TAB_ROUTES: Routes = [
       import('./components/edit-role/edit-role.component').then(
         m => m.EditRoleComponent
       ),
-    canDeactivate: [canDeactivateGuard],
   },
 ];

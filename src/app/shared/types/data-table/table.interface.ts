@@ -3,7 +3,7 @@ import {
   IDataTableConfig,
   IDataTableHeaderConfig,
   ITableActionConfig,
-} from '@shared/models';
+} from '@shared/types';
 
 export interface IEnhancedTableConfig<T = Record<string, unknown>> {
   tableConfig?: Partial<IDataTableConfig>;

@@ -3,13 +3,11 @@ import {
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
   ITableActionConfig,
-} from '@shared/models';
-import {
-  EButtonActionType,
   ETableBodyTemplate,
   ETableDataType,
   ETableFilterMatchMode,
   ETableSearchInputType,
+  EButtonActionType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import {

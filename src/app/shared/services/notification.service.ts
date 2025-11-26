@@ -1,7 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { INotificationOptions } from '@shared/models';
-import { EPrimeNGNotificationSeverity, ESeverity } from '@shared/types';
+import {
+  EPrimeNGNotificationSeverity,
+  ESeverity,
+  INotificationOptions,
+} from '@shared/types';
 import {
   DEFAULT_NOTIFICATION_OPTIONS_CONFIG,
   DEFAULT_NOTIFICATION_MESSAGES,

@@ -13,8 +13,7 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { TabsModule } from 'primeng/tabs';
 import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
-import { ITabChange, ITabItem } from '@shared/models';
-import { ETabMode } from '@shared/types';
+import { ITabChange, ITabItem, ETabMode } from '@shared/types';
 import { RouterNavigationService } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 

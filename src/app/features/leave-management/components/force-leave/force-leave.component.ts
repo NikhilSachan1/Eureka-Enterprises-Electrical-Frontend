@@ -20,7 +20,7 @@ import {
   ROUTE_BASE_PATHS,
   ROUTES,
 } from '@shared/constants';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/models';
+import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
 import {
   FormService,
   LoadingService,

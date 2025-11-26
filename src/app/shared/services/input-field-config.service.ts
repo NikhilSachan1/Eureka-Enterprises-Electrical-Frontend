@@ -12,8 +12,11 @@ import {
   DEFAULT_SELECT_INPUT_FIELD_CONFIG,
   DEFAULT_TEXT_AREA_INPUT_FIELD_CONFIG,
 } from '@shared/config';
-import { IFormInputFieldsConfig, IInputFieldsConfig } from '@shared/models';
-import { EFieldType } from '@shared/types';
+import {
+  IFormInputFieldsConfig,
+  IInputFieldsConfig,
+  EFieldType,
+} from '@shared/types';
 import { deepMerge } from '@shared/utility';
 
 @Injectable({

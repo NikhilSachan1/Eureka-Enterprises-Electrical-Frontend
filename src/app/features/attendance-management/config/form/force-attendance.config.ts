@@ -10,11 +10,11 @@ import {
   PAYSLIP_DATE_DATA,
 } from '@shared/config/static-data.config';
 import {
+  EFieldType,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
-} from '@shared/models';
-import { EFieldType } from '@shared/types';
+} from '@shared/types';
 import { calculateMinEditableDate } from '@shared/utility';
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {

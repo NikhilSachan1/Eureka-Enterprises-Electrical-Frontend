@@ -6,14 +6,14 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { IButtonConfig } from '@shared/models';
-import { DEFAULT_BUTTON_CONFIG } from '@shared/config';
 import {
+  IButtonConfig,
   EButtonIconPosition,
   EButtonSeverity,
   EButtonType,
 } from '@shared/types';
-import { ColorUtil } from '@shared/utils/color.util';
+import { DEFAULT_BUTTON_CONFIG } from '@shared/config';
+import { ColorUtil } from '@shared/utility';
 
 @Component({
   selector: 'app-button',

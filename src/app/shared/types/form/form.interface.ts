@@ -1,6 +1,6 @@
 import { FormGroup } from '@angular/forms';
-import { IInputFieldsConfig } from '@shared/models/input-fields-config.model';
-import { IButtonConfig } from '@shared/models/button.model';
+import { IInputFieldsConfig } from '@shared/types/form/input-fields-config.interface';
+import { IButtonConfig } from '@shared/types/button/button.interface';
 
 export type IFormInputFieldsConfig = Record<
   string,

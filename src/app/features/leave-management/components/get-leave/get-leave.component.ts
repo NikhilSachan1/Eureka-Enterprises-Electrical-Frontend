@@ -29,7 +29,9 @@ import {
   IMetric,
   IPageHeaderConfig,
   ITableActionClickEvent,
-} from '@shared/models';
+  EDialogType,
+  EButtonActionType,
+} from '@shared/types';
 import {
   ILeaveActionRequestDto,
   ILeaveActionResponseDto,
@@ -50,11 +52,6 @@ import { buildTableDataWithUnifiedMapping } from '@shared/utility/component.util
 import { ICONS } from '@shared/constants';
 import { FinancialYearService } from '@core/services/financial-year.service';
 import { ILeave } from '@features/leave-management/types/leave.interface';
-import {
-  EDialogType,
-  ETableActionType,
-  ETableActionTypeValue,
-} from '@shared/types';
 import { APP_CONFIG } from '@core/config';
 import { DatePipe } from '@angular/common';
 import { GetLeaveDetailComponent } from '../get-leave-detail/get-leave-detail.component';
@@ -204,13 +201,13 @@ export class GetLeaveComponent implements OnInit {
     const { actionType, selectedRows } = event;
 
     switch (actionType) {
-      case ETableActionType.APPROVE:
-      case ETableActionType.REJECT:
-      case ETableActionType.CANCEL:
+      case EButtonActionType.APPROVE:
+      case EButtonActionType.REJECT:
+      case EButtonActionType.CANCEL:
         this.showLeaveActionDialog(actionType, selectedRows, isBulk);
         break;
 
-      case ETableActionType.VIEW:
+      case EButtonActionType.VIEW:
         this.showLeaveDetailsDrawer(selectedRows);
         break;
 
@@ -220,16 +217,16 @@ export class GetLeaveComponent implements OnInit {
   }
 
   private showLeaveActionDialog(
-    actionType: ETableActionType,
+    actionType: EButtonActionType,
     selectedRows: ILeave[],
     isBulk: boolean
   ): void {
     let dialogConfig = {} as IConfirmationDialogConfig;
 
     switch (actionType) {
-      case ETableActionType.APPROVE:
-      case ETableActionType.REJECT:
-      case ETableActionType.CANCEL: {
+      case EButtonActionType.APPROVE:
+      case EButtonActionType.REJECT:
+      case EButtonActionType.CANCEL: {
         const recordDetail = this.prepareLeaveRecordDetail(selectedRows);
         dialogConfig = createLeaveDialogConfig(
           actionType,
@@ -246,11 +243,11 @@ export class GetLeaveComponent implements OnInit {
 
     let dialogType = EDialogType.DEFAULT;
 
-    if (actionType === ETableActionType.APPROVE) {
+    if (actionType === EButtonActionType.APPROVE) {
       dialogType = EDialogType.APPROVE;
-    } else if (actionType === ETableActionType.REJECT) {
+    } else if (actionType === EButtonActionType.REJECT) {
       dialogType = EDialogType.REJECT;
-    } else if (actionType === ETableActionType.CANCEL) {
+    } else if (actionType === EButtonActionType.CANCEL) {
       dialogType = EDialogType.CANCEL;
     }
 
@@ -261,7 +258,7 @@ export class GetLeaveComponent implements OnInit {
   }
 
   private onLeaveApprovalAction(
-    actionType: ETableActionType,
+    actionType: EButtonActionType,
     selectedRows: ILeave[],
     dialogFormData?: Record<string, string>
   ): void {
@@ -275,7 +272,7 @@ export class GetLeaveComponent implements OnInit {
   }
 
   private prepareLeaveApprovalFormData(
-    actionType: ETableActionType,
+    actionType: EButtonActionType,
     selectedRows: ILeave[],
     dialogFormData?: Record<string, string>
   ): ILeaveActionRequestDto {
@@ -283,21 +280,21 @@ export class GetLeaveComponent implements OnInit {
       comment: string;
       attendanceStatus: EAttendanceStatus;
     };
-    let actionTypeValue = ETableActionTypeValue.APPROVED;
+    let actionTypeValue = EButtonActionType.APPROVE;
 
-    if (actionType === ETableActionType.APPROVE) {
-      actionTypeValue = ETableActionTypeValue.APPROVED;
-    } else if (actionType === ETableActionType.REJECT) {
-      actionTypeValue = ETableActionTypeValue.REJECTED;
-    } else if (actionType === ETableActionType.CANCEL) {
-      actionTypeValue = ETableActionTypeValue.CANCELLED;
+    if (actionType === EButtonActionType.APPROVE) {
+      actionTypeValue = EButtonActionType.APPROVE;
+    } else if (actionType === EButtonActionType.REJECT) {
+      actionTypeValue = EButtonActionType.REJECT;
+    } else if (actionType === EButtonActionType.CANCEL) {
+      actionTypeValue = EButtonActionType.CANCEL;
     }
 
     const leaveActualDate = new Date(selectedRows[0].fromDate);
     const isDateIsEarlier = leaveActualDate <= new Date();
     let attendanceStatusValue = EAttendanceStatus.LEAVE;
 
-    if (isDateIsEarlier && actionType === ETableActionType.APPROVE) {
+    if (isDateIsEarlier && actionType === EButtonActionType.APPROVE) {
       attendanceStatusValue = EAttendanceStatus.LEAVE;
     } else {
       attendanceStatusValue = attendanceStatus;
@@ -315,21 +312,21 @@ export class GetLeaveComponent implements OnInit {
 
   private executeLeaveApprovalAction(
     formData: ILeaveActionRequestDto,
-    actionType: ETableActionType
+    actionType: EButtonActionType
   ): void {
     let loadingMessage;
 
-    if (actionType === ETableActionType.APPROVE) {
+    if (actionType === EButtonActionType.APPROVE) {
       loadingMessage = {
         title: 'Approving Leave',
         message: 'Please wait while we approve the leave...',
       };
-    } else if (actionType === ETableActionType.REJECT) {
+    } else if (actionType === EButtonActionType.REJECT) {
       loadingMessage = {
         title: 'Rejecting Leave',
         message: 'Please wait while we reject the leave...',
       };
-    } else if (actionType === ETableActionType.CANCEL) {
+    } else if (actionType === EButtonActionType.CANCEL) {
       loadingMessage = {
         title: 'Cancelling Leave',
         message: 'Please wait while we cancel the leave...',

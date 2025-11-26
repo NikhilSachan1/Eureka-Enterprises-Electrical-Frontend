@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 // import { DOCUMENT } from '@angular/common';
-import { ThemeMode, ThemeConfig } from '@shared/models';
+import { ThemeMode, ThemeConfig } from '@shared/types';
 import { themeConfig } from '@core/config';
 
 @Injectable({

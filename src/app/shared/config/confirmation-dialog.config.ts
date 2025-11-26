@@ -1,5 +1,7 @@
-import { IConfirmationDialogSettingConfig } from '@shared/models';
-import { EDialogPosition } from '@shared/types';
+import {
+  IConfirmationDialogSettingConfig,
+  EDialogPosition,
+} from '@shared/types';
 import { ICONS } from '@shared/constants';
 
 export const CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfig> =

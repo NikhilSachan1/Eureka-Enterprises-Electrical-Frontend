@@ -2,7 +2,7 @@ import {
   EConfirmationDialogRecordDetailInputType,
   EDialogPosition,
 } from '@shared/types';
-import { IButtonConfig } from '@shared/models/button.model';
+import { IButtonConfig } from '@shared/types/button/button.interface';
 import { Type } from '@angular/core';
 
 export interface IConfirmationDialogSettingConfig {

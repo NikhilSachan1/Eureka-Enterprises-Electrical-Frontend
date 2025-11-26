@@ -1,8 +1,7 @@
 import { Validators } from '@angular/forms';
 import { CLIENT_NAME_DATA, LOCATION_DATA } from '@shared/config';
 import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
-import { IFormConfig, IFormInputFieldsConfig } from '@shared/models';
-import { EFieldType } from '@shared/types';
+import { EFieldType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
 
 const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   attendanceStatus: {

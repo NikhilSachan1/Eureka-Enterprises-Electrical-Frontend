@@ -1,4 +1,4 @@
-import { IGalleryConfig } from '@shared/models';
+import { IGalleryConfig } from '@shared/types';
 
 export const DEFAULT_GALLERY_CONFIG: IGalleryConfig = {
   activeIndex: 0,

@@ -3,14 +3,11 @@ import {
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
-} from '@shared/models';
-import {
   EFieldType,
   EFieldSize,
   EButtonSize,
   EButtonSeverity,
 } from '@shared/types';
-
 const LOGIN_FIELDS_CONFIG: IFormInputFieldsConfig = {
   email: {
     fieldType: EFieldType.Text,

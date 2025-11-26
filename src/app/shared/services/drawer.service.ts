@@ -5,7 +5,7 @@ import {
   IDrawerState,
   IEnhancedDrawer,
   IDrawerEvent,
-} from '@shared/models/';
+} from '@shared/types';
 import { DEFAULT_DRAWER_CONFIG } from '@shared/config/drawer.config';
 
 @Injectable({

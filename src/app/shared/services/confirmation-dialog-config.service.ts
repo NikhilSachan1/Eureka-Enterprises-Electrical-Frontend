@@ -6,8 +6,9 @@ import {
   IConfirmationDialogRecordDetailConfig,
   IConfirmationDialogSettingConfig,
   IDialogActionConfig,
-} from '@shared/models';
-import { EDialogType, EButtonActionType } from '@shared/types';
+  EDialogType,
+  EButtonActionType,
+} from '@shared/types';
 import { deepMerge } from '@shared/utility';
 import {
   ALLOCATE_CONFIRMATION_DIALOG_CONFIG,

@@ -22,7 +22,7 @@ import {
   IDefaultPermissions,
 } from '../../../../shared/types/set-permission.interface';
 import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
-import { IPageHeaderConfig } from '@shared/models';
+import { IPageHeaderConfig } from '@shared/types';
 import {
   IUserPermissionsGetResponseDto,
   IUserPermissionsSetRequestDto,
@@ -30,7 +30,6 @@ import {
 import { UserPermissionService } from '../../services/user-permission.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 
 @Component({
@@ -40,13 +39,10 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
   styleUrl: './set-user-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetUserPermissionComponent
-  extends PreventReloadComponent
-  implements OnInit
-{
+export class SetUserPermissionComponent implements OnInit {
   readonly setPermissionComponent = viewChild.required(SetPermissionComponent);
 
-  protected override readonly logger = inject(LoggerService);
+  protected readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly notificationService = inject(NotificationService);
@@ -60,22 +56,8 @@ export class SetUserPermissionComponent
   protected readonly editUserPermissionData =
     signal<IDefaultPermissions | null>(null);
 
-  override ngOnInit(): void {
+  ngOnInit(): void {
     this.loadUserPermissionDataFromRoute();
-  }
-
-  canDeactivate(): boolean {
-    if (this.setPermissionComponent()?.hasUnsavedChanges()) {
-      this.logger.info(
-        'Set User Permission Component: Form has unsaved changes'
-      );
-      return false;
-    }
-
-    this.logger.info(
-      'Set User Permission Component: Form has no unsaved changes'
-    );
-    return true;
   }
 
   protected onSubmit(setPermissionData: ISetPermissionData): void {

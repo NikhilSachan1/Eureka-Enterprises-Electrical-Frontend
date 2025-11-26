@@ -3,13 +3,11 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
   IFormButtonConfig,
-} from '@shared/models';
-import {
   EFieldType,
   EFieldSize,
-  EAutocomplete,
   EButtonSize,
   EButtonSeverity,
+  EAutocomplete,
 } from '@shared/types';
 
 const RESET_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig = {

@@ -6,14 +6,12 @@ import {
   EMPLOYEE_STATUS_DATA,
 } from '@shared/config/static-data.config';
 import {
-  IFormButtonConfig,
-  ITableSearchFilterInputFieldsConfig,
-  ITableSearchFilterFormConfig,
-} from '@shared/models';
-import {
   EDateSelectionMode,
   EFieldType,
   ETableFilterMatchMode,
+  IFormButtonConfig,
+  ITableSearchFilterFormConfig,
+  ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
 
 const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =

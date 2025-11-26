@@ -1,5 +1,4 @@
-import { EButtonSeverity } from '@shared/types';
-import { IConfirmationDialogConfig } from '@shared/models';
+import { EButtonSeverity, IConfirmationDialogConfig } from '@shared/types';
 import { IUser } from '../../types/user.interface';
 
 export const USER_PERMISSION_DIALOG_DELETE_CONFIG: IConfirmationDialogConfig = {

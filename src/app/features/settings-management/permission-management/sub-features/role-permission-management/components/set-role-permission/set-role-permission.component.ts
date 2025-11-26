@@ -8,7 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { IPageHeaderConfig } from '@shared/models';
+import { IPageHeaderConfig } from '@shared/types';
 import { ActivatedRoute } from '@angular/router';
 import {
   LoadingService,
@@ -30,7 +30,6 @@ import {
   ISetPermissionData,
   IDefaultPermissions,
 } from '../../../../shared/types/set-permission.interface';
-import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 
 @Component({
@@ -40,13 +39,10 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
   styleUrl: './set-role-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetRolePermissionComponent
-  extends PreventReloadComponent
-  implements OnInit
-{
+export class SetRolePermissionComponent implements OnInit {
   readonly setPermissionComponent = viewChild.required(SetPermissionComponent);
 
-  protected override readonly logger = inject(LoggerService);
+  protected readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly notificationService = inject(NotificationService);
@@ -60,22 +56,8 @@ export class SetRolePermissionComponent
   protected readonly editRolePermissionData =
     signal<IDefaultPermissions | null>(null);
 
-  override ngOnInit(): void {
+  ngOnInit(): void {
     this.loadRolePermissionDataFromRoute();
-  }
-
-  canDeactivate(): boolean {
-    if (this.setPermissionComponent()?.hasUnsavedChanges()) {
-      this.logger.info(
-        'Set Role Permission Component: Form has unsaved changes'
-      );
-      return false;
-    }
-
-    this.logger.info(
-      'Set Role Permission Component: Form has no unsaved changes'
-    );
-    return true;
   }
 
   protected onSubmit(setPermissionData: ISetPermissionData): void {

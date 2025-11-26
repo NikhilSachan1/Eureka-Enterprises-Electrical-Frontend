@@ -6,7 +6,7 @@ import {
   IInputFieldsConfig,
   IEnhancedForm,
   IFormButtonConfig,
-} from '@shared/models';
+} from '@shared/types';
 
 @Injectable({
   providedIn: 'root',

@@ -30,8 +30,9 @@ import {
   ITableActionConfig,
   IButtonConfig,
   ITableActionClickEvent,
-} from '@shared/models';
-import { EButtonActionType, ETableBodyTemplate } from '@shared/types';
+  EButtonActionType,
+  ETableBodyTemplate,
+} from '@shared/types';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { AvatarService } from '@shared/services';
 import { ICONS } from '@shared/constants';

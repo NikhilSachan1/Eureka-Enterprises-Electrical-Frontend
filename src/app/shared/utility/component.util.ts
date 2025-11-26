@@ -1,5 +1,5 @@
 import { APP_CONFIG } from '@core/config';
-import { IFilterMapping, ITableSortingAndPaginationData } from '@shared/models';
+import { IFilterMapping, ITableSortingAndPaginationData } from '@shared/types';
 import { FilterMetadata } from 'primeng/api';
 import { TableLazyLoadEvent } from 'primeng/table';
 

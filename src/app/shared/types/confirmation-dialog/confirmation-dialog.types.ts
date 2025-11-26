@@ -1,4 +1,4 @@
-import { EDataTableInputType } from '@shared/types/data-table.types';
+import { EDataTableInputType } from '@shared/types/data-table/data-table.types';
 
 export enum EDialogType {
   DEFAULT = 'default',

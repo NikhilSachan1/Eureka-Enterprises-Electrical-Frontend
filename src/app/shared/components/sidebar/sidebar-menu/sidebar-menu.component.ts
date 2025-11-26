@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuService } from '@core/services';
 import { slideInOut } from '@shared/animations';
-import { MenuItem } from '@shared/models';
+import { MenuItem } from '@shared/types';
 import { ICONS } from '@shared/constants';
 
 @Component({

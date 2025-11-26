@@ -16,18 +16,16 @@ import {
   IGalleryConfig,
   IGalleryData,
   IGalleryInputData,
-} from '@shared/models';
+  EButtonIconPosition,
+  EButtonSeverity,
+  EButtonType,
+  EButtonActionType,
+} from '@shared/types';
 import { getMediaTypeFromUrl, getFileExtension } from '@shared/utility';
 import { GalleriaModule } from 'primeng/galleria';
 import { DialogModule } from 'primeng/dialog';
 import { ImageModule } from 'primeng/image';
 import { ButtonComponent } from '../button/button.component';
-import {
-  EButtonIconPosition,
-  EButtonSeverity,
-  EButtonType,
-  ETableActionType,
-} from '@shared/types';
 
 @Component({
   selector: 'app-gallery',
@@ -49,18 +47,18 @@ export class GalleryComponent {
   readonly icons = ICONS;
   readonly ALL_BUTTON_SEVERITY = EButtonSeverity;
   readonly ALL_BUTTON_ICON_POSITION = EButtonIconPosition;
-  readonly ALL_TABLE_ACTION_TYPE = ETableActionType;
+  readonly ALL_BUTTON_ACTION_TYPE = EButtonActionType;
   readonly ALL_BUTTON_TYPE = EButtonType;
 
   // Button configurations
   readonly fullScreenButtonConfig = {
-    id: ETableActionType.VIEW,
+    id: EButtonActionType.VIEW,
     label: 'Full Screen',
     icon: this.icons.COMMON.WINDOW_MAXIMIZE,
   };
 
   readonly downloadButtonConfig = {
-    id: ETableActionType.DOWNLOAD,
+    id: EButtonActionType.DOWNLOAD,
     label: 'Download',
     icon: this.icons.COMMON.DOWNLOAD,
   };

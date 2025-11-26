@@ -1,5 +1,5 @@
-import { IButtonConfig } from '@shared/models';
 import {
+  IButtonConfig,
   EButtonIconPosition,
   EButtonSeverity,
   EButtonSize,

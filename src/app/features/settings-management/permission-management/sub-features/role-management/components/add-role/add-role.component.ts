@@ -16,7 +16,7 @@ import {
   RouterNavigationService,
 } from '@shared/services/';
 import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/models';
+import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IRoleAddRequestDto } from '../../types/role.dto';
@@ -25,7 +25,6 @@ import { ROLE_FORM_ADD_CONFIG } from '../../config';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
 
 @Component({
   selector: 'app-add-role',
@@ -39,9 +38,9 @@ import { PreventReloadComponent } from '@shared/components/prevent-reload/preven
   styleUrl: './add-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddRoleComponent extends PreventReloadComponent implements OnInit {
+export class AddRoleComponent implements OnInit {
   private readonly formService = inject(FormService);
-  protected override readonly logger = inject(LoggerService);
+  protected readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly loadingService = inject(LoadingService);
   private readonly roleService = inject(RoleService);
@@ -53,18 +52,8 @@ export class AddRoleComponent extends PreventReloadComponent implements OnInit {
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
-  override ngOnInit(): void {
+  ngOnInit(): void {
     this.form = this.formService.createForm(ROLE_FORM_ADD_CONFIG);
-  }
-
-  canDeactivate(): boolean {
-    if (this.form.isDirty()) {
-      this.logger.info('Add Role Component: Form has unsaved changes');
-      return false;
-    }
-
-    this.logger.info('Add Role Component: Form has no unsaved changes');
-    return true;
   }
 
   protected onSubmit(): void {

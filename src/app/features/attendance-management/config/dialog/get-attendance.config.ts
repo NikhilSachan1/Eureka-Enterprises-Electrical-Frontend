@@ -1,7 +1,6 @@
 import { ApprovalAttendanceComponent } from '@features/attendance-management/components/approval-attendance/approval-attendance.component';
 import { RegularizeAttendanceComponent } from '@features/attendance-management/components/regularize-attendance/regularize-attendance.component';
-import { IDialogActionConfig } from '@shared/models';
-import { EButtonActionType } from '@shared/types';
+import { EButtonActionType, IDialogActionConfig } from '@shared/types';
 
 export const ATTENDANCE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
   {

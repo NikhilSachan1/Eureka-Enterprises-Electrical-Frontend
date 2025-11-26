@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { ILoader } from '@shared/models';
+import { ILoader } from '@shared/types';
 
 @Injectable({
   providedIn: 'root',

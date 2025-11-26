@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ToastModule } from 'primeng/toast';
-import { IEnhancedForm } from '@shared/models';
+import { IEnhancedForm } from '@shared/types';
 import { FormService, NotificationService } from '@shared/services';
 import { LoggerService } from '@core/services';
 import { RESET_PASSWORD_INPUT_FIELDS_CONFIG } from '../../config/reset-password-form.config';

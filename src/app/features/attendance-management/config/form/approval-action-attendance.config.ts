@@ -1,6 +1,5 @@
 import { Validators } from '@angular/forms';
-import { IFormConfig, IFormInputFieldsConfig } from '@shared/models';
-import { EFieldType } from '@shared/types';
+import { EFieldType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
 
 const APPROVAL_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   approveReason: {

@@ -17,8 +17,11 @@ import {
   IAttendanceHistoryGetRequestDto,
   IAttendanceHistoryGetResponseDto,
 } from '../../types/attendance.dto';
-import { IDrawerDetail, IDrawerEmployeeDetails } from '@shared/models';
-import { EDrawerDetailType } from '@shared/types';
+import {
+  EDrawerDetailType,
+  IDrawerDetail,
+  IDrawerEmployeeDetails,
+} from '@shared/types';
 import { ViewDetailDrawerComponent } from '@shared/components/view-detail-drawer/view-detail-drawer.component';
 import { AppConfigService } from '@core/services';
 

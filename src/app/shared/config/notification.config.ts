@@ -1,4 +1,4 @@
-import { INotificationOptions } from '@shared/models';
+import { INotificationOptions } from '@shared/types';
 import { APP_CONFIG } from '@core/config';
 
 export const DEFAULT_NOTIFICATION_OPTIONS_CONFIG: INotificationOptions = {

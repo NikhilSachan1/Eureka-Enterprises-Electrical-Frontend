@@ -7,12 +7,16 @@ import {
   input,
 } from '@angular/core';
 import { AppConfigService } from '@core/services';
-import { IDrawerDetail, IDrawerEmployeeDetails } from '@shared/models';
+import {
+  IDrawerDetail,
+  IDrawerEmployeeDetails,
+  EDrawerDetailType,
+  EPrimeNGSeverity,
+} from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import { AvatarService } from '@shared/services';
-import { EDrawerDetailType, EPrimeNGSeverity } from '@shared/types';
-import { ColorUtil } from '@shared/utils/color.util';
+import { ColorUtil } from '@shared/utility';
 import { CardModule } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { Tag } from 'primeng/tag';

@@ -17,7 +17,7 @@ import {
 } from '@shared/services';
 import { LoggerService } from '@core/services';
 import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/models';
+import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
 import {
   ISystemPermissionEditRequestDto,
   ISystemPermissionGetBaseResponseDto,
@@ -29,7 +29,6 @@ import { SYSTEM_PERMISSION_FORM_EDIT_CONFIG } from '../../config';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
 
 @Component({
   selector: 'app-edit-system-permission',
@@ -43,12 +42,9 @@ import { PreventReloadComponent } from '@shared/components/prevent-reload/preven
   styleUrl: './edit-system-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditSystemPermissionComponent
-  extends PreventReloadComponent
-  implements OnInit
-{
+export class EditSystemPermissionComponent implements OnInit {
   private readonly formService = inject(FormService);
-  protected override readonly logger = inject(LoggerService);
+  protected readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly loadingService = inject(LoadingService);
   private readonly systemPermissionService = inject(SystemPermissionService);
@@ -65,26 +61,12 @@ export class EditSystemPermissionComponent
     unknown
   > | null>(null);
 
-  override ngOnInit(): void {
+  ngOnInit(): void {
     this.loadPrefilledSystemPermissionDataFromRoute();
     this.form = this.formService.createForm(
       SYSTEM_PERMISSION_FORM_EDIT_CONFIG,
       this.editSystemPermissionPrefilledData()
     );
-  }
-
-  canDeactivate(): boolean {
-    if (this.form.isDirty()) {
-      this.logger.info(
-        'Edit System Permission Component: Form has unsaved changes'
-      );
-      return false;
-    }
-
-    this.logger.info(
-      'Edit System Permission Component: Form has no unsaved changes'
-    );
-    return true;
   }
 
   protected onSubmit(): void {

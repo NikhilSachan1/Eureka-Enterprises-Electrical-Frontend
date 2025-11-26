@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
-import { canDeactivateGuard } from '@core/guards';
 
 export const SYSTEM_PERMISSION_ROUTES: Routes = [
   {
@@ -19,7 +18,6 @@ export const SYSTEM_PERMISSION_OUTSIDE_TAB_ROUTES: Routes = [
       import(
         './components/add-system-permission/add-system-permission.component'
       ).then(m => m.AddSystemPermissionComponent),
-    canDeactivate: [canDeactivateGuard],
   },
   {
     path: `${ROUTES.SETTINGS.PERMISSION.SYSTEM.EDIT}/:systemPermissionId`,
@@ -27,6 +25,5 @@ export const SYSTEM_PERMISSION_OUTSIDE_TAB_ROUTES: Routes = [
       import(
         './components/edit-system-permission/edit-system-permission.component'
       ).then(m => m.EditSystemPermissionComponent),
-    canDeactivate: [canDeactivateGuard],
   },
 ];

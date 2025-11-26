@@ -1,5 +1,4 @@
 import { APP_CONFIG } from '@core/config';
-import { IInputFieldsConfig } from '@shared/models';
 import {
   EAutocomplete,
   ECalendarView,
@@ -13,6 +12,7 @@ import {
   EMultiSelectDisplayType,
   ESpinnerMode,
   EUpAndDownButtonLayout,
+  IInputFieldsConfig,
 } from '@shared/types';
 
 export const DEFAULT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {

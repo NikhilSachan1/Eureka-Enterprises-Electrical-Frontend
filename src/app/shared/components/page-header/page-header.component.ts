@@ -7,10 +7,14 @@ import {
   inject,
 } from '@angular/core';
 import { Location } from '@angular/common';
-import { IButtonConfig, IPageHeaderConfig } from '@shared/models';
+import {
+  IButtonConfig,
+  IPageHeaderConfig,
+  EButtonSeverity,
+  EButtonVariant,
+} from '@shared/types';
 import { DEFAULT_PAGE_HEADER_CONFIG } from '@shared/config';
 import { ButtonComponent } from '../button/button.component';
-import { EButtonSeverity, EButtonVariant } from '@shared/types';
 
 @Component({
   selector: 'app-page-header',

@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { REGULARIZE_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/regularize-attendance.config';
-import { IDialogActionHandler, IEnhancedForm } from '@shared/models';
+import { IDialogActionHandler, IEnhancedForm } from '@shared/types';
 import {
   ConfirmationDialogService,
   FormService,
@@ -24,10 +24,10 @@ import {
   IAttendanceRegularizedResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
 import { SHIFT_DATA } from '@shared/config';
-import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EAttendanceStatus } from '../../types/attendance.enum';
 
 @Component({
   selector: 'app-regularize-attendance',

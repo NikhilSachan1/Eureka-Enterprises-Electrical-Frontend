@@ -5,7 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { GalleryComponent } from '@shared/components/gallery/gallery.component';
-import { IGalleryInputData } from '@shared/models';
+import { IGalleryInputData } from '@shared/types';
 import { ButtonModule } from 'primeng/button';
 
 @Component({

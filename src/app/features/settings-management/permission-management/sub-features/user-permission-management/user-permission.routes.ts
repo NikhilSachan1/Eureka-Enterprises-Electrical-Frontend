@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
 import { UserPermissionResolver } from './resolvers/user-permission.resolver';
-import { canDeactivateGuard } from '@core/guards';
 
 export const USER_PERMISSION_ROUTES: Routes = [
   {
@@ -13,6 +12,5 @@ export const USER_PERMISSION_ROUTES: Routes = [
     resolve: {
       userPermissionData: UserPermissionResolver,
     },
-    canDeactivate: [canDeactivateGuard],
   },
 ];

@@ -10,7 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { LoggerService, ThemeService } from '@core/services';
 import { fadeInOut } from '@shared/animations';
-import { UserOption } from '@shared/models';
+import { UserOption } from '@shared/types';
 import { NgClass } from '@angular/common';
 import { primaryUserOptions, secondaryUserOptions } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';

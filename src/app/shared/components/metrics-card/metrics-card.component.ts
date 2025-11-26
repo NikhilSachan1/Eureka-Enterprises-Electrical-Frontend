@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IMetric } from '@shared/models';
-import { ColorUtil } from '@shared/utils/color.util';
+import { IMetric } from '@shared/types';
+import { ColorUtil } from '@shared/utility';
 
 @Component({
   selector: 'app-metrics-card',

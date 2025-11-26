@@ -27,12 +27,10 @@ import {
   EHourFormat,
   EMultiSelectDisplayType,
   EUpAndDownButtonLayout,
-} from '@shared/types';
-import {
   IInputFieldsConfig,
   InputEventLike,
   CheckboxEventLike,
-} from '@shared/models';
+} from '@shared/types';
 import { FormsModule } from '@angular/forms';
 
 @Component({

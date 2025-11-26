@@ -6,7 +6,11 @@ import {
   OnInit,
 } from '@angular/core';
 import { APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/approval-action-attendance.config';
-import { IEnhancedForm } from '@shared/models';
+import {
+  IEnhancedForm,
+  EButtonActionType,
+  ETableActionTypeValue,
+} from '@shared/types';
 import {
   FormService,
   LoadingService,
@@ -20,7 +24,6 @@ import {
   IAttendanceActionResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
 import { IAttendance } from '@features/attendance-management/types/attendance.interface';
-import { EButtonActionType, ETableActionTypeValue } from '@shared/types';
 import { finalize } from 'rxjs';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 

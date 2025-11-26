@@ -11,7 +11,7 @@ import {
   IEnhancedForm,
   IFormConfig,
   ITableSearchFilterFormConfig,
-} from '@shared/models';
+} from '@shared/types';
 import { FormService } from '@shared/services';
 import { InputFieldComponent } from '../input-field/input-field.component';
 import { KeyValuePipe } from '@angular/common';

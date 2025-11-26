@@ -17,7 +17,9 @@ import {
   IMetric,
   IPageHeaderConfig,
   ITableActionClickEvent,
-} from '@shared/models';
+  EDialogType,
+  EButtonActionType,
+} from '@shared/types';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { LoggerService } from '@core/services';
 import {
@@ -43,7 +45,6 @@ import {
 } from '../../types/attendance.dto';
 import { IAttendance } from '../../types/attendance.interface';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
-import { EDialogType, EButtonActionType } from '@shared/types';
 import { getOriginalDataForSelectedRows, stringToArray } from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 import { APP_CONFIG } from '@core/config';

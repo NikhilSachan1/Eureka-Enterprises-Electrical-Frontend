@@ -16,7 +16,7 @@ import {
   RouterNavigationService,
 } from '@shared/services/';
 import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/models';
+import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
 import { MODULE_ACTIONS_DATA } from '@shared/config';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -26,7 +26,6 @@ import { ISystemPermissionAddRequestDto } from '../../types/system-permission.dt
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { PreventReloadComponent } from '@shared/components/prevent-reload/prevent-reload.component';
 
 @Component({
   selector: 'app-add-system-permission',
@@ -40,12 +39,9 @@ import { PreventReloadComponent } from '@shared/components/prevent-reload/preven
   styleUrl: './add-system-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddSystemPermissionComponent
-  extends PreventReloadComponent
-  implements OnInit
-{
+export class AddSystemPermissionComponent implements OnInit {
   private readonly formService = inject(FormService);
-  protected override readonly logger = inject(LoggerService);
+  protected readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly loadingService = inject(LoadingService);
   private readonly systemPermissionService = inject(SystemPermissionService);
@@ -57,22 +53,8 @@ export class AddSystemPermissionComponent
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
-  override ngOnInit(): void {
+  ngOnInit(): void {
     this.form = this.formService.createForm(SYSTEM_PERMISSION_FORM_ADD_CONFIG);
-  }
-
-  canDeactivate(): boolean {
-    if (this.form.isDirty()) {
-      this.logger.info(
-        'Add System Permission Component: Form has unsaved changes'
-      );
-      return false;
-    }
-
-    this.logger.info(
-      'Add System Permission Component: Form has no unsaved changes'
-    );
-    return true;
   }
 
   protected onSubmit(): void {

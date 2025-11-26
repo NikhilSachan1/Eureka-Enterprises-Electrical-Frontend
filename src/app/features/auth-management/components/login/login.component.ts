@@ -27,7 +27,7 @@ import {
   NotificationService,
 } from '@shared/services';
 import { ToastModule } from 'primeng/toast';
-import { IEnhancedForm } from '@shared/models';
+import { IEnhancedForm } from '@shared/types';
 import { AuthService } from '../../services/auth.service';
 import { finalize, switchMap, tap } from 'rxjs/operators';
 import {

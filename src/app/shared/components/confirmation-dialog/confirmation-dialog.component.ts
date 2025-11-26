@@ -14,7 +14,7 @@ import {
   IButtonConfig,
   IConfirmationDialogConfig,
   IDialogActionHandler,
-} from '@shared/models';
+} from '@shared/types';
 import { ButtonComponent } from '../button/button.component';
 
 @Component({
