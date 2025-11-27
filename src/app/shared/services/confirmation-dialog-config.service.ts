@@ -89,7 +89,7 @@ export class ConfirmationDialogService {
     actionConfigMap: Record<string, IDialogActionConfig>,
     recordDetail: IConfirmationDialogRecordDetailConfig,
     isBulk = false,
-    showRecords = true,
+    showRecords = !isBulk,
     dynamicComponentInputs?: Record<string, unknown>
   ): IConfirmationDialogConfig {
     const config = actionConfigMap[actionType as string];

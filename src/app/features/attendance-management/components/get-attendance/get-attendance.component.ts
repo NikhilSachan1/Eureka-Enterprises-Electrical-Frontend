@@ -19,6 +19,7 @@ import {
   ITableActionClickEvent,
   EDialogType,
   EButtonActionType,
+  ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { LoggerService } from '@core/services';
@@ -81,7 +82,7 @@ export class GetAttendanceComponent implements OnInit {
   private readonly datePipe = inject(DatePipe);
 
   protected table!: IEnhancedTable;
-  protected searchFilterConfig = SEARCH_FILTER_ATTENDANCE_FORM_CONFIG;
+  protected searchFilterConfig!: ITableSearchFilterFormConfig;
   private currentTableState: TableLazyLoadEvent | null = null;
   private originalAttendanceData: IAttendanceGetBaseResponseDto[] = [];
 
@@ -95,6 +96,7 @@ export class GetAttendanceComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       ATTENDANCE_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
     );
+    this.searchFilterConfig = SEARCH_FILTER_ATTENDANCE_FORM_CONFIG;
   }
 
   private loadAttendanceList(): void {
@@ -219,8 +221,7 @@ export class GetAttendanceComponent implements OnInit {
       actionType,
       ATTENDANCE_ACTION_CONFIG_MAP,
       recordDetail,
-      isBulk,
-      !isBulk
+      isBulk
     );
 
     this.confirmationDialogService.showConfirmationDialog(
