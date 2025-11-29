@@ -1,5 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, DestroyRef, signal, Signal } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldConfigService } from '@shared/services';
 import {
   IFormConfig,
@@ -52,6 +53,49 @@ export class FormService {
 
   getRawData(formGroup: FormGroup): Record<string, unknown> {
     return formGroup.getRawValue();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  trackFieldChanges<T = any>(
+    formGroup: FormGroup,
+    fieldName: string,
+    destroyRef: DestroyRef
+  ): Signal<T> {
+    // Get the form control
+    const control = formGroup.get(fieldName);
+
+    // Create a writable signal with the initial value
+    const fieldSignal = signal<T>(control?.value as T);
+
+    // Subscribe to value changes and update the signal
+    control?.valueChanges
+      .pipe(takeUntilDestroyed(destroyRef))
+      .subscribe((value: T) => {
+        fieldSignal.set(value);
+      });
+
+    // Return as readonly signal
+    return fieldSignal.asReadonly();
+  }
+
+  trackMultipleFieldChanges<T extends string>(
+    formGroup: FormGroup,
+    fieldNames: T[],
+    destroyRef: DestroyRef
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): Record<T, Signal<any>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const signals = {} as Record<T, Signal<any>>;
+
+    fieldNames.forEach(fieldName => {
+      signals[fieldName] = this.trackFieldChanges(
+        formGroup,
+        fieldName,
+        destroyRef
+      );
+    });
+
+    return signals;
   }
 
   private createReactiveFormGroup(
