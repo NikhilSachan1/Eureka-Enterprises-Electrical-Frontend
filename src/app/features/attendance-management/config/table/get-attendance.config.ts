@@ -16,13 +16,14 @@ import {
   MATCH_MODE_OPTIONS,
 } from '@shared/config';
 import { IAttendanceGetResponseDto } from '../../types/attendance.dto';
-import { getDataFromArrayOfObjects } from '@shared/utility';
+import {
+  getDataFromArrayOfObjects,
+  transformDateRangeToSplitDates,
+} from '@shared/utility';
 import {
   APPROVAL_STATUS_DATA,
   ATTENDANCE_STATUS_DATA,
 } from '@shared/config/static-data.config';
-import { APP_CONFIG } from '@core/config';
-import { DatePipe } from '@angular/common';
 
 export const ATTENDANCE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   globalFilterFields: [
@@ -73,22 +74,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
           startDate: 'startDate',
           endDate: 'endDate',
         },
-        transform: (
-          value: unknown
-        ): { startDate?: string; endDate?: string } => {
-          const [startDateObj, endDateObj] = value as Date[];
-          const datePipe = new DatePipe('en-US');
-          const dateFormat = APP_CONFIG.DATE_FORMATS.API; // Use format from constant
-
-          return {
-            startDate: startDateObj
-              ? (datePipe.transform(startDateObj, dateFormat) ?? undefined)
-              : undefined,
-            endDate: endDateObj
-              ? (datePipe.transform(endDateObj, dateFormat) ?? undefined)
-              : undefined,
-          };
-        },
+        transform: transformDateRangeToSplitDates,
       },
       clientSideFilterConfig: {
         filterField: 'attendanceDate',

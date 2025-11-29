@@ -12,6 +12,7 @@ export { noSpecialCharactersValidator } from './validators.util';
 export {
   convertSecondsToDhms,
   calculateMinEditableDate,
+  transformDateRangeToSplitDates,
 } from './date-time.util';
 export { getMediaTypeFromUrl, getFileExtension } from './media.util';
 export { getOriginalDataForSelectedRows } from './component.util';
