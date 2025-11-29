@@ -28,10 +28,10 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
       },
       matchmode: ETableFilterMatchMode.IN,
     },
-    employeeId: {
+    employeeName: {
       fieldType: EFieldType.MultiSelect,
       id: 'employeeName',
-      fieldName: 'employeeId',
+      fieldName: 'employeeName',
       label: 'Employee Name',
       multiSelectConfig: {
         optionsDropdown: EMPLOYEE_NAME_DATA,

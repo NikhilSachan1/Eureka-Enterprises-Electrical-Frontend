@@ -17,9 +17,9 @@ import {
   IMetric,
   IPageHeaderConfig,
   ITableActionClickEvent,
+  ITableSearchFilterFormConfig,
   EDialogType,
   EButtonActionType,
-  ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { LoggerService } from '@core/services';
@@ -29,6 +29,7 @@ import {
   LoadingService,
   RouterNavigationService,
   TableService,
+  TableServerSideParamsBuilderService,
 } from '@shared/services';
 import {
   ATTENDANCE_ACTION_CONFIG_MAP,
@@ -39,6 +40,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import {
   IAttendanceGetBaseResponseDto,
+  IAttendanceGetRequestDto,
   IAttendanceGetResponseDto,
   IAttendanceGetStatsResponseDto,
 } from '../../types/attendance.dto';
@@ -77,10 +79,13 @@ export class GetAttendanceComponent implements OnInit {
   );
   private readonly drawerService = inject(DrawerService);
   private readonly datePipe = inject(DatePipe);
+  private readonly tableServerSideFilterAndSortService = inject(
+    TableServerSideParamsBuilderService
+  );
 
   protected table!: IEnhancedTable;
+  protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
-  private currentTableState: TableLazyLoadEvent | null = null;
   private originalAttendanceData: IAttendanceGetBaseResponseDto[] = [];
   private readonly attendanceStats =
     signal<IAttendanceGetStatsResponseDto | null>(null);
@@ -102,8 +107,10 @@ export class GetAttendanceComponent implements OnInit {
       message: 'Please wait while we load the attendance...',
     });
 
+    const paramData = this.prepareParamData();
+
     this.attendanceService
-      .getAttendanceList()
+      .getAttendanceList(paramData)
       .pipe(
         finalize(() => {
           this.table.setLoading(false);
@@ -132,6 +139,16 @@ export class GetAttendanceComponent implements OnInit {
       });
   }
 
+  private prepareParamData(): IAttendanceGetRequestDto {
+    const queryParams =
+      this.tableServerSideFilterAndSortService.buildQueryParams<IAttendanceGetRequestDto>(
+        this.tableFilterData,
+        this.table.getHeaders()
+      );
+
+    return queryParams;
+  }
+
   private mapTableData(
     response: IAttendanceGetBaseResponseDto[]
   ): IAttendance[] {
@@ -147,8 +164,8 @@ export class GetAttendanceComponent implements OnInit {
     }));
   }
 
-  protected onTableStateChange(filterData: TableLazyLoadEvent): void {
-    this.currentTableState = filterData;
+  protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
+    this.tableFilterData = tableFilterData;
     this.loadAttendanceList();
   }
 
