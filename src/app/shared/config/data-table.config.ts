@@ -99,7 +99,7 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   statusConfig: STATUS_CONFIG,
   showFilter: false,
   showSort: true,
-  filterConfig: DEFAULT_TABLE_FILTER_CONFIG,
+  clientSideFilterConfig: DEFAULT_TABLE_FILTER_CONFIG,
 };
 
 // default bulk action config

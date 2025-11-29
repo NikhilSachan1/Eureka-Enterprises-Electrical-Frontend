@@ -33,14 +33,12 @@ import {
 import {
   ATTENDANCE_ACTION_CONFIG_MAP,
   ATTENDANCE_TABLE_ENHANCED_CONFIG,
-  ATTENDANCE_TABLE_STATE_MAPPING,
   SEARCH_FILTER_ATTENDANCE_FORM_CONFIG,
 } from '../../config';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import {
   IAttendanceGetBaseResponseDto,
-  IAttendanceGetRequestDto,
   IAttendanceGetResponseDto,
   IAttendanceGetStatsResponseDto,
 } from '../../types/attendance.dto';
@@ -52,7 +50,6 @@ import { APP_CONFIG } from '@core/config';
 import { DatePipe } from '@angular/common';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { TableLazyLoadEvent } from 'primeng/table';
-import { buildTableDataWithUnifiedMapping } from '@shared/utility/component.util';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 
 @Component({
@@ -85,7 +82,6 @@ export class GetAttendanceComponent implements OnInit {
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
   private currentTableState: TableLazyLoadEvent | null = null;
   private originalAttendanceData: IAttendanceGetBaseResponseDto[] = [];
-
   private readonly attendanceStats =
     signal<IAttendanceGetStatsResponseDto | null>(null);
 
@@ -106,12 +102,8 @@ export class GetAttendanceComponent implements OnInit {
       message: 'Please wait while we load the attendance...',
     });
 
-    const requestData = this.currentTableState
-      ? this.prepareParamData(this.currentTableState)
-      : undefined;
-
     this.attendanceService
-      .getAttendanceList(requestData)
+      .getAttendanceList()
       .pipe(
         finalize(() => {
           this.table.setLoading(false);
@@ -158,15 +150,6 @@ export class GetAttendanceComponent implements OnInit {
   protected onTableStateChange(filterData: TableLazyLoadEvent): void {
     this.currentTableState = filterData;
     this.loadAttendanceList();
-  }
-
-  private prepareParamData(
-    filterData: TableLazyLoadEvent
-  ): IAttendanceGetRequestDto {
-    return buildTableDataWithUnifiedMapping<IAttendanceGetRequestDto>(
-      filterData,
-      ATTENDANCE_TABLE_STATE_MAPPING
-    ) as IAttendanceGetRequestDto;
   }
 
   private getMetricCardsData(): IMetric[] {

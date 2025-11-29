@@ -28,6 +28,15 @@ export interface IDataTableConfig {
   enableServerSide: boolean;
 }
 
+export interface IDataTableServerSideFilterAndSortConfig {
+  sortField?: string;
+  filterField?: string;
+  transform?: (value: unknown) => unknown;
+  distribute?: Record<string, string>;
+}
+
+export type IDataTableHeaderFilterConfig = Partial<IFilterConfig>;
+
 export interface IDataTableHeaderConfig {
   field: string;
   header: string;
@@ -38,8 +47,9 @@ export interface IDataTableHeaderConfig {
   textWithSubtitleAndImageConfig?: ITextWithSubtitleAndImageConfig;
   statusConfig?: IStatusConfig;
   showFilter: boolean;
-  filterConfig?: Partial<IFilterConfig>;
+  clientSideFilterConfig?: IDataTableHeaderFilterConfig;
   showSort: boolean;
+  serverSideFilterAndSortConfig?: IDataTableServerSideFilterAndSortConfig;
 }
 
 export interface ITextWithSubtitleAndImageConfig {
@@ -109,13 +119,3 @@ export interface ITableSearchFilterFormConfig {
   fields: ITableSearchFilterInputFieldsConfig;
   buttons?: IFormButtonConfig;
 }
-
-export type IFilterMapping = Record<
-  string,
-  {
-    sortField?: string;
-    filterField?: string;
-    transform?: (value: unknown) => unknown;
-    distribute?: Record<string, string>;
-  }
->;

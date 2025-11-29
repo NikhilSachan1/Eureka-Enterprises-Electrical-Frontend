@@ -76,7 +76,7 @@
         @for (item of columns; track $index) {
           @let shouldShowSort = item.showSort;
           @let shouldShowFilter = item.showFilter;
-          @let filterConfig = item.filterConfig;
+          @let filterConfig = item.clientSideFilterConfig;
 
           <th [pSortableColumn]="shouldShowSort ? item.field : null">
             <div class="flex items-center">

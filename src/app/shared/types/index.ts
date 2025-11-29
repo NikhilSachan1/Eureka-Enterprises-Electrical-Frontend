@@ -67,7 +67,7 @@ export type {
   ITableSortingAndPaginationData,
   ITableSearchFilterInputFieldsConfig,
   ITableSearchFilterFormConfig,
-  IFilterMapping,
+  IDataTableServerSideFilterAndSortConfig,
 } from './data-table/data-table-config.interface';
 export type {
   IFormInputFieldsConfig,
