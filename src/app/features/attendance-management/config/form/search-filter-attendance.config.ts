@@ -1,12 +1,7 @@
 import { COMMON_FORM_ACTIONS } from '@shared/config';
+import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
+import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
 import {
-  APPROVAL_STATUS_DATA,
-  ATTENDANCE_STATUS_DATA,
-  EMPLOYEE_NAME_DATA,
-  EMPLOYEE_STATUS_DATA,
-} from '@shared/config/static-data.config';
-import {
-  EDateSelectionMode,
   EFieldType,
   ETableFilterMatchMode,
   IFormButtonConfig,
@@ -17,36 +12,13 @@ import {
 const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
   {
     employeeStatus: {
-      fieldType: EFieldType.MultiSelect,
-      id: 'employeeStatus',
-      fieldName: 'employeeStatus',
-      label: 'Employee Status',
-      multiSelectConfig: {
-        optionsDropdown: EMPLOYEE_STATUS_DATA,
-        haveFilter: false,
-        showToggleAll: false,
-      },
-      matchmode: ETableFilterMatchMode.IN,
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeStatus,
     },
     employeeName: {
-      fieldType: EFieldType.MultiSelect,
-      id: 'employeeName',
-      fieldName: 'employeeName',
-      label: 'Employee Name',
-      multiSelectConfig: {
-        optionsDropdown: EMPLOYEE_NAME_DATA,
-      },
-      matchmode: ETableFilterMatchMode.IN,
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
     },
     attendanceDate: {
-      fieldType: EFieldType.Date,
-      id: 'attendanceDate',
-      fieldName: 'attendanceDate',
-      label: 'Attendance Date',
-      dateConfig: {
-        selectionMode: EDateSelectionMode.Range,
-      },
-      matchmode: ETableFilterMatchMode.BETWEEN,
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
     },
     attendanceStatus: {
       fieldType: EFieldType.MultiSelect,
@@ -61,23 +33,10 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
       matchmode: ETableFilterMatchMode.IN,
     },
     approvalStatus: {
-      fieldType: EFieldType.MultiSelect,
-      id: 'approvalStatus',
-      fieldName: 'approvalStatus',
-      label: 'Approval Status',
-      multiSelectConfig: {
-        optionsDropdown: APPROVAL_STATUS_DATA,
-        haveFilter: false,
-        showToggleAll: false,
-      },
-      matchmode: ETableFilterMatchMode.IN,
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
     },
     globalSearch: {
-      fieldType: EFieldType.Text,
-      id: 'globalSearch',
-      fieldName: 'globalSearch',
-      label: 'Search',
-      matchmode: ETableFilterMatchMode.CONTAINS,
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
     },
   };
 
