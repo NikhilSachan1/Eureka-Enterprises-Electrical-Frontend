@@ -53,3 +53,11 @@ export const transformDateRangeToSplitDates = (
       : undefined,
   };
 };
+
+export const transformDateFormat = (
+  value: string,
+  dateFormat: string = APP_CONFIG.DATE_FORMATS.API
+): string => {
+  const datePipe = new DatePipe('en-US');
+  return datePipe.transform(value, dateFormat) as string;
+};

@@ -13,6 +13,7 @@ export {
   convertSecondsToDhms,
   calculateMinEditableDate,
   transformDateRangeToSplitDates,
+  transformDateFormat,
 } from './date-time.util';
 export { getMediaTypeFromUrl, getFileExtension } from './media.util';
 export { getOriginalDataForSelectedRows } from './component.util';

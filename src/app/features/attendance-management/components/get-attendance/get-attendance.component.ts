@@ -46,10 +46,13 @@ import {
 } from '../../types/attendance.dto';
 import { IAttendance } from '../../types/attendance.interface';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
-import { getOriginalDataForSelectedRows, stringToArray } from '@shared/utility';
+import {
+  getOriginalDataForSelectedRows,
+  stringToArray,
+  transformDateFormat,
+} from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 import { APP_CONFIG } from '@core/config';
-import { DatePipe } from '@angular/common';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
@@ -62,7 +65,7 @@ import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-ac
     MetricsCardComponent,
     SearchFilterComponent,
   ],
-  providers: [DatePipe],
+  providers: [],
   templateUrl: './get-attendance.component.html',
   styleUrl: './get-attendance.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,7 +81,6 @@ export class GetAttendanceComponent implements OnInit {
     ConfirmationDialogService
   );
   private readonly drawerService = inject(DrawerService);
-  private readonly datePipe = inject(DatePipe);
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
@@ -241,10 +243,10 @@ export class GetAttendanceComponent implements OnInit {
       },
       {
         label: 'Attendance Date',
-        value: this.datePipe.transform(
+        value: transformDateFormat(
           firstRow.attendanceDate,
           APP_CONFIG.DATE_FORMATS.DEFAULT
-        ) as string,
+        ),
       },
       { label: 'Attendance Status', value: firstRow.status },
       {
