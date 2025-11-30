@@ -11,9 +11,6 @@ import {
 
 const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
   {
-    employeeStatus: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeStatus,
-    },
     employeeName: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
     },

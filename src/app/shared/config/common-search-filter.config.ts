@@ -3,25 +3,9 @@ import {
   ETableFilterMatchMode,
   EDateSelectionMode,
 } from '@shared/types';
-import {
-  EMPLOYEE_STATUS_DATA,
-  EMPLOYEE_NAME_DATA,
-  APPROVAL_STATUS_DATA,
-} from './static-data.config';
+import { EMPLOYEE_NAME_DATA, APPROVAL_STATUS_DATA } from './static-data.config';
 
 export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
-  employeeStatus: {
-    fieldType: EFieldType.MultiSelect,
-    id: 'employeeStatus',
-    fieldName: 'employeeStatus',
-    label: 'Employee Status',
-    multiSelectConfig: {
-      optionsDropdown: EMPLOYEE_STATUS_DATA,
-      haveFilter: false,
-      showToggleAll: false,
-    },
-    matchmode: ETableFilterMatchMode.IN,
-  },
   employeeName: {
     fieldType: EFieldType.MultiSelect,
     id: 'employeeName',
