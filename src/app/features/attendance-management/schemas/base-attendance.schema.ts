@@ -1,16 +1,12 @@
 import { AuditSchema, uuidField, isoDateTimeField } from '@shared/schemas';
 import { z } from 'zod';
 import { EAttendanceStatus } from '../types/attendance.enum';
-import {
-  EEntrySourceType,
-  EEntryType,
-  ETableActionTypeValue,
-} from '@shared/types';
+import { EEntrySourceType, EEntryType, EApprovalStatus } from '@shared/types';
 
 export const notesField = z.string().trim();
 export const entrySourceTypeSchema = z.enum(EEntrySourceType);
 export const attendanceTypeSchema = z.enum(EEntryType);
-export const approvalStatusSchema = z.enum(ETableActionTypeValue);
+export const approvalStatusSchema = z.enum(EApprovalStatus);
 export const attendanceStatusSchema = z.enum(EAttendanceStatus);
 
 const auditSchema = AuditSchema.shape;

@@ -142,13 +142,13 @@ export class GetAttendanceComponent implements OnInit {
   }
 
   private prepareParamData(): IAttendanceGetRequestDto {
-    const queryParams =
+    const queryFilterParams =
       this.tableServerSideFilterAndSortService.buildQueryParams<IAttendanceGetRequestDto>(
         this.tableFilterData,
         this.table.getHeaders()
       );
 
-    return queryParams;
+    return queryFilterParams;
   }
 
   private mapTableData(

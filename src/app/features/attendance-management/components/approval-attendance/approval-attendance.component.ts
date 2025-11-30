@@ -10,6 +10,7 @@ import {
   IEnhancedForm,
   EButtonActionType,
   ETableActionTypeValue,
+  EApprovalStatus,
 } from '@shared/types';
 import {
   FormService,
@@ -80,7 +81,7 @@ export class ApprovalAttendanceComponent implements OnInit {
     return {
       approvals: selectedRows.map(row => ({
         attendanceId: row.id,
-        approvalStatus: actionTypeValue,
+        approvalStatus: actionTypeValue as unknown as EApprovalStatus,
         approvalComment: comment,
       })),
     };

@@ -128,4 +128,8 @@ export type {
   IGalleryInputData,
 } from './gallery/gallery.interface';
 export type { IPageHeaderConfig } from './page-header/page-header-config.interface';
-export { EEntrySourceType, EEntryType } from './common/zod.types';
+export {
+  EEntrySourceType,
+  EEntryType,
+  EApprovalStatus,
+} from './common/zod.types';
