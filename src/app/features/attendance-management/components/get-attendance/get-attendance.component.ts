@@ -293,10 +293,12 @@ export class GetAttendanceComponent implements OnInit {
       title: 'Attendance Management',
       subtitle: 'Manage attendance records',
       showHeaderButton: true,
-      headerButtonConfig: {
-        label: 'Apply Attendance',
-        ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
-      },
+      headerButtonConfig: [
+        {
+          label: 'Apply Attendance',
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+        },
+      ],
     };
   }
 }
