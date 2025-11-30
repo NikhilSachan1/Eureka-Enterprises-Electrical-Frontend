@@ -1,14 +1,15 @@
+import { UserSchema } from '@shared/schemas';
 import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
-import { UserSchema } from '@shared/schemas';
 
-const { attendanceDate } = AttendanceBaseSchema.shape;
+const { userId, attendanceDate } = AttendanceBaseSchema.shape;
 
-export const AttendanceHistoryGetRequestSchema = AttendanceBaseSchema.pick({
-  userId: true,
-}).extend({
-  date: attendanceDate,
-});
+export const AttendanceHistoryGetRequestSchema = z
+  .object({
+    userId,
+    date: attendanceDate,
+  })
+  .strict();
 
 export const AttendanceHistoryGetResponseSchema = z.array(
   AttendanceBaseSchema.extend({

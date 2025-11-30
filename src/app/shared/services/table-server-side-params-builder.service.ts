@@ -210,41 +210,19 @@ export class TableServerSideParamsBuilderService {
 
   /**
    * Builds a record of API filter parameters for a single column.
-   * Handles value transformation and distribution to multiple API parameters.
+   * Maps filter values to their server-side field names.
    *
    * @param rawValue - The raw filter value from the table
-   * @param serverConfig - Server-side configuration defining transforms and mappings
+   * @param serverConfig - Server-side configuration defining field mappings
    * @returns Record of API parameters or null if invalid
    */
   private buildServerFilterPayload(
     rawValue: unknown,
     serverConfig: IDataTableServerSideFilterAndSortConfig
   ): Record<string, unknown> | null {
-    // Apply transformation if defined
-    const transformedValue = serverConfig.transform
-      ? serverConfig.transform(rawValue)
-      : rawValue;
-
-    // Handle distributed filters (one UI filter → multiple API params)
-    if (serverConfig.distribute && this.isPlainObject(transformedValue)) {
-      const valueMap = transformedValue;
-      const distributed = Object.entries(serverConfig.distribute).reduce(
-        (distribution, [sourceKey, targetKey]) => {
-          const distributedValue = valueMap[sourceKey];
-          if (this.isValidFilterValue(distributedValue)) {
-            distribution[targetKey] = distributedValue;
-          }
-          return distribution;
-        },
-        {} as Record<string, unknown>
-      );
-
-      return Object.keys(distributed).length ? distributed : null;
-    }
-
     // Handle simple filter mapping
-    if (serverConfig.filterField && this.isValidFilterValue(transformedValue)) {
-      return { [serverConfig.filterField]: transformedValue };
+    if (serverConfig.filterField && this.isValidFilterValue(rawValue)) {
+      return { [serverConfig.filterField]: rawValue };
     }
 
     return null;

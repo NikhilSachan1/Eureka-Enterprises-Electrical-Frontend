@@ -16,10 +16,7 @@ import {
   MATCH_MODE_OPTIONS,
 } from '@shared/config';
 import { IAttendanceGetResponseDto } from '../../types/attendance.dto';
-import {
-  getDataFromArrayOfObjects,
-  transformDateRangeToSplitDates,
-} from '@shared/utility';
+import { getDataFromArrayOfObjects } from '@shared/utility';
 import {
   APPROVAL_STATUS_DATA,
   ATTENDANCE_STATUS_DATA,
@@ -70,11 +67,6 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       serverSideFilterAndSortConfig: {
         sortField: 'ATTENDANCE_DATE',
         filterField: 'attendanceDate',
-        distribute: {
-          startDate: 'startDate',
-          endDate: 'endDate',
-        },
-        transform: transformDateRangeToSplitDates,
       },
       clientSideFilterConfig: {
         filterField: 'attendanceDate',

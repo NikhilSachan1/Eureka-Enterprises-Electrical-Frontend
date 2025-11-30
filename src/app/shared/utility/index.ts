@@ -12,9 +12,9 @@ export { noSpecialCharactersValidator } from './validators.util';
 export {
   convertSecondsToDhms,
   calculateMinEditableDate,
-  transformDateRangeToSplitDates,
   transformDateFormat,
 } from './date-time.util';
 export { getMediaTypeFromUrl, getFileExtension } from './media.util';
 export { getOriginalDataForSelectedRows } from './component.util';
 export { ColorUtil } from './color.util';
+export { makeFieldsNullable } from './zod.util';

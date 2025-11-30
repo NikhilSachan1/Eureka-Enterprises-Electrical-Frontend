@@ -1,39 +1,44 @@
 import { z } from 'zod';
-import { AttendanceBaseSchema } from './base-attendance.schema';
+import {
+  AttendanceBaseSchema,
+  attendanceStatusSchema,
+} from './base-attendance.schema';
 
-const { status, id } = AttendanceBaseSchema.shape;
+const { id, approvalStatus, approvalComment } = AttendanceBaseSchema.shape;
 
-export const AttendanceActionBaseRequestSchema = AttendanceBaseSchema.pick({
-  approvalStatus: true,
-  approvalComment: true,
-}).extend({
-  attendanceId: id,
-});
+export const AttendanceActionBaseRequestSchema = z
+  .object({
+    approvalStatus,
+    approvalComment,
+    attendanceId: id,
+  })
+  .strict();
 
 export const AttendanceActionRequestSchema = z
   .object({
-    approvals: z.array(AttendanceActionBaseRequestSchema),
+    approvals: z.array(AttendanceActionBaseRequestSchema).min(1).max(50),
   })
   .strict();
 
-export const AttendanceActionResultSchema = AttendanceBaseSchema.pick({
-  approvalStatus: true,
-})
-  .extend({
+export const AttendanceActionResultSchema = z
+  .object({
+    approvalStatus,
     message: z.string(),
     attendanceId: id,
-    newStatus: status,
+    newStatus: attendanceStatusSchema,
   })
   .strict();
 
-export const AttendanceActionErrorSchema = z.object({
-  attendanceId: id,
-  error: z.string(),
-});
+export const AttendanceActionErrorSchema = z
+  .object({
+    attendanceId: id,
+    error: z.string().min(1),
+  })
+  .strict();
 
 export const AttendanceActionResponseSchema = z
   .object({
-    message: z.string(),
+    message: z.string().min(1),
     result: z.array(AttendanceActionResultSchema),
     errors: z.array(AttendanceActionErrorSchema),
   })

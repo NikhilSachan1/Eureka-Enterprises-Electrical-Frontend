@@ -37,23 +37,6 @@ export const calculateMinEditableDate = (cutOffDate: number): Date => {
   return new Date(currentYear, currentMonth, 1);
 };
 
-export const transformDateRangeToSplitDates = (
-  value: unknown,
-  dateFormat: string = APP_CONFIG.DATE_FORMATS.API
-): { startDate?: string; endDate?: string } => {
-  const [startDateObj, endDateObj] = value as Date[];
-  const datePipe = new DatePipe('en-US');
-
-  return {
-    startDate: startDateObj
-      ? (datePipe.transform(startDateObj, dateFormat) ?? undefined)
-      : undefined,
-    endDate: endDateObj
-      ? (datePipe.transform(endDateObj, dateFormat) ?? undefined)
-      : undefined,
-  };
-};
-
 export const transformDateFormat = (
   value: string,
   dateFormat: string = APP_CONFIG.DATE_FORMATS.API

@@ -31,8 +31,6 @@ export interface IDataTableConfig {
 export interface IDataTableServerSideFilterAndSortConfig {
   sortField?: string;
   filterField?: string;
-  transform?: (value: unknown) => unknown;
-  distribute?: Record<string, string>;
 }
 
 export type IDataTableHeaderFilterConfig = Partial<IFilterConfig>;

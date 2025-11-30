@@ -1,26 +1,39 @@
-import { AuditSchema } from '@shared/schemas';
+import { AuditSchema, uuidField, isoDateTimeField } from '@shared/schemas';
 import { z } from 'zod';
 import { EAttendanceStatus } from '../types/attendance.enum';
+import {
+  EEntrySourceType,
+  EEntryType,
+  ETableActionTypeValue,
+} from '@shared/types';
+
+export const notesField = z.string().trim();
+export const entrySourceTypeSchema = z.enum(EEntrySourceType);
+export const attendanceTypeSchema = z.enum(EEntryType);
+export const approvalStatusSchema = z.enum(ETableActionTypeValue);
+export const attendanceStatusSchema = z.enum(EAttendanceStatus);
+
+const auditSchema = AuditSchema.shape;
 
 export const AttendanceBaseSchema = z
   .object({
-    id: z.uuid(),
-    userId: z.uuid(),
-    attendanceDate: z.string(),
-    checkInTime: z.string().nullable(),
-    checkOutTime: z.string().nullable(),
-    status: z.enum(Object.values(EAttendanceStatus)),
-    shiftConfigId: z.uuid(),
-    entrySourceType: z.enum(['web', 'mobile']),
-    attendanceType: z.enum(['regularized', 'self', 'forced']),
-    regularizedBy: z.uuid().nullable(),
-    approvalStatus: z.enum(['pending', 'approved', 'rejected']),
-    approvalBy: z.uuid().nullable(),
-    approvalAt: z.string().nullable(),
-    approvalComment: z.string().nullable(),
-    notes: z.string(),
+    id: uuidField,
+    userId: uuidField,
+    shiftConfigId: uuidField,
+    attendanceDate: isoDateTimeField,
+    checkInTime: isoDateTimeField.nullable(),
+    checkOutTime: isoDateTimeField.nullable(),
+    status: attendanceStatusSchema,
+    approvalStatus: approvalStatusSchema,
+    entrySourceType: entrySourceTypeSchema,
+    attendanceType: attendanceTypeSchema,
+    regularizedBy: uuidField.nullable(),
+    approvalBy: uuidField.nullable(),
+    approvalAt: isoDateTimeField.nullable(),
+    approvalComment: z.string().trim().nullable(),
+    notes: notesField,
     isActive: z.boolean(),
-    workDuration: z.number().optional(),
+    workDuration: z.number().int().nonnegative(),
+    ...auditSchema,
   })
-  .merge(AuditSchema)
   .strict();

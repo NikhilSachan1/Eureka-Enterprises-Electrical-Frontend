@@ -1,16 +1,15 @@
 import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
+import { EApplyAttendanceAction } from '../types/attendance.enum';
 
-export const AttendanceApplyRequestSchema = AttendanceBaseSchema.pick({
-  notes: true,
-})
-  .extend({
-    action: z.enum(['checkIn', 'checkOut']),
-  })
-  .strict();
+const { notes, checkInTime } = AttendanceBaseSchema.shape;
 
-export const AttendanceApplyResponseSchema = AttendanceBaseSchema.pick({
-  checkInTime: true,
-}).extend({
+export const AttendanceApplyRequestSchema = z.object({
+  notes,
+  action: z.enum(EApplyAttendanceAction),
+});
+
+export const AttendanceApplyResponseSchema = z.object({
+  checkInTime,
   message: z.string(),
 });

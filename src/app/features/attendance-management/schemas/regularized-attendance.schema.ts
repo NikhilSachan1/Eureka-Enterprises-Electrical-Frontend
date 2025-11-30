@@ -1,21 +1,23 @@
 import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
 
-export const AttendanceRegularizedRequestSchema = AttendanceBaseSchema.pick({
-  checkInTime: true,
-  checkOutTime: true,
-  notes: true,
-  status: true,
-  userId: true,
-})
-  .extend({
+const { id, checkInTime, checkOutTime, notes, status, userId } =
+  AttendanceBaseSchema.shape;
+
+export const AttendanceRegularizedRequestSchema = z
+  .object({
+    checkInTime,
+    checkOutTime,
+    notes,
+    status,
+    userId,
     timezone: z.string(),
   })
   .strict();
 
-const { id } = AttendanceBaseSchema.shape;
-
-export const AttendanceRegularizedResponseSchema = z.object({
-  message: z.string(),
-  attendanceId: id,
-});
+export const AttendanceRegularizedResponseSchema = z
+  .object({
+    message: z.string().min(1),
+    attendanceId: id,
+  })
+  .strict();
