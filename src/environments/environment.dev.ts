@@ -6,7 +6,7 @@ export const environment: Environment = {
   ENVIRONMENT: 'development',
 
   // API Configuration (environment-specific)
-  API_BASE_URL: 'https://european-union.onrender.com/api/v1',
+  API_BASE_URL: 'http://localhost:3333/api/v1',
 
   // Feature Flags (environment-specific)
   ENABLE_LOGGING: true,
