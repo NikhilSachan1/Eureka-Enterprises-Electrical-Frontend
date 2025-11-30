@@ -58,8 +58,8 @@ export class ConfirmationDialogComponent {
       return {
         label: dialog?.dialogSettingConfig?.acceptButtonProps?.label,
         icon: dialog?.dialogSettingConfig?.acceptButtonProps?.icon,
-        severity: dialog?.dialogSettingConfig?.acceptButtonProps?.severity,
         visible: dialog?.dialogSettingConfig?.acceptButtonProps?.visible,
+        id: dialog?.dialogSettingConfig?.acceptButtonProps?.id,
       };
     }
   );
@@ -70,8 +70,8 @@ export class ConfirmationDialogComponent {
       return {
         label: dialog?.dialogSettingConfig?.rejectButtonProps?.label,
         icon: dialog?.dialogSettingConfig?.rejectButtonProps?.icon,
-        severity: dialog?.dialogSettingConfig?.rejectButtonProps?.severity,
         visible: dialog?.dialogSettingConfig?.rejectButtonProps?.visible,
+        id: dialog?.dialogSettingConfig?.rejectButtonProps?.id,
       };
     }
   );
@@ -108,11 +108,9 @@ export class ConfirmationDialogComponent {
       if (componentInstance.onDialogAccept) {
         await componentInstance.onDialogAccept();
       } else {
-        // If no handler, close immediately
         this.confirmationDialogService.closeDialog();
       }
     } else {
-      // If no component, close immediately
       this.confirmationDialogService.closeDialog();
     }
   }
@@ -124,11 +122,9 @@ export class ConfirmationDialogComponent {
       if (componentInstance.onDialogReject) {
         await componentInstance.onDialogReject();
       } else {
-        // If no handler, close immediately
         this.confirmationDialogService.closeDialog();
       }
     } else {
-      // If no component, close immediately
       this.confirmationDialogService.closeDialog();
     }
   }

@@ -1,6 +1,7 @@
 import {
   IConfirmationDialogSettingConfig,
   EDialogPosition,
+  EButtonActionType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 
@@ -18,6 +19,7 @@ export const CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfi
     styleClass: 'bg-primary',
     acceptButtonProps: {
       label: 'Yes',
+      id: EButtonActionType.SUBMIT,
       icon: ICONS.ACTIONS.CHECK,
     },
     rejectButtonProps: {

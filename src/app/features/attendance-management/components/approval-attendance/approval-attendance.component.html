@@ -2,8 +2,17 @@
   [formGroup]="form.formGroup"
   class="form"
 >
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['comment']"
-  />
+  @let dialogActionTypeValue = dialogActionType();
+
+  @if (dialogActionTypeValue === EButtonActionTypeEnum.APPROVE) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['approveReason']"
+    />
+  } @else if (dialogActionTypeValue === EButtonActionTypeEnum.REJECT) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['rejectReason']"
+    />
+  }
 </form>

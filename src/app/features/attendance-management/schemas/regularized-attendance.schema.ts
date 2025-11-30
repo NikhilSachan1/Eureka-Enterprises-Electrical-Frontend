@@ -1,13 +1,13 @@
 import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
+import { onlyTimeStringField } from '@shared/schemas/common.schema';
 
-const { id, checkInTime, checkOutTime, notes, status, userId } =
-  AttendanceBaseSchema.shape;
+const { id, notes, status, userId } = AttendanceBaseSchema.shape;
 
 export const AttendanceRegularizedRequestSchema = z
   .object({
-    checkInTime,
-    checkOutTime,
+    checkInTime: onlyTimeStringField,
+    checkOutTime: onlyTimeStringField,
     notes,
     status,
     userId,

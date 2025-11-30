@@ -217,13 +217,30 @@ export class GetAttendanceComponent implements OnInit {
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dynamicComponentInputs: any = {
+      selectedRecord: originalSelectedRows,
+      onSuccess: () => {
+        this.loadAttendanceList();
+      },
+    };
+
+    if (
+      actionType === EButtonActionType.APPROVE ||
+      actionType === EButtonActionType.REJECT
+    ) {
+      dynamicComponentInputs.dialogActionType = actionType;
+    }
+
     const recordDetail =
       this.prepareAttendanceRecordDetail(originalSelectedRows);
     const dialogConfig = this.confirmationDialogService.createDialogConfig(
       actionType,
       ATTENDANCE_ACTION_CONFIG_MAP,
       recordDetail,
-      isBulk
+      isBulk,
+      !isBulk,
+      dynamicComponentInputs
     );
 
     this.confirmationDialogService.showConfirmationDialog(

@@ -5,6 +5,7 @@ import {
   inject,
   input,
   OnInit,
+  Signal,
   signal,
 } from '@angular/core';
 import { REGULARIZE_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/regularize-attendance.config';
@@ -20,6 +21,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { LoggerService, TimezoneService } from '@core/services';
 import {
+  IAttendanceGetBaseResponseDto,
   IAttendanceRegularizedRequestDto,
   IAttendanceRegularizedResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
@@ -39,8 +41,6 @@ import { EAttendanceStatus } from '../../types/attendance.enum';
 export class RegularizeAttendanceComponent
   implements OnInit, IDialogActionHandler
 {
-  protected readonly recordDetail = input();
-
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
@@ -52,22 +52,27 @@ export class RegularizeAttendanceComponent
   );
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly selectedRecord = input<IAttendanceGetBaseResponseDto[]>();
+  protected readonly onSuccess = input<() => void>();
+
   protected form!: IEnhancedForm;
 
   protected readonly isSubmitting = signal(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected trackFields!: Record<string, Signal<any>>;
 
   ngOnInit(): void {
     this.form = this.formService.createForm(REGULARIZE_ATTENDANCE_FORM_CONFIG);
+
+    this.trackFields = this.formService.trackMultipleFieldChanges(
+      this.form.formGroup,
+      ['attendanceStatus'],
+      this.destroyRef
+    );
   }
 
   onDialogAccept(): void {
     this.onSubmit();
-  }
-
-  onDialogReject(): void {
-    this.logger.info('Regularize attendance cancelled by user');
-    this.form.reset();
-    this.confirmationDialogService.closeDialog();
   }
 
   protected onSubmit(): void {
@@ -75,11 +80,21 @@ export class RegularizeAttendanceComponent
       return;
     }
 
-    const formData = this.prepareFormData();
-    this.executeRegularizeAttendance(formData);
+    const record = this.selectedRecord();
+    if (!record) {
+      this.logger.error(
+        'Selected record is required to regularize attendance but was not provided'
+      );
+      return;
+    }
+
+    const formData = this.prepareFormData(record[0]);
+    this.executeRegularizeAttendance(formData, record[0]);
   }
 
-  private prepareFormData(): IAttendanceRegularizedRequestDto {
+  private prepareFormData(
+    record: IAttendanceGetBaseResponseDto
+  ): IAttendanceRegularizedRequestDto {
     const { attendanceStatus, clientName, location } = this.form.getData() as {
       attendanceStatus: EAttendanceStatus;
       clientName: string;
@@ -91,13 +106,14 @@ export class RegularizeAttendanceComponent
       checkOutTime: SHIFT_DATA.END_TIME,
       notes: `${clientName} - ${location}`,
       status: attendanceStatus,
-      userId: 'l',
+      userId: record.user.id,
       timezone: this.timezoneService.timezone,
     };
   }
 
   private executeRegularizeAttendance(
-    formData: IAttendanceRegularizedRequestDto
+    formData: IAttendanceRegularizedRequestDto,
+    record: IAttendanceGetBaseResponseDto
   ): void {
     this.isSubmitting.set(true);
     this.loadingService.show({
@@ -107,7 +123,7 @@ export class RegularizeAttendanceComponent
     this.form.disable();
 
     this.attendanceService
-      .regularizedAttendance(formData, 'attendanceId')
+      .regularizedAttendance(formData, record.id)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -120,6 +136,8 @@ export class RegularizeAttendanceComponent
         next: (response: IAttendanceRegularizedResponseDto) => {
           const { message } = response;
           this.notificationService.success(message);
+          const successCallback = this.onSuccess();
+          successCallback?.();
           this.confirmationDialogService.closeDialog();
         },
         error: () => {
@@ -137,5 +155,9 @@ export class RegularizeAttendanceComponent
       return false;
     }
     return true;
+  }
+
+  protected showClientNameAndLocationFields(): boolean {
+    return this.trackFields['attendanceStatus']() === EAttendanceStatus.PRESENT;
   }
 }

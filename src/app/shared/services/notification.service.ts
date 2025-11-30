@@ -58,6 +58,63 @@ export class NotificationService {
     );
   }
 
+  bulkOperationResult<TError = unknown, TResult = unknown>(config: {
+    entityLabel: string;
+    actionLabel: string;
+    errors: TError[];
+    result: TResult[];
+  }): void {
+    const { entityLabel, actionLabel, errors, result } = config;
+
+    const errorCount = errors?.length ?? 0;
+    const resultCount = result?.length ?? 0;
+    const recordsCount = errorCount + resultCount;
+
+    const hasErrors = errorCount > 0;
+    const hasResult = resultCount > 0;
+
+    // When both errors and results exist, we need to show a mixed summary.
+    if (hasErrors && hasResult) {
+      if (recordsCount === 1) {
+        // Single record failed.
+        this.error(`Failed to ${actionLabel} ${entityLabel}`);
+      } else {
+        // Some records failed and some succeeded.
+        this.error(
+          `Failed to ${actionLabel} ${entityLabel} for ${errorCount} records and executed successfully for ${resultCount} records`
+        );
+      }
+      return;
+    }
+
+    // When only errors exist, we show a pure failure summary.
+    if (hasErrors) {
+      if (recordsCount === 1) {
+        // Single record failed.
+        this.error(`Failed to ${actionLabel} ${entityLabel}`);
+      } else {
+        // Multiple records failed.
+        this.error(
+          `Failed to ${actionLabel} ${entityLabel} for ${errorCount} records`
+        );
+      }
+      return;
+    }
+
+    // When only results exist, we show a success summary.
+    if (hasResult) {
+      if (recordsCount === 1) {
+        // Single record succeeded.
+        this.success(`Successfully ${actionLabel} ${entityLabel}`);
+      } else {
+        // Multiple records succeeded.
+        this.success(
+          `Successfully ${actionLabel} ${entityLabel} for ${resultCount} records`
+        );
+      }
+    }
+  }
+
   private showNotification(
     severity: EPrimeNGNotificationSeverity,
     message: string,

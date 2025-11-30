@@ -15,7 +15,10 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { calculateMinEditableDate } from '@shared/utility';
+import {
+  calculateMinEditableDate,
+  filterOptionsByIncludeExclude,
+} from '@shared/utility';
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   employeeName: {
@@ -46,7 +49,11 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Attendance Status',
     selectConfig: {
       haveFilter: false,
-      optionsDropdown: ATTENDANCE_STATUS_DATA,
+      optionsDropdown: filterOptionsByIncludeExclude(
+        ATTENDANCE_STATUS_DATA,
+        [],
+        ['checked_in', 'checked_out']
+      ),
     },
     validators: [Validators.required],
   },

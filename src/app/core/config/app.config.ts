@@ -35,7 +35,7 @@ export const APP_CONFIG = {
 
   // Date Formats
   DATE_FORMATS: {
-    DEFAULT: 'dd/MM/yyyy',
+    DEFAULT: 'MMM d, yyyy',
     WITH_TIME: 'dd/MM/yyyy HH:mm',
     CALENDAR: 'dd/mm/yy',
     API: 'yyyy-MM-dd',

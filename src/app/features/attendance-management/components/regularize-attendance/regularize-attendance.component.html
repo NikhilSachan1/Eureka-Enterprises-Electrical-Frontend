@@ -6,4 +6,15 @@
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs['attendanceStatus']"
   />
+  @if (showClientNameAndLocationFields()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['clientName']"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['location']"
+    />
+  }
 </form>

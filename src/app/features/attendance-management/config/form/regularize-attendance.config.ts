@@ -2,6 +2,7 @@ import { Validators } from '@angular/forms';
 import { CLIENT_NAME_DATA, LOCATION_DATA } from '@shared/config';
 import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
 import { EFieldType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
+import { filterOptionsByIncludeExclude } from '@shared/utility';
 
 const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   attendanceStatus: {
@@ -11,7 +12,11 @@ const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Attendance Status',
     selectConfig: {
       haveFilter: false,
-      optionsDropdown: ATTENDANCE_STATUS_DATA,
+      optionsDropdown: filterOptionsByIncludeExclude(
+        ATTENDANCE_STATUS_DATA,
+        [],
+        ['checked_in', 'checked_out']
+      ),
     },
     validators: [Validators.required],
   },

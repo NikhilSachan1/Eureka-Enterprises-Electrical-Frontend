@@ -134,7 +134,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           },
         ],
         approvalBy: {
-          name: `${record.approvalByUser.firstName} ${record.approvalByUser.lastName}`,
+          name: `${record.approvalByUser?.firstName} ${record.approvalByUser?.lastName}`,
           date: record.approvalAt,
           notes: record.approvalComment,
         },

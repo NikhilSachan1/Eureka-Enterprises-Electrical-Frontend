@@ -16,7 +16,10 @@ import {
   MATCH_MODE_OPTIONS,
 } from '@shared/config';
 import { IAttendanceGetResponseDto } from '../../types/attendance.dto';
-import { getDataFromArrayOfObjects } from '@shared/utility';
+import {
+  filterOptionsByIncludeExclude,
+  getDataFromArrayOfObjects,
+} from '@shared/utility';
 import {
   APPROVAL_STATUS_DATA,
   ATTENDANCE_STATUS_DATA,
@@ -102,7 +105,11 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
         filterField: 'attendanceStatus',
         searchInputType: ETableSearchInputType.DROPDOWN,
         filterDropdownOptions: getDataFromArrayOfObjects(
-          ATTENDANCE_STATUS_DATA,
+          filterOptionsByIncludeExclude(
+            ATTENDANCE_STATUS_DATA,
+            [],
+            ['checked_out']
+          ),
           'label'
         ),
         placeholder: 'Search By Attendance Status',
