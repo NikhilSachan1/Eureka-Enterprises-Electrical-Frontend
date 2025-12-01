@@ -6,5 +6,5 @@ export const UserSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   email: z.email(),
-  employeeId: z.string().min(1).optional(), //TODO: Remove optional once employeeId is required in the backend
+  employeeId: z.string().min(1),
 });

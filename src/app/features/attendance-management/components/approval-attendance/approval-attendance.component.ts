@@ -7,7 +7,10 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/approval-action-attendance.config';
+import {
+  APPROVE_ACTION_ATTENDANCE_FORM_CONFIG,
+  REJECT_ACTION_ATTENDANCE_FORM_CONFIG,
+} from '@features/attendance-management/config/form/approval-action-attendance.config';
 import {
   IEnhancedForm,
   EButtonActionType,
@@ -65,7 +68,9 @@ export class ApprovalAttendanceComponent
 
   ngOnInit(): void {
     this.form = this.formService.createForm(
-      APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG
+      this.dialogActionType() === EButtonActionType.APPROVE
+        ? APPROVE_ACTION_ATTENDANCE_FORM_CONFIG
+        : REJECT_ACTION_ATTENDANCE_FORM_CONFIG
     );
   }
 
@@ -93,27 +98,23 @@ export class ApprovalAttendanceComponent
   private prepareFormData(
     record: IAttendanceGetBaseResponseDto[]
   ): IAttendanceActionRequestDto {
-    const { approveReason, rejectReason } = this.form.getData() as {
-      approveReason: string;
-      rejectReason: string;
+    const { comment } = this.form.getData() as {
+      comment: string;
     };
 
     let actionTypeValue: ETableActionTypeValue;
-    let approvalComment: string | null = null;
 
     if (this.dialogActionType() === EButtonActionType.APPROVE) {
       actionTypeValue = ETableActionTypeValue.APPROVED;
-      approvalComment = approveReason;
     } else if (this.dialogActionType() === EButtonActionType.REJECT) {
       actionTypeValue = ETableActionTypeValue.REJECTED;
-      approvalComment = rejectReason;
     }
 
     return {
       approvals: record.map((row: IAttendanceGetBaseResponseDto) => ({
         attendanceId: row.id,
         approvalStatus: actionTypeValue as unknown as EApprovalStatus,
-        approvalComment,
+        approvalComment: comment,
       })),
     };
   }

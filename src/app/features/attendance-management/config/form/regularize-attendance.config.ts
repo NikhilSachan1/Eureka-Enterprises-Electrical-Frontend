@@ -3,6 +3,7 @@ import { CLIENT_NAME_DATA, LOCATION_DATA } from '@shared/config';
 import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
 import { EFieldType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
 import { filterOptionsByIncludeExclude } from '@shared/utility';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 
 const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   attendanceStatus: {
@@ -28,7 +29,15 @@ const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     selectConfig: {
       optionsDropdown: CLIENT_NAME_DATA,
     },
-    validators: [Validators.required],
+    conditionalValidators: [
+      {
+        dependsOn: 'attendanceStatus',
+        validators: [Validators.required],
+        shouldApply: (value: unknown): boolean =>
+          value === EAttendanceStatus.PRESENT,
+        resetOnFalse: true,
+      },
+    ],
   },
   location: {
     fieldType: EFieldType.Select,
@@ -38,7 +47,15 @@ const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     selectConfig: {
       optionsDropdown: LOCATION_DATA,
     },
-    validators: [Validators.required],
+    conditionalValidators: [
+      {
+        dependsOn: 'attendanceStatus',
+        validators: [Validators.required],
+        shouldApply: (value: unknown): boolean =>
+          value === EAttendanceStatus.PRESENT,
+        resetOnFalse: true,
+      },
+    ],
   },
 };
 

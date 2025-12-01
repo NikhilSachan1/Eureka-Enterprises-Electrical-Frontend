@@ -1,5 +1,5 @@
 import { Injectable, inject, DestroyRef, signal, Signal } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, ValidatorFn } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldConfigService } from '@shared/services';
 import {
@@ -30,6 +30,8 @@ export class FormService {
       inputFieldsConfigs,
       defaultValues ?? {}
     );
+
+    this.applyConditionalValidators(formGroup, inputFieldsConfigs);
 
     return this.createEnhancedForm(
       formGroup,
@@ -111,6 +113,73 @@ export class FormService {
     });
 
     return this.fb.group(formControls);
+  }
+
+  private applyConditionalValidators(
+    formGroup: FormGroup,
+    fieldConfigs: Record<string, IInputFieldsConfig>
+  ): void {
+    Object.entries(fieldConfigs).forEach(([fieldName, config]) => {
+      // Skip fields without conditional rules.
+      if (
+        !config.conditionalValidators ||
+        config.conditionalValidators.length === 0
+      ) {
+        return;
+      }
+
+      const control = formGroup.get(fieldName);
+
+      if (!control) {
+        return;
+      }
+
+      const runConditionalLogic = (): void => {
+        const baseValidators: ValidatorFn[] = config.validators ?? [];
+        const extraValidators: ValidatorFn[] = [];
+        let shouldResetValue = false;
+
+        config.conditionalValidators?.forEach(rule => {
+          const dependencyControl = formGroup.get(rule.dependsOn);
+          const currentValue = dependencyControl?.value;
+          const isActive = rule.shouldApply(currentValue);
+
+          if (isActive) {
+            if (rule.validators?.length) {
+              extraValidators.push(...rule.validators);
+            }
+          } else if (rule.resetOnFalse) {
+            shouldResetValue = true;
+          }
+        });
+
+        control.setValidators([...baseValidators, ...extraValidators]);
+        control.updateValueAndValidity();
+
+        if (shouldResetValue) {
+          control.reset();
+        }
+      };
+
+      runConditionalLogic();
+
+      const dependencyFieldNames = Array.from(
+        new Set(config.conditionalValidators.map(rule => rule.dependsOn))
+      );
+
+      // Subscribe to changes on each dependency field.
+      dependencyFieldNames.forEach(dependencyName => {
+        const dependencyControl = formGroup.get(dependencyName);
+
+        if (!dependencyControl) {
+          return;
+        }
+
+        dependencyControl.valueChanges.subscribe(() => {
+          runConditionalLogic();
+        });
+      });
+    });
   }
 
   private createEnhancedForm(

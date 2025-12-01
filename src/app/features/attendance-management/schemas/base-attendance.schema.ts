@@ -1,4 +1,9 @@
-import { AuditSchema, uuidField, isoDateTimeField } from '@shared/schemas';
+import {
+  AuditSchema,
+  uuidField,
+  isoDateTimeField,
+  onlyDateStringField,
+} from '@shared/schemas';
 import { z } from 'zod';
 import { EAttendanceStatus } from '../types/attendance.enum';
 import { EEntrySourceType, EEntryType, EApprovalStatus } from '@shared/types';
@@ -16,7 +21,7 @@ export const AttendanceBaseSchema = z
     id: uuidField,
     userId: uuidField,
     shiftConfigId: uuidField,
-    attendanceDate: isoDateTimeField,
+    attendanceDate: onlyDateStringField,
     checkInTime: isoDateTimeField.nullable(),
     checkOutTime: isoDateTimeField.nullable(),
     status: attendanceStatusSchema,

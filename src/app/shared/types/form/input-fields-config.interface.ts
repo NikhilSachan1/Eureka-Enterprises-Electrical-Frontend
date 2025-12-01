@@ -15,6 +15,7 @@ import {
   EMultiSelectDisplayType,
   ESpinnerMode,
   EUpAndDownButtonLayout,
+  IFormConfig,
 } from '@shared/types';
 
 export interface IInputFieldsConfig {
@@ -42,6 +43,7 @@ export interface IInputFieldsConfig {
   textAreaConfig?: Partial<ITextAreaFieldConfig>;
   individualNumberConfig?: Partial<IIndividualNumberFieldConfig>;
   validators?: ValidatorFn[];
+  conditionalValidators?: IFormConfig['conditionalValidators'];
 }
 
 export interface IInputNumberFieldConfig {
