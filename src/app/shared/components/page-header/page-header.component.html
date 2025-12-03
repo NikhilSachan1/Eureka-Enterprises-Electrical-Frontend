@@ -27,7 +27,8 @@
       @for (buttonConfig of finalPageHeader.headerButtonConfig; track buttonConfig.id) {
         <app-button
           [buttonConfig]="buttonConfig"
-          (onButtonClick)="headerButtonClick.emit()"
+          (onButtonClick)="headerButtonClick.emit(buttonConfig.actionName || '')"
+          class="ml-2"
         />
       }
     </div>

@@ -35,11 +35,11 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     },
     validators: [Validators.required],
   },
-  associateEmployeeName: {
+  associateEngineerName: {
     fieldType: EFieldType.Select,
-    id: 'associateEmployeeName',
-    fieldName: 'associateEmployeeName',
-    label: 'Associate Employee',
+    id: 'associateEngineerName',
+    fieldName: 'associateEngineerName',
+    label: 'Associate Engineer',
     selectConfig: {
       optionsDropdown: EMPLOYEE_NAME_DATA,
     },
@@ -69,7 +69,28 @@ const APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const APPLY_ATTENDANCE_FORM_CONFIG: IFormConfig = {
-  fields: APPLY_ATTENDANCE_FORM_FIELDS_CONFIG,
-  buttons: APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG,
+export const getApplyAttendanceFormConfig = (
+  isDriver: boolean
+): IFormConfig => {
+  const baseAssociateEmployeeConfig =
+    APPLY_ATTENDANCE_FORM_FIELDS_CONFIG['associateEngineerName'];
+
+  const fields: IFormInputFieldsConfig = {
+    ...APPLY_ATTENDANCE_FORM_FIELDS_CONFIG,
+    associateEmployeeName: isDriver
+      ? {
+          // Driver: use the original config as-is (enabled + validators)
+          ...baseAssociateEmployeeConfig,
+        }
+      : {
+          // Non-driver: keep field shape but disable and remove validators
+          ...baseAssociateEmployeeConfig,
+          validators: [],
+        },
+  };
+
+  return {
+    fields,
+    buttons: APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG,
+  };
 };

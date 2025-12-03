@@ -34,7 +34,8 @@ export class PageHeaderComponent {
   protected goBackButtonConfig = computed(() => this.getGoBackButtonConfig());
 
   // Output signals
-  headerButtonClick = output<void>();
+  // Emit a string action name so parent components can differentiate buttons
+  headerButtonClick = output<string>();
 
   protected getPageHeaderConfig(): IPageHeaderConfig {
     return {

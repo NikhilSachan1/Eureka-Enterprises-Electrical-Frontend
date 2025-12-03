@@ -93,16 +93,16 @@
               <p>If any information is incorrect, you may edit it here or contact your Admin / HR.</p>
               <ul class="assignment-card__note-list">
                 <li>
-                  <b>Location &amp; Client Name</b>
+                  <b>Location &amp; Client</b>
                   - This is the site/location where you need to report and the client for whom you are working at this
                   assignment.
                 </li>
                 <li>
-                  <b>Associate Employee Name</b>
-                  - Fooding and benefits will be provided only to the selected associate employee.
+                  <b>Associate Engineer</b>
+                  - Fooding and benefits will be provided only to the selected associate engineer.
                 </li>
                 <li>
-                  <b>Associated Vehicle Name</b>
+                  <b>Associated Vehicle</b>
                   - The assigned vehicle will remain under your responsibility.
                 </li>
               </ul>
@@ -158,7 +158,7 @@
               <div class="assignment-card__content">
                 <app-input-field
                   [formGroup]="form.formGroup"
-                  [inputFieldConfig]="form.fieldConfigs['associateEmployeeName']"
+                  [inputFieldConfig]="form.fieldConfigs['associateEngineerName']"
                 />
               </div>
             } @else {
@@ -166,9 +166,9 @@
                 <i [class]="ALL_ICONS.COMMON.USER"></i>
               </div>
               <div class="assignment-card__content">
-                <p class="assignment-card__label assignment-card__label--associate">Associate Employee</p>
+                <p class="assignment-card__label assignment-card__label--associate">Associate Engineer</p>
                 <p class="assignment-card__value">
-                  {{ $any(form.getFieldData('associateEmployeeName')) | textCase: 'title' }}
+                  {{ $any(form.getFieldData('associateEngineerName')) | textCase: 'title' }}
                 </p>
               </div>
             }

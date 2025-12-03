@@ -21,7 +21,7 @@ import {
   EDialogType,
   EButtonActionType,
 } from '@shared/types';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
@@ -290,16 +290,19 @@ export class GetAttendanceComponent implements OnInit {
     });
   }
 
-  protected onAddButtonClick(): void {
-    const navigationRoute = [
-      ROUTE_BASE_PATHS.ATTENDANCE,
-      ROUTES.ATTENDANCE.APPLY,
-    ];
+  protected onHeaderButtonClick(actionName: string): void {
+    let navigationRoute: string[] = [];
+    if (actionName === 'forceAttendance') {
+      navigationRoute = [ROUTE_BASE_PATHS.ATTENDANCE, ROUTES.ATTENDANCE.FORCE];
+    } else if (actionName === 'applyAttendance') {
+      navigationRoute = [ROUTE_BASE_PATHS.ATTENDANCE, ROUTES.ATTENDANCE.APPLY];
+    }
     const success =
       this.routerNavigationService.navigateToRoute(navigationRoute);
+
     if (!success) {
       this.logger.logUserAction(
-        'Navigation failed for add button',
+        'Navigation failed for header button',
         navigationRoute
       );
     }
@@ -312,8 +315,16 @@ export class GetAttendanceComponent implements OnInit {
       showHeaderButton: true,
       headerButtonConfig: [
         {
-          label: 'Apply Attendance',
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+          label: 'Force Attendance',
+          icon: ICONS.ATTENDANCE.FORCE,
+          actionName: 'forceAttendance',
+        },
+        {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+          label: 'Apply Attendance',
+          icon: ICONS.ATTENDANCE.CHECK_IN,
+          actionName: 'applyAttendance',
         },
       ],
     };

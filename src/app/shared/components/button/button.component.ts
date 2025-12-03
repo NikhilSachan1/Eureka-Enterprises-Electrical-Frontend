@@ -30,7 +30,7 @@ export class ButtonComponent {
   showButtonLoader = input<boolean>(false);
   showDisabledButton = input<boolean>(false);
 
-  onButtonClick = output<boolean>();
+  onButtonClick = output<string>();
 
   finalButtonConfig = computed(() => {
     const config = this.buttonConfig();
@@ -52,6 +52,6 @@ export class ButtonComponent {
   });
 
   onClick(): void {
-    this.onButtonClick.emit(true);
+    this.onButtonClick.emit(this.buttonConfig()?.actionName ?? '');
   }
 }

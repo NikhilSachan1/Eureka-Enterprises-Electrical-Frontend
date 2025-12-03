@@ -24,4 +24,5 @@ export interface IButtonConfig {
   fluid: boolean;
   visible?: boolean;
   tooltip?: string;
+  actionName?: string;
 }

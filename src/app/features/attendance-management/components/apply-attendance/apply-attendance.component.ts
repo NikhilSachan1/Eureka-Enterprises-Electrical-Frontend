@@ -42,7 +42,8 @@ import {
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { EApplyAttendanceAction } from '@features/attendance-management/types/attendance.enum';
-import { APPLY_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/apply-attendance.config';
+import { getApplyAttendanceFormConfig } from '@features/attendance-management/config/form/apply-attendance.config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -63,6 +64,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class ApplyAttendanceComponent implements OnInit {
   private readonly formService = inject(FormService);
+  private readonly authService = inject(AuthService);
   protected readonly appConfig = inject(AppConfigService);
   protected readonly attendanceService = inject(AttendanceService);
   protected readonly activatedRoute = inject(ActivatedRoute);
@@ -88,7 +90,14 @@ export class ApplyAttendanceComponent implements OnInit {
   protected form!: IEnhancedForm;
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(APPLY_ATTENDANCE_FORM_CONFIG);
+    // Determine if current user is a "driver" and build form config accordingly
+    const currentUser = this.authService.getCurrentUser();
+    const isDriverUser =
+      (currentUser?.designation ?? '').toLowerCase() === 'driver';
+
+    this.form = this.formService.createForm(
+      getApplyAttendanceFormConfig(isDriverUser)
+    );
     this.loadCurrentStatusDataFromRoute();
   }
 
