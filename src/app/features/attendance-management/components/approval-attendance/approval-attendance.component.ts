@@ -7,10 +7,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import {
-  APPROVE_ACTION_ATTENDANCE_FORM_CONFIG,
-  REJECT_ACTION_ATTENDANCE_FORM_CONFIG,
-} from '@features/attendance-management/config/form/approval-action-attendance.config';
+import { getApprovalActionAttendanceFormConfig } from '@features/attendance-management/config/form/approval-action-attendance.config';
 import {
   IEnhancedForm,
   EButtonActionType,
@@ -67,10 +64,9 @@ export class ApprovalAttendanceComponent
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
+    const actionType = this.dialogActionType() as EButtonActionType;
     this.form = this.formService.createForm(
-      this.dialogActionType() === EButtonActionType.APPROVE
-        ? APPROVE_ACTION_ATTENDANCE_FORM_CONFIG
-        : REJECT_ACTION_ATTENDANCE_FORM_CONFIG
+      getApprovalActionAttendanceFormConfig(actionType)
     );
   }
 

@@ -1,20 +1,18 @@
 import { Validators } from '@angular/forms';
-import { EFieldType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
+import {
+  EButtonActionType,
+  EFieldType,
+  IFormConfig,
+  IFormInputFieldsConfig,
+} from '@shared/types';
 
-const APPROVE_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+const APPROVAL_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   approveReason: {
     fieldType: EFieldType.TextArea,
     id: 'approveReason',
     fieldName: 'comment',
     label: 'Approve Reason',
   },
-};
-
-export const APPROVE_ACTION_ATTENDANCE_FORM_CONFIG: IFormConfig = {
-  fields: APPROVE_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG,
-};
-
-const REJECT_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   rejectReason: {
     fieldType: EFieldType.TextArea,
     id: 'rejectReason',
@@ -24,6 +22,32 @@ const REJECT_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   },
 };
 
-export const REJECT_ACTION_ATTENDANCE_FORM_CONFIG: IFormConfig = {
-  fields: REJECT_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG,
+export const APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG: IFormConfig = {
+  fields: APPROVAL_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG,
+};
+
+export const getApprovalActionAttendanceFormConfig = (
+  dialogActionType: EButtonActionType
+): IFormConfig => {
+  if (dialogActionType === EButtonActionType.APPROVE) {
+    const fields: IFormInputFieldsConfig = {
+      approveReason: {
+        ...APPROVAL_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG['approveReason'],
+      },
+    };
+
+    return { fields };
+  }
+
+  if (dialogActionType === EButtonActionType.REJECT) {
+    const fields: IFormInputFieldsConfig = {
+      rejectReason: {
+        ...APPROVAL_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG['rejectReason'],
+      },
+    };
+
+    return { fields };
+  }
+
+  return APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG;
 };
