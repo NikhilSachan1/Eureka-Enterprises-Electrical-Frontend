@@ -9,6 +9,7 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 import { AppConfigService } from '@core/services/app-config.service';
 import { LoggerService } from '@core/services/logger.service';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
@@ -16,27 +17,32 @@ import {
   IAttendanceApplyRequestDto,
   IAttendanceCurrentStatusGetResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
-import { IAttendanceCurrentStatus } from '@features/attendance-management/types/attendance.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
-  IFormButtonConfig,
-  EButtonSeverity,
+  FORM_VALIDATION_MESSAGES,
+  ROUTE_BASE_PATHS,
+  ROUTES,
+} from '@shared/constants';
+import { ICONS } from '@shared/constants/icon.constants';
+import {
+  EButtonActionType,
+  EButtonVariant,
+  IButtonConfig,
+  IEnhancedForm,
   IPageHeaderConfig,
 } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import {
+  FormService,
   LoadingService,
   NotificationService,
   RouterNavigationService,
 } from '@shared/services';
-import { stringToArray } from '@shared/utility';
 import { ButtonComponent } from '@shared/components/button/button.component';
-import {
-  EApplyAttendanceAction,
-  EAttendanceStatus,
-} from '@features/attendance-management/types/attendance.enum';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { EApplyAttendanceAction } from '@features/attendance-management/types/attendance.enum';
+import { APPLY_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/apply-attendance.config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -48,12 +54,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     SecondsToDhmsPipe,
     TextCasePipe,
     ButtonComponent,
+    ReactiveFormsModule,
+    InputFieldComponent,
   ],
   templateUrl: './apply-attendance.component.html',
   styleUrl: './apply-attendance.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApplyAttendanceComponent implements OnInit {
+  private readonly formService = inject(FormService);
   protected readonly appConfig = inject(AppConfigService);
   protected readonly attendanceService = inject(AttendanceService);
   protected readonly activatedRoute = inject(ActivatedRoute);
@@ -64,17 +73,22 @@ export class ApplyAttendanceComponent implements OnInit {
   protected readonly destroyRef = inject(DestroyRef);
 
   protected readonly currentStatusData =
-    signal<IAttendanceCurrentStatus | null>(null);
+    signal<IAttendanceCurrentStatusGetResponseDto | null>(null);
   protected readonly isSubmitting = signal(false);
+  protected readonly isEditingAssignment = signal(false);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly buttonConfig = computed(() => this.getButtonConfig());
+  protected assignmentHeaderButtonConfig = computed(() =>
+    this.getAssignmentHeaderButtonConfig()
+  );
 
-  protected readonly allAttendanceStatus = EAttendanceStatus;
-  protected readonly allApplyAttendanceAction = EApplyAttendanceAction;
   protected readonly todayDate = new Date();
+  protected readonly ALL_APPLY_ATTENDANCE_ACTIONS = EApplyAttendanceAction;
+  protected readonly ALL_ICONS = ICONS;
+  protected form!: IEnhancedForm;
 
   ngOnInit(): void {
+    this.form = this.formService.createForm(APPLY_ATTENDANCE_FORM_CONFIG);
     this.loadCurrentStatusDataFromRoute();
   }
 
@@ -92,45 +106,44 @@ export class ApplyAttendanceComponent implements OnInit {
       void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
+    this.currentStatusData.set(currentStatusDataFromRoute);
 
-    const currentStatusData = this.prepareCurrentStatusData(
-      currentStatusDataFromRoute
-    );
-    this.currentStatusData.set(currentStatusData);
+    if (this.form) {
+      this.form.patch({
+        locationName: this.currentStatusData()?.location,
+        clientName: this.currentStatusData()?.clientName,
+        associateEmployeeName: this.currentStatusData()?.associateEmployeeName,
+      });
+    }
   }
 
-  prepareCurrentStatusData(
-    currentStatusData: IAttendanceCurrentStatusGetResponseDto
-  ): IAttendanceCurrentStatus {
-    const [clientName, locationName] = stringToArray(
-      currentStatusData.notes ?? '',
-      '-'
-    );
+  protected onSubmit(applyAttendanceStatus: EApplyAttendanceAction): void {
+    if (this.isSubmitting() || !this.validateForm()) {
+      return;
+    }
+
+    const formData = this.prepareFormData(applyAttendanceStatus);
+    this.executeForceApplyAttendance(formData, applyAttendanceStatus);
+  }
+
+  private prepareFormData(
+    applyAttendanceStatus: EApplyAttendanceAction
+  ): IAttendanceApplyRequestDto {
+    //TODO: Add associate employee and associated vehicle name once we have the associate employee and associated vehicle name functionality
+
+    const { clientName, locationName } = this.form.getData() as {
+      clientName: string;
+      locationName: string;
+    };
 
     return {
-      status: currentStatusData.status,
-      workDuration: currentStatusData.workDuration ?? 0,
-      checkInTime: currentStatusData.checkInTime
-        ? (new Date(currentStatusData.checkInTime) as unknown as string)
-        : '',
-      checkOutTime: currentStatusData.checkOutTime
-        ? (new Date(currentStatusData.checkOutTime) as unknown as string)
-        : '',
-      locationName,
-      clientName,
-      associateEmployeeName: 'Mukesh Sawan',
+      notes: `${clientName} - ${locationName}`,
+      action: applyAttendanceStatus,
     };
   }
 
-  private getPageHeaderConfig(): IPageHeaderConfig {
-    return {
-      title: 'Apply Attendance',
-      subtitle: 'Check in or check out from your assigned location',
-      showHeaderButton: false,
-    };
-  }
-
-  protected applyAttendance(
+  protected executeForceApplyAttendance(
+    formData: IAttendanceApplyRequestDto,
     applyAttendanceStatus: EApplyAttendanceAction
   ): void {
     this.isSubmitting.set(true);
@@ -138,8 +151,6 @@ export class ApplyAttendanceComponent implements OnInit {
       title: 'Apply Attendance',
       message: 'Please wait while we apply attendance...',
     });
-
-    const formData = this.prepareFormData(applyAttendanceStatus);
 
     this.attendanceService
       .applyAttendance(formData)
@@ -157,7 +168,9 @@ export class ApplyAttendanceComponent implements OnInit {
             ROUTES.ATTENDANCE.LIST,
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
-          this.notificationService.success('Attendance applied successfully');
+          this.notificationService.success(
+            `${applyAttendanceStatus} successfull`
+          );
         },
         error: () => {
           this.notificationService.error('Failed to apply attendance');
@@ -165,29 +178,42 @@ export class ApplyAttendanceComponent implements OnInit {
       });
   }
 
-  private prepareFormData(
-    applyAttendanceStatus: EApplyAttendanceAction
-  ): IAttendanceApplyRequestDto {
+  private getPageHeaderConfig(): IPageHeaderConfig {
     return {
-      notes: `${this.currentStatusData()?.clientName} - ${this.currentStatusData()?.locationName}`,
-      action: applyAttendanceStatus,
+      title: 'Apply Attendance',
+      subtitle: 'Check in or check out from your assigned location',
+      showHeaderButton: false,
     };
   }
 
-  private getButtonConfig(): IFormButtonConfig {
+  private getAssignmentHeaderButtonConfig(): Partial<IButtonConfig> {
+    if (this.isEditingAssignment()) {
+      return {
+        id: EButtonActionType.SUBMIT,
+        icon: ICONS.ACTIONS.CHECK,
+        variant: EButtonVariant.TEXT,
+      };
+    }
+
     return {
-      checkIn: {
-        label: 'Check In',
-        type: 'button',
-        severity: EButtonSeverity.SUCCESS,
-        icon: 'pi pi-sign-in',
-      },
-      checkOut: {
-        label: 'Check Out',
-        type: 'button',
-        severity: EButtonSeverity.DANGER,
-        icon: 'pi pi-sign-out',
-      },
+      id: EButtonActionType.EDIT,
+      icon: ICONS.ACTIONS.EDIT,
+      variant: EButtonVariant.TEXT,
     };
+  }
+
+  protected toggleAssignmentEditing(): void {
+    this.isEditingAssignment.update(isEditing => !isEditing);
+  }
+
+  private validateForm(): boolean {
+    if (!this.form.validateAndMarkTouched()) {
+      this.notificationService.validationError(
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
+      );
+      this.logger.warn('Apply attendance form validation failed');
+      return false;
+    }
+    return true;
   }
 }

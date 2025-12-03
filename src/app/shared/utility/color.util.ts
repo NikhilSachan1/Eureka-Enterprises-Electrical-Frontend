@@ -17,6 +17,7 @@ export class ColorUtil {
         'submit',
         'filter',
         'pageheaderbutton1',
+        'checkin',
       ],
     },
     danger: {
@@ -34,6 +35,7 @@ export class ColorUtil {
         'delete',
         'cancel',
         'cancelled',
+        'checkout',
       ],
     },
     warning: {

@@ -6,7 +6,7 @@
 
 // Main content card
 .content-card {
-  @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden;
+  @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20;
 }
 
 // Status header
@@ -124,6 +124,22 @@
   .assignment-card {
     @apply bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4;
 
+    &__section-title {
+      @apply text-xs font-semibold text-gray-600 uppercase tracking-wide;
+    }
+
+    &__note {
+      @apply mt-1 mb-2 text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-300 rounded px-3 py-2 leading-snug shadow-sm;
+    }
+
+    &__note--important {
+      @apply mb-4;
+    }
+
+    &__note-list {
+      @apply list-disc pl-5 space-y-1 mt-1;
+    }
+
     &__item {
       @apply flex items-center gap-3;
 
@@ -141,6 +157,14 @@
 
       &--client {
         @apply bg-emerald-500;
+      }
+
+      &--associate {
+        @apply bg-violet-500;
+      }
+
+      &--vehicle {
+        @apply bg-amber-500;
       }
 
       i {
@@ -162,10 +186,30 @@
       &--client {
         @apply text-emerald-600;
       }
+
+      &--associate {
+        @apply text-violet-600;
+      }
+
+      &--vehicle {
+        @apply text-amber-600;
+      }
     }
 
     &__value {
       @apply font-semibold text-gray-800 text-sm;
+    }
+
+    &__header {
+      @apply flex items-center justify-between gap-2 mb-0.5;
+    }
+
+    &__edit-button {
+      @apply inline-flex items-center justify-center text-[10px] text-blue-600 hover:text-blue-800 transition-colors;
+
+      &--save {
+        @apply text-emerald-600 hover:text-emerald-700;
+      }
     }
   }
 }

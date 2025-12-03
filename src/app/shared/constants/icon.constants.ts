@@ -22,6 +22,9 @@ export const ICONS = {
     VIEW: 'pi pi-eye',
     WINDOW_MAXIMIZE: 'pi pi-window-maximize',
     DOWNLOAD: 'pi pi-download',
+    MAP_MARKER: 'pi pi-map-marker',
+    USER: 'pi pi-user',
+    CAR: 'pi pi-car',
   },
   MEDIA: {
     PDF: 'pi pi-file-pdf',
@@ -57,6 +60,8 @@ export const ICONS = {
     CHECK: 'pi pi-check-square',
     FORCE: 'pi pi-user-edit',
     REGULARIZE: 'pi pi-clock',
+    CHECK_IN: 'pi pi-sign-in',
+    CHECK_OUT: 'pi pi-sign-out',
   },
   EXPENSE: {
     MONEY: 'pi pi-money-bill',

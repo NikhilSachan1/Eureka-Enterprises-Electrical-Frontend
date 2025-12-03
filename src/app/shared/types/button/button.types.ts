@@ -59,4 +59,6 @@ export enum EButtonActionType {
   REJECT = 'reject',
   CANCEL = 'cancel',
   REGULARIZE = 'regularize',
+  CHECK_IN = 'checkIn',
+  CHECK_OUT = 'checkOut',
 }

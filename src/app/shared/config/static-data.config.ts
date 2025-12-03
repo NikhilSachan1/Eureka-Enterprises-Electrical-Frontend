@@ -85,6 +85,14 @@ export const LOCATION_DATA: IOptionDropdown[] = [
   { label: 'Location 5', value: 'location_5' },
 ];
 
+export const VEHICLE_LIST_DATA: IOptionDropdown[] = [
+  { label: 'Vehicle 1', value: 'vehicle_1' },
+  { label: 'Vehicle 2', value: 'vehicle_2' },
+  { label: 'Vehicle 3', value: 'vehicle_3' },
+  { label: 'Vehicle 4', value: 'vehicle_4' },
+  { label: 'Vehicle 5', value: 'vehicle_5' },
+];
+
 export const SHIFT_DATA = {
   START_TIME: '09:00',
   END_TIME: '18:00',
