@@ -1,34 +1,13 @@
 import { Validators } from '@angular/forms';
-import { CLIENT_NAME_DATA, LOCATION_DATA } from '@shared/config';
-import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
-import { EFieldType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
-import { filterOptionsByIncludeExclude } from '@shared/utility';
+import { IFormConfig, IFormInputFieldsConfig } from '@shared/types';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+import { APPLY_ATTENDANCE_FORM_CONFIG } from './apply-attendance.config';
+import { FORCE_ATTENDANCE_FORM_CONFIG } from './force-attendance.config';
 
 const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  attendanceStatus: {
-    fieldType: EFieldType.Select,
-    id: 'attendanceStatus',
-    fieldName: 'attendanceStatus',
-    label: 'Attendance Status',
-    selectConfig: {
-      haveFilter: false,
-      optionsDropdown: filterOptionsByIncludeExclude(
-        ATTENDANCE_STATUS_DATA,
-        [],
-        ['checked_in', 'checked_out']
-      ),
-    },
-    validators: [Validators.required],
-  },
+  attendanceStatus: FORCE_ATTENDANCE_FORM_CONFIG.fields['attendanceStatus'],
   clientName: {
-    fieldType: EFieldType.Select,
-    id: 'clientName',
-    fieldName: 'clientName',
-    label: 'Client Name',
-    selectConfig: {
-      optionsDropdown: CLIENT_NAME_DATA,
-    },
+    ...APPLY_ATTENDANCE_FORM_CONFIG.fields['clientName'],
     conditionalValidators: [
       {
         dependsOn: 'attendanceStatus',
@@ -39,14 +18,8 @@ const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       },
     ],
   },
-  location: {
-    fieldType: EFieldType.Select,
-    id: 'location',
-    fieldName: 'location',
-    label: 'Location',
-    selectConfig: {
-      optionsDropdown: LOCATION_DATA,
-    },
+  locationName: {
+    ...APPLY_ATTENDANCE_FORM_CONFIG.fields['locationName'],
     conditionalValidators: [
       {
         dependsOn: 'attendanceStatus',
@@ -57,6 +30,9 @@ const REGULARIZE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       },
     ],
   },
+  associateEngineerName:
+    APPLY_ATTENDANCE_FORM_CONFIG.fields['associateEngineerName'],
+  associatedVehicle: APPLY_ATTENDANCE_FORM_CONFIG.fields['associatedVehicle'],
 };
 
 export const REGULARIZE_ATTENDANCE_FORM_CONFIG: IFormConfig = {

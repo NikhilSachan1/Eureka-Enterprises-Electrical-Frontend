@@ -69,6 +69,11 @@ const APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
+export const APPLY_ATTENDANCE_FORM_CONFIG: IFormConfig = {
+  fields: APPLY_ATTENDANCE_FORM_FIELDS_CONFIG,
+  buttons: APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG,
+};
+
 export const getApplyAttendanceFormConfig = (
   isDriver: boolean
 ): IFormConfig => {
@@ -79,11 +84,9 @@ export const getApplyAttendanceFormConfig = (
     ...APPLY_ATTENDANCE_FORM_FIELDS_CONFIG,
     associateEmployeeName: isDriver
       ? {
-          // Driver: use the original config as-is (enabled + validators)
           ...baseAssociateEmployeeConfig,
         }
       : {
-          // Non-driver: keep field shape but disable and remove validators
           ...baseAssociateEmployeeConfig,
           validators: [],
         },

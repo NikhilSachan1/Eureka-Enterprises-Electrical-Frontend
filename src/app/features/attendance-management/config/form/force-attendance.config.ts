@@ -1,10 +1,5 @@
 import { Validators } from '@angular/forms';
-import {
-  CLIENT_NAME_DATA,
-  COMMON_FORM_ACTIONS,
-  EMPLOYEE_NAME_DATA,
-  LOCATION_DATA,
-} from '@shared/config';
+import { COMMON_FORM_ACTIONS, EMPLOYEE_NAME_DATA } from '@shared/config';
 import {
   ATTENDANCE_STATUS_DATA,
   PAYSLIP_DATE_DATA,
@@ -19,6 +14,7 @@ import {
   calculateMinEditableDate,
   filterOptionsByIncludeExclude,
 } from '@shared/utility';
+import { APPLY_ATTENDANCE_FORM_CONFIG } from './apply-attendance.config';
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   employeeName: {
@@ -64,26 +60,11 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Force Reason',
     validators: [Validators.required],
   },
-  clientName: {
-    fieldType: EFieldType.Select,
-    id: 'clientName',
-    fieldName: 'clientName',
-    label: 'Client Name',
-    selectConfig: {
-      optionsDropdown: CLIENT_NAME_DATA,
-    },
-    validators: [Validators.required],
-  },
-  location: {
-    fieldType: EFieldType.Select,
-    id: 'location',
-    fieldName: 'location',
-    label: 'Location',
-    selectConfig: {
-      optionsDropdown: LOCATION_DATA,
-    },
-    validators: [Validators.required],
-  },
+  clientName: APPLY_ATTENDANCE_FORM_CONFIG.fields['clientName'],
+  locationName: APPLY_ATTENDANCE_FORM_CONFIG.fields['locationName'],
+  associateEngineerName:
+    APPLY_ATTENDANCE_FORM_CONFIG.fields['associateEngineerName'],
+  associatedVehicle: APPLY_ATTENDANCE_FORM_CONFIG.fields['associatedVehicle'],
 };
 
 const FORCE_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

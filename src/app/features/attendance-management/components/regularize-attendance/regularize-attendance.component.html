@@ -9,12 +9,24 @@
   @if (showClientNameAndLocationFields()) {
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['clientName']"
+      [inputFieldConfig]="form.fieldConfigs['locationName']"
     />
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['location']"
+      [inputFieldConfig]="form.fieldConfigs['clientName']"
     />
   }
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['associateEngineerName']"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['associatedVehicle']"
+    />
+  </div>
 </form>
