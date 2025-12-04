@@ -24,6 +24,7 @@ import {
   APPROVAL_STATUS_DATA,
   ATTENDANCE_STATUS_DATA,
 } from '@shared/config/static-data.config';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 
 export const ATTENDANCE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   globalFilterFields: [
@@ -108,7 +109,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
           filterOptionsByIncludeExclude(
             ATTENDANCE_STATUS_DATA,
             [],
-            ['checked_out']
+            [EAttendanceStatus.CHECKED_OUT]
           ),
           'label'
         ),

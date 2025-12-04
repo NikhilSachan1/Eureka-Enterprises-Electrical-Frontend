@@ -253,6 +253,8 @@ export class GetAttendanceComponent implements OnInit {
     selectedRows: IAttendanceGetBaseResponseDto[]
   ): IConfirmationDialogRecordDetailConfig {
     const [firstRow] = selectedRows;
+    const siteLocation = stringToArray(firstRow.notes, '-')[0] || '';
+    const clientName = stringToArray(firstRow.notes, '-')[1] || '';
     const recordDetail = [
       {
         label: 'Employee Name',
@@ -266,9 +268,22 @@ export class GetAttendanceComponent implements OnInit {
         ),
       },
       { label: 'Attendance Status', value: firstRow.status },
+      { label: 'Approval Status', value: firstRow.approvalStatus },
       {
-        label: 'Site Location - Client Name',
-        value: `${firstRow.notes}`,
+        label: 'Site Location',
+        value: siteLocation,
+      },
+      {
+        label: 'Client Name',
+        value: clientName,
+      },
+      {
+        label: 'Associate Engineer',
+        value: 'John Doe', // TODO: Add associate employee name once we have the associate employee name functionality
+      },
+      {
+        label: 'Associated Vehicle',
+        value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
       },
     ];
     return {

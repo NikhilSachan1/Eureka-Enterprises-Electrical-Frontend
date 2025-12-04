@@ -24,6 +24,7 @@ import {
 } from '@shared/types';
 import { ViewDetailDrawerComponent } from '@shared/components/view-detail-drawer/view-detail-drawer.component';
 import { AppConfigService } from '@core/services';
+import { stringToArray } from '@shared/utility';
 
 @Component({
   selector: 'app-get-attendance-detail',
@@ -90,6 +91,8 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
     response: IAttendanceHistoryGetResponseDto
   ): IDrawerDetail[] {
     return response.map(record => {
+      const siteLocation = stringToArray(record.notes, '-')[0] || '';
+      const clientName = stringToArray(record.notes, '-')[1] || '';
       return {
         employeeDetails: {
           ...this._employeeDetails(),
@@ -129,7 +132,22 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           },
           {
             label: 'Location',
-            value: record.notes,
+            value: siteLocation,
+            type: EDrawerDetailType.NOTES,
+          },
+          {
+            label: 'Client Name',
+            value: clientName,
+            type: EDrawerDetailType.NOTES,
+          },
+          {
+            label: 'Associate Engineer',
+            value: 'John Doe', // TODO: Add associate employee name once we have the associate employee name functionality
+            type: EDrawerDetailType.NOTES,
+          },
+          {
+            label: 'Associated Vehicle',
+            value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
             type: EDrawerDetailType.NOTES,
           },
         ],

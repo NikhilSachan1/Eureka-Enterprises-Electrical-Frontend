@@ -15,6 +15,7 @@ import {
   filterOptionsByIncludeExclude,
 } from '@shared/utility';
 import { APPLY_ATTENDANCE_FORM_CONFIG } from './apply-attendance.config';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   employeeName: {
@@ -48,7 +49,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       optionsDropdown: filterOptionsByIncludeExclude(
         ATTENDANCE_STATUS_DATA,
         [],
-        ['checked_in', 'checked_out']
+        [EAttendanceStatus.CHECKED_IN, EAttendanceStatus.CHECKED_OUT]
       ),
     },
     validators: [Validators.required],

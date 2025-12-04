@@ -1,3 +1,4 @@
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import {
@@ -5,6 +6,7 @@ import {
   ATTENDANCE_STATUS_DATA,
 } from '@shared/config/static-data.config';
 import {
+  EApprovalStatus,
   EFieldType,
   ETableFilterMatchMode,
   IFormButtonConfig,
@@ -30,7 +32,7 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
         optionsDropdown: filterOptionsByIncludeExclude(
           ATTENDANCE_STATUS_DATA,
           [],
-          ['checked_out']
+          [EAttendanceStatus.CHECKED_OUT]
         ),
         haveFilter: false,
         showToggleAll: false,
@@ -43,7 +45,7 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
         optionsDropdown: filterOptionsByIncludeExclude(
           APPROVAL_STATUS_DATA,
           [],
-          ['cancelled']
+          [EApprovalStatus.CANCELLED]
         ),
         haveFilter: false,
         showToggleAll: false,

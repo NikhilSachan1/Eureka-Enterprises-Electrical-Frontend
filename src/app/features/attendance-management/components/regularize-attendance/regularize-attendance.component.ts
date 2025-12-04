@@ -30,6 +30,8 @@ import { AttendanceService } from '@features/attendance-management/services/atte
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EAttendanceStatus } from '../../types/attendance.enum';
+import { filterOptionsByIncludeExclude, stringToArray } from '@shared/utility';
+import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
 
 @Component({
   selector: 'app-regularize-attendance',
@@ -69,6 +71,8 @@ export class RegularizeAttendanceComponent
       ['attendanceStatus'],
       this.destroyRef
     );
+
+    this.prefillFormFromSelectedRecord();
   }
 
   onDialogAccept(): void {
@@ -109,6 +113,41 @@ export class RegularizeAttendanceComponent
       userId: record.user.id,
       timezone: this.timezoneService.timezone,
     };
+  }
+
+  private prefillFormFromSelectedRecord(): void {
+    const records = this.selectedRecord();
+    if (!records || records.length === 0 || !this.form) {
+      return;
+    }
+
+    const [record] = records;
+
+    const [clientName, location] = stringToArray(record.notes ?? '', '-');
+
+    let normalizedStatus = (record.status || '').toLowerCase() as
+      | EAttendanceStatus
+      | '';
+
+    const validAttendanceStatuses = filterOptionsByIncludeExclude(
+      ATTENDANCE_STATUS_DATA,
+      [],
+      [EAttendanceStatus.CHECKED_IN, EAttendanceStatus.CHECKED_OUT]
+    );
+
+    if (
+      !validAttendanceStatuses.some(status => status.value === normalizedStatus)
+    ) {
+      normalizedStatus = '';
+    }
+
+    this.form.patch({
+      attendanceStatus: normalizedStatus,
+      clientName,
+      locationName: location,
+      associateEngineerName: '', // TODO: Add associate employee name once we have the associate employee name functionality
+      associatedVehicle: '', // TODO: Add associated vehicle once we have the associated vehicle functionality
+    });
   }
 
   private executeRegularizeAttendance(
