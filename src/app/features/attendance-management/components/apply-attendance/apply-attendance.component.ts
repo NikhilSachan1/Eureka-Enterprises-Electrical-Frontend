@@ -20,10 +20,12 @@ import {
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import {
   FORM_VALIDATION_MESSAGES,
+  PERMISSION_KEYS,
   ROUTE_BASE_PATHS,
   ROUTES,
 } from '@shared/constants';
 import { ICONS } from '@shared/constants/icon.constants';
+import { AppPermissionDirective } from '@shared/directives/app-permission.directive';
 import {
   EButtonActionType,
   EButtonVariant,
@@ -57,6 +59,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     ButtonComponent,
     ReactiveFormsModule,
     InputFieldComponent,
+    AppPermissionDirective,
   ],
   templateUrl: './apply-attendance.component.html',
   styleUrl: './apply-attendance.component.scss',
@@ -87,6 +90,7 @@ export class ApplyAttendanceComponent implements OnInit {
   protected readonly todayDate = new Date();
   protected readonly ALL_APPLY_ATTENDANCE_ACTIONS = EApplyAttendanceAction;
   protected readonly ALL_ICONS = ICONS;
+  protected readonly ALL_PERMISSION_KEYS = PERMISSION_KEYS;
   protected form!: IEnhancedForm;
 
   ngOnInit(): void {

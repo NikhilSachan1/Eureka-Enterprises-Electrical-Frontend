@@ -23,7 +23,8 @@ import {
   IDrawerEmployeeDetails,
 } from '@shared/types';
 import { ViewDetailDrawerComponent } from '@shared/components/view-detail-drawer/view-detail-drawer.component';
-import { AppConfigService } from '@core/services';
+import { AppConfigService, AppPermissionService } from '@core/services';
+import { PERMISSION_KEYS } from '@shared/constants';
 import { stringToArray } from '@shared/utility';
 
 @Component({
@@ -40,6 +41,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   private readonly attendanceService = inject(AttendanceService);
   private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigService);
+  private readonly appPermissionService = inject(AppPermissionService);
 
   protected readonly _employeeDetails = computed(() =>
     this.getEmployeeDetails()
@@ -93,6 +95,72 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
     return response.map(record => {
       const siteLocation = stringToArray(record.notes, '-')[0] || '';
       const clientName = stringToArray(record.notes, '-')[1] || '';
+
+      const entryData: IDrawerDetail['entryData'] = [
+        {
+          label: 'Date',
+          value: record.attendanceDate,
+          type: EDrawerDetailType.DATE,
+          format: this.appConfigService.dateFormats.DEFAULT,
+        },
+        {
+          label: 'Check-in',
+          value: record.checkInTime,
+          type: EDrawerDetailType.TIME,
+          format: this.appConfigService.timeFormats.DEFAULT,
+        },
+        {
+          label: 'Check-out',
+          value: record.checkOutTime,
+          type: EDrawerDetailType.TIME,
+          format: this.appConfigService.timeFormats.DEFAULT,
+        },
+        {
+          label: 'Work Duration',
+          value: record.workDuration as unknown as string,
+          type: EDrawerDetailType.DURATION,
+        },
+        {
+          label: 'Status',
+          value: record.status,
+          type: EDrawerDetailType.STATUS,
+        },
+        {
+          label: 'Site Location',
+          value: siteLocation,
+          type: EDrawerDetailType.NOTES,
+        },
+      ];
+
+      if (
+        this.appPermissionService.hasUIPermission(
+          PERMISSION_KEYS.ATTENDANCE.CLIENT_NAME
+        )
+      ) {
+        entryData.push({
+          label: 'Client Name',
+          value: clientName,
+          type: EDrawerDetailType.NOTES,
+        });
+      }
+
+      if (
+        this.appPermissionService.hasUIPermission(
+          PERMISSION_KEYS.ATTENDANCE.ASSOCIATE_ENGINEER_NAME
+        )
+      ) {
+        entryData.push({
+          label: 'Associate Engineer',
+          value: 'John Doe', // TODO: Replace hard-coded name with associate employee name once associate employee mapping is available from backend.
+          type: EDrawerDetailType.NOTES,
+        });
+      }
+      entryData.push({
+        label: 'Associated Vehicle',
+        value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
+        type: EDrawerDetailType.NOTES,
+      });
+
       return {
         employeeDetails: {
           ...this._employeeDetails(),
@@ -101,56 +169,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           entryType: record.attendanceType,
           approvalStatus: record.approvalStatus,
         },
-        entryData: [
-          {
-            label: 'Date',
-            value: record.attendanceDate,
-            type: EDrawerDetailType.DATE,
-            format: this.appConfigService.dateFormats.DEFAULT,
-          },
-          {
-            label: 'Check-in',
-            value: record.checkInTime,
-            type: EDrawerDetailType.TIME,
-            format: this.appConfigService.timeFormats.DEFAULT,
-          },
-          {
-            label: 'Check-out',
-            value: record.checkOutTime,
-            type: EDrawerDetailType.TIME,
-            format: this.appConfigService.timeFormats.DEFAULT,
-          },
-          {
-            label: 'Work Duration',
-            value: record.workDuration as unknown as string,
-            type: EDrawerDetailType.DURATION,
-          },
-          {
-            label: 'Status',
-            value: record.status,
-            type: EDrawerDetailType.STATUS,
-          },
-          {
-            label: 'Location',
-            value: siteLocation,
-            type: EDrawerDetailType.NOTES,
-          },
-          {
-            label: 'Client Name',
-            value: clientName,
-            type: EDrawerDetailType.NOTES,
-          },
-          {
-            label: 'Associate Engineer',
-            value: 'John Doe', // TODO: Add associate employee name once we have the associate employee name functionality
-            type: EDrawerDetailType.NOTES,
-          },
-          {
-            label: 'Associated Vehicle',
-            value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
-            type: EDrawerDetailType.NOTES,
-          },
-        ],
+        entryData,
         approvalBy: {
           name: `${record.approvalByUser?.firstName} ${record.approvalByUser?.lastName}`,
           date: record.approvalAt,

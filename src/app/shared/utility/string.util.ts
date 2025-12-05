@@ -58,6 +58,5 @@ export const replaceTextWithSeparator = (
   if (!text || typeof text !== 'string') {
     return text;
   }
-
-  return text.replace(replaceText, separator);
+  return text.split(replaceText).join(separator);
 };

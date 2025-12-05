@@ -25,7 +25,7 @@ import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import Aura from '@primeng/themes/aura';
 import { routes } from './app.routes';
-import { TimezoneService } from '@core/services';
+import { AppPermissionService, TimezoneService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { APP_CONFIG } from '@core/config';
@@ -93,12 +93,14 @@ export const appConfig: ApplicationConfig = {
       const authService = inject(AuthService);
       const userPermissionService = inject(UserPermissionService);
       const financialYearService = inject(FinancialYearService);
+      const appPermissionService = inject(AppPermissionService);
 
       const financialYear = financialYearService.getFinancialYear();
       financialYearService.setFinancialYear(financialYear);
       timezoneService.getTimezone();
 
       if (authService.isAuthenticated()) {
+        appPermissionService.setUIPermissions();
         if (APP_CONFIG.USER_PERMISSION_CONFIG.wantPeriodicRefresh) {
           return lastValueFrom(
             userPermissionService.fetchAndStoreLoggedInUserPermissions().pipe(
