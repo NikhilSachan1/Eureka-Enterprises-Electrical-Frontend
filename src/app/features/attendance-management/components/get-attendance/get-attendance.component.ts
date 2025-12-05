@@ -61,6 +61,7 @@ import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
+import { ChipComponent } from '@shared/components/chip/chip.component';
 
 @Component({
   selector: 'app-get-attendance',
@@ -69,6 +70,7 @@ import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-ac
     PageHeaderComponent,
     MetricsCardComponent,
     SearchFilterComponent,
+    ChipComponent,
   ],
   providers: [],
   templateUrl: './get-attendance.component.html',
@@ -97,6 +99,7 @@ export class GetAttendanceComponent implements OnInit {
   private originalAttendanceData: IAttendanceGetBaseResponseDto[] = [];
   private readonly attendanceStats =
     signal<IAttendanceGetStatsResponseDto | null>(null);
+  protected readonly ALL_ICONS = ICONS;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricsCards = computed(() => this.getMetricCardsData());
@@ -160,16 +163,24 @@ export class GetAttendanceComponent implements OnInit {
   private mapTableData(
     response: IAttendanceGetBaseResponseDto[]
   ): IAttendance[] {
-    return response.map((record: IAttendanceGetBaseResponseDto) => ({
-      id: record.id,
-      attendanceDate: record.attendanceDate,
-      attendanceStatus: record.status,
-      approvalStatus: record.approvalStatus,
-      employeeName: `${record.user.firstName} ${record.user.lastName}`,
-      employeeCode: record.user.employeeId,
-      siteLocation: stringToArray(record.notes, '-')[0] || '',
-      clientName: stringToArray(record.notes, '-')[1] || '',
-    }));
+    return response.map((record: IAttendanceGetBaseResponseDto) => {
+      const [clientName, siteLocation] = stringToArray(record.notes, '-');
+      const associateEngineerName = 'John Doe'; // TODO: Add associate employee name once we have the associate employee name functionality
+      const associatedVehicle = 'Vehicle 1'; // TODO: Add associated vehicle once we have the associated vehicle functionality
+
+      return {
+        id: record.id,
+        attendanceDate: record.attendanceDate,
+        attendanceStatus: record.status,
+        approvalStatus: record.approvalStatus,
+        employeeName: `${record.user.firstName} ${record.user.lastName}`,
+        employeeCode: record.user.employeeId,
+        siteLocation: siteLocation || 'N/A',
+        clientName: clientName || 'N/A',
+        associateEngineerName: associateEngineerName || 'N/A',
+        associatedVehicle: associatedVehicle || 'N/A',
+      };
+    });
   }
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {

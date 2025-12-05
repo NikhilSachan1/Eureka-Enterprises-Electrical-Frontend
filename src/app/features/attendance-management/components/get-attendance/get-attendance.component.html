@@ -14,6 +14,43 @@
   />
 </div>
 
+<ng-template
+  #attendanceAssignmentDetails
+  let-row
+>
+  <div class="flex flex-col gap-1">
+    <!-- Top row: Location + Client -->
+    <div class="flex flex-wrap gap-2">
+      <app-chip
+        [label]="'Location: ' + row.siteLocation"
+        [icon]="ALL_ICONS.COMMON.MAP_MARKER"
+        [styleClass]="'bg-surface-200 text-primary-contrast text-sm font-medium'"
+      />
+
+      <app-chip
+        [label]="'Client: ' + row.clientName"
+        [icon]="ALL_ICONS.COMMON.USER"
+        [styleClass]="'bg-surface-200 text-primary-contrast text-sm font-medium'"
+      />
+    </div>
+
+    <!-- Bottom row: Engineer + Vehicle -->
+    <div class="flex flex-wrap gap-2">
+      <app-chip
+        [label]="'Engineer: ' + row.associateEngineerName"
+        [icon]="ALL_ICONS.COMMON.USER"
+        [styleClass]="'bg-surface-200 text-primary-contrast text-sm font-medium'"
+      />
+
+      <app-chip
+        [label]="'Vehicle: ' + row.associatedVehicle"
+        [icon]="ALL_ICONS.COMMON.CAR"
+        [styleClass]="'bg-surface-200 text-primary-contrast text-sm font-medium'"
+      />
+    </div>
+  </div>
+</ng-template>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -22,6 +59,7 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{ attendanceAssignmentDetails: attendanceAssignmentDetails }"
   (rowActionClick)="handleAttendanceTableActionClick($any($event), false)"
   (bulkActionClick)="handleAttendanceTableActionClick($any($event), true)"
   (filterData)="onTableStateChange($event)"

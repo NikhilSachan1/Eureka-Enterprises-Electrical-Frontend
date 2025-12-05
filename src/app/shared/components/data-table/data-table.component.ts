@@ -6,6 +6,7 @@ import {
   signal,
   inject,
   viewChild,
+  TemplateRef,
 } from '@angular/core';
 import {
   Table,
@@ -33,7 +34,12 @@ import {
   EButtonActionType,
   ETableBodyTemplate,
 } from '@shared/types';
-import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
+import {
+  CurrencyPipe,
+  DatePipe,
+  NgClass,
+  NgTemplateOutlet,
+} from '@angular/common';
 import { AvatarService } from '@shared/services';
 import { ICONS } from '@shared/constants';
 import { ButtonComponent } from '../button/button.component';
@@ -63,6 +69,7 @@ import { LoggerService } from '@core/services';
     DatePipe,
     CurrencyPipe,
     EmptyMessagesComponent,
+    NgTemplateOutlet,
   ],
 
   templateUrl: './data-table.component.html',
@@ -85,6 +92,7 @@ export class DataTableComponent {
   tableData = input.required<Record<string, unknown>[]>();
   bulkActionButtons = input<ITableActionConfig[]>([]);
   rowActions = input<ITableActionConfig[]>([]);
+  customBodyTemplates = input<Record<string, TemplateRef<unknown>>>({});
 
   bulkActionClick = output<ITableActionClickEvent>();
   rowActionClick = output<ITableActionClickEvent>();

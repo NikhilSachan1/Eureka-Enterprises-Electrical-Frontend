@@ -44,6 +44,7 @@ export interface IDataTableHeaderConfig {
   currencyFormat?: string;
   textWithSubtitleAndImageConfig?: ITextWithSubtitleAndImageConfig;
   statusConfig?: IStatusConfig;
+  customTemplateKey?: string;
   showFilter: boolean;
   clientSideFilterConfig?: IDataTableHeaderFilterConfig;
   showSort: boolean;

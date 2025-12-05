@@ -18,6 +18,9 @@ export interface IAttendance
   clientName: string;
   employeeName: string;
   employeeCode?: string;
+  //TODO: Add associate employee name and associated vehicle name once we have the associate employee name and associated vehicle name functionality
+  associateEngineerName?: string;
+  associatedVehicle?: string;
 }
 
 export interface IAttendanceCurrentStatus {

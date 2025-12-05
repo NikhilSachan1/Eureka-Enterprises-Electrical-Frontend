@@ -81,13 +81,8 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
     },
     {
       field: 'siteLocation',
-      header: 'Site Location / Client Name',
-      bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
-      textWithSubtitleAndImageConfig: {
-        secondaryField: 'clientName',
-        primaryFieldLabel: 'Site Location',
-        secondaryFieldLabel: 'Client Name',
-      },
+      header: 'Assignment Details',
+      customTemplateKey: 'attendanceAssignmentDetails',
       clientSideFilterConfig: {
         filterField: 'siteLocation',
         placeholder: 'Search By Site Location / Client Name',

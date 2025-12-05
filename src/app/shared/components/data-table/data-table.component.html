@@ -161,148 +161,156 @@
           @let bodyTemplate = column.bodyTemplate;
 
           <td>
-            @switch (bodyTemplate) {
-              @case (ALL_TABLE_BODY_TEMPLATES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
-                @let config = column.textWithSubtitleAndImageConfig;
+            @let templates = customBodyTemplates();
+            @if (column.customTemplateKey && templates && templates[column.customTemplateKey]) {
+              <ng-container
+                [ngTemplateOutlet]="templates[column.customTemplateKey]"
+                [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
+              />
+            } @else {
+              @switch (bodyTemplate) {
+                @case (ALL_TABLE_BODY_TEMPLATES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
+                  @let config = column.textWithSubtitleAndImageConfig;
 
-                <div class="flex items-center gap-3">
-                  @if (config.showImage) {
-                    @let imageName = $any(resolveNestedProperty(rowData, config.dummyImageField));
-                    <img
-                      [src]="getAvatarUrl(imageName)"
-                      [alt]="imageName"
-                      class="w-8 h-8 rounded-full bg-slate-100"
-                    />
-                  }
+                  <div class="flex items-center gap-3">
+                    @if (config.showImage) {
+                      @let imageName = $any(resolveNestedProperty(rowData, config.dummyImageField));
+                      <img
+                        [src]="getAvatarUrl(imageName)"
+                        [alt]="imageName"
+                        class="w-8 h-8 rounded-full bg-slate-100"
+                      />
+                    }
 
-                  <div>
                     <div>
-                      @if (config.primaryFieldLabel) {
-                        <span class="font-medium text-slate-600">{{ config.primaryFieldLabel }}:</span>
-                      }
-                      <span
-                        [ngClass]="{
-                          'font-medium text-slate-700': config.primaryFieldHighlight,
-                          'text-slate-700': !config.primaryFieldHighlight,
-                        }"
-                      >
-                        @switch (column.dataType) {
-                          @case ('date') {
-                            {{ columnData | date: column.dateFormat }}
-                          }
-                          @default {
-                            {{ columnData }}
-                          }
-                        }
-                      </span>
-                    </div>
-
-                    @if (config.secondaryField) {
-                      @let secondaryData = $any(resolveNestedProperty(rowData, config.secondaryField));
                       <div>
-                        @if (config.secondaryFieldLabel) {
-                          <span
-                            [ngClass]="{
-                              'text-slate-600': !config.secondaryFieldLabel,
-                              'font-medium text-slate-600': config.secondaryFieldLabel,
-                            }"
-                          >
-                            {{ config.secondaryFieldLabel }}:
-                          </span>
+                        @if (config.primaryFieldLabel) {
+                          <span class="font-medium text-slate-600">{{ config.primaryFieldLabel }}:</span>
                         }
                         <span
                           [ngClass]="{
-                            'text-slate-600': !config.secondaryFieldLabel,
-                            'text-slate-700': config.secondaryFieldLabel,
+                            'font-medium text-slate-700': config.primaryFieldHighlight,
+                            'text-slate-700': !config.primaryFieldHighlight,
                           }"
                         >
-                          @switch (config.dataType) {
+                          @switch (column.dataType) {
                             @case ('date') {
-                              {{ secondaryData | date: column.dateFormat }}
+                              {{ columnData | date: column.dateFormat }}
                             }
                             @default {
-                              {{ secondaryData }}
+                              {{ columnData }}
                             }
                           }
                         </span>
                       </div>
-                    }
-                  </div>
-                </div>
-              }
-              @case (ALL_TABLE_BODY_TEMPLATES.STATUS) {
-                @let statusConfig = column.statusConfig;
-                @let statusValue = columnData;
 
-                <div class="flex items-center gap-3">
-                  <app-status-tag
-                    [value]="statusValue"
-                    [config]="statusConfig"
-                  />
-                </div>
-              }
-              @case (ALL_TABLE_BODY_TEMPLATES.DATE) {
-                <div class="flex items-center gap-3">
-                  <span class="text-slate-700">{{ columnData | date: column.dateFormat }}</span>
-                </div>
-              }
-              @case (ALL_TABLE_BODY_TEMPLATES.CURRENCY) {
-                @let entryType = resolveNestedProperty(rowData, 'entryType');
-                @let colorClass =
-                  entryType === 'Credit'
-                    ? 'text-green-600 font-semibold'
-                    : entryType === 'Debit'
-                      ? 'text-red-600 font-semibold'
-                      : 'text-slate-700';
-
-                <div class="flex items-center gap-3">
-                  <span [ngClass]="colorClass">{{ columnData | currency: column.currencyFormat }}</span>
-                </div>
-              }
-              @case (ALL_TABLE_BODY_TEMPLATES.FILE_LINK) {
-                @if (columnData) {
-                  <div class="flex items-center gap-3">
-                    <a
-                      [href]="columnData"
-                      target="_blank"
-                      class="inline-flex items-center gap-2 px-3 py-1.5 font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 cursor-pointer"
-                      (click)="$event.stopPropagation()"
-                    >
-                      <i [class]="`${icons.COMMON.FILE} text-sm`"></i>
-                      View
-                    </a>
-                  </div>
-                } @else {
-                  <div class="flex items-center gap-3">
-                    <span
-                      class="inline-flex items-center gap-2 px-3 py-1.5 font-medium text-gray-500 bg-gray-50 border border-gray-200 rounded-md"
-                    >
-                      <i [class]="`{{ icons.ACTIONS.BAN }} text-sm`"></i>
-                      No Proof
-                    </span>
+                      @if (config.secondaryField) {
+                        @let secondaryData = $any(resolveNestedProperty(rowData, config.secondaryField));
+                        <div>
+                          @if (config.secondaryFieldLabel) {
+                            <span
+                              [ngClass]="{
+                                'text-slate-600': !config.secondaryFieldLabel,
+                                'font-medium text-slate-600': config.secondaryFieldLabel,
+                              }"
+                            >
+                              {{ config.secondaryFieldLabel }}:
+                            </span>
+                          }
+                          <span
+                            [ngClass]="{
+                              'text-slate-600': !config.secondaryFieldLabel,
+                              'text-slate-700': config.secondaryFieldLabel,
+                            }"
+                          >
+                            @switch (config.dataType) {
+                              @case ('date') {
+                                {{ secondaryData | date: column.dateFormat }}
+                              }
+                              @default {
+                                {{ secondaryData }}
+                              }
+                            }
+                          </span>
+                        </div>
+                      }
+                    </div>
                   </div>
                 }
-              }
-              @case (ALL_TABLE_BODY_TEMPLATES.BULLET_POINTS) {
-                @if (columnData) {
-                  <div class="space-y-1">
-                    @for (item of columnData; track $index) {
-                      <div class="flex items-start gap-2">
-                        <span class="text-blue-500 text-sm mt-0.5">•</span>
-                        <span class="text-slate-700 text-sm">{{ item }}</span>
-                      </div>
-                    }
-                  </div>
-                } @else {
+                @case (ALL_TABLE_BODY_TEMPLATES.STATUS) {
+                  @let statusConfig = column.statusConfig;
+                  @let statusValue = columnData;
+
                   <div class="flex items-center gap-3">
-                    <span class="text-slate-400 text-sm">No items</span>
+                    <app-status-tag
+                      [value]="statusValue"
+                      [config]="statusConfig"
+                    />
                   </div>
                 }
-              }
-              @default {
-                <div class="flex items-center gap-3">
-                  <span class="text-slate-700">{{ columnData }}</span>
-                </div>
+                @case (ALL_TABLE_BODY_TEMPLATES.DATE) {
+                  <div class="flex items-center gap-3">
+                    <span class="text-slate-700">{{ columnData | date: column.dateFormat }}</span>
+                  </div>
+                }
+                @case (ALL_TABLE_BODY_TEMPLATES.CURRENCY) {
+                  @let entryType = resolveNestedProperty(rowData, 'entryType');
+                  @let colorClass =
+                    entryType === 'Credit'
+                      ? 'text-green-600 font-semibold'
+                      : entryType === 'Debit'
+                        ? 'text-red-600 font-semibold'
+                        : 'text-slate-700';
+
+                  <div class="flex items-center gap-3">
+                    <span [ngClass]="colorClass">{{ columnData | currency: column.currencyFormat }}</span>
+                  </div>
+                }
+                @case (ALL_TABLE_BODY_TEMPLATES.FILE_LINK) {
+                  @if (columnData) {
+                    <div class="flex items-center gap-3">
+                      <a
+                        [href]="columnData"
+                        target="_blank"
+                        class="inline-flex items-center gap-2 px-3 py-1.5 font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 cursor-pointer"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <i [class]="`${icons.COMMON.FILE} text-sm`"></i>
+                        View
+                      </a>
+                    </div>
+                  } @else {
+                    <div class="flex items-center gap-3">
+                      <span
+                        class="inline-flex items-center gap-2 px-3 py-1.5 font-medium text-gray-500 bg-gray-50 border border-gray-200 rounded-md"
+                      >
+                        <i [class]="`{{ icons.ACTIONS.BAN }} text-sm`"></i>
+                        No Proof
+                      </span>
+                    </div>
+                  }
+                }
+                @case (ALL_TABLE_BODY_TEMPLATES.BULLET_POINTS) {
+                  @if (columnData) {
+                    <div class="space-y-1">
+                      @for (item of columnData; track $index) {
+                        <div class="flex items-start gap-2">
+                          <span class="text-blue-500 text-sm mt-0.5">•</span>
+                          <span class="text-slate-700 text-sm">{{ item }}</span>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="flex items-center gap-3">
+                      <span class="text-slate-400 text-sm">No items</span>
+                    </div>
+                  }
+                }
+                @default {
+                  <div class="flex items-center gap-3">
+                    <span class="text-slate-700">{{ columnData }}</span>
+                  </div>
+                }
               }
             }
           </td>
