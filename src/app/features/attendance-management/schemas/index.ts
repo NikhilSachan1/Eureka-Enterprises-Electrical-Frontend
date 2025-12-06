@@ -25,4 +25,4 @@ export {
 export {
   AttendanceActionRequestSchema,
   AttendanceActionResponseSchema,
-} from './action-attendance.schema';
+} from './approval-action-attendance.schema';

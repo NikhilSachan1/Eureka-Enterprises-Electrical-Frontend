@@ -1,0 +1,45 @@
+import { Routes } from '@angular/router';
+import { ROUTES } from '@shared/constants';
+
+export const EXPENSE_MANAGEMENT_ROUTES: Routes = [
+  {
+    path: '',
+    redirectTo: ROUTES.EXPENSE.LEDGER,
+    pathMatch: 'full',
+  },
+  {
+    path: ROUTES.EXPENSE.LEDGER,
+    loadComponent: () =>
+      import('./components/get-expense/get-expense.component').then(
+        m => m.GetExpenseComponent
+      ),
+  },
+  {
+    path: ROUTES.EXPENSE.ADD,
+    loadComponent: () =>
+      import('./components/add-expense/add-expense.component').then(
+        m => m.AddExpenseComponent
+      ),
+  },
+  {
+    path: ROUTES.EXPENSE.EDIT,
+    loadComponent: () =>
+      import('./components/edit-expense/edit-expense.component').then(
+        m => m.EditExpenseComponent
+      ),
+  },
+  {
+    path: ROUTES.EXPENSE.FORCE,
+    loadComponent: () =>
+      import('./components/force-expense/force-expense.component').then(
+        m => m.ForceExpenseComponent
+      ),
+  },
+  {
+    path: ROUTES.EXPENSE.REIMBURSE,
+    loadComponent: () =>
+      import('./components/reimburse-expense/reimburse-expense.component').then(
+        m => m.ReimburseExpenseComponent
+      ),
+  },
+];
