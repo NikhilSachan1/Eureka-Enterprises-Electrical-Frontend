@@ -14,7 +14,7 @@ export const ExpenseBaseSchema = z
     category: z.string(),
     description: z.string(),
     amount: z.number(),
-    transactionId: z.string(),
+    transactionId: z.string().nullable(),
     expenseDate: isoDateTimeField,
     paymentMode: z.string(),
     fileKeys: z.array(z.string()),
