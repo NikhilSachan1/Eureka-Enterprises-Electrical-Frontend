@@ -42,6 +42,7 @@ import {
 import {
   EXPENSE_ACTION_CONFIG_MAP,
   EXPENSE_TABLE_ENHANCED_CONFIG,
+  SEARCH_FILTER_EXPENSE_FORM_CONFIG,
 } from '@features/expense-management/config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -97,7 +98,7 @@ export class GetExpenseComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       EXPENSE_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
     );
-    // this.searchFilterConfig = SEARCH_FILTER_ATTENDANCE_FORM_CONFIG;
+    this.searchFilterConfig = SEARCH_FILTER_EXPENSE_FORM_CONFIG;
   }
 
   private loadExpenseList(): void {

@@ -18,9 +18,9 @@ export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
   },
   dateRange: {
     fieldType: EFieldType.Date,
-    id: 'attendanceDate',
-    fieldName: 'attendanceDate',
-    label: 'Attendance Date',
+    id: 'dateRange',
+    fieldName: 'dateRange',
+    label: 'Date Range',
     dateConfig: {
       selectionMode: EDateSelectionMode.Range,
     },

@@ -22,6 +22,8 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
     },
     attendanceDate: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
+      label: 'Attendance Date',
+      fieldName: 'attendanceDate',
     },
     attendanceStatus: {
       fieldType: EFieldType.MultiSelect,
@@ -29,26 +31,24 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
       fieldName: 'attendanceStatus',
       label: 'Attendance Status',
       multiSelectConfig: {
+        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
         optionsDropdown: filterOptionsByIncludeExclude(
           ATTENDANCE_STATUS_DATA,
           [],
           [EAttendanceStatus.CHECKED_OUT]
         ),
-        haveFilter: false,
-        showToggleAll: false,
       },
       matchmode: ETableFilterMatchMode.IN,
     },
     approvalStatus: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
       multiSelectConfig: {
+        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
         optionsDropdown: filterOptionsByIncludeExclude(
           APPROVAL_STATUS_DATA,
           [],
           [EApprovalStatus.CANCELLED]
         ),
-        haveFilter: false,
-        showToggleAll: false,
       },
     },
     globalSearch: {
