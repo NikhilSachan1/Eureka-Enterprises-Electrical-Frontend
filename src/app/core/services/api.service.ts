@@ -120,11 +120,16 @@ export class ApiService {
     endpoint: string,
     body: TRequest,
     requestSchema: z.ZodSchema<TRequest>,
-    responseSchema: z.ZodSchema<TResponse>
+    responseSchema: z.ZodSchema<TResponse>,
+    options: { multipart?: boolean } = { multipart: false }
   ): Observable<TResponse> {
     try {
       const validatedBody = this.validateRequest(body, requestSchema);
-      return this.post<unknown>(endpoint, validatedBody).pipe(
+      const finalBody = options?.multipart
+        ? this.buildFormData(validatedBody)
+        : validatedBody;
+
+      return this.post<unknown>(endpoint, finalBody).pipe(
         map((response: unknown) =>
           this.validateResponse(response, responseSchema)
         )
@@ -238,6 +243,47 @@ export class ApiService {
     });
 
     return httpParams;
+  }
+
+  private buildFormData(body: unknown): FormData {
+    const formData = new FormData();
+
+    if (!body || typeof body !== 'object') {
+      return formData;
+    }
+
+    Object.entries(body as Record<string, unknown>).forEach(([key, value]) => {
+      if (value === null || value === undefined) {
+        return;
+      }
+
+      // If value is an array, append each item with the same key.
+      if (Array.isArray(value)) {
+        value.forEach(item => {
+          if (item === null || item === undefined) {
+            return;
+          }
+
+          if (item instanceof File) {
+            formData.append(key, item);
+          } else {
+            formData.append(key, String(item));
+          }
+        });
+        return;
+      }
+
+      // If value is a File, append it directly.
+      if (value instanceof File) {
+        formData.append(key, value);
+        return;
+      }
+
+      // Fallback: append primitive values as strings.
+      formData.append(key, String(value));
+    });
+
+    return formData;
   }
 
   private createRetryConfig<T>(

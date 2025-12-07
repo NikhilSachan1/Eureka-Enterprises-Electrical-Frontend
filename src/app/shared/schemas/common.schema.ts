@@ -14,3 +14,4 @@ export const onlyTimeStringField = z
     val => !isNaN(new Date(`1970-01-01T${val}`).getTime()),
     'Invalid time'
   );
+export const fileField = z.instanceof(File);

@@ -43,8 +43,8 @@
           [size]="inputFieldConfig().fieldSize"
           [attr.placeholder]="placeholder"
           [mode]="numberConfig?.mode"
-          [min]="numberConfig?.minimumBoundaryValue || 1"
-          [max]="numberConfig?.maximumBoundaryValue || 1"
+          [min]="numberConfig?.minimumBoundaryValue ?? null"
+          [max]="numberConfig?.maximumBoundaryValue ?? null"
           [minFractionDigits]="numberConfig?.minimumFractionDigits"
           [maxFractionDigits]="numberConfig?.maximumFractionDigits"
           [useGrouping]="numberConfig?.allowNumberFormatting"
@@ -261,6 +261,8 @@
         [showCancelButton]="fileConfig?.showCancelButton"
         [name]="inputFieldConfig().fieldName"
         [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
+        (onSelect)="onFileSelect(inputFieldConfig().fieldName, $event)"
+        (onRemove)="onFileRemove(inputFieldConfig().fieldName, $event)"
       />
     }
     @case (ALL_FIELD_TYPES.TextArea) {

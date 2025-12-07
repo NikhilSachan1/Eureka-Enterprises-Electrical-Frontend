@@ -62,7 +62,6 @@ function addTokenToRequest(
   return req.clone({
     setHeaders: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': req.headers.get('Content-Type') ?? 'application/json',
     },
   });
 }

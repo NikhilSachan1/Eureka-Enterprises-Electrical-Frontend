@@ -6,6 +6,7 @@ export {
   isoDateTimeField,
   dateField,
   onlyDateStringField,
+  fileField,
 } from './common.schema';
 export {
   AttachmentsGetRequestSchema,

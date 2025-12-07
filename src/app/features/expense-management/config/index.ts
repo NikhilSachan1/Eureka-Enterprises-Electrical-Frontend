@@ -7,3 +7,4 @@ export {
 } from './table/get-expense.config';
 export { EXPENSE_ACTION_CONFIG_MAP } from './dialog/get-expense.config';
 export { SEARCH_FILTER_EXPENSE_FORM_CONFIG } from './form/search-filter-expense.config';
+export { ADD_EXPENSE_FORM_CONFIG } from './form/add-expense.config';

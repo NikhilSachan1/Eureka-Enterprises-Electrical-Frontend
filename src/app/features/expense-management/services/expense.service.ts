@@ -5,11 +5,18 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   IExpenseActionRequestDto,
   IExpenseActionResponseDto,
+  IExpenseAddRequestDto,
+  IExpenseAddResponseDto,
   IExpenseDeleteResponseDto,
   IExpenseGetRequestDto,
   IExpenseGetResponseDto,
 } from '../types/expense.dto';
-import { ExpenseGetRequestSchema, ExpenseGetResponseSchema } from '../schemas';
+import {
+  ExpenseAddRequestSchema,
+  ExpenseAddResponseSchema,
+  ExpenseGetRequestSchema,
+  ExpenseGetResponseSchema,
+} from '../schemas';
 import {
   ExpenseActionRequestSchema,
   ExpenseActionResponseSchema,
@@ -22,6 +29,34 @@ import { ExpenseDeleteResponseSchema } from '../schemas/delete-expense.schema';
 export class ExpenseService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
+
+  addExpense(
+    requestDto: IExpenseAddRequestDto
+  ): Observable<IExpenseAddResponseDto> {
+    this.logger.logUserAction('Add Expense Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.EXPENSE.ADD,
+        requestDto,
+        ExpenseAddRequestSchema,
+        ExpenseAddResponseSchema,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: IExpenseAddResponseDto) => {
+          this.logger.logUserAction('Add Expense Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Add Expense Error', error);
+          } else {
+            this.logger.logUserAction('Add Expense Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
 
   actionExpense(
     formData: IExpenseActionRequestDto

@@ -118,14 +118,13 @@ export const DEFAULT_RADIO_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
 };
 
 export const DEFAULT_FILE_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
-  fieldSize: EFieldSize.Large,
   fileConfig: {
     customUpload: true,
     multipleFiles: false,
     maxFileSize: 5000000,
     mode: EFileMode.Advanced,
     automaticUpload: false,
-    chooseLabel: 'Choose Image',
+    chooseLabel: 'Upload Attachment(s)',
     cancelLabel: 'Cancel',
     showUploadButton: false,
     showCancelButton: false,

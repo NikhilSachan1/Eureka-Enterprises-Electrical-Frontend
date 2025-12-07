@@ -19,9 +19,9 @@ export const API_ROUTES = {
   },
   EXPENSE: {
     LIST: 'expenses',
-    ADD: 'expense/debit',
-    FORCE: 'expense/force',
-    REIMBURSE: 'expense/credit',
+    ADD: 'expenses/debit',
+    FORCE: 'expenses/force',
+    REIMBURSE: 'expenses/credit',
     EDIT: (expenseId: string) => `expenses/${expenseId}`,
     DELETE: (expenseId: string) => `expenses/${expenseId}`,
     APPROVAL_ACTION: 'expenses/approval',

@@ -16,7 +16,11 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { PasswordModule } from 'primeng/password';
 import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { FileUploadModule } from 'primeng/fileupload';
+import {
+  FileRemoveEvent,
+  FileSelectEvent,
+  FileUploadModule,
+} from 'primeng/fileupload';
 import { TextareaModule } from 'primeng/textarea';
 import { InputOtpModule } from 'primeng/inputotp';
 import {
@@ -85,6 +89,53 @@ export class InputFieldComponent implements OnInit {
   }
 
   onChange(): void {
+    this.onFieldChange.emit(true);
+  }
+
+  onFileSelect(fieldName: string, event: FileSelectEvent): void {
+    const control = this.formGroup().get(fieldName);
+
+    if (!control) {
+      return;
+    }
+
+    const rawFiles = event?.files ?? [];
+    const files: File[] = Array.from(rawFiles as File[] | FileList);
+    control.setValue(files);
+    control.markAsDirty();
+    control.updateValueAndValidity();
+    this.onFieldChange.emit(true);
+  }
+
+  onFileRemove(fieldName: string, event: FileRemoveEvent): void {
+    const control = this.formGroup().get(fieldName);
+
+    if (!control) {
+      return;
+    }
+
+    const isMultiple =
+      this.inputFieldConfig().fileConfig?.multipleFiles ?? false;
+
+    if (!isMultiple) {
+      control.setValue([]);
+    } else {
+      const rawCurrent = (control.value ?? []) as File[] | FileList;
+      const currentFiles: File[] = Array.isArray(rawCurrent)
+        ? rawCurrent
+        : Array.from(rawCurrent);
+      const removedFile: File | undefined = event?.file;
+
+      if (removedFile) {
+        const updatedFiles = currentFiles.filter(file => file !== removedFile);
+        control.setValue(updatedFiles);
+      } else {
+        control.setValue([]);
+      }
+    }
+
+    control.markAsDirty();
+    control.updateValueAndValidity();
     this.onFieldChange.emit(true);
   }
 
