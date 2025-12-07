@@ -61,7 +61,11 @@
         [optionLabel]="selectConfig?.optionLabel"
         [optionValue]="selectConfig?.optionValue"
         [checkmark]="selectConfig?.showCheckmark"
-        [filter]="optionsDropdownLength ? selectConfig?.haveFilter : false"
+        [filter]="
+          selectConfig?.haveFilter &&
+          optionsDropdownLength &&
+          optionsDropdownLength > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
+        "
         [filterBy]="selectConfig?.filterBy"
         [loading]="optionsDropdownLength ? false : true"
         [showClear]="selectConfig?.showClearButton"
@@ -89,7 +93,11 @@
         [optionLabel]="multiSelectConfig?.optionLabel"
         [optionValue]="multiSelectConfig?.optionValue"
         [maxSelectedLabels]="multiSelectConfig?.maxSelectedLabels"
-        [filter]="optionsDropdownLength ? multiSelectConfig?.haveFilter : false"
+        [filter]="
+          multiSelectConfig?.haveFilter &&
+          optionsDropdownLength &&
+          optionsDropdownLength > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
+        "
         [filterBy]="multiSelectConfig?.filterBy"
         [loading]="optionsDropdownLength ? false : true"
         [showToggleAll]="multiSelectConfig?.showToggleAll"

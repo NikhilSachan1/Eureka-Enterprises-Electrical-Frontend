@@ -31,6 +31,7 @@ import {
   EUpAndDownButtonLayout,
   IInputFieldsConfig,
 } from '@shared/types';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-input-field',
@@ -64,7 +65,7 @@ export class InputFieldComponent implements OnInit {
   ALL_CALENDAR_VIEWS = ECalendarView;
   ALL_CHECKBOX_AND_RADIO_ALIGN = ECheckBoxAndRadioAlign;
   ALL_FILE_MODES = EFileMode;
-
+  ALL_DROPDOWN_CONFIG = APP_CONFIG.DROPDOWN_CONFIG;
   // Modern input signals - required inputs
   formGroup = input.required<FormGroup>();
   inputFieldConfig = input.required<IInputFieldsConfig>();

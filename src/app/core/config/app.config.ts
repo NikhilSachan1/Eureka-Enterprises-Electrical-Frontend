@@ -75,4 +75,9 @@ export const APP_CONFIG = {
     SPREADSHEET: ['xls', 'xlsx', 'csv'],
     PRESENTATION: ['ppt', 'pptx'],
   },
+
+  // Dropdown Configuration
+  DROPDOWN_CONFIG: {
+    DEFAULT_FILTER_LENGTH: 7,
+  },
 };

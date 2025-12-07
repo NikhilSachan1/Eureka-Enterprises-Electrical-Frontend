@@ -32,6 +32,7 @@ import {
   CheckboxEventLike,
 } from '@shared/types';
 import { FormsModule } from '@angular/forms';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-standalone-input-field',
@@ -64,6 +65,7 @@ export class StandaloneInputFieldComponent {
   ALL_CALENDAR_VIEWS = ECalendarView;
   ALL_CHECKBOX_AND_RADIO_ALIGN = ECheckBoxAndRadioAlign;
   ALL_FILE_MODES = EFileMode;
+  ALL_DROPDOWN_CONFIG = APP_CONFIG.DROPDOWN_CONFIG;
 
   // Inputs
   inputFieldConfig = input.required<IInputFieldsConfig>();
