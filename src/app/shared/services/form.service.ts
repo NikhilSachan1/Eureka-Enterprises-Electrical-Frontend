@@ -20,7 +20,7 @@ export class FormService {
     formConfig: IFormConfig,
     defaultValues?: Record<string, unknown> | null
   ): IEnhancedForm {
-    if (!formConfig.fields || Object.keys(formConfig.fields).length === 0) {
+    if (!formConfig?.fields || Object.keys(formConfig.fields).length === 0) {
       return {} as IEnhancedForm;
     }
 
