@@ -9,6 +9,10 @@ import {
   ExpenseActionRequestSchema,
   ExpenseActionResponseSchema,
 } from '../schemas/approval-action-expense.schema';
+import {
+  ExpenseDeleteRequestSchema,
+  ExpenseDeleteResponseSchema,
+} from '../schemas/delete-expense.schema';
 
 export type IExpenseGetBaseResponseDto = z.infer<
   typeof ExpenseGetBaseResponseSchema
@@ -28,4 +32,12 @@ export type IExpenseActionRequestDto = z.infer<
 
 export type IExpenseActionResponseDto = z.infer<
   typeof ExpenseActionResponseSchema
+>;
+
+export type IExpenseDeleteRequestDto = z.infer<
+  typeof ExpenseDeleteRequestSchema
+>;
+
+export type IExpenseDeleteResponseDto = z.infer<
+  typeof ExpenseDeleteResponseSchema
 >;

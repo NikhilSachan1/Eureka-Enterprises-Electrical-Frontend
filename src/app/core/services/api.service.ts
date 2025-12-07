@@ -197,12 +197,15 @@ export class ApiService {
 
   deleteValidated<TRequest, TResponse>(
     endpoint: string,
-    body: TRequest,
-    requestSchema: z.ZodSchema<TRequest>,
-    responseSchema: z.ZodSchema<TResponse>
+    responseSchema: z.ZodSchema<TResponse>,
+    body?: TRequest,
+    requestSchema?: z.ZodSchema<TRequest>
   ): Observable<TResponse> {
     try {
-      const validatedBody = this.validateRequest(body, requestSchema);
+      let validatedBody: unknown;
+      if (requestSchema && body) {
+        validatedBody = this.validateRequest(body as TRequest, requestSchema);
+      }
       return this.delete<unknown>(endpoint, validatedBody).pipe(
         map((response: unknown) =>
           this.validateResponse(response, responseSchema)

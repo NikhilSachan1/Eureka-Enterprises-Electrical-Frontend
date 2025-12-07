@@ -230,8 +230,7 @@ export class GetExpenseComponent implements OnInit {
 
     if (
       actionType === EButtonActionType.APPROVE ||
-      actionType === EButtonActionType.REJECT ||
-      actionType === EButtonActionType.DELETE
+      actionType === EButtonActionType.REJECT
     ) {
       dynamicComponentInputs.dialogActionType = actionType;
     }

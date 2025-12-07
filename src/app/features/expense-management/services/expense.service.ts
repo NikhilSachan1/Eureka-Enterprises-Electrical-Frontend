@@ -5,6 +5,7 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   IExpenseActionRequestDto,
   IExpenseActionResponseDto,
+  IExpenseDeleteResponseDto,
   IExpenseGetRequestDto,
   IExpenseGetResponseDto,
 } from '../types/expense.dto';
@@ -13,6 +14,7 @@ import {
   ExpenseActionRequestSchema,
   ExpenseActionResponseSchema,
 } from '../schemas/approval-action-expense.schema';
+import { ExpenseDeleteResponseSchema } from '../schemas/delete-expense.schema';
 
 @Injectable({
   providedIn: 'root',
@@ -42,6 +44,29 @@ export class ExpenseService {
             this.logger.logDtoValidationErrors('Action Expense Error', error);
           } else {
             this.logger.logUserAction('Action Expense Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteExpense(expenseId: string): Observable<IExpenseDeleteResponseDto> {
+    this.logger.logUserAction('Delete Expense Request');
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.EXPENSE.DELETE(expenseId),
+        ExpenseDeleteResponseSchema
+      )
+      .pipe(
+        tap((response: IExpenseDeleteResponseDto) => {
+          this.logger.logUserAction('Delete Expense Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Delete Expense Error', error);
+          } else {
+            this.logger.logUserAction('Delete Expense Error', error);
           }
           return throwError(() => error);
         })

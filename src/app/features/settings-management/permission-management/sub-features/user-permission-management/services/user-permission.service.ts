@@ -81,9 +81,9 @@ export class UserPermissionService {
     return this.apiService
       .deleteValidated(
         `${API_ROUTES.SETTINGS.PERMISSION.USER_PERMISSION.DELETE}`,
+        UserPermissionsDeleteResponseSchema,
         formData,
-        UserPermissionsDeleteRequestSchema,
-        UserPermissionsDeleteResponseSchema
+        UserPermissionsDeleteRequestSchema
       )
       .pipe(
         tap((response: IUserPermissionsDeleteResponseDto) => {
