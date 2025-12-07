@@ -17,12 +17,17 @@ $colors: (
 // PRIMENG OVERRIDES
 // ============================================================================
 :host ::ng-deep {
+  // .p-galleria-mask {
+  //   pointer-events: none;
+  // }
+
   .p-galleria-nav-button {
     z-index: 1000;
   }
 
   .p-galleria {
     border: none !important;
+    // pointer-events: auto;
 
     .p-galleria-item-container {
       position: relative;
@@ -183,6 +188,51 @@ $colors: (
     flex-wrap: wrap;
     justify-content: center;
   }
+}
+
+// Broken image fallback
+.gallery-viewer__broken-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: rgba(15, 23, 42, 0.85);
+  border-radius: 1rem;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.gallery-viewer__broken-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(248, 250, 252, 0.06);
+  border: 1px solid map.get($colors, border);
+
+  i {
+    font-size: 1.75rem;
+    color: map.get($colors, accent);
+  }
+}
+
+.gallery-viewer__broken-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: map.get($colors, text);
+  margin: 0;
+}
+
+.gallery-viewer__broken-subtitle {
+  font-size: 0.85rem;
+  color: map.get($colors, text-dim);
+  margin: 0;
+  max-width: 320px;
 }
 
 // ============================================================================

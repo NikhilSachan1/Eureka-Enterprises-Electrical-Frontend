@@ -33,6 +33,7 @@ export const AttendanceGetRequestSchema = z
     page,
     search,
   })
+  .strict()
   .transform(({ attendanceDate: dateRange, ...rest }) => {
     if (!dateRange || dateRange.length < 1) {
       return rest;

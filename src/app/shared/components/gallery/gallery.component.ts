@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
+  DestroyRef,
+  effect,
   inject,
   input,
   model,
+  output,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -14,18 +16,22 @@ import { DEFAULT_GALLERY_CONFIG } from '@shared/config/gallery.config';
 import { ICONS } from '@shared/constants';
 import {
   IGalleryConfig,
-  IGalleryData,
   IGalleryInputData,
   EButtonIconPosition,
   EButtonSeverity,
   EButtonType,
   EButtonActionType,
+  IAttachmentsGetResponseDto,
+  IGalleryResolvedItem,
 } from '@shared/types';
 import { getMediaTypeFromUrl, getFileExtension } from '@shared/utility';
 import { GalleriaModule } from 'primeng/galleria';
 import { DialogModule } from 'primeng/dialog';
 import { ImageModule } from 'primeng/image';
 import { ButtonComponent } from '../button/button.component';
+import { AttachmentsService, LoadingService } from '@shared/services';
+import { finalize, forkJoin } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-gallery',
@@ -43,6 +49,9 @@ import { ButtonComponent } from '../button/button.component';
 export class GalleryComponent {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly logger = inject(LoggerService);
+  private readonly attachmentsService = inject(AttachmentsService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly icons = ICONS;
   readonly ALL_BUTTON_SEVERITY = EButtonSeverity;
@@ -72,28 +81,70 @@ export class GalleryComponent {
     { breakpoint: '480px', numVisible: 1 }, // small phone
   ];
 
-  media = input<IGalleryInputData[]>([]);
+  media = input<Partial<IGalleryInputData>[]>([]);
   displayBasic = model<boolean>(false);
   displayPdfFullscreen = signal<boolean>(false);
-  currentPdfUrl = signal<SafeResourceUrl | string>('');
+  currentPdfUrl = signal<string | null>(null);
 
   galleryDefaultConfig = signal<IGalleryConfig>(DEFAULT_GALLERY_CONFIG);
-  mediaComputed = computed(() => this.addMediaTypeInMedia());
+  resolvedMedia = signal<IGalleryResolvedItem[]>([]);
 
-  addMediaTypeInMedia(): IGalleryData[] {
-    return this.media().map(item => {
-      const mediaType = getMediaTypeFromUrl(item.actualMediaUrl);
-      const actualMediaUrl =
-        mediaType === 'pdf'
-          ? this.sanitizer.bypassSecurityTrustResourceUrl(item.actualMediaUrl)
-          : item.actualMediaUrl;
+  readonly closed = output<void>();
 
-      return {
-        ...item,
-        actualMediaUrl,
-        mediaType,
-      };
+  private readonly mediaEffect = effect(() => {
+    const mediaItems = this.media();
+    this.resolveMediaUrls(mediaItems as IGalleryInputData[]);
+  });
+
+  private resolveMediaUrls(mediaItems: IGalleryInputData[]): void {
+    this.loadingService.show({
+      title: 'Loading Attachments',
+      message: 'Please wait while we load the attachments...',
     });
+    forkJoin(
+      mediaItems.map(item =>
+        this.attachmentsService.getFullMediaUrl(item.mediaKey)
+      )
+    )
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (responses: IAttachmentsGetResponseDto[]) => {
+          const updatedMedia: IGalleryResolvedItem[] = mediaItems.map(
+            (item, index) => {
+              const { url } = responses[index];
+              const mediaType = getMediaTypeFromUrl(url);
+
+              return {
+                mediaKey: item.mediaKey,
+                actualMediaUrl: url,
+                thumbnailMediaUrl: url,
+                mediaDescription: item.mediaDescription,
+                mediaTitle: item.mediaTitle,
+                mediaType,
+                fileExtension: getFileExtension(url),
+                fileIcon:
+                  this.icons.MEDIA[
+                    mediaType.toUpperCase() as keyof typeof this.icons.MEDIA
+                  ],
+              };
+            }
+          );
+          this.resolvedMedia.set(updatedMedia);
+          this.displayBasic.set(true);
+          this.logger.logUserAction('Attachments loaded successfully');
+        },
+
+        error: error => {
+          this.resolvedMedia.set([]);
+          this.displayBasic.set(false);
+          this.logger.logUserAction('Error loading attachments', error);
+        },
+      });
   }
 
   onActiveIndexChange(event: number): void {
@@ -102,16 +153,20 @@ export class GalleryComponent {
 
   onVisibleChange(event: boolean): void {
     this.logger.debug('Visible changed', event);
+
+    if (!event) {
+      this.closed.emit();
+    }
   }
 
-  openPdfFullscreen(pdfUrl: SafeResourceUrl | string): void {
+  openPdfFullscreen(pdfUrl: string): void {
     this.currentPdfUrl.set(pdfUrl);
     this.displayPdfFullscreen.set(true);
   }
 
   closePdfFullscreen(): void {
     this.displayPdfFullscreen.set(false);
-    this.currentPdfUrl.set('');
+    this.currentPdfUrl.set(null);
   }
 
   downloadFile(url: string, fileName: string): void {
@@ -124,13 +179,15 @@ export class GalleryComponent {
     document.body.removeChild(link);
   }
 
-  getFileIcon(mediaType: string): string {
-    return this.icons.MEDIA[
-      mediaType.toUpperCase() as keyof typeof this.icons.MEDIA
-    ];
+  getSafeResourceUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
-  getFileExtension(url: string): string {
-    return getFileExtension(url);
+  handleImageError(file: IGalleryResolvedItem): void {
+    file.hasError = true;
+    this.logger.logUserAction('Gallery image failed to load', {
+      mediaTitle: file.mediaTitle,
+      mediaUrl: file.actualMediaUrl,
+    });
   }
 }

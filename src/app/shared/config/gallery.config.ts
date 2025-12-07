@@ -14,6 +14,6 @@ export const DEFAULT_GALLERY_CONFIG: IGalleryConfig = {
   showThumbnails: false,
   thumbnailsPosition: 'bottom',
   showIndicators: true,
-  showIndicatorsOnItem: true,
+  showIndicatorsOnItem: false,
   indicatorsPosition: 'bottom',
 };

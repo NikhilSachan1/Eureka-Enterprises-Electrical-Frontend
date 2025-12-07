@@ -5,38 +5,14 @@ import {
   ITableActionConfig,
   ETableBodyTemplate,
   ETableDataType,
-  ETableFilterMatchMode,
-  ETableSearchInputType,
   EButtonActionType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
-import {
-  COMMON_BULK_ACTIONS,
-  COMMON_ROW_ACTIONS,
-  MATCH_MODE_OPTIONS,
-} from '@shared/config';
+import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { IAttendanceGetResponseDto } from '../../types/attendance.dto';
-import {
-  filterOptionsByIncludeExclude,
-  getDataFromArrayOfObjects,
-} from '@shared/utility';
-import {
-  APPROVAL_STATUS_DATA,
-  ATTENDANCE_STATUS_DATA,
-} from '@shared/config/static-data.config';
-import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 
 export const ATTENDANCE_TABLE_CONFIG: Partial<IDataTableConfig> = {
-  globalFilterFields: [
-    'employeeName',
-    'attendanceDate',
-    'siteLocation',
-    'attendanceStatus',
-    'approvalStatus',
-    'clientName',
-    'locationName',
-  ],
-  emptyMessage: 'No attendance found.',
+  emptyMessage: 'No attendance record found.',
   emptyMessageIcon: ICONS.COMMON.INFO_CIRCLE,
   emptyMessageDescription:
     "You don't have any attendance yet. Please add a attendance first.",
@@ -58,10 +34,6 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
         sortField: 'USER_NAME',
         filterField: 'userIds',
       },
-      clientSideFilterConfig: {
-        filterField: 'employeeId',
-        placeholder: 'Search Employee Name',
-      },
     },
     {
       field: 'attendanceDate',
@@ -72,21 +44,11 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
         sortField: 'ATTENDANCE_DATE',
         filterField: 'attendanceDate',
       },
-      clientSideFilterConfig: {
-        filterField: 'attendanceDate',
-        placeholder: 'Search By Attendance Date',
-        matchModeOptions: MATCH_MODE_OPTIONS.date,
-        defaultMatchMode: ETableFilterMatchMode.EQUALS,
-      },
     },
     {
       field: 'siteLocation',
       header: 'Assignment Details',
       customTemplateKey: 'attendanceAssignmentDetails',
-      clientSideFilterConfig: {
-        filterField: 'siteLocation',
-        placeholder: 'Search By Site Location / Client Name',
-      },
       showSort: false,
     },
     {
@@ -97,21 +59,6 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
         sortField: 'STATUS',
         filterField: 'statuses',
       },
-      clientSideFilterConfig: {
-        filterField: 'attendanceStatus',
-        searchInputType: ETableSearchInputType.DROPDOWN,
-        filterDropdownOptions: getDataFromArrayOfObjects(
-          filterOptionsByIncludeExclude(
-            ATTENDANCE_STATUS_DATA,
-            [],
-            [EAttendanceStatus.CHECKED_OUT]
-          ),
-          'label'
-        ),
-        placeholder: 'Search By Attendance Status',
-        matchModeOptions: MATCH_MODE_OPTIONS.dropdown,
-        defaultMatchMode: ETableFilterMatchMode.EQUALS,
-      },
     },
     {
       field: 'approvalStatus',
@@ -119,17 +66,6 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       bodyTemplate: ETableBodyTemplate.STATUS,
       serverSideFilterAndSortConfig: {
         filterField: 'approvalStatuses',
-      },
-      clientSideFilterConfig: {
-        filterField: 'approvalStatus',
-        searchInputType: ETableSearchInputType.DROPDOWN,
-        filterDropdownOptions: getDataFromArrayOfObjects(
-          APPROVAL_STATUS_DATA,
-          'label'
-        ),
-        placeholder: 'Search By Approval Status',
-        matchModeOptions: MATCH_MODE_OPTIONS.dropdown,
-        defaultMatchMode: ETableFilterMatchMode.EQUALS,
       },
       showSort: false,
     },

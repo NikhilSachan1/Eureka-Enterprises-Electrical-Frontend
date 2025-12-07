@@ -33,6 +33,7 @@ import {
   ITableActionClickEvent,
   EButtonActionType,
   ETableBodyTemplate,
+  IGalleryInputData,
 } from '@shared/types';
 import {
   CurrencyPipe,
@@ -46,6 +47,8 @@ import { ButtonComponent } from '../button/button.component';
 import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { EmptyMessagesComponent } from '../empty-messages/empty-messages.component';
 import { LoggerService } from '@core/services';
+import { ChipComponent } from '../chip/chip.component';
+import { GalleryComponent } from '../gallery/gallery.component';
 
 @Component({
   selector: 'app-data-table',
@@ -69,6 +72,8 @@ import { LoggerService } from '@core/services';
     DatePipe,
     CurrencyPipe,
     EmptyMessagesComponent,
+    ChipComponent,
+    GalleryComponent,
     NgTemplateOutlet,
   ],
 
@@ -99,6 +104,7 @@ export class DataTableComponent {
   filterData = output<TableLazyLoadEvent>();
 
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
+  protected attachmentsMedia = signal<Partial<IGalleryInputData>[]>([]);
 
   protected clear(table: Table): void {
     table.clear();
@@ -170,5 +176,23 @@ export class DataTableComponent {
       label: 'Clear Selection',
       icon: this.icons.ACTIONS.TIMES,
     };
+  }
+
+  protected openAttachmentsGallery(attchmentsKeys: string[]): void {
+    if (attchmentsKeys.length === 0) {
+      return;
+    }
+
+    const media: Partial<IGalleryInputData>[] = attchmentsKeys.map(
+      (key: string) => ({
+        mediaKey: key,
+      })
+    );
+
+    this.attachmentsMedia.set(media);
+  }
+
+  protected onAttachmentsGalleryClosed(): void {
+    this.attachmentsMedia.set([]);
   }
 }

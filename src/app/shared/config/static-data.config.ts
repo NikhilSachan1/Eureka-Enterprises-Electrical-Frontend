@@ -111,3 +111,24 @@ export const LEAVE_TYPE_DATA: IOptionDropdown[] = [
   { value: 'earned', label: 'Earned Leave' },
   { value: 'casual', label: 'Casual Leave' },
 ];
+
+// Expense Management
+export const EXPENSE_CATEGORY_DATA: IOptionDropdown[] = [
+  { label: 'Hotel', value: 'hotel_stay' },
+  { label: 'Tools', value: 'tools' },
+  { label: 'Toll', value: 'toll_cash' },
+  { label: 'Car Service', value: 'car_service' },
+  { label: 'Train', value: 'train' },
+  { label: 'Bus', value: 'bus' },
+  { label: 'Local Transport', value: 'local_transport' },
+  { label: 'Stationary', value: 'stationery' },
+  { label: 'Saftey Equipment', value: 'safety_equipment' },
+  { label: 'Other', value: 'other' },
+];
+export const EXPENSE_PAYMENT_METHOD_DATA: IOptionDropdown[] = [
+  { label: 'UPI', value: 'upi' },
+  { label: 'Cheque', value: 'cheque' },
+  { label: 'Credit Card', value: 'credit_card' },
+  { label: 'Cash', value: 'cash' },
+  { label: 'Bank Transfer (NEFT / RTGS / IMPS)', value: 'bank_transfer' },
+];

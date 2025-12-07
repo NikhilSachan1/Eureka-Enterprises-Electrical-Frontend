@@ -25,6 +25,7 @@ export const ICONS = {
     MAP_MARKER: 'pi pi-map-marker',
     USER: 'pi pi-user',
     CAR: 'pi pi-car',
+    FORCE: 'pi pi-user-edit',
   },
   MEDIA: {
     PDF: 'pi pi-file-pdf',
@@ -58,7 +59,6 @@ export const ICONS = {
   ATTENDANCE: {
     CALENDAR: 'pi pi-calendar',
     CHECK: 'pi pi-check-square',
-    FORCE: 'pi pi-user-edit',
     REGULARIZE: 'pi pi-clock',
     CHECK_IN: 'pi pi-sign-in',
     CHECK_OUT: 'pi pi-sign-out',

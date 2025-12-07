@@ -7,3 +7,7 @@ export {
   dateField,
   onlyDateStringField,
 } from './common.schema';
+export {
+  AttachmentsGetRequestSchema,
+  AttachmentsGetResponseSchema,
+} from './attachments.schema';

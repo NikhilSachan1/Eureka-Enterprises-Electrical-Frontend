@@ -362,7 +362,7 @@ export class GetAttendanceComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Force Attendance',
-          icon: ICONS.ATTENDANCE.FORCE,
+          icon: ICONS.COMMON.FORCE,
           actionName: 'forceAttendance',
         },
         {

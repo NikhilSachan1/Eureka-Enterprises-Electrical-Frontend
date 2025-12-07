@@ -18,6 +18,8 @@ export class ColorUtil {
         'filter',
         'pageheaderbutton1',
         'checkin',
+        'total credit',
+        'period credit',
       ],
     },
     danger: {
@@ -36,6 +38,9 @@ export class ColorUtil {
         'cancel',
         'cancelled',
         'checkout',
+        'closing balance',
+        'total debit',
+        'period debit',
       ],
     },
     warning: {
@@ -54,7 +59,13 @@ export class ColorUtil {
         border: 'border-l-blue-500',
         text: 'text-blue-600',
       },
-      statuses: ['holiday', 'view', 'setpermissions', 'total'],
+      statuses: [
+        'holiday',
+        'view',
+        'setpermissions',
+        'total',
+        'opening balance',
+      ],
     },
   };
 

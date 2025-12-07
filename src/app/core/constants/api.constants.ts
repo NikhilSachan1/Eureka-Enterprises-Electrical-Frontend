@@ -1,4 +1,7 @@
 export const API_ROUTES = {
+  ATTACHMENTS: {
+    GET_FILE_URL: 'files',
+  },
   AUTH: {
     LOGIN: 'auth/sign-in',
     FORGOT_PASSWORD: 'auth/forget-password',

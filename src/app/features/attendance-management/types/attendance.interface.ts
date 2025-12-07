@@ -17,7 +17,7 @@ export interface IAttendance
   siteLocation: string;
   clientName: string;
   employeeName: string;
-  employeeCode?: string;
+  employeeCode: string;
   //TODO: Add associate employee name and associated vehicle name once we have the associate employee name and associated vehicle name functionality
   associateEngineerName?: string;
   associatedVehicle?: string;

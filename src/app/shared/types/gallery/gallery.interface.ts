@@ -1,21 +1,17 @@
-import { SafeResourceUrl } from '@angular/platform-browser';
-
-// Base interface for common properties
-interface IGalleryDataBase {
+// Input interface - what users provide
+export interface IGalleryInputData {
+  mediaKey: string;
+  actualMediaUrl: string;
   thumbnailMediaUrl: string;
   mediaDescription: string;
   mediaTitle: string;
 }
 
-// Input interface - what users provide
-export interface IGalleryInputData extends IGalleryDataBase {
-  actualMediaUrl: string;
-}
-
-// Internal interface - what the component uses
-export interface IGalleryData extends IGalleryDataBase {
-  actualMediaUrl: string | SafeResourceUrl;
+export interface IGalleryResolvedItem extends IGalleryInputData {
   mediaType: string;
+  fileExtension: string;
+  fileIcon: string;
+  hasError?: boolean;
 }
 
 export interface IGalleryConfig {

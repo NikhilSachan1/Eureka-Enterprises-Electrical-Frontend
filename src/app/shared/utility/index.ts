@@ -1,4 +1,8 @@
-export { deepMerge, getDataFromArrayOfObjects } from './object.util';
+export {
+  deepMerge,
+  getDataFromArrayOfObjects,
+  getMappedValueFromArrayOfObjects,
+} from './object.util';
 export {
   toTitleCase,
   toUpperCase,

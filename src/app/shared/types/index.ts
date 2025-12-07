@@ -123,9 +123,9 @@ export type {
   IDrawerEmployeeDetails,
 } from './drawer/drawer.interface';
 export type {
-  IGalleryData,
   IGalleryConfig,
   IGalleryInputData,
+  IGalleryResolvedItem,
 } from './gallery/gallery.interface';
 export type { IPageHeaderConfig } from './page-header/page-header-config.interface';
 export {
@@ -133,3 +133,7 @@ export {
   EEntryType,
   EApprovalStatus,
 } from './common/zod.types';
+export type {
+  IAttachmentsGetRequestDto,
+  IAttachmentsGetResponseDto,
+} from './gallery/attachments.dto';

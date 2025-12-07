@@ -20,7 +20,6 @@ export enum ETableBodyTemplate {
   DATE = 'date',
   CURRENCY = 'currency',
   FILE_LINK = 'fileLink',
-  BULLET_POINTS = 'bulletPoints',
 }
 
 export enum ETableDataType {

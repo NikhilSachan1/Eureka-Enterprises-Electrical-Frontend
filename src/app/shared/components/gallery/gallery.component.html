@@ -1,22 +1,22 @@
 @let config = galleryDefaultConfig();
 
 <p-galleria
-  [value]="mediaComputed()"
+  [value]="resolvedMedia()"
   [(visible)]="displayBasic"
   [responsiveOptions]="responsiveOptions"
   [activeIndex]="config.activeIndex"
   [fullScreen]="config.fullScreen"
   [numVisible]="config.numVisible"
-  [showItemNavigators]="config.showNavigators"
+  [showItemNavigators]="config.showNavigators ? resolvedMedia().length > 1 : false"
   [showThumbnailNavigators]="config.showThumbnailNavigators"
   [showItemNavigatorsOnHover]="config.showNavigatorsOnHover"
   [changeItemOnIndicatorHover]="config.changeOnIndicatorHover"
   [circular]="config.circular"
   [autoPlay]="config.autoPlay"
   [transitionInterval]="config.transitionInterval"
-  [showThumbnails]="config.showThumbnails"
+  [showThumbnails]="config.showThumbnails ? resolvedMedia().length > 1 : false"
   [thumbnailsPosition]="config.thumbnailsPosition"
-  [showIndicators]="config.showIndicators"
+  [showIndicators]="config.showIndicators ? resolvedMedia().length > 1 : false"
   [showIndicatorsOnItem]="config.showIndicatorsOnItem"
   [indicatorsPosition]="config.indicatorsPosition"
   (activeIndexChange)="onActiveIndexChange($event)"
@@ -30,17 +30,32 @@
     <div class="gallery-viewer">
       <div class="gallery-viewer__content">
         <!-- Images -->
-        @if (file.mediaType === 'image') {
+        @if (file.mediaType === 'image' && !file.hasError) {
           <p-image
             [src]="file.actualMediaUrl"
             [alt]="file.mediaTitle"
             [preview]="true"
+            (onImageError)="handleImageError(file)"
           >
             <ng-template pTemplate="indicator">
               <i class="pi pi-eye"></i>
               <span>Click to Preview</span>
             </ng-template>
           </p-image>
+        }
+
+        <!-- Broken image fallback -->
+        @if (file.mediaType === 'image' && file.hasError) {
+          <div class="gallery-viewer__broken-image">
+            <div class="gallery-viewer__broken-icon">
+              <i class="pi pi-image"></i>
+            </div>
+            <p class="gallery-viewer__broken-title">Image not available</p>
+            <p class="gallery-viewer__broken-subtitle">
+              We're unable to load this image at the moment. Kindly contact the individual who uploaded the file to
+              resolve the issue.
+            </p>
+          </div>
         }
 
         <!-- PDF -->
@@ -58,7 +73,7 @@
             </div>
 
             <iframe
-              [src]="file.actualMediaUrl"
+              [src]="getSafeResourceUrl(file.actualMediaUrl)"
               class="gallery-viewer__pdf-embed"
             ></iframe>
           </div>
@@ -68,9 +83,9 @@
         @if (file.mediaType !== 'image' && file.mediaType !== 'pdf') {
           <div class="gallery-viewer__file">
             <div class="gallery-viewer__file-icon">
-              <i [class]="getFileIcon(file.mediaType)"></i>
+              <i [class]="file.fileIcon"></i>
             </div>
-            <span class="gallery-viewer__file-ext">.{{ getFileExtension(file.actualMediaUrl) }}</span>
+            <span class="gallery-viewer__file-ext">.{{ file.fileExtension }}</span>
             <p class="gallery-viewer__file-msg">Preview not available</p>
             <div class="gallery-viewer__file-actions">
               <app-button
@@ -90,8 +105,8 @@
     pTemplate="thumbnail"
   >
     <div class="gallery-thumb__placeholder">
-      <i [class]="getFileIcon(file.mediaType)"></i>
-      <span class="gallery-thumb__label">{{ getFileExtension(file.actualMediaUrl) }}</span>
+      <i [class]="file.fileIcon"></i>
+      <span class="gallery-thumb__label">{{ file.fileExtension }}</span>
     </div>
   </ng-template>
 </p-galleria>
@@ -105,8 +120,11 @@
   styleClass="pdf-modal"
   (onHide)="closePdfFullscreen()"
 >
-  <iframe
-    [src]="currentPdfUrl()"
-    class="gallery-viewer__pdf-fullscreen"
-  ></iframe>
+  @let pdfUrl = currentPdfUrl();
+  @if (pdfUrl) {
+    <iframe
+      [src]="getSafeResourceUrl(pdfUrl)"
+      class="gallery-viewer__pdf-fullscreen"
+    ></iframe>
+  }
 </p-dialog>
