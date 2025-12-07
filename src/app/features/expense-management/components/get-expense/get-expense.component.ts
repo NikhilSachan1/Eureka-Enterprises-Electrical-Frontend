@@ -317,6 +317,12 @@ export class GetExpenseComponent implements OnInit {
       showHeaderButton: true,
       headerButtonConfig: [
         {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
+          label: 'Reimburse Expense',
+          icon: ICONS.ACTIONS.PENCIL,
+          actionName: 'reimburseExpense',
+        },
+        {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Force Expense',
           icon: ICONS.COMMON.FORCE,

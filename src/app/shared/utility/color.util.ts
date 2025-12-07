@@ -50,7 +50,7 @@ export class ColorUtil {
         border: 'border-l-yellow-500',
         text: 'text-yellow-600',
       },
-      statuses: ['pending', 'leave', 'regularize', 'edit'],
+      statuses: ['pending', 'leave', 'regularize', 'edit', 'pageheaderbutton2'],
     },
     info: {
       severity: 'info',

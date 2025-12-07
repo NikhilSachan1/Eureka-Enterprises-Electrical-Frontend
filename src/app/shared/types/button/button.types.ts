@@ -45,6 +45,7 @@ export enum EButtonSize {
 
 export enum EButtonActionType {
   PAGE_HEADER_BUTTON_1 = 'pageHeaderButton1',
+  PAGE_HEADER_BUTTON_2 = 'pageHeaderButton2',
   RESET = 'reset',
   SUBMIT = 'submit',
   FILTER = 'filter',
