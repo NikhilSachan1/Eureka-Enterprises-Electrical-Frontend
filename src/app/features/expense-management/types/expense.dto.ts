@@ -5,6 +5,10 @@ import {
   ExpenseGetStatsResponseSchema,
   ExpenseGetResponseSchema,
 } from '../schemas';
+import {
+  ExpenseActionRequestSchema,
+  ExpenseActionResponseSchema,
+} from '../schemas/approval-action-expense.schema';
 
 export type IExpenseGetBaseResponseDto = z.infer<
   typeof ExpenseGetBaseResponseSchema
@@ -17,3 +21,11 @@ export type IExpenseGetStatsResponseDto = z.infer<
 >;
 
 export type IExpenseGetRequestDto = z.infer<typeof ExpenseGetRequestSchema>;
+
+export type IExpenseActionRequestDto = z.infer<
+  typeof ExpenseActionRequestSchema
+>;
+
+export type IExpenseActionResponseDto = z.infer<
+  typeof ExpenseActionResponseSchema
+>;

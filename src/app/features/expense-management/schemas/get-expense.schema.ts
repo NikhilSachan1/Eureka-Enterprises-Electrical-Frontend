@@ -75,8 +75,8 @@ export const ExpenseGetBaseResponseSchema = z
 export const ExpenseGetStatsResponseSchema = z
   .object({
     balances: z.object({
-      openingBalance: z.number().int().nonnegative(),
-      closingBalance: z.number().int().nonnegative(),
+      openingBalance: z.number().int(),
+      closingBalance: z.number().int(),
       totalCredit: z.number().int().nonnegative(),
       totalDebit: z.number().int().nonnegative(),
       periodCredit: z.number().int().nonnegative(),
