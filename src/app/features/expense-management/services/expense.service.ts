@@ -7,6 +7,7 @@ import {
   IExpenseActionResponseDto,
   IExpenseAddRequestDto,
   IExpenseAddResponseDto,
+  IExpenseDeleteRequestDto,
   IExpenseDeleteResponseDto,
   IExpenseGetRequestDto,
   IExpenseGetResponseDto,
@@ -21,7 +22,10 @@ import {
   ExpenseActionRequestSchema,
   ExpenseActionResponseSchema,
 } from '../schemas/approval-action-expense.schema';
-import { ExpenseDeleteResponseSchema } from '../schemas/delete-expense.schema';
+import {
+  ExpenseDeleteRequestSchema,
+  ExpenseDeleteResponseSchema,
+} from '../schemas/delete-expense.schema';
 
 @Injectable({
   providedIn: 'root',
@@ -85,13 +89,17 @@ export class ExpenseService {
       );
   }
 
-  deleteExpense(expenseId: string): Observable<IExpenseDeleteResponseDto> {
+  deleteExpense(
+    formData: IExpenseDeleteRequestDto
+  ): Observable<IExpenseDeleteResponseDto> {
     this.logger.logUserAction('Delete Expense Request');
 
     return this.apiService
       .deleteValidated(
-        API_ROUTES.EXPENSE.DELETE(expenseId),
-        ExpenseDeleteResponseSchema
+        API_ROUTES.EXPENSE.DELETE,
+        ExpenseDeleteResponseSchema,
+        formData,
+        ExpenseDeleteRequestSchema
       )
       .pipe(
         tap((response: IExpenseDeleteResponseDto) => {

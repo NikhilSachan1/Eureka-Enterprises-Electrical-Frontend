@@ -23,6 +23,7 @@ export const ExpenseGetRequestSchema = z
     expenseDate: z.array(dateField).min(1).optional(),
     userIds: z.array(uuidField).min(1).optional(),
     approvalStatuses: z.array(approvalStatus).min(1).optional(),
+    categories: z.array(category).min(1).optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -53,16 +54,8 @@ export const ExpenseGetRequestSchema = z
 export const ExpenseGetBaseResponseSchema = z
   .object({
     ...ExpenseBaseSchema.shape,
-    user: UserSchema.extend({
-      id: uuidField.default(''), //TODO: Remove extend and default once we have the employee id functionality
-    }),
-    approvalByUser: makeFieldsNullable(
-      UserSchema.extend({
-        employeeId: z.string().default(''), //TODO: Remove extend and default once we have the employee id functionality
-        email: z.string().default(''), //TODO: Remove extend and default once we have the employee name functionality
-        id: uuidField.default(''), //TODO: Remove extend and default once we have the employee id functionality
-      })
-    ).nullable(),
+    user: UserSchema,
+    approvalByUser: makeFieldsNullable(UserSchema).nullable(),
     approvalStatus: approvalStatus.transform(toTitleCase),
     category: category.transform(value =>
       getMappedValueFromArrayOfObjects(EXPENSE_CATEGORY_DATA, value)

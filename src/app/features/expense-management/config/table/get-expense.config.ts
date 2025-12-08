@@ -31,7 +31,7 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
       primaryFieldHighlight: true,
     },
     serverSideFilterAndSortConfig: {
-      sortField: 'USER_NAME',
+      sortField: 'userName',
       filterField: 'userIds',
     },
   },

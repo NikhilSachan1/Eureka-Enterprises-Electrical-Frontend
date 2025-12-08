@@ -23,7 +23,7 @@ export const API_ROUTES = {
     FORCE: 'expenses/force',
     REIMBURSE: 'expenses/credit',
     EDIT: (expenseId: string) => `expenses/${expenseId}`,
-    DELETE: (expenseId: string) => `expenses/${expenseId}`,
+    DELETE: 'expenses',
     APPROVAL_ACTION: 'expenses/approval',
     GET_EXPENSE_BY_ID: (expenseId: string) => `expenses/${expenseId}/history`,
   },

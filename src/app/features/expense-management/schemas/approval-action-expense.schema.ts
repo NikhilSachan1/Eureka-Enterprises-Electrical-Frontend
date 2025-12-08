@@ -21,7 +21,7 @@ export const ExpenseActionResultSchema = z
   .object({
     approvalStatus,
     message: z.string(),
-    newStatus: approvalStatus, //TODO: I dont know if this is correct. Please check.
+    previousStatus: approvalStatus,
     expenseId: id,
   })
   .strict();

@@ -11,6 +11,7 @@ import { LoggerService } from '@core/services';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import {
   IExpenseDeleteRequestDto,
+  IExpenseDeleteResponseDto,
   IExpenseGetBaseResponseDto,
 } from '@features/expense-management/types/expense.dto';
 import {
@@ -18,7 +19,7 @@ import {
   LoadingService,
   NotificationService,
 } from '@shared/services';
-import { IDialogActionHandler } from '@shared/types';
+import { EButtonActionType, IDialogActionHandler } from '@shared/types';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -60,21 +61,19 @@ export class DeleteExpenseComponent implements IDialogActionHandler {
       return;
     }
 
-    const paramData = this.prepareParamData(record);
-    this.executeExpenseDeleteAction(paramData);
+    const formData = this.prepareFormData(record);
+    this.executeExpenseDeleteAction(formData);
   }
 
-  private prepareParamData(
+  private prepareFormData(
     record: IExpenseGetBaseResponseDto[]
   ): IExpenseDeleteRequestDto {
     return {
-      id: record[0].id,
+      expenseIds: record.map((row: IExpenseGetBaseResponseDto) => row.id),
     };
   }
 
-  private executeExpenseDeleteAction(
-    paramData: IExpenseDeleteRequestDto
-  ): void {
+  private executeExpenseDeleteAction(formData: IExpenseDeleteRequestDto): void {
     const loadingMessage = {
       title: 'Deleting Expense',
       message: 'Please wait while we delete the expense...',
@@ -83,7 +82,7 @@ export class DeleteExpenseComponent implements IDialogActionHandler {
     this.loadingService.show(loadingMessage);
 
     this.expenseService
-      .deleteExpense(paramData.id)
+      .deleteExpense(formData)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -92,8 +91,16 @@ export class DeleteExpenseComponent implements IDialogActionHandler {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: () => {
-          this.notificationService.success('Expense deleted successfully');
+        next: (response: IExpenseDeleteResponseDto) => {
+          const { errors, result } = response;
+
+          this.notificationService.bulkOperationResult({
+            entityLabel: 'expense',
+            actionLabel: EButtonActionType.DELETE,
+            errors,
+            result,
+          });
+
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
