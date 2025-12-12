@@ -3,8 +3,8 @@ export interface IGalleryInputData {
   mediaKey: string;
   actualMediaUrl: string;
   thumbnailMediaUrl: string;
-  mediaDescription: string;
-  mediaTitle: string;
+  mediaDescription?: string;
+  mediaTitle?: string;
 }
 
 export interface IGalleryResolvedItem extends IGalleryInputData {

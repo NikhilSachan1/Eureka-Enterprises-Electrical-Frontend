@@ -68,6 +68,13 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     id: 'attachment',
     fieldName: 'attachment',
     label: 'Attachment',
+    fileConfig: {
+      fileLimit: 2,
+      acceptFileTypes: [
+        ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
+        ...APP_CONFIG.MEDIA_CONFIG.PDF,
+      ],
+    },
     validators: [Validators.required],
   },
 };

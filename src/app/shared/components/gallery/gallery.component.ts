@@ -30,7 +30,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ImageModule } from 'primeng/image';
 import { ButtonComponent } from '../button/button.component';
 import { AttachmentsService, LoadingService } from '@shared/services';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize, forkJoin, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -92,20 +92,33 @@ export class GalleryComponent {
   readonly closed = output<void>();
 
   private readonly mediaEffect = effect(() => {
-    const mediaItems = this.media();
-    this.resolveMediaUrls(mediaItems as IGalleryInputData[]);
+    const mediaItems = this.media() as IGalleryInputData[];
+
+    if (!mediaItems || mediaItems.length === 0) {
+      this.resolvedMedia.set([]);
+      this.displayBasic.set(false);
+      return;
+    }
+
+    this.resolveMedia(mediaItems);
   });
 
-  private resolveMediaUrls(mediaItems: IGalleryInputData[]): void {
+  private resolveMedia(mediaItems: IGalleryInputData[]): void {
     this.loadingService.show({
       title: 'Loading Attachments',
       message: 'Please wait while we load the attachments...',
     });
-    forkJoin(
-      mediaItems.map(item =>
-        this.attachmentsService.getFullMediaUrl(item.mediaKey)
-      )
-    )
+
+    const requests = mediaItems.map(item => {
+      const hasDirectUrls = !!item.actualMediaUrl && !!item.thumbnailMediaUrl;
+      if (hasDirectUrls) {
+        return of({ url: item.actualMediaUrl ?? '' });
+      }
+
+      return this.attachmentsService.getFullMediaUrl(item.mediaKey);
+    });
+
+    forkJoin(requests)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -113,20 +126,39 @@ export class GalleryComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (responses: IAttachmentsGetResponseDto[]) => {
+        next: (responses: (IAttachmentsGetResponseDto | { url: string })[]) => {
           const updatedMedia: IGalleryResolvedItem[] = mediaItems.map(
             (item, index) => {
-              const { url } = responses[index];
-              const mediaType = getMediaTypeFromUrl(url);
+              const response = responses[index];
+              const resolvedUrl =
+                (response as IAttachmentsGetResponseDto).url ??
+                (response as { url: string }).url ??
+                null;
+
+              const actualUrl = resolvedUrl ?? item.actualMediaUrl ?? '';
+
+              const baseName =
+                item.mediaTitle ?? item.mediaDescription ?? item.mediaKey ?? '';
+              const explicitExtension = baseName.includes('.')
+                ? (baseName.split('.').pop()?.toLowerCase() ?? '')
+                : '';
+
+              const dummyUrl = explicitExtension
+                ? `file.${explicitExtension}`
+                : actualUrl;
+              const mediaType = dummyUrl
+                ? getMediaTypeFromUrl(dummyUrl)
+                : 'unsupported';
+              const fileExtension = dummyUrl ? getFileExtension(dummyUrl) : '';
 
               return {
                 mediaKey: item.mediaKey,
-                actualMediaUrl: url,
-                thumbnailMediaUrl: url,
+                actualMediaUrl: actualUrl,
+                thumbnailMediaUrl: actualUrl,
                 mediaDescription: item.mediaDescription,
                 mediaTitle: item.mediaTitle,
                 mediaType,
-                fileExtension: getFileExtension(url),
+                fileExtension,
                 fileIcon:
                   this.icons.MEDIA[
                     mediaType.toUpperCase() as keyof typeof this.icons.MEDIA
@@ -138,7 +170,6 @@ export class GalleryComponent {
           this.displayBasic.set(true);
           this.logger.logUserAction('Attachments loaded successfully');
         },
-
         error: error => {
           this.resolvedMedia.set([]);
           this.displayBasic.set(false);

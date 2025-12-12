@@ -3,7 +3,6 @@ import { IExpenseGetResponseDto } from '@features/expense-management/types/expen
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
-  EButtonActionType,
   ETableBodyTemplate,
   ETableDataType,
   IDataTableConfig,
@@ -87,8 +86,7 @@ export const EXPENSE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
     tooltip: 'View Expense Details',
   },
   {
-    id: EButtonActionType.EDIT,
-    icon: ICONS.ACTIONS.EDIT,
+    ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Expense',
   },
   {

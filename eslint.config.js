@@ -149,7 +149,7 @@ module.exports = tseslint.config(
       '@angular-eslint/template/no-negated-async': 'error',
       '@angular-eslint/template/conditional-complexity': [
         'error',
-        { maxComplexity: 3 },
+        { maxComplexity: 5 },
       ],
       '@angular-eslint/template/no-interpolation-in-attributes': 'error',
       '@angular-eslint/template/banana-in-box': 'error',

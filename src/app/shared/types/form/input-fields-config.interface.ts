@@ -136,12 +136,13 @@ export interface IFileFieldConfig {
   maxFileSize: number;
   multipleFiles: boolean;
   mode: EFileMode;
-  acceptFileTypes: string;
+  acceptFileTypes: string[];
   automaticUpload: boolean;
   chooseLabel: string;
   cancelLabel: string;
   showUploadButton: boolean;
   showCancelButton: boolean;
+  fileLimit: number;
 }
 
 export interface ITextAreaFieldConfig {

@@ -60,3 +60,10 @@ export const replaceTextWithSeparator = (
   }
   return text.split(replaceText).join(separator);
 };
+
+export const arrayToString = (array: string[], separator = ', '): string => {
+  if (!array || array.length === 0) {
+    return '';
+  }
+  return array.join(separator);
+};

@@ -120,14 +120,15 @@ export const DEFAULT_RADIO_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
 export const DEFAULT_FILE_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
   fileConfig: {
     customUpload: true,
-    multipleFiles: false,
-    maxFileSize: 5000000,
+    multipleFiles: true,
+    maxFileSize: 1024 * 1024 * 10, // 10MB
     mode: EFileMode.Advanced,
     automaticUpload: false,
     chooseLabel: 'Upload Attachment(s)',
     cancelLabel: 'Cancel',
     showUploadButton: false,
     showCancelButton: false,
+    fileLimit: 10,
   },
 };
 

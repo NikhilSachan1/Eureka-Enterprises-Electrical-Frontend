@@ -11,8 +11,14 @@ export {
   toSentenceCase,
   stringToArray,
   replaceTextWithSeparator,
+  arrayToString,
 } from './string.util';
-export { noSpecialCharactersValidator } from './validators.util';
+export {
+  noSpecialCharactersValidator,
+  fileLimitValidator,
+  fileSizeValidator,
+  fileFormatValidator,
+} from './validators.util';
 export {
   convertSecondsToDhms,
   calculateMinEditableDate,

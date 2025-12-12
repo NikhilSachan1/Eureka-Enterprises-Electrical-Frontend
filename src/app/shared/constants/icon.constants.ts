@@ -26,6 +26,8 @@ export const ICONS = {
     USER: 'pi pi-user',
     CAR: 'pi pi-car',
     FORCE: 'pi pi-user-edit',
+    PAPERCLIP: 'pi pi-paperclip',
+    CLOUD_UPLOAD: 'pi pi-cloud-upload',
   },
   MEDIA: {
     PDF: 'pi pi-file-pdf',
