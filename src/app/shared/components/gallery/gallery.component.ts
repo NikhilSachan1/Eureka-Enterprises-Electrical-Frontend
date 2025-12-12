@@ -30,7 +30,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ImageModule } from 'primeng/image';
 import { ButtonComponent } from '../button/button.component';
 import { AttachmentsService, LoadingService } from '@shared/services';
-import { finalize, forkJoin, of } from 'rxjs';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -112,10 +112,19 @@ export class GalleryComponent {
     const requests = mediaItems.map(item => {
       const hasDirectUrls = !!item.actualMediaUrl && !!item.thumbnailMediaUrl;
       if (hasDirectUrls) {
+        // Direct media: no API call, just wrap the existing URL
         return of({ url: item.actualMediaUrl ?? '' });
       }
 
-      return this.attachmentsService.getFullMediaUrl(item.mediaKey);
+      return this.attachmentsService.getFullMediaUrl(item.mediaKey).pipe(
+        catchError(error => {
+          this.logger.logUserAction('Error loading attachment', {
+            mediaKey: item.mediaKey,
+            error,
+          });
+          return of({ url: null as string | null });
+        })
+      );
     });
 
     forkJoin(requests)
@@ -126,16 +135,19 @@ export class GalleryComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (responses: (IAttachmentsGetResponseDto | { url: string })[]) => {
+        next: (
+          responses: (IAttachmentsGetResponseDto | { url: string | null })[]
+        ) => {
           const updatedMedia: IGalleryResolvedItem[] = mediaItems.map(
             (item, index) => {
               const response = responses[index];
               const resolvedUrl =
                 (response as IAttachmentsGetResponseDto).url ??
-                (response as { url: string }).url ??
+                (response as { url: string | null }).url ??
                 null;
 
               const actualUrl = resolvedUrl ?? item.actualMediaUrl ?? '';
+              const hasError = !resolvedUrl && !item.actualMediaUrl;
 
               const baseName =
                 item.mediaTitle ?? item.mediaDescription ?? item.mediaKey ?? '';
@@ -163,17 +175,14 @@ export class GalleryComponent {
                   this.icons.MEDIA[
                     mediaType.toUpperCase() as keyof typeof this.icons.MEDIA
                   ],
+                hasError,
               };
             }
           );
+
           this.resolvedMedia.set(updatedMedia);
           this.displayBasic.set(true);
           this.logger.logUserAction('Attachments loaded successfully');
-        },
-        error: error => {
-          this.resolvedMedia.set([]);
-          this.displayBasic.set(false);
-          this.logger.logUserAction('Error loading attachments', error);
         },
       });
   }
