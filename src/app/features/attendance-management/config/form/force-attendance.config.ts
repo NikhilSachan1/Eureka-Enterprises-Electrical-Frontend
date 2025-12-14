@@ -11,11 +11,20 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 import {
-  calculateMinEditableDate,
   filterOptionsByIncludeExclude,
+  getPayslipCutoffMinDate,
 } from '@shared/utility';
 import { APPLY_ATTENDANCE_FORM_CONFIG } from './apply-attendance.config';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+
+const {
+  fields: {
+    clientName,
+    locationName,
+    associateEngineerName,
+    associatedVehicle,
+  },
+} = APPLY_ATTENDANCE_FORM_CONFIG;
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   employeeName: {
@@ -34,7 +43,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'date',
     label: 'Date',
     dateConfig: {
-      minDate: calculateMinEditableDate(PAYSLIP_DATE_DATA.EVERY_MONTH),
+      minDate: getPayslipCutoffMinDate(PAYSLIP_DATE_DATA.EVERY_MONTH),
       maxDate: new Date(),
     },
     validators: [Validators.required],
@@ -61,11 +70,10 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Force Reason',
     validators: [Validators.required],
   },
-  clientName: APPLY_ATTENDANCE_FORM_CONFIG.fields['clientName'],
-  locationName: APPLY_ATTENDANCE_FORM_CONFIG.fields['locationName'],
-  associateEngineerName:
-    APPLY_ATTENDANCE_FORM_CONFIG.fields['associateEngineerName'],
-  associatedVehicle: APPLY_ATTENDANCE_FORM_CONFIG.fields['associatedVehicle'],
+  clientName,
+  locationName,
+  associateEngineerName,
+  associatedVehicle,
 };
 
 const FORCE_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

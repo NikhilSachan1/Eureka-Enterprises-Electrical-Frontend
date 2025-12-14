@@ -186,11 +186,16 @@ export class ApiService {
     endpoint: string,
     body: TRequest,
     requestSchema: z.ZodSchema<TRequest>,
-    responseSchema: z.ZodSchema<TResponse>
+    responseSchema: z.ZodSchema<TResponse>,
+    options: { multipart?: boolean } = { multipart: false }
   ): Observable<TResponse> {
     try {
       const validatedBody = this.validateRequest(body, requestSchema);
-      return this.patch<unknown>(endpoint, validatedBody).pipe(
+      const finalBody = options?.multipart
+        ? this.buildFormData(validatedBody)
+        : validatedBody;
+
+      return this.patch<unknown>(endpoint, finalBody).pipe(
         map((response: unknown) =>
           this.validateResponse(response, responseSchema)
         )

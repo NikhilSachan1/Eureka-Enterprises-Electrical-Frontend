@@ -46,6 +46,15 @@ export class FormService {
     }
 
     formGroup.markAllAsTouched();
+
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      if (control?.invalid) {
+        control.markAsDirty();
+        control.updateValueAndValidity();
+      }
+    });
+
     return false;
   }
 

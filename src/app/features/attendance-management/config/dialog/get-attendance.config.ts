@@ -7,13 +7,13 @@ export const ATTENDANCE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
     [EButtonActionType.APPROVE]: {
       actionWord: 'approve',
       singleLabel: 'Approve',
-      bulkLabel: 'Approve All',
+      bulkLabel: 'Approve Selected',
       dynamicComponent: ApprovalAttendanceComponent,
     },
     [EButtonActionType.REJECT]: {
       actionWord: 'reject',
       singleLabel: 'Reject',
-      bulkLabel: 'Reject All',
+      bulkLabel: 'Reject Selected',
       dynamicComponent: ApprovalAttendanceComponent,
     },
     [EButtonActionType.REGULARIZE]: {

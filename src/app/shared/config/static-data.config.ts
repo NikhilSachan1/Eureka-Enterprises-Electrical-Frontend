@@ -114,7 +114,7 @@ export const LEAVE_TYPE_DATA: IOptionDropdown[] = [
 
 // Expense Management
 export const EXPENSE_CATEGORY_DATA: IOptionDropdown[] = [
-  { label: 'Hotel', value: 'hotel_stay' },
+  { label: 'Hotel', value: 'hotel' },
   { label: 'Tools', value: 'tools' },
   { label: 'Toll', value: 'toll_cash' },
   { label: 'Car Service', value: 'car_service' },
@@ -123,6 +123,7 @@ export const EXPENSE_CATEGORY_DATA: IOptionDropdown[] = [
   { label: 'Local Transport', value: 'local_transport' },
   { label: 'Stationary', value: 'stationery' },
   { label: 'Saftey Equipment', value: 'safety_equipment' },
+  { label: 'Performance Bonus', value: 'performance_bonus' },
   { label: 'Other', value: 'other' },
 ];
 export const EXPENSE_PAYMENT_METHOD_DATA: IOptionDropdown[] = [

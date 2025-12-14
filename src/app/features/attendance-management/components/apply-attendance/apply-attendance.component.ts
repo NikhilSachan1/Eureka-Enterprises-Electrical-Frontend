@@ -77,6 +77,10 @@ export class ApplyAttendanceComponent implements OnInit {
   protected readonly notificationService = inject(NotificationService);
   protected readonly destroyRef = inject(DestroyRef);
 
+  protected readonly initialAttendanceData = signal<Record<
+    string,
+    unknown
+  > | null>(null);
   protected readonly currentStatusData =
     signal<IAttendanceCurrentStatusGetResponseDto | null>(null);
   protected readonly isSubmitting = signal(false);
@@ -94,23 +98,23 @@ export class ApplyAttendanceComponent implements OnInit {
   protected form!: IEnhancedForm;
 
   ngOnInit(): void {
-    // Determine if current user is a "driver" and build form config accordingly
     const currentUser = this.authService.getCurrentUser();
     const isDriverUser =
-      (currentUser?.designation ?? '').toLowerCase() === 'driver';
+      (currentUser?.designation ?? '').toLowerCase() === 'driver'; // TODO: Remove this static driver field use enum for user role
 
-    this.form = this.formService.createForm(
-      getApplyAttendanceFormConfig(isDriverUser)
-    );
     this.loadCurrentStatusDataFromRoute();
+    this.form = this.formService.createForm(
+      getApplyAttendanceFormConfig(isDriverUser),
+      this.initialAttendanceData()
+    );
   }
 
   private loadCurrentStatusDataFromRoute(): void {
-    const currentStatusDataFromRoute = this.activatedRoute.snapshot.data[
+    const currentStatusFromResolver = this.activatedRoute.snapshot.data[
       'currentStatus'
     ] as IAttendanceCurrentStatusGetResponseDto;
 
-    if (!currentStatusDataFromRoute) {
+    if (!currentStatusFromResolver) {
       this.logger.logUserAction('No current status data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.ATTENDANCE,
@@ -119,15 +123,23 @@ export class ApplyAttendanceComponent implements OnInit {
       void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
-    this.currentStatusData.set(currentStatusDataFromRoute);
+    const prefilledAttendanceData = this.preparePrefilledFormData(
+      currentStatusFromResolver
+    );
+    this.currentStatusData.set(currentStatusFromResolver);
+    this.initialAttendanceData.set(prefilledAttendanceData);
+  }
 
-    if (this.form) {
-      this.form.patch({
-        locationName: this.currentStatusData()?.location,
-        clientName: this.currentStatusData()?.clientName,
-        associateEmployeeName: this.currentStatusData()?.associateEmployeeName,
-      });
-    }
+  private preparePrefilledFormData(
+    currentStatusFromResolver: IAttendanceCurrentStatusGetResponseDto
+  ): Record<string, unknown> {
+    const { location, clientName, associateEmployeeName } =
+      currentStatusFromResolver;
+    return {
+      locationName: location,
+      clientName,
+      associateEmployeeName,
+    };
   }
 
   protected onSubmit(applyAttendanceStatus: EApplyAttendanceAction): void {
@@ -136,7 +148,7 @@ export class ApplyAttendanceComponent implements OnInit {
     }
 
     const formData = this.prepareFormData(applyAttendanceStatus);
-    this.executeForceApplyAttendance(formData, applyAttendanceStatus);
+    this.executeApplyAttendance(formData, applyAttendanceStatus);
   }
 
   private prepareFormData(
@@ -155,7 +167,7 @@ export class ApplyAttendanceComponent implements OnInit {
     };
   }
 
-  protected executeForceApplyAttendance(
+  protected executeApplyAttendance(
     formData: IAttendanceApplyRequestDto,
     applyAttendanceStatus: EApplyAttendanceAction
   ): void {
@@ -191,6 +203,17 @@ export class ApplyAttendanceComponent implements OnInit {
       });
   }
 
+  private validateForm(): boolean {
+    if (!this.form.validateAndMarkTouched()) {
+      this.notificationService.validationError(
+        FORM_VALIDATION_MESSAGES.FORM_INVALID
+      );
+      this.logger.warn('Apply attendance form validation failed');
+      return false;
+    }
+    return true;
+  }
+
   private getPageHeaderConfig(): IPageHeaderConfig {
     return {
       title: 'Apply Attendance',
@@ -217,16 +240,5 @@ export class ApplyAttendanceComponent implements OnInit {
 
   protected toggleAssignmentEditing(): void {
     this.isEditingAssignment.update(isEditing => !isEditing);
-  }
-
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Apply attendance form validation failed');
-      return false;
-    }
-    return true;
   }
 }

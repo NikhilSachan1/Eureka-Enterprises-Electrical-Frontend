@@ -10,6 +10,12 @@ import {
   ExpenseActionResponseSchema,
   ExpenseDeleteRequestSchema,
   ExpenseDeleteResponseSchema,
+  ExpenseDetailGetResponseSchema,
+  ExpenseDetailGetRequestSchema,
+  ExpenseEditResponseSchema,
+  ExpenseEditRequestSchema,
+  ExpenseForceResponseSchema,
+  ExpenseForceRequestSchema,
 } from '../schemas';
 
 export type IExpenseGetBaseResponseDto = z.infer<
@@ -23,6 +29,14 @@ export type IExpenseGetStatsResponseDto = z.infer<
 >;
 
 export type IExpenseGetRequestDto = z.infer<typeof ExpenseGetRequestSchema>;
+
+export type IExpenseDetailGetRequestDto = z.infer<
+  typeof ExpenseDetailGetRequestSchema
+>;
+
+export type IExpenseDetailGetResponseDto = z.infer<
+  typeof ExpenseDetailGetResponseSchema
+>;
 
 export type IExpenseActionRequestDto = z.infer<
   typeof ExpenseActionRequestSchema
@@ -43,3 +57,13 @@ export type IExpenseDeleteResponseDto = z.infer<
 export type IExpenseAddRequestDto = z.infer<typeof ExpenseAddRequestSchema>;
 
 export type IExpenseAddResponseDto = z.infer<typeof ExpenseAddResponseSchema>;
+
+export type IExpenseEditRequestDto = z.infer<typeof ExpenseEditRequestSchema>;
+
+export type IExpenseEditResponseDto = z.infer<typeof ExpenseEditResponseSchema>;
+
+export type IExpenseForceRequestDto = z.infer<typeof ExpenseForceRequestSchema>;
+
+export type IExpenseForceResponseDto = z.infer<
+  typeof ExpenseForceResponseSchema
+>;

@@ -102,9 +102,9 @@ export class TableServerSideParamsBuilderService {
   ): { sortField?: string; sortOrder: 'ASC' | 'DESC' } {
     // Convert PrimeNG sort order to string format
     const sortOrder =
-      filterData.sortOrder === 1
+      filterData.sortOrder === 1 && filterData.sortField
         ? 'ASC'
-        : filterData.sortOrder === -1
+        : filterData.sortOrder === -1 && filterData.sortField
           ? 'DESC'
           : 'DESC'; // Default to DESC if not specified
 

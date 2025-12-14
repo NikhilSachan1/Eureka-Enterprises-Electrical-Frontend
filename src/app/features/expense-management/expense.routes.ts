@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetExpenseDetailResolver } from './resolvers/get-expense-detail.resolver';
 
 export const EXPENSE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -22,11 +23,14 @@ export const EXPENSE_MANAGEMENT_ROUTES: Routes = [
       ),
   },
   {
-    path: ROUTES.EXPENSE.EDIT,
+    path: `${ROUTES.EXPENSE.EDIT}/:expenseId`,
     loadComponent: () =>
       import('./components/edit-expense/edit-expense.component').then(
         m => m.EditExpenseComponent
       ),
+    resolve: {
+      expenseDetail: GetExpenseDetailResolver,
+    },
   },
   {
     path: ROUTES.EXPENSE.FORCE,

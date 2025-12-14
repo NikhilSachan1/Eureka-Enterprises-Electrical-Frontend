@@ -14,6 +14,7 @@ import {
   IExpenseDeleteResponseDto,
   IExpenseGetBaseResponseDto,
 } from '@features/expense-management/types/expense.dto';
+import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import {
   ConfirmationDialogService,
   LoadingService,
@@ -45,19 +46,21 @@ export class DeleteExpenseComponent implements IDialogActionHandler {
   protected readonly isSubmitting = signal(false);
 
   onDialogAccept(): void {
-    this.onSubmit();
-  }
-
-  protected onSubmit(): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
     const record = this.selectedRecord();
     if (!record) {
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
       this.logger.error(
         'Selected record is required to delete expense but was not provided'
       );
+      return;
+    }
+    this.onSubmit(record);
+  }
+
+  protected onSubmit(record: IExpenseGetBaseResponseDto[]): void {
+    if (this.isSubmitting()) {
       return;
     }
 

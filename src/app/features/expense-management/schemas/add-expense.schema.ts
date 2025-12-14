@@ -1,8 +1,9 @@
 import { z } from 'zod';
-import { ExpenseBaseSchema } from './base-expense.schema';
 import { onlyDateStringField, fileField } from '@shared/schemas';
+import { ExpenseGetBaseResponseSchema } from './get-expense.schema';
 
-const { category, description, amount, paymentMode } = ExpenseBaseSchema.shape;
+const { category, description, amount, paymentMode } =
+  ExpenseGetBaseResponseSchema.shape;
 
 export const ExpenseAddRequestSchema = z
   .object({
@@ -15,4 +16,8 @@ export const ExpenseAddRequestSchema = z
   })
   .strict();
 
-export const ExpenseAddResponseSchema = ExpenseBaseSchema.strict();
+export const ExpenseAddResponseSchema = z
+  .object({
+    message: z.string(),
+  })
+  .strict();

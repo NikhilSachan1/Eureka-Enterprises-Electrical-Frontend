@@ -21,3 +21,18 @@ export {
   ExpenseDeleteRequestSchema,
   ExpenseDeleteResponseSchema,
 } from './delete-expense.schema';
+
+export {
+  ExpenseDetailGetRequestSchema,
+  ExpenseDetailGetResponseSchema,
+} from './get-expense-detail.schema';
+
+export {
+  ExpenseEditRequestSchema,
+  ExpenseEditResponseSchema,
+} from './edit-expense.schema';
+
+export {
+  ExpenseForceRequestSchema,
+  ExpenseForceResponseSchema,
+} from './force-expense.schema';

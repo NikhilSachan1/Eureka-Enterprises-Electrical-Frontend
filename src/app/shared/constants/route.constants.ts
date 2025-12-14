@@ -57,7 +57,7 @@ export const ROUTES = {
     LEDGER: `ledger`,
     FORCE: `force`,
     ADD: `add`,
-    EDIT: `edit/:id`,
+    EDIT: `edit`,
     REIMBURSE: `reimburse`,
   },
 

@@ -51,10 +51,13 @@ import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { GetExpenseDetailComponent } from '../get-expense-detail/get-expense-detail.component';
 import {
+  getMappedValueFromArrayOfObjects,
   getOriginalDataForSelectedRows,
   transformDateFormat,
 } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
+import { EXPENSE_CATEGORY_DATA } from '@shared/config/static-data.config';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-get-expense',
@@ -67,6 +70,7 @@ import { APP_CONFIG } from '@core/config';
   templateUrl: './get-expense.component.html',
   styleUrl: './get-expense.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [CurrencyPipe],
 })
 export class GetExpenseComponent implements OnInit {
   private readonly logger = inject(LoggerService);
@@ -82,6 +86,7 @@ export class GetExpenseComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
+  private readonly currencyPipe = inject(CurrencyPipe);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -158,7 +163,10 @@ export class GetExpenseComponent implements OnInit {
         approvalStatus: record.approvalStatus,
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
         employeeCode: record.user.employeeId,
-        expenseType: record.category,
+        expenseType: getMappedValueFromArrayOfObjects(
+          EXPENSE_CATEGORY_DATA,
+          record.category
+        ),
         expenseAmount: record.amount,
         fileKeys: record.fileKeys,
         transactionType: record.transactionType,
@@ -182,12 +190,48 @@ export class GetExpenseComponent implements OnInit {
       { label: 'Approved', value: stats.approval.approved },
       { label: 'Pending', value: stats.approval.pending },
       { label: 'Rejected', value: stats.approval.rejected },
-      { label: 'Opening Balance', value: stats.balances.openingBalance },
-      { label: 'Closing Balance', value: stats.balances.closingBalance },
-      { label: 'Total Credit', value: stats.balances.periodCredit },
-      { label: 'Total Debit', value: stats.balances.periodDebit },
-      { label: 'Period Credit', value: stats.balances.periodCredit },
-      { label: 'Period Debit', value: stats.balances.periodDebit },
+      {
+        label: 'Opening Balance',
+        value: this.currencyPipe.transform(
+          stats.balances.openingBalance,
+          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+        ) as unknown as number,
+      },
+      {
+        label: 'Closing Balance',
+        value: this.currencyPipe.transform(
+          stats.balances.closingBalance,
+          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+        ) as unknown as number,
+      },
+      {
+        label: 'Total Credit',
+        value: this.currencyPipe.transform(
+          stats.balances.totalCredit,
+          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+        ) as unknown as number,
+      },
+      {
+        label: 'Total Debit',
+        value: this.currencyPipe.transform(
+          stats.balances.totalDebit,
+          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+        ) as unknown as number,
+      },
+      {
+        label: 'Period Credit',
+        value: this.currencyPipe.transform(
+          stats.balances.periodCredit,
+          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+        ) as unknown as number,
+      },
+      {
+        label: 'Period Debit',
+        value: this.currencyPipe.transform(
+          stats.balances.periodDebit,
+          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+        ) as unknown as number,
+      },
     ];
   }
 
@@ -204,6 +248,11 @@ export class GetExpenseComponent implements OnInit {
 
     if (actionType === EButtonActionType.VIEW) {
       this.showExpenseDetailsDrawer(originalSelectedRows);
+      return;
+    }
+
+    if (actionType === EButtonActionType.EDIT) {
+      this.navigateToEditExpense(originalSelectedRows[0].id);
       return;
     }
 
@@ -268,7 +317,13 @@ export class GetExpenseComponent implements OnInit {
           APP_CONFIG.DATE_FORMATS.DEFAULT
         ),
       },
-      { label: 'Expense Type', value: firstRow.category },
+      {
+        label: 'Expense Type',
+        value: getMappedValueFromArrayOfObjects(
+          EXPENSE_CATEGORY_DATA,
+          firstRow.category
+        ),
+      },
       { label: 'Amount', value: firstRow.amount },
       { label: 'Expense Description', value: firstRow.description },
       { label: 'Approval Status', value: firstRow.approvalStatus },
@@ -290,6 +345,23 @@ export class GetExpenseComponent implements OnInit {
         expense: rowData[0],
       },
     });
+  }
+
+  private navigateToEditExpense(expenseId: string): void {
+    try {
+      const routeSegments = [
+        ROUTE_BASE_PATHS.EXPENSE,
+        ROUTES.EXPENSE.EDIT,
+        expenseId,
+      ];
+
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+    } catch (error) {
+      this.logger.logUserAction(
+        'Navigation error while editing expense',
+        error
+      );
+    }
   }
 
   protected onHeaderButtonClick(actionName: string): void {

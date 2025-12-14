@@ -21,7 +21,7 @@ const pad = (num: number): string => {
   return num.toString().padStart(2, '0');
 };
 
-export const calculateMinEditableDate = (cutOffDate: number): Date => {
+export const getPayslipCutoffMinDate = (cutOffDate: number): Date => {
   const today = new Date();
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
@@ -43,4 +43,8 @@ export const transformDateFormat = (
 ): string => {
   const datePipe = new DatePipe('en-US');
   return datePipe.transform(value, dateFormat) as string;
+};
+
+export const getDateBeforeXDays = (xDays: number): Date => {
+  return new Date(new Date().setDate(new Date().getDate() - xDays));
 };

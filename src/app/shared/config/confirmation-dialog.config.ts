@@ -73,30 +73,3 @@ export const REGULARIZE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogS
     iconContainerClass: 'bg-orange-500 text-white',
     message: 'Are you sure you want to regularize this item?',
   };
-
-export const ALLOCATE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfig> =
-  {
-    ...CONFIRMATION_DIALOG_CONFIG,
-    header: 'Allocate Confirmation',
-    icon: ICONS.EMPLOYEE.ADD_USER,
-    iconContainerClass: 'bg-green-500 text-white',
-    message: 'Are you sure you want to allocate this item?',
-  };
-
-export const DEALLOCATE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfig> =
-  {
-    ...CONFIRMATION_DIALOG_CONFIG,
-    header: 'Deallocate Confirmation',
-    icon: ICONS.EMPLOYEE.REMOVE_USER,
-    iconContainerClass: 'bg-orange-500 text-white',
-    message: 'Are you sure you want to deallocate this item?',
-  };
-
-export const WARNING_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfig> =
-  {
-    ...CONFIRMATION_DIALOG_CONFIG,
-    header: 'Warning Confirmation',
-    icon: ICONS.COMMON.MANUAL,
-    iconContainerClass: 'bg-orange-500 text-white',
-    message: 'Are you sure you want to proceed?',
-  };

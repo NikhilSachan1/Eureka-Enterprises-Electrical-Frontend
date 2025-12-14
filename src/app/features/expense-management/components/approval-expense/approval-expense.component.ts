@@ -69,19 +69,21 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
   }
 
   onDialogAccept(): void {
-    this.onSubmit();
-  }
-
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
     const record = this.selectedRecord();
     if (!record) {
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
       this.logger.error(
         'Selected record is required to approve/reject expense but was not provided'
       );
+      return;
+    }
+    this.onSubmit(record);
+  }
+
+  protected onSubmit(record: IExpenseGetBaseResponseDto[]): void {
+    if (this.isSubmitting() || !this.validateForm()) {
       return;
     }
 

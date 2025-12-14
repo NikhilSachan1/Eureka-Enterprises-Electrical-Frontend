@@ -1,4 +1,4 @@
 export interface IMetric {
   label: string;
-  value: number;
+  value: string | number;
 }

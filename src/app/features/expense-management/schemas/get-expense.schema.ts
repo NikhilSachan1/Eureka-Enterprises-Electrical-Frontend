@@ -7,12 +7,7 @@ import {
 } from '@shared/schemas';
 import z from 'zod';
 import { ExpenseBaseSchema } from './base-expense.schema';
-import {
-  getMappedValueFromArrayOfObjects,
-  makeFieldsNullable,
-  toTitleCase,
-} from '@shared/utility';
-import { EXPENSE_CATEGORY_DATA } from '@shared/config/static-data.config';
+import { makeFieldsNullable, toTitleCase } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 const { approvalStatus, category } = ExpenseBaseSchema.shape;
@@ -57,9 +52,6 @@ export const ExpenseGetBaseResponseSchema = z
     user: UserSchema,
     approvalByUser: makeFieldsNullable(UserSchema).nullable(),
     approvalStatus: approvalStatus.transform(toTitleCase),
-    category: category.transform(value =>
-      getMappedValueFromArrayOfObjects(EXPENSE_CATEGORY_DATA, value)
-    ),
     createdAt,
     updatedAt,
   })
@@ -68,12 +60,12 @@ export const ExpenseGetBaseResponseSchema = z
 export const ExpenseGetStatsResponseSchema = z
   .object({
     balances: z.object({
-      openingBalance: z.number().int(),
-      closingBalance: z.number().int(),
-      totalCredit: z.number().int().nonnegative(),
-      totalDebit: z.number().int().nonnegative(),
-      periodCredit: z.number().int().nonnegative(),
-      periodDebit: z.number().int().nonnegative(),
+      openingBalance: z.number(),
+      closingBalance: z.number(),
+      totalCredit: z.number().nonnegative(),
+      totalDebit: z.number().nonnegative(),
+      periodCredit: z.number().nonnegative(),
+      periodDebit: z.number().nonnegative(),
     }),
     approval: z.object({
       pending: z.number().int().nonnegative(),
@@ -87,7 +79,7 @@ export const ExpenseGetStatsResponseSchema = z
 export const ExpenseGetResponseSchema = z
   .object({
     records: z.array(ExpenseGetBaseResponseSchema),
-    stats: ExpenseGetStatsResponseSchema,
+    stats: ExpenseGetStatsResponseSchema.strict(),
     totalRecords: z.number().int().nonnegative(),
   })
   .strict();

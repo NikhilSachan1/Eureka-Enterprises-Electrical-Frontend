@@ -12,6 +12,7 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
+import { getDateBeforeXDays } from '@shared/utility';
 
 const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   expenseType: {
@@ -40,7 +41,7 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'expenseDate',
     label: 'Date of Expense',
     dateConfig: {
-      //   minDate: calculateMinEditableDate(PAYSLIP_DATE_DATA.EVERY_MONTH),
+      minDate: getDateBeforeXDays(6),
       maxDate: new Date(),
     },
     validators: [Validators.required],

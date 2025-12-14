@@ -1,0 +1,80 @@
+import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
+import {
+  IExpenseDetailGetRequestDto,
+  IExpenseDetailGetResponseDto,
+} from '../types/expense.dto';
+import { catchError, finalize, Observable, of, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { ExpenseService } from '../services/expense.service';
+import { LoggerService } from '@core/services';
+import { LoadingService, RouterNavigationService } from '@shared/services';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class GetExpenseDetailResolver
+  implements Resolve<IExpenseDetailGetResponseDto | null>
+{
+  private readonly expenseService = inject(ExpenseService);
+  private readonly logger = inject(LoggerService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly loadingService = inject(LoadingService);
+
+  resolve(
+    route: ActivatedRouteSnapshot
+  ): Observable<IExpenseDetailGetResponseDto | null> {
+    const expenseId = route.paramMap.get('expenseId');
+
+    this.logger.logUserAction(
+      'Get Expense Detail Resolver: Starting resolution',
+      expenseId
+    );
+
+    if (!expenseId) {
+      this.logger.logUserAction(
+        'Get Expense Detail Resolver: No expenseId found in route'
+      );
+      this.navigateToExpenseList();
+      return of(null);
+    }
+
+    this.loadingService.show({
+      title: 'Loading Expense Detail',
+      message: 'Please wait while we load the expense detail...',
+    });
+
+    const paramData = this.prepareParamData(expenseId);
+
+    return this.expenseService.getExpenseDetailById(paramData).pipe(
+      tap((response: IExpenseDetailGetResponseDto) => {
+        this.logger.logUserAction(
+          'Get Expense Detail Resolver: Data resolved successfully',
+          response
+        );
+      }),
+      finalize(() => {
+        this.loadingService.hide();
+      }),
+      catchError((error: unknown) => {
+        this.logger.logUserAction(
+          'Get Expense Detail Resolver: Error resolving data',
+          error
+        );
+        this.navigateToExpenseList();
+        return of(null);
+      })
+    );
+  }
+
+  private navigateToExpenseList(): void {
+    const routeSegments = [ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.LEDGER];
+    void this.routerNavigationService.navigateToRoute(routeSegments);
+  }
+
+  private prepareParamData(expenseId: string): IExpenseDetailGetRequestDto {
+    return {
+      id: expenseId,
+    };
+  }
+}

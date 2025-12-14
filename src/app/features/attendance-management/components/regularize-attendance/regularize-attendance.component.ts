@@ -60,38 +60,94 @@ export class RegularizeAttendanceComponent
   protected form!: IEnhancedForm;
 
   protected readonly isSubmitting = signal(false);
+  protected readonly initialFormData = signal<Record<string, unknown> | null>(
+    null
+  );
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected trackFields!: Record<string, Signal<any>>;
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(REGULARIZE_ATTENDANCE_FORM_CONFIG);
+    this.loadRegularizeAttendanceDataFromSelectedRecord();
+    this.form = this.formService.createForm(
+      REGULARIZE_ATTENDANCE_FORM_CONFIG,
+      this.initialFormData()
+    );
 
     this.trackFields = this.formService.trackMultipleFieldChanges(
       this.form.formGroup,
       ['attendanceStatus'],
       this.destroyRef
     );
-
-    this.prefillFormFromSelectedRecord();
   }
 
-  onDialogAccept(): void {
-    this.onSubmit();
-  }
-
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
-    const record = this.selectedRecord();
-    if (!record) {
+  private loadRegularizeAttendanceDataFromSelectedRecord(): void {
+    const records = this.selectedRecord();
+    if (!records || records.length === 0) {
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
       this.logger.error(
         'Selected record is required to regularize attendance but was not provided'
       );
       return;
     }
 
+    const [record] = records;
+    const prefilledAttendanceData = this.preparePrefilledFormData(record);
+    this.initialFormData.set(prefilledAttendanceData);
+  }
+
+  private preparePrefilledFormData(
+    attendanceRecord: IAttendanceGetBaseResponseDto
+  ): Record<string, unknown> {
+    const [clientName, location] = stringToArray(
+      attendanceRecord.notes ?? '',
+      '-'
+    );
+
+    let normalizedStatus = (attendanceRecord.status || '').toLowerCase() as
+      | EAttendanceStatus
+      | '';
+
+    const validAttendanceStatuses = filterOptionsByIncludeExclude(
+      ATTENDANCE_STATUS_DATA,
+      [],
+      [EAttendanceStatus.CHECKED_IN, EAttendanceStatus.CHECKED_OUT]
+    );
+
+    if (
+      !validAttendanceStatuses.some(status => status.value === normalizedStatus)
+    ) {
+      normalizedStatus = '';
+    }
+
+    return {
+      attendanceStatus: normalizedStatus,
+      clientName,
+      locationName: location,
+      associateEngineerName: '', // TODO: Add associate employee name once we have the associate employee name functionality
+      associatedVehicle: '', // TODO: Add associated vehicle once we have the associated vehicle functionality
+    };
+  }
+
+  onDialogAccept(): void {
+    const record = this.selectedRecord();
+    if (!record) {
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
+      this.logger.error(
+        'Selected record is required to regularize attendance but was not provided'
+      );
+      return;
+    }
+    this.onSubmit(record);
+  }
+
+  protected onSubmit(record: IAttendanceGetBaseResponseDto[]): void {
+    if (this.isSubmitting() || !this.validateForm()) {
+      return;
+    }
     const formData = this.prepareFormData(record[0]);
     this.executeRegularizeAttendance(formData, record[0]);
   }
@@ -113,41 +169,6 @@ export class RegularizeAttendanceComponent
       userId: record.user.id,
       timezone: this.timezoneService.timezone,
     };
-  }
-
-  private prefillFormFromSelectedRecord(): void {
-    const records = this.selectedRecord();
-    if (!records || records.length === 0 || !this.form) {
-      return;
-    }
-
-    const [record] = records;
-
-    const [clientName, location] = stringToArray(record.notes ?? '', '-');
-
-    let normalizedStatus = (record.status || '').toLowerCase() as
-      | EAttendanceStatus
-      | '';
-
-    const validAttendanceStatuses = filterOptionsByIncludeExclude(
-      ATTENDANCE_STATUS_DATA,
-      [],
-      [EAttendanceStatus.CHECKED_IN, EAttendanceStatus.CHECKED_OUT]
-    );
-
-    if (
-      !validAttendanceStatuses.some(status => status.value === normalizedStatus)
-    ) {
-      normalizedStatus = '';
-    }
-
-    this.form.patch({
-      attendanceStatus: normalizedStatus,
-      clientName,
-      locationName: location,
-      associateEngineerName: '', // TODO: Add associate employee name once we have the associate employee name functionality
-      associatedVehicle: '', // TODO: Add associated vehicle once we have the associated vehicle functionality
-    });
   }
 
   private executeRegularizeAttendance(

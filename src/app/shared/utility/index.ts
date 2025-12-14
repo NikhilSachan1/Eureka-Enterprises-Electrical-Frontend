@@ -21,8 +21,9 @@ export {
 } from './validators.util';
 export {
   convertSecondsToDhms,
-  calculateMinEditableDate,
+  getPayslipCutoffMinDate,
   transformDateFormat,
+  getDateBeforeXDays,
 } from './date-time.util';
 export { getMediaTypeFromUrl, getFileExtension } from './media.util';
 export {
