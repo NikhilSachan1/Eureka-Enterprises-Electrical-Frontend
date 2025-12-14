@@ -34,7 +34,7 @@ export const COMMON_ROW_ACTIONS = {
 
   CANCEL: {
     id: EButtonActionType.CANCEL,
-    icon: ICONS.ACTIONS.TIMES,
+    icon: ICONS.ACTIONS.BAN,
     tooltip: 'Cancel',
   },
 } as const;

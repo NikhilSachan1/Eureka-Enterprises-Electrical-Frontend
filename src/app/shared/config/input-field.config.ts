@@ -72,7 +72,7 @@ export const DEFAULT_DATE_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
   ...DEFAULT_INPUT_FIELD_CONFIG,
   readonlyInput: true,
   dateConfig: {
-    dateFormat: APP_CONFIG.DATE_FORMATS.CALENDAR,
+    dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT_CALENDAR,
     showCalendarIcon: true,
     iconDisplay: EDateIconDisplay.Input,
     timeOnly: false,

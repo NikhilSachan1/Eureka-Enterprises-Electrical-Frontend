@@ -61,7 +61,7 @@ export const CANCEL_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSetti
     ...CONFIRMATION_DIALOG_CONFIG,
     header: 'Cancel Confirmation',
     icon: ICONS.ACTIONS.BAN,
-    iconContainerClass: 'bg-orange-500 text-white',
+    iconContainerClass: 'bg-yellow-500 text-white',
     message: 'Are you sure you want to cancel this item?',
   };
 
@@ -70,6 +70,6 @@ export const REGULARIZE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogS
     ...CONFIRMATION_DIALOG_CONFIG,
     header: 'Regularize Confirmation',
     icon: ICONS.ATTENDANCE.REGULARIZE,
-    iconContainerClass: 'bg-orange-500 text-white',
+    iconContainerClass: 'bg-yellow-500 text-white',
     message: 'Are you sure you want to regularize this item?',
   };

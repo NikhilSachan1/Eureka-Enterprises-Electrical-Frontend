@@ -20,6 +20,7 @@ export class ColorUtil {
         'checkin',
         'total credit',
         'period credit',
+        'total credited',
       ],
     },
     danger: {
@@ -35,12 +36,11 @@ export class ColorUtil {
         'reject',
         'absent',
         'delete',
-        'cancel',
-        'cancelled',
         'checkout',
         'closing balance',
         'total debit',
         'period debit',
+        'total consumed',
       ],
     },
     warning: {
@@ -50,7 +50,15 @@ export class ColorUtil {
         border: 'border-l-yellow-500',
         text: 'text-yellow-600',
       },
-      statuses: ['pending', 'leave', 'regularize', 'edit', 'pageheaderbutton2'],
+      statuses: [
+        'pending',
+        'leave',
+        'regularize',
+        'edit',
+        'pageheaderbutton2',
+        'cancel',
+        'cancelled',
+      ],
     },
     info: {
       severity: 'info',
@@ -65,6 +73,7 @@ export class ColorUtil {
         'setpermissions',
         'total',
         'opening balance',
+        'total balance',
       ],
     },
   };

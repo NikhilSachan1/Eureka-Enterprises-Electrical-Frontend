@@ -1,0 +1,39 @@
+import { inject, Injectable } from '@angular/core';
+import { ApiService, LoggerService } from '@core/services';
+import { ILeaveGetRequestDto, ILeaveGetResponseDto } from '../types/leave.dto';
+import { catchError, Observable, tap, throwError } from 'rxjs';
+import { API_ROUTES } from '@core/constants';
+import { LeaveGetRequestSchema, LeaveGetResponseSchema } from '../schemas';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class LeaveService {
+  private readonly logger = inject(LoggerService);
+  private readonly apiService = inject(ApiService);
+
+  getLeaveList(params?: ILeaveGetRequestDto): Observable<ILeaveGetResponseDto> {
+    this.logger.logUserAction('Get Expense List Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.LEAVE.LIST,
+        LeaveGetResponseSchema,
+        params,
+        LeaveGetRequestSchema
+      )
+      .pipe(
+        tap((response: ILeaveGetResponseDto) => {
+          this.logger.logUserAction('Get Leave List Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Get Leave List Error', error);
+          } else {
+            this.logger.logUserAction('Get Leave List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+}

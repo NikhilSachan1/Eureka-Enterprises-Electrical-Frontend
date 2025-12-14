@@ -2,8 +2,8 @@ import { IOptionDropdown } from '@shared/types';
 
 export const filterOptionsByIncludeExclude = (
   options: IOptionDropdown[],
-  includeValues: string[],
-  excludeValues: string[]
+  includeValues: string[] = [],
+  excludeValues: string[] = []
 ): IOptionDropdown[] => {
   if (includeValues.length > 0) {
     const includeSet = new Set(includeValues);
