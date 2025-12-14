@@ -2,6 +2,10 @@ import { isoDateTimeField, uuidField } from '@shared/schemas';
 import z from 'zod';
 import { EExpenseTransactionType } from '../types/expense.enum';
 import { EApprovalStatus, EEntrySourceType, EEntryType } from '@shared/types';
+import {
+  EXPENSE_CATEGORY_DATA,
+  EXPENSE_PAYMENT_METHOD_DATA,
+} from '@shared/config/static-data.config';
 
 export const approvalStatusSchema = z.enum(EApprovalStatus);
 export const entrySourceTypeSchema = z.enum(EEntrySourceType);
@@ -11,12 +15,12 @@ export const ExpenseBaseSchema = z
   .object({
     id: uuidField,
     userId: uuidField,
-    category: z.string(),
+    category: z.enum(EXPENSE_CATEGORY_DATA.map(item => item.value)),
     description: z.string(),
     amount: z.number(),
     transactionId: z.string().nullable(),
     expenseDate: isoDateTimeField,
-    paymentMode: z.string(),
+    paymentMode: z.enum(EXPENSE_PAYMENT_METHOD_DATA.map(item => item.value)),
     fileKeys: z.array(z.string()),
     isActive: z.boolean().optional(),
     transactionType: z.enum(EExpenseTransactionType),

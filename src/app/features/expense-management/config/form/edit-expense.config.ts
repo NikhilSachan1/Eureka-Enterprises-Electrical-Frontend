@@ -14,6 +14,7 @@ const {
     expenseAmount,
     description,
     attachment,
+    transactionId,
   },
 } = ADD_EXPENSE_FORM_CONFIG;
 
@@ -24,6 +25,7 @@ const EDIT_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   expenseAmount,
   description,
   attachment,
+  transactionId,
 };
 
 const EDIT_EXPENSE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

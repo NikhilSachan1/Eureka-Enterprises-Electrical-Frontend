@@ -17,6 +17,8 @@ import {
   IExpenseForceResponseDto,
   IExpenseGetRequestDto,
   IExpenseGetResponseDto,
+  IExpenseReimburseRequestDto,
+  IExpenseReimburseResponseDto,
 } from '../types/expense.dto';
 import {
   ExpenseAddRequestSchema,
@@ -28,6 +30,8 @@ import {
   ExpenseForceResponseSchema,
   ExpenseGetRequestSchema,
   ExpenseGetResponseSchema,
+  ExpenseReimburseRequestSchema,
+  ExpenseReimburseResponseSchema,
 } from '../schemas';
 import {
   ExpenseActionRequestSchema,
@@ -67,6 +71,37 @@ export class ExpenseService {
             this.logger.logDtoValidationErrors('Add Expense Error', error);
           } else {
             this.logger.logUserAction('Add Expense Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  reimburseExpense(
+    formData: IExpenseReimburseRequestDto
+  ): Observable<IExpenseReimburseResponseDto> {
+    this.logger.logUserAction('Reimburse Expense Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.EXPENSE.REIMBURSE,
+        formData,
+        ExpenseReimburseRequestSchema,
+        ExpenseReimburseResponseSchema,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: IExpenseReimburseResponseDto) => {
+          this.logger.logUserAction('Reimburse Expense Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Reimburse Expense Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Reimburse Expense Error', error);
           }
           return throwError(() => error);
         })

@@ -124,6 +124,7 @@ export const EXPENSE_CATEGORY_DATA: IOptionDropdown[] = [
   { label: 'Stationary', value: 'stationery' },
   { label: 'Saftey Equipment', value: 'safety_equipment' },
   { label: 'Performance Bonus', value: 'performance_bonus' },
+  { label: 'Expense Settlement', value: 'settlement' },
   { label: 'Other', value: 'other' },
 ];
 export const EXPENSE_PAYMENT_METHOD_DATA: IOptionDropdown[] = [

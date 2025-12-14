@@ -81,9 +81,19 @@ export class ForceAttendanceComponent implements OnInit {
   }
 
   private prepareFormData(): IAttendanceForceRequestDto {
-    const { date, forceReason, clientName, location, attendanceStatus } =
-      this.form.getData() as Record<string, string>;
-    const { employeeName } = this.form.getData() as {
+    const {
+      date,
+      forceReason,
+      clientName,
+      location,
+      attendanceStatus,
+      employeeName,
+    } = this.form.getData() as {
+      date: string;
+      forceReason: string;
+      clientName: string;
+      location: string;
+      attendanceStatus: EAttendanceStatus;
       employeeName: string[];
     };
 
@@ -101,7 +111,7 @@ export class ForceAttendanceComponent implements OnInit {
       notes: `${location} - ${clientName}`,
       reason: forceReason,
       timezone: this.timezoneServive.timezone,
-      status: attendanceStatus as EAttendanceStatus,
+      status: attendanceStatus,
     };
   }
 

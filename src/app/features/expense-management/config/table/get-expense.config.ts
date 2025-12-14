@@ -80,7 +80,9 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-export const EXPENSE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
+export const EXPENSE_TABLE_ROW_ACTIONS_CONFIG: Partial<
+  ITableActionConfig<IExpenseGetResponseDto['records'][number]>
+>[] = [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Expense Details',
@@ -119,10 +121,11 @@ export const EXPENSE_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] =
     },
   ];
 
-export const EXPENSE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IExpenseGetResponseDto> =
-  {
-    tableConfig: EXPENSE_TABLE_CONFIG,
-    headers: EXPENSE_TABLE_HEADER_CONFIG,
-    rowActions: EXPENSE_TABLE_ROW_ACTIONS_CONFIG,
-    bulkActions: EXPENSE_TABLE_BULK_ACTIONS_CONFIG,
-  };
+export const EXPENSE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
+  IExpenseGetResponseDto['records'][number]
+> = {
+  tableConfig: EXPENSE_TABLE_CONFIG,
+  headers: EXPENSE_TABLE_HEADER_CONFIG,
+  rowActions: EXPENSE_TABLE_ROW_ACTIONS_CONFIG,
+  bulkActions: EXPENSE_TABLE_BULK_ACTIONS_CONFIG,
+};

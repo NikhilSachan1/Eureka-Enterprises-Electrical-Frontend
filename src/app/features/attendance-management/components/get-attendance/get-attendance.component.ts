@@ -51,11 +51,7 @@ import {
 } from '../../types/attendance.dto';
 import { IAttendance } from '../../types/attendance.interface';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
-import {
-  getOriginalDataForSelectedRows,
-  stringToArray,
-  transformDateFormat,
-} from '@shared/utility';
+import { stringToArray, transformDateFormat } from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
@@ -96,7 +92,6 @@ export class GetAttendanceComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
-  private originalAttendanceData: IAttendanceGetBaseResponseDto[] = [];
   private readonly attendanceStats =
     signal<IAttendanceGetStatsResponseDto | null>(null);
   protected readonly ALL_ICONS = ICONS;
@@ -133,8 +128,6 @@ export class GetAttendanceComponent implements OnInit {
         next: (response: IAttendanceGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
-          this.originalAttendanceData = records;
-
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
@@ -143,7 +136,6 @@ export class GetAttendanceComponent implements OnInit {
         },
         error: error => {
           this.table.setData([]);
-          this.originalAttendanceData = [];
           this.attendanceStats.set(null);
           this.logger.logUserAction('Failed to load attendance records', error);
         },
@@ -179,6 +171,7 @@ export class GetAttendanceComponent implements OnInit {
         clientName: clientName || 'N/A',
         associateEngineerName: associateEngineerName || 'N/A',
         associatedVehicle: associatedVehicle || 'N/A',
+        originalRawData: record,
       };
     });
   }
@@ -206,18 +199,14 @@ export class GetAttendanceComponent implements OnInit {
   }
 
   protected handleAttendanceTableActionClick(
-    event: ITableActionClickEvent<IAttendance>,
+    event: ITableActionClickEvent<IAttendanceGetBaseResponseDto>,
     isBulk: boolean
   ): void {
     const { actionType, selectedRows } = event;
-
-    const originalSelectedRows = getOriginalDataForSelectedRows<
-      IAttendance,
-      IAttendanceGetBaseResponseDto
-    >(selectedRows, this.originalAttendanceData, 'id');
+    const [selectedFirstRow] = selectedRows;
 
     if (actionType === EButtonActionType.VIEW) {
-      this.showAttendanceDetailsDrawer(originalSelectedRows);
+      this.showAttendanceDetailsDrawer(selectedFirstRow);
       return;
     }
 
@@ -236,7 +225,7 @@ export class GetAttendanceComponent implements OnInit {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
-      selectedRecord: originalSelectedRows,
+      selectedRecord: selectedRows,
       onSuccess: () => {
         this.loadAttendanceList();
       },
@@ -249,8 +238,7 @@ export class GetAttendanceComponent implements OnInit {
       dynamicComponentInputs.dialogActionType = actionType;
     }
 
-    const recordDetail =
-      this.prepareAttendanceRecordDetail(originalSelectedRows);
+    const recordDetail = this.prepareAttendanceRecordDetail(selectedFirstRow);
     const dialogConfig = this.confirmationDialogService.createDialogConfig(
       actionType,
       ATTENDANCE_ACTION_CONFIG_MAP,
@@ -267,25 +255,24 @@ export class GetAttendanceComponent implements OnInit {
   }
 
   private prepareAttendanceRecordDetail(
-    selectedRows: IAttendanceGetBaseResponseDto[]
+    selectedRow: IAttendanceGetBaseResponseDto
   ): IConfirmationDialogRecordDetailConfig {
-    const [firstRow] = selectedRows;
-    const siteLocation = stringToArray(firstRow.notes, '-')[0] || '';
-    const clientName = stringToArray(firstRow.notes, '-')[1] || '';
+    const siteLocation = stringToArray(selectedRow.notes, '-')[0] || '';
+    const clientName = stringToArray(selectedRow.notes, '-')[1] || '';
     const recordDetail = [
       {
         label: 'Employee Name',
-        value: `${firstRow.user.firstName} ${firstRow.user.lastName}`,
+        value: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
       },
       {
         label: 'Attendance Date',
         value: transformDateFormat(
-          firstRow.attendanceDate,
+          selectedRow.attendanceDate,
           APP_CONFIG.DATE_FORMATS.DEFAULT
         ),
       },
-      { label: 'Attendance Status', value: firstRow.status },
-      { label: 'Approval Status', value: firstRow.approvalStatus },
+      { label: 'Attendance Status', value: selectedRow.status },
+      { label: 'Approval Status', value: selectedRow.approvalStatus },
       {
         label: 'Site Location',
         value: siteLocation,
@@ -322,7 +309,7 @@ export class GetAttendanceComponent implements OnInit {
   }
 
   private showAttendanceDetailsDrawer(
-    rowData: IAttendanceGetBaseResponseDto[]
+    rowData: IAttendanceGetBaseResponseDto
   ): void {
     this.logger.logUserAction('Opening attendance details drawer', rowData);
 
@@ -330,7 +317,7 @@ export class GetAttendanceComponent implements OnInit {
       header: `Attendance Details`,
       subtitle: `Detailed view of attendance`,
       componentData: {
-        attendance: rowData[0],
+        attendance: rowData,
       },
     });
   }

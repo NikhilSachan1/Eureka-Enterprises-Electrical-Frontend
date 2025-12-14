@@ -135,27 +135,42 @@ export class DataTableComponent {
     this.filterData.emit(event);
   }
 
-  protected isActionDisabled(
-    action: ITableActionConfig,
+  private extractOriginalData(
     rowData: Record<string, unknown>
-  ): boolean {
-    if (action.disabledCondition) {
-      return action.disabledCondition([rowData]);
+  ): Record<string, unknown> {
+    if (rowData && 'originalRawData' in rowData && rowData['originalRawData']) {
+      return rowData['originalRawData'] as Record<string, unknown>;
     }
-    return false;
+    return rowData;
   }
 
-  protected isBulkActionDisabled(action: ITableActionConfig): boolean {
-    if (action.disabledCondition) {
-      return action.disabledCondition(this.selectedTableRows());
+  protected isActionDisabled(
+    action: ITableActionConfig,
+    rowData?: Record<string, unknown>
+  ): boolean {
+    if (!action.disabledCondition) {
+      return false;
     }
-    return false;
+
+    if (rowData) {
+      const originalRowData = this.extractOriginalData(rowData);
+      const result = action.disabledCondition([originalRowData]);
+      return result;
+    }
+
+    const originalRows = this.selectedTableRows().map(row =>
+      this.extractOriginalData(row)
+    );
+    const result = action.disabledCondition(originalRows);
+    return result;
   }
 
   protected onBulkActionClick(actionType: EButtonActionType): void {
     this.bulkActionClick.emit({
       actionType,
-      selectedRows: this.selectedTableRows(),
+      selectedRows: this.selectedTableRows().map(row =>
+        this.extractOriginalData(row)
+      ),
     });
   }
 
@@ -163,7 +178,10 @@ export class DataTableComponent {
     actionType: EButtonActionType,
     rowData: Record<string, unknown>
   ): void {
-    this.rowActionClick.emit({ actionType, selectedRows: [rowData] });
+    this.rowActionClick.emit({
+      actionType,
+      selectedRows: [this.extractOriginalData(rowData)],
+    });
   }
 
   protected getAvatarUrl(name: string): string {

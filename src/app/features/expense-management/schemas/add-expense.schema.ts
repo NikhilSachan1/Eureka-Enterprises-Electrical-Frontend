@@ -13,6 +13,7 @@ export const ExpenseAddRequestSchema = z
     expenseDate: onlyDateStringField,
     paymentMode,
     files: z.array(fileField),
+    transactionId: z.string().nullable().default(null),
   })
   .strict();
 

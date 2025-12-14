@@ -12,7 +12,10 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { getDateBeforeXDays } from '@shared/utility';
+import {
+  filterOptionsByIncludeExclude,
+  getDateBeforeXDays,
+} from '@shared/utility';
 
 const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   expenseType: {
@@ -21,7 +24,11 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'expenseType',
     label: 'Expense Type',
     selectConfig: {
-      optionsDropdown: EXPENSE_CATEGORY_DATA,
+      optionsDropdown: filterOptionsByIncludeExclude(
+        EXPENSE_CATEGORY_DATA,
+        [],
+        ['settlement']
+      ),
     },
     validators: [Validators.required],
   },
@@ -55,7 +62,13 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       mode: EInputNumberMode.Currency,
       currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
     },
-    validators: [Validators.required],
+    validators: [Validators.required, Validators.min(1)],
+  },
+  transactionId: {
+    fieldType: EFieldType.Text,
+    id: 'transactionId',
+    fieldName: 'transactionId',
+    label: 'Transaction ID / Receipt Number / UTR Number',
   },
   description: {
     fieldType: EFieldType.TextArea,

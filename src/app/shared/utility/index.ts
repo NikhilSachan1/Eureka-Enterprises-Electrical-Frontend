@@ -26,9 +26,6 @@ export {
   getDateBeforeXDays,
 } from './date-time.util';
 export { getMediaTypeFromUrl, getFileExtension } from './media.util';
-export {
-  getOriginalDataForSelectedRows,
-  filterOptionsByIncludeExclude,
-} from './component.util';
+export { filterOptionsByIncludeExclude } from './component.util';
 export { ColorUtil } from './color.util';
 export { makeFieldsNullable } from './zod.util';

@@ -74,12 +74,23 @@ export class AddExpenseComponent implements OnInit {
   }
 
   private prepareFormData(): IExpenseAddRequestDto {
-    const { expenseDate, description, paymentMode, expenseType } =
-      this.form.getData() as Record<string, string>;
-    const { expenseAmount } = this.form.getData() as {
+    const {
+      expenseDate,
+      description,
+      paymentMode,
+      expenseType,
+      expenseAmount,
+      attachment,
+      transactionId,
+    } = this.form.getData() as {
+      expenseDate: string;
+      description: string;
+      paymentMode: string;
+      expenseType: string;
       expenseAmount: number;
+      attachment: File[];
+      transactionId: string | null;
     };
-    const attachment = this.form.getFieldData('attachment') as File[];
     const dateStr = new Date(expenseDate);
     const formattedDate = this.datePipe.transform(
       dateStr,
@@ -93,6 +104,7 @@ export class AddExpenseComponent implements OnInit {
       expenseDate: formattedDate as string,
       paymentMode,
       files: attachment,
+      transactionId,
     };
   }
 

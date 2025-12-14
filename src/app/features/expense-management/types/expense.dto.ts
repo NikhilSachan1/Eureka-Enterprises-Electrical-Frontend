@@ -16,6 +16,8 @@ import {
   ExpenseEditRequestSchema,
   ExpenseForceResponseSchema,
   ExpenseForceRequestSchema,
+  ExpenseReimburseResponseSchema,
+  ExpenseReimburseRequestSchema,
 } from '../schemas';
 
 export type IExpenseGetBaseResponseDto = z.infer<
@@ -66,4 +68,12 @@ export type IExpenseForceRequestDto = z.infer<typeof ExpenseForceRequestSchema>;
 
 export type IExpenseForceResponseDto = z.infer<
   typeof ExpenseForceResponseSchema
+>;
+
+export type IExpenseReimburseRequestDto = z.infer<
+  typeof ExpenseReimburseRequestSchema
+>;
+
+export type IExpenseReimburseResponseDto = z.infer<
+  typeof ExpenseReimburseResponseSchema
 >;

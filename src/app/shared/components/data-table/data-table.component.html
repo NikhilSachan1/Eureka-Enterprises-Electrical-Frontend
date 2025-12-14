@@ -30,7 +30,7 @@
             @for (button of bulkActionButtons(); track $index) {
               <app-button
                 [buttonConfig]="button"
-                [showDisabledButton]="isBulkActionDisabled(button)"
+                [showDisabledButton]="isActionDisabled(button)"
                 (onButtonClick)="onBulkActionClick(button.id)"
               />
             }

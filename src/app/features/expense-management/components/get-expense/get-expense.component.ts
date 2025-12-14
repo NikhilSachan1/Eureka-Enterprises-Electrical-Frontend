@@ -52,7 +52,6 @@ import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-ac
 import { GetExpenseDetailComponent } from '../get-expense-detail/get-expense-detail.component';
 import {
   getMappedValueFromArrayOfObjects,
-  getOriginalDataForSelectedRows,
   transformDateFormat,
 } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
@@ -91,7 +90,6 @@ export class GetExpenseComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
-  private originalExpenseData: IExpenseGetBaseResponseDto[] = [];
   private readonly expenseStats = signal<IExpenseGetStatsResponseDto | null>(
     null
   );
@@ -128,8 +126,6 @@ export class GetExpenseComponent implements OnInit {
         next: (response: IExpenseGetResponseDto) => {
           const { records, stats, totalRecords } = response;
 
-          this.originalExpenseData = records;
-
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
@@ -138,7 +134,6 @@ export class GetExpenseComponent implements OnInit {
         },
         error: error => {
           this.table.setData([]);
-          this.originalExpenseData = [];
           this.expenseStats.set(null);
           this.logger.logUserAction('Failed to load expense records', error);
         },
@@ -170,6 +165,7 @@ export class GetExpenseComponent implements OnInit {
         expenseAmount: record.amount,
         fileKeys: record.fileKeys,
         transactionType: record.transactionType,
+        originalRawData: record,
       };
     });
   }
@@ -236,23 +232,19 @@ export class GetExpenseComponent implements OnInit {
   }
 
   protected handleExpenseTableActionClick(
-    event: ITableActionClickEvent<IExpense>,
+    event: ITableActionClickEvent<IExpenseGetBaseResponseDto>,
     isBulk: boolean
   ): void {
     const { actionType, selectedRows } = event;
-
-    const originalSelectedRows = getOriginalDataForSelectedRows<
-      IExpense,
-      IExpenseGetBaseResponseDto
-    >(selectedRows, this.originalExpenseData, 'id');
+    const [selectedFirstRow] = selectedRows;
 
     if (actionType === EButtonActionType.VIEW) {
-      this.showExpenseDetailsDrawer(originalSelectedRows);
+      this.showExpenseDetailsDrawer(selectedFirstRow);
       return;
     }
 
     if (actionType === EButtonActionType.EDIT) {
-      this.navigateToEditExpense(originalSelectedRows[0].id);
+      this.navigateToEditExpense(selectedFirstRow.id);
       return;
     }
 
@@ -268,10 +260,9 @@ export class GetExpenseComponent implements OnInit {
       this.logger.warn('Unknown table action:', actionType);
       return;
     }
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
-      selectedRecord: originalSelectedRows,
+      selectedRecord: selectedRows,
       onSuccess: () => {
         this.loadExpenseList();
       },
@@ -284,7 +275,7 @@ export class GetExpenseComponent implements OnInit {
       dynamicComponentInputs.dialogActionType = actionType;
     }
 
-    const recordDetail = this.prepareExpenseRecordDetail(originalSelectedRows);
+    const recordDetail = this.prepareExpenseRecordDetail(selectedFirstRow);
     const dialogConfig = this.confirmationDialogService.createDialogConfig(
       actionType,
       EXPENSE_ACTION_CONFIG_MAP,
@@ -301,19 +292,17 @@ export class GetExpenseComponent implements OnInit {
   }
 
   private prepareExpenseRecordDetail(
-    selectedRows: IExpenseGetBaseResponseDto[]
+    selectedRow: IExpenseGetBaseResponseDto
   ): IConfirmationDialogRecordDetailConfig {
-    const [firstRow] = selectedRows;
-
     const recordDetail = [
       {
         label: 'Employee Name',
-        value: `${firstRow.user.firstName} ${firstRow.user.lastName}`,
+        value: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
       },
       {
         label: 'Expense Date',
         value: transformDateFormat(
-          firstRow.expenseDate,
+          selectedRow.expenseDate,
           APP_CONFIG.DATE_FORMATS.DEFAULT
         ),
       },
@@ -321,28 +310,26 @@ export class GetExpenseComponent implements OnInit {
         label: 'Expense Type',
         value: getMappedValueFromArrayOfObjects(
           EXPENSE_CATEGORY_DATA,
-          firstRow.category
+          selectedRow.category
         ),
       },
-      { label: 'Amount', value: firstRow.amount },
-      { label: 'Expense Description', value: firstRow.description },
-      { label: 'Approval Status', value: firstRow.approvalStatus },
+      { label: 'Amount', value: selectedRow.amount },
+      { label: 'Expense Description', value: selectedRow.description },
+      { label: 'Approval Status', value: selectedRow.approvalStatus },
     ];
     return {
       details: recordDetail,
     };
   }
 
-  private showExpenseDetailsDrawer(
-    rowData: IExpenseGetBaseResponseDto[]
-  ): void {
+  private showExpenseDetailsDrawer(rowData: IExpenseGetBaseResponseDto): void {
     this.logger.logUserAction('Opening expense details drawer', rowData);
 
     this.drawerService.showDrawer(GetExpenseDetailComponent, {
       header: `Expense Details`,
       subtitle: `Detailed view of expense`,
       componentData: {
-        expense: rowData[0],
+        expense: rowData,
       },
     });
   }
@@ -370,6 +357,8 @@ export class GetExpenseComponent implements OnInit {
       navigationRoute = [ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.FORCE];
     } else if (actionName === 'addExpense') {
       navigationRoute = [ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.ADD];
+    } else if (actionName === 'reimburseExpense') {
+      navigationRoute = [ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.REIMBURSE];
     }
     const success =
       this.routerNavigationService.navigateToRoute(navigationRoute);

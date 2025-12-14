@@ -10,3 +10,4 @@ export { SEARCH_FILTER_EXPENSE_FORM_CONFIG } from './form/search-filter-expense.
 export { ADD_EXPENSE_FORM_CONFIG } from './form/add-expense.config';
 export { EDIT_EXPENSE_FORM_CONFIG } from './form/edit-expense.config';
 export { FORCE_EXPENSE_FORM_CONFIG } from './form/force-expense.config';
+export { REIMBURSE_EXPENSE_FORM_CONFIG } from './form/reimburse-expense.config';

@@ -36,3 +36,8 @@ export {
   ExpenseForceRequestSchema,
   ExpenseForceResponseSchema,
 } from './force-expense.schema';
+
+export {
+  ExpenseReimburseRequestSchema,
+  ExpenseReimburseResponseSchema,
+} from './reimburse-expense.schema';

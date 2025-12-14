@@ -29,4 +29,5 @@ export interface IExpense
   employeeCode: string;
   expenseAmount: number;
   expenseType: string;
+  originalRawData: IExpenseGetBaseResponseDto;
 }
