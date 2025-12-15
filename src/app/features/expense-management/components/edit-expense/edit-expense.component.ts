@@ -28,12 +28,10 @@ import {
   ROUTE_BASE_PATHS,
   ROUTES,
 } from '@shared/constants';
-import {
-  IExpenseDetailGetResponseDto,
-  IExpenseEditRequestDto,
-} from '@features/expense-management/types/expense.dto';
+import { IExpenseEditRequestDto } from '@features/expense-management/types/expense.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
+import { IExpenseDetailResolverResponse } from '@features/expense-management/types/expense.interface';
 
 @Component({
   selector: 'app-edit-expense',
@@ -80,7 +78,7 @@ export class EditExpenseComponent implements OnInit {
   private loadExpenseDataFromRoute(): void {
     const expenseDetailFromResolver = this.activatedRoute.snapshot.data[
       'expenseDetail'
-    ] as IExpenseDetailGetResponseDto;
+    ] as IExpenseDetailResolverResponse | null;
 
     if (!expenseDetailFromResolver) {
       this.logger.logUserAction('No expense data found in route');
@@ -89,19 +87,21 @@ export class EditExpenseComponent implements OnInit {
       return;
     }
 
-    const latestExpenseData =
-      expenseDetailFromResolver.history[
-        expenseDetailFromResolver.history.length - 1
-      ];
-
-    const prefilledExpenseData =
-      this.preparePrefilledFormData(latestExpenseData);
+    const prefilledExpenseData = this.preparePrefilledFormData(
+      expenseDetailFromResolver
+    );
     this.initialExpenseData.set(prefilledExpenseData);
   }
 
   private preparePrefilledFormData(
-    expenseDetailFromResolver: IExpenseDetailGetResponseDto['history'][number]
+    expenseDetailFromResolver: IExpenseDetailResolverResponse
   ): Record<string, unknown> {
+    const latestExpenseData =
+      expenseDetailFromResolver.history[
+        expenseDetailFromResolver.history.length - 1
+      ];
+    const preloadedFiles = expenseDetailFromResolver.preloadedFiles ?? [];
+
     const {
       category,
       description,
@@ -109,7 +109,7 @@ export class EditExpenseComponent implements OnInit {
       expenseDate,
       paymentMode,
       transactionId,
-    } = expenseDetailFromResolver;
+    } = latestExpenseData;
     return {
       expenseType: category,
       description,
@@ -117,6 +117,7 @@ export class EditExpenseComponent implements OnInit {
       expenseDate: new Date(expenseDate),
       paymentMode,
       transactionId,
+      attachment: preloadedFiles,
     };
   }
 

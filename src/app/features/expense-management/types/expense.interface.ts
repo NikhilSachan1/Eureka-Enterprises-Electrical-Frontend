@@ -1,4 +1,7 @@
-import { IExpenseGetBaseResponseDto } from './expense.dto';
+import {
+  IExpenseDetailGetResponseDto,
+  IExpenseGetBaseResponseDto,
+} from './expense.dto';
 
 export interface IExpense
   extends Omit<
@@ -30,4 +33,9 @@ export interface IExpense
   expenseAmount: number;
   expenseType: string;
   originalRawData: IExpenseGetBaseResponseDto;
+}
+
+export interface IExpenseDetailResolverResponse
+  extends IExpenseDetailGetResponseDto {
+  preloadedFiles?: File[];
 }

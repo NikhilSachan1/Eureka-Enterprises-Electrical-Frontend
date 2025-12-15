@@ -31,6 +31,9 @@ export const EXPENSE_MANAGEMENT_ROUTES: Routes = [
     resolve: {
       expenseDetail: GetExpenseDetailResolver,
     },
+    data: {
+      mode: 'edit',
+    },
   },
   {
     path: ROUTES.EXPENSE.FORCE,

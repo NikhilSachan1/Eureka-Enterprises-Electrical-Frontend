@@ -3,32 +3,39 @@ import {
   IExpenseDetailGetRequestDto,
   IExpenseDetailGetResponseDto,
 } from '../types/expense.dto';
-import { catchError, finalize, Observable, of, tap } from 'rxjs';
+import { catchError, finalize, Observable, of, switchMap } from 'rxjs';
 import { inject, Injectable } from '@angular/core';
 import { ExpenseService } from '../services/expense.service';
 import { LoggerService } from '@core/services';
-import { LoadingService, RouterNavigationService } from '@shared/services';
+import {
+  AttachmentsService,
+  LoadingService,
+  RouterNavigationService,
+} from '@shared/services';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { IExpenseDetailResolverResponse } from '../types/expense.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GetExpenseDetailResolver
-  implements Resolve<IExpenseDetailGetResponseDto | null>
+  implements Resolve<IExpenseDetailResolverResponse | null>
 {
   private readonly expenseService = inject(ExpenseService);
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
+  private readonly attachmentsService = inject(AttachmentsService);
 
   resolve(
     route: ActivatedRouteSnapshot
-  ): Observable<IExpenseDetailGetResponseDto | null> {
+  ): Observable<IExpenseDetailResolverResponse | null> {
     const expenseId = route.paramMap.get('expenseId');
+    const mode = route.data['mode'] as 'edit' | 'history';
 
     this.logger.logUserAction(
       'Get Expense Detail Resolver: Starting resolution',
-      expenseId
+      { expenseId, mode }
     );
 
     if (!expenseId) {
@@ -47,10 +54,29 @@ export class GetExpenseDetailResolver
     const paramData = this.prepareParamData(expenseId);
 
     return this.expenseService.getExpenseDetailById(paramData).pipe(
-      tap((response: IExpenseDetailGetResponseDto) => {
+      switchMap((response: IExpenseDetailGetResponseDto) => {
         this.logger.logUserAction(
           'Get Expense Detail Resolver: Data resolved successfully',
           response
+        );
+
+        const latestHistoryItem = response.history[response.history.length - 1];
+
+        if (mode === 'history') {
+          return of({
+            ...response,
+          });
+        }
+
+        const fileKeys = latestHistoryItem?.fileKeys || [];
+
+        return this.attachmentsService.loadFilesFromKeys(fileKeys).pipe(
+          switchMap(files => {
+            return of({
+              ...response,
+              preloadedFiles: files,
+            });
+          })
         );
       }),
       finalize(() => {

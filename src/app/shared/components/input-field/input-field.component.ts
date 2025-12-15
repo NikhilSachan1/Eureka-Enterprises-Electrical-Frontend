@@ -7,6 +7,7 @@ import {
   output,
   signal,
   ViewChild,
+  AfterViewInit,
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -81,7 +82,7 @@ import { ImageModule } from 'primeng/image';
   styleUrl: './input-field.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InputFieldComponent implements OnInit {
+export class InputFieldComponent implements OnInit, AfterViewInit {
   ALL_FIELD_TYPES = EFieldType;
   ALL_UP_AND_DOWN_BUTTON_LAYOUTS = EUpAndDownButtonLayout;
   ALL_MULTI_SELECT_DISPLAY_TYPES = EMultiSelectDisplayType;
@@ -102,7 +103,6 @@ export class InputFieldComponent implements OnInit {
 
   @ViewChild('fileUploadRef') fileUploadRef?: FileUpload;
 
-  // Modern input signals - required inputs
   formGroup = input.required<FormGroup>();
   inputFieldConfig = input.required<IInputFieldsConfig>();
   onFieldChange = output<boolean>();
@@ -120,8 +120,21 @@ export class InputFieldComponent implements OnInit {
         if (!hasFiles) {
           this.fileUploadRef?.clear();
           this.totalUploadedSize = 0;
+        } else {
+          this.updateFileUpload(value);
         }
       });
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.inputFieldConfig().fieldType === EFieldType.File) {
+      const control = this.formGroup().get(this.inputFieldConfig().fieldName);
+      const files = control?.value;
+
+      if (this.shouldUpdateFileUpload(files)) {
+        this.updateFileUpload(files);
+      }
     }
   }
 
@@ -194,6 +207,53 @@ export class InputFieldComponent implements OnInit {
     const updatedFiles = currentFiles.filter(file => file !== event.file);
 
     control.setValue(updatedFiles);
+  }
+
+  private shouldUpdateFileUpload(files: unknown): files is File[] {
+    return (
+      Array.isArray(files) &&
+      files.length > 0 &&
+      files.every(file => file instanceof File)
+    );
+  }
+
+  private updateFileUpload(files: File[]): void {
+    if (!this.fileUploadRef) {
+      return;
+    }
+
+    // Use requestAnimationFrame for better performance than setTimeout
+    requestAnimationFrame(() => {
+      if (!this.fileUploadRef) {
+        return;
+      }
+
+      try {
+        // Clear and set files
+        this.fileUploadRef.clear();
+        this.fileUploadRef.files = [...files];
+
+        // Update total size
+        this.totalUploadedSize = files.reduce(
+          (sum, file) => sum + file.size,
+          0
+        );
+
+        // Trigger change detection
+        this.triggerFileUploadChangeDetection();
+      } catch (error) {
+        console.error('Failed to update file upload:', error);
+      }
+    });
+  }
+
+  private triggerFileUploadChangeDetection(): void {
+    // Trigger PrimeNG FileUpload internal change detection
+    const fileUploadCd = this.fileUploadRef?.['cd'];
+    if (fileUploadCd && typeof fileUploadCd.detectChanges === 'function') {
+      fileUploadCd.markForCheck();
+      fileUploadCd.detectChanges();
+    }
   }
 
   openFilePreview(files: File | File[]): void {
