@@ -84,7 +84,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
 
   private prepareParamData(): IAttendanceHistoryGetRequestDto {
     return {
-      userId: this.drawerData.attendance?.user?.id ?? '',
+      userId: this.drawerData.attendance.user.id,
       date: this.drawerData.attendance.attendanceDate.split('T')[0],
     };
   }
@@ -162,9 +162,6 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
       });
 
       return {
-        employeeDetails: {
-          ...this._employeeDetails(),
-        },
         status: {
           entryType: record.attendanceType,
           approvalStatus: record.approvalStatus,
@@ -178,6 +175,10 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         createdBy: {
           name: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
           date: record.createdAt,
+        },
+        updatedBy: {
+          name: record.updatedBy ?? 'N/A', // TODO: Replace hard-coded name with updated employee name once updated employee mapping is available from backend.
+          date: record.updatedAt ?? 'N/A',
         },
       };
     });

@@ -2,10 +2,10 @@ import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   input,
   OnInit,
   output,
-  signal,
   ViewChild,
   AfterViewInit,
 } from '@angular/core';
@@ -46,8 +46,8 @@ import {
 } from '@shared/types';
 import { APP_CONFIG } from '@core/config';
 import { ICONS } from '@shared/constants';
-import { GalleryComponent } from '../gallery/gallery.component';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
+import { GalleryService } from '@shared/services';
 import {
   arrayToString,
   fileFormatValidator,
@@ -75,7 +75,6 @@ import { ImageModule } from 'primeng/image';
     TextareaModule,
     InputOtpModule,
     ButtonComponent,
-    GalleryComponent,
     ImageModule,
   ],
   templateUrl: './input-field.component.html',
@@ -83,6 +82,8 @@ import { ImageModule } from 'primeng/image';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputFieldComponent implements OnInit, AfterViewInit {
+  private readonly galleryService = inject(GalleryService);
+
   ALL_FIELD_TYPES = EFieldType;
   ALL_UP_AND_DOWN_BUTTON_LAYOUTS = EUpAndDownButtonLayout;
   ALL_MULTI_SELECT_DISPLAY_TYPES = EMultiSelectDisplayType;
@@ -98,8 +99,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   ALL_BUTTON_VARIANTS = EButtonVariant;
 
   totalUploadedSize = 0;
-
-  filePreviewMedia = signal<Partial<IGalleryInputData>[]>([]);
 
   @ViewChild('fileUploadRef') fileUploadRef?: FileUpload;
 
@@ -162,7 +161,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     control.setValue([]);
     this.totalUploadedSize = 0;
-    this.filePreviewMedia.set([]);
   }
 
   onFilesSelected(event: FileSelectEvent): void {
@@ -267,7 +265,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const mediaItems = filesArray.map(file => {
+    const mediaItems: IGalleryInputData[] = filesArray.map(file => {
       return {
         mediaKey: file.name,
         actualMediaUrl: URL.createObjectURL(file),
@@ -275,11 +273,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       };
     });
 
-    this.filePreviewMedia.set(mediaItems);
-  }
-
-  onFilePreviewClosed(): void {
-    this.filePreviewMedia.set([]);
+    this.galleryService.show(mediaItems);
   }
 
   checkIsFieldInvalid(fieldName: string): boolean {

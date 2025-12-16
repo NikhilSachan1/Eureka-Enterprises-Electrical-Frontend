@@ -4,7 +4,7 @@
   [value]="resolvedMedia()"
   [(visible)]="displayBasic"
   [responsiveOptions]="responsiveOptions"
-  [activeIndex]="config.activeIndex"
+  [(activeIndex)]="activeIndex"
   [fullScreen]="config.fullScreen"
   [numVisible]="config.numVisible"
   [showItemNavigators]="config.showNavigators ? resolvedMedia().length > 1 : false"

@@ -85,6 +85,7 @@ export class GalleryComponent {
   displayBasic = model<boolean>(false);
   displayPdfFullscreen = signal<boolean>(false);
   currentPdfUrl = signal<string | null>(null);
+  activeIndex = signal<number>(0);
 
   galleryDefaultConfig = signal<IGalleryConfig>(DEFAULT_GALLERY_CONFIG);
   resolvedMedia = signal<IGalleryResolvedItem[]>([]);
@@ -93,6 +94,7 @@ export class GalleryComponent {
 
   private readonly mediaEffect = effect(() => {
     const mediaItems = this.media() as IGalleryInputData[];
+    this.activeIndex.set(0);
 
     if (!mediaItems || mediaItems.length === 0) {
       this.resolvedMedia.set([]);
@@ -195,6 +197,7 @@ export class GalleryComponent {
     this.logger.debug('Visible changed', event);
 
     if (!event) {
+      this.activeIndex.set(0);
       this.closed.emit();
     }
   }

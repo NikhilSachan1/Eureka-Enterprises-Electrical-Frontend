@@ -439,13 +439,6 @@
             </div>
           </ng-template>
         </p-fileupload>
-
-        @if (filePreviewMedia().length > 0) {
-          <app-gallery
-            [media]="filePreviewMedia()"
-            (closed)="onFilePreviewClosed()"
-          />
-        }
       </div>
     }
     @case (ALL_FIELD_TYPES.TextArea) {

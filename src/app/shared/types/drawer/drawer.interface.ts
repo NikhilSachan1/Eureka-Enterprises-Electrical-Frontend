@@ -1,4 +1,5 @@
 import { Signal, Type } from '@angular/core';
+import { EExpenseTransactionType } from '@features/expense-management/types/expense.enum';
 import { EDrawerDetailType, EDrawerPosition } from '@shared/types/';
 
 export interface IDrawerEvent {
@@ -44,16 +45,18 @@ export interface IDrawerEmployeeDetails {
 }
 
 export interface IDrawerDetail {
-  employeeDetails: IDrawerEmployeeDetails;
   status: {
     approvalStatus: string;
     entryType: string;
   };
   entryData: {
     label: string;
-    value: string | null;
+    value: string | number | null | string[];
     type: EDrawerDetailType;
     format?: string;
+    metadata?: {
+      transactionType?: EExpenseTransactionType;
+    };
   }[];
   approvalBy: {
     name: string | null;
@@ -64,5 +67,9 @@ export interface IDrawerDetail {
     name: string | null;
     date: string;
     notes?: string;
+  };
+  updatedBy: {
+    name: string | null;
+    date: string;
   };
 }

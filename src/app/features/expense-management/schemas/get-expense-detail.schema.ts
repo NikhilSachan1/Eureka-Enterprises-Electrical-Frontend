@@ -1,9 +1,12 @@
 import z from 'zod';
 import { UserSchema, uuidField } from '@shared/schemas';
-import { ExpenseGetBaseResponseSchema } from './get-expense.schema';
 import { makeFieldsNullable } from '@shared/utility';
+import { ExpenseBaseSchema } from './base-expense.schema';
+import { ExpenseGetBaseResponseSchema } from './get-expense.schema';
 
-const { id } = ExpenseGetBaseResponseSchema.shape;
+const { id } = ExpenseBaseSchema.shape;
+const { approvalByUser, updatedAt, createdAt } =
+  ExpenseGetBaseResponseSchema.shape;
 
 export const ExpenseDetailGetRequestSchema = z
   .object({
@@ -17,12 +20,16 @@ export const ExpenseDetailGetResponseSchema = z
     currentVersion: z.number().int().nonnegative(),
     totalVersions: z.number().int().nonnegative(),
     history: z.array(
-      ExpenseGetBaseResponseSchema.extend({
+      ExpenseBaseSchema.extend({
         amount: z.string(),
         createdBy: uuidField,
         updatedBy: uuidField.nullable(),
+        user: UserSchema,
         createdByUser: UserSchema,
         updatedByUser: makeFieldsNullable(UserSchema).nullable(),
+        approvalByUser,
+        updatedAt,
+        createdAt,
       }).omit({
         approvalBy: true,
         userId: true,

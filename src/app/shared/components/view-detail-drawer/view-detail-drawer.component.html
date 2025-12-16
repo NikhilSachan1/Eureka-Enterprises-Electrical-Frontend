@@ -35,16 +35,31 @@
           <span class="text-sm font-medium text-gray-900">
             @if (entry.value) {
               @if (entry.type === ALL_DRAWER_DETAIL_TYPES.DATE) {
-                {{ entry.value | date: entry.format }}
+                {{ entry.value.toString() | date: entry.format }}
               } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.TIME) {
-                {{ entry.value | date: entry.format }}
+                {{ entry.value.toString() | date: entry.format }}
               } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.DURATION) {
                 {{ +entry.value | secondsToDhms }}
               } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.STATUS) {
-                @let colorClass = getColor(entry.value);
+                @let colorClass = getColor(entry.value.toString());
                 <span [ngClass]="`${colorClass.text}`">
-                  {{ entry.value | textCase: 'title' }}
+                  {{ entry.value.toString() | textCase: 'title' }}
                 </span>
+              } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.CURRENCY) {
+                <span
+                  [ngClass]="
+                    entry.metadata?.transactionType === 'credit'
+                      ? 'text-green-600 font-semibold'
+                      : 'text-red-600 font-semibold'
+                  "
+                >
+                  {{ entry.value.toString() | currency: entry.format }}
+                </span>
+              } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.ATTACHMENTS) {
+                <app-button
+                  [buttonConfig]="getAttachmentButtonConfig($any(entry.value).length)"
+                  (onButtonClick)="viewAttachment($any(entry.value))"
+                />
               } @else {
                 {{ entry.value }}
               }
@@ -73,17 +88,28 @@
       </div>
     }
 
-    @if (detail.createdBy) {
+    @if (detail.createdBy && detail.updatedBy) {
       <p-divider />
       <div class="space-y-1">
         <p class="text-xs text-gray-600">
-          Applied by
+          Added by
           <span class="font-semibold">{{ detail.createdBy.name }}</span>
           at
           <span class="font-semibold">{{ detail.createdBy.date | date: appConfigService.dateFormats.DEFAULT }}</span>
           on
           <span class="font-semibold">{{ detail.createdBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
         </p>
+
+        @if (detail.updatedBy.name !== 'N/A') {
+          <p class="text-xs text-gray-600">
+            Updated by
+            <span class="font-semibold">{{ detail.updatedBy.name }}</span>
+            at
+            <span class="font-semibold">{{ detail.updatedBy.date | date: appConfigService.dateFormats.DEFAULT }}</span>
+            on
+            <span class="font-semibold">{{ detail.updatedBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
+          </p>
+        }
       </div>
     }
   </p-card>

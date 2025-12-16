@@ -333,10 +333,3 @@
     </ng-template>
   </p-table>
 </div>
-
-@if (attachmentsMedia().length > 0) {
-  <app-gallery
-    [media]="attachmentsMedia()"
-    (closed)="onAttachmentsGalleryClosed()"
-  />
-}

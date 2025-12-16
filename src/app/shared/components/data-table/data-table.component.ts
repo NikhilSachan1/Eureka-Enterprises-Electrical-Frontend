@@ -41,14 +41,13 @@ import {
   NgClass,
   NgTemplateOutlet,
 } from '@angular/common';
-import { AvatarService } from '@shared/services';
+import { AvatarService, GalleryService } from '@shared/services';
 import { ICONS } from '@shared/constants';
 import { ButtonComponent } from '../button/button.component';
 import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { EmptyMessagesComponent } from '../empty-messages/empty-messages.component';
 import { LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
-import { GalleryComponent } from '../gallery/gallery.component';
 
 @Component({
   selector: 'app-data-table',
@@ -73,7 +72,6 @@ import { GalleryComponent } from '../gallery/gallery.component';
     CurrencyPipe,
     EmptyMessagesComponent,
     ChipComponent,
-    GalleryComponent,
     NgTemplateOutlet,
   ],
 
@@ -88,6 +86,7 @@ export class DataTableComponent {
   protected icons = ICONS;
 
   private avatarService = inject(AvatarService);
+  private galleryService = inject(GalleryService);
   private logger = inject(LoggerService);
 
   // Input signals
@@ -104,7 +103,6 @@ export class DataTableComponent {
   filterData = output<TableLazyLoadEvent>();
 
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
-  protected attachmentsMedia = signal<Partial<IGalleryInputData>[]>([]);
 
   protected clear(table: Table): void {
     table.clear();
@@ -201,16 +199,12 @@ export class DataTableComponent {
       return;
     }
 
-    const media: Partial<IGalleryInputData>[] = attchmentsKeys.map(
-      (key: string) => ({
-        mediaKey: key,
-      })
-    );
+    const media: IGalleryInputData[] = attchmentsKeys.map((key: string) => ({
+      mediaKey: key,
+      actualMediaUrl: '',
+      thumbnailMediaUrl: '',
+    }));
 
-    this.attachmentsMedia.set(media);
-  }
-
-  protected onAttachmentsGalleryClosed(): void {
-    this.attachmentsMedia.set([]);
+    this.galleryService.show(media);
   }
 }

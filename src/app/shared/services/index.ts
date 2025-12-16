@@ -9,3 +9,4 @@ export { TableService } from './data-table-config.service';
 export { RouterNavigationService } from './router-navigation.service';
 export { TableServerSideParamsBuilderService } from './table-server-side-params-builder.service';
 export { AttachmentsService } from './attachments.service';
+export { GalleryService } from './gallery.service';

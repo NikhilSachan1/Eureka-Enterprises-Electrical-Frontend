@@ -11,4 +11,6 @@ export enum EDrawerDetailType {
   DURATION = 'duration',
   STATUS = 'status',
   NOTES = 'notes',
+  CURRENCY = 'currency',
+  ATTACHMENTS = 'attachments',
 }

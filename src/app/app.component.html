@@ -15,3 +15,9 @@
 
 <!-- Global Drawer -->
 <app-drawer />
+
+<!-- Global Gallery -->
+<app-gallery
+  [(displayBasic)]="galleryService.visible"
+  [media]="galleryService.media()"
+/>
