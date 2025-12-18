@@ -98,21 +98,3 @@
     </div>
   </ng-template>
 </p-galleria>
-
-<!-- Custom Navigators -->
-@if (displayBasic() && resolvedMedia().length > 1 && config.customNavigators) {
-  <div class="gallery-custom-navigators">
-    <div class="gallery-custom-navigators__button gallery-custom-navigators__button--prev">
-      <app-button
-        [buttonConfig]="previousButtonConfig"
-        (onButtonClick)="navigatePrevious()"
-      />
-    </div>
-    <div class="gallery-custom-navigators__button gallery-custom-navigators__button--next">
-      <app-button
-        [buttonConfig]="nextButtonConfig"
-        (onButtonClick)="navigateNext()"
-      />
-    </div>
-  </div>
-}

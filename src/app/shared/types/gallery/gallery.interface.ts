@@ -27,5 +27,4 @@ export interface IGalleryConfig {
   showIndicators: boolean;
   showIndicatorsOnItem: boolean;
   indicatorsPosition: 'top' | 'bottom' | 'left' | 'right';
-  customNavigators: boolean;
 }

@@ -21,10 +21,8 @@ import {
   EButtonSeverity,
   EButtonType,
   EButtonActionType,
-  EButtonVariant,
   IAttachmentsGetResponseDto,
   IGalleryResolvedItem,
-  EButtonSize,
 } from '@shared/types';
 import { getMediaTypeFromUrl, getFileExtension } from '@shared/utility';
 import { GalleriaModule } from 'primeng/galleria';
@@ -58,22 +56,6 @@ export class GalleryComponent {
     id: EButtonActionType.DOWNLOAD,
     label: 'Download',
     icon: this.icons.COMMON.DOWNLOAD,
-  };
-
-  readonly previousButtonConfig = {
-    label: '',
-    icon: 'pi pi-chevron-left',
-    rounded: true,
-    variant: EButtonVariant.OUTLINED,
-    size: EButtonSize.LARGE,
-  };
-
-  readonly nextButtonConfig = {
-    label: '',
-    icon: 'pi pi-chevron-right',
-    rounded: true,
-    variant: EButtonVariant.OUTLINED,
-    size: EButtonSize.LARGE,
   };
 
   responsiveOptions = [
@@ -199,36 +181,6 @@ export class GalleryComponent {
     if (!event) {
       this.activeIndex.set(0);
       this.closed.emit();
-    }
-  }
-
-  navigatePrevious(): void {
-    const currentIndex = this.activeIndex();
-    const totalItems = this.resolvedMedia().length;
-    const config = this.galleryDefaultConfig();
-
-    if (config.circular) {
-      const newIndex = currentIndex === 0 ? totalItems - 1 : currentIndex - 1;
-      this.activeIndex.set(newIndex);
-    } else {
-      if (currentIndex > 0) {
-        this.activeIndex.set(currentIndex - 1);
-      }
-    }
-  }
-
-  navigateNext(): void {
-    const currentIndex = this.activeIndex();
-    const totalItems = this.resolvedMedia().length;
-    const config = this.galleryDefaultConfig();
-
-    if (config.circular) {
-      const newIndex = currentIndex === totalItems - 1 ? 0 : currentIndex + 1;
-      this.activeIndex.set(newIndex);
-    } else {
-      if (currentIndex < totalItems - 1) {
-        this.activeIndex.set(currentIndex + 1);
-      }
     }
   }
 
