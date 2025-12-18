@@ -202,7 +202,6 @@ export class DataTableComponent {
     const media: IGalleryInputData[] = attchmentsKeys.map((key: string) => ({
       mediaKey: key,
       actualMediaUrl: '',
-      thumbnailMediaUrl: '',
     }));
 
     this.galleryService.show(media);

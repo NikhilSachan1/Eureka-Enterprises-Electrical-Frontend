@@ -21,12 +21,13 @@ import {
   EButtonSeverity,
   EButtonType,
   EButtonActionType,
+  EButtonVariant,
   IAttachmentsGetResponseDto,
   IGalleryResolvedItem,
+  EButtonSize,
 } from '@shared/types';
 import { getMediaTypeFromUrl, getFileExtension } from '@shared/utility';
 import { GalleriaModule } from 'primeng/galleria';
-import { DialogModule } from 'primeng/dialog';
 import { ImageModule } from 'primeng/image';
 import { ButtonComponent } from '../button/button.component';
 import { AttachmentsService, LoadingService } from '@shared/services';
@@ -35,13 +36,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-gallery',
-  imports: [
-    CommonModule,
-    GalleriaModule,
-    DialogModule,
-    ImageModule,
-    ButtonComponent,
-  ],
+  imports: [CommonModule, GalleriaModule, ImageModule, ButtonComponent],
   templateUrl: './gallery.component.html',
   styleUrl: './gallery.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,17 +54,26 @@ export class GalleryComponent {
   readonly ALL_BUTTON_ACTION_TYPE = EButtonActionType;
   readonly ALL_BUTTON_TYPE = EButtonType;
 
-  // Button configurations
-  readonly fullScreenButtonConfig = {
-    id: EButtonActionType.VIEW,
-    label: 'Full Screen',
-    icon: this.icons.COMMON.WINDOW_MAXIMIZE,
-  };
-
   readonly downloadButtonConfig = {
     id: EButtonActionType.DOWNLOAD,
     label: 'Download',
     icon: this.icons.COMMON.DOWNLOAD,
+  };
+
+  readonly previousButtonConfig = {
+    label: '',
+    icon: 'pi pi-chevron-left',
+    rounded: true,
+    variant: EButtonVariant.OUTLINED,
+    size: EButtonSize.LARGE,
+  };
+
+  readonly nextButtonConfig = {
+    label: '',
+    icon: 'pi pi-chevron-right',
+    rounded: true,
+    variant: EButtonVariant.OUTLINED,
+    size: EButtonSize.LARGE,
   };
 
   responsiveOptions = [
@@ -83,7 +87,6 @@ export class GalleryComponent {
 
   media = input<Partial<IGalleryInputData>[]>([]);
   displayBasic = model<boolean>(false);
-  displayPdfFullscreen = signal<boolean>(false);
   currentPdfUrl = signal<string | null>(null);
   activeIndex = signal<number>(0);
 
@@ -107,12 +110,12 @@ export class GalleryComponent {
 
   private resolveMedia(mediaItems: IGalleryInputData[]): void {
     this.loadingService.show({
-      title: 'Loading Attachments',
-      message: 'Please wait while we load the attachments...',
+      title: 'Loading Media',
+      message: 'Please wait while we load the media...',
     });
 
     const requests = mediaItems.map(item => {
-      const hasDirectUrls = !!item.actualMediaUrl && !!item.thumbnailMediaUrl;
+      const hasDirectUrls = !!item.actualMediaUrl;
       if (hasDirectUrls) {
         // Direct media: no API call, just wrap the existing URL
         return of({ url: item.actualMediaUrl ?? '' });
@@ -151,8 +154,7 @@ export class GalleryComponent {
               const actualUrl = resolvedUrl ?? item.actualMediaUrl ?? '';
               const hasError = !resolvedUrl && !item.actualMediaUrl;
 
-              const baseName =
-                item.mediaTitle ?? item.mediaDescription ?? item.mediaKey ?? '';
+              const baseName = item.mediaKey ?? '';
               const explicitExtension = baseName.includes('.')
                 ? (baseName.split('.').pop()?.toLowerCase() ?? '')
                 : '';
@@ -168,9 +170,6 @@ export class GalleryComponent {
               return {
                 mediaKey: item.mediaKey,
                 actualMediaUrl: actualUrl,
-                thumbnailMediaUrl: actualUrl,
-                mediaDescription: item.mediaDescription,
-                mediaTitle: item.mediaTitle,
                 mediaType,
                 fileExtension,
                 fileIcon:
@@ -191,6 +190,7 @@ export class GalleryComponent {
 
   onActiveIndexChange(event: number): void {
     this.logger.debug('Active index changed', event);
+    this.activeIndex.set(event);
   }
 
   onVisibleChange(event: boolean): void {
@@ -202,20 +202,39 @@ export class GalleryComponent {
     }
   }
 
-  openPdfFullscreen(pdfUrl: string): void {
-    this.currentPdfUrl.set(pdfUrl);
-    this.displayPdfFullscreen.set(true);
+  navigatePrevious(): void {
+    const currentIndex = this.activeIndex();
+    const totalItems = this.resolvedMedia().length;
+    const config = this.galleryDefaultConfig();
+
+    if (config.circular) {
+      const newIndex = currentIndex === 0 ? totalItems - 1 : currentIndex - 1;
+      this.activeIndex.set(newIndex);
+    } else {
+      if (currentIndex > 0) {
+        this.activeIndex.set(currentIndex - 1);
+      }
+    }
   }
 
-  closePdfFullscreen(): void {
-    this.displayPdfFullscreen.set(false);
-    this.currentPdfUrl.set(null);
+  navigateNext(): void {
+    const currentIndex = this.activeIndex();
+    const totalItems = this.resolvedMedia().length;
+    const config = this.galleryDefaultConfig();
+
+    if (config.circular) {
+      const newIndex = currentIndex === totalItems - 1 ? 0 : currentIndex + 1;
+      this.activeIndex.set(newIndex);
+    } else {
+      if (currentIndex < totalItems - 1) {
+        this.activeIndex.set(currentIndex + 1);
+      }
+    }
   }
 
-  downloadFile(url: string, fileName: string): void {
+  downloadFile(url: string): void {
     const link = document.createElement('a');
     link.href = url;
-    link.download = fileName;
     link.target = '_blank';
     document.body.appendChild(link);
     link.click();
@@ -224,13 +243,5 @@ export class GalleryComponent {
 
   getSafeResourceUrl(url: string): SafeResourceUrl {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-  }
-
-  handleImageError(file: IGalleryResolvedItem): void {
-    file.hasError = true;
-    this.logger.logUserAction('Gallery image failed to load', {
-      mediaTitle: file.mediaTitle,
-      mediaUrl: file.actualMediaUrl,
-    });
   }
 }

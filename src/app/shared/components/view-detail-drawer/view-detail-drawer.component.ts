@@ -90,7 +90,6 @@ export class ViewDetailDrawerComponent {
     const media: IGalleryInputData[] = fileKeys.map((key: string) => ({
       mediaKey: key,
       actualMediaUrl: '',
-      thumbnailMediaUrl: '',
     }));
 
     this.galleryService.show(media);

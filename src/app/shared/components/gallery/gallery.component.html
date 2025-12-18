@@ -29,138 +29,90 @@
   >
     <div class="gallery-viewer">
       <div class="gallery-viewer__content">
-        <!-- Images -->
-        @if (file.mediaType === 'image' && !file.hasError) {
+        @if (file.hasError) {
+          <div class="gallery-viewer__file-state">
+            <div class="gallery-viewer__file-state-icon">
+              <i [ngClass]="file.fileIcon"></i>
+            </div>
+            <div class="gallery-viewer__file-state-content">
+              <h3 class="gallery-viewer__file-state-title">File Cannot Be Displayed</h3>
+              <p class="gallery-viewer__file-state-message">
+                The file link appears to be broken or the file is no longer available.
+              </p>
+            </div>
+            <div class="gallery-viewer__file-state-badges">
+              <span class="gallery-viewer__file-state-badge gallery-viewer__file-state-badge--error">
+                <i class="pi pi-exclamation-triangle"></i>
+                <span>Broken Source</span>
+              </span>
+              @if (file.fileExtension) {
+                <span class="gallery-viewer__file-state-badge gallery-viewer__file-state-badge--extension">
+                  .{{ file.fileExtension }}
+                </span>
+              }
+            </div>
+          </div>
+        } @else if (file.mediaType !== 'image' && file.mediaType !== 'pdf' && !file.hasError) {
+          <div class="gallery-viewer__file-state">
+            <div class="gallery-viewer__file-state-icon">
+              <i [class]="file.fileIcon"></i>
+            </div>
+            <div class="gallery-viewer__file-state-content">
+              <h3 class="gallery-viewer__file-state-title">Preview Not Available</h3>
+              <p class="gallery-viewer__file-state-message">
+                This file type cannot be previewed. You can download it to view the contents.
+              </p>
+            </div>
+            <div class="gallery-viewer__file-state-badges">
+              @if (file.fileExtension) {
+                <span class="gallery-viewer__file-state-badge gallery-viewer__file-state-badge--extension">
+                  .{{ file.fileExtension }}
+                </span>
+              }
+            </div>
+            <div class="gallery-viewer__file-state-actions">
+              <app-button
+                [buttonConfig]="downloadButtonConfig"
+                (onButtonClick)="downloadFile(file.actualMediaUrl)"
+              />
+            </div>
+          </div>
+        } @else if (file.mediaType === 'image' && !file.hasError) {
           <p-image
             [src]="file.actualMediaUrl"
-            [alt]="file.mediaTitle"
+            [alt]="file.mediaKey"
             [preview]="true"
-            (onImageError)="handleImageError(file)"
           >
             <ng-template pTemplate="indicator">
               <i class="pi pi-eye"></i>
               <span>Click to Preview</span>
             </ng-template>
           </p-image>
-        }
-
-        @if (file.hasError) {
-          <div
-            class="gallery-viewer__broken-image flex flex-col items-center justify-center gap-3 rounded-lg px-6 py-5 text-center"
-          >
-            <div
-              class="gallery-viewer__broken-icon flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-red-500 shadow-sm"
-            >
-              <i
-                class="text-2xl"
-                [ngClass]="file.fileIcon"
-              ></i>
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <p class="gallery-viewer__broken-title text-sm font-semibold text-slate-900">File can't be displayed</p>
-
-              <p class="gallery-viewer__broken-subtitle text-xs text-slate-500 max-w-md mx-auto">
-                The file link appears to be broken or the file is no longer available. Contact the uploader if the
-                problem persists.
-              </p>
-            </div>
-
-            <div class="flex items-center justify-center gap-2 mt-1">
-              <span
-                class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-[11px] font-medium text-red-600"
-              >
-                <i class="pi pi-exclamation-triangle mr-1 text-[10px]"></i>
-                Broken image source
-              </span>
-
-              @if (file.fileExtension) {
-                <span
-                  class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"
-                >
-                  .{{ file.fileExtension }}
-                </span>
-              }
-            </div>
-
-            @if (file.actualMediaUrl) {
-              <div class="mt-2">
-                <app-button
-                  [buttonConfig]="downloadButtonConfig"
-                  (onButtonClick)="downloadFile(file.actualMediaUrl, file.mediaTitle)"
-                />
-              </div>
-            }
-          </div>
-        }
-
-        <!-- PDF -->
-        @if (file.mediaType === 'pdf' && !file.hasError) {
-          <div class="gallery-viewer__pdf-wrapper">
-            <div class="gallery-viewer__pdf-actions">
-              <app-button
-                [buttonConfig]="fullScreenButtonConfig"
-                (onButtonClick)="openPdfFullscreen(file.actualMediaUrl)"
-              />
-              <app-button
-                [buttonConfig]="downloadButtonConfig"
-                (onButtonClick)="downloadFile(file.actualMediaUrl, file.mediaTitle)"
-              />
-            </div>
-
-            <iframe
-              [src]="getSafeResourceUrl(file.actualMediaUrl)"
-              class="gallery-viewer__pdf-embed"
-            ></iframe>
-          </div>
-        }
-
-        <!-- Unsupported Files -->
-        @if (file.mediaType !== 'image' && file.mediaType !== 'pdf' && !file.hasError) {
-          <div class="gallery-viewer__file">
-            <div class="gallery-viewer__file-icon">
-              <i [class]="file.fileIcon"></i>
-            </div>
-            <span class="gallery-viewer__file-ext">.{{ file.fileExtension }}</span>
-            <p class="gallery-viewer__file-msg">Preview not available</p>
-            <div class="gallery-viewer__file-actions">
-              <app-button
-                [buttonConfig]="downloadButtonConfig"
-                (onButtonClick)="downloadFile(file.actualMediaUrl, file.mediaTitle)"
-              />
-            </div>
-          </div>
+        } @else if (file.mediaType === 'pdf' && !file.hasError) {
+          <iframe
+            [src]="getSafeResourceUrl(file.actualMediaUrl)"
+            class="gallery-viewer__pdf-embed"
+          ></iframe>
         }
       </div>
     </div>
   </ng-template>
-
-  <!-- Thumbnail Template -->
-  <ng-template
-    let-file
-    pTemplate="thumbnail"
-  >
-    <div class="gallery-thumb__placeholder">
-      <i [class]="file.fileIcon"></i>
-      <span class="gallery-thumb__label">{{ file.fileExtension }}</span>
-    </div>
-  </ng-template>
 </p-galleria>
 
-<!-- PDF Full Screen Dialog -->
-<p-dialog
-  [(visible)]="displayPdfFullscreen"
-  [modal]="true"
-  [style]="{ width: '90vw', height: '90vh' }"
-  [maximizable]="true"
-  styleClass="pdf-modal"
-  (onHide)="closePdfFullscreen()"
->
-  @let pdfUrl = currentPdfUrl();
-  @if (pdfUrl) {
-    <iframe
-      [src]="getSafeResourceUrl(pdfUrl)"
-      class="gallery-viewer__pdf-fullscreen"
-    ></iframe>
-  }
-</p-dialog>
+<!-- Custom Navigators -->
+@if (displayBasic() && resolvedMedia().length > 1 && config.customNavigators) {
+  <div class="gallery-custom-navigators">
+    <div class="gallery-custom-navigators__button gallery-custom-navigators__button--prev">
+      <app-button
+        [buttonConfig]="previousButtonConfig"
+        (onButtonClick)="navigatePrevious()"
+      />
+    </div>
+    <div class="gallery-custom-navigators__button gallery-custom-navigators__button--next">
+      <app-button
+        [buttonConfig]="nextButtonConfig"
+        (onButtonClick)="navigateNext()"
+      />
+    </div>
+  </div>
+}

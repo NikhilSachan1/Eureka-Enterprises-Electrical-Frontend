@@ -2,9 +2,6 @@
 export interface IGalleryInputData {
   mediaKey: string;
   actualMediaUrl: string;
-  thumbnailMediaUrl: string;
-  mediaDescription?: string;
-  mediaTitle?: string;
 }
 
 export interface IGalleryResolvedItem extends IGalleryInputData {
@@ -30,4 +27,5 @@ export interface IGalleryConfig {
   showIndicators: boolean;
   showIndicatorsOnItem: boolean;
   indicatorsPosition: 'top' | 'bottom' | 'left' | 'right';
+  customNavigators: boolean;
 }

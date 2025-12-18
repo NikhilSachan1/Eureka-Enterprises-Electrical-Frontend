@@ -4,9 +4,9 @@ export const DEFAULT_GALLERY_CONFIG: IGalleryConfig = {
   activeIndex: 0,
   fullScreen: true,
   numVisible: 5,
-  showNavigators: true,
+  showNavigators: false,
   showThumbnailNavigators: true,
-  showNavigatorsOnHover: true,
+  showNavigatorsOnHover: false,
   changeOnIndicatorHover: false,
   circular: true,
   autoPlay: false,
@@ -16,4 +16,5 @@ export const DEFAULT_GALLERY_CONFIG: IGalleryConfig = {
   showIndicators: true,
   showIndicatorsOnItem: false,
   indicatorsPosition: 'bottom',
+  customNavigators: true,
 };
