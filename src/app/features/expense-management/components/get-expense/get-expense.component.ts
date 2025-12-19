@@ -327,10 +327,6 @@ export class GetExpenseComponent implements OnInit {
         ),
       },
       {
-        label: 'Description',
-        value: selectedRow.description,
-      },
-      {
         label: 'Attachment(s)',
         value: selectedRow.fileKeys,
         type: EDataType.ATTACHMENTS,

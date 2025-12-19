@@ -1,28 +1,32 @@
-@let textValue = text() || '';
-@let config = readMoreConfig();
-@let maxLength = config?.maxLength || 100;
-@let shouldTruncate = textValue.length > maxLength;
-@let isExpanded = isExpandedState();
+<p-inplace [preventClick]="!shouldTruncate()">
+  <!-- COLLAPSED VIEW -->
+  <ng-template #display>
+    <span class="read-more-text">
+      {{ shouldTruncate() ? truncatedText() + '...' : text() || 'N/A' }}
 
-<span class="read-more-text">
-  @if (shouldTruncate && !isExpanded) {
-    {{ textValue.substring(0, maxLength) }}
-    <span class="text-ellipsis">...</span>
-    <span class="read-more-button-wrapper">
-      <app-button
-        [buttonConfig]="getReadMoreButtonConfig()"
-        (onButtonClick)="toggleExpanded()"
-      />
+      @if (shouldTruncate()) {
+        <span class="text-blue-600 hover:underline cursor-pointer ml-1">
+          {{ readMoreText() }}
+        </span>
+      }
     </span>
-  } @else if (shouldTruncate && isExpanded) {
-    {{ textValue }}
-    <span class="read-more-button-wrapper">
-      <app-button
-        [buttonConfig]="getReadLessButtonConfig()"
-        (onButtonClick)="toggleExpanded()"
-      />
+  </ng-template>
+
+  <!-- EXPANDED VIEW -->
+  <ng-template
+    #content
+    let-closeCallback="closeCallback"
+  >
+    <span class="read-more-text">
+      {{ text() }}
+
+      <button
+        type="button"
+        class="text-blue-600 hover:underline ml-1 bg-transparent border-0 p-0 cursor-pointer"
+        (click)="closeCallback($event)"
+      >
+        {{ readLessText() }}
+      </button>
     </span>
-  } @else {
-    {{ textValue || 'N/A' }}
-  }
-</span>
+  </ng-template>
+</p-inplace>

@@ -1,16 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   input,
-  signal,
 } from '@angular/core';
 import { DEFAULT_READ_MORE_CONFIG } from '@shared/config';
-import { IButtonConfig, IReadMoreConfig } from '@shared/types';
-import { ButtonComponent } from '../button/button.component';
+import { IReadMoreConfig } from '@shared/types';
+import { InplaceModule } from 'primeng/inplace';
 
 @Component({
   selector: 'app-read-more',
-  imports: [ButtonComponent],
+  imports: [InplaceModule],
   templateUrl: './read-more.component.html',
   styleUrl: './read-more.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,27 +19,16 @@ export class ReadMoreComponent {
   readMoreConfig = input<Partial<IReadMoreConfig>>(DEFAULT_READ_MORE_CONFIG);
   text = input<string>();
 
-  private readonly expandedState = signal<boolean>(false);
-
-  protected isExpandedState(): boolean {
-    return this.expandedState();
-  }
-
-  protected toggleExpanded(): void {
-    this.expandedState.set(!this.expandedState());
-  }
-
-  protected getReadMoreButtonConfig(): Partial<IButtonConfig> {
-    return {
-      label: this.readMoreConfig()?.readMoreText,
-      link: true,
-    };
-  }
-
-  protected getReadLessButtonConfig(): Partial<IButtonConfig> {
-    return {
-      label: this.readMoreConfig()?.readLessText,
-      link: true,
-    };
-  }
+  protected readonly shouldTruncate = computed(
+    () => (this.text()?.length ?? 0) > (this.readMoreConfig().maxLength ?? 0)
+  );
+  protected readonly truncatedText = computed(
+    () => this.text()?.substring(0, this.readMoreConfig().maxLength ?? 0) ?? ''
+  );
+  protected readonly readMoreText = computed(
+    () => this.readMoreConfig().readMoreText
+  );
+  protected readonly readLessText = computed(
+    () => this.readMoreConfig().readLessText
+  );
 }

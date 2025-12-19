@@ -22,6 +22,7 @@ import { ICONS } from '@shared/constants';
 import { CardModule } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { Tag } from 'primeng/tag';
+import { ReadMoreComponent } from '../read-more/read-more.component';
 
 @Component({
   selector: 'app-view-detail',
@@ -34,6 +35,7 @@ import { Tag } from 'primeng/tag';
     SecondsToDhmsPipe,
     NgClass,
     CurrencyPipe,
+    ReadMoreComponent,
   ],
   templateUrl: './view-detail.component.html',
   styleUrl: './view-detail.component.scss',

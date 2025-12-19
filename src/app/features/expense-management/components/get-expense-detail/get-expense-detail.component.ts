@@ -123,10 +123,6 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
           ),
         },
         {
-          label: 'Description',
-          value: record.description,
-        },
-        {
           label: 'Transaction ID',
           value: record.transactionId,
         },
@@ -153,6 +149,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
         createdBy: {
           name: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
           date: record.createdAt,
+          notes: record.description,
         },
         updatedBy: {
           name: record.updatedByUser

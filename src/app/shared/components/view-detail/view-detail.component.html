@@ -60,6 +60,8 @@
                   >
                     {{ entry.value.toString() | currency: entry.format }}
                   </span>
+                } @else if (entry.type === ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
+                  <app-read-more [text]="entry.value.toString()" />
                 } @else {
                   {{ entry.value }}
                 }
@@ -126,7 +128,7 @@
       </div>
     }
 
-    @if (detail.createdBy && detail.updatedBy) {
+    @if (detail.createdBy) {
       <p-divider />
       <div class="space-y-1">
         <p class="text-xs text-gray-600">
@@ -138,6 +140,13 @@
           <span class="font-semibold">{{ detail.createdBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
         </p>
 
+        <p class="text-xs text-gray-600 italic">"{{ detail.createdBy.notes }}"</p>
+      </div>
+    }
+
+    @if (detail.updatedBy) {
+      <p-divider />
+      <div class="space-y-1">
         @if (detail.updatedBy.name !== 'N/A') {
           <p class="text-xs text-gray-600">
             Updated by
@@ -147,6 +156,8 @@
             on
             <span class="font-semibold">{{ detail.updatedBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
           </p>
+
+          <p class="text-xs text-gray-600 italic">"{{ detail.updatedBy.notes }}"</p>
         }
       </div>
     }
