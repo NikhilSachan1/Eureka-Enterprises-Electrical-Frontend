@@ -41,6 +41,13 @@
               @if (entry.value) {
                 @if (entry.type === ALL_DATA_TYPES.DATE) {
                   {{ entry.value.toString() | date: entry.format }}
+                } @else if (entry.type === ALL_DATA_TYPES.DATE_RANGE) {
+                  @let dateRange = $any(entry.value);
+                  @let fromDate = $any(dateRange[0])?.toString() ?? '';
+                  @let toDate = $any(dateRange[1])?.toString() ?? '';
+                  {{ fromDate | date: entry.format }}
+                  -
+                  {{ toDate | date: entry.format }}
                 } @else if (entry.type === ALL_DATA_TYPES.TIME) {
                   {{ entry.value.toString() | date: entry.format }}
                 } @else if (entry.type === ALL_DATA_TYPES.DURATION) {

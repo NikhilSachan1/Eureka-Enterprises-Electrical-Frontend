@@ -4,6 +4,7 @@ export enum EDataType {
   TEXT_WITH_READ_MORE = 'textWithReadMore', //only for display
   STATUS = 'status', //only for display
   DATE = 'date', //only for display
+  DATE_RANGE = 'dateRange', //only for display
   CURRENCY = 'currency', //only for display
   TIME = 'time', //only for display
   DURATION = 'duration', //only for display

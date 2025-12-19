@@ -32,6 +32,7 @@ import {
 } from '@shared/services';
 import {
   EButtonActionType,
+  EDataType,
   EDialogType,
   IDataViewDetails,
   IDataViewDetailsWithEmployee,
@@ -42,7 +43,6 @@ import {
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
-import { transformDateFormat } from '@shared/utility';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { GetLeaveDetailComponent } from '../get-leave-detail/get-leave-detail.component';
@@ -145,17 +145,9 @@ export class GetLeaveComponent implements OnInit {
 
   private mapTableData(response: ILeaveGetBaseResponseDto[]): ILeave[] {
     return response.map((record: ILeaveGetBaseResponseDto) => {
-      const fromDate = transformDateFormat(
-        record.fromDate,
-        APP_CONFIG.DATE_FORMATS.DEFAULT
-      );
-      const toDate = transformDateFormat(
-        record.toDate,
-        APP_CONFIG.DATE_FORMATS.DEFAULT
-      );
       return {
         id: record.id,
-        leaveDate: `${fromDate} - ${toDate}`,
+        leaveDate: [record.fromDate, record.toDate],
         reason: record.reason,
         approvalStatus: record.approvalStatus,
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
@@ -258,25 +250,14 @@ export class GetLeaveComponent implements OnInit {
   private prepareLeaveRecordDetail(
     selectedRow: ILeaveGetBaseResponseDto
   ): IDataViewDetailsWithEmployee {
-    const fromDate = transformDateFormat(
-      selectedRow.fromDate,
-      APP_CONFIG.DATE_FORMATS.DEFAULT
-    );
-    const toDate = transformDateFormat(
-      selectedRow.toDate,
-      APP_CONFIG.DATE_FORMATS.DEFAULT
-    );
     const entryData: IDataViewDetails['entryData'] = [
       {
-        label: 'Employee Name',
-        value: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
-      },
-      {
         label: 'Leave Date',
-        value: `${fromDate} - ${toDate}`,
+        value: [selectedRow.fromDate, selectedRow.toDate],
+        type: EDataType.DATE_RANGE,
+        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       { label: 'Reason', value: selectedRow.reason },
-      { label: 'Approval Status', value: selectedRow.approvalStatus },
     ];
     return {
       details: [

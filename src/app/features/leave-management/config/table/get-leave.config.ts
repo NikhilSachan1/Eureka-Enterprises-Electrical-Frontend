@@ -8,6 +8,7 @@ import {
 import { ICONS } from '@shared/constants';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { ILeaveGetResponseDto } from '../../types/leave.dto';
+import { APP_CONFIG } from '@core/config';
 
 export const LEAVE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No leave record found.',
@@ -35,7 +36,9 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'leaveDate',
     header: 'Leave Date',
-    bodyTemplate: EDataType.TEXT,
+    bodyTemplate: EDataType.DATE_RANGE,
+    dataType: EDataType.DATE_RANGE,
+    dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
     serverSideFilterAndSortConfig: {
       sortField: 'fromDate',
       filterField: 'leaveDate',
@@ -45,7 +48,6 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'reason',
     header: 'Reason',
     bodyTemplate: EDataType.TEXT_WITH_READ_MORE,
-    dataType: EDataType.TEXT,
     showSort: false,
   },
   {

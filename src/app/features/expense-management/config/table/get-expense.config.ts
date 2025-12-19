@@ -46,8 +46,6 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'expenseType',
     header: 'Expense Type',
-    bodyTemplate: EDataType.TEXT,
-    dataType: EDataType.TEXT,
     serverSideFilterAndSortConfig: {
       sortField: 'category',
       filterField: 'categories',

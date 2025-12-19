@@ -253,6 +253,18 @@
                     <span class="text-slate-700">{{ columnData | date: column.dateFormat }}</span>
                   </div>
                 }
+                @case (ALL_DATA_TYPES.DATE_RANGE) {
+                  @let dateRange = $any(columnData);
+                  @let fromDate = $any(dateRange[0])?.toString() ?? '';
+                  @let toDate = $any(dateRange[1])?.toString() ?? '';
+                  <div class="flex items-center gap-3">
+                    <span class="text-slate-700">
+                      {{ fromDate | date: column.format }}
+                      -
+                      {{ toDate | date: column.format }}
+                    </span>
+                  </div>
+                }
                 @case (ALL_DATA_TYPES.CURRENCY) {
                   @let entryType = resolveNestedProperty(rowData, 'transactionType');
                   @let colorClass =

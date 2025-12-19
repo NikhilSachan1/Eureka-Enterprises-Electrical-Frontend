@@ -23,6 +23,6 @@ export interface ILeave
   > {
   employeeName: string;
   employeeCode: string;
-  leaveDate: string;
+  leaveDate: string[];
   originalRawData: ILeaveGetBaseResponseDto;
 }
