@@ -33,7 +33,6 @@ export const DELETE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSetti
     ...CONFIRMATION_DIALOG_CONFIG,
     header: 'Delete Confirmation',
     icon: ICONS.ACTIONS.TRASH,
-    iconContainerClass: 'bg-red-500 text-white',
     message:
       'Are you sure you want to delete this item? This action cannot be undone.',
   };
@@ -43,7 +42,6 @@ export const APPROVE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSett
     ...CONFIRMATION_DIALOG_CONFIG,
     header: 'Approve Confirmation',
     icon: ICONS.ACTIONS.CHECK,
-    iconContainerClass: 'bg-green-500 text-white',
     message: 'Are you sure you want to approve this item?',
   };
 
@@ -52,7 +50,6 @@ export const REJECT_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSetti
     ...CONFIRMATION_DIALOG_CONFIG,
     header: 'Reject Confirmation',
     icon: ICONS.ACTIONS.TIMES,
-    iconContainerClass: 'bg-orange-500 text-white',
     message: 'Are you sure you want to reject this item?',
   };
 
@@ -61,7 +58,6 @@ export const CANCEL_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSetti
     ...CONFIRMATION_DIALOG_CONFIG,
     header: 'Cancel Confirmation',
     icon: ICONS.ACTIONS.BAN,
-    iconContainerClass: 'bg-yellow-500 text-white',
     message: 'Are you sure you want to cancel this item?',
   };
 
@@ -70,6 +66,5 @@ export const REGULARIZE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogS
     ...CONFIRMATION_DIALOG_CONFIG,
     header: 'Regularize Confirmation',
     icon: ICONS.ATTENDANCE.REGULARIZE,
-    iconContainerClass: 'bg-yellow-500 text-white',
     message: 'Are you sure you want to regularize this item?',
   };

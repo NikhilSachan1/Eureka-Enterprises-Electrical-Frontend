@@ -51,3 +51,4 @@ export {
 } from './common-table-actions.config';
 export { COMMON_FORM_ACTIONS } from './common-form-actions.config';
 export { DEFAULT_READ_MORE_CONFIG } from './read-more.config';
+export { STATUS_COLOR_GROUPS } from './status-color.config';

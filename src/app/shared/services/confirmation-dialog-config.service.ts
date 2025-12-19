@@ -9,7 +9,7 @@ import {
   EDialogType,
   EButtonActionType,
 } from '@shared/types';
-import { deepMerge } from '@shared/utility';
+import { deepMerge, ColorUtil } from '@shared/utility';
 import {
   APPROVE_CONFIRMATION_DIALOG_CONFIG,
   CANCEL_CONFIRMATION_DIALOG_CONFIG,
@@ -72,10 +72,18 @@ export class ConfirmationDialogService {
       this.defaultConfigs[dialogType] ||
       this.defaultConfigs[EDialogType.DEFAULT];
     const dialogSettingConfig = config?.dialogSettingConfig ?? {};
-    return deepMerge(
+
+    const mergedConfig = deepMerge(
       defaultConfig,
       dialogSettingConfig
     ) as IConfirmationDialogSettingConfig;
+
+    if (!dialogSettingConfig.iconContainerClass) {
+      const colorClasses = ColorUtil.getColorClass(dialogType);
+      mergedConfig.iconContainerClass = `${colorClasses.bg} ${colorClasses.border} ${colorClasses.text}`;
+    }
+
+    return mergedConfig;
   }
 
   createDialogConfig(
