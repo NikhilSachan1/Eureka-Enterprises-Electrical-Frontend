@@ -26,11 +26,13 @@ export class TableServerSideParamsBuilderService {
    * @param filterData - The PrimeNG lazy load event containing pagination, sorting, and filters
    * @param headers - Table header configuration defining field mappings
    * @param defaultPageSize - Optional default page size if not specified in filterData
+   * @param initialParams - Optional initial params to merge when filters are empty (first load)
    * @returns A record of query parameters ready for API consumption
    */
   buildQueryParams<T extends Record<string, unknown>>(
     filterData: TableLazyLoadEvent,
     headers: IDataTableHeaderConfig[],
+    initialParams?: Partial<T>,
     defaultPageSize?: number
   ): T {
     const { page, pageSize } = this.resolvePagination(
@@ -44,7 +46,11 @@ export class TableServerSideParamsBuilderService {
         ? filterData.globalFilter.trim()
         : undefined;
 
+    const hasFilters =
+      filterData.filters && Object.keys(filterData.filters).length > 0;
+
     const params: Record<string, unknown> = {
+      ...(hasFilters ? {} : (initialParams ?? {})),
       page,
       pageSize,
       sortField,

@@ -75,7 +75,9 @@ export class SearchFilterComponent implements OnInit {
   protected onReset(): void {
     this.form.formGroup.reset();
     if (this.hasSearched) {
-      this.tableRef().reset();
+      const table = this.tableRef();
+      table.filters = {};
+      table.reset();
     }
     this.hasSearched = false;
   }

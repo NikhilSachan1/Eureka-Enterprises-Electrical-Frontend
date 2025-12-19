@@ -22,6 +22,7 @@ import {
 } from '@shared/services';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import {
+  EApprovalStatus,
   EButtonActionType,
   EDataType,
   EDialogType,
@@ -143,13 +144,15 @@ export class GetExpenseComponent implements OnInit {
   }
 
   private prepareParamData(): IExpenseGetRequestDto {
-    const queryFilterParams =
-      this.tableServerSideFilterAndSortService.buildQueryParams<IExpenseGetRequestDto>(
-        this.tableFilterData,
-        this.table.getHeaders()
-      );
+    const initialFilterData: Partial<IExpenseGetRequestDto> = {
+      approvalStatuses: [EApprovalStatus.APPROVED, EApprovalStatus.REJECTED],
+    };
 
-    return queryFilterParams;
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IExpenseGetRequestDto>(
+      this.tableFilterData,
+      this.table.getHeaders(),
+      initialFilterData
+    );
   }
 
   private mapTableData(response: IExpenseGetBaseResponseDto[]): IExpense[] {
