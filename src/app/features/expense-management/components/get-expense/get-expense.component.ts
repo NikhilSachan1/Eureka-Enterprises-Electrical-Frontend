@@ -170,6 +170,7 @@ export class GetExpenseComponent implements OnInit {
         expenseAmount: record.amount,
         fileKeys: record.fileKeys,
         transactionType: record.transactionType,
+        description: record.description,
         originalRawData: record,
       };
     });

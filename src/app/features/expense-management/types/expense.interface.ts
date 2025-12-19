@@ -7,7 +7,6 @@ export interface IExpense
   extends Omit<
     IExpenseGetBaseResponseDto,
     | 'userId'
-    | 'description'
     | 'transactionId'
     | 'approvalBy'
     | 'approvalAt'

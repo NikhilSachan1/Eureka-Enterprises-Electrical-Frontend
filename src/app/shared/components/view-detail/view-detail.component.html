@@ -35,9 +35,9 @@
     <div class="space-y-2 mb-4">
       @for (entry of detail.entryData; track entry.label) {
         @if (entry.type !== ALL_DATA_TYPES.ATTACHMENTS) {
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-700">{{ entry.label }}:</span>
-            <span class="text-sm font-medium text-gray-900">
+          <div class="flex justify-between gap-4">
+            <span class="text-sm text-gray-700 flex-shrink-0">{{ entry.label }}:</span>
+            <span class="text-sm font-medium text-gray-900 text-right flex-1">
               @if (entry.value) {
                 @if (entry.type === ALL_DATA_TYPES.DATE) {
                   {{ entry.value.toString() | date: entry.format }}

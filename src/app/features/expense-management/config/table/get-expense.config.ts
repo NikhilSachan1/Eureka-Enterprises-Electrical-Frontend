@@ -61,6 +61,12 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'description',
+    header: 'Notes',
+    bodyTemplate: EDataType.TEXT_WITH_READ_MORE,
+    showSort: false,
+  },
+  {
     field: 'fileKeys',
     header: 'Attachments',
     bodyTemplate: EDataType.ATTACHMENTS,
