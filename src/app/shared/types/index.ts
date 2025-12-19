@@ -1,14 +1,9 @@
 export {
   EDialogType,
   EDialogPosition,
-  EConfirmationDialogRecordDetailInputType,
 } from './confirmation-dialog/confirmation-dialog.types';
 export {
-  EDataTableInputType,
   ETableActionTypeValue,
-  ETableBodyTemplate,
-  ETableDataType,
-  ETableSearchInputType,
   ETableFilterDisplayType,
   ETableFilterOperator,
   ETableFilterMatchMode,
@@ -17,7 +12,6 @@ export {
   EFileMode,
   EHourFormat,
   ECalendarView,
-  EFieldType,
   EFloatLabelVariant,
   EFieldSize,
   EAutocomplete,
@@ -45,7 +39,7 @@ export {
   EButtonActionType,
 } from './button/button.types';
 export { ETabMode } from './nav-tabs/tab-items.types';
-export { EDrawerPosition, EDrawerDetailType } from './drawer/drawer.types';
+export { EDrawerPosition } from './drawer/drawer.types';
 
 export type {
   IConfirmationDialogSettingConfig,
@@ -120,8 +114,6 @@ export type {
   IDrawerState,
   IEnhancedDrawer,
   IDrawerEvent,
-  IDrawerDetail,
-  IDrawerEmployeeDetails,
 } from './drawer/drawer.interface';
 export type {
   IGalleryConfig,
@@ -138,3 +130,8 @@ export type {
   IAttachmentsGetRequestDto,
   IAttachmentsGetResponseDto,
 } from './gallery/attachments.dto';
+export type {
+  IEmployeeViewDetails,
+  IDataViewDetails,
+} from './detail-display/detail-display.interface';
+export { EDataType } from './common/data-types.type';

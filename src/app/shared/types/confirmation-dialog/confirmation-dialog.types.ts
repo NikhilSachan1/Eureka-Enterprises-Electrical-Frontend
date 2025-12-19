@@ -1,5 +1,3 @@
-import { EDataTableInputType } from '@shared/types/data-table/data-table.types';
-
 export enum EDialogType {
   DEFAULT = 'default',
   DELETE = 'delete',
@@ -19,11 +17,4 @@ export enum EDialogPosition {
   TOP_RIGHT = 'topright',
   BOTTOM_LEFT = 'bottomleft',
   BOTTOM_RIGHT = 'bottomright',
-}
-
-export enum EConfirmationDialogRecordDetailInputType {
-  TEXT = EDataTableInputType.TEXT,
-  NUMBER = EDataTableInputType.NUMBER,
-  DATE = EDataTableInputType.DATE,
-  CURRENCY = EDataTableInputType.CURRENCY,
 }

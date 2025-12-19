@@ -8,7 +8,7 @@ import {
 import { ICONS } from '@shared/constants/icon.constants';
 import {
   EButtonActionType,
-  EFieldType,
+  EDataType,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
@@ -16,7 +16,7 @@ import {
 
 const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   locationName: {
-    fieldType: EFieldType.Select,
+    fieldType: EDataType.SELECT,
     id: 'locationName',
     fieldName: 'locationName',
     label: 'Location',
@@ -26,7 +26,7 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required],
   },
   clientName: {
-    fieldType: EFieldType.Select,
+    fieldType: EDataType.SELECT,
     id: 'clientName',
     fieldName: 'clientName',
     label: 'Client',
@@ -36,7 +36,7 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required],
   },
   associateEngineerName: {
-    fieldType: EFieldType.Select,
+    fieldType: EDataType.SELECT,
     id: 'associateEngineerName',
     fieldName: 'associateEngineerName',
     label: 'Associate Engineer',
@@ -46,7 +46,7 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required],
   },
   associatedVehicle: {
-    fieldType: EFieldType.Select,
+    fieldType: EDataType.SELECT,
     id: 'associatedVehicle',
     fieldName: 'associatedVehicle',
     label: 'Associated Vehicle',

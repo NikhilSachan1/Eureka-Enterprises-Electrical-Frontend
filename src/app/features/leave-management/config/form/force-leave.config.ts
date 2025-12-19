@@ -1,5 +1,5 @@
 import {
-  EFieldType,
+  EDataType,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
@@ -14,7 +14,7 @@ const {
 
 const FORCE_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   employeeName: {
-    fieldType: EFieldType.Select,
+    fieldType: EDataType.SELECT,
     id: 'employeeName',
     fieldName: 'employeeName',
     label: 'Employee Name',

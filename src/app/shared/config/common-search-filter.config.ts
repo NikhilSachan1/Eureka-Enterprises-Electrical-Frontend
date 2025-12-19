@@ -1,5 +1,5 @@
 import {
-  EFieldType,
+  EDataType,
   ETableFilterMatchMode,
   EDateSelectionMode,
 } from '@shared/types';
@@ -7,7 +7,7 @@ import { EMPLOYEE_NAME_DATA, APPROVAL_STATUS_DATA } from './static-data.config';
 
 export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
   employeeName: {
-    fieldType: EFieldType.MultiSelect,
+    fieldType: EDataType.MULTI_SELECT,
     id: 'employeeName',
     fieldName: 'employeeName',
     label: 'Employee Name',
@@ -17,7 +17,7 @@ export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
     matchmode: ETableFilterMatchMode.IN,
   },
   dateRange: {
-    fieldType: EFieldType.Date,
+    fieldType: EDataType.DATE,
     id: 'dateRange',
     fieldName: 'dateRange',
     label: 'Date Range',
@@ -27,7 +27,7 @@ export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
     matchmode: ETableFilterMatchMode.BETWEEN,
   },
   approvalStatus: {
-    fieldType: EFieldType.MultiSelect,
+    fieldType: EDataType.MULTI_SELECT,
     id: 'approvalStatus',
     fieldName: 'approvalStatus',
     label: 'Approval Status',
@@ -39,7 +39,7 @@ export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
     matchmode: ETableFilterMatchMode.IN,
   },
   globalSearch: {
-    fieldType: EFieldType.Text,
+    fieldType: EDataType.TEXT,
     id: 'globalSearch',
     fieldName: 'globalSearch',
     label: 'Search',

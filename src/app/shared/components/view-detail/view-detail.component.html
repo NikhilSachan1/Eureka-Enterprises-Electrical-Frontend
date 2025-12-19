@@ -1,16 +1,18 @@
-<div class="flex items-center gap-3 mb-4">
-  <img
-    [src]="_avtarImageUrl()"
-    [alt]="drawerEmployeeDetails()?.name"
-    class="w-8 h-8 rounded-full bg-slate-100"
-    loading="lazy"
-  />
+@if (drawerEmployeeDetails()) {
+  <div class="flex items-center gap-3 mb-4">
+    <img
+      [src]="_avtarImageUrl()"
+      [alt]="drawerEmployeeDetails()?.name"
+      class="w-8 h-8 rounded-full bg-slate-100"
+      loading="lazy"
+    />
 
-  <div>
-    <h3 class="text-sm font-semibold text-slate-800">{{ drawerEmployeeDetails()?.name }}</h3>
-    <p class="text-xs text-slate-500">{{ drawerEmployeeDetails()?.employeeCode }}</p>
+    <div>
+      <h3 class="text-sm font-semibold text-slate-800">{{ drawerEmployeeDetails()?.name }}</h3>
+      <p class="text-xs text-slate-500">{{ drawerEmployeeDetails()?.employeeCode }}</p>
+    </div>
   </div>
-</div>
+}
 
 @for (detail of drawerDetails(); track $index) {
   @let colorClass = getColor(detail.status.approvalStatus);
@@ -34,18 +36,18 @@
           <span class="text-sm text-gray-700">{{ entry.label }}:</span>
           <span class="text-sm font-medium text-gray-900">
             @if (entry.value) {
-              @if (entry.type === ALL_DRAWER_DETAIL_TYPES.DATE) {
+              @if (entry.type === ALL_DATA_TYPES.DATE) {
                 {{ entry.value.toString() | date: entry.format }}
-              } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.TIME) {
+              } @else if (entry.type === ALL_DATA_TYPES.TIME) {
                 {{ entry.value.toString() | date: entry.format }}
-              } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.DURATION) {
+              } @else if (entry.type === ALL_DATA_TYPES.DURATION) {
                 {{ +entry.value | secondsToDhms }}
-              } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.STATUS) {
+              } @else if (entry.type === ALL_DATA_TYPES.STATUS) {
                 @let colorClass = getColor(entry.value.toString());
                 <span [ngClass]="`${colorClass.text}`">
                   {{ entry.value.toString() | textCase: 'title' }}
                 </span>
-              } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.CURRENCY) {
+              } @else if (entry.type === ALL_DATA_TYPES.CURRENCY) {
                 <span
                   [ngClass]="
                     entry.metadata?.transactionType === 'credit'
@@ -55,7 +57,7 @@
                 >
                   {{ entry.value.toString() | currency: entry.format }}
                 </span>
-              } @else if (entry.type === ALL_DRAWER_DETAIL_TYPES.ATTACHMENTS) {
+              } @else if (entry.type === ALL_DATA_TYPES.ATTACHMENTS) {
                 <app-button
                   [buttonConfig]="getAttachmentButtonConfig($any(entry.value).length)"
                   (onButtonClick)="viewAttachment($any(entry.value))"

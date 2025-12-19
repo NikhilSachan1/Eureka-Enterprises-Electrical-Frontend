@@ -5,7 +5,7 @@ import {
   PAYSLIP_DATE_DATA,
 } from '@shared/config/static-data.config';
 import {
-  EFieldType,
+  EDataType,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
@@ -28,7 +28,7 @@ const {
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   employeeName: {
-    fieldType: EFieldType.MultiSelect,
+    fieldType: EDataType.MULTI_SELECT,
     id: 'employeeName',
     fieldName: 'employeeName',
     label: 'Employee Name',
@@ -38,7 +38,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required],
   },
   date: {
-    fieldType: EFieldType.Date,
+    fieldType: EDataType.DATE,
     id: 'date',
     fieldName: 'date',
     label: 'Date',
@@ -49,7 +49,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required],
   },
   attendanceStatus: {
-    fieldType: EFieldType.Select,
+    fieldType: EDataType.SELECT,
     id: 'attendanceStatus',
     fieldName: 'attendanceStatus',
     label: 'Attendance Status',
@@ -64,7 +64,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required],
   },
   forceReason: {
-    fieldType: EFieldType.TextArea,
+    fieldType: EDataType.TEXT_AREA,
     id: 'forceReason',
     fieldName: 'forceReason',
     label: 'Force Reason',

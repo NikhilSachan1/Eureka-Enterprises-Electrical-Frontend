@@ -6,11 +6,9 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { AppConfigService, LoggerService } from '@core/services';
+import { AppConfigService } from '@core/services';
 import {
-  IDrawerDetail,
-  IDrawerEmployeeDetails,
-  EDrawerDetailType,
+  EDataType,
   EPrimeNGSeverity,
   IGalleryInputData,
   IButtonConfig,
@@ -18,14 +16,12 @@ import {
   EButtonSize,
   EButtonBadgeSeverity,
   EButtonVariant,
+  IDataViewDetails,
+  IEmployeeViewDetails,
 } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
-import {
-  AttachmentsService,
-  AvatarService,
-  GalleryService,
-} from '@shared/services';
+import { AvatarService, GalleryService } from '@shared/services';
 import { ColorUtil } from '@shared/utility';
 import { ICONS } from '@shared/constants';
 import { CardModule } from 'primeng/card';
@@ -34,7 +30,7 @@ import { Tag } from 'primeng/tag';
 import { ButtonComponent } from '../button/button.component';
 
 @Component({
-  selector: 'app-view-detail-drawer',
+  selector: 'app-view-detail',
   imports: [
     CardModule,
     Tag,
@@ -46,23 +42,21 @@ import { ButtonComponent } from '../button/button.component';
     CurrencyPipe,
     ButtonComponent,
   ],
-  templateUrl: './view-detail-drawer.component.html',
-  styleUrl: './view-detail-drawer.component.scss',
+  templateUrl: './view-detail.component.html',
+  styleUrl: './view-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ViewDetailDrawerComponent {
+export class ViewDetailComponent {
   private readonly avatarService = inject(AvatarService);
-  private readonly attachmentsService = inject(AttachmentsService);
   private readonly galleryService = inject(GalleryService);
-  private readonly logger = inject(LoggerService);
   protected readonly appConfigService = inject(AppConfigService);
 
   protected readonly _avtarImageUrl = computed(() => this.getAvatarUrl());
 
-  drawerDetails = input<IDrawerDetail[]>();
-  drawerEmployeeDetails = input<IDrawerEmployeeDetails>();
+  drawerDetails = input<IDataViewDetails[]>();
+  drawerEmployeeDetails = input<IEmployeeViewDetails>();
 
-  protected readonly ALL_DRAWER_DETAIL_TYPES = EDrawerDetailType;
+  protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly icons = ICONS;
 
   protected getApprovalStatusColor(status: string): EPrimeNGSeverity {

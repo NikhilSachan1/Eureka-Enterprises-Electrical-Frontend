@@ -1,7 +1,4 @@
-import {
-  EConfirmationDialogRecordDetailInputType,
-  EDialogPosition,
-} from '@shared/types';
+import { EDataType, EDialogPosition } from '@shared/types';
 import { IButtonConfig } from '@shared/types/button/button.interface';
 import { Type } from '@angular/core';
 
@@ -27,7 +24,7 @@ export interface IConfirmationDialogRecordDetailConfig {
   details: {
     label: string;
     value: string | number | Date;
-    type?: EConfirmationDialogRecordDetailInputType;
+    type?: EDataType;
   }[];
 }
 

@@ -6,7 +6,7 @@ import {
   EXPENSE_PAYMENT_METHOD_DATA,
 } from '@shared/config/static-data.config';
 import {
-  EFieldType,
+  EDataType,
   EInputNumberMode,
   IFormButtonConfig,
   IFormConfig,
@@ -19,7 +19,7 @@ import {
 
 const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   expenseType: {
-    fieldType: EFieldType.Select,
+    fieldType: EDataType.SELECT,
     id: 'expenseType',
     fieldName: 'expenseType',
     label: 'Expense Type',
@@ -33,7 +33,7 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required],
   },
   paymentMode: {
-    fieldType: EFieldType.Select,
+    fieldType: EDataType.SELECT,
     id: 'paymentMode',
     fieldName: 'paymentMode',
     label: 'Payment Mode',
@@ -43,7 +43,7 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required],
   },
   expenseDate: {
-    fieldType: EFieldType.Date,
+    fieldType: EDataType.DATE,
     id: 'expenseDate',
     fieldName: 'expenseDate',
     label: 'Date of Expense',
@@ -54,7 +54,7 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required],
   },
   expenseAmount: {
-    fieldType: EFieldType.Number,
+    fieldType: EDataType.NUMBER,
     id: 'expenseAmount',
     fieldName: 'expenseAmount',
     label: 'Expense Amount',
@@ -65,20 +65,20 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [Validators.required, Validators.min(1)],
   },
   transactionId: {
-    fieldType: EFieldType.Text,
+    fieldType: EDataType.TEXT,
     id: 'transactionId',
     fieldName: 'transactionId',
     label: 'Transaction ID / Receipt Number / UTR Number',
   },
   description: {
-    fieldType: EFieldType.TextArea,
+    fieldType: EDataType.TEXT_AREA,
     id: 'description',
     fieldName: 'description',
     label: 'Description',
     validators: [Validators.required],
   },
   attachment: {
-    fieldType: EFieldType.File,
+    fieldType: EDataType.ATTACHMENTS,
     id: 'attachment',
     fieldName: 'attachment',
     label: 'Attachment',

@@ -169,7 +169,7 @@
               />
             } @else {
               @switch (bodyTemplate) {
-                @case (ALL_TABLE_BODY_TEMPLATES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
+                @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
                   @let config = column.textWithSubtitleAndImageConfig;
 
                   <div class="flex items-center gap-3">
@@ -237,7 +237,7 @@
                     </div>
                   </div>
                 }
-                @case (ALL_TABLE_BODY_TEMPLATES.STATUS) {
+                @case (ALL_DATA_TYPES.STATUS) {
                   @let statusConfig = column.statusConfig;
                   @let statusValue = columnData;
 
@@ -248,12 +248,12 @@
                     />
                   </div>
                 }
-                @case (ALL_TABLE_BODY_TEMPLATES.DATE) {
+                @case (ALL_DATA_TYPES.DATE) {
                   <div class="flex items-center gap-3">
                     <span class="text-slate-700">{{ columnData | date: column.dateFormat }}</span>
                   </div>
                 }
-                @case (ALL_TABLE_BODY_TEMPLATES.CURRENCY) {
+                @case (ALL_DATA_TYPES.CURRENCY) {
                   @let entryType = resolveNestedProperty(rowData, 'transactionType');
                   @let colorClass =
                     entryType === 'credit'
@@ -266,7 +266,7 @@
                     <span [ngClass]="colorClass">{{ columnData | currency: column.currencyFormat }}</span>
                   </div>
                 }
-                @case (ALL_TABLE_BODY_TEMPLATES.FILE_LINK) {
+                @case (ALL_DATA_TYPES.ATTACHMENTS) {
                   <div class="flex items-center gap-1">
                     @if (columnData && columnData.length > 0) {
                       <app-chip
@@ -288,7 +288,7 @@
                     }
                   </div>
                 }
-                @case (ALL_TABLE_BODY_TEMPLATES.TEXT_WITH_READ_MORE) {
+                @case (ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
                   <app-read-more
                     [text]="columnData"
                     [readMoreConfig]="column.readMoreConfig"

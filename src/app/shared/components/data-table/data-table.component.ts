@@ -32,8 +32,8 @@ import {
   IButtonConfig,
   ITableActionClickEvent,
   EButtonActionType,
-  ETableBodyTemplate,
   IGalleryInputData,
+  EDataType,
 } from '@shared/types';
 import {
   CurrencyPipe,
@@ -84,7 +84,7 @@ import { ReadMoreComponent } from '../read-more/read-more.component';
 export class DataTableComponent {
   readonly dt = viewChild.required<Table>('dt');
 
-  protected ALL_TABLE_BODY_TEMPLATES = ETableBodyTemplate;
+  protected ALL_DATA_TYPES = EDataType;
   protected icons = ICONS;
 
   private avatarService = inject(AvatarService);

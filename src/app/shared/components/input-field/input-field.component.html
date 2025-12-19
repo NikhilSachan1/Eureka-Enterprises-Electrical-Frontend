@@ -14,7 +14,7 @@
   }
 
   @switch (inputFieldConfig().fieldType) {
-    @case (ALL_FIELD_TYPES.Text) {
+    @case (ALL_DATA_TYPES.TEXT) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         <input
           pInputText
@@ -32,7 +32,7 @@
         }
       </p-floatlabel>
     }
-    @case (ALL_FIELD_TYPES.Number) {
+    @case (ALL_DATA_TYPES.NUMBER) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let numberConfig = inputFieldConfig().numberConfig || {};
 
@@ -65,7 +65,7 @@
         }
       </p-floatlabel>
     }
-    @case (ALL_FIELD_TYPES.Select) {
+    @case (ALL_DATA_TYPES.SELECT) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let selectConfig = inputFieldConfig().selectConfig;
         @let optionsDropdownLength = selectConfig?.optionsDropdown?.length;
@@ -100,7 +100,7 @@
         }
       </p-floatlabel>
     }
-    @case (ALL_FIELD_TYPES.MultiSelect) {
+    @case (ALL_DATA_TYPES.MULTI_SELECT) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let multiSelectConfig = inputFieldConfig().multiSelectConfig;
         @let optionsDropdownLength = multiSelectConfig?.optionsDropdown?.length;
@@ -134,7 +134,7 @@
         }
       </p-floatlabel>
     }
-    @case (ALL_FIELD_TYPES.Date) {
+    @case (ALL_DATA_TYPES.DATE) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let dateConfig = inputFieldConfig().dateConfig;
 
@@ -165,7 +165,7 @@
         }
       </p-floatlabel>
     }
-    @case (ALL_FIELD_TYPES.Password) {
+    @case (ALL_DATA_TYPES.PASSWORD) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let passwordConfig = inputFieldConfig().passwordConfig;
 
@@ -190,7 +190,7 @@
         }
       </p-floatlabel>
     }
-    @case (ALL_FIELD_TYPES.Checkbox) {
+    @case (ALL_DATA_TYPES.CHECKBOX) {
       <label [for]="`checkbox-${inputFieldConfig().id}`">{{ inputFieldConfig().label }}</label>
 
       @let checkboxConfig = inputFieldConfig().checkboxConfig;
@@ -219,7 +219,7 @@
         }
       </div>
     }
-    @case (ALL_FIELD_TYPES.Radio) {
+    @case (ALL_DATA_TYPES.RADIO) {
       <label [for]="`radio-${inputFieldConfig().id}`">{{ inputFieldConfig().label }}</label>
 
       @let radioConfig = inputFieldConfig().radioConfig;
@@ -244,7 +244,7 @@
         }
       </div>
     }
-    @case (ALL_FIELD_TYPES.File) {
+    @case (ALL_DATA_TYPES.ATTACHMENTS) {
       @let fileConfig = inputFieldConfig().fileConfig;
 
       <div
@@ -441,7 +441,7 @@
         </p-fileupload>
       </div>
     }
-    @case (ALL_FIELD_TYPES.TextArea) {
+    @case (ALL_DATA_TYPES.TEXT_AREA) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let textAreaConfig = inputFieldConfig().textAreaConfig;
 
@@ -463,7 +463,7 @@
         }
       </p-floatlabel>
     }
-    @case (ALL_FIELD_TYPES.Individual_Number) {
+    @case (ALL_DATA_TYPES.INDIVIDUAL_NUMBER) {
       @let individualNumberConfig = inputFieldConfig().individualNumberConfig;
 
       <p-inputotp

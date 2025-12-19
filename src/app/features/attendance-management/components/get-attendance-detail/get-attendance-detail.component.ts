@@ -18,18 +18,18 @@ import {
   IAttendanceHistoryGetResponseDto,
 } from '../../types/attendance.dto';
 import {
-  EDrawerDetailType,
-  IDrawerDetail,
-  IDrawerEmployeeDetails,
+  EDataType,
+  IDataViewDetails,
+  IEmployeeViewDetails,
 } from '@shared/types';
-import { ViewDetailDrawerComponent } from '@shared/components/view-detail-drawer/view-detail-drawer.component';
+import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { AppConfigService, AppPermissionService } from '@core/services';
 import { PERMISSION_KEYS } from '@shared/constants';
 import { stringToArray } from '@shared/utility';
 
 @Component({
   selector: 'app-get-attendance-detail',
-  imports: [CardModule, ViewDetailDrawerComponent],
+  imports: [CardModule, ViewDetailComponent],
   templateUrl: './get-attendance-detail.component.html',
   styleUrl: './get-attendance-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,9 +46,9 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   protected readonly _employeeDetails = computed(() =>
     this.getEmployeeDetails()
   );
-  protected readonly _attendanceDetails = signal<IDrawerDetail[]>([]);
+  protected readonly _attendanceDetails = signal<IDataViewDetails[]>([]);
 
-  protected readonly ALL_DRAWER_DETAIL_TYPES = EDrawerDetailType;
+  protected readonly ALL_DATA_TYPES = EDataType;
 
   override onDrawerShow(): void {
     this.loadAttendanceDetails();
@@ -91,44 +91,44 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
 
   private mapDetailData(
     response: IAttendanceHistoryGetResponseDto
-  ): IDrawerDetail[] {
+  ): IDataViewDetails[] {
     return response.map(record => {
       const siteLocation = stringToArray(record.notes, '-')[0] || '';
       const clientName = stringToArray(record.notes, '-')[1] || '';
 
-      const entryData: IDrawerDetail['entryData'] = [
+      const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Date',
           value: record.attendanceDate,
-          type: EDrawerDetailType.DATE,
+          type: EDataType.DATE,
           format: this.appConfigService.dateFormats.DEFAULT,
         },
         {
           label: 'Check-in',
           value: record.checkInTime,
-          type: EDrawerDetailType.TIME,
+          type: EDataType.TIME,
           format: this.appConfigService.timeFormats.DEFAULT,
         },
         {
           label: 'Check-out',
           value: record.checkOutTime,
-          type: EDrawerDetailType.TIME,
+          type: EDataType.TIME,
           format: this.appConfigService.timeFormats.DEFAULT,
         },
         {
           label: 'Work Duration',
           value: record.workDuration as unknown as string,
-          type: EDrawerDetailType.DURATION,
+          type: EDataType.DURATION,
         },
         {
           label: 'Status',
           value: record.status,
-          type: EDrawerDetailType.STATUS,
+          type: EDataType.STATUS,
         },
         {
           label: 'Site Location',
           value: siteLocation,
-          type: EDrawerDetailType.NOTES,
+          type: EDataType.TEXT,
         },
       ];
 
@@ -140,7 +140,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         entryData.push({
           label: 'Client Name',
           value: clientName,
-          type: EDrawerDetailType.NOTES,
+          type: EDataType.TEXT,
         });
       }
 
@@ -152,13 +152,13 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         entryData.push({
           label: 'Associate Engineer',
           value: 'John Doe', // TODO: Replace hard-coded name with associate employee name once associate employee mapping is available from backend.
-          type: EDrawerDetailType.NOTES,
+          type: EDataType.TEXT,
         });
       }
       entryData.push({
         label: 'Associated Vehicle',
         value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
-        type: EDrawerDetailType.NOTES,
+        type: EDataType.TEXT,
       });
 
       return {
@@ -184,7 +184,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
     });
   }
 
-  protected getEmployeeDetails(): IDrawerEmployeeDetails {
+  protected getEmployeeDetails(): IEmployeeViewDetails {
     const { user } = this.drawerData.attendance;
     return {
       name: `${user.firstName} ${user.lastName}`,

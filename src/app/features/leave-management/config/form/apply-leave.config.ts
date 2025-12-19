@@ -1,7 +1,7 @@
 import { Validators } from '@angular/forms';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
-  EFieldType,
+  EDataType,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
@@ -10,7 +10,7 @@ import { getDateBeforeXDays } from '@shared/utility';
 
 const APPLY_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   leaveDate: {
-    fieldType: EFieldType.Date,
+    fieldType: EDataType.DATE,
     id: 'leaveDate',
     fieldName: 'leaveDate',
     label: 'Date of Leaves',
@@ -22,7 +22,7 @@ const APPLY_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   },
 
   description: {
-    fieldType: EFieldType.TextArea,
+    fieldType: EDataType.TEXT_AREA,
     id: 'description',
     fieldName: 'description',
     label: 'Reason for Leave',

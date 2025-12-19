@@ -3,7 +3,7 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
   IFormButtonConfig,
-  EFieldType,
+  EDataType,
   EFieldSize,
   EButtonSize,
   EButtonSeverity,
@@ -12,7 +12,7 @@ import {
 
 const RESET_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig = {
   password: {
-    fieldType: EFieldType.Password,
+    fieldType: EDataType.PASSWORD,
     id: 'password',
     fieldName: 'password',
     label: 'New Password',
@@ -30,7 +30,7 @@ const RESET_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig = {
     },
   },
   confirmPassword: {
-    fieldType: EFieldType.Password,
+    fieldType: EDataType.PASSWORD,
     id: 'confirmPassword',
     fieldName: 'confirmPassword',
     label: 'Confirm New Password',

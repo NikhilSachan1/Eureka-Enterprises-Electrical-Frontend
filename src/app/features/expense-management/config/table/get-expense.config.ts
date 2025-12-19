@@ -3,8 +3,7 @@ import { IExpenseGetResponseDto } from '@features/expense-management/types/expen
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
-  ETableBodyTemplate,
-  ETableDataType,
+  EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
@@ -22,7 +21,7 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'employeeName',
     header: 'Employee Name',
-    bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
     textWithSubtitleAndImageConfig: {
       secondaryField: 'employeeCode',
       showImage: true,
@@ -37,8 +36,8 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'expenseDate',
     header: 'Expense Date',
-    bodyTemplate: ETableBodyTemplate.DATE,
-    dataType: ETableDataType.DATE,
+    bodyTemplate: EDataType.DATE,
+    dataType: EDataType.DATE,
     serverSideFilterAndSortConfig: {
       sortField: 'expenseDate',
       filterField: 'expenseDate',
@@ -47,8 +46,8 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'expenseType',
     header: 'Expense Type',
-    bodyTemplate: ETableBodyTemplate.TEXT,
-    dataType: ETableDataType.TEXT,
+    bodyTemplate: EDataType.TEXT,
+    dataType: EDataType.TEXT,
     serverSideFilterAndSortConfig: {
       sortField: 'category',
       filterField: 'categories',
@@ -58,21 +57,21 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'expenseAmount',
     header: 'Amount',
-    bodyTemplate: ETableBodyTemplate.CURRENCY,
-    dataType: ETableDataType.NUMBER,
+    bodyTemplate: EDataType.CURRENCY,
+    dataType: EDataType.NUMBER,
     currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
     showSort: false,
   },
   {
     field: 'fileKeys',
     header: 'Attachments',
-    bodyTemplate: ETableBodyTemplate.FILE_LINK,
+    bodyTemplate: EDataType.ATTACHMENTS,
     showSort: false,
   },
   {
     field: 'approvalStatus',
     header: 'Approval Status',
-    bodyTemplate: ETableBodyTemplate.STATUS,
+    bodyTemplate: EDataType.STATUS,
     serverSideFilterAndSortConfig: {
       filterField: 'approvalStatuses',
     },

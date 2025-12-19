@@ -16,11 +16,11 @@ import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { LoadingService } from '@shared/services';
 import {
-  EDrawerDetailType,
-  IDrawerDetail,
-  IDrawerEmployeeDetails,
+  EDataType,
+  IDataViewDetails,
+  IEmployeeViewDetails,
 } from '@shared/types';
-import { ViewDetailDrawerComponent } from '@shared/components/view-detail-drawer/view-detail-drawer.component';
+import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
@@ -31,7 +31,7 @@ import {
 
 @Component({
   selector: 'app-get-expense-detail',
-  imports: [ViewDetailDrawerComponent],
+  imports: [ViewDetailComponent],
   templateUrl: './get-expense-detail.component.html',
   styleUrl: './get-expense-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,9 +47,9 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
   protected readonly _employeeDetails = computed(() =>
     this.getEmployeeDetails()
   );
-  protected readonly _expenseDetails = signal<IDrawerDetail[]>([]);
+  protected readonly _expenseDetails = signal<IDataViewDetails[]>([]);
 
-  protected readonly ALL_DRAWER_DETAIL_TYPES = EDrawerDetailType;
+  protected readonly ALL_DATA_TYPES = EDataType;
 
   override onDrawerShow(): void {
     this.loadExpenseDetails();
@@ -91,13 +91,13 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
 
   private mapDetailData(
     response: IExpenseDetailGetResponseDto
-  ): IDrawerDetail[] {
+  ): IDataViewDetails[] {
     return response.history.map(record => {
-      const entryData: IDrawerDetail['entryData'] = [
+      const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Date',
           value: record.expenseDate,
-          type: EDrawerDetailType.DATE,
+          type: EDataType.DATE,
           format: this.appConfigService.dateFormats.DEFAULT,
         },
         {
@@ -106,12 +106,12 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
             EXPENSE_CATEGORY_DATA,
             record.category
           ),
-          type: EDrawerDetailType.NOTES,
+          type: EDataType.TEXT,
         },
         {
           label: 'Amount',
           value: record.amount,
-          type: EDrawerDetailType.CURRENCY,
+          type: EDataType.CURRENCY,
           format: this.appConfigService.currencyConfig.DEFAULT,
           metadata: {
             transactionType: record.transactionType,
@@ -123,27 +123,27 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
             EXPENSE_PAYMENT_METHOD_DATA,
             record.paymentMode
           ),
-          type: EDrawerDetailType.NOTES,
+          type: EDataType.TEXT,
         },
         {
           label: 'Description',
           value: record.description,
-          type: EDrawerDetailType.NOTES,
+          type: EDataType.TEXT,
         },
         {
           label: 'Transaction ID',
           value: record.transactionId,
-          type: EDrawerDetailType.NOTES,
+          type: EDataType.TEXT,
         },
         {
           label: 'Status',
           value: record.approvalStatus,
-          type: EDrawerDetailType.STATUS,
+          type: EDataType.STATUS,
         },
         {
           label: 'Attachments',
           value: record.fileKeys,
-          type: EDrawerDetailType.ATTACHMENTS,
+          type: EDataType.ATTACHMENTS,
         },
       ];
 
@@ -174,7 +174,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
     });
   }
 
-  protected getEmployeeDetails(): IDrawerEmployeeDetails {
+  protected getEmployeeDetails(): IEmployeeViewDetails {
     const { user } = this.drawerData.expense;
     return {
       name: `${user.firstName} ${user.lastName}`,

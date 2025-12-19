@@ -6,7 +6,7 @@ import {
 } from '@shared/config/static-data.config';
 import {
   EApprovalStatus,
-  EFieldType,
+  EDataType,
   ETableFilterMatchMode,
   IFormButtonConfig,
   ITableSearchFilterFormConfig,
@@ -25,7 +25,7 @@ const SEARCH_FILTER_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
       fieldName: 'expenseDate',
     },
     expenseType: {
-      fieldType: EFieldType.MultiSelect,
+      fieldType: EDataType.MULTI_SELECT,
       id: 'expenseType',
       fieldName: 'expenseType',
       label: 'Expense Type',

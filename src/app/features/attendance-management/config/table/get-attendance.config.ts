@@ -3,8 +3,7 @@ import {
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
   ITableActionConfig,
-  ETableBodyTemplate,
-  ETableDataType,
+  EDataType,
   EButtonActionType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
@@ -23,7 +22,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
     {
       field: 'employeeName',
       header: 'Employee Name',
-      bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
+      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
       textWithSubtitleAndImageConfig: {
         secondaryField: 'employeeCode',
         showImage: true,
@@ -38,8 +37,8 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
     {
       field: 'attendanceDate',
       header: 'Attendance Date',
-      bodyTemplate: ETableBodyTemplate.DATE,
-      dataType: ETableDataType.DATE,
+      bodyTemplate: EDataType.DATE,
+      dataType: EDataType.DATE,
       serverSideFilterAndSortConfig: {
         sortField: 'ATTENDANCE_DATE',
         filterField: 'attendanceDate',
@@ -54,7 +53,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
     {
       field: 'attendanceStatus',
       header: 'Attendance Status',
-      bodyTemplate: ETableBodyTemplate.STATUS,
+      bodyTemplate: EDataType.STATUS,
       serverSideFilterAndSortConfig: {
         sortField: 'STATUS',
         filterField: 'statuses',
@@ -63,7 +62,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
     {
       field: 'approvalStatus',
       header: 'Approval Status',
-      bodyTemplate: ETableBodyTemplate.STATUS,
+      bodyTemplate: EDataType.STATUS,
       serverSideFilterAndSortConfig: {
         filterField: 'approvalStatuses',
       },

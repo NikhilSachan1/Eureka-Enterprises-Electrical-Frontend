@@ -9,13 +9,11 @@ import {
   ITableActionConfig,
   EButtonSeverity,
   EButtonVariant,
-  ETableBodyTemplate,
-  ETableDataType,
   ETableFilterDisplayType,
   ETableFilterMatchMode,
   ETableFilterOperator,
-  ETableSearchInputType,
   IReadMoreConfig,
+  EDataType,
 } from '@shared/types';
 import { DEFAULT_READ_MORE_CONFIG } from './read-more.config';
 
@@ -66,7 +64,7 @@ export const MATCH_MODE_OPTIONS = {
 };
 
 export const DEFAULT_TABLE_FILTER_CONFIG: Partial<IFilterConfig> = {
-  searchInputType: ETableSearchInputType.TEXT,
+  searchInputType: EDataType.TEXT,
   displayType: ETableFilterDisplayType.MENU,
   showMatchModes: true,
   defaultMatchMode: ETableFilterMatchMode.CONTAINS,
@@ -89,7 +87,7 @@ export const STATUS_CONFIG: IStatusConfig = {
 
 export const TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG: Partial<ITextWithSubtitleAndImageConfig> =
   {
-    dataType: ETableDataType.TEXT,
+    dataType: EDataType.TEXT,
   };
 
 export const TEXT_WITH_READ_MORE_CONFIG: Partial<IReadMoreConfig> = {
@@ -97,8 +95,8 @@ export const TEXT_WITH_READ_MORE_CONFIG: Partial<IReadMoreConfig> = {
 };
 
 export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
-  bodyTemplate: ETableBodyTemplate.TEXT,
-  dataType: ETableDataType.TEXT,
+  bodyTemplate: EDataType.TEXT,
+  dataType: EDataType.TEXT,
   dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
   currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
   textWithSubtitleAndImageConfig: TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG,

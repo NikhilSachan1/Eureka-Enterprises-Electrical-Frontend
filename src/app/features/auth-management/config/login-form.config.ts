@@ -3,21 +3,21 @@ import {
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
-  EFieldType,
+  EDataType,
   EFieldSize,
   EButtonSize,
   EButtonSeverity,
 } from '@shared/types';
 const LOGIN_FIELDS_CONFIG: IFormInputFieldsConfig = {
   email: {
-    fieldType: EFieldType.Text,
+    fieldType: EDataType.TEXT,
     id: 'email',
     fieldName: 'email',
     label: 'Email',
     validators: [Validators.required, Validators.email],
   },
   password: {
-    fieldType: EFieldType.Password,
+    fieldType: EDataType.PASSWORD,
     id: 'password',
     fieldName: 'password',
     label: 'Password',
@@ -27,7 +27,7 @@ const LOGIN_FIELDS_CONFIG: IFormInputFieldsConfig = {
     },
   },
   rememberMe: {
-    fieldType: EFieldType.Checkbox,
+    fieldType: EDataType.CHECKBOX,
     id: 'remember-me',
     fieldName: 'rememberMe',
     fieldSize: EFieldSize.Large,

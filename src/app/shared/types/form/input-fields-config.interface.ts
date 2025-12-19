@@ -4,10 +4,10 @@ import {
   ECalendarView,
   ECheckBoxAndRadioAlign,
   ECurrencyDisplay,
+  EDataType,
   EDateIconDisplay,
   EDateSelectionMode,
   EFieldSize,
-  EFieldType,
   EFileMode,
   EFloatLabelVariant,
   EHourFormat,
@@ -19,7 +19,7 @@ import {
 } from '@shared/types';
 
 export interface IInputFieldsConfig {
-  fieldType: EFieldType;
+  fieldType: EDataType;
   id: string;
   autocomplete?: EAutocomplete;
   readonlyInput?: boolean;

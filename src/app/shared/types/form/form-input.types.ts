@@ -14,20 +14,6 @@ export enum ECalendarView {
   Year = 'year',
 }
 
-export enum EFieldType {
-  Text = 'text',
-  Number = 'number',
-  Select = 'select',
-  MultiSelect = 'multiselect',
-  Date = 'date',
-  Password = 'password',
-  Checkbox = 'checkbox',
-  Radio = 'radio',
-  File = 'file',
-  TextArea = 'textarea',
-  Individual_Number = 'individual-number',
-}
-
 export enum EFloatLabelVariant {
   In = 'in',
   Over = 'over',

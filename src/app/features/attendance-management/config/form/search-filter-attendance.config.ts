@@ -7,7 +7,7 @@ import {
 } from '@shared/config/static-data.config';
 import {
   EApprovalStatus,
-  EFieldType,
+  EDataType,
   ETableFilterMatchMode,
   IFormButtonConfig,
   ITableSearchFilterFormConfig,
@@ -26,7 +26,7 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
       fieldName: 'attendanceDate',
     },
     attendanceStatus: {
-      fieldType: EFieldType.MultiSelect,
+      fieldType: EDataType.MULTI_SELECT,
       id: 'attendanceStatus',
       fieldName: 'attendanceStatus',
       label: 'Attendance Status',

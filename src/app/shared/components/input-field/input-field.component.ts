@@ -35,7 +35,7 @@ import {
   ECheckBoxAndRadioAlign,
   EDateIconDisplay,
   EDateSelectionMode,
-  EFieldType,
+  EDataType,
   EFileMode,
   EHourFormat,
   EMultiSelectDisplayType,
@@ -84,7 +84,7 @@ import { ImageModule } from 'primeng/image';
 export class InputFieldComponent implements OnInit, AfterViewInit {
   private readonly galleryService = inject(GalleryService);
 
-  ALL_FIELD_TYPES = EFieldType;
+  ALL_DATA_TYPES = EDataType;
   ALL_UP_AND_DOWN_BUTTON_LAYOUTS = EUpAndDownButtonLayout;
   ALL_MULTI_SELECT_DISPLAY_TYPES = EMultiSelectDisplayType;
   ALL_DATE_ICON_DISPLAY_TYPES = EDateIconDisplay;
@@ -111,7 +111,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       this.formGroup().controls[this.inputFieldConfig().fieldName].disable();
     }
 
-    if (this.inputFieldConfig().fieldType === EFieldType.File) {
+    if (this.inputFieldConfig().fieldType === EDataType.ATTACHMENTS) {
       const control = this.formGroup().get(this.inputFieldConfig().fieldName);
       control?.valueChanges.subscribe(value => {
         const hasFiles = Array.isArray(value) ? value.length > 0 : !!value;
@@ -127,7 +127,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.inputFieldConfig().fieldType === EFieldType.File) {
+    if (this.inputFieldConfig().fieldType === EDataType.ATTACHMENTS) {
       const control = this.formGroup().get(this.inputFieldConfig().fieldName);
       const files = control?.value;
 

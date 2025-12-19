@@ -1,14 +1,12 @@
 import {
   EPrimeNGSeverity,
   EButtonActionType,
-  ETableBodyTemplate,
-  ETableDataType,
   ETableFilterDisplayType,
   ETableFilterMatchMode,
   ETableFilterOperator,
-  ETableSearchInputType,
   IInputFieldsConfig,
   IReadMoreConfig,
+  EDataType,
 } from '@shared/types';
 import { IButtonConfig } from '@shared/types/button/button.interface';
 import { IFormButtonConfig } from '../form/form.interface';
@@ -39,8 +37,8 @@ export type IDataTableHeaderFilterConfig = Partial<IFilterConfig>;
 export interface IDataTableHeaderConfig {
   field: string;
   header: string;
-  bodyTemplate?: ETableBodyTemplate;
-  dataType?: ETableDataType;
+  bodyTemplate?: EDataType;
+  dataType?: EDataType;
   dateFormat?: string;
   currencyFormat?: string;
   textWithSubtitleAndImageConfig?: ITextWithSubtitleAndImageConfig;
@@ -60,7 +58,7 @@ export interface ITextWithSubtitleAndImageConfig {
   primaryFieldHighlight?: boolean;
   primaryFieldLabel?: string;
   secondaryFieldLabel?: string;
-  dataType?: ETableDataType;
+  dataType?: EDataType;
 }
 
 export interface IStatusConfig {
@@ -70,7 +68,7 @@ export interface IStatusConfig {
 
 export interface IFilterConfig {
   filterField: string;
-  searchInputType: ETableSearchInputType;
+  searchInputType: EDataType;
   filterDropdownOptions?: string[];
   displayType: ETableFilterDisplayType;
   showMatchModes: boolean;

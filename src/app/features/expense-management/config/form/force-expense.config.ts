@@ -1,5 +1,5 @@
 import {
-  EFieldType,
+  EDataType,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
@@ -25,7 +25,7 @@ const financialYearService = new FinancialYearService();
 
 const FORCE_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   employeeName: {
-    fieldType: EFieldType.Select,
+    fieldType: EDataType.SELECT,
     id: 'employeeName',
     fieldName: 'employeeName',
     label: 'Employee Name',

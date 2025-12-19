@@ -1,38 +1,7 @@
-export enum EDataTableInputType {
-  TEXT = 'text',
-  NUMBER = 'number',
-  DATE = 'date',
-  BOOLEAN = 'boolean',
-  DROPDOWN = 'dropdown',
-  CURRENCY = 'currency',
-}
-
 export enum ETableActionTypeValue {
   APPROVED = 'approved',
   REJECTED = 'rejected',
   CANCELLED = 'cancelled',
-}
-
-export enum ETableBodyTemplate {
-  TEXT = 'text',
-  TEXT_WITH_SUBTITLE_AND_IMAGE = 'textWithSubtitleAndImage',
-  STATUS = 'status',
-  DATE = 'date',
-  CURRENCY = 'currency',
-  FILE_LINK = 'fileLink',
-  TEXT_WITH_READ_MORE = 'textWithReadMore',
-}
-
-export enum ETableDataType {
-  TEXT = EDataTableInputType.TEXT,
-  NUMBER = EDataTableInputType.NUMBER,
-  DATE = EDataTableInputType.DATE,
-  BOOLEAN = EDataTableInputType.BOOLEAN,
-}
-
-export enum ETableSearchInputType {
-  TEXT = EDataTableInputType.TEXT,
-  DROPDOWN = EDataTableInputType.DROPDOWN,
 }
 
 export enum ETableFilterDisplayType {

@@ -1,27 +1,27 @@
 import { Validators } from '@angular/forms';
 import {
   EButtonActionType,
-  EFieldType,
+  EDataType,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
 
 const APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   approveReason: {
-    fieldType: EFieldType.TextArea,
+    fieldType: EDataType.TEXT_AREA,
     id: 'approveReason',
     fieldName: 'comment',
     label: 'Approve Reason',
   },
   rejectReason: {
-    fieldType: EFieldType.TextArea,
+    fieldType: EDataType.TEXT_AREA,
     id: 'rejectReason',
     fieldName: 'comment',
     label: 'Reject Reason',
     validators: [Validators.required],
   },
   cancelReason: {
-    fieldType: EFieldType.TextArea,
+    fieldType: EDataType.TEXT_AREA,
     id: 'cancelReason',
     fieldName: 'comment',
     label: 'Cancel Reason',

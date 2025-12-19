@@ -15,7 +15,7 @@ import {
 import {
   IFormInputFieldsConfig,
   IInputFieldsConfig,
-  EFieldType,
+  EDataType,
 } from '@shared/types';
 import { deepMerge } from '@shared/utility';
 
@@ -47,7 +47,7 @@ export class InputFieldConfigService {
     DEFAULT_INDIVIDUAL_NUMBER_INPUT_FIELD_CONFIG;
 
   getInputFieldConfig(
-    fieldType: EFieldType = EFieldType.Text,
+    fieldType: EDataType = EDataType.TEXT,
     options?: Partial<IInputFieldsConfig>
   ): IInputFieldsConfig {
     const defaultConfig = this.getDefaultConfigByFieldType(fieldType);
@@ -62,7 +62,7 @@ export class InputFieldConfigService {
     Object.keys(formInputFieldsConfig).forEach(key => {
       const fieldConfig = formInputFieldsConfig[key];
       configs[fieldConfig.fieldName ?? key] = this.getInputFieldConfig(
-        fieldConfig.fieldType as EFieldType,
+        fieldConfig.fieldType as EDataType,
         fieldConfig
       );
     });
@@ -70,28 +70,28 @@ export class InputFieldConfigService {
   }
 
   private getDefaultConfigByFieldType(
-    fieldType: EFieldType
+    fieldType: EDataType
   ): Partial<IInputFieldsConfig> {
     switch (fieldType) {
-      case EFieldType.Number:
+      case EDataType.NUMBER:
         return this.defaultNumberInputFieldConfig;
-      case EFieldType.Select:
+      case EDataType.SELECT:
         return this.defaultSelectInputFieldConfig;
-      case EFieldType.MultiSelect:
+      case EDataType.MULTI_SELECT:
         return this.defaultMultiSelectInputFieldConfig;
-      case EFieldType.Date:
+      case EDataType.DATE:
         return this.defaultDateInputFieldConfig;
-      case EFieldType.Password:
+      case EDataType.PASSWORD:
         return this.defaultPasswordInputFieldConfig;
-      case EFieldType.Checkbox:
+      case EDataType.CHECKBOX:
         return this.defaultCheckboxInputFieldConfig;
-      case EFieldType.Radio:
+      case EDataType.RADIO:
         return this.defaultRadioInputFieldConfig;
-      case EFieldType.File:
+      case EDataType.ATTACHMENTS:
         return this.defaultFileInputFieldConfig;
-      case EFieldType.TextArea:
+      case EDataType.TEXT_AREA:
         return this.defaultTextAreaInputFieldConfig;
-      case EFieldType.Individual_Number:
+      case EDataType.INDIVIDUAL_NUMBER:
         return this.defaultIndividualNumberInputFieldConfig;
       default:
         return this.defaultInputFieldConfig;

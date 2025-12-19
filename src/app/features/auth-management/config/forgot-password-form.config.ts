@@ -3,7 +3,7 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
   IFormButtonConfig,
-  EFieldType,
+  EDataType,
   EFieldSize,
   EAutocomplete,
   EButtonSize,
@@ -12,7 +12,7 @@ import {
 
 const FORGOT_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig = {
   email: {
-    fieldType: EFieldType.Text,
+    fieldType: EDataType.TEXT,
     id: 'email',
     fieldName: 'email',
     label: 'Email Address',

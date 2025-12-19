@@ -3,8 +3,7 @@ import {
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
   ITableActionConfig,
-  ETableBodyTemplate,
-  ETableDataType,
+  EDataType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
@@ -21,7 +20,7 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'employeeName',
     header: 'Employee Name',
-    bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
     textWithSubtitleAndImageConfig: {
       secondaryField: 'employeeCode',
       showImage: true,
@@ -36,7 +35,7 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'leaveDate',
     header: 'Leave Date',
-    bodyTemplate: ETableBodyTemplate.TEXT,
+    bodyTemplate: EDataType.TEXT,
     serverSideFilterAndSortConfig: {
       sortField: 'fromDate',
       filterField: 'leaveDate',
@@ -45,14 +44,14 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'reason',
     header: 'Reason',
-    bodyTemplate: ETableBodyTemplate.TEXT_WITH_READ_MORE,
-    dataType: ETableDataType.TEXT,
+    bodyTemplate: EDataType.TEXT_WITH_READ_MORE,
+    dataType: EDataType.TEXT,
     showSort: false,
   },
   {
     field: 'approvalStatus',
     header: 'Approval Status',
-    bodyTemplate: ETableBodyTemplate.STATUS,
+    bodyTemplate: EDataType.STATUS,
     serverSideFilterAndSortConfig: {
       filterField: 'approvalStatuses',
     },
