@@ -188,51 +188,56 @@ export class GetExpenseComponent implements OnInit {
     }
 
     return [
-      { label: 'Total', value: stats.approval.total },
-      { label: 'Approved', value: stats.approval.approved },
-      { label: 'Pending', value: stats.approval.pending },
-      { label: 'Rejected', value: stats.approval.rejected },
+      { label: 'Total', value: stats.approval.total, icon: ICONS.COMMON.CHART },
+      {
+        label: 'Approved',
+        value: stats.approval.approved,
+        icon: ICONS.ACTIONS.CHECK_CIRCLE,
+      },
+      {
+        label: 'Pending',
+        value: stats.approval.pending,
+        icon: ICONS.ATTENDANCE.REGULARIZE,
+      },
+      {
+        label: 'Rejected',
+        value: stats.approval.rejected,
+        icon: ICONS.ACTIONS.TIMES,
+      },
       {
         label: 'Opening Balance',
-        value: this.currencyPipe.transform(
-          stats.balances.openingBalance,
-          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-        ) as unknown as number,
+        value: stats.balances.openingBalance,
+        icon: ICONS.EXPENSE.MONEY,
+        type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
       {
         label: 'Closing Balance',
-        value: this.currencyPipe.transform(
-          stats.balances.closingBalance,
-          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-        ) as unknown as number,
-      },
-      {
-        label: 'Total Credit',
-        value: this.currencyPipe.transform(
-          stats.balances.totalCredit,
-          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-        ) as unknown as number,
+        value: stats.balances.closingBalance,
+        type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+        icon: ICONS.EXPENSE.MONEY,
       },
       {
         label: 'Total Debit',
-        value: this.currencyPipe.transform(
-          stats.balances.totalDebit,
-          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-        ) as unknown as number,
+        value: stats.balances.totalDebit,
+        type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+        icon: ICONS.EXPENSE.MONEY,
       },
       {
         label: 'Period Credit',
-        value: this.currencyPipe.transform(
-          stats.balances.periodCredit,
-          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-        ) as unknown as number,
+        value: stats.balances.periodCredit,
+        type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+        icon: ICONS.EXPENSE.MONEY,
       },
       {
         label: 'Period Debit',
-        value: this.currencyPipe.transform(
-          stats.balances.periodDebit,
-          APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-        ) as unknown as number,
+        value: stats.balances.periodDebit,
+        type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+        icon: ICONS.EXPENSE.MONEY,
       },
     ];
   }

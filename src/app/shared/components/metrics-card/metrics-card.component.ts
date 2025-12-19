@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IMetric } from '@shared/types';
+import { EDataType, IMetric } from '@shared/types';
 import { ColorUtil } from '@shared/utility';
 
 @Component({
@@ -13,8 +13,21 @@ import { ColorUtil } from '@shared/utility';
 })
 export class MetricsCardComponent {
   metricCardConfig = input<IMetric[]>();
+  protected readonly ALL_DATA_TYPES = EDataType;
 
-  getColor(label: string): { bg: string; border: string; text: string } {
-    return ColorUtil.getColorClass(label);
+  getColorScheme(label: string): {
+    primary: string;
+    light: string;
+    dark: string;
+    textClass: string;
+  } {
+    // Use ColorUtil directly for everything
+    const colorClass = ColorUtil.getColorClass(label);
+    const hexColors = ColorUtil.getHexColors(label);
+
+    return {
+      ...hexColors,
+      textClass: colorClass.text,
+    };
   }
 }

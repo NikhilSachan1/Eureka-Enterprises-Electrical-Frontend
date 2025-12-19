@@ -1,24 +1,62 @@
 @let metrics = metricCardConfig();
 
-<div class="flex flex-wrap gap-4">
-  @for (metric of metrics; track metric.label) {
-    @let colorClass = getColor(metric.label);
+<div class="metrics-container">
+  @for (metric of metrics; track metric.label; let i = $index) {
+    @let colorScheme = getColorScheme(metric.label);
     <div
-      class="flex-1 p-3 min-w-[100px] sm:min-w-[160px] text-center rounded-lg border-l-4 transition-all duration-300 hover:shadow-md hover:scale-105 cursor-pointer flex flex-col justify-center"
-      [ngClass]="[colorClass.bg, colorClass.border]"
+      class="metric-card"
+      [style.--metric-color]="colorScheme.primary"
+      [style.--metric-color-light]="colorScheme.light"
+      [style.--metric-color-dark]="colorScheme.dark"
     >
-      <div
-        class="text-xl lg:text-3xl font-bold mb-2"
-        [ngClass]="colorClass.text"
-      >
-        {{ metric.value }}
+      <!-- Decorative background elements -->
+      <div class="metric-card-bg">
+        <div class="bg-circle bg-circle-1"></div>
+        <div class="bg-circle bg-circle-2"></div>
+        <div class="bg-pattern"></div>
       </div>
-      <div
-        class="text-sm font-medium text-gray-700"
-        [title]="metric.label"
-      >
-        {{ metric.label }}
+
+      <!-- Card content -->
+      <div class="metric-card-body">
+        <!-- Icon section -->
+        @if (metric.icon) {
+          <div class="metric-icon-wrapper">
+            <div class="metric-icon">
+              <i [class]="metric.icon"></i>
+            </div>
+          </div>
+        }
+
+        <!-- Value and label -->
+        <div class="metric-content">
+          <div class="metric-value-wrapper">
+            <span
+              class="metric-value"
+              [ngClass]="colorScheme.textClass"
+            >
+              @if (metric.type === ALL_DATA_TYPES.CURRENCY) {
+                {{ metric.value | currency: metric.format }}
+              } @else {
+                {{ metric.value }}
+              }
+            </span>
+          </div>
+          <div class="metric-label-wrapper">
+            <span
+              class="metric-label"
+              [title]="metric.label"
+            >
+              {{ metric.label }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Decorative accent line -->
+        <div class="metric-accent-line"></div>
       </div>
+
+      <!-- Hover glow effect -->
+      <div class="metric-glow"></div>
     </div>
   }
 </div>
