@@ -50,3 +50,4 @@ export {
   COMMON_BULK_ACTIONS,
 } from './common-table-actions.config';
 export { COMMON_FORM_ACTIONS } from './common-form-actions.config';
+export { DEFAULT_READ_MORE_CONFIG } from './read-more.config';

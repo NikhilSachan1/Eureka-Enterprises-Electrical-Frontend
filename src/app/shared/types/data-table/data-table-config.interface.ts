@@ -8,6 +8,7 @@ import {
   ETableFilterOperator,
   ETableSearchInputType,
   IInputFieldsConfig,
+  IReadMoreConfig,
 } from '@shared/types';
 import { IButtonConfig } from '@shared/types/button/button.interface';
 import { IFormButtonConfig } from '../form/form.interface';
@@ -43,6 +44,7 @@ export interface IDataTableHeaderConfig {
   dateFormat?: string;
   currencyFormat?: string;
   textWithSubtitleAndImageConfig?: ITextWithSubtitleAndImageConfig;
+  readMoreConfig?: Partial<IReadMoreConfig>;
   statusConfig?: IStatusConfig;
   customTemplateKey?: string;
   showFilter: boolean;

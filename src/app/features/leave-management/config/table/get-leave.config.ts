@@ -45,7 +45,7 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'reason',
     header: 'Reason',
-    bodyTemplate: ETableBodyTemplate.TEXT,
+    bodyTemplate: ETableBodyTemplate.TEXT_WITH_READ_MORE,
     dataType: ETableDataType.TEXT,
     showSort: false,
   },

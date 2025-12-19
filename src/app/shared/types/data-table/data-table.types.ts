@@ -20,6 +20,7 @@ export enum ETableBodyTemplate {
   DATE = 'date',
   CURRENCY = 'currency',
   FILE_LINK = 'fileLink',
+  TEXT_WITH_READ_MORE = 'textWithReadMore',
 }
 
 export enum ETableDataType {

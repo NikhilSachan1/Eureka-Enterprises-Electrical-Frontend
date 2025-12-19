@@ -288,6 +288,12 @@
                     }
                   </div>
                 }
+                @case (ALL_TABLE_BODY_TEMPLATES.TEXT_WITH_READ_MORE) {
+                  <app-read-more
+                    [text]="columnData"
+                    [readMoreConfig]="column.readMoreConfig"
+                  />
+                }
                 @default {
                   <div class="flex items-center gap-3">
                     <span class="text-slate-700">{{ columnData }}</span>

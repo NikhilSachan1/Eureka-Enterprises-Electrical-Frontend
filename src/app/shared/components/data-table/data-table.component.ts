@@ -48,6 +48,7 @@ import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { EmptyMessagesComponent } from '../empty-messages/empty-messages.component';
 import { LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
+import { ReadMoreComponent } from '../read-more/read-more.component';
 
 @Component({
   selector: 'app-data-table',
@@ -73,6 +74,7 @@ import { ChipComponent } from '../chip/chip.component';
     EmptyMessagesComponent,
     ChipComponent,
     NgTemplateOutlet,
+    ReadMoreComponent,
   ],
 
   templateUrl: './data-table.component.html',

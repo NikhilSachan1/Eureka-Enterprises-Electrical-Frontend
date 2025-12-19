@@ -15,7 +15,9 @@ import {
   ETableFilterMatchMode,
   ETableFilterOperator,
   ETableSearchInputType,
+  IReadMoreConfig,
 } from '@shared/types';
+import { DEFAULT_READ_MORE_CONFIG } from './read-more.config';
 
 // Default table config
 export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -90,12 +92,17 @@ export const TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG: Partial<ITextWithSubtitleAndIm
     dataType: ETableDataType.TEXT,
   };
 
+export const TEXT_WITH_READ_MORE_CONFIG: Partial<IReadMoreConfig> = {
+  ...DEFAULT_READ_MORE_CONFIG,
+};
+
 export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   bodyTemplate: ETableBodyTemplate.TEXT,
   dataType: ETableDataType.TEXT,
   dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
   currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
   textWithSubtitleAndImageConfig: TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG,
+  readMoreConfig: TEXT_WITH_READ_MORE_CONFIG,
   statusConfig: STATUS_CONFIG,
   showFilter: false,
   showSort: true,

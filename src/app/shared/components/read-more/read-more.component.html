@@ -1,0 +1,28 @@
+@let textValue = text() || '';
+@let config = readMoreConfig();
+@let maxLength = config?.maxLength || 100;
+@let shouldTruncate = textValue.length > maxLength;
+@let isExpanded = isExpandedState();
+
+<span class="read-more-text">
+  @if (shouldTruncate && !isExpanded) {
+    {{ textValue.substring(0, maxLength) }}
+    <span class="text-ellipsis">...</span>
+    <span class="read-more-button-wrapper">
+      <app-button
+        [buttonConfig]="getReadMoreButtonConfig()"
+        (onButtonClick)="toggleExpanded()"
+      />
+    </span>
+  } @else if (shouldTruncate && isExpanded) {
+    {{ textValue }}
+    <span class="read-more-button-wrapper">
+      <app-button
+        [buttonConfig]="getReadLessButtonConfig()"
+        (onButtonClick)="toggleExpanded()"
+      />
+    </span>
+  } @else {
+    {{ textValue || 'N/A' }}
+  }
+</span>
