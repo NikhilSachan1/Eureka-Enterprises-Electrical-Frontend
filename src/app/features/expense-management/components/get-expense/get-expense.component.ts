@@ -145,7 +145,7 @@ export class GetExpenseComponent implements OnInit {
 
   private prepareParamData(): IExpenseGetRequestDto {
     const initialFilterData: Partial<IExpenseGetRequestDto> = {
-      approvalStatuses: [EApprovalStatus.APPROVED, EApprovalStatus.REJECTED],
+      approvalStatuses: [EApprovalStatus.PENDING],
     };
 
     return this.tableServerSideFilterAndSortService.buildQueryParams<IExpenseGetRequestDto>(
