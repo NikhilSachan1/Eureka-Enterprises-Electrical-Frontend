@@ -3,7 +3,7 @@ import { ConfirmationService } from 'primeng/api';
 
 import {
   IConfirmationDialogConfig,
-  IConfirmationDialogRecordDetailConfig,
+  IDataViewDetailsWithEmployee,
   IConfirmationDialogSettingConfig,
   IDialogActionConfig,
   EDialogType,
@@ -81,7 +81,7 @@ export class ConfirmationDialogService {
   createDialogConfig(
     actionType: EButtonActionType,
     actionConfigMap: Record<string, IDialogActionConfig>,
-    recordDetail: IConfirmationDialogRecordDetailConfig,
+    recordDetail: IDataViewDetailsWithEmployee,
     isBulk = false,
     showRecords = !isBulk,
     dynamicComponentInputs?: Record<string, unknown>
@@ -95,7 +95,7 @@ export class ConfirmationDialogService {
     }
 
     const acceptLabel = isBulk ? config.bulkLabel : config.singleLabel;
-    const header = `${acceptLabel} ${recordDetail.title ?? 'Record'}`;
+    const header = `${acceptLabel} Record`;
     const recordType = isBulk ? 'the selected records' : 'this record';
     const message = `Are you sure you want to ${config.actionWord} ${recordType}?`;
 

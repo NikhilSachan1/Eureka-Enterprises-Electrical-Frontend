@@ -11,13 +11,8 @@ import {
   EDataType,
   EPrimeNGSeverity,
   IGalleryInputData,
-  IButtonConfig,
-  EButtonActionType,
-  EButtonSize,
-  EButtonBadgeSeverity,
-  EButtonVariant,
+  IDataViewDetailsWithEmployee,
   IDataViewDetails,
-  IEmployeeViewDetails,
 } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
@@ -27,7 +22,6 @@ import { ICONS } from '@shared/constants';
 import { CardModule } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { Tag } from 'primeng/tag';
-import { ButtonComponent } from '../button/button.component';
 
 @Component({
   selector: 'app-view-detail',
@@ -40,7 +34,6 @@ import { ButtonComponent } from '../button/button.component';
     SecondsToDhmsPipe,
     NgClass,
     CurrencyPipe,
-    ButtonComponent,
   ],
   templateUrl: './view-detail.component.html',
   styleUrl: './view-detail.component.scss',
@@ -51,10 +44,12 @@ export class ViewDetailComponent {
   private readonly galleryService = inject(GalleryService);
   protected readonly appConfigService = inject(AppConfigService);
 
-  protected readonly _avtarImageUrl = computed(() => this.getAvatarUrl());
+  protected readonly _avtarImageUrl = computed(() => {
+    const name = this.drawerDetails()?.employee?.name ?? 'N/A';
+    return this.getAvatarUrl(name);
+  });
 
-  drawerDetails = input<IDataViewDetails[]>();
-  drawerEmployeeDetails = input<IEmployeeViewDetails>();
+  drawerDetails = input<IDataViewDetailsWithEmployee>();
 
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly icons = ICONS;
@@ -71,8 +66,7 @@ export class ViewDetailComponent {
     return ColorUtil.getColorClass(status);
   }
 
-  protected getAvatarUrl(): string {
-    const name = this.drawerEmployeeDetails()?.name ?? 'No Name';
+  protected getAvatarUrl(name: string): string {
     return this.avatarService.getAvatarFromName(name);
   }
 
@@ -89,15 +83,9 @@ export class ViewDetailComponent {
     this.galleryService.show(media);
   }
 
-  protected getAttachmentButtonConfig(count: number): Partial<IButtonConfig> {
-    return {
-      id: EButtonActionType.VIEW,
-      label: 'View',
-      icon: this.icons.COMMON.PAPERCLIP,
-      size: EButtonSize.SMALL,
-      badge: count.toString(),
-      badgeSeverity: EButtonBadgeSeverity.INFO,
-      variant: EButtonVariant.TEXT,
-    };
+  protected getAttachmentEntry(
+    entryData: IDataViewDetails['entryData']
+  ): IDataViewDetails['entryData'][number] | undefined {
+    return entryData.find(e => e.type === EDataType.ATTACHMENTS);
   }
 }

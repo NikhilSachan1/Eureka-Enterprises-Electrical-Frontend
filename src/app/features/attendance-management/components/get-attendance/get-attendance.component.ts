@@ -11,7 +11,8 @@ import { AttendanceService } from '../../services/attendance.service';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import {
-  IConfirmationDialogRecordDetailConfig,
+  IDataViewDetails,
+  IDataViewDetailsWithEmployee,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetric,
@@ -20,6 +21,7 @@ import {
   ITableSearchFilterFormConfig,
   EDialogType,
   EButtonActionType,
+  EDataType,
 } from '@shared/types';
 import {
   ICONS,
@@ -51,7 +53,7 @@ import {
 } from '../../types/attendance.dto';
 import { IAttendance } from '../../types/attendance.interface';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
-import { stringToArray, transformDateFormat } from '@shared/utility';
+import { stringToArray } from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
@@ -256,22 +258,21 @@ export class GetAttendanceComponent implements OnInit {
 
   private prepareAttendanceRecordDetail(
     selectedRow: IAttendanceGetBaseResponseDto
-  ): IConfirmationDialogRecordDetailConfig {
+  ): IDataViewDetailsWithEmployee {
     const siteLocation = stringToArray(selectedRow.notes, '-')[0] || '';
     const clientName = stringToArray(selectedRow.notes, '-')[1] || '';
-    const recordDetail = [
+    const entryData: IDataViewDetails['entryData'] = [
       {
-        label: 'Employee Name',
-        value: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
+        label: 'Date',
+        value: selectedRow.attendanceDate,
+        type: EDataType.DATE,
+        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {
-        label: 'Attendance Date',
-        value: transformDateFormat(
-          selectedRow.attendanceDate,
-          APP_CONFIG.DATE_FORMATS.DEFAULT
-        ),
+        label: 'Status',
+        value: selectedRow.status,
+        type: EDataType.STATUS,
       },
-      { label: 'Attendance Status', value: selectedRow.status },
       { label: 'Approval Status', value: selectedRow.approvalStatus },
       {
         label: 'Site Location',
@@ -284,7 +285,7 @@ export class GetAttendanceComponent implements OnInit {
         PERMISSION_KEYS.ATTENDANCE.CLIENT_NAME
       )
     ) {
-      recordDetail.push({
+      entryData.push({
         label: 'Client Name',
         value: clientName,
       });
@@ -294,17 +295,29 @@ export class GetAttendanceComponent implements OnInit {
         PERMISSION_KEYS.ATTENDANCE.ASSOCIATE_ENGINEER_NAME
       )
     ) {
-      recordDetail.push({
+      entryData.push({
         label: 'Associate Engineer',
         value: 'John Doe', // TODO: Add associate employee name once we have the associate employee name functionality
       });
     }
-    recordDetail.push({
+    entryData.push({
       label: 'Associated Vehicle',
       value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
     });
     return {
-      details: recordDetail,
+      details: [
+        {
+          status: {
+            entryType: selectedRow.status, //TODO: Add attendance type once we have the attendance type functionality,
+            approvalStatus: selectedRow.approvalStatus,
+          },
+          entryData,
+        },
+      ],
+      employee: {
+        name: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
+        employeeCode: selectedRow.user.employeeId,
+      },
     };
   }
 

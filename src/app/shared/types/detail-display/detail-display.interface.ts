@@ -14,24 +14,24 @@ export interface IDataViewDetails {
   entryData: {
     label: string;
     value: string | number | null | string[];
-    type: EDataType;
+    type?: EDataType;
     format?: string;
     metadata?: {
       transactionType?: EExpenseTransactionType;
     };
   }[];
-  approvalBy: {
-    name: string | null;
-    date: string | null;
-    notes: string | null;
-  };
-  createdBy: {
-    name: string | null;
-    date: string;
-    notes?: string;
-  };
-  updatedBy: {
-    name: string | null;
-    date: string;
-  };
+  approvalBy?: IUserAuditInfo;
+  createdBy?: IUserAuditInfo;
+  updatedBy?: IUserAuditInfo;
+}
+
+export interface IDataViewDetailsWithEmployee {
+  details: IDataViewDetails[];
+  employee?: IEmployeeViewDetails;
+}
+
+interface IUserAuditInfo {
+  name?: string | null;
+  date?: string | null;
+  notes?: string | null;
 }

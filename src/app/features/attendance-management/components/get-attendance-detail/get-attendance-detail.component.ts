@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -20,7 +19,7 @@ import {
 import {
   EDataType,
   IDataViewDetails,
-  IEmployeeViewDetails,
+  IDataViewDetailsWithEmployee,
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { AppConfigService, AppPermissionService } from '@core/services';
@@ -43,10 +42,9 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   protected readonly appConfigService = inject(AppConfigService);
   private readonly appPermissionService = inject(AppPermissionService);
 
-  protected readonly _employeeDetails = computed(() =>
-    this.getEmployeeDetails()
-  );
-  protected readonly _attendanceDetails = signal<IDataViewDetails[]>([]);
+  protected readonly _attendanceDetails = signal<
+    IDataViewDetailsWithEmployee | undefined
+  >(undefined);
 
   protected readonly ALL_DATA_TYPES = EDataType;
 
@@ -91,8 +89,8 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
 
   private mapDetailData(
     response: IAttendanceHistoryGetResponseDto
-  ): IDataViewDetails[] {
-    return response.map(record => {
+  ): IDataViewDetailsWithEmployee {
+    const mappedDetails = response.map(record => {
       const siteLocation = stringToArray(record.notes, '-')[0] || '';
       const clientName = stringToArray(record.notes, '-')[1] || '';
 
@@ -128,7 +126,6 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         {
           label: 'Site Location',
           value: siteLocation,
-          type: EDataType.TEXT,
         },
       ];
 
@@ -140,7 +137,6 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         entryData.push({
           label: 'Client Name',
           value: clientName,
-          type: EDataType.TEXT,
         });
       }
 
@@ -152,13 +148,11 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         entryData.push({
           label: 'Associate Engineer',
           value: 'John Doe', // TODO: Replace hard-coded name with associate employee name once associate employee mapping is available from backend.
-          type: EDataType.TEXT,
         });
       }
       entryData.push({
         label: 'Associated Vehicle',
         value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
-        type: EDataType.TEXT,
       });
 
       return {
@@ -182,13 +176,13 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         },
       };
     });
-  }
 
-  protected getEmployeeDetails(): IEmployeeViewDetails {
-    const { user } = this.drawerData.attendance;
     return {
-      name: `${user.firstName} ${user.lastName}`,
-      employeeCode: user.employeeId ?? 'N/A',
+      details: mappedDetails,
+      employee: {
+        name: `${this.drawerData.attendance.user.firstName} ${this.drawerData.attendance.user.lastName}`,
+        employeeCode: this.drawerData.attendance.user.employeeId ?? 'N/A',
+      },
     };
   }
 }

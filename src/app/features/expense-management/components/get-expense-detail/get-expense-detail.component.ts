@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -18,6 +17,7 @@ import { LoadingService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
+  IDataViewDetailsWithEmployee,
   IEmployeeViewDetails,
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
@@ -44,10 +44,9 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
   private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigService);
 
-  protected readonly _employeeDetails = computed(() =>
-    this.getEmployeeDetails()
-  );
-  protected readonly _expenseDetails = signal<IDataViewDetails[]>([]);
+  protected readonly _expenseDetails = signal<
+    IDataViewDetailsWithEmployee | undefined
+  >(undefined);
 
   protected readonly ALL_DATA_TYPES = EDataType;
 
@@ -91,8 +90,8 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
 
   private mapDetailData(
     response: IExpenseDetailGetResponseDto
-  ): IDataViewDetails[] {
-    return response.history.map(record => {
+  ): IDataViewDetailsWithEmployee {
+    const mappedDetails = response.history.map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Date',
@@ -106,7 +105,6 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
             EXPENSE_CATEGORY_DATA,
             record.category
           ),
-          type: EDataType.TEXT,
         },
         {
           label: 'Amount',
@@ -123,25 +121,17 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
             EXPENSE_PAYMENT_METHOD_DATA,
             record.paymentMode
           ),
-          type: EDataType.TEXT,
         },
         {
           label: 'Description',
           value: record.description,
-          type: EDataType.TEXT,
         },
         {
           label: 'Transaction ID',
           value: record.transactionId,
-          type: EDataType.TEXT,
         },
         {
-          label: 'Status',
-          value: record.approvalStatus,
-          type: EDataType.STATUS,
-        },
-        {
-          label: 'Attachments',
+          label: 'Attachment(s)',
           value: record.fileKeys,
           type: EDataType.ATTACHMENTS,
         },
@@ -172,6 +162,11 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
         },
       };
     });
+
+    return {
+      details: mappedDetails,
+      employee: this.getEmployeeDetails(),
+    };
   }
 
   protected getEmployeeDetails(): IEmployeeViewDetails {

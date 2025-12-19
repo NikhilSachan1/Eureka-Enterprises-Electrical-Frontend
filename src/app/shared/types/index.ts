@@ -43,7 +43,6 @@ export { EDrawerPosition } from './drawer/drawer.types';
 
 export type {
   IConfirmationDialogSettingConfig,
-  IConfirmationDialogRecordDetailConfig,
   IConfirmationDialogConfig,
   IDialogActionHandler,
   IDialogActionConfig,
@@ -133,5 +132,6 @@ export type {
 export type {
   IEmployeeViewDetails,
   IDataViewDetails,
+  IDataViewDetailsWithEmployee,
 } from './detail-display/detail-display.interface';
 export { EDataType } from './common/data-types.type';

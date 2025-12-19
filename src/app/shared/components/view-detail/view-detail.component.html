@@ -1,20 +1,22 @@
-@if (drawerEmployeeDetails()) {
+@let employeeDetails = drawerDetails()?.employee;
+
+@if (employeeDetails) {
   <div class="flex items-center gap-3 mb-4">
     <img
       [src]="_avtarImageUrl()"
-      [alt]="drawerEmployeeDetails()?.name"
+      [alt]="employeeDetails.name"
       class="w-8 h-8 rounded-full bg-slate-100"
       loading="lazy"
     />
 
     <div>
-      <h3 class="text-sm font-semibold text-slate-800">{{ drawerEmployeeDetails()?.name }}</h3>
-      <p class="text-xs text-slate-500">{{ drawerEmployeeDetails()?.employeeCode }}</p>
+      <h3 class="text-sm font-semibold text-slate-800">{{ employeeDetails.name }}</h3>
+      <p class="text-xs text-slate-500">{{ employeeDetails.employeeCode }}</p>
     </div>
   </div>
 }
 
-@for (detail of drawerDetails(); track $index) {
+@for (detail of drawerDetails()?.details; track $index) {
   @let colorClass = getColor(detail.status.approvalStatus);
   <p-card
     class="mb-4"
@@ -32,61 +34,95 @@
     </div>
     <div class="space-y-2 mb-4">
       @for (entry of detail.entryData; track entry.label) {
-        <div class="flex justify-between">
-          <span class="text-sm text-gray-700">{{ entry.label }}:</span>
-          <span class="text-sm font-medium text-gray-900">
-            @if (entry.value) {
-              @if (entry.type === ALL_DATA_TYPES.DATE) {
-                {{ entry.value.toString() | date: entry.format }}
-              } @else if (entry.type === ALL_DATA_TYPES.TIME) {
-                {{ entry.value.toString() | date: entry.format }}
-              } @else if (entry.type === ALL_DATA_TYPES.DURATION) {
-                {{ +entry.value | secondsToDhms }}
-              } @else if (entry.type === ALL_DATA_TYPES.STATUS) {
-                @let colorClass = getColor(entry.value.toString());
-                <span [ngClass]="`${colorClass.text}`">
-                  {{ entry.value.toString() | textCase: 'title' }}
-                </span>
-              } @else if (entry.type === ALL_DATA_TYPES.CURRENCY) {
-                <span
-                  [ngClass]="
-                    entry.metadata?.transactionType === 'credit'
-                      ? 'text-green-600 font-semibold'
-                      : 'text-red-600 font-semibold'
-                  "
-                >
-                  {{ entry.value.toString() | currency: entry.format }}
-                </span>
-              } @else if (entry.type === ALL_DATA_TYPES.ATTACHMENTS) {
-                <app-button
-                  [buttonConfig]="getAttachmentButtonConfig($any(entry.value).length)"
-                  (onButtonClick)="viewAttachment($any(entry.value))"
-                />
+        @if (entry.type !== ALL_DATA_TYPES.ATTACHMENTS) {
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-700">{{ entry.label }}:</span>
+            <span class="text-sm font-medium text-gray-900">
+              @if (entry.value) {
+                @if (entry.type === ALL_DATA_TYPES.DATE) {
+                  {{ entry.value.toString() | date: entry.format }}
+                } @else if (entry.type === ALL_DATA_TYPES.TIME) {
+                  {{ entry.value.toString() | date: entry.format }}
+                } @else if (entry.type === ALL_DATA_TYPES.DURATION) {
+                  {{ +entry.value | secondsToDhms }}
+                } @else if (entry.type === ALL_DATA_TYPES.STATUS) {
+                  @let colorClass = getColor(entry.value.toString());
+                  <span [ngClass]="`${colorClass.text}`">
+                    {{ entry.value.toString() | textCase: 'title' }}
+                  </span>
+                } @else if (entry.type === ALL_DATA_TYPES.CURRENCY) {
+                  <span
+                    [ngClass]="
+                      entry.metadata?.transactionType === 'credit'
+                        ? 'text-green-600 font-semibold'
+                        : 'text-red-600 font-semibold'
+                    "
+                  >
+                    {{ entry.value.toString() | currency: entry.format }}
+                  </span>
+                } @else {
+                  {{ entry.value }}
+                }
               } @else {
-                {{ entry.value }}
+                N/A
               }
-            } @else {
-              N/A
-            }
-          </span>
-        </div>
+            </span>
+          </div>
+        }
       }
     </div>
 
-    @if (detail.status.approvalStatus !== 'pending') {
+    @let attachmentEntry = getAttachmentEntry(detail.entryData);
+    @if (attachmentEntry) {
+      <p-divider />
+      @let attachmentCount = $any(attachmentEntry.value).length;
+      @let hasAttachments = attachmentCount > 0;
+      <div
+        class="flex items-center gap-3 rounded-lg border px-4 py-3 transition-all hover:shadow-sm"
+        [ngClass]="
+          hasAttachments
+            ? 'border-blue-200 bg-blue-50 hover:border-blue-300 hover:bg-blue-100 cursor-pointer'
+            : 'border-gray-200 bg-gray-50 cursor-not-allowed'
+        "
+        [tabindex]="hasAttachments ? 0 : -1"
+        role="button"
+        (click)="hasAttachments && viewAttachment($any(attachmentEntry.value))"
+      >
+        <i
+          [ngClass]="
+            (hasAttachments ? icons.COMMON.PAPERCLIP : icons.ACTIONS.BAN) +
+            ' text-lg ' +
+            (hasAttachments ? 'text-blue-600' : 'text-gray-400')
+          "
+        ></i>
+        <span
+          class="text-sm font-semibold flex-1"
+          [ngClass]="hasAttachments ? 'text-blue-700' : 'text-gray-500'"
+        >
+          @if (hasAttachments) {
+            {{ attachmentCount }} {{ attachmentEntry.label }}
+          } @else {
+            No {{ attachmentEntry.label }}
+          }
+        </span>
+        @if (hasAttachments) {
+          <i class="pi pi-chevron-right text-blue-400"></i>
+        }
+      </div>
+    }
+
+    @if (detail.status.approvalStatus !== 'pending' && detail.approvalBy) {
       <p-divider />
       <div class="space-y-1">
         <p class="text-xs text-gray-600">
           {{ detail.status.approvalStatus | textCase: 'title' }} by
-          <span class="font-semibold">{{ detail.approvalBy.name }}</span>
+          <span class="font-semibold">{{ detail.approvalBy.name ?? 'N/A' }}</span>
           at
           <span class="font-semibold">{{ detail.approvalBy.date | date: appConfigService.dateFormats.DEFAULT }}</span>
           on
           <span class="font-semibold">{{ detail.approvalBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
         </p>
-        @if (detail.approvalBy.notes) {
-          <p class="text-xs text-gray-600 italic">"{{ detail.approvalBy.notes }}"</p>
-        }
+        <p class="text-xs text-gray-600 italic">"{{ detail.approvalBy.notes }}"</p>
       </div>
     }
 

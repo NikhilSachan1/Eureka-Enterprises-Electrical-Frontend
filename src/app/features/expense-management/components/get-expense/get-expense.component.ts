@@ -23,8 +23,10 @@ import {
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import {
   EButtonActionType,
+  EDataType,
   EDialogType,
-  IConfirmationDialogRecordDetailConfig,
+  IDataViewDetails,
+  IDataViewDetailsWithEmployee,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetric,
@@ -50,12 +52,12 @@ import { IExpense } from '@features/expense-management/types/expense.interface';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { GetExpenseDetailComponent } from '../get-expense-detail/get-expense-detail.component';
-import {
-  getMappedValueFromArrayOfObjects,
-  transformDateFormat,
-} from '@shared/utility';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
-import { EXPENSE_CATEGORY_DATA } from '@shared/config/static-data.config';
+import {
+  EXPENSE_CATEGORY_DATA,
+  EXPENSE_PAYMENT_METHOD_DATA,
+} from '@shared/config/static-data.config';
 import { CurrencyPipe } from '@angular/common';
 
 @Component({
@@ -293,32 +295,61 @@ export class GetExpenseComponent implements OnInit {
 
   private prepareExpenseRecordDetail(
     selectedRow: IExpenseGetBaseResponseDto
-  ): IConfirmationDialogRecordDetailConfig {
-    const recordDetail = [
+  ): IDataViewDetailsWithEmployee {
+    const entryData: IDataViewDetails['entryData'] = [
       {
-        label: 'Employee Name',
-        value: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
+        label: 'Date',
+        value: selectedRow.expenseDate,
+        type: EDataType.DATE,
+        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {
-        label: 'Expense Date',
-        value: transformDateFormat(
-          selectedRow.expenseDate,
-          APP_CONFIG.DATE_FORMATS.DEFAULT
-        ),
-      },
-      {
-        label: 'Expense Type',
+        label: 'Category',
         value: getMappedValueFromArrayOfObjects(
           EXPENSE_CATEGORY_DATA,
           selectedRow.category
         ),
       },
-      { label: 'Amount', value: selectedRow.amount },
-      { label: 'Expense Description', value: selectedRow.description },
-      { label: 'Approval Status', value: selectedRow.approvalStatus },
+      {
+        label: 'Amount',
+        value: selectedRow.amount,
+        type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+        metadata: {
+          transactionType: selectedRow.transactionType,
+        },
+      },
+      {
+        label: 'Payment Mode',
+        value: getMappedValueFromArrayOfObjects(
+          EXPENSE_PAYMENT_METHOD_DATA,
+          selectedRow.paymentMode
+        ),
+      },
+      {
+        label: 'Description',
+        value: selectedRow.description,
+      },
+      {
+        label: 'Attachment(s)',
+        value: selectedRow.fileKeys,
+        type: EDataType.ATTACHMENTS,
+      },
     ];
     return {
-      details: recordDetail,
+      details: [
+        {
+          status: {
+            entryType: selectedRow.expenseEntryType,
+            approvalStatus: selectedRow.approvalStatus,
+          },
+          entryData,
+        },
+      ],
+      employee: {
+        name: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
+        employeeCode: selectedRow.user.employeeId,
+      },
     };
   }
 

@@ -16,11 +16,12 @@ import {
   IDialogActionHandler,
 } from '@shared/types';
 import { ButtonComponent } from '../button/button.component';
+import { ViewDetailComponent } from '../view-detail/view-detail.component';
 
 @Component({
   selector: 'app-confirmation-dialog',
   standalone: true,
-  imports: [ConfirmDialogModule, ButtonComponent],
+  imports: [ConfirmDialogModule, ButtonComponent, ViewDetailComponent],
   templateUrl: './confirmation-dialog.component.html',
   styleUrls: ['./confirmation-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -75,13 +76,6 @@ export class ConfirmationDialogComponent {
       };
     }
   );
-
-  protected readonly hasRecordDetails = computed(() => {
-    const dialog = this.currentDialogConfig();
-    return (
-      dialog?.recordDetails?.details && dialog.recordDetails.details.length > 0
-    );
-  });
 
   protected readonly isAcceptButtonVisible = computed(() => {
     const dialog = this.currentDialogConfig();

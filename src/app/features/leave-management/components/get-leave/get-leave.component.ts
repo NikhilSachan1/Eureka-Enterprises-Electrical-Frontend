@@ -33,7 +33,8 @@ import {
 import {
   EButtonActionType,
   EDialogType,
-  IConfirmationDialogRecordDetailConfig,
+  IDataViewDetails,
+  IDataViewDetailsWithEmployee,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetric,
@@ -256,7 +257,7 @@ export class GetLeaveComponent implements OnInit {
 
   private prepareLeaveRecordDetail(
     selectedRow: ILeaveGetBaseResponseDto
-  ): IConfirmationDialogRecordDetailConfig {
+  ): IDataViewDetailsWithEmployee {
     const fromDate = transformDateFormat(
       selectedRow.fromDate,
       APP_CONFIG.DATE_FORMATS.DEFAULT
@@ -265,7 +266,7 @@ export class GetLeaveComponent implements OnInit {
       selectedRow.toDate,
       APP_CONFIG.DATE_FORMATS.DEFAULT
     );
-    const recordDetail = [
+    const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Employee Name',
         value: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
@@ -278,7 +279,19 @@ export class GetLeaveComponent implements OnInit {
       { label: 'Approval Status', value: selectedRow.approvalStatus },
     ];
     return {
-      details: recordDetail,
+      details: [
+        {
+          status: {
+            entryType: selectedRow.leaveApplicationType,
+            approvalStatus: selectedRow.approvalStatus,
+          },
+          entryData,
+        },
+      ],
+      employee: {
+        name: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
+        employeeCode: selectedRow.user.employeeId,
+      },
     };
   }
 

@@ -1,4 +1,4 @@
-import { EDataType, EDialogPosition } from '@shared/types';
+import { EDialogPosition, IDataViewDetailsWithEmployee } from '@shared/types';
 import { IButtonConfig } from '@shared/types/button/button.interface';
 import { Type } from '@angular/core';
 
@@ -19,15 +19,6 @@ export interface IConfirmationDialogSettingConfig {
   rejectButtonProps: Partial<IButtonConfig>;
 }
 
-export interface IConfirmationDialogRecordDetailConfig {
-  title?: string;
-  details: {
-    label: string;
-    value: string | number | Date;
-    type?: EDataType;
-  }[];
-}
-
 export interface IDialogActionHandler {
   onDialogAccept?: () => void | Promise<void>;
   onDialogReject?: () => void | Promise<void>;
@@ -35,7 +26,7 @@ export interface IDialogActionHandler {
 
 export interface IConfirmationDialogConfig {
   dialogSettingConfig?: Partial<IConfirmationDialogSettingConfig>;
-  recordDetails?: IConfirmationDialogRecordDetailConfig;
+  recordDetails?: IDataViewDetailsWithEmployee;
   dynamicComponent?: Type<unknown>;
   dynamicComponentInputs?: Record<string, unknown>;
 }

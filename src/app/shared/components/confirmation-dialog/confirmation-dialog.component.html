@@ -27,33 +27,9 @@
       <!-- Content Section -->
       <div class="w-full mt-3">
         <!-- Record Details Section -->
-        @if (hasRecordDetails()) {
+        @if (currentDialogConfig().recordDetails) {
           <div class="w-full mb-3">
-            @if (currentDialogConfig().recordDetails?.title) {
-              <h3 class="text-xs font-semibold mb-2 text-gray-700 tracking-wide uppercase">
-                {{ currentDialogConfig().recordDetails?.title }}
-              </h3>
-            }
-            <!-- Timeline card: subtle background + vertical line, works for 1–5+ fields -->
-            <div class="relative bg-gray-50 rounded-xl border border-gray-100 px-3 py-2">
-              <div class="space-y-2">
-                @for (detail of currentDialogConfig().recordDetails?.details; track detail.label) {
-                  <div class="relative pl-5">
-                    <!-- Visual marker for each field: subtle, smaller neutral dot -->
-                    <div class="absolute left-1.5 top-2 h-1.5 w-1.5 rounded-full bg-gray-300"></div>
-                    <!-- Two-column layout: label and value each take ~50% width and wrap to next line when needed. -->
-                    <div class="flex items-start gap-4">
-                      <span class="basis-1/2 text-xs font-medium text-gray-500">
-                        {{ detail.label }}
-                      </span>
-                      <span class="basis-1/2 text-sm font-semibold text-gray-900 text-right break-words">
-                        {{ detail.value }}
-                      </span>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
+            <app-view-detail [drawerDetails]="currentDialogConfig().recordDetails" />
           </div>
         }
 
