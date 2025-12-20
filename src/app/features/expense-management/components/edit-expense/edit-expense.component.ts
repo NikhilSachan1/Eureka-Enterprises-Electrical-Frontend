@@ -32,6 +32,7 @@ import { IExpenseEditRequestDto } from '@features/expense-management/types/expen
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { IExpenseDetailResolverResponse } from '@features/expense-management/types/expense.interface';
+import { transformDateFormat } from '@shared/utility';
 
 @Component({
   selector: 'app-edit-expense',
@@ -159,17 +160,12 @@ export class EditExpenseComponent implements OnInit {
       attachment: File[];
       transactionId: string | null;
     };
-    const dateStr = new Date(expenseDate);
-    const formattedDate = this.datePipe.transform(
-      dateStr,
-      this.appConfigService.dateFormats.API
-    );
 
     return {
       category: expenseType,
       description,
       amount: expenseAmount,
-      expenseDate: formattedDate as string,
+      expenseDate: transformDateFormat(expenseDate),
       paymentMode,
       files: attachment,
       transactionId,

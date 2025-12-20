@@ -30,6 +30,7 @@ import {
   ROUTES,
 } from '@shared/constants';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { transformDateFormat } from '@shared/utility';
 
 @Component({
   selector: 'app-add-expense',
@@ -91,17 +92,12 @@ export class AddExpenseComponent implements OnInit {
       attachment: File[];
       transactionId: string | null;
     };
-    const dateStr = new Date(expenseDate);
-    const formattedDate = this.datePipe.transform(
-      dateStr,
-      this.appConfigService.dateFormats.API
-    );
 
     return {
       category: expenseType,
       description,
       amount: expenseAmount,
-      expenseDate: formattedDate as string,
+      expenseDate: transformDateFormat(expenseDate),
       paymentMode,
       files: attachment,
       transactionId,

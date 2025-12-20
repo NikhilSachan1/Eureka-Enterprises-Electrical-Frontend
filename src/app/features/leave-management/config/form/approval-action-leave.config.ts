@@ -51,7 +51,8 @@ export const APPROVAL_ACTION_LEAVE_FORM_CONFIG: IFormConfig = {
 };
 
 export const getApprovalActionLeaveFormConfig = (
-  dialogActionType: EButtonActionType
+  dialogActionType: EButtonActionType,
+  fromDate: Date
 ): IFormConfig => {
   if (dialogActionType === EButtonActionType.APPROVE) {
     const fields: IFormInputFieldsConfig = {
@@ -68,10 +69,13 @@ export const getApprovalActionLeaveFormConfig = (
       rejectReason: {
         ...APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG['rejectReason'],
       },
-      attendanceStatus: {
-        ...APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG['attendanceStatus'],
-      },
     };
+
+    if (fromDate <= new Date()) {
+      fields['attendanceStatus'] = {
+        ...APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG['attendanceStatus'],
+      };
+    }
 
     return { fields };
   }

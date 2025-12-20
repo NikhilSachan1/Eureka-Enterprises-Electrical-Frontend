@@ -1,12 +1,13 @@
 import { Validators } from '@angular/forms';
+import { FinancialYearService } from '@core/services/financial-year.service';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
   EDataType,
+  EDateSelectionMode,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { getDateBeforeXDays } from '@shared/utility';
 
 const APPLY_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   leaveDate: {
@@ -15,8 +16,9 @@ const APPLY_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'leaveDate',
     label: 'Date of Leaves',
     dateConfig: {
-      minDate: getDateBeforeXDays(6),
-      maxDate: new Date(),
+      selectionMode: EDateSelectionMode.Range,
+      minDate: new Date(),
+      maxDate: new FinancialYearService().getFinancialYearEndDate(),
     },
     validators: [Validators.required],
   },

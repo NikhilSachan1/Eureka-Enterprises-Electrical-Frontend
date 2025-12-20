@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { APP_CONFIG } from '@core/config';
+import { PAYSLIP_DATE_DATA } from '@shared/config/static-data.config';
 
 export const convertSecondsToDhms = (seconds: number): string => {
   if (!seconds || seconds < 0) {
@@ -21,10 +22,11 @@ const pad = (num: number): string => {
   return num.toString().padStart(2, '0');
 };
 
-export const getPayslipCutoffMinDate = (cutOffDate: number): Date => {
+export const getPayslipCutoffMinDate = (): Date => {
   const today = new Date();
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
+  const cutOffDate = PAYSLIP_DATE_DATA.EVERY_MONTH;
 
   const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
   const prevMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
@@ -38,7 +40,7 @@ export const getPayslipCutoffMinDate = (cutOffDate: number): Date => {
 };
 
 export const transformDateFormat = (
-  value: string,
+  value: string | Date,
   dateFormat: string = APP_CONFIG.DATE_FORMATS.API
 ): string => {
   const datePipe = new DatePipe('en-US');

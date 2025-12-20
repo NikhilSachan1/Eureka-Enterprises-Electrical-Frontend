@@ -52,7 +52,8 @@ export class ApprovalLeaveComponent implements OnInit {
     ConfirmationDialogService
   );
 
-  protected readonly selectedRecord = input<ILeaveGetBaseResponseDto[]>();
+  protected readonly selectedRecord =
+    input.required<ILeaveGetBaseResponseDto[]>();
   protected readonly dialogActionType = input<EButtonActionType>();
   protected readonly onSuccess = input<() => void>();
 
@@ -62,13 +63,6 @@ export class ApprovalLeaveComponent implements OnInit {
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    const actionType = this.dialogActionType() as EButtonActionType;
-    this.form = this.formService.createForm(
-      getApprovalActionLeaveFormConfig(actionType)
-    );
-  }
-
-  onDialogAccept(): void {
     const record = this.selectedRecord();
     if (!record) {
       this.notificationService.error(
@@ -79,7 +73,18 @@ export class ApprovalLeaveComponent implements OnInit {
       );
       return;
     }
-    this.onSubmit(record);
+
+    const actionType = this.dialogActionType() as EButtonActionType;
+    const { fromDate: fromDateString } = record[0];
+    const fromDate = new Date(fromDateString);
+
+    this.form = this.formService.createForm(
+      getApprovalActionLeaveFormConfig(actionType, fromDate)
+    );
+  }
+
+  onDialogAccept(): void {
+    this.onSubmit(this.selectedRecord());
   }
 
   protected onSubmit(record: ILeaveGetBaseResponseDto[]): void {

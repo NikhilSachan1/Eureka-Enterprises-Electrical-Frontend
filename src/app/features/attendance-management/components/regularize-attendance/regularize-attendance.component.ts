@@ -54,7 +54,8 @@ export class RegularizeAttendanceComponent
   );
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly selectedRecord = input<IAttendanceGetBaseResponseDto[]>();
+  protected readonly selectedRecord =
+    input.required<IAttendanceGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
 
   protected form!: IEnhancedForm;
@@ -67,6 +68,17 @@ export class RegularizeAttendanceComponent
   protected trackFields!: Record<string, Signal<any>>;
 
   ngOnInit(): void {
+    const record = this.selectedRecord();
+    if (!record) {
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
+      this.logger.error(
+        'Selected record is required to regularize attendance but was not provided'
+      );
+      return;
+    }
+
     this.loadRegularizeAttendanceDataFromSelectedRecord();
     this.form = this.formService.createForm(
       REGULARIZE_ATTENDANCE_FORM_CONFIG,
@@ -81,18 +93,7 @@ export class RegularizeAttendanceComponent
   }
 
   private loadRegularizeAttendanceDataFromSelectedRecord(): void {
-    const records = this.selectedRecord();
-    if (!records || records.length === 0) {
-      this.notificationService.error(
-        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
-      );
-      this.logger.error(
-        'Selected record is required to regularize attendance but was not provided'
-      );
-      return;
-    }
-
-    const [record] = records;
+    const [record] = this.selectedRecord();
     const prefilledAttendanceData = this.preparePrefilledFormData(record);
     this.initialFormData.set(prefilledAttendanceData);
   }
@@ -131,17 +132,7 @@ export class RegularizeAttendanceComponent
   }
 
   onDialogAccept(): void {
-    const record = this.selectedRecord();
-    if (!record) {
-      this.notificationService.error(
-        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
-      );
-      this.logger.error(
-        'Selected record is required to regularize attendance but was not provided'
-      );
-      return;
-    }
-    this.onSubmit(record);
+    this.onSubmit(this.selectedRecord());
   }
 
   protected onSubmit(record: IAttendanceGetBaseResponseDto[]): void {

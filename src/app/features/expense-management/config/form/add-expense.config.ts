@@ -17,6 +17,15 @@ import {
   getDateBeforeXDays,
 } from '@shared/utility';
 
+const {
+  TRANSACTION_ID: {
+    MIN_LENGTH: TRANSACTION_ID_MIN_LENGTH,
+    MAX_LENGTH: TRANSACTION_ID_MAX_LENGTH,
+    PATTERN: TRANSACTION_ID_PATTERN,
+    TEXT_CASE: TRANSACTION_ID_TEXT_CASE,
+  },
+} = APP_CONFIG.FORM_VALIDATION_RULES;
+
 const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   expenseType: {
     fieldType: EDataType.SELECT,
@@ -69,6 +78,16 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     id: 'transactionId',
     fieldName: 'transactionId',
     label: 'Transaction ID / Receipt Number / UTR Number',
+    textConfig: {
+      textCase: TRANSACTION_ID_TEXT_CASE,
+    },
+    validators: [
+      Validators.minLength(TRANSACTION_ID_MIN_LENGTH),
+      Validators.maxLength(TRANSACTION_ID_MAX_LENGTH),
+      Validators.pattern(TRANSACTION_ID_PATTERN),
+    ],
+    preventMaxLength: false,
+    applyPatternFilter: false,
   },
   description: {
     fieldType: EDataType.TEXT_AREA,

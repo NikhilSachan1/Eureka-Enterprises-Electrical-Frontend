@@ -30,6 +30,7 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { transformDateFormat } from '@shared/utility';
 
 @Component({
   selector: 'app-force-expense',
@@ -93,18 +94,13 @@ export class ForceExpenseComponent implements OnInit {
       attachment: File[];
       transactionId: string | null;
     };
-    const dateStr = new Date(expenseDate);
-    const formattedDate = this.datePipe.transform(
-      dateStr,
-      this.appConfigService.dateFormats.API
-    );
 
     return {
       userId: employeeName,
       category: expenseType,
       description,
       amount: expenseAmount,
-      expenseDate: formattedDate as string,
+      expenseDate: transformDateFormat(expenseDate),
       paymentMode,
       files: attachment,
       transactionId,

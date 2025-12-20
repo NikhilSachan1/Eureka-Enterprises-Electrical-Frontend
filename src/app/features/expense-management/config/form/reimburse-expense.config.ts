@@ -28,7 +28,7 @@ const REIMBURSE_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   attachment,
   transactionId: {
     ...transactionId,
-    validators: [Validators.required],
+    validators: [Validators.required, ...(transactionId.validators ?? [])],
   },
 };
 

@@ -23,7 +23,6 @@ export const LeaveActionResultSchema = z
   .object({
     approvalStatus,
     message: z.string(),
-    previousStatus: approvalStatus,
     leaveApplicationId: id,
   })
   .strict();

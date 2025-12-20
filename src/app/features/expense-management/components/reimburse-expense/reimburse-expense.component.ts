@@ -18,7 +18,6 @@ import { IExpenseReimburseRequestDto } from '@features/expense-management/types/
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { EXPENSE_CATEGORY_DATA } from '@shared/config/static-data.config';
 import {
   FORM_VALIDATION_MESSAGES,
   ROUTE_BASE_PATHS,
@@ -29,7 +28,7 @@ import { LoadingService } from '@shared/services/loading.service';
 import { NotificationService } from '@shared/services/notification.service';
 import { RouterNavigationService } from '@shared/services/router-navigation.service';
 import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { transformDateFormat } from '@shared/utility';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -92,23 +91,12 @@ export class ReimburseExpenseComponent implements OnInit {
       expenseAmount: number;
       attachment: File[];
     };
-    const dateStr = new Date(expenseDate);
-    const formattedDate = this.datePipe.transform(
-      dateStr,
-      this.appConfigService.dateFormats.API
-    );
 
     return {
       userId: employeeName,
-      category: getMappedValueFromArrayOfObjects(
-        EXPENSE_CATEGORY_DATA,
-        'settlement',
-        'value',
-        'value'
-      ),
       description,
       amount: expenseAmount,
-      expenseDate: formattedDate as string,
+      expenseDate: transformDateFormat(expenseDate),
       paymentMode,
       files: attachment,
       transactionId,

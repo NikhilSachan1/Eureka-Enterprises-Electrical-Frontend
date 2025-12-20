@@ -14,6 +14,7 @@ import {
   EInputNumberMode,
   EMultiSelectDisplayType,
   ESpinnerMode,
+  ETextCase,
   EUpAndDownButtonLayout,
   IFormConfig,
 } from '@shared/types';
@@ -41,9 +42,12 @@ export interface IInputFieldsConfig {
   radioConfig?: Partial<IRadioFieldConfig>;
   fileConfig?: Partial<IFileFieldConfig>;
   textAreaConfig?: Partial<ITextAreaFieldConfig>;
+  textConfig?: Partial<ITextFieldConfig>;
   individualNumberConfig?: Partial<IIndividualNumberFieldConfig>;
   validators?: ValidatorFn[];
   conditionalValidators?: IFormConfig['conditionalValidators'];
+  preventMaxLength?: boolean; // Default: true - prevents typing beyond maxlength
+  applyPatternFilter?: boolean; // Default: true - filters characters based on pattern validator
 }
 
 export interface IInputNumberFieldConfig {
@@ -149,6 +153,10 @@ export interface ITextAreaFieldConfig {
   rows: number;
   cols: number;
   autoResize: boolean;
+}
+
+export interface ITextFieldConfig {
+  textCase: ETextCase;
 }
 
 export interface IOptionDropdown {

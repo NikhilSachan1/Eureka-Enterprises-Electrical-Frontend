@@ -11,6 +11,7 @@ import {
   DEFAULT_RADIO_INPUT_FIELD_CONFIG,
   DEFAULT_SELECT_INPUT_FIELD_CONFIG,
   DEFAULT_TEXT_AREA_INPUT_FIELD_CONFIG,
+  DEFAULT_TEXT_INPUT_FIELD_CONFIG,
 } from '@shared/config';
 import {
   IFormInputFieldsConfig,
@@ -45,6 +46,8 @@ export class InputFieldConfigService {
     DEFAULT_TEXT_AREA_INPUT_FIELD_CONFIG;
   private readonly defaultIndividualNumberInputFieldConfig: Partial<IInputFieldsConfig> =
     DEFAULT_INDIVIDUAL_NUMBER_INPUT_FIELD_CONFIG;
+  private readonly defaultTextInputFieldConfig: Partial<IInputFieldsConfig> =
+    DEFAULT_TEXT_INPUT_FIELD_CONFIG;
 
   getInputFieldConfig(
     fieldType: EDataType = EDataType.TEXT,
@@ -93,6 +96,8 @@ export class InputFieldConfigService {
         return this.defaultTextAreaInputFieldConfig;
       case EDataType.INDIVIDUAL_NUMBER:
         return this.defaultIndividualNumberInputFieldConfig;
+      case EDataType.TEXT:
+        return this.defaultTextInputFieldConfig;
       default:
         return this.defaultInputFieldConfig;
     }

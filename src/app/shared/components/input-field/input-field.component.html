@@ -26,6 +26,7 @@
           [readonly]="inputFieldConfig().readonlyInput || false"
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
+          (input)="onInput($event)"
         />
         @if (!inputFieldConfig().showStandardLabel) {
           <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
@@ -457,6 +458,7 @@
           [readonly]="inputFieldConfig().readonlyInput || false"
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
+          (input)="onInput($event)"
         ></textarea>
         @if (!inputFieldConfig().showStandardLabel) {
           <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>

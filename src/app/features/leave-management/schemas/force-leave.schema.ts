@@ -7,7 +7,11 @@ import { z } from 'zod';
 
 export const LeaveForceRequestSchema = LeaveApplyRequestSchema.extend({
   userId: uuidField,
-  approvalReason: z.string().trim(),
+  approvalReason: z
+    .string()
+    .trim()
+    .default('Auto Approved by System')
+    .optional(),
 });
 
 export const LeaveForceResponseSchema = LeaveApplyResponseSchema.strict();

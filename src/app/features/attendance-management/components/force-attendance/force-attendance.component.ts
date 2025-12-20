@@ -36,6 +36,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SHIFT_DATA } from '@shared/config';
 import { DatePipe } from '@angular/common';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+import { transformDateFormat } from '@shared/utility';
 
 @Component({
   selector: 'app-force-attendance',
@@ -97,15 +98,9 @@ export class ForceAttendanceComponent implements OnInit {
       employeeName: string[];
     };
 
-    const dateStr = new Date(date);
-    const formattedDate = this.datePipe.transform(
-      dateStr,
-      this.appConfigService.dateFormats.API
-    );
-
     return {
       userIds: employeeName,
-      attendanceDate: formattedDate as string,
+      attendanceDate: transformDateFormat(date),
       checkInTime: SHIFT_DATA.START_TIME,
       checkOutTime: SHIFT_DATA.END_TIME,
       notes: `${location} - ${clientName}`,

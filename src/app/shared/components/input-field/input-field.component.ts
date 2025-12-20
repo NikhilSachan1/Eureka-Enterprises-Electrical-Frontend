@@ -9,7 +9,11 @@ import {
   ViewChild,
   AfterViewInit,
 } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -40,6 +44,7 @@ import {
   EHourFormat,
   EMultiSelectDisplayType,
   EUpAndDownButtonLayout,
+  ETextCase,
   IInputFieldsConfig,
   IGalleryInputData,
   IButtonConfig,
@@ -97,6 +102,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   ALL_MEDIA_ICONS = ICONS;
   ALL_BUTTON_ACTION_TYPES = EButtonActionType;
   ALL_BUTTON_VARIANTS = EButtonVariant;
+  ALL_TEXT_CASES = ETextCase;
 
   totalUploadedSize = 0;
 
@@ -106,13 +112,27 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   inputFieldConfig = input.required<IInputFieldsConfig>();
   onFieldChange = output<boolean>();
 
+  // Cached validator values to avoid recalculation on every input
+  private cachedMaxLength: number | null = null;
+  private cachedPattern: RegExp | null = null;
+  private validatorsInitialized = false;
+
   ngOnInit(): void {
-    if (this.inputFieldConfig().disabledInput) {
-      this.formGroup().controls[this.inputFieldConfig().fieldName].disable();
+    const config = this.inputFieldConfig();
+
+    if (config.disabledInput) {
+      this.formGroup().controls[config.fieldName].disable();
     }
 
-    if (this.inputFieldConfig().fieldType === EDataType.ATTACHMENTS) {
-      const control = this.formGroup().get(this.inputFieldConfig().fieldName);
+    // Initialize cached validator values once
+    if (!this.validatorsInitialized) {
+      this.cachedMaxLength = this.extractMaxLength();
+      this.cachedPattern = this.extractPattern();
+      this.validatorsInitialized = true;
+    }
+
+    if (config.fieldType === EDataType.ATTACHMENTS) {
+      const control = this.formGroup().get(config.fieldName);
       control?.valueChanges.subscribe(value => {
         const hasFiles = Array.isArray(value) ? value.length > 0 : !!value;
 
@@ -387,9 +407,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     if (errors['max']) {
       return `Maximum value is ${errors['max'].max}`;
     }
-    if (errors['pattern']) {
-      return 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
-    }
     if (errors['hasSpecialChars']) {
       return 'Text should not contain any special characters';
     }
@@ -404,5 +421,110 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     }
 
     return 'Invalid value';
+  }
+
+  /**
+   * Global input handler for all text-based fields (TEXT, TEXT_AREA, PASSWORD)
+   * Handles maxlength prevention, pattern filtering, and text case formatting
+   */
+  onInput(event: Event): void {
+    const inputElement = event.target as HTMLInputElement | HTMLTextAreaElement;
+    const control = this.formGroup().get(this.inputFieldConfig().fieldName);
+    if (!control) {
+      return;
+    }
+
+    const config = this.inputFieldConfig();
+    let { value } = inputElement;
+
+    // Apply maxlength prevention
+    if (
+      config.preventMaxLength !== false &&
+      this.cachedMaxLength !== null &&
+      value.length > this.cachedMaxLength
+    ) {
+      value = value.substring(0, this.cachedMaxLength);
+    }
+
+    // Apply pattern filtering
+    if (config.applyPatternFilter !== false && this.cachedPattern) {
+      const pattern = this.cachedPattern;
+      value = value
+        .split('')
+        .filter(char => pattern.test(char))
+        .join('');
+    }
+
+    // Apply text case formatting (only for TEXT field type)
+    if (config.textConfig?.textCase) {
+      value = this.applyTextCase(value, config.textConfig.textCase);
+    }
+
+    // Update if changed
+    if (value !== inputElement.value) {
+      inputElement.value = value;
+      control.setValue(value, { emitEvent: false });
+      control.markAsDirty();
+    }
+  }
+
+  /**
+   * Extracts maxlength from validators (cached on init)
+   */
+  private extractMaxLength(): number | null {
+    const { validators } = this.inputFieldConfig();
+    if (!validators?.length) {
+      return null;
+    }
+
+    const testControl = { value: 'x'.repeat(1000) } as AbstractControl;
+    for (const validator of validators) {
+      const result = validator(testControl);
+      const maxlengthError = result?.['maxlength'];
+      if (
+        maxlengthError &&
+        typeof maxlengthError === 'object' &&
+        'requiredLength' in maxlengthError
+      ) {
+        return maxlengthError.requiredLength as number;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Extracts pattern from validators (cached on init)
+   */
+  private extractPattern(): RegExp | null {
+    const { validators } = this.inputFieldConfig();
+    if (!validators?.length) {
+      return null;
+    }
+
+    const testControl = { value: '!@#$%' } as AbstractControl;
+    for (const validator of validators) {
+      const result = validator(testControl);
+      const patternError = result?.['pattern'];
+      if (
+        patternError &&
+        typeof patternError === 'object' &&
+        'requiredPattern' in patternError
+      ) {
+        const patternStr = patternError.requiredPattern as string;
+        const charClass = patternStr.match(/\[([^\]]+)\]/)?.[1];
+        if (charClass) {
+          return new RegExp(`^[${charClass}]$`);
+        }
+      }
+    }
+    return null;
+  }
+
+  private applyTextCase(value: string, textCase: ETextCase): string {
+    return textCase === ETextCase.UPPERCASE
+      ? value.toUpperCase()
+      : textCase === ETextCase.LOWERCASE
+        ? value.toLowerCase()
+        : value;
   }
 }

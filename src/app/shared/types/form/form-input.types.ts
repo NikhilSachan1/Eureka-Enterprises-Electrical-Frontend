@@ -72,3 +72,9 @@ export enum ECheckBoxAndRadioAlign {
   Horizontal = 'row',
   Vertical = 'col',
 }
+
+export enum ETextCase {
+  NONE = 'NONE',
+  UPPERCASE = 'UPPERCASE',
+  LOWERCASE = 'LOWERCASE',
+}

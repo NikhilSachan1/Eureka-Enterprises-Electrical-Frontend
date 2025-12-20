@@ -11,6 +11,7 @@ import {
   EInputNumberMode,
   EMultiSelectDisplayType,
   ESpinnerMode,
+  ETextCase,
   EUpAndDownButtonLayout,
   IInputFieldsConfig,
 } from '@shared/types';
@@ -24,6 +25,8 @@ export const DEFAULT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
   readonlyInput: false,
   showStandardLabel: false,
   placeholder: 'Search',
+  preventMaxLength: true,
+  applyPatternFilter: true,
 };
 
 export const DEFAULT_NUMBER_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
@@ -155,3 +158,10 @@ export const DEFAULT_INDIVIDUAL_NUMBER_INPUT_FIELD_CONFIG: Partial<IInputFieldsC
       ],
     },
   };
+
+export const DEFAULT_TEXT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
+  ...DEFAULT_INPUT_FIELD_CONFIG,
+  textConfig: {
+    textCase: ETextCase.NONE,
+  },
+};

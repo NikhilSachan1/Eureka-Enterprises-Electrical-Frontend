@@ -52,7 +52,8 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
     ConfirmationDialogService
   );
 
-  protected readonly selectedRecord = input<IExpenseGetBaseResponseDto[]>();
+  protected readonly selectedRecord =
+    input.required<IExpenseGetBaseResponseDto[]>();
   protected readonly dialogActionType = input<EButtonActionType>();
   protected readonly onSuccess = input<() => void>();
 
@@ -62,13 +63,6 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    const actionType = this.dialogActionType() as EButtonActionType;
-    this.form = this.formService.createForm(
-      getApprovalActionExpenseFormConfig(actionType)
-    );
-  }
-
-  onDialogAccept(): void {
     const record = this.selectedRecord();
     if (!record) {
       this.notificationService.error(
@@ -79,7 +73,15 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
       );
       return;
     }
-    this.onSubmit(record);
+
+    const actionType = this.dialogActionType() as EButtonActionType;
+    this.form = this.formService.createForm(
+      getApprovalActionExpenseFormConfig(actionType)
+    );
+  }
+
+  onDialogAccept(): void {
+    this.onSubmit(this.selectedRecord());
   }
 
   protected onSubmit(record: IExpenseGetBaseResponseDto[]): void {

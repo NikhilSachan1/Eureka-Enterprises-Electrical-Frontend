@@ -7,6 +7,7 @@ import {
 import { APPLY_LEAVE_FORM_CONFIG } from './apply-leave.config';
 import { COMMON_FORM_ACTIONS, EMPLOYEE_NAME_DATA } from '@shared/config';
 import { Validators } from '@angular/forms';
+import { getPayslipCutoffMinDate } from '@shared/utility';
 
 const {
   fields: { leaveDate, description },
@@ -23,7 +24,13 @@ const FORCE_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     },
     validators: [Validators.required],
   },
-  leaveDate,
+  leaveDate: {
+    ...leaveDate,
+    dateConfig: {
+      ...leaveDate.dateConfig,
+      minDate: getPayslipCutoffMinDate(),
+    },
+  },
   description,
   approvalReason: {
     ...description,

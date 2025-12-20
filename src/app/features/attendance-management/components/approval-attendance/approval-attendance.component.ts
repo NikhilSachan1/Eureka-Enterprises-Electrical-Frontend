@@ -54,7 +54,8 @@ export class ApprovalAttendanceComponent
     ConfirmationDialogService
   );
 
-  protected readonly selectedRecord = input<IAttendanceGetBaseResponseDto[]>();
+  protected readonly selectedRecord =
+    input.required<IAttendanceGetBaseResponseDto[]>();
   protected readonly dialogActionType = input<EButtonActionType>();
   protected readonly onSuccess = input<() => void>();
 
@@ -64,13 +65,6 @@ export class ApprovalAttendanceComponent
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    const actionType = this.dialogActionType() as EButtonActionType;
-    this.form = this.formService.createForm(
-      getApprovalActionAttendanceFormConfig(actionType)
-    );
-  }
-
-  onDialogAccept(): void {
     const record = this.selectedRecord();
     if (!record) {
       this.notificationService.error(
@@ -81,7 +75,15 @@ export class ApprovalAttendanceComponent
       );
       return;
     }
-    this.onSubmit(record);
+
+    const actionType = this.dialogActionType() as EButtonActionType;
+    this.form = this.formService.createForm(
+      getApprovalActionAttendanceFormConfig(actionType)
+    );
+  }
+
+  onDialogAccept(): void {
+    this.onSubmit(this.selectedRecord());
   }
 
   protected onSubmit(record: IAttendanceGetBaseResponseDto[]): void {

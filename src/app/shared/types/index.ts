@@ -80,12 +80,14 @@ export type {
   IRadioFieldConfig,
   IFileFieldConfig,
   ITextAreaFieldConfig,
+  ITextFieldConfig,
   IOptionDropdown,
   IIndividualNumberFieldConfig,
   IInputSeparator,
   InputEventLike,
   CheckboxEventLike,
 } from './form/input-fields-config.interface';
+export { ETextCase } from './form/form-input.types';
 export type { ILoader } from './loader/loader.interface';
 export type {
   MenuItem,

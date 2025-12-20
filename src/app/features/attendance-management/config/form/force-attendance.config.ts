@@ -1,9 +1,6 @@
 import { Validators } from '@angular/forms';
 import { COMMON_FORM_ACTIONS, EMPLOYEE_NAME_DATA } from '@shared/config';
-import {
-  ATTENDANCE_STATUS_DATA,
-  PAYSLIP_DATE_DATA,
-} from '@shared/config/static-data.config';
+import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
 import {
   EDataType,
   IFormButtonConfig,
@@ -43,7 +40,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'date',
     label: 'Date',
     dateConfig: {
-      minDate: getPayslipCutoffMinDate(PAYSLIP_DATE_DATA.EVERY_MONTH),
+      minDate: getPayslipCutoffMinDate(),
       maxDate: new Date(),
     },
     validators: [Validators.required],

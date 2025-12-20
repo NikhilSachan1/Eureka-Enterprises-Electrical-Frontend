@@ -3,6 +3,10 @@ import { ApiService, LoggerService } from '@core/services';
 import {
   ILeaveActionRequestDto,
   ILeaveActionResponseDto,
+  ILeaveApplyRequestDto,
+  ILeaveApplyResponseDto,
+  ILeaveForceRequestDto,
+  ILeaveForceResponseDto,
   ILeaveGetRequestDto,
   ILeaveGetResponseDto,
 } from '../types/leave.dto';
@@ -11,6 +15,10 @@ import { API_ROUTES } from '@core/constants';
 import {
   LeaveActionRequestSchema,
   LeaveActionResponseSchema,
+  LeaveApplyRequestSchema,
+  LeaveApplyResponseSchema,
+  LeaveForceRequestSchema,
+  LeaveForceResponseSchema,
   LeaveGetRequestSchema,
   LeaveGetResponseSchema,
 } from '../schemas';
@@ -21,6 +29,33 @@ import {
 export class LeaveService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
+
+  applyLeave(
+    formData: ILeaveApplyRequestDto
+  ): Observable<ILeaveApplyResponseDto> {
+    this.logger.logUserAction('Apply Leave Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.LEAVE.APPLY,
+        formData,
+        LeaveApplyRequestSchema,
+        LeaveApplyResponseSchema
+      )
+      .pipe(
+        tap((response: ILeaveApplyResponseDto) => {
+          this.logger.logUserAction('Apply Leave Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Apply Leave Error', error);
+          } else {
+            this.logger.logUserAction('Apply Leave Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
 
   actionLeave(
     formData: ILeaveActionRequestDto
@@ -49,8 +84,35 @@ export class LeaveService {
       );
   }
 
+  forceLeave(
+    formData: ILeaveForceRequestDto
+  ): Observable<ILeaveForceResponseDto> {
+    this.logger.logUserAction('Force Leave Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.LEAVE.FORCE,
+        formData,
+        LeaveForceRequestSchema,
+        LeaveForceResponseSchema
+      )
+      .pipe(
+        tap((response: ILeaveForceResponseDto) => {
+          this.logger.logUserAction('Force Leave Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Force Leave Error', error);
+          } else {
+            this.logger.logUserAction('Force Leave Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   getLeaveList(params?: ILeaveGetRequestDto): Observable<ILeaveGetResponseDto> {
-    this.logger.logUserAction('Get Expense List Request');
+    this.logger.logUserAction('Get Leave List Request');
 
     return this.apiService
       .getValidated(
