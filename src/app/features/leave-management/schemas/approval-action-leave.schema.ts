@@ -9,7 +9,7 @@ export const LeaveActionBaseRequestSchema = z
     approvalStatus,
     approvalComment: approvalReason,
     leaveApplicationId: id,
-    attendanceStatus: attendanceStatusSchema,
+    attendanceStatus: attendanceStatusSchema.optional(),
   })
   .strict();
 

@@ -1,10 +1,13 @@
 import { Validators } from '@angular/forms';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
 import {
   EButtonActionType,
   EDataType,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
+import { filterOptionsByIncludeExclude } from '@shared/utility';
 
 const APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   approveReason: {
@@ -25,6 +28,20 @@ const APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     id: 'cancelReason',
     fieldName: 'comment',
     label: 'Cancel Reason',
+    validators: [Validators.required],
+  },
+  attendanceStatus: {
+    fieldType: EDataType.SELECT,
+    id: 'attendanceStatus',
+    fieldName: 'attendanceStatus',
+    label: 'Attendance Status',
+    selectConfig: {
+      haveFilter: false,
+      optionsDropdown: filterOptionsByIncludeExclude(ATTENDANCE_STATUS_DATA, [
+        EAttendanceStatus.ABSENT,
+        EAttendanceStatus.PRESENT,
+      ]),
+    },
     validators: [Validators.required],
   },
 };
@@ -50,6 +67,9 @@ export const getApprovalActionLeaveFormConfig = (
     const fields: IFormInputFieldsConfig = {
       rejectReason: {
         ...APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG['rejectReason'],
+      },
+      attendanceStatus: {
+        ...APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG['attendanceStatus'],
       },
     };
 
