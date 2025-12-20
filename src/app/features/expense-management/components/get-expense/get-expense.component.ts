@@ -188,26 +188,22 @@ export class GetExpenseComponent implements OnInit {
     }
 
     return [
-      { label: 'Total', value: stats.approval.total, icon: ICONS.COMMON.CHART },
+      { label: 'Total', value: stats.approval.total },
       {
         label: 'Approved',
         value: stats.approval.approved,
-        icon: ICONS.ACTIONS.CHECK_CIRCLE,
       },
       {
         label: 'Pending',
         value: stats.approval.pending,
-        icon: ICONS.ATTENDANCE.REGULARIZE,
       },
       {
         label: 'Rejected',
         value: stats.approval.rejected,
-        icon: ICONS.ACTIONS.TIMES,
       },
       {
         label: 'Opening Balance',
         value: stats.balances.openingBalance,
-        icon: ICONS.EXPENSE.MONEY,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
@@ -216,28 +212,30 @@ export class GetExpenseComponent implements OnInit {
         value: stats.balances.closingBalance,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-        icon: ICONS.EXPENSE.MONEY,
       },
       {
         label: 'Total Debit',
         value: stats.balances.totalDebit,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-        icon: ICONS.EXPENSE.MONEY,
+      },
+      {
+        label: 'Total Credit',
+        value: stats.balances.totalCredit,
+        type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
       {
         label: 'Period Credit',
         value: stats.balances.periodCredit,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-        icon: ICONS.EXPENSE.MONEY,
       },
       {
         label: 'Period Debit',
         value: stats.balances.periodDebit,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-        icon: ICONS.EXPENSE.MONEY,
       },
     ];
   }

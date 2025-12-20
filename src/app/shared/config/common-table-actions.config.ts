@@ -1,40 +1,40 @@
 import { EButtonActionType } from '@shared/types';
-import { ICONS } from '@shared/constants';
+import { IconUtil } from '@shared/utility';
 
 export const COMMON_ROW_ACTIONS = {
   VIEW: {
     id: EButtonActionType.VIEW,
-    icon: ICONS.COMMON.VIEW,
+    icon: IconUtil.getIcon(EButtonActionType.VIEW) ?? undefined,
     tooltip: 'View Details',
   },
 
   EDIT: {
     id: EButtonActionType.EDIT,
-    icon: ICONS.ACTIONS.EDIT,
+    icon: IconUtil.getIcon(EButtonActionType.EDIT) ?? undefined,
     tooltip: 'Edit',
   },
 
   DELETE: {
     id: EButtonActionType.DELETE,
-    icon: ICONS.ACTIONS.TRASH,
+    icon: IconUtil.getIcon(EButtonActionType.DELETE) ?? undefined,
     tooltip: 'Delete',
   },
 
   APPROVE: {
     id: EButtonActionType.APPROVE,
-    icon: ICONS.ACTIONS.CHECK,
+    icon: IconUtil.getIcon(EButtonActionType.APPROVE) ?? undefined,
     tooltip: 'Approve',
   },
 
   REJECT: {
     id: EButtonActionType.REJECT,
-    icon: ICONS.ACTIONS.TIMES,
+    icon: IconUtil.getIcon(EButtonActionType.REJECT) ?? undefined,
     tooltip: 'Reject',
   },
 
   CANCEL: {
     id: EButtonActionType.CANCEL,
-    icon: ICONS.ACTIONS.BAN,
+    icon: IconUtil.getIcon(EButtonActionType.CANCEL) ?? undefined,
     tooltip: 'Cancel',
   },
 } as const;

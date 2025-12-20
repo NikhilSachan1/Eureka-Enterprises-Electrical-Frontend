@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EDataType, IMetric } from '@shared/types';
-import { ColorUtil } from '@shared/utility';
+import { ColorUtil, IconUtil } from '@shared/utility';
 
 @Component({
   selector: 'app-metrics-card',
@@ -29,5 +29,15 @@ export class MetricsCardComponent {
       ...hexColors,
       textClass: colorClass.text,
     };
+  }
+
+  getIcon(metric: IMetric): string | null {
+    // Priority 1: Manual icon from component
+    if (metric.icon) {
+      return metric.icon;
+    }
+
+    // Priority 2: Dynamic icon based on label
+    return IconUtil.getIcon(metric.label);
   }
 }

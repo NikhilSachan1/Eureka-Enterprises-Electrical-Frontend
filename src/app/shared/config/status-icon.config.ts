@@ -1,0 +1,35 @@
+import { ICONS } from '@shared/constants';
+
+export const STATUS_ICON_GROUPS: Record<string, string> = {
+  // Success/Approved statuses
+  approved: ICONS.ACTIONS.CHECK_CIRCLE,
+  approve: ICONS.ACTIONS.CHECK_CIRCLE,
+  present: ICONS.ACTIONS.CHECK_CIRCLE,
+  'total credit': ICONS.COMMON.ARROW_UP,
+  'period credit': ICONS.COMMON.ARROW_UP,
+
+  // Danger/Rejected statuses
+  rejected: ICONS.ACTIONS.TIMES,
+  reject: ICONS.ACTIONS.TIMES,
+  absent: ICONS.ACTIONS.TIMES,
+  delete: ICONS.ACTIONS.TRASH,
+  'closing balance': ICONS.EXPENSE.MONEY,
+  'total debit': ICONS.EXPENSE.MONEY,
+  'period debit': ICONS.EXPENSE.MONEY,
+  'total consumed': ICONS.EXPENSE.MONEY,
+
+  // Warning/Pending statuses
+  pending: ICONS.ATTENDANCE.REGULARIZE,
+  leave: ICONS.LEAVE.GET,
+  regularize: ICONS.ATTENDANCE.REGULARIZE,
+  edit: ICONS.ACTIONS.EDIT,
+  cancel: ICONS.ACTIONS.BAN,
+  cancelled: ICONS.ACTIONS.BAN,
+
+  // Info statuses
+  holiday: ICONS.ATTENDANCE.CALENDAR,
+  view: ICONS.ACTIONS.EYE,
+  total: ICONS.COMMON.CHART,
+  'opening balance': ICONS.EXPENSE.MONEY,
+  'total balance': ICONS.EXPENSE.MONEY,
+} as const;

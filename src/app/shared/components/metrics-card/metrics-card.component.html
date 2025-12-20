@@ -19,10 +19,11 @@
       <!-- Card content -->
       <div class="metric-card-body">
         <!-- Icon section -->
-        @if (metric.icon) {
+        @let icon = getIcon(metric);
+        @if (icon) {
           <div class="metric-icon-wrapper">
             <div class="metric-icon">
-              <i [class]="metric.icon"></i>
+              <i [class]="icon"></i>
             </div>
           </div>
         }
