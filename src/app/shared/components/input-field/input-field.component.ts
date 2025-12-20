@@ -13,6 +13,7 @@ import {
   AbstractControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidatorFn,
 } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -419,6 +420,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     if (errors['fileFormat']) {
       return `Only allowed file types are ${arrayToString(errors['fileFormatValue'], ', ')}`;
     }
+    if (errors['pattern']) {
+      return errors['pattern'];
+    }
 
     return 'Invalid value';
   }
@@ -479,7 +483,14 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     const testControl = { value: 'x'.repeat(1000) } as AbstractControl;
     for (const validator of validators) {
-      const result = validator(testControl);
+      // Check if validator is wrapped with withCustomMessage
+      const wrappedValidator = validator as ValidatorFn & {
+        __originalValidator?: ValidatorFn;
+      };
+      const originalValidator =
+        wrappedValidator.__originalValidator ?? validator;
+
+      const result = originalValidator(testControl);
       const maxlengthError = result?.['maxlength'];
       if (
         maxlengthError &&
@@ -503,7 +514,14 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     const testControl = { value: '!@#$%' } as AbstractControl;
     for (const validator of validators) {
-      const result = validator(testControl);
+      // Check if validator is wrapped with withCustomMessage
+      const wrappedValidator = validator as ValidatorFn & {
+        __originalValidator?: ValidatorFn;
+      };
+      const originalValidator =
+        wrappedValidator.__originalValidator ?? validator;
+
+      const result = originalValidator(testControl);
       const patternError = result?.['pattern'];
       if (
         patternError &&

@@ -15,6 +15,7 @@ import {
 import {
   filterOptionsByIncludeExclude,
   getDateBeforeXDays,
+  withCustomMessage,
 } from '@shared/utility';
 
 const {
@@ -84,10 +85,11 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     validators: [
       Validators.minLength(TRANSACTION_ID_MIN_LENGTH),
       Validators.maxLength(TRANSACTION_ID_MAX_LENGTH),
-      Validators.pattern(TRANSACTION_ID_PATTERN),
+      withCustomMessage(
+        Validators.pattern(TRANSACTION_ID_PATTERN),
+        'Invalid transaction ID / Receipt Number / UTR Number'
+      ),
     ],
-    preventMaxLength: false,
-    applyPatternFilter: false,
   },
   description: {
     fieldType: EDataType.TEXT_AREA,

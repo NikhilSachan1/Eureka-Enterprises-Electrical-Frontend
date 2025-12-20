@@ -18,6 +18,7 @@ export {
   fileLimitValidator,
   fileSizeValidator,
   fileFormatValidator,
+  withCustomMessage,
 } from './validators.util';
 export {
   convertSecondsToDhms,

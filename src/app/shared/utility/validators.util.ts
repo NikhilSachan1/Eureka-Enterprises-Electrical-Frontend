@@ -63,3 +63,26 @@ export const fileFormatValidator = (
       : null;
   };
 };
+
+export const withCustomMessage = (
+  validator: ValidatorFn,
+  message: string
+): ValidatorFn => {
+  const wrappedValidator = (
+    control: AbstractControl
+  ): ValidationErrors | null => {
+    const result = validator(control);
+    if (!result) {
+      return null;
+    }
+
+    const errorKey = Object.keys(result)[0];
+    return errorKey ? { [errorKey]: message } : result;
+  };
+
+  // Store reference to original validator for pattern/maxlength extraction
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (wrappedValidator as any).__originalValidator = validator;
+
+  return wrappedValidator;
+};
