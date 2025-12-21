@@ -1,0 +1,156 @@
+<p-stepper [(value)]="activeStep">
+  @let stepperSteps = finalStepperConfig().steps;
+  @let stepperOrientation = finalStepperConfig().orientation;
+
+  <!-- Horizontal Layout -->
+  @if (stepperOrientation === ALL_STEPPER_ORIENTATIONS.HORIZONTAL) {
+    <p-step-list>
+      @for (step of stepperSteps; track step.value) {
+        <p-step [value]="step.value">
+          <ng-template
+            #content
+            let-activateCallback="activateCallback"
+            let-value="value"
+          >
+            <ng-container
+              *ngTemplateOutlet="
+                stepContentTemplate;
+                context: { activateCallback: activateCallback, value: value, step: step, activeStep: activeStep() }
+              "
+            ></ng-container>
+          </ng-template>
+        </p-step>
+      }
+    </p-step-list>
+
+    <p-step-panels>
+      @for (step of stepperSteps; track step.value) {
+        @let panel = step.panelConfig;
+        @if (panel) {
+          <p-step-panel [value]="step.value">
+            <ng-template
+              #content
+              let-activateCallback="activateCallback"
+            >
+              <ng-container
+                *ngTemplateOutlet="
+                  panelTemplate;
+                  context: { $implicit: panel, step: step, activateCallback: activateCallback }
+                "
+              ></ng-container>
+            </ng-template>
+          </p-step-panel>
+        }
+      }
+    </p-step-panels>
+  }
+  <!-- Horizontal Layout End -->
+
+  <!-- Vertical Layout -->
+  @if (stepperOrientation === ALL_STEPPER_ORIENTATIONS.VERTICAL) {
+    @for (step of finalStepperConfig().steps; track step.value) {
+      @let panel = step.panelConfig;
+      <p-step-item [value]="step.value">
+        <p-step>
+          <ng-template
+            #content
+            let-activateCallback="activateCallback"
+            let-value="value"
+          >
+            <ng-container
+              *ngTemplateOutlet="
+                stepContentTemplate;
+                context: { activateCallback: activateCallback, value: value, step: step, activeStep: activeStep() }
+              "
+            ></ng-container>
+          </ng-template>
+        </p-step>
+
+        <p-step-panel>
+          <ng-template
+            #content
+            let-activateCallback="activateCallback"
+          >
+            @if (panel) {
+              <ng-container
+                *ngTemplateOutlet="
+                  panelTemplate;
+                  context: { $implicit: panel, step: step, activateCallback: activateCallback }
+                "
+              ></ng-container>
+            }
+          </ng-template>
+        </p-step-panel>
+      </p-step-item>
+    }
+  }
+</p-stepper>
+
+<ng-template
+  #stepContentTemplate
+  let-activateCallback="activateCallback"
+  let-value="value"
+  let-step="step"
+  let-activeStep="activeStep"
+>
+  <div
+    class="bg-transparent border-0 inline-flex items-center gap-2"
+    (click)="activateCallback()"
+    tabindex="0"
+  >
+    <span
+      class="rounded-full border-2 w-12 h-12 inline-flex items-center justify-center cursor-pointer"
+      [ngClass]="{
+        'bg-primary text-primary-contrast border-primary': value <= activeStep,
+        'border-surface': value > activeStep,
+      }"
+    >
+      @if (step?.icon) {
+        <i [class]="step.icon"></i>
+      } @else {
+        {{ step.value }}
+      }
+    </span>
+    @if (step?.label) {
+      <span class="text-sm text-center text-gray-500 font-medium tracking-wide">{{ step.label }}</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template
+  #panelTemplate
+  let-panel
+  let-step="step"
+  let-activateCallback="activateCallback"
+>
+  @if (panel?.title) {
+    <div class="text-center mt-4 mb-4 text-xl font-semibold">
+      {{ panel.title }}
+    </div>
+  }
+  @if (panel.templateKey && panelTemplates()[panel.templateKey]) {
+    <ng-container *ngTemplateOutlet="panelTemplates()[panel.templateKey]; context: { $implicit: panel }"></ng-container>
+  }
+
+  <div
+    class="flex py-6"
+    [ngClass]="{
+      'justify-end': !panel.backButtonConfig?.visible && panel.nextButtonConfig.visible,
+      'justify-start': panel.backButtonConfig.visible && !panel.nextButtonConfig.visible,
+      'justify-between': panel.backButtonConfig.visible && panel.nextButtonConfig.visible,
+    }"
+  >
+    @if (panel.backButtonConfig.visible) {
+      <app-button
+        [buttonConfig]="panel.backButtonConfig"
+        (onButtonClick)="activateCallback(step.value - 1)"
+      />
+    }
+    @if (panel.nextButtonConfig.visible) {
+      <app-button
+        [buttonConfig]="panel.nextButtonConfig"
+        (onButtonClick)="activateCallback(step.value + 1)"
+      />
+    }
+  </div>
+</ng-template>

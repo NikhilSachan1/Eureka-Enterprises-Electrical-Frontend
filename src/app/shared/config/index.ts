@@ -54,3 +54,4 @@ export { COMMON_FORM_ACTIONS } from './common-form-actions.config';
 export { DEFAULT_READ_MORE_CONFIG } from './read-more.config';
 export { STATUS_COLOR_GROUPS } from './status-color.config';
 export { STATUS_ICON_GROUPS } from './status-icon.config';
+export { DEFAULT_STEPPER_CONFIG } from './stepper.config';
