@@ -1,4 +1,4 @@
-import type { FormGroup, ValidatorFn } from '@angular/forms';
+import type { FormGroup } from '@angular/forms';
 import { IInputFieldsConfig } from '@shared/types/form/input-fields-config.interface';
 import { IButtonConfig } from '@shared/types/button/button.interface';
 
@@ -12,12 +12,27 @@ export type IFormButtonConfig = Record<string, Partial<IButtonConfig>>;
 export interface IFormConfig {
   fields: IFormInputFieldsConfig;
   buttons?: IFormButtonConfig;
-  conditionalValidators?: {
-    dependsOn: string;
-    validators: ValidatorFn[];
-    shouldApply: (value: unknown) => boolean;
-    resetOnFalse?: boolean;
-  }[];
+}
+
+export interface IMultiStepFormConfig {
+  fields: Record<string, IFormInputFieldsConfig>;
+  buttons?: IFormButtonConfig;
+}
+
+export interface IEnhancedMultiStepForm {
+  forms: Record<string, IEnhancedForm>;
+  buttonConfigs: Record<string, Partial<IButtonConfig>>;
+  isValid(): boolean;
+  isInvalid(): boolean;
+  isDirty(): boolean;
+  isTouched(): boolean;
+  markTouched(): void;
+  reset(): void;
+  disable(): void;
+  enable(): void;
+  validateAndMarkTouched(): boolean;
+  getData(): Record<string, unknown>;
+  getRawData(): Record<string, unknown>;
 }
 
 export interface IEnhancedForm {

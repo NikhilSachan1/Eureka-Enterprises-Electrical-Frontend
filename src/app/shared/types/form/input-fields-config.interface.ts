@@ -16,7 +16,6 @@ import {
   ESpinnerMode,
   ETextCase,
   EUpAndDownButtonLayout,
-  IFormConfig,
 } from '@shared/types';
 
 export interface IInputFieldsConfig {
@@ -45,7 +44,7 @@ export interface IInputFieldsConfig {
   textConfig?: Partial<ITextFieldConfig>;
   individualNumberConfig?: Partial<IIndividualNumberFieldConfig>;
   validators?: ValidatorFn[];
-  conditionalValidators?: IFormConfig['conditionalValidators'];
+  conditionalValidators?: IConditionalValidator[];
   preventMaxLength?: boolean; // Default: true - prevents typing beyond maxlength
   applyPatternFilter?: boolean; // Default: true - filters characters based on pattern validator
 }
@@ -183,4 +182,11 @@ export interface InputEventLike {
 
 export interface CheckboxEventLike {
   checked: unknown;
+}
+
+export interface IConditionalValidator {
+  dependsOn: string;
+  validators: ValidatorFn[];
+  shouldApply: (value: unknown) => boolean;
+  resetOnFalse?: boolean;
 }

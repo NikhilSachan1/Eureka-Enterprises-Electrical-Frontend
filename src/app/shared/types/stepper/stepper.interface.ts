@@ -14,6 +14,7 @@ export interface IStepperPanelConfig {
   templateKey: string;
   nextButtonConfig?: Partial<IButtonConfig>;
   backButtonConfig?: Partial<IButtonConfig>;
+  resetButtonConfig?: Partial<IButtonConfig>;
 }
 
 export interface IStepperConfig {
@@ -21,5 +22,6 @@ export interface IStepperConfig {
   activeStep?: number;
   orientation?: EStepperOrientation;
   showNextAndBackButtons?: boolean;
+  showResetButton?: boolean;
   linear?: boolean;
 }

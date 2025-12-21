@@ -67,6 +67,8 @@ export type {
   IFormInputFieldsConfig,
   IFormButtonConfig,
   IFormConfig,
+  IMultiStepFormConfig,
+  IEnhancedMultiStepForm,
   IEnhancedForm,
 } from './form/form.interface';
 export type {

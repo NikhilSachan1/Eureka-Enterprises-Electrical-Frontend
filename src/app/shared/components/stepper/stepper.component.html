@@ -18,7 +18,11 @@
             <ng-container
               *ngTemplateOutlet="
                 stepContentTemplate;
-                context: { activateCallback: activateCallback, value: value, step: step, activeStep: activeStep() }
+                context: {
+                  activateCallback: activateCallback,
+                  value: value,
+                  step: step,
+                }
               "
             ></ng-container>
           </ng-template>
@@ -42,7 +46,6 @@
                     $implicit: panel,
                     step: step,
                     activateCallback: activateCallback,
-                    showButtons: finalStepperConfig().showNextAndBackButtons,
                   }
                 "
               ></ng-container>
@@ -68,7 +71,11 @@
             <ng-container
               *ngTemplateOutlet="
                 stepContentTemplate;
-                context: { activateCallback: activateCallback, value: value, step: step, activeStep: activeStep() }
+                context: {
+                  activateCallback: activateCallback,
+                  value: value,
+                  step: step,
+                }
               "
             ></ng-container>
           </ng-template>
@@ -87,7 +94,6 @@
                     $implicit: panel,
                     step: step,
                     activateCallback: activateCallback,
-                    showButtons: finalStepperConfig().showNextAndBackButtons,
                   }
                 "
               ></ng-container>
@@ -104,21 +110,28 @@
   let-activateCallback="activateCallback"
   let-value="value"
   let-step="step"
-  let-activeStep="activeStep"
 >
+  @let _stepErrors = stepErrors();
+  @let _stepValid = stepValid();
+  @let hasError = _stepErrors && _stepErrors[value] === true;
+  @let isValid = _stepValid && _stepValid[value] === true;
+
+  @let bgClass = hasError ? 'bg-red-500' : isValid ? 'bg-green-500' : 'bg-slate-200';
+  @let textClass = hasError ? 'text-white' : isValid ? 'text-white' : 'text-slate-700';
+  @let borderClass = hasError ? 'border-red-500' : isValid ? 'border-green-500' : 'border-slate-400';
+
   <div
     class="bg-transparent border-0 inline-flex items-center gap-2"
     (click)="activateCallback()"
     tabindex="0"
   >
     <span
-      class="rounded-full border-2 w-12 h-12 inline-flex items-center justify-center cursor-pointer"
-      [ngClass]="{
-        'bg-primary text-primary-contrast border-primary': value <= activeStep,
-        'border-surface': value > activeStep,
-      }"
+      class="rounded-full border-2 w-12 h-12 inline-flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105"
+      [ngClass]="[bgClass, textClass, borderClass, 'shadow-md']"
     >
-      @if (step?.icon) {
+      @if (_stepValid && _stepValid[value] === true) {
+        <i class="pi pi-check text-white text-lg font-bold"></i>
+      } @else if (step?.icon) {
         <i [class]="step.icon"></i>
       } @else {
         {{ step.value }}
@@ -135,7 +148,6 @@
   let-panel
   let-step="step"
   let-activateCallback="activateCallback"
-  let-showButtons="showButtons"
 >
   @if (panel?.title) {
     <div class="text-center mt-4 mb-4 text-xl font-semibold">
@@ -146,33 +158,46 @@
     <ng-container *ngTemplateOutlet="panelTemplates()[panel.templateKey]; context: { $implicit: panel }"></ng-container>
   }
 
+  @let showButtons = finalStepperConfig().showNextAndBackButtons;
+
   @if (showButtons) {
     @let isFirstStep = step.value === 1;
     @let totalSteps = stepperSteps.length;
     @let isLastStep = step.value === totalSteps;
     @let showBackButton = !isFirstStep && panel.backButtonConfig;
-    @let showNextButton = !isLastStep && panel.nextButtonConfig;
+    @let showNextButton = (!isLastStep || totalSteps === 1) && panel.nextButtonConfig;
+    @let showResetButton = finalStepperConfig().showResetButton && panel.resetButtonConfig;
+    @let hasLeftButton = showBackButton;
+    @let hasRightButtons = showNextButton || showResetButton;
 
     <div
       class="flex py-6"
       [ngClass]="{
-        'justify-end': !showBackButton && showNextButton,
-        'justify-start': showBackButton && !showNextButton,
-        'justify-between': showBackButton && showNextButton,
+        'justify-end': !hasLeftButton && hasRightButtons,
+        'justify-start': hasLeftButton && !hasRightButtons,
+        'justify-between': hasLeftButton && hasRightButtons,
       }"
     >
       @if (showBackButton) {
         <app-button
           [buttonConfig]="panel.backButtonConfig"
-          (onButtonClick)="activateCallback(step.value - 1)"
+          (onButtonClick)="handlePreviousStep()"
         />
       }
-      @if (showNextButton) {
-        <app-button
-          [buttonConfig]="panel.nextButtonConfig"
-          (onButtonClick)="activateCallback(step.value + 1)"
-        />
-      }
+      <div class="flex gap-2">
+        @if (showResetButton) {
+          <app-button
+            [buttonConfig]="panel.resetButtonConfig"
+            (onButtonClick)="handleReset()"
+          />
+        }
+        @if (showNextButton) {
+          <app-button
+            [buttonConfig]="panel.nextButtonConfig"
+            (onButtonClick)="handleNextStep()"
+          />
+        }
+      </div>
     </div>
   }
 </ng-template>

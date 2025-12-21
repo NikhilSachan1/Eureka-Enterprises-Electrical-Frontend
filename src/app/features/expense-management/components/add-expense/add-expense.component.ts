@@ -18,9 +18,8 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ReactiveFormsModule } from '@angular/forms';
 import { ADD_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
 import { ButtonComponent } from '@shared/components/button/button.component';
-import { AppConfigService, LoggerService } from '@core/services';
+import { LoggerService } from '@core/services';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
-import { DatePipe } from '@angular/common';
 import { IExpenseAddRequestDto } from '@features/expense-management/types/expense.dto';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -43,7 +42,6 @@ import { transformDateFormat } from '@shared/utility';
   templateUrl: './add-expense.component.html',
   styleUrl: './add-expense.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DatePipe],
 })
 export class AddExpenseComponent implements OnInit {
   private readonly formService = inject(FormService);
@@ -53,8 +51,6 @@ export class AddExpenseComponent implements OnInit {
   private readonly expenseService = inject(ExpenseService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly datePipe = inject(DatePipe);
-  private readonly appConfigService = inject(AppConfigService);
 
   protected form!: IEnhancedForm;
 

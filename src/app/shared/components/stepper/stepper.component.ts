@@ -2,10 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   input,
+  output,
   computed,
   TemplateRef,
-  signal,
+  model,
   OnInit,
+  signal,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StepperModule } from 'primeng/stepper';
@@ -17,6 +20,7 @@ import {
   DEFAULT_STEPPER_CONFIG,
   DEFAULT_STEPPER_NEXT_BUTTON_CONFIG,
   DEFAULT_STEPPER_BACK_BUTTON_CONFIG,
+  DEFAULT_STEPPER_RESET_BUTTON_CONFIG,
 } from '@shared/config';
 import { ButtonComponent } from '../button/button.component';
 import { EStepperOrientation } from '@shared/types';
@@ -32,21 +36,44 @@ import { EStepperOrientation } from '@shared/types';
 export class StepperComponent implements OnInit {
   stepperConfig = input<Partial<IStepperConfig>>();
   panelTemplates = input.required<Record<string, TemplateRef<unknown>>>();
+  stepErrors = input<Record<number, boolean>>({});
+  stepValid = input<Record<number, boolean>>({});
 
-  protected readonly activeStep = signal<number>(1);
+  activeStep = model<number>(1);
+
+  nextStepRequested = output<void>();
+  previousStepRequested = output<void>();
+  resetRequested = output<void>();
 
   protected readonly ALL_STEPPER_ORIENTATIONS = EStepperOrientation;
+  protected readonly isMobile = signal(window.innerWidth <= 1024);
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.isMobile.set(window.innerWidth <= 1024);
+  }
 
   protected readonly finalStepperConfig = computed(() => {
     const config = this.stepperConfig();
+    const mobile = this.isMobile();
 
     if (!config || Object.keys(config).length === 0) {
-      return DEFAULT_STEPPER_CONFIG as IStepperConfig;
+      const defaultConfig = {
+        ...DEFAULT_STEPPER_CONFIG,
+        orientation: mobile
+          ? EStepperOrientation.VERTICAL
+          : DEFAULT_STEPPER_CONFIG.orientation,
+      } as IStepperConfig;
+      return defaultConfig;
     }
 
     const mergedConfig = {
       ...DEFAULT_STEPPER_CONFIG,
       ...config,
+      // Override orientation based on screen size
+      orientation: mobile
+        ? EStepperOrientation.VERTICAL
+        : (config.orientation ?? DEFAULT_STEPPER_CONFIG.orientation),
     } as IStepperConfig;
 
     // Merge default button configs with panel configs
@@ -73,6 +100,10 @@ export class StepperComponent implements OnInit {
         ...DEFAULT_STEPPER_BACK_BUTTON_CONFIG,
         ...(panelConfig.backButtonConfig ?? {}),
       },
+      resetButtonConfig: {
+        ...DEFAULT_STEPPER_RESET_BUTTON_CONFIG,
+        ...(panelConfig.resetButtonConfig ?? {}),
+      },
     };
   }
 
@@ -85,5 +116,17 @@ export class StepperComponent implements OnInit {
     if (config.activeStep) {
       this.activeStep.set(config.activeStep);
     }
+  }
+
+  protected handleNextStep(): void {
+    this.nextStepRequested.emit();
+  }
+
+  protected handlePreviousStep(): void {
+    this.previousStepRequested.emit();
+  }
+
+  protected handleReset(): void {
+    this.resetRequested.emit();
   }
 }

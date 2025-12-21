@@ -60,6 +60,10 @@ import {
   fileLimitValidator,
   fileSizeValidator,
   stringToArray,
+  toLowerCase,
+  toSentenceCase,
+  toTitleCase,
+  toUpperCase,
 } from '@shared/utility';
 import { ImageModule } from 'primeng/image';
 
@@ -540,9 +544,13 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
   private applyTextCase(value: string, textCase: ETextCase): string {
     return textCase === ETextCase.UPPERCASE
-      ? value.toUpperCase()
+      ? toUpperCase(value)
       : textCase === ETextCase.LOWERCASE
-        ? value.toLowerCase()
-        : value;
+        ? toLowerCase(value)
+        : textCase === ETextCase.TITLECASE
+          ? toTitleCase(value)
+          : textCase === ETextCase.SENTENCECASE
+            ? toSentenceCase(value)
+            : value;
   }
 }

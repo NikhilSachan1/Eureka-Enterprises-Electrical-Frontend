@@ -134,3 +134,210 @@ export const EXPENSE_PAYMENT_METHOD_DATA: IOptionDropdown[] = [
   { label: 'Cash', value: 'cash' },
   { label: 'Bank Transfer (NEFT / RTGS / IMPS)', value: 'bank_transfer' },
 ];
+
+export const EMPLOYEE_GENDER_DATA: IOptionDropdown[] = [
+  { label: 'Male', value: 'male' },
+  { label: 'Female', value: 'female' },
+  { label: 'Other', value: 'other' },
+];
+
+export const EMPLOYEE_BLOOD_GROUP_DATA: IOptionDropdown[] = [
+  { label: 'A+', value: 'a_positive' },
+  { label: 'A-', value: 'a_negative' },
+  { label: 'B+', value: 'b_positive' },
+  { label: 'B-', value: 'b_negative' },
+  { label: 'AB+', value: 'ab_positive' },
+  { label: 'AB-', value: 'ab_negative' },
+  { label: 'O+', value: 'o_positive' },
+  { label: 'O-', value: 'o_negative' },
+];
+
+export const INDIA_STATE_DATA: IOptionDropdown[] = [
+  { label: 'Andhra Pradesh', value: 'andhra_pradesh' },
+  { label: 'Arunachal Pradesh', value: 'arunachal_pradesh' },
+  { label: 'Assam', value: 'assam' },
+  { label: 'Bihar', value: 'bihar' },
+  { label: 'Chhattisgarh', value: 'chhattisgarh' },
+  { label: 'Goa', value: 'goa' },
+  { label: 'Gujarat', value: 'gujarat' },
+  { label: 'Haryana', value: 'haryana' },
+  { label: 'Himachal Pradesh', value: 'himachal_pradesh' },
+  { label: 'Jharkhand', value: 'jharkhand' },
+  { label: 'Karnataka', value: 'karnataka' },
+  { label: 'Kerala', value: 'kerala' },
+  { label: 'Madhya Pradesh', value: 'madhya_pradesh' },
+  { label: 'Maharashtra', value: 'maharashtra' },
+  { label: 'Manipur', value: 'manipur' },
+  { label: 'Meghalaya', value: 'meghalaya' },
+  { label: 'Mizoram', value: 'mizoram' },
+  { label: 'Nagaland', value: 'nagaland' },
+  { label: 'Odisha', value: 'odisha' },
+  { label: 'Punjab', value: 'punjab' },
+  { label: 'Rajasthan', value: 'rajasthan' },
+  { label: 'Sikkim', value: 'sikkim' },
+  { label: 'Tamil Nadu', value: 'tamil_nadu' },
+  { label: 'Telangana', value: 'telangana' },
+  { label: 'Tripura', value: 'tripura' },
+  { label: 'Uttar Pradesh', value: 'uttar_pradesh' },
+  { label: 'Uttarakhand', value: 'uttarakhand' },
+  { label: 'West Bengal', value: 'west_bengal' },
+  { label: 'Andaman and Nicobar Islands', value: 'andaman_nicobar' },
+  { label: 'Chandigarh', value: 'chandigarh' },
+  { label: 'Delhi', value: 'delhi' },
+  { label: 'Jammu and Kashmir', value: 'jammu_kashmir' },
+  { label: 'Ladakh', value: 'ladakh' },
+  { label: 'Lakshadweep', value: 'lakshadweep' },
+  { label: 'Puducherry', value: 'puducherry' },
+];
+
+export const INDIA_CITY_DATA: Record<string, IOptionDropdown[]> = {
+  andhra_pradesh: [
+    { label: 'Visakhapatnam', value: 'visakhapatnam' },
+    { label: 'Vijayawada', value: 'vijayawada' },
+    { label: 'Guntur', value: 'guntur' },
+  ],
+
+  bihar: [
+    { label: 'Patna', value: 'patna' },
+    { label: 'Gaya', value: 'gaya' },
+    { label: 'Bhagalpur', value: 'bhagalpur' },
+  ],
+
+  delhi: [
+    { label: 'New Delhi', value: 'new_delhi' },
+    { label: 'Dwarka', value: 'dwarka' },
+    { label: 'Rohini', value: 'rohini' },
+  ],
+
+  gujarat: [
+    { label: 'Ahmedabad', value: 'ahmedabad' },
+    { label: 'Surat', value: 'surat' },
+    { label: 'Vadodara', value: 'vadodara' },
+    { label: 'Rajkot', value: 'rajkot' },
+  ],
+
+  haryana: [
+    { label: 'Gurgaon', value: 'gurgaon' },
+    { label: 'Faridabad', value: 'faridabad' },
+    { label: 'Panipat', value: 'panipat' },
+  ],
+
+  karnataka: [
+    { label: 'Bengaluru', value: 'bengaluru' },
+    { label: 'Mysuru', value: 'mysuru' },
+    { label: 'Mangaluru', value: 'mangaluru' },
+    { label: 'Hubli', value: 'hubli' },
+  ],
+
+  maharashtra: [
+    { label: 'Mumbai', value: 'mumbai' },
+    { label: 'Pune', value: 'pune' },
+    { label: 'Nagpur', value: 'nagpur' },
+    { label: 'Nashik', value: 'nashik' },
+    { label: 'Thane', value: 'thane' },
+  ],
+
+  rajasthan: [
+    { label: 'Jaipur', value: 'jaipur' },
+    { label: 'Jodhpur', value: 'jodhpur' },
+    { label: 'Udaipur', value: 'udaipur' },
+  ],
+
+  tamil_nadu: [
+    { label: 'Chennai', value: 'chennai' },
+    { label: 'Coimbatore', value: 'coimbatore' },
+    { label: 'Madurai', value: 'madurai' },
+    { label: 'Salem', value: 'salem' },
+  ],
+
+  telangana: [
+    { label: 'Hyderabad', value: 'hyderabad' },
+    { label: 'Warangal', value: 'warangal' },
+    { label: 'Karimnagar', value: 'karimnagar' },
+  ],
+
+  uttar_pradesh: [
+    { label: 'Lucknow', value: 'lucknow' },
+    { label: 'Noida', value: 'noida' },
+    { label: 'Ghaziabad', value: 'ghaziabad' },
+    { label: 'Kanpur', value: 'kanpur' },
+    { label: 'Varanasi', value: 'varanasi' },
+  ],
+
+  west_bengal: [
+    { label: 'Kolkata', value: 'kolkata' },
+    { label: 'Howrah', value: 'howrah' },
+    { label: 'Durgapur', value: 'durgapur' },
+  ],
+
+  chandigarh: [{ label: 'Chandigarh', value: 'chandigarh' }],
+  puducherry: [{ label: 'Puducherry', value: 'puducherry' }],
+};
+
+export const EMPLOYMENT_TYPE_DATA: IOptionDropdown[] = [
+  { label: 'Contract', value: 'contract' },
+  { label: 'Intern', value: 'intern' },
+  { label: 'Part-Time', value: 'part_time' },
+  { label: 'Full-Time', value: 'full_time' },
+];
+
+export const DESIGNATION_DATA: IOptionDropdown[] = [
+  { label: 'Sr. Testing Engineer', value: 'sr_testing_engineer' },
+  { label: 'Associate Testing Engineer', value: 'associate_testing_engineer' },
+  { label: 'Jr. Testing Engineer', value: 'jr_testing_engineer' },
+  { label: 'Driver', value: 'driver' },
+  { label: 'Human Resource (HR)', value: 'human_resource_hr' },
+  { label: 'Accountant', value: 'accountant' },
+];
+
+export const DEGREE_DATA: IOptionDropdown[] = [
+  { label: 'B.Tech', value: 'b_tech' },
+  { label: 'M.Tech', value: 'm_tech' },
+  { label: 'B.Sc', value: 'b_sc' },
+  { label: 'M.Sc', value: 'm_sc' },
+  { label: 'B.A', value: 'b_a' },
+  { label: 'M.A', value: 'm_a' },
+  { label: 'B.Com', value: 'b_com' },
+  { label: 'M.Com', value: 'm_com' },
+];
+
+export const BRANCH_DATA: IOptionDropdown[] = [
+  {
+    label: 'Computer Science and Engineering',
+    value: 'computer_science_engineering',
+  },
+  {
+    label: 'Electronics and Communication Engineering',
+    value: 'electronics_communication_engineering',
+  },
+  {
+    label: 'Electrical and Electronics Engineering',
+    value: 'electrical_electronics_engineering',
+  },
+  { label: 'Mechanical Engineering', value: 'mechanical_engineering' },
+  { label: 'Civil Engineering', value: 'civil_engineering' },
+  { label: 'Chemical Engineering', value: 'chemical_engineering' },
+  { label: 'Biotechnology', value: 'biotechnology' },
+  { label: 'Other', value: 'other' },
+];
+
+export const PASSING_YEAR_DATA: IOptionDropdown[] = [
+  { label: '2020', value: '2020' },
+  { label: '2021', value: '2021' },
+  { label: '2022', value: '2022' },
+  { label: '2023', value: '2023' },
+  { label: '2024', value: '2024' },
+  { label: '2025', value: '2025' },
+  { label: '2026', value: '2026' },
+  { label: '2027', value: '2027' },
+];
+
+export const BANK_NAME_DATA: IOptionDropdown[] = [
+  { label: 'SBI', value: 'sbi' },
+  { label: 'HDFC', value: 'hdfc' },
+  { label: 'ICICI', value: 'icici' },
+  { label: 'Axis', value: 'axis' },
+  { label: 'Bank of Baroda', value: 'bank_of_baroda' },
+  { label: 'Bank of India', value: 'bank_of_india' },
+  { label: 'Bank of Maharashtra', value: 'bank_of_maharashtra' },
+];

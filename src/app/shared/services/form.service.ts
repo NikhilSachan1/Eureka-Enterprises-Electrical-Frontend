@@ -7,6 +7,8 @@ import {
   IInputFieldsConfig,
   IEnhancedForm,
   IFormButtonConfig,
+  IMultiStepFormConfig,
+  IEnhancedMultiStepForm,
 } from '@shared/types';
 
 @Injectable({
@@ -37,6 +39,109 @@ export class FormService {
       formGroup,
       inputFieldsConfigs,
       formConfig.buttons
+    );
+  }
+
+  createMultiStepForm(
+    multiStepFormConfig: IMultiStepFormConfig,
+    defaultValues?: Record<string, Record<string, unknown>> | null
+  ): IEnhancedMultiStepForm {
+    const forms: Record<string, IEnhancedForm> = {};
+
+    if (
+      !multiStepFormConfig?.fields ||
+      Object.keys(multiStepFormConfig.fields).length === 0
+    ) {
+      return this.createEnhancedMultiStepForm(
+        forms,
+        multiStepFormConfig.buttons ?? {}
+      );
+    }
+
+    Object.entries(multiStepFormConfig.fields).forEach(
+      ([stepName, stepFields]) => {
+        const stepDefaultValues = defaultValues?.[stepName] ?? {};
+
+        const stepFormConfig: IFormConfig = {
+          fields: stepFields,
+        };
+
+        forms[stepName] = this.createForm(stepFormConfig, stepDefaultValues);
+      }
+    );
+
+    return this.createEnhancedMultiStepForm(
+      forms,
+      multiStepFormConfig.buttons ?? {}
+    );
+  }
+
+  private isMultiStepFormValid(forms: Record<string, IEnhancedForm>): boolean {
+    return Object.values(forms).every(form => form.isValid());
+  }
+
+  private isMultiStepFormInvalid(
+    forms: Record<string, IEnhancedForm>
+  ): boolean {
+    return Object.values(forms).some(form => form.isInvalid());
+  }
+
+  private isMultiStepFormDirty(forms: Record<string, IEnhancedForm>): boolean {
+    return Object.values(forms).some(form => form.isDirty());
+  }
+
+  private isMultiStepFormTouched(
+    forms: Record<string, IEnhancedForm>
+  ): boolean {
+    return Object.values(forms).some(form => form.isTouched());
+  }
+
+  private markMultiStepFormTouched(forms: Record<string, IEnhancedForm>): void {
+    Object.values(forms).forEach(form => form.markTouched());
+  }
+
+  private resetMultiStepForm(forms: Record<string, IEnhancedForm>): void {
+    Object.values(forms).forEach(form => form.reset());
+  }
+
+  private disableMultiStepForm(forms: Record<string, IEnhancedForm>): void {
+    Object.values(forms).forEach(form => form.disable());
+  }
+
+  private enableMultiStepForm(forms: Record<string, IEnhancedForm>): void {
+    Object.values(forms).forEach(form => form.enable());
+  }
+
+  private validateAndMarkMultiStepFormTouched(
+    forms: Record<string, IEnhancedForm>
+  ): boolean {
+    const validationResults = Object.values(forms).map(form =>
+      form.validateAndMarkTouched()
+    );
+    return validationResults.every(isValid => isValid);
+  }
+
+  private getMultiStepFormData(
+    forms: Record<string, IEnhancedForm>
+  ): Record<string, unknown> {
+    return Object.values(forms).reduce(
+      (acc, form) => ({
+        ...acc,
+        ...form.getData(),
+      }),
+      {} as Record<string, unknown>
+    );
+  }
+
+  private getMultiStepFormRawData(
+    forms: Record<string, IEnhancedForm>
+  ): Record<string, unknown> {
+    return Object.values(forms).reduce(
+      (acc, form) => ({
+        ...acc,
+        ...form.getRawData(),
+      }),
+      {} as Record<string, unknown>
     );
   }
 
@@ -216,6 +321,28 @@ export class FormService {
       getData: () => formGroup.value, // Get form data (enabled controls only)
       getRawData: () => formGroup.getRawValue(), // Get raw form data (includes disabled controls)
       getFieldData: (fieldName: string) => formGroup.get(fieldName)?.value, // Get data for a specific field
+    };
+  }
+
+  private createEnhancedMultiStepForm(
+    forms: Record<string, IEnhancedForm>,
+    buttonConfigs: IFormButtonConfig
+  ): IEnhancedMultiStepForm {
+    return {
+      forms,
+      buttonConfigs,
+      isValid: () => this.isMultiStepFormValid(forms), // true if all forms are valid, no errors.
+      isInvalid: () => this.isMultiStepFormInvalid(forms), // true if any form has an error.
+      isDirty: () => this.isMultiStepFormDirty(forms), // true if any form has been modified.
+      isTouched: () => this.isMultiStepFormTouched(forms), // true if any form has been touched.
+      markTouched: () => this.markMultiStepFormTouched(forms), // Force all forms to act like the user touched everything.
+      reset: () => this.resetMultiStepForm(forms), // Reset all forms.
+      disable: () => this.disableMultiStepForm(forms), // Disable all forms.
+      enable: () => this.enableMultiStepForm(forms), // Enable all forms.
+      validateAndMarkTouched: () =>
+        this.validateAndMarkMultiStepFormTouched(forms), // Validate and mark touched in one method for all forms
+      getData: () => this.getMultiStepFormData(forms), // Get combined form data from all forms (enabled controls only)
+      getRawData: () => this.getMultiStepFormRawData(forms), // Get combined raw form data from all forms (includes disabled controls)
     };
   }
 }
