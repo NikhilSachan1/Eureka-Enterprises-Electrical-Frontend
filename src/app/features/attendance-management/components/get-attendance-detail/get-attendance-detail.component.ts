@@ -171,7 +171,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           date: record.createdAt,
         },
         updatedBy: {
-          name: record.updatedBy ?? 'N/A', // TODO: Replace hard-coded name with updated employee name once updated employee mapping is available from backend.
+          name: `${record.updatedByUser.firstName} ${record.updatedByUser.lastName}`,
           date: record.updatedAt ?? 'N/A',
         },
       };

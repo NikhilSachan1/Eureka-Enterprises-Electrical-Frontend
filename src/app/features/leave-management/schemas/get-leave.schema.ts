@@ -7,14 +7,14 @@ import { toTitleCase } from '@shared/utility';
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 const { approvalStatus } = LeaveBaseSchema.shape;
 
-const financialYearService = new FinancialYearService();
-
 export const LeaveGetRequestSchema = z
   .object({
     leaveDate: z.array(dateField).min(1).optional(),
     userIds: z.array(uuidField).min(1).optional(),
     approvalStatuses: z.array(approvalStatus).min(1).optional(),
-    financialYear: z.string().default(financialYearService.financialYear),
+    financialYear: z
+      .string()
+      .default(new FinancialYearService().getFinancialYear()),
     sortOrder,
     sortField,
     pageSize,

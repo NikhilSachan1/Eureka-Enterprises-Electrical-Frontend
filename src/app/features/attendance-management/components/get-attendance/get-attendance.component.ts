@@ -173,6 +173,7 @@ export class GetAttendanceComponent implements OnInit {
         clientName: clientName || 'N/A',
         associateEngineerName: associateEngineerName || 'N/A',
         associatedVehicle: associatedVehicle || 'N/A',
+        attendanceType: record.attendanceType,
         originalRawData: record,
       };
     });
@@ -308,7 +309,7 @@ export class GetAttendanceComponent implements OnInit {
       details: [
         {
           status: {
-            entryType: selectedRow.status, //TODO: Add attendance type once we have the attendance type functionality,
+            entryType: selectedRow.attendanceType,
             approvalStatus: selectedRow.approvalStatus,
           },
           entryData,

@@ -131,7 +131,9 @@
           on
           <span class="font-semibold">{{ detail.approvalBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
         </p>
-        <p class="text-xs text-gray-600 italic">"{{ detail.approvalBy.notes }}"</p>
+        @if (detail.approvalBy.notes && detail.approvalBy.notes !== '') {
+          <p class="text-xs text-gray-600 italic">"{{ detail.approvalBy.notes }}"</p>
+        }
       </div>
     }
 
@@ -147,7 +149,9 @@
           <span class="font-semibold">{{ detail.createdBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
         </p>
 
-        <p class="text-xs text-gray-600 italic">"{{ detail.createdBy.notes }}"</p>
+        @if (detail.createdBy.notes && detail.createdBy.notes !== '') {
+          <p class="text-xs text-gray-600 italic">"{{ detail.createdBy.notes }}"</p>
+        }
       </div>
     }
 
@@ -164,7 +168,9 @@
             <span class="font-semibold">{{ detail.updatedBy.date | date: appConfigService.timeFormats.DEFAULT }}</span>
           </p>
 
-          <p class="text-xs text-gray-600 italic">"{{ detail.updatedBy.notes }}"</p>
+          @if (detail.updatedBy.notes && detail.updatedBy.notes !== '') {
+            <p class="text-xs text-gray-600 italic">"{{ detail.updatedBy.notes }}"</p>
+          }
         }
       </div>
     }

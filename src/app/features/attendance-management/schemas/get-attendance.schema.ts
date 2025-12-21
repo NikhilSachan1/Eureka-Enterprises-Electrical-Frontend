@@ -17,6 +17,7 @@ const {
   approvalStatus,
   notes,
   workDuration,
+  attendanceType,
 } = AttendanceBaseSchema.shape;
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
@@ -62,6 +63,7 @@ export const AttendanceGetBaseResponseSchema = z
     checkOutTime,
     notes,
     workDuration,
+    attendanceType,
     status: status.transform(toTitleCase),
     approvalStatus: approvalStatus.transform(toTitleCase),
     user: UserSchema,
