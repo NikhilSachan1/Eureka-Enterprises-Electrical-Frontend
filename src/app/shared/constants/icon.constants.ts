@@ -28,6 +28,8 @@ export const ICONS = {
     FORCE: 'pi pi-user-edit',
     PAPERCLIP: 'pi pi-paperclip',
     CLOUD_UPLOAD: 'pi pi-cloud-upload',
+    ARROW_RIGHT: 'pi pi-arrow-right',
+    ARROW_LEFT: 'pi pi-arrow-left',
   },
   MEDIA: {
     PDF: 'pi pi-file-pdf',

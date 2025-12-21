@@ -12,12 +12,14 @@ export interface IStepperStepConfig {
 export interface IStepperPanelConfig {
   title?: string;
   templateKey: string;
-  nextButtonConfig: Partial<IButtonConfig>;
-  backButtonConfig: Partial<IButtonConfig>;
+  nextButtonConfig?: Partial<IButtonConfig>;
+  backButtonConfig?: Partial<IButtonConfig>;
 }
 
 export interface IStepperConfig {
   steps: IStepperStepConfig[];
   activeStep?: number;
   orientation?: EStepperOrientation;
+  showNextAndBackButtons?: boolean;
+  linear?: boolean;
 }

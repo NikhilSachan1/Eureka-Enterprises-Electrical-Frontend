@@ -9,8 +9,15 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StepperModule } from 'primeng/stepper';
-import { IStepperConfig } from '@shared/types/stepper/stepper.interface';
-import { DEFAULT_STEPPER_CONFIG } from '@shared/config';
+import {
+  IStepperConfig,
+  IStepperPanelConfig,
+} from '@shared/types/stepper/stepper.interface';
+import {
+  DEFAULT_STEPPER_CONFIG,
+  DEFAULT_STEPPER_NEXT_BUTTON_CONFIG,
+  DEFAULT_STEPPER_BACK_BUTTON_CONFIG,
+} from '@shared/config';
 import { ButtonComponent } from '../button/button.component';
 import { EStepperOrientation } from '@shared/types';
 
@@ -37,11 +44,37 @@ export class StepperComponent implements OnInit {
       return DEFAULT_STEPPER_CONFIG as IStepperConfig;
     }
 
-    return {
+    const mergedConfig = {
       ...DEFAULT_STEPPER_CONFIG,
       ...config,
     } as IStepperConfig;
+
+    // Merge default button configs with panel configs
+    if (mergedConfig.steps) {
+      mergedConfig.steps = mergedConfig.steps.map(step => ({
+        ...step,
+        panelConfig: this.mergePanelConfig(step.panelConfig),
+      }));
+    }
+
+    return mergedConfig;
   });
+
+  private mergePanelConfig(
+    panelConfig: IStepperPanelConfig
+  ): IStepperPanelConfig {
+    return {
+      ...panelConfig,
+      nextButtonConfig: {
+        ...DEFAULT_STEPPER_NEXT_BUTTON_CONFIG,
+        ...(panelConfig.nextButtonConfig ?? {}),
+      },
+      backButtonConfig: {
+        ...DEFAULT_STEPPER_BACK_BUTTON_CONFIG,
+        ...(panelConfig.backButtonConfig ?? {}),
+      },
+    };
+  }
 
   ngOnInit(): void {
     this.setActiveStep();

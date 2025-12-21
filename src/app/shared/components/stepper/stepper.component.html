@@ -1,4 +1,7 @@
-<p-stepper [(value)]="activeStep">
+<p-stepper
+  [(value)]="activeStep"
+  [linear]="finalStepperConfig().linear ?? false"
+>
   @let stepperSteps = finalStepperConfig().steps;
   @let stepperOrientation = finalStepperConfig().orientation;
 
@@ -35,7 +38,12 @@
               <ng-container
                 *ngTemplateOutlet="
                   panelTemplate;
-                  context: { $implicit: panel, step: step, activateCallback: activateCallback }
+                  context: {
+                    $implicit: panel,
+                    step: step,
+                    activateCallback: activateCallback,
+                    showButtons: finalStepperConfig().showNextAndBackButtons,
+                  }
                 "
               ></ng-container>
             </ng-template>
@@ -75,7 +83,12 @@
               <ng-container
                 *ngTemplateOutlet="
                   panelTemplate;
-                  context: { $implicit: panel, step: step, activateCallback: activateCallback }
+                  context: {
+                    $implicit: panel,
+                    step: step,
+                    activateCallback: activateCallback,
+                    showButtons: finalStepperConfig().showNextAndBackButtons,
+                  }
                 "
               ></ng-container>
             }
@@ -122,6 +135,7 @@
   let-panel
   let-step="step"
   let-activateCallback="activateCallback"
+  let-showButtons="showButtons"
 >
   @if (panel?.title) {
     <div class="text-center mt-4 mb-4 text-xl font-semibold">
@@ -132,25 +146,33 @@
     <ng-container *ngTemplateOutlet="panelTemplates()[panel.templateKey]; context: { $implicit: panel }"></ng-container>
   }
 
-  <div
-    class="flex py-6"
-    [ngClass]="{
-      'justify-end': !panel.backButtonConfig?.visible && panel.nextButtonConfig.visible,
-      'justify-start': panel.backButtonConfig.visible && !panel.nextButtonConfig.visible,
-      'justify-between': panel.backButtonConfig.visible && panel.nextButtonConfig.visible,
-    }"
-  >
-    @if (panel.backButtonConfig.visible) {
-      <app-button
-        [buttonConfig]="panel.backButtonConfig"
-        (onButtonClick)="activateCallback(step.value - 1)"
-      />
-    }
-    @if (panel.nextButtonConfig.visible) {
-      <app-button
-        [buttonConfig]="panel.nextButtonConfig"
-        (onButtonClick)="activateCallback(step.value + 1)"
-      />
-    }
-  </div>
+  @if (showButtons) {
+    @let isFirstStep = step.value === 1;
+    @let totalSteps = stepperSteps.length;
+    @let isLastStep = step.value === totalSteps;
+    @let showBackButton = !isFirstStep && panel.backButtonConfig;
+    @let showNextButton = !isLastStep && panel.nextButtonConfig;
+
+    <div
+      class="flex py-6"
+      [ngClass]="{
+        'justify-end': !showBackButton && showNextButton,
+        'justify-start': showBackButton && !showNextButton,
+        'justify-between': showBackButton && showNextButton,
+      }"
+    >
+      @if (showBackButton) {
+        <app-button
+          [buttonConfig]="panel.backButtonConfig"
+          (onButtonClick)="activateCallback(step.value - 1)"
+        />
+      }
+      @if (showNextButton) {
+        <app-button
+          [buttonConfig]="panel.nextButtonConfig"
+          (onButtonClick)="activateCallback(step.value + 1)"
+        />
+      }
+    </div>
+  }
 </ng-template>
