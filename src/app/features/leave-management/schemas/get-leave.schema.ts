@@ -15,6 +15,7 @@ export const LeaveGetRequestSchema = z
     financialYear: z
       .string()
       .default(new FinancialYearService().getFinancialYear()),
+    grouped: z.boolean().default(false),
     sortOrder,
     sortField,
     pageSize,
