@@ -1,0 +1,10 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+
+@Component({
+  selector: 'app-add-employee',
+  imports: [],
+  templateUrl: './add-employee.component.html',
+  styleUrl: './add-employee.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class AddEmployeeComponent {}

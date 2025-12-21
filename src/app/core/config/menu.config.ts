@@ -11,28 +11,44 @@ export const appMenu: ApplicationMenu = {
           routerLink: ROUTE_BASE_PATHS.DASHBOARD,
         },
         {
+          label: 'Employees',
+          icon: ICONS.ATTENDANCE.CALENDAR,
+          children: [
+            {
+              label: 'Employee Directory',
+              icon: ICONS.COMMON.LIST,
+              routerLink: `${ROUTE_BASE_PATHS.EMPLOYEE}/${ROUTES.EMPLOYEE.LIST}`,
+            },
+            {
+              label: 'Add Employee',
+              icon: ICONS.COMMON.ADD,
+              routerLink: `${ROUTE_BASE_PATHS.EMPLOYEE}/${ROUTES.EMPLOYEE.ADD}`,
+            },
+          ],
+        },
+        {
           label: 'Attendance',
           icon: ICONS.ATTENDANCE.CALENDAR,
           children: [
             {
-              label: 'Attendance List',
+              label: 'My Attendance',
               icon: ICONS.COMMON.LIST,
               routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.LIST}`,
             },
             {
-              label: 'Apply Attendance',
+              label: 'Mark Attendance',
               icon: ICONS.COMMON.ADD,
               routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.APPLY}`,
             },
             {
-              label: 'Force Attendance',
+              label: 'Manual Attendance',
               icon: ICONS.ACTIONS.PENCIL,
               routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.FORCE}`,
             },
           ],
         },
         {
-          label: 'Expense Management',
+          label: 'Expense',
           icon: ICONS.LEAVE.GET,
           children: [
             {
@@ -46,7 +62,7 @@ export const appMenu: ApplicationMenu = {
               routerLink: `${ROUTE_BASE_PATHS.EXPENSE}/${ROUTES.EXPENSE.ADD}`,
             },
             {
-              label: 'Force Expense',
+              label: 'Manual Expense',
               icon: ICONS.ACTIONS.PENCIL,
               routerLink: `${ROUTE_BASE_PATHS.EXPENSE}/${ROUTES.EXPENSE.FORCE}`,
             },
@@ -58,11 +74,11 @@ export const appMenu: ApplicationMenu = {
           ],
         },
         {
-          label: 'Leave Management',
+          label: 'Leave',
           icon: ICONS.LEAVE.GET,
           children: [
             {
-              label: 'Get Leave',
+              label: 'Leave Requests',
               icon: ICONS.COMMON.VIEW,
               routerLink: `${ROUTE_BASE_PATHS.LEAVE}/${ROUTES.LEAVE.LIST}`,
             },
@@ -72,20 +88,9 @@ export const appMenu: ApplicationMenu = {
               routerLink: `${ROUTE_BASE_PATHS.LEAVE}/${ROUTES.LEAVE.APPLY}`,
             },
             {
-              label: 'Force Leave',
+              label: 'Manual Leave',
               icon: ICONS.ACTIONS.PENCIL,
               routerLink: `${ROUTE_BASE_PATHS.LEAVE}/${ROUTES.LEAVE.FORCE}`,
-            },
-          ],
-        },
-        {
-          label: 'Settings',
-          icon: ICONS.SETTINGS.COG,
-          children: [
-            {
-              label: 'Permission Management',
-              icon: ICONS.SECURITY.SHIELD,
-              routerLink: `${ROUTE_BASE_PATHS.SETTINGS.BASE}/${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE}`,
             },
           ],
         },

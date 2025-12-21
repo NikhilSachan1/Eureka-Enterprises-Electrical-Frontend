@@ -45,6 +45,13 @@ export const routes: Routes = [
       //     ).then(m => m.SETTING_MANAGEMENT_ROUTES),
       // },
       {
+        path: ROUTE_BASE_PATHS.EMPLOYEE,
+        loadChildren: () =>
+          import('./features/employee-management/employee.routes').then(
+            m => m.EMPLOYEE_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: ROUTE_BASE_PATHS.ATTENDANCE,
         loadChildren: () =>
           import('./features/attendance-management/attendance.routes').then(
