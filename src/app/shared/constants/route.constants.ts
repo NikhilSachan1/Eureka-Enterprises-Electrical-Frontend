@@ -44,7 +44,7 @@ export const ROUTES = {
   EMPLOYEE: {
     LIST: `list`,
     ADD: `add`,
-    EDIT: `edit/:id`,
+    EDIT: `edit`,
   },
 
   ATTENDANCE: {

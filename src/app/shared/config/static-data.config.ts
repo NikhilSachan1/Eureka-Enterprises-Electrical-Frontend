@@ -41,6 +41,7 @@ export const ROLE_NAME_DATA: IOptionDropdown[] = [
   { label: 'Field Worker', value: 'field_worker' },
   { label: 'HR Manager', value: 'hr_manager' },
   { label: 'Finance Officer', value: 'finance_officer' },
+  { label: 'Admin', value: 'ADMIN' },
 ];
 
 export const ATTENDANCE_STATUS_DATA: IOptionDropdown[] = [
@@ -60,8 +61,8 @@ export const APPROVAL_STATUS_DATA: IOptionDropdown[] = [
 ];
 
 export const EMPLOYEE_STATUS_DATA: IOptionDropdown[] = [
-  { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
+  { label: 'Active', value: 'ACTIVE' },
+  { label: 'Inactive', value: 'INACTIVE' },
 ];
 
 export const EMPLOYEE_NAME_DATA: IOptionDropdown[] = [

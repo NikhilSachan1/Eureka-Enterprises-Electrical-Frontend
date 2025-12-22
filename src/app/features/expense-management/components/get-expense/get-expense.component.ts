@@ -59,7 +59,6 @@ import {
   EXPENSE_CATEGORY_DATA,
   EXPENSE_PAYMENT_METHOD_DATA,
 } from '@shared/config/static-data.config';
-import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-get-expense',
@@ -72,7 +71,7 @@ import { CurrencyPipe } from '@angular/common';
   templateUrl: './get-expense.component.html',
   styleUrl: './get-expense.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [CurrencyPipe],
+  providers: [],
 })
 export class GetExpenseComponent implements OnInit {
   private readonly logger = inject(LoggerService);
@@ -88,7 +87,6 @@ export class GetExpenseComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
-  private readonly currencyPipe = inject(CurrencyPipe);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;

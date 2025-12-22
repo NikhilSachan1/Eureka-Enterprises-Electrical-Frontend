@@ -9,6 +9,8 @@ export enum EDataType {
   TIME = 'time', //only for display
   DURATION = 'duration', //only for display
   ATTACHMENTS = 'attachments', //only for display in table and in form
+  EMAIL = 'email', //only for display - clickable email link
+  PHONE = 'phone', //only for display - clickable phone link
   NUMBER = 'number',
   SELECT = 'select',
   MULTI_SELECT = 'multiselect',

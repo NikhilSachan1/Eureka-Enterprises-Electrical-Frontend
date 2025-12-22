@@ -7,6 +7,7 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   present: ICONS.ACTIONS.CHECK_CIRCLE,
   'total credit': ICONS.COMMON.ARROW_UP,
   'period credit': ICONS.COMMON.ARROW_UP,
+  'active employees': ICONS.EMPLOYEE.GROUP,
 
   // Danger/Rejected statuses
   rejected: ICONS.ACTIONS.TIMES,
@@ -17,6 +18,7 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   'total debit': ICONS.EXPENSE.MONEY,
   'period debit': ICONS.EXPENSE.MONEY,
   'total consumed': ICONS.EXPENSE.MONEY,
+  'inactive employees': ICONS.ACTIONS.TIMES,
 
   // Warning/Pending statuses
   pending: ICONS.ATTENDANCE.REGULARIZE,
@@ -30,6 +32,7 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   holiday: ICONS.ATTENDANCE.CALENDAR,
   view: ICONS.ACTIONS.EYE,
   total: ICONS.COMMON.CHART,
+  'total employees': ICONS.EMPLOYEE.GROUP,
   'opening balance': ICONS.EXPENSE.MONEY,
   'total balance': ICONS.EXPENSE.MONEY,
 } as const;

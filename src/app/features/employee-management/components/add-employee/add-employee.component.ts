@@ -11,21 +11,32 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { merge } from 'rxjs';
+import { finalize, merge } from 'rxjs';
 import { StepperComponent } from '@shared/components/stepper/stepper.component';
 import { IStepperConfig } from '@shared/types/stepper/stepper.interface';
 import {
   ADD_EMPLOYEE_FORM_CONFIG,
   ADD_EMPLOYEE_STEPPER_CONFIG,
 } from '@features/employee-management/configs';
-import { FormService, NotificationService } from '@shared/services';
+import {
+  FormService,
+  LoadingService,
+  NotificationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { IPageHeaderConfig, IEnhancedMultiStepForm } from '@shared/types';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { INDIA_CITY_DATA } from '@shared/config/static-data.config';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { LoggerService } from '@core/services';
-import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import {
+  FORM_VALIDATION_MESSAGES,
+  ROUTE_BASE_PATHS,
+  ROUTES,
+} from '@shared/constants';
+import { IEmployeeAddRequestDto } from '@features/employee-management/types/employee.dto';
+import { EmployeeService } from '@features/employee-management/services/employee.service';
 
 @Component({
   selector: 'app-add-employee',
@@ -45,6 +56,9 @@ export class AddEmployeeComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly loadingService = inject(LoadingService);
+  private readonly employeeService = inject(EmployeeService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
 
   protected stepperConfig!: IStepperConfig;
   protected multiStepForm!: IEnhancedMultiStepForm;
@@ -82,6 +96,12 @@ export class AddEmployeeComponent implements OnInit {
     this.multiStepForm = this.formService.createMultiStepForm(
       ADD_EMPLOYEE_FORM_CONFIG
     );
+
+    this.trackFields = this.formService.trackMultipleFieldChanges(
+      this.multiStepForm.forms['1'].formGroup,
+      ['state'],
+      this.destroyRef
+    );
   }
 
   protected onSubmit(): void {
@@ -91,8 +111,163 @@ export class AddEmployeeComponent implements OnInit {
       return;
     }
 
-    const formData = this.multiStepForm.getData();
-    this.logger.logUserAction('Add Employee Form Data', formData);
+    const formData = this.prepareFormData();
+    this.executeAddEmployee(formData);
+  }
+
+  private prepareFormData(): IEmployeeAddRequestDto {
+    const {
+      firstName,
+      lastName,
+      fatherName,
+      email,
+      contactNumber,
+      emergencyContactNumber,
+      role,
+      gender,
+      dateOfBirth,
+      bloodGroup,
+      houseNumber,
+      streetName,
+      landmark,
+      state,
+      city,
+      pinCode,
+      profilePicture,
+      previousExperience,
+      dateOfJoining,
+      employmentType,
+      designation,
+      degree,
+      branch,
+      passingYear,
+      bankName,
+      accountNumber,
+      ifscCode,
+      accountHolderName,
+      aadharNumber,
+      aadharDocument,
+      pancardNumber,
+      pancardDocument,
+      drivingLicenseNumber,
+      drivingLicenseDocument,
+      esicNumber,
+      esicDocument,
+    } = this.multiStepForm.getData() as {
+      firstName: string;
+      lastName: string;
+      fatherName: string;
+      email: string;
+      contactNumber: string;
+      emergencyContactNumber: string;
+      role: string;
+      gender: string;
+      dateOfBirth: string;
+      bloodGroup: string;
+      houseNumber: string;
+      streetName: string;
+      landmark: string;
+      state: string;
+      city: string;
+      pinCode: string;
+      profilePicture: File;
+      previousExperience: number;
+      dateOfJoining: string;
+      employmentType: string;
+      designation: string;
+      degree: string;
+      branch: string;
+      passingYear: number;
+      degreeDocument: File;
+      bankName: string;
+      accountNumber: string;
+      ifscCode: string;
+      accountHolderName: string;
+      aadharNumber: string;
+      aadharDocument: File;
+      pancardNumber: string;
+      pancardDocument: File;
+      drivingLicenseNumber: string;
+      drivingLicenseDocument: File;
+      esicNumber: string;
+      esicDocument: File;
+      uanNumber: string;
+      uanDocument: File;
+      panNumber: string;
+      dlNumber: string;
+    };
+
+    return {
+      firstName,
+      lastName,
+      email,
+      contactNumber,
+      role,
+      fatherName,
+      emergencyContactNumber,
+      gender,
+      dateOfBirth,
+      bloodGroup,
+      houseNumber,
+      streetName,
+      landmark,
+      state,
+      city,
+      pinCode,
+      dateOfJoining,
+      previousExperience,
+      employeeType: employmentType,
+      designation,
+      degree,
+      branch,
+      passoutYear: passingYear,
+      bankHolderName: accountHolderName,
+      accountNumber,
+      bankName,
+      ifscCode,
+      esicNumber,
+      aadharNumber,
+      panNumber: pancardNumber,
+      dlNumber: drivingLicenseNumber,
+      profilePicture,
+      esicDoc: esicDocument,
+      aadharDoc: aadharDocument,
+      panDoc: pancardDocument,
+      dlDoc: drivingLicenseDocument,
+    };
+  }
+
+  private executeAddEmployee(formData: IEmployeeAddRequestDto): void {
+    this.isSubmitting.set(true);
+    this.loadingService.show({
+      title: 'Add Employee',
+      message: 'Please wait while we add employee...',
+    });
+    this.multiStepForm.disable();
+
+    this.employeeService
+      .addEmployee(formData)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting.set(false);
+          this.multiStepForm.enable();
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: () => {
+          this.notificationService.success('Employee added successfully');
+          const routeSegments = [
+            ROUTE_BASE_PATHS.EMPLOYEE,
+            ROUTES.EMPLOYEE.LIST,
+          ];
+          void this.routerNavigationService.navigateToRoute(routeSegments);
+        },
+        error: () => {
+          this.notificationService.error('Failed to add employee');
+        },
+      });
   }
 
   protected onStateChange(): void {

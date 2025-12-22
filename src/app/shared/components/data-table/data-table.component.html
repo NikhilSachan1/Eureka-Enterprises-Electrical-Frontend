@@ -74,63 +74,66 @@
         }
 
         @for (item of columns; track $index) {
+          @let shouldShowColumn = item.showColumn !== false;
           @let shouldShowSort = item.showSort;
           @let shouldShowFilter = item.showFilter;
           @let filterConfig = item.clientSideFilterConfig;
 
-          <th [pSortableColumn]="shouldShowSort ? item.field : null">
-            <div class="flex items-center">
-              <span class="font-semibold text-slate-700">{{ item.header }}</span>
+          @if (shouldShowColumn) {
+            <th [pSortableColumn]="shouldShowSort ? item.field : null">
+              <div class="flex items-center">
+                <span class="font-semibold text-slate-700">{{ item.header }}</span>
 
-              @if (shouldShowSort) {
-                <p-sortIcon
-                  class="ml-auto"
-                  [field]="item.field"
-                />
-              }
+                @if (shouldShowSort) {
+                  <p-sortIcon
+                    class="ml-auto"
+                    [field]="item.field"
+                  />
+                }
 
-              @if (shouldShowFilter && filterConfig) {
-                <p-columnFilter
-                  [field]="filterConfig.filterField"
-                  [type]="filterConfig.searchInputType"
-                  [display]="filterConfig.displayType"
-                  [showMatchModes]="filterConfig.showMatchModes"
-                  [matchMode]="filterConfig.defaultMatchMode"
-                  [matchModeOptions]="filterConfig.matchModeOptions"
-                  [showOperator]="filterConfig.showOperator"
-                  [operator]="filterConfig.defaultOperator"
-                  [showClearButton]="filterConfig.showClearButton"
-                  [showApplyButton]="filterConfig.showApplyButton"
-                  [showAddButton]="filterConfig.showAddButton"
-                  [hideOnClear]="filterConfig.hideOnClear"
-                  [placeholder]="filterConfig.placeholder"
-                  [maxConstraints]="filterConfig.maxAddRuleConstraints"
-                  [useGrouping]="filterConfig.numberFormatting"
-                  class="ml-auto"
-                >
-                  @switch (filterConfig.searchInputType) {
-                    @case ('dropdown') {
-                      @if (filterConfig.filterDropdownOptions) {
-                        <ng-template
-                          #filter
-                          let-value
-                          let-filter="filterCallback"
-                        >
-                          <p-select
-                            [ngModel]="value"
-                            [options]="filterConfig.filterDropdownOptions"
-                            (onChange)="filter($event.value)"
-                            [placeholder]="filterConfig.placeholder"
-                            class="w-full"
-                          />
-                        </ng-template>
+                @if (shouldShowFilter && filterConfig) {
+                  <p-columnFilter
+                    [field]="filterConfig.filterField"
+                    [type]="filterConfig.searchInputType"
+                    [display]="filterConfig.displayType"
+                    [showMatchModes]="filterConfig.showMatchModes"
+                    [matchMode]="filterConfig.defaultMatchMode"
+                    [matchModeOptions]="filterConfig.matchModeOptions"
+                    [showOperator]="filterConfig.showOperator"
+                    [operator]="filterConfig.defaultOperator"
+                    [showClearButton]="filterConfig.showClearButton"
+                    [showApplyButton]="filterConfig.showApplyButton"
+                    [showAddButton]="filterConfig.showAddButton"
+                    [hideOnClear]="filterConfig.hideOnClear"
+                    [placeholder]="filterConfig.placeholder"
+                    [maxConstraints]="filterConfig.maxAddRuleConstraints"
+                    [useGrouping]="filterConfig.numberFormatting"
+                    class="ml-auto"
+                  >
+                    @switch (filterConfig.searchInputType) {
+                      @case ('dropdown') {
+                        @if (filterConfig.filterDropdownOptions) {
+                          <ng-template
+                            #filter
+                            let-value
+                            let-filter="filterCallback"
+                          >
+                            <p-select
+                              [ngModel]="value"
+                              [options]="filterConfig.filterDropdownOptions"
+                              (onChange)="filter($event.value)"
+                              [placeholder]="filterConfig.placeholder"
+                              class="w-full"
+                            />
+                          </ng-template>
+                        }
                       }
                     }
-                  }
-                </p-columnFilter>
-              }
-            </div>
-          </th>
+                  </p-columnFilter>
+                }
+              </div>
+            </th>
+          }
         }
 
         @let hasRowActions = rowActions() && rowActions().length > 0;
@@ -157,163 +160,202 @@
         }
 
         @for (column of columns; track $index) {
+          @let shouldShowColumn = column.showColumn !== false;
           @let columnData = $any(resolveNestedProperty(rowData, column.field));
           @let bodyTemplate = column.bodyTemplate;
 
-          <td>
-            @let templates = customBodyTemplates();
-            @if (column.customTemplateKey && templates && templates[column.customTemplateKey]) {
-              <ng-container
-                [ngTemplateOutlet]="templates[column.customTemplateKey]"
-                [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
-              />
-            } @else {
-              @switch (bodyTemplate) {
-                @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
-                  @let config = column.textWithSubtitleAndImageConfig;
+          @if (shouldShowColumn) {
+            <td>
+              @let templates = customBodyTemplates();
+              @if (column.customTemplateKey && templates && templates[column.customTemplateKey]) {
+                <ng-container
+                  [ngTemplateOutlet]="templates[column.customTemplateKey]"
+                  [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
+                />
+              } @else {
+                @switch (bodyTemplate) {
+                  @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
+                    @let config = column.textWithSubtitleAndImageConfig;
 
-                  <div class="flex items-center gap-3">
-                    @if (config.showImage) {
-                      @let imageName = $any(resolveNestedProperty(rowData, config.dummyImageField));
-                      <img
-                        [src]="getAvatarUrl(imageName)"
-                        [alt]="imageName"
-                        class="w-8 h-8 rounded-full bg-slate-100"
-                      />
-                    }
+                    <div class="flex items-center gap-3">
+                      @if (config.showImage) {
+                        @let imageName = $any(resolveNestedProperty(rowData, config.dummyImageField));
+                        <img
+                          [src]="getAvatarUrl(imageName)"
+                          [alt]="imageName"
+                          class="w-8 h-8 rounded-full bg-slate-100"
+                        />
+                      }
 
-                    <div>
                       <div>
-                        @if (config.primaryFieldLabel) {
-                          <span class="font-medium text-slate-600">{{ config.primaryFieldLabel }}:</span>
-                        }
-                        <span
-                          [ngClass]="{
-                            'font-medium text-slate-700': config.primaryFieldHighlight,
-                            'text-slate-700': !config.primaryFieldHighlight,
-                          }"
-                        >
-                          @switch (column.dataType) {
-                            @case ('date') {
-                              {{ columnData | date: column.dateFormat }}
-                            }
-                            @default {
-                              {{ columnData }}
-                            }
-                          }
-                        </span>
-                      </div>
-
-                      @if (config.secondaryField) {
-                        @let secondaryData = $any(resolveNestedProperty(rowData, config.secondaryField));
                         <div>
-                          @if (config.secondaryFieldLabel) {
-                            <span
-                              [ngClass]="{
-                                'text-slate-600': !config.secondaryFieldLabel,
-                                'font-medium text-slate-600': config.secondaryFieldLabel,
-                              }"
-                            >
-                              {{ config.secondaryFieldLabel }}:
-                            </span>
+                          @if (config.primaryFieldLabel) {
+                            <span class="font-medium text-slate-600">{{ config.primaryFieldLabel }}:</span>
                           }
                           <span
                             [ngClass]="{
-                              'text-slate-600': !config.secondaryFieldLabel,
-                              'text-slate-700': config.secondaryFieldLabel,
+                              'font-medium text-slate-700': config.primaryFieldHighlight,
+                              'text-slate-700': !config.primaryFieldHighlight,
                             }"
                           >
-                            @switch (config.dataType) {
+                            @switch (column.dataType) {
                               @case ('date') {
-                                {{ secondaryData | date: column.dateFormat }}
+                                {{ columnData | date: column.dateFormat }}
                               }
                               @default {
-                                {{ secondaryData }}
+                                {{ columnData }}
                               }
                             }
                           </span>
                         </div>
+
+                        @if (config.secondaryField) {
+                          @let secondaryData = $any(resolveNestedProperty(rowData, config.secondaryField));
+                          <div>
+                            @if (config.secondaryFieldLabel) {
+                              <span
+                                [ngClass]="{
+                                  'text-slate-600': !config.secondaryFieldLabel,
+                                  'font-medium text-slate-600': config.secondaryFieldLabel,
+                                }"
+                              >
+                                {{ config.secondaryFieldLabel }}:
+                              </span>
+                            }
+                            <span
+                              [ngClass]="{
+                                'text-slate-600': !config.secondaryFieldLabel,
+                                'text-slate-700': config.secondaryFieldLabel,
+                              }"
+                            >
+                              @switch (config.dataType) {
+                                @case ('date') {
+                                  {{ secondaryData | date: column.dateFormat }}
+                                }
+                                @default {
+                                  {{ secondaryData }}
+                                }
+                              }
+                            </span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                  @case (ALL_DATA_TYPES.STATUS) {
+                    @let statusConfig = column.statusConfig;
+                    @let statusValue = columnData;
+
+                    <div class="flex items-center gap-3">
+                      <app-status-tag
+                        [value]="statusValue"
+                        [config]="statusConfig"
+                      />
+                    </div>
+                  }
+                  @case (ALL_DATA_TYPES.DATE) {
+                    <div class="flex items-center gap-3">
+                      <span class="text-slate-700">{{ columnData | date: column.dateFormat }}</span>
+                    </div>
+                  }
+                  @case (ALL_DATA_TYPES.DATE_RANGE) {
+                    @let dateRange = $any(columnData);
+                    @let fromDate = $any(dateRange[0])?.toString() ?? '';
+                    @let toDate = $any(dateRange[1])?.toString() ?? '';
+                    <div class="flex items-center gap-3">
+                      <span class="text-slate-700">
+                        {{ fromDate | date: column.format }}
+                        -
+                        {{ toDate | date: column.format }}
+                      </span>
+                    </div>
+                  }
+                  @case (ALL_DATA_TYPES.CURRENCY) {
+                    @let entryType = resolveNestedProperty(rowData, 'transactionType');
+                    @let colorClass =
+                      entryType === 'credit'
+                        ? 'text-green-600 font-semibold'
+                        : entryType === 'debit'
+                          ? 'text-red-600 font-semibold'
+                          : 'text-slate-700 font-semibold';
+
+                    <div class="flex items-center gap-3">
+                      <span [ngClass]="colorClass">{{ columnData | currency: column.currencyFormat }}</span>
+                    </div>
+                  }
+                  @case (ALL_DATA_TYPES.ATTACHMENTS) {
+                    <div class="flex items-center gap-1">
+                      @if (columnData && columnData.length > 0) {
+                        <app-chip
+                          [label]="'Attachments (' + columnData.length + ')'"
+                          [icon]="icons.COMMON.PAPERCLIP"
+                          [styleClass]="
+                            'text-xs font-medium bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-colors duration-150 cursor-pointer'
+                          "
+                          (click)="openAttachmentsGallery(columnData)"
+                        />
+                      } @else {
+                        <app-chip
+                          label="No attachments"
+                          [icon]="icons.ACTIONS.BAN"
+                          [styleClass]="
+                            'text-[11px] font-medium text-slate-400 bg-slate-50 border border-dashed border-slate-200 cursor-not-allowed'
+                          "
+                        />
                       }
                     </div>
-                  </div>
-                }
-                @case (ALL_DATA_TYPES.STATUS) {
-                  @let statusConfig = column.statusConfig;
-                  @let statusValue = columnData;
-
-                  <div class="flex items-center gap-3">
-                    <app-status-tag
-                      [value]="statusValue"
-                      [config]="statusConfig"
+                  }
+                  @case (ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
+                    <app-read-more
+                      [text]="columnData"
+                      [readMoreConfig]="column.readMoreConfig"
                     />
-                  </div>
-                }
-                @case (ALL_DATA_TYPES.DATE) {
-                  <div class="flex items-center gap-3">
-                    <span class="text-slate-700">{{ columnData | date: column.dateFormat }}</span>
-                  </div>
-                }
-                @case (ALL_DATA_TYPES.DATE_RANGE) {
-                  @let dateRange = $any(columnData);
-                  @let fromDate = $any(dateRange[0])?.toString() ?? '';
-                  @let toDate = $any(dateRange[1])?.toString() ?? '';
-                  <div class="flex items-center gap-3">
-                    <span class="text-slate-700">
-                      {{ fromDate | date: column.format }}
-                      -
-                      {{ toDate | date: column.format }}
-                    </span>
-                  </div>
-                }
-                @case (ALL_DATA_TYPES.CURRENCY) {
-                  @let entryType = resolveNestedProperty(rowData, 'transactionType');
-                  @let colorClass =
-                    entryType === 'credit'
-                      ? 'text-green-600 font-semibold'
-                      : entryType === 'debit'
-                        ? 'text-red-600 font-semibold'
-                        : 'text-slate-700 font-semibold';
-
-                  <div class="flex items-center gap-3">
-                    <span [ngClass]="colorClass">{{ columnData | currency: column.currencyFormat }}</span>
-                  </div>
-                }
-                @case (ALL_DATA_TYPES.ATTACHMENTS) {
-                  <div class="flex items-center gap-1">
-                    @if (columnData && columnData.length > 0) {
-                      <app-chip
-                        [label]="'Attachments (' + columnData.length + ')'"
-                        [icon]="icons.COMMON.PAPERCLIP"
-                        [styleClass]="
-                          'text-xs font-medium bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-colors duration-150 cursor-pointer'
-                        "
-                        (click)="openAttachmentsGallery(columnData)"
-                      />
+                  }
+                  @case (ALL_DATA_TYPES.EMAIL) {
+                    @if (columnData) {
+                      <div class="flex items-center gap-2">
+                        <a
+                          [href]="'mailto:' + columnData"
+                          class="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 hover:underline transition-colors duration-200 group"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <i class="pi pi-envelope text-sm group-hover:scale-110 transition-transform duration-200"></i>
+                          <span class="text-slate-700 group-hover:text-emerald-700 transition-colors">
+                            {{ columnData }}
+                          </span>
+                        </a>
+                      </div>
                     } @else {
-                      <app-chip
-                        label="No attachments"
-                        [icon]="icons.ACTIONS.BAN"
-                        [styleClass]="
-                          'text-[11px] font-medium text-slate-400 bg-slate-50 border border-dashed border-slate-200 cursor-not-allowed'
-                        "
-                      />
+                      <span class="text-slate-400">-</span>
                     }
-                  </div>
-                }
-                @case (ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
-                  <app-read-more
-                    [text]="columnData"
-                    [readMoreConfig]="column.readMoreConfig"
-                  />
-                }
-                @default {
-                  <div class="flex items-center gap-3">
-                    <span class="text-slate-700">{{ columnData }}</span>
-                  </div>
+                  }
+                  @case (ALL_DATA_TYPES.PHONE) {
+                    @if (columnData) {
+                      <div class="flex items-center gap-2">
+                        <a
+                          [href]="'tel:' + columnData"
+                          class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 hover:underline transition-colors duration-200 group"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <i class="pi pi-phone text-sm group-hover:scale-110 transition-transform duration-200"></i>
+                          <span class="text-slate-700 group-hover:text-indigo-700 transition-colors">
+                            {{ columnData }}
+                          </span>
+                        </a>
+                      </div>
+                    } @else {
+                      <span class="text-slate-400">-</span>
+                    }
+                  }
+                  @default {
+                    <div class="flex items-center gap-3">
+                      <span class="text-slate-700">{{ columnData }}</span>
+                    </div>
+                  }
                 }
               }
-            }
-          </td>
+            </td>
+          }
         }
 
         @let shouldShowRowActions = rowActions() && rowActions().length > 0;

@@ -148,16 +148,22 @@ export class TableServerSideParamsBuilderService {
           headers
         )?.serverSideFilterAndSortConfig;
 
+        // Extract filter value
+        const extractedValue = this.extractFilterValue(
+          filterMeta as FilterMetadata
+        );
+
         if (!serverConfig) {
-          this.logger.warn(
-            `No server config found for filter key: ${filterKey}`
-          );
+          // If no mapper found, use filter key and value directly
+          if (this.isValidFilterValue(extractedValue)) {
+            acc[filterKey] = extractedValue;
+          }
           return acc;
         }
 
         // Build the payload for this specific filter
         const payload = this.buildServerFilterPayload(
-          this.extractFilterValue(filterMeta as FilterMetadata),
+          extractedValue,
           serverConfig
         );
 

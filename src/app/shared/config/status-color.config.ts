@@ -13,6 +13,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'total credit',
     'period credit',
     'total credited',
+    'active employees',
   ],
   danger: [
     'inactive',
@@ -25,6 +26,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'total debit',
     'period debit',
     'total consumed',
+    'inactive employees',
   ],
   warning: [
     'pending',
@@ -42,5 +44,6 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'total',
     'opening balance',
     'total balance',
+    'total employees',
   ],
 };

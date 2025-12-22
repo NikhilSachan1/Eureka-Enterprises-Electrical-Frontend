@@ -7,7 +7,7 @@ export interface IEmployeeViewDetails {
 }
 
 export interface IDataViewDetails {
-  status: {
+  status?: {
     approvalStatus: string;
     entryType: string;
   };

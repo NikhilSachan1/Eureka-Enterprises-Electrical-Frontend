@@ -17,21 +17,31 @@
 }
 
 @for (detail of drawerDetails()?.details; track $index) {
-  @let colorClass = getColor(detail.status.approvalStatus);
+  @let colorClass = getColor(detail.status?.approvalStatus ?? '');
   <p-card
     class="mb-4"
     [ngClass]="`${colorClass.bg}`"
   >
-    <div class="flex items-center gap-2 mb-4">
-      <p-tag
-        [value]="detail.status.entryType | textCase: 'title'"
-        severity="info"
-      />
-      <p-tag
-        [value]="detail.status.approvalStatus | textCase: 'title'"
-        [severity]="getApprovalStatusColor(detail.status.approvalStatus)"
-      />
-    </div>
+    @let entryType = detail.status?.entryType ?? '';
+    @let approvalStatus = detail.status?.approvalStatus ?? '';
+
+    @if (entryType || approvalStatus) {
+      <div class="flex items-center gap-2 mb-4">
+        @if (entryType && entryType !== '') {
+          <p-tag
+            [value]="entryType | textCase: 'title'"
+            severity="info"
+          />
+        }
+
+        @if (approvalStatus && approvalStatus !== '') {
+          <p-tag
+            [value]="approvalStatus | textCase: 'title'"
+            [severity]="getApprovalStatusColor(approvalStatus)"
+          />
+        }
+      </div>
+    }
     <div class="space-y-2 mb-4">
       @for (entry of detail.entryData; track entry.label) {
         @if (entry.type !== ALL_DATA_TYPES.ATTACHMENTS) {
@@ -120,11 +130,11 @@
       </div>
     }
 
-    @if (detail.status.approvalStatus !== 'pending' && detail.approvalBy) {
+    @if (detail.status?.approvalStatus !== 'pending' && detail.approvalBy) {
       <p-divider />
       <div class="space-y-1">
         <p class="text-xs text-gray-600">
-          {{ detail.status.approvalStatus | textCase: 'title' }} by
+          {{ detail.status?.approvalStatus ?? '' | textCase: 'title' }} by
           <span class="font-semibold">{{ detail.approvalBy.name ?? 'N/A' }}</span>
           at
           <span class="font-semibold">{{ detail.approvalBy.date | date: appConfigService.dateFormats.DEFAULT }}</span>

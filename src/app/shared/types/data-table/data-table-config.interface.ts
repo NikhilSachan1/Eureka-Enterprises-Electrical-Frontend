@@ -48,6 +48,7 @@ export interface IDataTableHeaderConfig {
   showFilter: boolean;
   clientSideFilterConfig?: IDataTableHeaderFilterConfig;
   showSort: boolean;
+  showColumn?: boolean; // If false, column will be hidden but can still be used for filtering
   serverSideFilterAndSortConfig?: IDataTableServerSideFilterAndSortConfig;
 }
 

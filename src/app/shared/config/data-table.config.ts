@@ -104,6 +104,7 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   statusConfig: STATUS_CONFIG,
   showFilter: false,
   showSort: true,
+  showColumn: true, // Default to showing column
   clientSideFilterConfig: DEFAULT_TABLE_FILTER_CONFIG,
 };
 
