@@ -1,0 +1,9 @@
+::ng-deep {
+  p-stepper {
+    p-step-panel {
+      > div {
+        overflow: visible;
+      }
+    }
+  }
+}

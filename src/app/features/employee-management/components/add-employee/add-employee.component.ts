@@ -55,9 +55,12 @@ export class AddEmployeeComponent implements OnInit {
 
   protected readonly stepErrors = signal<Record<number, boolean>>({});
   protected readonly stepValid = signal<Record<number, boolean>>({});
+  private readonly attemptedSteps = signal<Set<number>>(new Set());
 
   constructor() {
     effect(() => {
+      this.attemptedSteps();
+
       if (this.multiStepForm?.forms) {
         Object.keys(this.multiStepForm.forms).forEach(stepKey => {
           const { formGroup } = this.multiStepForm.forms[stepKey];
@@ -66,6 +69,7 @@ export class AddEmployeeComponent implements OnInit {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => this.updateValidationStates());
         });
+        this.updateValidationStates();
       }
     });
   }
@@ -81,6 +85,9 @@ export class AddEmployeeComponent implements OnInit {
   }
 
   protected onSubmit(): void {
+    // Mark all steps as attempted and update validation states
+    this.markAllStepsAsAttempted();
+
     if (this.isSubmitting() || !this.validateForm()) {
       return;
     }
@@ -100,31 +107,52 @@ export class AddEmployeeComponent implements OnInit {
   }
 
   protected onStepperNextRequested(): void {
+    const currentStep = this.activeStep();
+    this.attemptedSteps.update(steps => new Set(steps).add(currentStep));
     this.validateParticularForm();
-    this.activeStep.set(this.activeStep() + 1);
+    this.activeStep.set(currentStep + 1);
   }
 
   protected onStepperPreviousRequested(): void {
+    const currentStep = this.activeStep();
+    this.attemptedSteps.update(steps => new Set(steps).add(currentStep));
     this.validateParticularForm();
-    this.activeStep.set(this.activeStep() - 1);
+    this.activeStep.set(currentStep - 1);
   }
 
   protected onStepperResetRequested(): void {
     this.onResetParticularForm();
   }
 
+  private markAllStepsAsAttempted(): void {
+    if (this.multiStepForm?.forms) {
+      const allStepNumbers = Object.keys(this.multiStepForm.forms)
+        .map(stepKey => Number(stepKey))
+        .filter(stepNumber => !isNaN(stepNumber));
+
+      // Mark all steps as attempted
+      this.attemptedSteps.update(steps => {
+        const newSet = new Set(steps);
+        allStepNumbers.forEach(stepNumber => newSet.add(stepNumber));
+        return newSet;
+      });
+    }
+  }
+
   private updateValidationStates(): void {
     const errors: Record<number, boolean> = {};
     const valid: Record<number, boolean> = {};
+    const attempted = this.attemptedSteps();
 
     if (this.multiStepForm?.forms) {
       Object.keys(this.multiStepForm.forms).forEach(stepKey => {
         const stepNumber = Number(stepKey);
         if (!isNaN(stepNumber)) {
           const { formGroup } = this.multiStepForm.forms[stepKey];
-          const isTouched = formGroup.touched;
-          errors[stepNumber] = formGroup.invalid && isTouched;
-          valid[stepNumber] = formGroup.valid && isTouched;
+          if (attempted.has(stepNumber)) {
+            errors[stepNumber] = formGroup.invalid;
+            valid[stepNumber] = formGroup.valid;
+          }
         }
       });
     }
