@@ -28,4 +28,24 @@
   .p-fileupload-advanced {
     border: unset !important;
   }
+
+  // Compact empty state for file upload
+  .p-fileupload {
+    .p-fileupload-content {
+      // Target the empty state div with border-dashed class
+      div.border-dashed {
+        padding: 0.75rem 0 !important; // py-3 instead of py-6
+
+        i {
+          margin-bottom: 0.5rem !important; // mb-2 instead of mb-3
+          padding: 0.625rem !important; // p-2.5 instead of p-4
+          font-size: 1.25rem !important; // text-xl instead of text-2xl
+        }
+
+        p {
+          font-size: 0.75rem !important; // text-xs instead of text-sm
+        }
+      }
+    }
+  }
 }

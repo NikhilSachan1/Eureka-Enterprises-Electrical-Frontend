@@ -85,7 +85,6 @@ export class AddEmployeeComponent implements OnInit {
   }
 
   protected onSubmit(): void {
-    // Mark all steps as attempted and update validation states
     this.markAllStepsAsAttempted();
 
     if (this.isSubmitting() || !this.validateForm()) {
@@ -130,7 +129,6 @@ export class AddEmployeeComponent implements OnInit {
         .map(stepKey => Number(stepKey))
         .filter(stepNumber => !isNaN(stepNumber));
 
-      // Mark all steps as attempted
       this.attemptedSteps.update(steps => {
         const newSet = new Set(steps);
         allStepNumbers.forEach(stepNumber => newSet.add(stepNumber));
@@ -175,9 +173,6 @@ export class AddEmployeeComponent implements OnInit {
   private validateParticularForm(): boolean {
     const form = this.multiStepForm.forms[this.activeStep()];
     if (!form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
       this.logger.warn(`Form validation failed for '${this.activeStep()}'`);
       return false;
     }
