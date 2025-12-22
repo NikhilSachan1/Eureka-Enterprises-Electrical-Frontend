@@ -69,7 +69,10 @@
     @case (ALL_DATA_TYPES.SELECT) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let selectConfig = inputFieldConfig().selectConfig;
-        @let optionsDropdownLength = selectConfig?.optionsDropdown?.length;
+        @let optionsDropdown = selectConfig?.optionsDropdown ?? [];
+        @let optionsDropdownLength = optionsDropdown.length;
+        @let displayOptions =
+          optionsDropdownLength > 0 ? optionsDropdown : [{ label: 'No data found', value: '', disabled: true }];
 
         <p-select
           [id]="inputFieldConfig().id"
@@ -77,17 +80,18 @@
           [size]="inputFieldConfig().fieldSize"
           [placeholder]="placeholder"
           [appendTo]="'body'"
-          [options]="selectConfig?.optionsDropdown"
+          [options]="displayOptions"
           [optionLabel]="selectConfig?.optionLabel"
           [optionValue]="selectConfig?.optionValue"
+          [optionDisabled]="selectConfig?.optionDisabled"
           [checkmark]="selectConfig?.showCheckmark"
           [filter]="
             selectConfig?.haveFilter &&
-            optionsDropdownLength &&
+            optionsDropdownLength > 0 &&
             optionsDropdownLength > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
           "
           [filterBy]="selectConfig?.filterBy"
-          [loading]="optionsDropdownLength ? false : true"
+          [loading]="selectConfig?.loading ?? false"
           [showClear]="selectConfig?.showClearButton"
           [editable]="selectConfig?.isEditable"
           [virtualScroll]="selectConfig?.virtualScroll"
@@ -104,7 +108,10 @@
     @case (ALL_DATA_TYPES.MULTI_SELECT) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let multiSelectConfig = inputFieldConfig().multiSelectConfig;
-        @let optionsDropdownLength = multiSelectConfig?.optionsDropdown?.length;
+        @let optionsDropdown = multiSelectConfig?.optionsDropdown ?? [];
+        @let optionsDropdownLength = optionsDropdown.length;
+        @let displayOptions =
+          optionsDropdownLength > 0 ? optionsDropdown : [{ label: 'No data found', value: '', disabled: true }];
 
         <p-multiselect
           [id]="inputFieldConfig().id"
@@ -112,9 +119,10 @@
           [size]="inputFieldConfig().fieldSize"
           [placeholder]="placeholder"
           [appendTo]="'body'"
-          [options]="multiSelectConfig?.optionsDropdown"
+          [options]="displayOptions"
           [optionLabel]="multiSelectConfig?.optionLabel"
           [optionValue]="multiSelectConfig?.optionValue"
+          [optionDisabled]="multiSelectConfig?.optionDisabled"
           [maxSelectedLabels]="multiSelectConfig?.maxSelectedLabels"
           [filter]="
             multiSelectConfig?.haveFilter &&
@@ -122,7 +130,7 @@
             optionsDropdownLength > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
           "
           [filterBy]="multiSelectConfig?.filterBy"
-          [loading]="optionsDropdownLength ? false : true"
+          [loading]="multiSelectConfig?.loading ?? false"
           [showToggleAll]="multiSelectConfig?.showToggleAll"
           [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip"
           [showClear]="multiSelectConfig?.showClearButton"

@@ -35,14 +35,15 @@ export const getDataFromArrayOfObjects = <T, K extends keyof T>(
 
 export const getMappedValueFromArrayOfObjects = <
   T,
-  SearchKey extends keyof T,
-  ReturnKey extends keyof T,
+  SearchKey extends keyof T = 'value' & keyof T,
+  ReturnKey extends keyof T = 'label' & keyof T,
 >(
   list: T[],
   searchValue: T[SearchKey],
-  searchKey: SearchKey = 'value' as SearchKey,
-  returnKey: ReturnKey = 'label' as ReturnKey
+  searchKey: SearchKey = 'value' as unknown as SearchKey,
+  returnKey: ReturnKey = 'label' as unknown as ReturnKey
 ): T[ReturnKey] | T[SearchKey] => {
   const match = list.find((item: T) => item[searchKey] === searchValue);
-  return (match?.[returnKey] ?? searchValue) as T[ReturnKey] | T[SearchKey];
+  const returnValue = match?.[returnKey];
+  return (returnValue ?? searchValue) as T[ReturnKey] | T[SearchKey];
 };

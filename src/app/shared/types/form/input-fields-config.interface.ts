@@ -78,6 +78,8 @@ export interface ISelectFieldConfig {
   isEditable: boolean;
   virtualScroll: boolean;
   virtualScrollItemSize: number;
+  loading?: boolean;
+  optionDisabled?: string;
 }
 
 export interface IMultiSelectFieldConfig {
@@ -87,10 +89,11 @@ export interface IMultiSelectFieldConfig {
   maxSelectedLabels: number;
   haveFilter: boolean;
   filterBy: string;
-  loading: boolean;
+  loading?: boolean;
   showToggleAll: boolean;
   display: string | EMultiSelectDisplayType;
   showClearButton: boolean;
+  optionDisabled?: string;
 }
 
 export interface IDateFieldConfig {
@@ -161,6 +164,7 @@ export interface ITextFieldConfig {
 export interface IOptionDropdown {
   label: string;
   value: string;
+  disabled?: boolean;
 }
 
 export interface IIndividualNumberFieldConfig {

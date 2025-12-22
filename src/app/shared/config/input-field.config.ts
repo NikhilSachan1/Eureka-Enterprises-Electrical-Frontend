@@ -54,6 +54,8 @@ export const DEFAULT_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
     virtualScrollItemSize: 10,
     optionLabel: 'label',
     optionValue: 'value',
+    loading: false,
+    optionDisabled: 'disabled',
   },
 };
 
@@ -68,6 +70,8 @@ export const DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig
       display: EMultiSelectDisplayType.Chip,
       optionLabel: 'label',
       optionValue: 'value',
+      loading: false,
+      optionDisabled: 'disabled',
     },
   };
 

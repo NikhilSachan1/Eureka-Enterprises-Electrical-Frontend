@@ -153,94 +153,34 @@ export const EMPLOYEE_BLOOD_GROUP_DATA: IOptionDropdown[] = [
 ];
 
 export const INDIA_STATE_DATA: IOptionDropdown[] = [
-  { label: 'Andhra Pradesh', value: 'andhra_pradesh' },
-  { label: 'Arunachal Pradesh', value: 'arunachal_pradesh' },
-  { label: 'Assam', value: 'assam' },
-  { label: 'Bihar', value: 'bihar' },
-  { label: 'Chhattisgarh', value: 'chhattisgarh' },
-  { label: 'Goa', value: 'goa' },
-  { label: 'Gujarat', value: 'gujarat' },
-  { label: 'Haryana', value: 'haryana' },
-  { label: 'Himachal Pradesh', value: 'himachal_pradesh' },
-  { label: 'Jharkhand', value: 'jharkhand' },
-  { label: 'Karnataka', value: 'karnataka' },
-  { label: 'Kerala', value: 'kerala' },
-  { label: 'Madhya Pradesh', value: 'madhya_pradesh' },
   { label: 'Maharashtra', value: 'maharashtra' },
-  { label: 'Manipur', value: 'manipur' },
-  { label: 'Meghalaya', value: 'meghalaya' },
-  { label: 'Mizoram', value: 'mizoram' },
-  { label: 'Nagaland', value: 'nagaland' },
-  { label: 'Odisha', value: 'odisha' },
-  { label: 'Punjab', value: 'punjab' },
-  { label: 'Rajasthan', value: 'rajasthan' },
-  { label: 'Sikkim', value: 'sikkim' },
-  { label: 'Tamil Nadu', value: 'tamil_nadu' },
-  { label: 'Telangana', value: 'telangana' },
-  { label: 'Tripura', value: 'tripura' },
   { label: 'Uttar Pradesh', value: 'uttar_pradesh' },
-  { label: 'Uttarakhand', value: 'uttarakhand' },
+  { label: 'Tamil Nadu', value: 'tamil_nadu' },
+  { label: 'Karnataka', value: 'karnataka' },
+  { label: 'Gujarat', value: 'gujarat' },
+  { label: 'Rajasthan', value: 'rajasthan' },
   { label: 'West Bengal', value: 'west_bengal' },
-  { label: 'Andaman and Nicobar Islands', value: 'andaman_nicobar' },
-  { label: 'Chandigarh', value: 'chandigarh' },
-  { label: 'Delhi', value: 'delhi' },
-  { label: 'Jammu and Kashmir', value: 'jammu_kashmir' },
-  { label: 'Ladakh', value: 'ladakh' },
-  { label: 'Lakshadweep', value: 'lakshadweep' },
-  { label: 'Puducherry', value: 'puducherry' },
+  { label: 'Madhya Pradesh', value: 'madhya_pradesh' },
+  { label: 'Telangana', value: 'telangana' },
+  { label: 'Bihar', value: 'bihar' },
 ];
 
 export const INDIA_CITY_DATA: Record<string, IOptionDropdown[]> = {
-  andhra_pradesh: [
-    { label: 'Visakhapatnam', value: 'visakhapatnam' },
-    { label: 'Vijayawada', value: 'vijayawada' },
-    { label: 'Guntur', value: 'guntur' },
-  ],
-
-  bihar: [
-    { label: 'Patna', value: 'patna' },
-    { label: 'Gaya', value: 'gaya' },
-    { label: 'Bhagalpur', value: 'bhagalpur' },
-  ],
-
-  delhi: [
-    { label: 'New Delhi', value: 'new_delhi' },
-    { label: 'Dwarka', value: 'dwarka' },
-    { label: 'Rohini', value: 'rohini' },
-  ],
-
-  gujarat: [
-    { label: 'Ahmedabad', value: 'ahmedabad' },
-    { label: 'Surat', value: 'surat' },
-    { label: 'Vadodara', value: 'vadodara' },
-    { label: 'Rajkot', value: 'rajkot' },
-  ],
-
-  haryana: [
-    { label: 'Gurgaon', value: 'gurgaon' },
-    { label: 'Faridabad', value: 'faridabad' },
-    { label: 'Panipat', value: 'panipat' },
-  ],
-
-  karnataka: [
-    { label: 'Bengaluru', value: 'bengaluru' },
-    { label: 'Mysuru', value: 'mysuru' },
-    { label: 'Mangaluru', value: 'mangaluru' },
-    { label: 'Hubli', value: 'hubli' },
-  ],
-
   maharashtra: [
     { label: 'Mumbai', value: 'mumbai' },
     { label: 'Pune', value: 'pune' },
     { label: 'Nagpur', value: 'nagpur' },
     { label: 'Nashik', value: 'nashik' },
-    { label: 'Thane', value: 'thane' },
+    { label: 'Aurangabad', value: 'aurangabad' },
   ],
 
-  rajasthan: [
-    { label: 'Jaipur', value: 'jaipur' },
-    { label: 'Jodhpur', value: 'jodhpur' },
-    { label: 'Udaipur', value: 'udaipur' },
+  uttar_pradesh: [
+    { label: 'Lucknow', value: 'lucknow' },
+    { label: 'Noida', value: 'noida' },
+    { label: 'Ghaziabad', value: 'ghaziabad' },
+    { label: 'Kanpur', value: 'kanpur' },
+    { label: 'Varanasi', value: 'varanasi' },
+    { label: 'Agra', value: 'agra' },
   ],
 
   tamil_nadu: [
@@ -250,28 +190,53 @@ export const INDIA_CITY_DATA: Record<string, IOptionDropdown[]> = {
     { label: 'Salem', value: 'salem' },
   ],
 
-  telangana: [
-    { label: 'Hyderabad', value: 'hyderabad' },
-    { label: 'Warangal', value: 'warangal' },
-    { label: 'Karimnagar', value: 'karimnagar' },
+  karnataka: [
+    { label: 'Bengaluru', value: 'bengaluru' },
+    { label: 'Mysuru', value: 'mysuru' },
+    { label: 'Mangaluru', value: 'mangaluru' },
+    { label: 'Hubballi', value: 'hubballi' },
+    { label: 'Belagavi', value: 'belagavi' },
   ],
 
-  uttar_pradesh: [
-    { label: 'Lucknow', value: 'lucknow' },
-    { label: 'Noida', value: 'noida' },
-    { label: 'Ghaziabad', value: 'ghaziabad' },
-    { label: 'Kanpur', value: 'kanpur' },
-    { label: 'Varanasi', value: 'varanasi' },
+  gujarat: [
+    { label: 'Ahmedabad', value: 'ahmedabad' },
+    { label: 'Surat', value: 'surat' },
+    { label: 'Vadodara', value: 'vadodara' },
+    { label: 'Rajkot', value: 'rajkot' },
+  ],
+
+  rajasthan: [
+    { label: 'Jaipur', value: 'jaipur' },
+    { label: 'Jodhpur', value: 'jodhpur' },
+    { label: 'Udaipur', value: 'udaipur' },
+    { label: 'Kota', value: 'kota' },
   ],
 
   west_bengal: [
     { label: 'Kolkata', value: 'kolkata' },
     { label: 'Howrah', value: 'howrah' },
     { label: 'Durgapur', value: 'durgapur' },
+    { label: 'Siliguri', value: 'siliguri' },
   ],
 
-  chandigarh: [{ label: 'Chandigarh', value: 'chandigarh' }],
-  puducherry: [{ label: 'Puducherry', value: 'puducherry' }],
+  madhya_pradesh: [
+    { label: 'Bhopal', value: 'bhopal' },
+    { label: 'Indore', value: 'indore' },
+    { label: 'Gwalior', value: 'gwalior' },
+    { label: 'Jabalpur', value: 'jabalpur' },
+  ],
+
+  telangana: [
+    { label: 'Hyderabad', value: 'hyderabad' },
+    { label: 'Warangal', value: 'warangal' },
+    { label: 'Karimnagar', value: 'karimnagar' },
+  ],
+
+  bihar: [
+    { label: 'Patna', value: 'patna' },
+    { label: 'Gaya', value: 'gaya' },
+    { label: 'Bhagalpur', value: 'bhagalpur' },
+  ],
 };
 
 export const EMPLOYMENT_TYPE_DATA: IOptionDropdown[] = [
