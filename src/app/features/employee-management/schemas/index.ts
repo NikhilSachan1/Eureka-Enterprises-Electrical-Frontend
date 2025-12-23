@@ -8,3 +8,7 @@ export {
   EmployeeGetResponseSchema,
   EmployeeGetStatsResponseSchema,
 } from './get-employee.schema';
+export {
+  EmployeeDeleteRequestSchema,
+  EmployeeDeleteResponseSchema,
+} from './delete-employee.schema';

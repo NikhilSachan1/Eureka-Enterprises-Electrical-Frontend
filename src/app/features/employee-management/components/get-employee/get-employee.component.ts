@@ -123,12 +123,12 @@ export class GetEmployeeComponent implements OnInit {
       )
       .subscribe({
         next: (response: IEmployeeGetResponseDto) => {
-          const { records, stats, totalRecords } = response;
+          const { records, metrics: stats, totalRecords } = response;
 
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.employeeStats.set(stats ?? null); // TODO: when stats are implemented remove the null
+          this.employeeStats.set(stats);
           this.logger.logUserAction('Employee records loaded successfully');
         },
         error: error => {
@@ -174,33 +174,38 @@ export class GetEmployeeComponent implements OnInit {
   }
 
   private getMetricCardsData(): IMetric[] {
-    // TODO: when stats are implemented remove the comment for the if block
-    // const stats = this.employeeStats();
+    const stats = this.employeeStats();
 
-    // if (!stats) {
-    //   return [];
-    // }
-
-    const stats = {
-      totalEmployees: 0,
-      activeEmployees: 0,
-      inactiveEmployees: 0,
-    };
+    if (!stats) {
+      return [];
+    }
 
     return [
-      { label: 'Total Employees', value: stats.totalEmployees },
+      { label: 'Total Employees', value: stats.total },
       {
         label: 'Active Employees',
-        value: stats.activeEmployees,
+        value: stats.active,
       },
       {
         label: 'Inactive Employees',
-        value: stats.inactiveEmployees,
+        value: stats.inactive,
+      },
+      {
+        label: 'New Joiners Last 30 Days',
+        value: stats.newJoinersLast30Days,
+      },
+      {
+        label: 'Male',
+        value: stats.byGender['male'] ?? 0,
+      },
+      {
+        label: 'Female',
+        value: stats.byGender['female'] ?? 0,
       },
     ];
   }
 
-  protected handleExpenseTableActionClick(
+  protected handleEmployeeTableActionClick(
     event: ITableActionClickEvent<IEmployeeGetBaseResponseDto>,
     isBulk: boolean
   ): void {
@@ -256,6 +261,29 @@ export class GetEmployeeComponent implements OnInit {
   ): IDataViewDetailsWithEmployee {
     const entryData: IDataViewDetails['entryData'] = [
       {
+        label: 'Employee Name',
+        value: `${selectedRow.firstName} ${selectedRow.lastName}`,
+        type: EDataType.TEXT,
+      },
+      {
+        label: 'Email ID',
+        value: selectedRow.email,
+        type: EDataType.EMAIL,
+      },
+      {
+        label: 'Contact Number',
+        value: selectedRow.contactNumber,
+        type: EDataType.PHONE,
+      },
+      {
+        label: 'Designation',
+        value: getMappedValueFromArrayOfObjects(
+          DESIGNATION_DATA,
+          selectedRow.designation
+        ),
+        type: EDataType.TEXT,
+      },
+      {
         label: 'Joining Date',
         value: selectedRow.dateOfJoining,
         type: EDataType.DATE,
@@ -266,6 +294,10 @@ export class GetEmployeeComponent implements OnInit {
       details: [
         {
           entryData,
+          status: {
+            entryType: selectedRow.employeeType,
+            approvalStatus: selectedRow.status,
+          },
         },
       ],
     };

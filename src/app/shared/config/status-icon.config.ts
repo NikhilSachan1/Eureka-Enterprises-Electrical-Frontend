@@ -27,6 +27,7 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   edit: ICONS.ACTIONS.EDIT,
   cancel: ICONS.ACTIONS.BAN,
   cancelled: ICONS.ACTIONS.BAN,
+  'new joiners last 30 days': ICONS.EMPLOYEE.GROUP,
 
   // Info statuses
   holiday: ICONS.ATTENDANCE.CALENDAR,
@@ -35,4 +36,6 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   'total employees': ICONS.EMPLOYEE.GROUP,
   'opening balance': ICONS.EXPENSE.MONEY,
   'total balance': ICONS.EXPENSE.MONEY,
+  male: ICONS.COMMON.USER,
+  female: ICONS.COMMON.USER,
 } as const;

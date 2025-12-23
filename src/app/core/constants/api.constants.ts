@@ -4,7 +4,7 @@ export const API_ROUTES = {
     LIST: 'user',
     GET_BY_ID: (employeeId: string) => `user/${employeeId}`,
     EDIT: (employeeId: string) => `user/${employeeId}`,
-    DELETE: (employeeId: string) => `user/${employeeId}`,
+    DELETE: 'user',
   },
   ATTACHMENTS: {
     GET_FILE_URL: 'files',

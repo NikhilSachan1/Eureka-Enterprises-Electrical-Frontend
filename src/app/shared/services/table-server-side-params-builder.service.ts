@@ -138,7 +138,8 @@ export class TableServerSideParamsBuilderService {
 
     return Object.entries(filters).reduce(
       (acc, [filterKey, filterMeta]) => {
-        if (!filterMeta) {
+        // Skip 'global' key as it's an internal PrimeNG property, not a filter
+        if (filterKey === 'global' || !filterMeta) {
           return acc;
         }
 

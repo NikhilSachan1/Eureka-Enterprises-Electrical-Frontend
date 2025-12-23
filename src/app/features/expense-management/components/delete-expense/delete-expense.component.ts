@@ -5,6 +5,7 @@ import {
   inject,
   input,
   signal,
+  OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services';
@@ -30,7 +31,7 @@ import { finalize } from 'rxjs';
   styleUrl: './delete-expense.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeleteExpenseComponent implements IDialogActionHandler {
+export class DeleteExpenseComponent implements IDialogActionHandler, OnInit {
   private readonly loadingService = inject(LoadingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly notificationService = inject(NotificationService);
@@ -40,12 +41,13 @@ export class DeleteExpenseComponent implements IDialogActionHandler {
     ConfirmationDialogService
   );
 
-  protected readonly selectedRecord = input<IExpenseGetBaseResponseDto[]>();
+  protected readonly selectedRecord =
+    input.required<IExpenseGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
 
   protected readonly isSubmitting = signal(false);
 
-  onDialogAccept(): void {
+  ngOnInit(): void {
     const record = this.selectedRecord();
     if (!record) {
       this.notificationService.error(
@@ -56,7 +58,10 @@ export class DeleteExpenseComponent implements IDialogActionHandler {
       );
       return;
     }
-    this.onSubmit(record);
+  }
+
+  onDialogAccept(): void {
+    this.onSubmit(this.selectedRecord());
   }
 
   protected onSubmit(record: IExpenseGetBaseResponseDto[]): void {

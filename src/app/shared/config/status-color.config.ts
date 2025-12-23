@@ -36,6 +36,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'pageheaderbutton2',
     'cancel',
     'cancelled',
+    'new joiners last 30 days',
   ],
   info: [
     'holiday',
@@ -45,5 +46,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'opening balance',
     'total balance',
     'total employees',
+    'male',
+    'female',
   ],
 };

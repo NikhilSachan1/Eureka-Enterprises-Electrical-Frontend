@@ -5,6 +5,8 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   IEmployeeAddRequestDto,
   IEmployeeAddResponseDto,
+  IEmployeeDeleteRequestDto,
+  IEmployeeDeleteResponseDto,
   IEmployeeGetRequestDto,
   IEmployeeGetResponseDto,
 } from '../types/employee.dto';
@@ -12,6 +14,8 @@ import { API_ROUTES } from '@core/constants/api.constants';
 import {
   EmployeeAddRequestSchema,
   EmployeeAddResponseSchema,
+  EmployeeDeleteRequestSchema,
+  EmployeeDeleteResponseSchema,
   EmployeeGetRequestSchema,
   EmployeeGetResponseSchema,
 } from '../schemas';
@@ -45,6 +49,33 @@ export class EmployeeService {
             this.logger.logDtoValidationErrors('Add Employee Error', error);
           } else {
             this.logger.logUserAction('Add Employee Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteEmployee(
+    formData: IEmployeeDeleteRequestDto
+  ): Observable<IEmployeeDeleteResponseDto> {
+    this.logger.logUserAction('Delete Employee Request');
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.EMPLOYEE.DELETE,
+        EmployeeDeleteResponseSchema,
+        formData,
+        EmployeeDeleteRequestSchema
+      )
+      .pipe(
+        tap((response: IEmployeeDeleteResponseDto) => {
+          this.logger.logUserAction('Delete Employee Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Delete Employee Error', error);
+          } else {
+            this.logger.logUserAction('Delete Employee Error', error);
           }
           return throwError(() => error);
         })
