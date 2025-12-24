@@ -137,7 +137,7 @@ export class DrawerComponent implements OnInit {
 
   private readonly DRAWER_SIZES = [
     { size: EDrawerSize.SMALL, width: '50vw', maxWidth: '600px' },
-    { size: EDrawerSize.MEDIUM, width: '80vw', maxWidth: '1000px' },
-    { size: EDrawerSize.LARGE, width: '100vw', maxWidth: '1400px' },
+    { size: EDrawerSize.MEDIUM, width: '70vw', maxWidth: '800px' },
+    { size: EDrawerSize.LARGE, width: '90vw', maxWidth: '1000px' },
   ] as const;
 }
