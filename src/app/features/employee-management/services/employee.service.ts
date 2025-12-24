@@ -7,6 +7,8 @@ import {
   IEmployeeAddResponseDto,
   IEmployeeDeleteRequestDto,
   IEmployeeDeleteResponseDto,
+  IEmployeeDetailGetRequestDto,
+  IEmployeeDetailGetResponseDto,
   IEmployeeGetRequestDto,
   IEmployeeGetResponseDto,
 } from '../types/employee.dto';
@@ -16,6 +18,7 @@ import {
   EmployeeAddResponseSchema,
   EmployeeDeleteRequestSchema,
   EmployeeDeleteResponseSchema,
+  EmployeeDetailGetResponseSchema,
   EmployeeGetRequestSchema,
   EmployeeGetResponseSchema,
 } from '../schemas';
@@ -106,6 +109,37 @@ export class EmployeeService {
             );
           } else {
             this.logger.logUserAction('Get Employee List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getEmployeeDetailById(
+    params: IEmployeeDetailGetRequestDto
+  ): Observable<IEmployeeDetailGetResponseDto> {
+    this.logger.logUserAction('Get Employee Detail By Id Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.EMPLOYEE.GET_EMPLOYEE_BY_ID(params.id),
+        EmployeeDetailGetResponseSchema
+      )
+      .pipe(
+        tap((response: IEmployeeDetailGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Employee Detail By Id Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Employee Detail By Id Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Employee Detail By Id Error', error);
           }
           return throwError(() => error);
         })

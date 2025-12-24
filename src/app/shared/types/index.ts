@@ -39,7 +39,7 @@ export {
   EButtonActionType,
 } from './button/button.types';
 export { ETabMode } from './nav-tabs/tab-items.types';
-export { EDrawerPosition } from './drawer/drawer.types';
+export { EDrawerPosition, EDrawerSize } from './drawer/drawer.types';
 
 export type {
   IConfirmationDialogSettingConfig,

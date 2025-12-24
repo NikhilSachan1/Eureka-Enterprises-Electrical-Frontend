@@ -7,6 +7,7 @@ import {
   DestroyRef,
   Injector,
   computed,
+  HostListener,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgComponentOutlet } from '@angular/common';
@@ -20,7 +21,7 @@ import {
 } from '@shared/types/drawer/drawer.interface';
 import { LoggerService } from '@core/services';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { EDrawerPosition } from '@shared/types';
+import { EDrawerPosition, EDrawerSize } from '@shared/types';
 
 @Component({
   selector: 'app-drawer',
@@ -44,8 +45,14 @@ export class DrawerComponent implements OnInit {
   protected readonly pageHeaderConfig = computed(() =>
     this.getPageHeaderConfig()
   );
+  protected readonly isMobile = signal(window.innerWidth <= 768);
 
   protected readonly ALL_DRAWER_POSITIONS = EDrawerPosition;
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.isMobile.set(window.innerWidth <= 768);
+  }
 
   ngOnInit(): void {
     this.initializeDrawerStateSubscription();
@@ -113,4 +120,24 @@ export class DrawerComponent implements OnInit {
       subtitle: this.currentConfig().subtitle,
     };
   }
+
+  protected getDrawerStyle(): Record<string, string> | null {
+    const size = this.currentConfig()?.size ?? EDrawerSize.DEFAULT;
+    const sizeConfig = this.DRAWER_SIZES.find(config => config.size === size);
+
+    if (this.isMobile() || size === EDrawerSize.DEFAULT || !sizeConfig) {
+      return null;
+    }
+
+    return {
+      width: sizeConfig.width,
+      maxWidth: sizeConfig.maxWidth,
+    };
+  }
+
+  private readonly DRAWER_SIZES = [
+    { size: EDrawerSize.SMALL, width: '50vw', maxWidth: '600px' },
+    { size: EDrawerSize.MEDIUM, width: '80vw', maxWidth: '1000px' },
+    { size: EDrawerSize.LARGE, width: '100vw', maxWidth: '1400px' },
+  ] as const;
 }

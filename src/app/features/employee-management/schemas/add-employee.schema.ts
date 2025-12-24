@@ -11,7 +11,7 @@ import {
   INDIA_CITY_DATA,
   INDIA_STATE_DATA,
 } from '@shared/config/static-data.config';
-import { fileField, onlyDateStringField } from '@shared/schemas';
+import { fileField, onlyDateStringField, uuidField } from '@shared/schemas';
 
 const { firstName, lastName, email, contactNumber, role } =
   EmployeeBaseSchema.shape;
@@ -64,5 +64,6 @@ export const EmployeeAddRequestSchema = EmployeeBaseSchema.omit({
 });
 
 export const EmployeeAddResponseSchema = z.object({
+  id: uuidField,
   message: z.string(),
 });

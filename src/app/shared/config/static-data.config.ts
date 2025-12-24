@@ -42,6 +42,7 @@ export const ROLE_NAME_DATA: IOptionDropdown[] = [
   { label: 'HR Manager', value: 'hr_manager' },
   { label: 'Finance Officer', value: 'finance_officer' },
   { label: 'Admin', value: 'ADMIN' },
+  { label: 'Driver', value: 'DRIVER' },
 ];
 
 export const ATTENDANCE_STATUS_DATA: IOptionDropdown[] = [

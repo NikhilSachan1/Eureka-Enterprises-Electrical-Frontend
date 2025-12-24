@@ -4,3 +4,10 @@ export enum EDrawerPosition {
   TOP = 'top',
   BOTTOM = 'bottom',
 }
+
+export enum EDrawerSize {
+  DEFAULT = 'default',
+  SMALL = 'small',
+  MEDIUM = 'medium',
+  LARGE = 'large',
+}

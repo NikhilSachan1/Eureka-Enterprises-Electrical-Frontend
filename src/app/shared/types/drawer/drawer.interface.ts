@@ -1,5 +1,5 @@
 import { Signal, Type } from '@angular/core';
-import { EDrawerPosition } from '@shared/types/';
+import { EDrawerPosition, EDrawerSize } from '@shared/types/';
 
 export interface IDrawerEvent {
   type: 'show' | 'hide' | 'visibleChange';
@@ -19,6 +19,7 @@ export interface IDrawerConfig {
   closeOnEscape: boolean;
   fullScreen: boolean;
   closable: boolean;
+  size?: EDrawerSize;
 }
 
 export interface IDrawerState {

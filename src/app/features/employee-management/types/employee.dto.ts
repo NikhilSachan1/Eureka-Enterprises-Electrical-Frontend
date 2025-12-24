@@ -4,6 +4,8 @@ import {
   EmployeeAddResponseSchema,
   EmployeeDeleteRequestSchema,
   EmployeeDeleteResponseSchema,
+  EmployeeDetailGetRequestSchema,
+  EmployeeDetailGetResponseSchema,
   EmployeeGetBaseResponseSchema,
   EmployeeGetRequestSchema,
   EmployeeGetResponseSchema,
@@ -25,4 +27,10 @@ export type IEmployeeDeleteRequestDto = z.infer<
 >;
 export type IEmployeeDeleteResponseDto = z.infer<
   typeof EmployeeDeleteResponseSchema
+>;
+export type IEmployeeDetailGetRequestDto = z.infer<
+  typeof EmployeeDetailGetRequestSchema
+>;
+export type IEmployeeDetailGetResponseDto = z.infer<
+  typeof EmployeeDetailGetResponseSchema
 >;

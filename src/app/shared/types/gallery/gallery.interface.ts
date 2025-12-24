@@ -1,7 +1,7 @@
 // Input interface - what users provide
 export interface IGalleryInputData {
   mediaKey: string;
-  actualMediaUrl: string;
+  actualMediaUrl?: string;
 }
 
 export interface IGalleryResolvedItem extends IGalleryInputData {

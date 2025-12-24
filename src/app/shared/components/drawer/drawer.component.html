@@ -32,6 +32,7 @@
     [closeOnEscape]="currentConfig().closeOnEscape"
     [modal]="currentConfig().modal"
     [showCloseIcon]="currentConfig().showCloseIcon"
+    [style]="getDrawerStyle()"
     (visibleChange)="onDrawerVisibleChange()"
     (onShow)="onDrawerShow()"
     (onHide)="onDrawerHide()"

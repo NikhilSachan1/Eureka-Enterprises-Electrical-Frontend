@@ -30,6 +30,12 @@ export const ICONS = {
     CLOUD_UPLOAD: 'pi pi-cloud-upload',
     ARROW_RIGHT: 'pi pi-arrow-right',
     ARROW_LEFT: 'pi pi-arrow-left',
+    PHONE: 'pi pi-phone',
+    BRIEFCASE: 'pi pi-briefcase',
+    CREDIT_CARD: 'pi pi-credit-card',
+    ID_CARD: 'pi pi-id-card',
+    EMAIL: 'pi pi-envelope',
+    CALENDAR: 'pi pi-calendar',
   },
   MEDIA: {
     PDF: 'pi pi-file-pdf',

@@ -1,0 +1,14 @@
+::ng-deep {
+  .p-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+
+    .p-chip-icon {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      line-height: 1;
+    }
+  }
+}

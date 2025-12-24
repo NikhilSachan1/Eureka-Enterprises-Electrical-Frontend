@@ -1,5 +1,5 @@
 import { IDrawerConfig } from '@shared/types/drawer/drawer.interface';
-import { EDrawerPosition } from '@shared/types';
+import { EDrawerPosition, EDrawerSize } from '@shared/types';
 
 export const DEFAULT_DRAWER_CONFIG: Partial<IDrawerConfig> = {
   position: EDrawerPosition.RIGHT,
@@ -9,4 +9,5 @@ export const DEFAULT_DRAWER_CONFIG: Partial<IDrawerConfig> = {
   closeOnEscape: true,
   fullScreen: false,
   closable: true,
+  size: EDrawerSize.DEFAULT,
 };

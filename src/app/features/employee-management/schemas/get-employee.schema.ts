@@ -1,4 +1,4 @@
-import { FilterSchema } from '@shared/schemas';
+import { AuditSchema, FilterSchema } from '@shared/schemas';
 import z from 'zod';
 import { EmployeeBaseSchema } from './base-employee.schema';
 import {
@@ -8,11 +8,12 @@ import {
 } from '@shared/config/static-data.config';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
-const { role } = EmployeeBaseSchema.shape;
+const { roles } = EmployeeBaseSchema.shape;
+const { createdAt, updatedAt } = AuditSchema.shape;
 
 export const EmployeeGetRequestSchema = z
   .object({
-    employeeRole: z.array(role.shape.name).optional(),
+    employeeRole: z.array(roles.element.shape.name).optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -27,7 +28,31 @@ export const EmployeeGetRequestSchema = z
     };
   });
 
-export const EmployeeGetBaseResponseSchema = EmployeeBaseSchema;
+export const EmployeeGetBaseResponseSchema = EmployeeBaseSchema.pick({
+  id: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  contactNumber: true,
+  profilePicture: true,
+  status: true,
+  employeeId: true,
+  dateOfJoining: true,
+  employeeType: true,
+  designation: true,
+  roles: true,
+})
+  .extend({
+    createdAt,
+    updatedAt,
+  })
+  .strict()
+  .transform(({ roles: employeeRoles, ...rest }) => {
+    return {
+      ...rest,
+      roles: employeeRoles.map(role => role.name).join(', '),
+    };
+  });
 
 export const EmployeeGetStatsResponseSchema = z
   .object({

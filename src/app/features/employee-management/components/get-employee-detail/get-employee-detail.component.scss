@@ -1,0 +1,14 @@
+::ng-deep {
+  .p-card {
+    .p-card-body {
+      padding: 0;
+    }
+  }
+
+  .p-image {
+    img {
+      border-radius: inherit;
+      object-fit: cover;
+    }
+  }
+}

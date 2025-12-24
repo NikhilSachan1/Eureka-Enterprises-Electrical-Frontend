@@ -12,3 +12,7 @@ export {
   EmployeeDeleteRequestSchema,
   EmployeeDeleteResponseSchema,
 } from './delete-employee.schema';
+export {
+  EmployeeDetailGetRequestSchema,
+  EmployeeDetailGetResponseSchema,
+} from './get-employee-detail.schema';

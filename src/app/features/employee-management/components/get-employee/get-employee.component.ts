@@ -289,6 +289,10 @@ export class GetEmployeeComponent implements OnInit {
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
+      {
+        label: 'Roles',
+        value: selectedRow.roles,
+      },
     ];
     return {
       details: [
