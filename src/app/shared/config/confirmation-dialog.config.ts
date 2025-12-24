@@ -69,3 +69,12 @@ export const REGULARIZE_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogS
     icon: IconUtil.getIcon(EButtonActionType.REGULARIZE) ?? undefined,
     message: 'Are you sure you want to regularize this item?',
   };
+
+export const SEND_PASSWORD_LINK_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfig> =
+  {
+    ...CONFIRMATION_DIALOG_CONFIG,
+    header: 'Send Password Link Confirmation',
+    icon: IconUtil.getIcon(EButtonActionType.SEND_PASSWORD_LINK) ?? undefined,
+    message:
+      'Are you sure you want to send password reset link to this employee?',
+  };

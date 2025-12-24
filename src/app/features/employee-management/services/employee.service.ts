@@ -9,8 +9,11 @@ import {
   IEmployeeDeleteResponseDto,
   IEmployeeDetailGetRequestDto,
   IEmployeeDetailGetResponseDto,
+  IEmployeeGetNextEmployeeIdResponseDto,
   IEmployeeGetRequestDto,
   IEmployeeGetResponseDto,
+  IEmployeeSendPasswordLinkRequestDto,
+  IEmployeeSendPasswordLinkResponseDto,
 } from '../types/employee.dto';
 import { API_ROUTES } from '@core/constants/api.constants';
 import {
@@ -18,9 +21,13 @@ import {
   EmployeeAddResponseSchema,
   EmployeeDeleteRequestSchema,
   EmployeeDeleteResponseSchema,
+  EmployeeDetailGetRequestSchema,
   EmployeeDetailGetResponseSchema,
+  EmployeeGetNextEmployeeIdResponseSchema,
   EmployeeGetRequestSchema,
   EmployeeGetResponseSchema,
+  EmployeeSendPasswordLinkRequestSchema,
+  EmployeeSendPasswordLinkResponseSchema,
 } from '../schemas';
 
 @Injectable({
@@ -123,7 +130,9 @@ export class EmployeeService {
     return this.apiService
       .getValidated(
         API_ROUTES.EMPLOYEE.GET_EMPLOYEE_BY_ID(params.id),
-        EmployeeDetailGetResponseSchema
+        EmployeeDetailGetResponseSchema,
+        params,
+        EmployeeDetailGetRequestSchema
       )
       .pipe(
         tap((response: IEmployeeDetailGetResponseDto) => {
@@ -140,6 +149,62 @@ export class EmployeeService {
             );
           } else {
             this.logger.logUserAction('Get Employee Detail By Id Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getNextEmployeeId(): Observable<IEmployeeGetNextEmployeeIdResponseDto> {
+    this.logger.logUserAction('Get Next Employee Id Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.EMPLOYEE.GET_NEXT_EMPLOYEE_ID,
+        EmployeeGetNextEmployeeIdResponseSchema
+      )
+      .pipe(
+        tap((response: IEmployeeGetNextEmployeeIdResponseDto) => {
+          this.logger.logUserAction('Get Next Employee Id Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Next Employee Id Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Next Employee Id Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  sendPasswordLink(
+    formData: IEmployeeSendPasswordLinkRequestDto
+  ): Observable<IEmployeeSendPasswordLinkResponseDto> {
+    this.logger.logUserAction('Send Password Link Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.EMPLOYEE.SEND_PASSWORD_LINK,
+        formData,
+        EmployeeSendPasswordLinkRequestSchema,
+        EmployeeSendPasswordLinkResponseSchema
+      )
+      .pipe(
+        tap((response: IEmployeeSendPasswordLinkResponseDto) => {
+          this.logger.logUserAction('Send Password Link Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Send Password Link Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Send Password Link Error', error);
           }
           return throwError(() => error);
         })

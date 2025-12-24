@@ -28,6 +28,7 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   cancel: ICONS.ACTIONS.BAN,
   cancelled: ICONS.ACTIONS.BAN,
   'new joiners last 30 days': ICONS.EMPLOYEE.GROUP,
+  sendpasswordlink: 'pi pi-send',
 
   // Info statuses
   holiday: ICONS.ATTENDANCE.CALENDAR,

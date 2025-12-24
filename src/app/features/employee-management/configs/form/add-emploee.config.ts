@@ -177,6 +177,18 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
 
 // Step 2: Employment Details Form Config
 const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+  employeeId: {
+    id: 'employeeId',
+    fieldName: 'employeeId',
+    label: 'Employee ID',
+    fieldType: EDataType.TEXT,
+    textConfig: {
+      textCase: ETextCase.UPPERCASE,
+    },
+    readonlyInput: true,
+    disabledInput: true,
+    validators: [Validators.required],
+  },
   previousExperience: {
     id: 'previousExperience',
     fieldName: 'previousExperience',
@@ -208,6 +220,44 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldType: EDataType.SELECT,
     selectConfig: {
       optionsDropdown: DESIGNATION_DATA,
+    },
+    validators: [Validators.required],
+  },
+  esicNumber: {
+    id: 'esicNumber',
+    fieldName: 'esicNumber',
+    label: 'ESIC Number',
+    fieldType: EDataType.TEXT,
+    validators: [Validators.required],
+  },
+  esicDocument: {
+    id: 'esicDocument',
+    fieldName: 'esicDocument',
+    label: 'ESIC Document',
+    fieldType: EDataType.ATTACHMENTS,
+    fileConfig: {
+      fileLimit: 1,
+      maxFileSize: 1024 * 1024 * 5,
+      acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
+    },
+    validators: [Validators.required],
+  },
+  uanNumber: {
+    id: 'uanNumber',
+    fieldName: 'uanNumber',
+    label: 'UAN Number',
+    fieldType: EDataType.TEXT,
+    validators: [Validators.required],
+  },
+  uanDocument: {
+    id: 'uanDocument',
+    fieldName: 'uanDocument',
+    label: 'UAN Document',
+    fieldType: EDataType.ATTACHMENTS,
+    fileConfig: {
+      fileLimit: 1,
+      maxFileSize: 1024 * 1024 * 5,
+      acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
     validators: [Validators.required],
   },
@@ -372,60 +422,22 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     },
     validators: [Validators.required],
   },
-  esicNumber: {
-    id: 'esicNumber',
-    fieldName: 'esicNumber',
-    label: 'ESIC Number',
-    fieldType: EDataType.TEXT,
-    validators: [Validators.required],
-  },
-  esicDocument: {
-    id: 'esicDocument',
-    fieldName: 'esicDocument',
-    label: 'ESIC Document',
-    fieldType: EDataType.ATTACHMENTS,
-    fileConfig: {
-      fileLimit: 1,
-      maxFileSize: 1024 * 1024 * 5,
-      acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
-    },
-    validators: [Validators.required],
-  },
-  uanNumber: {
-    id: 'uanNumber',
-    fieldName: 'uanNumber',
-    label: 'UAN Number',
-    fieldType: EDataType.TEXT,
-    validators: [Validators.required],
-  },
-  uanDocument: {
-    id: 'uanDocument',
-    fieldName: 'uanDocument',
-    label: 'UAN Document',
-    fieldType: EDataType.ATTACHMENTS,
-    fileConfig: {
-      fileLimit: 1,
-      maxFileSize: 1024 * 1024 * 5,
-      acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
-    },
-    validators: [Validators.required],
-  },
 };
 
 export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
   steps: [
     {
       value: 1,
-      icon: 'pi pi-user',
-      label: 'Personal Details',
+      icon: 'pi pi-id-card',
+      label: 'Personal',
       panelConfig: {
         templateKey: 'personalDetailsTemplate',
       },
     },
     {
       value: 2,
-      icon: 'pi pi-building',
-      label: 'Employment Details',
+      icon: 'pi pi-briefcase',
+      label: 'Employment',
       panelConfig: {
         templateKey: 'employmentDetailsTemplate',
       },
@@ -433,15 +445,15 @@ export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
     {
       value: 3,
       icon: 'pi pi-book',
-      label: 'Education Details',
+      label: 'Academic',
       panelConfig: {
         templateKey: 'educationDetailsTemplate',
       },
     },
     {
       value: 4,
-      icon: 'pi pi-briefcase',
-      label: 'Bank Details',
+      icon: 'pi pi-credit-card',
+      label: 'Bank',
       panelConfig: {
         templateKey: 'bankDetailsTemplate',
       },
@@ -449,7 +461,7 @@ export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
     {
       value: 5,
       icon: 'pi pi-file',
-      label: 'Documents Details',
+      label: 'Documents',
       panelConfig: {
         templateKey: 'documentsDetailsTemplate',
       },

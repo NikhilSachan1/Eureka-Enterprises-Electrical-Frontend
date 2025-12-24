@@ -62,4 +62,5 @@ export enum EButtonActionType {
   REGULARIZE = 'regularize',
   CHECK_IN = 'checkIn',
   CHECK_OUT = 'checkOut',
+  SEND_PASSWORD_LINK = 'sendPasswordLink',
 }

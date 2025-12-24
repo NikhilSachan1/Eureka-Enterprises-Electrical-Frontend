@@ -7,9 +7,12 @@ import {
   EmployeeDetailGetRequestSchema,
   EmployeeDetailGetResponseSchema,
   EmployeeGetBaseResponseSchema,
+  EmployeeGetNextEmployeeIdResponseSchema,
   EmployeeGetRequestSchema,
   EmployeeGetResponseSchema,
   EmployeeGetStatsResponseSchema,
+  EmployeeSendPasswordLinkRequestSchema,
+  EmployeeSendPasswordLinkResponseSchema,
 } from '../schemas';
 
 export type IEmployeeAddRequestDto = z.infer<typeof EmployeeAddRequestSchema>;
@@ -33,4 +36,13 @@ export type IEmployeeDetailGetRequestDto = z.infer<
 >;
 export type IEmployeeDetailGetResponseDto = z.infer<
   typeof EmployeeDetailGetResponseSchema
+>;
+export type IEmployeeGetNextEmployeeIdResponseDto = z.infer<
+  typeof EmployeeGetNextEmployeeIdResponseSchema
+>;
+export type IEmployeeSendPasswordLinkRequestDto = z.infer<
+  typeof EmployeeSendPasswordLinkRequestSchema
+>;
+export type IEmployeeSendPasswordLinkResponseDto = z.infer<
+  typeof EmployeeSendPasswordLinkResponseSchema
 >;

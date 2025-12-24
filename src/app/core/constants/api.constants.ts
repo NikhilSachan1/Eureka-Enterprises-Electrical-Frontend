@@ -3,8 +3,10 @@ export const API_ROUTES = {
     ADD: 'user',
     LIST: 'user',
     GET_EMPLOYEE_BY_ID: (employeeId: string) => `user/${employeeId}`,
+    GET_NEXT_EMPLOYEE_ID: 'user/next-employee-id',
     EDIT: (employeeId: string) => `user/${employeeId}`,
     DELETE: 'user',
+    SEND_PASSWORD_LINK: 'user/send-password-link',
   },
   ATTACHMENTS: {
     GET_FILE_URL: 'files',

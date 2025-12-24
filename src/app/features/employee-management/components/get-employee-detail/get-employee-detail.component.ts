@@ -450,6 +450,8 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
       ESIC,
       UAN,
       DEGREE,
+      OFFER_LETTER,
+      EXPERIENCE_LETTER,
       allDocumentKeys,
     } = response.documents;
 
@@ -489,11 +491,24 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
         documentKey: DEGREE,
         color: 'indigo',
       },
+      {
+        label: 'Offer Letter Document',
+        documentKey: OFFER_LETTER,
+        color: 'pink',
+      },
+      {
+        label: 'Experience Letter Document',
+        documentKey: EXPERIENCE_LETTER,
+        color: 'cyan',
+      },
     ];
 
-    const auditInfo: IEmployeeAuditItem[] = [
-      {
-        label: 'Added by',
+    const auditInfo: IEmployeeAuditItem[] = [];
+
+    // Add Created info (always present)
+    if (response.createdAt) {
+      auditInfo.push({
+        label: 'Created',
         name:
           response.createdByUser?.firstName || response.createdByUser?.lastName
             ? `${response.createdByUser?.firstName ?? ''} ${response.createdByUser?.lastName ?? ''}`.trim() ||
@@ -502,9 +517,12 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
         date: response.createdAt,
         icon: this.icons.COMMON.ADD,
         iconColor: 'text-blue-500',
-      },
-      {
-        label: 'Updated by',
+      });
+    }
+
+    if (response.updatedAt) {
+      auditInfo.push({
+        label: 'Updated',
         name:
           response.updatedByUser?.firstName || response.updatedByUser?.lastName
             ? `${response.updatedByUser?.firstName ?? ''} ${response.updatedByUser?.lastName ?? ''}`.trim() ||
@@ -513,8 +531,8 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
         date: response.updatedAt,
         icon: this.icons.ACTIONS.EDIT,
         iconColor: 'text-green-500',
-      },
-    ];
+      });
+    }
 
     return {
       basicInfo: employeeBasicInfo,

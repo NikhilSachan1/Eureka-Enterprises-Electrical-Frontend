@@ -1,12 +1,14 @@
 import { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import {
+  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
+import { IconUtil } from '@shared/utility';
 
 const EMPLOYEE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No employee record found.',
@@ -70,6 +72,11 @@ const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'View Employee profile',
   },
   {
+    id: EButtonActionType.SEND_PASSWORD_LINK,
+    icon: IconUtil.getIcon(EButtonActionType.SEND_PASSWORD_LINK) ?? undefined,
+    tooltip: 'Send Password Link',
+  },
+  {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Employee',
   },
@@ -85,6 +92,12 @@ const EMPLOYEE_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Employee',
+  },
+  {
+    id: EButtonActionType.SEND_PASSWORD_LINK,
+    icon: IconUtil.getIcon(EButtonActionType.SEND_PASSWORD_LINK) ?? undefined,
+    tooltip: 'Send Password Link to Selected',
+    label: 'Send Password Link',
   },
 ];
 

@@ -37,6 +37,7 @@ import {
   EButtonActionType,
   EDataType,
   EDialogType,
+  EDrawerSize,
   IDataViewDetails,
   IDataViewDetailsWithEmployee,
   IEnhancedTable,
@@ -224,6 +225,7 @@ export class GetEmployeeComponent implements OnInit {
 
     const dialogTypeMap: Record<string, EDialogType> = {
       [EButtonActionType.DELETE]: EDialogType.DELETE,
+      [EButtonActionType.SEND_PASSWORD_LINK]: EDialogType.SEND_PASSWORD_LINK,
     };
 
     const dialogType = dialogTypeMap[actionType];
@@ -315,6 +317,7 @@ export class GetEmployeeComponent implements OnInit {
     this.drawerService.showDrawer(GetEmployeeDetailComponent, {
       header: `Employee Details`,
       subtitle: `Detailed view of employee`,
+      size: EDrawerSize.LARGE,
       componentData: {
         employee: rowData,
       },

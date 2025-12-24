@@ -35,8 +35,13 @@ import {
   ROUTE_BASE_PATHS,
   ROUTES,
 } from '@shared/constants';
-import { IEmployeeAddRequestDto } from '@features/employee-management/types/employee.dto';
+import {
+  IEmployeeAddRequestDto,
+  IEmployeeGetNextEmployeeIdResponseDto,
+} from '@features/employee-management/types/employee.dto';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
+import { ActivatedRoute } from '@angular/router';
+import { transformDateFormat } from '@shared/utility';
 
 @Component({
   selector: 'app-add-employee',
@@ -59,6 +64,7 @@ export class AddEmployeeComponent implements OnInit {
   private readonly loadingService = inject(LoadingService);
   private readonly employeeService = inject(EmployeeService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   protected stepperConfig!: IStepperConfig;
   protected multiStepForm!: IEnhancedMultiStepForm;
@@ -66,10 +72,14 @@ export class AddEmployeeComponent implements OnInit {
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
   protected readonly activeStep = signal<number>(1);
-
+  protected readonly initialEmployeeData = signal<Record<
+    string,
+    Record<string, unknown>
+  > | null>(null);
   protected readonly stepErrors = signal<Record<number, boolean>>({});
   protected readonly stepValid = signal<Record<number, boolean>>({});
   private readonly attemptedSteps = signal<Set<number>>(new Set());
+  private readonly employeeId = signal<string | null>(null);
 
   constructor() {
     effect(() => {
@@ -92,9 +102,12 @@ export class AddEmployeeComponent implements OnInit {
   protected trackFields!: Record<string, Signal<any>>;
 
   ngOnInit(): void {
+    this.loadEmployeeDataFromRoute();
+
     this.stepperConfig = ADD_EMPLOYEE_STEPPER_CONFIG;
     this.multiStepForm = this.formService.createMultiStepForm(
-      ADD_EMPLOYEE_FORM_CONFIG
+      ADD_EMPLOYEE_FORM_CONFIG,
+      this.initialEmployeeData()
     );
 
     this.trackFields = this.formService.trackMultipleFieldChanges(
@@ -102,6 +115,37 @@ export class AddEmployeeComponent implements OnInit {
       ['state'],
       this.destroyRef
     );
+  }
+
+  private loadEmployeeDataFromRoute(): void {
+    const nextEmployeeCodeFromResolver = this.activatedRoute.snapshot.data[
+      'nextEmployeeCode'
+    ] as IEmployeeGetNextEmployeeIdResponseDto;
+
+    if (!nextEmployeeCodeFromResolver) {
+      this.logger.logUserAction('No next employee code found in route');
+      const routeSegments = [ROUTE_BASE_PATHS.EMPLOYEE, ROUTES.EMPLOYEE.LIST];
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+      return;
+    }
+
+    const prefilledEmployeeData = this.preparePrefilledFormData(
+      nextEmployeeCodeFromResolver
+    );
+    this.initialEmployeeData.set(prefilledEmployeeData);
+  }
+
+  private preparePrefilledFormData(
+    nextEmployeeCodeFromResolver: IEmployeeGetNextEmployeeIdResponseDto
+  ): Record<string, Record<string, unknown>> {
+    const employmentStep = '2';
+    const { employeeId } = nextEmployeeCodeFromResolver.data;
+    this.employeeId.set(employeeId);
+    return {
+      [employmentStep]: {
+        employeeId,
+      },
+    };
   }
 
   protected onSubmit(): void {
@@ -123,7 +167,6 @@ export class AddEmployeeComponent implements OnInit {
       email,
       contactNumber,
       emergencyContactNumber,
-      role,
       gender,
       dateOfBirth,
       bloodGroup,
@@ -153,6 +196,9 @@ export class AddEmployeeComponent implements OnInit {
       drivingLicenseDocument,
       esicNumber,
       esicDocument,
+      uanNumber,
+      passportNumber,
+      degreeDocument,
     } = this.multiStepForm.getData() as {
       firstName: string;
       lastName: string;
@@ -160,7 +206,7 @@ export class AddEmployeeComponent implements OnInit {
       email: string;
       contactNumber: string;
       emergencyContactNumber: string;
-      role: string;
+      roles: string[];
       gender: string;
       dateOfBirth: string;
       bloodGroup: string;
@@ -170,29 +216,30 @@ export class AddEmployeeComponent implements OnInit {
       state: string;
       city: string;
       pinCode: string;
-      profilePicture: File;
-      previousExperience: number;
+      profilePicture: File[];
+      previousExperience: string;
       dateOfJoining: string;
       employmentType: string;
       designation: string;
       degree: string;
       branch: string;
-      passingYear: number;
-      degreeDocument: File;
+      passingYear: string;
+      degreeDocument: File[];
       bankName: string;
       accountNumber: string;
       ifscCode: string;
       accountHolderName: string;
       aadharNumber: string;
-      aadharDocument: File;
+      aadharDocument: File[];
       pancardNumber: string;
-      pancardDocument: File;
+      pancardDocument: File[];
       drivingLicenseNumber: string;
-      drivingLicenseDocument: File;
+      drivingLicenseDocument: File[];
       esicNumber: string;
-      esicDocument: File;
+      esicDocument: File[];
       uanNumber: string;
-      uanDocument: File;
+      uanDocument: File[];
+      passportNumber: string;
       panNumber: string;
       dlNumber: string;
     };
@@ -202,19 +249,20 @@ export class AddEmployeeComponent implements OnInit {
       lastName,
       email,
       contactNumber,
-      role,
+      roles: ['ADMIN'],
       fatherName,
       emergencyContactNumber,
       gender,
-      dateOfBirth,
+      dateOfBirth: transformDateFormat(dateOfBirth),
       bloodGroup,
       houseNumber,
       streetName,
       landmark,
       state,
       city,
-      pinCode,
-      dateOfJoining,
+      pincode: pinCode,
+      employeeId: this.employeeId() ?? null,
+      dateOfJoining: transformDateFormat(dateOfJoining),
       previousExperience,
       employeeType: employmentType,
       designation,
@@ -226,14 +274,17 @@ export class AddEmployeeComponent implements OnInit {
       bankName,
       ifscCode,
       esicNumber,
+      uanNumber,
       aadharNumber,
       panNumber: pancardNumber,
+      passportNumber,
       dlNumber: drivingLicenseNumber,
-      profilePicture,
-      esicDoc: esicDocument,
-      aadharDoc: aadharDocument,
-      panDoc: pancardDocument,
-      dlDoc: drivingLicenseDocument,
+      profilePicture: profilePicture[0],
+      esicDoc: esicDocument[0],
+      aadharDoc: aadharDocument[0],
+      panDoc: pancardDocument[0],
+      dlDoc: drivingLicenseDocument[0],
+      degreeDoc: degreeDocument[0],
     };
   }
 
@@ -282,9 +333,11 @@ export class AddEmployeeComponent implements OnInit {
 
   protected onStepperNextRequested(): void {
     const currentStep = this.activeStep();
+    const totalSteps = this.stepperConfig.steps.length;
+    const isLastStep = currentStep === totalSteps;
     this.attemptedSteps.update(steps => new Set(steps).add(currentStep));
     this.validateParticularForm();
-    this.activeStep.set(currentStep + 1);
+    this.activeStep.set(isLastStep ? 1 : currentStep + 1);
   }
 
   protected onStepperPreviousRequested(): void {

@@ -37,6 +37,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'cancel',
     'cancelled',
     'new joiners last 30 days',
+    'sendpasswordlink',
   ],
   info: [
     'holiday',

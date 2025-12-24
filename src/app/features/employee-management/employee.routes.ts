@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetNextEmployeeCodeResolver } from './resolvers/get-next-employe-code.resolver';
 
 export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -20,6 +21,9 @@ export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
       import('./components/add-employee/add-employee.component').then(
         m => m.AddEmployeeComponent
       ),
+    resolve: {
+      nextEmployeeCode: GetNextEmployeeCodeResolver,
+    },
   },
   {
     path: `${ROUTES.EMPLOYEE.EDIT}/:employeeId`,

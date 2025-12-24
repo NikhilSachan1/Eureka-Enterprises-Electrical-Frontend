@@ -140,7 +140,12 @@
     [formGroup]="form.formGroup"
     class="form"
   >
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['employeeId']"
+      />
+
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['previousExperience']"
@@ -161,6 +166,30 @@
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['designation']"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['esicNumber']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['uanNumber']"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['esicDocument']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['uanDocument']"
       />
     </div>
   </form>
@@ -240,76 +269,56 @@
     [formGroup]="form.formGroup"
     class="form"
   >
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['aadharNumber']"
-      />
+    <!-- Identity Document Numbers Section -->
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Identity Numbers</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['aadharNumber']"
+        />
 
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['pancardNumber']"
-      />
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['pancardNumber']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['passportNumber']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['drivingLicenseNumber']"
+        />
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['aadharDocument']"
-      />
+    <!-- Document Files Section -->
+    <div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Identity Document</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['aadharDocument']"
+        />
 
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['pancardDocument']"
-      />
-    </div>
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['pancardDocument']"
+        />
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['passportNumber']"
-      />
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['passportDocument']"
+        />
 
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['drivingLicenseNumber']"
-      />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['passportDocument']"
-      />
-
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['drivingLicenseDocument']"
-      />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['esicNumber']"
-      />
-
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['uanNumber']"
-      />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['esicDocument']"
-      />
-
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['uanDocument']"
-      />
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['drivingLicenseDocument']"
+        />
+      </div>
     </div>
   </form>
 </ng-template>

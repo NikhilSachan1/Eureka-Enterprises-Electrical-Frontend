@@ -13,6 +13,11 @@ export {
   EmployeeDeleteResponseSchema,
 } from './delete-employee.schema';
 export {
+  EmployeeSendPasswordLinkRequestSchema,
+  EmployeeSendPasswordLinkResponseSchema,
+} from './send-password-link.schema';
+export {
   EmployeeDetailGetRequestSchema,
   EmployeeDetailGetResponseSchema,
 } from './get-employee-detail.schema';
+export { EmployeeGetNextEmployeeIdResponseSchema } from './get-next-employee-id.schema';

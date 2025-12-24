@@ -5,6 +5,7 @@ export enum EDialogType {
   REJECT = 'reject',
   CANCEL = 'cancel',
   REGULARIZE = 'regularize',
+  SEND_PASSWORD_LINK = 'sendPasswordLink',
 }
 
 export enum EDialogPosition {

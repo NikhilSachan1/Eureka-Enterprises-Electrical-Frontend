@@ -162,10 +162,8 @@
 
   @if (showButtons) {
     @let isFirstStep = step.value === 1;
-    @let totalSteps = stepperSteps.length;
-    @let isLastStep = step.value === totalSteps;
     @let showBackButton = !isFirstStep && panel.backButtonConfig;
-    @let showNextButton = (!isLastStep || totalSteps === 1) && panel.nextButtonConfig;
+    @let showNextButton = panel.nextButtonConfig;
     @let showResetButton = finalStepperConfig().showResetButton && panel.resetButtonConfig;
     @let hasLeftButton = showBackButton;
     @let hasRightButtons = showNextButton || showResetButton;

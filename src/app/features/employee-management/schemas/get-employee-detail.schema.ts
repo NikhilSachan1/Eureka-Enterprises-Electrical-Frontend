@@ -28,6 +28,8 @@ export const EmployeeDetailGetDocumentsSchema = z
     PASSPORT: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
     UAN: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
     DEGREE: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
+    OFFER_LETTER: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
+    EXPERIENCE_LETTER: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
   })
   .transform(data => {
     const aadhar = data.AADHAR.map(doc => doc.fileKey);
@@ -37,6 +39,9 @@ export const EmployeeDetailGetDocumentsSchema = z
     const passport = data.PASSPORT?.map(doc => doc.fileKey) ?? [];
     const uan = data.UAN?.map(doc => doc.fileKey) ?? [];
     const degree = data.DEGREE?.map(doc => doc.fileKey) ?? [];
+    const offerLetter = data.OFFER_LETTER?.map(doc => doc.fileKey) ?? [];
+    const experienceLetter =
+      data.EXPERIENCE_LETTER?.map(doc => doc.fileKey) ?? [];
 
     // Collect all document keys into a single array
     const allDocumentKeys = [
@@ -47,6 +52,8 @@ export const EmployeeDetailGetDocumentsSchema = z
       ...passport,
       ...uan,
       ...degree,
+      ...offerLetter,
+      ...experienceLetter,
     ];
 
     return {
@@ -57,6 +64,8 @@ export const EmployeeDetailGetDocumentsSchema = z
       PASSPORT: passport,
       UAN: uan,
       DEGREE: degree,
+      OFFER_LETTER: offerLetter,
+      EXPERIENCE_LETTER: experienceLetter,
       allDocumentKeys,
     };
   });
