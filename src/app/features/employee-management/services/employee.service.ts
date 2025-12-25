@@ -9,6 +9,8 @@ import {
   IEmployeeDeleteResponseDto,
   IEmployeeDetailGetRequestDto,
   IEmployeeDetailGetResponseDto,
+  IEmployeeEditRequestDto,
+  IEmployeeEditResponseDto,
   IEmployeeGetNextEmployeeIdResponseDto,
   IEmployeeGetRequestDto,
   IEmployeeGetResponseDto,
@@ -21,8 +23,9 @@ import {
   EmployeeAddResponseSchema,
   EmployeeDeleteRequestSchema,
   EmployeeDeleteResponseSchema,
-  EmployeeDetailGetRequestSchema,
   EmployeeDetailGetResponseSchema,
+  EmployeeEditRequestSchema,
+  EmployeeEditResponseSchema,
   EmployeeGetNextEmployeeIdResponseSchema,
   EmployeeGetRequestSchema,
   EmployeeGetResponseSchema,
@@ -59,6 +62,35 @@ export class EmployeeService {
             this.logger.logDtoValidationErrors('Add Employee Error', error);
           } else {
             this.logger.logUserAction('Add Employee Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  editEmployee(
+    formData: IEmployeeEditRequestDto,
+    employeeId: string
+  ): Observable<IEmployeeEditResponseDto> {
+    this.logger.logUserAction('Edit Employee Request');
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.EMPLOYEE.EDIT(employeeId),
+        formData,
+        EmployeeEditRequestSchema,
+        EmployeeEditResponseSchema,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: IEmployeeEditResponseDto) => {
+          this.logger.logUserAction('Edit Employee Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Edit Employee Error', error);
+          } else {
+            this.logger.logUserAction('Edit Employee Error', error);
           }
           return throwError(() => error);
         })
@@ -130,9 +162,7 @@ export class EmployeeService {
     return this.apiService
       .getValidated(
         API_ROUTES.EMPLOYEE.GET_EMPLOYEE_BY_ID(params.id),
-        EmployeeDetailGetResponseSchema,
-        params,
-        EmployeeDetailGetRequestSchema
+        EmployeeDetailGetResponseSchema
       )
       .pipe(
         tap((response: IEmployeeDetailGetResponseDto) => {

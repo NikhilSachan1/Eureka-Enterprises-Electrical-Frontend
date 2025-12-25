@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
 import { GetNextEmployeeCodeResolver } from './resolvers/get-next-employe-code.resolver';
+import { GetEmployeeDetailResolver } from './resolvers/get-employee-detail.resolver';
 
 export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -31,5 +32,8 @@ export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-employee/edit-employee.component').then(
         m => m.EditEmployeeComponent
       ),
+    resolve: {
+      employeeDetail: GetEmployeeDetailResolver,
+    },
   },
 ];

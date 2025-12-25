@@ -144,14 +144,14 @@ export const EMPLOYEE_GENDER_DATA: IOptionDropdown[] = [
 ];
 
 export const EMPLOYEE_BLOOD_GROUP_DATA: IOptionDropdown[] = [
-  { label: 'A+', value: 'a_positive' },
-  { label: 'A-', value: 'a_negative' },
-  { label: 'B+', value: 'b_positive' },
-  { label: 'B-', value: 'b_negative' },
-  { label: 'AB+', value: 'ab_positive' },
-  { label: 'AB-', value: 'ab_negative' },
-  { label: 'O+', value: 'o_positive' },
-  { label: 'O-', value: 'o_negative' },
+  { label: 'A+', value: 'a_posi' },
+  { label: 'A-', value: 'a_neg' },
+  { label: 'B+', value: 'b_posi' },
+  { label: 'B-', value: 'b_neg' },
+  { label: 'AB+', value: 'ab_posi' },
+  { label: 'AB-', value: 'ab_neg' },
+  { label: 'O+', value: 'o_posi' },
+  { label: 'O-', value: 'o_neg' },
 ];
 
 export const INDIA_STATE_DATA: IOptionDropdown[] = [

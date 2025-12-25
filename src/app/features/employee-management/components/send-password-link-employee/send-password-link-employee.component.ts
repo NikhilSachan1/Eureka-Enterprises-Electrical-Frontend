@@ -21,7 +21,6 @@ import {
   LoadingService,
   NotificationService,
 } from '@shared/services';
-import { EButtonActionType } from '@shared/types';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -103,13 +102,13 @@ export class SendPasswordLinkEmployeeComponent implements OnInit {
       )
       .subscribe({
         next: (response: IEmployeeSendPasswordLinkResponseDto) => {
-          const { errors, result } = response;
+          const { results } = response;
 
           this.notificationService.bulkOperationResult({
             entityLabel: 'employee',
-            actionLabel: EButtonActionType.SEND_PASSWORD_LINK,
-            errors,
-            result,
+            actionLabel: 'Send Password Link',
+            errors: [],
+            result: results,
           });
 
           const successCallback = this.onSuccess();

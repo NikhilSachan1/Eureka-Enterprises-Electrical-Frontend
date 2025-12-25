@@ -70,6 +70,8 @@ export class AddEmployeeComponent implements OnInit {
 
   protected stepperConfig!: IStepperConfig;
   protected multiStepForm!: IEnhancedMultiStepForm;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected trackFields!: Record<string, Signal<any>>;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
@@ -81,7 +83,7 @@ export class AddEmployeeComponent implements OnInit {
   protected readonly stepErrors = signal<Record<number, boolean>>({});
   protected readonly stepValid = signal<Record<number, boolean>>({});
   private readonly attemptedSteps = signal<Set<number>>(new Set());
-  private readonly employeeId = signal<string | null>(null);
+  private readonly employeeId = signal<string>('');
 
   constructor() {
     effect(() => {
@@ -99,9 +101,6 @@ export class AddEmployeeComponent implements OnInit {
       }
     });
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected trackFields!: Record<string, Signal<any>>;
 
   ngOnInit(): void {
     this.loadEmployeeDataFromRoute();
@@ -215,6 +214,8 @@ export class AddEmployeeComponent implements OnInit {
       uanNumber,
       passportNumber,
       degreeDocument,
+      uanDocument,
+      passportDocument,
     } = this.multiStepForm.getData() as {
       firstName: string;
       lastName: string;
@@ -258,6 +259,7 @@ export class AddEmployeeComponent implements OnInit {
       passportNumber: string;
       panNumber: string;
       dlNumber: string;
+      passportDocument: File[];
     };
 
     return {
@@ -277,7 +279,7 @@ export class AddEmployeeComponent implements OnInit {
       state,
       city,
       pincode: pinCode,
-      employeeId: this.employeeId() ?? null,
+      employeeId: this.employeeId(),
       dateOfJoining: transformDateFormat(dateOfJoining),
       previousExperience,
       employeeType: employmentType,
@@ -301,6 +303,8 @@ export class AddEmployeeComponent implements OnInit {
       panDoc: pancardDocument[0],
       dlDoc: drivingLicenseDocument[0],
       degreeDoc: degreeDocument[0],
+      uanDoc: uanDocument[0],
+      passportDoc: passportDocument[0],
     };
   }
 

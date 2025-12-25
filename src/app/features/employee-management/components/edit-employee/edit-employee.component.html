@@ -1,1 +1,324 @@
-<p>edit-employee works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<app-stepper
+  [stepperConfig]="stepperConfig"
+  [(activeStep)]="activeStep"
+  [stepErrors]="stepErrors()"
+  [stepValid]="stepValid()"
+  (nextStepRequested)="onStepperNextRequested()"
+  (previousStepRequested)="onStepperPreviousRequested()"
+  (resetRequested)="onStepperResetRequested()"
+  [panelTemplates]="{
+    personalDetailsTemplate: personalDetailsTemplate,
+    employmentDetailsTemplate: employmentDetailsTemplate,
+    educationDetailsTemplate: educationDetailsTemplate,
+    bankDetailsTemplate: bankDetailsTemplate,
+    documentsDetailsTemplate: documentsDetailsTemplate,
+  }"
+/>
+
+<div class="multi-step-button-container">
+  @let form = multiStepForm;
+  <app-button
+    [buttonConfig]="form.buttonConfigs['reset']"
+    (onButtonClick)="onReset()"
+  />
+
+  <app-button
+    [buttonConfig]="multiStepForm.buttonConfigs['submit']"
+    [showButtonLoader]="isSubmitting()"
+    (onButtonClick)="onSubmit()"
+  />
+</div>
+
+<!-- Step 1: Personal Details -->
+<ng-template #personalDetailsTemplate>
+  @let form = multiStepForm.forms['1'];
+  <form
+    (ngSubmit)="onSubmit()"
+    [formGroup]="form.formGroup"
+    class="form"
+  >
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['firstName']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['lastName']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['contactNumber']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['email']"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['fatherName']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['emergencyContactNumber']"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['gender']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['dateOfBirth']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['bloodGroup']"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['houseNumber']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['streetName']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['landmark']"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['state']"
+        (onFieldChange)="onStateChange()"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['city']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['pinCode']"
+      />
+    </div>
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['profilePicture']"
+    />
+  </form>
+</ng-template>
+
+<!-- Step 2: Employment Details -->
+<ng-template #employmentDetailsTemplate>
+  @let form = multiStepForm.forms['2'];
+  <form
+    (ngSubmit)="onSubmit()"
+    [formGroup]="form.formGroup"
+    class="form"
+  >
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['employeeId']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['previousExperience']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['dateOfJoining']"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['employmentType']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['designation']"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['esicNumber']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['uanNumber']"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['esicDocument']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['uanDocument']"
+      />
+    </div>
+  </form>
+</ng-template>
+
+<!-- Step 3: Education Details -->
+<ng-template #educationDetailsTemplate>
+  @let form = multiStepForm.forms['3'];
+  <form
+    (ngSubmit)="onSubmit()"
+    [formGroup]="form.formGroup"
+    class="form"
+  >
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['degree']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['branch']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['passingYear']"
+      />
+    </div>
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['degreeDocument']"
+    />
+  </form>
+</ng-template>
+
+<!-- Step 4: Bank Details -->
+<ng-template #bankDetailsTemplate>
+  @let form = multiStepForm.forms['4'];
+  <form
+    (ngSubmit)="onSubmit()"
+    [formGroup]="form.formGroup"
+    class="form"
+  >
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['bankName']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['accountNumber']"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['accountHolderName']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['ifscCode']"
+      />
+    </div>
+  </form>
+</ng-template>
+
+<!-- Step 5: Documents Details -->
+<ng-template #documentsDetailsTemplate>
+  @let form = multiStepForm.forms['5'];
+  <form
+    (ngSubmit)="onSubmit()"
+    [formGroup]="form.formGroup"
+    class="form"
+  >
+    <!-- Identity Document Numbers Section -->
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Identity Numbers</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['aadharNumber']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['pancardNumber']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['passportNumber']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['drivingLicenseNumber']"
+        />
+      </div>
+    </div>
+
+    <!-- Document Files Section -->
+    <div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Identity Document</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['aadharDocument']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['pancardDocument']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['passportDocument']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['drivingLicenseDocument']"
+        />
+      </div>
+    </div>
+  </form>
+</ng-template>

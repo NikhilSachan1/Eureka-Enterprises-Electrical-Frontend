@@ -6,7 +6,7 @@ export const API_ROUTES = {
     GET_NEXT_EMPLOYEE_ID: 'user/next-employee-id',
     EDIT: (employeeId: string) => `user/${employeeId}`,
     DELETE: 'user',
-    SEND_PASSWORD_LINK: 'user/send-password-link',
+    SEND_PASSWORD_LINK: 'user/resend-password-link',
   },
   ATTACHMENTS: {
     GET_FILE_URL: 'files',

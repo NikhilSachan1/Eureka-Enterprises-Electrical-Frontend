@@ -21,3 +21,7 @@ export {
   EmployeeDetailGetResponseSchema,
 } from './get-employee-detail.schema';
 export { EmployeeGetNextEmployeeIdResponseSchema } from './get-next-employee-id.schema';
+export {
+  EmployeeEditRequestSchema,
+  EmployeeEditResponseSchema,
+} from './edit-employee.schema';

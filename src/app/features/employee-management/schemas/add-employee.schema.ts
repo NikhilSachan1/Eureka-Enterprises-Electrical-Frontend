@@ -61,7 +61,9 @@ export const EmployeeAddRequestSchema = EmployeeBaseSchema.omit({
     aadharDoc: fileField,
     panDoc: fileField,
     dlDoc: fileField,
-    employeeId: employeeId.nullable(),
+    uanDoc: fileField,
+    passportDoc: fileField,
+    employeeId,
     degreeDoc: fileField,
     offerLetterDoc: fileField.optional(),
     experienceLetterDoc: fileField.optional(),
@@ -73,5 +75,6 @@ export const EmployeeAddResponseSchema = z
     id: uuidField,
     employeeId,
     message: z.string(),
+    salaryCreated: z.boolean(),
   })
   .strict();

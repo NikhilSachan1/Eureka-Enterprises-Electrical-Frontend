@@ -6,6 +6,8 @@ import {
   EmployeeDeleteResponseSchema,
   EmployeeDetailGetRequestSchema,
   EmployeeDetailGetResponseSchema,
+  EmployeeEditRequestSchema,
+  EmployeeEditResponseSchema,
   EmployeeGetBaseResponseSchema,
   EmployeeGetNextEmployeeIdResponseSchema,
   EmployeeGetRequestSchema,
@@ -45,4 +47,8 @@ export type IEmployeeSendPasswordLinkRequestDto = z.infer<
 >;
 export type IEmployeeSendPasswordLinkResponseDto = z.infer<
   typeof EmployeeSendPasswordLinkResponseSchema
+>;
+export type IEmployeeEditRequestDto = z.infer<typeof EmployeeEditRequestSchema>;
+export type IEmployeeEditResponseDto = z.infer<
+  typeof EmployeeEditResponseSchema
 >;

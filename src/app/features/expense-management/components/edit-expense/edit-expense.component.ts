@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AppConfigService, LoggerService } from '@core/services';
+import { LoggerService } from '@core/services';
 import { EDIT_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
 import {
   FormService,
@@ -17,7 +17,6 @@ import {
   RouterNavigationService,
 } from '@shared/services';
 import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
-import { DatePipe } from '@angular/common';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -45,7 +44,6 @@ import { transformDateFormat } from '@shared/utility';
   templateUrl: './edit-expense.component.html',
   styleUrl: './edit-expense.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DatePipe],
 })
 export class EditExpenseComponent implements OnInit {
   private readonly formService = inject(FormService);
@@ -55,8 +53,6 @@ export class EditExpenseComponent implements OnInit {
   private readonly expenseService = inject(ExpenseService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly datePipe = inject(DatePipe);
-  private readonly appConfigService = inject(AppConfigService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected form!: IEnhancedForm;

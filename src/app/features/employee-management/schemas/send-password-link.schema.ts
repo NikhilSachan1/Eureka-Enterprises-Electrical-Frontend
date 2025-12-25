@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { EmployeeBaseSchema } from './base-employee.schema';
 
-const { id } = EmployeeBaseSchema.shape;
+const { id, email, firstName, lastName } = EmployeeBaseSchema.shape;
 
 export const EmployeeSendPasswordLinkRequestSchema = z
   .object({
@@ -9,24 +9,18 @@ export const EmployeeSendPasswordLinkRequestSchema = z
   })
   .strict();
 
-export const EmployeeSendPasswordLinkResultSchema = z
-  .object({
-    userId: id,
-    message: z.string(),
-  })
-  .strict();
-
-export const EmployeeSendPasswordLinkErrorSchema = z
-  .object({
-    userId: id,
-    error: z.string().min(1),
-  })
-  .strict();
-
 export const EmployeeSendPasswordLinkResponseSchema = z
   .object({
     message: z.string().min(1),
-    result: z.array(EmployeeSendPasswordLinkResultSchema),
-    errors: z.array(EmployeeSendPasswordLinkErrorSchema),
+    results: z.array(
+      z.object({
+        userId: id,
+        email,
+        firstName,
+        lastName,
+        resetLink: z.string(),
+        status: z.string(),
+      })
+    ),
   })
   .strict();

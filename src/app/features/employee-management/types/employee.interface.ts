@@ -1,5 +1,8 @@
 import { IDataViewDetails } from '@shared/types';
-import { IEmployeeGetBaseResponseDto } from './employee.dto';
+import {
+  IEmployeeDetailGetResponseDto,
+  IEmployeeGetBaseResponseDto,
+} from './employee.dto';
 
 export interface IEmployee
   extends Omit<
@@ -86,4 +89,22 @@ export interface IEmployeeDetail {
   documentInfo: IEmployeeDocumentInfo[];
   allDocumentKeys: string[];
   auditInfo: IEmployeeAuditItem[];
+}
+
+export interface IEmployeePreloadedFiles {
+  AADHAR?: File[];
+  DRIVING_LICENSE?: File[];
+  ESIC?: File[];
+  PAN?: File[];
+  PASSPORT?: File[];
+  UAN?: File[];
+  DEGREE?: File[];
+  OFFER_LETTER?: File[];
+  EXPERIENCE_LETTER?: File[];
+  PROFILE_PICTURE?: File[];
+}
+
+export interface IEmployeeDetailResolverResponse
+  extends IEmployeeDetailGetResponseDto {
+  preloadedFiles?: IEmployeePreloadedFiles;
 }

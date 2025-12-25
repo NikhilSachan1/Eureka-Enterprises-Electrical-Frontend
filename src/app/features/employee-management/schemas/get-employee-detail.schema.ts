@@ -27,7 +27,9 @@ export const EmployeeDetailGetDocumentsSchema = z
     PAN: z.array(EmployeeDetailGetDocumentsBaseSchema),
     PASSPORT: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
     UAN: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
-    DEGREE: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
+    EDUCATION_CERTIFICATE: z
+      .array(EmployeeDetailGetDocumentsBaseSchema)
+      .optional(),
     OFFER_LETTER: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
     EXPERIENCE_LETTER: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
   })
@@ -38,7 +40,7 @@ export const EmployeeDetailGetDocumentsSchema = z
     const pan = data.PAN.map(doc => doc.fileKey);
     const passport = data.PASSPORT?.map(doc => doc.fileKey) ?? [];
     const uan = data.UAN?.map(doc => doc.fileKey) ?? [];
-    const degree = data.DEGREE?.map(doc => doc.fileKey) ?? [];
+    const degree = data.EDUCATION_CERTIFICATE?.map(doc => doc.fileKey) ?? [];
     const offerLetter = data.OFFER_LETTER?.map(doc => doc.fileKey) ?? [];
     const experienceLetter =
       data.EXPERIENCE_LETTER?.map(doc => doc.fileKey) ?? [];
