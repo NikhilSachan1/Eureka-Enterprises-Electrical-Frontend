@@ -249,11 +249,11 @@ export const EMPLOYMENT_TYPE_DATA: IOptionDropdown[] = [
 ];
 
 export const DESIGNATION_DATA: IOptionDropdown[] = [
-  { label: 'Sr. Testing Engineer', value: 'sr_testing_engineer' },
-  { label: 'Associate Testing Engineer', value: 'associate_testing_engineer' },
-  { label: 'Jr. Testing Engineer', value: 'jr_testing_engineer' },
+  { label: 'Sr. Testing Engineer', value: 'st_test_en' },
+  { label: 'Associate Testing Engineer', value: 'asso_test_en' },
+  { label: 'Jr. Testing Engineer', value: 'jr_test_eng' },
   { label: 'Driver', value: 'driver' },
-  { label: 'Human Resource (HR)', value: 'human_resource_hr' },
+  { label: 'Human Resource (HR)', value: 'hr' },
   { label: 'Accountant', value: 'accountant' },
 ];
 
@@ -271,20 +271,20 @@ export const DEGREE_DATA: IOptionDropdown[] = [
 export const BRANCH_DATA: IOptionDropdown[] = [
   {
     label: 'Computer Science and Engineering',
-    value: 'computer_science_engineering',
+    value: 'comp_sc_eng',
   },
   {
     label: 'Electronics and Communication Engineering',
-    value: 'electronics_communication_engineering',
+    value: 'elec_com_eng',
   },
   {
     label: 'Electrical and Electronics Engineering',
-    value: 'electrical_electronics_engineering',
+    value: 'ele_elec_eng',
   },
-  { label: 'Mechanical Engineering', value: 'mechanical_engineering' },
-  { label: 'Civil Engineering', value: 'civil_engineering' },
-  { label: 'Chemical Engineering', value: 'chemical_engineering' },
-  { label: 'Biotechnology', value: 'biotechnology' },
+  { label: 'Mechanical Engineering', value: 'mech_eng' },
+  { label: 'Civil Engineering', value: 'civil_eng' },
+  { label: 'Chemical Engineering', value: 'chemical_eng' },
+  { label: 'Biotechnology', value: 'biotech' },
   { label: 'Other', value: 'other' },
 ];
 

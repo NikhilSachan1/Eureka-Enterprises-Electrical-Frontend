@@ -25,7 +25,7 @@ export const EmployeeAddRequestSchema = EmployeeBaseSchema.omit({
     lastName,
     email,
     contactNumber,
-    roles: roles.transform(rolesList => rolesList.map(role => role.name)),
+    roles: roles.element.shape.name.array(),
     fatherName: z.string(),
     emergencyContactNumber: z.string(),
     gender: z.enum(EMPLOYEE_GENDER_DATA.map(item => item.value)),
@@ -71,6 +71,7 @@ export const EmployeeAddRequestSchema = EmployeeBaseSchema.omit({
 export const EmployeeAddResponseSchema = z
   .object({
     id: uuidField,
+    employeeId,
     message: z.string(),
   })
   .strict();

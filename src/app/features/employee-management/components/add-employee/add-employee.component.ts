@@ -29,7 +29,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { INDIA_CITY_DATA } from '@shared/config/static-data.config';
 import { ButtonComponent } from '@shared/components/button/button.component';
-import { LoggerService } from '@core/services';
+import { EnvironmentService, LoggerService } from '@core/services';
 import {
   FORM_VALIDATION_MESSAGES,
   ROUTE_BASE_PATHS,
@@ -42,6 +42,7 @@ import {
 import { EmployeeService } from '@features/employee-management/services/employee.service';
 import { ActivatedRoute } from '@angular/router';
 import { transformDateFormat } from '@shared/utility';
+import { ADD_EMPLOYEE_PREFILLED_DATA } from '@shared/mock-data/add-employee.mock-data';
 
 @Component({
   selector: 'app-add-employee',
@@ -65,6 +66,7 @@ export class AddEmployeeComponent implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly environmentService = inject(EnvironmentService);
 
   protected stepperConfig!: IStepperConfig;
   protected multiStepForm!: IEnhancedMultiStepForm;
@@ -103,6 +105,7 @@ export class AddEmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEmployeeDataFromRoute();
+    this.loadTestData();
 
     this.stepperConfig = ADD_EMPLOYEE_STEPPER_CONFIG;
     this.multiStepForm = this.formService.createMultiStepForm(
@@ -115,6 +118,12 @@ export class AddEmployeeComponent implements OnInit {
       ['state'],
       this.destroyRef
     );
+
+    const stateValue =
+      this.multiStepForm.forms['1'].formGroup.get('state')?.value;
+    if (stateValue) {
+      this.onStateChange();
+    }
   }
 
   private loadEmployeeDataFromRoute(): void {
@@ -152,6 +161,13 @@ export class AddEmployeeComponent implements OnInit {
     this.markAllStepsAsAttempted();
 
     if (this.isSubmitting() || !this.validateForm()) {
+      const steErrors = Object.keys(this.stepErrors()).filter(
+        key => this.stepErrors()[Number(key)]
+      );
+      if (steErrors.length > 0) {
+        this.activeStep.set(Number(steErrors[0]));
+      }
+
       return;
     }
 
@@ -249,7 +265,7 @@ export class AddEmployeeComponent implements OnInit {
       lastName,
       email,
       contactNumber,
-      roles: ['ADMIN'],
+      roles: ['DRIVER', 'ADMIN'],
       fatherName,
       emergencyContactNumber,
       gender,
@@ -362,10 +378,14 @@ export class AddEmployeeComponent implements OnInit {
         allStepNumbers.forEach(stepNumber => newSet.add(stepNumber));
         return newSet;
       });
+      this.updateValidationStates();
     }
   }
 
   private updateValidationStates(): void {
+    if (this.isSubmitting()) {
+      return;
+    }
     const errors: Record<number, boolean> = {};
     const valid: Record<number, boolean> = {};
     const attempted = this.attemptedSteps();
@@ -437,5 +457,23 @@ export class AddEmployeeComponent implements OnInit {
       title: 'Add Employee',
       subtitle: 'Add a new employee',
     };
+  }
+
+  private loadTestData(): void {
+    if (this.environmentService.isTestDataEnabled) {
+      this.initialEmployeeData.update(existingData => ({
+        ...ADD_EMPLOYEE_PREFILLED_DATA,
+        ...existingData,
+        ...Object.fromEntries(
+          Object.keys(ADD_EMPLOYEE_PREFILLED_DATA).map(stepKey => [
+            stepKey,
+            {
+              ...ADD_EMPLOYEE_PREFILLED_DATA[stepKey],
+              ...existingData?.[stepKey],
+            },
+          ])
+        ),
+      }));
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
 import { Environment } from '@core/types/environment.interface';
+import { EEnvironment } from '@core/types';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,8 @@ export class EnvironmentService {
   // Pre-compute commonly used values
   private readonly _isProduction = this._environment.PRODUCTION;
   private readonly _isDevelopment = !this._environment.PRODUCTION;
-
+  private readonly _isLocal =
+    this._environment.ENVIRONMENT === EEnvironment.LOCAL;
   /**
    * Get the current environment configuration
    */
@@ -35,6 +37,13 @@ export class EnvironmentService {
   }
 
   /**
+   * Check if the application is running in local mode
+   */
+  get isLocal(): boolean {
+    return this._isLocal;
+  }
+
+  /**
    * Get the current environment name
    */
   get currentEnvironment(): string {
@@ -53,5 +62,12 @@ export class EnvironmentService {
    */
   get isLoggingEnabled(): boolean {
     return this._environment.ENABLE_LOGGING;
+  }
+
+  /**
+   * Check if test data is enabled
+   */
+  get isTestDataEnabled(): boolean {
+    return this._environment.ENABLE_TEST_DATA;
   }
 }

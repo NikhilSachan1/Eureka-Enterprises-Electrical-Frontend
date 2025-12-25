@@ -479,27 +479,27 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
       {
         label: 'ESIC Document',
         documentKey: ESIC,
-        color: 'orange',
+        color: 'red',
       },
       {
         label: 'UAN Document',
         documentKey: UAN,
-        color: 'teal',
+        color: 'yellow',
       },
       {
         label: 'Degree Document',
         documentKey: DEGREE,
-        color: 'indigo',
+        color: 'blue',
       },
       {
         label: 'Offer Letter Document',
         documentKey: OFFER_LETTER,
-        color: 'pink',
+        color: 'yellow',
       },
       {
         label: 'Experience Letter Document',
         documentKey: EXPERIENCE_LETTER,
-        color: 'cyan',
+        color: 'purple',
       },
     ];
 
