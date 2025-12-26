@@ -78,3 +78,12 @@ export const SEND_PASSWORD_LINK_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmatio
     message:
       'Are you sure you want to send password reset link to this employee?',
   };
+
+export const CHANGE_EMPLOYEE_STATUS_CONFIRMATION_DIALOG_CONFIG: Partial<IConfirmationDialogSettingConfig> =
+  {
+    ...CONFIRMATION_DIALOG_CONFIG,
+    header: 'Change Employee Status Confirmation',
+    icon:
+      IconUtil.getIcon(EButtonActionType.CHANGE_EMPLOYEE_STATUS) ?? undefined,
+    message: 'Are you sure you want to change the status of this employee?',
+  };

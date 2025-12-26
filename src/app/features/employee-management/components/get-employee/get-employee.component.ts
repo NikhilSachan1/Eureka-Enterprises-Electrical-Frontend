@@ -226,6 +226,8 @@ export class GetEmployeeComponent implements OnInit {
     const dialogTypeMap: Record<string, EDialogType> = {
       [EButtonActionType.DELETE]: EDialogType.DELETE,
       [EButtonActionType.SEND_PASSWORD_LINK]: EDialogType.SEND_PASSWORD_LINK,
+      [EButtonActionType.CHANGE_EMPLOYEE_STATUS]:
+        EDialogType.CHANGE_EMPLOYEE_STATUS,
     };
 
     const dialogType = dialogTypeMap[actionType];
@@ -301,7 +303,10 @@ export class GetEmployeeComponent implements OnInit {
         {
           entryData,
           status: {
-            entryType: selectedRow.employeeType,
+            entryType: getMappedValueFromArrayOfObjects(
+              EMPLOYMENT_TYPE_DATA,
+              selectedRow.employeeType
+            ),
             approvalStatus: selectedRow.status,
           },
         },

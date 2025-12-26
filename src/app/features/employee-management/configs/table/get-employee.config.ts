@@ -81,6 +81,12 @@ const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'Edit Employee',
   },
   {
+    id: EButtonActionType.CHANGE_EMPLOYEE_STATUS,
+    icon:
+      IconUtil.getIcon(EButtonActionType.CHANGE_EMPLOYEE_STATUS) ?? undefined,
+    tooltip: 'Change Employee Status',
+  },
+  {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Employee',
   },

@@ -36,6 +36,7 @@ export const ICONS = {
     ID_CARD: 'pi pi-id-card',
     EMAIL: 'pi pi-envelope',
     CALENDAR: 'pi pi-calendar',
+    TOGGLE: 'pi pi-android',
   },
   MEDIA: {
     PDF: 'pi pi-file-pdf',

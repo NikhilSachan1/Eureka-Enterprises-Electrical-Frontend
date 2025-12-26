@@ -5,6 +5,8 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   IEmployeeAddRequestDto,
   IEmployeeAddResponseDto,
+  IEmployeeChangeStatusRequestDto,
+  IEmployeeChangeStatusResponseDto,
   IEmployeeDeleteRequestDto,
   IEmployeeDeleteResponseDto,
   IEmployeeDetailGetRequestDto,
@@ -21,6 +23,8 @@ import { API_ROUTES } from '@core/constants/api.constants';
 import {
   EmployeeAddRequestSchema,
   EmployeeAddResponseSchema,
+  EmployeeChangeStatusRequestSchema,
+  EmployeeChangeStatusResponseSchema,
   EmployeeDeleteRequestSchema,
   EmployeeDeleteResponseSchema,
   EmployeeDetailGetResponseSchema,
@@ -91,6 +95,41 @@ export class EmployeeService {
             this.logger.logDtoValidationErrors('Edit Employee Error', error);
           } else {
             this.logger.logUserAction('Edit Employee Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  changeEmployeeStatus(
+    formData: IEmployeeChangeStatusRequestDto,
+    employeeId: string
+  ): Observable<IEmployeeChangeStatusResponseDto> {
+    this.logger.logUserAction('Change Employee Status Request');
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.EMPLOYEE.EDIT(employeeId),
+        formData,
+        EmployeeChangeStatusRequestSchema,
+        EmployeeChangeStatusResponseSchema,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: IEmployeeChangeStatusResponseDto) => {
+          this.logger.logUserAction(
+            'Change Employee Status Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Change Employee Status Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Change Employee Status Error', error);
           }
           return throwError(() => error);
         })

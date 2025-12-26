@@ -25,3 +25,7 @@ export {
   EmployeeEditRequestSchema,
   EmployeeEditResponseSchema,
 } from './edit-employee.schema';
+export {
+  EmployeeChangeStatusRequestSchema,
+  EmployeeChangeStatusResponseSchema,
+} from './change-status-employee.schema';

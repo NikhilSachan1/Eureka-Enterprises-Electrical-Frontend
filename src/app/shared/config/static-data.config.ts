@@ -63,7 +63,7 @@ export const APPROVAL_STATUS_DATA: IOptionDropdown[] = [
 
 export const EMPLOYEE_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Active', value: 'ACTIVE' },
-  { label: 'Inactive', value: 'INACTIVE' },
+  { label: 'Archived', value: 'ARCHIVED' },
 ];
 
 export const EMPLOYEE_NAME_DATA: IOptionDropdown[] = [

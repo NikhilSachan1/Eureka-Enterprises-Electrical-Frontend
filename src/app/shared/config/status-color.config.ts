@@ -27,6 +27,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'period debit',
     'total consumed',
     'inactive employees',
+    'archived',
   ],
   warning: [
     'pending',
@@ -38,6 +39,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'cancelled',
     'new joiners last 30 days',
     'sendpasswordlink',
+    'changeemployeestatus',
   ],
   info: [
     'holiday',

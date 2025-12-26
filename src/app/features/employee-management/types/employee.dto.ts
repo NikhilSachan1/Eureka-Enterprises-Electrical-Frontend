@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   EmployeeAddRequestSchema,
   EmployeeAddResponseSchema,
+  EmployeeChangeStatusRequestSchema,
+  EmployeeChangeStatusResponseSchema,
   EmployeeDeleteRequestSchema,
   EmployeeDeleteResponseSchema,
   EmployeeDetailGetRequestSchema,
@@ -51,4 +53,10 @@ export type IEmployeeSendPasswordLinkResponseDto = z.infer<
 export type IEmployeeEditRequestDto = z.infer<typeof EmployeeEditRequestSchema>;
 export type IEmployeeEditResponseDto = z.infer<
   typeof EmployeeEditResponseSchema
+>;
+export type IEmployeeChangeStatusRequestDto = z.infer<
+  typeof EmployeeChangeStatusRequestSchema
+>;
+export type IEmployeeChangeStatusResponseDto = z.infer<
+  typeof EmployeeChangeStatusResponseSchema
 >;
