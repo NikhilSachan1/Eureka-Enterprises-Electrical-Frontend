@@ -193,4 +193,5 @@ export interface IConditionalValidator {
   validators: ValidatorFn[];
   shouldApply: (value: unknown) => boolean;
   resetOnFalse?: boolean;
+  dependsOnStep?: string | number;
 }

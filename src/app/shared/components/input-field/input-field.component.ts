@@ -509,6 +509,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
   /**
    * Extracts pattern from validators (cached on init)
+   * Extracts all allowed characters from regex pattern including character classes and literal characters
    */
   private extractPattern(): RegExp | null {
     const { validators } = this.inputFieldConfig();
@@ -533,13 +534,136 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         'requiredPattern' in patternError
       ) {
         const patternStr = patternError.requiredPattern as string;
-        const charClass = patternStr.match(/\[([^\]]+)\]/)?.[1];
-        if (charClass) {
-          return new RegExp(`^[${charClass}]$`);
+        const allowedChars = this.extractAllowedCharacters(patternStr);
+        if (allowedChars) {
+          return new RegExp(`^[${allowedChars}]$`);
         }
       }
     }
     return null;
+  }
+
+  /**
+   * Extracts all allowed characters from regex pattern
+   * Handles character classes [a-z], literal characters, and special characters
+   */
+  private extractAllowedCharacters(patternStr: string): string | null {
+    if (!patternStr) {
+      return null;
+    }
+
+    const allowedCharsSet = new Set<string>();
+
+    // Extract all character classes [content]
+    const charClassRegex = /\[([^\]]+)\]/g;
+    let match;
+    while ((match = charClassRegex.exec(patternStr)) !== null) {
+      const charClass = match[1];
+      // Parse character class content
+      this.parseCharacterClass(charClass, allowedCharsSet);
+    }
+
+    // Extract literal characters that are not inside character classes
+    // Remove character classes from pattern to find literals
+    const patternWithoutClasses = patternStr.replace(/\[[^\]]+\]/g, '');
+
+    // Extract literal space characters (not inside character classes and not escaped)
+    // Check for spaces that are not preceded by backslash
+    for (let i = 0; i < patternWithoutClasses.length; i++) {
+      if (
+        patternWithoutClasses[i] === ' ' &&
+        (i === 0 || patternWithoutClasses[i - 1] !== '\\')
+      ) {
+        allowedCharsSet.add(' ');
+      }
+    }
+
+    // Extract literal characters (excluding regex special characters like ^, $, +, *, ?, etc.)
+    const literalChars = patternWithoutClasses.match(/[a-zA-Z0-9@._%+-]/g);
+    if (literalChars) {
+      literalChars.forEach(char => allowedCharsSet.add(char));
+    }
+
+    // Also check for escaped special characters
+    const escapedChars = patternWithoutClasses.match(/\\([@._%+-])/g);
+    if (escapedChars) {
+      escapedChars.forEach(escaped => {
+        const char = escaped[1]; // Get the character after backslash
+        allowedCharsSet.add(char);
+      });
+    }
+
+    if (allowedCharsSet.size === 0) {
+      return null;
+    }
+
+    // Convert set to sorted string, escaping special regex characters
+    const sortedChars = Array.from(allowedCharsSet).sort();
+    return sortedChars
+      .map(char => {
+        // Escape special regex characters in character class
+        if ('-]\\^'.includes(char)) {
+          return `\\${char}`;
+        }
+        return char;
+      })
+      .join('');
+  }
+
+  /**
+   * Parses a character class content and adds allowed characters to the set
+   * Handles ranges like a-z, A-Z, 0-9, \s (whitespace), and individual characters
+   */
+  private parseCharacterClass(
+    charClass: string,
+    allowedCharsSet: Set<string>
+  ): void {
+    let i = 0;
+    while (i < charClass.length) {
+      // Handle \s (whitespace) escape sequence
+      if (
+        charClass[i] === '\\' &&
+        i + 1 < charClass.length &&
+        charClass[i + 1] === 's'
+      ) {
+        // \s represents whitespace characters (space, tab, newline, etc.)
+        // For input filtering, we'll allow space character
+        allowedCharsSet.add(' ');
+        i += 2;
+      }
+      // Check for character range like a-z, A-Z, 0-9
+      else if (
+        i + 2 < charClass.length &&
+        charClass[i + 1] === '-' &&
+        charClass[i] <= charClass[i + 2]
+      ) {
+        const start = charClass[i].charCodeAt(0);
+        const end = charClass[i + 2].charCodeAt(0);
+        for (let code = start; code <= end; code++) {
+          allowedCharsSet.add(String.fromCharCode(code));
+        }
+        i += 3;
+      } else {
+        // Individual character
+        const char = charClass[i];
+        // Handle escaped characters (except \s which is handled above)
+        if (char === '\\' && i + 1 < charClass.length) {
+          const nextChar = charClass[i + 1];
+          // Handle other escape sequences
+          if (nextChar === 'n') {
+            allowedCharsSet.add('\n');
+          } else if (nextChar === 't') {
+            allowedCharsSet.add('\t');
+          } else {
+            allowedCharsSet.add(nextChar);
+          }
+          i += 2;
+        } else {
+          allowedCharsSet.add(char);
+          i++;
+        }
+      }
+    }
   }
 
   private applyTextCase(value: string, textCase: ETextCase): string {

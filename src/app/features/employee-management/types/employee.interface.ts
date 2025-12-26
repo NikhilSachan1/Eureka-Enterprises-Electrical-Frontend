@@ -108,3 +108,9 @@ export interface IEmployeeDetailResolverResponse
   extends IEmployeeDetailGetResponseDto {
   preloadedFiles?: IEmployeePreloadedFiles;
 }
+
+export interface IEmployeeSalarySummaryItem {
+  label: string;
+  value: number;
+  description: string;
+}

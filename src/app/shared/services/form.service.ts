@@ -70,6 +70,11 @@ export class FormService {
       }
     );
 
+    // Apply cross-step conditional validators only if there are explicit cross-step dependencies (dependsOnStep)
+    if (this.hasExplicitCrossStepDependencies(multiStepFormConfig)) {
+      this.applyCrossStepConditionalValidators(forms, multiStepFormConfig);
+    }
+
     return this.createEnhancedMultiStepForm(
       forms,
       multiStepFormConfig.buttons ?? {}
@@ -294,6 +299,134 @@ export class FormService {
         });
       });
     });
+  }
+
+  /**
+   * Checks if multi-step form has any explicit cross-step dependencies (dependsOnStep property)
+   */
+  private hasExplicitCrossStepDependencies(
+    multiStepFormConfig: IMultiStepFormConfig
+  ): boolean {
+    if (!multiStepFormConfig?.fields) {
+      return false;
+    }
+
+    return Object.values(multiStepFormConfig.fields).some(stepFields =>
+      Object.values(stepFields).some(config =>
+        config.conditionalValidators?.some(
+          rule =>
+            rule.dependsOnStep !== undefined && rule.dependsOnStep !== null
+        )
+      )
+    );
+  }
+
+  /**
+   * Applies conditional validators for multi-step forms
+   * Only handles explicit cross-step dependencies (when dependsOnStep is specified)
+   */
+  private applyCrossStepConditionalValidators(
+    forms: Record<string, IEnhancedForm>,
+    multiStepFormConfig: IMultiStepFormConfig
+  ): void {
+    Object.entries(multiStepFormConfig.fields).forEach(
+      ([currentStepName, stepFields]) => {
+        const currentForm = forms[currentStepName];
+        if (!currentForm) {
+          return;
+        }
+
+        Object.entries(stepFields).forEach(([fieldName, config]) => {
+          // Skip fields without conditional rules
+          if (
+            !config.conditionalValidators ||
+            config.conditionalValidators.length === 0
+          ) {
+            return;
+          }
+
+          // Only process validators with explicit dependsOnStep
+          const crossStepRules = config.conditionalValidators.filter(
+            rule =>
+              rule.dependsOnStep !== undefined && rule.dependsOnStep !== null
+          );
+
+          if (crossStepRules.length === 0) {
+            return;
+          }
+
+          const control = currentForm.formGroup.get(fieldName);
+          if (!control) {
+            return;
+          }
+
+          const runConditionalLogic = (): void => {
+            const baseValidators: ValidatorFn[] = config.validators ?? [];
+            const extraValidators: ValidatorFn[] = [];
+            let shouldResetValue = false;
+
+            // Process only cross-step conditional validators
+            crossStepRules.forEach(rule => {
+              const dependencyStepKey = String(rule.dependsOnStep);
+              const dependencyForm = forms[dependencyStepKey];
+
+              if (!dependencyForm) {
+                return;
+              }
+
+              const dependencyControl = dependencyForm.formGroup.get(
+                rule.dependsOn
+              );
+              if (!dependencyControl) {
+                return;
+              }
+
+              const currentValue = dependencyControl.value;
+              const isActive = rule.shouldApply(currentValue);
+
+              if (isActive) {
+                if (rule.validators?.length) {
+                  extraValidators.push(...rule.validators);
+                }
+              } else if (rule.resetOnFalse) {
+                shouldResetValue = true;
+              }
+            });
+
+            control.setValidators([...baseValidators, ...extraValidators]);
+            control.updateValueAndValidity();
+
+            if (shouldResetValue) {
+              control.reset();
+            }
+          };
+
+          // Initial run
+          runConditionalLogic();
+
+          // Subscribe to changes on cross-step dependency fields
+          crossStepRules.forEach(rule => {
+            const dependencyStepKey = String(rule.dependsOnStep);
+            const dependencyForm = forms[dependencyStepKey];
+
+            if (!dependencyForm) {
+              return;
+            }
+
+            const dependencyControl = dependencyForm.formGroup.get(
+              rule.dependsOn
+            );
+            if (!dependencyControl) {
+              return;
+            }
+
+            dependencyControl.valueChanges.subscribe(() => {
+              runConditionalLogic();
+            });
+          });
+        });
+      }
+    );
   }
 
   private createEnhancedForm(

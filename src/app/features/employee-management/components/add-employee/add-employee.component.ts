@@ -10,7 +10,9 @@ import {
   effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { CardModule } from 'primeng/card';
 import { finalize, merge } from 'rxjs';
 import { StepperComponent } from '@shared/components/stepper/stepper.component';
 import { IStepperConfig } from '@shared/types/stepper/stepper.interface';
@@ -31,6 +33,7 @@ import { INDIA_CITY_DATA } from '@shared/config/static-data.config';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { EnvironmentService, LoggerService } from '@core/services';
 import {
+  EUserRole,
   FORM_VALIDATION_MESSAGES,
   ROUTE_BASE_PATHS,
   ROUTES,
@@ -43,6 +46,8 @@ import { EmployeeService } from '@features/employee-management/services/employee
 import { ActivatedRoute } from '@angular/router';
 import { transformDateFormat } from '@shared/utility';
 import { ADD_EMPLOYEE_PREFILLED_DATA } from '@shared/mock-data/add-employee.mock-data';
+import { IEmployeeSalarySummaryItem } from '@features/employee-management/types/employee.interface';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-add-employee',
@@ -52,6 +57,8 @@ import { ADD_EMPLOYEE_PREFILLED_DATA } from '@shared/mock-data/add-employee.mock
     PageHeaderComponent,
     InputFieldComponent,
     ButtonComponent,
+    CurrencyPipe,
+    CardModule,
   ],
   templateUrl: './add-employee.component.html',
   styleUrl: './add-employee.component.scss',
@@ -70,6 +77,7 @@ export class AddEmployeeComponent implements OnInit {
 
   protected stepperConfig!: IStepperConfig;
   protected multiStepForm!: IEnhancedMultiStepForm;
+  protected currencyFormat = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected trackFields!: Record<string, Signal<any>>;
 
@@ -84,6 +92,15 @@ export class AddEmployeeComponent implements OnInit {
   protected readonly stepValid = signal<Record<number, boolean>>({});
   private readonly attemptedSteps = signal<Set<number>>(new Set());
   private readonly employeeId = signal<string>('');
+  protected readonly grossSalary = signal<number>(0);
+  protected readonly totalDeductions = signal<number>(0);
+  protected readonly inHandSalary = signal<number>(0);
+  protected readonly totalEmployerBenefits = signal<number>(0);
+  protected readonly totalCTC = signal<number>(0);
+  protected readonly foodAllowance = signal<number>(0);
+  protected readonly salarySummaryItems = computed(() =>
+    this.getSalarySummaryItems()
+  );
 
   constructor() {
     effect(() => {
@@ -123,6 +140,14 @@ export class AddEmployeeComponent implements OnInit {
     if (stateValue) {
       this.onStateChange();
     }
+
+    this.setupSalaryCalculations();
+
+    this.multiStepForm.forms['6'].formGroup.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.setupSalaryCalculations();
+      });
   }
 
   private loadEmployeeDataFromRoute(): void {
@@ -216,6 +241,12 @@ export class AddEmployeeComponent implements OnInit {
       degreeDocument,
       uanDocument,
       passportDocument,
+      basicSalary,
+      hra,
+      foodAllowance,
+      tds,
+      esicContribution,
+      pfContribution,
     } = this.multiStepForm.getData() as {
       firstName: string;
       lastName: string;
@@ -223,7 +254,6 @@ export class AddEmployeeComponent implements OnInit {
       email: string;
       contactNumber: string;
       emergencyContactNumber: string;
-      roles: string[];
       gender: string;
       dateOfBirth: string;
       bloodGroup: string;
@@ -260,6 +290,12 @@ export class AddEmployeeComponent implements OnInit {
       panNumber: string;
       dlNumber: string;
       passportDocument: File[];
+      basicSalary: number;
+      hra: number;
+      foodAllowance: number;
+      tds: number;
+      esicContribution: number;
+      pfContribution: number;
     };
 
     return {
@@ -267,7 +303,7 @@ export class AddEmployeeComponent implements OnInit {
       lastName,
       email,
       contactNumber,
-      roles: ['DRIVER', 'ADMIN'],
+      roles: this.getRolesByDesignation(designation),
       fatherName,
       emergencyContactNumber,
       gender,
@@ -305,7 +341,23 @@ export class AddEmployeeComponent implements OnInit {
       degreeDoc: degreeDocument[0],
       uanDoc: uanDocument[0],
       passportDoc: passportDocument[0],
+      salary: {
+        basic: basicSalary,
+        hra,
+        foodAllowance,
+        tds,
+        esic: esicContribution,
+        employeePf: pfContribution,
+        employerPf: pfContribution,
+      },
     };
+  }
+
+  private getRolesByDesignation(designation: string): string[] {
+    if (designation === EUserRole.DRIVER) {
+      return [EUserRole.DRIVER];
+    }
+    return [EUserRole.SUPER_ADMIN];
   }
 
   private executeAddEmployee(formData: IEmployeeAddRequestDto): void {
@@ -349,6 +401,71 @@ export class AddEmployeeComponent implements OnInit {
     if (selectConfig) {
       selectConfig.optionsDropdown = cities;
     }
+  }
+
+  private setupSalaryCalculations(): void {
+    const salaryForm = this.multiStepForm.forms['6'];
+    if (!salaryForm) {
+      return;
+    }
+
+    const updateCalculations = (): void => {
+      const {
+        esicContribution,
+        pfContribution,
+        tds,
+        basicSalary,
+        hra,
+        foodAllowance,
+      } = salaryForm.formGroup.value;
+      const employeePF = parseFloat(pfContribution) || 0;
+      const employerPF = employeePF;
+      const employerESIC = parseFloat(esicContribution) || 0;
+      const tdsValue = parseFloat(tds) || 0;
+      const basicValue = parseFloat(basicSalary) || 0;
+      const hraValue = parseFloat(hra) || 0;
+      const foodAllowanceValue = parseFloat(foodAllowance) || 0;
+
+      const gross = basicValue + hraValue;
+      const deductions = tdsValue + employeePF;
+      const totalEmployerBenefits = employerPF + employerESIC;
+      const ctc = gross + totalEmployerBenefits;
+      const inHandSalary = gross - deductions;
+
+      this.grossSalary.set(gross);
+      this.totalDeductions.set(deductions);
+      this.inHandSalary.set(inHandSalary);
+      this.totalEmployerBenefits.set(totalEmployerBenefits);
+      this.totalCTC.set(ctc);
+      this.foodAllowance.set(foodAllowanceValue);
+    };
+
+    updateCalculations();
+  }
+
+  private getSalarySummaryItems(): IEmployeeSalarySummaryItem[] {
+    return [
+      {
+        label: 'Gross Salary',
+        value: this.grossSalary(),
+        description: 'Basic + HRA',
+      },
+      {
+        label: 'Deductions',
+        value: this.totalDeductions(),
+        description: 'TDS + PF (Employee)',
+      },
+      {
+        label: 'In-Hand Salary',
+        value: this.inHandSalary(),
+        description: 'Gross - Deductions',
+      },
+      {
+        label: 'Employer Benefits',
+        value: this.totalEmployerBenefits(),
+        description: 'Employer PF + Employer ESIC',
+      },
+    ];
   }
 
   protected onStepperNextRequested(): void {

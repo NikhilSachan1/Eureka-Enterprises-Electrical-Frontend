@@ -212,7 +212,7 @@ export class EditEmployeeComponent implements OnInit {
       [3]: {
         degree,
         branch,
-        passingYear: passoutYear.toString(),
+        passingYear: passoutYear,
         degreeDocument: preloadedFiles?.DEGREE,
       },
       [4]: {

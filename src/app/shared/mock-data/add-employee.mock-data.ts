@@ -96,7 +96,7 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
     aadharNumber: `${getRandomNumber(12, 'exact')}`,
     pancardNumber: getRandomItem(TEST_PAN_NUMBERS),
     passportNumber: getRandomItem(TEST_PASSPORT_NUMBERS),
-    drivingLicenseNumber: `${getRandomNumber(12, 'exact')}`,
+    drivingLicenseNumber: `${getRandomNumber(16, 'exact')}`,
     aadharDocument: [
       createFileFromAsset('/mock-docs/employee/AADHAR_DUMMY.pdf'),
     ],
@@ -107,5 +107,15 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
     drivingLicenseDocument: [
       createFileFromAsset('/mock-docs/employee/DRIVING_LICENSE_DUMMY.pdf'),
     ],
+  },
+
+  // Step 6: Salary Details
+  6: {
+    basicSalary: getRandomNumber(5, 'exact'),
+    hra: getRandomNumber(4, 'exact'),
+    foodAllowance: getRandomNumber(3, 'exact'),
+    tds: getRandomNumber(2, 'exact'),
+    esicContribution: getRandomNumber(2, 'exact'),
+    pfContribution: getRandomNumber(2, 'exact'),
   },
 };

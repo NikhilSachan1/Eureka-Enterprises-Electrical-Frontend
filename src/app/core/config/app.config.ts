@@ -1,5 +1,4 @@
-import { REGEX } from '@shared/constants';
-import { EDialogPosition, ETextCase } from '@shared/types';
+import { EDialogPosition } from '@shared/types';
 
 export const APP_CONFIG = {
   // Application Information
@@ -81,15 +80,5 @@ export const APP_CONFIG = {
   // Dropdown Configuration
   DROPDOWN_CONFIG: {
     DEFAULT_FILTER_LENGTH: 7,
-  },
-
-  //Form Inputs Configuration
-  FORM_VALIDATION_RULES: {
-    TRANSACTION_ID: {
-      MIN_LENGTH: 6,
-      MAX_LENGTH: 32,
-      PATTERN: REGEX.ALPHANUMERIC,
-      TEXT_CASE: ETextCase.UPPERCASE,
-    },
   },
 };

@@ -257,12 +257,24 @@ export class ApiService {
       return formData;
     }
 
-    Object.entries(body as Record<string, unknown>).forEach(([key, value]) => {
+    this.appendToFormData(formData, body as Record<string, unknown>);
+
+    return formData;
+  }
+
+  private appendToFormData(
+    formData: FormData,
+    data: Record<string, unknown>,
+    parentKey = ''
+  ): void {
+    Object.entries(data).forEach(([key, value]) => {
       if (value === null || value === undefined) {
         return;
       }
 
-      // If value is an array, append each item with the same key.
+      const formKey = parentKey ? `${parentKey}[${key}]` : key;
+
+      // If value is an array, append each item with the same key (original behavior for arrays)
       if (Array.isArray(value)) {
         value.forEach(item => {
           if (item === null || item === undefined) {
@@ -270,9 +282,9 @@ export class ApiService {
           }
 
           if (item instanceof File) {
-            formData.append(key, item);
+            formData.append(formKey, item);
           } else {
-            formData.append(key, String(item));
+            formData.append(formKey, String(item));
           }
         });
         return;
@@ -280,15 +292,23 @@ export class ApiService {
 
       // If value is a File, append it directly.
       if (value instanceof File) {
-        formData.append(key, value);
+        formData.append(formKey, value);
+        return;
+      }
+
+      // If value is an object (nested object), recursively append its properties.
+      if (typeof value === 'object' && !(value instanceof File)) {
+        this.appendToFormData(
+          formData,
+          value as Record<string, unknown>,
+          formKey
+        );
         return;
       }
 
       // Fallback: append primitive values as strings.
-      formData.append(key, String(value));
+      formData.append(formKey, String(value));
     });
-
-    return formData;
   }
 
   private createRetryConfig<T>(

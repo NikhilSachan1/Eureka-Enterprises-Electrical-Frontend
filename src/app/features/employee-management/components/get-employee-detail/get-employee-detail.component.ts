@@ -370,17 +370,15 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
           fields: [
             {
               label: 'Degree',
-              value: getMappedValueFromArrayOfObjects(
-                DEGREE_DATA,
-                response.degree
-              ),
+              value: response.degree
+                ? getMappedValueFromArrayOfObjects(DEGREE_DATA, response.degree)
+                : '',
             },
             {
               label: 'Branch',
-              value: getMappedValueFromArrayOfObjects(
-                BRANCH_DATA,
-                response.branch
-              ),
+              value: response.branch
+                ? getMappedValueFromArrayOfObjects(BRANCH_DATA, response.branch)
+                : '',
             },
             {
               label: 'Passing Year',
@@ -396,10 +394,12 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
           fields: [
             {
               label: 'Bank Name',
-              value: getMappedValueFromArrayOfObjects(
-                BANK_NAME_DATA,
-                response.bankName
-              ),
+              value: response.bankName
+                ? getMappedValueFromArrayOfObjects(
+                    BANK_NAME_DATA,
+                    response.bankName
+                  )
+                : '',
             },
             {
               label: 'Account Holder Name',

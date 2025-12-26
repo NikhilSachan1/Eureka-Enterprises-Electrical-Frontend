@@ -5,9 +5,11 @@ import {
   EXPENSE_CATEGORY_DATA,
   EXPENSE_PAYMENT_METHOD_DATA,
 } from '@shared/config/static-data.config';
+import { REGEX } from '@shared/constants';
 import {
   EDataType,
   EInputNumberMode,
+  ETextCase,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
@@ -17,15 +19,6 @@ import {
   getDateBeforeXDays,
   withCustomMessage,
 } from '@shared/utility';
-
-const {
-  TRANSACTION_ID: {
-    MIN_LENGTH: TRANSACTION_ID_MIN_LENGTH,
-    MAX_LENGTH: TRANSACTION_ID_MAX_LENGTH,
-    PATTERN: TRANSACTION_ID_PATTERN,
-    TEXT_CASE: TRANSACTION_ID_TEXT_CASE,
-  },
-} = APP_CONFIG.FORM_VALIDATION_RULES;
 
 const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   expenseType: {
@@ -80,13 +73,13 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'transactionId',
     label: 'Transaction ID / Receipt Number / UTR Number',
     textConfig: {
-      textCase: TRANSACTION_ID_TEXT_CASE,
+      textCase: ETextCase.UPPERCASE,
     },
     validators: [
-      Validators.minLength(TRANSACTION_ID_MIN_LENGTH),
-      Validators.maxLength(TRANSACTION_ID_MAX_LENGTH),
+      Validators.minLength(6),
+      Validators.maxLength(32),
       withCustomMessage(
-        Validators.pattern(TRANSACTION_ID_PATTERN),
+        Validators.pattern(REGEX.ALPHANUMERIC),
         'Invalid transaction ID / Receipt Number / UTR Number'
       ),
     ],

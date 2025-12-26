@@ -12,6 +12,7 @@ import {
   INDIA_STATE_DATA,
   PASSING_YEAR_DATA,
 } from '@shared/config/static-data.config';
+import { EUserRole, ICONS, REGEX } from '@shared/constants';
 import {
   EDataType,
   ETextCase,
@@ -20,6 +21,7 @@ import {
   IFormInputFieldsConfig,
   IStepperConfig,
 } from '@shared/types';
+import { withCustomMessage } from '@shared/utility';
 
 const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   firstName: {
@@ -30,7 +32,14 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     textConfig: {
       textCase: ETextCase.TITLECASE,
     },
-    validators: [Validators.required],
+    validators: [
+      Validators.required,
+      withCustomMessage(
+        Validators.pattern(REGEX.ALPHABETS_WITH_SINGLE_SPACE),
+        'Invalid first name'
+      ),
+    ],
+    applyPatternFilter: true,
   },
   lastName: {
     id: 'lastName',
@@ -40,7 +49,8 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     textConfig: {
       textCase: ETextCase.TITLECASE,
     },
-    validators: [Validators.required],
+    validators: [Validators.required, Validators.pattern(REGEX.ALPHABETS_ONLY)],
+    applyPatternFilter: true,
   },
   fatherName: {
     id: 'fatherName',
@@ -50,28 +60,53 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     textConfig: {
       textCase: ETextCase.TITLECASE,
     },
-    validators: [Validators.required],
+    validators: [
+      Validators.required,
+      Validators.pattern(REGEX.ALPHABETS_WITH_SPACES),
+    ],
+    applyPatternFilter: true,
   },
   email: {
     id: 'email',
     fieldName: 'email',
     label: 'Email Address',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    textConfig: {
+      textCase: ETextCase.LOWERCASE,
+    },
+    validators: [
+      Validators.required,
+      withCustomMessage(
+        Validators.pattern(REGEX.EMAIL),
+        'Invalid email address'
+      ),
+    ],
   },
   contactNumber: {
     id: 'contactNumber',
     fieldName: 'contactNumber',
     label: 'Contact Number',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    validators: [
+      Validators.required,
+      Validators.minLength(10),
+      Validators.maxLength(10),
+      Validators.pattern(REGEX.NUMBER_ONLY),
+    ],
+    applyPatternFilter: true,
   },
   emergencyContactNumber: {
     id: 'emergencyContactNumber',
     fieldName: 'emergencyContactNumber',
     label: 'Emergency Contact Number',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    validators: [
+      Validators.required,
+      Validators.minLength(10),
+      Validators.maxLength(10),
+      Validators.pattern(REGEX.NUMBER_ONLY),
+    ],
+    applyPatternFilter: true,
   },
   gender: {
     id: 'gender',
@@ -109,7 +144,11 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     textConfig: {
       textCase: ETextCase.UPPERCASE,
     },
-    validators: [Validators.required],
+    validators: [
+      Validators.required,
+      Validators.pattern(REGEX.ALPHANUMERIC_WITH_SPACES),
+    ],
+    applyPatternFilter: true,
   },
   streetName: {
     id: 'streetName',
@@ -117,9 +156,13 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Street Name',
     fieldType: EDataType.TEXT,
     textConfig: {
-      textCase: ETextCase.SENTENCECASE,
+      textCase: ETextCase.TITLECASE,
     },
-    validators: [Validators.required],
+    validators: [
+      Validators.required,
+      Validators.pattern(REGEX.ALPHANUMERIC_WITH_SPACES),
+    ],
+    applyPatternFilter: true,
   },
   landmark: {
     id: 'landmark',
@@ -127,9 +170,13 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Landmark',
     fieldType: EDataType.TEXT,
     textConfig: {
-      textCase: ETextCase.SENTENCECASE,
+      textCase: ETextCase.TITLECASE,
     },
-    validators: [Validators.required],
+    validators: [
+      Validators.required,
+      Validators.pattern(REGEX.ALPHANUMERIC_WITH_SPACES),
+    ],
+    applyPatternFilter: true,
   },
   state: {
     id: 'state',
@@ -159,7 +206,13 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     textConfig: {
       textCase: ETextCase.UPPERCASE,
     },
-    validators: [Validators.required],
+    validators: [
+      Validators.required,
+      Validators.minLength(6),
+      Validators.maxLength(6),
+      Validators.pattern(REGEX.NUMBER_ONLY),
+    ],
+    applyPatternFilter: true,
   },
   profilePicture: {
     id: 'profilePicture',
@@ -185,7 +238,6 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     textConfig: {
       textCase: ETextCase.UPPERCASE,
     },
-    readonlyInput: true,
     disabledInput: true,
     validators: [Validators.required],
   },
@@ -194,15 +246,14 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'previousExperience',
     label: 'Previous Experience',
     fieldType: EDataType.TEXT,
-    validators: [Validators.maxLength(2)],
-    conditionalValidators: [
-      {
-        dependsOn: 'designation',
-        shouldApply: (value: unknown) => value !== 'driver',
-        validators: [Validators.required],
-        resetOnFalse: true,
-      },
+    defaultValue: '0',
+    validators: [
+      Validators.required,
+      Validators.minLength(1),
+      Validators.maxLength(2),
+      Validators.pattern(REGEX.NUMBER_ONLY),
     ],
+    applyPatternFilter: true,
   },
   dateOfJoining: {
     id: 'dateOfJoining',
@@ -236,15 +287,12 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'esicNumber',
     label: 'ESIC Number',
     fieldType: EDataType.TEXT,
-    validators: [],
-    conditionalValidators: [
-      {
-        dependsOn: 'designation',
-        shouldApply: (value: unknown) => value !== 'driver',
-        validators: [Validators.required],
-        resetOnFalse: true,
-      },
+    validators: [
+      Validators.minLength(17), // TODO: Update to 10 after backend is updated
+      Validators.maxLength(17), // TODO: Update to 10 after backend is updated
+      Validators.pattern(REGEX.NUMBER_ONLY),
     ],
+    applyPatternFilter: true,
   },
   esicDocument: {
     id: 'esicDocument',
@@ -256,29 +304,18 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       maxFileSize: 1024 * 1024 * 5,
       acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
-    validators: [],
-    conditionalValidators: [
-      {
-        dependsOn: 'designation',
-        shouldApply: (value: unknown) => value !== 'driver',
-        validators: [Validators.required],
-        resetOnFalse: true,
-      },
-    ],
   },
   uanNumber: {
     id: 'uanNumber',
     fieldName: 'uanNumber',
     label: 'UAN Number',
     fieldType: EDataType.TEXT,
-    validators: [],
-    conditionalValidators: [
-      {
-        dependsOn: 'designation',
-        shouldApply: (value: unknown) => value !== 'driver',
-        validators: [Validators.required],
-      },
+    validators: [
+      Validators.minLength(12),
+      Validators.maxLength(12),
+      Validators.pattern(REGEX.NUMBER_ONLY),
     ],
+    applyPatternFilter: true,
   },
   uanDocument: {
     id: 'uanDocument',
@@ -290,15 +327,6 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       maxFileSize: 1024 * 1024 * 5,
       acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
-    validators: [],
-    conditionalValidators: [
-      {
-        dependsOn: 'designation',
-        shouldApply: (value: unknown) => value !== 'driver',
-        validators: [Validators.required],
-        resetOnFalse: true,
-      },
-    ],
   },
 };
 
@@ -312,8 +340,14 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     selectConfig: {
       optionsDropdown: DEGREE_DATA,
     },
-    validators: [],
-    // Note: This will be handled manually in component for cross-step dependency
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        dependsOnStep: 2,
+        shouldApply: value => value !== EUserRole.DRIVER,
+        validators: [Validators.required],
+      },
+    ],
   },
   branch: {
     id: 'branch',
@@ -323,8 +357,14 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     selectConfig: {
       optionsDropdown: BRANCH_DATA,
     },
-    validators: [],
-    // Note: This will be handled manually in component for cross-step dependency
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        dependsOnStep: 2,
+        shouldApply: value => value !== EUserRole.DRIVER,
+        validators: [Validators.required],
+      },
+    ],
   },
   passingYear: {
     id: 'passingYear',
@@ -334,8 +374,14 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     selectConfig: {
       optionsDropdown: PASSING_YEAR_DATA,
     },
-    validators: [],
-    // Note: This will be handled manually in component for cross-step dependency
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        dependsOnStep: 2,
+        shouldApply: value => value !== EUserRole.DRIVER,
+        validators: [Validators.required],
+      },
+    ],
   },
   degreeDocument: {
     id: 'degreeDocument',
@@ -347,8 +393,14 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       maxFileSize: 1024 * 1024 * 5,
       acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
-    validators: [],
-    // Note: This will be handled manually in component for cross-step dependency
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        dependsOnStep: 2,
+        shouldApply: value => value !== EUserRole.DRIVER,
+        validators: [Validators.required],
+      },
+    ],
   },
 };
 
@@ -362,28 +414,44 @@ const BANK_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     selectConfig: {
       optionsDropdown: BANK_NAME_DATA,
     },
-    validators: [Validators.required],
   },
   accountNumber: {
     id: 'accountNumber',
     fieldName: 'accountNumber',
     label: 'Account Number',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    validators: [
+      Validators.minLength(9),
+      Validators.maxLength(18),
+      Validators.pattern(REGEX.NUMBER_ONLY),
+    ],
+    applyPatternFilter: true,
   },
   ifscCode: {
     id: 'ifscCode',
     fieldName: 'ifscCode',
     label: 'IFSC Code',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    textConfig: {
+      textCase: ETextCase.UPPERCASE,
+    },
+    validators: [
+      Validators.minLength(11),
+      Validators.maxLength(11),
+      Validators.pattern(REGEX.ALPHANUMERIC),
+    ],
+    applyPatternFilter: true,
   },
   accountHolderName: {
     id: 'accountHolderName',
     fieldName: 'accountHolderName',
     label: 'Account Holder Name',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    textConfig: {
+      textCase: ETextCase.TITLECASE,
+    },
+    validators: [Validators.pattern(REGEX.ALPHABETS_WITH_SPACES)],
+    applyPatternFilter: true,
   },
 };
 
@@ -394,7 +462,13 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'aadharNumber',
     label: 'Aadhar Number',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    validators: [
+      Validators.required,
+      Validators.minLength(12),
+      Validators.maxLength(12),
+      Validators.pattern(REGEX.NUMBER_ONLY),
+    ],
+    applyPatternFilter: true,
   },
   aadharDocument: {
     id: 'aadharDocument',
@@ -413,7 +487,26 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'pancardNumber',
     label: 'Pancard Number',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    textConfig: {
+      textCase: ETextCase.UPPERCASE,
+    },
+    validators: [
+      Validators.minLength(10),
+      Validators.maxLength(10),
+      withCustomMessage(
+        Validators.pattern(REGEX.PAN),
+        'Invalid pancard number'
+      ),
+    ],
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        dependsOnStep: 2,
+        shouldApply: value => value !== EUserRole.DRIVER,
+        validators: [Validators.required],
+      },
+    ],
+    applyPatternFilter: true,
   },
   pancardDocument: {
     id: 'pancardDocument',
@@ -425,15 +518,32 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       maxFileSize: 1024 * 1024 * 5,
       acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
-    validators: [Validators.required],
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        dependsOnStep: 2,
+        shouldApply: value => value !== EUserRole.DRIVER,
+        validators: [Validators.required],
+      },
+    ],
   },
   passportNumber: {
     id: 'passportNumber',
     fieldName: 'passportNumber',
     label: 'Passport Number',
     fieldType: EDataType.TEXT,
-    validators: [],
-    // Note: This will be handled manually in component for cross-step dependency
+    textConfig: {
+      textCase: ETextCase.UPPERCASE,
+    },
+    validators: [
+      Validators.minLength(8),
+      Validators.maxLength(8),
+      withCustomMessage(
+        Validators.pattern(REGEX.PASSPORT),
+        'Invalid passport number'
+      ),
+    ],
+    applyPatternFilter: true,
   },
   passportDocument: {
     id: 'passportDocument',
@@ -445,15 +555,25 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       maxFileSize: 1024 * 1024 * 5,
       acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
-    validators: [],
-    // Note: This will be handled manually in component for cross-step dependency
   },
   drivingLicenseNumber: {
     id: 'drivingLicenseNumber',
     fieldName: 'drivingLicenseNumber',
     label: 'Driving License Number',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    textConfig: {
+      textCase: ETextCase.UPPERCASE,
+    },
+    validators: [Validators.minLength(16), Validators.maxLength(16)], // ToDo add DL regex after backend is updated
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        dependsOnStep: 2,
+        shouldApply: value => value === EUserRole.DRIVER,
+        validators: [Validators.required],
+      },
+    ],
+    applyPatternFilter: true,
   },
   drivingLicenseDocument: {
     id: 'drivingLicenseDocument',
@@ -465,6 +585,59 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       maxFileSize: 1024 * 1024 * 5,
       acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        dependsOnStep: 2,
+        shouldApply: value => value === EUserRole.DRIVER,
+        validators: [Validators.required],
+      },
+    ],
+  },
+};
+
+// Step 6: Salary Details Form Config
+const SALARY_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+  basicSalary: {
+    id: 'basicSalary',
+    fieldName: 'basicSalary',
+    label: 'Basic Salary',
+    fieldType: EDataType.NUMBER,
+    validators: [Validators.required],
+  },
+  hra: {
+    id: 'hra',
+    fieldName: 'hra',
+    label: 'HRA',
+    fieldType: EDataType.NUMBER,
+    validators: [Validators.required],
+  },
+  foodAllowance: {
+    id: 'foodAllowance',
+    fieldName: 'foodAllowance',
+    label: 'Food Allowance',
+    fieldType: EDataType.NUMBER,
+    validators: [Validators.required],
+  },
+  tds: {
+    id: 'tds',
+    fieldName: 'tds',
+    label: 'TDS',
+    fieldType: EDataType.NUMBER,
+    validators: [Validators.required],
+  },
+  esicContribution: {
+    id: 'esicContribution',
+    fieldName: 'esicContribution',
+    label: 'ESIC Contribution',
+    fieldType: EDataType.NUMBER,
+    validators: [Validators.required],
+  },
+  pfContribution: {
+    id: 'pfContribution',
+    fieldName: 'pfContribution',
+    label: 'PF Contribution',
+    fieldType: EDataType.NUMBER,
     validators: [Validators.required],
   },
 };
@@ -473,7 +646,7 @@ export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
   steps: [
     {
       value: 1,
-      icon: 'pi pi-id-card',
+      icon: ICONS.COMMON.USER,
       label: 'Personal',
       panelConfig: {
         templateKey: 'personalDetailsTemplate',
@@ -481,7 +654,7 @@ export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
     },
     {
       value: 2,
-      icon: 'pi pi-briefcase',
+      icon: ICONS.COMMON.BRIEFCASE,
       label: 'Employment',
       panelConfig: {
         templateKey: 'employmentDetailsTemplate',
@@ -489,7 +662,7 @@ export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
     },
     {
       value: 3,
-      icon: 'pi pi-book',
+      icon: ICONS.COMMON.BOOK,
       label: 'Academic',
       panelConfig: {
         templateKey: 'educationDetailsTemplate',
@@ -497,7 +670,7 @@ export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
     },
     {
       value: 4,
-      icon: 'pi pi-credit-card',
+      icon: ICONS.COMMON.CREDIT_CARD,
       label: 'Bank',
       panelConfig: {
         templateKey: 'bankDetailsTemplate',
@@ -505,13 +678,22 @@ export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
     },
     {
       value: 5,
-      icon: 'pi pi-file',
+      icon: ICONS.COMMON.FILE,
       label: 'Documents',
       panelConfig: {
         templateKey: 'documentsDetailsTemplate',
       },
     },
+    {
+      value: 6,
+      icon: ICONS.EXPENSE.MONEY,
+      label: 'Salary',
+      panelConfig: {
+        templateKey: 'salaryDetailsTemplate',
+      },
+    },
   ],
+  linear: false,
 };
 
 const ADD_EMPLOYEE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
@@ -532,6 +714,7 @@ export const ADD_EMPLOYEE_FORM_CONFIG: IMultiStepFormConfig = {
     3: EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
     4: BANK_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
     5: DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
+    6: SALARY_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
   },
   buttons: ADD_EMPLOYEE_FORM_BUTTONS_CONFIG,
 };
