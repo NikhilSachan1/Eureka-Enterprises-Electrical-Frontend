@@ -1,15 +1,19 @@
 import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
 import { uuidField } from '@shared/schemas';
+import {
+  onlyDateStringField,
+  onlyTimeStringField,
+} from '@shared/schemas/common.schema';
+import { SHIFT_DATA } from '@shared/config/static-data.config';
 
-const { attendanceDate, checkInTime, checkOutTime, notes, status } =
-  AttendanceBaseSchema.shape;
+const { notes, status } = AttendanceBaseSchema.shape;
 
 export const AttendanceForceRequestSchema = z
   .object({
-    attendanceDate,
-    checkInTime,
-    checkOutTime,
+    attendanceDate: onlyDateStringField,
+    checkInTime: onlyTimeStringField.default(SHIFT_DATA.START_TIME).optional(),
+    checkOutTime: onlyTimeStringField.default(SHIFT_DATA.END_TIME).optional(),
     notes,
     status,
     userIds: z.array(uuidField).min(1).max(100),

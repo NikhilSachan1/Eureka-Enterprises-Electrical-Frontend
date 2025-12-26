@@ -7,11 +7,7 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import {
-  AppConfigService,
-  LoggerService,
-  TimezoneService,
-} from '@core/services';
+import { LoggerService, TimezoneService } from '@core/services';
 import { AttendanceService } from '../../services/attendance.service';
 import {
   FormService,
@@ -33,10 +29,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { SHIFT_DATA } from '@shared/config';
-import { DatePipe } from '@angular/common';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
-import { transformDateFormat } from '@shared/utility';
 
 @Component({
   selector: 'app-force-attendance',
@@ -49,7 +42,6 @@ import { transformDateFormat } from '@shared/utility';
   templateUrl: './force-attendance.component.html',
   styleUrl: './force-attendance.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DatePipe],
 })
 export class ForceAttendanceComponent implements OnInit {
   private readonly formService = inject(FormService);
@@ -59,8 +51,6 @@ export class ForceAttendanceComponent implements OnInit {
   private readonly attendanceService = inject(AttendanceService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly datePipe = inject(DatePipe);
-  private readonly appConfigService = inject(AppConfigService);
   private readonly timezoneServive = inject(TimezoneService);
 
   protected form!: IEnhancedForm;
@@ -100,9 +90,7 @@ export class ForceAttendanceComponent implements OnInit {
 
     return {
       userIds: employeeName,
-      attendanceDate: transformDateFormat(date),
-      checkInTime: SHIFT_DATA.START_TIME,
-      checkOutTime: SHIFT_DATA.END_TIME,
+      attendanceDate: date,
       notes: `${location} - ${clientName}`,
       reason: forceReason,
       timezone: this.timezoneServive.timezone,
