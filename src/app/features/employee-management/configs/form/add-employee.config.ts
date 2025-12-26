@@ -194,7 +194,15 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'previousExperience',
     label: 'Previous Experience',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required, Validators.maxLength(2)],
+    validators: [Validators.maxLength(2)],
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        shouldApply: (value: unknown) => value !== 'driver',
+        validators: [Validators.required],
+        resetOnFalse: true,
+      },
+    ],
   },
   dateOfJoining: {
     id: 'dateOfJoining',
@@ -228,7 +236,15 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'esicNumber',
     label: 'ESIC Number',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    validators: [],
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        shouldApply: (value: unknown) => value !== 'driver',
+        validators: [Validators.required],
+        resetOnFalse: true,
+      },
+    ],
   },
   esicDocument: {
     id: 'esicDocument',
@@ -240,14 +256,29 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       maxFileSize: 1024 * 1024 * 5,
       acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
-    validators: [Validators.required],
+    validators: [],
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        shouldApply: (value: unknown) => value !== 'driver',
+        validators: [Validators.required],
+        resetOnFalse: true,
+      },
+    ],
   },
   uanNumber: {
     id: 'uanNumber',
     fieldName: 'uanNumber',
     label: 'UAN Number',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    validators: [],
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        shouldApply: (value: unknown) => value !== 'driver',
+        validators: [Validators.required],
+      },
+    ],
   },
   uanDocument: {
     id: 'uanDocument',
@@ -259,7 +290,15 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       maxFileSize: 1024 * 1024 * 5,
       acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
-    validators: [Validators.required],
+    validators: [],
+    conditionalValidators: [
+      {
+        dependsOn: 'designation',
+        shouldApply: (value: unknown) => value !== 'driver',
+        validators: [Validators.required],
+        resetOnFalse: true,
+      },
+    ],
   },
 };
 
@@ -273,7 +312,8 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     selectConfig: {
       optionsDropdown: DEGREE_DATA,
     },
-    validators: [Validators.required],
+    validators: [],
+    // Note: This will be handled manually in component for cross-step dependency
   },
   branch: {
     id: 'branch',
@@ -283,7 +323,8 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     selectConfig: {
       optionsDropdown: BRANCH_DATA,
     },
-    validators: [Validators.required],
+    validators: [],
+    // Note: This will be handled manually in component for cross-step dependency
   },
   passingYear: {
     id: 'passingYear',
@@ -293,7 +334,8 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     selectConfig: {
       optionsDropdown: PASSING_YEAR_DATA,
     },
-    validators: [Validators.required],
+    validators: [],
+    // Note: This will be handled manually in component for cross-step dependency
   },
   degreeDocument: {
     id: 'degreeDocument',
@@ -305,7 +347,8 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       maxFileSize: 1024 * 1024 * 5,
       acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
-    validators: [Validators.required],
+    validators: [],
+    // Note: This will be handled manually in component for cross-step dependency
   },
 };
 
@@ -389,7 +432,8 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'passportNumber',
     label: 'Passport Number',
     fieldType: EDataType.TEXT,
-    validators: [Validators.required],
+    validators: [],
+    // Note: This will be handled manually in component for cross-step dependency
   },
   passportDocument: {
     id: 'passportDocument',
@@ -401,7 +445,8 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       maxFileSize: 1024 * 1024 * 5,
       acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.PDF,
     },
-    validators: [Validators.required],
+    validators: [],
+    // Note: This will be handled manually in component for cross-step dependency
   },
   drivingLicenseNumber: {
     id: 'drivingLicenseNumber',
