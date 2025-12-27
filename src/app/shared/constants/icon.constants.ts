@@ -59,6 +59,7 @@ export const ICONS = {
     EYE: 'pi pi-eye',
     BAN: 'pi pi-ban',
     POWER_OFF: 'pi pi-power-off',
+    SEND: 'pi pi-send',
   },
   EMPLOYEE: {
     GROUP: 'pi pi-users',

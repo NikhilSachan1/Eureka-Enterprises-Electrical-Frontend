@@ -19,7 +19,6 @@ import {
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
-  EDialogType,
   EButtonActionType,
   EDataType,
 } from '@shared/types';
@@ -213,19 +212,6 @@ export class GetAttendanceComponent implements OnInit {
       return;
     }
 
-    const dialogTypeMap: Record<string, EDialogType> = {
-      [EButtonActionType.APPROVE]: EDialogType.APPROVE,
-      [EButtonActionType.REJECT]: EDialogType.REJECT,
-      [EButtonActionType.REGULARIZE]: EDialogType.REGULARIZE,
-    };
-
-    const dialogType = dialogTypeMap[actionType];
-
-    if (!dialogType) {
-      this.logger.warn('Unknown table action:', actionType);
-      return;
-    }
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
@@ -242,18 +228,14 @@ export class GetAttendanceComponent implements OnInit {
     }
 
     const recordDetail = this.prepareAttendanceRecordDetail(selectedFirstRow);
-    const dialogConfig = this.confirmationDialogService.createDialogConfig(
+
+    this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      ATTENDANCE_ACTION_CONFIG_MAP,
+      ATTENDANCE_ACTION_CONFIG_MAP[actionType],
       recordDetail,
       isBulk,
       !isBulk,
       dynamicComponentInputs
-    );
-
-    this.confirmationDialogService.showConfirmationDialog(
-      dialogConfig,
-      dialogType
     );
   }
 

@@ -12,7 +12,7 @@ import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationDialogService } from '@shared/services';
 import {
   IButtonConfig,
-  IConfirmationDialogConfig,
+  IDialogActionConfig,
   IDialogActionHandler,
 } from '@shared/types';
 import { ButtonComponent } from '../button/button.component';
@@ -57,10 +57,10 @@ export class ConfirmationDialogComponent {
     () => {
       const dialog = this.currentDialogConfig();
       return {
-        label: dialog?.dialogSettingConfig?.acceptButtonProps?.label,
-        icon: dialog?.dialogSettingConfig?.acceptButtonProps?.icon,
-        visible: dialog?.dialogSettingConfig?.acceptButtonProps?.visible,
-        id: dialog?.dialogSettingConfig?.acceptButtonProps?.id,
+        label: dialog.dialogConfig.acceptButtonProps?.label,
+        icon: dialog.dialogConfig.acceptButtonProps?.icon,
+        visible: dialog.dialogConfig.acceptButtonProps?.visible,
+        id: dialog.dialogConfig.acceptButtonProps?.id,
       };
     }
   );
@@ -69,22 +69,22 @@ export class ConfirmationDialogComponent {
     () => {
       const dialog = this.currentDialogConfig();
       return {
-        label: dialog?.dialogSettingConfig?.rejectButtonProps?.label,
-        icon: dialog?.dialogSettingConfig?.rejectButtonProps?.icon,
-        visible: dialog?.dialogSettingConfig?.rejectButtonProps?.visible,
-        id: dialog?.dialogSettingConfig?.rejectButtonProps?.id,
+        label: dialog.dialogConfig.rejectButtonProps?.label,
+        icon: dialog.dialogConfig.rejectButtonProps?.icon,
+        visible: dialog.dialogConfig.rejectButtonProps?.visible,
+        id: dialog.dialogConfig.rejectButtonProps?.id,
       };
     }
   );
 
   protected readonly isAcceptButtonVisible = computed(() => {
     const dialog = this.currentDialogConfig();
-    return dialog?.dialogSettingConfig?.acceptButtonProps?.visible !== false;
+    return dialog.dialogConfig.acceptButtonProps?.visible !== false;
   });
 
   protected readonly isRejectButtonVisible = computed(() => {
     const dialog = this.currentDialogConfig();
-    return dialog?.dialogSettingConfig?.rejectButtonProps?.visible !== false;
+    return dialog.dialogConfig.rejectButtonProps?.visible !== false;
   });
 
   protected async handleDialog(confirmed: boolean): Promise<void> {
@@ -123,7 +123,7 @@ export class ConfirmationDialogComponent {
     }
   }
 
-  private loadDynamicComponent(config: IConfirmationDialogConfig): void {
+  private loadDynamicComponent(config: IDialogActionConfig): void {
     const container = this.dynamicComponentContainer();
     if (!container) {
       return;

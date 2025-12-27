@@ -42,8 +42,7 @@ export { ETabMode } from './nav-tabs/tab-items.types';
 export { EDrawerPosition, EDrawerSize } from './drawer/drawer.types';
 
 export type {
-  IConfirmationDialogSettingConfig,
-  IConfirmationDialogConfig,
+  IDialogConfig,
   IDialogActionHandler,
   IDialogActionConfig,
 } from './confirmation-dialog/confirmation-dialog.interface';

@@ -33,7 +33,6 @@ import {
 import {
   EButtonActionType,
   EDataType,
-  EDialogType,
   IDataViewDetails,
   IDataViewDetailsWithEmployee,
   IEnhancedTable,
@@ -203,18 +202,6 @@ export class GetLeaveComponent implements OnInit {
       return;
     }
 
-    const dialogTypeMap: Record<string, EDialogType> = {
-      [EButtonActionType.APPROVE]: EDialogType.APPROVE,
-      [EButtonActionType.REJECT]: EDialogType.REJECT,
-      [EButtonActionType.CANCEL]: EDialogType.CANCEL,
-    };
-
-    const dialogType = dialogTypeMap[actionType];
-
-    if (!dialogType) {
-      this.logger.warn('Unknown table action:', actionType);
-      return;
-    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
@@ -232,18 +219,14 @@ export class GetLeaveComponent implements OnInit {
     }
 
     const recordDetail = this.prepareLeaveRecordDetail(selectedFirstRow);
-    const dialogConfig = this.confirmationDialogService.createDialogConfig(
+
+    this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      LEAVE_ACTION_CONFIG_MAP,
+      LEAVE_ACTION_CONFIG_MAP[actionType],
       recordDetail,
       isBulk,
       !isBulk,
       dynamicComponentInputs
-    );
-
-    this.confirmationDialogService.showConfirmationDialog(
-      dialogConfig,
-      dialogType
     );
   }
 

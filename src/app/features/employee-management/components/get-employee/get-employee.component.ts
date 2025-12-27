@@ -36,7 +36,6 @@ import {
 import {
   EButtonActionType,
   EDataType,
-  EDialogType,
   EDrawerSize,
   IDataViewDetails,
   IDataViewDetailsWithEmployee,
@@ -223,19 +222,6 @@ export class GetEmployeeComponent implements OnInit {
       return;
     }
 
-    const dialogTypeMap: Record<string, EDialogType> = {
-      [EButtonActionType.DELETE]: EDialogType.DELETE,
-      [EButtonActionType.SEND_PASSWORD_LINK]: EDialogType.SEND_PASSWORD_LINK,
-      [EButtonActionType.CHANGE_EMPLOYEE_STATUS]:
-        EDialogType.CHANGE_EMPLOYEE_STATUS,
-    };
-
-    const dialogType = dialogTypeMap[actionType];
-
-    if (!dialogType) {
-      this.logger.warn('Unknown table action:', actionType);
-      return;
-    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
@@ -245,18 +231,14 @@ export class GetEmployeeComponent implements OnInit {
     };
 
     const recordDetail = this.prepareEmployeeRecordDetail(selectedFirstRow);
-    const dialogConfig = this.confirmationDialogService.createDialogConfig(
+
+    this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      EMPLOYEE_ACTION_CONFIG_MAP,
+      EMPLOYEE_ACTION_CONFIG_MAP[actionType],
       recordDetail,
       isBulk,
       !isBulk,
       dynamicComponentInputs
-    );
-
-    this.confirmationDialogService.showConfirmationDialog(
-      dialogConfig,
-      dialogType
     );
   }
 

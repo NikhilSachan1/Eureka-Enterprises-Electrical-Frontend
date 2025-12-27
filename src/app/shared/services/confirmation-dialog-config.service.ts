@@ -2,24 +2,12 @@ import { Injectable, inject, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 
 import {
-  IConfirmationDialogConfig,
-  IDataViewDetailsWithEmployee,
-  IConfirmationDialogSettingConfig,
-  IDialogActionConfig,
-  EDialogType,
   EButtonActionType,
+  IDialogActionConfig,
+  IDialogConfig,
 } from '@shared/types';
-import { deepMerge, ColorUtil } from '@shared/utility';
-import {
-  APPROVE_CONFIRMATION_DIALOG_CONFIG,
-  CANCEL_CONFIRMATION_DIALOG_CONFIG,
-  CONFIRMATION_DIALOG_CONFIG,
-  DELETE_CONFIRMATION_DIALOG_CONFIG,
-  REJECT_CONFIRMATION_DIALOG_CONFIG,
-  REGULARIZE_CONFIRMATION_DIALOG_CONFIG,
-  SEND_PASSWORD_LINK_CONFIRMATION_DIALOG_CONFIG,
-  CHANGE_EMPLOYEE_STATUS_CONFIRMATION_DIALOG_CONFIG,
-} from '@shared/config';
+import { ColorUtil, deepMerge, IconUtil } from '@shared/utility';
+import { CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
 
 @Injectable({
   providedIn: 'root',
@@ -27,37 +15,28 @@ import {
 export class ConfirmationDialogService {
   private readonly confirmationService = inject(ConfirmationService);
 
-  private readonly defaultConfigs: Record<
-    EDialogType,
-    Partial<IConfirmationDialogSettingConfig>
-  > = {
-    [EDialogType.DEFAULT]: CONFIRMATION_DIALOG_CONFIG,
-    [EDialogType.DELETE]: DELETE_CONFIRMATION_DIALOG_CONFIG,
-    [EDialogType.APPROVE]: APPROVE_CONFIRMATION_DIALOG_CONFIG,
-    [EDialogType.REJECT]: REJECT_CONFIRMATION_DIALOG_CONFIG,
-    [EDialogType.CANCEL]: CANCEL_CONFIRMATION_DIALOG_CONFIG,
-    [EDialogType.REGULARIZE]: REGULARIZE_CONFIRMATION_DIALOG_CONFIG,
-    [EDialogType.SEND_PASSWORD_LINK]:
-      SEND_PASSWORD_LINK_CONFIRMATION_DIALOG_CONFIG,
-    [EDialogType.CHANGE_EMPLOYEE_STATUS]:
-      CHANGE_EMPLOYEE_STATUS_CONFIRMATION_DIALOG_CONFIG,
-  };
-
-  readonly dialogState = signal<IConfirmationDialogConfig>({});
+  readonly dialogState = signal<IDialogActionConfig>({} as IDialogActionConfig);
   private closeDialogCallback?: () => void;
 
   showConfirmationDialog(
-    dialogConfig: IConfirmationDialogConfig,
-    dialogType: EDialogType
+    actionType: EButtonActionType,
+    config: IDialogActionConfig,
+    recordDetail: IDialogActionConfig['recordDetails'],
+    isBulk = false,
+    showRecords = !isBulk,
+    dynamicComponentInputs?: IDialogActionConfig['dynamicComponentInputs']
   ): void {
-    const finalConfig = this.buildFinalDialogConfig(dialogType, dialogConfig);
-    if (finalConfig) {
-      this.dialogState.set({
-        ...dialogConfig,
-        dialogSettingConfig: finalConfig,
-      });
-      this.confirmationService.confirm(finalConfig);
-    }
+    const dialogConfig = this.createDialogConfig(
+      actionType,
+      config,
+      recordDetail,
+      isBulk,
+      showRecords,
+      dynamicComponentInputs
+    );
+
+    this.dialogState.set(dialogConfig);
+    this.confirmationService.confirm(dialogConfig.dialogConfig);
   }
 
   closeDialog(): void {
@@ -70,56 +49,56 @@ export class ConfirmationDialogService {
     this.closeDialogCallback = callback;
   }
 
-  private buildFinalDialogConfig(
-    dialogType: EDialogType,
-    config?: IConfirmationDialogConfig
-  ): IConfirmationDialogSettingConfig {
-    const defaultConfig =
-      this.defaultConfigs[dialogType] ||
-      this.defaultConfigs[EDialogType.DEFAULT];
-    const dialogSettingConfig = config?.dialogSettingConfig ?? {};
-
-    const mergedConfig = deepMerge(
-      defaultConfig,
-      dialogSettingConfig
-    ) as IConfirmationDialogSettingConfig;
-
-    if (!dialogSettingConfig.iconContainerClass) {
-      const colorClasses = ColorUtil.getColorClass(dialogType);
-      mergedConfig.iconContainerClass = `${colorClasses.bg} ${colorClasses.border} ${colorClasses.text}`;
-    }
-
-    return mergedConfig;
-  }
-
   createDialogConfig(
     actionType: EButtonActionType,
-    actionConfigMap: Record<string, IDialogActionConfig>,
-    recordDetail: IDataViewDetailsWithEmployee,
+    config: IDialogActionConfig,
+    recordDetail: IDialogActionConfig['recordDetails'],
     isBulk = false,
     showRecords = !isBulk,
-    dynamicComponentInputs?: Record<string, unknown>
-  ): IConfirmationDialogConfig {
-    const config = actionConfigMap[actionType as string];
+    dynamicComponentInputs?: IDialogActionConfig['dynamicComponentInputs']
+  ): IDialogActionConfig {
+    // Get labels from dialogConfig
+    const {
+      labels,
+      header: configHeader,
+      message: configMessage,
+    } = config.dialogConfig ?? {};
 
-    if (!config) {
-      throw new Error(
-        `Unsupported action type: ${actionType}. Supported types are: ${Object.keys(actionConfigMap).join(', ')}`
-      );
-    }
+    // Get action word and labels
+    const actionWord = labels?.actionWord ?? 'process';
+    const acceptLabel = isBulk ? labels?.bulkLabel : labels?.singleLabel;
 
-    const acceptLabel = isBulk ? config.bulkLabel : config.singleLabel;
-    const header = `${acceptLabel} Record`;
+    // Generate header and message
+    const header = acceptLabel ? `${acceptLabel} Record` : configHeader;
     const recordType = isBulk ? 'the selected records' : 'this record';
-    const message = `Are you sure you want to ${config.actionWord} ${recordType}?`;
+    const message =
+      configMessage ?? `Are you sure you want to ${actionWord} ${recordType}?`;
+
+    const colorClass = ColorUtil.getColorClass(actionType);
+
+    // Merge icon and colors into dialogConfig
+    const icon = IconUtil.getIcon(actionType) ?? undefined;
+    const iconContainerClass = `${colorClass.bg} ${colorClass.border} ${colorClass.text}`;
+
+    // Merge header/message into dialogConfig
+    const processedDialogConfig: Partial<IDialogConfig> = {
+      ...config.dialogConfig,
+      header: configHeader ?? header,
+      message,
+      icon,
+      iconContainerClass,
+    };
+
+    // Deep merge with default config
+    const fullDialogConfig = deepMerge(
+      CONFIRMATION_DIALOG_CONFIG,
+      processedDialogConfig
+    ) as IDialogConfig;
 
     return {
-      dialogSettingConfig: {
-        header,
-        message,
-      },
+      ...config,
+      dialogConfig: fullDialogConfig,
       recordDetails: showRecords ? recordDetail : undefined,
-      dynamicComponent: config.dynamicComponent,
       dynamicComponentInputs,
     };
   }

@@ -1,25 +1,28 @@
 import { ApprovalAttendanceComponent } from '@features/attendance-management/components/approval-attendance/approval-attendance.component';
 import { RegularizeAttendanceComponent } from '@features/attendance-management/components/regularize-attendance/regularize-attendance.component';
 import { EButtonActionType, IDialogActionConfig } from '@shared/types';
+import {
+  APPROVE_CONFIRMATION_DIALOG_CONFIG,
+  REJECT_CONFIRMATION_DIALOG_CONFIG,
+} from '@shared/config';
 
 export const ATTENDANCE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
   {
     [EButtonActionType.APPROVE]: {
-      actionWord: 'approve',
-      singleLabel: 'Approve',
-      bulkLabel: 'Approve Selected',
+      dialogConfig: APPROVE_CONFIRMATION_DIALOG_CONFIG,
       dynamicComponent: ApprovalAttendanceComponent,
     },
+
     [EButtonActionType.REJECT]: {
-      actionWord: 'reject',
-      singleLabel: 'Reject',
-      bulkLabel: 'Reject Selected',
+      dialogConfig: REJECT_CONFIRMATION_DIALOG_CONFIG,
       dynamicComponent: ApprovalAttendanceComponent,
     },
+
     [EButtonActionType.REGULARIZE]: {
-      actionWord: 'regularize',
-      singleLabel: 'Regularize',
-      bulkLabel: 'Regularize',
       dynamicComponent: RegularizeAttendanceComponent,
+      dialogConfig: {
+        header: 'Regularize Attendance',
+        message: 'Are you sure you want to regularize this attendance?',
+      },
     },
   };
