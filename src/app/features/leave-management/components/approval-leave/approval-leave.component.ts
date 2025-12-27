@@ -79,7 +79,8 @@ export class ApprovalLeaveComponent implements OnInit {
     const fromDate = new Date(fromDateString);
 
     this.form = this.formService.createForm(
-      getApprovalActionLeaveFormConfig(actionType, fromDate)
+      getApprovalActionLeaveFormConfig(actionType, fromDate),
+      this.destroyRef
     );
   }
 

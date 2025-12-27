@@ -58,7 +58,10 @@ export class ApplyLeaveComponent implements OnInit {
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(APPLY_LEAVE_FORM_CONFIG);
+    this.form = this.formService.createForm(
+      APPLY_LEAVE_FORM_CONFIG,
+      this.destroyRef
+    );
   }
 
   protected onSubmit(): void {

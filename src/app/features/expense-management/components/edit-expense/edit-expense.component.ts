@@ -68,6 +68,7 @@ export class EditExpenseComponent implements OnInit {
     this.loadExpenseDataFromRoute();
     this.form = this.formService.createForm(
       EDIT_EXPENSE_FORM_CONFIG,
+      this.destroyRef,
       this.initialExpenseData()
     );
   }

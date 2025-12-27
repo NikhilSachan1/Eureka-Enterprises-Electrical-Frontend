@@ -105,6 +105,7 @@ export class ApplyAttendanceComponent implements OnInit {
     this.loadCurrentStatusDataFromRoute();
     this.form = this.formService.createForm(
       getApplyAttendanceFormConfig(isDriverUser),
+      this.destroyRef,
       this.initialAttendanceData()
     );
   }

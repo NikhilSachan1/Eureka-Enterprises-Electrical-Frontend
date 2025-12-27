@@ -76,7 +76,8 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
 
     const actionType = this.dialogActionType() as EButtonActionType;
     this.form = this.formService.createForm(
-      getApprovalActionExpenseFormConfig(actionType)
+      getApprovalActionExpenseFormConfig(actionType),
+      this.destroyRef
     );
   }
 

@@ -69,7 +69,11 @@ export class LoginComponent implements OnInit {
       email: 'akhil.sachan@coditas.com',
       password: 'Admin@123',
     };
-    this.form = this.formService.createForm(LOGIN_FORM_CONFIG, defaultData);
+    this.form = this.formService.createForm(
+      LOGIN_FORM_CONFIG,
+      this.destroyRef,
+      defaultData
+    );
   }
 
   onSubmit(): void {

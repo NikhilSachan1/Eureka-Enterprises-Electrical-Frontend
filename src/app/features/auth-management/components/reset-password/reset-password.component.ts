@@ -4,6 +4,7 @@ import {
   OnInit,
   signal,
   ChangeDetectionStrategy,
+  DestroyRef,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -39,12 +40,16 @@ export class ResetPasswordComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected form!: IEnhancedForm;
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(RESET_PASSWORD_INPUT_FIELDS_CONFIG);
+    this.form = this.formService.createForm(
+      RESET_PASSWORD_INPUT_FIELDS_CONFIG,
+      this.destroyRef
+    );
   }
 
   onSubmit(): void {

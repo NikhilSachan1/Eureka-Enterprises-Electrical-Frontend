@@ -7,7 +7,6 @@ import {
   DEGREE_DATA,
   DESIGNATION_DATA,
   EMPLOYEE_BLOOD_GROUP_DATA,
-  EMPLOYEE_GENDER_DATA,
   EMPLOYMENT_TYPE_DATA,
   INDIA_STATE_DATA,
   PASSING_YEAR_DATA,
@@ -114,7 +113,7 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Gender',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: EMPLOYEE_GENDER_DATA,
+      optionsDropdown: [],
     },
     validators: [Validators.required],
   },

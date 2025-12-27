@@ -78,7 +78,8 @@ export class ApprovalAttendanceComponent
 
     const actionType = this.dialogActionType() as EButtonActionType;
     this.form = this.formService.createForm(
-      getApprovalActionAttendanceFormConfig(actionType)
+      getApprovalActionAttendanceFormConfig(actionType),
+      this.destroyRef
     );
   }
 

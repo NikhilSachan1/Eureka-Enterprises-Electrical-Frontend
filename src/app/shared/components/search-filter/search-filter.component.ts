@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   input,
   OnInit,
@@ -32,6 +33,7 @@ import { Table } from 'primeng/table';
 })
 export class SearchFilterComponent implements OnInit {
   private readonly formService = inject(FormService);
+  private readonly destroyRef = inject(DestroyRef);
 
   searchFilterConfig = input.required<ITableSearchFilterFormConfig>();
   tableRef = input.required<Table>();
@@ -43,7 +45,9 @@ export class SearchFilterComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.formService.createForm(
-      this.searchFilterConfig() as unknown as IFormConfig
+      this.searchFilterConfig() as unknown as IFormConfig,
+      this.destroyRef,
+      null
     );
   }
 

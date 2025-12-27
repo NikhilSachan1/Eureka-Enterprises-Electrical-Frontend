@@ -82,6 +82,7 @@ export class RegularizeAttendanceComponent
     this.loadRegularizeAttendanceDataFromSelectedRecord();
     this.form = this.formService.createForm(
       REGULARIZE_ATTENDANCE_FORM_CONFIG,
+      this.destroyRef,
       this.initialFormData()
     );
 

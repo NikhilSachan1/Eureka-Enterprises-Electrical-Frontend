@@ -61,7 +61,10 @@ export class ReimburseExpenseComponent implements OnInit {
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(REIMBURSE_EXPENSE_FORM_CONFIG);
+    this.form = this.formService.createForm(
+      REIMBURSE_EXPENSE_FORM_CONFIG,
+      this.destroyRef
+    );
   }
 
   protected onSubmit(): void {

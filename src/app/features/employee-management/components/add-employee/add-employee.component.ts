@@ -103,17 +103,11 @@ export class AddEmployeeComponent implements OnInit {
   );
 
   constructor() {
+    // Effect only reacts to attemptedSteps changes, doesn't create subscriptions
     effect(() => {
-      this.attemptedSteps();
-
+      this.attemptedSteps(); // Track changes
+      // Update validation states when attemptedSteps changes
       if (this.multiStepForm?.forms) {
-        Object.keys(this.multiStepForm.forms).forEach(stepKey => {
-          const { formGroup } = this.multiStepForm.forms[stepKey];
-
-          merge(formGroup.statusChanges, formGroup.valueChanges)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => this.updateValidationStates());
-        });
         this.updateValidationStates();
       }
     });
@@ -126,8 +120,12 @@ export class AddEmployeeComponent implements OnInit {
     this.stepperConfig = ADD_EMPLOYEE_STEPPER_CONFIG;
     this.multiStepForm = this.formService.createMultiStepForm(
       ADD_EMPLOYEE_FORM_CONFIG,
+      this.destroyRef,
       this.initialEmployeeData()
     );
+
+    // Setup form validation subscriptions once after form is created
+    this.setupFormValidationSubscriptions();
 
     this.trackFields = this.formService.trackMultipleFieldChanges(
       this.multiStepForm.forms['1'].formGroup,
@@ -148,6 +146,26 @@ export class AddEmployeeComponent implements OnInit {
       .subscribe(() => {
         this.setupSalaryCalculations();
       });
+  }
+
+  private setupFormValidationSubscriptions(): void {
+    if (!this.multiStepForm?.forms) {
+      return;
+    }
+
+    // Setup subscriptions once for all form groups
+    Object.keys(this.multiStepForm.forms).forEach(stepKey => {
+      const { formGroup } = this.multiStepForm.forms[stepKey];
+
+      merge(formGroup.statusChanges, formGroup.valueChanges)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.updateValidationStates();
+        });
+    });
+
+    // Initial validation state update
+    this.updateValidationStates();
   }
 
   private loadEmployeeDataFromRoute(): void {

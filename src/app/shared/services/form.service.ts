@@ -20,6 +20,7 @@ export class FormService {
 
   createForm(
     formConfig: IFormConfig,
+    destroyRef: DestroyRef,
     defaultValues?: Record<string, unknown> | null
   ): IEnhancedForm {
     if (!formConfig?.fields || Object.keys(formConfig.fields).length === 0) {
@@ -33,7 +34,7 @@ export class FormService {
       defaultValues ?? {}
     );
 
-    this.applyConditionalValidators(formGroup, inputFieldsConfigs);
+    this.applyConditionalValidators(formGroup, inputFieldsConfigs, destroyRef);
 
     return this.createEnhancedForm(
       formGroup,
@@ -44,6 +45,7 @@ export class FormService {
 
   createMultiStepForm(
     multiStepFormConfig: IMultiStepFormConfig,
+    destroyRef: DestroyRef,
     defaultValues?: Record<string, Record<string, unknown>> | null
   ): IEnhancedMultiStepForm {
     const forms: Record<string, IEnhancedForm> = {};
@@ -66,13 +68,21 @@ export class FormService {
           fields: stepFields,
         };
 
-        forms[stepName] = this.createForm(stepFormConfig, stepDefaultValues);
+        forms[stepName] = this.createForm(
+          stepFormConfig,
+          destroyRef,
+          stepDefaultValues
+        );
       }
     );
 
     // Apply cross-step conditional validators only if there are explicit cross-step dependencies (dependsOnStep)
     if (this.hasExplicitCrossStepDependencies(multiStepFormConfig)) {
-      this.applyCrossStepConditionalValidators(forms, multiStepFormConfig);
+      this.applyCrossStepConditionalValidators(
+        forms,
+        multiStepFormConfig,
+        destroyRef
+      );
     }
 
     return this.createEnhancedMultiStepForm(
@@ -236,7 +246,8 @@ export class FormService {
 
   private applyConditionalValidators(
     formGroup: FormGroup,
-    fieldConfigs: Record<string, IInputFieldsConfig>
+    fieldConfigs: Record<string, IInputFieldsConfig>,
+    destroyRef: DestroyRef
   ): void {
     Object.entries(fieldConfigs).forEach(([fieldName, config]) => {
       // Skip fields without conditional rules.
@@ -294,9 +305,12 @@ export class FormService {
           return;
         }
 
-        dependencyControl.valueChanges.subscribe(() => {
-          runConditionalLogic();
-        });
+        // Subscribe with automatic cleanup
+        dependencyControl.valueChanges
+          .pipe(takeUntilDestroyed(destroyRef))
+          .subscribe(() => {
+            runConditionalLogic();
+          });
       });
     });
   }
@@ -327,7 +341,8 @@ export class FormService {
    */
   private applyCrossStepConditionalValidators(
     forms: Record<string, IEnhancedForm>,
-    multiStepFormConfig: IMultiStepFormConfig
+    multiStepFormConfig: IMultiStepFormConfig,
+    destroyRef: DestroyRef
   ): void {
     Object.entries(multiStepFormConfig.fields).forEach(
       ([currentStepName, stepFields]) => {
@@ -420,9 +435,12 @@ export class FormService {
               return;
             }
 
-            dependencyControl.valueChanges.subscribe(() => {
-              runConditionalLogic();
-            });
+            // Subscribe with automatic cleanup
+            dependencyControl.valueChanges
+              .pipe(takeUntilDestroyed(destroyRef))
+              .subscribe(() => {
+                runConditionalLogic();
+              });
           });
         });
       }

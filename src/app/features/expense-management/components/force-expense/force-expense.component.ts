@@ -62,7 +62,10 @@ export class ForceExpenseComponent implements OnInit {
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(FORCE_EXPENSE_FORM_CONFIG);
+    this.form = this.formService.createForm(
+      FORCE_EXPENSE_FORM_CONFIG,
+      this.destroyRef
+    );
   }
 
   protected onSubmit(): void {

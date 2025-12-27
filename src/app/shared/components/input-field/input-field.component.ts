@@ -8,7 +8,9 @@ import {
   output,
   ViewChild,
   AfterViewInit,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormGroup,
@@ -93,6 +95,7 @@ import { ImageModule } from 'primeng/image';
 })
 export class InputFieldComponent implements OnInit, AfterViewInit {
   private readonly galleryService = inject(GalleryService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ALL_DATA_TYPES = EDataType;
   ALL_UP_AND_DOWN_BUTTON_LAYOUTS = EUpAndDownButtonLayout;
@@ -138,16 +141,18 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     if (config.fieldType === EDataType.ATTACHMENTS) {
       const control = this.formGroup().get(config.fieldName);
-      control?.valueChanges.subscribe(value => {
-        const hasFiles = Array.isArray(value) ? value.length > 0 : !!value;
+      control?.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(value => {
+          const hasFiles = Array.isArray(value) ? value.length > 0 : !!value;
 
-        if (!hasFiles) {
-          this.fileUploadRef?.clear();
-          this.totalUploadedSize = 0;
-        } else {
-          this.updateFileUpload(value);
-        }
-      });
+          if (!hasFiles) {
+            this.fileUploadRef?.clear();
+            this.totalUploadedSize = 0;
+          } else {
+            this.updateFileUpload(value);
+          }
+        });
     }
   }
 
