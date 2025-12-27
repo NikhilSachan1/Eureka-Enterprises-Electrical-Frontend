@@ -1,6 +1,7 @@
 import { Injectable, inject, DestroyRef, signal, Signal } from '@angular/core';
 import { FormBuilder, FormGroup, ValidatorFn } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { merge } from 'rxjs';
 import { InputFieldConfigService } from '@shared/services';
 import {
   IFormConfig,
@@ -9,7 +10,15 @@ import {
   IFormButtonConfig,
   IMultiStepFormConfig,
   IEnhancedMultiStepForm,
+  ITrackedFields,
+  ITrackedForm,
 } from '@shared/types';
+
+export interface ICreateFormOptions {
+  destroyRef: DestroyRef;
+  defaultValues?: Record<string, unknown> | null;
+  context?: Record<string, unknown>;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -20,9 +29,9 @@ export class FormService {
 
   createForm(
     formConfig: IFormConfig,
-    destroyRef: DestroyRef,
-    defaultValues?: Record<string, unknown> | null
+    options: ICreateFormOptions
   ): IEnhancedForm {
+    const { destroyRef, defaultValues, context } = options;
     if (!formConfig?.fields || Object.keys(formConfig.fields).length === 0) {
       return {} as IEnhancedForm;
     }
@@ -34,7 +43,12 @@ export class FormService {
       defaultValues ?? {}
     );
 
-    this.applyConditionalValidators(formGroup, inputFieldsConfigs, destroyRef);
+    this.applyConditionalValidators(
+      formGroup,
+      inputFieldsConfigs,
+      destroyRef,
+      context
+    );
 
     return this.createEnhancedForm(
       formGroup,
@@ -68,11 +82,10 @@ export class FormService {
           fields: stepFields,
         };
 
-        forms[stepName] = this.createForm(
-          stepFormConfig,
+        forms[stepName] = this.createForm(stepFormConfig, {
           destroyRef,
-          stepDefaultValues
-        );
+          defaultValues: stepDefaultValues,
+        });
       }
     );
 
@@ -213,8 +226,7 @@ export class FormService {
     formGroup: FormGroup,
     fieldNames: T[],
     destroyRef: DestroyRef
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): Record<T, Signal<any>> {
+  ): ITrackedFields<T> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const signals = {} as Record<T, Signal<any>>;
 
@@ -226,7 +238,54 @@ export class FormService {
       );
     });
 
-    return signals;
+    // Create enhanced object with getValues method
+    const trackedFields = {
+      ...signals,
+      getValues(): Record<T, unknown> {
+        const values = {} as Record<T, unknown>;
+        fieldNames.forEach(fieldName => {
+          values[fieldName] = signals[fieldName]?.();
+        });
+        return values;
+      },
+    } as ITrackedFields<T>;
+
+    return trackedFields;
+  }
+
+  /**
+   * Tracks formGroup changes (validity, status, dirty, touched) and returns signals
+   * Similar to trackMultipleFieldChanges but for entire formGroup
+   * Use effect() in component to react to signal changes
+   * @param formGroup - The form group to track
+   * @param destroyRef - DestroyRef for automatic cleanup
+   * @returns ITrackedForm with signals for form state
+   */
+  trackFormChanges(formGroup: FormGroup, destroyRef: DestroyRef): ITrackedForm {
+    const isValidSignal = signal<boolean>(formGroup.valid);
+    const isInvalidSignal = signal<boolean>(formGroup.invalid);
+    const isDirtySignal = signal<boolean>(formGroup.dirty);
+    const isTouchedSignal = signal<boolean>(formGroup.touched);
+    const statusSignal = signal<string>(formGroup.status);
+
+    // Track all form changes
+    merge(formGroup.statusChanges, formGroup.valueChanges)
+      .pipe(takeUntilDestroyed(destroyRef))
+      .subscribe(() => {
+        isValidSignal.set(formGroup.valid);
+        isInvalidSignal.set(formGroup.invalid);
+        isDirtySignal.set(formGroup.dirty);
+        isTouchedSignal.set(formGroup.touched);
+        statusSignal.set(formGroup.status);
+      });
+
+    return {
+      isValid: isValidSignal.asReadonly(),
+      isInvalid: isInvalidSignal.asReadonly(),
+      isDirty: isDirtySignal.asReadonly(),
+      isTouched: isTouchedSignal.asReadonly(),
+      status: statusSignal.asReadonly(),
+    };
   }
 
   private createReactiveFormGroup(
@@ -237,8 +296,9 @@ export class FormService {
 
     Object.keys(fieldConfigs).forEach(key => {
       const config = fieldConfigs[key];
+      const fieldName = config.fieldName ?? key;
       const defaultValue = defaultValues?.[key] ?? config.defaultValue ?? null;
-      formControls[key] = [defaultValue, config.validators ?? []];
+      formControls[fieldName] = [defaultValue, config.validators ?? []];
     });
 
     return this.fb.group(formControls);
@@ -247,7 +307,8 @@ export class FormService {
   private applyConditionalValidators(
     formGroup: FormGroup,
     fieldConfigs: Record<string, IInputFieldsConfig>,
-    destroyRef: DestroyRef
+    destroyRef: DestroyRef,
+    context?: Record<string, unknown>
   ): void {
     Object.entries(fieldConfigs).forEach(([fieldName, config]) => {
       // Skip fields without conditional rules.
@@ -270,16 +331,31 @@ export class FormService {
         let shouldResetValue = false;
 
         config.conditionalValidators?.forEach(rule => {
-          const dependencyControl = formGroup.get(rule.dependsOn);
-          const currentValue = dependencyControl?.value;
-          const isActive = rule.shouldApply(currentValue);
+          let currentValue: unknown;
+          let isActive: boolean;
+
+          // Handle field-based rules
+          if (rule.dependsOn) {
+            const dependencyControl = formGroup.get(rule.dependsOn);
+            currentValue = dependencyControl?.value;
+            isActive = rule.shouldApply(currentValue, context);
+          }
+          // Handle pure context rules (no specific field dependency)
+          else if (context) {
+            isActive = rule.shouldApply(context, context);
+          } else {
+            // Skip rules without any dependency
+            return;
+          }
 
           if (isActive) {
             if (rule.validators?.length) {
               extraValidators.push(...rule.validators);
             }
-          } else if (rule.resetOnFalse) {
-            shouldResetValue = true;
+          } else {
+            if (rule.resetOnFalse) {
+              shouldResetValue = true;
+            }
           }
         });
 
@@ -287,19 +363,23 @@ export class FormService {
         control.updateValueAndValidity();
 
         if (shouldResetValue) {
-          control.reset();
+          control.reset(undefined, { emitEvent: false });
         }
       };
 
       runConditionalLogic();
 
+      // Subscribe to changes on field-based dependency fields only
       const dependencyFieldNames = Array.from(
-        new Set(config.conditionalValidators.map(rule => rule.dependsOn))
+        new Set(
+          config.conditionalValidators
+            .filter(rule => rule.dependsOn)
+            .map(rule => rule.dependsOn)
+        )
       );
 
-      // Subscribe to changes on each dependency field.
       dependencyFieldNames.forEach(dependencyName => {
-        const dependencyControl = formGroup.get(dependencyName);
+        const dependencyControl = formGroup.get(dependencyName ?? '');
 
         if (!dependencyControl) {
           return;
@@ -360,10 +440,12 @@ export class FormService {
             return;
           }
 
-          // Only process validators with explicit dependsOnStep
+          // Only process validators with explicit dependsOnStep and dependsOn
           const crossStepRules = config.conditionalValidators.filter(
             rule =>
-              rule.dependsOnStep !== undefined && rule.dependsOnStep !== null
+              rule.dependsOnStep !== undefined &&
+              rule.dependsOnStep !== null &&
+              rule.dependsOn !== undefined
           );
 
           if (crossStepRules.length === 0) {
@@ -382,6 +464,10 @@ export class FormService {
 
             // Process only cross-step conditional validators
             crossStepRules.forEach(rule => {
+              if (!rule.dependsOn) {
+                return;
+              }
+
               const dependencyStepKey = String(rule.dependsOnStep);
               const dependencyForm = forms[dependencyStepKey];
 
@@ -403,8 +489,10 @@ export class FormService {
                 if (rule.validators?.length) {
                   extraValidators.push(...rule.validators);
                 }
-              } else if (rule.resetOnFalse) {
-                shouldResetValue = true;
+              } else {
+                if (rule.resetOnFalse) {
+                  shouldResetValue = true;
+                }
               }
             });
 
@@ -412,7 +500,7 @@ export class FormService {
             control.updateValueAndValidity();
 
             if (shouldResetValue) {
-              control.reset();
+              control.reset(undefined, { emitEvent: false });
             }
           };
 
@@ -421,6 +509,10 @@ export class FormService {
 
           // Subscribe to changes on cross-step dependency fields
           crossStepRules.forEach(rule => {
+            if (!rule.dependsOn) {
+              return;
+            }
+
             const dependencyStepKey = String(rule.dependsOnStep);
             const dependencyForm = forms[dependencyStepKey];
 

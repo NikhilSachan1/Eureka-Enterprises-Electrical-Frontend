@@ -5,7 +5,6 @@ import {
   inject,
   input,
   OnInit,
-  Signal,
   signal,
 } from '@angular/core';
 import { REGULARIZE_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/regularize-attendance.config';
@@ -56,7 +55,7 @@ export class RegularizeAttendanceComponent
 
   protected readonly selectedRecord =
     input.required<IAttendanceGetBaseResponseDto[]>();
-  protected readonly onSuccess = input<() => void>();
+  protected readonly onSuccess = input.required<() => void>();
 
   protected form!: IEnhancedForm;
 
@@ -64,8 +63,6 @@ export class RegularizeAttendanceComponent
   protected readonly initialFormData = signal<Record<string, unknown> | null>(
     null
   );
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected trackFields!: Record<string, Signal<any>>;
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -80,17 +77,10 @@ export class RegularizeAttendanceComponent
     }
 
     this.loadRegularizeAttendanceDataFromSelectedRecord();
-    this.form = this.formService.createForm(
-      REGULARIZE_ATTENDANCE_FORM_CONFIG,
-      this.destroyRef,
-      this.initialFormData()
-    );
-
-    this.trackFields = this.formService.trackMultipleFieldChanges(
-      this.form.formGroup,
-      ['attendanceStatus'],
-      this.destroyRef
-    );
+    this.form = this.formService.createForm(REGULARIZE_ATTENDANCE_FORM_CONFIG, {
+      destroyRef: this.destroyRef,
+      defaultValues: this.initialFormData(),
+    });
   }
 
   private loadRegularizeAttendanceDataFromSelectedRecord(): void {
@@ -188,8 +178,7 @@ export class RegularizeAttendanceComponent
         next: (response: IAttendanceRegularizedResponseDto) => {
           const { message } = response;
           this.notificationService.success(message);
-          const successCallback = this.onSuccess();
-          successCallback?.();
+          this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
         error: () => {
@@ -207,9 +196,5 @@ export class RegularizeAttendanceComponent
       return false;
     }
     return true;
-  }
-
-  protected showClientNameAndLocationFields(): boolean {
-    return this.trackFields['attendanceStatus']() === EAttendanceStatus.PRESENT;
   }
 }

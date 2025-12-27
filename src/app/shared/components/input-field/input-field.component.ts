@@ -127,9 +127,10 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     const config = this.inputFieldConfig();
+    const control = this.formGroup().get(config.fieldName);
 
     if (config.disabledInput) {
-      this.formGroup().controls[config.fieldName].disable();
+      control?.disable();
     }
 
     // Initialize cached validator values once
@@ -140,7 +141,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     }
 
     if (config.fieldType === EDataType.ATTACHMENTS) {
-      const control = this.formGroup().get(config.fieldName);
       control?.valueChanges
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(value => {

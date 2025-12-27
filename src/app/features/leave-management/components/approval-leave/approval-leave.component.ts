@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   input,
@@ -11,8 +12,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LoggerService } from '@core/services';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
-import { getApprovalActionLeaveFormConfig } from '@features/leave-management/config';
+import { APPROVAL_ACTION_LEAVE_FORM_CONFIG } from '@features/leave-management/config';
 import { LeaveService } from '@features/leave-management/services/leave.service';
+import { shouldShowAttendanceStatusField } from '@features/leave-management/utils/leave.util';
 import {
   ILeaveActionRequestDto,
   ILeaveActionResponseDto,
@@ -54,13 +56,21 @@ export class ApprovalLeaveComponent implements OnInit {
 
   protected readonly selectedRecord =
     input.required<ILeaveGetBaseResponseDto[]>();
-  protected readonly dialogActionType = input<EButtonActionType>();
-  protected readonly onSuccess = input<() => void>();
+  protected readonly dialogActionType = input.required<EButtonActionType>();
+  protected readonly onSuccess = input.required<() => void>();
 
   protected form!: IEnhancedForm;
   protected readonly EButtonActionTypeEnum = EButtonActionType;
 
   protected readonly isSubmitting = signal(false);
+
+  protected readonly shouldShowAttendanceStatus = computed(() => {
+    const { fromDate } = this.selectedRecord()[0];
+    return shouldShowAttendanceStatusField(
+      this.dialogActionType(),
+      new Date(fromDate)
+    );
+  });
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -74,14 +84,18 @@ export class ApprovalLeaveComponent implements OnInit {
       return;
     }
 
-    const actionType = this.dialogActionType() as EButtonActionType;
+    const actionType = this.dialogActionType();
     const { fromDate: fromDateString } = record[0];
     const fromDate = new Date(fromDateString);
 
-    this.form = this.formService.createForm(
-      getApprovalActionLeaveFormConfig(actionType, fromDate),
-      this.destroyRef
-    );
+    this.form = this.formService.createForm(APPROVAL_ACTION_LEAVE_FORM_CONFIG, {
+      destroyRef: this.destroyRef,
+      defaultValues: null,
+      context: {
+        actionType,
+        fromDate,
+      },
+    });
   }
 
   onDialogAccept(): void {
@@ -169,8 +183,7 @@ export class ApprovalLeaveComponent implements OnInit {
             result,
           });
 
-          const successCallback = this.onSuccess();
-          successCallback?.();
+          this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
       });

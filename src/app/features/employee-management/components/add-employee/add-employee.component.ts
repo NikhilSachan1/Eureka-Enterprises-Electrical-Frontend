@@ -5,7 +5,6 @@ import {
   OnInit,
   inject,
   computed,
-  Signal,
   DestroyRef,
   effect,
 } from '@angular/core';
@@ -13,7 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
-import { finalize, merge } from 'rxjs';
+import { finalize } from 'rxjs';
 import { StepperComponent } from '@shared/components/stepper/stepper.component';
 import { IStepperConfig } from '@shared/types/stepper/stepper.interface';
 import {
@@ -26,10 +25,14 @@ import {
   NotificationService,
   RouterNavigationService,
 } from '@shared/services';
-import { IPageHeaderConfig, IEnhancedMultiStepForm } from '@shared/types';
+import {
+  IPageHeaderConfig,
+  IEnhancedMultiStepForm,
+  ITrackedFields,
+  ITrackedForm,
+} from '@shared/types';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { INDIA_CITY_DATA } from '@shared/config/static-data.config';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { EnvironmentService, LoggerService } from '@core/services';
 import {
@@ -79,7 +82,8 @@ export class AddEmployeeComponent implements OnInit {
   protected multiStepForm!: IEnhancedMultiStepForm;
   protected currencyFormat = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected trackFields!: Record<string, Signal<any>>;
+  protected trackFields: Record<string, ITrackedFields<any>> = {};
+  protected trackForms: Record<string, ITrackedForm> = {};
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
@@ -97,19 +101,25 @@ export class AddEmployeeComponent implements OnInit {
   protected readonly inHandSalary = signal<number>(0);
   protected readonly totalEmployerBenefits = signal<number>(0);
   protected readonly totalCTC = signal<number>(0);
-  protected readonly foodAllowance = signal<number>(0);
   protected readonly salarySummaryItems = computed(() =>
     this.getSalarySummaryItems()
   );
 
   constructor() {
-    // Effect only reacts to attemptedSteps changes, doesn't create subscriptions
     effect(() => {
-      this.attemptedSteps(); // Track changes
-      // Update validation states when attemptedSteps changes
-      if (this.multiStepForm?.forms) {
-        this.updateValidationStates();
+      const salaryForm = this.trackFields['6'];
+      if (salaryForm) {
+        this.setupSalaryCalculations();
       }
+    });
+
+    effect(() => {
+      this.attemptedSteps();
+      Object.values(this.trackForms).forEach(trackedForm => {
+        trackedForm.isValid();
+        trackedForm.isInvalid();
+      });
+      this.updateValidationStates();
     });
   }
 
@@ -124,48 +134,19 @@ export class AddEmployeeComponent implements OnInit {
       this.initialEmployeeData()
     );
 
-    // Setup form validation subscriptions once after form is created
-    this.setupFormValidationSubscriptions();
-
-    this.trackFields = this.formService.trackMultipleFieldChanges(
-      this.multiStepForm.forms['1'].formGroup,
-      ['state'],
+    this.trackFields['6'] = this.formService.trackMultipleFieldChanges(
+      this.multiStepForm.forms['6'].formGroup,
+      ['esicContribution', 'pfContribution', 'tds', 'basicSalary', 'hra'],
       this.destroyRef
     );
 
-    const stateValue =
-      this.multiStepForm.forms['1'].formGroup.get('state')?.value;
-    if (stateValue) {
-      this.onStateChange();
-    }
-
-    this.setupSalaryCalculations();
-
-    this.multiStepForm.forms['6'].formGroup.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.setupSalaryCalculations();
-      });
-  }
-
-  private setupFormValidationSubscriptions(): void {
-    if (!this.multiStepForm?.forms) {
-      return;
-    }
-
-    // Setup subscriptions once for all form groups
     Object.keys(this.multiStepForm.forms).forEach(stepKey => {
       const { formGroup } = this.multiStepForm.forms[stepKey];
-
-      merge(formGroup.statusChanges, formGroup.valueChanges)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          this.updateValidationStates();
-        });
+      this.trackForms[stepKey] = this.formService.trackFormChanges(
+        formGroup,
+        this.destroyRef
+      );
     });
-
-    // Initial validation state update
-    this.updateValidationStates();
   }
 
   private loadEmployeeDataFromRoute(): void {
@@ -203,11 +184,11 @@ export class AddEmployeeComponent implements OnInit {
     this.markAllStepsAsAttempted();
 
     if (this.isSubmitting() || !this.validateForm()) {
-      const steErrors = Object.keys(this.stepErrors()).filter(
+      const stepErrors = Object.keys(this.stepErrors()).filter(
         key => this.stepErrors()[Number(key)]
       );
-      if (steErrors.length > 0) {
-        this.activeStep.set(Number(steErrors[0]));
+      if (stepErrors.length > 0) {
+        this.activeStep.set(Number(stepErrors[0]));
       }
 
       return;
@@ -411,54 +392,39 @@ export class AddEmployeeComponent implements OnInit {
       });
   }
 
-  protected onStateChange(): void {
-    const selectedState = this.trackFields['state']();
-    const cities = selectedState ? (INDIA_CITY_DATA[selectedState] ?? []) : [];
-    const { selectConfig } =
-      this.multiStepForm.forms['1'].fieldConfigs['city'] ?? {};
-    if (selectConfig) {
-      selectConfig.optionsDropdown = cities;
-    }
-  }
-
   private setupSalaryCalculations(): void {
-    const salaryForm = this.multiStepForm.forms['6'];
-    if (!salaryForm) {
+    const salaryForm = this.trackFields['6'];
+    if (!salaryForm?.getValues) {
       return;
     }
 
-    const updateCalculations = (): void => {
-      const {
-        esicContribution,
-        pfContribution,
-        tds,
-        basicSalary,
-        hra,
-        foodAllowance,
-      } = salaryForm.formGroup.value;
-      const employeePF = parseFloat(pfContribution) || 0;
-      const employerPF = employeePF;
-      const employerESIC = parseFloat(esicContribution) || 0;
-      const tdsValue = parseFloat(tds) || 0;
-      const basicValue = parseFloat(basicSalary) || 0;
-      const hraValue = parseFloat(hra) || 0;
-      const foodAllowanceValue = parseFloat(foodAllowance) || 0;
+    const { esicContribution, pfContribution, tds, basicSalary, hra } =
+      salaryForm.getValues() as {
+        esicContribution: string;
+        pfContribution: string;
+        tds: string;
+        basicSalary: string;
+        hra: string;
+      };
 
-      const gross = basicValue + hraValue;
-      const deductions = tdsValue + employeePF;
-      const totalEmployerBenefits = employerPF + employerESIC;
-      const ctc = gross + totalEmployerBenefits;
-      const inHandSalary = gross - deductions;
+    const employeePF = parseFloat(pfContribution) || 0;
+    const employerPF = employeePF;
+    const employerESIC = parseFloat(esicContribution) || 0;
+    const tdsValue = parseFloat(tds) || 0;
+    const basicValue = parseFloat(basicSalary) || 0;
+    const hraValue = parseFloat(hra) || 0;
 
-      this.grossSalary.set(gross);
-      this.totalDeductions.set(deductions);
-      this.inHandSalary.set(inHandSalary);
-      this.totalEmployerBenefits.set(totalEmployerBenefits);
-      this.totalCTC.set(ctc);
-      this.foodAllowance.set(foodAllowanceValue);
-    };
+    const gross = basicValue + hraValue;
+    const deductions = tdsValue + employeePF;
+    const totalEmployerBenefits = employerPF + employerESIC;
+    const ctc = gross + totalEmployerBenefits;
+    const inHandSalary = gross - deductions;
 
-    updateCalculations();
+    this.grossSalary.set(gross);
+    this.totalDeductions.set(deductions);
+    this.inHandSalary.set(inHandSalary);
+    this.totalEmployerBenefits.set(totalEmployerBenefits);
+    this.totalCTC.set(ctc);
   }
 
   private getSalarySummaryItems(): IEmployeeSalarySummaryItem[] {
@@ -529,18 +495,14 @@ export class AddEmployeeComponent implements OnInit {
     const valid: Record<number, boolean> = {};
     const attempted = this.attemptedSteps();
 
-    if (this.multiStepForm?.forms) {
-      Object.keys(this.multiStepForm.forms).forEach(stepKey => {
-        const stepNumber = Number(stepKey);
-        if (!isNaN(stepNumber)) {
-          const { formGroup } = this.multiStepForm.forms[stepKey];
-          if (attempted.has(stepNumber)) {
-            errors[stepNumber] = formGroup.invalid;
-            valid[stepNumber] = formGroup.valid;
-          }
-        }
-      });
-    }
+    Object.keys(this.trackForms).forEach(stepKey => {
+      const stepNumber = Number(stepKey);
+      if (!isNaN(stepNumber) && attempted.has(stepNumber)) {
+        const trackedForm = this.trackForms[stepKey];
+        errors[stepNumber] = trackedForm.isInvalid();
+        valid[stepNumber] = trackedForm.isValid();
+      }
+    });
 
     this.stepErrors.set(errors);
     this.stepValid.set(valid);

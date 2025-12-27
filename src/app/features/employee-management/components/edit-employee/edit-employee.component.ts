@@ -22,14 +22,14 @@ import {
   IEnhancedMultiStepForm,
   IPageHeaderConfig,
   IStepperConfig,
+  ITrackedForm,
 } from '@shared/types';
-import { finalize, merge } from 'rxjs';
+import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   EDIT_EMPLOYEE_FORM_CONFIG,
   EDIT_EMPLOYEE_STEPPER_CONFIG,
 } from '@features/employee-management/configs';
-import { INDIA_CITY_DATA } from '@shared/config/static-data.config';
 import { IEmployeeEditRequestDto } from '@features/employee-management/types/employee.dto';
 import {
   FORM_VALIDATION_MESSAGES,
@@ -71,6 +71,7 @@ export class EditEmployeeComponent implements OnInit {
   protected multiStepForm!: IEnhancedMultiStepForm;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected trackFields!: Record<string, Signal<any>>;
+  protected trackForms: Record<string, ITrackedForm> = {};
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
@@ -84,13 +85,13 @@ export class EditEmployeeComponent implements OnInit {
   private readonly attemptedSteps = signal<Set<number>>(new Set());
 
   constructor() {
-    // Effect only reacts to attemptedSteps changes, doesn't create subscriptions
     effect(() => {
-      this.attemptedSteps(); // Track changes
-      // Update validation states when attemptedSteps changes
-      if (this.multiStepForm?.forms) {
-        this.updateValidationStates();
-      }
+      this.attemptedSteps();
+      Object.values(this.trackForms).forEach(trackedForm => {
+        trackedForm.isValid();
+        trackedForm.isInvalid();
+      });
+      this.updateValidationStates();
     });
   }
 
@@ -104,40 +105,13 @@ export class EditEmployeeComponent implements OnInit {
       this.initialEmployeeData()
     );
 
-    // Setup form validation subscriptions once after form is created
-    this.setupFormValidationSubscriptions();
-
-    this.trackFields = this.formService.trackMultipleFieldChanges(
-      this.multiStepForm.forms['1'].formGroup,
-      ['state'],
-      this.destroyRef
-    );
-
-    const stateValue =
-      this.multiStepForm.forms['1'].formGroup.get('state')?.value;
-    if (stateValue) {
-      this.onStateChange();
-    }
-  }
-
-  private setupFormValidationSubscriptions(): void {
-    if (!this.multiStepForm?.forms) {
-      return;
-    }
-
-    // Setup subscriptions once for all form groups
     Object.keys(this.multiStepForm.forms).forEach(stepKey => {
       const { formGroup } = this.multiStepForm.forms[stepKey];
-
-      merge(formGroup.statusChanges, formGroup.valueChanges)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          this.updateValidationStates();
-        });
+      this.trackForms[stepKey] = this.formService.trackFormChanges(
+        formGroup,
+        this.destroyRef
+      );
     });
-
-    // Initial validation state update
-    this.updateValidationStates();
   }
 
   private loadEmployeeDataFromRoute(): void {
@@ -256,11 +230,11 @@ export class EditEmployeeComponent implements OnInit {
     this.markAllStepsAsAttempted();
 
     if (this.isSubmitting() || !this.validateForm()) {
-      const steErrors = Object.keys(this.stepErrors()).filter(
+      const stepErrors = Object.keys(this.stepErrors()).filter(
         key => this.stepErrors()[Number(key)]
       );
-      if (steErrors.length > 0) {
-        this.activeStep.set(Number(steErrors[0]));
+      if (stepErrors.length > 0) {
+        this.activeStep.set(Number(stepErrors[0]));
       }
 
       return;
@@ -451,16 +425,6 @@ export class EditEmployeeComponent implements OnInit {
       });
   }
 
-  protected onStateChange(): void {
-    const selectedState = this.trackFields['state']();
-    const cities = selectedState ? (INDIA_CITY_DATA[selectedState] ?? []) : [];
-    const { selectConfig } =
-      this.multiStepForm.forms['1'].fieldConfigs['city'] ?? {};
-    if (selectConfig) {
-      selectConfig.optionsDropdown = cities;
-    }
-  }
-
   protected onStepperNextRequested(): void {
     const currentStep = this.activeStep();
     const totalSteps = this.stepperConfig.steps.length;
@@ -504,18 +468,14 @@ export class EditEmployeeComponent implements OnInit {
     const valid: Record<number, boolean> = {};
     const attempted = this.attemptedSteps();
 
-    if (this.multiStepForm?.forms) {
-      Object.keys(this.multiStepForm.forms).forEach(stepKey => {
-        const stepNumber = Number(stepKey);
-        if (!isNaN(stepNumber)) {
-          const { formGroup } = this.multiStepForm.forms[stepKey];
-          if (attempted.has(stepNumber)) {
-            errors[stepNumber] = formGroup.invalid;
-            valid[stepNumber] = formGroup.valid;
-          }
-        }
-      });
-    }
+    Object.keys(this.trackForms).forEach(stepKey => {
+      const stepNumber = Number(stepKey);
+      if (!isNaN(stepNumber) && attempted.has(stepNumber)) {
+        const trackedForm = this.trackForms[stepKey];
+        errors[stepNumber] = trackedForm.isInvalid();
+        valid[stepNumber] = trackedForm.isValid();
+      }
+    });
 
     this.stepErrors.set(errors);
     this.stepValid.set(valid);

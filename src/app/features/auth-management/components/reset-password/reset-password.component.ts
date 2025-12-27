@@ -48,7 +48,9 @@ export class ResetPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.formService.createForm(
       RESET_PASSWORD_INPUT_FIELDS_CONFIG,
-      this.destroyRef
+      {
+        destroyRef: this.destroyRef,
+      }
     );
   }
 

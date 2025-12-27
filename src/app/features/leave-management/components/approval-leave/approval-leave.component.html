@@ -7,7 +7,7 @@
     [inputFieldConfig]="form.fieldConfigs['comment']"
   />
 
-  @if (dialogActionType() === EButtonActionTypeEnum.REJECT && form.fieldConfigs['attendanceStatus']) {
+  @if (shouldShowAttendanceStatus()) {
     <app-input-field
       [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs['attendanceStatus']"

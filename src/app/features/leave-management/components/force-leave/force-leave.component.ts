@@ -58,10 +58,9 @@ export class ForceLeaveComponent implements OnInit {
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(
-      FORCE_LEAVE_FORM_CONFIG,
-      this.destroyRef
-    );
+    this.form = this.formService.createForm(FORCE_LEAVE_FORM_CONFIG, {
+      destroyRef: this.destroyRef,
+    });
   }
 
   protected onSubmit(): void {

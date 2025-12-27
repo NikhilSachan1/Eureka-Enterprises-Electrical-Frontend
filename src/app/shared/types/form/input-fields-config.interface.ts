@@ -189,9 +189,10 @@ export interface CheckboxEventLike {
 }
 
 export interface IConditionalValidator {
-  dependsOn: string;
+  dependsOn?: string;
   validators: ValidatorFn[];
-  shouldApply: (value: unknown) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  shouldApply: (value: any, context?: Record<string, unknown>) => boolean;
   resetOnFalse?: boolean;
   dependsOnStep?: string | number;
 }

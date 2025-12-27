@@ -1,4 +1,5 @@
 import type { FormGroup } from '@angular/forms';
+import type { Signal } from '@angular/core';
 import { IInputFieldsConfig } from '@shared/types/form/input-fields-config.interface';
 import { IButtonConfig } from '@shared/types/button/button.interface';
 
@@ -55,4 +56,17 @@ export interface IEnhancedForm {
   getData(): Record<string, unknown>;
   getRawData(): Record<string, unknown>;
   getFieldData(fieldName: string): unknown;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ITrackedFields<T extends string> = Record<T, Signal<any>> & {
+  getValues(): Record<T, unknown>;
+};
+
+export interface ITrackedForm {
+  isValid: Signal<boolean>;
+  isInvalid: Signal<boolean>;
+  isDirty: Signal<boolean>;
+  isTouched: Signal<boolean>;
+  status: Signal<string>;
 }

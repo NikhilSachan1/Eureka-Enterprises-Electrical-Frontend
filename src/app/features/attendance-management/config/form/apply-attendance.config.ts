@@ -43,7 +43,17 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     selectConfig: {
       optionsDropdown: EMPLOYEE_NAME_DATA,
     },
-    validators: [Validators.required],
+    validators: [],
+    conditionalValidators: [
+      {
+        shouldApply: (context): boolean => {
+          const { isDriver } = context;
+          return isDriver === true;
+        },
+        validators: [Validators.required],
+        resetOnFalse: true,
+      },
+    ],
   },
   associatedVehicle: {
     fieldType: EDataType.SELECT,
@@ -72,28 +82,4 @@ const APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
 export const APPLY_ATTENDANCE_FORM_CONFIG: IFormConfig = {
   fields: APPLY_ATTENDANCE_FORM_FIELDS_CONFIG,
   buttons: APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG,
-};
-
-export const getApplyAttendanceFormConfig = (
-  isDriver: boolean
-): IFormConfig => {
-  const baseAssociateEmployeeConfig =
-    APPLY_ATTENDANCE_FORM_FIELDS_CONFIG['associateEngineerName'];
-
-  const fields: IFormInputFieldsConfig = {
-    ...APPLY_ATTENDANCE_FORM_FIELDS_CONFIG,
-    associateEmployeeName: isDriver
-      ? {
-          ...baseAssociateEmployeeConfig,
-        }
-      : {
-          ...baseAssociateEmployeeConfig,
-          validators: [],
-        },
-  };
-
-  return {
-    fields,
-    buttons: APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG,
-  };
 };

@@ -70,6 +70,8 @@ export type {
   IMultiStepFormConfig,
   IEnhancedMultiStepForm,
   IEnhancedForm,
+  ITrackedFields,
+  ITrackedForm,
 } from './form/form.interface';
 export type {
   IInputFieldsConfig,

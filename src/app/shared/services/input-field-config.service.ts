@@ -64,7 +64,8 @@ export class InputFieldConfigService {
     const configs: Record<string, IInputFieldsConfig> = {};
     Object.keys(formInputFieldsConfig).forEach(key => {
       const fieldConfig = formInputFieldsConfig[key];
-      configs[fieldConfig.fieldName ?? key] = this.getInputFieldConfig(
+      const fieldName = fieldConfig.fieldName ?? key;
+      configs[fieldName] = this.getInputFieldConfig(
         fieldConfig.fieldType as EDataType,
         fieldConfig
       );

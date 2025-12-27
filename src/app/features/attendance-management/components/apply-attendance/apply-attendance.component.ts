@@ -44,7 +44,7 @@ import {
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { EApplyAttendanceAction } from '@features/attendance-management/types/attendance.enum';
-import { getApplyAttendanceFormConfig } from '@features/attendance-management/config/form/apply-attendance.config';
+import { APPLY_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/apply-attendance.config';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -103,11 +103,13 @@ export class ApplyAttendanceComponent implements OnInit {
       (currentUser?.designation ?? '').toLowerCase() === 'driver'; // TODO: Remove this static driver field use enum for user role
 
     this.loadCurrentStatusDataFromRoute();
-    this.form = this.formService.createForm(
-      getApplyAttendanceFormConfig(isDriverUser),
-      this.destroyRef,
-      this.initialAttendanceData()
-    );
+    this.form = this.formService.createForm(APPLY_ATTENDANCE_FORM_CONFIG, {
+      destroyRef: this.destroyRef,
+      defaultValues: this.initialAttendanceData(),
+      context: {
+        isDriver: isDriverUser,
+      },
+    });
   }
 
   private loadCurrentStatusDataFromRoute(): void {

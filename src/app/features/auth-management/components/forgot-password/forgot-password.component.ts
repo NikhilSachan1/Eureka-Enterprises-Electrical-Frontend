@@ -48,7 +48,9 @@ export class ForgotPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.formService.createForm(
       FORGOT_PASSWORD_INPUT_FIELDS_CONFIG,
-      this.destroyRef
+      {
+        destroyRef: this.destroyRef,
+      }
     );
   }
 

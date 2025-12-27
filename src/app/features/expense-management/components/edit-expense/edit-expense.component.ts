@@ -66,11 +66,10 @@ export class EditExpenseComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadExpenseDataFromRoute();
-    this.form = this.formService.createForm(
-      EDIT_EXPENSE_FORM_CONFIG,
-      this.destroyRef,
-      this.initialExpenseData()
-    );
+    this.form = this.formService.createForm(EDIT_EXPENSE_FORM_CONFIG, {
+      destroyRef: this.destroyRef,
+      defaultValues: this.initialExpenseData(),
+    });
   }
 
   private loadExpenseDataFromRoute(): void {

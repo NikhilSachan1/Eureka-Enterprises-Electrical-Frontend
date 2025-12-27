@@ -46,8 +46,9 @@ export class SearchFilterComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.formService.createForm(
       this.searchFilterConfig() as unknown as IFormConfig,
-      this.destroyRef,
-      null
+      {
+        destroyRef: this.destroyRef,
+      }
     );
   }
 

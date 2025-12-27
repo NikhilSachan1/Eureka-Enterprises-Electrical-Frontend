@@ -1,10 +1,7 @@
 export { LEAVE_ACTION_CONFIG_MAP } from './dialog/get-leave.config';
 export { APPLY_LEAVE_FORM_CONFIG } from './form/apply-leave.config';
 export { FORCE_LEAVE_FORM_CONFIG } from './form/force-leave.config';
-export {
-  APPROVAL_ACTION_LEAVE_FORM_CONFIG,
-  getApprovalActionLeaveFormConfig,
-} from './form/approval-action-leave.config';
+export { APPROVAL_ACTION_LEAVE_FORM_CONFIG } from './form/approval-action-leave.config';
 export {
   LEAVE_TABLE_CONFIG,
   LEAVE_TABLE_HEADER_CONFIG,

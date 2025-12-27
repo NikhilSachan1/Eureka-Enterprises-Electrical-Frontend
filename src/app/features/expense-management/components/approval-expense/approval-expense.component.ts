@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services';
-import { getApprovalActionExpenseFormConfig } from '@features/expense-management/config/form/approval-action-expense.config';
+import { APPROVAL_ACTION_EXPENSE_FORM_CONFIG } from '@features/expense-management/config/form/approval-action-expense.config';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import {
   IExpenseActionRequestDto,
@@ -54,8 +54,8 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
 
   protected readonly selectedRecord =
     input.required<IExpenseGetBaseResponseDto[]>();
-  protected readonly dialogActionType = input<EButtonActionType>();
-  protected readonly onSuccess = input<() => void>();
+  protected readonly dialogActionType = input.required<EButtonActionType>();
+  protected readonly onSuccess = input.required<() => void>();
 
   protected form!: IEnhancedForm;
   protected readonly EButtonActionTypeEnum = EButtonActionType;
@@ -74,10 +74,16 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
       return;
     }
 
-    const actionType = this.dialogActionType() as EButtonActionType;
+    const actionType = this.dialogActionType();
     this.form = this.formService.createForm(
-      getApprovalActionExpenseFormConfig(actionType),
-      this.destroyRef
+      APPROVAL_ACTION_EXPENSE_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+        defaultValues: null,
+        context: {
+          actionType,
+        },
+      }
     );
   }
 
@@ -159,8 +165,7 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
             result,
           });
 
-          const successCallback = this.onSuccess();
-          successCallback?.();
+          this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
       });

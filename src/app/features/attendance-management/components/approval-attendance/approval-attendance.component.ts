@@ -7,7 +7,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { getApprovalActionAttendanceFormConfig } from '@features/attendance-management/config/form/approval-action-attendance.config';
+import { APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/approval-action-attendance.config';
 import {
   IEnhancedForm,
   EButtonActionType,
@@ -56,8 +56,8 @@ export class ApprovalAttendanceComponent
 
   protected readonly selectedRecord =
     input.required<IAttendanceGetBaseResponseDto[]>();
-  protected readonly dialogActionType = input<EButtonActionType>();
-  protected readonly onSuccess = input<() => void>();
+  protected readonly dialogActionType = input.required<EButtonActionType>();
+  protected readonly onSuccess = input.required<() => void>();
 
   protected form!: IEnhancedForm;
   protected readonly EButtonActionTypeEnum = EButtonActionType;
@@ -76,10 +76,16 @@ export class ApprovalAttendanceComponent
       return;
     }
 
-    const actionType = this.dialogActionType() as EButtonActionType;
+    const actionType = this.dialogActionType();
     this.form = this.formService.createForm(
-      getApprovalActionAttendanceFormConfig(actionType),
-      this.destroyRef
+      APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+        defaultValues: null,
+        context: {
+          actionType,
+        },
+      }
     );
   }
 
@@ -161,8 +167,7 @@ export class ApprovalAttendanceComponent
             result,
           });
 
-          const successCallback = this.onSuccess();
-          successCallback?.();
+          this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
       });
