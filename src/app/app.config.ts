@@ -29,8 +29,9 @@ import { AppPermissionService, TimezoneService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { APP_CONFIG } from '@core/config';
-import { lastValueFrom, tap } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { FinancialYearService } from '@core/services/financial-year.service';
+import { AppConfiguarionService } from '@shared/services';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -94,30 +95,27 @@ export const appConfig: ApplicationConfig = {
       const userPermissionService = inject(UserPermissionService);
       const financialYearService = inject(FinancialYearService);
       const appPermissionService = inject(AppPermissionService);
+      const appConfiguarionService = inject(AppConfiguarionService);
 
       const financialYear = financialYearService.getFinancialYear();
       financialYearService.setFinancialYear(financialYear);
       timezoneService.getTimezone();
 
-      if (authService.isAuthenticated()) {
-        appPermissionService.setUIPermissions();
-        if (APP_CONFIG.USER_PERMISSION_CONFIG.wantPeriodicRefresh) {
-          return lastValueFrom(
-            userPermissionService.fetchAndStoreLoggedInUserPermissions().pipe(
-              tap(() => {
-                if (APP_CONFIG.USER_PERMISSION_CONFIG.wantPeriodicRefresh) {
-                  userPermissionService.startPeriodicRefresh();
-                }
-              })
-            )
-          );
-        }
-        return lastValueFrom(
-          userPermissionService.fetchAndStoreLoggedInUserPermissions()
-        );
+      if (!authService.isAuthenticated()) {
+        return Promise.resolve();
       }
 
-      return Promise.resolve();
+      appPermissionService.setUIPermissions();
+
+      if (APP_CONFIG.USER_PERMISSION_CONFIG.wantPeriodicRefresh) {
+        userPermissionService.startPeriodicRefresh();
+      }
+
+      const blockingTasks: Promise<unknown>[] = [
+        lastValueFrom(appConfiguarionService.getAppConfiguation()),
+      ];
+
+      return Promise.all(blockingTasks);
     }),
   ],
 };

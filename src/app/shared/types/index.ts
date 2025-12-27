@@ -145,3 +145,7 @@ export type {
   IStepperStepConfig,
   IStepperPanelConfig,
 } from './stepper/stepper.interface';
+export type {
+  IAppConfiguationRequestDto,
+  IAppConfiguationResponseDto,
+} from './app-configuartion/app-configuarion.dto';
