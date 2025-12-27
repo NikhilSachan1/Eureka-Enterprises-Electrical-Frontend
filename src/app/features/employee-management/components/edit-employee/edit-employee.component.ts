@@ -504,8 +504,8 @@ export class EditEmployeeComponent implements OnInit {
 
   protected onReset(): void {
     try {
-      this.logger.logUserAction('Reset Add Employee Form');
-      this.multiStepForm.reset();
+      this.logger.logUserAction('Reset Edit Employee Form');
+      this.multiStepForm.reset(this.initialEmployeeData() ?? {});
     } catch (error) {
       this.logger.error('Error resetting form', error);
     }
@@ -514,10 +514,11 @@ export class EditEmployeeComponent implements OnInit {
   private onResetParticularForm(): void {
     try {
       this.logger.logUserAction(
-        `Reset Add Employee Form for step ${this.activeStep()}`
+        `Reset Edit Employee Form for step ${this.activeStep()}`
       );
       const form = this.multiStepForm.forms[this.activeStep()];
-      form.reset();
+      const initialData = this.initialEmployeeData()?.[this.activeStep()];
+      form.reset(initialData);
     } catch (error) {
       this.logger.error(
         `Error resetting form for step ${this.activeStep()}`,

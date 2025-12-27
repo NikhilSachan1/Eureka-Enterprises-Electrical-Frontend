@@ -28,7 +28,7 @@ export interface IEnhancedMultiStepForm {
   isDirty(): boolean;
   isTouched(): boolean;
   markTouched(): void;
-  reset(): void;
+  reset(value?: Record<string, Record<string, unknown>>): void;
   disable(): void;
   enable(): void;
   validateAndMarkTouched(): boolean;

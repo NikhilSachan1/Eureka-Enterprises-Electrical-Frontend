@@ -128,8 +128,19 @@ export class FormService {
     Object.values(forms).forEach(form => form.markTouched());
   }
 
-  private resetMultiStepForm(forms: Record<string, IEnhancedForm>): void {
-    Object.values(forms).forEach(form => form.reset());
+  private resetMultiStepForm(
+    forms: Record<string, IEnhancedForm>,
+    value?: Record<string, Record<string, unknown>>
+  ): void {
+    if (value) {
+      Object.keys(forms).forEach(stepKey => {
+        const form = forms[stepKey];
+        const stepValue = value[stepKey];
+        form.reset(stepValue);
+      });
+    } else {
+      Object.values(forms).forEach(form => form.reset());
+    }
   }
 
   private disableMultiStepForm(forms: Record<string, IEnhancedForm>): void {
@@ -579,7 +590,8 @@ export class FormService {
       isDirty: () => this.isMultiStepFormDirty(forms), // true if any form has been modified.
       isTouched: () => this.isMultiStepFormTouched(forms), // true if any form has been touched.
       markTouched: () => this.markMultiStepFormTouched(forms), // Force all forms to act like the user touched everything.
-      reset: () => this.resetMultiStepForm(forms), // Reset all forms.
+      reset: (value?: Record<string, Record<string, unknown>>) =>
+        this.resetMultiStepForm(forms, value), // Reset all forms.
       disable: () => this.disableMultiStepForm(forms), // Disable all forms.
       enable: () => this.enableMultiStepForm(forms), // Enable all forms.
       validateAndMarkTouched: () =>
