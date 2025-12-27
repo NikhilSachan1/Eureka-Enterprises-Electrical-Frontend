@@ -11,7 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AppConfigService } from '@core/services/app-config.service';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService, EnvironmentService } from '@core/services';
 import { REIMBURSE_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import { IExpenseReimburseRequestDto } from '@features/expense-management/types/expense.dto';
@@ -30,6 +30,7 @@ import { RouterNavigationService } from '@shared/services/router-navigation.serv
 import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
 import { transformDateFormat } from '@shared/utility';
 import { finalize } from 'rxjs';
+import { REIMBURSE_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/reimburse-expense.mock-data';
 
 @Component({
   selector: 'app-reimburse-expense',
@@ -54,15 +55,22 @@ export class ReimburseExpenseComponent implements OnInit {
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly datePipe = inject(DatePipe);
   private readonly appConfigService = inject(AppConfigService);
+  private readonly environmentService = inject(EnvironmentService);
 
   protected form!: IEnhancedForm;
+  protected readonly initialExpenseData = signal<Record<
+    string,
+    unknown
+  > | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
+    this.loadMockData();
     this.form = this.formService.createForm(REIMBURSE_EXPENSE_FORM_CONFIG, {
       destroyRef: this.destroyRef,
+      defaultValues: this.initialExpenseData(),
     });
   }
 
@@ -163,5 +171,11 @@ export class ReimburseExpenseComponent implements OnInit {
       title: 'Reimburse Expense',
       subtitle: 'Reimburse approved expenses to employees',
     };
+  }
+
+  private loadMockData(): void {
+    if (this.environmentService.isTestDataEnabled) {
+      this.initialExpenseData.set(REIMBURSE_EXPENSE_PREFILLED_DATA);
+    }
   }
 }
