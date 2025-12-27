@@ -18,7 +18,7 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ReactiveFormsModule } from '@angular/forms';
 import { ADD_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
 import { ButtonComponent } from '@shared/components/button/button.component';
-import { LoggerService } from '@core/services';
+import { LoggerService, EnvironmentService } from '@core/services';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import { IExpenseAddRequestDto } from '@features/expense-management/types/expense.dto';
 import { finalize } from 'rxjs/operators';
@@ -30,6 +30,7 @@ import {
 } from '@shared/constants';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { transformDateFormat } from '@shared/utility';
+import { ADD_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/add-expense.mock-data';
 
 @Component({
   selector: 'app-add-expense',
@@ -51,15 +52,22 @@ export class AddExpenseComponent implements OnInit {
   private readonly expenseService = inject(ExpenseService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly environmentService = inject(EnvironmentService);
 
   protected form!: IEnhancedForm;
+  protected readonly initialExpenseData = signal<Record<
+    string,
+    unknown
+  > | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
+    this.loadMockData();
     this.form = this.formService.createForm(ADD_EXPENSE_FORM_CONFIG, {
       destroyRef: this.destroyRef,
+      defaultValues: this.initialExpenseData(),
     });
   }
 
@@ -160,5 +168,11 @@ export class AddExpenseComponent implements OnInit {
       title: 'Add Expense',
       subtitle: 'Add a new expense',
     };
+  }
+
+  private loadMockData(): void {
+    if (this.environmentService.isTestDataEnabled) {
+      this.initialExpenseData.set(ADD_EXPENSE_PREFILLED_DATA);
+    }
   }
 }

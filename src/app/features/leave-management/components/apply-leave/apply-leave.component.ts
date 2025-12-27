@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { LoggerService } from '@core/services';
+import { LoggerService, EnvironmentService } from '@core/services';
 import { APPLY_LEAVE_FORM_CONFIG } from '@features/leave-management/config';
 import { LeaveService } from '@features/leave-management/services/leave.service';
 import { ILeaveApplyRequestDto } from '@features/leave-management/types/leave.dto';
@@ -30,6 +30,7 @@ import {
 import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
 import { transformDateFormat } from '@shared/utility';
 import { finalize } from 'rxjs';
+import { APPLY_LEAVE_PREFILLED_DATA } from '@shared/mock-data/apply-leave.mock-data';
 
 @Component({
   selector: 'app-apply-leave',
@@ -51,15 +52,21 @@ export class ApplyLeaveComponent implements OnInit {
   private readonly leaveService = inject(LeaveService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly environmentService = inject(EnvironmentService);
 
   protected form!: IEnhancedForm;
+  protected readonly initialLeaveData = signal<Record<string, unknown> | null>(
+    null
+  );
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
+    this.loadMockData();
     this.form = this.formService.createForm(APPLY_LEAVE_FORM_CONFIG, {
       destroyRef: this.destroyRef,
+      defaultValues: this.initialLeaveData(),
     });
   }
 
@@ -141,5 +148,11 @@ export class ApplyLeaveComponent implements OnInit {
       subtitle: 'Apply for a new leave',
       showHeaderButton: false,
     };
+  }
+
+  private loadMockData(): void {
+    if (this.environmentService.isTestDataEnabled) {
+      this.initialLeaveData.set(APPLY_LEAVE_PREFILLED_DATA);
+    }
   }
 }

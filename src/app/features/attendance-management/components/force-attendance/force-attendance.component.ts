@@ -7,7 +7,11 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import { LoggerService, TimezoneService } from '@core/services';
+import {
+  LoggerService,
+  TimezoneService,
+  EnvironmentService,
+} from '@core/services';
 import { AttendanceService } from '../../services/attendance.service';
 import {
   FormService,
@@ -30,6 +34,8 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+import { FORCE_ATTENDANCE_PREFILLED_DATA } from '@shared/mock-data/force-attendance.mock-data';
+import { transformDateFormat } from '@shared/utility';
 
 @Component({
   selector: 'app-force-attendance',
@@ -52,15 +58,22 @@ export class ForceAttendanceComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly timezoneServive = inject(TimezoneService);
+  private readonly environmentService = inject(EnvironmentService);
 
   protected form!: IEnhancedForm;
+  protected readonly initialAttendanceData = signal<Record<
+    string,
+    unknown
+  > | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
+    this.loadMockData();
     this.form = this.formService.createForm(FORCE_ATTENDANCE_FORM_CONFIG, {
       destroyRef: this.destroyRef,
+      defaultValues: this.initialAttendanceData(),
     });
   }
 
@@ -82,7 +95,7 @@ export class ForceAttendanceComponent implements OnInit {
       attendanceStatus,
       employeeName,
     } = this.form.getData() as {
-      date: string;
+      date: Date;
       forceReason: string;
       clientName: string;
       location: string;
@@ -92,7 +105,7 @@ export class ForceAttendanceComponent implements OnInit {
 
     return {
       userIds: employeeName,
-      attendanceDate: date,
+      attendanceDate: transformDateFormat(date),
       notes: `${location} - ${clientName}`,
       reason: forceReason,
       timezone: this.timezoneServive.timezone,
@@ -158,5 +171,11 @@ export class ForceAttendanceComponent implements OnInit {
       title: 'Force Attendance',
       subtitle: 'Force attendance on behalf of an employee',
     };
+  }
+
+  private loadMockData(): void {
+    if (this.environmentService.isTestDataEnabled) {
+      this.initialAttendanceData.set(FORCE_ATTENDANCE_PREFILLED_DATA);
+    }
   }
 }

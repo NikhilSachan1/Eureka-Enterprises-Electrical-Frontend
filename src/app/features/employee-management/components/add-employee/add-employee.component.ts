@@ -125,7 +125,7 @@ export class AddEmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEmployeeDataFromRoute();
-    this.loadTestData();
+    this.loadMockData();
 
     this.stepperConfig = ADD_EMPLOYEE_STEPPER_CONFIG;
     this.multiStepForm = this.formService.createMultiStepForm(
@@ -560,7 +560,7 @@ export class AddEmployeeComponent implements OnInit {
     };
   }
 
-  private loadTestData(): void {
+  private loadMockData(): void {
     if (this.environmentService.isTestDataEnabled) {
       this.initialEmployeeData.update(existingData => ({
         ...ADD_EMPLOYEE_PREFILLED_DATA,

@@ -12,6 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AppConfigService } from '@core/services/app-config.service';
 import { LoggerService } from '@core/services/logger.service';
+import { EnvironmentService } from '@core/services';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 import {
   IAttendanceApplyRequestDto,
@@ -48,6 +49,7 @@ import { APPLY_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/co
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { APPLY_ATTENDANCE_PREFILLED_DATA } from '@shared/mock-data/apply-attendance.mock-data';
 
 @Component({
   selector: 'app-apply-attendance',
@@ -68,6 +70,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class ApplyAttendanceComponent implements OnInit {
   private readonly formService = inject(FormService);
   private readonly authService = inject(AuthService);
+  private readonly environmentService = inject(EnvironmentService);
   protected readonly appConfig = inject(AppConfigService);
   protected readonly attendanceService = inject(AttendanceService);
   protected readonly activatedRoute = inject(ActivatedRoute);
@@ -103,6 +106,7 @@ export class ApplyAttendanceComponent implements OnInit {
       (currentUser?.designation ?? '').toLowerCase() === 'driver'; // TODO: Remove this static driver field use enum for user role
 
     this.loadCurrentStatusDataFromRoute();
+    this.loadMockData();
     this.form = this.formService.createForm(APPLY_ATTENDANCE_FORM_CONFIG, {
       destroyRef: this.destroyRef,
       defaultValues: this.initialAttendanceData(),
@@ -243,5 +247,14 @@ export class ApplyAttendanceComponent implements OnInit {
 
   protected toggleAssignmentEditing(): void {
     this.isEditingAssignment.update(isEditing => !isEditing);
+  }
+
+  private loadMockData(): void {
+    if (this.environmentService.isTestDataEnabled) {
+      this.initialAttendanceData.update(existingData => ({
+        ...APPLY_ATTENDANCE_PREFILLED_DATA,
+        ...existingData,
+      }));
+    }
   }
 }

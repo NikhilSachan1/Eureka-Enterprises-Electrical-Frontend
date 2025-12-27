@@ -9,7 +9,11 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AppConfigService, LoggerService } from '@core/services';
+import {
+  AppConfigService,
+  LoggerService,
+  EnvironmentService,
+} from '@core/services';
 import { FORCE_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import { IExpenseForceRequestDto } from '@features/expense-management/types/expense.dto';
@@ -31,6 +35,7 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { transformDateFormat } from '@shared/utility';
+import { FORCE_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/force-expense.mock-data';
 
 @Component({
   selector: 'app-force-expense',
@@ -55,15 +60,22 @@ export class ForceExpenseComponent implements OnInit {
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly datePipe = inject(DatePipe);
   private readonly appConfigService = inject(AppConfigService);
+  private readonly environmentService = inject(EnvironmentService);
 
   protected form!: IEnhancedForm;
+  protected readonly initialExpenseData = signal<Record<
+    string,
+    unknown
+  > | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
+    this.loadMockData();
     this.form = this.formService.createForm(FORCE_EXPENSE_FORM_CONFIG, {
       destroyRef: this.destroyRef,
+      defaultValues: this.initialExpenseData(),
     });
   }
 
@@ -167,5 +179,11 @@ export class ForceExpenseComponent implements OnInit {
       title: 'Force Expense',
       subtitle: 'Force an expense on behalf of an employee',
     };
+  }
+
+  private loadMockData(): void {
+    if (this.environmentService.isTestDataEnabled) {
+      this.initialExpenseData.set(FORCE_EXPENSE_PREFILLED_DATA);
+    }
   }
 }
