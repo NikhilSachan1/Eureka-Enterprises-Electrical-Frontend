@@ -1,7 +1,4 @@
-export {
-  EDialogType,
-  EDialogPosition,
-} from './confirmation-dialog/confirmation-dialog.types';
+export { EDialogPosition } from './confirmation-dialog/confirmation-dialog.types';
 export {
   ETableActionTypeValue,
   ETableFilterDisplayType,
