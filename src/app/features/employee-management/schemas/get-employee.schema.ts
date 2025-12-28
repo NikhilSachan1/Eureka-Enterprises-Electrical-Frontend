@@ -1,11 +1,6 @@
 import { AuditSchema, FilterSchema } from '@shared/schemas';
 import z from 'zod';
 import { EmployeeBaseSchema } from './base-employee.schema';
-import {
-  DESIGNATION_DATA,
-  EMPLOYEE_GENDER_DATA,
-  EMPLOYMENT_TYPE_DATA,
-} from '@shared/config/static-data.config';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 const { roles } = EmployeeBaseSchema.shape;
@@ -61,21 +56,14 @@ export const EmployeeGetStatsResponseSchema = z
     inactive: z.number().int().nonnegative(),
     newJoinersLast30Days: z.number().int().nonnegative(),
     byEmployeeType: z.record(
-      z.enum(
-        EMPLOYMENT_TYPE_DATA.map(item => item.value) as [string, ...string[]]
-      ),
+      z.string(),
       z.number().int().nonnegative().optional()
     ),
     byDesignation: z.record(
-      z.enum(DESIGNATION_DATA.map(item => item.value) as [string, ...string[]]),
+      z.string(),
       z.number().int().nonnegative().optional()
     ),
-    byGender: z.record(
-      z.enum(
-        EMPLOYEE_GENDER_DATA.map(item => item.value) as [string, ...string[]]
-      ),
-      z.number().int().nonnegative().optional()
-    ),
+    byGender: z.record(z.string(), z.number().int().nonnegative().optional()),
   })
   .strict();
 

@@ -68,7 +68,7 @@ export interface IInputNumberFieldConfig {
 }
 
 export interface ISelectFieldConfig {
-  optionsDropdown: IOptionDropdown[];
+  optionsDropdown?: IOptionDropdown[];
   optionLabel: string;
   optionValue?: string;
   showCheckmark: boolean;
@@ -80,10 +80,14 @@ export interface ISelectFieldConfig {
   virtualScrollItemSize: number;
   loading?: boolean;
   optionDisabled?: string;
+  dynamicDropdown?: {
+    moduleName: string;
+    dropdownName: string;
+  };
 }
 
 export interface IMultiSelectFieldConfig {
-  optionsDropdown: IOptionDropdown[];
+  optionsDropdown?: IOptionDropdown[];
   optionLabel: string;
   optionValue?: string;
   maxSelectedLabels: number;
@@ -94,6 +98,10 @@ export interface IMultiSelectFieldConfig {
   display: string | EMultiSelectDisplayType;
   showClearButton: boolean;
   optionDisabled?: string;
+  dynamicDropdown?: {
+    moduleName: string;
+    dropdownName: string;
+  };
 }
 
 export interface IDateFieldConfig {

@@ -1,8 +1,3 @@
-import {
-  INDIA_CITY_DATA,
-  INDIA_STATE_DATA,
-} from '@shared/config/static-data.config';
-
 export const TEST_FIRST_NAMES = [
   'raj',
   'priya',
@@ -140,6 +135,70 @@ export const TEST_EMAIL_DOMAINS = [
   'rediffmail.com',
 ];
 
+export const TEST_INDIA_STATES = [
+  'Andhra Pradesh',
+  'Arunachal Pradesh',
+  'Assam',
+  'Bihar',
+  'Chhattisgarh',
+  'Goa',
+];
+
+export const TEST_INDIA_CITIES = [
+  'Hyderabad',
+  'Visakhapatnam',
+  'Vijayawada',
+  'Vizianagaram',
+  'Warangal',
+];
+
+export const TEST_GENDERS = ['male', 'female', 'other'];
+
+export const TEST_BLOOD_GROUPS = [
+  'a_pos',
+  'a_negative',
+  'b_positive',
+  'b_negative',
+  'ab_positive',
+  'ab_negative',
+  'o_positive',
+  'o_negative',
+];
+
+export const TEST_EMPLOYMENT_TYPES = [
+  'Full Time',
+  'Part Time',
+  'Contract',
+  'Intern',
+  'Freelance',
+];
+
+export const TEST_DESIGNATIONS = [
+  'Software Engineer',
+  'Software Developer',
+  'Software Architect',
+  'Software Tester',
+  'Software QA Engineer',
+];
+
+export const TEST_DEGREES = [
+  'Bachelor of Technology',
+  'Bachelor of Science',
+  'Master of Technology',
+  'Master of Science',
+];
+
+export const TEST_BRANCHES = [
+  'Computer Science and Engineering',
+  'Electronics and Communication Engineering',
+  'Electrical and Electronics Engineering',
+  'Mechanical Engineering',
+  'Civil Engineering',
+];
+
+export const TEST_PASSING_YEARS = ['2020', '2021', '2022', '2023', '2024'];
+
+export const TEST_BANK_NAMES = ['SBI', 'HDFC', 'ICICI', 'Axis', 'PNB'];
 export const getRandomItem = <T>(array: T[]): T => {
   if (!array || array.length === 0) {
     throw new Error('Array is empty or undefined');
@@ -152,13 +211,6 @@ export const getRandomEmail = (firstName: string, lastName: string): string => {
   const domain = getRandomItem(TEST_EMAIL_DOMAINS);
   const randomNumber = getRandomNumber(3, 'upto'); // 0 to 999
   return `${firstName.toLowerCase()}.${lastName.toLowerCase()}${randomNumber}@${domain}`;
-};
-
-export const getRandomStateAndCity = (): { state: string; city: string } => {
-  const state = getRandomItem(INDIA_STATE_DATA);
-  const cities = INDIA_CITY_DATA[state.value] || [];
-  const city = getRandomItem(cities);
-  return { state: state.value, city: city.value };
 };
 
 export const createMockFile = (

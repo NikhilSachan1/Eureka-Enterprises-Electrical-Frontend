@@ -9,6 +9,7 @@ import {
   ViewChild,
   AfterViewInit,
   DestroyRef,
+  computed,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -51,11 +52,12 @@ import {
   IInputFieldsConfig,
   IGalleryInputData,
   IButtonConfig,
+  IOptionDropdown,
 } from '@shared/types';
 import { APP_CONFIG } from '@core/config';
 import { ICONS } from '@shared/constants';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
-import { GalleryService } from '@shared/services';
+import { AppConfigurationService, GalleryService } from '@shared/services';
 import {
   arrayToString,
   fileFormatValidator,
@@ -96,6 +98,7 @@ import { ImageModule } from 'primeng/image';
 export class InputFieldComponent implements OnInit, AfterViewInit {
   private readonly galleryService = inject(GalleryService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   ALL_DATA_TYPES = EDataType;
   ALL_UP_AND_DOWN_BUTTON_LAYOUTS = EUpAndDownButtonLayout;
@@ -119,6 +122,8 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   formGroup = input.required<FormGroup>();
   inputFieldConfig = input.required<IInputFieldsConfig>();
   onFieldChange = output<boolean>();
+
+  dropdownOptions = computed(() => this.getDropdownOptions());
 
   // Cached validator values to avoid recalculation on every input
   private cachedMaxLength: number | null = null;
@@ -165,6 +170,36 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         this.updateFileUpload(files);
       }
     }
+  }
+
+  private getDropdownOptions(): IOptionDropdown[] {
+    const config = this.inputFieldConfig();
+    const { fieldType, selectConfig, multiSelectConfig } = config;
+
+    const dropdownConfig =
+      fieldType === EDataType.SELECT
+        ? selectConfig
+        : fieldType === EDataType.MULTI_SELECT
+          ? multiSelectConfig
+          : undefined;
+
+    if (!dropdownConfig) {
+      return [];
+    }
+
+    if (dropdownConfig.dynamicDropdown) {
+      const { moduleName, dropdownName } = dropdownConfig.dynamicDropdown;
+      const dynamicOptions = this.appConfigurationService.getDropdown(
+        moduleName,
+        dropdownName
+      )();
+
+      if (dynamicOptions.length > 0) {
+        return dynamicOptions;
+      }
+    }
+
+    return dropdownConfig.optionsDropdown ?? [];
   }
 
   onChoosingFile(chooseCallback: () => void): void {

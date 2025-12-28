@@ -2,16 +2,12 @@ import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
-  BANK_NAME_DATA,
-  BRANCH_DATA,
-  DEGREE_DATA,
-  DESIGNATION_DATA,
-  EMPLOYEE_BLOOD_GROUP_DATA,
-  EMPLOYMENT_TYPE_DATA,
-  INDIA_STATE_DATA,
-  PASSING_YEAR_DATA,
-} from '@shared/config/static-data.config';
-import { EUserRole, ICONS, REGEX } from '@shared/constants';
+  CONFIGURATION_KEYS,
+  EUserRole,
+  ICONS,
+  MODULE_NAMES,
+  REGEX,
+} from '@shared/constants';
 import {
   EDataType,
   ETextCase,
@@ -113,7 +109,10 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Gender',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: [],
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.GENDERS,
+      },
     },
     validators: [Validators.required],
   },
@@ -130,7 +129,10 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Blood Group',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: EMPLOYEE_BLOOD_GROUP_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.BLOOD_GROUPS,
+      },
       haveFilter: false,
     },
     validators: [Validators.required],
@@ -183,7 +185,10 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'State',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: INDIA_STATE_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.STATES,
+      },
     },
     validators: [Validators.required],
   },
@@ -267,7 +272,10 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Employment Type',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: EMPLOYMENT_TYPE_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYMENT_TYPES,
+      },
     },
     validators: [Validators.required],
   },
@@ -277,7 +285,10 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Designation',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: DESIGNATION_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.DESIGNATIONS,
+      },
     },
     validators: [Validators.required],
   },
@@ -337,7 +348,10 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Degree',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: DEGREE_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.DEGREES,
+      },
     },
     conditionalValidators: [
       {
@@ -354,7 +368,10 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Branch',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: BRANCH_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.BRANCHES,
+      },
     },
     conditionalValidators: [
       {
@@ -371,7 +388,10 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Passing Year',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: PASSING_YEAR_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
+      },
     },
     conditionalValidators: [
       {
@@ -411,7 +431,10 @@ const BANK_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Bank Name',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: BANK_NAME_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.BANK_NAMES,
+      },
     },
   },
   accountNumber: {

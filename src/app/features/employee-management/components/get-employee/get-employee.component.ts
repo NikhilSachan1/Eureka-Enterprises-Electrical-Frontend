@@ -32,6 +32,7 @@ import {
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
+  AppConfigurationService,
 } from '@shared/services';
 import {
   EButtonActionType,
@@ -51,10 +52,6 @@ import { finalize } from 'rxjs';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import {
-  DESIGNATION_DATA,
-  EMPLOYMENT_TYPE_DATA,
-} from '@shared/config/static-data.config';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { GetEmployeeDetailComponent } from '../get-employee-detail/get-employee-detail.component';
@@ -85,6 +82,7 @@ export class GetEmployeeComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -155,11 +153,11 @@ export class GetEmployeeComponent implements OnInit {
         email: record.email,
         contactNumber: record.contactNumber,
         employeeType: getMappedValueFromArrayOfObjects(
-          EMPLOYMENT_TYPE_DATA,
+          this.appConfigurationService.employmentTypes(),
           record.employeeType
         ),
         designation: getMappedValueFromArrayOfObjects(
-          DESIGNATION_DATA,
+          this.appConfigurationService.designations(),
           record.designation
         ),
         dateOfJoining: record.dateOfJoining,
@@ -264,7 +262,7 @@ export class GetEmployeeComponent implements OnInit {
       {
         label: 'Designation',
         value: getMappedValueFromArrayOfObjects(
-          DESIGNATION_DATA,
+          this.appConfigurationService.designations(),
           selectedRow.designation
         ),
         type: EDataType.TEXT,
@@ -286,7 +284,7 @@ export class GetEmployeeComponent implements OnInit {
           entryData,
           status: {
             entryType: getMappedValueFromArrayOfObjects(
-              EMPLOYMENT_TYPE_DATA,
+              this.appConfigurationService.employmentTypes(),
               selectedRow.employeeType
             ),
             approvalStatus: selectedRow.status,

@@ -52,19 +52,9 @@ import {
   AvatarService,
   GalleryService,
   AttachmentsService,
+  AppConfigurationService,
 } from '@shared/services';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import {
-  BANK_NAME_DATA,
-  BRANCH_DATA,
-  DEGREE_DATA,
-  DESIGNATION_DATA,
-  EMPLOYEE_BLOOD_GROUP_DATA,
-  EMPLOYEE_GENDER_DATA,
-  EMPLOYMENT_TYPE_DATA,
-  INDIA_CITY_DATA,
-  INDIA_STATE_DATA,
-} from '@shared/config/static-data.config';
 
 @Component({
   selector: 'app-get-employee-detail',
@@ -92,6 +82,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
   private readonly employeeService = inject(EmployeeService);
   private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly avatarService = inject(AvatarService);
   private readonly galleryService = inject(GalleryService);
   private readonly attachmentsService = inject(AttachmentsService);
@@ -174,7 +165,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
     const quickInfo: IEmployeeDetailQuickInfo = {
       employeeStatus: response.status,
       employeeDesignation: getMappedValueFromArrayOfObjects(
-        DESIGNATION_DATA,
+        this.appConfigurationService.designations(),
         response.designation
       ),
       employeeEmployeeId: response.employeeId,
@@ -200,7 +191,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
       {
         label: 'Gender',
         value: getMappedValueFromArrayOfObjects(
-          EMPLOYEE_GENDER_DATA,
+          this.appConfigurationService.genders(),
           response.gender
         ),
         icon: this.icons.COMMON.USER,
@@ -233,7 +224,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
             {
               label: 'Gender',
               value: getMappedValueFromArrayOfObjects(
-                EMPLOYEE_GENDER_DATA,
+                this.appConfigurationService.genders(),
                 response.gender
               ),
             },
@@ -246,7 +237,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
             {
               label: 'Blood Group',
               value: getMappedValueFromArrayOfObjects(
-                EMPLOYEE_BLOOD_GROUP_DATA,
+                this.appConfigurationService.bloodGroups(),
                 response.bloodGroup
               ),
             },
@@ -297,14 +288,14 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
             {
               label: 'City',
               value: getMappedValueFromArrayOfObjects(
-                INDIA_CITY_DATA[response.state],
+                this.appConfigurationService.cities(),
                 response.city
               ),
             },
             {
               label: 'State',
               value: getMappedValueFromArrayOfObjects(
-                INDIA_STATE_DATA,
+                this.appConfigurationService.states(),
                 response.state
               ),
             },
@@ -327,14 +318,14 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
             {
               label: 'Designation',
               value: getMappedValueFromArrayOfObjects(
-                DESIGNATION_DATA,
+                this.appConfigurationService.designations(),
                 response.designation
               ),
             },
             {
               label: 'Employment Type',
               value: getMappedValueFromArrayOfObjects(
-                EMPLOYMENT_TYPE_DATA,
+                this.appConfigurationService.employmentTypes(),
                 response.employeeType
               ),
             },
@@ -371,13 +362,19 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
             {
               label: 'Degree',
               value: response.degree
-                ? getMappedValueFromArrayOfObjects(DEGREE_DATA, response.degree)
+                ? getMappedValueFromArrayOfObjects(
+                    this.appConfigurationService.degrees(),
+                    response.degree
+                  )
                 : '',
             },
             {
               label: 'Branch',
               value: response.branch
-                ? getMappedValueFromArrayOfObjects(BRANCH_DATA, response.branch)
+                ? getMappedValueFromArrayOfObjects(
+                    this.appConfigurationService.branches(),
+                    response.branch
+                  )
                 : '',
             },
             {
@@ -396,7 +393,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
               label: 'Bank Name',
               value: response.bankName
                 ? getMappedValueFromArrayOfObjects(
-                    BANK_NAME_DATA,
+                    this.appConfigurationService.bankNames(),
                     response.bankName
                   )
                 : '',

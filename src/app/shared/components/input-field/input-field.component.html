@@ -69,7 +69,7 @@
     @case (ALL_DATA_TYPES.SELECT) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let selectConfig = inputFieldConfig().selectConfig;
-        @let optionsDropdown = selectConfig?.optionsDropdown ?? [];
+        @let optionsDropdown = dropdownOptions();
         @let optionsDropdownLength = optionsDropdown.length;
         @let displayOptions =
           optionsDropdownLength > 0 ? optionsDropdown : [{ label: 'No data found', value: '', disabled: true }];
@@ -108,7 +108,7 @@
     @case (ALL_DATA_TYPES.MULTI_SELECT) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let multiSelectConfig = inputFieldConfig().multiSelectConfig;
-        @let optionsDropdown = multiSelectConfig?.optionsDropdown ?? [];
+        @let optionsDropdown = dropdownOptions();
         @let optionsDropdownLength = optionsDropdown.length;
         @let displayOptions =
           optionsDropdownLength > 0 ? optionsDropdown : [{ label: 'No data found', value: '', disabled: true }];

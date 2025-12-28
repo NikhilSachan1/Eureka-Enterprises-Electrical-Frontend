@@ -8,30 +8,27 @@
   TEST_IFSC_CODES,
   getRandomItem,
   getRandomEmail,
-  getRandomStateAndCity,
-  getRandomItemFromDropdown,
   getRandomDate,
   getRandomNumber,
   createFileFromAsset,
   TEST_PAN_NUMBERS,
   TEST_PASSPORT_NUMBERS,
   TEST_MOBILE_NUMBERS,
+  TEST_GENDERS,
+  TEST_BLOOD_GROUPS,
+  TEST_DEGREES,
+  TEST_BRANCHES,
+  TEST_PASSING_YEARS,
+  TEST_BANK_NAMES,
+  TEST_DESIGNATIONS,
+  TEST_EMPLOYMENT_TYPES,
+  TEST_INDIA_CITIES,
+  TEST_INDIA_STATES,
 } from './mock-data.constants';
-import {
-  EMPLOYEE_GENDER_DATA,
-  EMPLOYEE_BLOOD_GROUP_DATA,
-  EMPLOYMENT_TYPE_DATA,
-  DESIGNATION_DATA,
-  DEGREE_DATA,
-  BRANCH_DATA,
-  BANK_NAME_DATA,
-  PASSING_YEAR_DATA,
-} from '@shared/config/static-data.config';
 
 const firstName = getRandomItem(TEST_FIRST_NAMES);
 const lastName = getRandomItem(TEST_LAST_NAMES);
 const contactNumber = getRandomItem(TEST_MOBILE_NUMBERS);
-const { state, city } = getRandomStateAndCity();
 
 export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
   string,
@@ -45,14 +42,14 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
     email: getRandomEmail(firstName, lastName),
     contactNumber,
     emergencyContactNumber: getRandomItem(TEST_MOBILE_NUMBERS),
-    gender: getRandomItemFromDropdown(EMPLOYEE_GENDER_DATA),
+    gender: getRandomItem(TEST_GENDERS),
     dateOfBirth: getRandomDate(365 * 25, 365 * 10), // ~25 years old, Â±10 years range
-    bloodGroup: getRandomItemFromDropdown(EMPLOYEE_BLOOD_GROUP_DATA),
+    bloodGroup: getRandomItem(TEST_BLOOD_GROUPS),
     houseNumber: `${getRandomNumber(3, 'exact')}`,
     streetName: getRandomItem(TEST_STREET_NAMES),
     landmark: getRandomItem(TEST_LANDMARKS),
-    state,
-    city,
+    state: getRandomItem(TEST_INDIA_STATES),
+    city: getRandomItem(TEST_INDIA_CITIES),
     pinCode: `${getRandomNumber(6, 'exact')}`,
     profilePicture: [
       createFileFromAsset(
@@ -65,8 +62,8 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
   2: {
     previousExperience: `${getRandomNumber(2, 'upto') + 1}`, // 1 to 10 (1-2 digits)
     dateOfJoining: getRandomDate(365 * 2, 365), // ~2 years old, Â±1 year range
-    employmentType: getRandomItemFromDropdown(EMPLOYMENT_TYPE_DATA),
-    designation: getRandomItemFromDropdown(DESIGNATION_DATA),
+    employmentType: getRandomItem(TEST_EMPLOYMENT_TYPES),
+    designation: getRandomItem(TEST_DESIGNATIONS),
     esicNumber: `${getRandomNumber(17, 'exact')}`,
     uanNumber: `${getRandomNumber(12, 'exact')}`,
     esicDocument: [createFileFromAsset('/mock-docs/employee/ESIC_DUMMY.pdf')],
@@ -75,9 +72,9 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
 
   // Step 3: Education Details
   3: {
-    degree: getRandomItemFromDropdown(DEGREE_DATA),
-    branch: getRandomItemFromDropdown(BRANCH_DATA),
-    passingYear: getRandomItemFromDropdown(PASSING_YEAR_DATA),
+    degree: getRandomItem(TEST_DEGREES),
+    branch: getRandomItem(TEST_BRANCHES),
+    passingYear: getRandomItem(TEST_PASSING_YEARS),
     degreeDocument: [
       createFileFromAsset('/mock-docs/employee/DEGREE_DUMMY.pdf'),
     ],
@@ -85,7 +82,7 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
 
   // Step 4: Bank Details
   4: {
-    bankName: getRandomItemFromDropdown(BANK_NAME_DATA),
+    bankName: getRandomItem(TEST_BANK_NAMES),
     accountNumber: `${getRandomNumber(10, 'exact')}`,
     ifscCode: getRandomItem(TEST_IFSC_CODES),
     accountHolderName: getRandomItem(TEST_ACCOUNT_HOLDER_NAMES),

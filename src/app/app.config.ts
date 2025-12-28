@@ -31,7 +31,7 @@ import { UserPermissionService } from '@features/settings-management/permission-
 import { APP_CONFIG } from '@core/config';
 import { lastValueFrom } from 'rxjs';
 import { FinancialYearService } from '@core/services/financial-year.service';
-import { AppConfiguarionService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -95,7 +95,7 @@ export const appConfig: ApplicationConfig = {
       const userPermissionService = inject(UserPermissionService);
       const financialYearService = inject(FinancialYearService);
       const appPermissionService = inject(AppPermissionService);
-      const appConfiguarionService = inject(AppConfiguarionService);
+      const appConfigurationService = inject(AppConfigurationService);
 
       const financialYear = financialYearService.getFinancialYear();
       financialYearService.setFinancialYear(financialYear);
@@ -112,7 +112,7 @@ export const appConfig: ApplicationConfig = {
       }
 
       const blockingTasks: Promise<unknown>[] = [
-        lastValueFrom(appConfiguarionService.getAppConfiguation()),
+        lastValueFrom(appConfigurationService.loadAppConfiguration()),
       ];
 
       return Promise.all(blockingTasks);

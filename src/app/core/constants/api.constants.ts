@@ -1,6 +1,6 @@
 export const API_ROUTES = {
   APP_CONFIGUATION: {
-    GET: 'health-check',
+    GET: 'configurations',
   },
   EMPLOYEE: {
     ADD: 'user',

@@ -61,11 +61,6 @@ export const APPROVAL_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Cancelled', value: 'cancelled' },
 ];
 
-export const EMPLOYEE_STATUS_DATA: IOptionDropdown[] = [
-  { label: 'Active', value: 'ACTIVE' },
-  { label: 'Archived', value: 'ARCHIVED' },
-];
-
 export const EMPLOYEE_NAME_DATA: IOptionDropdown[] = [
   { label: 'Akhil Sachan', value: '508eee21-d0fb-45cf-9cfa-a7d83e8531e5' },
   { label: 'System Admin', value: '41b4006e-c0d5-47cb-93dc-2422890c0c91' },
@@ -129,6 +124,7 @@ export const EXPENSE_CATEGORY_DATA: IOptionDropdown[] = [
   { label: 'Expense Settlement', value: 'settlement' },
   { label: 'Other', value: 'other' },
 ];
+
 export const EXPENSE_PAYMENT_METHOD_DATA: IOptionDropdown[] = [
   { label: 'UPI', value: 'upi' },
   { label: 'Cheque', value: 'cheque' },
@@ -137,21 +133,11 @@ export const EXPENSE_PAYMENT_METHOD_DATA: IOptionDropdown[] = [
   { label: 'Bank Transfer (NEFT / RTGS / IMPS)', value: 'bank_transfer' },
 ];
 
-export const EMPLOYEE_GENDER_DATA: IOptionDropdown[] = [
-  { label: 'Male', value: 'male' },
-  { label: 'Female', value: 'female' },
-  { label: 'Other', value: 'other' },
-];
+// Employee Management
 
-export const EMPLOYEE_BLOOD_GROUP_DATA: IOptionDropdown[] = [
-  { label: 'A+', value: 'a_posi' },
-  { label: 'A-', value: 'a_neg' },
-  { label: 'B+', value: 'b_posi' },
-  { label: 'B-', value: 'b_neg' },
-  { label: 'AB+', value: 'ab_posi' },
-  { label: 'AB-', value: 'ab_neg' },
-  { label: 'O+', value: 'o_posi' },
-  { label: 'O-', value: 'o_neg' },
+export const EMPLOYEE_STATUS_DATA: IOptionDropdown[] = [
+  { label: 'Active', value: 'ACTIVE' },
+  { label: 'Archived', value: 'ARCHIVED' },
 ];
 
 export const INDIA_STATE_DATA: IOptionDropdown[] = [
@@ -240,53 +226,6 @@ export const INDIA_CITY_DATA: Record<string, IOptionDropdown[]> = {
     { label: 'Bhagalpur', value: 'bhagalpur' },
   ],
 };
-
-export const EMPLOYMENT_TYPE_DATA: IOptionDropdown[] = [
-  { label: 'Contract', value: 'contract' },
-  { label: 'Intern', value: 'intern' },
-  { label: 'Part-Time', value: 'part_time' },
-  { label: 'Full-Time', value: 'full_time' },
-];
-
-export const DESIGNATION_DATA: IOptionDropdown[] = [
-  { label: 'Sr. Testing Engineer', value: 'st_test_en' },
-  { label: 'Associate Testing Engineer', value: 'asso_test_en' },
-  { label: 'Jr. Testing Engineer', value: 'jr_test_eng' },
-  { label: 'Driver', value: 'driver' },
-  { label: 'Human Resource (HR)', value: 'hr' },
-  { label: 'Accountant', value: 'accountant' },
-];
-
-export const DEGREE_DATA: IOptionDropdown[] = [
-  { label: 'B.Tech', value: 'b_tech' },
-  { label: 'M.Tech', value: 'm_tech' },
-  { label: 'B.Sc', value: 'b_sc' },
-  { label: 'M.Sc', value: 'm_sc' },
-  { label: 'B.A', value: 'b_a' },
-  { label: 'M.A', value: 'm_a' },
-  { label: 'B.Com', value: 'b_com' },
-  { label: 'M.Com', value: 'm_com' },
-];
-
-export const BRANCH_DATA: IOptionDropdown[] = [
-  {
-    label: 'Computer Science and Engineering',
-    value: 'comp_sc_eng',
-  },
-  {
-    label: 'Electronics and Communication Engineering',
-    value: 'elec_com_eng',
-  },
-  {
-    label: 'Electrical and Electronics Engineering',
-    value: 'ele_elec_eng',
-  },
-  { label: 'Mechanical Engineering', value: 'mech_eng' },
-  { label: 'Civil Engineering', value: 'civil_eng' },
-  { label: 'Chemical Engineering', value: 'chemical_eng' },
-  { label: 'Biotechnology', value: 'biotech' },
-  { label: 'Other', value: 'other' },
-];
 
 export const PASSING_YEAR_DATA: IOptionDropdown[] = [
   { label: '2020', value: '2020' },
