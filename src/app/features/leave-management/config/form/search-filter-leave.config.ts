@@ -1,12 +1,10 @@
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
-import { APPROVAL_STATUS_DATA } from '@shared/config/static-data.config';
 import {
   IFormButtonConfig,
   ITableSearchFilterFormConfig,
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
-import { filterOptionsByIncludeExclude } from '@shared/utility';
 
 const SEARCH_FILTER_LEAVE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
   {
@@ -20,10 +18,6 @@ const SEARCH_FILTER_LEAVE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfi
     },
     approvalStatus: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
-      multiSelectConfig: {
-        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
-        optionsDropdown: filterOptionsByIncludeExclude(APPROVAL_STATUS_DATA),
-      },
     },
     globalSearch: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,

@@ -35,8 +35,6 @@ export {
   DEFAULT_NOTIFICATION_TITLES,
 } from './notification.config';
 export {
-  MODULES_NAME_DATA,
-  MODULE_ACTIONS_DATA,
   EMPLOYEE_NAME_DATA,
   CLIENT_NAME_DATA,
   LOCATION_DATA,

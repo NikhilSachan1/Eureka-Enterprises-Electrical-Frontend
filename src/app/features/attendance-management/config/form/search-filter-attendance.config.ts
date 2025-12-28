@@ -1,10 +1,7 @@
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
-import {
-  APPROVAL_STATUS_DATA,
-  ATTENDANCE_STATUS_DATA,
-} from '@shared/config/static-data.config';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EApprovalStatus,
   EDataType,
@@ -13,7 +10,6 @@ import {
   ITableSearchFilterFormConfig,
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
-import { filterOptionsByIncludeExclude } from '@shared/utility';
 
 const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
   {
@@ -32,11 +28,13 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
       label: 'Attendance Status',
       multiSelectConfig: {
         ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
-        optionsDropdown: filterOptionsByIncludeExclude(
-          ATTENDANCE_STATUS_DATA,
-          [],
-          [EAttendanceStatus.CHECKED_OUT]
-        ),
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.ATTENDANCE,
+          dropdownName: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
+        },
+        filterOptions: {
+          exclude: [EAttendanceStatus.CHECKED_OUT],
+        },
       },
       matchmode: ETableFilterMatchMode.IN,
     },
@@ -44,11 +42,9 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
       multiSelectConfig: {
         ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
-        optionsDropdown: filterOptionsByIncludeExclude(
-          APPROVAL_STATUS_DATA,
-          [],
-          [EApprovalStatus.CANCELLED]
-        ),
+        filterOptions: {
+          exclude: [EApprovalStatus.CANCELLED],
+        },
       },
     },
     globalSearch: {

@@ -18,14 +18,15 @@ import {
   IEmployeeGetBaseResponseDto,
 } from '@features/employee-management/types/employee.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { EMPLOYEE_STATUS_DATA } from '@shared/config/static-data.config';
 import {
+  AppConfigurationService,
   ConfirmationDialogService,
   LoadingService,
   NotificationService,
 } from '@shared/services';
 import { finalize } from 'rxjs';
 import { EEmployeeStatus } from '@features/employee-management/types/employee.types';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-change-status-employee',
@@ -43,10 +44,13 @@ export class ChangeStatusEmployeeComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly selectedRecord =
     input.required<IEmployeeGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
+
+  protected readonly ALL_EMPLOYMENT_TYPES = EEmployeeStatus;
 
   protected readonly isSubmitting = signal(false);
 
@@ -57,17 +61,9 @@ export class ChangeStatusEmployeeComponent implements OnInit {
 
   protected readonly newStatus = computed(() => {
     const current = this.currentStatus();
-    return current === EEmployeeStatus.ACTIVE
-      ? EEmployeeStatus.ARCHIVED
-      : EEmployeeStatus.ACTIVE;
-  });
-
-  protected readonly currentStatusLabel = computed(() => {
-    return this.getStatusLabel(this.currentStatus());
-  });
-
-  protected readonly newStatusLabel = computed(() => {
-    return this.getStatusLabel(this.newStatus());
+    return current === this.ALL_EMPLOYMENT_TYPES.ACTIVE
+      ? this.ALL_EMPLOYMENT_TYPES.ARCHIVED
+      : this.ALL_EMPLOYMENT_TYPES.ACTIVE;
   });
 
   ngOnInit(): void {
@@ -104,11 +100,6 @@ export class ChangeStatusEmployeeComponent implements OnInit {
     };
   }
 
-  protected getStatusLabel(status: string): string {
-    const statusData = EMPLOYEE_STATUS_DATA.find(item => item.value === status);
-    return statusData?.label ?? status;
-  }
-
   private executeEmployeeChangeStatusAction(
     formData: IEmployeeChangeStatusRequestDto,
     employeeId: string
@@ -139,5 +130,12 @@ export class ChangeStatusEmployeeComponent implements OnInit {
           this.confirmationDialogService.closeDialog();
         },
       });
+  }
+
+  protected getStatusLabel(status: string): string {
+    return getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.employeeStatus(),
+      status
+    );
   }
 }

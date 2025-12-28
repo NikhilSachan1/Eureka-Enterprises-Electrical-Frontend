@@ -1,17 +1,16 @@
+import { EMPLOYEE_NAME_DATA } from '@shared/config';
 import {
   getRandomItemFromDropdown,
   getRandomDate,
   getRandomNumber,
   createFileFromAsset,
+  TEST_PAYMENT_MODES,
+  getRandomItem,
 } from './mock-data.constants';
-import {
-  EXPENSE_PAYMENT_METHOD_DATA,
-  EMPLOYEE_NAME_DATA,
-} from '@shared/config/static-data.config';
 
 export const REIMBURSE_EXPENSE_PREFILLED_DATA: Record<string, unknown> = {
   employeeName: getRandomItemFromDropdown(EMPLOYEE_NAME_DATA),
-  paymentMode: getRandomItemFromDropdown(EXPENSE_PAYMENT_METHOD_DATA),
+  paymentMode: getRandomItem(TEST_PAYMENT_MODES),
   expenseDate: getRandomDate(15, 7), // ~15 days old, ±7 days range
   expenseAmount: getRandomNumber(4, 'upto'), // 0 to 9999
   transactionId: `TXN${getRandomNumber(10, 'exact')}`,

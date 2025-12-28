@@ -13,7 +13,7 @@ import {
 } from '@features/expense-management/types/expense.dto';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { LoadingService } from '@shared/services';
+import { AppConfigurationService, LoadingService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -24,10 +24,6 @@ import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import {
-  EXPENSE_CATEGORY_DATA,
-  EXPENSE_PAYMENT_METHOD_DATA,
-} from '@shared/config/static-data.config';
 
 @Component({
   selector: 'app-get-expense-detail',
@@ -43,6 +39,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
   private readonly expenseService = inject(ExpenseService);
   private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _expenseDetails = signal<
     IDataViewDetailsWithEmployee | undefined
@@ -102,7 +99,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
         {
           label: 'Category',
           value: getMappedValueFromArrayOfObjects(
-            EXPENSE_CATEGORY_DATA,
+            this.appConfigurationService.expenseCategories(),
             record.category
           ),
         },
@@ -118,7 +115,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
         {
           label: 'Payment Mode',
           value: getMappedValueFromArrayOfObjects(
-            EXPENSE_PAYMENT_METHOD_DATA,
+            this.appConfigurationService.expensePaymentMethods(),
             record.paymentMode
           ),
         },

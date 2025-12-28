@@ -3,7 +3,8 @@ import {
   ETableFilterMatchMode,
   EDateSelectionMode,
 } from '@shared/types';
-import { EMPLOYEE_NAME_DATA, APPROVAL_STATUS_DATA } from './static-data.config';
+import { EMPLOYEE_NAME_DATA } from './static-data.config';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 
 export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
   employeeName: {
@@ -32,7 +33,10 @@ export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
     fieldName: 'approvalStatus',
     label: 'Approval Status',
     multiSelectConfig: {
-      optionsDropdown: APPROVAL_STATUS_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.COMMON,
+        dropdownName: CONFIGURATION_KEYS.COMMON.APPROVAL_STATUS,
+      },
       haveFilter: false,
       showToggleAll: false,
     },

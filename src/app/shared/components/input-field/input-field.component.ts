@@ -63,6 +63,7 @@ import {
   fileFormatValidator,
   fileLimitValidator,
   fileSizeValidator,
+  filterOptionsByIncludeExclude,
   stringToArray,
   toLowerCase,
   toSentenceCase,
@@ -187,6 +188,8 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       return [];
     }
 
+    let dropdownOptions: IOptionDropdown[] = [];
+
     if (dropdownConfig.dynamicDropdown) {
       const { moduleName, dropdownName } = dropdownConfig.dynamicDropdown;
       const dynamicOptions = this.appConfigurationService.getDropdown(
@@ -195,11 +198,21 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       )();
 
       if (dynamicOptions.length > 0) {
-        return dynamicOptions;
+        dropdownOptions = dynamicOptions;
       }
+    } else {
+      dropdownOptions = dropdownConfig.optionsDropdown ?? [];
     }
 
-    return dropdownConfig.optionsDropdown ?? [];
+    if (dropdownConfig.filterOptions) {
+      dropdownOptions = filterOptionsByIncludeExclude(
+        dropdownOptions,
+        dropdownConfig.filterOptions.include ?? [],
+        dropdownConfig.filterOptions.exclude ?? []
+      );
+    }
+
+    return dropdownOptions;
   }
 
   onChoosingFile(chooseCallback: () => void): void {

@@ -10,6 +10,7 @@ import {
 import { REGULARIZE_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/regularize-attendance.config';
 import { IDialogActionHandler, IEnhancedForm } from '@shared/types';
 import {
+  AppConfigurationService,
   ConfirmationDialogService,
   FormService,
   LoadingService,
@@ -30,7 +31,6 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EAttendanceStatus } from '../../types/attendance.enum';
 import { filterOptionsByIncludeExclude, stringToArray } from '@shared/utility';
-import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
 
 @Component({
   selector: 'app-regularize-attendance',
@@ -52,6 +52,7 @@ export class RegularizeAttendanceComponent
     ConfirmationDialogService
   );
   private readonly destroyRef = inject(DestroyRef);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly selectedRecord =
     input.required<IAttendanceGetBaseResponseDto[]>();
@@ -102,7 +103,7 @@ export class RegularizeAttendanceComponent
       | '';
 
     const validAttendanceStatuses = filterOptionsByIncludeExclude(
-      ATTENDANCE_STATUS_DATA,
+      this.appConfigurationService.attendanceStatus(),
       [],
       [EAttendanceStatus.CHECKED_IN, EAttendanceStatus.CHECKED_OUT]
     );

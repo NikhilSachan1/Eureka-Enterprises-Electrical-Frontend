@@ -21,9 +21,9 @@
   TEST_PASSING_YEARS,
   TEST_BANK_NAMES,
   TEST_DESIGNATIONS,
-  TEST_EMPLOYMENT_TYPES,
   TEST_INDIA_CITIES,
   TEST_INDIA_STATES,
+  TEST_EMPLOYEE_TYPES,
 } from './mock-data.constants';
 
 const firstName = getRandomItem(TEST_FIRST_NAMES);
@@ -62,7 +62,7 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
   2: {
     previousExperience: `${getRandomNumber(2, 'upto') + 1}`, // 1 to 10 (1-2 digits)
     dateOfJoining: getRandomDate(365 * 2, 365), // ~2 years old, Â±1 year range
-    employmentType: getRandomItem(TEST_EMPLOYMENT_TYPES),
+    employmentType: getRandomItem(TEST_EMPLOYEE_TYPES),
     designation: getRandomItem(TEST_DESIGNATIONS),
     esicNumber: `${getRandomNumber(17, 'exact')}`,
     uanNumber: `${getRandomNumber(12, 'exact')}`,

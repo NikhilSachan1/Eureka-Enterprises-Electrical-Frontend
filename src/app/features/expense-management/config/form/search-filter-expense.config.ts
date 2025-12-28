@@ -1,9 +1,6 @@
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
-import {
-  APPROVAL_STATUS_DATA,
-  EXPENSE_CATEGORY_DATA,
-} from '@shared/config/static-data.config';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EApprovalStatus,
   EDataType,
@@ -12,7 +9,6 @@ import {
   ITableSearchFilterFormConfig,
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
-import { filterOptionsByIncludeExclude } from '@shared/utility';
 
 const SEARCH_FILTER_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
   {
@@ -30,7 +26,10 @@ const SEARCH_FILTER_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
       fieldName: 'expenseType',
       label: 'Expense Type',
       multiSelectConfig: {
-        optionsDropdown: EXPENSE_CATEGORY_DATA,
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.EXPENSE,
+          dropdownName: CONFIGURATION_KEYS.EXPENSE.CATEGORIES,
+        },
       },
       matchmode: ETableFilterMatchMode.IN,
     },
@@ -38,11 +37,9 @@ const SEARCH_FILTER_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
       multiSelectConfig: {
         ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
-        optionsDropdown: filterOptionsByIncludeExclude(
-          APPROVAL_STATUS_DATA,
-          [],
-          [EApprovalStatus.CANCELLED]
-        ),
+        filterOptions: {
+          exclude: [EApprovalStatus.CANCELLED],
+        },
       },
     },
     globalSearch: {

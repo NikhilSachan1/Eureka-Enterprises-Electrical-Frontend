@@ -13,6 +13,7 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { LoggerService } from '@core/services';
 import {
+  AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
   LoadingService,
@@ -54,10 +55,6 @@ import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-ac
 import { GetExpenseDetailComponent } from '../get-expense-detail/get-expense-detail.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
-import {
-  EXPENSE_CATEGORY_DATA,
-  EXPENSE_PAYMENT_METHOD_DATA,
-} from '@shared/config/static-data.config';
 
 @Component({
   selector: 'app-get-expense',
@@ -86,6 +83,7 @@ export class GetExpenseComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -161,7 +159,7 @@ export class GetExpenseComponent implements OnInit {
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
         employeeCode: record.user.employeeId,
         expenseType: getMappedValueFromArrayOfObjects(
-          EXPENSE_CATEGORY_DATA,
+          this.appConfigurationService.expenseCategories(),
           record.category
         ),
         expenseAmount: record.amount,
@@ -294,7 +292,7 @@ export class GetExpenseComponent implements OnInit {
       {
         label: 'Category',
         value: getMappedValueFromArrayOfObjects(
-          EXPENSE_CATEGORY_DATA,
+          this.appConfigurationService.expenseCategories(),
           selectedRow.category
         ),
       },
@@ -310,7 +308,7 @@ export class GetExpenseComponent implements OnInit {
       {
         label: 'Payment Mode',
         value: getMappedValueFromArrayOfObjects(
-          EXPENSE_PAYMENT_METHOD_DATA,
+          this.appConfigurationService.expensePaymentMethods(),
           selectedRow.paymentMode
         ),
       },

@@ -152,53 +152,274 @@ export const TEST_INDIA_CITIES = [
   'Warangal',
 ];
 
+/* ===== appended from configuration dropdown output ===== */
+
+export const TEST_MODULES = [
+  'role_permission',
+  'system_permission',
+  'attendance',
+  'user_permission',
+];
+
+export const TEST_VEHICLE_SERVICE_TYPES = [
+  'REGULAR_SERVICE',
+  'EMERGENCY_SERVICE',
+  'BREAKDOWN_REPAIR',
+  'ACCIDENT_REPAIR',
+  'TYRE_CHANGE',
+  'BATTERY_REPLACEMENT',
+  'OTHER',
+];
+
+export const TEST_TRANSACTION_TYPES = ['debit', 'credit', 'credit_card'];
+
+export const TEST_PAYMENT_MODES = [
+  'upi',
+  'cheque',
+  'credit_card',
+  'cash',
+  'neft/imps',
+  'system',
+  'rtgs',
+];
+
+export const TEST_EXPENSE_CATEGORIES = [
+  'hotel',
+  'tools',
+  'toll_cash',
+  'car_service',
+  'train',
+  'bus',
+  'local_convence',
+  'stationery',
+  'safety_equipment',
+  'other',
+];
+
+export const TEST_VEHICLE_SERVICE_STATUSES = [
+  'PENDING',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'CANCELLED',
+  'SKIPPED',
+];
+
+export const TEST_VEHICLE_SERVICE_FILE_TYPES = [
+  'INVOICE',
+  'BILL',
+  'REPAIR_REPORT',
+  'WARRANTY_CARD',
+  'OTHER',
+];
+
 export const TEST_GENDERS = ['male', 'female', 'other'];
 
-export const TEST_BLOOD_GROUPS = [
-  'a_pos',
-  'a_negative',
-  'b_positive',
-  'b_negative',
-  'ab_positive',
-  'ab_negative',
-  'o_positive',
-  'o_negative',
+export const TEST_EMPLOYEE_TYPES = [
+  'contract',
+  'intern',
+  'part_time',
+  'full_time',
 ];
 
-export const TEST_EMPLOYMENT_TYPES = [
-  'Full Time',
-  'Part Time',
-  'Contract',
-  'Intern',
-  'Freelance',
+export const TEST_ANNOUNCEMENT_TARGET_TYPES = ['USER', 'ROLE', 'ALL'];
+
+export const TEST_ANNOUNCEMENT_STATUSES = [
+  'DRAFT',
+  'PUBLISHED',
+  'EXPIRED',
+  'ARCHIVED',
 ];
 
-export const TEST_DESIGNATIONS = [
-  'Software Engineer',
-  'Software Developer',
-  'Software Architect',
-  'Software Tester',
-  'Software QA Engineer',
+export const TEST_ASSET_TYPES = ['CALIBRATED', 'NON_CALIBRATED'];
+
+export const TEST_ASSET_STATUSES = [
+  'AVAILABLE',
+  'ASSIGNED',
+  'UNDER_MAINTENANCE',
+  'DAMAGED',
+  'RETIRED',
+];
+
+export const TEST_ASSET_CATEGORIES = [
+  'IT_EQUIPMENT',
+  'HAND_TOOL',
+  'TESTING_TOOL',
+  'MEASURING_INSTRUMENT',
+  'SAFETY_EQUIPMENT',
+  'FURNITURE',
+  'VEHICLE',
+  'OTHER',
+];
+
+export const TEST_ASSET_FILE_TYPES = [
+  'ASSET_IMAGE',
+  'CALIBRATION_CERTIFICATE',
+  'WARRANTY_DOCUMENT',
+  'PURCHASE_INVOICE',
+  'AMC',
+  'REPAIR_REPORT',
+  'OTHER',
+];
+
+export const TEST_CALIBRATION_SOURCES = [
+  'NABL',
+  'MANUFACTURER',
+  'INTERNAL',
+  'THIRD_PARTY',
+];
+
+export const TEST_CALIBRATION_FREQUENCIES = [
+  '1_MONTH',
+  '2_MONTHS',
+  '3_MONTHS',
+  '6_MONTHS',
+  '12_MONTHS',
+  '24_MONTHS',
+];
+
+export const TEST_VEHICLE_FUEL_TYPES = [
+  'PETROL',
+  'DIESEL',
+  'CNG',
+  'ELECTRIC',
+  'HYBRID',
+];
+
+export const TEST_VEHICLE_STATUSES = [
+  'AVAILABLE',
+  'ASSIGNED',
+  'UNDER_MAINTENANCE',
+  'DAMAGED',
+  'RETIRED',
+];
+
+export const TEST_VEHICLE_FILE_TYPES = [
+  'RC',
+  'INSURANCE',
+  'PUC',
+  'FITNESS',
+  'PERMIT',
+  'INVOICE',
+  'SERVICE_BILL',
+  'VEHICLE_IMAGE',
+  'OTHER',
+];
+
+export const TEST_VEHICLE_EVENT_TYPES = [
+  'VEHICLE_ADDED',
+  'AVAILABLE',
+  'ASSIGNED',
+  'DEALLOCATED',
+  'UNDER_MAINTENANCE',
+  'DAMAGED',
+  'RETIRED',
+  'UPDATED',
+  'HANDOVER_INITIATED',
+  'HANDOVER_ACCEPTED',
+  'HANDOVER_REJECTED',
+  'HANDOVER_CANCELLED',
 ];
 
 export const TEST_DEGREES = [
-  'Bachelor of Technology',
-  'Bachelor of Science',
-  'Master of Technology',
-  'Master of Science',
+  'b_tech',
+  'm_tech',
+  'b_sc',
+  'm_sc',
+  'b_a',
+  'm_a',
+  'b_com',
+  'm_com',
 ];
 
 export const TEST_BRANCHES = [
-  'Computer Science and Engineering',
-  'Electronics and Communication Engineering',
-  'Electrical and Electronics Engineering',
-  'Mechanical Engineering',
-  'Civil Engineering',
+  'comp_sc_eng',
+  'elec_com_eng',
+  'elec_elec_eng',
+  'mech_eng',
+  'civil_eng',
+  'chemical_eng',
+  'biotech',
+  'other',
+];
+
+export const TEST_DESIGNATIONS = [
+  'st_test_en',
+  'asso_test_en',
+  'jr_test_eng',
+  'driver',
+  'hr',
+  'accountant',
+];
+
+export const TEST_SALARY_INCREMENT_TYPES = [
+  'INITIAL',
+  'ANNUAL',
+  'PROMOTION',
+  'CORRECTION',
+  'OTHER',
+];
+
+export const TEST_BONUS_TYPES = [
+  'DIWALI',
+  'BIRTHDAY',
+  'PERFORMANCE',
+  'JOINING',
+  'REFERRAL',
+  'ANNUAL',
+  'FESTIVAL',
+  'SPOT',
+  'RETENTION',
+  'OTHER',
+];
+
+export const TEST_BONUS_STATUSES = ['PENDING', 'PAID', 'CANCELLED'];
+
+export const TEST_PAYROLL_STATUSES = [
+  'DRAFT',
+  'GENERATED',
+  'APPROVED',
+  'PAID',
+  'CANCELLED',
+];
+
+export const TEST_BLOOD_GROUPS = [
+  'a_posi',
+  'a_neg',
+  'b_posi',
+  'b_neg',
+  'ab_posi',
+  'ab_neg',
+  'o_posi',
+  'o_neg',
+];
+
+export const TEST_CARD_TYPES = [
+  'PETRO_CARD',
+  'TOLL_CARD',
+  'FLEET_CARD',
+  'OTHER',
 ];
 
 export const TEST_PASSING_YEARS = ['2020', '2021', '2022', '2023', '2024'];
+export const TEST_BANK_NAMES = [
+  'sbi',
+  'hdfc',
+  'icici',
+  'axis',
+  'bank_of_baroda',
+  'bank_of_india',
+  'bank_of_maharashtra',
+];
 
-export const TEST_BANK_NAMES = ['SBI', 'HDFC', 'ICICI', 'Axis', 'PNB'];
+export const TEST_ATTENDANCE_STATUSES = [
+  'present',
+  'absent',
+  'leave',
+  'holiday',
+  'checkedIn',
+  'checkedOut',
+];
+
 export const getRandomItem = <T>(array: T[]): T => {
   if (!array || array.length === 0) {
     throw new Error('Array is empty or undefined');

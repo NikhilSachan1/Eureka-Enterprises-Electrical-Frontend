@@ -1,11 +1,8 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
+import { EExpenseCategory } from '@features/expense-management/types/expense.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import {
-  EXPENSE_CATEGORY_DATA,
-  EXPENSE_PAYMENT_METHOD_DATA,
-} from '@shared/config/static-data.config';
-import { REGEX } from '@shared/constants';
+import { CONFIGURATION_KEYS, MODULE_NAMES, REGEX } from '@shared/constants';
 import {
   EDataType,
   EInputNumberMode,
@@ -14,11 +11,7 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import {
-  filterOptionsByIncludeExclude,
-  getDateBeforeXDays,
-  withCustomMessage,
-} from '@shared/utility';
+import { getDateBeforeXDays, withCustomMessage } from '@shared/utility';
 
 const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   expenseType: {
@@ -27,11 +20,13 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'expenseType',
     label: 'Expense Type',
     selectConfig: {
-      optionsDropdown: filterOptionsByIncludeExclude(
-        EXPENSE_CATEGORY_DATA,
-        [],
-        ['settlement']
-      ),
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EXPENSE,
+        dropdownName: CONFIGURATION_KEYS.EXPENSE.CATEGORIES,
+      },
+      filterOptions: {
+        exclude: [EExpenseCategory.SETTLEMENT],
+      },
     },
     validators: [Validators.required],
   },
@@ -41,7 +36,10 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'paymentMode',
     label: 'Payment Mode',
     selectConfig: {
-      optionsDropdown: EXPENSE_PAYMENT_METHOD_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EXPENSE,
+        dropdownName: CONFIGURATION_KEYS.EXPENSE.PAYMENT_METHODS,
+      },
     },
     validators: [Validators.required],
   },

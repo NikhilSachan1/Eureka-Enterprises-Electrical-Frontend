@@ -1,17 +1,14 @@
 import { Validators } from '@angular/forms';
 import { COMMON_FORM_ACTIONS, EMPLOYEE_NAME_DATA } from '@shared/config';
-import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
 import {
   EDataType,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import {
-  filterOptionsByIncludeExclude,
-  getPayslipCutoffMinDate,
-} from '@shared/utility';
+import { getPayslipCutoffMinDate } from '@shared/utility';
 import { APPLY_ATTENDANCE_FORM_CONFIG } from './apply-attendance.config';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 
 const {
@@ -52,11 +49,13 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Attendance Status',
     selectConfig: {
       haveFilter: false,
-      optionsDropdown: filterOptionsByIncludeExclude(
-        ATTENDANCE_STATUS_DATA,
-        [],
-        [EAttendanceStatus.CHECKED_IN, EAttendanceStatus.CHECKED_OUT]
-      ),
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.ATTENDANCE,
+        dropdownName: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
+      },
+      filterOptions: {
+        exclude: [EAttendanceStatus.CHECKED_IN, EAttendanceStatus.CHECKED_OUT],
+      },
     },
     validators: [Validators.required],
   },

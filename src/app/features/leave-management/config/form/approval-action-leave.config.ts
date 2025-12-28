@@ -1,14 +1,13 @@
 import { Validators } from '@angular/forms';
-import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
-import { ATTENDANCE_STATUS_DATA } from '@shared/config/static-data.config';
 import {
   EButtonActionType,
   EDataType,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { filterOptionsByIncludeExclude } from '@shared/utility';
 import { shouldShowAttendanceStatusField } from '../../utils/leave.util';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 
 const APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
   comment: {
@@ -36,10 +35,13 @@ const APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'Attendance Status',
     selectConfig: {
       haveFilter: false,
-      optionsDropdown: filterOptionsByIncludeExclude(ATTENDANCE_STATUS_DATA, [
-        EAttendanceStatus.ABSENT,
-        EAttendanceStatus.PRESENT,
-      ]),
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.ATTENDANCE,
+        dropdownName: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
+      },
+      filterOptions: {
+        include: [EAttendanceStatus.PRESENT, EAttendanceStatus.ABSENT],
+      },
     },
     conditionalValidators: [
       {

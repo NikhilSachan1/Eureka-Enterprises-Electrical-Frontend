@@ -84,6 +84,10 @@ export interface ISelectFieldConfig {
     moduleName: string;
     dropdownName: string;
   };
+  filterOptions?: {
+    include?: string[];
+    exclude?: string[];
+  };
 }
 
 export interface IMultiSelectFieldConfig {
@@ -101,6 +105,10 @@ export interface IMultiSelectFieldConfig {
   dynamicDropdown?: {
     moduleName: string;
     dropdownName: string;
+  };
+  filterOptions?: {
+    include?: string[];
+    exclude?: string[];
   };
 }
 

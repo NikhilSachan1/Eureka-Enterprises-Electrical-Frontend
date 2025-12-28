@@ -1,22 +1,11 @@
 import { z } from 'zod';
 import { ExpenseForceRequestSchema } from './force-expense.schema';
-import { EXPENSE_CATEGORY_DATA } from '@shared/config/static-data.config';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { EExpenseCategory } from '../types/expense.enum';
 
 const { transactionId } = ExpenseForceRequestSchema.shape;
 
 export const ExpenseReimburseRequestSchema = ExpenseForceRequestSchema.extend({
-  category: z
-    .enum(EXPENSE_CATEGORY_DATA.map(item => item.value))
-    .default(
-      getMappedValueFromArrayOfObjects(
-        EXPENSE_CATEGORY_DATA,
-        'settlement',
-        'value',
-        'value'
-      )
-    )
-    .optional(),
+  category: z.string().min(1).default(EExpenseCategory.SETTLEMENT).optional(),
   transactionId: transactionId.unwrap(),
 });
 

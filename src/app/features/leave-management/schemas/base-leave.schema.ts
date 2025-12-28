@@ -6,10 +6,6 @@ import {
 } from '@shared/schemas';
 import z from 'zod';
 import { EApprovalStatus, EEntrySourceType, EEntryType } from '@shared/types';
-import {
-  LEAVE_DAY_TYPE_DATA,
-  LEAVE_TYPE_DATA,
-} from '@shared/config/static-data.config';
 import { makeFieldsNullable } from '@shared/utility';
 
 export const approvalStatusSchema = z.enum(EApprovalStatus);
@@ -21,8 +17,8 @@ export const LeaveBaseSchema = z
   .object({
     id: uuidField,
     userId: uuidField,
-    leaveType: z.enum(LEAVE_DAY_TYPE_DATA.map(item => item.value)),
-    leaveCategory: z.enum(LEAVE_TYPE_DATA.map(item => item.value)),
+    leaveType: z.string().min(1),
+    leaveCategory: z.string().min(1),
     leaveApplicationType: leaveEntryTypeSchema,
     fromDate: isoDateTimeField,
     toDate: isoDateTimeField,
