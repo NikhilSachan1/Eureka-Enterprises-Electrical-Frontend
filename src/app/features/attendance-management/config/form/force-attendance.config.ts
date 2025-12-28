@@ -1,5 +1,5 @@
 import { Validators } from '@angular/forms';
-import { COMMON_FORM_ACTIONS, EMPLOYEE_NAME_DATA } from '@shared/config';
+import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
   EDataType,
   IFormButtonConfig,
@@ -27,7 +27,10 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'employeeName',
     label: 'Employee Name',
     multiSelectConfig: {
-      optionsDropdown: EMPLOYEE_NAME_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+      },
     },
     validators: [Validators.required],
   },

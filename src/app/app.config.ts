@@ -113,6 +113,8 @@ export const appConfig: ApplicationConfig = {
 
       const blockingTasks: Promise<unknown>[] = [
         lastValueFrom(appConfigurationService.loadAppConfiguration()),
+        lastValueFrom(appConfigurationService.loadEmployeeList()),
+        lastValueFrom(appConfigurationService.loadAllAppRoles()),
       ];
 
       return Promise.all(blockingTasks);

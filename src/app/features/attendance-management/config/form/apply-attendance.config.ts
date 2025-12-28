@@ -1,10 +1,5 @@
 import { Validators } from '@angular/forms';
-import {
-  CLIENT_NAME_DATA,
-  EMPLOYEE_NAME_DATA,
-  LOCATION_DATA,
-  VEHICLE_LIST_DATA,
-} from '@shared/config/static-data.config';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { ICONS } from '@shared/constants/icon.constants';
 import {
   EButtonActionType,
@@ -21,7 +16,10 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'locationName',
     label: 'Location',
     selectConfig: {
-      optionsDropdown: LOCATION_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.SITE,
+        dropdownName: CONFIGURATION_KEYS.SITE.LOCATION_LIST,
+      },
     },
     validators: [Validators.required],
   },
@@ -31,7 +29,10 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'clientName',
     label: 'Client',
     selectConfig: {
-      optionsDropdown: CLIENT_NAME_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.SITE,
+        dropdownName: CONFIGURATION_KEYS.SITE.CLIENT_LIST,
+      },
     },
     validators: [Validators.required],
   },
@@ -41,7 +42,10 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'associateEngineerName',
     label: 'Associate Engineer',
     selectConfig: {
-      optionsDropdown: EMPLOYEE_NAME_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+      },
     },
     validators: [],
     conditionalValidators: [
@@ -61,7 +65,10 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'associatedVehicle',
     label: 'Associated Vehicle',
     selectConfig: {
-      optionsDropdown: VEHICLE_LIST_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.VEHICLE,
+        dropdownName: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
+      },
     },
   },
 };

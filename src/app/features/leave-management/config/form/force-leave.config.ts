@@ -5,9 +5,10 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 import { APPLY_LEAVE_FORM_CONFIG } from './apply-leave.config';
-import { COMMON_FORM_ACTIONS, EMPLOYEE_NAME_DATA } from '@shared/config';
+import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { Validators } from '@angular/forms';
 import { getPayslipCutoffMinDate } from '@shared/utility';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 
 const {
   fields: { leaveDate, description },
@@ -20,7 +21,10 @@ const FORCE_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'employeeName',
     label: 'Employee Name',
     selectConfig: {
-      optionsDropdown: EMPLOYEE_NAME_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+      },
     },
     validators: [Validators.required],
   },

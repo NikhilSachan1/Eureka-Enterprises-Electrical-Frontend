@@ -3,7 +3,6 @@ import {
   ETableFilterMatchMode,
   EDateSelectionMode,
 } from '@shared/types';
-import { EMPLOYEE_NAME_DATA } from './static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 
 export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
@@ -13,7 +12,10 @@ export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
     fieldName: 'employeeName',
     label: 'Employee Name',
     multiSelectConfig: {
-      optionsDropdown: EMPLOYEE_NAME_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+      },
     },
     matchmode: ETableFilterMatchMode.IN,
   },

@@ -1,6 +1,6 @@
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
-import { ROLE_NAME_DATA } from '@shared/config/static-data.config';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
   ETableFilterMatchMode,
@@ -17,7 +17,10 @@ const SEARCH_FILTER_EMPLOYEE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCo
       fieldName: 'employeeRole',
       label: 'Employee Role',
       multiSelectConfig: {
-        optionsDropdown: ROLE_NAME_DATA,
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.COMMON,
+          dropdownName: CONFIGURATION_KEYS.COMMON.ROLE_LIST,
+        },
       },
       matchmode: ETableFilterMatchMode.IN,
     },

@@ -420,6 +420,16 @@ export const TEST_ATTENDANCE_STATUSES = [
   'checkedOut',
 ];
 
+export const TEST_EMPLOYEE_LIST = [
+  '06bfe35a-71be-4a02-ba0a-386ef1fac7b5',
+  '2ff0c1c0-f7a1-4549-8a4f-21614286e5d6',
+  '508eee21-d0fb-45cf-9cfa-a7d83e8531e5',
+];
+
+export const TEST_CLIENT_LIST = ['client_1', 'client_2', 'client_3'];
+export const TEST_LOCATION_LIST = ['location_1', 'location_2', 'location_3'];
+export const TEST_VEHICLE_LIST = ['vehicle_1', 'vehicle_2', 'vehicle_3'];
+
 export const getRandomItem = <T>(array: T[]): T => {
   if (!array || array.length === 0) {
     throw new Error('Array is empty or undefined');

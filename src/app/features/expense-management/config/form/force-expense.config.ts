@@ -5,9 +5,10 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 import { ADD_EXPENSE_FORM_CONFIG } from './add-expense.config';
-import { COMMON_FORM_ACTIONS, EMPLOYEE_NAME_DATA } from '@shared/config';
+import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { Validators } from '@angular/forms';
 import { FinancialYearService } from '@core/services/financial-year.service';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 
 const {
   fields: {
@@ -30,7 +31,10 @@ const FORCE_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     fieldName: 'employeeName',
     label: 'Employee Name',
     selectConfig: {
-      optionsDropdown: EMPLOYEE_NAME_DATA,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+      },
     },
     validators: [Validators.required],
   },

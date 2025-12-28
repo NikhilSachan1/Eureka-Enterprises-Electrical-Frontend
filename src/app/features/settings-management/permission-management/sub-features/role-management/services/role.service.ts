@@ -121,9 +121,9 @@ export class RoleService {
     return this.apiService
       .deleteValidated(
         `${API_ROUTES.SETTINGS.PERMISSION.ROLE.DELETE}`,
+        RoleDeleteResponseSchema,
         formData,
-        RoleDeleteRequestSchema,
-        RoleDeleteResponseSchema
+        RoleDeleteRequestSchema
       )
       .pipe(
         tap((response: IRoleDeleteResponseDto) => {

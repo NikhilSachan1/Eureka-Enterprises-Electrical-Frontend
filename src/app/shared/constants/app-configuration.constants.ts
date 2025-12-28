@@ -3,11 +3,14 @@ export const MODULE_NAMES = {
   EXPENSE: 'expense',
   ATTENDANCE: 'attendance',
   COMMON: 'common',
+  SITE: 'site',
+  VEHICLE: 'vehicle',
 } as const;
 
 export const CONFIGURATION_KEYS = {
   COMMON: {
     APPROVAL_STATUS: 'approval_status',
+    ROLE_LIST: 'role_list',
   },
   EMPLOYEE: {
     GENDERS: 'genders',
@@ -21,6 +24,7 @@ export const CONFIGURATION_KEYS = {
     BANK_NAMES: 'bank_names',
     STATES: 'states',
     CITIES: 'cities',
+    EMPLOYEE_LIST: 'employee_list',
   },
   EXPENSE: {
     CATEGORIES: 'expense_categories',
@@ -28,5 +32,12 @@ export const CONFIGURATION_KEYS = {
   },
   ATTENDANCE: {
     STATUS: 'attendance_status',
+  },
+  SITE: {
+    CLIENT_LIST: 'client_list',
+    LOCATION_LIST: 'location_list',
+  },
+  VEHICLE: {
+    VEHICLE_LIST: 'vehicle_list',
   },
 } as const;

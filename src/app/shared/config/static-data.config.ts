@@ -1,34 +1,5 @@
 import { IOptionDropdown } from '@shared/types';
 
-export const EMPLOYEE_NAME_DATA: IOptionDropdown[] = [
-  { label: 'Akhil Sachan', value: '508eee21-d0fb-45cf-9cfa-a7d83e8531e5' },
-  { label: 'System Admin', value: '41b4006e-c0d5-47cb-93dc-2422890c0c91' },
-];
-
-export const CLIENT_NAME_DATA: IOptionDropdown[] = [
-  { label: 'Client 1', value: 'client_1' },
-  { label: 'Client 2', value: 'client_2' },
-  { label: 'Client 3', value: 'client_3' },
-  { label: 'Client 4', value: 'client_4' },
-  { label: 'Client 5', value: 'client_5' },
-];
-
-export const LOCATION_DATA: IOptionDropdown[] = [
-  { label: 'Location 1', value: 'location_1' },
-  { label: 'Location 2', value: 'location_2' },
-  { label: 'Location 3', value: 'location_3' },
-  { label: 'Location 4', value: 'location_4' },
-  { label: 'Location 5', value: 'location_5' },
-];
-
-export const VEHICLE_LIST_DATA: IOptionDropdown[] = [
-  { label: 'Vehicle 1', value: 'vehicle_1' },
-  { label: 'Vehicle 2', value: 'vehicle_2' },
-  { label: 'Vehicle 3', value: 'vehicle_3' },
-  { label: 'Vehicle 4', value: 'vehicle_4' },
-  { label: 'Vehicle 5', value: 'vehicle_5' },
-];
-
 export const SHIFT_DATA = {
   START_TIME: '09:00',
   END_TIME: '18:00',
@@ -37,8 +8,6 @@ export const SHIFT_DATA = {
 export const PAYSLIP_DATE_DATA = {
   EVERY_MONTH: 5,
 };
-
-// Employee Management
 
 export const EMPLOYEE_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Active', value: 'ACTIVE' },
@@ -153,14 +122,6 @@ export const BANK_NAME_DATA: IOptionDropdown[] = [
   { label: 'Bank of Maharashtra', value: 'bank_of_maharashtra' },
 ];
 
-export const ROLE_NAME_DATA: IOptionDropdown[] = [
-  { label: 'Admin', value: 'ADMIN' },
-  { label: 'Employee', value: 'EMPLOYEE' },
-  { label: 'Manager', value: 'MANAGER' },
-  { label: 'Human Resource', value: 'HR' },
-  { label: 'Driver', value: 'DRIVER' },
-];
-
 export const ATTENDANCE_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Present', value: 'present' },
   { label: 'Absent', value: 'absent' },
@@ -175,4 +136,28 @@ export const APPROVAL_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Approved', value: 'approved' },
   { label: 'Rejected', value: 'rejected' },
   { label: 'Cancelled', value: 'cancelled' },
+];
+
+export const CLIENT_NAME_DATA: IOptionDropdown[] = [
+  { label: 'Client 1', value: 'client_1' },
+  { label: 'Client 2', value: 'client_2' },
+  { label: 'Client 3', value: 'client_3' },
+  { label: 'Client 4', value: 'client_4' },
+  { label: 'Client 5', value: 'client_5' },
+];
+
+export const LOCATION_DATA: IOptionDropdown[] = [
+  { label: 'Location 1', value: 'location_1' },
+  { label: 'Location 2', value: 'location_2' },
+  { label: 'Location 3', value: 'location_3' },
+  { label: 'Location 4', value: 'location_4' },
+  { label: 'Location 5', value: 'location_5' },
+];
+
+export const VEHICLE_LIST_DATA: IOptionDropdown[] = [
+  { label: 'Vehicle 1', value: 'vehicle_1' },
+  { label: 'Vehicle 2', value: 'vehicle_2' },
+  { label: 'Vehicle 3', value: 'vehicle_3' },
+  { label: 'Vehicle 4', value: 'vehicle_4' },
+  { label: 'Vehicle 5', value: 'vehicle_5' },
 ];

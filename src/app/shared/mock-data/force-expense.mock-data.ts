@@ -1,16 +1,15 @@
 import {
-  getRandomItemFromDropdown,
   getRandomDate,
   getRandomNumber,
   createFileFromAsset,
   getRandomItem,
   TEST_EXPENSE_CATEGORIES,
   TEST_PAYMENT_MODES,
+  TEST_EMPLOYEE_LIST,
 } from './mock-data.constants';
-import { EMPLOYEE_NAME_DATA } from '@shared/config';
 
 export const FORCE_EXPENSE_PREFILLED_DATA: Record<string, unknown> = {
-  employeeName: getRandomItemFromDropdown(EMPLOYEE_NAME_DATA),
+  employeeName: getRandomItem(TEST_EMPLOYEE_LIST),
   expenseType: getRandomItem(TEST_EXPENSE_CATEGORIES),
   paymentMode: getRandomItem(TEST_PAYMENT_MODES),
   expenseDate: getRandomDate(15, 7), // ~15 days old, ±7 days range
