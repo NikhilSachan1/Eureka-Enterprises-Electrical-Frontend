@@ -4,13 +4,11 @@ export const FEATURE_VISIBILITY_CONFIG = {
   attendance: {
     clientName: {
       [EUserRole.DRIVER]: false,
-      [EUserRole.ENGINEER]: true,
-      [EUserRole.SENIOR_SOFTWARE_ENGINEER]: false,
+      [EUserRole.EMPLOYEE]: true,
     },
     associateEngineerName: {
       [EUserRole.DRIVER]: true,
-      [EUserRole.ENGINEER]: false,
-      [EUserRole.SENIOR_SOFTWARE_ENGINEER]: true,
+      [EUserRole.EMPLOYEE]: false,
     },
   },
 } as const;

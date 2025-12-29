@@ -356,7 +356,7 @@ export class AddEmployeeComponent implements OnInit {
     if (designation === EUserRole.DRIVER) {
       return [EUserRole.DRIVER];
     }
-    return [EUserRole.SUPER_ADMIN];
+    return [EUserRole.EMPLOYEE];
   }
 
   private executeAddEmployee(formData: IEmployeeAddRequestDto): void {

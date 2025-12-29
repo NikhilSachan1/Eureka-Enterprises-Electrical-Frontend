@@ -64,7 +64,7 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
     dateOfJoining: getRandomDate(365 * 2, 365), // ~2 years old, Â±1 year range
     employmentType: getRandomItem(TEST_EMPLOYEE_TYPES),
     designation: getRandomItem(TEST_DESIGNATIONS),
-    esicNumber: `${getRandomNumber(17, 'exact')}`,
+    esicNumber: `${getRandomNumber(10, 'exact')}`,
     uanNumber: `${getRandomNumber(12, 'exact')}`,
     esicDocument: [createFileFromAsset('/mock-docs/employee/ESIC_DUMMY.pdf')],
     uanDocument: [createFileFromAsset('/mock-docs/employee/UAN_DUMMY.pdf')],

@@ -53,10 +53,11 @@ export class ApiService {
 
   post<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
+    const processedBody = this.convertEmptyToNull(body);
 
-    this.logger.logApiRequest('POST', url, body);
+    this.logger.logApiRequest('POST', url, processedBody);
 
-    return this.http.post<T>(url, body).pipe(
+    return this.http.post<T>(url, processedBody).pipe(
       timeout(this.timeout),
       tap(response => this.logger.logApiResponse('POST', url, response)),
       this.createRetryConfig<T>('POST', url),
@@ -69,10 +70,11 @@ export class ApiService {
 
   put<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
+    const processedBody = this.convertEmptyToNull(body);
 
-    this.logger.logApiRequest('PUT', url, body);
+    this.logger.logApiRequest('PUT', url, processedBody);
 
-    return this.http.put<T>(url, body).pipe(
+    return this.http.put<T>(url, processedBody).pipe(
       timeout(this.timeout),
       tap(response => this.logger.logApiResponse('PUT', url, response)),
       this.createRetryConfig<T>('PUT', url),
@@ -101,10 +103,11 @@ export class ApiService {
 
   patch<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
+    const processedBody = this.convertEmptyToNull(body);
 
-    this.logger.logApiRequest('PATCH', url, body);
+    this.logger.logApiRequest('PATCH', url, processedBody);
 
-    return this.http.patch<T>(url, body).pipe(
+    return this.http.patch<T>(url, processedBody).pipe(
       timeout(this.timeout),
       tap(response => this.logger.logApiResponse('PATCH', url, response)),
       this.createRetryConfig<T>('PATCH', url),
@@ -125,14 +128,26 @@ export class ApiService {
   ): Observable<TResponse> {
     try {
       const validatedBody = this.validateRequest(body, requestSchema);
+      const processedBody = this.convertEmptyToNull(validatedBody);
       const finalBody = options?.multipart
-        ? this.buildFormData(validatedBody)
-        : validatedBody;
+        ? this.buildFormData(processedBody)
+        : processedBody;
 
-      return this.post<unknown>(endpoint, finalBody).pipe(
+      // Use http.post directly to avoid double processing
+      const url = `${this.baseUrl}/${endpoint}`;
+      this.logger.logApiRequest('POST', url, finalBody);
+
+      return this.http.post<unknown>(url, finalBody).pipe(
+        timeout(this.timeout),
+        tap(response => this.logger.logApiResponse('POST', url, response)),
+        this.createRetryConfig<unknown>('POST', url),
         map((response: unknown) =>
           this.validateResponse(response, responseSchema)
-        )
+        ),
+        catchError((error: HttpErrorResponse) => {
+          this.showFinalErrorNotification(error);
+          return throwError(() => error);
+        })
       );
     } catch (zodError) {
       return throwError(() => zodError);
@@ -172,10 +187,23 @@ export class ApiService {
   ): Observable<TResponse> {
     try {
       const validatedBody = this.validateRequest(body, requestSchema);
-      return this.put<unknown>(endpoint, validatedBody).pipe(
+      const processedBody = this.convertEmptyToNull(validatedBody);
+
+      // Use http.put directly to avoid double processing
+      const url = `${this.baseUrl}/${endpoint}`;
+      this.logger.logApiRequest('PUT', url, processedBody);
+
+      return this.http.put<unknown>(url, processedBody).pipe(
+        timeout(this.timeout),
+        tap(response => this.logger.logApiResponse('PUT', url, response)),
+        this.createRetryConfig<unknown>('PUT', url),
         map((response: unknown) =>
           this.validateResponse(response, responseSchema)
-        )
+        ),
+        catchError((error: HttpErrorResponse) => {
+          this.showFinalErrorNotification(error);
+          return throwError(() => error);
+        })
       );
     } catch (zodError) {
       return throwError(() => zodError);
@@ -191,14 +219,26 @@ export class ApiService {
   ): Observable<TResponse> {
     try {
       const validatedBody = this.validateRequest(body, requestSchema);
+      const processedBody = this.convertEmptyToNull(validatedBody);
       const finalBody = options?.multipart
-        ? this.buildFormData(validatedBody)
-        : validatedBody;
+        ? this.buildFormData(processedBody)
+        : processedBody;
 
-      return this.patch<unknown>(endpoint, finalBody).pipe(
+      // Use http.patch directly to avoid double processing
+      const url = `${this.baseUrl}/${endpoint}`;
+      this.logger.logApiRequest('PATCH', url, finalBody);
+
+      return this.http.patch<unknown>(url, finalBody).pipe(
+        timeout(this.timeout),
+        tap(response => this.logger.logApiResponse('PATCH', url, response)),
+        this.createRetryConfig<unknown>('PATCH', url),
         map((response: unknown) =>
           this.validateResponse(response, responseSchema)
-        )
+        ),
+        catchError((error: HttpErrorResponse) => {
+          this.showFinalErrorNotification(error);
+          return throwError(() => error);
+        })
       );
     } catch (zodError) {
       return throwError(() => zodError);
@@ -248,6 +288,51 @@ export class ApiService {
     });
 
     return httpParams;
+  }
+
+  private convertEmptyToNull<T>(data: T): T {
+    if (data === null || data === undefined) {
+      return data;
+    }
+
+    // Don't process FormData, File, or Blob objects
+    if (
+      data instanceof FormData ||
+      data instanceof File ||
+      data instanceof Blob
+    ) {
+      return data;
+    }
+
+    // Handle arrays
+    if (Array.isArray(data)) {
+      return data.map(item => this.convertEmptyToNull(item)) as T;
+    }
+
+    // Handle objects
+    if (typeof data === 'object') {
+      const result: Record<string, unknown> = {};
+
+      Object.entries(data).forEach(([key, value]) => {
+        // Convert empty strings to null
+        if (value === '') {
+          result[key] = null;
+        }
+        // Recursively process nested objects/arrays
+        else if (value !== null && typeof value === 'object') {
+          result[key] = this.convertEmptyToNull(value);
+        }
+        // Keep other values as is
+        else {
+          result[key] = value;
+        }
+      });
+
+      return result as T;
+    }
+
+    // Return primitive values as is
+    return data;
   }
 
   private buildFormData(body: unknown): FormData {
