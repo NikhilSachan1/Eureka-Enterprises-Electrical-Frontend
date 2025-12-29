@@ -66,7 +66,7 @@ export const ROUTES = {
     FORCE: `force`,
     ADD: `add`,
     REIMBURSEMENT: `reimbursement`,
-    EDIT: `edit/:id`,
+    EDIT: `edit`,
   },
 
   LEAVE: {
@@ -93,19 +93,19 @@ export const ROUTES = {
   CALENDAR: {
     LIST: `list`,
     ADD: `add`,
-    EDIT: `edit/:id`,
+    EDIT: `edit`,
   },
 
   ASSET: {
     LIST: `list`,
     ADD: `add`,
-    EDIT: `edit/:id`,
+    EDIT: `edit`,
   },
 
   CARD: {
     LIST: `list`,
     ADD: `add`,
-    EDIT: `edit/:id`,
+    EDIT: `edit`,
     RECHARGE_HISTORY: `recharge-history`,
     ADD_RECHARGE: `add-recharge`,
   },
@@ -113,7 +113,7 @@ export const ROUTES = {
   VEHICLE: {
     LIST: `list`,
     ADD: `add`,
-    EDIT: `edit/:id`,
+    EDIT: `edit`,
   },
 
   PAYROLL: {

@@ -94,6 +94,22 @@ export const appMenu: ApplicationMenu = {
             },
           ],
         },
+        {
+          label: 'Asset',
+          icon: ICONS.ASSET.BOX,
+          children: [
+            {
+              label: 'Asset Inventory',
+              icon: ICONS.COMMON.VIEW,
+              routerLink: `${ROUTE_BASE_PATHS.ASSET}/${ROUTES.ASSET.LIST}`,
+            },
+            {
+              label: 'Add Asset',
+              icon: ICONS.COMMON.PLUS,
+              routerLink: `${ROUTE_BASE_PATHS.ASSET}/${ROUTES.ASSET.ADD}`,
+            },
+          ],
+        },
       ],
     },
   ],

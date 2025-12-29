@@ -73,6 +73,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.ASSET,
+        loadChildren: () =>
+          import('./features/asset-management/asset.routes').then(
+            m => m.ASSET_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: '**',
         redirectTo: `${ROUTE_BASE_PATHS.ATTENDANCE}`,
       },
