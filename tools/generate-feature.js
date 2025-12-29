@@ -43,10 +43,7 @@ createFile(path.join(basePath, 'schemas/index.ts'));
 
 createFile(path.join(basePath, 'types/index.ts'));
 
-const fileName = featureName
-  .split('-')
-  .map(word => capitalize(word))
-  .join('');
+const fileName = featureName.split('-')[0];
 
 // ---------- Service ----------
 createFile(path.join(basePath, 'services', `${fileName}.service.ts`));
