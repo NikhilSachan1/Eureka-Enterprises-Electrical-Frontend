@@ -298,8 +298,8 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     label: 'ESIC Number',
     fieldType: EDataType.TEXT,
     validators: [
-      Validators.minLength(17), // TODO: Update to 10 after backend is updated
-      Validators.maxLength(17), // TODO: Update to 10 after backend is updated
+      Validators.minLength(10),
+      Validators.maxLength(10),
       Validators.pattern(REGEX.NUMBER_ONLY),
     ],
     applyPatternFilter: true,
@@ -715,7 +715,6 @@ export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
       },
     },
   ],
-  linear: false,
 };
 
 const ADD_EMPLOYEE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

@@ -9,11 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  AppConfigService,
-  LoggerService,
-  EnvironmentService,
-} from '@core/services';
+import { LoggerService, EnvironmentService } from '@core/services';
 import { FORCE_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import { IExpenseForceRequestDto } from '@features/expense-management/types/expense.dto';
@@ -58,8 +54,6 @@ export class ForceExpenseComponent implements OnInit {
   private readonly expenseService = inject(ExpenseService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly datePipe = inject(DatePipe);
-  private readonly appConfigService = inject(AppConfigService);
   private readonly environmentService = inject(EnvironmentService);
 
   protected form!: IEnhancedForm;

@@ -10,7 +10,7 @@
     loading="lazy"
   />
   <h2 class="text-lg font-bold text-surface-900">{{ user()?.fullName }}</h2>
-  <p class="text-sm font-medium text-surface-600">{{ user()?.designation }}</p>
+  <p class="text-sm font-medium text-surface-600">{{ getLoogedUserDesignation() }}</p>
 
   <!-- User Options Menu -->
   @if (showUserOptions()) {

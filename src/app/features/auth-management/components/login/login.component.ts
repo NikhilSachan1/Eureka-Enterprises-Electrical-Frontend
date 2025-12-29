@@ -25,6 +25,7 @@ import {
   FormService,
   LoadingService,
   NotificationService,
+  AppConfigurationService,
 } from '@shared/services';
 import { ToastModule } from 'primeng/toast';
 import { IEnhancedForm } from '@shared/types';
@@ -35,6 +36,7 @@ import {
   ILoginResponseDto,
 } from '../../models/auth-api.model';
 import { UserPermissionService } from '../../../settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -60,6 +62,7 @@ export class LoginComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly userPermissionService = inject(UserPermissionService);
   private readonly loadingService = inject(LoadingService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected form!: IEnhancedForm;
   protected readonly isSubmitting = signal(false);
@@ -111,7 +114,15 @@ export class LoginComponent implements OnInit {
           this.authService.setAuthState(loginResponse, rememberMe);
         }),
         switchMap(() => {
-          return this.userPermissionService.fetchAndStoreLoggedInUserPermissions();
+          // Fetch permissions, employee list, and roles in parallel
+          return forkJoin({
+            permissions:
+              this.userPermissionService.fetchAndStoreLoggedInUserPermissions(),
+            appConfiguration:
+              this.appConfigurationService.loadAppConfiguration(),
+            employeeList: this.appConfigurationService.loadEmployeeList(),
+            roles: this.appConfigurationService.loadAllAppRoles(),
+          });
         }),
         finalize(() => {
           this.loadingService.hide();

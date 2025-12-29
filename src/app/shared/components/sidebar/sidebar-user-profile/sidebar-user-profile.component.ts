@@ -14,10 +14,11 @@ import { UserOption } from '@shared/types';
 import { NgClass } from '@angular/common';
 import { primaryUserOptions, secondaryUserOptions } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { LoadingService } from '@shared/services';
+import { AppConfigurationService, LoadingService } from '@shared/services';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-sidebar-user-profile',
@@ -34,6 +35,7 @@ export class SidebarUserProfileComponent {
   private readonly loadingService = inject(LoadingService);
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   readonly user = computed(() => this.authService.user());
   readonly userAvatar = computed(() => this.authService.loggedInUserAvatar());
@@ -51,6 +53,13 @@ export class SidebarUserProfileComponent {
 
   getThemeLabel(): string {
     return this.themeService.isDarkMode() ? 'Light Mode' : 'Dark Mode';
+  }
+
+  getLoogedUserDesignation(): string {
+    return getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.designations(),
+      this.user()?.designation ?? ''
+    );
   }
 
   @HostListener('window:click', ['$event'])

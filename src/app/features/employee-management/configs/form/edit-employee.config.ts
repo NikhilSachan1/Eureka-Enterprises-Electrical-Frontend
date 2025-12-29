@@ -45,7 +45,7 @@ const EDIT_DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig
   };
 
 export const EDIT_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
-  ...ADD_EMPLOYEE_STEPPER_CONFIG,
+  steps: ADD_EMPLOYEE_STEPPER_CONFIG.steps.filter(step => step.value !== 6),
   linear: false,
 };
 

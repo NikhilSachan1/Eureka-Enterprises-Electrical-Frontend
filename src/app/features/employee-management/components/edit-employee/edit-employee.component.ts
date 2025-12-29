@@ -43,6 +43,7 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IEmployeeDetailResolverResponse } from '@features/employee-management/types/employee.interface';
+import { AuthService } from '@features/auth-management/services/auth.service';
 
 @Component({
   selector: 'app-edit-employee',
@@ -66,6 +67,7 @@ export class EditEmployeeComponent implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
 
   protected stepperConfig!: IStepperConfig;
   protected multiStepForm!: IEnhancedMultiStepForm;
@@ -83,6 +85,7 @@ export class EditEmployeeComponent implements OnInit {
   protected readonly stepErrors = signal<Record<number, boolean>>({});
   protected readonly stepValid = signal<Record<number, boolean>>({});
   private readonly attemptedSteps = signal<Set<number>>(new Set());
+  private readonly initialEmail = signal<string>('');
 
   constructor() {
     effect(() => {
@@ -125,6 +128,8 @@ export class EditEmployeeComponent implements OnInit {
       void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
+
+    this.initialEmail.set(employeeDetailFromResolver.email);
 
     const prefilledEmployeeData = this.preparePrefilledFormData(
       employeeDetailFromResolver
@@ -367,7 +372,7 @@ export class EditEmployeeComponent implements OnInit {
       designation,
       degree,
       branch,
-      passoutYear: passingYear,
+      passoutYear: passingYear.toString(),
       bankHolderName: accountHolderName,
       accountNumber,
       bankName,
@@ -413,16 +418,71 @@ export class EditEmployeeComponent implements OnInit {
       .subscribe({
         next: () => {
           this.notificationService.success('Employee updated successfully');
-          const routeSegments = [
-            ROUTE_BASE_PATHS.EMPLOYEE,
-            ROUTES.EMPLOYEE.LIST,
-          ];
-          void this.routerNavigationService.navigateToRoute(routeSegments);
+
+          const { email: loggedInUserEmail } = this.authService.user() ?? {};
+          const {
+            firstName,
+            lastName,
+            designation,
+            email: updatedEmail,
+          } = formData;
+
+          if (loggedInUserEmail && updatedEmail === loggedInUserEmail) {
+            const routeSegments = [
+              ROUTE_BASE_PATHS.EMPLOYEE,
+              ROUTES.EMPLOYEE.LIST,
+            ];
+            void this.routerNavigationService.navigateToRoute(routeSegments);
+
+            this.authService.updateUserDetails({
+              firstName,
+              lastName,
+              designation,
+              profilePicture: '',
+            });
+            return;
+          }
+
+          const emailHasChanged = this.initialEmail() !== updatedEmail;
+
+          if (emailHasChanged) {
+            this.logoutAndNavigateToLogin();
+          }
         },
         error: () => {
           this.notificationService.error('Failed to update employee');
         },
       });
+  }
+
+  private logoutAndNavigateToLogin(): void {
+    setTimeout(() => {
+      this.loadingService.show({
+        title: 'Logging Out',
+        message: 'Please wait while we log you out...',
+      });
+
+      this.authService
+        .logout()
+        .pipe(
+          finalize(() => {
+            this.loadingService.hide();
+          }),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe({
+          next: () => {
+            this.notificationService.success(
+              'Your email has been updated. Please log in again with your new email.'
+            );
+            const routeSegments = [ROUTE_BASE_PATHS.AUTH, ROUTES.AUTH.LOGIN];
+            void this.routerNavigationService.navigateToRoute(routeSegments);
+          },
+          error: error => {
+            this.logger.error('Error during logout', error);
+          },
+        });
+    }, 100);
   }
 
   protected onStepperNextRequested(): void {

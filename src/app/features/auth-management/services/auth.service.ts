@@ -1,9 +1,8 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, delay, tap } from 'rxjs/operators';
 import { ApiService, LoggerService } from '@core/services';
-import { AvatarService } from '@shared/services';
+import { AttachmentsService, AvatarService } from '@shared/services';
 import { API_ROUTES } from '@core/constants';
 import { ILoggedInUserDetails } from '../models/logged-in-user.model';
 import { ILoginRequestDto, ILoginResponseDto } from '../models/auth-api.model';
@@ -14,9 +13,9 @@ import { LoginRequestSchema, LoginResponseSchema } from '../dto/auth.dto';
 })
 export class AuthService {
   private readonly apiService = inject(ApiService);
-  private readonly router = inject(Router);
   private readonly logger = inject(LoggerService);
   private readonly avatarService = inject(AvatarService);
+  private readonly attachmentsService = inject(AttachmentsService);
 
   public readonly loggedInUserInitials = computed(() =>
     this.getLoggedInUserInitials()
@@ -24,13 +23,21 @@ export class AuthService {
   public readonly loggedInUserShortName = computed(() =>
     this.getLoggedInUserShortName()
   );
-  public readonly loggedInUserAvatar = computed(() =>
-    this.getLoggedInUserAvatar()
-  );
+  public readonly loggedInUserAvatar = computed(() => {
+    // First try to return loaded profile picture URL
+    const avatarUrl = this._userAvatarUrl();
+    if (avatarUrl) {
+      return avatarUrl;
+    }
+
+    // Fallback to generated avatar from name
+    return this.getLoggedInUserAvatar();
+  });
 
   private readonly _isAuthenticated = signal<boolean>(false);
   private readonly _user = signal<ILoggedInUserDetails | null>(null);
   private readonly _token = signal<string | null>(null);
+  private readonly _userAvatarUrl = signal<string>('');
 
   public readonly isAuthenticated = this._isAuthenticated.asReadonly();
   public readonly user = this._user.asReadonly();
@@ -38,6 +45,16 @@ export class AuthService {
 
   constructor() {
     this.initializeAuthState();
+
+    // Watch for user signal changes and reload profile picture
+    effect(() => {
+      const user = this._user();
+      if (user?.profilePicture) {
+        this.loadUserProfilePicture();
+      } else {
+        this._userAvatarUrl.set('');
+      }
+    });
   }
 
   private initializeAuthState(): void {
@@ -216,15 +233,63 @@ export class AuthService {
 
   private getLoggedInUserAvatar(): string {
     const user = this._user();
-    let profilePicture = '';
+    return this.avatarService.getAvatarFromName(user?.fullName ?? '');
+  }
+
+  private loadUserProfilePicture(): void {
+    const user = this._user();
+
     if (!user?.profilePicture) {
-      profilePicture = this.avatarService.getAvatarFromName(
-        user?.fullName ?? ''
-      );
-    } else {
-      profilePicture = user.profilePicture;
+      this._userAvatarUrl.set('');
+      return;
     }
 
-    return profilePicture;
+    this.attachmentsService
+      .getFullMediaUrl(user.profilePicture)
+      .pipe(
+        tap(response => {
+          this._userAvatarUrl.set(response.url);
+          this.logger.info('User profile picture loaded', response.url);
+        }),
+        catchError(error => {
+          this.logger.error('Failed to load profile picture', error);
+          this._userAvatarUrl.set('');
+          return of(null);
+        })
+      )
+      .subscribe();
+  }
+
+  updateUserDetails(updates: {
+    firstName?: string;
+    lastName?: string;
+    designation?: string;
+    profilePicture?: string;
+  }): void {
+    const currentUser = this._user();
+    if (!currentUser) {
+      this.logger.warn('Cannot update user details: No user logged in');
+      return;
+    }
+
+    const updatedUser: ILoggedInUserDetails = {
+      ...currentUser,
+      firstName: updates.firstName ?? currentUser.firstName,
+      lastName: updates.lastName ?? currentUser.lastName,
+      designation: updates.designation ?? currentUser.designation,
+      profilePicture: updates.profilePicture ?? currentUser.profilePicture,
+      fullName: `${updates.firstName ?? currentUser.firstName} ${updates.lastName ?? currentUser.lastName}`,
+    };
+
+    // Update signal
+    this._user.set(updatedUser);
+
+    // Update storage
+    const storage = localStorage.getItem('user_data')
+      ? localStorage
+      : sessionStorage;
+    storage.setItem('user_data', JSON.stringify(updatedUser));
+
+    this.logger.info('User details updated successfully', updatedUser);
   }
 }
