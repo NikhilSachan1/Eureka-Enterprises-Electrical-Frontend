@@ -18,3 +18,7 @@
 
 <!-- Global Gallery -->
 <app-gallery [media]="galleryService.media()" />
+
+@if (networkMonitor.showOfflineOverlay()) {
+  <app-offline />
+}

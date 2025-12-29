@@ -6,3 +6,4 @@ export { MenuService } from './menu.service';
 export { ThemeService } from './theme.service';
 export { TimezoneService } from './timezone.service';
 export { AppPermissionService } from './app-permission.service';
+export { NetworkMonitorService } from './network-monitor.service';
