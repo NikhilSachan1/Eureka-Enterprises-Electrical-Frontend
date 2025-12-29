@@ -27,6 +27,9 @@ export class OfflineComponent {
   protected readonly isOnline = this.networkMonitor.isOnline;
   protected readonly isChecking = signal(false);
 
+  // Icon constants for template
+  protected readonly ICONS = ICONS;
+
   protected readonly retryButtonConfig: Partial<IButtonConfig> = {
     id: EButtonActionType.SUBMIT,
     label: 'Retry Connection',

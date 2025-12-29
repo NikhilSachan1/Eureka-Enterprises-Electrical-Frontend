@@ -17,7 +17,7 @@ import {
   IEmployeeChangeStatusResponseDto,
   IEmployeeGetBaseResponseDto,
 } from '@features/employee-management/types/employee.dto';
-import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { FORM_VALIDATION_MESSAGES, ICONS } from '@shared/constants';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -51,6 +51,7 @@ export class ChangeStatusEmployeeComponent implements OnInit {
   protected readonly onSuccess = input<() => void>();
 
   protected readonly ALL_EMPLOYMENT_TYPES = EEmployeeStatus;
+  protected readonly ICONS = ICONS;
 
   protected readonly isSubmitting = signal(false);
 

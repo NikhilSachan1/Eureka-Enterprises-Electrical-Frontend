@@ -16,6 +16,7 @@ import {
   EDataType,
 } from '@shared/types';
 import { DEFAULT_READ_MORE_CONFIG } from './read-more.config';
+import { ICONS } from '@shared/constants';
 
 // Default table config
 export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -27,7 +28,7 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   showPaginator: true,
   showCheckbox: true,
   emptyMessage: 'No data found',
-  emptyMessageIcon: 'pi pi-info-circle',
+  emptyMessageIcon: ICONS.COMMON.INFO_CIRCLE,
   emptyMessageDescription: 'No data found',
   paginationTemplate: 'Showing {first} to {last} of {totalRecords} entries',
   enableServerSide: true,

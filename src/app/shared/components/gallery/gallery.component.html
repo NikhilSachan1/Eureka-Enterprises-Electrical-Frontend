@@ -42,7 +42,7 @@
             </div>
             <div class="gallery-viewer__file-state-badges">
               <span class="gallery-viewer__file-state-badge gallery-viewer__file-state-badge--error">
-                <i class="pi pi-exclamation-triangle"></i>
+                <i [class]="ICONS.COMMON.EXCLAMATION_TRIANGLE"></i>
                 <span>Broken Source</span>
               </span>
               @if (file.fileExtension) {
@@ -84,7 +84,7 @@
             [preview]="true"
           >
             <ng-template pTemplate="indicator">
-              <i class="pi pi-eye"></i>
+              <i [class]="ICONS.ACTIONS.EYE"></i>
               <span>Click to Preview</span>
             </ng-template>
           </p-image>

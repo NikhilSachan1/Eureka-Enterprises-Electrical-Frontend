@@ -24,6 +24,7 @@ import {
 } from '@shared/config';
 import { ButtonComponent } from '../button/button.component';
 import { EStepperOrientation } from '@shared/types';
+import { ICONS } from '@shared/constants';
 
 @Component({
   selector: 'app-stepper',
@@ -44,6 +45,9 @@ export class StepperComponent implements OnInit {
   nextStepRequested = output<void>();
   previousStepRequested = output<void>();
   resetRequested = output<void>();
+
+  // Icon constants for template
+  protected readonly ICONS = ICONS;
 
   protected readonly ALL_STEPPER_ORIENTATIONS = EStepperOrientation;
   protected readonly isMobile = signal(window.innerWidth <= 1024);

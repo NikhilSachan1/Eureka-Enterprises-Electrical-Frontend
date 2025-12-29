@@ -46,6 +46,9 @@ export class GalleryComponent {
   private readonly loadingService = inject(LoadingService);
   private readonly destroyRef = inject(DestroyRef);
 
+  // Icon constants for template
+  protected readonly ICONS = ICONS;
+
   readonly icons = ICONS;
   readonly ALL_BUTTON_SEVERITY = EButtonSeverity;
   readonly ALL_BUTTON_ICON_POSITION = EButtonIconPosition;

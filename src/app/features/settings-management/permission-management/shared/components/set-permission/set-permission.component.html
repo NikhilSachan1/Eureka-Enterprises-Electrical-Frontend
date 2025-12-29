@@ -122,7 +122,7 @@
                               @if (permissionInfo.source) {
                                 <p-tag
                                   [value]="permissionInfo.source === 'override' ? 'Override' : 'Role'"
-                                  [icon]="permissionInfo.source === 'override' ? 'pi pi-user' : 'pi pi-users'"
+                                  [icon]="permissionInfo.source === 'override' ? icons.COMMON.USER : icons.COMMON.USERS"
                                   [severity]="permissionInfo.source === 'override' ? 'warn' : 'info'"
                                   class="mt-1 text-xs"
                                 />

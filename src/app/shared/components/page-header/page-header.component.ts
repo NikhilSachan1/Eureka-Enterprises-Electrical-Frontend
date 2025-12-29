@@ -15,6 +15,7 @@ import {
 } from '@shared/types';
 import { DEFAULT_PAGE_HEADER_CONFIG } from '@shared/config';
 import { ButtonComponent } from '../button/button.component';
+import { ICONS } from '@shared/constants';
 
 @Component({
   selector: 'app-page-header',
@@ -46,7 +47,7 @@ export class PageHeaderComponent {
 
   private getGoBackButtonConfig(): IButtonConfig {
     return {
-      icon: 'pi pi-arrow-left',
+      icon: ICONS.COMMON.ARROW_LEFT,
       severity: EButtonSeverity.SECONDARY,
       variant: EButtonVariant.TEXT,
     } as IButtonConfig;

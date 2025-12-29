@@ -39,12 +39,12 @@
           <div class="flex flex-wrap items-center gap-2 mb-6">
             <app-chip
               [label]="employee.quickInfo.employeeEmployeeId"
-              icon="pi pi-id-card"
+              [icon]="icons.COMMON.ID_CARD"
               styleClass="bg-gray-100 text-gray-700 text-xs font-medium"
             />
             <app-chip
               [label]="employee.quickInfo.employeeDesignation | titlecase"
-              icon="pi pi-briefcase"
+              [icon]="icons.COMMON.BRIEFCASE"
               styleClass="bg-gray-100 text-gray-700 text-xs font-medium"
             />
           </div>
@@ -57,7 +57,7 @@
                   class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                   [ngClass]="info.bgColor || 'bg-gray-50'"
                 >
-                  <i [class]="`${info.icon || 'pi pi-info-circle'} text-primary`"></i>
+                  <i [class]="(info.icon || icons.COMMON.INFO_CIRCLE) + ' text-primary'"></i>
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="text-xs text-gray-500 mb-0.5">{{ info.label }}</p>
@@ -192,7 +192,7 @@
                             class="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
                             [ngClass]="isEmpty ? bgColor : `${bgColor} ${hoverBg}`"
                           >
-                            <i [class]="`pi pi-file-pdf ${iconColor} text-lg`"></i>
+                            <i [class]="icons.MEDIA.PDF + ' ' + iconColor + ' text-lg'"></i>
                           </div>
                           <div class="flex-1 min-w-0 text-left">
                             <p class="text-sm font-semibold truncate text-gray-900">
@@ -203,7 +203,11 @@
                             </p>
                           </div>
                           @if (!isEmpty) {
-                            <i class="pi pi-chevron-right text-gray-400 group-hover:text-primary transition-colors"></i>
+                            <i
+                              [class]="
+                                icons.COMMON.CHEVRON_RIGHT + ' text-gray-400 group-hover:text-primary transition-colors'
+                              "
+                            ></i>
                           }
                         </button>
                       }
