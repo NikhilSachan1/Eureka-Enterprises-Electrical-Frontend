@@ -83,6 +83,7 @@ export interface ISelectFieldConfig {
   dynamicDropdown?: {
     moduleName: string;
     dropdownName: string;
+    filterByRole?: string[]; // Filter employees by roles (e.g., ['TECHNICIAN', 'ADMIN'])
   };
   filterOptions?: {
     include?: string[];
@@ -105,6 +106,7 @@ export interface IMultiSelectFieldConfig {
   dynamicDropdown?: {
     moduleName: string;
     dropdownName: string;
+    filterByRole?: string[]; // Filter employees by roles (e.g., ['TECHNICIAN', 'ADMIN'])
   };
   filterOptions?: {
     include?: string[];

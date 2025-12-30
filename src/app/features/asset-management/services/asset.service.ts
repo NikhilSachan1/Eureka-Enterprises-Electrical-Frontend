@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService, LoggerService } from '@core/services';
 import {
+  IActionAssetRequestDto,
+  IActionAssetResponseDto,
   IAssetAddRequestDto,
   IAssetAddResponseDto,
   IAssetDeleteRequestDto,
@@ -15,6 +17,8 @@ import {
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
 import {
+  ActionAssetRequestSchema,
+  ActionAssetResponseSchema,
   AssetAddRequestSchema,
   AssetAddResponseSchema,
   AssetDeleteResponseSchema,
@@ -106,6 +110,34 @@ export class AssetService {
             this.logger.logDtoValidationErrors('Delete Asset Error', error);
           } else {
             this.logger.logUserAction('Delete Asset Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  actionAsset(
+    formData: IActionAssetRequestDto
+  ): Observable<IActionAssetResponseDto> {
+    this.logger.logUserAction('Action Asset Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.ASSET.ACTION,
+        formData,
+        ActionAssetRequestSchema,
+        ActionAssetResponseSchema,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: IActionAssetResponseDto) => {
+          this.logger.logUserAction('Action Asset Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Action Asset Error', error);
+          } else {
+            this.logger.logUserAction('Action Asset Error', error);
           }
           return throwError(() => error);
         })

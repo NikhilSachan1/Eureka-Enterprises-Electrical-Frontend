@@ -64,4 +64,9 @@ export enum EButtonActionType {
   CHECK_OUT = 'checkOut',
   SEND_PASSWORD_LINK = 'sendPasswordLink',
   CHANGE_EMPLOYEE_STATUS = 'changeEmployeeStatus',
+  HANDOVER_INITIATE = 'handoverInitiate',
+  HANDOVER_ACCEPTED = 'handoverAccepted',
+  HANDOVER_REJECTED = 'handoverRejected',
+  HANDOVER_CANCELLED = 'handoverCancelled',
+  DEALLOCATE = 'deallocate',
 }

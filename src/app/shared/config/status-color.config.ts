@@ -15,6 +15,8 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'total credited',
     'active employees',
     'available',
+    'handoverinitiate',
+    'handoveraccepted',
   ],
   danger: [
     'inactive',
@@ -29,6 +31,8 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'total consumed',
     'inactive employees',
     'archived',
+    'handoverrejected',
+    'deallocate',
   ],
   warning: [
     'pending',
@@ -41,6 +45,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'new joiners last 30 days',
     'sendpasswordlink',
     'changeemployeestatus',
+    'handovercancelled',
   ],
   info: [
     'holiday',

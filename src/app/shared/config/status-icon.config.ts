@@ -8,6 +8,8 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   'total credit': ICONS.COMMON.ARROW_UP,
   'period credit': ICONS.COMMON.ARROW_UP,
   'active employees': ICONS.EMPLOYEE.GROUP,
+  handoverinitiate: ICONS.ACTIONS.SEND,
+  handoveraccepted: ICONS.ACTIONS.CHECK_CIRCLE,
 
   // Danger/Rejected statuses
   rejected: ICONS.ACTIONS.TIMES,
@@ -19,6 +21,8 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   'period debit': ICONS.EXPENSE.MONEY,
   'total consumed': ICONS.EXPENSE.MONEY,
   'inactive employees': ICONS.ACTIONS.TIMES,
+  handoverrejected: ICONS.ACTIONS.TIMES,
+  deallocate: ICONS.ACTIONS.TRASH,
 
   // Warning/Pending statuses
   pending: ICONS.ATTENDANCE.REGULARIZE,
@@ -30,6 +34,7 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   'new joiners last 30 days': ICONS.EMPLOYEE.GROUP,
   sendpasswordlink: ICONS.ACTIONS.SEND,
   changeemployeestatus: ICONS.COMMON.TOGGLE,
+  handovercancelled: ICONS.ACTIONS.TIMES,
 
   // Info statuses
   holiday: ICONS.ATTENDANCE.CALENDAR,

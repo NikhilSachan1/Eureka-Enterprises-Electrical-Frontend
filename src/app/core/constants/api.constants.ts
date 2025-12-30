@@ -51,6 +51,7 @@ export const API_ROUTES = {
     DELETE_ASSET_BY_ID: (assetId: string) => `assets/${assetId}`,
     EDIT: (assetId: string) => `assets/${assetId}`,
     GET_ASSET_BY_ID: (assetId: string) => `assets/${assetId}`,
+    ACTION: 'assets/action',
   },
   SETTINGS: {
     PERMISSION: {

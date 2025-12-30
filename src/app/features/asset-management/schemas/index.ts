@@ -20,3 +20,7 @@ export {
   AssetGetResponseSchema,
   AssetGetStatsResponseSchema,
 } from './get-asset.schema';
+export {
+  ActionAssetRequestSchema,
+  ActionAssetResponseSchema,
+} from './action-asset.schema';

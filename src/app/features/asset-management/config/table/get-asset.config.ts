@@ -1,12 +1,14 @@
 import { IAssetGetResponseDto } from '@features/asset-management/types/asset.dto';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
+  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
+import { IconUtil } from '@shared/utility';
 
 export const ASSET_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No asset record found.',
@@ -74,6 +76,31 @@ export const ASSET_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Asset Details',
+  },
+  {
+    id: EButtonActionType.HANDOVER_INITIATE,
+    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_INITIATE) ?? undefined,
+    tooltip: 'Allocate Asset',
+  },
+  {
+    id: EButtonActionType.HANDOVER_ACCEPTED,
+    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_ACCEPTED) ?? undefined,
+    tooltip: 'Accept Allocation',
+  },
+  {
+    id: EButtonActionType.HANDOVER_REJECTED,
+    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_REJECTED) ?? undefined,
+    tooltip: 'Reject Allocation',
+  },
+  {
+    id: EButtonActionType.HANDOVER_CANCELLED,
+    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_CANCELLED) ?? undefined,
+    tooltip: 'Cancel Allocation',
+  },
+  {
+    id: EButtonActionType.DEALLOCATE,
+    icon: IconUtil.getIcon(EButtonActionType.DEALLOCATE) ?? undefined,
+    tooltip: 'Deallocate Asset',
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,

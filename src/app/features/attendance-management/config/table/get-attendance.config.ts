@@ -9,6 +9,7 @@ import {
 import { ICONS } from '@shared/constants';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { IAttendanceGetResponseDto } from '../../types/attendance.dto';
+import { IconUtil } from '@shared/utility';
 
 export const ATTENDANCE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No attendance record found.',
@@ -78,7 +79,7 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] 
     },
     {
       id: EButtonActionType.REGULARIZE,
-      icon: ICONS.ATTENDANCE.REGULARIZE,
+      icon: IconUtil.getIcon(EButtonActionType.REGULARIZE) ?? undefined,
       tooltip: 'Regularize Attendance',
     },
     {

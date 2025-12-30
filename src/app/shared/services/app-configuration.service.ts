@@ -67,6 +67,9 @@ export class AppConfigurationService {
 
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
+  private readonly _employeeListByRole = signal<
+    Record<string, IOptionDropdown[]>
+  >({});
   private readonly _roleList = signal<IOptionDropdown[]>([]);
   private readonly _clientList = signal<IOptionDropdown[]>([]);
   private readonly _locationList = signal<IOptionDropdown[]>([]);
@@ -100,6 +103,7 @@ export class AppConfigurationService {
 
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
+  readonly employeeListByRole = this._employeeListByRole.asReadonly();
   readonly roleList = this._roleList.asReadonly();
   readonly clientList = this._clientList.asReadonly();
   readonly locationList = this._locationList.asReadonly();
@@ -298,12 +302,34 @@ export class AppConfigurationService {
           count: response.totalRecords,
         });
 
-        const employeeList = response.records.map(employee => ({
-          label: `${employee.firstName} ${employee.lastName}`.trim(),
-          value: employee.id,
-        }));
+        const employeeList: IOptionDropdown[] = [];
+        const employeeListByRole: Record<string, IOptionDropdown[]> = {};
+
+        response.records.forEach(employee => {
+          const dropdownItem: IOptionDropdown = {
+            label: `${employee.firstName} ${employee.lastName}`.trim(),
+            value: employee.id,
+          };
+
+          // Add to full employee list
+          employeeList.push(dropdownItem);
+
+          // Parse roles (comma-separated string) and add to role-based lists
+          const roles = employee.roles
+            .split(',')
+            .map(role => role.trim().toUpperCase())
+            .filter(role => role.length > 0);
+
+          roles.forEach(role => {
+            if (!employeeListByRole[role]) {
+              employeeListByRole[role] = [];
+            }
+            employeeListByRole[role].push(dropdownItem);
+          });
+        });
 
         this._employeeList.set(employeeList);
+        this._employeeListByRole.set(employeeListByRole);
       }),
       catchError(error => {
         this.logger.logUserAction('Failed to load Employee List', error);
@@ -341,6 +367,11 @@ export class AppConfigurationService {
         ?.find(dropdown => dropdown.key === key)
         ?.signal.asReadonly() ?? this.EMPTY_DROPDOWN
     );
+  }
+
+  getEmployeesByRole(roleName: string): IOptionDropdown[] {
+    const upperRole = roleName.toUpperCase();
+    return this._employeeListByRole()[upperRole] ?? [];
   }
 
   private populateAllModuleDropdowns(

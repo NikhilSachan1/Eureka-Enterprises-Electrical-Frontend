@@ -2,6 +2,11 @@ export enum ETableActionTypeValue {
   APPROVED = 'approved',
   REJECTED = 'rejected',
   CANCELLED = 'cancelled',
+  HANDOVER_INITIATED = 'HANDOVER_INITIATED',
+  HANDOVER_ACCEPTED = 'HANDOVER_ACCEPTED',
+  HANDOVER_REJECTED = 'HANDOVER_REJECTED',
+  HANDOVER_CANCELLED = 'HANDOVER_CANCELLED',
+  DEALLOCATED = 'DEALLOCATED',
 }
 
 export enum ETableFilterDisplayType {

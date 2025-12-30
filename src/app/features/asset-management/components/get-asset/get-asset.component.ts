@@ -209,6 +209,16 @@ export class GetAssetComponent implements OnInit {
       },
     };
 
+    if (
+      actionType === EButtonActionType.HANDOVER_INITIATE ||
+      actionType === EButtonActionType.HANDOVER_ACCEPTED ||
+      actionType === EButtonActionType.HANDOVER_REJECTED ||
+      actionType === EButtonActionType.HANDOVER_CANCELLED ||
+      actionType === EButtonActionType.DEALLOCATE
+    ) {
+      dynamicComponentInputs.dialogActionType = actionType;
+    }
+
     const recordDetail = this.prepareAssetRecordDetail(selectedFirstRow);
 
     this.confirmationDialogService.showConfirmationDialog(

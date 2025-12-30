@@ -191,14 +191,28 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     let dropdownOptions: IOptionDropdown[] = [];
 
     if (dropdownConfig.dynamicDropdown) {
-      const { moduleName, dropdownName } = dropdownConfig.dynamicDropdown;
-      const dynamicOptions = this.appConfigurationService.getDropdown(
-        moduleName,
-        dropdownName
-      )();
+      const { moduleName, dropdownName, filterByRole } =
+        dropdownConfig.dynamicDropdown;
 
-      if (dynamicOptions.length > 0) {
-        dropdownOptions = dynamicOptions;
+      // If filterByRole is specified, use role-based employee list
+      if (filterByRole && filterByRole.length > 0) {
+        // Collect employees from all specified roles and remove duplicates
+        const employeeMap = new Map<string, IOptionDropdown>();
+        filterByRole.forEach(role => {
+          this.appConfigurationService
+            .getEmployeesByRole(role)
+            .forEach(employee => employeeMap.set(employee.value, employee));
+        });
+        dropdownOptions = Array.from(employeeMap.values());
+      } else {
+        const dynamicOptions = this.appConfigurationService.getDropdown(
+          moduleName,
+          dropdownName
+        )();
+
+        if (dynamicOptions.length > 0) {
+          dropdownOptions = dynamicOptions;
+        }
       }
     } else {
       dropdownOptions = dropdownConfig.optionsDropdown ?? [];

@@ -21,6 +21,10 @@ import {
   AssetGetResponseSchema,
   AssetGetStatsResponseSchema,
 } from '../schemas/get-asset.schema';
+import {
+  ActionAssetRequestSchema,
+  ActionAssetResponseSchema,
+} from '../schemas';
 
 export type IAssetAddRequestDto = z.infer<typeof AssetAddRequestSchema>;
 export type IAssetAddResponseDto = z.infer<typeof AssetAddResponseSchema>;
@@ -42,3 +46,5 @@ export type IAssetGetResponseDto = z.infer<typeof AssetGetResponseSchema>;
 export type IAssetGetStatsResponseDto = z.infer<
   typeof AssetGetStatsResponseSchema
 >;
+export type IActionAssetRequestDto = z.infer<typeof ActionAssetRequestSchema>;
+export type IActionAssetResponseDto = z.infer<typeof ActionAssetResponseSchema>;
