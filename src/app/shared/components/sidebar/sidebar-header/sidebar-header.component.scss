@@ -1,42 +1,41 @@
-.p-5 {
+.sidebar-header {
   height: var(--header-height);
-  border-bottom: 1px solid var(--sidebar-border-color);
-  background: var(--sidebar-bg, white);
-  padding: 0 1.5rem !important;
+  padding: 0 1rem;
   display: flex;
   align-items: center;
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--sidebar-border-color);
+}
 
-  .flex {
-    gap: 1rem !important;
-  }
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
 
-  img {
-    width: 2.5rem;
-    height: 2.5rem;
-    transition: var(--transition-smooth);
-    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
+.logo {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
 
-    &:hover {
-      transform: scale(1.02) rotate(-2deg);
-      filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07));
-    }
-  }
-
+.brand {
   h1 {
+    font-size: 1rem;
+    font-weight: 700;
     color: var(--sidebar-text-primary);
-    font-size: 1.125rem;
-    font-weight: 600;
-    letter-spacing: -0.025em;
-    line-height: 1.25;
     margin: 0;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
   }
 
   h2 {
-    color: var(--sidebar-text-secondary);
-    font-size: 0.813rem;
+    font-size: 0.6875rem;
     font-weight: 500;
-    letter-spacing: -0.025em;
-    line-height: 1.25;
+    color: var(--sidebar-text-secondary);
     margin: 0;
+    line-height: 1.25;
   }
 }

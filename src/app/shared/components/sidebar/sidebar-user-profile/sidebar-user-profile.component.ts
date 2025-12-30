@@ -3,13 +3,12 @@ import {
   Component,
   computed,
   DestroyRef,
-  HostListener,
   inject,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoggerService, ThemeService } from '@core/services';
-import { fadeInOut } from '@shared/animations';
 import { UserOption } from '@shared/types';
 import { NgClass } from '@angular/common';
 import { primaryUserOptions, secondaryUserOptions } from '@core/config';
@@ -19,16 +18,22 @@ import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { PopoverModule, Popover } from 'primeng/popover';
+import {
+  RoleSwitcherComponent,
+  UserRole,
+} from '../role-switcher/role-switcher.component';
 
 @Component({
   selector: 'app-sidebar-user-profile',
-  imports: [NgClass],
+  imports: [NgClass, PopoverModule, RoleSwitcherComponent],
   templateUrl: './sidebar-user-profile.component.html',
   styleUrls: ['./sidebar-user-profile.component.scss'],
-  animations: [fadeInOut],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarUserProfileComponent {
+  @ViewChild('userPopover') userPopover!: Popover;
+
   private router = inject(Router);
   private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
@@ -40,13 +45,41 @@ export class SidebarUserProfileComponent {
   readonly user = computed(() => this.authService.user());
   readonly userAvatar = computed(() => this.authService.loggedInUserAvatar());
 
-  readonly showUserOptions = signal(false);
+  // Role Switcher - Mock data for UI demo
+  readonly userRoles = signal<UserRole[]>([
+    {
+      id: 'admin',
+      name: 'Administrator',
+      description: 'Full system access',
+      icon: 'pi pi-shield',
+    },
+    {
+      id: 'manager',
+      name: 'Manager',
+      description: 'Team management access',
+      icon: 'pi pi-users',
+    },
+    {
+      id: 'employee',
+      name: 'Employee',
+      description: 'Standard access',
+      icon: 'pi pi-user',
+    },
+  ]);
+
+  readonly activeRole = signal<UserRole>({
+    id: 'admin',
+    name: 'Administrator',
+    description: 'Full system access',
+    icon: 'pi pi-shield',
+  });
+
+  readonly hasMultipleRoles = computed(() => this.userRoles().length > 1);
 
   // User options from configuration
   readonly primaryOptions = primaryUserOptions;
   readonly secondaryOptions = secondaryUserOptions;
 
-  // Dynamic properties
   getThemeIcon(): string {
     return this.themeService.isDarkMode() ? 'pi-sun' : 'pi-moon';
   }
@@ -62,16 +95,8 @@ export class SidebarUserProfileComponent {
     );
   }
 
-  @HostListener('window:click', ['$event'])
-  onClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.user-options') && !target.matches('img')) {
-      this.showUserOptions.set(false);
-    }
-  }
-
-  toggleUserOptions(): void {
-    this.showUserOptions.update(v => !v);
+  toggleUserOptions(event: Event): void {
+    this.userPopover.toggle(event);
   }
 
   toggleTheme(): void {
@@ -80,11 +105,11 @@ export class SidebarUserProfileComponent {
 
   navigateTo(path: string): void {
     void this.router.navigate([path]);
-    this.showUserOptions.set(false);
+    this.userPopover.hide();
   }
 
   logout(): void {
-    this.showUserOptions.set(false);
+    this.userPopover.hide();
 
     this.loadingService.show({
       title: 'Logging Out',
@@ -112,7 +137,6 @@ export class SidebarUserProfileComponent {
       });
   }
 
-  // Method to handle option click
   handleOptionClick(option: UserOption): void {
     if (option.id === 'theme') {
       this.toggleTheme();
@@ -121,5 +145,10 @@ export class SidebarUserProfileComponent {
     } else if (option.path) {
       this.navigateTo(option.path);
     }
+  }
+
+  onRoleChange(role: UserRole): void {
+    this.activeRole.set(role);
+    this.logger.info(`Switched to role: ${role.name}`);
   }
 }

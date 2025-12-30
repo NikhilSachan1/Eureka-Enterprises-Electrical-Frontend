@@ -1,67 +1,73 @@
-<div class="py-6">
-  <img
-    [src]="userAvatar()"
-    [alt]="user()?.fullName"
-    class="w-16 h-16 rounded-full object-cover border-3 border-primary shadow-md mx-auto mb-3"
-    (click)="toggleUserOptions()"
-    [attr.aria-expanded]="showUserOptions()"
-    role="button"
-    tabindex="0"
-    loading="lazy"
-  />
-  <h2 class="text-lg font-bold text-surface-900">{{ user()?.fullName }}</h2>
-  <p class="text-sm font-medium text-surface-600">{{ getLoogedUserDesignation() }}</p>
-
-  <!-- User Options Menu -->
-  @if (showUserOptions()) {
-    <div
-      class="user-options"
-      @fadeInOut
-      role="menu"
-    >
-      <!-- Primary options group -->
-      <div class="options-group">
-        @for (option of primaryOptions; track option.id) {
-          <a
-            class="option-item"
-            role="menuitem"
-            tabindex="0"
-            (click)="handleOptionClick(option)"
-          >
-            <i
-              [class]="option.icon"
-              aria-hidden="true"
-            ></i>
-            <span>{{ option.label }}</span>
-          </a>
-        }
-      </div>
-
-      <div
-        class="options-divider"
-        role="separator"
-      ></div>
-
-      <!-- Secondary options group -->
-      <div class="options-group">
-        @for (option of secondaryOptions; track option.id) {
-          <a
-            class="option-item"
-            [class.theme-toggle]="option.variant === 'theme'"
-            [class.logout]="option.variant === 'danger'"
-            role="menuitem"
-            tabindex="0"
-            (click)="handleOptionClick(option)"
-          >
-            <i
-              class="pi"
-              [ngClass]="option.id === 'theme' ? getThemeIcon() : option.icon"
-              aria-hidden="true"
-            ></i>
-            <span>{{ option.id === 'theme' ? getThemeLabel() : option.label }}</span>
-          </a>
-        }
-      </div>
-    </div>
+<!-- User Profile Section - Bottom of Sidebar -->
+<div class="user-section">
+  <!-- Role Switcher (if multiple roles) -->
+  @if (hasMultipleRoles()) {
+    <app-role-switcher
+      [roles]="userRoles()"
+      [activeRole]="activeRole()"
+      (roleChange)="onRoleChange($event)"
+    />
   }
+
+  <!-- Divider -->
+  <div class="divider"></div>
+
+  <!-- User Card -->
+  <div class="user-card">
+    <img
+      [src]="userAvatar()"
+      [alt]="user()?.fullName"
+      class="user-avatar"
+      loading="lazy"
+    />
+    <div class="user-info">
+      <span class="user-name">{{ user()?.fullName }}</span>
+      <span class="user-role">{{ getLoogedUserDesignation() }}</span>
+    </div>
+    <button
+      type="button"
+      class="user-menu-btn"
+      (click)="toggleUserOptions($event)"
+      (keydown.enter)="toggleUserOptions($event)"
+      tabindex="0"
+    >
+      <i class="pi pi-ellipsis-v"></i>
+    </button>
+  </div>
+
+  <!-- User Menu Popover -->
+  <p-popover
+    #userPopover
+    [dismissable]="true"
+    [appendTo]="'body'"
+  >
+    <div class="user-menu">
+      @for (option of primaryOptions; track option.id) {
+        <button
+          type="button"
+          class="menu-item"
+          (click)="handleOptionClick(option)"
+        >
+          <i [ngClass]="option.icon"></i>
+          <span>{{ option.label }}</span>
+        </button>
+      }
+
+      <div class="menu-divider"></div>
+
+      @for (option of secondaryOptions; track option.id) {
+        @let isDanger = option.variant === 'danger';
+        @let isTheme = option.id === 'theme';
+        <button
+          type="button"
+          class="menu-item"
+          [class.danger]="isDanger"
+          (click)="handleOptionClick(option)"
+        >
+          <i [ngClass]="isTheme ? getThemeIcon() : option.icon"></i>
+          <span>{{ isTheme ? getThemeLabel() : option.label }}</span>
+        </button>
+      }
+    </div>
+  </p-popover>
 </div>

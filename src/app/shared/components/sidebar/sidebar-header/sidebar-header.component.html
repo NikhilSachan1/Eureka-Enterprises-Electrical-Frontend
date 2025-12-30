@@ -1,18 +1,14 @@
-<header class="p-5">
-  <div class="flex items-center gap-3">
+<header class="sidebar-header">
+  <div class="logo-section">
     <img
       src="https://i.postimg.cc/3w9krVGY/Untitled-design.png"
       alt="Eureka Logo"
-      class="w-12 h-12 rounded-lg shadow-sm"
+      class="logo"
       loading="lazy"
     />
-    <div class="transition-all duration-300">
-      <h1 class="text-xl font-bold text-primary tracking-tight whitespace-nowrap">
-        {{ companyName() }}
-      </h1>
-      <h2 class="text-sm font-medium text-surface-600 whitespace-nowrap">
-        {{ companyDescription() }}
-      </h2>
+    <div class="brand">
+      <h1>{{ companyName() }}</h1>
+      <h2>{{ companyDescription() }}</h2>
     </div>
   </div>
 </header>

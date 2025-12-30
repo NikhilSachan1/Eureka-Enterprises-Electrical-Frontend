@@ -83,52 +83,35 @@
     flex-shrink: 0;
   }
 
-  // Scrollable content area - responsive behavior
+  // Scrollable content area
   .sidebar-content {
     flex: 1;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
 
-    // Mobile: Full scroll (user profile + menu together)
-    @media screen and (max-width: 768px) {
-      overflow-y: auto;
-      overflow-x: hidden;
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
 
-      // Custom scrollbar styling for mobile
-      &::-webkit-scrollbar {
-        &-thumb {
-          background-color: var(--sidebar-surface-200);
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--sidebar-surface-200);
+      border-radius: 4px;
 
-          &:hover {
-            background-color: var(--sidebar-text-secondary);
-          }
-        }
+      &:hover {
+        background-color: var(--sidebar-text-secondary);
       }
     }
+  }
 
-    // Desktop: No scrolling here, menu handles its own scrolling
-    @media screen and (min-width: 769px) {
-      overflow: hidden;
-    }
+  app-sidebar-menu {
+    flex: 1;
   }
 
   app-sidebar-user-profile {
     flex-shrink: 0;
-  }
-
-  app-sidebar-menu {
-    // Mobile: No individual scrolling
-    @media screen and (max-width: 768px) {
-      flex-shrink: 0;
-    }
-
-    // Desktop: Allow menu to scroll individually
-    @media screen and (min-width: 769px) {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-    }
   }
 }
 

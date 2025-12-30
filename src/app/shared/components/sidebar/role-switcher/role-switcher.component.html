@@ -1,0 +1,43 @@
+<!-- Compact Role Switcher -->
+<button
+  type="button"
+  class="role-btn"
+  (click)="togglePopover($event)"
+>
+  <div class="role-icon">
+    <i class="pi pi-id-card"></i>
+  </div>
+  <div class="role-info">
+    <span class="role-label">Current Role</span>
+    <span class="role-name">{{ activeRole().name }}</span>
+  </div>
+  <i class="pi pi-sync switch-icon"></i>
+</button>
+
+<!-- Role Selection Popover -->
+<p-popover
+  #rolePopover
+  [dismissable]="true"
+  [appendTo]="'body'"
+>
+  <div class="role-menu">
+    <div class="role-menu-header">
+      <i class="pi pi-users"></i>
+      <span>Switch Role</span>
+    </div>
+    @for (role of roles(); track role.id) {
+      @let isActive = role.id === activeRole().id;
+      <button
+        type="button"
+        class="role-option"
+        [class.active]="isActive"
+        (click)="selectRole(role)"
+      >
+        <span class="name">{{ role.name }}</span>
+        @if (isActive) {
+          <i class="pi pi-check check"></i>
+        }
+      </button>
+    }
+  </div>
+</p-popover>
