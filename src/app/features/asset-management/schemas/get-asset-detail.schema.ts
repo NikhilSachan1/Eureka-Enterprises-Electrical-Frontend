@@ -30,7 +30,7 @@ export const AssetDetailGetEventsSchema = z
     eventType: z.string().min(1),
     fromUser: uuidField.nullable(),
     toUser: uuidField.nullable(),
-    metadata: z.string().nullable(),
+    metadata: z.record(z.string(), z.string()).nullable(),
   })
   .strict();
 
