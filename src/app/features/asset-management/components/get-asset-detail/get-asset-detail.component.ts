@@ -164,6 +164,7 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
           // name: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,// TODO: Add created by user name from response when available and uncomment the line below
           name: 'N/A',
           date: record.createdAt,
+          notes: record.remarks,
         },
       };
     });
