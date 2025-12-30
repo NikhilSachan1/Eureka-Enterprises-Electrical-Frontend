@@ -11,6 +11,8 @@ import {
   IAssetDetailGetResponseDto,
   IAssetEditRequestDto,
   IAssetEditResponseDto,
+  IAssetEventHistoryGetRequestDto,
+  IAssetEventHistoryGetResponseDto,
   IAssetGetRequestDto,
   IAssetGetResponseDto,
 } from '../types/asset.dto';
@@ -25,6 +27,7 @@ import {
   AssetDetailGetResponseSchema,
   AssetEditRequestSchema,
   AssetEditResponseSchema,
+  AssetEventHistoryGetResponseSchema,
   AssetGetRequestSchema,
   AssetGetResponseSchema,
 } from '../schemas';
@@ -194,6 +197,40 @@ export class AssetService {
             );
           } else {
             this.logger.logUserAction('Get Asset Detail By Id Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getAssetEventHistory(
+    params: IAssetEventHistoryGetRequestDto,
+    assetId: string
+  ): Observable<IAssetEventHistoryGetResponseDto> {
+    this.logger.logUserAction('Get Asset Event History Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.ASSET.GET_ASSET_EVENT_HISTORY(assetId),
+        AssetEventHistoryGetResponseSchema
+        // params, // TODO: add params back in when backend is updated
+        // AssetEventHistoryGetRequestSchema // TODO: add params back in when backend is updated
+      )
+      .pipe(
+        tap((response: IAssetEventHistoryGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Asset Event History Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Asset Event History Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Asset Event History Error', error);
           }
           return throwError(() => error);
         })

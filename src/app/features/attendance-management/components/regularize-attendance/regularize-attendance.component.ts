@@ -19,7 +19,7 @@ import {
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { LoggerService, TimezoneService } from '@core/services';
+import { LoggerService } from '@core/services';
 import {
   IAttendanceGetBaseResponseDto,
   IAttendanceRegularizedRequestDto,
@@ -45,7 +45,6 @@ export class RegularizeAttendanceComponent
   private readonly formService = inject(FormService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
-  private readonly timezoneService = inject(TimezoneService);
   private readonly loadingService = inject(LoadingService);
   private readonly attendanceService = inject(AttendanceService);
   private readonly confirmationDialogService = inject(
@@ -150,7 +149,6 @@ export class RegularizeAttendanceComponent
       notes: `${clientName} - ${location}`,
       status: attendanceStatus,
       userId: record.user.id,
-      timezone: this.timezoneService.timezone,
     };
   }
 

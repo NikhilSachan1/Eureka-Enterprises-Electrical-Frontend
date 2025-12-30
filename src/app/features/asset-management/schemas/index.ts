@@ -24,3 +24,9 @@ export {
   ActionAssetRequestSchema,
   ActionAssetResponseSchema,
 } from './action-asset.schema';
+export {
+  AssetEventHistoryGetRequestSchema,
+  AssetEventHistoryGetBaseResponseSchema,
+  AssetEventHistoryGetResponseSchema,
+  AssetEventHistoryGetStatsResponseSchema,
+} from './get-asset-event-history.schema';

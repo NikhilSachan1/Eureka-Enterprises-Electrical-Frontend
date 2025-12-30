@@ -6,6 +6,7 @@ export interface MenuItem {
   icon?: string;
   routerLink?: string;
   children?: MenuItem[];
+  basePath?: string; // Base path for parent items to match child routes (e.g., '/asset' matches '/asset/event-history/:id')
 }
 
 /**

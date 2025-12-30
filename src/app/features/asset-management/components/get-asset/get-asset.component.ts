@@ -46,12 +46,13 @@ import {
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { GetAssetDetailComponent } from '../get-asset-detail/get-asset-detail.component';
-import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 
 @Component({
   selector: 'app-get-asset',
@@ -201,6 +202,11 @@ export class GetAssetComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.EVENT_HISTORY) {
+      this.navigateToEventHistory(selectedFirstRow.id);
+      return;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
@@ -298,6 +304,23 @@ export class GetAssetComponent implements OnInit {
     }
   }
 
+  private navigateToEventHistory(assetId: string): void {
+    try {
+      const routeSegments = [
+        ROUTE_BASE_PATHS.ASSET,
+        ROUTES.ASSET.EVENT_HISTORY,
+        assetId,
+      ];
+
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+    } catch (error) {
+      this.logger.logUserAction(
+        'Navigation error while viewing event history',
+        error
+      );
+    }
+  }
+
   protected onHeaderButtonClick(actionName: string): void {
     let navigationRoute: string[] = [];
     if (actionName === 'addAsset') {
@@ -321,8 +344,8 @@ export class GetAssetComponent implements OnInit {
       showHeaderButton: true,
       headerButtonConfig: [
         {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Asset',
-          icon: ICONS.COMMON.PLUS,
           actionName: 'addAsset',
         },
       ],

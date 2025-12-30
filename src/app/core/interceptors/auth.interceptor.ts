@@ -8,7 +8,7 @@ import {
 import { inject } from '@angular/core';
 import { Observable, throwError, catchError } from 'rxjs';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { LoggerService } from '@core/services';
+import { LoggerService, TimezoneService } from '@core/services';
 import { SKIP_AUTH_ENDPOINTS } from '@core/constants';
 
 /**
@@ -20,11 +20,14 @@ export const AuthInterceptor: HttpInterceptorFn = (
 ): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
   const logger = inject(LoggerService);
+  const timezoneService = inject(TimezoneService);
 
   // Skip authentication for certain requests
   if (shouldSkipAuth(req)) {
     return next(req);
   }
+
+  req = addTimezoneToRequest(req, timezoneService.timezone);
 
   // Add token to request if available
   const token = authService.getAuthToken();
@@ -62,6 +65,20 @@ function addTokenToRequest(
   return req.clone({
     setHeaders: {
       Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+/**
+ * Add timezone header to request
+ */
+function addTimezoneToRequest(
+  req: HttpRequest<unknown>,
+  timezone: string
+): HttpRequest<unknown> {
+  return req.clone({
+    setHeaders: {
+      'X-Timezone': timezone,
     },
   });
 }

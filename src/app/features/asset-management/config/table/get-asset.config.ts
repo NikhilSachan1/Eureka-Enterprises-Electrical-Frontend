@@ -78,6 +78,11 @@ export const ASSET_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'View Asset Details',
   },
   {
+    id: EButtonActionType.EVENT_HISTORY,
+    icon: IconUtil.getIcon(EButtonActionType.EVENT_HISTORY) ?? undefined,
+    tooltip: 'View Event History',
+  },
+  {
     id: EButtonActionType.HANDOVER_INITIATE,
     icon: IconUtil.getIcon(EButtonActionType.HANDOVER_INITIATE) ?? undefined,
     tooltip: 'Allocate Asset',

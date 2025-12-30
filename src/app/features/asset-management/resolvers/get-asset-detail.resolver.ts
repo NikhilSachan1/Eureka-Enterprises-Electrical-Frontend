@@ -59,16 +59,18 @@ export class GetAssetDetailResolver
           response
         );
 
-        return this.attachmentsService
-          .loadFilesFromKeys(response.documentKeys)
-          .pipe(
-            switchMap(files => {
-              return of({
-                ...response,
-                preloadedFiles: files,
-              });
-            })
-          );
+        const latestHistoryItem =
+          response.versionHistory[response.versionHistory.length - 1];
+        const fileKeys = latestHistoryItem?.documentKeys || [];
+
+        return this.attachmentsService.loadFilesFromKeys(fileKeys).pipe(
+          switchMap(files => {
+            return of({
+              ...response,
+              preloadedFiles: files,
+            });
+          })
+        );
       }),
       finalize(() => {
         this.loadingService.hide();

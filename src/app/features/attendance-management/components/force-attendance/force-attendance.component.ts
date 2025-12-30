@@ -7,11 +7,7 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import {
-  LoggerService,
-  TimezoneService,
-  EnvironmentService,
-} from '@core/services';
+import { LoggerService, EnvironmentService } from '@core/services';
 import { AttendanceService } from '../../services/attendance.service';
 import {
   FormService,
@@ -57,7 +53,6 @@ export class ForceAttendanceComponent implements OnInit {
   private readonly attendanceService = inject(AttendanceService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly timezoneServive = inject(TimezoneService);
   private readonly environmentService = inject(EnvironmentService);
 
   protected form!: IEnhancedForm;
@@ -108,7 +103,6 @@ export class ForceAttendanceComponent implements OnInit {
       attendanceDate: transformDateFormat(date),
       notes: `${location} - ${clientName}`,
       reason: forceReason,
-      timezone: this.timezoneServive.timezone,
       status: attendanceStatus,
     };
   }

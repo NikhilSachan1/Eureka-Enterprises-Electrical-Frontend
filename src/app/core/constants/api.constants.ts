@@ -52,6 +52,7 @@ export const API_ROUTES = {
     EDIT: (assetId: string) => `assets/${assetId}`,
     GET_ASSET_BY_ID: (assetId: string) => `assets/${assetId}`,
     ACTION: 'assets/action',
+    GET_ASSET_EVENT_HISTORY: (assetId: string) => `asset-events/${assetId}`,
   },
   SETTINGS: {
     PERMISSION: {

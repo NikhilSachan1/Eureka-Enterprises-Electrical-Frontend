@@ -1,5 +1,6 @@
 import {
   IAssetDetailGetResponseDto,
+  IAssetEventHistoryGetBaseResponseDto,
   IAssetGetBaseResponseDto,
 } from './asset.dto';
 
@@ -29,4 +30,23 @@ export interface IAsset
 export interface IAssetDetailResolverResponse
   extends IAssetDetailGetResponseDto {
   preloadedFiles?: File[];
+}
+
+export interface IAssetEventHistory
+  extends Omit<
+    IAssetEventHistoryGetBaseResponseDto,
+    | 'createdAt'
+    | 'createdBy'
+    | 'updatedAt'
+    | 'deletedAt'
+    | 'updatedBy'
+    | 'deletedBy'
+    | 'assetMasterId'
+    | 'assetFiles'
+    | 'metadata'
+    | 'fromUser'
+    | 'toUser'
+  > {
+  remarks: string;
+  originalRawData: IAssetEventHistoryGetBaseResponseDto;
 }

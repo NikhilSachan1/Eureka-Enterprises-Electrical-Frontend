@@ -46,8 +46,9 @@ export class MenuService {
   /**
    * Check if a menu item is active based on current route
    * @param item Menu item to check
+   * @param parent Optional parent menu item (for child items with relative paths)
    */
-  isMenuItemActive(item: MenuItem): boolean {
+  isMenuItemActive(item: MenuItem, parent?: MenuItem): boolean {
     const currentRoute = this.activeRoute();
 
     if (item.routerLink) {
@@ -55,9 +56,22 @@ export class MenuService {
       const normalizedCurrentRoute = currentRoute.startsWith('/')
         ? currentRoute
         : `/${currentRoute}`;
-      const normalizedItemRoute = item.routerLink.startsWith('/')
-        ? item.routerLink
-        : `/${item.routerLink}`;
+
+      // Construct full path if parent has basePath
+      let fullItemRoute = item.routerLink;
+      if (parent?.basePath) {
+        const basePath = parent.basePath.endsWith('/')
+          ? parent.basePath.slice(0, -1)
+          : parent.basePath;
+        const childPath = item.routerLink.startsWith('/')
+          ? item.routerLink.slice(1)
+          : item.routerLink;
+        fullItemRoute = `${basePath}/${childPath}`;
+      }
+
+      const normalizedItemRoute = fullItemRoute.startsWith('/')
+        ? fullItemRoute
+        : `/${fullItemRoute}`;
 
       // Exact match or starts with the route (for child routes)
       return (
@@ -147,13 +161,25 @@ export class MenuService {
     }
 
     const currentRoute = this.activeRoute();
+    const normalizedCurrentRoute = currentRoute.startsWith('/')
+      ? currentRoute
+      : `/${currentRoute}`;
+
+    // Check if basePath is defined and current route starts with it
+    if (item.basePath) {
+      const normalizedBasePath = item.basePath.startsWith('/')
+        ? item.basePath
+        : `/${item.basePath}`;
+      if (
+        normalizedCurrentRoute === normalizedBasePath ||
+        normalizedCurrentRoute.startsWith(`${normalizedBasePath}/`)
+      ) {
+        return true;
+      }
+    }
 
     return item.children.some(child => {
       if (child.routerLink) {
-        // Normalize routes by ensuring they start with /
-        const normalizedCurrentRoute = currentRoute.startsWith('/')
-          ? currentRoute
-          : `/${currentRoute}`;
         const normalizedChildRoute = child.routerLink.startsWith('/')
           ? child.routerLink
           : `/${child.routerLink}`;
@@ -183,13 +209,32 @@ export class MenuService {
     // Function to recursively find and expand parents of active route
     const findActiveParents = (items: MenuItem[]): boolean => {
       const currentRoute = this.activeRoute();
+      const normalizedCurrentRoute = currentRoute.startsWith('/')
+        ? currentRoute
+        : `/${currentRoute}`;
 
       for (const item of items) {
+        // Check basePath first for parent items with children
+        if (item.basePath && item.children?.length) {
+          const normalizedBasePath = item.basePath.startsWith('/')
+            ? item.basePath
+            : `/${item.basePath}`;
+
+          if (
+            normalizedCurrentRoute === normalizedBasePath ||
+            normalizedCurrentRoute.startsWith(`${normalizedBasePath}/`)
+          ) {
+            if (!foundActiveParent) {
+              const itemId = this.getMenuItemId(item);
+              newExpanded.add(itemId);
+              this.activeParentItem.set(itemId);
+              foundActiveParent = true;
+            }
+            return true;
+          }
+        }
+
         if (item.routerLink) {
-          // Normalize routes by ensuring they start with /
-          const normalizedCurrentRoute = currentRoute.startsWith('/')
-            ? currentRoute
-            : `/${currentRoute}`;
           const normalizedItemRoute = item.routerLink.startsWith('/')
             ? item.routerLink
             : `/${item.routerLink}`;

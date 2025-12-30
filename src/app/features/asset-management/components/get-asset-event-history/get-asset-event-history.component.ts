@@ -1,0 +1,185 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LoggerService } from '@core/services';
+import {
+  ASSET_EVENT_HISTORY_TABLE_ENHANCED_CONFIG,
+  SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_CONFIG,
+} from '@features/asset-management/config';
+import { AssetService } from '@features/asset-management/services/asset.service';
+import {
+  IAssetEventHistoryGetBaseResponseDto,
+  IAssetEventHistoryGetRequestDto,
+  IAssetEventHistoryGetResponseDto,
+  IAssetEventHistoryGetStatsResponseDto,
+} from '@features/asset-management/types/asset.dto';
+import { IAssetEventHistory } from '@features/asset-management/types/asset.interface';
+import {
+  AppConfigurationService,
+  LoadingService,
+  NotificationService,
+  RouterNavigationService,
+  TableServerSideParamsBuilderService,
+  TableService,
+} from '@shared/services';
+import {
+  IEnhancedTable,
+  IEnhancedTableConfig,
+  IMetric,
+  IPageHeaderConfig,
+  ITableSearchFilterFormConfig,
+} from '@shared/types';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { finalize } from 'rxjs';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
+import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
+import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { ActivatedRoute } from '@angular/router';
+import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+
+@Component({
+  selector: 'app-get-asset-event-history',
+  imports: [
+    PageHeaderComponent,
+    MetricsCardComponent,
+    SearchFilterComponent,
+    DataTableComponent,
+  ],
+  templateUrl: './get-asset-event-history.component.html',
+  styleUrl: './get-asset-event-history.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class GetAssetEventHistoryComponent implements OnInit {
+  private readonly logger = inject(LoggerService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly dataTableService = inject(TableService);
+  private readonly assetService = inject(AssetService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly tableServerSideFilterAndSortService = inject(
+    TableServerSideParamsBuilderService
+  );
+  private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly notificationService = inject(NotificationService);
+
+  protected table!: IEnhancedTable;
+  protected tableFilterData!: TableLazyLoadEvent;
+  protected searchFilterConfig!: ITableSearchFilterFormConfig;
+  private readonly assetEventHistoryStats =
+    signal<IAssetEventHistoryGetStatsResponseDto | null>(null);
+  private readonly assetId = signal<string>('');
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected metricsCards = computed(() => this.getMetricCardsData());
+
+  ngOnInit(): void {
+    const assetId = this.activatedRoute.snapshot.params['assetId'] as string;
+    if (!assetId) {
+      this.logger.logUserAction('No asset id found in route');
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
+      return;
+    }
+    this.assetId.set(assetId);
+
+    this.table = this.dataTableService.createTable(
+      ASSET_EVENT_HISTORY_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
+    );
+    this.searchFilterConfig = SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_CONFIG;
+  }
+
+  private loadAssetList(): void {
+    this.table.setLoading(true);
+    this.loadingService.show({
+      title: 'Loading Asset Event History',
+      message: 'Please wait while we load the asset event history...',
+    });
+
+    const paramData = this.prepareParamData();
+
+    this.assetService
+      .getAssetEventHistory(paramData, this.assetId())
+      .pipe(
+        finalize(() => {
+          this.table.setLoading(false);
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IAssetEventHistoryGetResponseDto) => {
+          const { records, stats = {}, totalRecords } = response; // TODO: remove optional chaining from stats
+
+          const mappedData = this.mapTableData(records);
+          this.table.setData(mappedData);
+          this.table.updateTableConfig({ totalRecords });
+          this.assetEventHistoryStats.set(stats);
+          this.logger.logUserAction(
+            'Asset event history records loaded successfully'
+          );
+        },
+        error: error => {
+          this.table.setData([]);
+          this.assetEventHistoryStats.set(null);
+          this.logger.logUserAction(
+            'Failed to load asset event history records',
+            error
+          );
+        },
+      });
+  }
+
+  private prepareParamData(): IAssetEventHistoryGetRequestDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IAssetEventHistoryGetRequestDto>(
+      this.tableFilterData,
+      this.table.getHeaders()
+    );
+  }
+
+  private mapTableData(
+    response: IAssetEventHistoryGetBaseResponseDto[]
+  ): IAssetEventHistory[] {
+    return response.map((record: IAssetEventHistoryGetBaseResponseDto) => {
+      return {
+        id: record.id,
+        eventDate: record.createdAt,
+        eventType: record.eventType,
+        fromUser: record.fromUser,
+        toUser: record.toUser,
+        documentKeys: record.documentKeys,
+        remarks: record?.metadata?.['remark'] ?? 'N/A',
+        originalRawData: record,
+      };
+    });
+  }
+
+  protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
+    this.tableFilterData = tableFilterData;
+    this.loadAssetList();
+  }
+
+  private getMetricCardsData(): IMetric[] {
+    const stats = this.assetEventHistoryStats();
+    if (!stats) {
+      return [];
+    }
+
+    return [];
+  }
+
+  private getPageHeaderConfig(): IPageHeaderConfig {
+    return {
+      title: 'Asset Event History',
+      subtitle: 'Manage asset event history records',
+    };
+  }
+}

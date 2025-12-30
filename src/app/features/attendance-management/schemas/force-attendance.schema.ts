@@ -18,7 +18,6 @@ export const AttendanceForceRequestSchema = z
     status,
     userIds: z.array(uuidField).min(1).max(100),
     reason: z.string(),
-    timezone: z.string(),
   })
   .strict();
 

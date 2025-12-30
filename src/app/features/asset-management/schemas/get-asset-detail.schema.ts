@@ -2,7 +2,8 @@ import { AuditSchema, onlyDateStringField, uuidField } from '@shared/schemas';
 import { z } from 'zod';
 import { AssetBaseSchema } from './base-asset.schema';
 
-const { createdAt, updatedAt } = AuditSchema.shape;
+const { createdAt, updatedAt, createdBy, updatedBy, deletedBy, deletedAt } =
+  AuditSchema.shape;
 
 export const AssetDetailGetRequestSchema = z
   .object({
@@ -12,25 +13,19 @@ export const AssetDetailGetRequestSchema = z
 
 export const AssetDetailGetDocumentsSchema = z
   .object({
-    ...AuditSchema.shape,
+    createdBy: createdBy.nullable().optional(),
+    updatedBy: updatedBy.nullable().optional(),
+    deletedBy: deletedBy.nullable().optional(),
+    deletedAt: deletedAt.nullable().optional(),
+    createdAt: createdAt.nullable().optional(),
+    updatedAt: updatedAt.nullable().optional(),
     id: uuidField,
-    assetMasterId: uuidField,
+    assetMasterId: uuidField.optional(),
     fileType: z.string().min(1),
     fileKey: z.string().min(1),
     label: z.string().nullable(),
-    assetEventsId: uuidField,
-  })
-  .strict();
-
-export const AssetDetailGetEventsSchema = z
-  .object({
-    ...AuditSchema.shape,
-    id: uuidField,
-    assetMasterId: uuidField,
-    eventType: z.string().min(1),
-    fromUser: uuidField.nullable(),
-    toUser: uuidField.nullable(),
-    metadata: z.record(z.string(), z.string()).nullable(),
+    assetEventsId: uuidField.optional(),
+    assetVersionId: uuidField.optional(),
   })
   .strict();
 
@@ -55,8 +50,13 @@ export const AssetDetailGetVersionHistorySchema =
       assignedTo: uuidField.nullable(),
       assetMasterId: uuidField,
       isActive: z.boolean(),
+      files: z.array(AssetDetailGetDocumentsSchema),
     })
-    .strict();
+    .strict()
+    .transform(({ files, ...rest }) => ({
+      ...rest,
+      documentKeys: files.map(file => file.fileKey),
+    }));
 
 export const AssetDetailGetResponseSchema = z
   .object({
@@ -68,12 +68,6 @@ export const AssetDetailGetResponseSchema = z
     warrantyEndDate: onlyDateStringField,
     assignedTo: uuidField.nullable(),
     files: z.array(AssetDetailGetDocumentsSchema),
-    events: z.array(AssetDetailGetEventsSchema),
     versionHistory: z.array(AssetDetailGetVersionHistorySchema),
   })
-  .strict()
-  .transform(({ files, ...rest }) => ({
-    ...rest,
-    files,
-    documentKeys: files.map(file => file.fileKey),
-  }));
+  .strict();

@@ -13,100 +13,105 @@ export const appMenu: ApplicationMenu = {
         {
           label: 'Employees',
           icon: ICONS.ATTENDANCE.CALENDAR,
+          basePath: ROUTE_BASE_PATHS.EMPLOYEE,
           children: [
             {
               label: 'Employee Directory',
               icon: ICONS.COMMON.LIST,
-              routerLink: `${ROUTE_BASE_PATHS.EMPLOYEE}/${ROUTES.EMPLOYEE.LIST}`,
+              routerLink: ROUTES.EMPLOYEE.LIST,
             },
             {
               label: 'Add Employee',
               icon: ICONS.COMMON.ADD,
-              routerLink: `${ROUTE_BASE_PATHS.EMPLOYEE}/${ROUTES.EMPLOYEE.ADD}`,
+              routerLink: ROUTES.EMPLOYEE.ADD,
             },
           ],
         },
         {
           label: 'Attendance',
           icon: ICONS.ATTENDANCE.CALENDAR,
+          basePath: ROUTE_BASE_PATHS.ATTENDANCE,
           children: [
             {
               label: 'My Attendance',
               icon: ICONS.COMMON.LIST,
-              routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.LIST}`,
+              routerLink: ROUTES.ATTENDANCE.LIST,
             },
             {
               label: 'Mark Attendance',
               icon: ICONS.COMMON.ADD,
-              routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.APPLY}`,
+              routerLink: ROUTES.ATTENDANCE.APPLY,
             },
             {
               label: 'Manual Attendance',
               icon: ICONS.ACTIONS.PENCIL,
-              routerLink: `${ROUTE_BASE_PATHS.ATTENDANCE}/${ROUTES.ATTENDANCE.FORCE}`,
+              routerLink: ROUTES.ATTENDANCE.FORCE,
             },
           ],
         },
         {
           label: 'Expense',
           icon: ICONS.LEAVE.GET,
+          basePath: ROUTE_BASE_PATHS.EXPENSE,
           children: [
             {
               label: 'Expense Ledger',
               icon: ICONS.COMMON.VIEW,
-              routerLink: `${ROUTE_BASE_PATHS.EXPENSE}/${ROUTES.EXPENSE.LEDGER}`,
+              routerLink: ROUTES.EXPENSE.LEDGER,
             },
             {
               label: 'Add Expense',
               icon: ICONS.COMMON.PLUS,
-              routerLink: `${ROUTE_BASE_PATHS.EXPENSE}/${ROUTES.EXPENSE.ADD}`,
+              routerLink: ROUTES.EXPENSE.ADD,
             },
             {
               label: 'Manual Expense',
               icon: ICONS.ACTIONS.PENCIL,
-              routerLink: `${ROUTE_BASE_PATHS.EXPENSE}/${ROUTES.EXPENSE.FORCE}`,
+              routerLink: ROUTES.EXPENSE.FORCE,
             },
             {
               label: 'Reimburse Expense',
               icon: ICONS.ACTIONS.PENCIL,
-              routerLink: `${ROUTE_BASE_PATHS.EXPENSE}/${ROUTES.EXPENSE.REIMBURSE}`,
+              routerLink: ROUTES.EXPENSE.REIMBURSE,
             },
           ],
         },
         {
           label: 'Leave',
           icon: ICONS.LEAVE.GET,
+          basePath: ROUTE_BASE_PATHS.LEAVE,
           children: [
             {
               label: 'Leave Requests',
               icon: ICONS.COMMON.VIEW,
-              routerLink: `${ROUTE_BASE_PATHS.LEAVE}/${ROUTES.LEAVE.LIST}`,
+              routerLink: ROUTES.LEAVE.LIST,
             },
             {
               label: 'Apply Leave',
               icon: ICONS.COMMON.PLUS,
-              routerLink: `${ROUTE_BASE_PATHS.LEAVE}/${ROUTES.LEAVE.APPLY}`,
+              routerLink: ROUTES.LEAVE.APPLY,
             },
             {
               label: 'Manual Leave',
               icon: ICONS.ACTIONS.PENCIL,
-              routerLink: `${ROUTE_BASE_PATHS.LEAVE}/${ROUTES.LEAVE.FORCE}`,
+              routerLink: ROUTES.LEAVE.FORCE,
             },
           ],
         },
         {
           label: 'Asset',
           icon: ICONS.ASSET.BOX,
+          basePath: ROUTE_BASE_PATHS.ASSET,
           children: [
             {
               label: 'Asset Inventory',
               icon: ICONS.COMMON.VIEW,
-              routerLink: `${ROUTE_BASE_PATHS.ASSET}/${ROUTES.ASSET.LIST}`,
+              routerLink: ROUTES.ASSET.LIST,
             },
             {
               label: 'Add Asset',
               icon: ICONS.COMMON.PLUS,
-              routerLink: `${ROUTE_BASE_PATHS.ASSET}/${ROUTES.ASSET.ADD}`,
+              routerLink: ROUTES.ASSET.ADD,
             },
           ],
         },

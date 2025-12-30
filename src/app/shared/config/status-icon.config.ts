@@ -45,4 +45,5 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   'total balance': ICONS.EXPENSE.MONEY,
   male: ICONS.COMMON.USER,
   female: ICONS.COMMON.USER,
+  eventhistory: ICONS.COMMON.LIST,
 } as const;

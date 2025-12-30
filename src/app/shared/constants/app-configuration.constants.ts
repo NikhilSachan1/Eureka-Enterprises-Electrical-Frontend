@@ -47,7 +47,7 @@ export const CONFIGURATION_KEYS = {
     STATUS_LIST: 'asset_statuses',
     CALIBRATION_SOURCE_LIST: 'calibration_sources',
     CALIBRATION_FREQUENCY_LIST: 'calibration_frequencies',
-    CALIBRATION_STATUS_LIST: 'calibration_status_list',
-    WARRANTY_STATUS_LIST: 'warranty_status_list',
+    CALIBRATION_STATUS_LIST: 'calibration_statuses',
+    WARRANTY_STATUS_LIST: 'warranty_statuses',
   },
 } as const;

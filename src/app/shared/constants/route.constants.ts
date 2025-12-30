@@ -100,6 +100,7 @@ export const ROUTES = {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,
+    EVENT_HISTORY: `event-history`,
   },
 
   CARD: {

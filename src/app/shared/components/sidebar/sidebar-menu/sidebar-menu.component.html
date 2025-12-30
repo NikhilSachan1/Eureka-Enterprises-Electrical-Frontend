@@ -72,9 +72,9 @@
                   @if (child.routerLink) {
                     <a
                       class="submenu-item"
-                      [routerLink]="child.routerLink"
+                      [routerLink]="getChildRouterLink(item, child)"
                       routerLinkActive="active"
-                      [attr.aria-current]="isMenuItemActive(child) ? 'page' : null"
+                      [attr.aria-current]="isMenuItemActive(child, item) ? 'page' : null"
                       role="menuitem"
                       tabindex="0"
                     >

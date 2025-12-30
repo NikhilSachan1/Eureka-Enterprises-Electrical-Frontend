@@ -47,8 +47,33 @@ export class SidebarMenuComponent {
 
   /**
    * Check if a menu item is active based on the current route
+   * @param item Menu item to check
+   * @param parent Optional parent menu item (for child items with relative paths)
    */
-  isMenuItemActive(item: MenuItem): boolean {
-    return this.menuService.isMenuItemActive(item);
+  isMenuItemActive(item: MenuItem, parent?: MenuItem): boolean {
+    return this.menuService.isMenuItemActive(item, parent);
+  }
+
+  /**
+   * Get full router link for child item by combining parent's basePath
+   */
+  getChildRouterLink(parent: MenuItem, child: MenuItem): string {
+    if (!child.routerLink) {
+      return '';
+    }
+
+    // If parent has basePath, combine with child's routerLink
+    if (parent.basePath) {
+      const basePath = parent.basePath.endsWith('/')
+        ? parent.basePath.slice(0, -1)
+        : parent.basePath;
+      const childPath = child.routerLink.startsWith('/')
+        ? child.routerLink.slice(1)
+        : child.routerLink;
+      return `${basePath}/${childPath}`;
+    }
+
+    // Otherwise return child's routerLink as-is
+    return child.routerLink;
   }
 }

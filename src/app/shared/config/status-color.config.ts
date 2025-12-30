@@ -57,5 +57,6 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'total employees',
     'male',
     'female',
+    'eventhistory',
   ],
 };

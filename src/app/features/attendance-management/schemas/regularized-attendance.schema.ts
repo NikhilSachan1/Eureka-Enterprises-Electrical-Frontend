@@ -11,7 +11,6 @@ export const AttendanceRegularizedRequestSchema = z
     notes,
     status,
     userId,
-    timezone: z.string(),
   })
   .strict();
 

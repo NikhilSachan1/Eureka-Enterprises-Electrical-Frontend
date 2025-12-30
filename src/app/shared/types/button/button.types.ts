@@ -69,4 +69,5 @@ export enum EButtonActionType {
   HANDOVER_REJECTED = 'handoverRejected',
   HANDOVER_CANCELLED = 'handoverCancelled',
   DEALLOCATE = 'deallocate',
+  EVENT_HISTORY = 'eventHistory',
 }

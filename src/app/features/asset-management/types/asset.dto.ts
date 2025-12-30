@@ -24,6 +24,10 @@ import {
 import {
   ActionAssetRequestSchema,
   ActionAssetResponseSchema,
+  AssetEventHistoryGetBaseResponseSchema,
+  AssetEventHistoryGetRequestSchema,
+  AssetEventHistoryGetResponseSchema,
+  AssetEventHistoryGetStatsResponseSchema,
 } from '../schemas';
 
 export type IAssetAddRequestDto = z.infer<typeof AssetAddRequestSchema>;
@@ -48,3 +52,15 @@ export type IAssetGetStatsResponseDto = z.infer<
 >;
 export type IActionAssetRequestDto = z.infer<typeof ActionAssetRequestSchema>;
 export type IActionAssetResponseDto = z.infer<typeof ActionAssetResponseSchema>;
+export type IAssetEventHistoryGetRequestDto = z.infer<
+  typeof AssetEventHistoryGetRequestSchema
+>;
+export type IAssetEventHistoryGetBaseResponseDto = z.infer<
+  typeof AssetEventHistoryGetBaseResponseSchema
+>;
+export type IAssetEventHistoryGetResponseDto = z.infer<
+  typeof AssetEventHistoryGetResponseSchema
+>;
+export type IAssetEventHistoryGetStatsResponseDto = z.infer<
+  typeof AssetEventHistoryGetStatsResponseSchema
+>;
