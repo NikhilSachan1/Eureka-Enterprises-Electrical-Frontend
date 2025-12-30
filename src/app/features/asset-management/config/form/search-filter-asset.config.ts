@@ -11,10 +11,10 @@ import {
 
 const SEARCH_FILTER_ASSET_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
   {
-    assetCategory: {
+    category: {
       fieldType: EDataType.MULTI_SELECT,
-      id: 'assetCategory',
-      fieldName: 'assetCategory',
+      id: 'category',
+      fieldName: 'category',
       label: 'Category',
       multiSelectConfig: {
         dynamicDropdown: {
@@ -50,10 +50,10 @@ const SEARCH_FILTER_ASSET_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfi
       },
       matchmode: ETableFilterMatchMode.IN,
     },
-    assetCalibrationStatus: {
+    calibrationStatus: {
       fieldType: EDataType.MULTI_SELECT,
-      id: 'assetCalibrationStatus',
-      fieldName: 'assetCalibrationStatus',
+      id: 'calibrationStatus',
+      fieldName: 'calibrationStatus',
       label: 'Calibration Status',
       multiSelectConfig: {
         dynamicDropdown: {
@@ -63,10 +63,10 @@ const SEARCH_FILTER_ASSET_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfi
       },
       matchmode: ETableFilterMatchMode.IN,
     },
-    assetWarrantyStatus: {
+    warrantyStatus: {
       fieldType: EDataType.MULTI_SELECT,
-      id: 'assetWarrantyStatus',
-      fieldName: 'assetWarrantyStatus',
+      id: 'warrantyStatus',
+      fieldName: 'warrantyStatus',
       label: 'Warranty Status',
       multiSelectConfig: {
         dynamicDropdown: {

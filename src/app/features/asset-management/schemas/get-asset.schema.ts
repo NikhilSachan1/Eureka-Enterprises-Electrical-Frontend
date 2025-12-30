@@ -8,18 +8,24 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 export const AssetGetRequestSchema = z
   .object({
     assignedTo: z.string().optional(),
-    warrantyStatus: z.string().optional(),
-    calibrationStatus: z.string().optional(),
-    status: z.string().optional(),
+    warrantyStatus: z.array(z.string()).optional(),
+    calibrationStatus: z.array(z.string()).optional(),
+    assetStatus: z.array(z.string()).optional(),
     assetType: z.string().optional(),
-    category: z.string().optional(),
+    category: z.array(z.string()).optional(),
     sortOrder,
     sortField,
     pageSize,
     page,
     search,
   })
-  .strict();
+  .strict()
+  .transform(({ assetStatus, ...rest }) => {
+    return {
+      ...rest,
+      status: assetStatus,
+    };
+  });
 
 export const AssetGetBaseResponseSchema = z
   .object({
