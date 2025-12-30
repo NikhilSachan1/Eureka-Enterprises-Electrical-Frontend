@@ -1,7 +1,6 @@
 import { APP_CONFIG } from '@core/config';
 import { IExpenseGetResponseDto } from '@features/expense-management/types/expense.dto';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
-import { ICONS } from '@shared/constants';
 import {
   EDataType,
   IDataTableConfig,
@@ -12,9 +11,6 @@ import {
 
 export const EXPENSE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No expense record found.',
-  emptyMessageIcon: ICONS.COMMON.INFO_CIRCLE,
-  emptyMessageDescription:
-    "You don't have any expense record yet. Please add a expense record first.",
 };
 
 export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [

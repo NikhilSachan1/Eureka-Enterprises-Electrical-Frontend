@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetAssetDetailResolver } from './resolvers/get-asset-detail.resolver';
 
 export const ASSET_MANAGEMENT_ROUTES: Routes = [
   {
@@ -27,5 +28,8 @@ export const ASSET_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-asset/edit-asset.component').then(
         m => m.EditAssetComponent
       ),
+    resolve: {
+      assetDetail: GetAssetDetailResolver,
+    },
   },
 ];

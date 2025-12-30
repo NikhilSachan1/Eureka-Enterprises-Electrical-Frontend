@@ -67,7 +67,7 @@ export const AttendanceGetBaseResponseSchema = z
     status: status.transform(toTitleCase),
     approvalStatus: approvalStatus.transform(toTitleCase),
     user: UserSchema,
-    createdBy: UserSchema,
+    createdBy: makeFieldsNullable(UserSchema).nullable(),
     approvalBy: makeFieldsNullable(UserSchema).nullable(),
   })
   .strict();

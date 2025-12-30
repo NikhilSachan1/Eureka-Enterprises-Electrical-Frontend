@@ -27,7 +27,7 @@ import {
   EButtonActionType,
   EDataType,
   IDataViewDetails,
-  IDataViewDetailsWithEmployee,
+  IDataViewDetailsWithEntity,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetric,
@@ -281,7 +281,7 @@ export class GetExpenseComponent implements OnInit {
 
   private prepareExpenseRecordDetail(
     selectedRow: IExpenseGetBaseResponseDto
-  ): IDataViewDetailsWithEmployee {
+  ): IDataViewDetailsWithEntity {
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Date',
@@ -328,9 +328,9 @@ export class GetExpenseComponent implements OnInit {
           entryData,
         },
       ],
-      employee: {
+      entity: {
         name: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
-        employeeCode: selectedRow.user.employeeId,
+        subtitle: selectedRow.user.employeeId,
       },
     };
   }

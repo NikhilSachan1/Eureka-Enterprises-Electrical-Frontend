@@ -45,6 +45,13 @@ export const API_ROUTES = {
     FORCE: 'leave/force',
     APPROVAL_ACTION: 'leave/approval',
   },
+  ASSET: {
+    LIST: 'assets',
+    ADD: 'assets',
+    DELETE_ASSET_BY_ID: (assetId: string) => `assets/${assetId}`,
+    EDIT: (assetId: string) => `assets/${assetId}`,
+    GET_ASSET_BY_ID: (assetId: string) => `assets/${assetId}`,
+  },
   SETTINGS: {
     PERMISSION: {
       SYSTEM: {

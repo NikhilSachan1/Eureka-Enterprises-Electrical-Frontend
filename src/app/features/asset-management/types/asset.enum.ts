@@ -1,0 +1,4 @@
+export enum EAssetType {
+  CALIBRATED = 'CALIBRATED',
+  NON_CALIBRATED = 'NON_CALIBRATED',
+}

@@ -11,6 +11,8 @@ import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
 import {
   APPROVAL_STATUS_DATA,
+  ASSET_CALIBRATION_STATUS_DATA,
+  ASSET_WARRANTY_STATUS_DATA,
   ATTENDANCE_STATUS_DATA,
   BANK_NAME_DATA,
   CLIENT_NAME_DATA,
@@ -55,6 +57,13 @@ export class AppConfigurationService {
   private readonly _expensePaymentMethods = signal<IOptionDropdown[]>([]);
   private readonly _attendanceStatus = signal<IOptionDropdown[]>([]);
   private readonly _approvalStatus = signal<IOptionDropdown[]>([]);
+  private readonly _assetCategories = signal<IOptionDropdown[]>([]);
+  private readonly _assetTypes = signal<IOptionDropdown[]>([]);
+  private readonly _assetStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _assetCalibrationSources = signal<IOptionDropdown[]>([]);
+  private readonly _assetCalibrationStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _assetWarrantyStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _assetCalibrationFrequencies = signal<IOptionDropdown[]>([]);
 
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
@@ -79,6 +88,15 @@ export class AppConfigurationService {
   readonly expensePaymentMethods = this._expensePaymentMethods.asReadonly();
   readonly attendanceStatus = this._attendanceStatus.asReadonly();
   readonly approvalStatus = this._approvalStatus.asReadonly();
+  readonly assetCategories = this._assetCategories.asReadonly();
+  readonly assetTypes = this._assetTypes.asReadonly();
+  readonly assetStatuses = this._assetStatuses.asReadonly();
+  readonly assetCalibrationSources = this._assetCalibrationSources.asReadonly();
+  readonly assetCalibrationStatuses =
+    this._assetCalibrationStatuses.asReadonly();
+  readonly assetWarrantyStatuses = this._assetWarrantyStatuses.asReadonly();
+  readonly assetCalibrationFrequencies =
+    this._assetCalibrationFrequencies.asReadonly();
 
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
@@ -109,6 +127,12 @@ export class AppConfigurationService {
     },
     [MODULE_NAMES.VEHICLE]: {
       [CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST]: VEHICLE_LIST_DATA,
+    },
+    [MODULE_NAMES.ASSET]: {
+      [CONFIGURATION_KEYS.ASSET.CALIBRATION_STATUS_LIST]:
+        ASSET_CALIBRATION_STATUS_DATA,
+      [CONFIGURATION_KEYS.ASSET.WARRANTY_STATUS_LIST]:
+        ASSET_WARRANTY_STATUS_DATA,
     },
   };
 
@@ -200,6 +224,36 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
         signal: this._vehicleList,
+      },
+    ],
+    [MODULE_NAMES.ASSET]: [
+      {
+        key: CONFIGURATION_KEYS.ASSET.CATEGORY_LIST,
+        signal: this._assetCategories,
+      },
+      {
+        key: CONFIGURATION_KEYS.ASSET.TYPE_LIST,
+        signal: this._assetTypes,
+      },
+      {
+        key: CONFIGURATION_KEYS.ASSET.STATUS_LIST,
+        signal: this._assetStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.ASSET.CALIBRATION_SOURCE_LIST,
+        signal: this._assetCalibrationSources,
+      },
+      {
+        key: CONFIGURATION_KEYS.ASSET.CALIBRATION_STATUS_LIST,
+        signal: this._assetCalibrationStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.ASSET.WARRANTY_STATUS_LIST,
+        signal: this._assetWarrantyStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.ASSET.CALIBRATION_FREQUENCY_LIST,
+        signal: this._assetCalibrationFrequencies,
       },
     ],
   };

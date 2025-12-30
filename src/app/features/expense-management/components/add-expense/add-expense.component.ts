@@ -90,7 +90,7 @@ export class AddExpenseComponent implements OnInit {
       attachment,
       transactionId,
     } = this.form.getData() as {
-      expenseDate: string;
+      expenseDate: Date;
       description: string;
       paymentMode: string;
       expenseType: string;

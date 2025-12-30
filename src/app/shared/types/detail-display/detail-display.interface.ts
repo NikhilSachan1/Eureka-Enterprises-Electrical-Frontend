@@ -1,15 +1,16 @@
 import { EExpenseTransactionType } from '@features/expense-management/types/expense.enum';
 import { EDataType } from '../common/data-types.type';
 
-export interface IEmployeeViewDetails {
+export interface IEntityViewDetails {
   name: string;
-  employeeCode: string;
+  subtitle: string;
+  showImage?: boolean;
 }
 
 export interface IDataViewDetails {
   status?: {
-    approvalStatus: string;
-    entryType: string;
+    approvalStatus?: string;
+    entryType?: string;
   };
   entryData: {
     label: string;
@@ -25,9 +26,9 @@ export interface IDataViewDetails {
   updatedBy?: IUserAuditInfo;
 }
 
-export interface IDataViewDetailsWithEmployee {
+export interface IDataViewDetailsWithEntity {
   details: IDataViewDetails[];
-  employee?: IEmployeeViewDetails;
+  entity?: IEntityViewDetails;
 }
 
 interface IUserAuditInfo {

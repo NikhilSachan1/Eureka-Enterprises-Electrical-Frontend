@@ -5,6 +5,7 @@ export const MODULE_NAMES = {
   COMMON: 'common',
   SITE: 'site',
   VEHICLE: 'vehicle',
+  ASSET: 'asset',
 } as const;
 
 export const CONFIGURATION_KEYS = {
@@ -39,5 +40,14 @@ export const CONFIGURATION_KEYS = {
   },
   VEHICLE: {
     VEHICLE_LIST: 'vehicle_list',
+  },
+  ASSET: {
+    CATEGORY_LIST: 'asset_categories',
+    TYPE_LIST: 'asset_types',
+    STATUS_LIST: 'asset_statuses',
+    CALIBRATION_SOURCE_LIST: 'calibration_sources',
+    CALIBRATION_FREQUENCY_LIST: 'calibration_frequencies',
+    CALIBRATION_STATUS_LIST: 'calibration_status_list',
+    WARRANTY_STATUS_LIST: 'warranty_status_list',
   },
 } as const;

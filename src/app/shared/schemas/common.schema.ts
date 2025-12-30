@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
-export const uuidField = z.uuid();
+export const uuidField = z.union([
+  z.uuid(),
+  z.literal('00000000-0000-0000-0000-000000000001'),
+]);
 export const isoDateTimeField = z.iso.datetime();
 export const dateField = z.date();
 export const onlyDateStringField = z

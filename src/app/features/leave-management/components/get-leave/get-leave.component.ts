@@ -34,7 +34,7 @@ import {
   EButtonActionType,
   EDataType,
   IDataViewDetails,
-  IDataViewDetailsWithEmployee,
+  IDataViewDetailsWithEntity,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetric,
@@ -232,7 +232,7 @@ export class GetLeaveComponent implements OnInit {
 
   private prepareLeaveRecordDetail(
     selectedRow: ILeaveGetBaseResponseDto
-  ): IDataViewDetailsWithEmployee {
+  ): IDataViewDetailsWithEntity {
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Leave Date',
@@ -252,9 +252,9 @@ export class GetLeaveComponent implements OnInit {
           entryData,
         },
       ],
-      employee: {
+      entity: {
         name: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
-        employeeCode: selectedRow.user.employeeId,
+        subtitle: selectedRow.user.employeeId,
       },
     };
   }

@@ -6,26 +6,8 @@ import {
 import { ADD_EXPENSE_FORM_CONFIG } from './add-expense.config';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 
-const {
-  fields: {
-    expenseType,
-    paymentMode,
-    expenseDate,
-    expenseAmount,
-    description,
-    attachment,
-    transactionId,
-  },
-} = ADD_EXPENSE_FORM_CONFIG;
-
 const EDIT_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  expenseType,
-  paymentMode,
-  expenseDate,
-  expenseAmount,
-  description,
-  attachment,
-  transactionId,
+  ...ADD_EXPENSE_FORM_CONFIG.fields,
 };
 
 const EDIT_EXPENSE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

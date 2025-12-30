@@ -132,9 +132,9 @@ export type {
   IAttachmentsGetResponseDto,
 } from './gallery/attachments.dto';
 export type {
-  IEmployeeViewDetails,
+  IEntityViewDetails,
   IDataViewDetails,
-  IDataViewDetailsWithEmployee,
+  IDataViewDetailsWithEntity,
 } from './detail-display/detail-display.interface';
 export { EDataType } from './common/data-types.type';
 export { EStepperOrientation } from './stepper/stepper.types';

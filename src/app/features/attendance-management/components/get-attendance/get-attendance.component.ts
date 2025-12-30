@@ -12,7 +12,7 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import {
   IDataViewDetails,
-  IDataViewDetailsWithEmployee,
+  IDataViewDetailsWithEntity,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetric,
@@ -241,7 +241,7 @@ export class GetAttendanceComponent implements OnInit {
 
   private prepareAttendanceRecordDetail(
     selectedRow: IAttendanceGetBaseResponseDto
-  ): IDataViewDetailsWithEmployee {
+  ): IDataViewDetailsWithEntity {
     const siteLocation = stringToArray(selectedRow.notes, '-')[0] || '';
     const clientName = stringToArray(selectedRow.notes, '-')[1] || '';
     const entryData: IDataViewDetails['entryData'] = [
@@ -297,9 +297,9 @@ export class GetAttendanceComponent implements OnInit {
           entryData,
         },
       ],
-      employee: {
+      entity: {
         name: `${selectedRow.user.firstName} ${selectedRow.user.lastName}`,
-        employeeCode: selectedRow.user.employeeId,
+        subtitle: selectedRow.user.employeeId,
       },
     };
   }

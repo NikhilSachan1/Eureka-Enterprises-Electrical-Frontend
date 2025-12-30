@@ -19,7 +19,7 @@ import {
 import {
   EDataType,
   IDataViewDetails,
-  IDataViewDetailsWithEmployee,
+  IDataViewDetailsWithEntity,
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { AppConfigService, AppPermissionService } from '@core/services';
@@ -43,7 +43,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   private readonly appPermissionService = inject(AppPermissionService);
 
   protected readonly _attendanceDetails = signal<
-    IDataViewDetailsWithEmployee | undefined
+    IDataViewDetailsWithEntity | undefined
   >(undefined);
 
   protected readonly ALL_DATA_TYPES = EDataType;
@@ -89,7 +89,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
 
   private mapDetailData(
     response: IAttendanceHistoryGetResponseDto
-  ): IDataViewDetailsWithEmployee {
+  ): IDataViewDetailsWithEntity {
     const mappedDetails = response.map(record => {
       const siteLocation = stringToArray(record.notes, '-')[0] || '';
       const clientName = stringToArray(record.notes, '-')[1] || '';
@@ -167,11 +167,11 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           notes: record.approvalComment,
         },
         createdBy: {
-          name: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
+          name: `${record.createdByUser?.firstName} ${record.createdByUser?.lastName}`,
           date: record.createdAt,
         },
         updatedBy: {
-          name: `${record.updatedByUser.firstName} ${record.updatedByUser.lastName}`,
+          name: `${record.updatedByUser?.firstName} ${record.updatedByUser?.lastName}`,
           date: record.updatedAt ?? 'N/A',
         },
       };
@@ -179,9 +179,9 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
 
     return {
       details: mappedDetails,
-      employee: {
+      entity: {
         name: `${this.drawerData.attendance.user.firstName} ${this.drawerData.attendance.user.lastName}`,
-        employeeCode: this.drawerData.attendance.user.employeeId ?? 'N/A',
+        subtitle: this.drawerData.attendance.user.employeeId ?? 'N/A',
       },
     };
   }

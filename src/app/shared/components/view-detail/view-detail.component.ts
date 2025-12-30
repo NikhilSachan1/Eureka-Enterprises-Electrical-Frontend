@@ -11,8 +11,9 @@ import {
   EDataType,
   EPrimeNGSeverity,
   IGalleryInputData,
-  IDataViewDetailsWithEmployee,
+  IDataViewDetailsWithEntity,
   IDataViewDetails,
+  EEntryType,
 } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
@@ -47,14 +48,15 @@ export class ViewDetailComponent {
   protected readonly appConfigService = inject(AppConfigService);
 
   protected readonly _avtarImageUrl = computed(() => {
-    const name = this.drawerDetails()?.employee?.name ?? 'N/A';
+    const name = this.drawerDetails()?.entity?.name ?? 'N/A';
     return this.getAvatarUrl(name);
   });
 
-  drawerDetails = input<IDataViewDetailsWithEmployee>();
+  drawerDetails = input<IDataViewDetailsWithEntity>();
 
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly icons = ICONS;
+  protected readonly ALL_ENTRY_TYPES = EEntryType;
 
   protected getApprovalStatusColor(status: string): EPrimeNGSeverity {
     return ColorUtil.getSeverity(status) as EPrimeNGSeverity;

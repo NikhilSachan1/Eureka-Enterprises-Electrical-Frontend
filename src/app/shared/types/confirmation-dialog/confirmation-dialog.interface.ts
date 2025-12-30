@@ -1,4 +1,4 @@
-import { EDialogPosition, IDataViewDetailsWithEmployee } from '@shared/types';
+import { EDialogPosition, IDataViewDetailsWithEntity } from '@shared/types';
 import { IButtonConfig } from '@shared/types/button/button.interface';
 import { Type } from '@angular/core';
 
@@ -31,7 +31,7 @@ export interface IDialogActionHandler {
 
 export interface IDialogActionConfig {
   dialogConfig: Partial<IDialogConfig>;
-  recordDetails?: IDataViewDetailsWithEmployee;
+  recordDetails?: IDataViewDetailsWithEntity;
   dynamicComponent?: Type<unknown>;
   dynamicComponentInputs?: Record<string, unknown>;
 }

@@ -1,3 +1,4 @@
+import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import {
   EAutocomplete,
@@ -146,6 +147,7 @@ export const DEFAULT_TEXT_AREA_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> =
       rows: 3,
       autoResize: false,
     },
+    validators: [Validators.maxLength(500)],
   };
 
 export const DEFAULT_INDIVIDUAL_NUMBER_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> =

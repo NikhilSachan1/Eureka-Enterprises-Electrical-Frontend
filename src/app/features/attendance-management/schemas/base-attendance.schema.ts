@@ -20,7 +20,7 @@ export const AttendanceBaseSchema = z
   .object({
     id: uuidField,
     userId: uuidField,
-    shiftConfigId: uuidField,
+    shiftConfigId: uuidField.nullable(),
     attendanceDate: onlyDateStringField,
     checkInTime: isoDateTimeField.nullable(),
     checkOutTime: isoDateTimeField.nullable(),

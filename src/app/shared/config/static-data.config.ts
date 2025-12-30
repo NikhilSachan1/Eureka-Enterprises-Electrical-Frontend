@@ -161,3 +161,17 @@ export const VEHICLE_LIST_DATA: IOptionDropdown[] = [
   { label: 'Vehicle 4', value: 'vehicle_4' },
   { label: 'Vehicle 5', value: 'vehicle_5' },
 ];
+
+export const ASSET_CALIBRATION_STATUS_DATA: IOptionDropdown[] = [
+  { label: 'Not Applicable', value: 'NOT_APPLICABLE' },
+  { label: 'Under Validity', value: 'UNDER_VALIDITY' },
+  { label: 'Expiring Soon', value: 'EXPIRING_SOON' },
+  { label: 'Expired', value: 'EXPIRED' },
+];
+
+export const ASSET_WARRANTY_STATUS_DATA: IOptionDropdown[] = [
+  { label: 'Not Applicable', value: 'NOT_APPLICABLE' },
+  { label: 'Under Validity', value: 'UNDER_VALIDITY' },
+  { label: 'Expiring Soon', value: 'EXPIRING_SOON' },
+  { label: 'Expired', value: 'EXPIRED' },
+];

@@ -1,1 +1,129 @@
-<p>edit-asset works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <!-- Asset Details Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Asset Details</h3>
+    </div>
+    <div class="form-section__content">
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['assetId']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['assetType']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['assetName']"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['assetModel']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['assetSerialNumber']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['assetCategory']"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Calibration Details Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Calibration Details</h3>
+    </div>
+    <div class="form-section__content">
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['calibrationFrom']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['calibrationFrequency']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['calibrationPeriod']"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor & Purchase Details Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Vendor & Purchase Details</h3>
+    </div>
+    <div class="form-section__content">
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['assetPurchaseDate']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['vendorName']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['warrantyPeriod']"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Attachments & Remarks Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Attachments & Remarks</h3>
+    </div>
+    <div class="form-section__content">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['assetDocuments']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['remarks']"
+      />
+    </div>
+  </div>
+
+  <div class="button-container">
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    />
+
+    <app-button
+      [buttonConfig]="form.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+    />
+  </div>
+</form>

@@ -31,11 +31,10 @@ export class GetExpenseDetailResolver
     route: ActivatedRouteSnapshot
   ): Observable<IExpenseDetailResolverResponse | null> {
     const expenseId = route.paramMap.get('expenseId');
-    const mode = route.data['mode'] as 'edit' | 'history';
 
     this.logger.logUserAction(
       'Get Expense Detail Resolver: Starting resolution',
-      { expenseId, mode }
+      { expenseId }
     );
 
     if (!expenseId) {
@@ -61,13 +60,6 @@ export class GetExpenseDetailResolver
         );
 
         const latestHistoryItem = response.history[response.history.length - 1];
-
-        if (mode === 'history') {
-          return of({
-            ...response,
-          });
-        }
-
         const fileKeys = latestHistoryItem?.fileKeys || [];
 
         return this.attachmentsService.loadFilesFromKeys(fileKeys).pipe(

@@ -17,8 +17,8 @@ import { AppConfigurationService, LoadingService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
-  IDataViewDetailsWithEmployee,
-  IEmployeeViewDetails,
+  IDataViewDetailsWithEntity,
+  IEntityViewDetails,
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { finalize } from 'rxjs';
@@ -42,7 +42,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _expenseDetails = signal<
-    IDataViewDetailsWithEmployee | undefined
+    IDataViewDetailsWithEntity | undefined
   >(undefined);
 
   protected readonly ALL_DATA_TYPES = EDataType;
@@ -87,7 +87,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
 
   private mapDetailData(
     response: IExpenseDetailGetResponseDto
-  ): IDataViewDetailsWithEmployee {
+  ): IDataViewDetailsWithEntity {
     const mappedDetails = response.history.map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
@@ -159,15 +159,15 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
 
     return {
       details: mappedDetails,
-      employee: this.getEmployeeDetails(),
+      entity: this.getEmployeeDetails(),
     };
   }
 
-  protected getEmployeeDetails(): IEmployeeViewDetails {
+  protected getEmployeeDetails(): IEntityViewDetails {
     const { user } = this.drawerData.expense;
     return {
       name: `${user.firstName} ${user.lastName}`,
-      employeeCode: user.employeeId ?? 'N/A',
+      subtitle: user.employeeId ?? 'N/A',
     };
   }
 }

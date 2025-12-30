@@ -152,8 +152,6 @@ export const TEST_INDIA_CITIES = [
   'Warangal',
 ];
 
-/* ===== appended from configuration dropdown output ===== */
-
 export const TEST_MODULES = [
   'role_permission',
   'system_permission',

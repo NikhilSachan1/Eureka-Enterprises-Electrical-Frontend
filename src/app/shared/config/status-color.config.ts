@@ -14,6 +14,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'period credit',
     'total credited',
     'active employees',
+    'available',
   ],
   danger: [
     'inactive',

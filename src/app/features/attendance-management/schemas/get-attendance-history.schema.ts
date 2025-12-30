@@ -15,8 +15,8 @@ export const AttendanceHistoryGetRequestSchema = z
 export const AttendanceHistoryGetResponseSchema = z.array(
   AttendanceBaseSchema.extend({
     user: UserSchema,
-    createdByUser: UserSchema,
-    updatedByUser: UserSchema,
+    createdByUser: makeFieldsNullable(UserSchema).nullable().optional(),
+    updatedByUser: makeFieldsNullable(UserSchema).nullable().optional(),
     approvalByUser: makeFieldsNullable(UserSchema).nullable().optional(),
   }).strict()
 );

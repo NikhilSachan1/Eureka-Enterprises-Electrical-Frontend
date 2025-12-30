@@ -39,7 +39,7 @@
     [formGroup]="form.formGroup"
     class="form"
   >
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-4">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['firstName']"
@@ -61,7 +61,7 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['fatherName']"
@@ -73,7 +73,7 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['gender']"
@@ -90,7 +90,7 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['houseNumber']"
@@ -107,7 +107,7 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['state']"
@@ -139,7 +139,7 @@
     [formGroup]="form.formGroup"
     class="form"
   >
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['employeeId']"
@@ -156,7 +156,7 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['employmentType']"
@@ -168,7 +168,7 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['esicNumber']"
@@ -180,7 +180,7 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['esicDocument']"
@@ -202,7 +202,7 @@
     [formGroup]="form.formGroup"
     class="form"
   >
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['degree']"
@@ -234,7 +234,7 @@
     [formGroup]="form.formGroup"
     class="form"
   >
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['bankName']"
@@ -246,7 +246,7 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs['accountHolderName']"
@@ -269,54 +269,66 @@
     class="form"
   >
     <!-- Identity Document Numbers Section -->
-    <div class="mb-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Identity Numbers</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['aadharNumber']"
-        />
+    <div class="form-section">
+      <div class="form-section__header form-section__header--bordered">
+        <h3 class="form-section__title">Identity Numbers</h3>
+      </div>
+      <div class="form-section__content">
+        <div class="grid grid-cols-1 md:grid-cols-2">
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs['aadharNumber']"
+          />
 
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['pancardNumber']"
-        />
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs['pancardNumber']"
+          />
+        </div>
 
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['passportNumber']"
-        />
+        <div class="grid grid-cols-1 md:grid-cols-2">
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs['passportNumber']"
+          />
 
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['drivingLicenseNumber']"
-        />
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs['drivingLicenseNumber']"
+          />
+        </div>
       </div>
     </div>
 
     <!-- Document Files Section -->
-    <div>
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Identity Document</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['aadharDocument']"
-        />
+    <div class="form-section">
+      <div class="form-section__header form-section__header--bordered">
+        <h3 class="form-section__title">Identity Document</h3>
+      </div>
+      <div class="form-section__content">
+        <div class="grid grid-cols-1 md:grid-cols-2">
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs['aadharDocument']"
+          />
 
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['pancardDocument']"
-        />
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs['pancardDocument']"
+          />
+        </div>
 
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['passportDocument']"
-        />
+        <div class="grid grid-cols-1 md:grid-cols-2">
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs['passportDocument']"
+          />
 
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['drivingLicenseDocument']"
-        />
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs['drivingLicenseDocument']"
+          />
+        </div>
       </div>
     </div>
   </form>

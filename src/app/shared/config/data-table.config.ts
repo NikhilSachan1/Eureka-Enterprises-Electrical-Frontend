@@ -29,7 +29,8 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   showCheckbox: true,
   emptyMessage: 'No data found',
   emptyMessageIcon: ICONS.COMMON.INFO_CIRCLE,
-  emptyMessageDescription: 'No data found',
+  emptyMessageDescription:
+    "You don't have any data yet. Please add records first.",
   paginationTemplate: 'Showing {first} to {last} of {totalRecords} entries',
   enableServerSide: true,
 };

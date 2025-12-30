@@ -39,7 +39,7 @@ import {
   EDataType,
   EDrawerSize,
   IDataViewDetails,
-  IDataViewDetailsWithEmployee,
+  IDataViewDetailsWithEntity,
   IEnhancedTable,
   IEnhancedTableConfig,
   IMetric,
@@ -242,7 +242,7 @@ export class GetEmployeeComponent implements OnInit {
 
   private prepareEmployeeRecordDetail(
     selectedRow: IEmployeeGetBaseResponseDto
-  ): IDataViewDetailsWithEmployee {
+  ): IDataViewDetailsWithEntity {
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Employee Name',
