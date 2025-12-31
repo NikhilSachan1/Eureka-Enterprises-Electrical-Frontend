@@ -11,7 +11,7 @@
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: var(--background-default-color, white);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   color: var(--text-primary-color, #1e293b);
   transition:
     background-color 0.3s ease,
@@ -32,7 +32,7 @@
 
   // Dark theme variant
   &--dark {
-    background-color: var(--background-default-color, #0f172a);
+    background: linear-gradient(180deg, var(--surface-50, #0f172a) 0%, var(--surface-100, #1e293b) 100%);
     color: var(--text-primary-color, #f8fafc);
   }
 }

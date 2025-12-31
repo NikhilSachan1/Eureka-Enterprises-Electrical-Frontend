@@ -25,6 +25,7 @@ import { FormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuModule } from 'primeng/menu';
+import { PanelModule } from 'primeng/panel';
 import {
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -75,6 +76,7 @@ import { ReadMoreComponent } from '../read-more/read-more.component';
     ChipComponent,
     NgTemplateOutlet,
     ReadMoreComponent,
+    PanelModule,
   ],
 
   templateUrl: './data-table.component.html',

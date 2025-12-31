@@ -1,36 +1,43 @@
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 mb-4 border-b border-gray-200">
-  @let finalPageHeader = finalPageHeaderConfig();
-  @let goBackButton = goBackButtonConfig();
+@let finalPageHeader = finalPageHeaderConfig();
 
-  <!-- Left Section -->
-  <div class="flex items-center gap-3 flex-1 min-w-0">
-    @if (finalPageHeader.showGoBackButton) {
-      <app-button
-        [buttonConfig]="goBackButton"
-        (onButtonClick)="onGoBackClick()"
-      />
-    }
+<div
+  class="relative -m-4 mb-6 px-6 py-5 bg-gradient-to-br from-white to-slate-50 border-b border-slate-200 overflow-hidden"
+>
+  <!-- Background Pattern -->
+  <div class="absolute inset-0 opacity-40"></div>
 
-    <div class="flex-1 min-w-0">
-      <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
-        {{ finalPageHeader.title }}
-      </h1>
-      <p class="text-gray-600 text-sm">
-        {{ finalPageHeader.subtitle }}
-      </p>
-    </div>
-  </div>
-
-  <!-- Right Section -->
-  @if (finalPageHeader.showHeaderButton && finalPageHeader.headerButtonConfig) {
-    <div class="flex sm:block justify-end">
-      @for (buttonConfig of finalPageHeader.headerButtonConfig; track buttonConfig.id) {
+  <div class="relative flex items-center justify-between gap-4 flex-wrap">
+    <!-- Left Section -->
+    <div class="flex items-center gap-3.5 min-w-0">
+      @if (finalPageHeader.showGoBackButton) {
         <app-button
-          [buttonConfig]="buttonConfig"
-          (onButtonClick)="headerButtonClick.emit(buttonConfig.actionName || '')"
-          class="ml-2"
+          [buttonConfig]="goBackButtonConfig()"
+          (onButtonClick)="onGoBackClick()"
         />
       }
+
+      <div class="min-w-0">
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-800 m-0 leading-tight tracking-tight">
+          {{ finalPageHeader.title }}
+        </h1>
+        @if (finalPageHeader.subtitle) {
+          <p class="text-[0.8125rem] text-slate-500 mt-1 leading-snug">
+            {{ finalPageHeader.subtitle }}
+          </p>
+        }
+      </div>
     </div>
-  }
+
+    <!-- Right Section - Action Buttons -->
+    @if (finalPageHeader.showHeaderButton && finalPageHeader.headerButtonConfig) {
+      <div class="flex items-center gap-2 flex-wrap max-sm:w-full max-sm:justify-end">
+        @for (buttonConfig of finalPageHeader.headerButtonConfig; track buttonConfig.id) {
+          <app-button
+            [buttonConfig]="buttonConfig"
+            (onButtonClick)="headerButtonClick.emit(buttonConfig.actionName || '')"
+          />
+        }
+      </div>
+    }
+  </div>
 </div>
