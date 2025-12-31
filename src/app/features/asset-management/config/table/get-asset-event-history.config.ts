@@ -1,3 +1,4 @@
+import { APP_CONFIG } from '@core/config';
 import { IAssetGetResponseDto } from '@features/asset-management/types/asset.dto';
 import {
   EDataType,
@@ -15,24 +16,54 @@ export const ASSET_EVENT_HISTORY_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCo
   [
     {
       field: 'eventDate',
-      header: 'Date',
+      header: 'Date & Time',
       bodyTemplate: EDataType.DATE,
       dataType: EDataType.DATE,
+      dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME,
+      serverSideFilterAndSortConfig: {
+        sortField: 'createdAt',
+      },
     },
     {
       field: 'eventType',
-      header: 'Event Type',
+      header: 'Action',
       bodyTemplate: EDataType.STATUS,
       showSort: false,
     },
     {
-      field: 'fromUser',
-      header: 'From User',
+      field: 'fromUserName',
+      header: 'Previous Holder',
+      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
+      textWithSubtitleAndImageConfig: {
+        secondaryField: 'fromUserCode',
+        showImage: true,
+        dummyImageField: 'fromUserName',
+        primaryFieldHighlight: true,
+      },
       showSort: false,
     },
     {
-      field: 'toUser',
-      header: 'To User',
+      field: 'toUserName',
+      header: 'New Holder',
+      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
+      textWithSubtitleAndImageConfig: {
+        secondaryField: 'toUserCode',
+        showImage: true,
+        dummyImageField: 'toUserName',
+        primaryFieldHighlight: true,
+      },
+      showSort: false,
+    },
+    {
+      field: 'createdByName',
+      header: 'Action Performed By',
+      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
+      textWithSubtitleAndImageConfig: {
+        secondaryField: 'createdByCode',
+        showImage: true,
+        dummyImageField: 'createdByName',
+        primaryFieldHighlight: true,
+      },
       showSort: false,
     },
     {

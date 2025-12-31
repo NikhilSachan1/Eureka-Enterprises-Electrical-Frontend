@@ -62,6 +62,7 @@ export class AppConfigurationService {
   private readonly _assetCalibrationStatuses = signal<IOptionDropdown[]>([]);
   private readonly _assetWarrantyStatuses = signal<IOptionDropdown[]>([]);
   private readonly _assetCalibrationFrequencies = signal<IOptionDropdown[]>([]);
+  private readonly _assetEventStatuses = signal<IOptionDropdown[]>([]);
 
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
@@ -98,6 +99,7 @@ export class AppConfigurationService {
   readonly assetWarrantyStatuses = this._assetWarrantyStatuses.asReadonly();
   readonly assetCalibrationFrequencies =
     this._assetCalibrationFrequencies.asReadonly();
+  readonly assetEventStatuses = this._assetEventStatuses.asReadonly();
 
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
@@ -250,6 +252,10 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.ASSET.CALIBRATION_FREQUENCY_LIST,
         signal: this._assetCalibrationFrequencies,
+      },
+      {
+        key: CONFIGURATION_KEYS.ASSET.EVENT_STATUS_LIST,
+        signal: this._assetEventStatuses,
       },
     ],
   };

@@ -91,6 +91,10 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
     const mappedDetails = response.versionHistory.map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
+          label: 'Asset Name',
+          value: record.name,
+        },
+        {
           label: 'Model',
           value: record.model,
         },
@@ -150,7 +154,7 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Attachment(s)',
-          value: [], // TODO: Add document keys from response when available
+          value: record.documentKeys,
           type: EDataType.ATTACHMENTS,
         },
       ];
@@ -161,8 +165,7 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
         },
         entryData,
         createdBy: {
-          // name: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,// TODO: Add created by user name from response when available and uncomment the line below
-          name: 'N/A',
+          name: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
           date: record.createdAt,
           notes: record.remarks,
         },

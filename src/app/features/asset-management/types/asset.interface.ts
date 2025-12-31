@@ -23,8 +23,13 @@ export interface IAsset
     | 'assignedToUser'
     | 'createdAt'
     | 'updatedAt'
+    | 'documentKeys'
   > {
+  // Assigned user details - shows who currently has this asset
+  assetAssigneeName: string | null;
+  assetAssigneeCode: string | null;
   originalRawData: IAssetGetBaseResponseDto;
+  assetDocuments: string[];
 }
 
 export interface IAssetDetailResolverResponse
@@ -35,18 +40,26 @@ export interface IAssetDetailResolverResponse
 export interface IAssetEventHistory
   extends Omit<
     IAssetEventHistoryGetBaseResponseDto,
-    | 'createdAt'
-    | 'createdBy'
-    | 'updatedAt'
-    | 'deletedAt'
-    | 'updatedBy'
-    | 'deletedBy'
     | 'assetMasterId'
-    | 'assetFiles'
+    | 'fromUserId'
+    | 'toUserId'
+    | 'updatedAt'
+    | 'asset'
     | 'metadata'
-    | 'fromUser'
-    | 'toUser'
+    | 'id'
+    | 'createdById'
+    | 'createdByUser'
+    | 'fromUserDetails'
+    | 'toUserDetails'
   > {
   remarks: string;
-  originalRawData: IAssetEventHistoryGetBaseResponseDto;
+  // From User - who transferred the asset
+  fromUserName: string | null;
+  fromUserCode: string | null;
+  // To User - who received the asset
+  toUserName: string | null;
+  toUserCode: string | null;
+  // Created By - who created this event
+  createdByName: string;
+  createdByCode: string;
 }

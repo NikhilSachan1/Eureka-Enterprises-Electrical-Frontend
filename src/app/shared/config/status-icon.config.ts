@@ -1,6 +1,21 @@
 import { ICONS } from '@shared/constants';
 
 export const STATUS_ICON_GROUPS: Record<string, string> = {
+  // Common status icons (used across modules)
+  total: ICONS.STATUS.TOTAL,
+  available: ICONS.STATUS.AVAILABLE,
+  assigned: ICONS.STATUS.ASSIGNED,
+  expired: ICONS.STATUS.EXPIRED,
+  'expiring soon': ICONS.STATUS.EXPIRING_SOON,
+
+  // Calibration & Warranty (common for assets)
+  'calibrated assets': ICONS.ASSET.BOX,
+  'non calibrated assets': ICONS.ASSET.BOX,
+  'calibration expired': ICONS.STATUS.EXPIRED,
+  'calibration expiring soon': ICONS.STATUS.EXPIRING_SOON,
+  'warranty expired': ICONS.STATUS.EXPIRED,
+  'warranty expiring soon': ICONS.STATUS.EXPIRING_SOON,
+
   // Success/Approved statuses
   approved: ICONS.ACTIONS.CHECK_CIRCLE,
   approve: ICONS.ACTIONS.CHECK_CIRCLE,
@@ -39,7 +54,6 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   // Info statuses
   holiday: ICONS.ATTENDANCE.CALENDAR,
   view: ICONS.ACTIONS.EYE,
-  total: ICONS.COMMON.CHART,
   'total employees': ICONS.EMPLOYEE.GROUP,
   'opening balance': ICONS.EXPENSE.MONEY,
   'total balance': ICONS.EXPENSE.MONEY,

@@ -170,70 +170,76 @@
                   @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
                     @let config = column.textWithSubtitleAndImageConfig;
 
-                    <div class="flex items-center gap-3">
-                      @if (config.showImage) {
-                        @let imageName = $any(resolveNestedProperty(rowData, config.dummyImageField));
-                        <img
-                          [src]="getAvatarUrl(imageName)"
-                          [alt]="imageName"
-                          class="w-9 h-9 rounded-lg bg-slate-100 object-cover"
-                        />
-                      }
+                    <!-- Show content only when columnData exists, otherwise show dash -->
+                    @if (columnData) {
+                      <div class="flex items-center gap-3">
+                        @if (config.showImage) {
+                          @let imageName = $any(resolveNestedProperty(rowData, config.dummyImageField));
+                          <img
+                            [src]="getAvatarUrl(imageName)"
+                            [alt]="imageName"
+                            class="w-9 h-9 rounded-lg bg-slate-100 object-cover"
+                          />
+                        }
 
-                      <div>
                         <div>
-                          @if (config.primaryFieldLabel) {
-                            <span class="font-medium text-slate-600">{{ config.primaryFieldLabel }}:</span>
-                          }
-                          <span
-                            [ngClass]="{
-                              'font-medium text-slate-700': config.primaryFieldHighlight,
-                              'text-slate-700': !config.primaryFieldHighlight,
-                            }"
-                          >
-                            @switch (column.dataType) {
-                              @case ('date') {
-                                {{ columnData | date: column.dateFormat }}
-                              }
-                              @default {
-                                {{ columnData }}
-                              }
-                            }
-                          </span>
-                        </div>
-
-                        @if (config.secondaryField) {
-                          @let secondaryData = $any(resolveNestedProperty(rowData, config.secondaryField));
                           <div>
-                            @if (config.secondaryFieldLabel) {
-                              <span
-                                [ngClass]="{
-                                  'text-slate-600': !config.secondaryFieldLabel,
-                                  'font-medium text-slate-600': config.secondaryFieldLabel,
-                                }"
-                              >
-                                {{ config.secondaryFieldLabel }}:
-                              </span>
+                            @if (config.primaryFieldLabel) {
+                              <span class="font-medium text-slate-600">{{ config.primaryFieldLabel }}:</span>
                             }
                             <span
                               [ngClass]="{
-                                'text-slate-600': !config.secondaryFieldLabel,
-                                'text-slate-700': config.secondaryFieldLabel,
+                                'font-medium text-slate-700': config.primaryFieldHighlight,
+                                'text-slate-700': !config.primaryFieldHighlight,
                               }"
                             >
-                              @switch (config.dataType) {
+                              @switch (column.dataType) {
                                 @case ('date') {
-                                  {{ secondaryData | date: column.dateFormat }}
+                                  {{ columnData | date: column.dateFormat }}
                                 }
                                 @default {
-                                  {{ secondaryData }}
+                                  {{ columnData }}
                                 }
                               }
                             </span>
                           </div>
-                        }
+
+                          @if (config.secondaryField) {
+                            @let secondaryData = $any(resolveNestedProperty(rowData, config.secondaryField));
+                            <div>
+                              @if (config.secondaryFieldLabel) {
+                                <span
+                                  [ngClass]="{
+                                    'text-slate-600': !config.secondaryFieldLabel,
+                                    'font-medium text-slate-600': config.secondaryFieldLabel,
+                                  }"
+                                >
+                                  {{ config.secondaryFieldLabel }}:
+                                </span>
+                              }
+                              <span
+                                [ngClass]="{
+                                  'text-slate-600': !config.secondaryFieldLabel,
+                                  'text-slate-700': config.secondaryFieldLabel,
+                                }"
+                              >
+                                @switch (config.dataType) {
+                                  @case ('date') {
+                                    {{ secondaryData | date: column.dateFormat }}
+                                  }
+                                  @default {
+                                    {{ secondaryData }}
+                                  }
+                                }
+                              </span>
+                            </div>
+                          }
+                        </div>
                       </div>
-                    </div>
+                    } @else {
+                      <!-- Placeholder when no data (e.g., asset not assigned to anyone) -->
+                      <span class="text-slate-400">-</span>
+                    }
                   }
                   @case (ALL_DATA_TYPES.STATUS) {
                     @let statusConfig = column.statusConfig;

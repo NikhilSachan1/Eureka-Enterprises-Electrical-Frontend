@@ -1,5 +1,5 @@
 import { IAssetGetResponseDto } from '@features/asset-management/types/asset.dto';
-import { COMMON_ROW_ACTIONS } from '@shared/config';
+import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import {
   EButtonActionType,
   EDataType,
@@ -12,7 +12,6 @@ import { IconUtil } from '@shared/utility';
 
 export const ASSET_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No asset record found.',
-  showCheckbox: false,
 };
 
 export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
@@ -26,7 +25,6 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
       dummyImageField: 'name',
       primaryFieldHighlight: true,
     },
-    showSort: false,
   },
   {
     field: 'category',
@@ -37,8 +35,29 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'assetAssigneeName',
+    header: 'Assigned To',
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
+    textWithSubtitleAndImageConfig: {
+      secondaryField: 'assetAssigneeCode',
+      showImage: true,
+      dummyImageField: 'assetAssigneeName',
+      primaryFieldHighlight: true,
+    },
+    serverSideFilterAndSortConfig: {
+      filterField: 'assetAssignee',
+    },
+    showSort: false,
+  },
+  {
     field: 'calibrationFrom',
     header: 'Calibration From',
+    showSort: false,
+  },
+  {
+    field: 'assetDocuments',
+    header: 'Attachments',
+    bodyTemplate: EDataType.ATTACHMENTS,
     showSort: false,
   },
   {
@@ -117,10 +136,18 @@ export const ASSET_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
 ];
 
+export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
+  {
+    ...COMMON_BULK_ACTIONS.DELETE,
+    tooltip: 'Delete Selected Asset',
+  },
+];
+
 export const ASSET_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
   IAssetGetResponseDto['records'][number]
 > = {
   tableConfig: ASSET_TABLE_CONFIG,
   headers: ASSET_TABLE_HEADER_CONFIG,
   rowActions: ASSET_TABLE_ROW_ACTIONS_CONFIG,
+  bulkActions: ASSET_TABLE_BULK_ACTIONS_CONFIG,
 };

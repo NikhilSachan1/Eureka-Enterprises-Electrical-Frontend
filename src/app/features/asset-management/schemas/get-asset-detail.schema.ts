@@ -1,6 +1,12 @@
-import { AuditSchema, onlyDateStringField, uuidField } from '@shared/schemas';
+import {
+  AuditSchema,
+  onlyDateStringField,
+  UserSchema,
+  uuidField,
+} from '@shared/schemas';
 import { z } from 'zod';
 import { AssetBaseSchema } from './base-asset.schema';
+import { makeFieldsNullable } from '@shared/utility';
 
 const { createdAt, updatedAt, createdBy, updatedBy, deletedBy, deletedAt } =
   AuditSchema.shape;
@@ -32,6 +38,9 @@ export const AssetDetailGetDocumentsSchema = z
 export const AssetDetailGetBaseResponseSchema = AssetBaseSchema.extend({
   createdAt,
   updatedAt,
+  createdByUser: UserSchema,
+  assignedToUser: makeFieldsNullable(UserSchema).nullable(),
+  updatedByUser: makeFieldsNullable(UserSchema).nullable(),
 }).strict();
 
 export const AssetDetailGetVersionHistorySchema =
@@ -41,7 +50,6 @@ export const AssetDetailGetVersionHistorySchema =
     warrantyStatus: true,
   })
     .extend({
-      ...AuditSchema.shape,
       calibrationStartDate: onlyDateStringField,
       calibrationEndDate: onlyDateStringField,
       purchaseDate: onlyDateStringField,
@@ -51,6 +59,8 @@ export const AssetDetailGetVersionHistorySchema =
       assetMasterId: uuidField,
       isActive: z.boolean(),
       files: z.array(AssetDetailGetDocumentsSchema),
+      createdBy,
+      updatedBy: updatedBy.nullable(),
     })
     .strict()
     .transform(({ files, ...rest }) => ({
@@ -61,6 +71,10 @@ export const AssetDetailGetVersionHistorySchema =
 export const AssetDetailGetResponseSchema = z
   .object({
     ...AssetDetailGetBaseResponseSchema.shape,
+    createdBy,
+    updatedBy: updatedBy.nullable(),
+    deletedBy: deletedBy.nullable(),
+    deletedAt: deletedAt.nullable().optional(),
     calibrationStartDate: onlyDateStringField,
     calibrationEndDate: onlyDateStringField,
     purchaseDate: onlyDateStringField,
@@ -68,6 +82,7 @@ export const AssetDetailGetResponseSchema = z
     warrantyEndDate: onlyDateStringField,
     assignedTo: uuidField.nullable(),
     files: z.array(AssetDetailGetDocumentsSchema),
+    deletedByUser: makeFieldsNullable(UserSchema).nullable(),
     versionHistory: z.array(AssetDetailGetVersionHistorySchema),
   })
   .strict();

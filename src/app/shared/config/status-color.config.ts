@@ -1,5 +1,9 @@
 export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
   success: [
+    // Common statuses
+    'available',
+
+    // Approval/Active statuses
     'active',
     'approved',
     'approve',
@@ -14,11 +18,19 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'period credit',
     'total credited',
     'active employees',
-    'available',
     'handoverinitiate',
     'handoveraccepted',
+
+    // Calibration
+    'calibrated assets',
   ],
   danger: [
+    // Common statuses
+    'expired',
+    'calibration expired',
+    'warranty expired',
+
+    // Rejection/Inactive statuses
     'inactive',
     'rejected',
     'reject',
@@ -35,6 +47,12 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'deallocate',
   ],
   warning: [
+    // Common statuses
+    'expiring soon',
+    'calibration expiring soon',
+    'warranty expiring soon',
+
+    // Pending/Action statuses
     'pending',
     'leave',
     'regularize',
@@ -48,10 +66,15 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'handovercancelled',
   ],
   info: [
+    // Common statuses
+    'total',
+    'assigned',
+    'non calibrated assets',
+
+    // Info statuses
     'holiday',
     'view',
     'setpermissions',
-    'total',
     'opening balance',
     'total balance',
     'total employees',

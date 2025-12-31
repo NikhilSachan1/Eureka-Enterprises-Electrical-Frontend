@@ -36,8 +36,8 @@ export const APP_CONFIG = {
   // Date Formats
   DATE_FORMATS: {
     DEFAULT: 'MMM d, yyyy',
+    DEFAULT_WITH_TIME: 'MMM d, yyyy hh:mm a',
     DEFAULT_CALENDAR: 'M d, yy',
-    WITH_TIME: 'dd/MM/yyyy HH:mm',
     CALENDAR: 'dd/mm/yy',
     API: 'yyyy-MM-dd',
     WITH_SHORT_MONTH: 'MMM d, yyyy',

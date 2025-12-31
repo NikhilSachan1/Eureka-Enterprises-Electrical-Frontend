@@ -149,15 +149,24 @@ export class GetAssetEventHistoryComponent implements OnInit {
     response: IAssetEventHistoryGetBaseResponseDto[]
   ): IAssetEventHistory[] {
     return response.map((record: IAssetEventHistoryGetBaseResponseDto) => {
+      const fromUser = record.fromUserDetails;
+      const toUser = record.toUserDetails;
+      const createdBy = record.createdByUser;
+
       return {
-        id: record.id,
         eventDate: record.createdAt,
         eventType: record.eventType,
-        fromUser: record.fromUser,
-        toUser: record.toUser,
+        remarks: record?.metadata?.['remark'] ?? '-',
+        createdAt: record.createdAt,
         documentKeys: record.documentKeys,
-        remarks: record?.metadata?.['remark'] ?? 'N/A',
-        originalRawData: record,
+        fromUserName: fromUser
+          ? `${fromUser.firstName} ${fromUser.lastName}`
+          : null,
+        fromUserCode: fromUser?.employeeId ?? null,
+        toUserName: toUser ? `${toUser.firstName} ${toUser.lastName}` : null,
+        toUserCode: toUser?.employeeId ?? null,
+        createdByName: `${createdBy.firstName} ${createdBy.lastName}`,
+        createdByCode: createdBy.employeeId,
       };
     });
   }

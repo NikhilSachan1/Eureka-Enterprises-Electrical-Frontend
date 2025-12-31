@@ -19,7 +19,7 @@ const SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterIn
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.ASSET,
-          dropdownName: CONFIGURATION_KEYS.ASSET.CATEGORY_LIST, // TODO: change to event type list
+          dropdownName: CONFIGURATION_KEYS.ASSET.EVENT_STATUS_LIST,
         },
       },
       matchmode: ETableFilterMatchMode.IN,

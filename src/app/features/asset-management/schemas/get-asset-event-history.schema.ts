@@ -1,7 +1,19 @@
-import { AuditSchema, FilterSchema, uuidField } from '@shared/schemas';
+import {
+  AuditSchema,
+  FilterSchema,
+  UserSchema,
+  uuidField,
+} from '@shared/schemas';
 import { z } from 'zod';
-import { AssetDetailGetDocumentsSchema } from './get-asset-detail.schema';
+import {
+  AssetDetailGetBaseResponseSchema,
+  AssetDetailGetDocumentsSchema,
+} from './get-asset-detail.schema';
 import { makeFieldsNullable } from '@shared/utility';
+
+const { createdAt, updatedAt, createdBy } = AuditSchema.shape;
+const { id, name, assetId, model, serialNumber, category, status } =
+  AssetDetailGetBaseResponseSchema.shape;
 
 export const AssetEventHistoryGetRequestSchema = z
   .object({
@@ -9,29 +21,32 @@ export const AssetEventHistoryGetRequestSchema = z
   })
   .strict();
 
-export const AssetEventHistoryGetDocumentsSchema =
-  AssetDetailGetDocumentsSchema;
-
-export const AssetEventHistoryGetEventsSchema = z
-  .object({
-    ...AuditSchema.shape,
-    id: uuidField,
-    assetMasterId: uuidField,
-    eventType: z.string().min(1),
-    fromUser: uuidField.nullable(),
-    toUser: uuidField.nullable(),
-    metadata: z.record(z.string(), z.string()).nullable(),
-  })
-  .strict();
-
 export const AssetEventHistoryGetStatsResponseSchema = z.object({}).strict();
 
 export const AssetEventHistoryGetBaseResponseSchema = z
   .object({
-    ...AssetEventHistoryGetEventsSchema.shape,
-    assetFiles: z.array(
-      makeFieldsNullable(AssetEventHistoryGetDocumentsSchema)
-    ),
+    id: uuidField,
+    assetMasterId: uuidField,
+    eventType: z.string().min(1),
+    fromUserId: uuidField.nullable(),
+    toUserId: uuidField.nullable(),
+    createdAt,
+    updatedAt,
+    createdById: createdBy,
+    createdByUser: UserSchema,
+    fromUserDetails: makeFieldsNullable(UserSchema).nullable(),
+    toUserDetails: makeFieldsNullable(UserSchema).nullable(),
+    metadata: z.record(z.string(), z.string()).nullable(),
+    assetFiles: z.array(makeFieldsNullable(AssetDetailGetDocumentsSchema)),
+    asset: z.object({
+      id,
+      assetId,
+      name,
+      model,
+      serialNumber,
+      category,
+      status,
+    }),
   })
   .strict()
   .transform(({ assetFiles, ...rest }) => ({

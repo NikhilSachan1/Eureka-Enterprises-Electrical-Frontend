@@ -23,10 +23,12 @@ import {
   ActionAssetResponseSchema,
   AssetAddRequestSchema,
   AssetAddResponseSchema,
+  AssetDeleteRequestSchema,
   AssetDeleteResponseSchema,
   AssetDetailGetResponseSchema,
   AssetEditRequestSchema,
   AssetEditResponseSchema,
+  AssetEventHistoryGetRequestSchema,
   AssetEventHistoryGetResponseSchema,
   AssetGetRequestSchema,
   AssetGetResponseSchema,
@@ -101,8 +103,10 @@ export class AssetService {
 
     return this.apiService
       .deleteValidated(
-        API_ROUTES.ASSET.DELETE_ASSET_BY_ID(formData.id),
-        AssetDeleteResponseSchema
+        API_ROUTES.ASSET.DELETE,
+        AssetDeleteResponseSchema,
+        formData,
+        AssetDeleteRequestSchema
       )
       .pipe(
         tap((response: IAssetDeleteResponseDto) => {
@@ -212,9 +216,9 @@ export class AssetService {
     return this.apiService
       .getValidated(
         API_ROUTES.ASSET.GET_ASSET_EVENT_HISTORY(assetId),
-        AssetEventHistoryGetResponseSchema
-        // params, // TODO: add params back in when backend is updated
-        // AssetEventHistoryGetRequestSchema // TODO: add params back in when backend is updated
+        AssetEventHistoryGetResponseSchema,
+        params,
+        AssetEventHistoryGetRequestSchema
       )
       .pipe(
         tap((response: IAssetEventHistoryGetResponseDto) => {

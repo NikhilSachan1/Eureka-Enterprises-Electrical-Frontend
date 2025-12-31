@@ -21,6 +21,7 @@ import {
   LoadingService,
   NotificationService,
 } from '@shared/services';
+import { EButtonActionType } from '@shared/types';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -76,7 +77,7 @@ export class DeleteAssetComponent implements OnInit {
     record: IAssetGetBaseResponseDto[]
   ): IAssetDeleteRequestDto {
     return {
-      id: record[0].id,
+      assetIds: record.map((row: IAssetGetBaseResponseDto) => row.id),
     };
   }
 
@@ -99,7 +100,14 @@ export class DeleteAssetComponent implements OnInit {
       )
       .subscribe({
         next: (response: IAssetDeleteResponseDto) => {
-          this.notificationService.success(response.message);
+          const { errors, result } = response;
+
+          this.notificationService.bulkOperationResult({
+            entityLabel: 'asset',
+            actionLabel: EButtonActionType.DELETE,
+            errors,
+            result,
+          });
 
           const successCallback = this.onSuccess();
           successCallback?.();

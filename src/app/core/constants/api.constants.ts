@@ -48,7 +48,7 @@ export const API_ROUTES = {
   ASSET: {
     LIST: 'assets',
     ADD: 'assets',
-    DELETE_ASSET_BY_ID: (assetId: string) => `assets/${assetId}`,
+    DELETE: 'assets',
     EDIT: (assetId: string) => `assets/${assetId}`,
     GET_ASSET_BY_ID: (assetId: string) => `assets/${assetId}`,
     ACTION: 'assets/action',

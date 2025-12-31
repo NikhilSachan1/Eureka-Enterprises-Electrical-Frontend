@@ -117,7 +117,7 @@ export class GetAssetComponent implements OnInit {
       )
       .subscribe({
         next: (response: IAssetGetResponseDto) => {
-          const { records, stats = {}, totalRecords } = response; // TODO: remove optional chaining from stats
+          const { records, stats, totalRecords } = response;
 
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
@@ -150,6 +150,10 @@ export class GetAssetComponent implements OnInit {
           this.appConfigurationService.assetCategories(),
           record.category
         ),
+        assetAssigneeName: record.assignedToUser
+          ? `${record.assignedToUser.firstName} ${record.assignedToUser.lastName}`
+          : null,
+        assetAssigneeCode: record.assignedToUser?.employeeId ?? null,
         calibrationFrom: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.assetCalibrationSources(),
           record.calibrationFrom
@@ -166,6 +170,7 @@ export class GetAssetComponent implements OnInit {
           this.appConfigurationService.assetStatuses(),
           record.status
         ),
+        assetDocuments: record.documentKeys,
         originalRawData: record,
       };
     });
@@ -182,7 +187,41 @@ export class GetAssetComponent implements OnInit {
       return [];
     }
 
-    return [];
+    return [
+      { label: 'Total', value: stats.total },
+      {
+        label: 'Available',
+        value: stats.byStatus.available,
+      },
+      {
+        label: 'Assigned',
+        value: stats.byStatus.assigned,
+      },
+      {
+        label: 'Calibrated Assets',
+        value: stats.byAssetType.calibrated,
+      },
+      {
+        label: 'Non Calibrated Assets',
+        value: stats.byAssetType.nonCalibrated,
+      },
+      {
+        label: 'Calibration Expiring Soon',
+        value: stats.calibration.expiringSoon,
+      },
+      {
+        label: 'Calibration Expired',
+        value: stats.calibration.expired,
+      },
+      {
+        label: 'Warranty Expiring Soon',
+        value: stats.warranty.expiringSoon,
+      },
+      {
+        label: 'Warranty Expired',
+        value: stats.warranty.expired,
+      },
+    ];
   }
 
   protected handleAssetTableActionClick(

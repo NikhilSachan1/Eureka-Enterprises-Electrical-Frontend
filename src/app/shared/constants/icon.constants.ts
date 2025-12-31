@@ -116,4 +116,12 @@ export const ICONS = {
   THEME: {
     MOON: 'pi pi-moon',
   },
+  // Common status icons for metrics/stats
+  STATUS: {
+    TOTAL: 'pi pi-list',
+    AVAILABLE: 'pi pi-check-circle',
+    ASSIGNED: 'pi pi-user',
+    EXPIRING_SOON: 'pi pi-exclamation-triangle',
+    EXPIRED: 'pi pi-times-circle',
+  },
 } as const;

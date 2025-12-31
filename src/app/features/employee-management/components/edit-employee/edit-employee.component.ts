@@ -30,7 +30,10 @@ import {
   EDIT_EMPLOYEE_FORM_CONFIG,
   EDIT_EMPLOYEE_STEPPER_CONFIG,
 } from '@features/employee-management/configs';
-import { IEmployeeEditRequestDto } from '@features/employee-management/types/employee.dto';
+import {
+  IEmployeeEditRequestDto,
+  IEmployeeEditResponseDto,
+} from '@features/employee-management/types/employee.dto';
 import {
   FORM_VALIDATION_MESSAGES,
   ROUTE_BASE_PATHS,
@@ -85,7 +88,7 @@ export class EditEmployeeComponent implements OnInit {
   protected readonly stepErrors = signal<Record<number, boolean>>({});
   protected readonly stepValid = signal<Record<number, boolean>>({});
   private readonly attemptedSteps = signal<Set<number>>(new Set());
-  private readonly initialEmail = signal<string>('');
+  private readonly originalEmail = signal<string>('');
 
   constructor() {
     effect(() => {
@@ -129,7 +132,7 @@ export class EditEmployeeComponent implements OnInit {
       return;
     }
 
-    this.initialEmail.set(employeeDetailFromResolver.email);
+    this.originalEmail.set(employeeDetailFromResolver.email);
 
     const prefilledEmployeeData = this.preparePrefilledFormData(
       employeeDetailFromResolver
@@ -416,43 +419,45 @@ export class EditEmployeeComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: () => {
+        next: (response: IEmployeeEditResponseDto) => {
           this.notificationService.success('Employee updated successfully');
-
-          const { email: loggedInUserEmail } = this.authService.user() ?? {};
-          const {
-            firstName,
-            lastName,
-            designation,
-            email: updatedEmail,
-          } = formData;
-
-          if (loggedInUserEmail && updatedEmail === loggedInUserEmail) {
-            const routeSegments = [
-              ROUTE_BASE_PATHS.EMPLOYEE,
-              ROUTES.EMPLOYEE.LIST,
-            ];
-            void this.routerNavigationService.navigateToRoute(routeSegments);
-
-            this.authService.updateUserDetails({
-              firstName,
-              lastName,
-              designation,
-              profilePicture: '',
-            });
-            return;
-          }
-
-          const emailHasChanged = this.initialEmail() !== updatedEmail;
-
-          if (emailHasChanged) {
-            this.logoutAndNavigateToLogin();
-          }
+          this.handlePostEditNavigation(response);
         },
         error: () => {
           this.notificationService.error('Failed to update employee');
         },
       });
+  }
+
+  private handlePostEditNavigation(response: IEmployeeEditResponseDto): void {
+    const { email: loggedInUserEmail } = this.authService.user() ?? {};
+    const originalEmail = this.originalEmail();
+    const newEmail = response.email;
+
+    const isEditingOwnProfile = loggedInUserEmail === originalEmail;
+
+    if (isEditingOwnProfile) {
+      const hasEmailChanged = originalEmail !== newEmail;
+
+      if (hasEmailChanged) {
+        this.logoutAndNavigateToLogin();
+      } else {
+        this.authService.updateUserDetails({
+          firstName: response.firstName,
+          lastName: response.lastName,
+          designation: response.designation,
+          profilePicture: response.profilePicture,
+        });
+        this.navigateToEmployeeList();
+      }
+    } else {
+      this.navigateToEmployeeList();
+    }
+  }
+
+  private navigateToEmployeeList(): void {
+    const routeSegments = [ROUTE_BASE_PATHS.EMPLOYEE, ROUTES.EMPLOYEE.LIST];
+    void this.routerNavigationService.navigateToRoute(routeSegments);
   }
 
   private logoutAndNavigateToLogin(): void {

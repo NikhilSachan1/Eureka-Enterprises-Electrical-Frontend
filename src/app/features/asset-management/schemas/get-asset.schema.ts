@@ -1,13 +1,20 @@
 import { z } from 'zod';
 import { AssetBaseSchema } from './base-asset.schema';
-import { AuditSchema, FilterSchema, uuidField } from '@shared/schemas';
+import {
+  AuditSchema,
+  FilterSchema,
+  UserSchema,
+  uuidField,
+} from '@shared/schemas';
+import { makeFieldsNullable } from '@shared/utility';
+import { AssetDetailGetDocumentsSchema } from './get-asset-detail.schema';
 
 const { createdAt, updatedAt } = AuditSchema.shape;
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const AssetGetRequestSchema = z
   .object({
-    assignedTo: z.string().optional(),
+    assetAssignee: z.string().optional(),
     warrantyStatus: z.array(z.string()).optional(),
     calibrationStatus: z.array(z.string()).optional(),
     assetStatus: z.array(z.string()).optional(),
@@ -20,9 +27,10 @@ export const AssetGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ assetStatus, ...rest }) => {
+  .transform(({ assetStatus, assetAssignee, ...rest }) => {
     return {
       ...rest,
+      assignedTo: assetAssignee,
       status: assetStatus,
     };
   });
@@ -31,42 +39,49 @@ export const AssetGetBaseResponseSchema = z
   .object({
     ...AssetBaseSchema.shape,
     assignedTo: uuidField.nullable().optional(),
-    assignedToFirstName: z.string().min(1).nullable(),
-    assignedToLastName: z.string().min(1).nullable(),
-    assignedToEmail: z.string().min(1).nullable(),
+    assignedToUser: makeFieldsNullable(UserSchema).nullable(),
+    files: z.array(AssetDetailGetDocumentsSchema),
     createdAt,
     updatedAt,
   })
   .strict()
-  .transform(
-    ({
-      assignedTo,
-      assignedToFirstName,
-      assignedToLastName,
-      assignedToEmail,
-      ...rest
-    }) => {
-      return {
-        ...rest,
-        assignedToUser: assignedTo
-          ? {
-              id: assignedTo,
-              firstName: assignedToFirstName,
-              lastName: assignedToLastName,
-              email: assignedToEmail,
-              employeeId: 'assignedToEmployeeId',
-            }
-          : null,
-      };
-    }
-  );
+  .transform(({ files, ...rest }) => ({
+    ...rest,
+    documentKeys: files.map(file => file.fileKey),
+  }));
 
-export const AssetGetStatsResponseSchema = z.object({}).strict();
+export const AssetGetStatsResponseSchema = z
+  .object({
+    total: z.number().int().nonnegative(),
+    byStatus: z.object({
+      available: z.number().int().nonnegative(),
+      assigned: z.number().int().nonnegative(),
+      underMaintenance: z.number().int().nonnegative(),
+      damaged: z.number().int().nonnegative(),
+      retired: z.number().int().nonnegative(),
+    }),
+    byAssetType: z.object({
+      calibrated: z.number().int().nonnegative(),
+      nonCalibrated: z.number().int().nonnegative(),
+    }),
+    calibration: z.object({
+      valid: z.number().int().nonnegative(),
+      expiringSoon: z.number().int().nonnegative(),
+      expired: z.number().int().nonnegative(),
+    }),
+    warranty: z.object({
+      valid: z.number().int().nonnegative(),
+      expiringSoon: z.number().int().nonnegative(),
+      expired: z.number().int().nonnegative(),
+      notApplicable: z.number().int().nonnegative(),
+    }),
+  })
+  .strict();
 
 export const AssetGetResponseSchema = z
   .object({
     records: z.array(AssetGetBaseResponseSchema),
-    stats: AssetGetStatsResponseSchema.strict().optional(), // TODO: remove optional chaining from stats
+    stats: AssetGetStatsResponseSchema.strict(),
     totalRecords: z.number().int().nonnegative(),
   })
   .strict();

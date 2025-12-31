@@ -78,6 +78,7 @@ export const EmployeeDetailGetResponseSchema = EmployeeBaseSchema.extend({
   documents: EmployeeDetailGetDocumentsSchema,
   createdByUser: UserSchema,
   updatedByUser: makeFieldsNullable(UserSchema).nullable(),
+  timezone: z.string().nullable(),
 })
   .strict()
   .transform(({ roles: employeeRoles, ...rest }) => {
