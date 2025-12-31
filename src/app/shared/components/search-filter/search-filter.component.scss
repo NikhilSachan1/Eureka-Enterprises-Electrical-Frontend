@@ -1,0 +1,13 @@
+// Panel Styling - matching the original design
+::ng-deep .search-filter-panel {
+  border-radius: 1rem !important;
+  border: 1px solid rgba(226, 232, 240, 0.6) !important;
+
+  .p-panel-header {
+    padding: 1.25rem 1.5rem !important;
+  }
+
+  .p-panel-content {
+    padding: 0 1.5rem 1.5rem !important;
+  }
+}

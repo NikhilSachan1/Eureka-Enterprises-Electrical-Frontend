@@ -18,35 +18,30 @@
   #attendanceAssignmentDetails
   let-row
 >
-  <div class="flex flex-col gap-1">
-    <!-- Top row: Location + Client -->
-    <div class="flex flex-wrap gap-2">
-      <app-chip
-        [label]="'Location: ' + row.siteLocation"
-        [icon]="ALL_ICONS.COMMON.MAP_MARKER"
-        [styleClass]="'bg-surface-200 text-primary-contrast text-sm font-medium'"
-      />
-
-      <app-chip
-        [label]="'Client: ' + row.clientName"
-        [icon]="ALL_ICONS.COMMON.USER"
-        [styleClass]="'bg-surface-200 text-primary-contrast text-sm font-medium'"
-      />
+  <!-- Clean Layout for Assignment Details - No truncation since table is scrollable -->
+  <div class="flex flex-col gap-1.5 text-sm whitespace-nowrap">
+    <!-- Row 1: Location + Client -->
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-1.5">
+        <span class="text-slate-400">Location:</span>
+        <span class="text-slate-700">{{ row.siteLocation }}</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="text-slate-400">Client:</span>
+        <span class="text-slate-700">{{ row.clientName }}</span>
+      </div>
     </div>
 
-    <!-- Bottom row: Engineer + Vehicle -->
-    <div class="flex flex-wrap gap-2">
-      <app-chip
-        [label]="'Engineer: ' + row.associateEngineerName"
-        [icon]="ALL_ICONS.COMMON.USER"
-        [styleClass]="'bg-surface-200 text-primary-contrast text-sm font-medium'"
-      />
-
-      <app-chip
-        [label]="'Vehicle: ' + row.associatedVehicle"
-        [icon]="ALL_ICONS.COMMON.CAR"
-        [styleClass]="'bg-surface-200 text-primary-contrast text-sm font-medium'"
-      />
+    <!-- Row 2: Engineer + Vehicle -->
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-1.5">
+        <span class="text-slate-400">Engineer:</span>
+        <span class="text-slate-700">{{ row.associateEngineerName }}</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="text-slate-400">Vehicle:</span>
+        <span class="text-slate-700">{{ row.associatedVehicle }}</span>
+      </div>
     </div>
   </div>
 </ng-template>

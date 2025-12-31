@@ -1,32 +1,53 @@
 @if (form.formGroup && form.fieldConfigs && form.buttonConfigs) {
-  <div class="border border-slate-100 rounded-lg shadow-sm p-6 bg-gray-200">
-    <h3 class="font-bold text-slate-800 text-lg mb-4">What are you looking for?</h3>
-    <form
-      (ngSubmit)="onSubmit()"
-      [formGroup]="form.formGroup"
+  <div class="search-filter-container">
+    <p-panel
+      [toggleable]="true"
+      [collapsed]="false"
+      class="search-filter-panel"
     >
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        @for (field of form.fieldConfigs | keyvalue: customSort; track field.key) {
-          <div class="space-y-2">
+      <!-- Custom Header -->
+      <ng-template pTemplate="header">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25"
+          >
+            <i class="pi pi-search text-white"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 text-lg leading-tight">Search & Filter</h3>
+            <p class="text-slate-500 text-xs mt-0.5">Find exactly what you need</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Panel Content -->
+      <form
+        (ngSubmit)="onSubmit()"
+        [formGroup]="form.formGroup"
+      >
+        <!-- Filter Fields -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          @for (field of form.fieldConfigs | keyvalue: customSort; track field.key) {
             <app-input-field
               [formGroup]="form.formGroup"
               [inputFieldConfig]="field.value"
             />
-          </div>
-        }
-      </div>
+          }
+        </div>
 
-      <div class="flex items-center justify-end gap-2 mt-4 border-t border-slate-300 pt-4">
-        <app-button
-          [buttonConfig]="form.buttonConfigs['reset']"
-          [showDisabledButton]="!form.formGroup.dirty && !hasSearched"
-          (onButtonClick)="onReset()"
-        />
-        <app-button
-          [buttonConfig]="form.buttonConfigs['submit']"
-          [showDisabledButton]="!form.formGroup.dirty"
-        />
-      </div>
-    </form>
+        <!-- Action Bar -->
+        <div class="flex items-center justify-end gap-2 mt-6 pt-5 border-t border-slate-100">
+          <app-button
+            [buttonConfig]="form.buttonConfigs['reset']"
+            [showDisabledButton]="!form.formGroup.dirty && !hasSearched"
+            (onButtonClick)="onReset()"
+          />
+          <app-button
+            [buttonConfig]="form.buttonConfigs['submit']"
+            [showDisabledButton]="!form.formGroup.dirty"
+          />
+        </div>
+      </form>
+    </p-panel>
   </div>
 }

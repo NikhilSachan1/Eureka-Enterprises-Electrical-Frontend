@@ -1,3 +1,22 @@
+// === BULK ACTION PANEL ===
+::ng-deep .bulk-action-panel {
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  margin-bottom: 1rem;
+
+  .p-panel-header {
+    display: none !important;
+  }
+
+  .p-panel-content {
+    padding: 0.75rem 1rem !important;
+  }
+}
+
 // === DATA TABLE PANEL ===
 ::ng-deep .data-table-panel {
   border-radius: 16px !important;
@@ -21,6 +40,10 @@
     .p-datatable-tbody > tr > td,
     .p-datatable-thead > tr > th {
       white-space: nowrap;
+    }
+
+    .p-datatable-tbody > tr:hover {
+      background: var(--surface-100) !important;
     }
   }
 }

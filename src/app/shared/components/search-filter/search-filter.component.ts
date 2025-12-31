@@ -18,6 +18,7 @@ import { InputFieldComponent } from '../input-field/input-field.component';
 import { KeyValuePipe } from '@angular/common';
 import { ButtonComponent } from '../button/button.component';
 import { Table } from 'primeng/table';
+import { PanelModule } from 'primeng/panel';
 
 @Component({
   selector: 'app-search-filter',
@@ -26,6 +27,7 @@ import { Table } from 'primeng/table';
     InputFieldComponent,
     KeyValuePipe,
     ButtonComponent,
+    PanelModule,
   ],
   templateUrl: './search-filter.component.html',
   styleUrl: './search-filter.component.scss',
