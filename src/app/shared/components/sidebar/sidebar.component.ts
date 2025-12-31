@@ -40,13 +40,43 @@ export class SidebarComponent {
   protected transitionEnabled = signal<boolean>(false);
 
   constructor() {
-    // Initialize sidebar visibility based on screen size
-    this.sidebarVisible.set(!this.isMobile());
+    this.initSidebarState();
 
     // Enable transitions after initial render to prevent page refresh animation
     setTimeout(() => {
       this.transitionEnabled.set(true);
     }, 100); // Small delay to ensure initial positioning is complete
+  }
+
+  /**
+   * Initialize sidebar state from localStorage
+   * Falls back to screen size based default if no saved state
+   */
+  private initSidebarState(): void {
+    // On mobile, always start with sidebar hidden
+    if (this.isMobile()) {
+      this.sidebarVisible.set(false);
+      return;
+    }
+
+    // On desktop, check localStorage for saved state
+    const savedState = localStorage.getItem('sidebar_visible');
+    if (savedState !== null) {
+      this.sidebarVisible.set(savedState === 'true');
+    } else {
+      // Default: visible on desktop
+      this.sidebarVisible.set(true);
+    }
+  }
+
+  /**
+   * Save sidebar state to localStorage
+   */
+  private saveSidebarState(): void {
+    // Only save state on desktop
+    if (!this.isMobile()) {
+      localStorage.setItem('sidebar_visible', String(this.sidebarVisible()));
+    }
   }
 
   @HostListener('window:resize')
@@ -65,6 +95,9 @@ export class SidebarComponent {
   toggleSidebar(): void {
     const wasVisible = this.sidebarVisible();
     this.sidebarVisible.update(value => !value);
+
+    // Save state to localStorage (desktop only)
+    this.saveSidebarState();
 
     // Prevent body scrolling when sidebar is open on mobile
     if (this.isMobile()) {
