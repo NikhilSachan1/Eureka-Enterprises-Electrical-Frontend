@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
 import { AppConfigService } from '@core/services';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
@@ -55,6 +55,8 @@ import {
   AppConfigurationService,
 } from '@shared/services';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { IPageHeaderConfig } from '@shared/types/page-header/page-header-config.interface';
 
 @Component({
   selector: 'app-get-employee-detail',
@@ -69,15 +71,17 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
     TitleCasePipe,
     ButtonComponent,
     ImageComponent,
+    PageHeaderComponent,
   ],
   templateUrl: './get-employee-detail.component.html',
   styleUrl: './get-employee-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetEmployeeDetailComponent extends DrawerDetailBase {
-  protected readonly drawerData = inject(DRAWER_DATA) as {
+  protected readonly drawerData = inject(DRAWER_DATA, { optional: true }) as {
     employee: IEmployeeGetBaseResponseDto;
   };
+  private readonly route = inject(ActivatedRoute);
 
   private readonly employeeService = inject(EmployeeService);
   private readonly loadingService = inject(LoadingService);
@@ -93,22 +97,48 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
   protected readonly ALL_DATA_TYPES = EDataType;
 
   protected tabs = computed(() => this.getTabs());
+  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly activeTabIndex = signal(0);
   protected readonly _employeeDetails = signal<IEmployeeDetail | undefined>(
     undefined
   );
 
+  override ngOnInit(): void {
+    if (this.isRouteMode) {
+      this.loadEmployeeDetails();
+    } else {
+      super.ngOnInit();
+    }
+  }
+
+  protected get isRouteMode(): boolean {
+    return this.route.snapshot.data['mode'] === 'route';
+  }
+
   override onDrawerShow(): void {
-    this.loadEmployeeDetails();
+    if (!this.isRouteMode) {
+      this.loadEmployeeDetails();
+    }
   }
 
   private loadEmployeeDetails(): void {
+    const title = this.isRouteMode
+      ? 'Loading Your Profile'
+      : 'Loading Employee Details';
+    const message = this.isRouteMode
+      ? 'Please wait while we load your profile...'
+      : 'Please wait while we load the employee details...';
+
     this.loadingService.show({
-      title: 'Loading Employee Details',
-      message: 'Please wait while we load the employee details...',
+      title,
+      message,
     });
 
-    const paramData = this.prepareParamData();
+    let paramData: IEmployeeDetailGetRequestDto =
+      {} as IEmployeeDetailGetRequestDto;
+    if (!this.isRouteMode) {
+      paramData = this.prepareParamData();
+    }
 
     this.employeeService
       .getEmployeeDetailById(paramData)
@@ -124,7 +154,12 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
             mappedData.quickInfo.avatarUrl; // Default to avatar
 
           this._employeeDetails.set(mappedData);
-          this.logger.logUserAction('Employee details loaded successfully');
+
+          const logMessage = this.isRouteMode
+            ? 'Profile details loaded successfully'
+            : 'Employee details loaded successfully';
+
+          this.logger.logUserAction(logMessage);
 
           if (!employeeProfilePicture) {
             return of(null);
@@ -627,5 +662,12 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
     }
 
     super.onDrawerHide();
+  }
+
+  private getPageHeaderConfig(): IPageHeaderConfig {
+    return {
+      title: 'My Profile',
+      subtitle: 'View and manage your personal information',
+    };
   }
 }

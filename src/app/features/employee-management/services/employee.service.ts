@@ -194,13 +194,15 @@ export class EmployeeService {
   }
 
   getEmployeeDetailById(
-    params: IEmployeeDetailGetRequestDto
+    params?: IEmployeeDetailGetRequestDto
   ): Observable<IEmployeeDetailGetResponseDto> {
     this.logger.logUserAction('Get Employee Detail By Id Request');
 
     return this.apiService
       .getValidated(
-        API_ROUTES.EMPLOYEE.GET_EMPLOYEE_BY_ID(params.id),
+        API_ROUTES.EMPLOYEE.GET_EMPLOYEE_BY_ID(
+          params?.id ?? '508eee21-d0fb-45cf-9cfa-a7d83e8531e5'
+        ), //ToDo Remove this manual UUid
         EmployeeDetailGetResponseSchema
       )
       .pipe(

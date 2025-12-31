@@ -45,6 +45,7 @@ export const ROUTES = {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,
+    MY_PROFILE: 'my-profile',
   },
 
   ATTENDANCE: {

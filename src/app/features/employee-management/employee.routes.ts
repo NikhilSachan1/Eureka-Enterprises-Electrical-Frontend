@@ -17,6 +17,16 @@ export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
       ),
   },
   {
+    path: ROUTES.EMPLOYEE.MY_PROFILE,
+    loadComponent: () =>
+      import(
+        './components/get-employee-detail/get-employee-detail.component'
+      ).then(m => m.GetEmployeeDetailComponent),
+    data: {
+      mode: 'route',
+    },
+  },
+  {
     path: ROUTES.EMPLOYEE.ADD,
     loadComponent: () =>
       import('./components/add-employee/add-employee.component').then(

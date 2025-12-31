@@ -1,5 +1,5 @@
 import { UserOption } from '@shared/types';
-import { ICONS } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
 /**
  * Primary user menu options
@@ -9,7 +9,7 @@ export const primaryUserOptions: UserOption[] = [
     id: 'profile',
     label: 'My Profile',
     icon: ICONS.EMPLOYEE.USER,
-    path: '/profile',
+    path: `${ROUTE_BASE_PATHS.EMPLOYEE}/${ROUTES.EMPLOYEE.MY_PROFILE}`,
   },
   {
     id: 'settings',

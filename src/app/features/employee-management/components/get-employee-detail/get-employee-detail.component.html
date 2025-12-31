@@ -1,224 +1,234 @@
+@if (isRouteMode) {
+  <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+}
+
 @let employee = _employeeDetails();
 @if (employee) {
-  <!-- Clean Profile Header -->
-  <p-card class="border border-gray-200 rounded-lg shadow-sm mb-4">
-    <!-- Profile Content -->
-    <div class="p-6">
-      <div class="flex flex-col md:flex-row gap-6">
-        <!-- Left: Profile Picture -->
-        @if (employee.quickInfo.profilePictureUrl || employee.quickInfo.avatarUrl) {
-          <div class="flex-shrink-0">
-            <div class="relative inline-block">
-              <div
-                class="w-32 h-32 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 p-1 shadow-lg overflow-hidden"
-              >
-                <app-image
-                  [mediaUrl]="employee.quickInfo.profilePictureUrl"
-                  [alt]="employee.quickInfo.employeeName"
-                  [preview]="true"
-                  [errorUrl]="employee.quickInfo.avatarUrl"
-                  class="w-full h-full rounded-full object-cover"
-                />
-              </div>
-              <!-- Status Tag -->
-              <div class="absolute -bottom-1 -right-1 z-20">
-                <app-status-tag [value]="employee.quickInfo.employeeStatus | titlecase" />
+  <div
+    class="bg-white"
+    [ngClass]="{ 'p-6': isRouteMode }"
+  >
+    <!-- Clean Profile Header -->
+    <p-card class="border border-gray-200 rounded-lg shadow-sm mb-4">
+      <!-- Profile Content -->
+      <div class="p-6">
+        <div class="flex flex-col md:flex-row gap-6">
+          <!-- Left: Profile Picture -->
+          @if (employee.quickInfo.profilePictureUrl || employee.quickInfo.avatarUrl) {
+            <div class="flex-shrink-0">
+              <div class="relative inline-block">
+                <div
+                  class="w-32 h-32 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 p-1 shadow-lg overflow-hidden"
+                >
+                  <app-image
+                    [mediaUrl]="employee.quickInfo.profilePictureUrl"
+                    [alt]="employee.quickInfo.employeeName"
+                    [preview]="true"
+                    [errorUrl]="employee.quickInfo.avatarUrl"
+                    class="w-full h-full rounded-full object-cover"
+                  />
+                </div>
+                <!-- Status Tag -->
+                <div class="absolute -bottom-1 -right-1 z-20">
+                  <app-status-tag [value]="employee.quickInfo.employeeStatus | titlecase" />
+                </div>
               </div>
             </div>
-          </div>
-        }
+          }
 
-        <!-- Right: Employee Details -->
-        <div class="flex-1 min-w-0">
-          <!-- Name -->
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">
-            {{ employee.quickInfo.employeeName }}
-          </h2>
+          <!-- Right: Employee Details -->
+          <div class="flex-1 min-w-0">
+            <!-- Name -->
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">
+              {{ employee.quickInfo.employeeName }}
+            </h2>
 
-          <!-- ID and Designation Row -->
-          <div class="flex flex-wrap items-center gap-2 mb-6">
-            <app-chip
-              [label]="employee.quickInfo.employeeEmployeeId"
-              [icon]="icons.COMMON.ID_CARD"
-              styleClass="bg-gray-100 text-gray-700 text-xs font-medium"
-            />
-            <app-chip
-              [label]="employee.quickInfo.employeeDesignation | titlecase"
-              [icon]="icons.COMMON.BRIEFCASE"
-              styleClass="bg-gray-100 text-gray-700 text-xs font-medium"
-            />
-          </div>
+            <!-- ID and Designation Row -->
+            <div class="flex flex-wrap items-center gap-2 mb-6">
+              <app-chip
+                [label]="employee.quickInfo.employeeEmployeeId"
+                [icon]="icons.COMMON.ID_CARD"
+                styleClass="bg-gray-100 text-gray-700 text-xs font-medium"
+              />
+              <app-chip
+                [label]="employee.quickInfo.employeeDesignation | titlecase"
+                [icon]="icons.COMMON.BRIEFCASE"
+                styleClass="bg-gray-100 text-gray-700 text-xs font-medium"
+              />
+            </div>
 
-          <!-- Contact Info Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            @for (info of employee.basicInfo; track info.label) {
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                  [ngClass]="info.bgColor || 'bg-gray-50'"
-                >
-                  <i [class]="(info.icon || icons.COMMON.INFO_CIRCLE) + ' text-primary'"></i>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <p class="text-xs text-gray-500 mb-0.5">{{ info.label }}</p>
-                  <p class="text-sm font-medium text-gray-900 break-words">
-                    @if (info.value) {
-                      @if (info.type === ALL_DATA_TYPES.DATE) {
-                        {{ info.value.toString() | date: info.format }}
+            <!-- Contact Info Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              @for (info of employee.basicInfo; track info.label) {
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                    [ngClass]="info.bgColor || 'bg-gray-50'"
+                  >
+                    <i [class]="(info.icon || icons.COMMON.INFO_CIRCLE) + ' text-primary'"></i>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs text-gray-500 mb-0.5">{{ info.label }}</p>
+                    <p class="text-sm font-medium text-gray-900 break-words">
+                      @if (info.value) {
+                        @if (info.type === ALL_DATA_TYPES.DATE) {
+                          {{ info.value.toString() | date: info.format }}
+                        } @else {
+                          {{ info.value.toString() }}
+                        }
                       } @else {
-                        {{ info.value.toString() }}
+                        N/A
                       }
-                    } @else {
-                      N/A
-                    }
-                  </p>
+                    </p>
+                  </div>
                 </div>
-              </div>
-            }
+              }
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </p-card>
+    </p-card>
 
-  <!-- Audit Information -->
-  @if (employee.auditInfo && employee.auditInfo.length > 0) {
-    <div class="flex flex-wrap items-center gap-3 text-xs text-gray-600 mb-4 px-1">
-      @for (item of employee.auditInfo; track $index) {
-        @if (item.name) {
-          @if ($index > 0) {
-            <span class="text-gray-300">|</span>
+    <!-- Audit Information -->
+    @if (employee.auditInfo && employee.auditInfo.length > 0) {
+      <div class="flex flex-wrap items-center gap-3 text-xs text-gray-600 mb-4 px-1">
+        @for (item of employee.auditInfo; track $index) {
+          @if (item.name) {
+            @if ($index > 0) {
+              <span class="text-gray-300">|</span>
+            }
+            <div class="flex items-center gap-1.5">
+              <i [class]="`${item.icon} ${item.iconColor} text-xs`"></i>
+              <span>
+                {{ item.label }} by
+                <span class="font-semibold text-gray-700">{{ item.name }}</span>
+              </span>
+              <span class="text-gray-400">•</span>
+              <span>{{ item.date | date: appConfigService.dateFormats.DEFAULT }}</span>
+              <span class="text-gray-400">•</span>
+              <span>{{ item.date | date: appConfigService.timeFormats.DEFAULT }}</span>
+            </div>
           }
-          <div class="flex items-center gap-1.5">
-            <i [class]="`${item.icon} ${item.iconColor} text-xs`"></i>
-            <span>
-              {{ item.label }} by
-              <span class="font-semibold text-gray-700">{{ item.name }}</span>
-            </span>
-            <span class="text-gray-400">•</span>
-            <span>{{ item.date | date: appConfigService.dateFormats.DEFAULT }}</span>
-            <span class="text-gray-400">•</span>
-            <span>{{ item.date | date: appConfigService.timeFormats.DEFAULT }}</span>
-          </div>
         }
-      }
-    </div>
-  }
+      </div>
+    }
 
-  <!-- Tabs Section -->
-  <div class="w-full">
-    <!-- Profile Details Tabs -->
-    <app-nav-tabs
-      [tabs]="tabs()"
-      [tabMode]="tabModeType"
-      (tabChanged)="onTabChanged($event)"
-    >
-      @for (tabCards of employee.employeeDetail; track $index) {
-        @if (activeTabIndex() === $index) {
-          <div class="space-y-4">
-            @for (card of tabCards; track card.title) {
-              <p-card
-                class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
-              >
-                <div class="p-4">
-                  <div class="flex items-center gap-2 mb-3">
-                    <i [class]="`${card.icon} text-base `"></i>
-                    <h3 class="text-sm font-semibold text-gray-900 m-0">{{ card.title }}</h3>
-                  </div>
-                  <p-divider class="my-3" />
+    <!-- Tabs Section -->
+    <div class="w-full">
+      <!-- Profile Details Tabs -->
+      <app-nav-tabs
+        [tabs]="tabs()"
+        [tabMode]="tabModeType"
+        (tabChanged)="onTabChanged($event)"
+      >
+        @for (tabCards of employee.employeeDetail; track $index) {
+          @if (activeTabIndex() === $index) {
+            <div class="space-y-4">
+              @for (card of tabCards; track card.title) {
+                <p-card
+                  class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
+                >
+                  <div class="p-4">
+                    <div class="flex items-center gap-2 mb-3">
+                      <i [class]="`${card.icon} text-base `"></i>
+                      <h3 class="text-sm font-semibold text-gray-900 m-0">{{ card.title }}</h3>
+                    </div>
+                    <p-divider class="my-3" />
 
-                  @if (card.fields && card.fields.length > 0) {
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      @for (field of card.fields; track field.label) {
-                        <div class="flex flex-col gap-1">
-                          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            {{ field.label }}
-                          </span>
-                          <span class="text-sm text-gray-900 font-medium">
-                            @if (field.value) {
-                              @if (field.type === ALL_DATA_TYPES.DATE) {
-                                {{ field.value.toString() | date: field.format }}
+                    @if (card.fields && card.fields.length > 0) {
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @for (field of card.fields; track field.label) {
+                          <div class="flex flex-col gap-1">
+                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                              {{ field.label }}
+                            </span>
+                            <span class="text-sm text-gray-900 font-medium">
+                              @if (field.value) {
+                                @if (field.type === ALL_DATA_TYPES.DATE) {
+                                  {{ field.value.toString() | date: field.format }}
+                                } @else {
+                                  {{ field.value.toString() }}
+                                }
                               } @else {
-                                {{ field.value.toString() }}
+                                N/A
                               }
-                            } @else {
-                              N/A
-                            }
-                          </span>
-                        </div>
-                      }
-                    </div>
-                  }
-                </div>
-              </p-card>
-            }
-
-            @if (activeTabIndex() === 4) {
-              <p-card
-                class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
-              >
-                <div class="p-4">
-                  <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                      <i [class]="`${icons.COMMON.FILE} text-base`"></i>
-                      <h3 class="text-sm font-semibold text-gray-900 m-0">Documents</h3>
-                    </div>
-                    <app-button
-                      [buttonConfig]="getViewAllDocumentsButtonConfig()"
-                      (onButtonClick)="viewAttachment(employee.allDocumentKeys!)"
-                    />
+                            </span>
+                          </div>
+                        }
+                      </div>
+                    }
                   </div>
-                  <p-divider class="my-3" />
+                </p-card>
+              }
 
-                  @if (employee.documentInfo && employee.documentInfo.length > 0) {
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      @for (doc of employee.documentInfo; track doc.label) {
-                        @let isEmpty = doc.documentKey.length === 0;
-                        @let bgColor = `bg-${doc.color}-100`;
-                        @let iconColor = `text-${doc.color}-600`;
-                        @let hoverBg = `group-hover:bg-${doc.color}-200`;
-                        <button
-                          type="button"
-                          [disabled]="isEmpty"
-                          class="flex items-center gap-3 p-3 border rounded-lg transition-all group"
-                          [ngClass]="
-                            isEmpty
-                              ? 'border-gray-200 bg-gray-50/30 cursor-not-allowed'
-                              : 'border-gray-200 hover:border-primary hover:bg-blue-50 cursor-pointer'
-                          "
-                          (click)="!isEmpty && viewAttachment(doc.documentKey)"
-                        >
-                          <div
-                            class="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
-                            [ngClass]="isEmpty ? bgColor : `${bgColor} ${hoverBg}`"
-                          >
-                            <i [class]="icons.MEDIA.PDF + ' ' + iconColor + ' text-lg'"></i>
-                          </div>
-                          <div class="flex-1 min-w-0 text-left">
-                            <p class="text-sm font-semibold truncate text-gray-900">
-                              {{ doc.label }}
-                            </p>
-                            <p class="text-xs truncate text-gray-500">
-                              {{ isEmpty ? 'No document' : 'Click to view' }}
-                            </p>
-                          </div>
-                          @if (!isEmpty) {
-                            <i
-                              [class]="
-                                icons.COMMON.CHEVRON_RIGHT + ' text-gray-400 group-hover:text-primary transition-colors'
-                              "
-                            ></i>
-                          }
-                        </button>
-                      }
+              @if (activeTabIndex() === 4) {
+                <p-card
+                  class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
+                >
+                  <div class="p-4">
+                    <div class="flex items-center justify-between mb-3">
+                      <div class="flex items-center gap-2">
+                        <i [class]="`${icons.COMMON.FILE} text-base`"></i>
+                        <h3 class="text-sm font-semibold text-gray-900 m-0">Documents</h3>
+                      </div>
+                      <app-button
+                        [buttonConfig]="getViewAllDocumentsButtonConfig()"
+                        (onButtonClick)="viewAttachment(employee.allDocumentKeys!)"
+                      />
                     </div>
-                  }
-                </div>
-              </p-card>
-            }
-          </div>
+                    <p-divider class="my-3" />
+
+                    @if (employee.documentInfo && employee.documentInfo.length > 0) {
+                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        @for (doc of employee.documentInfo; track doc.label) {
+                          @let isEmpty = doc.documentKey.length === 0;
+                          @let bgColor = `bg-${doc.color}-100`;
+                          @let iconColor = `text-${doc.color}-600`;
+                          @let hoverBg = `group-hover:bg-${doc.color}-200`;
+                          <button
+                            type="button"
+                            [disabled]="isEmpty"
+                            class="flex items-center gap-3 p-3 border rounded-lg transition-all group"
+                            [ngClass]="
+                              isEmpty
+                                ? 'border-gray-200 bg-gray-50/30 cursor-not-allowed'
+                                : 'border-gray-200 hover:border-primary hover:bg-blue-50 cursor-pointer'
+                            "
+                            (click)="!isEmpty && viewAttachment(doc.documentKey)"
+                          >
+                            <div
+                              class="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
+                              [ngClass]="isEmpty ? bgColor : `${bgColor} ${hoverBg}`"
+                            >
+                              <i [class]="icons.MEDIA.PDF + ' ' + iconColor + ' text-lg'"></i>
+                            </div>
+                            <div class="flex-1 min-w-0 text-left">
+                              <p class="text-sm font-semibold truncate text-gray-900">
+                                {{ doc.label }}
+                              </p>
+                              <p class="text-xs truncate text-gray-500">
+                                {{ isEmpty ? 'No document' : 'Click to view' }}
+                              </p>
+                            </div>
+                            @if (!isEmpty) {
+                              <i
+                                [class]="
+                                  icons.COMMON.CHEVRON_RIGHT +
+                                  ' text-gray-400 group-hover:text-primary transition-colors'
+                                "
+                              ></i>
+                            }
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+                </p-card>
+              }
+            </div>
+          }
         }
-      }
-    </app-nav-tabs>
+      </app-nav-tabs>
+    </div>
   </div>
 }
