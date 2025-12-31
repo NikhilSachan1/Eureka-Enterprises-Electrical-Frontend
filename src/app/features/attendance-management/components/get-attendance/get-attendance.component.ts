@@ -58,7 +58,6 @@ import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
-import { ChipComponent } from '@shared/components/chip/chip.component';
 
 @Component({
   selector: 'app-get-attendance',
@@ -67,7 +66,6 @@ import { ChipComponent } from '@shared/components/chip/chip.component';
     PageHeaderComponent,
     MetricsCardComponent,
     SearchFilterComponent,
-    ChipComponent,
   ],
   providers: [],
   templateUrl: './get-attendance.component.html',
