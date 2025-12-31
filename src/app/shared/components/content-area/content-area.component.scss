@@ -16,6 +16,7 @@
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+  position: relative;
 
   // Enable margin transition only when explicitly requested (not on page load)
   &.transition-enabled {
@@ -34,6 +35,40 @@
   &--dark {
     background: linear-gradient(180deg, var(--surface-50, #0f172a) 0%, var(--surface-100, #1e293b) 100%);
     color: var(--text-primary-color, #f8fafc);
+  }
+}
+
+// Dark overlay mask (like popup/modal backdrop)
+// z-index: 1050 to cover sidebar toggle button (which is 1001)
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+// Center spinner - inside overlay
+.center-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Fade in animation for overlay
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

@@ -3,6 +3,7 @@ export { AppConfigService } from './app-config.service';
 export { EnvironmentService } from './environment.service';
 export { LoggerService } from './logger.service';
 export { MenuService } from './menu.service';
+export { RouteLoadingService } from './route-loading.service';
 export { ThemeService } from './theme.service';
 export { TimezoneService } from './timezone.service';
 export { AppPermissionService } from './app-permission.service';

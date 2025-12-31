@@ -5,16 +5,24 @@ import {
   signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { ThemeService } from '@core/services';
+import { RouteLoadingService, ThemeService } from '@core/services';
 import { NgClass } from '@angular/common';
+import { RouteProgressBarComponent } from '../route-progress-bar/route-progress-bar.component';
+import { pageTransition } from '@shared/animations';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
+/**
+ * Content Area Component
+ * Main content wrapper with route progress bar and page transitions
+ */
 @Component({
   selector: 'app-content-area',
   standalone: true,
-  imports: [NgClass],
+  imports: [NgClass, RouteProgressBarComponent, ProgressSpinner],
   templateUrl: './content-area.component.html',
   styleUrls: ['./content-area.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [pageTransition],
 })
 export class ContentAreaComponent {
   // Input signals
@@ -22,6 +30,7 @@ export class ContentAreaComponent {
   isMobile = input<boolean>(false);
 
   readonly themeService = inject(ThemeService);
+  readonly routeLoading = inject(RouteLoadingService);
 
   // Signal to control when transition should be enabled
   protected transitionEnabled = signal<boolean>(false);

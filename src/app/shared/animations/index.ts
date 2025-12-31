@@ -3,6 +3,7 @@ export {
   fadeInOutScale,
   fadeInOutSlide,
   fadeInOutSlideX,
+  pageTransition,
 } from './fade.animations';
 export {
   slideInOut,

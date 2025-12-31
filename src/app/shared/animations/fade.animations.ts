@@ -49,3 +49,17 @@ export const fadeInOutSlideX = trigger('fadeInOutSlideX', [
     ),
   ]),
 ]);
+
+/**
+ * Page transition animation
+ * Smooth fade-in with slight upward movement for page content
+ */
+export const pageTransition = trigger('pageTransition', [
+  transition(':enter', [
+    style({ opacity: 0, transform: 'translateY(15px)' }),
+    animate(
+      '350ms ease-out',
+      style({ opacity: 1, transform: 'translateY(0)' })
+    ),
+  ]),
+]);
