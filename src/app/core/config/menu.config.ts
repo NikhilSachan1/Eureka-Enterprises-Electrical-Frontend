@@ -115,6 +115,74 @@ export const appMenu: ApplicationMenu = {
             },
           ],
         },
+        {
+          label: 'Transport',
+          icon: ICONS.ASSET.CAR,
+          basePath: ROUTE_BASE_PATHS.TRANSPORT,
+          children: [
+            {
+              label: 'Vehicles',
+              icon: ICONS.ASSET.CAR,
+              basePath: ROUTE_BASE_PATHS.VEHICLE,
+              children: [
+                {
+                  label: 'Vehicle List',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.VEHICLE.LIST,
+                },
+                {
+                  label: 'Add Vehicle',
+                  icon: ICONS.COMMON.PLUS,
+                  routerLink: ROUTES.VEHICLE.ADD,
+                },
+              ],
+            },
+            {
+              label: 'Petro Cards',
+              icon: ICONS.COMMON.CREDIT_CARD,
+              basePath: ROUTE_BASE_PATHS.PETRO_CARD,
+              children: [
+                {
+                  label: 'Card List',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.CARD.LIST,
+                },
+                {
+                  label: 'Add Card',
+                  icon: ICONS.COMMON.PLUS,
+                  routerLink: ROUTES.CARD.ADD,
+                },
+              ],
+            },
+            {
+              label: 'Fuel',
+              icon: ICONS.EXPENSE.MONEY,
+              basePath: ROUTE_BASE_PATHS.FUEL,
+              children: [
+                {
+                  label: 'Fuel Expense Ledger',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.FUEL.LEDGER,
+                },
+                {
+                  label: 'Manual Fuel Expense',
+                  icon: ICONS.ACTIONS.PENCIL,
+                  routerLink: ROUTES.FUEL.FORCE,
+                },
+                {
+                  label: 'Fuel Reimbursements',
+                  icon: ICONS.EXPENSE.MONEY,
+                  routerLink: ROUTES.FUEL.REIMBURSEMENT,
+                },
+                {
+                  label: 'Add Fuel Expense',
+                  icon: ICONS.ACTIONS.PENCIL,
+                  routerLink: ROUTES.FUEL.ADD,
+                },
+              ],
+            },
+          ],
+        },
       ],
     },
   ],

@@ -60,9 +60,46 @@ export class SidebarMenuComponent {
 
   /**
    * Check if a menu item is active based on the current route
+   * @param item The menu item to check
+   * @param accumulatedBasePath The accumulated base path from parent items
    */
-  isMenuItemActive(item: MenuItem): boolean {
-    return this.menuService.isMenuItemActive(item);
+  isMenuItemActive(
+    item: MenuItem,
+    accumulatedBasePath: string | null = null
+  ): boolean {
+    return this.menuService.isMenuItemActive(item, accumulatedBasePath ?? '');
+  }
+
+  /**
+   * Accumulate base paths from parent to child
+   * Combines parent's accumulated path with current item's basePath
+   * @param parentBasePath The accumulated base path from parent items
+   * @param itemBasePath The current item's basePath
+   * @returns Combined base path
+   */
+  getAccumulatedBasePath(
+    parentBasePath: string | null,
+    itemBasePath: string | undefined
+  ): string {
+    // If item has no basePath, just pass through parent's path
+    if (!itemBasePath) {
+      return parentBasePath ?? '';
+    }
+
+    // If no parent path, just use item's basePath
+    if (!parentBasePath) {
+      return itemBasePath;
+    }
+
+    // Combine parent path with item's basePath
+    const cleanParent = parentBasePath.endsWith('/')
+      ? parentBasePath.slice(0, -1)
+      : parentBasePath;
+    const cleanItem = itemBasePath.startsWith('/')
+      ? itemBasePath.slice(1)
+      : itemBasePath;
+
+    return `${cleanParent}/${cleanItem}`;
   }
 
   /**
@@ -76,8 +113,8 @@ export class SidebarMenuComponent {
       return '';
     }
 
-    // Use item's own basePath if available, otherwise use parent's basePath
-    const effectiveBasePath = item.basePath ?? parentBasePath ?? '';
+    // Use parent's accumulated basePath
+    const effectiveBasePath = parentBasePath ?? '';
 
     if (effectiveBasePath) {
       const basePath = effectiveBasePath.endsWith('/')

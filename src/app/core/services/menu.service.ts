@@ -45,28 +45,31 @@ export class MenuService {
 
   /**
    * Check if a menu item is active based on current route
+   * Uses accumulated base path for proper matching at any level
    * @param item Menu item to check
-   * @param parent Optional parent menu item (for child items with relative paths)
+   * @param accumulatedBasePath The accumulated base path from parent items
    */
-  isMenuItemActive(item: MenuItem, parent?: MenuItem): boolean {
+  isMenuItemActive(item: MenuItem, accumulatedBasePath = ''): boolean {
     const currentRoute = this.activeRoute();
+    const normalizedCurrentRoute = currentRoute.startsWith('/')
+      ? currentRoute
+      : `/${currentRoute}`;
+
+    // Calculate the full accumulated path for this item
+    const itemAccumulatedPath = this.accumulateBasePath(
+      accumulatedBasePath,
+      item.basePath
+    );
 
     if (item.routerLink) {
-      // Normalize routes by ensuring they start with /
-      const normalizedCurrentRoute = currentRoute.startsWith('/')
-        ? currentRoute
-        : `/${currentRoute}`;
-
-      // Construct full path if parent has basePath
+      // Build full route with accumulated path
       let fullItemRoute = item.routerLink;
-      if (parent?.basePath) {
-        const basePath = parent.basePath.endsWith('/')
-          ? parent.basePath.slice(0, -1)
-          : parent.basePath;
+
+      if (itemAccumulatedPath) {
         const childPath = item.routerLink.startsWith('/')
           ? item.routerLink.slice(1)
           : item.routerLink;
-        fullItemRoute = `${basePath}/${childPath}`;
+        fullItemRoute = `${itemAccumulatedPath}/${childPath}`;
       }
 
       const normalizedItemRoute = fullItemRoute.startsWith('/')
@@ -80,8 +83,9 @@ export class MenuService {
       );
     }
 
+    // For parent items with children, check if any child is active
     if (item.children?.length) {
-      return this.hasActiveChild(item);
+      return this.hasActiveChild(item, accumulatedBasePath);
     }
 
     return false;
@@ -89,31 +93,42 @@ export class MenuService {
 
   /**
    * Toggle a menu item's expanded state
-   * Ensures only one submenu is open at a time (accordion-like behavior)
+   * Top-level items use accordion behavior (only one open at a time)
+   * Nested items can be opened independently within their parent
    * @param item Menu item to toggle
+   * @param isNested Whether this is a nested (Level 2+) item
    */
-  toggleMenuItem(item: MenuItem): void {
+  toggleMenuItem(item: MenuItem, isNested = false): void {
     if (!item.children?.length) {
       return;
     }
 
     const itemId = this.getMenuItemId(item);
     const currentlyExpanded = this.isMenuItemExpanded(item);
+    const currentExpanded = this.expandedItems();
 
-    // Create a new Set for expanded items
-    const newExpanded = new Set<string>();
-
-    // If this item is not currently expanded, add only this item to the expanded set
-    // Otherwise, leave the set empty to close all items
-    if (!currentlyExpanded) {
-      newExpanded.add(itemId);
-      this.activeParentItem.set(itemId);
+    if (isNested) {
+      // For nested items: toggle without closing parent or siblings
+      const newExpanded = new Set(currentExpanded);
+      if (currentlyExpanded) {
+        newExpanded.delete(itemId);
+      } else {
+        newExpanded.add(itemId);
+      }
+      this.expandedItems.set(newExpanded);
     } else {
-      this.activeParentItem.set(null);
-    }
+      // For top-level items: accordion behavior (close others at same level)
+      const newExpanded = new Set<string>();
 
-    // Update the expanded items
-    this.expandedItems.set(newExpanded);
+      if (!currentlyExpanded) {
+        newExpanded.add(itemId);
+        this.activeParentItem.set(itemId);
+      } else {
+        this.activeParentItem.set(null);
+      }
+
+      this.expandedItems.set(newExpanded);
+    }
   }
 
   /**
@@ -153,9 +168,39 @@ export class MenuService {
   }
 
   /**
-   * Check if a parent menu item has an active child
+   * Accumulate base paths from parent to child
+   * Combines parent's accumulated path with current item's basePath
    */
-  private hasActiveChild(item: MenuItem): boolean {
+  private accumulateBasePath(
+    parentBasePath: string | undefined,
+    itemBasePath: string | undefined
+  ): string {
+    if (!itemBasePath) {
+      return parentBasePath ?? '';
+    }
+
+    if (!parentBasePath) {
+      return itemBasePath;
+    }
+
+    const cleanParent = parentBasePath.endsWith('/')
+      ? parentBasePath.slice(0, -1)
+      : parentBasePath;
+    const cleanItem = itemBasePath.startsWith('/')
+      ? itemBasePath.slice(1)
+      : itemBasePath;
+
+    return `${cleanParent}/${cleanItem}`;
+  }
+
+  /**
+   * Check if a parent menu item has an active child
+   * Uses accumulated base path for proper matching
+   */
+  private hasActiveChild(
+    item: MenuItem,
+    accumulatedBasePath?: string
+  ): boolean {
     if (!item.children?.length) {
       return false;
     }
@@ -165,11 +210,17 @@ export class MenuService {
       ? currentRoute
       : `/${currentRoute}`;
 
-    // Check if basePath is defined and current route starts with it
-    if (item.basePath) {
-      const normalizedBasePath = item.basePath.startsWith('/')
-        ? item.basePath
-        : `/${item.basePath}`;
+    // Calculate accumulated path for this item
+    const itemAccumulatedPath = this.accumulateBasePath(
+      accumulatedBasePath,
+      item.basePath
+    );
+
+    // Check if accumulated basePath matches current route
+    if (itemAccumulatedPath) {
+      const normalizedBasePath = itemAccumulatedPath.startsWith('/')
+        ? itemAccumulatedPath
+        : `/${itemAccumulatedPath}`;
       if (
         normalizedCurrentRoute === normalizedBasePath ||
         normalizedCurrentRoute.startsWith(`${normalizedBasePath}/`)
@@ -180,11 +231,19 @@ export class MenuService {
 
     return item.children.some(child => {
       if (child.routerLink) {
-        const normalizedChildRoute = child.routerLink.startsWith('/')
-          ? child.routerLink
-          : `/${child.routerLink}`;
+        // Build full route with accumulated path
+        let fullChildRoute = child.routerLink;
+        if (itemAccumulatedPath) {
+          const childPath = child.routerLink.startsWith('/')
+            ? child.routerLink.slice(1)
+            : child.routerLink;
+          fullChildRoute = `${itemAccumulatedPath}/${childPath}`;
+        }
 
-        // Exact match or starts with the route (for child routes)
+        const normalizedChildRoute = fullChildRoute.startsWith('/')
+          ? fullChildRoute
+          : `/${fullChildRoute}`;
+
         return (
           normalizedCurrentRoute === normalizedChildRoute ||
           normalizedCurrentRoute.startsWith(`${normalizedChildRoute}/`)
@@ -192,7 +251,7 @@ export class MenuService {
       }
 
       if (child.children?.length) {
-        return this.hasActiveChild(child);
+        return this.hasActiveChild(child, itemAccumulatedPath);
       }
 
       return false;
@@ -201,59 +260,93 @@ export class MenuService {
 
   /**
    * Expand menu items based on the active route
+   * Expands all parent levels (Level 1, Level 2, etc.) for the active route
    */
   private expandMenuForActiveRoute(): void {
     const newExpanded = new Set<string>();
-    let foundActiveParent = false;
+    const currentRoute = this.activeRoute();
+    const normalizedCurrentRoute = currentRoute.startsWith('/')
+      ? currentRoute
+      : `/${currentRoute}`;
 
-    // Function to recursively find and expand parents of active route
-    const findActiveParents = (items: MenuItem[]): boolean => {
-      const currentRoute = this.activeRoute();
-      const normalizedCurrentRoute = currentRoute.startsWith('/')
-        ? currentRoute
-        : `/${currentRoute}`;
-
+    /**
+     * Recursively find active route and expand all parent items
+     * Uses accumulated base path for proper matching
+     * Returns true if an active route was found in this branch
+     */
+    const findAndExpandParents = (
+      items: MenuItem[],
+      accumulatedBasePath: string
+    ): boolean => {
       for (const item of items) {
-        // Check basePath first for parent items with children
-        if (item.basePath && item.children?.length) {
-          const normalizedBasePath = item.basePath.startsWith('/')
-            ? item.basePath
-            : `/${item.basePath}`;
+        // Accumulate the base path for this item
+        const itemAccumulatedPath = this.accumulateBasePath(
+          accumulatedBasePath,
+          item.basePath
+        );
+
+        // Check if this item's route matches
+        if (item.routerLink) {
+          let fullRoute = item.routerLink;
+
+          // Combine with accumulated base path
+          if (itemAccumulatedPath) {
+            const childPath = item.routerLink.startsWith('/')
+              ? item.routerLink.slice(1)
+              : item.routerLink;
+            fullRoute = `${itemAccumulatedPath}/${childPath}`;
+          }
+
+          const normalizedRoute = fullRoute.startsWith('/')
+            ? fullRoute
+            : `/${fullRoute}`;
+
+          if (
+            normalizedCurrentRoute === normalizedRoute ||
+            normalizedCurrentRoute.startsWith(`${normalizedRoute}/`)
+          ) {
+            return true;
+          }
+        }
+
+        // Check children recursively with accumulated path
+        if (item.children?.length) {
+          const hasActiveChild = findAndExpandParents(
+            item.children,
+            itemAccumulatedPath
+          );
+
+          if (hasActiveChild) {
+            // Expand this parent item
+            const itemId = this.getMenuItemId(item);
+            newExpanded.add(itemId);
+
+            // Set active parent only for top-level items
+            if (!accumulatedBasePath) {
+              this.activeParentItem.set(itemId);
+            }
+
+            return true;
+          }
+        }
+
+        // Check accumulated basePath match for parent items without direct routerLink
+        if (itemAccumulatedPath && !item.routerLink && item.children?.length) {
+          const normalizedBasePath = itemAccumulatedPath.startsWith('/')
+            ? itemAccumulatedPath
+            : `/${itemAccumulatedPath}`;
 
           if (
             normalizedCurrentRoute === normalizedBasePath ||
             normalizedCurrentRoute.startsWith(`${normalizedBasePath}/`)
           ) {
-            if (!foundActiveParent) {
-              const itemId = this.getMenuItemId(item);
-              newExpanded.add(itemId);
-              this.activeParentItem.set(itemId);
-              foundActiveParent = true;
-            }
-            return true;
-          }
-        }
-
-        if (item.routerLink) {
-          const normalizedItemRoute = item.routerLink.startsWith('/')
-            ? item.routerLink
-            : `/${item.routerLink}`;
-
-          if (
-            normalizedCurrentRoute === normalizedItemRoute ||
-            normalizedCurrentRoute.startsWith(`${normalizedItemRoute}/`)
-          ) {
-            return true;
-          }
-        }
-
-        if (item.children?.length) {
-          const hasActive = findActiveParents(item.children);
-          if (hasActive && !foundActiveParent) {
             const itemId = this.getMenuItemId(item);
             newExpanded.add(itemId);
-            this.activeParentItem.set(itemId);
-            foundActiveParent = true;
+
+            if (!accumulatedBasePath) {
+              this.activeParentItem.set(itemId);
+            }
+
             return true;
           }
         }
@@ -262,9 +355,9 @@ export class MenuService {
       return false;
     };
 
-    // Process all sections
+    // Process all sections with empty initial path
     for (const section of this.menuState().sections) {
-      findActiveParents(section.items);
+      findAndExpandParents(section.items, '');
     }
 
     this.expandedItems.set(newExpanded);

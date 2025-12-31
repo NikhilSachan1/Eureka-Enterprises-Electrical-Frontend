@@ -80,6 +80,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.TRANSPORT,
+        loadChildren: () =>
+          import('./features/transport-management/transport.routes').then(
+            m => m.TRANSPORT_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: '**',
         redirectTo: `${ROUTE_BASE_PATHS.ATTENDANCE}`,
       },

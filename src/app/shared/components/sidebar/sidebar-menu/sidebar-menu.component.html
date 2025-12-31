@@ -35,7 +35,7 @@
       <div class="menu-item">
         <div
           class="flex items-center rounded-lg cursor-pointer"
-          [class.active-menu-item]="isMenuItemActive(item)"
+          [class.active-menu-item]="isMenuItemActive(item, parentBasePath)"
           [routerLink]="getFullRouterLink(item, parentBasePath)"
           [routerLinkActive]="'active-route'"
           role="link"
@@ -56,6 +56,7 @@
       <a
         class="submenu-item"
         [class.nested-item]="level > 1"
+        [class.active]="isMenuItemActive(item, parentBasePath)"
         [routerLink]="getFullRouterLink(item, parentBasePath)"
         routerLinkActive="active"
         role="menuitem"
@@ -79,7 +80,7 @@
       <div class="menu-item">
         <div
           class="flex items-center rounded-lg cursor-pointer"
-          [class.active-menu-item]="isMenuItemActive(item)"
+          [class.active-menu-item]="isMenuItemActive(item, parentBasePath)"
           (click)="toggleSubmenu(item)"
           role="button"
           [attr.aria-expanded]="isMenuItemExpanded(item)"
@@ -114,7 +115,7 @@
                 context: {
                   item: child,
                   level: 1,
-                  parentBasePath: item.basePath || parentBasePath,
+                  parentBasePath: getAccumulatedBasePath(parentBasePath, item.basePath),
                 }
               "
             ></ng-container>
@@ -127,6 +128,7 @@
         <div
           class="submenu-item nested-parent"
           [class.nested-expanded]="isMenuItemExpanded(item)"
+          [class.active]="isMenuItemActive(item, parentBasePath)"
           (click)="toggleNestedSubmenu(item); $event.stopPropagation()"
           role="button"
           [attr.aria-expanded]="isMenuItemExpanded(item)"
@@ -161,7 +163,7 @@
                 context: {
                   item: child,
                   level: level + 1,
-                  parentBasePath: item.basePath || parentBasePath,
+                  parentBasePath: getAccumulatedBasePath(parentBasePath, item.basePath),
                 }
               "
             ></ng-container>

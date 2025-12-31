@@ -11,10 +11,11 @@ export const ROUTE_BASE_PATHS = {
   LEAVE: 'leave',
   CALENDAR: 'calendar',
   ASSET: 'asset',
-  CARD: 'card',
   VEHICLE: 'vehicle',
   PAYROLL: 'payroll',
   DASHBOARD: 'dashboard',
+  PETRO_CARD: 'petro-card',
+  TRANSPORT: 'transport',
   SITE: {
     BASE: 'site',
     COMPANY: 'company',
@@ -116,6 +117,7 @@ export const ROUTES = {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,
+    EVENT_HISTORY: `event-history`,
   },
 
   PAYROLL: {
@@ -123,6 +125,11 @@ export const ROUTES = {
     INCREMENT: `increment`,
     MONTHLY_REPORT: `monthly-report`,
     STRUCTURE: `structure`,
+  },
+  PETRO_CARD: {
+    LIST: `list`,
+    ADD: `add`,
+    EDIT: `edit`,
   },
 
   SETTINGS: {

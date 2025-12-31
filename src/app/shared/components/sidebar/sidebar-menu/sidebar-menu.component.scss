@@ -143,6 +143,7 @@
         .nested-parent {
           cursor: pointer;
           justify-content: space-between;
+          position: relative;
 
           .pi-chevron-down {
             font-size: 0.5rem;
@@ -157,6 +158,25 @@
           &.nested-expanded {
             color: var(--sidebar-text-primary);
             font-weight: 500;
+          }
+
+          // Active state for nested parent when its children are active
+          &.active {
+            background: var(--sidebar-active-bg);
+            color: var(--sidebar-primary-color);
+            font-weight: 500;
+
+            // Left border indicator (same as top-level items)
+            &::before {
+              content: "";
+              position: absolute;
+              left: 0;
+              top: 0.25rem;
+              bottom: 0.25rem;
+              width: 2px;
+              background: var(--sidebar-primary-color);
+              border-radius: 0 2px 2px 0;
+            }
           }
         }
 
