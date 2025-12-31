@@ -11,88 +11,163 @@
 
       <div class="menu-container">
         @for (item of section.items; track item) {
-          <!-- Route Menu Item (has routerLink but no children) -->
-          @if (item.routerLink && !item.children?.length) {
-            <div class="menu-item">
-              <div
-                class="flex items-center rounded-lg cursor-pointer"
-                [class.active-menu-item]="isMenuItemActive(item)"
-                [routerLink]="item.routerLink"
-                [routerLinkActive]="'active-route'"
-                role="link"
-                tabindex="0"
-                (click)="closeAllSubmenus()"
-              >
-                @if (item.icon) {
-                  <i
-                    [class]="`${item.icon} text-xl`"
-                    aria-hidden="true"
-                  ></i>
-                }
-                <span class="flex-1">{{ item.label }}</span>
-              </div>
-            </div>
-          }
-
-          <!-- Parent Menu Item with Submenu (has children) -->
-          @if (item.children?.length) {
-            <div class="menu-item">
-              <div
-                class="flex items-center rounded-lg cursor-pointer"
-                [class.active-menu-item]="isMenuItemActive(item)"
-                (click)="toggleSubmenu(item)"
-                role="button"
-                [attr.aria-expanded]="isMenuItemExpanded(item)"
-                tabindex="0"
-              >
-                @if (item.icon) {
-                  <i
-                    [class]="`${item.icon} text-xl`"
-                    aria-hidden="true"
-                  ></i>
-                }
-                <span class="flex-1">{{ item.label }}</span>
-                <i
-                  [class]="`${icons.COMMON.CHEVRON_DOWN} text-sm transition-transform`"
-                  [class.rotate-180]="isMenuItemExpanded(item)"
-                  aria-hidden="true"
-                ></i>
-              </div>
-
-              <div
-                class="submenu"
-                [class.submenu-expanded]="isMenuItemExpanded(item)"
-                @slideInOut
-                role="menu"
-                [attr.aria-hidden]="!isMenuItemExpanded(item)"
-              >
-                <!-- Loop through child items -->
-                @for (child of item.children; track child) {
-                  <!-- Child Route Items -->
-                  @if (child.routerLink) {
-                    <a
-                      class="submenu-item"
-                      [routerLink]="getChildRouterLink(item, child)"
-                      routerLinkActive="active"
-                      [attr.aria-current]="isMenuItemActive(child, item) ? 'page' : null"
-                      role="menuitem"
-                      tabindex="0"
-                    >
-                      @if (child.icon) {
-                        <i
-                          [class]="child.icon"
-                          aria-hidden="true"
-                        ></i>
-                      }
-                      <span>{{ child.label }}</span>
-                    </a>
-                  }
-                }
-              </div>
-            </div>
-          }
+          <!-- Use recursive template for menu items -->
+          <ng-container
+            *ngTemplateOutlet="menuItemTemplate; context: { item: item, level: 0, parentBasePath: null }"
+          ></ng-container>
         }
       </div>
     }
   </div>
 </nav>
+
+<!-- Recursive Menu Item Template -->
+<ng-template
+  #menuItemTemplate
+  let-item="item"
+  let-level="level"
+  let-parentBasePath="parentBasePath"
+>
+  <!-- Route Menu Item (has routerLink but no children) -->
+  @if (item.routerLink && !item.children?.length) {
+    @if (level === 0) {
+      <!-- Top level route item -->
+      <div class="menu-item">
+        <div
+          class="flex items-center rounded-lg cursor-pointer"
+          [class.active-menu-item]="isMenuItemActive(item)"
+          [routerLink]="getFullRouterLink(item, parentBasePath)"
+          [routerLinkActive]="'active-route'"
+          role="link"
+          tabindex="0"
+          (click)="closeAllSubmenus()"
+        >
+          @if (item.icon) {
+            <i
+              [class]="`${item.icon} text-xl`"
+              aria-hidden="true"
+            ></i>
+          }
+          <span class="flex-1">{{ item.label }}</span>
+        </div>
+      </div>
+    } @else {
+      <!-- Nested route item -->
+      <a
+        class="submenu-item"
+        [class.nested-item]="level > 1"
+        [routerLink]="getFullRouterLink(item, parentBasePath)"
+        routerLinkActive="active"
+        role="menuitem"
+        tabindex="0"
+      >
+        @if (item.icon) {
+          <i
+            [class]="item.icon"
+            aria-hidden="true"
+          ></i>
+        }
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  }
+
+  <!-- Parent Menu Item with Children -->
+  @if (item.children?.length) {
+    @if (level === 0) {
+      <!-- Top level parent -->
+      <div class="menu-item">
+        <div
+          class="flex items-center rounded-lg cursor-pointer"
+          [class.active-menu-item]="isMenuItemActive(item)"
+          (click)="toggleSubmenu(item)"
+          role="button"
+          [attr.aria-expanded]="isMenuItemExpanded(item)"
+          tabindex="0"
+        >
+          @if (item.icon) {
+            <i
+              [class]="`${item.icon} text-xl`"
+              aria-hidden="true"
+            ></i>
+          }
+          <span class="flex-1">{{ item.label }}</span>
+          <i
+            [class]="`${icons.COMMON.CHEVRON_DOWN} text-sm transition-transform`"
+            [class.rotate-180]="isMenuItemExpanded(item)"
+            aria-hidden="true"
+          ></i>
+        </div>
+
+        <!-- Level 1 submenu -->
+        <div
+          class="submenu"
+          [class.submenu-expanded]="isMenuItemExpanded(item)"
+          @slideInOut
+          role="menu"
+          [attr.aria-hidden]="!isMenuItemExpanded(item)"
+        >
+          @for (child of item.children; track child) {
+            <ng-container
+              *ngTemplateOutlet="
+                menuItemTemplate;
+                context: {
+                  item: child,
+                  level: 1,
+                  parentBasePath: item.basePath || parentBasePath,
+                }
+              "
+            ></ng-container>
+          }
+        </div>
+      </div>
+    } @else {
+      <!-- Nested parent (Level 2+) -->
+      <div class="nested-submenu-container">
+        <div
+          class="submenu-item nested-parent"
+          [class.nested-expanded]="isMenuItemExpanded(item)"
+          (click)="toggleNestedSubmenu(item); $event.stopPropagation()"
+          role="button"
+          [attr.aria-expanded]="isMenuItemExpanded(item)"
+          tabindex="0"
+        >
+          @if (item.icon) {
+            <i
+              [class]="item.icon"
+              aria-hidden="true"
+            ></i>
+          }
+          <span class="flex-1">{{ item.label }}</span>
+          <i
+            [class]="`${icons.COMMON.CHEVRON_DOWN} text-xs transition-transform`"
+            [class.rotate-180]="isMenuItemExpanded(item)"
+            aria-hidden="true"
+          ></i>
+        </div>
+
+        <!-- Nested submenu -->
+        <div
+          class="nested-submenu"
+          [class.nested-submenu-expanded]="isMenuItemExpanded(item)"
+          [style.padding-left.rem]="0.75"
+          role="menu"
+          [attr.aria-hidden]="!isMenuItemExpanded(item)"
+        >
+          @for (child of item.children; track child) {
+            <ng-container
+              *ngTemplateOutlet="
+                menuItemTemplate;
+                context: {
+                  item: child,
+                  level: level + 1,
+                  parentBasePath: item.basePath || parentBasePath,
+                }
+              "
+            ></ng-container>
+          }
+        </div>
+      </div>
+    }
+  }
+</ng-template>

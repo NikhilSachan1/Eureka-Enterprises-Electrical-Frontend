@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { NgTemplateOutlet } from '@angular/common';
 import { MenuService } from '@core/services';
 import { slideInOut } from '@shared/animations';
 import { MenuItem } from '@shared/types';
@@ -8,7 +9,7 @@ import { ICONS } from '@shared/constants';
 @Component({
   selector: 'app-sidebar-menu',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet],
   templateUrl: './sidebar-menu.component.html',
   styleUrls: ['./sidebar-menu.component.scss'],
   animations: [slideInOut],
@@ -19,15 +20,27 @@ export class SidebarMenuComponent {
   readonly icons = ICONS;
 
   /**
-   * Toggle a submenu item's expanded state
-   * Only one submenu can be open at a time
+   * Toggle a top-level submenu item's expanded state
+   * Only one submenu can be open at a time (accordion behavior)
    */
   toggleSubmenu(item: MenuItem): void {
     if (!item.children?.length) {
       return;
     }
 
-    this.menuService.toggleMenuItem(item);
+    this.menuService.toggleMenuItem(item, false);
+  }
+
+  /**
+   * Toggle a nested (Level 2+) submenu item's expanded state
+   * Nested items can be opened independently within their parent
+   */
+  toggleNestedSubmenu(item: MenuItem): void {
+    if (!item.children?.length) {
+      return;
+    }
+
+    this.menuService.toggleMenuItem(item, true);
   }
 
   /**
@@ -47,33 +60,35 @@ export class SidebarMenuComponent {
 
   /**
    * Check if a menu item is active based on the current route
-   * @param item Menu item to check
-   * @param parent Optional parent menu item (for child items with relative paths)
    */
-  isMenuItemActive(item: MenuItem, parent?: MenuItem): boolean {
-    return this.menuService.isMenuItemActive(item, parent);
+  isMenuItemActive(item: MenuItem): boolean {
+    return this.menuService.isMenuItemActive(item);
   }
 
   /**
-   * Get full router link for child item by combining parent's basePath
+   * Get full router link for any menu item at any level
+   * Combines the item's routerLink with the inherited parentBasePath
+   * @param item The menu item
+   * @param parentBasePath The accumulated base path from parent items
    */
-  getChildRouterLink(parent: MenuItem, child: MenuItem): string {
-    if (!child.routerLink) {
+  getFullRouterLink(item: MenuItem, parentBasePath: string | null): string {
+    if (!item.routerLink) {
       return '';
     }
 
-    // If parent has basePath, combine with child's routerLink
-    if (parent.basePath) {
-      const basePath = parent.basePath.endsWith('/')
-        ? parent.basePath.slice(0, -1)
-        : parent.basePath;
-      const childPath = child.routerLink.startsWith('/')
-        ? child.routerLink.slice(1)
-        : child.routerLink;
-      return `${basePath}/${childPath}`;
+    // Use item's own basePath if available, otherwise use parent's basePath
+    const effectiveBasePath = item.basePath ?? parentBasePath ?? '';
+
+    if (effectiveBasePath) {
+      const basePath = effectiveBasePath.endsWith('/')
+        ? effectiveBasePath.slice(0, -1)
+        : effectiveBasePath;
+      const itemPath = item.routerLink.startsWith('/')
+        ? item.routerLink.slice(1)
+        : item.routerLink;
+      return `${basePath}/${itemPath}`;
     }
 
-    // Otherwise return child's routerLink as-is
-    return child.routerLink;
+    return item.routerLink;
   }
 }
