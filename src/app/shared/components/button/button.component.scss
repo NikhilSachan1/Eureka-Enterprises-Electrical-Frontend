@@ -1,0 +1,6 @@
+:host ::ng-deep .disabled-button {
+  .p-button {
+    cursor: not-allowed !important;
+    opacity: 0.5;
+  }
+}

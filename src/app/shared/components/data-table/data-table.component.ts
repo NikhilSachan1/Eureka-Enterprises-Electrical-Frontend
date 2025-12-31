@@ -47,7 +47,7 @@ import { ICONS } from '@shared/constants';
 import { ButtonComponent } from '../button/button.component';
 import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { EmptyMessagesComponent } from '../empty-messages/empty-messages.component';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
 import { ReadMoreComponent } from '../read-more/read-more.component';
 
@@ -92,6 +92,7 @@ export class DataTableComponent {
   private avatarService = inject(AvatarService);
   private galleryService = inject(GalleryService);
   private logger = inject(LoggerService);
+  private permissionService = inject(AppPermissionService);
 
   // Input signals
   loading = input.required<boolean>();
@@ -150,21 +151,89 @@ export class DataTableComponent {
     action: ITableActionConfig,
     rowData?: Record<string, unknown>
   ): boolean {
-    if (!action.disabledCondition) {
+    if (!action.disableWhen) {
       return false;
     }
 
+    // Row action: check single row
     if (rowData) {
-      const originalRowData = this.extractOriginalData(rowData);
-      const result = action.disabledCondition([originalRowData]);
-      return result;
+      return action.disableWhen(this.extractOriginalData(rowData));
     }
 
-    const originalRows = this.selectedTableRows().map(row =>
+    // Bulk action: disable if ANY selected row returns true
+    const selectedRows = this.selectedTableRows().map(row =>
       this.extractOriginalData(row)
     );
-    const result = action.disabledCondition(originalRows);
-    return result;
+    return selectedRows.some(row => action.disableWhen?.(row) ?? false);
+  }
+
+  /**
+   * Checks if action should be VISIBLE for given row.
+   */
+  protected isActionVisible(
+    action: ITableActionConfig,
+    rowData?: Record<string, unknown>
+  ): boolean {
+    // Step 1: Check permission-based visibility
+    if (!this.hasRequiredPermissions(action)) {
+      return false;
+    }
+
+    // Step 2: Check hideWhen condition
+    if (action.hideWhen) {
+      const originalRowData = rowData
+        ? this.extractOriginalData(rowData)
+        : this.selectedTableRows().map(row => this.extractOriginalData(row))[0];
+
+      if (originalRowData && action.hideWhen(originalRowData)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Checks if user has required permissions for an action.
+   */
+  private hasRequiredPermissions(action: ITableActionConfig): boolean {
+    if (!action.permission) {
+      return true;
+    }
+
+    const permissions = Array.isArray(action.permission)
+      ? action.permission
+      : [action.permission];
+
+    // Show if user has ANY ONE of the permissions
+    return permissions.some(p => this.permissionService.hasPermission(p));
+  }
+
+  /**
+   * Returns filtered row actions that should be visible for a specific row.
+   * Use this in template to get only visible actions per row.
+   *
+   * @param rowData - The row data to filter actions for
+   * @returns Array of visible actions for this row
+   */
+  protected getVisibleRowActions(
+    rowData: Record<string, unknown>
+  ): ITableActionConfig[] {
+    return this.rowActions().filter(action =>
+      this.isActionVisible(action, rowData)
+    );
+  }
+
+  /**
+   * Returns filtered bulk actions that should be visible.
+   * Checks permission-based visibility only (not row-specific).
+   *
+   * @returns Array of visible bulk actions
+   */
+  protected getVisibleBulkActions(): ITableActionConfig[] {
+    return this.bulkActionButtons().filter(action =>
+      this.hasRequiredPermissions(action)
+    );
   }
 
   protected onBulkActionClick(actionType: EButtonActionType): void {

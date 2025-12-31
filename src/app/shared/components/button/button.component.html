@@ -1,5 +1,7 @@
 @if (hasConfig()) {
   @let buttonConfig = finalButtonConfig();
+  @let isDisabled = showDisabledButton();
+
   <p-button
     [type]="buttonConfig.type || ALL_BUTTON_TYPES.BUTTON"
     [label]="buttonConfig.label"
@@ -7,7 +9,7 @@
     [iconPos]="buttonConfig.iconPosition || ALL_BUTTON_ICON_POSITIONS.LEFT"
     [loading]="showButtonLoader()"
     [severity]="buttonConfig.severity"
-    [disabled]="showDisabledButton()"
+    [disabled]="isDisabled"
     [raised]="buttonConfig.shadow"
     [rounded]="buttonConfig.rounded"
     [variant]="buttonConfig.variant"
@@ -16,6 +18,7 @@
     [size]="buttonConfig.size"
     [link]="buttonConfig.link"
     [fluid]="buttonConfig.fluid"
+    [class.disabled-button]="isDisabled"
     (onClick)="onClick()"
   />
 }
