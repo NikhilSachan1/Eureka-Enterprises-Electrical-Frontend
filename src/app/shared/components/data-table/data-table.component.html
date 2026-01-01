@@ -19,10 +19,10 @@
       />
     </div>
 
-    <!-- Bottom Row: Bulk Action Buttons -->
-    @if (bulkActionButtons().length > 0) {
+    @let visibleBulkActions = getVisibleBulkActions();
+    @if (visibleBulkActions.length > 0) {
       <div class="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-slate-100">
-        @for (button of bulkActionButtons(); track $index) {
+        @for (button of visibleBulkActions; track button.id) {
           <app-button
             [buttonConfig]="button"
             [showDisabledButton]="isActionDisabled(button)"
@@ -367,11 +367,12 @@
           }
         }
 
+        @let visibleRowActions = getVisibleRowActions(rowData);
         @let shouldShowRowActions = rowActions() && rowActions().length > 0;
         @if (shouldShowRowActions) {
           <td>
             <div class="flex items-center">
-              @for (action of rowActions(); track action.id) {
+              @for (action of visibleRowActions; track action.id) {
                 <app-button
                   class="mr-2"
                   [buttonConfig]="action"

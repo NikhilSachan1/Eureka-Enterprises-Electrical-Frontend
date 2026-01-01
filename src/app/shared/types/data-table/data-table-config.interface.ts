@@ -93,7 +93,9 @@ export interface IMatchModeOption {
 
 export interface ITableActionConfig<T = Record<string, unknown>>
   extends IButtonConfig {
-  disabledCondition?: (selectedRows: T[]) => boolean;
+  permission?: string | string[];
+  hideWhen?: (rowData: T) => boolean;
+  disableWhen?: (rowData: T) => boolean;
 }
 
 export interface ITableActionClickEvent<T = Record<string, unknown>> {

@@ -105,41 +105,53 @@ export const ASSET_TABLE_ROW_ACTIONS_CONFIG: Partial<
     id: EButtonActionType.HANDOVER_INITIATE,
     icon: IconUtil.getIcon(EButtonActionType.HANDOVER_INITIATE) ?? undefined,
     tooltip: 'Allocate Asset',
+    // disableWhen: row => row.status === 'AVAILABLE',
   },
   {
     id: EButtonActionType.HANDOVER_ACCEPTED,
     icon: IconUtil.getIcon(EButtonActionType.HANDOVER_ACCEPTED) ?? undefined,
     tooltip: 'Accept Allocation',
+    // hideWhen: row => row.status !== 'pending_handover',
   },
   {
     id: EButtonActionType.HANDOVER_REJECTED,
     icon: IconUtil.getIcon(EButtonActionType.HANDOVER_REJECTED) ?? undefined,
     tooltip: 'Reject Allocation',
+    // hideWhen: row => row.status !== 'pending_handover',
   },
   {
     id: EButtonActionType.HANDOVER_CANCELLED,
     icon: IconUtil.getIcon(EButtonActionType.HANDOVER_CANCELLED) ?? undefined,
     tooltip: 'Cancel Allocation',
+    // hideWhen: row => row.status !== 'pending_handover',
   },
   {
     id: EButtonActionType.DEALLOCATE,
     icon: IconUtil.getIcon(EButtonActionType.DEALLOCATE) ?? undefined,
     tooltip: 'Deallocate Asset',
+    // hideWhen: row => !row.assignedTo,
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Asset',
+    // permission: 'asset.edit',
+    // disableWhen: row => row.status === 'disposed',
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Asset',
+    // permission: 'asset.delete',
+    //disableWhen: row => !!row.assignedTo,
   },
 ];
 
-export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
+export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<
+  ITableActionConfig<IAssetGetResponseDto['records'][number]>
+>[] = [
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Asset',
+    // permission: 'asset.delete',
   },
 ];
 

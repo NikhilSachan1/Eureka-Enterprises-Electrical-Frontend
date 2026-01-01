@@ -27,11 +27,13 @@ export class TableService {
   private readonly defaultRowActionConfig: Partial<ITableActionConfig> =
     DEFAULT_ROW_ACTION_CONFIG;
 
-  createTable(tableConfig: IEnhancedTableConfig): IEnhancedTable {
+  createTable<T = Record<string, unknown>>(
+    tableConfig: IEnhancedTableConfig<T>
+  ): IEnhancedTable {
     const tableConfigData = this.getTableConfig(tableConfig.tableConfig);
     const tableHeaders = this.getTableHeaderConfig(tableConfig.headers);
-    const bulkActions = this.getBulkActionsConfig(tableConfig.bulkActions);
-    const rowActions = this.getRowActionsConfig(tableConfig.rowActions);
+    const bulkActions = this.getBulkActionsConfig<T>(tableConfig.bulkActions);
+    const rowActions = this.getRowActionsConfig<T>(tableConfig.rowActions);
 
     return this.createEnhancedTable(
       tableConfigData,
@@ -83,8 +85,8 @@ export class TableService {
     );
   }
 
-  private getBulkActionsConfig(
-    options?: Partial<ITableActionConfig>[]
+  private getBulkActionsConfig<T = Record<string, unknown>>(
+    options?: Partial<ITableActionConfig<T>>[]
   ): ITableActionConfig[] {
     if (!options?.length) {
       return [];
@@ -98,8 +100,8 @@ export class TableService {
     );
   }
 
-  private getRowActionsConfig(
-    options?: Partial<ITableActionConfig>[]
+  private getRowActionsConfig<T = Record<string, unknown>>(
+    options?: Partial<ITableActionConfig<T>>[]
   ): ITableActionConfig[] {
     if (!options?.length) {
       return [];

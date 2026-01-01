@@ -37,7 +37,6 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IEnhancedTableConfig,
   IMetric,
   IPageHeaderConfig,
   ITableActionClickEvent,
@@ -91,9 +90,7 @@ export class GetAssetComponent implements OnInit {
   protected metricsCards = computed(() => this.getMetricCardsData());
 
   ngOnInit(): void {
-    this.table = this.dataTableService.createTable(
-      ASSET_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
-    );
+    this.table = this.dataTableService.createTable(ASSET_TABLE_ENHANCED_CONFIG);
     this.searchFilterConfig = SEARCH_FILTER_ASSET_FORM_CONFIG;
   }
 
