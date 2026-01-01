@@ -55,6 +55,12 @@ export const API_ROUTES = {
     ACTION: 'assets/action',
     GET_ASSET_EVENT_HISTORY: (assetId: string) => `asset-events/${assetId}`,
   },
+  PETRO_CARD: {
+    LIST: 'cards',
+    ADD: 'cards',
+    DELETE: 'cards',
+    EDIT: (petroCardId: string) => `cards/${petroCardId}`,
+  },
   SETTINGS: {
     PERMISSION: {
       SYSTEM: {
