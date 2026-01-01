@@ -11,11 +11,11 @@ import {
 
 const SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
   {
-    category: {
+    eventTypes: {
       fieldType: EDataType.MULTI_SELECT,
-      id: 'eventType',
-      fieldName: 'eventType',
-      label: 'Events',
+      id: 'eventTypes',
+      fieldName: 'eventTypes',
+      label: 'Event Types',
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.ASSET,
@@ -27,8 +27,9 @@ const SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterIn
     fromUser: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
       fieldName: 'fromUser',
+      fieldType: EDataType.SELECT,
       label: 'From User',
-      multiSelectConfig: {
+      selectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
@@ -41,7 +42,8 @@ const SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterIn
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
       fieldName: 'toUser',
       label: 'To User',
-      multiSelectConfig: {
+      fieldType: EDataType.SELECT,
+      selectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,

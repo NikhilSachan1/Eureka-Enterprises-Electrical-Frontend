@@ -20,7 +20,9 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'active employees',
     'handoverinitiate',
     'handoveraccepted',
-
+    'times marked available',
+    'times marked handover accepted',
+    'times marked handover cancelled',
     // Calibration
     'calibrated assets',
   ],
@@ -45,6 +47,8 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'archived',
     'handoverrejected',
     'deallocate',
+    'times marked handover rejected',
+    'times marked deallocated',
   ],
   warning: [
     // Common statuses
@@ -64,6 +68,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'sendpasswordlink',
     'changeemployeestatus',
     'handovercancelled',
+    'times marked handover initiated',
   ],
   info: [
     // Common statuses
@@ -81,5 +86,8 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'male',
     'female',
     'eventhistory',
+    'total events',
+    'times marked assigned',
+    'times marked updated',
   ],
 };

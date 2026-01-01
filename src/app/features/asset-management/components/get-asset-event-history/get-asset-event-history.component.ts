@@ -117,7 +117,7 @@ export class GetAssetEventHistoryComponent implements OnInit {
       )
       .subscribe({
         next: (response: IAssetEventHistoryGetResponseDto) => {
-          const { records, stats = {}, totalRecords } = response; // TODO: remove optional chaining from stats
+          const { records, stats, totalRecords } = response;
 
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
@@ -182,7 +182,44 @@ export class GetAssetEventHistoryComponent implements OnInit {
       return [];
     }
 
-    return [];
+    return [
+      {
+        label: 'Total Events',
+        value: stats.total,
+      },
+      {
+        label: 'Times Marked Available',
+        value: stats.byEventType.AVAILABLE,
+      },
+      {
+        label: 'Times Marked Assigned',
+        value: stats.byEventType.ASSIGNED,
+      },
+      {
+        label: 'Times Marked Deallocated',
+        value: stats.byEventType.DEALLOCATED,
+      },
+      {
+        label: 'Times Marked Updated',
+        value: stats.byEventType.UPDATED,
+      },
+      {
+        label: 'Times Marked Handover Initiated',
+        value: stats.byEventType.HANDOVER_INITIATED,
+      },
+      {
+        label: 'Times Marked Handover Accepted',
+        value: stats.byEventType.HANDOVER_ACCEPTED,
+      },
+      {
+        label: 'Times Marked Handover Rejected',
+        value: stats.byEventType.HANDOVER_REJECTED,
+      },
+      {
+        label: 'Times Marked Handover Cancelled',
+        value: stats.byEventType.HANDOVER_CANCELLED,
+      },
+    ];
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

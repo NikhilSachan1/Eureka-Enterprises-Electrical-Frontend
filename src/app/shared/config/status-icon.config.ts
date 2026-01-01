@@ -25,6 +25,8 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   'active employees': ICONS.EMPLOYEE.GROUP,
   handoverinitiate: ICONS.ACTIONS.SEND,
   handoveraccepted: ICONS.ACTIONS.CHECK_CIRCLE,
+  'times marked available': ICONS.ACTIONS.CHECK_CIRCLE,
+  'times marked handover accepted': ICONS.ACTIONS.CHECK_CIRCLE,
 
   // Danger/Rejected statuses
   rejected: ICONS.ACTIONS.TIMES,
@@ -38,6 +40,9 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   'inactive employees': ICONS.ACTIONS.TIMES,
   handoverrejected: ICONS.ACTIONS.TIMES,
   deallocate: ICONS.ACTIONS.TRASH,
+  'times marked deallocated': ICONS.ACTIONS.TRASH,
+  'times marked handover rejected': ICONS.ACTIONS.TIMES,
+  'times marked handover cancelled': ICONS.ACTIONS.BAN,
 
   // Warning/Pending statuses
   pending: ICONS.ATTENDANCE.REGULARIZE,
@@ -50,6 +55,7 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   sendpasswordlink: ICONS.ACTIONS.SEND,
   changeemployeestatus: ICONS.COMMON.TOGGLE,
   handovercancelled: ICONS.ACTIONS.TIMES,
+  'times marked handover initiated': ICONS.ACTIONS.SEND,
 
   // Info statuses
   holiday: ICONS.ATTENDANCE.CALENDAR,
@@ -60,4 +66,7 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   male: ICONS.COMMON.USER,
   female: ICONS.COMMON.USER,
   eventhistory: ICONS.COMMON.LIST,
+  'times marked assigned': ICONS.EMPLOYEE.USER,
+  'times marked updated': ICONS.ACTIONS.EDIT,
+  'total events': ICONS.COMMON.LIST,
 } as const;
