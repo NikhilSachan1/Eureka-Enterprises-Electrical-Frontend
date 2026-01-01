@@ -140,8 +140,11 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
       paramData = this.prepareParamData();
     }
 
-    this.employeeService
-      .getEmployeeDetailById(paramData)
+    const getEmployeeDetail$ = this.isRouteMode
+      ? this.employeeService.getEmployeeProfile()
+      : this.employeeService.getEmployeeDetailById(paramData);
+
+    getEmployeeDetail$
       .pipe(
         switchMap((response: IEmployeeDetailGetResponseDto) => {
           const mappedData = this.mapDetailData(response);

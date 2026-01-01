@@ -6,6 +6,7 @@ export const API_ROUTES = {
     ADD: 'user',
     LIST: 'user',
     GET_EMPLOYEE_BY_ID: (employeeId: string) => `user/${employeeId}`,
+    GET_EMPLOYEE_PROFILE: 'user/me',
     GET_NEXT_EMPLOYEE_ID: 'user/next-employee-id',
     EDIT: (employeeId: string) => `user/${employeeId}`,
     DELETE: 'user',
