@@ -4,9 +4,9 @@ import { catchError, delay, tap } from 'rxjs/operators';
 import { ApiService, LoggerService } from '@core/services';
 import { AttachmentsService, AvatarService } from '@shared/services';
 import { API_ROUTES } from '@core/constants';
-import { ILoggedInUserDetails } from '../models/logged-in-user.model';
-import { ILoginRequestDto, ILoginResponseDto } from '../models/auth-api.model';
-import { LoginRequestSchema, LoginResponseSchema } from '../dto/auth.dto';
+import { ILoggedInUserDetails } from '../types/login.interface';
+import { ILoginRequestDto, ILoginResponseDto } from '../types/login.dto';
+import { LoginRequestSchema, LoginResponseSchema } from '../schemas/auth.dto';
 
 @Injectable({
   providedIn: 'root',

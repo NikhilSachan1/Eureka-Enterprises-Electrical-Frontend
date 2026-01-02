@@ -31,10 +31,7 @@ import { ToastModule } from 'primeng/toast';
 import { IEnhancedForm } from '@shared/types';
 import { AuthService } from '../../services/auth.service';
 import { finalize, switchMap, tap } from 'rxjs/operators';
-import {
-  ILoginRequestDto,
-  ILoginResponseDto,
-} from '../../models/auth-api.model';
+import { ILoginRequestDto, ILoginResponseDto } from '../../types/login.dto';
 import { UserPermissionService } from '../../../settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { forkJoin } from 'rxjs';
 
