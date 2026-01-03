@@ -148,8 +148,9 @@ export class GetPetroCardComponent implements OnInit {
         vehicleName: record.allocatedVehicle
           ? record.allocatedVehicle.name
           : null,
-        addedBy: record.createdBy, // TODO: Get the employee name from the employee service
-        employeeId: record.createdBy, // TODO: Get the employee id from the employee service
+        addedBy:
+          `${record.createdByUser.firstName} ${record.createdByUser.lastName}`.trim(),
+        employeeId: record.createdByUser.email, // TODO: Get the employee id from the employee service
         addedAt: record.createdAt,
         cardName: record.cardName,
         originalRawData: record,

@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { AuditSchema, FilterSchema, uuidField } from '@shared/schemas';
+import {
+  AuditSchema,
+  FilterSchema,
+  UserSchema,
+  uuidField,
+} from '@shared/schemas';
 import { PetroCardBaseSchema } from './base-petro-card.schema';
 import { makeFieldsNullable } from '@shared/utility';
 import { EPetroCardStatus } from '../types/petro-card.enum';
@@ -37,6 +42,9 @@ export const PetroCardGetBaseResponseSchema = z
     ...AuditSchema.shape,
     isAllocated: z.boolean(),
     allocatedVehicle: makeFieldsNullable(VehicleSchema).nullable(),
+    createdByUser: UserSchema.omit({
+      employeeId: true,
+    }),
   })
   .strict();
 
