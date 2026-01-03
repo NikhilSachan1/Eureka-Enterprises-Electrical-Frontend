@@ -41,8 +41,16 @@ export const CONFIGURATION_KEYS = {
   },
   VEHICLE: {
     VEHICLE_LIST: 'vehicle_list',
+    STATUS_LIST: 'vehicle_statuses',
+    FUEL_TYPE_LIST: 'vehicle_fuel_types',
+    DOCUMENT_STATUS_LIST: 'vehicle_document_statuses',
+    SERVICE_ALERT_STATUS_LIST: 'vehicle_service_due_statuses',
+    EVENT_STATUS_LIST: 'vehicle_event_types',
+    SERVICE_TYPE_LIST: 'vehicle_service_types',
+    SERVICE_STATUS: 'vehicle_service_statuses',
   },
   ASSET: {
+    ASSET_LIST: 'asset_list',
     CATEGORY_LIST: 'asset_categories',
     TYPE_LIST: 'asset_types',
     STATUS_LIST: 'asset_statuses',

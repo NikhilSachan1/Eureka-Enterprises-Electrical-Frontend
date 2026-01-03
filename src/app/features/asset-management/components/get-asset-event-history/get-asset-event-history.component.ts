@@ -25,7 +25,6 @@ import {
   AppConfigurationService,
   LoadingService,
   NotificationService,
-  RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
@@ -44,6 +43,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { ActivatedRoute } from '@angular/router';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-get-asset-event-history',
@@ -59,7 +59,6 @@ import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 })
 export class GetAssetEventHistoryComponent implements OnInit {
   private readonly logger = inject(LoggerService);
-  private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly assetService = inject(AssetService);
@@ -79,6 +78,9 @@ export class GetAssetEventHistoryComponent implements OnInit {
   private readonly assetId = signal<string>('');
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricsCards = computed(() => this.getMetricCardsData());
+  protected assetDetails = signal<
+    IAssetEventHistoryGetResponseDto['records'][number]['asset'] | null
+  >(null);
 
   ngOnInit(): void {
     const assetId = this.activatedRoute.snapshot.params['assetId'] as string;
@@ -121,6 +123,7 @@ export class GetAssetEventHistoryComponent implements OnInit {
 
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
+          this.assetDetails.set(records[0].asset);
           this.table.updateTableConfig({ totalRecords });
           this.assetEventHistoryStats.set(stats);
           this.logger.logUserAction(
@@ -155,7 +158,10 @@ export class GetAssetEventHistoryComponent implements OnInit {
 
       return {
         eventDate: record.createdAt,
-        eventType: record.eventType,
+        eventType: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.assetEventStatuses(),
+          record.eventType
+        ),
         remarks: record?.metadata?.['remark'] ?? '-',
         createdAt: record.createdAt,
         documentKeys: record.documentKeys,
@@ -224,7 +230,7 @@ export class GetAssetEventHistoryComponent implements OnInit {
 
   private getPageHeaderConfig(): IPageHeaderConfig {
     return {
-      title: 'Asset Event History',
+      title: `Asset Event History - ${this.assetDetails()?.name}`,
       subtitle: 'Manage asset event history records',
     };
   }

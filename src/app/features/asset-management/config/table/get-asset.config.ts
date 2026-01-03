@@ -35,6 +35,15 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'status',
+    header: 'Asset Status',
+    bodyTemplate: EDataType.STATUS,
+    serverSideFilterAndSortConfig: {
+      filterField: 'status',
+    },
+    showSort: false,
+  },
+  {
     field: 'assetAssigneeName',
     header: 'Assigned To',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
@@ -75,15 +84,6 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     bodyTemplate: EDataType.STATUS,
     serverSideFilterAndSortConfig: {
       filterField: 'warrantyStatus',
-    },
-    showSort: false,
-  },
-  {
-    field: 'status',
-    header: 'Asset Status',
-    bodyTemplate: EDataType.STATUS,
-    serverSideFilterAndSortConfig: {
-      filterField: 'status',
     },
     showSort: false,
   },

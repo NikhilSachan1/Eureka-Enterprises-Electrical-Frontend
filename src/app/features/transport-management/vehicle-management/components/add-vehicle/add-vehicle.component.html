@@ -1,1 +1,111 @@
-<p>add-vehicle works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <!-- Vehicle Details Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Vehicle Details</h3>
+    </div>
+    <div class="form-section__content">
+      <div class="grid grid-cols-1 md:grid-cols-2">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['registrationNo']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['fuelType']"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['vehicleBrand']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['vehicleModel']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['mileage']"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor & Purchase Details Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Vendor & Purchase Details</h3>
+    </div>
+    <div class="form-section__content">
+      <div class="grid grid-cols-1 md:grid-cols-2">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['vehiclePurchaseDate']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['dealerName']"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['insurancePeriod']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['pucPeriod']"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs['fitnessPeriod']"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Attachments & Remarks Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Attachments & Remarks</h3>
+    </div>
+    <div class="form-section__content">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['vehicleDocuments']"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['remarks']"
+      />
+    </div>
+  </div>
+
+  <div class="button-container">
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    />
+
+    <app-button
+      [buttonConfig]="form.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+    />
+  </div>
+</form>

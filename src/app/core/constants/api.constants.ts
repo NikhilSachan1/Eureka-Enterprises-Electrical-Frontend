@@ -59,6 +59,16 @@ export const API_ROUTES = {
     ACTION: 'assets/action',
     GET_ASSET_EVENT_HISTORY: (assetId: string) => `asset-events/${assetId}`,
   },
+  VEHICLE: {
+    LIST: 'vehicles',
+    ADD: 'vehicles',
+    DELETE: 'vehicles',
+    EDIT: (vehicleId: string) => `vehicles/${vehicleId}`,
+    GET_VEHICLE_BY_ID: (vehicleId: string) => `vehicles/${vehicleId}`,
+    ACTION: 'vehicles/action',
+    GET_VEHICLE_EVENT_HISTORY: (vehicleId: string) =>
+      `vehicle-events/${vehicleId}`,
+  },
   PETRO_CARD: {
     LIST: 'cards',
     ADD: 'cards',

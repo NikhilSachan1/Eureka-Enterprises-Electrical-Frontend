@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetVehicleDetailResolver } from './resolvers/get-vehicle-detail.resolver';
 
 export const VEHICLE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -27,6 +28,9 @@ export const VEHICLE_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-vehicle/edit-vehicle.component').then(
         m => m.EditVehicleComponent
       ),
+    resolve: {
+      vehicleDetail: GetVehicleDetailResolver,
+    },
   },
   {
     path: `${ROUTES.VEHICLE.EVENT_HISTORY}/:vehicleId`,

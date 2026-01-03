@@ -23,6 +23,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'times marked available',
     'times marked handover accepted',
     'times marked handover cancelled',
+    'ok',
     // Calibration
     'calibrated assets',
   ],
@@ -49,6 +50,11 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'deallocate',
     'times marked handover rejected',
     'times marked deallocated',
+    'service due overdue',
+    'insurance expired',
+    'fitness expired',
+    'puc expired',
+    'overdue',
   ],
   warning: [
     // Common statuses
@@ -69,6 +75,11 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'changeemployeestatus',
     'handovercancelled',
     'times marked handover initiated',
+    'service due soon',
+    'insurance expiring soon',
+    'fitness expiring soon',
+    'puc expiring soon',
+    'duesoon',
   ],
   info: [
     // Common statuses
@@ -89,5 +100,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'total events',
     'times marked assigned',
     'times marked updated',
+
+    'under maintenance',
   ],
 };

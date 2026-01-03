@@ -70,4 +70,6 @@ export enum EButtonActionType {
   HANDOVER_CANCELLED = 'handoverCancelled',
   DEALLOCATE = 'deallocate',
   EVENT_HISTORY = 'eventHistory',
+  UNDER_MAINTENANCE = 'underMaintenance',
+  RETIRED = 'retired',
 }

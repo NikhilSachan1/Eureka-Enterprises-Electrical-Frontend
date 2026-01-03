@@ -286,7 +286,10 @@ export class GetAssetComponent implements OnInit {
       },
       {
         label: 'Category',
-        value: selectedRow.category,
+        value: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.assetCategories(),
+          selectedRow.category
+        ),
       },
     ];
     return {

@@ -200,7 +200,7 @@ export class ActionAssetComponent implements OnInit, IDialogActionHandler {
       this.notificationService.validationError(
         FORM_VALIDATION_MESSAGES.FORM_INVALID
       );
-      this.logger.warn('Approval expense form validation failed');
+      this.logger.warn('Action asset form validation failed');
       return false;
     }
     return true;

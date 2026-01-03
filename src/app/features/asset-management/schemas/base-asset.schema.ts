@@ -1,5 +1,8 @@
-import { isoDateTimeField, uuidField } from '@shared/schemas';
+import { AuditSchema, isoDateTimeField, uuidField } from '@shared/schemas';
 import z from 'zod';
+
+const { createdBy, updatedBy, deletedBy, createdAt, updatedAt, deletedAt } =
+  AuditSchema.shape;
 
 export const AssetBaseSchema = z
   .object({
@@ -21,7 +24,23 @@ export const AssetBaseSchema = z
     status: z.string().min(1),
     remarks: z.string().trim(),
     additionalData: z.record(z.string(), z.string()).nullable(),
-    calibrationStatus: z.string().min(1),
-    warrantyStatus: z.string().min(1),
+  })
+  .strict();
+
+export const AssetBaseDocumentsSchema = z
+  .object({
+    createdBy: createdBy.nullable().optional(),
+    updatedBy: updatedBy.nullable().optional(),
+    deletedBy: deletedBy.nullable().optional(),
+    deletedAt: deletedAt.nullable().optional(),
+    createdAt: createdAt.nullable().optional(),
+    updatedAt: updatedAt.nullable().optional(),
+    id: uuidField,
+    assetMasterId: uuidField.optional(),
+    fileType: z.string().min(1),
+    fileKey: z.string().min(1),
+    label: z.string().nullable(),
+    assetEventsId: uuidField.optional(),
+    assetVersionId: uuidField.optional(),
   })
   .strict();

@@ -1,1 +1,21 @@
-<p>action-vehicle works!</p>
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  @if (dialogActionType() === EButtonActionTypeEnum.HANDOVER_INITIATE) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['vehicleAssignee']"
+    />
+  }
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs['vehicleImages']"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs['comment']"
+  />
+</form>

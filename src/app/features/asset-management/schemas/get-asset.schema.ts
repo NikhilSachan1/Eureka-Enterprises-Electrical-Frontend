@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AssetBaseSchema } from './base-asset.schema';
+import { AssetBaseDocumentsSchema, AssetBaseSchema } from './base-asset.schema';
 import {
   AuditSchema,
   FilterSchema,
@@ -7,7 +7,6 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
-import { AssetDetailGetDocumentsSchema } from './get-asset-detail.schema';
 
 const { createdAt, updatedAt } = AuditSchema.shape;
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
@@ -40,7 +39,9 @@ export const AssetGetBaseResponseSchema = z
     ...AssetBaseSchema.shape,
     assignedTo: uuidField.nullable().optional(),
     assignedToUser: makeFieldsNullable(UserSchema).nullable(),
-    files: z.array(AssetDetailGetDocumentsSchema),
+    files: z.array(AssetBaseDocumentsSchema),
+    warrantyStatus: z.string().min(1),
+    calibrationStatus: z.string().min(1),
     createdAt,
     updatedAt,
   })

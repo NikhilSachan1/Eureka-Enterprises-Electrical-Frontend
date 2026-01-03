@@ -1,1 +1,23 @@
-<p>get-vehicle-event-history works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<div class="metrics-card-wrapper">
+  <app-metrics-card [metricCardConfig]="metricsCards()" />
+</div>
+
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [bulkActionButtons]="table.bulkActions()"
+  [rowActions]="table.rowActions()"
+  (filterData)="onTableStateChange($event)"
+/>

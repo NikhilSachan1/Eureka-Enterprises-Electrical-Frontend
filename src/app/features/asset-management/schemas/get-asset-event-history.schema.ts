@@ -6,11 +6,9 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { z } from 'zod';
-import {
-  AssetDetailGetBaseResponseSchema,
-  AssetDetailGetDocumentsSchema,
-} from './get-asset-detail.schema';
+import { AssetDetailGetBaseResponseSchema } from './get-asset-detail.schema';
 import { makeFieldsNullable } from '@shared/utility';
+import { AssetBaseDocumentsSchema } from './base-asset.schema';
 
 const { createdAt, updatedAt, createdBy } = AuditSchema.shape;
 const { id, name, assetId, model, serialNumber, category, status } =
@@ -80,7 +78,7 @@ export const AssetEventHistoryGetBaseResponseSchema = z
     fromUserDetails: makeFieldsNullable(UserSchema).nullable(),
     toUserDetails: makeFieldsNullable(UserSchema).nullable(),
     metadata: z.record(z.string(), z.string()).nullable(),
-    assetFiles: z.array(makeFieldsNullable(AssetDetailGetDocumentsSchema)),
+    assetFiles: z.array(makeFieldsNullable(AssetBaseDocumentsSchema)),
     asset: z.object({
       id,
       assetId,

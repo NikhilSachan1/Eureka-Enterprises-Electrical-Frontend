@@ -154,14 +154,6 @@ export const LOCATION_DATA: IOptionDropdown[] = [
   { label: 'Location 5', value: 'location_5' },
 ];
 
-export const VEHICLE_LIST_DATA: IOptionDropdown[] = [
-  { label: 'Vehicle 1', value: 'vehicle_1' },
-  { label: 'Vehicle 2', value: 'vehicle_2' },
-  { label: 'Vehicle 3', value: 'vehicle_3' },
-  { label: 'Vehicle 4', value: 'vehicle_4' },
-  { label: 'Vehicle 5', value: 'vehicle_5' },
-];
-
 export const PETRO_CARD_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Allocated', value: 'allocated' },
   { label: 'Available', value: 'available' },

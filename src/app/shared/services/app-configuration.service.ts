@@ -20,7 +20,6 @@ import {
   LOCATION_DATA,
   PASSING_YEAR_DATA,
   PETRO_CARD_STATUS_DATA,
-  VEHICLE_LIST_DATA,
 } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { AppConfiguationResponseSchema } from '@shared/schemas';
@@ -29,7 +28,10 @@ import { EmployeeService } from '@features/employee-management/services/employee
 import { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
 import { IRoleGetResponseDto } from '@features/settings-management/permission-management/sub-features/role-management/types/role.dto';
 import { RoleService } from '@features/settings-management/permission-management/sub-features/role-management/services/role.service';
-import { toUpperCase } from '@shared/utility';
+import { IAssetGetResponseDto } from '@features/asset-management/types/asset.dto';
+import { VehicleService } from '@features/transport-management/vehicle-management/services/vehicle.service';
+import { AssetService } from '@features/asset-management/services/asset.service';
+import { IVehicleGetResponseDto } from '@features/transport-management/vehicle-management/types/vehicle.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +42,8 @@ export class AppConfigurationService {
   private readonly employeeService = inject(EmployeeService);
   private readonly roleService = inject(RoleService);
   private readonly userPermissionService = inject(UserPermissionService);
+  private readonly assetService = inject(AssetService);
+  private readonly vehicleService = inject(VehicleService);
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
 
@@ -67,6 +71,13 @@ export class AppConfigurationService {
   private readonly _assetCalibrationFrequencies = signal<IOptionDropdown[]>([]);
   private readonly _assetEventStatuses = signal<IOptionDropdown[]>([]);
   private readonly _petroCardStatus = signal<IOptionDropdown[]>([]);
+  private readonly _vehicleFuelTypes = signal<IOptionDropdown[]>([]);
+  private readonly _vehicleStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _vehicleDocumentStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _vehicleServiceStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _vehicleEventStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _vehicleServiceTypes = signal<IOptionDropdown[]>([]);
+  private readonly _vehicleServiceStatus = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
   private readonly _employeeListByRole = signal<
@@ -75,6 +86,7 @@ export class AppConfigurationService {
   private readonly _roleList = signal<IOptionDropdown[]>([]);
   private readonly _clientList = signal<IOptionDropdown[]>([]);
   private readonly _locationList = signal<IOptionDropdown[]>([]);
+  private readonly _assetList = signal<IOptionDropdown[]>([]);
   private readonly _vehicleList = signal<IOptionDropdown[]>([]);
 
   // Public readonly signals for common use
@@ -104,6 +116,13 @@ export class AppConfigurationService {
     this._assetCalibrationFrequencies.asReadonly();
   readonly assetEventStatuses = this._assetEventStatuses.asReadonly();
   readonly petroCardStatus = this._petroCardStatus.asReadonly();
+  readonly vehicleFuelTypes = this._vehicleFuelTypes.asReadonly();
+  readonly vehicleStatuses = this._vehicleStatuses.asReadonly();
+  readonly vehicleDocumentStatuses = this._vehicleDocumentStatuses.asReadonly();
+  readonly vehicleServiceStatuses = this._vehicleServiceStatuses.asReadonly();
+  readonly vehicleEventStatuses = this._vehicleEventStatuses.asReadonly();
+  readonly vehicleServiceTypes = this._vehicleServiceTypes.asReadonly();
+  readonly vehicleServiceStatus = this._vehicleServiceStatus.asReadonly();
 
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
@@ -111,6 +130,7 @@ export class AppConfigurationService {
   readonly roleList = this._roleList.asReadonly();
   readonly clientList = this._clientList.asReadonly();
   readonly locationList = this._locationList.asReadonly();
+  readonly assetList = this._assetList.asReadonly();
   readonly vehicleList = this._vehicleList.asReadonly();
 
   private readonly STATIC_FALLBACK_DATA: Record<
@@ -132,9 +152,6 @@ export class AppConfigurationService {
     [MODULE_NAMES.SITE]: {
       [CONFIGURATION_KEYS.SITE.CLIENT_LIST]: CLIENT_NAME_DATA,
       [CONFIGURATION_KEYS.SITE.LOCATION_LIST]: LOCATION_DATA,
-    },
-    [MODULE_NAMES.VEHICLE]: {
-      [CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST]: VEHICLE_LIST_DATA,
     },
     [MODULE_NAMES.PETRO_CARD]: {
       [CONFIGURATION_KEYS.PETRO_CARD.STATUS]: PETRO_CARD_STATUS_DATA,
@@ -230,6 +247,38 @@ export class AppConfigurationService {
         key: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
         signal: this._vehicleList,
       },
+      {
+        key: CONFIGURATION_KEYS.VEHICLE.FUEL_TYPE_LIST,
+        signal: this._vehicleFuelTypes,
+      },
+      {
+        key: CONFIGURATION_KEYS.VEHICLE.STATUS_LIST,
+        signal: this._vehicleStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.VEHICLE.DOCUMENT_STATUS_LIST,
+        signal: this._vehicleDocumentStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.VEHICLE.SERVICE_ALERT_STATUS_LIST,
+        signal: this._vehicleServiceStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.VEHICLE.EVENT_STATUS_LIST,
+        signal: this._vehicleEventStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.VEHICLE.SERVICE_TYPE_LIST,
+        signal: this._vehicleServiceTypes,
+      },
+      {
+        key: CONFIGURATION_KEYS.VEHICLE.SERVICE_STATUS,
+        signal: this._vehicleServiceStatus,
+      },
+      {
+        key: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
+        signal: this._vehicleList,
+      },
     ],
     [MODULE_NAMES.ASSET]: [
       {
@@ -263,6 +312,10 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.ASSET.EVENT_STATUS_LIST,
         signal: this._assetEventStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.ASSET.ASSET_LIST,
+        signal: this._assetList,
       },
     ],
     [MODULE_NAMES.PETRO_CARD]: [
@@ -328,7 +381,7 @@ export class AppConfigurationService {
           // Parse roles (comma-separated string) and add to role-based lists
           const roles = employee.roles
             .split(',')
-            .map(role => role.trim().toUpperCase())
+            .map(role => role.trim())
             .filter(role => role.length > 0);
 
           roles.forEach(role => {
@@ -360,7 +413,7 @@ export class AppConfigurationService {
 
         const roleList = response.records.map(role => ({
           label: role.label,
-          value: toUpperCase(role.name),
+          value: role.name,
         }));
 
         this._roleList.set(roleList);
@@ -381,8 +434,7 @@ export class AppConfigurationService {
   }
 
   getEmployeesByRole(roleName: string): IOptionDropdown[] {
-    const upperRole = roleName.toUpperCase();
-    return this._employeeListByRole()[upperRole] ?? [];
+    return this._employeeListByRole()[roleName] ?? [];
   }
 
   private populateAllModuleDropdowns(
@@ -409,6 +461,67 @@ export class AppConfigurationService {
           }
         });
       }
+    );
+  }
+
+  loadAssetList(): Observable<IAssetGetResponseDto> {
+    this.logger.logUserAction('Loading app data - Asset List');
+
+    return this.assetService.getAssetList().pipe(
+      tap(response => {
+        this.logger.logUserAction('Asset List loaded successfully', {
+          count: response.totalRecords,
+        });
+
+        const assetList: IOptionDropdown[] = [];
+
+        response.records.forEach(asset => {
+          const dropdownItem: IOptionDropdown = {
+            label: `${asset.name}`.trim(),
+            value: asset.id,
+          };
+
+          // Add to full asset list
+          assetList.push(dropdownItem);
+        });
+
+        this._assetList.set(assetList);
+      }),
+      catchError(error => {
+        this.logger.logUserAction('Failed to load Asset List', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  loadVehicleList(): Observable<IVehicleGetResponseDto> {
+    this.logger.logUserAction('Loading app data - Vehicle List');
+
+    return this.vehicleService.getVehicleList().pipe(
+      tap(response => {
+        this.logger.logUserAction('Vehicle List loaded successfully', {
+          count: response.totalRecords,
+        });
+
+        const vehicleList: IOptionDropdown[] = [];
+
+        response.records.forEach(vehicle => {
+          const dropdownItem: IOptionDropdown = {
+            label:
+              `${vehicle.registrationNo} (${vehicle.brand} ${vehicle.model})`.trim(),
+            value: vehicle.id,
+          };
+
+          // Add to full asset list
+          vehicleList.push(dropdownItem);
+        });
+
+        this._vehicleList.set(vehicleList);
+      }),
+      catchError(error => {
+        this.logger.logUserAction('Failed to load Vehicle List', error);
+        return throwError(() => error);
+      })
     );
   }
 

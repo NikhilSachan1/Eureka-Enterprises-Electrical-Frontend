@@ -15,6 +15,14 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   'calibration expiring soon': ICONS.STATUS.EXPIRING_SOON,
   'warranty expired': ICONS.STATUS.EXPIRED,
   'warranty expiring soon': ICONS.STATUS.EXPIRING_SOON,
+  'service due soon': ICONS.STATUS.EXPIRING_SOON,
+  'insurance expiring soon': ICONS.STATUS.EXPIRING_SOON,
+  'insurance expired': ICONS.STATUS.EXPIRED,
+  'fitness expiring soon': ICONS.STATUS.EXPIRING_SOON,
+  'fitness expired': ICONS.STATUS.EXPIRED,
+  'puc expiring soon': ICONS.STATUS.EXPIRING_SOON,
+  'puc expired': ICONS.STATUS.EXPIRED,
+  'under maintenance': ICONS.STATUS.EXPIRING_SOON,
 
   // Success/Approved statuses
   approved: ICONS.ACTIONS.CHECK_CIRCLE,
@@ -43,6 +51,7 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   'times marked deallocated': ICONS.ACTIONS.TRASH,
   'times marked handover rejected': ICONS.ACTIONS.TIMES,
   'times marked handover cancelled': ICONS.ACTIONS.BAN,
+  'service due overdue': ICONS.ACTIONS.TIMES,
 
   // Warning/Pending statuses
   pending: ICONS.ATTENDANCE.REGULARIZE,

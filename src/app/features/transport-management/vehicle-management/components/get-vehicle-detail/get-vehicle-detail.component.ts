@@ -1,10 +1,178 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
+import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
+import { DRAWER_DATA } from '@shared/constants/drawer.constants';
+import { VehicleService } from '../../services/vehicle.service';
+import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigService } from '@core/services';
+import {
+  EDataType,
+  IDataViewDetails,
+  IDataViewDetailsWithEntity,
+  IEntityViewDetails,
+} from '@shared/types';
+import {
+  IVehicleDetailGetRequestDto,
+  IVehicleDetailGetResponseDto,
+  IVehicleGetBaseResponseDto,
+} from '../../types/vehicle.dto';
+import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-get-vehicle-detail',
-  imports: [],
+  imports: [ViewDetailComponent],
   templateUrl: './get-vehicle-detail.component.html',
   styleUrl: './get-vehicle-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GetVehicleDetailComponent {}
+export class GetVehicleDetailComponent extends DrawerDetailBase {
+  protected readonly drawerData = inject(DRAWER_DATA) as {
+    vehicle: IVehicleGetBaseResponseDto;
+  };
+  private readonly vehicleService = inject(VehicleService);
+  private readonly loadingService = inject(LoadingService);
+  protected readonly appConfigService = inject(AppConfigService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
+
+  protected readonly _vehicleDetails = signal<
+    IDataViewDetailsWithEntity | undefined
+  >(undefined);
+
+  protected readonly ALL_DATA_TYPES = EDataType;
+
+  override onDrawerShow(): void {
+    this.loadVehicleDetails();
+  }
+
+  private loadVehicleDetails(): void {
+    this.loadingService.show({
+      title: 'Loading Vehicle Details',
+      message: 'Please wait while we load the vehicle details...',
+    });
+
+    const paramData = this.prepareParamData();
+
+    this.vehicleService
+      .getVehicleDetailById(paramData)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IVehicleDetailGetResponseDto) => {
+          const mappedData = this.mapDetailData(response);
+          this._vehicleDetails.set(mappedData);
+          this.logger.logUserAction('Vehicle details loaded successfully');
+        },
+        error: error => {
+          console.error('error', error);
+        },
+      });
+  }
+
+  private prepareParamData(): IVehicleDetailGetRequestDto {
+    return {
+      id: this.drawerData.vehicle.id,
+    };
+  }
+
+  private mapDetailData(
+    response: IVehicleDetailGetResponseDto
+  ): IDataViewDetailsWithEntity {
+    const mappedDetails = response.versionHistory.map(record => {
+      const entryData: IDataViewDetails['entryData'] = [
+        {
+          label: 'Vehicle Number',
+          value: record.registrationNo,
+        },
+        {
+          label: 'Brand',
+          value: record.brand,
+        },
+        {
+          label: 'Model',
+          value: record.model,
+        },
+        {
+          label: 'Fuel Type',
+          value: getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.vehicleFuelTypes(),
+            record.fuelType
+          ),
+        },
+        {
+          label: 'Mileage',
+          value: `${record.mileage} ${APP_CONFIG.VEHICLE_CONFIG.MILEAGE_UNIT}`,
+        },
+        {
+          label: 'Purchase Date',
+          value: record.purchaseDate,
+          type: EDataType.DATE,
+          format: this.appConfigService.dateFormats.DEFAULT,
+        },
+        {
+          label: 'Dealer Name',
+          value: record.dealerName,
+        },
+        {
+          label: 'Insurance Period',
+          value: [record.insuranceStartDate, record.insuranceEndDate],
+          type: EDataType.DATE_RANGE,
+          format: this.appConfigService.dateFormats.DEFAULT,
+        },
+        {
+          label: 'PUC Period',
+          value: [record.pucStartDate, record.pucEndDate],
+          type: EDataType.DATE_RANGE,
+          format: this.appConfigService.dateFormats.DEFAULT,
+        },
+        {
+          label: 'Fitness Period',
+          value: [record.fitnessStartDate, record.fitnessEndDate],
+          type: EDataType.DATE_RANGE,
+          format: this.appConfigService.dateFormats.DEFAULT,
+        },
+        {
+          label: 'Attachment(s)',
+          value: record.documentKeys,
+          type: EDataType.ATTACHMENTS,
+        },
+      ];
+
+      return {
+        status: {
+          approvalStatus: record.status,
+        },
+        entryData,
+        createdBy: {
+          name: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
+          date: record.createdAt,
+          notes: record.remarks,
+        },
+      };
+    });
+
+    return {
+      details: mappedDetails,
+      entity: this.getVehicleDetails(),
+    };
+  }
+
+  protected getVehicleDetails(): IEntityViewDetails {
+    const { brand, registrationNo, model } = this.drawerData.vehicle;
+    return {
+      name: registrationNo,
+      subtitle: `${brand} ${model}`,
+    };
+  }
+}

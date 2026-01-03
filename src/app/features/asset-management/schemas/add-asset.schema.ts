@@ -1,12 +1,10 @@
 import { z } from 'zod';
 import { AssetBaseSchema } from './base-asset.schema';
-import { AuditSchema, fileField, onlyDateStringField } from '@shared/schemas';
+import { fileField, onlyDateStringField } from '@shared/schemas';
 
 export const AssetAddRequestSchema = AssetBaseSchema.omit({
   id: true,
   status: true,
-  calibrationStatus: true,
-  warrantyStatus: true,
   additionalData: true,
 })
   .extend({
@@ -19,11 +17,8 @@ export const AssetAddRequestSchema = AssetBaseSchema.omit({
   })
   .strict();
 
-export const AssetAddResponseSchema = AssetBaseSchema.pick({
-  assetId: true,
-  id: true,
-})
-  .extend({
-    ...AuditSchema.shape,
+export const AssetAddResponseSchema = z
+  .object({
+    message: z.string(),
   })
   .strict();

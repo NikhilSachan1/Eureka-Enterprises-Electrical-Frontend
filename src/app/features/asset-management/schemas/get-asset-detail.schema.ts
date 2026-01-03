@@ -5,7 +5,7 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { z } from 'zod';
-import { AssetBaseSchema } from './base-asset.schema';
+import { AssetBaseDocumentsSchema, AssetBaseSchema } from './base-asset.schema';
 import { makeFieldsNullable } from '@shared/utility';
 
 const { createdAt, updatedAt, createdBy, updatedBy, deletedBy, deletedAt } =
@@ -14,24 +14,6 @@ const { createdAt, updatedAt, createdBy, updatedBy, deletedBy, deletedAt } =
 export const AssetDetailGetRequestSchema = z
   .object({
     id: uuidField,
-  })
-  .strict();
-
-export const AssetDetailGetDocumentsSchema = z
-  .object({
-    createdBy: createdBy.nullable().optional(),
-    updatedBy: updatedBy.nullable().optional(),
-    deletedBy: deletedBy.nullable().optional(),
-    deletedAt: deletedAt.nullable().optional(),
-    createdAt: createdAt.nullable().optional(),
-    updatedAt: updatedAt.nullable().optional(),
-    id: uuidField,
-    assetMasterId: uuidField.optional(),
-    fileType: z.string().min(1),
-    fileKey: z.string().min(1),
-    label: z.string().nullable(),
-    assetEventsId: uuidField.optional(),
-    assetVersionId: uuidField.optional(),
   })
   .strict();
 
@@ -46,8 +28,6 @@ export const AssetDetailGetBaseResponseSchema = AssetBaseSchema.extend({
 export const AssetDetailGetVersionHistorySchema =
   AssetDetailGetBaseResponseSchema.omit({
     assetId: true,
-    calibrationStatus: true,
-    warrantyStatus: true,
   })
     .extend({
       calibrationStartDate: onlyDateStringField,
@@ -58,7 +38,7 @@ export const AssetDetailGetVersionHistorySchema =
       assignedTo: uuidField.nullable(),
       assetMasterId: uuidField,
       isActive: z.boolean(),
-      files: z.array(AssetDetailGetDocumentsSchema),
+      files: z.array(AssetBaseDocumentsSchema),
       createdBy,
       updatedBy: updatedBy.nullable(),
     })
@@ -81,8 +61,10 @@ export const AssetDetailGetResponseSchema = z
     warrantyStartDate: onlyDateStringField,
     warrantyEndDate: onlyDateStringField,
     assignedTo: uuidField.nullable(),
-    files: z.array(AssetDetailGetDocumentsSchema),
+    files: z.array(AssetBaseDocumentsSchema),
     deletedByUser: makeFieldsNullable(UserSchema).nullable(),
     versionHistory: z.array(AssetDetailGetVersionHistorySchema),
+    calibrationStatus: z.string().min(1),
+    warrantyStatus: z.string().min(1),
   })
   .strict();

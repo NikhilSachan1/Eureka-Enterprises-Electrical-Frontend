@@ -81,4 +81,9 @@ export const APP_CONFIG = {
   DROPDOWN_CONFIG: {
     DEFAULT_FILTER_LENGTH: 7,
   },
+
+  // Vehicle Configuration
+  VEHICLE_CONFIG: {
+    MILEAGE_UNIT: 'km/ltr',
+  },
 };
