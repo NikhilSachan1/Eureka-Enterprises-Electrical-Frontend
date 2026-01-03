@@ -6,14 +6,19 @@ import {
   HttpEvent,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Observable, throwError, catchError } from 'rxjs';
+import {
+  Observable,
+  throwError,
+  catchError,
+  switchMap,
+  filter,
+  take,
+} from 'rxjs';
+
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { LoggerService, TimezoneService } from '@core/services';
-import { SKIP_AUTH_ENDPOINTS } from '@core/constants';
+import { SKIP_AUTH_ENDPOINTS, API_ROUTES } from '@core/constants';
 
-/**
- * Automatically adds JWT tokens to outgoing requests
- */
 export const AuthInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
@@ -22,42 +27,126 @@ export const AuthInterceptor: HttpInterceptorFn = (
   const logger = inject(LoggerService);
   const timezoneService = inject(TimezoneService);
 
-  // Skip authentication for certain requests
-  if (shouldSkipAuth(req)) {
-    return next(req);
+  const reqWithCommonHeaders = setCommonHeaders(
+    req,
+    authService,
+    timezoneService
+  );
+
+  // For public endpoints - skip auth token, but common headers are already added
+  if (shouldSkipAuthToken(reqWithCommonHeaders)) {
+    return next(reqWithCommonHeaders);
   }
 
-  req = addTimezoneToRequest(req, timezoneService.timezone);
+  const authReq = addAuthToken(reqWithCommonHeaders, authService);
 
-  // Add token to request if available
-  const token = authService.getAuthToken();
-  if (token) {
-    req = addTokenToRequest(req, token);
-  }
-
-  // Handle the request and potential 401 errors
-  return next(req).pipe(
+  return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && token) {
-        logger.warn('Received 401 error, logging out user');
-        void authService.logout();
-        return throwError(() => error);
+      const token = authService.getAuthToken();
+
+      if (error.status === 401 && token && !isRefreshTokenRequest(authReq)) {
+        return handle401Error(authReq, next, authService, logger);
       }
+
       return throwError(() => error);
     })
   );
 };
 
-/**
- * Check if authentication should be skipped for this request
- */
-function shouldSkipAuth(req: HttpRequest<unknown>): boolean {
+function handle401Error(
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  authService: AuthService,
+  logger: LoggerService
+): Observable<HttpEvent<unknown>> {
+  // If refresh already in progress → queue request
+  if (authService.isTokenRefreshing()) {
+    logger.info('Token refresh in progress, queuing request');
+
+    return authService.getRefreshTokenSubject().pipe(
+      filter((token): token is string => !!token),
+      take(1),
+      switchMap(token => next(addTokenToRequest(req, token)))
+    );
+  }
+
+  // Start refresh flow
+  authService.setRefreshing(true);
+  authService.getRefreshTokenSubject().next(null);
+
+  logger.warn('Access token expired, refreshing token');
+
+  return authService.refreshAccessToken().pipe(
+    switchMap(response => {
+      authService.setRefreshing(false);
+      authService.getRefreshTokenSubject().next(response.accessToken);
+
+      logger.info('Token refreshed, retrying request');
+      return next(addTokenToRequest(req, response.accessToken));
+    }),
+    catchError(refreshError => {
+      authService.setRefreshing(false);
+      authService.getRefreshTokenSubject().next(null);
+      logger.error('Refresh token failed - forcing logout', refreshError);
+      authService.forceLogout();
+
+      return throwError(() => refreshError);
+    })
+  );
+}
+
+/* =========================
+   HELPERS
+   ========================= */
+
+function shouldSkipAuthToken(req: HttpRequest<unknown>): boolean {
   return SKIP_AUTH_ENDPOINTS.some(endpoint => req.url.includes(endpoint));
 }
 
-/**
- * Add authentication token to request headers
- */
+function isRefreshTokenRequest(req: HttpRequest<unknown>): boolean {
+  return req.url.includes(API_ROUTES.AUTH.REFRESH_TOKEN);
+}
+
+function setCommonHeaders(
+  req: HttpRequest<unknown>,
+  authService: AuthService,
+  timezoneService: TimezoneService
+): HttpRequest<unknown> {
+  const activeRole = authService.user()?.activeRole ?? '';
+
+  const commonHeaders: Record<string, string> = {
+    'X-Timezone': timezoneService.timezone,
+    'X-Active-Role': activeRole,
+    'X-Correlation-Id': generateUUID(),
+    'X-Source-Type': 'web',
+    'X-Client-Type': 'web',
+  };
+
+  return req.clone({
+    setHeaders: {
+      ...getExistingHeaders(req),
+      ...commonHeaders,
+    },
+  });
+}
+
+function addAuthToken(
+  req: HttpRequest<unknown>,
+  authService: AuthService
+): HttpRequest<unknown> {
+  const token = authService.getAuthToken();
+
+  if (!token) {
+    return req;
+  }
+
+  return req.clone({
+    setHeaders: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
 function addTokenToRequest(
   req: HttpRequest<unknown>,
   token: string
@@ -69,16 +158,16 @@ function addTokenToRequest(
   });
 }
 
-/**
- * Add timezone header to request
- */
-function addTimezoneToRequest(
-  req: HttpRequest<unknown>,
-  timezone: string
-): HttpRequest<unknown> {
-  return req.clone({
-    setHeaders: {
-      'X-Timezone': timezone,
+function getExistingHeaders(req: HttpRequest<unknown>): Record<string, string> {
+  return req.headers.keys().reduce(
+    (acc, key) => {
+      acc[key] = req.headers.get(key) ?? '';
+      return acc;
     },
-  });
+    {} as Record<string, string>
+  );
+}
+
+function generateUUID(): string {
+  return crypto?.randomUUID();
 }

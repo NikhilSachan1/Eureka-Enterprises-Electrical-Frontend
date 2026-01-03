@@ -8,4 +8,6 @@ export interface ILoggedInUserDetails {
   designation: string;
   profilePicture: string;
   permissions: IAppPermission;
+  roles: string[];
+  activeRole: string;
 }

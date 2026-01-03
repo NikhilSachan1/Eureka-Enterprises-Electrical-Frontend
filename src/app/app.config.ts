@@ -13,10 +13,9 @@ import {
 } from '@angular/router';
 import {
   provideHttpClient,
-  withInterceptors,
   withFetch,
+  withInterceptors,
 } from '@angular/common/http';
-import { AuthInterceptor, ErrorInterceptor } from '@core/interceptors';
 import {
   provideAnimations,
   BrowserAnimationsModule,
@@ -25,20 +24,19 @@ import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import Aura from '@primeng/themes/aura';
 import { routes } from './app.routes';
+import { AuthInterceptor, ErrorInterceptor } from '@core/interceptors';
 import { AppPermissionService, TimezoneService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
-import { APP_CONFIG } from '@core/config';
-import { lastValueFrom } from 'rxjs';
-import { FinancialYearService } from '@core/services/financial-year.service';
 import { AppConfigurationService } from '@shared/services';
+import { APP_CONFIG } from '@core/config';
+import { lastValueFrom, take } from 'rxjs';
+import { FinancialYearService } from '@core/services/financial-year.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // Animations with async loading
     provideAnimations(),
-
-    // PrimeNG configuration
+    importProvidersFrom(BrowserAnimationsModule),
     providePrimeNG({
       theme: {
         preset: Aura,
@@ -51,23 +49,14 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
-
-    // Angular V19: Optimized change detection with event coalescing
     provideZoneChangeDetection({
       eventCoalescing: true,
       runCoalescing: true,
     }),
-
-    // Angular V19: HTTP client with Fetch API and interceptors
     provideHttpClient(
       withFetch(),
-      withInterceptors([
-        AuthInterceptor, // Handle authentication tokens
-        ErrorInterceptor, // Handle HTTP errors
-      ])
+      withInterceptors([AuthInterceptor, ErrorInterceptor])
     ),
-
-    // Angular V19: Enhanced router with component input binding
     provideRouter(
       routes,
       withComponentInputBinding(),
@@ -77,19 +66,10 @@ export const appConfig: ApplicationConfig = {
       }),
       withEnabledBlockingInitialNavigation()
     ),
+    ConfirmationService,
+    MessageService,
 
-    // Services
-    {
-      provide: ConfirmationService,
-      useClass: ConfirmationService,
-    },
-    {
-      provide: MessageService,
-      useClass: MessageService,
-    },
-
-    importProvidersFrom(BrowserAnimationsModule),
-    provideAppInitializer(() => {
+    provideAppInitializer(async () => {
       const timezoneService = inject(TimezoneService);
       const authService = inject(AuthService);
       const userPermissionService = inject(UserPermissionService);
@@ -97,12 +77,13 @@ export const appConfig: ApplicationConfig = {
       const appPermissionService = inject(AppPermissionService);
       const appConfigurationService = inject(AppConfigurationService);
 
-      const financialYear = financialYearService.getFinancialYear();
-      financialYearService.setFinancialYear(financialYear);
       timezoneService.getTimezone();
 
+      const financialYear = financialYearService.getFinancialYear();
+      financialYearService.setFinancialYear(financialYear);
+
       if (!authService.isAuthenticated()) {
-        return Promise.resolve();
+        return;
       }
 
       appPermissionService.setUIPermissions();
@@ -112,12 +93,18 @@ export const appConfig: ApplicationConfig = {
       }
 
       const blockingTasks: Promise<unknown>[] = [
-        lastValueFrom(appConfigurationService.loadAppConfiguration()),
-        lastValueFrom(appConfigurationService.loadEmployeeList()),
-        lastValueFrom(appConfigurationService.loadAllAppRoles()),
+        lastValueFrom(
+          appConfigurationService.loadAppConfiguration().pipe(take(1))
+        ),
+        lastValueFrom(appConfigurationService.loadEmployeeList().pipe(take(1))),
+        lastValueFrom(appConfigurationService.loadAllAppRoles().pipe(take(1))),
       ];
 
-      return Promise.all(blockingTasks);
+      try {
+        await Promise.all(blockingTasks);
+      } catch (error) {
+        console.error(error);
+      }
     }),
   ],
 };

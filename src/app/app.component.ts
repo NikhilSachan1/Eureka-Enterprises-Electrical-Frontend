@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { LoadingOverlayComponent } from '@shared/components/loading-overlay/loading-overlay.component';
@@ -30,17 +25,8 @@ import { NetworkMonitorService } from '@core/services';
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   protected readonly loadingService = inject(LoadingService);
   protected readonly galleryService = inject(GalleryService);
   protected readonly networkMonitor = inject(NetworkMonitorService); // Make public for template
-
-  ngOnInit(): void {
-    setTimeout(() => {
-      const initialLoader = document.getElementById('initial-loader');
-      if (initialLoader) {
-        initialLoader.remove();
-      }
-    }, 1000);
-  }
 }

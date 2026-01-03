@@ -1,12 +1,32 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, delay, tap } from 'rxjs/operators';
 import { ApiService, LoggerService } from '@core/services';
-import { AttachmentsService, AvatarService } from '@shared/services';
+import {
+  AttachmentsService,
+  AvatarService,
+  NotificationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { API_ROUTES } from '@core/constants';
 import { ILoggedInUserDetails } from '../types/login.interface';
-import { ILoginRequestDto, ILoginResponseDto } from '../types/login.dto';
-import { LoginRequestSchema, LoginResponseSchema } from '../schemas/auth.dto';
+import {
+  ILoginRequestDto,
+  ILoginResponseDto,
+  ILogoutRequestDto,
+  ILogoutResponseDto,
+  IRefreshTokenRequestDto,
+  IRefreshTokenResponseDto,
+} from '../types/auth.dto';
+import {
+  LoginRequestSchema,
+  LoginResponseSchema,
+  LogoutRequestSchema,
+  LogoutResponseSchema,
+  RefreshTokenRequestSchema,
+  RefreshTokenResponseSchema,
+} from '../schemas';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +36,8 @@ export class AuthService {
   private readonly logger = inject(LoggerService);
   private readonly avatarService = inject(AvatarService);
   private readonly attachmentsService = inject(AttachmentsService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
 
   public readonly loggedInUserInitials = computed(() =>
     this.getLoggedInUserInitials()
@@ -36,34 +58,50 @@ export class AuthService {
 
   private readonly _isAuthenticated = signal<boolean>(false);
   private readonly _user = signal<ILoggedInUserDetails | null>(null);
-  private readonly _token = signal<string | null>(null);
+  private readonly _accessToken = signal<string | null>(null);
+  private readonly _refreshToken = signal<string | null>(null);
   private readonly _userAvatarUrl = signal<string>('');
+
+  private isRefreshing = false;
+  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
+
+  // Track last loaded profile picture to avoid unnecessary API calls
+  private lastLoadedProfilePicture: string | null = null;
 
   public readonly isAuthenticated = this._isAuthenticated.asReadonly();
   public readonly user = this._user.asReadonly();
-  public readonly token = this._token.asReadonly();
+  public readonly accessToken = this._accessToken.asReadonly();
+  public readonly refreshToken = this._refreshToken.asReadonly();
 
   constructor() {
     this.initializeAuthState();
 
-    // Watch for user signal changes and reload profile picture
+    // Watch for user signal changes and reload profile picture only if changed
     effect(() => {
       const user = this._user();
-      if (user?.profilePicture) {
-        this.loadUserProfilePicture();
-      } else {
-        this._userAvatarUrl.set('');
+      const currentProfilePicture = user?.profilePicture ?? null;
+
+      // Only load if profile picture actually changed
+      if (currentProfilePicture !== this.lastLoadedProfilePicture) {
+        if (currentProfilePicture) {
+          this.loadUserProfilePicture(currentProfilePicture);
+        } else {
+          this._userAvatarUrl.set('');
+        }
+        this.lastLoadedProfilePicture = currentProfilePicture;
       }
     });
   }
 
   private initializeAuthState(): void {
     try {
-      const token = this.getStoredToken();
+      const accessToken = this.getStoredToken();
+      const refreshTokenValue = this.getStoredRefreshToken();
       const user = this.getStoredUser();
 
-      if (token && user) {
-        this._token.set(token);
+      if (accessToken && refreshTokenValue && user) {
+        this._accessToken.set(accessToken);
+        this._refreshToken.set(refreshTokenValue);
         this._user.set(user);
         this._isAuthenticated.set(true);
 
@@ -106,13 +144,16 @@ export class AuthService {
   setAuthState(loginResponse: ILoginResponseDto, rememberMe: boolean): void {
     try {
       const {
-        token,
+        accessToken,
+        refreshToken,
         firstName,
         lastName,
         email,
         name,
         designation,
         profilePicture,
+        roles,
+        activeRole,
       } = loginResponse;
 
       const user: ILoggedInUserDetails = {
@@ -123,14 +164,18 @@ export class AuthService {
         designation,
         profilePicture: profilePicture ?? '',
         permissions: [],
+        roles,
+        activeRole,
       };
 
-      this._token.set(token);
+      this._accessToken.set(accessToken);
+      this._refreshToken.set(refreshToken);
       this._user.set(user);
       this._isAuthenticated.set(true);
 
       const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem('auth_token', token);
+      storage.setItem('access_token', accessToken);
+      storage.setItem('refresh_token', refreshToken);
       storage.setItem('user_data', JSON.stringify(user));
 
       this.logger.info('Login successful', user);
@@ -141,21 +186,99 @@ export class AuthService {
     }
   }
 
-  logout(): Observable<null> {
-    return of(null).pipe(
-      tap(() => {
-        this.logger.logUserAction('User Logout');
+  logout(): Observable<ILogoutResponseDto> {
+    const formData: ILogoutRequestDto = {
+      refreshToken: this.getRefreshToken() ?? '',
+    };
 
-        this.clearAuthState();
+    return this.apiService
+      .postValidated(
+        API_ROUTES.AUTH.LOGOUT,
+        formData,
+        LogoutRequestSchema,
+        LogoutResponseSchema
+      )
+      .pipe(
+        delay(2000),
+        tap((response: ILogoutResponseDto) => {
+          this.logger.logUserAction('Logout Response', response);
+          this.clearAuthState();
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Logout Error', error);
+          } else {
+            this.logger.logUserAction('Logout Error', error);
+          }
+          this.clearAuthState();
+          return throwError(() => error);
+        })
+      );
+  }
 
-        this.logger.info('User logged out successfully');
-      }),
-      catchError(error => {
-        this.logger.error('Error during logout', error);
-        throw error;
-      }),
-      delay(2000)
+  refreshAccessToken(): Observable<IRefreshTokenResponseDto> {
+    const currentRefreshToken = this.getRefreshToken();
+
+    if (!currentRefreshToken) {
+      this.logger.warn('No refresh token available');
+      this.clearAuthState();
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    const paramData: IRefreshTokenRequestDto = {
+      refreshToken: currentRefreshToken,
+    };
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.AUTH.REFRESH_TOKEN,
+        paramData,
+        RefreshTokenRequestSchema,
+        RefreshTokenResponseSchema
+      )
+      .pipe(
+        tap((response: IRefreshTokenResponseDto) => {
+          this.logger.info('Token refreshed successfully');
+
+          this._accessToken.set(response.accessToken);
+          this._refreshToken.set(response.refreshToken);
+
+          const storage = localStorage.getItem('access_token')
+            ? localStorage
+            : sessionStorage;
+          storage.setItem('access_token', response.accessToken);
+          storage.setItem('refresh_token', response.refreshToken);
+        }),
+        catchError(error => {
+          this.logger.error('Failed to refresh token', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  forceLogout(): void {
+    this.logger.warn('Force logout: Session expired, redirecting to login');
+    this.clearAuthState();
+    this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
+    this.notificationService.error(
+      'Your session has expired. Please sign in again.'
     );
+    void this.routerNavigationService.navigateToRoute([
+      ROUTE_BASE_PATHS.AUTH,
+      ROUTES.AUTH.LOGIN,
+    ]);
+  }
+
+  isTokenRefreshing(): boolean {
+    return this.isRefreshing;
+  }
+
+  setRefreshing(value: boolean): void {
+    this.isRefreshing = value;
+  }
+
+  getRefreshTokenSubject(): BehaviorSubject<string | null> {
+    return this.refreshTokenSubject;
   }
 
   /**
@@ -176,16 +299,28 @@ export class AuthService {
    * Get current token
    */
   getAuthToken(): string | null {
-    return this._token();
+    return this._accessToken();
   }
 
   /**
-   * Get stored token
+   * Get stored access token from localStorage or sessionStorage
    */
   private getStoredToken(): string | null {
     return (
-      localStorage.getItem('auth_token') ?? sessionStorage.getItem('auth_token')
+      localStorage.getItem('access_token') ??
+      sessionStorage.getItem('access_token')
     );
+  }
+
+  private getStoredRefreshToken(): string | null {
+    return (
+      localStorage.getItem('refresh_token') ??
+      sessionStorage.getItem('refresh_token')
+    );
+  }
+
+  getRefreshToken(): string | null {
+    return this._refreshToken();
   }
 
   private getStoredUser(): ILoggedInUserDetails | null {
@@ -207,12 +342,23 @@ export class AuthService {
     // Clear signals
     this._isAuthenticated.set(false);
     this._user.set(null);
-    this._token.set(null);
+    this._accessToken.set(null);
+    this._refreshToken.set(null);
+    this._userAvatarUrl.set('');
 
-    // Clear storage
-    localStorage.removeItem('auth_token');
+    // Reset refresh state
+    this.isRefreshing = false;
+    this.refreshTokenSubject.next(null);
+
+    // Reset profile picture tracking
+    this.lastLoadedProfilePicture = null;
+
+    // Clear storage - both localStorage and sessionStorage
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     localStorage.removeItem('user_data');
-    sessionStorage.removeItem('auth_token');
+    sessionStorage.removeItem('access_token');
+    sessionStorage.removeItem('refresh_token');
     sessionStorage.removeItem('user_data');
   }
 
@@ -236,16 +382,9 @@ export class AuthService {
     return this.avatarService.getAvatarFromName(user?.fullName ?? '');
   }
 
-  private loadUserProfilePicture(): void {
-    const user = this._user();
-
-    if (!user?.profilePicture) {
-      this._userAvatarUrl.set('');
-      return;
-    }
-
+  private loadUserProfilePicture(profilePicture: string): void {
     this.attachmentsService
-      .getFullMediaUrl(user.profilePicture)
+      .getFullMediaUrl(profilePicture)
       .pipe(
         tap(response => {
           this._userAvatarUrl.set(response.url);

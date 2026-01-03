@@ -9,13 +9,16 @@ export const LoginRequestSchema = z
 
 export const LoginResponseSchema = z
   .object({
-    token: z.string().min(1),
+    accessToken: z.string().min(1),
+    refreshToken: z.string().min(1),
     name: z.string().min(1),
     firstName: z.string().min(1),
     lastName: z.string().min(1).max(100),
     email: z.email().toLowerCase(),
     designation: z.string().min(1),
     profilePicture: z.string().min(1).nullable(),
-    role: z.string().min(1),
+    roles: z.array(z.string()).min(1),
+    activeRole: z.string().min(1),
+    expiresIn: z.string().min(1),
   })
   .strict();
