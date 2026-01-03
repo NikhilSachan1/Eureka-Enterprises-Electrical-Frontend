@@ -17,6 +17,8 @@ import {
   ILogoutResponseDto,
   IRefreshTokenRequestDto,
   IRefreshTokenResponseDto,
+  ISwitchActiveRoleRequestDto,
+  ISwitchActiveRoleResponseDto,
 } from '../types/auth.dto';
 import {
   LoginRequestSchema,
@@ -25,6 +27,8 @@ import {
   LogoutResponseSchema,
   RefreshTokenRequestSchema,
   RefreshTokenResponseSchema,
+  SwitchActiveRoleRequestSchema,
+  SwitchActiveRoleResponseSchema,
 } from '../schemas';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 
@@ -173,10 +177,7 @@ export class AuthService {
       this._user.set(user);
       this._isAuthenticated.set(true);
 
-      const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem('access_token', accessToken);
-      storage.setItem('refresh_token', refreshToken);
-      storage.setItem('user_data', JSON.stringify(user));
+      this.updateDetailsInStorage(accessToken, refreshToken, user, rememberMe);
 
       this.logger.info('Login successful', user);
     } catch (error) {
@@ -216,6 +217,60 @@ export class AuthService {
       );
   }
 
+  switchActiveRole(
+    targetRole: string
+  ): Observable<ISwitchActiveRoleResponseDto> {
+    const formData: ISwitchActiveRoleRequestDto = {
+      targetRole,
+    };
+
+    this.logger.logUserAction('Switch Active Role Request', formData);
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.AUTH.SWITCH_ACTIVE_ROLE,
+        formData,
+        SwitchActiveRoleRequestSchema,
+        SwitchActiveRoleResponseSchema
+      )
+      .pipe(
+        tap((response: ISwitchActiveRoleResponseDto) => {
+          this.logger.logUserAction('Switch Active Role Response', response);
+          this._accessToken.set(response.accessToken);
+
+          const currentUser = this._user();
+          if (currentUser) {
+            const updatedUser = {
+              ...currentUser,
+              activeRole: response.activeRole,
+              roles: response.roles,
+            };
+            this._user.set(updatedUser);
+            this.updateDetailsInStorage(
+              response.accessToken,
+              undefined,
+              updatedUser
+            );
+          }
+
+          this.logger.info('Active role switched successfully', {
+            newRole: response.activeRole,
+          });
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Switch Active Role Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Switch Active Role Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   refreshAccessToken(): Observable<IRefreshTokenResponseDto> {
     const currentRefreshToken = this.getRefreshToken();
 
@@ -243,11 +298,10 @@ export class AuthService {
           this._accessToken.set(response.accessToken);
           this._refreshToken.set(response.refreshToken);
 
-          const storage = localStorage.getItem('access_token')
-            ? localStorage
-            : sessionStorage;
-          storage.setItem('access_token', response.accessToken);
-          storage.setItem('refresh_token', response.refreshToken);
+          this.updateDetailsInStorage(
+            response.accessToken,
+            response.refreshToken
+          );
         }),
         catchError(error => {
           this.logger.error('Failed to refresh token', error);
@@ -335,6 +389,36 @@ export class AuthService {
       return null;
     }
   }
+
+  private getActiveStorage(): Storage {
+    return localStorage.getItem('access_token') ? localStorage : sessionStorage;
+  }
+
+  private updateDetailsInStorage(
+    accessToken: string,
+    refreshToken?: string,
+    userData?: ILoggedInUserDetails,
+    useLocalStorage?: boolean
+  ): void {
+    // For login, use the specified storage; otherwise detect from existing token
+    const storage =
+      useLocalStorage !== undefined
+        ? useLocalStorage
+          ? localStorage
+          : sessionStorage
+        : this.getActiveStorage();
+
+    storage.setItem('access_token', accessToken);
+
+    if (refreshToken) {
+      storage.setItem('refresh_token', refreshToken);
+    }
+
+    if (userData) {
+      storage.setItem('user_data', JSON.stringify(userData));
+    }
+  }
+
   /**
    * Clear authentication state
    */

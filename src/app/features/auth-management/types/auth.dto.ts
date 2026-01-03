@@ -6,6 +6,8 @@ import {
   LogoutResponseSchema,
   RefreshTokenRequestSchema,
   RefreshTokenResponseSchema,
+  SwitchActiveRoleRequestSchema,
+  SwitchActiveRoleResponseSchema,
 } from '../schemas';
 
 // Login types
@@ -21,3 +23,11 @@ export type IRefreshTokenResponseDto = z.infer<
 // Logout types
 export type ILogoutRequestDto = z.infer<typeof LogoutRequestSchema>;
 export type ILogoutResponseDto = z.infer<typeof LogoutResponseSchema>;
+
+// Switch active role types
+export type ISwitchActiveRoleRequestDto = z.infer<
+  typeof SwitchActiveRoleRequestSchema
+>;
+export type ISwitchActiveRoleResponseDto = z.infer<
+  typeof SwitchActiveRoleResponseSchema
+>;
