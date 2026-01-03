@@ -19,6 +19,7 @@ import {
   INDIA_STATE_DATA,
   LOCATION_DATA,
   PASSING_YEAR_DATA,
+  PETRO_CARD_STATUS_DATA,
   VEHICLE_LIST_DATA,
 } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
@@ -65,7 +66,7 @@ export class AppConfigurationService {
   private readonly _assetWarrantyStatuses = signal<IOptionDropdown[]>([]);
   private readonly _assetCalibrationFrequencies = signal<IOptionDropdown[]>([]);
   private readonly _assetEventStatuses = signal<IOptionDropdown[]>([]);
-
+  private readonly _petroCardStatus = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
   private readonly _employeeListByRole = signal<
@@ -102,6 +103,7 @@ export class AppConfigurationService {
   readonly assetCalibrationFrequencies =
     this._assetCalibrationFrequencies.asReadonly();
   readonly assetEventStatuses = this._assetEventStatuses.asReadonly();
+  readonly petroCardStatus = this._petroCardStatus.asReadonly();
 
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
@@ -133,6 +135,9 @@ export class AppConfigurationService {
     },
     [MODULE_NAMES.VEHICLE]: {
       [CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST]: VEHICLE_LIST_DATA,
+    },
+    [MODULE_NAMES.PETRO_CARD]: {
+      [CONFIGURATION_KEYS.PETRO_CARD.STATUS]: PETRO_CARD_STATUS_DATA,
     },
   };
 
@@ -258,6 +263,12 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.ASSET.EVENT_STATUS_LIST,
         signal: this._assetEventStatuses,
+      },
+    ],
+    [MODULE_NAMES.PETRO_CARD]: [
+      {
+        key: CONFIGURATION_KEYS.PETRO_CARD.STATUS,
+        signal: this._petroCardStatus,
       },
     ],
   };

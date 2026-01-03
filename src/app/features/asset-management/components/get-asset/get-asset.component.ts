@@ -33,7 +33,6 @@ import {
 } from '@shared/services';
 import {
   EButtonActionType,
-  EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
@@ -288,14 +287,6 @@ export class GetAssetComponent implements OnInit {
       {
         label: 'Category',
         value: selectedRow.category,
-      },
-      {
-        label: 'Asset Status',
-        type: EDataType.STATUS,
-        value: getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.assetStatuses(),
-          selectedRow.status
-        ),
       },
     ];
     return {

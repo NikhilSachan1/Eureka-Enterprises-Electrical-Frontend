@@ -9,8 +9,7 @@ export const PetroCardDeleteRequestSchema = z
 
 export const PetroCardDeleteResultSchema = z
   .object({
-    cardId: uuidField,
-    message: z.string(),
+    id: uuidField,
   })
   .strict();
 

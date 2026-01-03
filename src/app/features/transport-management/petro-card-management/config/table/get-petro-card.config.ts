@@ -15,8 +15,22 @@ export const PETRO_CARD_TABLE_CONFIG: Partial<IDataTableConfig> = {
 export const PETRO_CARD_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
   [
     {
-      field: 'name',
-      header: 'Petro Card Number',
+      field: 'cardName',
+      header: 'Card Name',
+      showSort: false,
+    },
+    {
+      field: 'cardNumber',
+      header: 'Card Number',
+      showSort: false,
+    },
+    {
+      field: 'status',
+      header: 'Status',
+      bodyTemplate: EDataType.STATUS,
+      serverSideFilterAndSortConfig: {
+        filterField: 'status',
+      },
       showSort: false,
     },
     {
@@ -25,18 +39,8 @@ export const PETRO_CARD_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
       textWithSubtitleAndImageConfig: {
         secondaryField: 'vehicleName',
-        showImage: true,
         dummyImageField: 'vehicleName',
         primaryFieldHighlight: true,
-      },
-      showSort: false,
-    },
-    {
-      field: 'status',
-      header: 'Petro Card Status',
-      bodyTemplate: EDataType.STATUS,
-      serverSideFilterAndSortConfig: {
-        filterField: 'status',
       },
       showSort: false,
     },
@@ -53,7 +57,7 @@ export const PETRO_CARD_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       showSort: false,
     },
     {
-      field: 'Added On',
+      field: 'addedAt',
       header: 'Added On',
       bodyTemplate: EDataType.DATE,
       dataType: EDataType.DATE,

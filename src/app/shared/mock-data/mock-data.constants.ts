@@ -391,11 +391,15 @@ export const TEST_BLOOD_GROUPS = [
   'o_neg',
 ];
 
-export const TEST_CARD_TYPES = [
-  'PETRO_CARD',
-  'TOLL_CARD',
-  'FLEET_CARD',
-  'OTHER',
+export const TEST_CARD_NAMES = [
+  'BPCL Card',
+  'IOC Card',
+  'HPCL Card',
+  'Shell Card',
+  'Total Card',
+  'Reliance Card',
+  'Essar Card',
+  'Essar Card',
 ];
 
 export const TEST_PASSING_YEARS = ['2020', '2021', '2022', '2023', '2024'];

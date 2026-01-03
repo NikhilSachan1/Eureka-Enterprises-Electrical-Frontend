@@ -62,7 +62,7 @@ export const API_ROUTES = {
   PETRO_CARD: {
     LIST: 'cards',
     ADD: 'cards',
-    DELETE: 'cards',
+    DELETE: 'cards/bulk',
     EDIT: (petroCardId: string) => `cards/${petroCardId}`,
   },
   SETTINGS: {

@@ -3,12 +3,26 @@ import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { REGEX } from '@shared/constants';
 import {
   EDataType,
+  ETextCase,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
 
 const ADD_PETRO_CARD_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+  cardName: {
+    id: 'cardName',
+    fieldName: 'cardName',
+    label: 'Card Name',
+    fieldType: EDataType.TEXT,
+    textConfig: {
+      textCase: ETextCase.TITLECASE,
+    },
+    validators: [
+      Validators.required,
+      Validators.pattern(REGEX.ALPHABETS_WITH_SPACES),
+    ],
+  },
   cardNumber: {
     id: 'cardNumber',
     fieldName: 'cardNumber',

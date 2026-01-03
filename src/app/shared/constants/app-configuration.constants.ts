@@ -6,6 +6,7 @@ export const MODULE_NAMES = {
   SITE: 'site',
   VEHICLE: 'vehicle',
   ASSET: 'asset',
+  PETRO_CARD: 'petro_card',
 } as const;
 
 export const CONFIGURATION_KEYS = {
@@ -50,5 +51,8 @@ export const CONFIGURATION_KEYS = {
     CALIBRATION_STATUS_LIST: 'calibration_statuses',
     WARRANTY_STATUS_LIST: 'warranty_statuses',
     EVENT_STATUS_LIST: 'asset_event_types',
+  },
+  PETRO_CARD: {
+    STATUS: 'status',
   },
 } as const;
