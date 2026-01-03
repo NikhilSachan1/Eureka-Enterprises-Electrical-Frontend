@@ -1,51 +1,129 @@
-<app-auth-layout
-  title="Sign in"
-  subtitle="to Eureka Enterprises"
-  footerText="Don't have an account?"
-  [footerLinkButton]="form.buttonConfigs['contactAdmin']"
-  (footerLinkAction)="onContactAdmin()"
->
-  <form
-    (ngSubmit)="onSubmit()"
-    [formGroup]="form.formGroup"
-    class="form auth-form"
+<!-- Login Form View -->
+@if (!showRoleSelection()) {
+  <app-auth-layout
+    title="Sign in"
+    subtitle="to Eureka Enterprises"
+    footerText="Don't have an account?"
+    [footerLinkButton]="form.buttonConfigs['contactAdmin']"
+    (footerLinkAction)="onContactAdmin()"
   >
-    <!-- Email field -->
-    <app-input-field
+    <form
+      (ngSubmit)="onSubmit()"
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['email']"
-    />
+      class="form auth-form"
+    >
+      <!-- Email field -->
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['email']"
+      />
 
-    <!-- Password field -->
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['password']"
-    />
+      <!-- Password field -->
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs['password']"
+      />
 
-    <!-- Remember me and forgot password -->
-    <div class="flex items-center justify-between mb-6 gap-4">
-      <div class="flex-shrink-0">
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['rememberMe']"
-        />
+      <!-- Remember me and forgot password -->
+      <div class="flex items-center justify-between mb-6 gap-4">
+        <div class="flex-shrink-0">
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs['rememberMe']"
+          />
+        </div>
+
+        <div class="flex-shrink-0">
+          <app-button
+            [buttonConfig]="form.buttonConfigs['forgotPassword']"
+            (onButtonClick)="onForgotPassword()"
+          />
+        </div>
       </div>
 
-      <div class="flex-shrink-0">
-        <app-button
-          [buttonConfig]="form.buttonConfigs['forgotPassword']"
-          (onButtonClick)="onForgotPassword()"
-        />
+      <!-- Sign in button -->
+      <app-button
+        [buttonConfig]="form.buttonConfigs['signIn']"
+        [showButtonLoader]="isSubmitting()"
+      />
+    </form>
+  </app-auth-layout>
+}
+
+<!-- Role Selection View -->
+@if (showRoleSelection()) {
+  <app-auth-layout
+    title="Select Your Role"
+    subtitle=""
+    footerText="Want to use different credentials?"
+    [footerLinkButton]="backButtonConfig"
+    (footerLinkAction)="goBackToLogin()"
+  >
+    <div class="flex flex-col">
+      <!-- Welcome message -->
+      @if (userName()) {
+        <p class="text-sm text-slate-500 text-center mb-1 leading-relaxed">
+          Welcome back,
+          <span class="text-primary-500 font-semibold">{{ userName() }}</span>
+          !
+        </p>
+      }
+
+      <!-- Instructions -->
+      <p class="text-sm text-slate-500 text-center mb-5 leading-relaxed">
+        You have access to multiple roles. Select how you'd like to continue:
+      </p>
+
+      <!-- Roles list -->
+      <div class="flex flex-col gap-3 mb-6">
+        @for (role of availableRoles(); track role) {
+          <button
+            type="button"
+            class="role-card flex items-center gap-3.5 w-full p-3.5 bg-white border border-slate-200 rounded-xl cursor-pointer transition-all duration-150 ease-out"
+            [class.selected]="isRoleSelected(role)"
+            (click)="selectRole(role)"
+          >
+            <!-- Role Icon -->
+            <div
+              class="role-icon w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0 transition-all duration-150 ease-out"
+            >
+              <i
+                class="pi text-lg transition-colors duration-150"
+                [ngClass]="ALL_ICONS.COMMON.ID_CARD"
+              ></i>
+            </div>
+
+            <!-- Role Name -->
+            <div class="flex-1 min-w-0 text-left">
+              <span class="role-name block text-[15px] font-medium text-slate-800">
+                {{ formatRoleName(role) }}
+              </span>
+            </div>
+
+            <!-- Selection Indicator -->
+            <div class="flex-shrink-0 w-[22px] h-[22px] flex items-center justify-center">
+              @if (isRoleSelected(role)) {
+                <div class="w-[22px] h-[22px] bg-primary-500 rounded-full flex items-center justify-center">
+                  <i class="pi pi-check text-xs text-white font-bold"></i>
+                </div>
+              } @else {
+                <div class="unselected-circle w-5 h-5 border-2 border-slate-200 rounded-full transition-colors"></div>
+              }
+            </div>
+          </button>
+        }
       </div>
+
+      <!-- Continue button -->
+      <app-button
+        [buttonConfig]="continueButtonConfig"
+        [showButtonLoader]="isSubmitting()"
+        [showDisabledButton]="!selectedRole() || isSubmitting()"
+        (onButtonClick)="continueWithRole()"
+      />
     </div>
-
-    <!-- Sign in button -->
-    <app-button
-      [buttonConfig]="form.buttonConfigs['signIn']"
-      [showButtonLoader]="isSubmitting()"
-    />
-  </form>
-</app-auth-layout>
+  </app-auth-layout>
+}
 
 <!-- Toast notifications -->
 <p-toast />

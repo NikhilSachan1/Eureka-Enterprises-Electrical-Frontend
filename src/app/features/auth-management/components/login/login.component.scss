@@ -1,0 +1,41 @@
+// Primary color variable for consistency
+$primary: #00a389;
+$primary-dark: #008975;
+
+// Role Card Styles
+.role-card {
+  transition: all 0.15s ease-out;
+
+  // Hover state (unselected)
+  &:hover:not(.selected) {
+    border-color: $primary;
+    background: rgba($primary, 0.02);
+
+    .unselected-circle {
+      border-color: $primary;
+    }
+  }
+
+  // Selected state
+  &.selected {
+    border-color: $primary;
+    border-width: 2px;
+    background: rgba($primary, 0.05);
+
+    .role-name {
+      color: $primary-dark;
+      font-weight: 600;
+    }
+  }
+}
+
+// Role Icon styles
+.role-icon {
+  background: $primary;
+  transition: all 0.15s ease-out;
+
+  i {
+    color: white;
+    transition: color 0.15s;
+  }
+}

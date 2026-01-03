@@ -5,10 +5,11 @@ import {
   Signal,
   WritableSignal,
 } from '@angular/core';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, forkJoin, Observable, tap, throwError } from 'rxjs';
 
 import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
+import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import {
   APPROVAL_STATUS_DATA,
   ATTENDANCE_STATUS_DATA,
@@ -37,6 +38,7 @@ export class AppConfigurationService {
   private readonly apiService = inject(ApiService);
   private readonly employeeService = inject(EmployeeService);
   private readonly roleService = inject(RoleService);
+  private readonly userPermissionService = inject(UserPermissionService);
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
 
@@ -428,6 +430,31 @@ export class AppConfigurationService {
         return acc;
       },
       {} as Record<string, Record<string, unknown>>
+    );
+  }
+
+  loadAllAppData(): Observable<{
+    permissions: unknown;
+    appConfiguration: IAppConfiguationResponseDto;
+    employeeList: IEmployeeGetResponseDto;
+    roles: IRoleGetResponseDto;
+  }> {
+    this.logger.info('Loading all app data...');
+
+    return forkJoin({
+      permissions:
+        this.userPermissionService.fetchAndStoreLoggedInUserPermissions(),
+      appConfiguration: this.loadAppConfiguration(),
+      employeeList: this.loadEmployeeList(),
+      roles: this.loadAllAppRoles(),
+    }).pipe(
+      tap(() => {
+        this.logger.info('All app data loaded successfully');
+      }),
+      catchError(error => {
+        this.logger.error('Failed to load app data', error);
+        return throwError(() => error);
+      })
     );
   }
 }

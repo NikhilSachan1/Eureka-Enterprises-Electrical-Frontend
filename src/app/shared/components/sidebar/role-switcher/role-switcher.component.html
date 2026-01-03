@@ -1,43 +1,70 @@
-<!-- Compact Role Switcher -->
-<button
-  type="button"
-  class="role-btn"
-  (click)="togglePopover($event)"
->
-  <div class="role-icon">
-    <i class="pi pi-id-card"></i>
-  </div>
-  <div class="role-info">
-    <span class="role-label">Current Role</span>
-    <span class="role-name">{{ activeRole().name }}</span>
-  </div>
-  <i class="pi pi-sync switch-icon"></i>
-</button>
-
-<!-- Role Selection Popover -->
-<p-popover
-  #rolePopover
-  [dismissable]="true"
-  [appendTo]="'body'"
->
-  <div class="role-menu">
-    <div class="role-menu-header">
-      <i class="pi pi-users"></i>
-      <span>Switch Role</span>
+<!-- Only show if user has multiple roles -->
+@if (hasMultipleRoles()) {
+  <!-- Compact Role Switcher Button -->
+  <button
+    type="button"
+    class="role-btn"
+    [disabled]="isSubmitting()"
+    (click)="togglePopover($event)"
+  >
+    <div class="role-icon">
+      <i [class]="ALL_ICONS.COMMON.ID_CARD"></i>
     </div>
-    @for (role of roles(); track role.id) {
-      @let isActive = role.id === activeRole().id;
-      <button
-        type="button"
-        class="role-option"
-        [class.active]="isActive"
-        (click)="selectRole(role)"
-      >
-        <span class="name">{{ role.name }}</span>
-        @if (isActive) {
-          <i class="pi pi-check check"></i>
+    <div class="role-info">
+      <span class="role-label">Current Role</span>
+      <span class="role-name">{{ activeRole().name }}</span>
+    </div>
+    <i
+      class="pi pi-sync switch-icon"
+      [class.spinning]="isSubmitting()"
+    ></i>
+  </button>
+
+  <!-- Role Selection Popover -->
+  <p-popover
+    #rolePopover
+    [dismissable]="true"
+    [appendTo]="'body'"
+  >
+    <div class="role-menu">
+      <!-- Header -->
+      <div class="role-menu-header">
+        <i class="pi pi-users"></i>
+        <span>Switch Role</span>
+      </div>
+
+      <!-- Role Cards -->
+      <div class="role-list">
+        @for (role of roles(); track role.id) {
+          @let isActive = role.id === activeRole().id;
+          <button
+            type="button"
+            class="role-card"
+            [class.selected]="isActive"
+            [disabled]="isSubmitting()"
+            (click)="selectRole(role)"
+          >
+            <!-- Role Icon -->
+            <div class="role-card-icon">
+              <i [class]="ALL_ICONS.COMMON.ID_CARD"></i>
+            </div>
+
+            <!-- Role Name -->
+            <span class="role-card-name">{{ role.name }}</span>
+
+            <!-- Selection Indicator -->
+            <div class="selection-indicator">
+              @if (isActive) {
+                <div class="selected-circle">
+                  <i class="pi pi-check"></i>
+                </div>
+              } @else {
+                <div class="unselected-circle"></div>
+              }
+            </div>
+          </button>
         }
-      </button>
-    }
-  </div>
-</p-popover>
+      </div>
+    </div>
+  </p-popover>
+}

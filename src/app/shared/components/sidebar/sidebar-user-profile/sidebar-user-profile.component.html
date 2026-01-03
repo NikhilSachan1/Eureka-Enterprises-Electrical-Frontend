@@ -1,15 +1,9 @@
 <!-- User Profile Section - Bottom of Sidebar -->
 <div class="user-section">
-  <!-- Role Switcher (if multiple roles) -->
-  @if (hasMultipleRoles()) {
-    <app-role-switcher
-      [roles]="userRoles()"
-      [activeRole]="activeRole()"
-      (roleChange)="onRoleChange($event)"
-    />
-  }
+  <!-- Role Switcher (self-contained, shows only if multiple roles) -->
+  <app-role-switcher />
 
-  <!-- Divider -->
+  <!-- Divider (only if role switcher is visible) -->
   <div class="divider"></div>
 
   <!-- User Card -->
