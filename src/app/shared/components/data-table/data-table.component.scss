@@ -37,6 +37,11 @@
 
 :host ::ng-deep {
   .p-datatable {
+    .p-datatable-table {
+      width: max-content;
+      min-width: 100%;
+    }
+
     .p-datatable-tbody > tr > td,
     .p-datatable-thead > tr > th {
       white-space: nowrap;
