@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EDataType, IMetric } from '@shared/types';
-import { ColorUtil, IconUtil } from '@shared/utility';
+import { StatusUtil } from '@shared/utility';
 
 @Component({
   selector: 'app-metrics-card',
@@ -21,9 +21,8 @@ export class MetricsCardComponent {
     dark: string;
     textClass: string;
   } {
-    // Use ColorUtil directly for everything
-    const colorClass = ColorUtil.getColorClass(label);
-    const hexColors = ColorUtil.getHexColors(label);
+    const colorClass = StatusUtil.getColorClass(label);
+    const hexColors = StatusUtil.getHexColors(label);
 
     return {
       ...hexColors,
@@ -38,6 +37,6 @@ export class MetricsCardComponent {
     }
 
     // Priority 2: Dynamic icon based on label
-    return IconUtil.getIcon(metric.label);
+    return StatusUtil.getIcon(metric.label);
   }
 }

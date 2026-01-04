@@ -8,7 +8,6 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IconUtil } from '@shared/utility';
 
 const EMPLOYEE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No employee record found.',
@@ -73,7 +72,6 @@ const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
   {
     id: EButtonActionType.SEND_PASSWORD_LINK,
-    icon: IconUtil.getIcon(EButtonActionType.SEND_PASSWORD_LINK) ?? undefined,
     tooltip: 'Send Password Link',
   },
   {
@@ -82,8 +80,6 @@ const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
   {
     id: EButtonActionType.CHANGE_EMPLOYEE_STATUS,
-    icon:
-      IconUtil.getIcon(EButtonActionType.CHANGE_EMPLOYEE_STATUS) ?? undefined,
     tooltip: 'Change Employee Status',
   },
   {
@@ -101,7 +97,6 @@ const EMPLOYEE_TABLE_BULK_ACTIONS_CONFIG: Partial<
   },
   {
     id: EButtonActionType.SEND_PASSWORD_LINK,
-    icon: IconUtil.getIcon(EButtonActionType.SEND_PASSWORD_LINK) ?? undefined,
     tooltip: 'Send Password Link to Selected',
     label: 'Send Password Link',
   },

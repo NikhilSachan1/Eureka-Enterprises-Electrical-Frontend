@@ -1,7 +1,7 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { ESeverity, EPrimeNGSeverity, ITagConfig } from '@shared/types';
-import { ColorUtil } from '@shared/utility';
+import { StatusUtil } from '@shared/utility';
 
 @Component({
   selector: 'app-status-tag',
@@ -26,6 +26,6 @@ export class StatusTagComponent {
       return this.config()?.severity;
     }
 
-    return ColorUtil.getSeverity(status ?? '') as EPrimeNGSeverity;
+    return StatusUtil.getSeverity(status ?? '') as EPrimeNGSeverity;
   }
 }

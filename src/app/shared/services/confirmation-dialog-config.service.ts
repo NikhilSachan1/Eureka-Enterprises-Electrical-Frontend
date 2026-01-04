@@ -6,7 +6,7 @@ import {
   IDialogActionConfig,
   IDialogConfig,
 } from '@shared/types';
-import { ColorUtil, deepMerge, IconUtil } from '@shared/utility';
+import { StatusUtil, deepMerge } from '@shared/utility';
 import { CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
 
 @Injectable({
@@ -74,10 +74,10 @@ export class ConfirmationDialogService {
     const message =
       configMessage ?? `Are you sure you want to ${actionWord} ${recordType}?`;
 
-    const colorClass = ColorUtil.getColorClass(actionType);
+    const colorClass = StatusUtil.getColorClass(actionType);
 
     // Merge icon and colors into dialogConfig
-    const icon = IconUtil.getIcon(actionType) ?? undefined;
+    const icon = StatusUtil.getIcon(actionType) ?? undefined;
     const iconContainerClass = `${colorClass.bg} ${colorClass.border} ${colorClass.text}`;
 
     // Merge header/message into dialogConfig

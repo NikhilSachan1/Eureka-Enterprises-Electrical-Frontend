@@ -18,7 +18,7 @@ import {
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 import { AvatarService, GalleryService } from '@shared/services';
-import { ColorUtil } from '@shared/utility';
+import { StatusUtil } from '@shared/utility';
 import { ICONS } from '@shared/constants';
 import { CardModule } from 'primeng/card';
 import { Divider } from 'primeng/divider';
@@ -59,7 +59,7 @@ export class ViewDetailComponent {
   protected readonly ALL_ENTRY_TYPES = EEntryType;
 
   protected getApprovalStatusColor(status: string): EPrimeNGSeverity {
-    return ColorUtil.getSeverity(status) as EPrimeNGSeverity;
+    return StatusUtil.getSeverity(status) as EPrimeNGSeverity;
   }
 
   protected getColor(status: string): {
@@ -67,7 +67,7 @@ export class ViewDetailComponent {
     border: string;
     text: string;
   } {
-    return ColorUtil.getColorClass(status);
+    return StatusUtil.getColorClass(status);
   }
 
   protected getAvatarUrl(name: string): string {

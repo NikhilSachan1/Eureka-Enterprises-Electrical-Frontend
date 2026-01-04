@@ -61,6 +61,7 @@ export class ConfirmationDialogComponent {
         icon: dialog.dialogConfig.acceptButtonProps?.icon,
         visible: dialog.dialogConfig.acceptButtonProps?.visible,
         id: dialog.dialogConfig.acceptButtonProps?.id,
+        severity: dialog.dialogConfig.acceptButtonProps?.severity,
       };
     }
   );
@@ -73,6 +74,7 @@ export class ConfirmationDialogComponent {
         icon: dialog.dialogConfig.rejectButtonProps?.icon,
         visible: dialog.dialogConfig.rejectButtonProps?.visible,
         id: dialog.dialogConfig.rejectButtonProps?.id,
+        severity: dialog.dialogConfig.rejectButtonProps?.severity,
       };
     }
   );

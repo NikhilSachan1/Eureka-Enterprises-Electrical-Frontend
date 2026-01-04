@@ -7,7 +7,6 @@ import {
   ITextWithSubtitleAndImageConfig,
   IMatchModeOption,
   ITableActionConfig,
-  EButtonSeverity,
   EButtonVariant,
   ETableFilterDisplayType,
   ETableFilterMatchMode,
@@ -110,15 +109,9 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   clientSideFilterConfig: DEFAULT_TABLE_FILTER_CONFIG,
 };
 
-// default bulk action config
-
-export const DEFAULT_BULK_ACTION_CONFIG: Partial<ITableActionConfig> = {
-  severity: EButtonSeverity.DANGER,
-};
-
-// default row action config
+// default bulk action config (severity handled by ButtonComponent priority chain)
+export const DEFAULT_BULK_ACTION_CONFIG: Partial<ITableActionConfig> = {};
 export const DEFAULT_ROW_ACTION_CONFIG: Partial<ITableActionConfig> = {
-  severity: EButtonSeverity.DANGER,
   variant: EButtonVariant.OUTLINED,
   rounded: true,
 };

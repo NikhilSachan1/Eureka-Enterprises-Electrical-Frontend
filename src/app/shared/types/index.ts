@@ -26,6 +26,11 @@ export type {
   EPrimeNGSeverity,
   EPrimeNGNotificationSeverity,
 } from './common/severity.types';
+export type {
+  StatusSeverity,
+  IStatusStyle,
+  IStatusEntry,
+} from './common/status.types';
 export {
   EButtonType,
   EButtonIconPosition,

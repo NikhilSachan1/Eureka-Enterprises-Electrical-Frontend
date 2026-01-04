@@ -44,8 +44,7 @@ export {
 } from './common-table-actions.config';
 export { COMMON_FORM_ACTIONS } from './common-form-actions.config';
 export { DEFAULT_READ_MORE_CONFIG } from './read-more.config';
-export { STATUS_COLOR_GROUPS } from './status-color.config';
-export { STATUS_ICON_GROUPS } from './status-icon.config';
+export { STATUS_MAP, SEVERITY_STYLES } from './status-map.config';
 export {
   DEFAULT_STEPPER_CONFIG,
   DEFAULT_STEPPER_NEXT_BUTTON_CONFIG,

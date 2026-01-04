@@ -28,6 +28,5 @@ export {
 } from './date-time.util';
 export { getMediaTypeFromUrl, getFileExtension } from './media.util';
 export { filterOptionsByIncludeExclude } from './component.util';
-export { ColorUtil } from './color.util';
-export { IconUtil } from './icon.util';
+export { StatusUtil } from './status.util';
 export { makeFieldsNullable } from './zod.util';

@@ -3,6 +3,7 @@ import {
   IDialogConfig,
   EDialogPosition,
   EButtonActionType,
+  EButtonSeverity,
 } from '@shared/types';
 
 export const CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
@@ -16,10 +17,12 @@ export const CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
     label: 'Yes',
     id: EButtonActionType.SUBMIT,
     icon: ICONS.ACTIONS.CHECK,
+    severity: EButtonSeverity.PRIMARY,
   },
   rejectButtonProps: {
     label: 'No',
     icon: ICONS.ACTIONS.TIMES,
+    severity: EButtonSeverity.SECONDARY,
   },
 };
 

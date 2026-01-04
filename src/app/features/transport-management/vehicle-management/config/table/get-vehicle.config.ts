@@ -7,7 +7,6 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IconUtil } from '@shared/utility';
 import { IVehicleGetResponseDto } from '../../types/vehicle.dto';
 
 export const VEHICLE_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -121,37 +120,30 @@ export const VEHICLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
   {
     id: EButtonActionType.EVENT_HISTORY,
-    icon: IconUtil.getIcon(EButtonActionType.EVENT_HISTORY) ?? undefined,
     tooltip: 'View Event History',
   },
   {
     id: EButtonActionType.SERVICE_INFO,
-    icon: IconUtil.getIcon(EButtonActionType.SERVICE_INFO) ?? undefined,
     tooltip: 'View Service History',
   },
   {
     id: EButtonActionType.HANDOVER_INITIATE,
-    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_INITIATE) ?? undefined,
     tooltip: 'Allocate Vehicle',
   },
   {
     id: EButtonActionType.HANDOVER_ACCEPTED,
-    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_ACCEPTED) ?? undefined,
     tooltip: 'Accept Allocation',
   },
   {
     id: EButtonActionType.HANDOVER_REJECTED,
-    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_REJECTED) ?? undefined,
     tooltip: 'Reject Allocation',
   },
   {
     id: EButtonActionType.HANDOVER_CANCELLED,
-    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_CANCELLED) ?? undefined,
     tooltip: 'Cancel Allocation',
   },
   {
     id: EButtonActionType.DEALLOCATE,
-    icon: IconUtil.getIcon(EButtonActionType.DEALLOCATE) ?? undefined,
     tooltip: 'Deallocate Vehicle',
   },
   {

@@ -8,7 +8,6 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IconUtil } from '@shared/utility';
 
 export const ASSET_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No asset record found.',
@@ -98,36 +97,30 @@ export const ASSET_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
   {
     id: EButtonActionType.EVENT_HISTORY,
-    icon: IconUtil.getIcon(EButtonActionType.EVENT_HISTORY) ?? undefined,
     tooltip: 'View Event History',
   },
   {
     id: EButtonActionType.HANDOVER_INITIATE,
-    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_INITIATE) ?? undefined,
     tooltip: 'Allocate Asset',
     // disableWhen: row => row.status === 'AVAILABLE',
   },
   {
     id: EButtonActionType.HANDOVER_ACCEPTED,
-    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_ACCEPTED) ?? undefined,
     tooltip: 'Accept Allocation',
     // hideWhen: row => row.status !== 'pending_handover',
   },
   {
     id: EButtonActionType.HANDOVER_REJECTED,
-    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_REJECTED) ?? undefined,
     tooltip: 'Reject Allocation',
     // hideWhen: row => row.status !== 'pending_handover',
   },
   {
     id: EButtonActionType.HANDOVER_CANCELLED,
-    icon: IconUtil.getIcon(EButtonActionType.HANDOVER_CANCELLED) ?? undefined,
     tooltip: 'Cancel Allocation',
     // hideWhen: row => row.status !== 'pending_handover',
   },
   {
     id: EButtonActionType.DEALLOCATE,
-    icon: IconUtil.getIcon(EButtonActionType.DEALLOCATE) ?? undefined,
     tooltip: 'Deallocate Asset',
     // hideWhen: row => !row.assignedTo,
   },

@@ -13,7 +13,7 @@ import {
   EButtonType,
 } from '@shared/types';
 import { DEFAULT_BUTTON_CONFIG } from '@shared/config';
-import { ColorUtil } from '@shared/utility';
+import { StatusUtil } from '@shared/utility';
 
 @Component({
   selector: 'app-button',
@@ -32,17 +32,27 @@ export class ButtonComponent {
 
   onButtonClick = output<string>();
 
-  finalButtonConfig = computed(() => {
+  finalButtonConfig = computed((): Partial<IButtonConfig> => {
     const config = this.buttonConfig();
 
     if (!config || Object.keys(config).length === 0) {
-      return {};
+      return {} as Partial<IButtonConfig>;
     }
 
-    config.severity = ColorUtil.getSeverity(config.id ?? '') as EButtonSeverity;
+    const actionId = config.id ?? '';
+    let { severity } = config;
+    if (!severity && actionId && StatusUtil.exists(actionId)) {
+      severity = StatusUtil.getSeverity(actionId) as EButtonSeverity;
+    }
+    const icon =
+      config.icon ??
+      (StatusUtil.exists(actionId) ? StatusUtil.getIcon(actionId) : undefined);
+
     return {
       ...DEFAULT_BUTTON_CONFIG,
       ...config,
+      ...(severity && { severity }),
+      ...(icon && { icon }),
     };
   });
 
