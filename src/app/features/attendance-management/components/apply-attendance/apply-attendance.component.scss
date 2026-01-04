@@ -1,14 +1,5 @@
 @import "tailwindcss" reference;
 
-:host {
-  .form {
-    background-color: unset;
-    box-shadow: unset;
-    padding: 0;
-    gap: 0;
-  }
-}
-
 .attendance-card {
   @apply max-w-md mx-auto space-y-6;
 }
