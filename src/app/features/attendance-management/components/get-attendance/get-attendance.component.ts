@@ -22,13 +22,8 @@ import {
   EButtonActionType,
   EDataType,
 } from '@shared/types';
-import {
-  ICONS,
-  PERMISSION_KEYS,
-  ROUTE_BASE_PATHS,
-  ROUTES,
-} from '@shared/constants';
-import { AppPermissionService, LoggerService } from '@core/services';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
   DrawerService,
@@ -86,7 +81,6 @@ export class GetAttendanceComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
-  private readonly appPermissionService = inject(AppPermissionService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -259,32 +253,20 @@ export class GetAttendanceComponent implements OnInit {
         label: 'Site Location',
         value: siteLocation,
       },
-    ];
-
-    if (
-      this.appPermissionService.hasUIPermission(
-        PERMISSION_KEYS.ATTENDANCE.CLIENT_NAME
-      )
-    ) {
-      entryData.push({
+      {
         label: 'Client Name',
         value: clientName,
-      });
-    }
-    if (
-      this.appPermissionService.hasUIPermission(
-        PERMISSION_KEYS.ATTENDANCE.ASSOCIATE_ENGINEER_NAME
-      )
-    ) {
-      entryData.push({
+      },
+      {
         label: 'Associate Engineer',
         value: 'John Doe', // TODO: Add associate employee name once we have the associate employee name functionality
-      });
-    }
-    entryData.push({
-      label: 'Associated Vehicle',
-      value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
-    });
+      },
+      {
+        label: 'Associated Vehicle',
+        value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
+      },
+    ];
+
     return {
       details: [
         {

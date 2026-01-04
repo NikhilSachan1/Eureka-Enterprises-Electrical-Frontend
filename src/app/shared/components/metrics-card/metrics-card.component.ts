@@ -1,7 +1,14 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EDataType, IMetric } from '@shared/types';
 import { StatusUtil } from '@shared/utility';
+import { AppPermissionService } from '@core/services';
 
 @Component({
   selector: 'app-metrics-card',
@@ -12,8 +19,18 @@ import { StatusUtil } from '@shared/utility';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MetricsCardComponent {
+  private readonly permissionService = inject(AppPermissionService);
+
   metricCardConfig = input<IMetric[]>();
   protected readonly ALL_DATA_TYPES = EDataType;
+
+  protected visibleMetrics = computed(() => {
+    const metrics = this.metricCardConfig();
+    if (!metrics) {
+      return [];
+    }
+    return this.permissionService.filterByPermission(metrics);
+  });
 
   getColorScheme(label: string): {
     primary: string;

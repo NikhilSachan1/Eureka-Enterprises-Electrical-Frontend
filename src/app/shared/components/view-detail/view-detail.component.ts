@@ -6,13 +6,13 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { AppConfigService } from '@core/services';
+import { AppConfigService, AppPermissionService } from '@core/services';
 import {
   EDataType,
   EPrimeNGSeverity,
   IGalleryInputData,
   IDataViewDetailsWithEntity,
-  IDataViewDetails,
+  IDetailEntryData,
   EEntryType,
 } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
@@ -45,6 +45,7 @@ import { ReadMoreComponent } from '../read-more/read-more.component';
 export class ViewDetailComponent {
   private readonly avatarService = inject(AvatarService);
   private readonly galleryService = inject(GalleryService);
+  private readonly permissionService = inject(AppPermissionService);
   protected readonly appConfigService = inject(AppConfigService);
 
   protected readonly _avtarImageUrl = computed(() => {
@@ -88,8 +89,15 @@ export class ViewDetailComponent {
   }
 
   protected getAttachmentEntry(
-    entryData: IDataViewDetails['entryData']
-  ): IDataViewDetails['entryData'][number] | undefined {
-    return entryData.find(e => e.type === EDataType.ATTACHMENTS);
+    entryData: IDetailEntryData[]
+  ): IDetailEntryData | undefined {
+    const visibleEntries = this.getVisibleEntries(entryData);
+    return visibleEntries.find(e => e.type === EDataType.ATTACHMENTS);
+  }
+
+  protected getVisibleEntries(
+    entryData: IDetailEntryData[]
+  ): IDetailEntryData[] {
+    return this.permissionService.filterByPermission(entryData);
   }
 }

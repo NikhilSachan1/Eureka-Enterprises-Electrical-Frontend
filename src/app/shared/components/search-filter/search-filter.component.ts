@@ -19,6 +19,7 @@ import { KeyValuePipe } from '@angular/common';
 import { ButtonComponent } from '../button/button.component';
 import { Table } from 'primeng/table';
 import { PanelModule } from 'primeng/panel';
+import { AppPermissionService } from '@core/services';
 
 @Component({
   selector: 'app-search-filter',
@@ -36,6 +37,7 @@ import { PanelModule } from 'primeng/panel';
 export class SearchFilterComponent implements OnInit {
   private readonly formService = inject(FormService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly permissionService = inject(AppPermissionService);
 
   searchFilterConfig = input.required<ITableSearchFilterFormConfig>();
   tableRef = input.required<Table>();
@@ -46,12 +48,25 @@ export class SearchFilterComponent implements OnInit {
   protected hasSearched = false;
 
   ngOnInit(): void {
+    const filteredConfig = this.getPermissionFilteredConfig();
+
     this.form = this.formService.createForm(
-      this.searchFilterConfig() as unknown as IFormConfig,
+      filteredConfig as unknown as IFormConfig,
       {
         destroyRef: this.destroyRef,
       }
     );
+  }
+
+  private getPermissionFilteredConfig(): ITableSearchFilterFormConfig {
+    const originalConfig = this.searchFilterConfig();
+
+    return {
+      ...originalConfig,
+      fields: this.permissionService.filterRecordByPermission(
+        originalConfig.fields
+      ),
+    };
   }
 
   protected onSubmit(): void {

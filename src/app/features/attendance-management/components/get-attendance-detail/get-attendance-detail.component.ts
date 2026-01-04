@@ -22,8 +22,7 @@ import {
   IDataViewDetailsWithEntity,
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
-import { AppConfigService, AppPermissionService } from '@core/services';
-import { PERMISSION_KEYS } from '@shared/constants';
+import { AppConfigService } from '@core/services';
 import { stringToArray } from '@shared/utility';
 
 @Component({
@@ -40,7 +39,6 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   private readonly attendanceService = inject(AttendanceService);
   private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigService);
-  private readonly appPermissionService = inject(AppPermissionService);
 
   protected readonly _attendanceDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -127,33 +125,19 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           label: 'Site Location',
           value: siteLocation,
         },
-      ];
-
-      if (
-        this.appPermissionService.hasUIPermission(
-          PERMISSION_KEYS.ATTENDANCE.CLIENT_NAME
-        )
-      ) {
-        entryData.push({
+        {
           label: 'Client Name',
           value: clientName,
-        });
-      }
-
-      if (
-        this.appPermissionService.hasUIPermission(
-          PERMISSION_KEYS.ATTENDANCE.ASSOCIATE_ENGINEER_NAME
-        )
-      ) {
-        entryData.push({
+        },
+        {
           label: 'Associate Engineer',
           value: 'John Doe', // TODO: Replace hard-coded name with associate employee name once associate employee mapping is available from backend.
-        });
-      }
-      entryData.push({
-        label: 'Associated Vehicle',
-        value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
-      });
+        },
+        {
+          label: 'Associated Vehicle',
+          value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
+        },
+      ];
 
       return {
         status: {

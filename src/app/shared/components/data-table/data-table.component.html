@@ -45,7 +45,7 @@
     [showCurrentPageReport]="true"
     [paginator]="tableConfig().showPaginator"
     [currentPageReportTemplate]="tableConfig().paginationTemplate"
-    [columns]="tableHeader()"
+    [columns]="visibleTableHeaders()"
     [(selection)]="selectedTableRows"
     (onFilter)="onFilterChange($event)"
     [globalFilterFields]="tableConfig().globalFilterFields"
@@ -397,7 +397,7 @@
     <ng-template #emptymessage>
       <tr>
         <td
-          [colSpan]="tableHeader().length + 2"
+          [colSpan]="visibleTableHeaders().length + 2"
           class="text-center text-slate-700 py-12"
         >
           <app-empty-messages

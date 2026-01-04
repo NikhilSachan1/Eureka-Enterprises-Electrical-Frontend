@@ -6,4 +6,5 @@ export interface IMetric {
   icon?: string;
   type?: EDataType;
   format?: string;
+  permission?: string[];
 }

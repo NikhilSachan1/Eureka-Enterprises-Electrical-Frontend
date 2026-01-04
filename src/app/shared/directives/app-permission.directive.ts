@@ -15,19 +15,22 @@ export class AppPermissionDirective {
   private readonly viewContainer = inject(ViewContainerRef);
   private readonly permissionService = inject(AppPermissionService);
 
-  private permissionName = '';
+  private hasView = false;
 
   @Input()
-  set appHasPermission(permission: string) {
-    this.permissionName = permission.trim();
-    this.updateView();
+  set appHasPermission(permission: string[]) {
+    this.updateView(permission);
   }
 
-  private updateView(): void {
-    if (this.permissionService.hasPermission(this.permissionName)) {
+  private updateView(permission: string[]): void {
+    const hasPermission = this.permissionService.hasAnyPermission(permission);
+
+    if (hasPermission && !this.hasView) {
       this.viewContainer.createEmbeddedView(this.templateRef);
-    } else {
+      this.hasView = true;
+    } else if (!hasPermission && this.hasView) {
       this.viewContainer.clear();
+      this.hasView = false;
     }
   }
 }

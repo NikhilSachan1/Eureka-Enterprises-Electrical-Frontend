@@ -28,4 +28,58 @@ export const APP_PERMISSION = {
     DELETE: 'delete_role_permission',
     SET: 'set_permission_role',
   },
+  /**
+   * Vehicle Management Permissions
+   * Used for controlling visibility of columns, metrics, and search filters
+   */
+  VEHICLE: {
+    MODULE: 'module_vehicle',
+    VIEW: 'view_vehicle',
+    ADD: 'add_vehicle',
+    EDIT: 'edit_vehicle',
+    DELETE: 'delete_vehicle',
+    // Column visibility permissions
+    VIEW_PETRO_CARD: 'view_vehicle_petro_card',
+    VIEW_ASSIGNEE: 'view_vehicle_assignee',
+    VIEW_INSURANCE_STATUS: 'view_vehicle_insurance_status',
+    VIEW_PUC_STATUS: 'view_vehicle_puc_status',
+    VIEW_FITNESS_STATUS: 'view_vehicle_fitness_status',
+    VIEW_SERVICE_STATUS: 'view_vehicle_service_status',
+    VIEW_ATTACHMENTS: 'view_vehicle_attachments',
+    // Metric visibility permissions
+    VIEW_TOTAL_METRIC: 'view_vehicle_total_metric',
+    VIEW_ACTIVE_METRIC: 'view_vehicle_active_metric',
+    VIEW_INACTIVE_METRIC: 'view_vehicle_inactive_metric',
+    // Action permissions
+    ALLOCATE: 'allocate_vehicle',
+    DEALLOCATE: 'deallocate_vehicle',
+    VIEW_HISTORY: 'view_vehicle_history',
+    VIEW_SERVICE_HISTORY: 'view_vehicle_service_history',
+  },
+  /**
+   * Employee Management Permissions
+   */
+  EMPLOYEE: {
+    MODULE: 'module_employee',
+    VIEW: 'view_employee',
+    ADD: 'add_employee',
+    EDIT: 'edit_employee',
+    DELETE: 'delete_employee',
+    VIEW_SALARY: 'view_employee_salary',
+    VIEW_BANK_DETAILS: 'view_employee_bank_details',
+    VIEW_DOCUMENTS: 'view_employee_documents',
+  },
+  /**
+   * Expense Management Permissions
+   */
+  EXPENSE: {
+    MODULE: 'module_expense',
+    VIEW: 'view_expense',
+    ADD: 'add_expense',
+    EDIT: 'edit_expense',
+    DELETE: 'delete_expense',
+    APPROVE: 'approve_expense',
+    REJECT: 'reject_expense',
+    VIEW_AMOUNT: 'view_expense_amount',
+  },
 } as const;

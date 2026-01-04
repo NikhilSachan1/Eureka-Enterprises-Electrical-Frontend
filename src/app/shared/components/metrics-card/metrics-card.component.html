@@ -1,4 +1,4 @@
-@let metrics = metricCardConfig();
+@let metrics = visibleMetrics();
 
 <div class="metrics-container">
   @for (metric of metrics; track metric.label; let i = $index) {

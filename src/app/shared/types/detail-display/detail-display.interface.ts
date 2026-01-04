@@ -7,20 +7,23 @@ export interface IEntityViewDetails {
   showImage?: boolean;
 }
 
+export interface IDetailEntryData {
+  label: string;
+  value: string | number | null | string[];
+  type?: EDataType;
+  format?: string;
+  metadata?: {
+    transactionType?: EExpenseTransactionType;
+  };
+  permission?: string[];
+}
+
 export interface IDataViewDetails {
   status?: {
     approvalStatus?: string;
     entryType?: string;
   };
-  entryData: {
-    label: string;
-    value: string | number | null | string[];
-    type?: EDataType;
-    format?: string;
-    metadata?: {
-      transactionType?: EExpenseTransactionType;
-    };
-  }[];
+  entryData: IDetailEntryData[];
   approvalBy?: IUserAuditInfo;
   createdBy?: IUserAuditInfo;
   updatedBy?: IUserAuditInfo;

@@ -7,6 +7,7 @@ import {
   inject,
   viewChild,
   TemplateRef,
+  computed,
 } from '@angular/core';
 import {
   Table,
@@ -110,6 +111,9 @@ export class DataTableComponent {
   filterData = output<TableLazyLoadEvent>();
 
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
+  protected visibleTableHeaders = computed(() => {
+    return this.permissionService.filterByPermission(this.tableHeader());
+  });
 
   protected clear(table: Table): void {
     table.clear();
@@ -195,20 +199,11 @@ export class DataTableComponent {
     return true;
   }
 
-  /**
-   * Checks if user has required permissions for an action.
-   */
   private hasRequiredPermissions(action: ITableActionConfig): boolean {
     if (!action.permission) {
       return true;
     }
-
-    const permissions = Array.isArray(action.permission)
-      ? action.permission
-      : [action.permission];
-
-    // Show if user has ANY ONE of the permissions
-    return permissions.some(p => this.permissionService.hasPermission(p));
+    return this.permissionService.hasAnyPermission(action.permission);
   }
 
   /**

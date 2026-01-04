@@ -51,6 +51,7 @@ export interface IDataTableHeaderConfig {
   showSort: boolean;
   showColumn?: boolean; // If false, column will be hidden but can still be used for filtering
   serverSideFilterAndSortConfig?: IDataTableServerSideFilterAndSortConfig;
+  permission?: string[];
 }
 
 export interface ITextWithSubtitleAndImageConfig {
@@ -94,7 +95,7 @@ export interface IMatchModeOption {
 
 export interface ITableActionConfig<T = Record<string, unknown>>
   extends IButtonConfig {
-  permission?: string | string[];
+  permission?: string[];
   hideWhen?: (rowData: T) => boolean;
   disableWhen?: (rowData: T) => boolean;
 }
@@ -113,9 +114,15 @@ export interface ITableSortingAndPaginationData {
   sortOrder: 'ASC' | 'DESC' | undefined;
 }
 
+export interface ITableSearchFilterFieldConfig
+  extends Partial<IInputFieldsConfig> {
+  matchmode: ETableFilterMatchMode;
+  permission?: string[];
+}
+
 export type ITableSearchFilterInputFieldsConfig = Record<
   string,
-  Partial<IInputFieldsConfig> & { matchmode: ETableFilterMatchMode }
+  ITableSearchFilterFieldConfig
 >;
 
 export interface ITableSearchFilterFormConfig {

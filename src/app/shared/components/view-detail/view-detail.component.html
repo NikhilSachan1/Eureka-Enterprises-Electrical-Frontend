@@ -20,9 +20,9 @@
 @if (drawerDetail && drawerDetail.length > 0) {
   @for (detail of drawerDetail; track $index) {
     @let colorClass = getColor(detail.status?.approvalStatus ?? '');
-    @let entryData = detail.entryData;
+    @let visibleEntryData = getVisibleEntries(detail.entryData);
 
-    @if (entryData && entryData.length > 0) {
+    @if (visibleEntryData && visibleEntryData.length > 0) {
       <p-card
         class="mb-4"
         [ngClass]="`${colorClass.bg}`"
@@ -49,7 +49,7 @@
         }
 
         <div class="space-y-2 mb-4">
-          @for (entry of detail.entryData; track entry.label) {
+          @for (entry of visibleEntryData; track entry.label) {
             @if (entry.type !== ALL_DATA_TYPES.ATTACHMENTS) {
               <div class="flex justify-between gap-4">
                 <span class="text-sm text-gray-700 flex-shrink-0">{{ entry.label }}:</span>
