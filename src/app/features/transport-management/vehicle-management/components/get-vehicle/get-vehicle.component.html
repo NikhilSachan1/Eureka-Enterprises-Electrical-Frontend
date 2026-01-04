@@ -22,7 +22,103 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{ serviceInfo: serviceInfoTemplate }"
   (rowActionClick)="handleVehicleTableActionClick($any($event), false)"
   (bulkActionClick)="handleVehicleTableActionClick($any($event), true)"
   (filterData)="onTableStateChange($event)"
 />
+
+<ng-template
+  #serviceInfoTemplate
+  let-rowData
+>
+  @let data = rowData.originalRawData;
+  @let numFormat = config.NUMBER_CONFIG.DEFAULT_FORMAT;
+  @let numLocale = config.NUMBER_CONFIG.LOCALE;
+  @let dateFormat = config.DATE_FORMATS.DEFAULT;
+  @let hasUpcoming =
+    data.nextServiceDueKm > 0 ||
+    (data.kmToNextService !== null && data.kmToNextService !== 0) ||
+    +data.currentOdometerKm > 0;
+  @let hasLast = data.lastServiceDate || data.lastServiceKm > 0 || data.kmSinceLastService > 0;
+  @let hasData = hasUpcoming || hasLast;
+
+  @if (hasData) {
+    <div class="flex flex-col gap-2">
+      <!-- UPCOMING SERVICE ROW -->
+      @if (
+        data.nextServiceDueKm > 0 ||
+        +data.currentOdometerKm > 0 ||
+        (data.kmToNextService !== null && data.kmToNextService !== 0)
+      ) {
+        <div class="flex items-center gap-3">
+          <!-- Icon -->
+          <div class="w-7 h-7 rounded-md bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <i class="pi pi-forward text-xs text-blue-500"></i>
+          </div>
+          <!-- Content -->
+          <div class="flex flex-col">
+            <span class="text-xs text-slate-400 uppercase tracking-wide">Next Service</span>
+            <div class="flex items-center gap-2">
+              @if (data.nextServiceDueKm > 0) {
+                <span class="font-medium text-slate-700">
+                  {{ data.nextServiceDueKm | number: numFormat : numLocale }} km
+                </span>
+              }
+              @if (data.kmToNextService !== null && data.kmToNextService !== 0) {
+                @if (data.serviceDueStatus === 'OVERDUE' || data.kmToNextService < 0) {
+                  <span class="text-xs px-1.5 py-0.5 rounded bg-red-50 text-red-600">
+                    {{
+                      (data.kmToNextService < 0 ? -data.kmToNextService : data.kmToNextService)
+                        | number: numFormat : numLocale
+                    }}
+                    km overdue
+                  </span>
+                } @else {
+                  <span class="text-xs px-1.5 py-0.5 rounded bg-green-50 text-green-600">
+                    {{ data.kmToNextService | number: numFormat : numLocale }} km left
+                  </span>
+                }
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- LAST SERVICE ROW -->
+      @if (data.lastServiceDate || data.lastServiceKm > 0) {
+        <div class="flex items-center gap-3">
+          <!-- Icon -->
+          <div class="w-7 h-7 rounded-md bg-slate-100 flex items-center justify-center flex-shrink-0">
+            <i class="pi pi-history text-xs text-slate-500"></i>
+          </div>
+          <!-- Content -->
+          <div class="flex flex-col">
+            <span class="text-xs text-slate-400 uppercase tracking-wide">Last Service</span>
+            <div class="flex items-center gap-2 text-sm">
+              @if (data.lastServiceDate) {
+                <span class="font-medium text-slate-700">{{ data.lastServiceDate | date: dateFormat }}</span>
+              }
+              @if (data.lastServiceKm > 0) {
+                <span class="text-slate-500">at {{ data.lastServiceKm | number: numFormat : numLocale }} km</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- CURRENT ODOMETER (small footer) -->
+      @if (+data.currentOdometerKm > 0) {
+        <div class="flex items-center gap-1.5 text-xs text-slate-400 pl-10">
+          <i class="pi pi-gauge text-[10px]"></i>
+          <span>Current: {{ +data.currentOdometerKm | number: numFormat : numLocale }} km</span>
+          @if (data.kmSinceLastService > 0) {
+            <span>· Driven {{ data.kmSinceLastService | number: numFormat : numLocale }} km since last</span>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <span class="text-slate-400">-</span>
+  }
+</ng-template>

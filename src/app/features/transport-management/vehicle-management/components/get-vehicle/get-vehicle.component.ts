@@ -52,6 +52,7 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { APP_CONFIG } from '@core/config';
+import { DatePipe, DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-get-vehicle',
@@ -60,6 +61,8 @@ import { APP_CONFIG } from '@core/config';
     MetricsCardComponent,
     SearchFilterComponent,
     DataTableComponent,
+    DatePipe,
+    DecimalPipe,
   ],
   templateUrl: './get-vehicle.component.html',
   styleUrl: './get-vehicle.component.scss',
@@ -87,6 +90,8 @@ export class GetVehicleComponent implements OnInit {
   private readonly vehicleStats = signal<IVehicleGetStatsResponseDto | null>(
     null
   );
+
+  protected readonly config = APP_CONFIG;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricsCards = computed(() => this.getMetricCardsData());
@@ -147,10 +152,6 @@ export class GetVehicleComponent implements OnInit {
         id: record.id,
         vehicleNumber: record.registrationNo,
         vehicleName: `${record.brand} ${record.model}`,
-        fuelType: getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.vehicleFuelTypes(),
-          record.fuelType
-        ),
         status: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.vehicleStatuses(),
           record.status

@@ -55,6 +55,12 @@ export const APP_CONFIG = {
     SYMBOL: '₹',
   },
 
+  // Number Configuration
+  NUMBER_CONFIG: {
+    LOCALE: 'en-IN',
+    DEFAULT_FORMAT: '1.0-0',
+  },
+
   // Table Configuration
   TABLE_PAGINATION_CONFIG: {
     DEFAULT_PAGE_SIZE: 10,

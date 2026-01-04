@@ -27,11 +27,6 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     },
   },
   {
-    field: 'fuelType',
-    header: 'Vehicle Type',
-    showSort: false,
-  },
-  {
     field: 'petroCardNumber',
     header: 'Petro Card',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
@@ -107,6 +102,12 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     serverSideFilterAndSortConfig: {
       filterField: 'serviceStatus',
     },
+    showSort: false,
+  },
+  {
+    field: 'serviceInfo',
+    header: 'Service Info',
+    customTemplateKey: 'serviceInfo',
     showSort: false,
   },
 ];
