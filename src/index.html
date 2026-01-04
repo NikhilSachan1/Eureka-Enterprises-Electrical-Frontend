@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>EurekaEnterprisesElectricalFrontend</title>
+    <title>Eureka Enterprises - Electrical Management System</title>
     <base href="/" />
     <meta
       name="viewport"
@@ -15,48 +15,89 @@
     />
   </head>
   <body>
-    <app-root></app-root>
-    <div class="bootstrap-app-loader">
-      <div class="loader-container">
-        <div class="brand-section">
-          <div class="logo-wrapper">
-            <div class="logo-circle">
-              <div class="logo-inner">
-                <div class="logo-core"></div>
-              </div>
+    <!-- Angular will replace everything inside app-root when app loads -->
+    <app-root>
+      <!-- Professional Bootstrap Loader - Auto removed when Angular loads -->
+      <div class="boot-loader">
+        <!-- Background Effects -->
+        <div class="boot-loader__bg">
+          <div class="boot-loader__grid"></div>
+          <div class="boot-loader__glow boot-loader__glow--1"></div>
+          <div class="boot-loader__glow boot-loader__glow--2"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="boot-loader__content">
+          <!-- Animated Logo -->
+          <div class="boot-loader__logo">
+            <div class="boot-loader__orbit"></div>
+            <div class="boot-loader__orbit boot-loader__orbit--reverse"></div>
+            <div class="boot-loader__core">
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
             </div>
           </div>
-          <div class="brand-text">
-            <h1 class="app-title">Eureka Enterprises</h1>
-            <p class="app-subtitle">Electrical Management System</p>
+
+          <!-- Brand -->
+          <div class="boot-loader__brand">
+            <h1 class="boot-loader__title">Eureka Enterprises</h1>
+            <p class="boot-loader__subtitle">Electrical Management System</p>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="boot-loader__progress">
+            <div class="boot-loader__track">
+              <div class="boot-loader__bar"></div>
+            </div>
+          </div>
+
+          <!-- Loading Steps -->
+          <div class="boot-loader__steps">
+            <div
+              class="boot-loader__step boot-loader__step--active"
+              style="--delay: 0s"
+            >
+              <span class="boot-loader__step-icon">⚙️</span>
+              <span class="boot-loader__step-text">Loading system settings</span>
+            </div>
+            <div
+              class="boot-loader__step"
+              style="--delay: 1.2s"
+            >
+              <span class="boot-loader__step-icon">🔧</span>
+              <span class="boot-loader__step-text">Initializing configuration</span>
+            </div>
+            <div
+              class="boot-loader__step"
+              style="--delay: 2.4s"
+            >
+              <span class="boot-loader__step-icon">🔐</span>
+              <span class="boot-loader__step-text">Setting up security</span>
+            </div>
+            <div
+              class="boot-loader__step"
+              style="--delay: 3.6s"
+            >
+              <span class="boot-loader__step-icon">📊</span>
+              <span class="boot-loader__step-text">Preparing dashboard</span>
+            </div>
+            <div
+              class="boot-loader__step"
+              style="--delay: 4.8s"
+            >
+              <span class="boot-loader__step-icon">✨</span>
+              <span class="boot-loader__step-text">Almost ready...</span>
+            </div>
           </div>
         </div>
 
-        <div class="loading-section">
-          <div class="spinner-container">
-            <div class="spinner">
-              <div class="spinner-ring ring-primary"></div>
-              <div class="spinner-ring ring-secondary"></div>
-              <div class="spinner-ring ring-tertiary"></div>
-            </div>
-          </div>
-
-          <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-fill"></div>
-            </div>
-            <div class="progress-text">Initializing Application</div>
-          </div>
-        </div>
-
-        <div class="loading-text">
-          <span class="loading-dots">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </span>
-        </div>
+        <!-- Version -->
+        <div class="boot-loader__version">v1.0.0</div>
       </div>
-    </div>
+    </app-root>
   </body>
 </html>
