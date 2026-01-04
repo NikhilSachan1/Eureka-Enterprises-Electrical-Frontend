@@ -55,10 +55,14 @@ export const APP_CONFIG = {
     SYMBOL: '₹',
   },
 
-  // Number Configuration
-  NUMBER_CONFIG: {
+  // Number Formats (Angular DecimalPipe: {minIntegerDigits}.{minFractionDigits}-{maxFractionDigits})
+  NUMBER_FORMATS: {
+    DEFAULT: '1.0-0', // No decimals: 1,234
+    WITH_DECIMALS: '1.2-2', // Exactly 2 decimals: 1,234.56
+    FLEXIBLE_DECIMALS: '1.0-2', // 0 to 2 decimals: 1,234 or 1,234.5 or 1,234.56
+    PERCENTAGE: '1.0-2', // For percentages: 85.5
+    QUANTITY: '1.0-3', // For quantities: 1,234.567
     LOCALE: 'en-IN',
-    DEFAULT_FORMAT: '1.0-0',
   },
 
   // Table Configuration
@@ -69,7 +73,7 @@ export const APP_CONFIG = {
 
   // Dialog Configuration
   CONFIRMATION_DIALOG_CONFIG: {
-    DEFAULT_WIDTH: '400px',
+    DEFAULT_WIDTH: '1500',
     DEFAULT_POSITION: EDialogPosition.CENTER,
     CLOSE_ON_ESCAPE: true,
     DISMISSABLE_MASK: false,

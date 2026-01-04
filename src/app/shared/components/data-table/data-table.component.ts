@@ -39,6 +39,7 @@ import {
 import {
   CurrencyPipe,
   DatePipe,
+  DecimalPipe,
   NgClass,
   NgTemplateOutlet,
 } from '@angular/common';
@@ -77,6 +78,7 @@ import { ReadMoreComponent } from '../read-more/read-more.component';
     NgTemplateOutlet,
     ReadMoreComponent,
     PanelModule,
+    DecimalPipe,
   ],
 
   templateUrl: './data-table.component.html',

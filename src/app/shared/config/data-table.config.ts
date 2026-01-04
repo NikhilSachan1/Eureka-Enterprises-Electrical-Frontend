@@ -100,6 +100,7 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   dataType: EDataType.TEXT,
   dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
   currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+  numberFormat: APP_CONFIG.NUMBER_FORMATS.DEFAULT,
   textWithSubtitleAndImageConfig: TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG,
   readMoreConfig: TEXT_WITH_READ_MORE_CONFIG,
   statusConfig: STATUS_CONFIG,

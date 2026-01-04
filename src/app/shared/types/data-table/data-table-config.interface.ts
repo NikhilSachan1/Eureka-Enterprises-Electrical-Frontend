@@ -41,6 +41,7 @@ export interface IDataTableHeaderConfig {
   dataType?: EDataType;
   dateFormat?: string;
   currencyFormat?: string;
+  numberFormat?: string;
   textWithSubtitleAndImageConfig?: ITextWithSubtitleAndImageConfig;
   readMoreConfig?: Partial<IReadMoreConfig>;
   statusConfig?: IStatusConfig;
