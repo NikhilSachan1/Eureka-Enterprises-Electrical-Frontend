@@ -122,9 +122,10 @@ export class ChangeStatusEmployeeComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IEmployeeChangeStatusResponseDto) => {
-          const { message } = response;
-          this.notificationService.success(message);
+        next: (_response: IEmployeeChangeStatusResponseDto) => {
+          this.notificationService.success(
+            'Employee status changed successfully'
+          );
 
           const successCallback = this.onSuccess();
           successCallback?.();
