@@ -125,6 +125,11 @@ export const VEHICLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'View Event History',
   },
   {
+    id: EButtonActionType.SERVICE_INFO,
+    icon: IconUtil.getIcon(EButtonActionType.SERVICE_INFO) ?? undefined,
+    tooltip: 'View Service History',
+  },
+  {
     id: EButtonActionType.HANDOVER_INITIATE,
     icon: IconUtil.getIcon(EButtonActionType.HANDOVER_INITIATE) ?? undefined,
     tooltip: 'Allocate Vehicle',

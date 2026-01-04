@@ -264,6 +264,11 @@ export class GetVehicleComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.SERVICE_INFO) {
+      this.navigateToServiceInfo(selectedFirstRow.id);
+      return;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
@@ -369,6 +374,24 @@ export class GetVehicleComponent implements OnInit {
     } catch (error) {
       this.logger.logUserAction(
         'Navigation error while viewing event history',
+        error
+      );
+    }
+  }
+
+  private navigateToServiceInfo(vehicleId: string): void {
+    try {
+      const routeSegments = [
+        ROUTE_BASE_PATHS.TRANSPORT,
+        ROUTE_BASE_PATHS.VEHICLE,
+        ROUTES.VEHICLE.SERVICE_INFO,
+        vehicleId,
+      ];
+
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+    } catch (error) {
+      this.logger.logUserAction(
+        'Navigation error while viewing service info',
         error
       );
     }

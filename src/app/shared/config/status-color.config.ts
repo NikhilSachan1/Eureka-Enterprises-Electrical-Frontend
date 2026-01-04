@@ -97,6 +97,7 @@ export const STATUS_COLOR_GROUPS: Record<string, string[]> = {
     'male',
     'female',
     'eventhistory',
+    'vehicleserviceinfo',
     'total events',
     'times marked assigned',
     'times marked updated',

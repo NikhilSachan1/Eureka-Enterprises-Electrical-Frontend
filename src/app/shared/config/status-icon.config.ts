@@ -75,6 +75,7 @@ export const STATUS_ICON_GROUPS: Record<string, string> = {
   male: ICONS.COMMON.USER,
   female: ICONS.COMMON.USER,
   eventhistory: ICONS.COMMON.LIST,
+  vehicleserviceinfo: ICONS.COMMON.LIST,
   'times marked assigned': ICONS.EMPLOYEE.USER,
   'times marked updated': ICONS.ACTIONS.EDIT,
   'total events': ICONS.COMMON.LIST,

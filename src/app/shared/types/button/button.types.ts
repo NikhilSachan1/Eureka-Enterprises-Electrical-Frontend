@@ -70,6 +70,7 @@ export enum EButtonActionType {
   HANDOVER_CANCELLED = 'handoverCancelled',
   DEALLOCATE = 'deallocate',
   EVENT_HISTORY = 'eventHistory',
+  SERVICE_INFO = 'vehicleServiceInfo',
   UNDER_MAINTENANCE = 'underMaintenance',
   RETIRED = 'retired',
 }

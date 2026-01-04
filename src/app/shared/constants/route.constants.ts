@@ -118,6 +118,9 @@ export const ROUTES = {
     ADD: `add`,
     EDIT: `edit`,
     EVENT_HISTORY: `event-history`,
+    SERVICE_INFO: `service-info`,
+    ADD_SERVICE: `add-service`,
+    EDIT_SERVICE: `edit-service`,
   },
 
   PAYROLL: {
