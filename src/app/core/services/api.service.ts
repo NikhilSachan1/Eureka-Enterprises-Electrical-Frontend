@@ -5,7 +5,7 @@ import {
 } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError, OperatorFunction } from 'rxjs';
-import { retry, timeout, map, tap, catchError, delay } from 'rxjs/operators';
+import { retry, timeout, map, tap, catchError } from 'rxjs/operators';
 import { EnvironmentService } from '@core/services/environment.service';
 import { LoggerService } from '@core/services/logger.service';
 import { NotificationService } from '@shared/services';
@@ -42,7 +42,6 @@ export class ApiService {
 
     return this.http.get<T>(url, { params: httpParams }).pipe(
       timeout(this.timeout),
-      delay(5000),
       tap(response => this.logger.logApiResponse('GET', url, response)),
       this.createRetryConfig<T>('GET', url),
       catchError((error: HttpErrorResponse) => {
