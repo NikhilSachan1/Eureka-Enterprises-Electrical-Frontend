@@ -39,25 +39,4 @@ export const VEHICLE_MANAGEMENT_ROUTES: Routes = [
         './components/get-vehicle-event-history/get-vehicle-event-history.component'
       ).then(m => m.GetVehicleEventHistoryComponent),
   },
-  {
-    path: `${ROUTES.VEHICLE.SERVICE_INFO}/:vehicleId`,
-    loadComponent: () =>
-      import(
-        './components/get-vehicle-service-history/get-vehicle-service-history.component'
-      ).then(m => m.GetVehicleServiceHistoryComponent),
-  },
-  {
-    path: ROUTES.VEHICLE.ADD_SERVICE,
-    loadComponent: () =>
-      import(
-        './components/add-vehicle-service/add-vehicle-service.component'
-      ).then(m => m.AddVehicleServiceComponent),
-  },
-  {
-    path: ROUTES.VEHICLE.EDIT_SERVICE,
-    loadComponent: () =>
-      import(
-        './components/edit-vehicle-service/edit-vehicle-service.component'
-      ).then(m => m.EditVehicleServiceComponent),
-  },
 ];

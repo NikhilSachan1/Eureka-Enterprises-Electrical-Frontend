@@ -383,8 +383,8 @@ export class GetVehicleComponent implements OnInit {
     try {
       const routeSegments = [
         ROUTE_BASE_PATHS.TRANSPORT,
-        ROUTE_BASE_PATHS.VEHICLE,
-        ROUTES.VEHICLE.SERVICE_INFO,
+        ROUTE_BASE_PATHS.VEHICLE_SERVICE,
+        ROUTES.VEHICLE_SERVICE.LIST,
         vehicleId,
       ];
 

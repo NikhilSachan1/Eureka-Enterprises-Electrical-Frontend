@@ -12,6 +12,7 @@ export const ROUTE_BASE_PATHS = {
   CALENDAR: 'calendar',
   ASSET: 'asset',
   VEHICLE: 'vehicle',
+  VEHICLE_SERVICE: 'service',
   PAYROLL: 'payroll',
   DASHBOARD: 'dashboard',
   PETRO_CARD: 'petro-card',
@@ -118,9 +119,12 @@ export const ROUTES = {
     ADD: `add`,
     EDIT: `edit`,
     EVENT_HISTORY: `event-history`,
-    SERVICE_INFO: `service-info`,
-    ADD_SERVICE: `add-service`,
-    EDIT_SERVICE: `edit-service`,
+  },
+
+  VEHICLE_SERVICE: {
+    LIST: `list`,
+    ADD: `add`,
+    EDIT: `edit`,
   },
 
   PAYROLL: {

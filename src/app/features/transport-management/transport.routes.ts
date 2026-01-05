@@ -15,6 +15,13 @@ export const TRANSPORT_MANAGEMENT_ROUTES: Routes = [
       ),
   },
   {
+    path: ROUTE_BASE_PATHS.VEHICLE_SERVICE,
+    loadChildren: () =>
+      import('./vehicle-management/vehicle-service.routes').then(
+        m => m.VEHICLE_SERVICE_MANAGEMENT_ROUTES
+      ),
+  },
+  {
     path: ROUTE_BASE_PATHS.PETRO_CARD,
     loadChildren: () =>
       import('./petro-card-management/petro-card.routes').then(
