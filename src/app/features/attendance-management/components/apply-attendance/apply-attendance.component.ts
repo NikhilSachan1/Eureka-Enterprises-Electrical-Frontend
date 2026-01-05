@@ -26,7 +26,6 @@ import {
   ROUTES,
 } from '@shared/constants';
 import { ICONS } from '@shared/constants/icon.constants';
-import { AppPermissionDirective } from '@shared/directives/app-permission.directive';
 import {
   EButtonActionType,
   EButtonVariant,
@@ -61,7 +60,6 @@ import { APPLY_ATTENDANCE_PREFILLED_DATA } from '@shared/mock-data/apply-attenda
     ButtonComponent,
     ReactiveFormsModule,
     InputFieldComponent,
-    AppPermissionDirective,
   ],
   templateUrl: './apply-attendance.component.html',
   styleUrl: './apply-attendance.component.scss',

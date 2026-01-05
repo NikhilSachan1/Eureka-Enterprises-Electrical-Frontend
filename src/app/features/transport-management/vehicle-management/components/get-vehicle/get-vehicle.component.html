@@ -33,9 +33,9 @@
   let-rowData
 >
   @let data = rowData.originalRawData;
-  @let numFormat = config.NUMBER_CONFIG.DEFAULT_FORMAT;
-  @let numLocale = config.NUMBER_CONFIG.LOCALE;
-  @let dateFormat = config.DATE_FORMATS.DEFAULT;
+  @let numFormat = ALL_APP_CONFIG.NUMBER_FORMATS.DEFAULT;
+  @let numLocale = ALL_APP_CONFIG.NUMBER_FORMATS.LOCALE;
+  @let dateFormat = ALL_APP_CONFIG.DATE_FORMATS.DEFAULT;
   @let hasUpcoming =
     data.nextServiceDueKm > 0 ||
     (data.kmToNextService !== null && data.kmToNextService !== 0) ||

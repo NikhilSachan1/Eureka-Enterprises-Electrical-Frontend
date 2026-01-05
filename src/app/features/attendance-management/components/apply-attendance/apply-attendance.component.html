@@ -96,11 +96,11 @@
                   <b>Site Location</b>
                   - This is the site location where you need to report.
                 </li>
-                <li *appHasPermission="ALL_PERMISSION_KEYS.ATTENDANCE.CLIENT_NAME">
+                <li>
                   <b>Client</b>
                   - This is the client for whom you are working at this assignment.
                 </li>
-                <li *appHasPermission="ALL_PERMISSION_KEYS.ATTENDANCE.ASSOCIATE_ENGINEER_NAME">
+                <li>
                   <b>Associate Engineer</b>
                   - Fooding and benefits will be provided only to the selected associate engineer. Later, the driver
                   will take the fooding from the same associate engineer.
@@ -136,10 +136,7 @@
           </div>
 
           <!-- Client -->
-          <div
-            class="assignment-card__item"
-            *appHasPermission="ALL_PERMISSION_KEYS.ATTENDANCE.CLIENT_NAME"
-          >
+          <div class="assignment-card__item">
             @if (isEditingAssignment()) {
               <div class="assignment-card__content">
                 <app-input-field
@@ -160,10 +157,7 @@
             }
           </div>
 
-          <div
-            class="assignment-card__item"
-            *appHasPermission="ALL_PERMISSION_KEYS.ATTENDANCE.ASSOCIATE_ENGINEER_NAME"
-          >
+          <div class="assignment-card__item">
             @if (isEditingAssignment()) {
               <div class="assignment-card__content">
                 <app-input-field

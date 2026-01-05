@@ -91,7 +91,7 @@ export class GetVehicleComponent implements OnInit {
     null
   );
 
-  protected readonly config = APP_CONFIG;
+  protected readonly ALL_APP_CONFIG = APP_CONFIG;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricsCards = computed(() => this.getMetricCardsData());
