@@ -87,6 +87,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.ANNOUNCEMENT,
+        loadChildren: () =>
+          import('./features/announcement-management/announcement.routes').then(
+            m => m.ANNOUNCEMENT_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: '**',
         redirectTo: `${ROUTE_BASE_PATHS.ATTENDANCE}`,
       },

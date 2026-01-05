@@ -17,6 +17,7 @@ export const ROUTE_BASE_PATHS = {
   DASHBOARD: 'dashboard',
   PETRO_CARD: 'petro-card',
   TRANSPORT: 'transport',
+  ANNOUNCEMENT: 'announcement',
   SITE: {
     BASE: 'site',
     COMPANY: 'company',
@@ -125,6 +126,12 @@ export const ROUTES = {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,
+  },
+  ANNOUNCEMENT: {
+    LIST: `list`,
+    ADD: `add`,
+    EDIT: `edit`,
+    SHOW: `show`,
   },
 
   PAYROLL: {
