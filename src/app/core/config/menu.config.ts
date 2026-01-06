@@ -183,6 +183,23 @@ export const appMenu: ApplicationMenu = {
             },
           ],
         },
+        {
+          label: 'Announcement',
+          icon: ICONS.ASSET.BOX,
+          basePath: ROUTE_BASE_PATHS.ANNOUNCEMENT,
+          children: [
+            {
+              label: 'Announcement List',
+              icon: ICONS.COMMON.VIEW,
+              routerLink: ROUTES.ANNOUNCEMENT.LIST,
+            },
+            {
+              label: 'Add Announcement',
+              icon: ICONS.COMMON.PLUS,
+              routerLink: ROUTES.ANNOUNCEMENT.ADD,
+            },
+          ],
+        },
       ],
     },
   ],
