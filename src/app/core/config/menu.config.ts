@@ -200,6 +200,33 @@ export const appMenu: ApplicationMenu = {
             },
           ],
         },
+        {
+          label: 'Payroll',
+          icon: ICONS.PAYROLL.WALLET,
+          basePath: ROUTE_BASE_PATHS.PAYROLL,
+          children: [
+            {
+              label: 'Payslip',
+              icon: ICONS.COMMON.VIEW,
+              routerLink: ROUTES.PAYROLL.PAYSLIP,
+            },
+            {
+              label: 'Salary Structure',
+              icon: ICONS.COMMON.VIEW,
+              routerLink: ROUTES.PAYROLL.STRUCTURE,
+            },
+            {
+              label: 'Increment',
+              icon: ICONS.COMMON.PLUS,
+              routerLink: ROUTES.PAYROLL.INCREMENT,
+            },
+            {
+              label: 'Monthly Report',
+              icon: ICONS.COMMON.VIEW,
+              routerLink: ROUTES.PAYROLL.MONTHLY_REPORT,
+            },
+          ],
+        },
       ],
     },
   ],

@@ -91,6 +91,11 @@ export const appConfig: ApplicationConfig = {
 
       const blockingTasks: Promise<unknown>[] = [
         lastValueFrom(
+          userPermissionService
+            .fetchAndStoreLoggedInUserPermissions()
+            .pipe(take(1))
+        ),
+        lastValueFrom(
           appConfigurationService.loadAppConfiguration().pipe(take(1))
         ),
         lastValueFrom(appConfigurationService.loadEmployeeList().pipe(take(1))),

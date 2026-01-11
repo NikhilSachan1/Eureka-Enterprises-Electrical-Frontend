@@ -1,21 +1,23 @@
-@let entityDetails = drawerDetails()?.entity;
 @let drawerDetail = drawerDetails()?.details;
 
-@if (entityDetails) {
-  <div class="flex items-center gap-3 mb-4">
-    <img
-      [src]="_avtarImageUrl()"
-      [alt]="entityDetails.name"
-      class="w-8 h-8 rounded-full bg-slate-100"
-      loading="lazy"
-    />
+<ng-container *appHasPermission="APP_PERMISSION.UI.COMMON.SIDEBAR_INITIALS">
+  @let entityDetails = drawerDetails()?.entity;
+  @if (entityDetails) {
+    <div class="flex items-center gap-3 mb-4">
+      <img
+        [src]="_avtarImageUrl()"
+        [alt]="entityDetails.name"
+        class="w-8 h-8 rounded-full bg-slate-100"
+        loading="lazy"
+      />
 
-    <div>
-      <h3 class="text-sm font-semibold text-slate-800">{{ entityDetails.name }}</h3>
-      <p class="text-xs text-slate-500">{{ entityDetails.subtitle }}</p>
+      <div>
+        <h3 class="text-sm font-semibold text-slate-800">{{ entityDetails.name }}</h3>
+        <p class="text-xs text-slate-500">{{ entityDetails.subtitle }}</p>
+      </div>
     </div>
-  </div>
-}
+  }
+</ng-container>
 
 @if (drawerDetail && drawerDetail.length > 0) {
   @for (detail of drawerDetail; track $index) {

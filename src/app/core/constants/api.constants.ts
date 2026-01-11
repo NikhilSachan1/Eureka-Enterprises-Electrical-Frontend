@@ -75,6 +75,12 @@ export const API_ROUTES = {
     DELETE: 'cards/bulk',
     EDIT: (petroCardId: string) => `cards/${petroCardId}`,
   },
+  PAYROLL: {
+    STRUCTURE: 'salary-structures',
+    GET_STRUCTURE_HISTORY: (structureId: string) =>
+      `salary-structures/${structureId}/change-history`,
+    ADD_SALARY_INCREMENT: 'salary-structures/increment',
+  },
   SETTINGS: {
     PERMISSION: {
       SYSTEM: {

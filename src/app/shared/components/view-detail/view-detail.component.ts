@@ -24,6 +24,8 @@ import { CardModule } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { Tag } from 'primeng/tag';
 import { ReadMoreComponent } from '../read-more/read-more.component';
+import { APP_PERMISSION } from '@core/constants';
+import { AppPermissionDirective } from '@shared/directives/app-permission.directive';
 
 @Component({
   selector: 'app-view-detail',
@@ -37,6 +39,7 @@ import { ReadMoreComponent } from '../read-more/read-more.component';
     NgClass,
     CurrencyPipe,
     ReadMoreComponent,
+    AppPermissionDirective,
   ],
   templateUrl: './view-detail.component.html',
   styleUrl: './view-detail.component.scss',
@@ -58,6 +61,7 @@ export class ViewDetailComponent {
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly icons = ICONS;
   protected readonly ALL_ENTRY_TYPES = EEntryType;
+  protected readonly APP_PERMISSION = APP_PERMISSION;
 
   protected getApprovalStatusColor(status: string): EPrimeNGSeverity {
     return StatusUtil.getSeverity(status) as EPrimeNGSeverity;

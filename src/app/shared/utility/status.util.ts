@@ -76,7 +76,7 @@ export class StatusUtil {
   static getColor(status: string): string {
     const severity = this.getSeverityType(status);
     const { border } = SEVERITY_STYLES[severity];
-    const match = border.match(/border-l-(\w+)-/);
+    const match = border.match(/border-(\w+)-/);
     return match?.[1] ?? 'gray';
   }
 

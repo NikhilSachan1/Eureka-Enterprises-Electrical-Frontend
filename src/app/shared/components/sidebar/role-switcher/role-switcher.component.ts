@@ -132,6 +132,10 @@ export class RoleSwitcherComponent {
             `Switched to role: ${toTitleCase(response.activeRole)}`
           );
           this.logger.info('Role switch complete with app data reloaded');
+          this.logger.info(
+            'Reinitializing application with full page refresh...'
+          );
+          window.location.reload();
         },
         error: error => {
           this.logger.error('Error during switch active role', error);

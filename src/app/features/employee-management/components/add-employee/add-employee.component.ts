@@ -9,9 +9,7 @@ import {
   effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { CardModule } from 'primeng/card';
 import { finalize } from 'rxjs';
 import { StepperComponent } from '@shared/components/stepper/stepper.component';
 import { IStepperConfig } from '@shared/types/stepper/stepper.interface';
@@ -49,8 +47,9 @@ import { EmployeeService } from '@features/employee-management/services/employee
 import { ActivatedRoute } from '@angular/router';
 import { transformDateFormat } from '@shared/utility';
 import { ADD_EMPLOYEE_PREFILLED_DATA } from '@shared/mock-data/add-employee.mock-data';
-import { IEmployeeSalarySummaryItem } from '@features/employee-management/types/employee.interface';
 import { APP_CONFIG } from '@core/config';
+import { SalarySummaryComponent } from '@features/payroll-management/shared/components/salary-summary/salary-summary.component';
+import { ISalaryFields } from '@features/payroll-management/types/payroll.interface';
 
 @Component({
   selector: 'app-add-employee',
@@ -60,8 +59,7 @@ import { APP_CONFIG } from '@core/config';
     PageHeaderComponent,
     InputFieldComponent,
     ButtonComponent,
-    CurrencyPipe,
-    CardModule,
+    SalarySummaryComponent,
   ],
   templateUrl: './add-employee.component.html',
   styleUrl: './add-employee.component.scss',
@@ -96,23 +94,9 @@ export class AddEmployeeComponent implements OnInit {
   protected readonly stepValid = signal<Record<number, boolean>>({});
   private readonly attemptedSteps = signal<Set<number>>(new Set());
   private readonly employeeId = signal<string>('');
-  protected readonly grossSalary = signal<number>(0);
-  protected readonly totalDeductions = signal<number>(0);
-  protected readonly inHandSalary = signal<number>(0);
-  protected readonly totalEmployerBenefits = signal<number>(0);
-  protected readonly totalCTC = signal<number>(0);
-  protected readonly salarySummaryItems = computed(() =>
-    this.getSalarySummaryItems()
-  );
+  protected readonly salaryFields = computed(() => this.getSalaryFields());
 
   constructor() {
-    effect(() => {
-      const salaryForm = this.trackFields['6'];
-      if (salaryForm) {
-        this.setupSalaryCalculations();
-      }
-    });
-
     effect(() => {
       this.attemptedSteps();
       Object.values(this.trackForms).forEach(trackedForm => {
@@ -392,11 +376,8 @@ export class AddEmployeeComponent implements OnInit {
       });
   }
 
-  private setupSalaryCalculations(): void {
+  private getSalaryFields(): ISalaryFields {
     const salaryForm = this.trackFields['6'];
-    if (!salaryForm?.getValues) {
-      return;
-    }
 
     const { esicContribution, pfContribution, tds, basicSalary, hra } =
       salaryForm.getValues() as {
@@ -407,49 +388,13 @@ export class AddEmployeeComponent implements OnInit {
         hra: string;
       };
 
-    const employeePF = parseFloat(pfContribution) || 0;
-    const employerPF = employeePF;
-    const employerESIC = parseFloat(esicContribution) || 0;
-    const tdsValue = parseFloat(tds) || 0;
-    const basicValue = parseFloat(basicSalary) || 0;
-    const hraValue = parseFloat(hra) || 0;
-
-    const gross = basicValue + hraValue;
-    const deductions = tdsValue + employeePF;
-    const totalEmployerBenefits = employerPF + employerESIC;
-    const ctc = gross + totalEmployerBenefits;
-    const inHandSalary = gross - deductions;
-
-    this.grossSalary.set(gross);
-    this.totalDeductions.set(deductions);
-    this.inHandSalary.set(inHandSalary);
-    this.totalEmployerBenefits.set(totalEmployerBenefits);
-    this.totalCTC.set(ctc);
-  }
-
-  private getSalarySummaryItems(): IEmployeeSalarySummaryItem[] {
-    return [
-      {
-        label: 'Gross Salary',
-        value: this.grossSalary(),
-        description: 'Basic + HRA',
-      },
-      {
-        label: 'Deductions',
-        value: this.totalDeductions(),
-        description: 'TDS + PF (Employee)',
-      },
-      {
-        label: 'In-Hand Salary',
-        value: this.inHandSalary(),
-        description: 'Gross - Deductions',
-      },
-      {
-        label: 'Employer Benefits',
-        value: this.totalEmployerBenefits(),
-        description: 'Employer PF + Employer ESIC',
-      },
-    ];
+    return {
+      basic: basicSalary,
+      hra,
+      tds,
+      esic: esicContribution,
+      employeePf: pfContribution,
+    };
   }
 
   protected onStepperNextRequested(): void {

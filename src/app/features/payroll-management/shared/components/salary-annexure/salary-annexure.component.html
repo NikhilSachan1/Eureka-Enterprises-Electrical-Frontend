@@ -1,0 +1,174 @@
+@let data = annexureData();
+@if (data) {
+  <div class="bg-white rounded-2xl shadow-md mb-4 print:shadow-none annexure-container overflow-hidden">
+    <!-- Salary Breakdown -->
+    <div class="px-6 sm:px-8 py-6">
+      <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-1.5 flex-wrap">
+            <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider m-0">Monthly Salary Breakdown</h3>
+            <div class="flex items-center gap-2">
+              @if ('isActive' in data && data.isActive === true) {
+                <app-status-tag value="Current" />
+              }
+              @if ('changeType' in data && data.changeType) {
+                <app-status-tag [value]="data.changeType" />
+              }
+            </div>
+          </div>
+          <p class="text-xs text-gray-400 m-0">All amounts are in Indian Rupees (INR)</p>
+        </div>
+        <div class="text-right bg-gray-100 px-4 py-2.5 rounded-lg">
+          <p class="text-[10px] text-gray-400 m-0 uppercase tracking-wider font-medium mb-0.5">Effective From</p>
+          <p class="text-sm font-semibold text-gray-900 m-0">
+            {{ data.effectiveFrom | date: dateFormat }}
+          </p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <ng-container
+          *ngTemplateOutlet="
+            sectionTemplate;
+            context: {
+              icon: ICONS.COMMON.ARROW_UP,
+              title: 'Earnings',
+              color: 'green',
+              data: data.earnings,
+            }
+          "
+        />
+        <ng-container
+          *ngTemplateOutlet="
+            sectionTemplate;
+            context: {
+              icon: ICONS.COMMON.ARROW_DOWN,
+              title: 'Deductions',
+              color: 'red',
+              data: data.deductions,
+            }
+          "
+        />
+        @if (data.employerBenefits.items && data.employerBenefits.items.length > 0) {
+          <ng-container
+            *ngTemplateOutlet="
+              sectionTemplate;
+              context: {
+                icon: ICONS.COMMON.BRIEFCASE,
+                title: 'Employer Benefits',
+                color: 'blue',
+                data: data.employerBenefits,
+              }
+            "
+          />
+        }
+      </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="px-6 sm:px-8 py-6 bg-gradient-to-b from-gray-50/50 to-white">
+      <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-5">Salary Summary</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        @for (summaryItem of data.salarySummary.items; track summaryItem.title) {
+          <div class="rounded-lg p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider m-0 mb-4">
+              {{ summaryItem.title }}
+            </p>
+            <p class="text-3xl font-bold text-gray-900 m-0 leading-tight mb-3">
+              {{ summaryItem.monthlyValue | currency: currencyCode : 'symbol' : currencyFormat : locale }}
+            </p>
+            <p class="text-xs text-gray-500 m-0 mb-3 font-medium">Monthly</p>
+            <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
+              <span class="text-xs text-gray-500 font-medium">Annual</span>
+              <span class="text-sm font-bold text-gray-700">
+                {{ summaryItem.annualValue | currency: currencyCode : 'symbol' : currencyFormat : locale }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Not Part of CTC Section -->
+    @if (data.notPartCTC.items.length) {
+      <div class="px-6 sm:px-8 py-5 border-t border-gray-200">
+        <div class="rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50/40 to-blue-100/20 p-4 shadow-sm">
+          <div class="mb-3 flex items-center gap-2">
+            <i [class]="`${ICONS.COMMON.GIFT} text-blue-600 text-sm`"></i>
+            <p class="text-xs text-blue-700 font-semibold uppercase tracking-wider m-0">Additional Benefits</p>
+            <span class="text-xs text-blue-600 font-normal italic">(Not part of CTC)</span>
+          </div>
+          <div class="space-y-3">
+            @for (item of data.notPartCTC.items; track item.label) {
+              <div
+                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-2.5 px-3 rounded-md transition-colors border-b border-blue-100/50 last:border-0"
+              >
+                <span class="text-sm font-medium text-gray-700">{{ item.label }}</span>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <div class="text-left sm:text-right">
+                    <p class="text-sm font-semibold text-gray-900 m-0">
+                      {{ item.value | currency: currencyCode : 'symbol' : currencyFormat : locale }}
+                    </p>
+                    <p class="text-xs text-gray-500 m-0">Monthly</p>
+                  </div>
+                  <div class="text-left sm:text-right border-l-0 sm:border-l border-blue-200 pl-0 sm:pl-4">
+                    <p class="text-sm font-semibold text-blue-700 m-0">
+                      {{ item.value * 12 | currency: currencyCode : 'symbol' : currencyFormat : locale }}
+                    </p>
+                    <p class="text-xs text-gray-500 m-0">Annual</p>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Footer Section (Optional) -->
+    <ng-content select="[footer]"></ng-content>
+  </div>
+}
+
+<!-- Reusable Section Template (Earnings, Deductions, Employer Benefits) -->
+<ng-template
+  #sectionTemplate
+  let-icon="icon"
+  let-title="title"
+  let-color="color"
+  let-data="data"
+>
+  @let items = data.items;
+  @let total = data.total;
+  @let colorClasses = getColorClasses(color);
+  @let headerClass = colorClasses.headerClass;
+  @let hoverClass = colorClasses.hoverClass;
+  @let totalBgClass = colorClasses.totalBgClass;
+  @let totalTextClass = colorClasses.totalTextClass;
+
+  <div class="rounded-xl shadow-md overflow-hidden flex flex-col">
+    <div [class]="`${headerClass} text-white px-5 py-3.5`">
+      <div class="flex items-center gap-2.5">
+        <i [class]="`${icon} text-base`"></i>
+        <h3 class="text-sm font-bold uppercase tracking-wider m-0">{{ title }}</h3>
+      </div>
+    </div>
+    <div class="divide-y divide-gray-100 flex-1">
+      @for (item of items; track item.label) {
+        @if (item.value > 0) {
+          <div [class]="`flex justify-between items-center px-5 py-3.5 ${hoverClass} transition-colors`">
+            <span class="text-sm font-medium text-gray-700">{{ item.label }}</span>
+            <span class="text-sm font-semibold text-gray-900">
+              {{ item.value | currency: currencyCode : 'symbol' : currencyFormat : locale }}
+            </span>
+          </div>
+        }
+      }
+    </div>
+    <div [class]="`flex justify-between items-center px-5 py-4 border-t-2 mt-auto ${totalBgClass}`">
+      <span class="text-sm font-bold text-gray-900 uppercase tracking-wider">Total {{ title }}</span>
+      <span [class]="`text-base font-bold ${totalTextClass}`">
+        {{ total | currency: currencyCode : 'symbol' : currencyFormat : locale }}
+      </span>
+    </div>
+  </div>
+</ng-template>

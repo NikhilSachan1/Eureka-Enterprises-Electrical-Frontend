@@ -82,4 +82,33 @@ export const APP_PERMISSION = {
     REJECT: 'reject_expense',
     VIEW_AMOUNT: 'view_expense_amount',
   },
+
+  UI: {
+    SALARY_STRUCTURE: {
+      TABLE: 'ui_table_salary_structure',
+      CONTACT_ANNEXURE: 'ui_contact_annexure_salary_structure',
+    },
+    COMMON: {
+      SIDEBAR_INITIALS: 'ui_common_sidebar_initials',
+    },
+  },
+} as const;
+
+export const UI_PERMISSIONS_ROLE_MAP = {
+  SALARY_STRUCTURE: {
+    TABLE: {
+      ADMIN: true,
+      DRIVER: false,
+    },
+    CONTACT_ANNEXURE: {
+      ADMIN: false,
+      DRIVER: true,
+    },
+  },
+  COMMON: {
+    SIDEBAR_INITIALS: {
+      ADMIN: true,
+      DRIVER: false,
+    },
+  },
 } as const;

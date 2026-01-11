@@ -14,6 +14,7 @@ export const ICONS = {
     CHART_PIE: 'pi pi-chart-pie',
     FILE: 'pi pi-file',
     ARROW_UP: 'pi pi-arrow-up',
+    ARROW_DOWN: 'pi pi-arrow-down',
     SITEMAP: 'pi pi-sitemap',
     SEARCH: 'pi pi-search',
     INFO_CIRCLE: 'pi pi-info-circle',
@@ -32,6 +33,7 @@ export const ICONS = {
     CLOUD_UPLOAD: 'pi pi-cloud-upload',
     ARROW_RIGHT: 'pi pi-arrow-right',
     ARROW_LEFT: 'pi pi-arrow-left',
+    GIFT: 'pi pi-gift',
     PHONE: 'pi pi-phone',
     BRIEFCASE: 'pi pi-briefcase',
     CREDIT_CARD: 'pi pi-credit-card',
@@ -44,6 +46,7 @@ export const ICONS = {
     SPINNER: 'pi pi-spinner',
     SPIN: 'pi pi-spin',
     EXCLAMATION_TRIANGLE: 'pi pi-exclamation-triangle',
+    HISTORY: 'pi pi-history',
   },
   MEDIA: {
     PDF: 'pi pi-file-pdf',

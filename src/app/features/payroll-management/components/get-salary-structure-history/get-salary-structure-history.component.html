@@ -1,0 +1,44 @@
+<ng-container *appHasPermission="APP_PERMISSION.UI.COMMON.SIDEBAR_INITIALS">
+  @let employeeDetails = getEmployeeDetails();
+  @if (employeeDetails) {
+    <div class="mb-6 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+      <div class="flex items-center gap-4">
+        <img
+          [src]="getAvatarUrl(employeeDetails.name)"
+          [alt]="employeeDetails.name"
+          class="w-12 h-12 rounded-full bg-slate-100"
+          loading="lazy"
+        />
+        <div>
+          <h3 class="text-base font-semibold text-gray-800 m-0">{{ employeeDetails.name }}</h3>
+          <p class="text-sm text-gray-500 m-0">{{ employeeDetails.subtitle }}</p>
+        </div>
+      </div>
+    </div>
+  }
+</ng-container>
+
+<!-- Salary Revision History Cards -->
+@let salaryHistory = _salaryDetails();
+<div class="space-y-6">
+  @for (revision of salaryHistory; track revision.effectiveFrom) {
+    <app-salary-annexure [annexureData]="revision">
+      <div footer>
+        <p-divider />
+        <div class="px-6 sm:px-8 pt-0 pb-4 space-y-1">
+          <p class="text-xs text-gray-600 m-0">
+            Changed by
+            <span class="font-semibold">{{ revision.changedByUser }}</span>
+            at
+            <span class="font-semibold">{{ revision.changedAt | date: dateFormat }}</span>
+            on
+            <span class="font-semibold">{{ revision.changedAt | date: timeFormat }}</span>
+          </p>
+          @if (revision.reason) {
+            <p class="text-xs text-gray-600 italic m-0">"{{ revision.reason }}"</p>
+          }
+        </div>
+      </div>
+    </app-salary-annexure>
+  }
+</div>

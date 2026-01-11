@@ -248,7 +248,7 @@ export class TableServerSideParamsBuilderService {
    * @param filterMeta - The filter metadata from PrimeNG
    * @returns The extracted filter value(s)
    */
-  private extractFilterValue(
+  public extractFilterValue(
     filterMeta: FilterMetadata | FilterMetadata[]
   ): unknown {
     // Handle array of filter metadata

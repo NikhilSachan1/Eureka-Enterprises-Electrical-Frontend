@@ -6,6 +6,11 @@ import {
   AppPermissionService,
 } from '@core/services';
 import {
+  APP_PERMISSION,
+  UI_PERMISSIONS_ROLE_MAP,
+} from '@core/constants/app-permission.constant';
+import { AuthService } from '@features/auth-management/services/auth.service';
+import {
   Observable,
   tap,
   catchError,
@@ -40,6 +45,7 @@ export class UserPermissionService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
   private readonly appPermisisonService = inject(AppPermissionService);
+  private readonly authService = inject(AuthService);
 
   private permissions$ = new BehaviorSubject<IAppPermission>([]);
 
@@ -133,21 +139,60 @@ export class UserPermissionService {
       );
   }
 
+  private getUIPermissionsByRole(): IAppPermission {
+    const role = this.authService.getCurrentUser()?.activeRole;
+    if (!role) {
+      return [];
+    }
+
+    const uiPermissions: IAppPermission = [];
+    const roleMap = UI_PERMISSIONS_ROLE_MAP as Record<
+      string,
+      Record<string, Record<string, boolean>>
+    >;
+
+    for (const [moduleKey, permissions] of Object.entries(roleMap)) {
+      const modulePermissions =
+        APP_PERMISSION.UI[moduleKey as keyof typeof APP_PERMISSION.UI];
+
+      if (modulePermissions) {
+        for (const [permissionKey, roleAccess] of Object.entries(permissions)) {
+          if (roleAccess[role]) {
+            const permission =
+              modulePermissions[
+                permissionKey as keyof typeof modulePermissions
+              ];
+
+            if (permission) {
+              uiPermissions.push(permission);
+            }
+          }
+        }
+      }
+    }
+
+    return uiPermissions;
+  }
+
   fetchAndStoreLoggedInUserPermissions(): Observable<IUserPermissionsGetResponseDto> {
     return this.getUserPermission().pipe(
       tap(res => {
-        const permissions = this.getFormatedPermissions(res);
+        const backendPermissions = this.getFormatedPermissions(res);
+        const uiPermissions = this.getUIPermissionsByRole();
+
+        const allPermissions = [...backendPermissions, ...uiPermissions];
+
         const storage = localStorage.getItem('user_data')
           ? localStorage
           : sessionStorage;
         const userData = JSON.parse(storage?.getItem('user_data') ?? '{}');
         if (userData) {
-          this.permissions$.next(permissions);
+          this.permissions$.next(allPermissions);
           storage?.setItem(
             'user_data',
-            JSON.stringify({ ...userData, permissions })
+            JSON.stringify({ ...userData, permissions: allPermissions })
           );
-          this.appPermisisonService.setPermissions(permissions);
+          this.appPermisisonService.setPermissions(allPermissions);
         }
       })
     );

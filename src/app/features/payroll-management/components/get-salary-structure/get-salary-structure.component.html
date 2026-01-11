@@ -1,0 +1,59 @@
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<ng-container *appHasPermission="APP_PERMISSION.UI.SALARY_STRUCTURE.TABLE">
+  <div class="search-filter-wrapper">
+    <app-search-filter
+      [tableRef]="dataTable.dt()"
+      [searchFilterConfig]="searchFilterConfig"
+    />
+  </div>
+
+  <app-data-table
+    #dataTable
+    [tableConfig]="table.tableConfig()"
+    [tableHeader]="table.headers()"
+    [tableData]="table.data()"
+    [loading]="table.loading()"
+    [bulkActionButtons]="table.bulkActions()"
+    [rowActions]="table.rowActions()"
+    (rowActionClick)="handleSalaryStructureTableActionClick($any($event), false)"
+    (filterData)="onTableStateChange($event)"
+    [hidden]="hasEmployeeNameFilter()"
+  />
+</ng-container>
+
+@let data = employeeAnnexureData();
+@if (data) {
+  <app-salary-annexure [annexureData]="data">
+    <div footer>
+      <div class="px-6 sm:px-8 py-6 bg-gradient-to-b from-gray-50/30 to-white flex flex-col gap-5">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="flex-1">
+            <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <i class="pi pi-bolt text-primary"></i>
+              Quick Actions
+            </h4>
+            <p class="text-xs text-gray-500 m-0 mt-1">
+              View complete salary revision history and track all changes over time
+            </p>
+          </div>
+          <app-button
+            [buttonConfig]="getRevisionHistoryButtonConfig()"
+            (onButtonClick)="showRevisionHistory()"
+          />
+        </div>
+
+        <!-- Contact HR Section -->
+        <div
+          class="border-t border-gray-200 pt-5"
+          *appHasPermission="APP_PERMISSION.UI.SALARY_STRUCTURE.CONTACT_ANNEXURE"
+        >
+          <p class="text-xs text-gray-500 text-center m-0 italic">
+            If you face any discrepancy or have questions about your salary structure, feel free to reach out to our HR
+            department.
+          </p>
+        </div>
+      </div>
+    </div>
+  </app-salary-annexure>
+}

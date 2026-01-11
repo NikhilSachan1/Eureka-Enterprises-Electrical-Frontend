@@ -5,42 +5,42 @@ export const SEVERITY_STYLES: Record<StatusSeverity, IStatusStyle> = {
   success: {
     severity: 'success',
     bg: '!bg-green-50',
-    border: 'border-l-green-500',
+    border: 'border-green-200',
     text: 'text-green-600',
     hex: { primary: '#10b981', light: '#d1fae5', dark: '#059669' },
   },
   danger: {
     severity: 'danger',
     bg: '!bg-red-50',
-    border: 'border-l-red-500',
+    border: 'border-red-200',
     text: 'text-red-600',
     hex: { primary: '#ef4444', light: '#fee2e2', dark: '#dc2626' },
   },
   warning: {
     severity: 'warn',
     bg: '!bg-yellow-50',
-    border: 'border-l-yellow-500',
+    border: 'border-yellow-200',
     text: 'text-yellow-600',
     hex: { primary: '#f59e0b', light: '#fef3c7', dark: '#d97706' },
   },
   info: {
     severity: 'info',
     bg: '!bg-blue-50',
-    border: 'border-l-blue-500',
+    border: 'border-blue-200',
     text: 'text-blue-600',
     hex: { primary: '#3b82f6', light: '#dbeafe', dark: '#2563eb' },
   },
   secondary: {
     severity: 'secondary',
     bg: 'bg-gray-50',
-    border: 'border-l-gray-500',
+    border: 'border-gray-200',
     text: 'text-gray-600',
     hex: { primary: '#6b7280', light: '#f3f4f6', dark: '#4b5563' },
   },
   purple: {
     severity: 'secondary', // PrimeNG fallback
     bg: '!bg-purple-50',
-    border: 'border-l-purple-500',
+    border: 'border-purple-200',
     text: 'text-purple-600',
     hex: { primary: '#a855f7', light: '#f3e8ff', dark: '#7c3aed' },
   },
@@ -148,6 +148,17 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   handoveraccepted: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   handoverrejected: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   handovercancelled: { icon: ICONS.ACTIONS.TIMES, severity: 'warning' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PAYROLL / SALARY
+  // ═══════════════════════════════════════════════════════════════════════════
+  earnings: { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
+  deductions: { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
+  'food allowance': { icon: ICONS.EXPENSE.MONEY, severity: 'warning' },
+  'gross salary': { icon: ICONS.EXPENSE.MONEY, severity: 'info' },
+  'net salary': { icon: ICONS.EXPENSE.MONEY, severity: 'success' },
+  'in hand': { icon: ICONS.EXPENSE.MONEY, severity: 'success' },
+  'ctc (annual)': { icon: ICONS.EXPENSE.MONEY, severity: 'purple' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EXPENSE / FINANCIAL

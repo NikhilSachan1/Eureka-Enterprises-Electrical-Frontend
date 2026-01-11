@@ -94,6 +94,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.PAYROLL,
+        loadChildren: () =>
+          import('./features/payroll-management/payroll.routes').then(
+            m => m.PAYROLL_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: '**',
         redirectTo: `${ROUTE_BASE_PATHS.ATTENDANCE}`,
       },
