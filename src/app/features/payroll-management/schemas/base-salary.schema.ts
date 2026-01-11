@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const salaryBaseSchema = z
+export const SalaryBaseSchema = z
   .object({
     basicSalary: z.string(),
     hra: z.string(),

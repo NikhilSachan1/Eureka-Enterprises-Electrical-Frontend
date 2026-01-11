@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { salaryBaseSchema } from './base-salary.schema';
+import { SalaryBaseSchema } from './base-salary.schema';
 
 export const SalaryEditRequestSchema = z
   .object({
-    ...salaryBaseSchema.shape,
+    ...SalaryBaseSchema.shape,
     comments: z.string(),
   })
   .strict()

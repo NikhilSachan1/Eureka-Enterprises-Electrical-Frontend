@@ -2,12 +2,12 @@ import { z } from 'zod';
 import { dateField, uuidField } from '@shared/schemas';
 import { ESalaryIncrementType } from '../types/payroll.enum';
 import { transformDateFormat } from '@shared/utility';
-import { salaryBaseSchema } from './base-salary.schema';
+import { SalaryBaseSchema } from './base-salary.schema';
 
 export const SalaryIncrementAddRequestSchema = z
   .object({
     employeeName: uuidField,
-    ...salaryBaseSchema.shape,
+    ...SalaryBaseSchema.shape,
     incrementStartDate: dateField,
     comments: z.string(),
   })

@@ -64,9 +64,6 @@ export class AddSalaryIncrementComponent implements OnInit {
   private readonly routerNavigationService = inject(RouterNavigationService);
 
   protected form!: IEnhancedForm<ISalaryIncrementAddFormDto>;
-  protected readonly initialSalaryIncrementData =
-    signal<Partial<ISalaryIncrementAddFormDto> | null>(null);
-
   private trackedSalaryFields!: ITrackedFields<
     keyof ISalaryIncrementAddFormDto & string,
     ISalaryIncrementAddFormDto
@@ -76,6 +73,8 @@ export class AddSalaryIncrementComponent implements OnInit {
   protected readonly summaryCalculationFields = computed(() =>
     this.getSummaryCalculationFields()
   );
+  protected readonly initialSalaryIncrementData =
+    signal<Partial<ISalaryIncrementAddFormDto> | null>(null);
   protected readonly isSubmitting = signal(false);
 
   constructor() {
@@ -118,8 +117,8 @@ export class AddSalaryIncrementComponent implements OnInit {
 
   private loadEmployeeSalaryDetail(userId: string): void {
     this.loadingService.show({
-      title: 'Loading Employee Salary Detail',
-      message: 'Please wait while we load the employee salary detail...',
+      title: 'Loading Employee Latest Salary Detail',
+      message: 'Please wait while we load the employee latest salary detail...',
     });
 
     const paramData = this.prepareParamDataForSalaryDetail(userId);

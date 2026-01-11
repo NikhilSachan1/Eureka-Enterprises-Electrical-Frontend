@@ -64,6 +64,10 @@ export class EditSalaryComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected form!: IEnhancedForm<ISalaryEditFormDto>;
+  private trackedSalaryFields!: ITrackedFields<
+    keyof ISalaryEditFormDto & string,
+    ISalaryEditFormDto
+  >;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly summaryCalculationFields = computed(() =>
@@ -72,10 +76,6 @@ export class EditSalaryComponent implements OnInit {
   protected readonly isSubmitting = signal(false);
   protected readonly initialSalaryData =
     signal<Partial<ISalaryEditFormDto> | null>(null);
-  private trackedSalaryFields!: ITrackedFields<
-    keyof ISalaryEditFormDto & string,
-    ISalaryEditFormDto
-  >;
 
   ngOnInit(): void {
     this.loadSalaryDataFromRoute();
