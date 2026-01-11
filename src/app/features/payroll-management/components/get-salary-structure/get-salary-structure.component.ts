@@ -16,7 +16,7 @@ import {
 import { PayrollService } from '@features/payroll-management/services/payroll.service';
 import {
   ISalaryStructureGetBaseResponseDto,
-  ISalaryStructureGetRequestDto,
+  ISalaryStructureGetFormDto,
   ISalaryStructureGetResponseDto,
 } from '@features/payroll-management/types/payroll.dto';
 import {
@@ -145,7 +145,7 @@ export class GetSalaryStructureComponent implements OnInit {
       message: 'Please wait while we load the employee annexure...',
     });
 
-    let paramData!: ISalaryStructureGetRequestDto;
+    let paramData: ISalaryStructureGetFormDto | undefined;
     if (this.shouldShowTable()) {
       paramData = this.prepareParamData();
     }
@@ -177,8 +177,8 @@ export class GetSalaryStructureComponent implements OnInit {
       });
   }
 
-  private prepareParamData(): ISalaryStructureGetRequestDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<ISalaryStructureGetRequestDto>(
+  private prepareParamData(): ISalaryStructureGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<ISalaryStructureGetFormDto>(
       this.tableFilterData,
       this.table.getHeaders()
     );

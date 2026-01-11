@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetLatestSalaryDetailResolver } from './resolvers/get-latest-salary-detail.resolver';
 
 export const PAYROLL_MANAGEMENT_ROUTES: Routes = [
   {
@@ -20,5 +21,15 @@ export const PAYROLL_MANAGEMENT_ROUTES: Routes = [
       import(
         './components/add-salary-increment/add-salary-increment.component'
       ).then(m => m.AddSalaryIncrementComponent),
+  },
+  {
+    path: `${ROUTES.PAYROLL.STRUCTURE}/:salaryStructureId`,
+    loadComponent: () =>
+      import('./components/edit-salary/edit-salary.component').then(
+        m => m.EditSalaryComponent
+      ),
+    resolve: {
+      salaryDetail: GetLatestSalaryDetailResolver,
+    },
   },
 ];

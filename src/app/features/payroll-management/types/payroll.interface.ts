@@ -66,3 +66,12 @@ export interface IEmployeeSalarySummaryItem {
   value: number;
   description: string;
 }
+
+export interface ISalaryDetailResolverResponse {
+  basicSalary: string;
+  hra: string;
+  tds: string;
+  employerEsicContribution: string;
+  employeePfContribution: string;
+  foodAllowance: string;
+}

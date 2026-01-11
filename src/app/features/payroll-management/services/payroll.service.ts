@@ -1,16 +1,19 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService, LoggerService } from '@core/services';
 import {
-  ISalaryIncrementAddRequestDto,
   ISalaryIncrementAddResponseDto,
-  ISalaryStructureGetRequestDto,
-  ISalaryStructureGetRequestInputDto,
+  ISalaryStructureGetFormDto,
   ISalaryStructureGetResponseDto,
   ISalaryStructureHistoryGetResponseDto,
+  ISalaryIncrementAddFormDto,
+  ISalaryEditFormDto,
+  ISalaryEditResponseDto,
 } from '../types/payroll.dto';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
 import {
+  SalaryEditRequestSchema,
+  SalaryEditResponseSchema,
   SalaryIncrementAddRequestSchema,
   SalaryIncrementAddResponseSchema,
   SalaryStructureGetRequestSchema,
@@ -26,16 +29,18 @@ export class PayrollService {
   private readonly apiService = inject(ApiService);
 
   addSalaryIncrement(
-    formData: ISalaryIncrementAddRequestDto
+    formData: ISalaryIncrementAddFormDto
   ): Observable<ISalaryIncrementAddResponseDto> {
     this.logger.logUserAction('Add Salary Increment Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.PAYROLL.ADD_SALARY_INCREMENT,
-        formData,
-        SalaryIncrementAddRequestSchema,
-        SalaryIncrementAddResponseSchema
+        {
+          response: SalaryIncrementAddResponseSchema,
+          request: SalaryIncrementAddRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: ISalaryIncrementAddResponseDto) => {
@@ -55,17 +60,49 @@ export class PayrollService {
       );
   }
 
+  editSalary(
+    formData: ISalaryEditFormDto,
+    salaryStructureId: string
+  ): Observable<ISalaryEditResponseDto> {
+    this.logger.logUserAction('Edit Salary Request');
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.PAYROLL.EDIT(salaryStructureId),
+        {
+          response: SalaryEditResponseSchema,
+          request: SalaryEditRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: ISalaryEditResponseDto) => {
+          this.logger.logUserAction('Edit Salary Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Edit Salary Error', error);
+          } else {
+            this.logger.logUserAction('Edit Salary Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   getSalaryStructureList(
-    params?: ISalaryStructureGetRequestDto | ISalaryStructureGetRequestInputDto
+    params?: ISalaryStructureGetFormDto
   ): Observable<ISalaryStructureGetResponseDto> {
     this.logger.logUserAction('Get Salary Structure List Request');
 
     return this.apiService
       .getValidated(
         API_ROUTES.PAYROLL.STRUCTURE,
-        SalaryStructureGetResponseSchema,
-        params,
-        SalaryStructureGetRequestSchema
+        {
+          response: SalaryStructureGetResponseSchema,
+          request: SalaryStructureGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: ISalaryStructureGetResponseDto) => {
@@ -89,14 +126,16 @@ export class PayrollService {
   }
 
   getSalaryStructureHistory(
-    structureId: string
+    salaryStructureId: string
   ): Observable<ISalaryStructureHistoryGetResponseDto> {
     this.logger.logUserAction('Get Salary Structure History Request');
 
     return this.apiService
       .getValidated(
-        API_ROUTES.PAYROLL.GET_STRUCTURE_HISTORY(structureId),
-        SalaryStructureHistoryGetResponseSchema
+        API_ROUTES.PAYROLL.GET_STRUCTURE_HISTORY(salaryStructureId),
+        {
+          response: SalaryStructureHistoryGetResponseSchema,
+        }
       )
       .pipe(
         tap((response: ISalaryStructureHistoryGetResponseDto) => {

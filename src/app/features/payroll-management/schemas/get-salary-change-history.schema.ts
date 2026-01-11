@@ -10,24 +10,30 @@ import { salaryStructureSchema } from './get-salary-structure.schema';
 
 export const SalaryStructureHistoryGetRequestSchema = z
   .object({
-    id: uuidField,
+    salaryStructureId: uuidField,
   })
-  .strict();
+  .strict()
+  .transform(({ salaryStructureId }) => {
+    return {
+      id: salaryStructureId,
+    };
+  });
 
-export const SalaryStructureHistoryGetBaseResponseSchema = z
-  .object({
+export const SalaryStructureHistoryGetBaseResponseSchema = AuditSchema.pick({
+  updatedAt: true,
+  createdAt: true,
+})
+  .extend({
     id: uuidField,
     salaryStructureId: uuidField,
     changeType: z.enum(EPayrollChangeType),
     previousValues: salaryStructureSchema.nullable(),
-    newValues: salaryStructureSchema.extend({
-      effectiveFrom: z.string(), //ToDo Remove explicit string type once backend is updated
-    }),
+    newValues: salaryStructureSchema,
     changedBy: uuidField,
     changedAt: isoDateTimeField,
     reason: z.string().trim().min(1),
     changedByUser: UserSchema,
-    ...AuditSchema.shape,
+    isActive: z.boolean(),
   })
   .strict();
 

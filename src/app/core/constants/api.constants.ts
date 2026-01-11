@@ -80,6 +80,8 @@ export const API_ROUTES = {
     GET_STRUCTURE_HISTORY: (structureId: string) =>
       `salary-structures/${structureId}/change-history`,
     ADD_SALARY_INCREMENT: 'salary-structures/increment',
+    EDIT: (salaryStructureId: string) =>
+      `salary-structures/${salaryStructureId}`,
   },
   SETTINGS: {
     PERMISSION: {

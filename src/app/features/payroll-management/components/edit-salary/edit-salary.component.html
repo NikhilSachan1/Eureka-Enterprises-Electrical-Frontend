@@ -1,1 +1,98 @@
-<p>edit-salary works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <!-- Earnings Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Earnings</h3>
+    </div>
+    <div class="form-section__content">
+      <div class="grid grid-cols-1 md:grid-cols-2">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.basicSalary"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.hra"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Deductions Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Deductions</h3>
+    </div>
+    <div class="form-section__content">
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.tds"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.employerEsicContribution"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.employeePfContribution"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Food Allowance Section -->
+  <div class="form-section">
+    <div
+      class="form-section__header form-section__header--bordered form-section__header form-section__header--bordered--bordered"
+    >
+      <h3 class="form-section__title">Food Allowance</h3>
+      <span class="form-section__subtitle">(Not part of CTC)</span>
+    </div>
+    <div class="form-section__content">
+      <div class="grid grid-cols-1 md:grid-cols-1">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.foodAllowance"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Comments Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Comments</h3>
+    </div>
+    <div class="form-section__content">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.comments"
+      />
+    </div>
+  </div>
+
+  <!-- Summary Section -->
+  <app-salary-summary [salaryFields]="summaryCalculationFields()" />
+
+  <div class="button-container">
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    />
+
+    <app-button
+      [buttonConfig]="form.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+    />
+  </div>
+</form>

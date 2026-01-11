@@ -5,10 +5,17 @@
   [formGroup]="form.formGroup"
   class="form"
 >
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['employeeName']"
-  />
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.employeeName"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.incrementStartDate"
+    />
+  </div>
 
   <!-- Earnings Section -->
   <div class="form-section">
@@ -19,12 +26,12 @@
       <div class="grid grid-cols-1 md:grid-cols-2">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['basicSalary']"
+          [inputFieldConfig]="form.fieldConfigs.basicSalary"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['hra']"
+          [inputFieldConfig]="form.fieldConfigs.hra"
         />
       </div>
     </div>
@@ -39,17 +46,17 @@
       <div class="grid grid-cols-1 md:grid-cols-3">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['tds']"
+          [inputFieldConfig]="form.fieldConfigs.tds"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['esicContribution']"
+          [inputFieldConfig]="form.fieldConfigs.employerEsicContribution"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['pfContribution']"
+          [inputFieldConfig]="form.fieldConfigs.employeePfContribution"
         />
       </div>
     </div>
@@ -67,14 +74,27 @@
       <div class="grid grid-cols-1 md:grid-cols-1">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['foodAllowance']"
+          [inputFieldConfig]="form.fieldConfigs.foodAllowance"
         />
       </div>
     </div>
   </div>
 
+  <!-- Comments Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Comments</h3>
+    </div>
+    <div class="form-section__content">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.comments"
+      />
+    </div>
+  </div>
+
   <!-- Summary Section -->
-  <app-salary-summary [salaryFields]="salaryFields()" />
+  <app-salary-summary [salaryFields]="summaryCalculationFields()" />
 
   <div class="button-container">
     <app-button

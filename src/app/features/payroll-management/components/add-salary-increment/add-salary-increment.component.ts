@@ -13,8 +13,8 @@ import { LoggerService } from '@core/services';
 import { ADD_SALARY_INCREMENT_FORM_CONFIG } from '@features/payroll-management/config';
 import { PayrollService } from '@features/payroll-management/services/payroll.service';
 import {
-  ISalaryIncrementAddRequestDto,
-  ISalaryStructureGetRequestInputDto,
+  ISalaryIncrementAddFormDto,
+  ISalaryStructureGetFormDto,
   ISalaryStructureGetResponseDto,
 } from '@features/payroll-management/types/payroll.dto';
 import {
@@ -33,13 +33,12 @@ import {
   IPageHeaderConfig,
   ITrackedFields,
 } from '@shared/types';
-import { transformDateFormat } from '@shared/utility';
+import { ISalaryFields } from '@features/payroll-management/types/payroll.interface';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SalarySummaryComponent } from '@features/payroll-management/shared/components/salary-summary/salary-summary.component';
-import { ISalaryFields } from '@features/payroll-management/types/payroll.interface';
 import { ButtonComponent } from '@shared/components/button/button.component';
 
 @Component({
@@ -64,21 +63,24 @@ export class AddSalaryIncrementComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
 
-  protected form!: IEnhancedForm;
-  protected readonly initialSalaryIncrementData = signal<Record<
-    string,
-    unknown
-  > | null>(null);
+  protected form!: IEnhancedForm<ISalaryIncrementAddFormDto>;
+  protected readonly initialSalaryIncrementData =
+    signal<Partial<ISalaryIncrementAddFormDto> | null>(null);
 
-  private trackedSalaryFields!: ITrackedFields<string>;
+  private trackedSalaryFields!: ITrackedFields<
+    keyof ISalaryIncrementAddFormDto & string,
+    ISalaryIncrementAddFormDto
+  >;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly salaryFields = computed(() => this.getSalaryFields());
+  protected readonly summaryCalculationFields = computed(() =>
+    this.getSummaryCalculationFields()
+  );
   protected readonly isSubmitting = signal(false);
 
   constructor() {
     effect(() => {
-      const employeeName = this.trackedSalaryFields?.['employeeName']?.();
+      const employeeName = this.trackedSalaryFields.employeeName() as string;
       if (employeeName) {
         this.onChangeEmployeeName(employeeName);
       }
@@ -86,23 +88,28 @@ export class AddSalaryIncrementComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(ADD_SALARY_INCREMENT_FORM_CONFIG, {
-      destroyRef: this.destroyRef,
-      defaultValues: this.initialSalaryIncrementData(),
-    });
-
-    this.trackedSalaryFields = this.formService.trackMultipleFieldChanges(
-      this.form.formGroup,
-      [
-        'basicSalary',
-        'hra',
-        'tds',
-        'esicContribution',
-        'pfContribution',
-        'employeeName',
-      ],
-      this.destroyRef
+    this.form = this.formService.createForm<ISalaryIncrementAddFormDto>(
+      ADD_SALARY_INCREMENT_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+        defaultValues: this.initialSalaryIncrementData(),
+      }
     );
+
+    const trackedFields: (keyof ISalaryIncrementAddFormDto)[] = [
+      'basicSalary',
+      'hra',
+      'tds',
+      'employerEsicContribution',
+      'employeePfContribution',
+      'employeeName',
+    ];
+    this.trackedSalaryFields =
+      this.formService.trackMultipleFieldChanges<ISalaryIncrementAddFormDto>(
+        this.form.formGroup,
+        trackedFields,
+        this.destroyRef
+      );
   }
 
   private onChangeEmployeeName(userId: string): void {
@@ -147,7 +154,7 @@ export class AddSalaryIncrementComponent implements OnInit {
 
   private prepareParamDataForSalaryDetail(
     userId: string
-  ): ISalaryStructureGetRequestInputDto {
+  ): ISalaryStructureGetFormDto {
     return {
       employeeName: userId,
     };
@@ -156,16 +163,16 @@ export class AddSalaryIncrementComponent implements OnInit {
   private preparePrefilledSalaryDetailData(
     salaryDetail: ISalaryStructureGetResponseDto['records'],
     userId: string
-  ): Record<string, unknown> {
+  ): Partial<ISalaryIncrementAddFormDto> {
     const salaryDetailData = salaryDetail[0];
     return {
       employeeName: userId,
       basicSalary: salaryDetailData.basic,
       hra: salaryDetailData.hra,
-      tds: salaryDetailData.tds,
-      esicContribution: salaryDetailData.esic,
-      pfContribution: salaryDetailData.employeePf,
-      foodAllowance: salaryDetailData.foodAllowance,
+      tds: salaryDetailData.tds ?? '0',
+      employerEsicContribution: salaryDetailData.esic ?? '0',
+      employeePfContribution: salaryDetailData.employeePf ?? '0',
+      foodAllowance: salaryDetailData.foodAllowance ?? '0',
     };
   }
 
@@ -178,41 +185,29 @@ export class AddSalaryIncrementComponent implements OnInit {
     this.executeAddSalaryIncrement(formData);
   }
 
-  private prepareFormData(): ISalaryIncrementAddRequestDto {
+  private prepareFormData(): ISalaryIncrementAddFormDto {
+    const formData = this.form.getData();
     const {
-      employeeName,
       basicSalary,
       hra,
       tds,
-      esicContribution,
-      pfContribution,
+      employerEsicContribution,
+      employeePfContribution,
       foodAllowance,
-    } = this.form.getData() as {
-      employeeName: string;
-      basicSalary: number;
-      hra: number;
-      foodAllowance: number;
-      tds: number;
-      esicContribution: number;
-      pfContribution: number;
-    };
-
+    } = formData;
     return {
-      userId: employeeName,
-      basic: basicSalary,
-      hra,
-      tds,
-      esic: esicContribution,
-      employeePf: pfContribution,
-      foodAllowance,
-      remark: '',
-      effectiveFrom: transformDateFormat(new Date()),
-      employerPf: pfContribution,
+      ...formData,
+      basicSalary: String(basicSalary ?? 0),
+      hra: String(hra ?? 0),
+      tds: String(tds ?? 0),
+      employerEsicContribution: String(employerEsicContribution ?? 0),
+      employeePfContribution: String(employeePfContribution ?? 0),
+      foodAllowance: String(foodAllowance ?? 0),
     };
   }
 
   private executeAddSalaryIncrement(
-    formData: ISalaryIncrementAddRequestDto
+    formData: ISalaryIncrementAddFormDto
   ): void {
     this.isSubmitting.set(true);
     this.loadingService.show({
@@ -248,22 +243,21 @@ export class AddSalaryIncrementComponent implements OnInit {
       });
   }
 
-  private getSalaryFields(): ISalaryFields {
-    const { basicSalary, hra, tds, esicContribution, pfContribution } =
-      this.trackedSalaryFields.getValues() as {
-        basicSalary: string;
-        hra: string;
-        tds: string;
-        esicContribution: string;
-        pfContribution: string;
-      };
-
-    return {
-      basic: basicSalary,
+  private getSummaryCalculationFields(): ISalaryFields {
+    const {
+      basicSalary,
       hra,
       tds,
-      esic: esicContribution,
-      employeePf: pfContribution,
+      employerEsicContribution,
+      employeePfContribution,
+    } = this.trackedSalaryFields.getValues();
+
+    return {
+      basic: basicSalary ?? 0,
+      hra: hra ?? '0',
+      tds: tds ?? '0',
+      esic: employerEsicContribution ?? '0',
+      employeePf: employeePfContribution ?? '0',
     };
   }
 
@@ -281,7 +275,7 @@ export class AddSalaryIncrementComponent implements OnInit {
   protected onReset(): void {
     try {
       this.logger.logUserAction('Reset Add Salary Increment Form');
-      this.form.reset(this.initialSalaryIncrementData() ?? {});
+      this.form.reset(this.initialSalaryIncrementData());
     } catch (error) {
       this.logger.error('Error resetting form', error);
     }

@@ -3,3 +3,8 @@ export enum EPayrollChangeType {
   CREATE = 'CREATE',
   INCREMENT = 'INCREMENT',
 }
+
+export enum ESalaryIncrementType {
+  ANNUAL = 'ANNUAL',
+  MONTHLY = 'MONTHLY',
+}

@@ -6,8 +6,9 @@ import {
   ITableSearchFilterFormConfig,
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
+import { ISalaryStructureGetFormDto } from '@features/payroll-management/types/payroll.dto';
 
-const SEARCH_FILTER_SALARY_STRUCTURE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
+const SEARCH_FILTER_SALARY_STRUCTURE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<ISalaryStructureGetFormDto> =
   {
     employeeName: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
@@ -27,7 +28,7 @@ const SEARCH_FILTER_SALARY_STRUCTURE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const SEARCH_FILTER_SALARY_STRUCTURE_FORM_CONFIG: ITableSearchFilterFormConfig =
+export const SEARCH_FILTER_SALARY_STRUCTURE_FORM_CONFIG: ITableSearchFilterFormConfig<ISalaryStructureGetFormDto> =
   {
     fields: SEARCH_FILTER_SALARY_STRUCTURE_FORM_FIELDS_CONFIG,
     buttons: SEARCH_FILTER_SALARY_STRUCTURE_FORM_BUTTONS_CONFIG,

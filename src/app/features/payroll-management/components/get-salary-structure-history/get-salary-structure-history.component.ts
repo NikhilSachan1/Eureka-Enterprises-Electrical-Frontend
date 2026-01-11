@@ -9,7 +9,7 @@ import { PayrollService } from '@features/payroll-management/services/payroll.se
 import { SalaryAnnexureComponent } from '@features/payroll-management/shared/components/salary-annexure/salary-annexure.component';
 import {
   ISalaryStructureGetBaseResponseDto,
-  ISalaryStructureHistoryGetRequestDto,
+  ISalaryStructureHistoryGetFormDto,
   ISalaryStructureHistoryGetResponseDto,
 } from '@features/payroll-management/types/payroll.dto';
 import { IEmployeeSalaryRevisionHistoryItem } from '@features/payroll-management/types/payroll.interface';
@@ -74,7 +74,7 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
     const paramData = this.prepareParamData();
 
     this.payrollService
-      .getSalaryStructureHistory(paramData.id)
+      .getSalaryStructureHistory(paramData.salaryStructureId)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -99,9 +99,9 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
       });
   }
 
-  private prepareParamData(): ISalaryStructureHistoryGetRequestDto {
+  private prepareParamData(): ISalaryStructureHistoryGetFormDto {
     return {
-      id: this.drawerData.salaryStructure.id,
+      salaryStructureId: this.drawerData.salaryStructure.id,
     };
   }
 
@@ -170,7 +170,7 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
           changedAt,
           reason,
           changeType: this.getChangeTypeLabel(changeType),
-          isActive: true, // ToDo: Remove this once backend is updated
+          isActive: record.isActive,
         };
       }
     );

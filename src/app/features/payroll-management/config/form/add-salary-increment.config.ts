@@ -7,64 +7,37 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
+import { ISalaryIncrementAddFormDto } from '@features/payroll-management/types/payroll.dto';
+import { EDIT_SALARY_FORM_CONFIG } from './edit-salary.config';
 
-const ADD_SALARY_INCREMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  employeeName: {
-    fieldType: EDataType.SELECT,
-    id: 'employeeName',
-    fieldName: 'employeeName',
-    label: 'Employee Name',
-    selectConfig: {
-      dynamicDropdown: {
-        moduleName: MODULE_NAMES.EMPLOYEE,
-        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+const ADD_SALARY_INCREMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISalaryIncrementAddFormDto> =
+  {
+    employeeName: {
+      fieldType: EDataType.SELECT,
+      id: 'employeeName',
+      fieldName: 'employeeName',
+      label: 'Employee Name',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.EMPLOYEE,
+          dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+        },
       },
+      validators: [Validators.required],
     },
-    validators: [Validators.required],
-  },
-  basicSalary: {
-    id: 'basicSalary',
-    fieldName: 'basicSalary',
-    label: 'Basic Salary',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-  hra: {
-    id: 'hra',
-    fieldName: 'hra',
-    label: 'HRA',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-  foodAllowance: {
-    id: 'foodAllowance',
-    fieldName: 'foodAllowance',
-    label: 'Food Allowance',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-  tds: {
-    id: 'tds',
-    fieldName: 'tds',
-    label: 'TDS',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-  esicContribution: {
-    id: 'esicContribution',
-    fieldName: 'esicContribution',
-    label: 'ESIC Contribution',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-  pfContribution: {
-    id: 'pfContribution',
-    fieldName: 'pfContribution',
-    label: 'PF Contribution',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-};
+    incrementStartDate: {
+      fieldType: EDataType.DATE,
+      id: 'incrementStartDate',
+      fieldName: 'incrementStartDate',
+      label: 'Increment Effective From',
+      dateConfig: {
+        minDate: new Date(),
+      },
+      validators: [Validators.required],
+    },
+
+    ...EDIT_SALARY_FORM_CONFIG.fields,
+  };
 
 const ADD_SALARY_INCREMENT_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -77,7 +50,8 @@ const ADD_SALARY_INCREMENT_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const ADD_SALARY_INCREMENT_FORM_CONFIG: IFormConfig = {
-  fields: ADD_SALARY_INCREMENT_FORM_FIELDS_CONFIG,
-  buttons: ADD_SALARY_INCREMENT_FORM_BUTTONS_CONFIG,
-};
+export const ADD_SALARY_INCREMENT_FORM_CONFIG: IFormConfig<ISalaryIncrementAddFormDto> =
+  {
+    fields: ADD_SALARY_INCREMENT_FORM_FIELDS_CONFIG,
+    buttons: ADD_SALARY_INCREMENT_FORM_BUTTONS_CONFIG,
+  };
