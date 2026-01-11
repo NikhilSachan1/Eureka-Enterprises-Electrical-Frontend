@@ -27,13 +27,12 @@ export class FormService {
   private readonly fb = inject(FormBuilder);
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
 
-  createForm(
-    formConfig: IFormConfig,
-    options: ICreateFormOptions
-  ): IEnhancedForm {
+  createForm<
+    T extends Record<string, unknown> | object = Record<string, unknown>,
+  >(formConfig: IFormConfig<T>, options: ICreateFormOptions): IEnhancedForm<T> {
     const { destroyRef, defaultValues, context } = options;
     if (!formConfig?.fields || Object.keys(formConfig.fields).length === 0) {
-      return {} as IEnhancedForm;
+      return {} as IEnhancedForm<T>;
     }
 
     const inputFieldsConfigs =
@@ -50,7 +49,7 @@ export class FormService {
       context
     );
 
-    return this.createEnhancedForm(
+    return this.createEnhancedForm<T>(
       formGroup,
       inputFieldsConfigs,
       formConfig.buttons
@@ -550,14 +549,16 @@ export class FormService {
     );
   }
 
-  private createEnhancedForm(
+  private createEnhancedForm<
+    T extends Record<string, unknown> | object = Record<string, unknown>,
+  >(
     formGroup: FormGroup,
     fieldConfigs: Record<string, IInputFieldsConfig>,
     buttonConfigs: IFormButtonConfig = {}
-  ): IEnhancedForm {
+  ): IEnhancedForm<T> {
     return {
       formGroup,
-      fieldConfigs,
+      fieldConfigs: fieldConfigs as Record<keyof T, IInputFieldsConfig>,
       buttonConfigs,
       isValid: () => formGroup.valid, // true if all fields are valid, no errors.
       isInvalid: () => formGroup.invalid, // true if any field has an error.
@@ -565,16 +566,17 @@ export class FormService {
       isTouched: () => formGroup.touched, // true even if they didn't type anything.
       isReady: () => formGroup.valid && !formGroup.pending, // Is the form good to go? (Valid & no background checks running)
       markTouched: () => formGroup.markAllAsTouched(), // Force the form to act like the user touched everything.
-      reset: (value?: Record<string, unknown>) => formGroup.reset(value),
+      reset: (value?: Partial<T>) => formGroup.reset(value),
       disable: () => formGroup.disable(),
       enable: () => formGroup.enable(),
-      patch: (value: Record<string, unknown>) => formGroup.patchValue(value), // Update only some fields in the form.
-      setValue: (value: Record<string, unknown>) => formGroup.setValue(value), // Update all fields in the form.
+      patch: (value?: Partial<T>) => formGroup.patchValue(value ?? {}), // Update only some fields in the form.
+      setValue: (value: T) => formGroup.setValue(value), // Update all fields in the form.
       updateValidation: () => formGroup.updateValueAndValidity(), // Force validation to run again.
       validateAndMarkTouched: () => this.validateAndMarkTouched(formGroup), // Validate and mark touched in one method
-      getData: () => formGroup.value, // Get form data (enabled controls only)
-      getRawData: () => formGroup.getRawValue(), // Get raw form data (includes disabled controls)
-      getFieldData: (fieldName: string) => formGroup.get(fieldName)?.value, // Get data for a specific field
+      getData: () => formGroup.value as T, // Get form data (enabled controls only)
+      getRawData: () => formGroup.getRawValue() as T, // Get raw form data (includes disabled controls)
+      getFieldData: <K extends keyof T>(fieldName: K) =>
+        formGroup.get(fieldName as string)?.value as T[K], // Get data for a specific field
     };
   }
 

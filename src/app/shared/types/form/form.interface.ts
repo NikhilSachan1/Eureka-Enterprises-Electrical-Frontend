@@ -3,15 +3,18 @@ import type { Signal } from '@angular/core';
 import { IInputFieldsConfig } from '@shared/types/form/input-fields-config.interface';
 import { IButtonConfig } from '@shared/types/button/button.interface';
 
-export type IFormInputFieldsConfig = Record<
-  string,
-  Partial<IInputFieldsConfig>
->;
+export type IFormInputFieldsConfig<
+  T extends Record<string, unknown> | object = Record<string, unknown>,
+> = {
+  [K in keyof T]: Partial<IInputFieldsConfig>;
+};
 
 export type IFormButtonConfig = Record<string, Partial<IButtonConfig>>;
 
-export interface IFormConfig {
-  fields: IFormInputFieldsConfig;
+export interface IFormConfig<
+  T extends Record<string, unknown> | object = Record<string, unknown>,
+> {
+  fields: IFormInputFieldsConfig<T>;
   buttons?: IFormButtonConfig;
 }
 
@@ -36,9 +39,11 @@ export interface IEnhancedMultiStepForm {
   getRawData(): Record<string, unknown>;
 }
 
-export interface IEnhancedForm {
+export interface IEnhancedForm<
+  T extends Record<string, unknown> | object = Record<string, unknown>,
+> {
   formGroup: FormGroup;
-  fieldConfigs: Record<string, IInputFieldsConfig>;
+  fieldConfigs: Record<keyof T, IInputFieldsConfig>;
   buttonConfigs: Record<string, Partial<IButtonConfig>>;
   isValid(): boolean;
   isInvalid(): boolean;
@@ -46,16 +51,16 @@ export interface IEnhancedForm {
   isTouched(): boolean;
   isReady(): boolean;
   markTouched(): void;
-  reset(value?: Record<string, unknown>): void;
+  reset(value?: Partial<T>): void;
   disable(): void;
   enable(): void;
-  patch(value: Record<string, unknown>): void;
-  setValue(value: Record<string, unknown>): void;
+  patch(value?: Partial<T>): void;
+  setValue(value: T): void;
   updateValidation(): void;
   validateAndMarkTouched(): boolean;
-  getData(): Record<string, unknown>;
-  getRawData(): Record<string, unknown>;
-  getFieldData(fieldName: string): unknown;
+  getData(): T;
+  getRawData(): T;
+  getFieldData<K extends keyof T>(fieldName: K): T[K];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
