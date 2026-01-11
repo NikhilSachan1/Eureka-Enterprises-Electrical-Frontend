@@ -14,9 +14,11 @@ import {
   ITrackedForm,
 } from '@shared/types';
 
-export interface ICreateFormOptions {
+export interface ICreateFormOptions<
+  T extends Record<string, unknown> | object = Record<string, unknown>,
+> {
   destroyRef: DestroyRef;
-  defaultValues?: Record<string, unknown> | null;
+  defaultValues?: T | null;
   context?: Record<string, unknown>;
 }
 
@@ -29,7 +31,10 @@ export class FormService {
 
   createForm<
     T extends Record<string, unknown> | object = Record<string, unknown>,
-  >(formConfig: IFormConfig<T>, options: ICreateFormOptions): IEnhancedForm<T> {
+  >(
+    formConfig: IFormConfig<T>,
+    options: ICreateFormOptions<T>
+  ): IEnhancedForm<T> {
     const { destroyRef, defaultValues, context } = options;
     if (!formConfig?.fields || Object.keys(formConfig.fields).length === 0) {
       return {} as IEnhancedForm<T>;
@@ -39,7 +44,7 @@ export class FormService {
       this.inputFieldConfigService.initializeFieldConfigs(formConfig.fields);
     const formGroup = this.createReactiveFormGroup(
       inputFieldsConfigs,
-      defaultValues ?? {}
+      (defaultValues ?? {}) as Record<string, unknown>
     );
 
     this.applyConditionalValidators(
@@ -566,10 +571,10 @@ export class FormService {
       isTouched: () => formGroup.touched, // true even if they didn't type anything.
       isReady: () => formGroup.valid && !formGroup.pending, // Is the form good to go? (Valid & no background checks running)
       markTouched: () => formGroup.markAllAsTouched(), // Force the form to act like the user touched everything.
-      reset: (value?: Partial<T>) => formGroup.reset(value),
+      reset: (value?: T) => formGroup.reset(value),
       disable: () => formGroup.disable(),
       enable: () => formGroup.enable(),
-      patch: (value?: Partial<T>) => formGroup.patchValue(value ?? {}), // Update only some fields in the form.
+      patch: (value?: T) => formGroup.patchValue(value ?? {}), // Update only some fields in the form.
       setValue: (value: T) => formGroup.setValue(value), // Update all fields in the form.
       updateValidation: () => formGroup.updateValueAndValidity(), // Force validation to run again.
       validateAndMarkTouched: () => this.validateAndMarkTouched(formGroup), // Validate and mark touched in one method

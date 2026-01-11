@@ -51,10 +51,10 @@ export interface IEnhancedForm<
   isTouched(): boolean;
   isReady(): boolean;
   markTouched(): void;
-  reset(value?: Partial<T>): void;
+  reset(value?: T): void;
   disable(): void;
   enable(): void;
-  patch(value?: Partial<T>): void;
+  patch(value?: T): void;
   setValue(value: T): void;
   updateValidation(): void;
   validateAndMarkTouched(): boolean;
