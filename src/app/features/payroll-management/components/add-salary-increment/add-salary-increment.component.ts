@@ -28,7 +28,11 @@ import {
   NotificationService,
   RouterNavigationService,
 } from '@shared/services';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
+import {
+  IEnhancedForm,
+  IPageHeaderConfig,
+  ITrackedFields,
+} from '@shared/types';
 import { transformDateFormat } from '@shared/utility';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -66,9 +70,7 @@ export class AddSalaryIncrementComponent implements OnInit {
     unknown
   > | null>(null);
 
-  private trackedSalaryFields: ReturnType<
-    typeof this.formService.trackMultipleFieldChanges
-  > | null = null;
+  private trackedSalaryFields!: ITrackedFields<string>;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly salaryFields = computed(() => this.getSalaryFields());
@@ -248,7 +250,7 @@ export class AddSalaryIncrementComponent implements OnInit {
 
   private getSalaryFields(): ISalaryFields {
     const { basicSalary, hra, tds, esicContribution, pfContribution } =
-      this.trackedSalaryFields?.getValues() as {
+      this.trackedSalaryFields.getValues() as {
         basicSalary: string;
         hra: string;
         tds: string;
