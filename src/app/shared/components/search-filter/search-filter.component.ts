@@ -82,13 +82,13 @@ export class SearchFilterComponent implements OnInit {
       if (key === 'globalSearch') {
         this.tableRef().filterGlobal(
           value as string,
-          this.searchFilterConfig().fields[key].matchmode
+          this.searchFilterConfig().fields[key].matchmode as string
         );
       } else {
         this.tableRef().filter(
           value,
           key,
-          this.searchFilterConfig().fields[key].matchmode
+          this.searchFilterConfig().fields[key].matchmode as string
         );
       }
     });

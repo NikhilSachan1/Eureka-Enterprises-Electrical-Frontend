@@ -49,9 +49,11 @@ export class VehicleService {
     return this.apiService
       .postValidated(
         API_ROUTES.VEHICLE.ADD,
+        {
+          response: VehicleAddResponseSchema,
+          request: VehicleAddRequestSchema,
+        },
         formData,
-        VehicleAddRequestSchema,
-        VehicleAddResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -78,9 +80,11 @@ export class VehicleService {
     return this.apiService
       .patchValidated(
         API_ROUTES.VEHICLE.EDIT(vehicleId),
+        {
+          response: VehicleEditResponseSchema,
+          request: VehicleEditRequestSchema,
+        },
         formData,
-        VehicleEditRequestSchema,
-        VehicleEditResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -106,9 +110,11 @@ export class VehicleService {
     return this.apiService
       .deleteValidated(
         API_ROUTES.VEHICLE.DELETE,
-        VehicleDeleteResponseSchema,
-        formData,
-        VehicleDeleteRequestSchema
+        {
+          response: VehicleDeleteResponseSchema,
+          request: VehicleDeleteRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IVehicleDeleteResponseDto) => {
@@ -133,9 +139,11 @@ export class VehicleService {
     return this.apiService
       .postValidated(
         API_ROUTES.VEHICLE.ACTION,
+        {
+          response: ActionVehicleResponseSchema,
+          request: ActionVehicleRequestSchema,
+        },
         formData,
-        ActionVehicleRequestSchema,
-        ActionVehicleResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -161,9 +169,11 @@ export class VehicleService {
     return this.apiService
       .getValidated(
         API_ROUTES.VEHICLE.LIST,
-        VehicleGetResponseSchema,
-        params,
-        VehicleGetRequestSchema
+        {
+          response: VehicleGetResponseSchema,
+          request: VehicleGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IVehicleGetResponseDto) => {
@@ -186,10 +196,9 @@ export class VehicleService {
     this.logger.logUserAction('Get Vehicle Detail By Id Request');
 
     return this.apiService
-      .getValidated(
-        API_ROUTES.VEHICLE.GET_VEHICLE_BY_ID(params.id),
-        VehicleDetailGetResponseSchema
-      )
+      .getValidated(API_ROUTES.VEHICLE.GET_VEHICLE_BY_ID(params.id), {
+        response: VehicleDetailGetResponseSchema,
+      })
       .pipe(
         tap((response: IVehicleDetailGetResponseDto) => {
           this.logger.logUserAction(
@@ -220,9 +229,11 @@ export class VehicleService {
     return this.apiService
       .getValidated(
         API_ROUTES.VEHICLE.GET_VEHICLE_EVENT_HISTORY(vehicleId),
-        VehicleEventHistoryGetResponseSchema,
-        params,
-        VehicleEventHistoryGetRequestSchema
+        {
+          response: VehicleEventHistoryGetResponseSchema,
+          request: VehicleEventHistoryGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IVehicleEventHistoryGetResponseDto) => {

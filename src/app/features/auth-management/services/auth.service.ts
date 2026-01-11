@@ -125,9 +125,11 @@ export class AuthService {
     return this.apiService
       .postValidated(
         API_ROUTES.AUTH.LOGIN,
-        formData,
-        LoginRequestSchema,
-        LoginResponseSchema
+        {
+          response: LoginResponseSchema,
+          request: LoginRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: ILoginResponseDto) => {
@@ -195,9 +197,11 @@ export class AuthService {
     return this.apiService
       .postValidated(
         API_ROUTES.AUTH.LOGOUT,
-        formData,
-        LogoutRequestSchema,
-        LogoutResponseSchema
+        {
+          response: LogoutResponseSchema,
+          request: LogoutRequestSchema,
+        },
+        formData
       )
       .pipe(
         delay(2000),
@@ -229,9 +233,11 @@ export class AuthService {
     return this.apiService
       .postValidated(
         API_ROUTES.AUTH.SWITCH_ACTIVE_ROLE,
-        formData,
-        SwitchActiveRoleRequestSchema,
-        SwitchActiveRoleResponseSchema
+        {
+          response: SwitchActiveRoleResponseSchema,
+          request: SwitchActiveRoleRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: ISwitchActiveRoleResponseDto) => {
@@ -287,9 +293,11 @@ export class AuthService {
     return this.apiService
       .postValidated(
         API_ROUTES.AUTH.REFRESH_TOKEN,
-        paramData,
-        RefreshTokenRequestSchema,
-        RefreshTokenResponseSchema
+        {
+          response: RefreshTokenResponseSchema,
+          request: RefreshTokenRequestSchema,
+        },
+        paramData
       )
       .pipe(
         tap((response: IRefreshTokenResponseDto) => {

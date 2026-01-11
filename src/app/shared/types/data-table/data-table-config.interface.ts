@@ -120,12 +120,15 @@ export interface ITableSearchFilterFieldConfig
   permission?: string[];
 }
 
-export type ITableSearchFilterInputFieldsConfig = Record<
-  string,
-  ITableSearchFilterFieldConfig
->;
+export type ITableSearchFilterInputFieldsConfig<
+  T extends Record<string, unknown> | object = Record<string, unknown>,
+> = {
+  [K in keyof T]: Partial<ITableSearchFilterFieldConfig>;
+};
 
-export interface ITableSearchFilterFormConfig {
-  fields: ITableSearchFilterInputFieldsConfig;
+export interface ITableSearchFilterFormConfig<
+  T extends Record<string, unknown> | object = Record<string, unknown>,
+> {
+  fields: ITableSearchFilterInputFieldsConfig<T>;
   buttons?: IFormButtonConfig;
 }

@@ -18,7 +18,7 @@ export interface ICreateFormOptions<
   T extends Record<string, unknown> | object = Record<string, unknown>,
 > {
   destroyRef: DestroyRef;
-  defaultValues?: T | null;
+  defaultValues?: Partial<T> | null;
   context?: Record<string, unknown>;
 }
 
@@ -237,18 +237,24 @@ export class FormService {
     return fieldSignal.asReadonly();
   }
 
-  trackMultipleFieldChanges<T extends string>(
+  trackMultipleFieldChanges<
+    TFormData extends Record<string, unknown> | object = Record<
+      string,
+      unknown
+    >,
+    TFieldNames extends keyof TFormData & string = keyof TFormData & string,
+  >(
     formGroup: FormGroup,
-    fieldNames: T[],
+    fieldNames: TFieldNames[],
     destroyRef: DestroyRef
-  ): ITrackedFields<T> {
+  ): ITrackedFields<TFieldNames, TFormData> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const signals = {} as Record<T, Signal<any>>;
+    const signals = {} as Record<TFieldNames, Signal<any>>;
 
     fieldNames.forEach(fieldName => {
       signals[fieldName] = this.trackFieldChanges(
         formGroup,
-        fieldName,
+        fieldName as string,
         destroyRef
       );
     });
@@ -256,14 +262,15 @@ export class FormService {
     // Create enhanced object with getValues method
     const trackedFields = {
       ...signals,
-      getValues(): Record<T, unknown> {
-        const values = {} as Record<T, unknown>;
+      getValues(): Pick<TFormData, TFieldNames> {
+        const values = {} as Pick<TFormData, TFieldNames>;
         fieldNames.forEach(fieldName => {
-          values[fieldName] = signals[fieldName]?.();
+          (values as Record<string, unknown>)[fieldName as string] =
+            signals[fieldName]?.();
         });
         return values;
       },
-    } as ITrackedFields<T>;
+    } as ITrackedFields<TFieldNames, TFormData>;
 
     return trackedFields;
   }
@@ -571,10 +578,10 @@ export class FormService {
       isTouched: () => formGroup.touched, // true even if they didn't type anything.
       isReady: () => formGroup.valid && !formGroup.pending, // Is the form good to go? (Valid & no background checks running)
       markTouched: () => formGroup.markAllAsTouched(), // Force the form to act like the user touched everything.
-      reset: (value?: T) => formGroup.reset(value),
+      reset: (value?: Partial<T> | null) => formGroup.reset(value ?? undefined),
       disable: () => formGroup.disable(),
       enable: () => formGroup.enable(),
-      patch: (value?: T) => formGroup.patchValue(value ?? {}), // Update only some fields in the form.
+      patch: (value?: Partial<T>) => formGroup.patchValue(value ?? {}), // Update only some fields in the form.
       setValue: (value: T) => formGroup.setValue(value), // Update all fields in the form.
       updateValidation: () => formGroup.updateValueAndValidity(), // Force validation to run again.
       validateAndMarkTouched: () => this.validateAndMarkTouched(formGroup), // Validate and mark touched in one method

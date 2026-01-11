@@ -47,9 +47,11 @@ export class AssetService {
     return this.apiService
       .postValidated(
         API_ROUTES.ASSET.ADD,
+        {
+          response: AssetAddResponseSchema,
+          request: AssetAddRequestSchema,
+        },
         formData,
-        AssetAddRequestSchema,
-        AssetAddResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -76,9 +78,11 @@ export class AssetService {
     return this.apiService
       .patchValidated(
         API_ROUTES.ASSET.EDIT(assetId),
+        {
+          response: AssetEditResponseSchema,
+          request: AssetEditRequestSchema,
+        },
         formData,
-        AssetEditRequestSchema,
-        AssetEditResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -104,9 +108,11 @@ export class AssetService {
     return this.apiService
       .deleteValidated(
         API_ROUTES.ASSET.DELETE,
-        AssetDeleteResponseSchema,
-        formData,
-        AssetDeleteRequestSchema
+        {
+          response: AssetDeleteResponseSchema,
+          request: AssetDeleteRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IAssetDeleteResponseDto) => {
@@ -131,9 +137,11 @@ export class AssetService {
     return this.apiService
       .postValidated(
         API_ROUTES.ASSET.ACTION,
+        {
+          response: ActionAssetResponseSchema,
+          request: ActionAssetRequestSchema,
+        },
         formData,
-        ActionAssetRequestSchema,
-        ActionAssetResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -157,9 +165,11 @@ export class AssetService {
     return this.apiService
       .getValidated(
         API_ROUTES.ASSET.LIST,
-        AssetGetResponseSchema,
-        params,
-        AssetGetRequestSchema
+        {
+          response: AssetGetResponseSchema,
+          request: AssetGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IAssetGetResponseDto) => {
@@ -184,7 +194,10 @@ export class AssetService {
     return this.apiService
       .getValidated(
         API_ROUTES.ASSET.GET_ASSET_BY_ID(params.id),
-        AssetDetailGetResponseSchema
+        {
+          response: AssetDetailGetResponseSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IAssetDetailGetResponseDto) => {
@@ -216,9 +229,11 @@ export class AssetService {
     return this.apiService
       .getValidated(
         API_ROUTES.ASSET.GET_ASSET_EVENT_HISTORY(assetId),
-        AssetEventHistoryGetResponseSchema,
-        params,
-        AssetEventHistoryGetRequestSchema
+        {
+          response: AssetEventHistoryGetResponseSchema,
+          request: AssetEventHistoryGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IAssetEventHistoryGetResponseDto) => {

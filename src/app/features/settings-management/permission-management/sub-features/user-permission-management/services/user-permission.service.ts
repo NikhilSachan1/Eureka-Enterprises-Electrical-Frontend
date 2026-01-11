@@ -57,9 +57,11 @@ export class UserPermissionService {
     return this.apiService
       .postValidated(
         `${API_ROUTES.SETTINGS.PERMISSION.USER_PERMISSION.SET}`,
-        formData,
-        UserPermissionsSetRequestSchema,
-        UserPermissionsSetResponseSchema
+        {
+          response: UserPermissionsSetResponseSchema,
+          request: UserPermissionsSetRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IUserPermissionsSetResponseDto) => {
@@ -87,9 +89,11 @@ export class UserPermissionService {
     return this.apiService
       .deleteValidated(
         `${API_ROUTES.SETTINGS.PERMISSION.USER_PERMISSION.DELETE}`,
-        UserPermissionsDeleteResponseSchema,
-        formData,
-        UserPermissionsDeleteRequestSchema
+        {
+          response: UserPermissionsDeleteResponseSchema,
+          request: UserPermissionsDeleteRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IUserPermissionsDeleteResponseDto) => {
@@ -117,9 +121,11 @@ export class UserPermissionService {
     return this.apiService
       .getValidated(
         `${API_ROUTES.SETTINGS.PERMISSION.USER_PERMISSION.LIST}`,
-        UserPermissionsGetResponseSchema,
-        params,
-        UserPermissionsGetRequestSchema
+        {
+          response: UserPermissionsGetResponseSchema,
+          request: UserPermissionsGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IUserPermissionsGetResponseDto) => {

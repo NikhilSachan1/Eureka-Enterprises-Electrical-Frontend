@@ -6,11 +6,16 @@ import {
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError, OperatorFunction } from 'rxjs';
 import { retry, timeout, map, tap, catchError } from 'rxjs/operators';
+import { z } from 'zod';
 import { EnvironmentService } from '@core/services/environment.service';
 import { LoggerService } from '@core/services/logger.service';
 import { NotificationService } from '@shared/services';
-import { z } from 'zod';
 import { AppConfigService } from '@core/services/app-config.service';
+
+export interface ApiSchema<TRequest, TResponse> {
+  request?: z.ZodType<TRequest>;
+  response: z.ZodSchema<TResponse>;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +39,10 @@ export class ApiService {
     return this.appConfigService.apiRetryAttempts;
   }
 
+  // =====================================================
+  // BASIC HTTP (no validation / transform)
+  // =====================================================
+
   get<T>(endpoint: string, params?: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
     const httpParams = this.buildHttpParams(params);
@@ -42,46 +51,51 @@ export class ApiService {
 
     return this.http.get<T>(url, { params: httpParams }).pipe(
       timeout(this.timeout),
-      tap(response => this.logger.logApiResponse('GET', url, response)),
+      tap(res => this.logger.logApiResponse('GET', url, res)),
       this.createRetryConfig<T>('GET', url),
-      catchError((error: HttpErrorResponse) => {
-        this.showFinalErrorNotification(error);
-        return throwError(() => error);
-      })
+      catchError(err => this.handleHttpError(err))
     );
   }
 
   post<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    const processedBody = this.convertEmptyToNull(body);
+    const finalBody = this.convertEmptyToNull(body);
 
-    this.logger.logApiRequest('POST', url, processedBody);
+    this.logger.logApiRequest('POST', url, finalBody);
 
-    return this.http.post<T>(url, processedBody).pipe(
+    return this.http.post<T>(url, finalBody).pipe(
       timeout(this.timeout),
-      tap(response => this.logger.logApiResponse('POST', url, response)),
+      tap(res => this.logger.logApiResponse('POST', url, res)),
       this.createRetryConfig<T>('POST', url),
-      catchError((error: HttpErrorResponse) => {
-        this.showFinalErrorNotification(error);
-        return throwError(() => error);
-      })
+      catchError(err => this.handleHttpError(err))
     );
   }
 
   put<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    const processedBody = this.convertEmptyToNull(body);
+    const finalBody = this.convertEmptyToNull(body);
 
-    this.logger.logApiRequest('PUT', url, processedBody);
+    this.logger.logApiRequest('PUT', url, finalBody);
 
-    return this.http.put<T>(url, processedBody).pipe(
+    return this.http.put<T>(url, finalBody).pipe(
       timeout(this.timeout),
-      tap(response => this.logger.logApiResponse('PUT', url, response)),
+      tap(res => this.logger.logApiResponse('PUT', url, res)),
       this.createRetryConfig<T>('PUT', url),
-      catchError((error: HttpErrorResponse) => {
-        this.showFinalErrorNotification(error);
-        return throwError(() => error);
-      })
+      catchError(err => this.handleHttpError(err))
+    );
+  }
+
+  patch<T>(endpoint: string, body: unknown): Observable<T> {
+    const url = `${this.baseUrl}/${endpoint}`;
+    const finalBody = this.convertEmptyToNull(body);
+
+    this.logger.logApiRequest('PATCH', url, finalBody);
+
+    return this.http.patch<T>(url, finalBody).pipe(
+      timeout(this.timeout),
+      tap(res => this.logger.logApiResponse('PATCH', url, res)),
+      this.createRetryConfig<T>('PATCH', url),
+      catchError(err => this.handleHttpError(err))
     );
   }
 
@@ -92,178 +106,139 @@ export class ApiService {
 
     return this.http.delete<T>(url, { body }).pipe(
       timeout(this.timeout),
-      tap(response => this.logger.logApiResponse('DELETE', url, response)),
+      tap(res => this.logger.logApiResponse('DELETE', url, res)),
       this.createRetryConfig<T>('DELETE', url),
-      catchError((error: HttpErrorResponse) => {
-        this.showFinalErrorNotification(error);
-        return throwError(() => error);
-      })
+      catchError(err => this.handleHttpError(err))
     );
   }
 
-  patch<T>(endpoint: string, body: unknown): Observable<T> {
-    const url = `${this.baseUrl}/${endpoint}`;
-    const processedBody = this.convertEmptyToNull(body);
+  // =====================================================
+  // VALIDATED / TRANSFORMED METHODS
+  // =====================================================
 
-    this.logger.logApiRequest('PATCH', url, processedBody);
-
-    return this.http.patch<T>(url, processedBody).pipe(
-      timeout(this.timeout),
-      tap(response => this.logger.logApiResponse('PATCH', url, response)),
-      this.createRetryConfig<T>('PATCH', url),
-      catchError((error: HttpErrorResponse) => {
-        this.showFinalErrorNotification(error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  // Validated API methods
-  postValidated<TRequest, TResponse>(
+  postValidated<TInput, TRequest, TResponse>(
     endpoint: string,
-    body: TRequest,
-    requestSchema: z.ZodSchema<TRequest>,
-    responseSchema: z.ZodSchema<TResponse>,
-    options: { multipart?: boolean } = { multipart: false }
+    schema: ApiSchema<TRequest, TResponse>,
+    input: TInput,
+    options: { multipart?: boolean } = {}
   ): Observable<TResponse> {
     try {
-      const validatedBody = this.validateRequest(body, requestSchema);
-      const processedBody = this.convertEmptyToNull(validatedBody);
-      const finalBody = options?.multipart
-        ? this.buildFormData(processedBody)
-        : processedBody;
+      const payload = schema.request ? schema.request.parse(input) : input;
 
-      // Use http.post directly to avoid double processing
+      const body = this.resolveRequestBody(payload, options);
       const url = `${this.baseUrl}/${endpoint}`;
-      this.logger.logApiRequest('POST', url, finalBody);
 
-      return this.http.post<unknown>(url, finalBody).pipe(
+      this.logger.logApiRequest('POST', url, body);
+
+      return this.http.post<unknown>(url, body).pipe(
         timeout(this.timeout),
-        tap(response => this.logger.logApiResponse('POST', url, response)),
+        tap(res => this.logger.logApiResponse('POST', url, res)),
         this.createRetryConfig<unknown>('POST', url),
-        map((response: unknown) =>
-          this.validateResponse(response, responseSchema)
-        ),
-        catchError((error: HttpErrorResponse) => {
-          this.showFinalErrorNotification(error);
-          return throwError(() => error);
-        })
+        map(res => schema.response.parse(res)),
+        catchError(err => this.handleHttpError(err))
       );
-    } catch (zodError) {
-      return throwError(() => zodError);
+    } catch (err) {
+      return this.handleZodError(err);
     }
   }
 
-  getValidated<TRequest, TResponse>(
+  putValidated<TInput, TRequest, TResponse>(
     endpoint: string,
-    responseSchema: z.ZodSchema<TResponse>,
-    params?: unknown,
-    requestSchema?: z.ZodSchema<TRequest>
+    schema: ApiSchema<TRequest, TResponse>,
+    input: TInput,
+    options: { multipart?: boolean } = {}
   ): Observable<TResponse> {
     try {
-      let validatedParams: unknown;
-      if (requestSchema && params) {
-        validatedParams = this.validateRequest(
-          params as TRequest,
-          requestSchema
-        );
-      }
+      const payload = schema.request ? schema.request.parse(input) : input;
 
-      return this.get<unknown>(endpoint, validatedParams).pipe(
-        map((response: unknown) =>
-          this.validateResponse(response, responseSchema)
-        )
-      );
-    } catch (zodError) {
-      return throwError(() => zodError);
-    }
-  }
-
-  putValidated<TRequest, TResponse>(
-    endpoint: string,
-    body: TRequest,
-    requestSchema: z.ZodSchema<TRequest>,
-    responseSchema: z.ZodSchema<TResponse>
-  ): Observable<TResponse> {
-    try {
-      const validatedBody = this.validateRequest(body, requestSchema);
-      const processedBody = this.convertEmptyToNull(validatedBody);
-
-      // Use http.put directly to avoid double processing
+      const body = this.resolveRequestBody(payload, options);
       const url = `${this.baseUrl}/${endpoint}`;
-      this.logger.logApiRequest('PUT', url, processedBody);
 
-      return this.http.put<unknown>(url, processedBody).pipe(
+      this.logger.logApiRequest('PUT', url, body);
+
+      return this.http.put<unknown>(url, body).pipe(
         timeout(this.timeout),
-        tap(response => this.logger.logApiResponse('PUT', url, response)),
+        tap(res => this.logger.logApiResponse('PUT', url, res)),
         this.createRetryConfig<unknown>('PUT', url),
-        map((response: unknown) =>
-          this.validateResponse(response, responseSchema)
-        ),
-        catchError((error: HttpErrorResponse) => {
-          this.showFinalErrorNotification(error);
-          return throwError(() => error);
-        })
+        map(res => schema.response.parse(res)),
+        catchError(err => this.handleHttpError(err))
       );
-    } catch (zodError) {
-      return throwError(() => zodError);
+    } catch (err) {
+      return this.handleZodError(err);
     }
   }
 
-  patchValidated<TRequest, TResponse>(
+  patchValidated<TInput, TRequest, TResponse>(
     endpoint: string,
-    body: TRequest,
-    requestSchema: z.ZodSchema<TRequest>,
-    responseSchema: z.ZodSchema<TResponse>,
-    options: { multipart?: boolean } = { multipart: false }
+    schema: ApiSchema<TRequest, TResponse>,
+    input: TInput,
+    options: { multipart?: boolean } = {}
   ): Observable<TResponse> {
     try {
-      const validatedBody = this.validateRequest(body, requestSchema);
-      const processedBody = this.convertEmptyToNull(validatedBody);
-      const finalBody = options?.multipart
-        ? this.buildFormData(processedBody)
-        : processedBody;
+      const payload = schema.request ? schema.request.parse(input) : input;
 
-      // Use http.patch directly to avoid double processing
+      const body = this.resolveRequestBody(payload, options);
       const url = `${this.baseUrl}/${endpoint}`;
-      this.logger.logApiRequest('PATCH', url, finalBody);
 
-      return this.http.patch<unknown>(url, finalBody).pipe(
+      this.logger.logApiRequest('PATCH', url, body);
+
+      return this.http.patch<unknown>(url, body).pipe(
         timeout(this.timeout),
-        tap(response => this.logger.logApiResponse('PATCH', url, response)),
+        tap(res => this.logger.logApiResponse('PATCH', url, res)),
         this.createRetryConfig<unknown>('PATCH', url),
-        map((response: unknown) =>
-          this.validateResponse(response, responseSchema)
-        ),
-        catchError((error: HttpErrorResponse) => {
-          this.showFinalErrorNotification(error);
-          return throwError(() => error);
-        })
+        map(res => schema.response.parse(res)),
+        catchError(err => this.handleHttpError(err))
       );
-    } catch (zodError) {
-      return throwError(() => zodError);
+    } catch (err) {
+      return this.handleZodError(err);
     }
   }
 
-  deleteValidated<TRequest, TResponse>(
+  getValidated<TInput, TParams, TResponse>(
     endpoint: string,
-    responseSchema: z.ZodSchema<TResponse>,
-    body?: TRequest,
-    requestSchema?: z.ZodSchema<TRequest>
+    schema: ApiSchema<TParams, TResponse>,
+    input?: TInput
   ): Observable<TResponse> {
     try {
-      let validatedBody: unknown;
-      if (requestSchema && body) {
-        validatedBody = this.validateRequest(body as TRequest, requestSchema);
-      }
-      return this.delete<unknown>(endpoint, validatedBody).pipe(
-        map((response: unknown) =>
-          this.validateResponse(response, responseSchema)
-        )
+      const params =
+        input && schema.request ? schema.request.parse(input) : input;
+
+      return this.get<unknown>(endpoint, params).pipe(
+        map(res => schema.response.parse(res))
       );
-    } catch (zodError) {
-      return throwError(() => zodError);
+    } catch (err) {
+      return this.handleZodError(err);
     }
+  }
+
+  deleteValidated<TInput, TRequest, TResponse>(
+    endpoint: string,
+    schema: ApiSchema<TRequest, TResponse>,
+    input?: TInput
+  ): Observable<TResponse> {
+    try {
+      const body =
+        input && schema.request ? schema.request.parse(input) : input;
+
+      return this.delete<unknown>(endpoint, body).pipe(
+        map(res => schema.response.parse(res)),
+        catchError(err => this.handleHttpError(err))
+      );
+    } catch (err) {
+      return this.handleZodError(err);
+    }
+  }
+
+  // =====================================================
+  // HELPERS
+  // =====================================================
+
+  private resolveRequestBody(
+    body: unknown,
+    options?: { multipart?: boolean }
+  ): unknown {
+    const processed = this.convertEmptyToNull(body);
+    return options?.multipart ? this.buildFormData(processed) : processed;
   }
 
   private buildHttpParams(params?: unknown): HttpParams | undefined {
@@ -274,29 +249,22 @@ export class ApiService {
     let httpParams = new HttpParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        // Handle array values by adding multiple parameters with the same key
         if (Array.isArray(value)) {
-          value.forEach(item => {
-            if (item !== null && item !== undefined) {
-              httpParams = httpParams.append(key, String(item));
-            }
+          value.forEach(v => {
+            httpParams = httpParams.append(key, String(v));
           });
         } else {
           httpParams = httpParams.set(key, String(value));
         }
       }
     });
-
     return httpParams;
   }
 
   private convertEmptyToNull<T>(data: T): T {
-    if (data === null || data === undefined) {
-      return data;
-    }
-
-    // Don't process FormData, File, or Blob objects
     if (
+      data === null ||
+      data === undefined ||
       data instanceof FormData ||
       data instanceof File ||
       data instanceof Blob
@@ -304,96 +272,34 @@ export class ApiService {
       return data;
     }
 
-    // Handle arrays
     if (Array.isArray(data)) {
-      return data.map(item => this.convertEmptyToNull(item)) as T;
+      return data.map(v => this.convertEmptyToNull(v)) as T;
     }
 
-    // Handle objects
     if (typeof data === 'object') {
       const result: Record<string, unknown> = {};
-
-      Object.entries(data).forEach(([key, value]) => {
-        // Convert empty strings to null
-        if (value === '') {
-          result[key] = null;
-        }
-        // Recursively process nested objects/arrays
-        else if (value !== null && typeof value === 'object') {
-          result[key] = this.convertEmptyToNull(value);
-        }
-        // Keep other values as is
-        else {
-          result[key] = value;
-        }
+      Object.entries(data).forEach(([k, v]) => {
+        result[k] = v === '' ? null : this.convertEmptyToNull(v);
       });
-
       return result as T;
     }
 
-    // Return primitive values as is
     return data;
   }
 
   private buildFormData(body: unknown): FormData {
     const formData = new FormData();
-
     if (!body || typeof body !== 'object') {
       return formData;
     }
 
-    this.appendToFormData(formData, body as Record<string, unknown>);
+    Object.entries(body).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
 
     return formData;
-  }
-
-  private appendToFormData(
-    formData: FormData,
-    data: Record<string, unknown>,
-    parentKey = ''
-  ): void {
-    Object.entries(data).forEach(([key, value]) => {
-      if (value === null || value === undefined) {
-        return;
-      }
-
-      const formKey = parentKey ? `${parentKey}[${key}]` : key;
-
-      // If value is an array, append each item with the same key (original behavior for arrays)
-      if (Array.isArray(value)) {
-        value.forEach(item => {
-          if (item === null || item === undefined) {
-            return;
-          }
-
-          if (item instanceof File) {
-            formData.append(formKey, item);
-          } else {
-            formData.append(formKey, String(item));
-          }
-        });
-        return;
-      }
-
-      // If value is a File, append it directly.
-      if (value instanceof File) {
-        formData.append(formKey, value);
-        return;
-      }
-
-      // If value is an object (nested object), recursively append its properties.
-      if (typeof value === 'object' && !(value instanceof File)) {
-        this.appendToFormData(
-          formData,
-          value as Record<string, unknown>,
-          formKey
-        );
-        return;
-      }
-
-      // Fallback: append primitive values as strings.
-      formData.append(formKey, String(value));
-    });
   }
 
   private createRetryConfig<T>(
@@ -403,13 +309,9 @@ export class ApiService {
     return retry<T>({
       count: this.retryAttempts,
       delay: (error: HttpErrorResponse, retryCount: number) => {
-        if (
-          error.status === undefined ||
-          error.status === 0 ||
-          error.status >= 500
-        ) {
+        if (!error.status || error.status >= 500) {
           this.logger.info(
-            `Retrying attempt ${retryCount}/${this.retryAttempts} - ${method} request to ${url} due to ${error.status ?? 'network'} error`
+            `Retry ${retryCount}/${this.retryAttempts} - ${method} ${url}`
           );
           return this.calculateRetryDelay();
         }
@@ -419,65 +321,30 @@ export class ApiService {
   }
 
   private calculateRetryDelay(): Observable<number> {
-    const retryDelay = this.appConfigService.apiRetryDelay;
-    return new Observable(subscriber => {
+    return new Observable(sub => {
       setTimeout(() => {
-        subscriber.next(retryDelay);
-        subscriber.complete();
-      }, retryDelay);
+        sub.next(this.appConfigService.apiRetryDelay);
+        sub.complete();
+      }, this.appConfigService.apiRetryDelay);
     });
   }
 
-  private showFinalErrorNotification(error: HttpErrorResponse): void {
-    let errorMessage = 'Request failed after all retry attempts';
-
-    if (error.status === 0) {
-      errorMessage = 'Network error. Please check your connection.';
-    } else if (error.error?.error?.message) {
-      errorMessage = error.error.error.message;
-    } else {
-      errorMessage = 'An unexpected error occurred';
-    }
-
-    this.notificationService.error(errorMessage);
+  private handleHttpError(error: HttpErrorResponse): Observable<never> {
+    this.notificationService.error(
+      error.status === 0
+        ? 'Network error'
+        : (error.error?.error?.message ?? 'Unexpected error')
+    );
+    return throwError(() => error);
   }
 
-  private validateRequest<T>(data: T, schema: z.ZodSchema<T>): T {
-    try {
-      return schema.parse(data);
-    } catch (zodError) {
-      this.logger.error('Request validation failed');
-      const errorMessage = this.formatZodError(zodError as z.ZodError);
-      this.notificationService.error(
-        `Request validation failed: ${errorMessage}`
-      );
-      throw zodError;
-    }
-  }
-
-  private validateResponse<T>(response: unknown, schema: z.ZodSchema<T>): T {
-    try {
-      return schema.parse(response);
-    } catch (zodError) {
-      this.logger.error('Response validation failed');
-      const errorMessage = this.formatZodError(zodError as z.ZodError);
-      this.notificationService.error(
-        `Response validation failed: ${errorMessage}`
-      );
-      throw zodError;
-    }
-  }
-
-  private formatZodError(zodError: z.ZodError): string {
-    if (zodError?.issues && Array.isArray(zodError.issues)) {
-      return zodError.issues
-        .map((issue: z.ZodIssue) => {
-          const path =
-            issue.path?.length > 0 ? `${issue.path.join('.')}` : 'field';
-          return `${path}: ${issue.message}`;
-        })
+  private handleZodError(error: unknown): Observable<never> {
+    if (error instanceof z.ZodError) {
+      const message = error.issues
+        .map(i => `${i.path.join('.')}: ${i.message}`)
         .join(', ');
+      this.notificationService.error(`Validation failed: ${message}`);
     }
-    return zodError?.message ?? 'Validation failed';
+    return throwError(() => error);
   }
 }

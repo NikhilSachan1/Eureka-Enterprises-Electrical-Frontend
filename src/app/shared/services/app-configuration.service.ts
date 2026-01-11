@@ -330,10 +330,9 @@ export class AppConfigurationService {
     this.logger.logUserAction('Load App Configuration Request');
 
     return this.apiService
-      .getValidated(
-        API_ROUTES.APP_CONFIGUATION.GET,
-        AppConfiguationResponseSchema
-      )
+      .getValidated(API_ROUTES.APP_CONFIGUATION.GET, {
+        response: AppConfiguationResponseSchema,
+      })
       .pipe(
         tap(response => {
           this.logger.logUserAction(

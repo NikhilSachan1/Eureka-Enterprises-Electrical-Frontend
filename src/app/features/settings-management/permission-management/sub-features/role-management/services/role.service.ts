@@ -34,9 +34,11 @@ export class RoleService {
     return this.apiService
       .postValidated(
         API_ROUTES.SETTINGS.PERMISSION.ROLE.ADD,
-        formData,
-        RoleAddRequestSchema,
-        RoleAddResponseSchema
+        {
+          response: RoleAddResponseSchema,
+          request: RoleAddRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IRoleAddResponseDto) => {
@@ -65,9 +67,11 @@ export class RoleService {
     return this.apiService
       .patchValidated(
         `${API_ROUTES.SETTINGS.PERMISSION.ROLE.UPDATE}/${roleId}`,
-        formData,
-        RoleEditRequestSchema,
-        RoleEditResponseSchema
+        {
+          response: RoleEditResponseSchema,
+          request: RoleEditRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IRoleEditResponseDto) => {
@@ -94,10 +98,9 @@ export class RoleService {
     this.logger.logUserAction('Get Role List Request');
 
     return this.apiService
-      .getValidated(
-        API_ROUTES.SETTINGS.PERMISSION.ROLE.LIST,
-        RoleGetResponseSchema
-      )
+      .getValidated(API_ROUTES.SETTINGS.PERMISSION.ROLE.LIST, {
+        response: RoleGetResponseSchema,
+      })
       .pipe(
         tap((response: IRoleGetResponseDto) => {
           this.logger.logUserAction('Get Role List Response', response);
@@ -121,9 +124,11 @@ export class RoleService {
     return this.apiService
       .deleteValidated(
         `${API_ROUTES.SETTINGS.PERMISSION.ROLE.DELETE}`,
-        RoleDeleteResponseSchema,
-        formData,
-        RoleDeleteRequestSchema
+        {
+          response: RoleDeleteResponseSchema,
+          request: RoleDeleteRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IRoleDeleteResponseDto) => {

@@ -31,9 +31,11 @@ export class AttachmentsService {
     return this.apiService
       .getValidated(
         API_ROUTES.ATTACHMENTS.GET_FILE_URL,
-        AttachmentsGetResponseSchema,
-        { key },
-        AttachmentsGetRequestSchema
+        {
+          response: AttachmentsGetResponseSchema,
+          request: AttachmentsGetRequestSchema,
+        },
+        { key }
       )
       .pipe(
         tap((response: IAttachmentsGetResponseDto) => {

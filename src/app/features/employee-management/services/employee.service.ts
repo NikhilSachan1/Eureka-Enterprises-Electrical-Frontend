@@ -52,9 +52,11 @@ export class EmployeeService {
     return this.apiService
       .postValidated(
         API_ROUTES.EMPLOYEE.ADD,
+        {
+          response: EmployeeAddResponseSchema,
+          request: EmployeeAddRequestSchema,
+        },
         formData,
-        EmployeeAddRequestSchema,
-        EmployeeAddResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -81,9 +83,11 @@ export class EmployeeService {
     return this.apiService
       .patchValidated(
         API_ROUTES.EMPLOYEE.EDIT(employeeId),
+        {
+          response: EmployeeEditResponseSchema,
+          request: EmployeeEditRequestSchema,
+        },
         formData,
-        EmployeeEditRequestSchema,
-        EmployeeEditResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -110,9 +114,11 @@ export class EmployeeService {
     return this.apiService
       .patchValidated(
         API_ROUTES.EMPLOYEE.EDIT(employeeId),
+        {
+          response: EmployeeChangeStatusResponseSchema,
+          request: EmployeeChangeStatusRequestSchema,
+        },
         formData,
-        EmployeeChangeStatusRequestSchema,
-        EmployeeChangeStatusResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -144,9 +150,11 @@ export class EmployeeService {
     return this.apiService
       .deleteValidated(
         API_ROUTES.EMPLOYEE.DELETE,
-        EmployeeDeleteResponseSchema,
-        formData,
-        EmployeeDeleteRequestSchema
+        {
+          response: EmployeeDeleteResponseSchema,
+          request: EmployeeDeleteRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IEmployeeDeleteResponseDto) => {
@@ -171,9 +179,11 @@ export class EmployeeService {
     return this.apiService
       .getValidated(
         API_ROUTES.EMPLOYEE.LIST,
-        EmployeeGetResponseSchema,
-        params,
-        EmployeeGetRequestSchema
+        {
+          response: EmployeeGetResponseSchema,
+          request: EmployeeGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IEmployeeGetResponseDto) => {
@@ -199,10 +209,9 @@ export class EmployeeService {
     this.logger.logUserAction('Get Employee Detail By Id Request');
 
     return this.apiService
-      .getValidated(
-        API_ROUTES.EMPLOYEE.GET_EMPLOYEE_BY_ID(params.id),
-        EmployeeDetailGetResponseSchema
-      )
+      .getValidated(API_ROUTES.EMPLOYEE.GET_EMPLOYEE_BY_ID(params.id), {
+        response: EmployeeDetailGetResponseSchema,
+      })
       .pipe(
         tap((response: IEmployeeDetailGetResponseDto) => {
           this.logger.logUserAction(
@@ -228,10 +237,9 @@ export class EmployeeService {
     this.logger.logUserAction('Get Employee Profile Request');
 
     return this.apiService
-      .getValidated(
-        API_ROUTES.EMPLOYEE.GET_EMPLOYEE_PROFILE,
-        EmployeeDetailGetResponseSchema
-      )
+      .getValidated(API_ROUTES.EMPLOYEE.GET_EMPLOYEE_PROFILE, {
+        response: EmployeeDetailGetResponseSchema,
+      })
       .pipe(
         tap((response: IEmployeeDetailGetResponseDto) => {
           this.logger.logUserAction('Get Employee Profile Response', response);
@@ -254,10 +262,9 @@ export class EmployeeService {
     this.logger.logUserAction('Get Next Employee Id Request');
 
     return this.apiService
-      .getValidated(
-        API_ROUTES.EMPLOYEE.GET_NEXT_EMPLOYEE_ID,
-        EmployeeGetNextEmployeeIdResponseSchema
-      )
+      .getValidated(API_ROUTES.EMPLOYEE.GET_NEXT_EMPLOYEE_ID, {
+        response: EmployeeGetNextEmployeeIdResponseSchema,
+      })
       .pipe(
         tap((response: IEmployeeGetNextEmployeeIdResponseDto) => {
           this.logger.logUserAction('Get Next Employee Id Response', response);
@@ -284,9 +291,11 @@ export class EmployeeService {
     return this.apiService
       .postValidated(
         API_ROUTES.EMPLOYEE.SEND_PASSWORD_LINK,
-        formData,
-        EmployeeSendPasswordLinkRequestSchema,
-        EmployeeSendPasswordLinkResponseSchema
+        {
+          response: EmployeeSendPasswordLinkResponseSchema,
+          request: EmployeeSendPasswordLinkRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IEmployeeSendPasswordLinkResponseDto) => {

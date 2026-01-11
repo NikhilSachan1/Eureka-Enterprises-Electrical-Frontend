@@ -51,10 +51,10 @@ export interface IEnhancedForm<
   isTouched(): boolean;
   isReady(): boolean;
   markTouched(): void;
-  reset(value?: T): void;
+  reset(value?: Partial<T> | null): void;
   disable(): void;
   enable(): void;
-  patch(value?: T): void;
+  patch(value?: Partial<T>): void;
   setValue(value: T): void;
   updateValidation(): void;
   validateAndMarkTouched(): boolean;
@@ -63,9 +63,12 @@ export interface IEnhancedForm<
   getFieldData<K extends keyof T>(fieldName: K): T[K];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ITrackedFields<T extends string> = Record<T, Signal<any>> & {
-  getValues(): Record<T, unknown>;
+export type ITrackedFields<
+  TFieldNames extends keyof TFormData & string,
+  TFormData extends Record<string, unknown> | object = Record<string, unknown>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+> = Record<TFieldNames, Signal<any>> & {
+  getValues(): Pick<TFormData, TFieldNames>;
 };
 
 export interface ITrackedForm {
