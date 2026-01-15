@@ -73,6 +73,11 @@ export type {
   IEnhancedForm,
   ITrackedFields,
   ITrackedForm,
+  FormDataConstraint,
+  DefaultFormData,
+  MultiStepFormDataConstraint,
+  DefaultMultiStepFormData,
+  MultiStepFormsRecord,
 } from './form/form.interface';
 export type {
   IInputFieldsConfig,
