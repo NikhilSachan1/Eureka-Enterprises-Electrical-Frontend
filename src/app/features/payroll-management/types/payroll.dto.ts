@@ -7,6 +7,15 @@ import {
   SalaryIncrementAddRequestSchema,
   SalaryEditRequestSchema,
   SalaryEditResponseSchema,
+  PayslipGetRequestSchema,
+  PayslipGetResponseSchema,
+  PayslipGetBaseResponseSchema,
+  PayslipDetailGetResponseSchema,
+  PayslipDetailGetRequestSchema,
+  ActionPayrollResponseSchema,
+  ActionPayrollRequestSchema,
+  GeneratePayrollResponseSchema,
+  GeneratePayrollRequestSchema,
 } from '../schemas';
 import {
   SalaryStructureHistoryGetRequestSchema,
@@ -62,3 +71,50 @@ export type ISalaryIncrementAddResponseDto = z.infer<
 export type ISalaryEditRequestDto = z.infer<typeof SalaryEditRequestSchema>;
 export type ISalaryEditFormDto = z.input<typeof SalaryEditRequestSchema>;
 export type ISalaryEditResponseDto = z.infer<typeof SalaryEditResponseSchema>;
+
+/**
+ * Payslip
+ */
+export type IPayslipGetRequestDto = z.infer<typeof PayslipGetRequestSchema>;
+export type IPayslipGetFormDto = z.input<typeof PayslipGetRequestSchema>;
+export type IPayslipGetResponseDto = z.infer<typeof PayslipGetResponseSchema>;
+export type IPayslipGetBaseResponseDto = z.infer<
+  typeof PayslipGetBaseResponseSchema
+>;
+
+/**
+ * Payslip Detail
+ */
+export type IPayslipDetailGetRequestDto = z.infer<
+  typeof PayslipDetailGetRequestSchema
+>;
+export type IPayslipDetailGetFormDto = z.input<
+  typeof PayslipDetailGetRequestSchema
+>;
+export type IPayslipDetailGetResponseDto = z.infer<
+  typeof PayslipDetailGetResponseSchema
+>;
+
+/**
+ * Action Payroll
+ */
+export type IActionPayrollRequestDto = z.infer<
+  typeof ActionPayrollRequestSchema
+>;
+export type IActionPayrollFormDto = z.input<typeof ActionPayrollRequestSchema>;
+export type IActionPayrollResponseDto = z.infer<
+  typeof ActionPayrollResponseSchema
+>;
+
+/**
+ * Generate Payroll
+ */
+export type IGeneratePayrollRequestDto = z.infer<
+  typeof GeneratePayrollRequestSchema
+>;
+export type IGeneratePayrollFormDto = z.input<
+  typeof GeneratePayrollRequestSchema
+>;
+export type IGeneratePayrollResponseDto = z.infer<
+  typeof GeneratePayrollResponseSchema
+>;

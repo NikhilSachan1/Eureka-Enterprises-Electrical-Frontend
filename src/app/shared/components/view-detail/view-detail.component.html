@@ -56,7 +56,7 @@
               <div class="flex justify-between gap-4">
                 <span class="text-sm text-gray-700 flex-shrink-0">{{ entry.label }}:</span>
                 <span class="text-sm font-medium text-gray-900 text-right flex-1">
-                  @if (entry.value) {
+                  @if (entry.value !== null && entry.value !== undefined) {
                     @if (entry.type === ALL_DATA_TYPES.DATE) {
                       {{ entry.value.toString() | date: entry.format }}
                     } @else if (entry.type === ALL_DATA_TYPES.DATE_RANGE) {
@@ -76,13 +76,13 @@
                         {{ entry.value.toString() | textCase: 'title' }}
                       </span>
                     } @else if (entry.type === ALL_DATA_TYPES.CURRENCY) {
-                      <span
-                        [ngClass]="
-                          entry.metadata?.transactionType === 'credit'
-                            ? 'text-green-600 font-semibold'
-                            : 'text-red-600 font-semibold'
-                        "
-                      >
+                      @let colorClass =
+                        entryType === 'credit'
+                          ? 'text-green-600 font-semibold'
+                          : entryType === 'debit'
+                            ? 'text-red-600 font-semibold'
+                            : 'text-slate-700 font-semibold';
+                      <span [ngClass]="colorClass">
                         {{ entry.value.toString() | currency: entry.format }}
                       </span>
                     } @else if (entry.type === ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {

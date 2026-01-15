@@ -144,10 +144,8 @@ export class TableServerSideParamsBuilderService {
         }
 
         // Find the server-side configuration for this filter
-        const serverConfig = this.findHeaderForFilterKey(
-          filterKey,
-          headers
-        )?.serverSideFilterAndSortConfig;
+        const header = this.findHeaderForFilterKey(filterKey, headers);
+        const serverConfig = header?.serverSideFilterAndSortConfig;
 
         // Extract filter value
         const extractedValue = this.extractFilterValue(
@@ -165,7 +163,8 @@ export class TableServerSideParamsBuilderService {
         // Build the payload for this specific filter
         const payload = this.buildServerFilterPayload(
           extractedValue,
-          serverConfig
+          serverConfig,
+          filterKey // Pass filterKey as fallback
         );
 
         if (payload) {
@@ -227,18 +226,47 @@ export class TableServerSideParamsBuilderService {
    *
    * @param rawValue - The raw filter value from the table
    * @param serverConfig - Server-side configuration defining field mappings
+   * @param fallbackField - Fallback field name if filterField is not provided
    * @returns Record of API parameters or null if invalid
    */
   private buildServerFilterPayload(
     rawValue: unknown,
-    serverConfig: IDataTableServerSideFilterAndSortConfig
+    serverConfig: IDataTableServerSideFilterAndSortConfig,
+    fallbackField?: string
   ): Record<string, unknown> | null {
-    // Handle simple filter mapping
-    if (serverConfig.filterField && this.isValidFilterValue(rawValue)) {
-      return { [serverConfig.filterField]: rawValue };
+    if (!this.isValidFilterValue(rawValue)) {
+      return null;
+    }
+
+    // If filterField is provided, use it; otherwise use fallback field name
+    const fieldName = serverConfig.filterField ?? fallbackField;
+    if (fieldName) {
+      return { [fieldName]: rawValue };
     }
 
     return null;
+  }
+
+  /**
+   * Get filter value from table filter data by key
+   * @param tableFilterData - Table lazy load event data containing filters
+   * @param filterKey - The key of the filter to extract
+   * @returns The extracted filter value (component will decide the type based on usage)
+   */
+  public getFilterValueByKey(
+    tableFilterData: TableLazyLoadEvent | undefined,
+    filterKey: string
+  ): unknown {
+    if (!tableFilterData?.filters) {
+      return undefined;
+    }
+
+    const filter = tableFilterData.filters[filterKey];
+    if (!filter) {
+      return undefined;
+    }
+
+    return this.extractFilterValue(filter);
   }
 
   /**
@@ -317,6 +345,10 @@ export class TableServerSideParamsBuilderService {
 
     if (typeof value === 'string') {
       return value.trim().length > 0;
+    }
+
+    if (value instanceof Date) {
+      return !isNaN(value.getTime());
     }
 
     if (Array.isArray(value)) {

@@ -8,10 +8,24 @@ import {
   ISalaryIncrementAddFormDto,
   ISalaryEditFormDto,
   ISalaryEditResponseDto,
+  IPayslipGetFormDto,
+  IPayslipGetResponseDto,
+  IActionPayrollFormDto,
+  IActionPayrollResponseDto,
+  IGeneratePayrollFormDto,
+  IGeneratePayrollResponseDto,
+  IPayslipDetailGetResponseDto,
 } from '../types/payroll.dto';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
 import {
+  ActionPayrollRequestSchema,
+  ActionPayrollResponseSchema,
+  GeneratePayrollRequestSchema,
+  GeneratePayrollResponseSchema,
+  PayslipDetailGetResponseSchema,
+  PayslipGetRequestSchema,
+  PayslipGetResponseSchema,
   SalaryEditRequestSchema,
   SalaryEditResponseSchema,
   SalaryIncrementAddRequestSchema,
@@ -90,6 +104,93 @@ export class PayrollService {
       );
   }
 
+  actionPayroll(
+    formData: IActionPayrollFormDto
+  ): Observable<IActionPayrollResponseDto> {
+    this.logger.logUserAction('Action Payroll Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.PAYROLL.ACTION,
+        {
+          response: ActionPayrollResponseSchema,
+          request: ActionPayrollRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IActionPayrollResponseDto) => {
+          this.logger.logUserAction('Action Payroll Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Action Payroll Error', error);
+          } else {
+            this.logger.logUserAction('Action Payroll Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  cancelPayroll(
+    formData: IActionPayrollFormDto
+  ): Observable<IActionPayrollResponseDto> {
+    this.logger.logUserAction('Cancel Payroll Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.PAYROLL.CANCEL,
+        {
+          response: ActionPayrollResponseSchema,
+          request: ActionPayrollRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IActionPayrollResponseDto) => {
+          this.logger.logUserAction('Cancel Payroll Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Cancel Payroll Error', error);
+          } else {
+            this.logger.logUserAction('Cancel Payroll Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  generatePayroll(
+    formData: IGeneratePayrollFormDto
+  ): Observable<IGeneratePayrollResponseDto> {
+    this.logger.logUserAction('Generate Payroll Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.PAYROLL.GENERATE,
+        {
+          response: GeneratePayrollResponseSchema,
+          request: GeneratePayrollRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IGeneratePayrollResponseDto) => {
+          this.logger.logUserAction('Generate Payroll Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Generate Payroll Error', error);
+          } else {
+            this.logger.logUserAction('Generate Payroll Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   getSalaryStructureList(
     params?: ISalaryStructureGetFormDto
   ): Observable<ISalaryStructureGetResponseDto> {
@@ -156,6 +257,81 @@ export class PayrollService {
               error
             );
           }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getPayslipList(
+    params?: IPayslipGetFormDto
+  ): Observable<IPayslipGetResponseDto> {
+    this.logger.logUserAction('Get Payslip List Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.PAYROLL.GET_PAYSLIP_LIST,
+        {
+          response: PayslipGetResponseSchema,
+          request: PayslipGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IPayslipGetResponseDto) => {
+          this.logger.logUserAction('Get Payslip List Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Get Payslip List Error', error);
+          } else {
+            this.logger.logUserAction('Get Payslip List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getPayslipDetailById(
+    payslipId: string
+  ): Observable<IPayslipDetailGetResponseDto> {
+    this.logger.logUserAction('Get Payslip Detail By Id Request');
+
+    return this.apiService
+      .getValidated(API_ROUTES.PAYROLL.GET_PAYSLIP_BY_ID(payslipId), {
+        response: PayslipDetailGetResponseSchema,
+      })
+      .pipe(
+        tap((response: IPayslipDetailGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Payslip Detail By Id Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Payslip Detail By Id Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Payslip Detail By Id Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getPayslipBlob(payslipId: string): Observable<Blob> {
+    this.logger.logUserAction('Get Payslip Blob Request', { payslipId });
+
+    return this.apiService
+      .getBlob(API_ROUTES.PAYROLL.GET_PAYSLIP_BLOB(payslipId))
+      .pipe(
+        tap(() => {
+          this.logger.logUserAction('Get Payslip Blob Response', { payslipId });
+        }),
+        catchError(error => {
+          this.logger.logUserAction('Get Payslip Blob Error', error);
           return throwError(() => error);
         })
       );

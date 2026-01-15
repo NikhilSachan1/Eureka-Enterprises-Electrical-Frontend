@@ -80,6 +80,8 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   reject: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   cancelled: { icon: ICONS.ACTIONS.BAN, severity: 'warning' },
   cancel: { icon: ICONS.ACTIONS.BAN, severity: 'warning' },
+  paid: { icon: ICONS.PAYROLL.PAID, severity: 'success' },
+  generate: { icon: ICONS.PAYROLL.GENERATE, severity: 'info' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ATTENDANCE

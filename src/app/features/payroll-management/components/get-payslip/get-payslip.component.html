@@ -1,0 +1,71 @@
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [bulkActionButtons]="table.bulkActions()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{ attendanceDetails: attendanceDetailsTemplate }"
+  (rowActionClick)="handlePayslipTableActionClick($any($event), false)"
+  (bulkActionClick)="handlePayslipTableActionClick($any($event), true)"
+  (filterData)="onTableStateChange($event)"
+  (attachmentClick)="handleAttachmentClick($event)"
+/>
+
+<ng-template
+  #attendanceDetailsTemplate
+  let-rowData
+>
+  @let attendance = rowData.attendanceDetails;
+  <div class="flex flex-col gap-1.5">
+    <div class="flex items-center gap-1.5">
+      <app-chip
+        [label]="`Total Days: ${attendance.totalDays}`"
+        [styleClass]="getChipStyleClass('total')"
+      />
+      <app-chip
+        [label]="`Working Days: ${attendance.workingDays}`"
+        [styleClass]="getChipStyleClass('working')"
+      />
+      <app-chip
+        [label]="`Present: ${attendance.presentDays}`"
+        [styleClass]="getChipStyleClass('present')"
+      />
+    </div>
+
+    <div class="flex items-center gap-1.5">
+      <app-chip
+        [label]="`Absent: ${attendance.absentDays}`"
+        [styleClass]="getChipStyleClass('absent')"
+      />
+      <app-chip
+        [label]="`On Leave: ${attendance.paidLeaveDays}`"
+        [styleClass]="getChipStyleClass('leave')"
+      />
+      <app-chip
+        [label]="`Holidays: ${attendance.holidays}`"
+        [styleClass]="getChipStyleClass('holiday')"
+      />
+    </div>
+
+    <div class="flex items-center gap-1.5">
+      <app-chip
+        [label]="`Holiday Worked: ${attendance.holidaysWorked}`"
+        [styleClass]="getChipStyleClass('holiday_worked')"
+      />
+    </div>
+  </div>
+</ng-template>

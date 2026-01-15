@@ -38,9 +38,11 @@ export const APP_CONFIG = {
     DEFAULT: 'MMM d, yyyy',
     DEFAULT_WITH_TIME: 'MMM d, yyyy hh:mm a',
     DEFAULT_CALENDAR: 'M d, yy',
+    DEFAULT_CALENDAR_MONTH: 'M yy',
     CALENDAR: 'dd/mm/yy',
     API: 'yyyy-MM-dd',
     WITH_SHORT_MONTH: 'MMM d, yyyy',
+    MONTH_YEAR: 'MMM yyyy',
   },
 
   // Time Formats

@@ -39,6 +39,43 @@ export const getPayslipCutoffMinDate = (): Date => {
   return new Date(currentYear, currentMonth, 1);
 };
 
+export const getPayslipCutoffMaxDate = (): Date => {
+  const today = new Date();
+  const currentDate = today.getDate();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const payslipGenerationDate = PAYSLIP_DATE_DATA.EVERY_MONTH;
+
+  let maxMonth: number;
+  let maxYear: number;
+
+  let previousMonth: number;
+  let previousYear: number;
+
+  if (currentMonth === 0) {
+    previousMonth = 11;
+    previousYear = currentYear - 1;
+  } else {
+    previousMonth = currentMonth - 1;
+    previousYear = currentYear;
+  }
+
+  if (currentDate < payslipGenerationDate) {
+    if (previousMonth === 0) {
+      maxMonth = 11;
+      maxYear = previousYear - 1;
+    } else {
+      maxMonth = previousMonth - 1;
+      maxYear = previousYear;
+    }
+  } else {
+    maxMonth = previousMonth;
+    maxYear = previousYear;
+  }
+
+  return new Date(maxYear, maxMonth + 1, 0);
+};
+
 export const transformDateFormat = (
   value: string | Date,
   dateFormat: string = APP_CONFIG.DATE_FORMATS.API
@@ -49,4 +86,10 @@ export const transformDateFormat = (
 
 export const getDateBeforeXDays = (xDays: number): Date => {
   return new Date(new Date().setDate(new Date().getDate() - xDays));
+};
+
+export const formatMonthYear = (month: number, year: number): string => {
+  const datePipe = new DatePipe('en-US');
+  const date = new Date(year, month - 1, 1);
+  return datePipe.transform(date, APP_CONFIG.DATE_FORMATS.MONTH_YEAR) as string;
 };

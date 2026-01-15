@@ -52,6 +52,7 @@ export interface IDataTableHeaderConfig {
   showColumn?: boolean; // If false, column will be hidden but can still be used for filtering
   serverSideFilterAndSortConfig?: IDataTableServerSideFilterAndSortConfig;
   permission?: string[];
+  enableAttachmentGallery?: boolean; // Flag to control attachment gallery opening for this column (default: true)
 }
 
 export interface ITextWithSubtitleAndImageConfig {

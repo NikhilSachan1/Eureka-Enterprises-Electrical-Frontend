@@ -1,10 +1,13 @@
-import { ISalaryStructureGetBaseResponseDto } from './payroll.dto';
+import {
+  IPayslipGetBaseResponseDto,
+  ISalaryStructureGetBaseResponseDto,
+} from './payroll.dto';
+import { EPayslipStatus } from './payroll.enum';
 
-export interface ISalaryStructure
-  extends Pick<
-    ISalaryStructureGetBaseResponseDto,
-    'id' | 'effectiveFrom' | 'ctc'
-  > {
+export interface ISalaryStructure {
+  id: string;
+  effectiveFrom: string;
+  ctc: string;
   employeeName: string;
   employeeCode: string;
   originalRawData: ISalaryStructureGetBaseResponseDto;
@@ -74,4 +77,25 @@ export interface ISalaryDetailResolverResponse {
   employerEsicContribution: string;
   employeePfContribution: string;
   foodAllowance: string;
+}
+
+export interface IPayslip {
+  id: string;
+  grossEarnings: string;
+  totalDeductions: string;
+  netPayable: string;
+  status: EPayslipStatus;
+  employeeName: string;
+  employeeCode: string;
+  period: string; // Formatted as "Month Year" (e.g., "January 2024")
+  attendanceDetails: {
+    totalDays: number;
+    workingDays: number;
+    presentDays: number;
+    absentDays: number;
+    paidLeaveDays: number;
+    holidays: number;
+    holidaysWorked: number;
+  };
+  originalRawData: IPayslipGetBaseResponseDto;
 }

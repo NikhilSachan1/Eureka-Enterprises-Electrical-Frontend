@@ -99,22 +99,32 @@ export class GetSalaryStructureComponent implements OnInit {
       );
       this.searchFilterConfig = SEARCH_FILTER_SALARY_STRUCTURE_FORM_CONFIG;
     } else {
-      this.loadEmployeeAnnexure();
+      this.loadSalaryStructure();
     }
   }
 
-  private loadAllEmployeeSalaryStructure(): void {
-    this.table.setLoading(true);
+  private loadSalaryStructure(): void {
+    const isTableVisible = this.shouldShowTable();
+    this.employeeAnnexureData.set(null);
+
+    if (isTableVisible) {
+      this.table.setLoading(true);
+      this.checkEmployeeNameFilter();
+    }
     this.loadingService.show({
       title: 'Loading Salary Structure',
       message: 'Please wait while we load the salary structure...',
     });
 
+    const paramData = isTableVisible ? this.prepareParamData() : undefined;
+
     this.payrollService
-      .getSalaryStructureList()
+      .getSalaryStructureList(paramData)
       .pipe(
         finalize(() => {
-          this.table.setLoading(false);
+          if (isTableVisible) {
+            this.table.setLoading(false);
+          }
           this.loadingService.hide();
         }),
         takeUntilDestroyed(this.destroyRef)
@@ -122,57 +132,28 @@ export class GetSalaryStructureComponent implements OnInit {
       .subscribe({
         next: (response: ISalaryStructureGetResponseDto) => {
           const { records, totalRecords } = response;
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
-          this.table.updateTableConfig({ totalRecords });
+          if (isTableVisible && this.hasEmployeeNameFilter() === false) {
+            const mappedData = this.mapTableData(records);
+            this.table.setData(mappedData);
+            this.table.updateTableConfig({ totalRecords });
+          } else {
+            const mappedData = this.mapEmployeeAnnexureData(records[0]);
+            this.employeeAnnexureData.set(mappedData);
+          }
           this.logger.logUserAction(
             'Salary structure records loaded successfully'
           );
         },
         error: error => {
-          this.table.setData([]);
+          if (isTableVisible) {
+            this.table.setData([]);
+          } else {
+            this.employeeAnnexureData.set(null);
+          }
           this.logger.logUserAction(
             'Failed to load salary structure records',
             error
           );
-        },
-      });
-  }
-
-  private loadEmployeeAnnexure(): void {
-    this.loadingService.show({
-      title: 'Loading Employee Annexure',
-      message: 'Please wait while we load the employee annexure...',
-    });
-
-    let paramData: ISalaryStructureGetFormDto | undefined;
-    if (this.shouldShowTable()) {
-      paramData = this.prepareParamData();
-    }
-
-    this.payrollService
-      .getSalaryStructureList(paramData)
-      .pipe(
-        finalize(() => {
-          this.loadingService.hide();
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response: ISalaryStructureGetResponseDto) => {
-          const { records } = response;
-          if (records.length > 0) {
-            const mappedData = this.mapEmployeeAnnexureData(records[0]);
-            this.employeeAnnexureData.set(mappedData);
-            this.logger.logUserAction('Employee annexure loaded successfully');
-          } else {
-            this.employeeAnnexureData.set(null);
-            this.logger.logUserAction('No employee annexure data found');
-          }
-        },
-        error: error => {
-          this.employeeAnnexureData.set(null);
-          this.logger.logUserAction('Failed to load employee annexure', error);
         },
       });
   }
@@ -255,27 +236,16 @@ export class GetSalaryStructureComponent implements OnInit {
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
     this.tableFilterData = tableFilterData;
-    this.checkEmployeeNameFilter();
-
-    if (this.hasEmployeeNameFilter()) {
-      this.loadEmployeeAnnexure();
-    } else {
-      this.employeeAnnexureData.set(null);
-      this.loadAllEmployeeSalaryStructure();
-    }
+    this.loadSalaryStructure();
   }
 
   private checkEmployeeNameFilter(): void {
-    const employeeNameFilter = this.tableFilterData?.filters?.['employeeName'];
-    const value =
-      employeeNameFilter &&
-      this.tableServerSideFilterAndSortService.extractFilterValue(
-        employeeNameFilter
-      );
+    const value = this.tableServerSideFilterAndSortService.getFilterValueByKey(
+      this.tableFilterData,
+      'employeeName'
+    ) as string[];
 
-    const hasValue =
-      (Array.isArray(value) && value.length > 0) || value !== undefined;
-
+    const hasValue = value && value.length > 0;
     this.hasEmployeeNameFilter.set(Boolean(hasValue));
   }
 

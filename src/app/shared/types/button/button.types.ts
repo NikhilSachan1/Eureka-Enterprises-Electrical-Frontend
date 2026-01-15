@@ -73,4 +73,6 @@ export enum EButtonActionType {
   SERVICE_INFO = 'vehicleServiceInfo',
   UNDER_MAINTENANCE = 'underMaintenance',
   RETIRED = 'retired',
+  PAID = 'paid',
+  GENERATE = 'generate',
 }

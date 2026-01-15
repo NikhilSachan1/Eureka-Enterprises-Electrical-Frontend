@@ -78,6 +78,7 @@ export class AppConfigurationService {
   private readonly _vehicleEventStatuses = signal<IOptionDropdown[]>([]);
   private readonly _vehicleServiceTypes = signal<IOptionDropdown[]>([]);
   private readonly _vehicleServiceStatus = signal<IOptionDropdown[]>([]);
+  private readonly _payrollStatus = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
   private readonly _employeeListByRole = signal<
@@ -123,7 +124,7 @@ export class AppConfigurationService {
   readonly vehicleEventStatuses = this._vehicleEventStatuses.asReadonly();
   readonly vehicleServiceTypes = this._vehicleServiceTypes.asReadonly();
   readonly vehicleServiceStatus = this._vehicleServiceStatus.asReadonly();
-
+  readonly payrollStatus = this._payrollStatus.asReadonly();
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
   readonly employeeListByRole = this._employeeListByRole.asReadonly();
@@ -322,6 +323,12 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PETRO_CARD.STATUS,
         signal: this._petroCardStatus,
+      },
+    ],
+    [MODULE_NAMES.PAYROLL]: [
+      {
+        key: CONFIGURATION_KEYS.PAYROLL.STATUS,
+        signal: this._payrollStatus,
       },
     ],
   };

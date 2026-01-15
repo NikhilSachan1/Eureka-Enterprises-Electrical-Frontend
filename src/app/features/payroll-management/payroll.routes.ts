@@ -32,4 +32,11 @@ export const PAYROLL_MANAGEMENT_ROUTES: Routes = [
       salaryDetail: GetLatestSalaryDetailResolver,
     },
   },
+  {
+    path: ROUTES.PAYROLL.PAYSLIP,
+    loadComponent: () =>
+      import('./components/get-payslip/get-payslip.component').then(
+        m => m.GetPayslipComponent
+      ),
+  },
 ];

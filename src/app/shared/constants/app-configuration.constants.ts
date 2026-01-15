@@ -7,6 +7,7 @@ export const MODULE_NAMES = {
   VEHICLE: 'vehicle',
   ASSET: 'asset',
   PETRO_CARD: 'petro_card',
+  PAYROLL: 'payroll',
 } as const;
 
 export const CONFIGURATION_KEYS = {
@@ -62,5 +63,8 @@ export const CONFIGURATION_KEYS = {
   },
   PETRO_CARD: {
     STATUS: 'status',
+  },
+  PAYROLL: {
+    STATUS: 'payroll_statuses',
   },
 } as const;

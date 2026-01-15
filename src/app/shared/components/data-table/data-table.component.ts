@@ -109,6 +109,7 @@ export class DataTableComponent {
   bulkActionClick = output<ITableActionClickEvent>();
   rowActionClick = output<ITableActionClickEvent>();
   filterData = output<TableLazyLoadEvent>();
+  attachmentClick = output<Record<string, unknown>>();
 
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
   protected visibleTableHeaders = computed(() => {
@@ -264,16 +265,26 @@ export class DataTableComponent {
     };
   }
 
-  protected openAttachmentsGallery(attchmentsKeys: string[]): void {
+  protected openAttachmentsGallery(
+    attchmentsKeys: string[],
+    rowData?: Record<string, unknown>,
+    column?: IDataTableHeaderConfig
+  ): void {
     if (attchmentsKeys.length === 0) {
       return;
     }
 
-    const media: IGalleryInputData[] = attchmentsKeys.map((key: string) => ({
-      mediaKey: key,
-      actualMediaUrl: '',
-    }));
+    const enableGallery = column?.enableAttachmentGallery ?? true;
 
-    this.galleryService.show(media);
+    if (enableGallery) {
+      const media: IGalleryInputData[] = attchmentsKeys.map((key: string) => ({
+        mediaKey: key,
+        actualMediaUrl: '',
+      }));
+
+      this.galleryService.show(media);
+    } else {
+      this.attachmentClick.emit(rowData ?? {});
+    }
   }
 }

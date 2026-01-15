@@ -76,12 +76,18 @@ export const API_ROUTES = {
     EDIT: (petroCardId: string) => `cards/${petroCardId}`,
   },
   PAYROLL: {
+    GENERATE: 'payroll/generate-bulk',
+    GET_PAYSLIP_LIST: 'payroll',
+    GET_PAYSLIP_BLOB: (payslipId: string) => `payroll/${payslipId}/payslip`,
+    GET_PAYSLIP_BY_ID: (payslipId: string) => `payroll/${payslipId}`,
     STRUCTURE: 'salary-structures',
     GET_STRUCTURE_HISTORY: (structureId: string) =>
       `salary-structures/${structureId}/change-history`,
     ADD_SALARY_INCREMENT: 'salary-structures/increment',
     EDIT: (salaryStructureId: string) =>
       `salary-structures/${salaryStructureId}`,
+    ACTION: 'payroll/bulk-status-update',
+    CANCEL: 'payroll/bulk-cancel',
   },
   SETTINGS: {
     PERMISSION: {

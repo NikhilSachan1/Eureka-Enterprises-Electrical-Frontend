@@ -23,8 +23,10 @@ export {
 export {
   convertSecondsToDhms,
   getPayslipCutoffMinDate,
+  getPayslipCutoffMaxDate,
   transformDateFormat,
   getDateBeforeXDays,
+  formatMonthYear,
 } from './date-time.util';
 export { getMediaTypeFromUrl, getFileExtension } from './media.util';
 export { filterOptionsByIncludeExclude } from './component.util';

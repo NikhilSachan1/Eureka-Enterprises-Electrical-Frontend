@@ -62,9 +62,12 @@ export class NotificationService {
     entityLabel: string;
     actionLabel: string;
     errors: TError[];
-    result: TResult[];
+    result?: TResult[];
+    success?: number;
+    failed?: number;
   }): void {
-    const { entityLabel, actionLabel, errors, result } = config;
+    const { entityLabel, actionLabel, errors, result, success, failed } =
+      config;
 
     const errorCount = errors?.length ?? 0;
     const resultCount = result?.length ?? 0;
@@ -81,7 +84,7 @@ export class NotificationService {
       } else {
         // Some records failed and some succeeded.
         this.error(
-          `Failed to ${actionLabel} ${entityLabel} for ${errorCount} records and executed successfully for ${resultCount} records`
+          `Failed to ${actionLabel} ${entityLabel} for ${errorCount ?? failed} records and executed successfully for ${resultCount ?? success} records`
         );
       }
       return;

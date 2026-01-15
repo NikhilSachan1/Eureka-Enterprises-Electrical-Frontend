@@ -1,4 +1,5 @@
 export enum ETableActionTypeValue {
+  PAID = 'PAID',
   APPROVED = 'approved',
   REJECTED = 'rejected',
   CANCELLED = 'cancelled',

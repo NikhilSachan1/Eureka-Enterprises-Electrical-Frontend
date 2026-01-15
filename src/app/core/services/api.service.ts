@@ -57,9 +57,29 @@ export class ApiService {
     );
   }
 
+  getBlob(endpoint: string, params?: unknown): Observable<Blob> {
+    const url = `${this.baseUrl}/${endpoint}`;
+    const httpParams = this.buildHttpParams(params);
+
+    this.logger.logApiRequest('GET BLOB', url, params);
+
+    return this.http
+      .get(url, {
+        params: httpParams,
+        responseType: 'blob',
+      })
+      .pipe(
+        timeout(this.timeout),
+        tap(() => this.logger.logApiResponse('GET BLOB', url, 'Blob received')),
+        this.createRetryConfig<Blob>('GET', url),
+        catchError(err => this.handleHttpError(err))
+      );
+  }
+
   post<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    const finalBody = this.convertEmptyToNull(body);
+    const processed = this.convertEmptyToNull(body);
+    const finalBody = this.cleanParams(processed);
 
     this.logger.logApiRequest('POST', url, finalBody);
 
@@ -73,7 +93,8 @@ export class ApiService {
 
   put<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    const finalBody = this.convertEmptyToNull(body);
+    const processed = this.convertEmptyToNull(body);
+    const finalBody = this.cleanParams(processed);
 
     this.logger.logApiRequest('PUT', url, finalBody);
 
@@ -87,7 +108,8 @@ export class ApiService {
 
   patch<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    const finalBody = this.convertEmptyToNull(body);
+    const processed = this.convertEmptyToNull(body);
+    const finalBody = this.cleanParams(processed);
 
     this.logger.logApiRequest('PATCH', url, finalBody);
 
@@ -101,10 +123,13 @@ export class ApiService {
 
   delete<T>(endpoint: string, body?: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
+    const cleanedBody = body
+      ? this.cleanParams(this.convertEmptyToNull(body))
+      : body;
 
-    this.logger.logApiRequest('DELETE', url, body);
+    this.logger.logApiRequest('DELETE', url, cleanedBody);
 
-    return this.http.delete<T>(url, { body }).pipe(
+    return this.http.delete<T>(url, { body: cleanedBody }).pipe(
       timeout(this.timeout),
       tap(res => this.logger.logApiResponse('DELETE', url, res)),
       this.createRetryConfig<T>('DELETE', url),
@@ -238,7 +263,8 @@ export class ApiService {
     options?: { multipart?: boolean }
   ): unknown {
     const processed = this.convertEmptyToNull(body);
-    return options?.multipart ? this.buildFormData(processed) : processed;
+    const cleaned = this.cleanParams(processed);
+    return options?.multipart ? this.buildFormData(cleaned) : cleaned;
   }
 
   private buildHttpParams(params?: unknown): HttpParams | undefined {
@@ -246,19 +272,79 @@ export class ApiService {
       return undefined;
     }
 
+    const cleanedParams = this.cleanParams(params);
+
+    if (!cleanedParams || Object.keys(cleanedParams).length === 0) {
+      return undefined;
+    }
+
     let httpParams = new HttpParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        if (Array.isArray(value)) {
-          value.forEach(v => {
-            httpParams = httpParams.append(key, String(v));
+    Object.entries(cleanedParams).forEach(([key, value]) => {
+      if (value === null || value === undefined) {
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        // Filter out null/undefined/empty strings from arrays
+        const filteredArray = value.filter(
+          v => v !== null && v !== undefined && v !== ''
+        );
+        if (filteredArray.length > 0) {
+          filteredArray.forEach(v => {
+            if (v !== null && v !== undefined && v !== '') {
+              httpParams = httpParams.append(key, String(v));
+            }
           });
-        } else {
+        }
+      } else {
+        // Skip empty strings
+        if (value !== '') {
           httpParams = httpParams.set(key, String(value));
         }
       }
     });
     return httpParams;
+  }
+
+  private cleanParams<T>(data: T): T {
+    // Check for both null and undefined
+    if (data === null || data === undefined) {
+      return {} as T;
+    }
+
+    if (Array.isArray(data)) {
+      const filtered = data
+        .filter(item => item !== null && item !== undefined && item !== '')
+        .map(item => this.cleanParams(item));
+      return filtered as T;
+    }
+
+    if (typeof data === 'object') {
+      const result: Record<string, unknown> = {};
+      Object.entries(data).forEach(([key, value]) => {
+        // Skip null, undefined, and empty strings
+        if (value !== null && value !== undefined && value !== '') {
+          const cleanedValue = this.cleanParams(value);
+          // Only add if cleaned value is not empty
+          if (
+            cleanedValue !== null &&
+            cleanedValue !== undefined &&
+            cleanedValue !== '' &&
+            !(
+              typeof cleanedValue === 'object' &&
+              !Array.isArray(cleanedValue) &&
+              Object.keys(cleanedValue).length === 0
+            ) &&
+            !(Array.isArray(cleanedValue) && cleanedValue.length === 0)
+          ) {
+            result[key] = cleanedValue;
+          }
+        }
+      });
+      return result as T;
+    }
+
+    return data;
   }
 
   private convertEmptyToNull<T>(data: T): T {

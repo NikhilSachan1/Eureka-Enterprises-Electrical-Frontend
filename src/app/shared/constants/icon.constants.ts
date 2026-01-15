@@ -101,6 +101,8 @@ export const ICONS = {
   },
   PAYROLL: {
     WALLET: 'pi pi-wallet',
+    PAID: 'pi pi-check-circle',
+    GENERATE: 'pi pi-file-edit',
   },
   SITE: {
     BUILDING: 'pi pi-building',

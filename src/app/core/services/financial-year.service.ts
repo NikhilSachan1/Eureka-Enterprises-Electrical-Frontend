@@ -4,9 +4,13 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class FinancialYearService {
-  public financialYear = this.getFinancialYearFromStartMonth();
+  public financialYear!: string;
   private readonly financialYearStartMonth: number = 3; // April (0-indexed would be 3)
   private readonly financialYearEndMonth: number = 2; // March (0-indexed would be 2)
+
+  constructor() {
+    this.financialYear = this.getFinancialYearFromStartMonth();
+  }
 
   getFinancialYear(): string {
     const financialYear = this.getFinancialYearFromStartMonth();
@@ -20,12 +24,18 @@ export class FinancialYearService {
   getFinancialYearFromStartMonth(
     startMonth = this.financialYearStartMonth
   ): string {
-    if (startMonth < 1 || startMonth > 12) {
+    const startMonth1Indexed = startMonth + 1;
+    if (startMonth1Indexed < 1 || startMonth1Indexed > 12) {
       throw new Error('Start month must be between 1 and 12');
     }
 
-    const currentYear = new Date().getFullYear();
-    if (startMonth === 1) {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1;
+    if (currentMonth < startMonth1Indexed) {
+      return `${currentYear - 1}-${currentYear}`;
+    }
+    if (startMonth1Indexed === 1) {
       return `${currentYear}-${currentYear}`;
     }
     return `${currentYear}-${currentYear + 1}`;

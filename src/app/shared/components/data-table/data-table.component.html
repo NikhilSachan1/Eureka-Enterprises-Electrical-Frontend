@@ -253,10 +253,14 @@
                     </div>
                   }
                   @case (ALL_DATA_TYPES.DATE) {
-                    <div class="flex items-center gap-2">
-                      <i [class]="icons.COMMON.CALENDAR + ' text-slate-400 text-xs'"></i>
-                      <span class="text-slate-700">{{ columnData | date: column.dateFormat }}</span>
-                    </div>
+                    @if (columnData) {
+                      <div class="flex items-center gap-2">
+                        <i [class]="icons.COMMON.CALENDAR + ' text-slate-400 text-xs'"></i>
+                        <span class="text-slate-700">{{ columnData | date: column.dateFormat }}</span>
+                      </div>
+                    } @else {
+                      <span class="text-slate-400">-</span>
+                    }
                   }
                   @case (ALL_DATA_TYPES.DATE_RANGE) {
                     @let dateRange = $any(columnData);
@@ -300,7 +304,7 @@
                           [styleClass]="
                             'text-xs font-medium bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-colors duration-150 cursor-pointer'
                           "
-                          (click)="openAttachmentsGallery(columnData)"
+                          (click)="openAttachmentsGallery(columnData, rowData, column)"
                         />
                       } @else {
                         <app-chip
