@@ -6,7 +6,6 @@ import { InputFieldConfigService } from '@shared/services';
 import {
   IFormConfig,
   IInputFieldsConfig,
-  IFormInputFieldsConfig,
   IEnhancedForm,
   IFormButtonConfig,
   IMultiStepFormConfig,
@@ -14,16 +13,12 @@ import {
   ITrackedFields,
   ITrackedForm,
   FormDataConstraint,
-  DefaultFormData,
-  MultiStepFormDataConstraint,
-  DefaultMultiStepFormData,
   MultiStepFormsRecord,
+  FormWithRequiredFieldConfigs,
 } from '@shared/types';
 import { IConditionalValidator } from '@shared/types/form/input-fields-config.interface';
 
-export interface ICreateFormOptions<
-  T extends FormDataConstraint = DefaultFormData,
-> {
+export interface ICreateFormOptions<T extends FormDataConstraint> {
   destroyRef: DestroyRef;
   defaultValues?: Partial<T> | null;
   context?: Record<string, unknown>;
@@ -36,7 +31,7 @@ export class FormService {
   private readonly fb = inject(FormBuilder);
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
 
-  createForm<T extends FormDataConstraint = DefaultFormData>(
+  createForm<T extends FormDataConstraint>(
     formConfig: IFormConfig<T>,
     options: ICreateFormOptions<T>
   ): IEnhancedForm<T> {
@@ -66,21 +61,18 @@ export class FormService {
     );
   }
 
-  createMultiStepForm<
-    T extends MultiStepFormDataConstraint = DefaultMultiStepFormData,
-    TFlattened extends FormDataConstraint = DefaultFormData,
-  >(
-    multiStepFormConfig: IMultiStepFormConfig<T>,
+  createMultiStepForm<TFlattened extends FormDataConstraint>(
+    multiStepFormConfig: IMultiStepFormConfig<TFlattened>,
     destroyRef: DestroyRef,
-    defaultValues?: Partial<T> | null
-  ): IEnhancedMultiStepForm<T, TFlattened> {
-    const forms: MultiStepFormsRecord = {};
+    defaultValues?: Partial<Record<string, Partial<TFlattened>>> | null
+  ): IEnhancedMultiStepForm<TFlattened> {
+    const forms: MultiStepFormsRecord<TFlattened> = {};
 
     if (
       !multiStepFormConfig?.fields ||
       Object.keys(multiStepFormConfig.fields).length === 0
     ) {
-      return this.createEnhancedMultiStepForm<T, TFlattened>(
+      return this.createEnhancedMultiStepForm<TFlattened>(
         forms,
         multiStepFormConfig.buttons ?? {}
       );
@@ -90,20 +82,22 @@ export class FormService {
       ([stepName, stepFields]) => {
         const stepDefaultValues = defaultValues?.[stepName] ?? {};
 
-        const stepFormConfig: IFormConfig<T[typeof stepName]> = {
-          fields: stepFields as IFormInputFieldsConfig<T[typeof stepName]>,
+        const stepFormConfig: IFormConfig<Partial<TFlattened>> = {
+          fields: stepFields,
         };
 
-        const createdForm = this.createForm<T[typeof stepName]>(
+        const createdForm = this.createForm<Partial<TFlattened>>(
           stepFormConfig,
           {
             destroyRef,
-            defaultValues: stepDefaultValues as Partial<T[typeof stepName]>,
+            defaultValues: stepDefaultValues as Partial<Partial<TFlattened>>,
           }
         );
-        // Type assertion needed because MultiStepFormsRecord uses Record<string, unknown>
-        // but we're creating forms with specific types T[typeof stepName]
-        forms[stepName] = createdForm as IEnhancedForm<Record<string, unknown>>;
+        // Store form with proper typing based on TFlattened
+        // Cast to FormWithRequiredFieldConfigs to ensure fieldConfigs are required
+        forms[stepName] = createdForm as FormWithRequiredFieldConfigs<
+          Partial<TFlattened>
+        >;
       }
     );
 
@@ -116,66 +110,83 @@ export class FormService {
       );
     }
 
-    return this.createEnhancedMultiStepForm<T, TFlattened>(
+    return this.createEnhancedMultiStepForm<TFlattened>(
       forms,
       multiStepFormConfig.buttons ?? {}
     );
   }
 
-  private isMultiStepFormValid(forms: MultiStepFormsRecord): boolean {
+  private isMultiStepFormValid<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>
+  ): boolean {
     return Object.values(forms).every(form => form.isValid());
   }
 
-  private isMultiStepFormInvalid(forms: MultiStepFormsRecord): boolean {
+  private isMultiStepFormInvalid<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>
+  ): boolean {
     return Object.values(forms).some(form => form.isInvalid());
   }
 
-  private isMultiStepFormDirty(forms: MultiStepFormsRecord): boolean {
+  private isMultiStepFormDirty<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>
+  ): boolean {
     return Object.values(forms).some(form => form.isDirty());
   }
 
-  private isMultiStepFormTouched(forms: MultiStepFormsRecord): boolean {
+  private isMultiStepFormTouched<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>
+  ): boolean {
     return Object.values(forms).some(form => form.isTouched());
   }
 
-  private markMultiStepFormTouched(forms: MultiStepFormsRecord): void {
+  private markMultiStepFormTouched<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>
+  ): void {
     Object.values(forms).forEach(form => form.markTouched());
   }
 
-  private resetMultiStepForm<
-    T extends MultiStepFormDataConstraint = DefaultMultiStepFormData,
-  >(forms: MultiStepFormsRecord, value?: Partial<T>): void {
+  private resetMultiStepForm<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>,
+    value?: Partial<Record<string, Record<string, unknown>>>
+  ): void {
     if (value) {
       Object.keys(forms).forEach(stepKey => {
         const form = forms[stepKey];
-        const stepValue = value[stepKey as keyof T];
-        form.reset(stepValue);
+        const stepValue = value[stepKey];
+        // Cast to Partial<Partial<TFlattened>> which is equivalent to Partial<TFlattened>
+        // Since Partial<Partial<T>> = Partial<T>, we cast to Partial<TFlattened>
+        form.reset((stepValue ?? null) as Partial<Partial<TFlattened>> | null);
       });
     } else {
       Object.values(forms).forEach(form => form.reset());
     }
   }
 
-  private disableMultiStepForm(forms: MultiStepFormsRecord): void {
+  private disableMultiStepForm<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>
+  ): void {
     Object.values(forms).forEach(form => form.disable());
   }
 
-  private enableMultiStepForm(forms: MultiStepFormsRecord): void {
+  private enableMultiStepForm<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>
+  ): void {
     Object.values(forms).forEach(form => form.enable());
   }
 
-  private validateAndMarkMultiStepFormTouched(
-    forms: MultiStepFormsRecord
-  ): boolean {
+  private validateAndMarkMultiStepFormTouched<
+    TFlattened extends FormDataConstraint,
+  >(forms: MultiStepFormsRecord<TFlattened>): boolean {
     const validationResults = Object.values(forms).map(form =>
       form.validateAndMarkTouched()
     );
     return validationResults.every(isValid => isValid);
   }
 
-  private getMultiStepFormData<
-    TFlattened extends FormDataConstraint = DefaultFormData,
-  >(forms: MultiStepFormsRecord): TFlattened {
+  private getMultiStepFormData<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>
+  ): TFlattened {
     // Flatten all form data from all steps into a single object
     return Object.values(forms).reduce(
       (acc, form) => ({
@@ -186,9 +197,9 @@ export class FormService {
     );
   }
 
-  private getMultiStepFormRawData<
-    TFlattened extends FormDataConstraint = DefaultFormData,
-  >(forms: MultiStepFormsRecord): TFlattened {
+  private getMultiStepFormRawData<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>
+  ): TFlattened {
     // Flatten all raw form data from all steps into a single object
     return Object.values(forms).reduce(
       (acc, form) => ({
@@ -247,20 +258,17 @@ export class FormService {
     return fieldSignal.asReadonly();
   }
 
-  trackMultipleFieldChanges<
-    TFormData extends FormDataConstraint = DefaultFormData,
-    TFieldNames extends keyof TFormData & string = keyof TFormData & string,
-  >(
+  trackMultipleFieldChanges<TFormData extends FormDataConstraint>(
     formGroup: FormGroup,
-    fieldNames: TFieldNames[],
+    fieldNames: (keyof TFormData & string)[],
     destroyRef: DestroyRef
-  ): ITrackedFields<TFieldNames, TFormData> {
-    const signals = {} as Record<TFieldNames, Signal<unknown>>;
+  ): ITrackedFields<TFormData> {
+    const signals = {} as Record<keyof TFormData & string, Signal<unknown>>;
 
     fieldNames.forEach(fieldName => {
       signals[fieldName] = this.trackFieldChanges(
         formGroup,
-        fieldName as string,
+        fieldName,
         destroyRef
       );
     });
@@ -268,15 +276,15 @@ export class FormService {
     // Create enhanced object with getValues method
     const trackedFields = {
       ...signals,
-      getValues(): Pick<TFormData, TFieldNames> {
-        const values = {} as Pick<TFormData, TFieldNames>;
+      getValues(): Partial<Pick<TFormData, keyof TFormData & string>> {
+        const values = {} as Partial<Pick<TFormData, keyof TFormData & string>>;
         fieldNames.forEach(fieldName => {
-          (values as Record<string, unknown>)[fieldName as string] =
+          (values as Record<string, unknown>)[fieldName] =
             signals[fieldName]?.();
         });
         return values;
       },
-    } as ITrackedFields<TFieldNames, TFormData>;
+    } as ITrackedFields<TFormData>;
 
     return trackedFields;
   }
@@ -427,8 +435,8 @@ export class FormService {
    * Checks if multi-step form has any explicit cross-step dependencies (dependsOnStep property)
    */
   private hasExplicitCrossStepDependencies<
-    T extends MultiStepFormDataConstraint = DefaultMultiStepFormData,
-  >(multiStepFormConfig: IMultiStepFormConfig<T>): boolean {
+    TFlattened extends FormDataConstraint,
+  >(multiStepFormConfig: IMultiStepFormConfig<TFlattened>): boolean {
     if (!multiStepFormConfig?.fields) {
       return false;
     }
@@ -450,10 +458,10 @@ export class FormService {
    * Only handles explicit cross-step dependencies (when dependsOnStep is specified)
    */
   private applyCrossStepConditionalValidators<
-    T extends MultiStepFormDataConstraint = DefaultMultiStepFormData,
+    TFlattened extends FormDataConstraint,
   >(
-    forms: MultiStepFormsRecord,
-    multiStepFormConfig: IMultiStepFormConfig<T>,
+    forms: MultiStepFormsRecord<TFlattened>,
+    multiStepFormConfig: IMultiStepFormConfig<TFlattened>,
     destroyRef: DestroyRef
   ): void {
     Object.entries(multiStepFormConfig.fields).forEach(
@@ -582,7 +590,7 @@ export class FormService {
   ): IEnhancedForm<T> {
     return {
       formGroup,
-      fieldConfigs: fieldConfigs as Record<keyof T, IInputFieldsConfig>,
+      fieldConfigs: fieldConfigs as { [K in keyof T]: IInputFieldsConfig },
       buttonConfigs,
       isValid: () => formGroup.valid, // true if all fields are valid, no errors.
       isInvalid: () => formGroup.invalid, // true if any field has an error.
@@ -604,24 +612,20 @@ export class FormService {
     };
   }
 
-  private createEnhancedMultiStepForm<
-    T extends MultiStepFormDataConstraint = DefaultMultiStepFormData,
-    TFlattened extends FormDataConstraint = DefaultFormData,
-  >(
-    forms: MultiStepFormsRecord,
+  private createEnhancedMultiStepForm<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>,
     buttonConfigs: IFormButtonConfig
-  ): IEnhancedMultiStepForm<T, TFlattened> {
+  ): IEnhancedMultiStepForm<TFlattened> {
     return {
-      forms: forms as {
-        [K in keyof T]: IEnhancedForm<T[K]>;
-      },
+      forms,
       buttonConfigs,
       isValid: () => this.isMultiStepFormValid(forms), // true if all forms are valid, no errors.
       isInvalid: () => this.isMultiStepFormInvalid(forms), // true if any form has an error.
       isDirty: () => this.isMultiStepFormDirty(forms), // true if any form has been modified.
       isTouched: () => this.isMultiStepFormTouched(forms), // true if any form has been touched.
       markTouched: () => this.markMultiStepFormTouched(forms), // Force all forms to act like the user touched everything.
-      reset: (value?: Partial<T>) => this.resetMultiStepForm<T>(forms, value), // Reset all forms.
+      reset: (value?: Partial<Record<string, Record<string, unknown>>>) =>
+        this.resetMultiStepForm(forms, value), // Reset all forms.
       disable: () => this.disableMultiStepForm(forms), // Disable all forms.
       enable: () => this.enableMultiStepForm(forms), // Enable all forms.
       validateAndMarkTouched: () =>

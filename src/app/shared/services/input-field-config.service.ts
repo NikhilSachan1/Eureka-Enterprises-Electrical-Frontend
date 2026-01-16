@@ -59,7 +59,7 @@ export class InputFieldConfigService {
   }
 
   initializeFieldConfigs(
-    formInputFieldsConfig: IFormInputFieldsConfig
+    formInputFieldsConfig: IFormInputFieldsConfig<Record<string, unknown>>
   ): Record<string, IInputFieldsConfig> {
     const configs: Record<string, IInputFieldsConfig> = {};
     Object.keys(formInputFieldsConfig).forEach(key => {

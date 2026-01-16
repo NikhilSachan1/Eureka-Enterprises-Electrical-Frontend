@@ -78,8 +78,7 @@ export class ApiService {
 
   post<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    const processed = this.convertEmptyToNull(body);
-    const finalBody = this.cleanParams(processed);
+    const finalBody = this.cleanParams(body);
 
     this.logger.logApiRequest('POST', url, finalBody);
 
@@ -93,8 +92,7 @@ export class ApiService {
 
   put<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    const processed = this.convertEmptyToNull(body);
-    const finalBody = this.cleanParams(processed);
+    const finalBody = this.cleanParams(body);
 
     this.logger.logApiRequest('PUT', url, finalBody);
 
@@ -108,8 +106,7 @@ export class ApiService {
 
   patch<T>(endpoint: string, body: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    const processed = this.convertEmptyToNull(body);
-    const finalBody = this.cleanParams(processed);
+    const finalBody = this.cleanParams(body);
 
     this.logger.logApiRequest('PATCH', url, finalBody);
 
@@ -123,9 +120,7 @@ export class ApiService {
 
   delete<T>(endpoint: string, body?: unknown): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
-    const cleanedBody = body
-      ? this.cleanParams(this.convertEmptyToNull(body))
-      : body;
+    const cleanedBody = this.cleanParams(body);
 
     this.logger.logApiRequest('DELETE', url, cleanedBody);
 
@@ -149,7 +144,6 @@ export class ApiService {
   ): Observable<TResponse> {
     try {
       const payload = schema.request ? schema.request.parse(input) : input;
-
       const body = this.resolveRequestBody(payload, options);
       const url = `${this.baseUrl}/${endpoint}`;
 
@@ -262,115 +256,102 @@ export class ApiService {
     body: unknown,
     options?: { multipart?: boolean }
   ): unknown {
-    const processed = this.convertEmptyToNull(body);
-    const cleaned = this.cleanParams(processed);
-    return options?.multipart ? this.buildFormData(cleaned) : cleaned;
+    const cleaned = this.cleanParams(body);
+    const flattened = this.flattenObject(cleaned);
+    return options?.multipart ? this.buildFormData(flattened) : flattened;
   }
 
   private buildHttpParams(params?: unknown): HttpParams | undefined {
-    if (!params) {
+    if (this.isEmptyValue(params)) {
       return undefined;
     }
 
     const cleanedParams = this.cleanParams(params);
 
-    if (!cleanedParams || Object.keys(cleanedParams).length === 0) {
+    if (this.isEmptyValue(cleanedParams)) {
       return undefined;
     }
 
     let httpParams = new HttpParams();
-    Object.entries(cleanedParams).forEach(([key, value]) => {
-      if (value === null || value === undefined) {
-        return;
-      }
 
-      if (Array.isArray(value)) {
-        // Filter out null/undefined/empty strings from arrays
-        const filteredArray = value.filter(
-          v => v !== null && v !== undefined && v !== ''
-        );
-        if (filteredArray.length > 0) {
-          filteredArray.forEach(v => {
-            if (v !== null && v !== undefined && v !== '') {
+    Object.entries(cleanedParams as Record<string, unknown>).forEach(
+      ([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach(v => {
+            if (!this.isEmptyValue(v)) {
               httpParams = httpParams.append(key, String(v));
             }
           });
-        }
-      } else {
-        // Skip empty strings
-        if (value !== '') {
+        } else if (!this.isEmptyValue(value)) {
           httpParams = httpParams.set(key, String(value));
         }
       }
-    });
+    );
+
     return httpParams;
   }
 
   private cleanParams<T>(data: T): T {
-    // Check for both null and undefined
-    if (data === null || data === undefined) {
+    // 🔹 base case
+    if (this.isEmptyValue(data)) {
       return {} as T;
     }
 
+    // 🔹 array case
     if (Array.isArray(data)) {
-      const filtered = data
-        .filter(item => item !== null && item !== undefined && item !== '')
-        .map(item => this.cleanParams(item));
-      return filtered as T;
+      return data
+        .map(item => this.cleanParams(item))
+        .filter(item => !this.isEmptyValue(item)) as T;
     }
 
-    if (typeof data === 'object') {
+    // 🔹 object case
+    if (typeof data === 'object' && !this.isFileOrBlob(data)) {
       const result: Record<string, unknown> = {};
-      Object.entries(data).forEach(([key, value]) => {
-        // Skip null, undefined, and empty strings
-        if (value !== null && value !== undefined && value !== '') {
+
+      Object.entries(data as Record<string, unknown>).forEach(
+        ([key, value]) => {
           const cleanedValue = this.cleanParams(value);
-          // Only add if cleaned value is not empty
-          if (
-            cleanedValue !== null &&
-            cleanedValue !== undefined &&
-            cleanedValue !== '' &&
-            !(
-              typeof cleanedValue === 'object' &&
-              !Array.isArray(cleanedValue) &&
-              Object.keys(cleanedValue).length === 0
-            ) &&
-            !(Array.isArray(cleanedValue) && cleanedValue.length === 0)
-          ) {
+
+          if (!this.isEmptyValue(cleanedValue)) {
             result[key] = cleanedValue;
           }
         }
-      });
+      );
+
       return result as T;
     }
 
+    // 🔹 primitive value
     return data;
   }
 
-  private convertEmptyToNull<T>(data: T): T {
-    if (
-      data === null ||
-      data === undefined ||
-      data instanceof FormData ||
-      data instanceof File ||
-      data instanceof Blob
-    ) {
-      return data;
+  private flattenObject(
+    value: unknown,
+    parentKey = '',
+    result: Record<string, unknown> = {}
+  ): Record<string, unknown> {
+    if (value === null || value === undefined) {
+      return result;
     }
 
-    if (Array.isArray(data)) {
-      return data.map(v => this.convertEmptyToNull(v)) as T;
-    }
-
-    if (typeof data === 'object') {
-      const result: Record<string, unknown> = {};
-      Object.entries(data).forEach(([k, v]) => {
-        result[k] = v === '' ? null : this.convertEmptyToNull(v);
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => {
+        const key = parentKey ? `${parentKey}[${index}]` : String(index);
+        this.flattenObject(item, key, result);
       });
-      return result as T;
+      return result;
     }
 
-    return data;
+    if (typeof value === 'object' && !this.isFileOrBlob(value)) {
+      Object.entries(value as Record<string, unknown>).forEach(([k, v]) => {
+        const key = parentKey ? `${parentKey}[${k}]` : k;
+        this.flattenObject(v, key, result);
+      });
+      return result;
+    }
+
+    result[parentKey] = value;
+    return result;
   }
 
   private buildFormData(body: unknown): FormData {
@@ -380,12 +361,29 @@ export class ApiService {
     }
 
     Object.entries(body).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        formData.append(key, String(value));
-      }
+      formData.append(key, value);
     });
-
     return formData;
+  }
+
+  private isEmptyValue(value: unknown): boolean {
+    if (value === null || value === undefined || value === '') {
+      return true;
+    }
+
+    if (Array.isArray(value)) {
+      return value.length === 0;
+    }
+
+    if (typeof value === 'object' && !this.isFileOrBlob(value)) {
+      return Object.keys(value).length === 0;
+    }
+
+    return false;
+  }
+
+  private isFileOrBlob(value: unknown): boolean {
+    return value instanceof File || value instanceof Blob;
   }
 
   private createRetryConfig<T>(
