@@ -7,47 +7,45 @@ export type FormDataConstraint = Record<string, unknown> | object;
 export type DefaultFormData = Record<string, unknown>;
 export type MultiStepFormDataConstraint = Record<string, FormDataConstraint>;
 export type DefaultMultiStepFormData = Record<string, Record<string, unknown>>;
-export type MultiStepFormsRecord = Record<
-  string,
-  IEnhancedForm<Record<string, unknown>>
->;
 
-export type IFormInputFieldsConfig<
-  T extends FormDataConstraint = DefaultFormData,
-> = {
+export type IFormInputFieldsConfig<T extends FormDataConstraint> = {
   [K in keyof T]: Partial<IInputFieldsConfig>;
 };
 
 export type IFormButtonConfig = Record<string, Partial<IButtonConfig>>;
 
-export interface IFormConfig<T extends FormDataConstraint = DefaultFormData> {
+export interface IFormConfig<T extends FormDataConstraint> {
   fields: IFormInputFieldsConfig<T>;
   buttons?: IFormButtonConfig;
 }
 
 export interface IMultiStepFormConfig<
-  T extends MultiStepFormDataConstraint = DefaultMultiStepFormData,
+  TFlattened extends FormDataConstraint = FormDataConstraint,
 > {
-  fields: {
-    [K in keyof T]: IFormInputFieldsConfig<T[K]>;
-  };
+  fields: Record<string, IFormInputFieldsConfig<Partial<TFlattened>>>;
   buttons?: IFormButtonConfig;
 }
 
-export interface IEnhancedMultiStepForm<
-  T extends MultiStepFormDataConstraint = DefaultMultiStepFormData,
-  TFlattened extends FormDataConstraint = DefaultFormData,
-> {
-  forms: {
-    [K in keyof T]: IEnhancedForm<T[K]>;
-  };
+export type FormWithRequiredFieldConfigs<T extends FormDataConstraint> = Omit<
+  IEnhancedForm<T>,
+  'fieldConfigs'
+> & {
+  fieldConfigs: { [K in keyof Required<T>]: IInputFieldsConfig };
+};
+
+export type MultiStepFormsRecord<
+  TFlattened extends FormDataConstraint = FormDataConstraint,
+> = Record<string, FormWithRequiredFieldConfigs<Partial<TFlattened>>>;
+
+export interface IEnhancedMultiStepForm<TFlattened extends FormDataConstraint> {
+  forms: MultiStepFormsRecord<TFlattened>;
   buttonConfigs: Record<string, Partial<IButtonConfig>>;
   isValid(): boolean;
   isInvalid(): boolean;
   isDirty(): boolean;
   isTouched(): boolean;
   markTouched(): void;
-  reset(value?: Partial<T>): void;
+  reset(value?: Partial<Record<string, Record<string, unknown>>>): void;
   disable(): void;
   enable(): void;
   validateAndMarkTouched(): boolean;
@@ -55,9 +53,9 @@ export interface IEnhancedMultiStepForm<
   getRawData(): TFlattened;
 }
 
-export interface IEnhancedForm<T extends FormDataConstraint = DefaultFormData> {
+export interface IEnhancedForm<T extends FormDataConstraint> {
   formGroup: FormGroup;
-  fieldConfigs: Record<keyof T, IInputFieldsConfig>;
+  fieldConfigs: { [K in keyof T]: IInputFieldsConfig };
   buttonConfigs: Record<string, Partial<IButtonConfig>>;
   isValid(): boolean;
   isInvalid(): boolean;
@@ -77,11 +75,10 @@ export interface IEnhancedForm<T extends FormDataConstraint = DefaultFormData> {
   getFieldData<K extends keyof T>(fieldName: K): T[K];
 }
 
-export type ITrackedFields<
-  TFieldNames extends keyof TFormData & string,
-  TFormData extends FormDataConstraint = DefaultFormData,
-> = Record<TFieldNames, Signal<unknown>> & {
-  getValues(): Pick<TFormData, TFieldNames>;
+export type ITrackedFields<TFormData extends FormDataConstraint> = Partial<
+  Record<keyof TFormData & string, Signal<unknown>>
+> & {
+  getValues(): Partial<Pick<TFormData, keyof TFormData & string>>;
 };
 
 export interface ITrackedForm {

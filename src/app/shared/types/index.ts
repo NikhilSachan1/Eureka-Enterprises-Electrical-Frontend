@@ -78,6 +78,7 @@ export type {
   MultiStepFormDataConstraint,
   DefaultMultiStepFormData,
   MultiStepFormsRecord,
+  FormWithRequiredFieldConfigs,
 } from './form/form.interface';
 export type {
   IInputFieldsConfig,
