@@ -96,7 +96,6 @@ export class ChangeStatusEmployeeComponent extends FormBase implements OnInit {
       title: EMPLOYEE_MESSAGES.LOADING.CHANGE_STATUS,
       message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.CHANGE_STATUS,
     };
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
 
     this.employeeService

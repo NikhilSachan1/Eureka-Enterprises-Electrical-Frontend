@@ -215,7 +215,6 @@ export class EditEmployeeComponent
     formData: IEmployeeEditFormDto,
     employeeId: string
   ): void {
-    this.isSubmitting.set(true);
     this.loadingService.show({
       title: EMPLOYEE_MESSAGES.LOADING.EDIT,
       message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.EDIT,

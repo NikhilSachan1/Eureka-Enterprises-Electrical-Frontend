@@ -27,6 +27,8 @@ const ACTION_PAYROLL_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<
   },
 };
 
-export const ACTION_PAYROLL_FORM_CONFIG: IFormConfig = {
+export const ACTION_PAYROLL_FORM_CONFIG: IFormConfig<
+  Partial<IActionPayrollFormDto>
+> = {
   fields: ACTION_PAYROLL_FORM_FIELDS_CONFIG,
 };

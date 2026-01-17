@@ -1,4 +1,4 @@
-@if (dialogActionType() === undefined) {
+@if (!dialogActionType()) {
   <form
     [formGroup]="form.formGroup"
     class="form"

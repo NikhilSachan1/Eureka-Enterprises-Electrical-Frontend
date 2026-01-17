@@ -2,14 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   effect,
   inject,
   OnInit,
-  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import { ADD_SALARY_INCREMENT_FORM_CONFIG } from '@features/payroll-management/config';
 import { PayrollService } from '@features/payroll-management/services/payroll.service';
 import {
@@ -17,29 +14,18 @@ import {
   ISalaryStructureGetFormDto,
   ISalaryStructureGetResponseDto,
 } from '@features/payroll-management/types/payroll.dto';
-import {
-  FORM_VALIDATION_MESSAGES,
-  ROUTE_BASE_PATHS,
-  ROUTES,
-} from '@shared/constants';
-import {
-  FormService,
-  LoadingService,
-  NotificationService,
-  RouterNavigationService,
-} from '@shared/services';
-import {
-  IEnhancedForm,
-  IPageHeaderConfig,
-  ITrackedFields,
-} from '@shared/types';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { RouterNavigationService } from '@shared/services';
+import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { ISalaryFields } from '@features/payroll-management/types/payroll.interface';
+import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SalarySummaryComponent } from '@features/payroll-management/shared/components/salary-summary/salary-summary.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-add-salary-increment',
@@ -54,34 +40,28 @@ import { ButtonComponent } from '@shared/components/button/button.component';
   styleUrl: './add-salary-increment.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddSalaryIncrementComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly loadingService = inject(LoadingService);
+export class AddSalaryIncrementComponent
+  extends FormBase<ISalaryIncrementAddFormDto>
+  implements OnInit
+{
   private readonly payrollService = inject(PayrollService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
 
-  protected form!: IEnhancedForm<ISalaryIncrementAddFormDto>;
-  private trackedSalaryFields!: ITrackedFields<
-    keyof ISalaryIncrementAddFormDto & string,
-    ISalaryIncrementAddFormDto
-  >;
+  private trackedSalaryFields!: ITrackedFields<ISalaryIncrementAddFormDto>;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly summaryCalculationFields = computed(() =>
     this.getSummaryCalculationFields()
   );
-  protected readonly initialSalaryIncrementData =
-    signal<Partial<ISalaryIncrementAddFormDto> | null>(null);
-  protected readonly isSubmitting = signal(false);
 
   constructor() {
+    super();
     effect(() => {
-      const employeeName = this.trackedSalaryFields.employeeName() as string;
-      if (employeeName) {
-        this.onChangeEmployeeName(employeeName);
+      if (this.trackedSalaryFields && this.trackedSalaryFields.employeeName) {
+        const employeeName = this.trackedSalaryFields.employeeName();
+        if (employeeName && typeof employeeName === 'string') {
+          this.loadEmployeeSalaryDetail(employeeName);
+        }
       }
     });
   }
@@ -91,7 +71,6 @@ export class AddSalaryIncrementComponent implements OnInit {
       ADD_SALARY_INCREMENT_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
-        defaultValues: this.initialSalaryIncrementData(),
       }
     );
 
@@ -111,14 +90,10 @@ export class AddSalaryIncrementComponent implements OnInit {
       );
   }
 
-  private onChangeEmployeeName(userId: string): void {
-    this.loadEmployeeSalaryDetail(userId);
-  }
-
   private loadEmployeeSalaryDetail(userId: string): void {
     this.loadingService.show({
-      title: 'Loading Employee Latest Salary Detail',
-      message: 'Please wait while we load the employee latest salary detail...',
+      title: PAYROLL_MESSAGES.LOADING.LOAD_EMPLOYEE_SALARY_DETAIL,
+      message: PAYROLL_MESSAGES.LOADING_MESSAGES.LOAD_EMPLOYEE_SALARY_DETAIL,
     });
 
     const paramData = this.prepareParamDataForSalaryDetail(userId);
@@ -135,16 +110,16 @@ export class AddSalaryIncrementComponent implements OnInit {
         next: (response: ISalaryStructureGetResponseDto) => {
           const { records } = response;
           if (records.length > 0) {
-            const prefilledSalaryDetailData =
-              this.preparePrefilledSalaryDetailData(records, userId);
-            this.initialSalaryIncrementData.set(prefilledSalaryDetailData);
+            const prefilledSalaryDetailData = this.preparePrefilledFormData(
+              records,
+              userId
+            );
             this.form.patch(prefilledSalaryDetailData);
           }
         },
         error: error => {
-          this.initialSalaryIncrementData.set(null);
-          this.logger.logUserAction(
-            'Failed to load employee salary detail',
+          this.logger.error(
+            PAYROLL_MESSAGES.ERROR.LOAD_EMPLOYEE_SALARY_DETAIL,
             error
           );
         },
@@ -159,59 +134,38 @@ export class AddSalaryIncrementComponent implements OnInit {
     };
   }
 
-  private preparePrefilledSalaryDetailData(
+  private preparePrefilledFormData(
     salaryDetail: ISalaryStructureGetResponseDto['records'],
     userId: string
   ): Partial<ISalaryIncrementAddFormDto> {
     const salaryDetailData = salaryDetail[0];
     return {
       employeeName: userId,
-      basicSalary: salaryDetailData.basic,
-      hra: salaryDetailData.hra,
-      tds: salaryDetailData.tds ?? '0',
-      employerEsicContribution: salaryDetailData.esic ?? '0',
-      employeePfContribution: salaryDetailData.employeePf ?? '0',
-      foodAllowance: salaryDetailData.foodAllowance ?? '0',
+      basicSalary: Number(salaryDetailData.basic),
+      hra: Number(salaryDetailData.hra),
+      tds: Number(salaryDetailData.tds ?? 0),
+      employerEsicContribution: Number(salaryDetailData.esic ?? 0),
+      employeePfContribution: Number(salaryDetailData.employeePf ?? 0),
+      foodAllowance: Number(salaryDetailData.foodAllowance ?? 0),
     };
   }
 
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const formData = this.prepareFormData();
     this.executeAddSalaryIncrement(formData);
   }
 
   private prepareFormData(): ISalaryIncrementAddFormDto {
     const formData = this.form.getData();
-    const {
-      basicSalary,
-      hra,
-      tds,
-      employerEsicContribution,
-      employeePfContribution,
-      foodAllowance,
-    } = formData;
-    return {
-      ...formData,
-      basicSalary: String(basicSalary ?? 0),
-      hra: String(hra ?? 0),
-      tds: String(tds ?? 0),
-      employerEsicContribution: String(employerEsicContribution ?? 0),
-      employeePfContribution: String(employeePfContribution ?? 0),
-      foodAllowance: String(foodAllowance ?? 0),
-    };
+    return formData;
   }
 
   private executeAddSalaryIncrement(
     formData: ISalaryIncrementAddFormDto
   ): void {
-    this.isSubmitting.set(true);
     this.loadingService.show({
-      title: 'Add Salary Increment',
-      message: 'Please wait while we add salary increment...',
+      title: PAYROLL_MESSAGES.LOADING.ADD_SALARY_INCREMENT,
+      message: PAYROLL_MESSAGES.LOADING_MESSAGES.ADD_SALARY_INCREMENT,
     });
     this.form.disable();
 
@@ -228,7 +182,7 @@ export class AddSalaryIncrementComponent implements OnInit {
       .subscribe({
         next: () => {
           this.notificationService.success(
-            'Salary increment added successfully'
+            PAYROLL_MESSAGES.SUCCESS.ADD_SALARY_INCREMENT
           );
           const routeSegments = [
             ROUTE_BASE_PATHS.PAYROLL,
@@ -237,7 +191,9 @@ export class AddSalaryIncrementComponent implements OnInit {
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {
-          this.notificationService.error('Failed to add salary increment');
+          this.notificationService.error(
+            PAYROLL_MESSAGES.ERROR.ADD_SALARY_INCREMENT
+          );
         },
       });
   }
@@ -253,37 +209,21 @@ export class AddSalaryIncrementComponent implements OnInit {
 
     return {
       basic: basicSalary ?? 0,
-      hra: hra ?? '0',
-      tds: tds ?? '0',
-      esic: employerEsicContribution ?? '0',
-      employeePf: employeePfContribution ?? '0',
+      hra: hra ?? 0,
+      tds: tds ?? 0,
+      esic: employerEsicContribution ?? 0,
+      employeePf: employeePfContribution ?? 0,
     };
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Add salary increment form validation failed');
-      return false;
-    }
-    return true;
-  }
-
   protected onReset(): void {
-    try {
-      this.logger.logUserAction('Reset Add Salary Increment Form');
-      this.form.reset(this.initialSalaryIncrementData());
-    } catch (error) {
-      this.logger.error('Error resetting form', error);
-    }
+    this.onResetSingleForm();
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
-      title: 'Add Salary Increment',
-      subtitle: 'Add a new salary increment',
+      title: PAYROLL_MESSAGES.PAGE_HEADER.ADD_SALARY_INCREMENT_TITLE,
+      subtitle: PAYROLL_MESSAGES.PAGE_HEADER.ADD_SALARY_INCREMENT_SUBTITLE,
     };
   }
 }

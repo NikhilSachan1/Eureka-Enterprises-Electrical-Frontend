@@ -51,6 +51,7 @@ import { APP_PERMISSION } from '@core/constants';
 import { parseAmount } from '@shared/utility';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { SalaryAnnexureComponent } from '@features/payroll-management/shared/components/salary-annexure/salary-annexure.component';
+import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
 
 @Component({
   selector: 'app-get-salary-structure',
@@ -112,8 +113,8 @@ export class GetSalaryStructureComponent implements OnInit {
       this.checkEmployeeNameFilter();
     }
     this.loadingService.show({
-      title: 'Loading Salary Structure',
-      message: 'Please wait while we load the salary structure...',
+      title: PAYROLL_MESSAGES.LOADING.SALARY_STRUCTURE_LIST,
+      message: PAYROLL_MESSAGES.LOADING_MESSAGES.SALARY_STRUCTURE_LIST,
     });
 
     const paramData = isTableVisible ? this.prepareParamData() : undefined;
@@ -140,8 +141,8 @@ export class GetSalaryStructureComponent implements OnInit {
             const mappedData = this.mapEmployeeAnnexureData(records[0]);
             this.employeeAnnexureData.set(mappedData);
           }
-          this.logger.logUserAction(
-            'Salary structure records loaded successfully'
+          this.logger.info(
+            PAYROLL_MESSAGES.SUCCESS.SALARY_STRUCTURE_LIST_LOADED
           );
         },
         error: error => {
@@ -150,8 +151,8 @@ export class GetSalaryStructureComponent implements OnInit {
           } else {
             this.employeeAnnexureData.set(null);
           }
-          this.logger.logUserAction(
-            'Failed to load salary structure records',
+          this.logger.error(
+            PAYROLL_MESSAGES.ERROR.SALARY_STRUCTURE_LIST_LOAD_FAILED,
             error
           );
         },
@@ -210,12 +211,12 @@ export class GetSalaryStructureComponent implements OnInit {
       salarySummary: {
         items: [
           {
-            title: 'Net Salary (In Hand)',
+            title: PAYROLL_MESSAGES.SUMMARY.NET_SALARY,
             monthlyValue: parseAmount(response.netSalary) / 12,
             annualValue: parseAmount(response.netSalary),
           },
           {
-            title: 'Annual CTC',
+            title: PAYROLL_MESSAGES.SUMMARY.ANNUAL_CTC,
             monthlyValue: parseAmount(response.ctc) / 12,
             annualValue: parseAmount(response.ctc),
           },
@@ -277,7 +278,7 @@ export class GetSalaryStructureComponent implements OnInit {
 
     this.drawerService.showDrawer(GetSalaryStructureHistoryComponent, {
       header: `Revision History`,
-      subtitle: `View all salary structure revisions`,
+      subtitle: PAYROLL_MESSAGES.DRAWER.SALARY_STRUCTURE_REVISION_SUBTITLE,
       size: EDrawerSize.MEDIUM,
       componentData: {
         salaryStructure: rowData,
@@ -295,10 +296,7 @@ export class GetSalaryStructureComponent implements OnInit {
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
     } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing salary structure',
-        error
-      );
+      this.logger.error(PAYROLL_MESSAGES.ERROR.NAVIGATION_ERROR, error);
     }
   }
 
@@ -316,8 +314,9 @@ export class GetSalaryStructureComponent implements OnInit {
 
   private getPageHeaderConfig(): IPageHeaderConfig {
     return {
-      title: 'Salary Structure Management',
-      subtitle: 'Manage salary structure records',
+      title: PAYROLL_MESSAGES.PAGE_HEADER.SALARY_STRUCTURE_MANAGEMENT_TITLE,
+      subtitle:
+        PAYROLL_MESSAGES.PAGE_HEADER.SALARY_STRUCTURE_MANAGEMENT_SUBTITLE,
     };
   }
 

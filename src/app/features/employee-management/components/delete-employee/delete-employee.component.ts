@@ -71,7 +71,6 @@ export class DeleteEmployeeComponent extends FormBase implements OnInit {
       title: EMPLOYEE_MESSAGES.LOADING.DELETE,
       message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.DELETE,
     };
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
 
     this.employeeService

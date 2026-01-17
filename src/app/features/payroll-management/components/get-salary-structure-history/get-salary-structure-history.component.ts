@@ -20,6 +20,7 @@ import { AvatarService, LoadingService } from '@shared/services';
 import { parseAmount } from '@shared/utility';
 import { APP_CONFIG } from '@core/config/app.config';
 import { IEntityViewDetails } from '@shared/types';
+import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
 
 // PrimeNG imports
 import { CardModule } from 'primeng/card';
@@ -67,8 +68,8 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
 
   private loadSalaryDetails(): void {
     this.loadingService.show({
-      title: 'Loading Salary Revision History',
-      message: 'Please wait while we load the salary revision history...',
+      title: PAYROLL_MESSAGES.LOADING.SALARY_REVISION_HISTORY,
+      message: PAYROLL_MESSAGES.LOADING_MESSAGES.SALARY_REVISION_HISTORY,
     });
 
     const paramData = this.prepareParamData();
@@ -85,13 +86,13 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
         next: (response: ISalaryStructureHistoryGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._salaryDetails.set(mappedData);
-          this.logger.logUserAction(
-            'Salary revision history loaded successfully'
+          this.logger.info(
+            PAYROLL_MESSAGES.SUCCESS.SALARY_REVISION_HISTORY_LOADED
           );
         },
         error: error => {
-          this.logger.logUserAction(
-            'Failed to load salary revision history',
+          this.logger.error(
+            PAYROLL_MESSAGES.ERROR.SALARY_REVISION_HISTORY_LOAD_FAILED,
             error
           );
           this._salaryDetails.set([]);
@@ -146,12 +147,12 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
           salarySummary: {
             items: [
               {
-                title: 'Net Salary (In Hand)',
+                title: PAYROLL_MESSAGES.SUMMARY.NET_SALARY,
                 monthlyValue: parseAmount(newValues.netSalary) / 12,
                 annualValue: parseAmount(newValues.netSalary),
               },
               {
-                title: 'Annual CTC',
+                title: PAYROLL_MESSAGES.SUMMARY.ANNUAL_CTC,
                 monthlyValue: parseAmount(newValues.ctc) / 12,
                 annualValue: parseAmount(newValues.ctc),
               },
@@ -193,13 +194,13 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
     const { user } = this.drawerData.salaryStructure;
     if (!user) {
       return {
-        name: 'N/A',
-        subtitle: 'N/A',
+        name: PAYROLL_MESSAGES.ENTITY.SUBTITLE_NA,
+        subtitle: PAYROLL_MESSAGES.ENTITY.SUBTITLE_NA,
       };
     }
     return {
       name: `${user.firstName} ${user.lastName}`,
-      subtitle: user.employeeId ?? 'N/A',
+      subtitle: user.employeeId ?? PAYROLL_MESSAGES.ENTITY.SUBTITLE_NA,
     };
   }
 

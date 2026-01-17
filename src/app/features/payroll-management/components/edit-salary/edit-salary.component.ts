@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   signal,
   OnInit,
@@ -10,7 +9,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { LoggerService } from '@core/services';
 import { EDIT_SALARY_FORM_CONFIG } from '@features/payroll-management/config';
 import { PayrollService } from '@features/payroll-management/services/payroll.service';
 import { ISalaryEditFormDto } from '@features/payroll-management/types/payroll.dto';
@@ -22,23 +20,16 @@ import {
   ROUTE_BASE_PATHS,
   ROUTES,
 } from '@shared/constants';
-import {
-  FormService,
-  LoadingService,
-  NotificationService,
-  RouterNavigationService,
-} from '@shared/services';
-import {
-  IEnhancedForm,
-  IPageHeaderConfig,
-  ITrackedFields,
-} from '@shared/types';
+import { RouterNavigationService } from '@shared/services';
+import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
+import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { finalize } from 'rxjs';
 import { SalarySummaryComponent } from '@features/payroll-management/shared/components/salary-summary/salary-summary.component';
 import {
   ISalaryDetailResolverResponse,
   ISalaryFields,
 } from '@features/payroll-management/types/payroll.interface';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-edit-salary',
@@ -53,32 +44,27 @@ import {
   styleUrl: './edit-salary.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditSalaryComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly loadingService = inject(LoadingService);
+export class EditSalaryComponent
+  extends FormBase<ISalaryEditFormDto>
+  implements OnInit
+{
   private readonly payrollService = inject(PayrollService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
-  protected form!: IEnhancedForm<ISalaryEditFormDto>;
-  private trackedSalaryFields!: ITrackedFields<
-    keyof ISalaryEditFormDto & string,
-    ISalaryEditFormDto
-  >;
+  private trackedSalaryFields!: ITrackedFields<ISalaryEditFormDto>;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly summaryCalculationFields = computed(() =>
     this.getSummaryCalculationFields()
   );
-  protected readonly isSubmitting = signal(false);
-  protected readonly initialSalaryData =
-    signal<Partial<ISalaryEditFormDto> | null>(null);
+  protected readonly initialSalaryData = signal<ISalaryEditFormDto | null>(
+    null
+  );
 
   ngOnInit(): void {
     this.loadSalaryDataFromRoute();
+
     this.form = this.formService.createForm<ISalaryEditFormDto>(
       EDIT_SALARY_FORM_CONFIG,
       {
@@ -93,8 +79,6 @@ export class EditSalaryComponent implements OnInit {
       'tds',
       'employerEsicContribution',
       'employeePfContribution',
-      'foodAllowance',
-      'comments',
     ];
     this.trackedSalaryFields =
       this.formService.trackMultipleFieldChanges<ISalaryEditFormDto>(
@@ -107,10 +91,10 @@ export class EditSalaryComponent implements OnInit {
   private loadSalaryDataFromRoute(): void {
     const salaryDetailFromResolver = this.activatedRoute.snapshot.data[
       'salaryDetail'
-    ] as ISalaryDetailResolverResponse | null;
+    ] as ISalaryDetailResolverResponse;
 
     if (!salaryDetailFromResolver) {
-      this.logger.logUserAction('No salary data found in route');
+      this.logger.error(PAYROLL_MESSAGES.ERROR.NO_SALARY_DATA);
       const routeSegments = [
         ROUTE_BASE_PATHS.PAYROLL,
         ROUTES.PAYROLL.STRUCTURE,
@@ -127,65 +111,49 @@ export class EditSalaryComponent implements OnInit {
 
   private preparePrefilledFormData(
     salaryDetailFromResolver: ISalaryDetailResolverResponse
-  ): Partial<ISalaryEditFormDto> {
+  ): ISalaryEditFormDto {
     return {
-      basicSalary: salaryDetailFromResolver.basicSalary,
-      hra: salaryDetailFromResolver.hra,
-      tds: salaryDetailFromResolver.tds,
-      employerEsicContribution:
-        salaryDetailFromResolver.employerEsicContribution,
-      employeePfContribution: salaryDetailFromResolver.employeePfContribution,
-      foodAllowance: salaryDetailFromResolver.foodAllowance,
+      basicSalary: Number(salaryDetailFromResolver.basicSalary),
+      hra: Number(salaryDetailFromResolver.hra),
+      tds: Number(salaryDetailFromResolver.tds),
+      employerEsicContribution: Number(
+        salaryDetailFromResolver.employerEsicContribution
+      ),
+      employeePfContribution: Number(
+        salaryDetailFromResolver.employeePfContribution
+      ),
+      foodAllowance: Number(salaryDetailFromResolver.foodAllowance),
+      comments: '',
     };
   }
 
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const salaryStructureId = this.activatedRoute.snapshot.params[
       'salaryStructureId'
     ] as string;
     if (!salaryStructureId) {
-      this.logger.logUserAction('No salary structure id found in route');
-      this.notificationService.error('Something went wrong');
+      this.logger.error(PAYROLL_MESSAGES.ERROR.NO_SALARY_STRUCTURE_ID);
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
       return;
     }
-
     const formData = this.prepareFormData();
     this.executeEditSalary(formData, salaryStructureId);
   }
 
   private prepareFormData(): ISalaryEditFormDto {
     const formData = this.form.getData();
-    const {
-      basicSalary,
-      hra,
-      tds,
-      employerEsicContribution,
-      employeePfContribution,
-      foodAllowance,
-    } = formData;
-    return {
-      ...formData,
-      basicSalary: String(basicSalary ?? 0),
-      hra: String(hra ?? 0),
-      tds: String(tds ?? 0),
-      employerEsicContribution: String(employerEsicContribution ?? 0),
-      employeePfContribution: String(employeePfContribution ?? 0),
-      foodAllowance: String(foodAllowance ?? 0),
-    };
+    return formData;
   }
 
   private executeEditSalary(
     formData: ISalaryEditFormDto,
     salaryStructureId: string
   ): void {
-    this.isSubmitting.set(true);
     this.loadingService.show({
-      title: 'Edit Salary',
-      message: 'Please wait while we edit salary...',
+      title: PAYROLL_MESSAGES.LOADING.EDIT_SALARY,
+      message: PAYROLL_MESSAGES.LOADING_MESSAGES.EDIT_SALARY,
     });
     this.form.disable();
 
@@ -201,7 +169,9 @@ export class EditSalaryComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.notificationService.success('Salary updated successfully');
+          this.notificationService.success(
+            PAYROLL_MESSAGES.SUCCESS.EDIT_SALARY
+          );
           const routeSegments = [
             ROUTE_BASE_PATHS.PAYROLL,
             ROUTES.PAYROLL.STRUCTURE,
@@ -209,7 +179,7 @@ export class EditSalaryComponent implements OnInit {
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {
-          this.notificationService.error('Failed to update salary');
+          this.notificationService.error(PAYROLL_MESSAGES.ERROR.EDIT_SALARY);
         },
       });
   }
@@ -224,38 +194,22 @@ export class EditSalaryComponent implements OnInit {
     } = this.trackedSalaryFields.getValues();
 
     return {
-      basic: basicSalary ?? '0',
-      hra: hra ?? '0',
-      tds: tds ?? '0',
-      esic: employerEsicContribution ?? '0',
-      employeePf: employeePfContribution ?? '0',
+      basic: basicSalary ?? 0,
+      hra: hra ?? 0,
+      tds: tds ?? 0,
+      esic: employerEsicContribution ?? 0,
+      employeePf: employeePfContribution ?? 0,
     };
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Edit salary form validation failed');
-      return false;
-    }
-    return true;
-  }
-
   protected onReset(): void {
-    try {
-      this.logger.logUserAction('Reset Edit Salary Form');
-      this.form.reset(this.initialSalaryData() ?? {});
-    } catch (error) {
-      this.logger.error('Error resetting form', error);
-    }
+    this.onResetSingleForm(this.initialSalaryData() ?? {});
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
-      title: 'Edit Salary',
-      subtitle: 'Edit a salary',
+      title: PAYROLL_MESSAGES.PAGE_HEADER.EDIT_SALARY_TITLE,
+      subtitle: PAYROLL_MESSAGES.PAGE_HEADER.EDIT_SALARY_SUBTITLE,
     };
   }
 }

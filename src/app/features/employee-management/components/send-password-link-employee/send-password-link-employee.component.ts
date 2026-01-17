@@ -75,7 +75,6 @@ export class SendPasswordLinkEmployeeComponent
       title: EMPLOYEE_MESSAGES.LOADING.SEND_PASSWORD_LINK,
       message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.SEND_PASSWORD_LINK,
     };
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
 
     this.employeeService

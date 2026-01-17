@@ -25,6 +25,7 @@ import { formatMonthYear } from '@shared/utility';
 import { finalize } from 'rxjs';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { APP_CONFIG } from '@core/config';
+import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
 
 @Component({
   selector: 'app-get-payslip-detail',
@@ -54,8 +55,8 @@ export class GetPayslipDetailComponent extends DrawerDetailBase {
 
   private loadPayslipDetails(): void {
     this.loadingService.show({
-      title: 'Loading Payslip Details',
-      message: 'Please wait while we load the payslip details...',
+      title: PAYROLL_MESSAGES.LOADING.PAYSLIP_DETAILS,
+      message: PAYROLL_MESSAGES.LOADING_MESSAGES.PAYSLIP_DETAILS,
     });
 
     const paramData = this.prepareParamData();
@@ -72,10 +73,13 @@ export class GetPayslipDetailComponent extends DrawerDetailBase {
         next: (response: IPayslipDetailGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._payslipDetails.set(mappedData);
-          this.logger.logUserAction('Payslip details loaded successfully');
+          this.logger.info(PAYROLL_MESSAGES.SUCCESS.PAYSLIP_DETAILS_LOADED);
         },
         error: error => {
-          this.logger.logUserAction('Payslip details loading failed', error);
+          this.logger.error(
+            PAYROLL_MESSAGES.ERROR.PAYSLIP_DETAILS_LOAD_FAILED,
+            error
+          );
         },
       });
   }

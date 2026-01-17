@@ -50,6 +50,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_CONFIG } from '@core/config';
 import { GetPayslipDetailComponent } from '../get-payslip-detail/get-payslip-detail.component';
+import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
 
 @Component({
   selector: 'app-get-payslip',
@@ -95,8 +96,8 @@ export class GetPayslipComponent implements OnInit {
   private loadPayslipList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Payslip List',
-      message: 'Please wait while we load the payslip list...',
+      title: PAYROLL_MESSAGES.LOADING.PAYSLIP_LIST,
+      message: PAYROLL_MESSAGES.LOADING_MESSAGES.PAYSLIP_LIST,
     });
     const paramData = this.prepareParamData();
 
@@ -115,11 +116,14 @@ export class GetPayslipComponent implements OnInit {
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.logger.logUserAction('Payslip list loaded successfully');
+          this.logger.info(PAYROLL_MESSAGES.SUCCESS.PAYSLIP_LIST_LOADED);
         },
         error: error => {
           this.table.setData([]);
-          this.logger.logUserAction('Failed to load payslip list', error);
+          this.logger.error(
+            PAYROLL_MESSAGES.ERROR.PAYSLIP_LIST_LOAD_FAILED,
+            error
+          );
         },
       });
   }
@@ -264,7 +268,7 @@ export class GetPayslipComponent implements OnInit {
 
     this.drawerService.showDrawer(GetPayslipDetailComponent, {
       header: `Payslip Details`,
-      subtitle: `Detailed view of payslip`,
+      subtitle: PAYROLL_MESSAGES.DRAWER.PAYSLIP_DETAIL_SUBTITLE,
       componentData: {
         payslip: rowData,
       },
@@ -294,8 +298,8 @@ export class GetPayslipComponent implements OnInit {
     this.logger.logUserAction('Opening payslip', payslip);
 
     this.loadingService.show({
-      title: 'Loading Payslip',
-      message: 'Please wait while we load the payslip...',
+      title: PAYROLL_MESSAGES.LOADING.PAYSLIP_DETAIL,
+      message: PAYROLL_MESSAGES.LOADING_MESSAGES.PAYSLIP_DETAIL,
     });
 
     this.payrollService
@@ -316,12 +320,15 @@ export class GetPayslipComponent implements OnInit {
             },
           ];
           this.galleryService.show(galleryMedia);
-          this.logger.logUserAction('Payslip loaded successfully', {
+          this.logger.info(PAYROLL_MESSAGES.SUCCESS.PAYSLIP_DETAIL_LOADED, {
             payslipId: payslip.id,
           });
         },
         error: error => {
-          this.logger.logUserAction('Failed to load payslip', error);
+          this.logger.error(
+            PAYROLL_MESSAGES.ERROR.PAYSLIP_DETAIL_LOAD_FAILED,
+            error
+          );
         },
       });
   }
@@ -334,8 +341,8 @@ export class GetPayslipComponent implements OnInit {
 
   private getPageHeaderConfig(): IPageHeaderConfig {
     return {
-      title: 'Payslip Management',
-      subtitle: 'Manage payslip records',
+      title: PAYROLL_MESSAGES.PAGE_HEADER.PAYSLIP_MANAGEMENT_TITLE,
+      subtitle: PAYROLL_MESSAGES.PAGE_HEADER.PAYSLIP_MANAGEMENT_SUBTITLE,
       showHeaderButton: true,
       headerButtonConfig: [
         {

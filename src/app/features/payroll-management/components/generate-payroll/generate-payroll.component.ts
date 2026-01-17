@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   signal,
@@ -9,7 +8,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { LoggerService } from '@core/services';
 import { GENERATE_PAYROLL_FORM_CONFIG } from '@features/payroll-management/config/form/generate-payroll.config';
 import { PayrollService } from '@features/payroll-management/services/payroll.service';
 import {
@@ -17,15 +15,12 @@ import {
   IGeneratePayrollResponseDto,
   IPayslipGetBaseResponseDto,
 } from '@features/payroll-management/types/payroll.dto';
+import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import {
-  ConfirmationDialogService,
-  FormService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
-import { EButtonActionType, IEnhancedForm } from '@shared/types';
+import { ConfirmationDialogService } from '@shared/services';
+import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
+import { EButtonActionType } from '@shared/types';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -35,13 +30,11 @@ import { finalize } from 'rxjs';
   styleUrl: './generate-payroll.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GeneratePayrollComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class GeneratePayrollComponent
+  extends FormBase<IGeneratePayrollFormDto>
+  implements OnInit
+{
   private readonly payrollService = inject(PayrollService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -49,12 +42,11 @@ export class GeneratePayrollComponent implements OnInit {
   protected readonly selectedRecord = input<IPayslipGetBaseResponseDto[]>();
   protected readonly dialogActionType = input<EButtonActionType>();
   protected readonly onSuccess = input.required<() => void>();
-  protected form!: IEnhancedForm<IGeneratePayrollFormDto>;
+
   protected readonly EButtonActionTypeEnum = EButtonActionType;
 
   protected readonly initialGeneratePayrollData =
     signal<IGeneratePayrollFormDto | null>(null);
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -63,7 +55,7 @@ export class GeneratePayrollComponent implements OnInit {
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
       this.logger.error(
-        'Selected record is required to generate payroll but was not provided'
+        PAYROLL_MESSAGES.VALIDATION.GENERATE_PAYROLL_RECORD_REQUIRED
       );
       return;
     }
@@ -102,14 +94,10 @@ export class GeneratePayrollComponent implements OnInit {
   }
 
   onDialogAccept(): void {
-    this.onSubmit();
+    this.handleSubmit();
   }
 
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const formData = this.prepareFormData();
     this.executeGeneratePayroll(formData);
   }
@@ -120,10 +108,9 @@ export class GeneratePayrollComponent implements OnInit {
   }
 
   private executeGeneratePayroll(formData: IGeneratePayrollFormDto): void {
-    this.isSubmitting.set(true);
     this.loadingService.show({
-      title: 'Generate Payroll',
-      message: 'Please wait while we generate payroll...',
+      title: PAYROLL_MESSAGES.LOADING.GENERATE_PAYROLL,
+      message: PAYROLL_MESSAGES.LOADING_MESSAGES.GENERATE_PAYROLL,
     });
     this.form.disable();
 
@@ -146,16 +133,5 @@ export class GeneratePayrollComponent implements OnInit {
           this.confirmationDialogService.closeDialog();
         },
       });
-  }
-
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Generate payroll form validation failed');
-      return false;
-    }
-    return true;
   }
 }
