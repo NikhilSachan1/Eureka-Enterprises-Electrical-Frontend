@@ -16,7 +16,9 @@
     "pre-commit:test": "echo '🧪 Testing pre-commit hook...' && node -e \"require('child_process').execSync('git add . && git commit -m \\\"test\\\" --dry-run', {stdio: 'inherit'})\"",
     "pre-commit:status": "echo '📊 Pre-commit hook status:' && echo '✅ Husky: Installed' && echo '✅ lint-staged: Configured' && echo '✅ ESLint: Active' && echo '✅ Prettier: Active'",
     "prepare": "husky",
-    "gen:feature": "node tools/generate-feature.js"
+    "gen:feature": "node tools/generate-feature.js",
+    "find:empty": "node tools/find-empty-items.js",
+    "find:empty:delete": "node tools/find-empty-items.js --delete"
   },
   "lint-staged": {
     "*.{ts,js}": [
