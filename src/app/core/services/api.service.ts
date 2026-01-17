@@ -257,8 +257,11 @@ export class ApiService {
     options?: { multipart?: boolean }
   ): unknown {
     const cleaned = this.cleanParams(body);
-    const flattened = this.flattenObject(cleaned);
-    return options?.multipart ? this.buildFormData(flattened) : flattened;
+    if (options?.multipart) {
+      const flattened = this.flattenObject(cleaned);
+      return this.buildFormData(flattened);
+    }
+    return cleaned;
   }
 
   private buildHttpParams(params?: unknown): HttpParams | undefined {

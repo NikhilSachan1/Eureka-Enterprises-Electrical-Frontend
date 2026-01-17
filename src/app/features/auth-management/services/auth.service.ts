@@ -11,22 +11,30 @@ import {
 import { API_ROUTES } from '@core/constants';
 import { ILoggedInUserDetails } from '../types/login.interface';
 import {
-  ILoginRequestDto,
+  IForgetPasswordFormDto,
+  IForgetPasswordResponseDto,
+  ILoginFormDto,
   ILoginResponseDto,
-  ILogoutRequestDto,
+  ILogoutFormDto,
   ILogoutResponseDto,
-  IRefreshTokenRequestDto,
+  IRefreshTokenFormDto,
   IRefreshTokenResponseDto,
-  ISwitchActiveRoleRequestDto,
+  IResetPasswordFormDto,
+  IResetPasswordResponseDto,
+  ISwitchActiveRoleFormDto,
   ISwitchActiveRoleResponseDto,
 } from '../types/auth.dto';
 import {
+  ForgetPasswordRequestSchema,
+  ForgetPasswordResponseSchema,
   LoginRequestSchema,
   LoginResponseSchema,
   LogoutRequestSchema,
   LogoutResponseSchema,
   RefreshTokenRequestSchema,
   RefreshTokenResponseSchema,
+  ResetPasswordRequestSchema,
+  ResetPasswordResponseSchema,
   SwitchActiveRoleRequestSchema,
   SwitchActiveRoleResponseSchema,
 } from '../schemas';
@@ -50,13 +58,11 @@ export class AuthService {
     this.getLoggedInUserShortName()
   );
   public readonly loggedInUserAvatar = computed(() => {
-    // First try to return loaded profile picture URL
     const avatarUrl = this._userAvatarUrl();
     if (avatarUrl) {
       return avatarUrl;
     }
 
-    // Fallback to generated avatar from name
     return this.getLoggedInUserAvatar();
   });
 
@@ -66,10 +72,9 @@ export class AuthService {
   private readonly _refreshToken = signal<string | null>(null);
   private readonly _userAvatarUrl = signal<string>('');
 
-  private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
-  // Track last loaded profile picture to avoid unnecessary API calls
+  private isRefreshing = false;
   private lastLoadedProfilePicture: string | null = null;
 
   public readonly isAuthenticated = this._isAuthenticated.asReadonly();
@@ -80,12 +85,10 @@ export class AuthService {
   constructor() {
     this.initializeAuthState();
 
-    // Watch for user signal changes and reload profile picture only if changed
     effect(() => {
       const user = this._user();
       const currentProfilePicture = user?.profilePicture ?? null;
 
-      // Only load if profile picture actually changed
       if (currentProfilePicture !== this.lastLoadedProfilePicture) {
         if (currentProfilePicture) {
           this.loadUserProfilePicture(currentProfilePicture);
@@ -119,7 +122,7 @@ export class AuthService {
     }
   }
 
-  login(formData: ILoginRequestDto): Observable<ILoginResponseDto> {
+  login(formData: ILoginFormDto): Observable<ILoginResponseDto> {
     this.logger.logUserAction('Login Attempt');
 
     return this.apiService
@@ -147,51 +150,76 @@ export class AuthService {
       );
   }
 
-  setAuthState(loginResponse: ILoginResponseDto, rememberMe: boolean): void {
-    try {
-      const {
-        accessToken,
-        refreshToken,
-        firstName,
-        lastName,
-        email,
-        name,
-        designation,
-        profilePicture,
-        roles,
-        activeRole,
-      } = loginResponse;
+  forgetPassword(
+    formData: IForgetPasswordFormDto
+  ): Observable<IForgetPasswordResponseDto> {
+    this.logger.logUserAction('Forget Password Attempt');
 
-      const user: ILoggedInUserDetails = {
-        firstName,
-        lastName,
-        email,
-        fullName: name,
-        designation,
-        profilePicture: profilePicture ?? '',
-        permissions: [],
-        roles,
-        activeRole,
-      };
+    return this.apiService
+      .postValidated(
+        API_ROUTES.AUTH.FORGOT_PASSWORD,
+        {
+          response: ForgetPasswordResponseSchema,
+          request: ForgetPasswordRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IForgetPasswordResponseDto) => {
+          this.logger.logUserAction('Forget Password Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Forget Password Error', error);
+          } else {
+            this.logger.logUserAction('Forget Password Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
 
-      this._accessToken.set(accessToken);
-      this._refreshToken.set(refreshToken);
-      this._user.set(user);
-      this._isAuthenticated.set(true);
+  resetPassword(
+    formData: IResetPasswordFormDto,
+    token: string
+  ): Observable<IResetPasswordResponseDto> {
+    this.logger.logUserAction('Reset Password Attempt');
 
-      this.updateDetailsInStorage(accessToken, refreshToken, user, rememberMe);
-
-      this.logger.info('Login successful', user);
-    } catch (error) {
-      this.logger.error('Error handling login success', error);
-      this.clearAuthState();
-      throw error;
-    }
+    return this.apiService
+      .postValidated(
+        API_ROUTES.AUTH.RESET_PASSWORD(token),
+        {
+          response: ResetPasswordResponseSchema,
+          request: ResetPasswordRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IResetPasswordResponseDto) => {
+          this.logger.logUserAction('Reset Password Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Reset Password Error', error);
+          } else {
+            this.logger.logUserAction('Reset Password Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
   }
 
   logout(): Observable<ILogoutResponseDto> {
-    const formData: ILogoutRequestDto = {
-      refreshToken: this.getRefreshToken() ?? '',
+    const currentRefreshToken = this.getRefreshToken();
+
+    if (!currentRefreshToken) {
+      this.logger.warn('No refresh token available');
+      this.clearAuthState();
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    const formData: ILogoutFormDto = {
+      refreshToken: currentRefreshToken,
     };
 
     return this.apiService
@@ -222,12 +250,8 @@ export class AuthService {
   }
 
   switchActiveRole(
-    targetRole: string
+    formData: ISwitchActiveRoleFormDto
   ): Observable<ISwitchActiveRoleResponseDto> {
-    const formData: ISwitchActiveRoleRequestDto = {
-      targetRole,
-    };
-
     this.logger.logUserAction('Switch Active Role Request', formData);
 
     return this.apiService
@@ -286,7 +310,7 @@ export class AuthService {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    const paramData: IRefreshTokenRequestDto = {
+    const formData: IRefreshTokenFormDto = {
       refreshToken: currentRefreshToken,
     };
 
@@ -297,7 +321,7 @@ export class AuthService {
           response: RefreshTokenResponseSchema,
           request: RefreshTokenRequestSchema,
         },
-        paramData
+        formData
       )
       .pipe(
         tap((response: IRefreshTokenResponseDto) => {
@@ -329,6 +353,48 @@ export class AuthService {
       ROUTE_BASE_PATHS.AUTH,
       ROUTES.AUTH.LOGIN,
     ]);
+  }
+
+  setAuthState(loginResponse: ILoginResponseDto, rememberMe: boolean): void {
+    try {
+      const {
+        accessToken,
+        refreshToken,
+        firstName,
+        lastName,
+        email,
+        name,
+        designation,
+        profilePicture,
+        roles,
+        activeRole,
+      } = loginResponse;
+
+      const user: ILoggedInUserDetails = {
+        firstName,
+        lastName,
+        email,
+        fullName: name,
+        designation,
+        profilePicture: profilePicture ?? '',
+        permissions: [],
+        roles,
+        activeRole,
+      };
+
+      this._accessToken.set(accessToken);
+      this._refreshToken.set(refreshToken);
+      this._user.set(user);
+      this._isAuthenticated.set(true);
+
+      this.updateDetailsInStorage(accessToken, refreshToken, user, rememberMe);
+
+      this.logger.info('Login successful', user);
+    } catch (error) {
+      this.logger.error('Error handling login success', error);
+      this.clearAuthState();
+      throw error;
+    }
   }
 
   isTokenRefreshing(): boolean {

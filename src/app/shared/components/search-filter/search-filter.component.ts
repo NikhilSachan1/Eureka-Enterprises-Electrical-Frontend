@@ -44,14 +44,14 @@ export class SearchFilterComponent implements OnInit {
 
   onSearchFilterChange = output<Record<string, unknown>>();
 
-  protected form!: IEnhancedForm;
+  protected form!: IEnhancedForm<Record<string, unknown>>;
   protected hasSearched = false;
 
   ngOnInit(): void {
     const filteredConfig = this.getPermissionFilteredConfig();
 
     this.form = this.formService.createForm(
-      filteredConfig as unknown as IFormConfig,
+      filteredConfig as unknown as IFormConfig<Record<string, unknown>>,
       {
         destroyRef: this.destroyRef,
       }

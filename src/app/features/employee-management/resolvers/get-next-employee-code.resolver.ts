@@ -6,6 +6,7 @@ import { LoadingService, RouterNavigationService } from '@shared/services';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { IEmployeeGetNextEmployeeIdResponseDto } from '../types/employee.dto';
 import { EmployeeService } from '../services/employee.service';
+import { EMPLOYEE_MESSAGES } from '../constants';
 
 @Injectable({
   providedIn: 'root',
@@ -24,8 +25,8 @@ export class GetNextEmployeeCodeResolver
     );
 
     this.loadingService.show({
-      title: 'Loading Next Employee Code',
-      message: 'Please wait while we prepare the next employee code...',
+      title: EMPLOYEE_MESSAGES.LOADING.GET_NEXT_ID,
+      message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.GET_NEXT_ID,
     });
 
     return this.employeeService.getNextEmployeeId().pipe(

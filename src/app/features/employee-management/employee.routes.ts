@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
-import { GetNextEmployeeCodeResolver } from './resolvers/get-next-employe-code.resolver';
+import { GetNextEmployeeCodeResolver } from './resolvers/get-next-employee-code.resolver';
 import { GetEmployeeDetailResolver } from './resolvers/get-employee-detail.resolver';
 
 export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [

@@ -1,0 +1,52 @@
+export const EMPLOYEE_MESSAGES = {
+  LOADING: {
+    ADD: 'Add Employee',
+    EDIT: 'Edit Employee',
+    DELETE: 'Deleting Employee',
+    CHANGE_STATUS: 'Changing Employee Status',
+    SEND_PASSWORD_LINK: 'Sending Password Link to Employee',
+    GET_LIST: 'Loading Employee',
+    GET_DETAIL: 'Loading Employee Details',
+    GET_PROFILE: 'Loading Your Profile',
+    GET_NEXT_ID: 'Loading Next Employee Code',
+  },
+  LOADING_MESSAGES: {
+    ADD: 'Please wait while we add employee...',
+    EDIT: 'Please wait while we edit employee...',
+    DELETE: 'Please wait while we delete the employee...',
+    CHANGE_STATUS: 'Please wait while we change the employee status...',
+    SEND_PASSWORD_LINK:
+      'Please wait while we send the password link to the employee(s)...',
+    GET_LIST: 'Please wait while we load the employee...',
+    GET_DETAIL: 'Please wait while we load the employee details...',
+    GET_PROFILE: 'Please wait while we load your profile...',
+    GET_NEXT_ID: 'Please wait while we prepare the next employee code...',
+  },
+  SUCCESS: {
+    ADD: 'Employee added successfully',
+    EDIT: 'Employee updated successfully',
+    DELETE: 'Employee deleted successfully',
+    CHANGE_STATUS: 'Employee status changed successfully',
+    SEND_PASSWORD_LINK: 'Password link sent successfully',
+    EMAIL_UPDATED_LOGOUT:
+      'Your email has been updated. Please log in again with your new email.',
+  },
+  ERROR: {
+    ADD: 'Failed to add employee',
+    EDIT: 'Failed to update employee',
+    DELETE: 'Failed to delete employee',
+    CHANGE_STATUS: 'Failed to change employee status',
+    SEND_PASSWORD_LINK: 'Failed to send password link',
+    GET_LIST: 'Failed to load employee list',
+    GET_DETAIL: 'Failed to load employee details',
+    GET_PROFILE: 'Failed to load profile',
+    NETWORK_ERROR: 'Network error occurred. Please try again.',
+    VALIDATION_ERROR: 'Please check the form for errors',
+    UNKNOWN_ERROR: 'An unexpected error occurred',
+  },
+  VALIDATION: {
+    RECORD_REQUIRED: 'Selected record is required',
+    EMPLOYEE_ID_REQUIRED: 'Employee ID is required',
+    FORM_INVALID: 'Please fill all required fields correctly',
+  },
+} as const;

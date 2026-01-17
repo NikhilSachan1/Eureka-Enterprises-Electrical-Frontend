@@ -2,31 +2,28 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   input,
-  signal,
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
 import {
-  IEmployeeChangeStatusRequestDto,
+  IEmployeeChangeStatusFormDto,
   IEmployeeChangeStatusResponseDto,
   IEmployeeGetBaseResponseDto,
 } from '@features/employee-management/types/employee.dto';
 import { FORM_VALIDATION_MESSAGES, ICONS } from '@shared/constants';
+import { EMPLOYEE_MESSAGES } from '../../constants';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
 } from '@shared/services';
 import { finalize } from 'rxjs';
 import { EEmployeeStatus } from '@features/employee-management/types/employee.types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-change-status-employee',
@@ -35,12 +32,8 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
   styleUrl: './change-status-employee.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChangeStatusEmployeeComponent implements OnInit {
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class ChangeStatusEmployeeComponent extends FormBase implements OnInit {
   private readonly employeeService = inject(EmployeeService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -52,8 +45,6 @@ export class ChangeStatusEmployeeComponent implements OnInit {
 
   protected readonly ALL_EMPLOYMENT_TYPES = EEmployeeStatus;
   protected readonly ICONS = ICONS;
-
-  protected readonly isSubmitting = signal(false);
 
   protected readonly currentStatus = computed(() => {
     const record = this.selectedRecord();
@@ -81,33 +72,29 @@ export class ChangeStatusEmployeeComponent implements OnInit {
   }
 
   onDialogAccept(): void {
-    this.onSubmit();
+    this.handleSubmit();
   }
 
-  protected onSubmit(): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const { id: employeeId } = this.selectedRecord()[0];
 
     const formData = this.prepareFormData();
     this.executeEmployeeChangeStatusAction(formData, employeeId);
   }
 
-  private prepareFormData(): IEmployeeChangeStatusRequestDto {
+  private prepareFormData(): IEmployeeChangeStatusFormDto {
     return {
-      status: this.newStatus(),
+      employeeStatus: this.newStatus(),
     };
   }
 
   private executeEmployeeChangeStatusAction(
-    formData: IEmployeeChangeStatusRequestDto,
+    formData: IEmployeeChangeStatusFormDto,
     employeeId: string
   ): void {
     const loadingMessage = {
-      title: 'Changing Employee Status',
-      message: 'Please wait while we change the employee status...',
+      title: EMPLOYEE_MESSAGES.LOADING.CHANGE_STATUS,
+      message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.CHANGE_STATUS,
     };
     this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
@@ -124,12 +111,16 @@ export class ChangeStatusEmployeeComponent implements OnInit {
       .subscribe({
         next: (_response: IEmployeeChangeStatusResponseDto) => {
           this.notificationService.success(
-            'Employee status changed successfully'
+            EMPLOYEE_MESSAGES.SUCCESS.CHANGE_STATUS
           );
 
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error(EMPLOYEE_MESSAGES.ERROR.CHANGE_STATUS, error);
+          this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.CHANGE_STATUS);
         },
       });
   }

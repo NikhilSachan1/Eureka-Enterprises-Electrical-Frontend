@@ -45,9 +45,11 @@ export interface IEnhancedMultiStepForm<TFlattened extends FormDataConstraint> {
   isDirty(): boolean;
   isTouched(): boolean;
   markTouched(): void;
-  reset(value?: Partial<Record<string, Record<string, unknown>>>): void;
+  reset(value?: Partial<Record<string, Partial<TFlattened>>>): void;
   disable(): void;
   enable(): void;
+  patch(value?: Partial<Record<string, Partial<TFlattened>>>): void;
+  setValue(value: Record<string, Partial<TFlattened>>): void;
   validateAndMarkTouched(): boolean;
   getData(): TFlattened;
   getRawData(): TFlattened;

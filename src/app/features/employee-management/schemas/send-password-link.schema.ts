@@ -5,9 +5,12 @@ const { id, email, firstName, lastName } = EmployeeBaseSchema.shape;
 
 export const EmployeeSendPasswordLinkRequestSchema = z
   .object({
-    userIds: z.array(id).min(1),
+    employeeIds: z.array(id).min(1),
   })
-  .strict();
+  .strict()
+  .transform(data => ({
+    userIds: data.employeeIds,
+  }));
 
 export const EmployeeSendPasswordLinkResponseSchema = z
   .object({

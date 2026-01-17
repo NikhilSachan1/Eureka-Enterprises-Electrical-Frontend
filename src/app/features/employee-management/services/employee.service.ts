@@ -3,20 +3,20 @@ import { ApiService } from '@core/services/api.service';
 import { LoggerService } from '@core/services/logger.service';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
-  IEmployeeAddRequestDto,
+  IEmployeeAddFormDto,
   IEmployeeAddResponseDto,
-  IEmployeeChangeStatusRequestDto,
+  IEmployeeChangeStatusFormDto,
   IEmployeeChangeStatusResponseDto,
-  IEmployeeDeleteRequestDto,
+  IEmployeeDeleteFormDto,
   IEmployeeDeleteResponseDto,
   IEmployeeDetailGetRequestDto,
   IEmployeeDetailGetResponseDto,
-  IEmployeeEditRequestDto,
+  IEmployeeEditFormDto,
   IEmployeeEditResponseDto,
   IEmployeeGetNextEmployeeIdResponseDto,
   IEmployeeGetRequestDto,
   IEmployeeGetResponseDto,
-  IEmployeeSendPasswordLinkRequestDto,
+  IEmployeeSendPasswordLinkFormDto,
   IEmployeeSendPasswordLinkResponseDto,
 } from '../types/employee.dto';
 import { API_ROUTES } from '@core/constants/api.constants';
@@ -45,7 +45,7 @@ export class EmployeeService {
   private readonly apiService = inject(ApiService);
 
   addEmployee(
-    formData: IEmployeeAddRequestDto
+    formData: IEmployeeAddFormDto
   ): Observable<IEmployeeAddResponseDto> {
     this.logger.logUserAction('Add Employee Request');
 
@@ -75,7 +75,7 @@ export class EmployeeService {
   }
 
   editEmployee(
-    formData: IEmployeeEditRequestDto,
+    formData: IEmployeeEditFormDto,
     employeeId: string
   ): Observable<IEmployeeEditResponseDto> {
     this.logger.logUserAction('Edit Employee Request');
@@ -106,7 +106,7 @@ export class EmployeeService {
   }
 
   changeEmployeeStatus(
-    formData: IEmployeeChangeStatusRequestDto,
+    formData: IEmployeeChangeStatusFormDto,
     employeeId: string
   ): Observable<IEmployeeChangeStatusResponseDto> {
     this.logger.logUserAction('Change Employee Status Request');
@@ -143,7 +143,7 @@ export class EmployeeService {
   }
 
   deleteEmployee(
-    formData: IEmployeeDeleteRequestDto
+    formData: IEmployeeDeleteFormDto
   ): Observable<IEmployeeDeleteResponseDto> {
     this.logger.logUserAction('Delete Employee Request');
 
@@ -284,7 +284,7 @@ export class EmployeeService {
   }
 
   sendPasswordLink(
-    formData: IEmployeeSendPasswordLinkRequestDto
+    formData: IEmployeeSendPasswordLinkFormDto
   ): Observable<IEmployeeSendPasswordLinkResponseDto> {
     this.logger.logUserAction('Send Password Link Request');
 

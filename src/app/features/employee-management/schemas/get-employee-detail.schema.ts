@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import { EmployeeBaseSchema } from './base-employee.schema';
-import { AuditSchema, UserSchema, uuidField } from '@shared/schemas';
+import {
+  AuditSchema,
+  isoDateTimeField,
+  UserSchema,
+  uuidField,
+} from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
 
 const { id } = EmployeeBaseSchema.shape;
@@ -74,10 +79,18 @@ export const EmployeeDetailGetDocumentsSchema = z
 
 export const EmployeeDetailGetResponseSchema = EmployeeBaseSchema.extend({
   ...AuditSchema.shape,
-  passwordUpdatedAt: z.iso.datetime().nullable(),
+  passwordUpdatedAt: isoDateTimeField.nullable(),
   documents: EmployeeDetailGetDocumentsSchema,
   createdByUser: UserSchema,
   updatedByUser: makeFieldsNullable(UserSchema).nullable(),
+  whatsappOptIn: z.boolean(),
+  whatsappNumber: z.string().nullable(),
+  whatsappOptInAt: isoDateTimeField.nullable(),
+  exitDate: isoDateTimeField.nullable(),
+  exitReason: z.string().nullable(),
+  exitRemarks: z.string().nullable(),
+  noticePeriodWaived: z.boolean(),
+  lastWorkingDate: isoDateTimeField.nullable(),
   timezone: z.string().nullable(),
 })
   .strict()

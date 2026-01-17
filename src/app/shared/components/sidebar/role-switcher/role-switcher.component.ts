@@ -11,7 +11,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, switchMap } from 'rxjs/operators';
 import { PopoverModule, Popover } from 'primeng/popover';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { ISwitchActiveRoleResponseDto } from '@features/auth-management/types/auth.dto';
+import {
+  ISwitchActiveRoleFormDto,
+  ISwitchActiveRoleResponseDto,
+} from '@features/auth-management/types/auth.dto';
 import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
@@ -106,7 +109,7 @@ export class RoleSwitcherComponent {
     // Step 1: Call switch role API (gets new token)
     // Step 2: Reload all app data using common service method
     this.authService
-      .switchActiveRole(targetRole)
+      .switchActiveRole(this.prepareFormData(targetRole))
       .pipe(
         // After role switch, reload all app data
         switchMap((response: ISwitchActiveRoleResponseDto) => {
@@ -144,5 +147,11 @@ export class RoleSwitcherComponent {
           );
         },
       });
+  }
+
+  private prepareFormData(targetRole: string): ISwitchActiveRoleFormDto {
+    return {
+      targetRole,
+    };
   }
 }

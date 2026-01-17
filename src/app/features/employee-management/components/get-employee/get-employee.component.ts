@@ -25,6 +25,7 @@ import {
 import { IEmployee } from '@features/employee-management/types/employee.interface';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { EMPLOYEE_MESSAGES } from '../../constants';
 import {
   ConfirmationDialogService,
   DrawerService,
@@ -33,6 +34,7 @@ import {
   TableServerSideParamsBuilderService,
   TableService,
   AppConfigurationService,
+  NotificationService,
 } from '@shared/services';
 import {
   EButtonActionType,
@@ -79,10 +81,11 @@ export class GetEmployeeComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly tableServerSideFilterAndSortService = inject(
+  private readonly tableServerSideParamsBuilderService = inject(
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly notificationService = inject(NotificationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -104,8 +107,8 @@ export class GetEmployeeComponent implements OnInit {
   private loadEmployeeList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Employee',
-      message: 'Please wait while we load the employee...',
+      title: EMPLOYEE_MESSAGES.LOADING.GET_LIST,
+      message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.GET_LIST,
     });
 
     const paramData = this.prepareParamData();
@@ -132,13 +135,14 @@ export class GetEmployeeComponent implements OnInit {
         error: error => {
           this.table.setData([]);
           this.employeeStats.set(null);
-          this.logger.logUserAction('Failed to load employee records', error);
+          this.logger.error(EMPLOYEE_MESSAGES.ERROR.GET_LIST, error);
+          this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.GET_LIST);
         },
       });
   }
 
   private prepareParamData(): IEmployeeGetRequestDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IEmployeeGetRequestDto>(
+    return this.tableServerSideParamsBuilderService.buildQueryParams<IEmployeeGetRequestDto>(
       this.tableFilterData,
       this.table.getHeaders()
     );

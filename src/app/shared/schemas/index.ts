@@ -7,6 +7,7 @@ export {
   dateField,
   onlyDateStringField,
   fileField,
+  firstFileField,
 } from './common.schema';
 export {
   AttachmentsGetRequestSchema,

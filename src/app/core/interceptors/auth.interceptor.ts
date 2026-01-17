@@ -100,7 +100,16 @@ function handle401Error(
    ========================= */
 
 function shouldSkipAuthToken(req: HttpRequest<unknown>): boolean {
-  return SKIP_AUTH_ENDPOINTS.some(endpoint => req.url.includes(endpoint));
+  return SKIP_AUTH_ENDPOINTS.some(endpoint => {
+    if (typeof endpoint === 'string') {
+      return req.url.includes(endpoint);
+    }
+    if (typeof endpoint === 'function') {
+      const basePath = 'auth/reset-password/';
+      return req.url.includes(basePath);
+    }
+    return false;
+  });
 }
 
 function isRefreshTokenRequest(req: HttpRequest<unknown>): boolean {

@@ -61,7 +61,7 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
   // Step 2: Employment Details
   2: {
     previousExperience: `${getRandomNumber(2, 'upto') + 1}`, // 1 to 10 (1-2 digits)
-    dateOfJoining: getRandomDate(365 * 2, 365), // ~2 years old, Â±1 year range
+    dateOfJoining: getRandomDate(365 * 0.1, 365 * 0.1), // ~2 years old, Â±1 year range
     employmentType: getRandomItem(TEST_EMPLOYEE_TYPES),
     designation: getRandomItem(TEST_DESIGNATIONS),
     esicNumber: `${getRandomNumber(10, 'exact')}`,
@@ -91,13 +91,13 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
   // Step 5: Documents Details
   5: {
     aadharNumber: `${getRandomNumber(12, 'exact')}`,
-    pancardNumber: getRandomItem(TEST_PAN_NUMBERS),
+    panNumber: getRandomItem(TEST_PAN_NUMBERS),
     passportNumber: getRandomItem(TEST_PASSPORT_NUMBERS),
     drivingLicenseNumber: `${getRandomNumber(16, 'exact')}`,
     aadharDocument: [
       createFileFromAsset('/mock-docs/employee/AADHAR_DUMMY.pdf'),
     ],
-    pancardDocument: [createFileFromAsset('/mock-docs/employee/PAN_DUMMY.pdf')],
+    panDocument: [createFileFromAsset('/mock-docs/employee/PAN_DUMMY.pdf')],
     passportDocument: [
       createFileFromAsset('/mock-docs/employee/PASSPORT_DUMMY.pdf'),
     ],
@@ -112,7 +112,7 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
     hra: getRandomNumber(4, 'exact'),
     foodAllowance: getRandomNumber(3, 'exact'),
     tds: getRandomNumber(2, 'exact'),
-    esicContribution: getRandomNumber(2, 'exact'),
-    pfContribution: getRandomNumber(2, 'exact'),
+    employerEsicContribution: getRandomNumber(2, 'exact'),
+    employeePfContribution: getRandomNumber(2, 'exact'),
   },
 };

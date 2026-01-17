@@ -1,39 +1,64 @@
 import { z } from 'zod';
-import { EmployeeBaseSchema } from './base-employee.schema';
-import { fileField, uuidField } from '@shared/schemas';
+import { EmployeeUpsertShapeSchema } from './base-employee.schema';
+import { uuidField } from '@shared/schemas';
+import { transformDateFormat } from '@shared/utility';
+import { EUserRole } from '@shared/constants';
 
-const { roles, employeeId } = EmployeeBaseSchema.shape;
+const { employeeId } = EmployeeUpsertShapeSchema.shape;
 
-export const EmployeeAddRequestSchema = EmployeeBaseSchema.omit({
-  id: true,
-  status: true,
-})
-  .extend({
-    roles: roles.element.shape.name.array(),
-    profilePicture: fileField,
-    esicDoc: fileField.nullable().optional(),
-    aadharDoc: fileField,
-    panDoc: fileField.nullable().optional(),
-    dlDoc: fileField.nullable().optional(),
-    uanDoc: fileField.nullable().optional(),
-    passportDoc: fileField.nullable().optional(),
-    degreeDoc: fileField.nullable().optional(),
-    offerLetterDoc: fileField.optional(),
-    experienceLetterDoc: fileField.optional(),
-    passoutYear: z.string().nullable(),
-    salary: z
-      .object({
-        basic: z.number(),
-        hra: z.number(),
-        tds: z.number(),
-        esic: z.number(),
-        employeePf: z.number(),
-        employerPf: z.number(),
-        foodAllowance: z.number(),
-      })
-      .strict(),
-  })
-  .strict();
+export const EmployeeAddRequestSchema =
+  EmployeeUpsertShapeSchema.strict().transform(
+    ({
+      dateOfJoining,
+      dateOfBirth,
+      basicSalary,
+      hra,
+      tds,
+      employerEsicContribution,
+      employeePfContribution,
+      foodAllowance,
+      passingYear,
+      pinCode,
+      accountHolderName,
+      employmentType,
+      drivingLicenseNumber,
+      esicDocument,
+      aadharDocument,
+      panDocument,
+      drivingLicenseDocument,
+      uanDocument,
+      passportDocument,
+      degreeDocument,
+      designation,
+      ...rest
+    }) => ({
+      ...rest,
+      dateOfJoining: transformDateFormat(dateOfJoining),
+      dateOfBirth: transformDateFormat(dateOfBirth),
+      passoutYear: passingYear,
+      pincode: pinCode,
+      bankHolderName: accountHolderName,
+      employeeType: employmentType,
+      dlNumber: drivingLicenseNumber,
+      esicDoc: esicDocument,
+      aadharDoc: aadharDocument,
+      panDoc: panDocument,
+      dlDoc: drivingLicenseDocument,
+      uanDoc: uanDocument,
+      passportDoc: passportDocument,
+      degreeDoc: degreeDocument,
+      designation,
+      salary: {
+        basic: basicSalary,
+        hra,
+        tds,
+        esic: employerEsicContribution,
+        employeePf: employeePfContribution,
+        foodAllowance,
+      },
+      roles: designation === EUserRole.DRIVER ? ['DRIVER'] : ['ADMIN'],
+    })
+  );
 
 export const EmployeeAddResponseSchema = z
   .object({
@@ -41,5 +66,12 @@ export const EmployeeAddResponseSchema = z
     employeeId,
     message: z.string(),
     salaryCreated: z.boolean(),
+    leavesCredited: z.array(
+      z.object({
+        category: z.string(),
+        allocated: z.number(),
+        note: z.string(),
+      })
+    ),
   })
   .strict();

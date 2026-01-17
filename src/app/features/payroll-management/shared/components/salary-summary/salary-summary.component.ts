@@ -39,10 +39,10 @@ export class SalarySummaryComponent {
     const employeePf = fields.employeePf ?? 0;
     const employerPf = fields.employeePf ?? 0;
 
-    const grossSalary = parseFloat(basic) + parseFloat(hra);
-    const totalDeductions = parseFloat(tds) + parseFloat(employeePf);
+    const grossSalary = basic + hra;
+    const totalDeductions = tds + employeePf;
     const inHandSalary = grossSalary - totalDeductions;
-    const totalEmployerBenefits = parseFloat(esic) + parseFloat(employerPf);
+    const totalEmployerBenefits = esic + employerPf;
 
     return [
       {
@@ -75,8 +75,8 @@ export class SalarySummaryComponent {
     const esic = fields.esic ?? 0;
     const employerPf = fields.employeePf ?? 0;
 
-    const grossSalary = parseFloat(basic) + parseFloat(hra);
-    const totalEmployerBenefits = parseFloat(employerPf) + parseFloat(esic);
+    const grossSalary = basic + hra;
+    const totalEmployerBenefits = employerPf + esic;
 
     return grossSalary + totalEmployerBenefits;
   }

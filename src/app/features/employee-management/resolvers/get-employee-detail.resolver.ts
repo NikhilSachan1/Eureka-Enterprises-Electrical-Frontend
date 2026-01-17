@@ -17,6 +17,7 @@ import {
   IEmployeeDetailResolverResponse,
   IEmployeePreloadedFiles,
 } from '../types/employee.interface';
+import { EMPLOYEE_MESSAGES } from '../constants';
 
 @Injectable({
   providedIn: 'root',
@@ -49,8 +50,8 @@ export class GetEmployeeDetailResolver
     }
 
     this.loadingService.show({
-      title: 'Loading Employee Detail',
-      message: 'Please wait while we load the employee detail...',
+      title: EMPLOYEE_MESSAGES.LOADING.GET_DETAIL,
+      message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.GET_DETAIL,
     });
 
     const paramData = this.prepareParamData(employeeId);

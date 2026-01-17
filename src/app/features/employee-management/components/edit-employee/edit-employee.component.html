@@ -42,91 +42,91 @@
     <div class="grid grid-cols-1 md:grid-cols-4">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['firstName']"
+        [inputFieldConfig]="form.fieldConfigs.firstName"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['lastName']"
+        [inputFieldConfig]="form.fieldConfigs.lastName"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['contactNumber']"
+        [inputFieldConfig]="form.fieldConfigs.contactNumber"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['email']"
+        [inputFieldConfig]="form.fieldConfigs.email"
       />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['fatherName']"
+        [inputFieldConfig]="form.fieldConfigs.fatherName"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['emergencyContactNumber']"
-      />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3">
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['gender']"
-      />
-
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['dateOfBirth']"
-      />
-
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['bloodGroup']"
+        [inputFieldConfig]="form.fieldConfigs.emergencyContactNumber"
       />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['houseNumber']"
+        [inputFieldConfig]="form.fieldConfigs.gender"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['streetName']"
+        [inputFieldConfig]="form.fieldConfigs.dateOfBirth"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['landmark']"
+        [inputFieldConfig]="form.fieldConfigs.bloodGroup"
       />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['state']"
+        [inputFieldConfig]="form.fieldConfigs.houseNumber"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['city']"
+        [inputFieldConfig]="form.fieldConfigs.streetName"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['pinCode']"
+        [inputFieldConfig]="form.fieldConfigs.landmark"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.state"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.city"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.pinCode"
       />
     </div>
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['profilePicture']"
+      [inputFieldConfig]="form.fieldConfigs.profilePicture"
     />
   </form>
 </ng-template>
@@ -142,53 +142,53 @@
     <div class="grid grid-cols-1 md:grid-cols-3">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['employeeId']"
+        [inputFieldConfig]="form.fieldConfigs.employeeId"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['previousExperience']"
+        [inputFieldConfig]="form.fieldConfigs.previousExperience"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['dateOfJoining']"
-      />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2">
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['employmentType']"
-      />
-
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['designation']"
+        [inputFieldConfig]="form.fieldConfigs.dateOfJoining"
       />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['esicNumber']"
+        [inputFieldConfig]="form.fieldConfigs.employmentType"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['uanNumber']"
+        [inputFieldConfig]="form.fieldConfigs.designation"
       />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['esicDocument']"
+        [inputFieldConfig]="form.fieldConfigs.esicNumber"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['uanDocument']"
+        [inputFieldConfig]="form.fieldConfigs.uanNumber"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.esicDocument"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.uanDocument"
       />
     </div>
   </form>
@@ -205,23 +205,23 @@
     <div class="grid grid-cols-1 md:grid-cols-3">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['degree']"
+        [inputFieldConfig]="form.fieldConfigs.degree"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['branch']"
+        [inputFieldConfig]="form.fieldConfigs.branch"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['passingYear']"
+        [inputFieldConfig]="form.fieldConfigs.passingYear"
       />
     </div>
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['degreeDocument']"
+      [inputFieldConfig]="form.fieldConfigs.degreeDocument"
     />
   </form>
 </ng-template>
@@ -237,24 +237,24 @@
     <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['bankName']"
+        [inputFieldConfig]="form.fieldConfigs.bankName"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['accountNumber']"
+        [inputFieldConfig]="form.fieldConfigs.accountNumber"
       />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['accountHolderName']"
+        [inputFieldConfig]="form.fieldConfigs.accountHolderName"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['ifscCode']"
+        [inputFieldConfig]="form.fieldConfigs.ifscCode"
       />
     </div>
   </form>
@@ -277,24 +277,24 @@
         <div class="grid grid-cols-1 md:grid-cols-2">
           <app-input-field
             [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs['aadharNumber']"
+            [inputFieldConfig]="form.fieldConfigs.aadharNumber"
           />
 
           <app-input-field
             [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs['pancardNumber']"
+            [inputFieldConfig]="form.fieldConfigs.panNumber"
           />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2">
           <app-input-field
             [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs['passportNumber']"
+            [inputFieldConfig]="form.fieldConfigs.passportNumber"
           />
 
           <app-input-field
             [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs['drivingLicenseNumber']"
+            [inputFieldConfig]="form.fieldConfigs.drivingLicenseNumber"
           />
         </div>
       </div>
@@ -309,24 +309,24 @@
         <div class="grid grid-cols-1 md:grid-cols-2">
           <app-input-field
             [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs['aadharDocument']"
+            [inputFieldConfig]="form.fieldConfigs.aadharDocument"
           />
 
           <app-input-field
             [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs['pancardDocument']"
+            [inputFieldConfig]="form.fieldConfigs.panDocument"
           />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2">
           <app-input-field
             [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs['passportDocument']"
+            [inputFieldConfig]="form.fieldConfigs.passportDocument"
           />
 
           <app-input-field
             [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs['drivingLicenseDocument']"
+            [inputFieldConfig]="form.fieldConfigs.drivingLicenseDocument"
           />
         </div>
       </div>

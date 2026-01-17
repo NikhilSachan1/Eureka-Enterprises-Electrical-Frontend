@@ -27,6 +27,7 @@ import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { ICONS } from '@shared/constants';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { LoadingService } from '@shared/services/loading.service';
+import { EMPLOYEE_MESSAGES } from '../../constants';
 import {
   EDataType,
   ETabMode,
@@ -53,6 +54,7 @@ import {
   GalleryService,
   AttachmentsService,
   AppConfigurationService,
+  NotificationService,
 } from '@shared/services';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -91,6 +93,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
   private readonly galleryService = inject(GalleryService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
   icons = ICONS;
   tabModeType = ETabMode.CONTENT;
@@ -123,11 +126,11 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
 
   private loadEmployeeDetails(): void {
     const title = this.isRouteMode
-      ? 'Loading Your Profile'
-      : 'Loading Employee Details';
+      ? EMPLOYEE_MESSAGES.LOADING.GET_PROFILE
+      : EMPLOYEE_MESSAGES.LOADING.GET_DETAIL;
     const message = this.isRouteMode
-      ? 'Please wait while we load your profile...'
-      : 'Please wait while we load the employee details...';
+      ? EMPLOYEE_MESSAGES.LOADING_MESSAGES.GET_PROFILE
+      : EMPLOYEE_MESSAGES.LOADING_MESSAGES.GET_DETAIL;
 
     this.loadingService.show({
       title,
@@ -186,7 +189,8 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
           }
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error(EMPLOYEE_MESSAGES.ERROR.GET_DETAIL, error);
+          this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.GET_DETAIL);
         },
       });
   }

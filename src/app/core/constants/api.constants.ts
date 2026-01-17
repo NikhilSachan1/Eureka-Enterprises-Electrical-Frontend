@@ -21,7 +21,7 @@ export const API_ROUTES = {
     LOGOUT: 'auth/sign-out',
     REFRESH_TOKEN: 'auth/refresh-token',
     FORGOT_PASSWORD: 'auth/forget-password',
-    RESET_PASSWORD: 'auth/reset-password',
+    RESET_PASSWORD: (token: string) => `auth/reset-password/${token}`,
     SWITCH_ACTIVE_ROLE: 'auth/switch-role',
   },
   ATTENDANCE: {

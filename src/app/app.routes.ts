@@ -44,13 +44,13 @@ export const routes: Routes = [
       //       './features/settings-management/setting-management.routes'
       //     ).then(m => m.SETTING_MANAGEMENT_ROUTES),
       // },
-      // {
-      //   path: ROUTE_BASE_PATHS.EMPLOYEE,
-      //   loadChildren: () =>
-      //     import('./features/employee-management/employee.routes').then(
-      //       m => m.EMPLOYEE_MANAGEMENT_ROUTES
-      //     ),
-      // },
+      {
+        path: ROUTE_BASE_PATHS.EMPLOYEE,
+        loadChildren: () =>
+          import('./features/employee-management/employee.routes').then(
+            m => m.EMPLOYEE_MANAGEMENT_ROUTES
+          ),
+      },
       // {
       //   path: ROUTE_BASE_PATHS.ATTENDANCE,
       //   loadChildren: () =>
@@ -102,7 +102,7 @@ export const routes: Routes = [
       },
       {
         path: '**',
-        redirectTo: `${ROUTE_BASE_PATHS.PAYROLL}`,
+        redirectTo: `${ROUTE_BASE_PATHS.EMPLOYEE}`,
       },
     ],
   },

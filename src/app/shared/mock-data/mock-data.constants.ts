@@ -432,6 +432,11 @@ export const TEST_CLIENT_LIST = ['client_1', 'client_2', 'client_3'];
 export const TEST_LOCATION_LIST = ['location_1', 'location_2', 'location_3'];
 export const TEST_VEHICLE_LIST = ['vehicle_1', 'vehicle_2', 'vehicle_3'];
 
+export const TEST_LOGIN_EMAILS = [
+  'akhil.sachan@coditas.com',
+  'nikhilsachan159@gmail.com',
+];
+
 export const getRandomItem = <T>(array: T[]): T => {
   if (!array || array.length === 0) {
     throw new Error('Array is empty or undefined');

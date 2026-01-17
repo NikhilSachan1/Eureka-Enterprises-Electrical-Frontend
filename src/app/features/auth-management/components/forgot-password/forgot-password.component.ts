@@ -2,32 +2,31 @@ import {
   Component,
   inject,
   OnInit,
-  signal,
   ChangeDetectionStrategy,
-  DestroyRef,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ToastModule } from 'primeng/toast';
-import { IEnhancedForm } from '@shared/types';
-import { FormService, NotificationService } from '@shared/services';
-import { LoggerService } from '@core/services';
-import { FORGOT_PASSWORD_INPUT_FIELDS_CONFIG } from '../../config/forgot-password-form.config';
+import { RouterNavigationService } from '@shared/services';
+import { FORGOT_PASSWORD_FORM_CONFIG } from '../../config/form/forgot-password.config';
 import { AuthLayoutComponent } from '../../shared/auth-layout.component';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { FormBase } from '@shared/base/form.base';
+import { AUTH_MESSAGES } from '../../constants';
 import {
-  ROUTE_BASE_PATHS,
-  ROUTES,
-  FORM_VALIDATION_MESSAGES,
-} from '@shared/constants';
+  IForgetPasswordFormDto,
+  IForgetPasswordResponseDto,
+} from '@features/auth-management/types/auth.dto';
+import { AuthService } from '@features/auth-management/services/auth.service';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FORGOT_PASSWORD_PREFILLED_DATA } from '@shared/mock-data/auth.mock-data';
 
 @Component({
   selector: 'app-forgot-password',
   imports: [
     ReactiveFormsModule,
     ButtonComponent,
-    ToastModule,
     InputFieldComponent,
     AuthLayoutComponent,
   ],
@@ -35,84 +34,69 @@ import {
   styleUrls: ['./forgot-password.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ForgotPasswordComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
-  private readonly router = inject(Router);
-  private readonly notificationService = inject(NotificationService);
-  private readonly destroyRef = inject(DestroyRef);
-
-  protected form!: IEnhancedForm;
-  protected readonly isSubmitting = signal(false);
+export class ForgotPasswordComponent
+  extends FormBase<IForgetPasswordFormDto>
+  implements OnInit
+{
+  private readonly authService = inject(AuthService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(
-      FORGOT_PASSWORD_INPUT_FIELDS_CONFIG,
+    this.form = this.formService.createForm<IForgetPasswordFormDto>(
+      FORGOT_PASSWORD_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
       }
     );
+
+    this.loadMockData(FORGOT_PASSWORD_PREFILLED_DATA);
   }
 
-  onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const formData = this.prepareFormData();
     this.executeForgotPassword(formData);
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Forgot password form validation failed');
-      return false;
-    }
-    return true;
+  private prepareFormData(): IForgetPasswordFormDto {
+    const formData = this.form.getData();
+    return formData;
   }
 
-  private executeForgotPassword(formData: { email: string }): void {
-    console.info('formData', formData);
-    this.isSubmitting.set(true);
+  private executeForgotPassword(formData: IForgetPasswordFormDto): void {
+    this.loadingService.show({
+      title: AUTH_MESSAGES.LOADING.FORGOT_PASSWORD,
+      message: AUTH_MESSAGES.LOADING_MESSAGES.FORGOT_PASSWORD,
+    });
     this.form.disable();
-
-    // TODO: Replace with proper password reset logic using authService
-    setTimeout(() => {
-      this.logger.info('Forgot password form submitted successfully');
-      this.notificationService.success(
-        'Password reset link sent to your email!'
-      );
-
-      // Navigate back to login after a delay
-      setTimeout(() => {
-        void this.router.navigate([
-          `/${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`,
-        ]);
-      }, 2000);
-
-      this.isSubmitting.set(false);
-      this.form.enable();
-    }, 1500);
+    this.authService
+      .forgetPassword(formData)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+          this.form.enable();
+          this.isSubmitting.set(false);
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IForgetPasswordResponseDto) => {
+          this.notificationService.success(response.message);
+          const routeSegments = [ROUTE_BASE_PATHS.AUTH, ROUTES.AUTH.LOGIN];
+          void this.routerNavigationService.navigateToRoute(routeSegments);
+        },
+        error: error => {
+          this.logger.error(AUTH_MESSAGES.ERROR.FORGOT_PASSWORD, error);
+        },
+      });
   }
 
   protected onBackToLogin(): void {
     try {
       this.logger.logUserAction('Navigate back to Login');
-      void this.router.navigate([
-        `${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`,
-      ]);
+      const routeSegments = [ROUTE_BASE_PATHS.AUTH, ROUTES.AUTH.LOGIN];
+      void this.routerNavigationService.navigateToRoute(routeSegments);
     } catch (error) {
       this.logger.error('Error navigating back to login', error);
     }
-  }
-
-  private prepareFormData(): { email: string } {
-    const formData = this.form.getData();
-    return {
-      email: formData['email'] as string,
-    };
   }
 }

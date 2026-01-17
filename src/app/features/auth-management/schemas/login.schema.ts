@@ -4,8 +4,13 @@ export const LoginRequestSchema = z
   .object({
     email: z.email().trim().min(1).toLowerCase(),
     password: z.string().min(1),
+    rememberMe: z.boolean(),
   })
-  .strict();
+  .strict()
+  .transform(data => ({
+    email: data.email,
+    password: data.password,
+  }));
 
 export const LoginResponseSchema = z
   .object({

@@ -18,3 +18,4 @@ export const onlyTimeStringField = z
     'Invalid time'
   );
 export const fileField = z.instanceof(File);
+export const firstFileField = z.array(fileField).transform(val => val[0]);

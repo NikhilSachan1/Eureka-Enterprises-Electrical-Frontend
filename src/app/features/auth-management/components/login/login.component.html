@@ -1,5 +1,5 @@
 <!-- Login Form View -->
-@if (!showRoleSelection()) {
+@if (!showRoleSelection() && form) {
   <app-auth-layout
     title="Sign in"
     subtitle="to Eureka Enterprises"
@@ -15,13 +15,13 @@
       <!-- Email field -->
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['email']"
+        [inputFieldConfig]="form.fieldConfigs.email"
       />
 
       <!-- Password field -->
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['password']"
+        [inputFieldConfig]="form.fieldConfigs.password"
       />
 
       <!-- Remember me and forgot password -->
@@ -29,7 +29,7 @@
         <div class="flex-shrink-0">
           <app-input-field
             [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs['rememberMe']"
+            [inputFieldConfig]="form.fieldConfigs.rememberMe"
           />
         </div>
 
@@ -56,7 +56,7 @@
     title="Select Your Role"
     subtitle=""
     footerText="Want to use different credentials?"
-    [footerLinkButton]="backButtonConfig"
+    [footerLinkButton]="ROLE_SELECTION_BUTTON_CONFIG['backToLogin']"
     (footerLinkAction)="goBackToLogin()"
   >
     <div class="flex flex-col">
@@ -116,7 +116,7 @@
 
       <!-- Continue button -->
       <app-button
-        [buttonConfig]="continueButtonConfig"
+        [buttonConfig]="ROLE_SELECTION_BUTTON_CONFIG['continue']"
         [showButtonLoader]="isSubmitting()"
         [showDisabledButton]="!selectedRole() || isSubmitting()"
         (onButtonClick)="continueWithRole()"
@@ -124,6 +124,3 @@
     </div>
   </app-auth-layout>
 }
-
-<!-- Toast notifications -->
-<p-toast />

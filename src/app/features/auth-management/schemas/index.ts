@@ -8,3 +8,11 @@ export {
   SwitchActiveRoleRequestSchema,
   SwitchActiveRoleResponseSchema,
 } from './switch-active-role.schemas';
+export {
+  ForgetPasswordRequestSchema,
+  ForgetPasswordResponseSchema,
+} from './forget-password.schema';
+export {
+  ResetPasswordRequestSchema,
+  ResetPasswordResponseSchema,
+} from './reset-password.schema';

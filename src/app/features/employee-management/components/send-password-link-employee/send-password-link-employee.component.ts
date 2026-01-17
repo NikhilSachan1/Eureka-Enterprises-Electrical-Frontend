@@ -1,27 +1,22 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
-  signal,
   OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
 import {
   IEmployeeGetBaseResponseDto,
-  IEmployeeSendPasswordLinkRequestDto,
+  IEmployeeSendPasswordLinkFormDto,
   IEmployeeSendPasswordLinkResponseDto,
 } from '@features/employee-management/types/employee.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import {
-  ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
+import { ConfirmationDialogService } from '@shared/services';
+import { EMPLOYEE_MESSAGES } from '../../constants';
 import { finalize } from 'rxjs';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-send-password-link-employee',
@@ -30,12 +25,11 @@ import { finalize } from 'rxjs';
   styleUrl: './send-password-link-employee.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SendPasswordLinkEmployeeComponent implements OnInit {
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class SendPasswordLinkEmployeeComponent
+  extends FormBase
+  implements OnInit
+{
   private readonly employeeService = inject(EmployeeService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -43,8 +37,6 @@ export class SendPasswordLinkEmployeeComponent implements OnInit {
   protected readonly selectedRecord =
     input.required<IEmployeeGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
-
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -60,33 +52,28 @@ export class SendPasswordLinkEmployeeComponent implements OnInit {
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: IEmployeeGetBaseResponseDto[]): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
-    this.executeEmployeeDeleteAction(formData);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData(this.selectedRecord());
+    this.executeEmployeeSendPasswordLinkAction(formData);
   }
 
   private prepareFormData(
     record: IEmployeeGetBaseResponseDto[]
-  ): IEmployeeSendPasswordLinkRequestDto {
+  ): IEmployeeSendPasswordLinkFormDto {
     return {
-      userIds: record.map((row: IEmployeeGetBaseResponseDto) => row.id),
+      employeeIds: record.map((row: IEmployeeGetBaseResponseDto) => row.id),
     };
   }
 
-  private executeEmployeeDeleteAction(
-    formData: IEmployeeSendPasswordLinkRequestDto
+  private executeEmployeeSendPasswordLinkAction(
+    formData: IEmployeeSendPasswordLinkFormDto
   ): void {
     const loadingMessage = {
-      title: 'Sending Password Link to Employee',
-      message:
-        'Please wait while we send the password link to the employee(s)...',
+      title: EMPLOYEE_MESSAGES.LOADING.SEND_PASSWORD_LINK,
+      message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.SEND_PASSWORD_LINK,
     };
     this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
@@ -114,6 +101,12 @@ export class SendPasswordLinkEmployeeComponent implements OnInit {
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error(EMPLOYEE_MESSAGES.ERROR.SEND_PASSWORD_LINK, error);
+          this.notificationService.error(
+            EMPLOYEE_MESSAGES.ERROR.SEND_PASSWORD_LINK
+          );
         },
       });
   }

@@ -1,28 +1,23 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
-  signal,
   OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
 import {
-  IEmployeeDeleteRequestDto,
+  IEmployeeDeleteFormDto,
   IEmployeeDeleteResponseDto,
   IEmployeeGetBaseResponseDto,
 } from '@features/employee-management/types/employee.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import {
-  ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
+import { EMPLOYEE_MESSAGES } from '../../constants';
+import { ConfirmationDialogService } from '@shared/services';
 import { EButtonActionType } from '@shared/types';
 import { finalize } from 'rxjs';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-delete-employee',
@@ -31,12 +26,8 @@ import { finalize } from 'rxjs';
   styleUrl: './delete-employee.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeleteEmployeeComponent implements OnInit {
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class DeleteEmployeeComponent extends FormBase implements OnInit {
   private readonly employeeService = inject(EmployeeService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -44,8 +35,6 @@ export class DeleteEmployeeComponent implements OnInit {
   protected readonly selectedRecord =
     input.required<IEmployeeGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
-
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -61,32 +50,26 @@ export class DeleteEmployeeComponent implements OnInit {
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: IEmployeeGetBaseResponseDto[]): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData(this.selectedRecord());
     this.executeEmployeeDeleteAction(formData);
   }
 
   private prepareFormData(
     record: IEmployeeGetBaseResponseDto[]
-  ): IEmployeeDeleteRequestDto {
+  ): IEmployeeDeleteFormDto {
     return {
-      userIds: record.map((row: IEmployeeGetBaseResponseDto) => row.id),
+      employeeIds: record.map((row: IEmployeeGetBaseResponseDto) => row.id),
     };
   }
 
-  private executeEmployeeDeleteAction(
-    formData: IEmployeeDeleteRequestDto
-  ): void {
+  private executeEmployeeDeleteAction(formData: IEmployeeDeleteFormDto): void {
     const loadingMessage = {
-      title: 'Deleting Employee',
-      message: 'Please wait while we delete the employee...',
+      title: EMPLOYEE_MESSAGES.LOADING.DELETE,
+      message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.DELETE,
     };
     this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
@@ -114,6 +97,10 @@ export class DeleteEmployeeComponent implements OnInit {
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error(EMPLOYEE_MESSAGES.ERROR.DELETE, error);
+          this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.DELETE);
         },
       });
   }

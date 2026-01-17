@@ -57,11 +57,11 @@ export interface IEmployeeSalaryRevisionHistoryItem
 }
 
 export interface ISalaryFields {
-  basic: string;
-  hra: string;
-  tds: string;
-  esic: string;
-  employeePf: string;
+  basic: number;
+  hra: number;
+  tds: number;
+  esic: number;
+  employeePf: number;
 }
 
 export interface IEmployeeSalarySummaryItem {

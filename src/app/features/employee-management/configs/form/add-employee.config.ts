@@ -1,5 +1,7 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
+import { IEmployeeAddFormDto } from '@features/employee-management/types/employee.dto';
+import { EDIT_SALARY_FORM_CONFIG } from '@features/payroll-management/config';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
   CONFIGURATION_KEYS,
@@ -18,7 +20,9 @@ import {
 } from '@shared/types';
 import { withCustomMessage } from '@shared/utility';
 
-const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+export const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<
+  Partial<IEmployeeAddFormDto>
+> = {
   firstName: {
     id: 'firstName',
     fieldName: 'firstName',
@@ -233,7 +237,9 @@ const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
 };
 
 // Step 2: Employment Details Form Config
-const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+export const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<
+  Partial<IEmployeeAddFormDto>
+> = {
   employeeId: {
     id: 'employeeId',
     fieldName: 'employeeId',
@@ -341,7 +347,9 @@ const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
 };
 
 // Step 3: Education Details Form Config
-const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<
+  Partial<IEmployeeAddFormDto>
+> = {
   degree: {
     id: 'degree',
     fieldName: 'degree',
@@ -424,7 +432,9 @@ const EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
 };
 
 // Step 4: Bank Details Form Config
-const BANK_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+export const BANK_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<
+  Partial<IEmployeeAddFormDto>
+> = {
   bankName: {
     id: 'bankName',
     fieldName: 'bankName',
@@ -478,7 +488,9 @@ const BANK_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
 };
 
 // Step 5: Documents Details Form Config
-const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<
+  Partial<IEmployeeAddFormDto>
+> = {
   aadharNumber: {
     id: 'aadharNumber',
     fieldName: 'aadharNumber',
@@ -504,9 +516,9 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     },
     validators: [Validators.required],
   },
-  pancardNumber: {
-    id: 'pancardNumber',
-    fieldName: 'pancardNumber',
+  panNumber: {
+    id: 'panNumber',
+    fieldName: 'panNumber',
     label: 'Pancard Number',
     fieldType: EDataType.TEXT,
     textConfig: {
@@ -530,9 +542,9 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     ],
     applyPatternFilter: true,
   },
-  pancardDocument: {
-    id: 'pancardDocument',
-    fieldName: 'pancardDocument',
+  panDocument: {
+    id: 'panDocument',
+    fieldName: 'panDocument',
     label: 'Pancard Document',
     fieldType: EDataType.ATTACHMENTS,
     fileConfig: {
@@ -619,49 +631,25 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
 };
 
 // Step 6: Salary Details Form Config
-const SALARY_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  basicSalary: {
-    id: 'basicSalary',
-    fieldName: 'basicSalary',
-    label: 'Basic Salary',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-  hra: {
-    id: 'hra',
-    fieldName: 'hra',
-    label: 'HRA',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-  foodAllowance: {
-    id: 'foodAllowance',
-    fieldName: 'foodAllowance',
-    label: 'Food Allowance',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-  tds: {
-    id: 'tds',
-    fieldName: 'tds',
-    label: 'TDS',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-  esicContribution: {
-    id: 'esicContribution',
-    fieldName: 'esicContribution',
-    label: 'ESIC Contribution',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
-  pfContribution: {
-    id: 'pfContribution',
-    fieldName: 'pfContribution',
-    label: 'PF Contribution',
-    fieldType: EDataType.NUMBER,
-    validators: [Validators.required],
-  },
+
+const {
+  basicSalary,
+  hra,
+  tds,
+  employerEsicContribution,
+  employeePfContribution,
+  foodAllowance,
+} = EDIT_SALARY_FORM_CONFIG.fields;
+
+export const SALARY_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<
+  Partial<IEmployeeAddFormDto>
+> = {
+  basicSalary,
+  hra,
+  tds,
+  employerEsicContribution,
+  employeePfContribution,
+  foodAllowance,
 };
 
 export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
@@ -728,14 +716,15 @@ const ADD_EMPLOYEE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const ADD_EMPLOYEE_FORM_CONFIG: IMultiStepFormConfig = {
-  fields: {
-    1: PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
-    2: EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
-    3: EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
-    4: BANK_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
-    5: DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
-    6: SALARY_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
-  },
-  buttons: ADD_EMPLOYEE_FORM_BUTTONS_CONFIG,
-};
+export const ADD_EMPLOYEE_FORM_CONFIG: IMultiStepFormConfig<IEmployeeAddFormDto> =
+  {
+    fields: {
+      1: PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
+      2: EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
+      3: EDUCATION_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
+      4: BANK_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
+      5: DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
+      6: SALARY_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,
+    },
+    buttons: ADD_EMPLOYEE_FORM_BUTTONS_CONFIG,
+  };

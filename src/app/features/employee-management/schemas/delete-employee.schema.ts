@@ -5,9 +5,12 @@ const { id } = EmployeeBaseSchema.shape;
 
 export const EmployeeDeleteRequestSchema = z
   .object({
-    userIds: z.array(id).min(1),
+    employeeIds: z.array(id).min(1),
   })
-  .strict();
+  .strict()
+  .transform(data => ({
+    userIds: data.employeeIds,
+  }));
 
 export const EmployeeDeleteResultSchema = z
   .object({

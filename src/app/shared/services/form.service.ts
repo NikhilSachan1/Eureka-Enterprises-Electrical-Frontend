@@ -148,15 +148,17 @@ export class FormService {
 
   private resetMultiStepForm<TFlattened extends FormDataConstraint>(
     forms: MultiStepFormsRecord<TFlattened>,
-    value?: Partial<Record<string, Record<string, unknown>>>
+    value?: Partial<Record<string, Partial<TFlattened>>>
   ): void {
     if (value) {
       Object.keys(forms).forEach(stepKey => {
         const form = forms[stepKey];
         const stepValue = value[stepKey];
-        // Cast to Partial<Partial<TFlattened>> which is equivalent to Partial<TFlattened>
-        // Since Partial<Partial<T>> = Partial<T>, we cast to Partial<TFlattened>
-        form.reset((stepValue ?? null) as Partial<Partial<TFlattened>> | null);
+        if (stepValue !== undefined) {
+          form.reset(stepValue as Partial<Partial<TFlattened>> | null);
+        } else {
+          form.reset();
+        }
       });
     } else {
       Object.values(forms).forEach(form => form.reset());
@@ -173,6 +175,38 @@ export class FormService {
     forms: MultiStepFormsRecord<TFlattened>
   ): void {
     Object.values(forms).forEach(form => form.enable());
+  }
+
+  private patchMultiStepForm<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>,
+    value?: Partial<Record<string, Partial<TFlattened>>>
+  ): void {
+    if (value) {
+      // Iterate over the provided value keys to patch only the steps that have data
+      Object.keys(value).forEach(stepKey => {
+        const form = forms[stepKey];
+        const stepValue = value[stepKey];
+        // Only patch if form exists for this step and value is provided
+        if (form && stepValue !== undefined) {
+          // Patch only the provided step values
+          form.patch(stepValue as Partial<Partial<TFlattened>>);
+        }
+      });
+    }
+  }
+
+  private setValueMultiStepForm<TFlattened extends FormDataConstraint>(
+    forms: MultiStepFormsRecord<TFlattened>,
+    value: Record<string, Partial<TFlattened>>
+  ): void {
+    Object.keys(forms).forEach(stepKey => {
+      const form = forms[stepKey];
+      const stepValue = value[stepKey];
+      if (stepValue !== undefined) {
+        // Set value for the step (requires all fields for that step)
+        form.setValue(stepValue);
+      }
+    });
   }
 
   private validateAndMarkMultiStepFormTouched<
@@ -624,10 +658,14 @@ export class FormService {
       isDirty: () => this.isMultiStepFormDirty(forms), // true if any form has been modified.
       isTouched: () => this.isMultiStepFormTouched(forms), // true if any form has been touched.
       markTouched: () => this.markMultiStepFormTouched(forms), // Force all forms to act like the user touched everything.
-      reset: (value?: Partial<Record<string, Record<string, unknown>>>) =>
-        this.resetMultiStepForm(forms, value), // Reset all forms.
+      reset: (value?: Partial<Record<string, Partial<TFlattened>>>) =>
+        this.resetMultiStepForm(forms, value), // Reset all forms to initial data or empty.
       disable: () => this.disableMultiStepForm(forms), // Disable all forms.
       enable: () => this.enableMultiStepForm(forms), // Enable all forms.
+      patch: (value?: Partial<Record<string, Partial<TFlattened>>>) =>
+        this.patchMultiStepForm(forms, value), // Update only some fields in the forms (partial update).
+      setValue: (value: Record<string, Partial<TFlattened>>) =>
+        this.setValueMultiStepForm(forms, value), // Update all fields in the forms (full update).
       validateAndMarkTouched: () =>
         this.validateAndMarkMultiStepFormTouched(forms), // Validate and mark touched in one method for all forms
       getData: () => this.getMultiStepFormData<TFlattened>(forms), // Get combined flattened form data from all forms (enabled controls only)

@@ -1,4 +1,10 @@
-import { onlyDateStringField, uuidField } from '@shared/schemas';
+import { SalaryBaseSchema } from '@features/payroll-management/schemas';
+import {
+  dateField,
+  firstFileField,
+  onlyDateStringField,
+  uuidField,
+} from '@shared/schemas';
 import z from 'zod';
 
 export const EmployeeBaseSchema = z.object({
@@ -44,3 +50,35 @@ export const EmployeeBaseSchema = z.object({
     })
   ),
 });
+
+export const EmployeeUpsertShapeSchema = EmployeeBaseSchema.omit({
+  id: true,
+  status: true,
+  pincode: true,
+  passoutYear: true,
+  bankHolderName: true,
+  employeeType: true,
+  dlNumber: true,
+  roles: true,
+})
+  .extend({
+    profilePicture: firstFileField,
+    esicDocument: firstFileField.nullable(),
+    aadharDocument: firstFileField,
+    panDocument: firstFileField.nullable(),
+    drivingLicenseDocument: firstFileField.nullable(),
+    uanDocument: firstFileField.nullable(),
+    passportDocument: firstFileField.nullable(),
+    degreeDocument: firstFileField.nullable(),
+    offerLetterDoc: firstFileField.optional(),
+    experienceLetterDoc: firstFileField.optional(),
+    passingYear: z.string().nullable(),
+    pinCode: z.string(),
+    accountHolderName: z.string().nullable(),
+    employmentType: z.string().min(1),
+    drivingLicenseNumber: z.string().nullable(),
+    dateOfJoining: dateField,
+    dateOfBirth: dateField,
+    ...SalaryBaseSchema.shape,
+  })
+  .strict();

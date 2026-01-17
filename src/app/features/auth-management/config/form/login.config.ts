@@ -8,7 +8,10 @@ import {
   EButtonSize,
   EButtonSeverity,
 } from '@shared/types';
-const LOGIN_FIELDS_CONFIG: IFormInputFieldsConfig = {
+import { ILoginFormDto } from '../../types/auth.dto';
+import { COMMON_FORM_ACTIONS } from '@shared/config';
+
+const LOGIN_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ILoginFormDto> = {
   email: {
     fieldType: EDataType.TEXT,
     id: 'email',
@@ -38,7 +41,7 @@ const LOGIN_FIELDS_CONFIG: IFormInputFieldsConfig = {
   },
 };
 
-const LOGIN_BUTTONS_CONFIG: IFormButtonConfig = {
+const LOGIN_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   forgotPassword: {
     label: 'Forgot password?',
     link: true,
@@ -46,10 +49,9 @@ const LOGIN_BUTTONS_CONFIG: IFormButtonConfig = {
     severity: EButtonSeverity.PRIMARY,
   },
   signIn: {
+    ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Sign in',
-    type: 'submit',
     size: EButtonSize.LARGE,
-    severity: EButtonSeverity.PRIMARY,
     fluid: true,
   },
   contactAdmin: {
@@ -60,7 +62,7 @@ const LOGIN_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const LOGIN_FORM_CONFIG: IFormConfig = {
-  fields: LOGIN_FIELDS_CONFIG,
-  buttons: LOGIN_BUTTONS_CONFIG,
+export const LOGIN_FORM_CONFIG: IFormConfig<ILoginFormDto> = {
+  fields: LOGIN_FORM_FIELDS_CONFIG,
+  buttons: LOGIN_FORM_BUTTONS_CONFIG,
 };
