@@ -5,7 +5,6 @@ import {
   DestroyRef,
   inject,
   OnInit,
-  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services';
@@ -51,6 +50,7 @@ import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-ac
 import { APP_CONFIG } from '@core/config';
 import { GetPayslipDetailComponent } from '../get-payslip-detail/get-payslip-detail.component';
 import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
+import { ICONS } from '@shared/constants';
 
 @Component({
   selector: 'app-get-payslip',
@@ -84,7 +84,6 @@ export class GetPayslipComponent implements OnInit {
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly hasEmployeeNameFilter = signal(false);
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -349,6 +348,12 @@ export class GetPayslipComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Generate Payroll',
           actionName: 'generatePayroll',
+        },
+        {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
+          icon: ICONS.COMMON.DOWNLOAD,
+          label: 'Download Monthly Report',
+          actionName: 'downloadMonthlyReport',
         },
       ],
     };

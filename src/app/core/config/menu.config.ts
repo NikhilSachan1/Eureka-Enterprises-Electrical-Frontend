@@ -220,11 +220,6 @@ export const appMenu: ApplicationMenu = {
               icon: ICONS.COMMON.PLUS,
               routerLink: ROUTES.PAYROLL.INCREMENT,
             },
-            {
-              label: 'Monthly Report',
-              icon: ICONS.COMMON.VIEW,
-              routerLink: ROUTES.PAYROLL.MONTHLY_REPORT,
-            },
           ],
         },
       ],
