@@ -9,55 +9,37 @@
       [style.--metric-color-light]="colorScheme.light"
       [style.--metric-color-dark]="colorScheme.dark"
     >
-      <!-- Decorative background elements -->
-      <div class="metric-card-bg">
-        <div class="bg-circle bg-circle-1"></div>
-        <div class="bg-circle bg-circle-2"></div>
-        <div class="bg-pattern"></div>
-      </div>
+      <!-- Left accent border -->
+      <div class="metric-accent-border"></div>
 
       <!-- Card content -->
       <div class="metric-card-body">
-        <!-- Icon section -->
+        <!-- Icon - absolute positioned top right -->
         @let icon = getIcon(metric);
         @if (icon) {
-          <div class="metric-icon-wrapper">
-            <div class="metric-icon">
-              <i [class]="icon"></i>
-            </div>
+          <div class="metric-icon">
+            <i [class]="icon"></i>
           </div>
         }
 
-        <!-- Value and label -->
+        <!-- Title and Value section - pass pass -->
         <div class="metric-content">
-          <div class="metric-value-wrapper">
-            <span
-              class="metric-value"
-              [ngClass]="colorScheme.textClass"
-            >
-              @if (metric.type === ALL_DATA_TYPES.CURRENCY) {
-                {{ metric.value | currency: metric.format }}
-              } @else {
-                {{ metric.value }}
-              }
-            </span>
-          </div>
-          <div class="metric-label-wrapper">
-            <span
-              class="metric-label"
-              [title]="metric.label"
-            >
-              {{ metric.label }}
-            </span>
-          </div>
+          <span class="metric-label">{{ metric.label }}</span>
+          <span
+            class="metric-value"
+            [ngClass]="colorScheme.textClass"
+          >
+            @if (metric.type === ALL_DATA_TYPES.CURRENCY) {
+              {{ metric.value | currency: metric.format }}
+            } @else {
+              {{ metric.value }}
+            }
+          </span>
+          @if (metric.subtitle) {
+            <span class="metric-subtitle">{{ metric.subtitle }}</span>
+          }
         </div>
-
-        <!-- Decorative accent line -->
-        <div class="metric-accent-line"></div>
       </div>
-
-      <!-- Hover glow effect -->
-      <div class="metric-glow"></div>
     </div>
   }
 </div>
