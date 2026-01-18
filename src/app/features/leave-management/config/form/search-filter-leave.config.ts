@@ -5,24 +5,26 @@ import {
   ITableSearchFilterFormConfig,
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
+import { ILeaveGetFormDto } from '@features/leave-management/types/leave.dto';
 
-const SEARCH_FILTER_LEAVE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
-  {
-    employeeName: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
-    },
-    leaveDate: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
-      label: 'Leave Date',
-      fieldName: 'leaveDate',
-    },
-    approvalStatus: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
-    },
-    globalSearch: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
-    },
-  };
+const SEARCH_FILTER_LEAVE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
+  ILeaveGetFormDto & { globalSearch?: string }
+> = {
+  employeeName: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
+  },
+  leaveDate: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
+    label: 'Leave Date',
+    fieldName: 'leaveDate',
+  },
+  approvalStatus: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
+  },
+  globalSearch: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+  },
+};
 
 const SEARCH_FILTER_LEAVE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -33,7 +35,8 @@ const SEARCH_FILTER_LEAVE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const SEARCH_FILTER_LEAVE_FORM_CONFIG: ITableSearchFilterFormConfig = {
-  fields: SEARCH_FILTER_LEAVE_FORM_FIELDS_CONFIG,
-  buttons: SEARCH_FILTER_LEAVE_FORM_BUTTONS_CONFIG,
-};
+export const SEARCH_FILTER_LEAVE_FORM_CONFIG: ITableSearchFilterFormConfig<ILeaveGetFormDto> =
+  {
+    fields: SEARCH_FILTER_LEAVE_FORM_FIELDS_CONFIG,
+    buttons: SEARCH_FILTER_LEAVE_FORM_BUTTONS_CONFIG,
+  };

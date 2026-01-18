@@ -1,4 +1,6 @@
-export const APPLY_LEAVE_PREFILLED_DATA: Record<string, unknown> = {
+import { ILeaveApplyFormDto } from '@features/leave-management/types/leave.dto';
+
+export const APPLY_LEAVE_PREFILLED_DATA: ILeaveApplyFormDto = {
   leaveDate: [new Date(), new Date()],
-  description: 'Personal work - planned leave',
+  leaveReason: 'Personal work - planned leave',
 };

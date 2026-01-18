@@ -30,7 +30,7 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     },
     serverSideFilterAndSortConfig: {
       sortField: 'fullName',
-      filterField: 'userIds',
+      filterField: 'employeeName',
     },
   },
   {
@@ -55,7 +55,7 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'Approval Status',
     bodyTemplate: EDataType.STATUS,
     serverSideFilterAndSortConfig: {
-      filterField: 'approvalStatuses',
+      filterField: 'approvalStatus',
     },
     showSort: false,
   },

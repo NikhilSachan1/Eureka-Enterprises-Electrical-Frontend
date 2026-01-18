@@ -4,13 +4,13 @@
 >
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['comment']"
+    [inputFieldConfig]="form.fieldConfigs.remark"
   />
 
-  @if (shouldShowAttendanceStatus()) {
+  @if (shouldShowAttendanceStatus() && form.fieldConfigs.attendanceStatus) {
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['attendanceStatus']"
+      [inputFieldConfig]="form.fieldConfigs.attendanceStatus"
     />
   }
 </form>

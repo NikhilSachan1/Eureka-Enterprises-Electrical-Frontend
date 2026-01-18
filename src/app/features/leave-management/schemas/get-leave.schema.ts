@@ -2,7 +2,7 @@ import { dateField, FilterSchema, uuidField } from '@shared/schemas';
 import z from 'zod';
 import { LeaveBaseSchema } from './base-leave.schema';
 import { FinancialYearService } from '@core/services/financial-year.service';
-import { toTitleCase } from '@shared/utility';
+import { toTitleCase, transformDateFormat } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 const { approvalStatus } = LeaveBaseSchema.shape;
@@ -10,11 +10,8 @@ const { approvalStatus } = LeaveBaseSchema.shape;
 export const LeaveGetRequestSchema = z
   .object({
     leaveDate: z.array(dateField).min(1).optional(),
-    userIds: z.array(uuidField).min(1).optional(),
-    approvalStatuses: z.array(approvalStatus).min(1).optional(),
-    financialYear: z
-      .string()
-      .default(new FinancialYearService().getFinancialYear()),
+    employeeName: z.array(uuidField).min(1).optional(),
+    approvalStatus: z.array(approvalStatus).optional(),
     grouped: z.boolean().default(false),
     sortOrder,
     sortField,
@@ -23,25 +20,24 @@ export const LeaveGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ leaveDate: dateRange, ...rest }) => {
-    if (!dateRange || dateRange.length < 1) {
-      return rest;
+  .transform(
+    ({
+      leaveDate: dateRange,
+      employeeName,
+      approvalStatus: leaveApprovalStatus,
+      ...rest
+    }) => {
+      const [fromDate, toDate] = dateRange ?? [];
+      return {
+        ...rest,
+        userIds: employeeName,
+        approvalStatuses: leaveApprovalStatus,
+        financialYear: new FinancialYearService().getFinancialYear(),
+        startDate: transformDateFormat(fromDate),
+        endDate: transformDateFormat(toDate),
+      };
     }
-
-    const start = dateRange[0];
-    const end = dateRange[dateRange.length - 1];
-
-    const toISODate = (d: Date): string =>
-      new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
-        .toISOString()
-        .split('T')[0];
-
-    return {
-      ...rest,
-      startDate: toISODate(start),
-      endDate: toISODate(end),
-    };
-  });
+  );
 
 export const LeaveGetBaseResponseSchema = z
   .object({

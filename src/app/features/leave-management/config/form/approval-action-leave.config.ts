@@ -8,56 +8,59 @@ import {
 import { shouldShowAttendanceStatusField } from '../../utils/leave.util';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+import { ILeaveActionUIFormDto } from '@features/leave-management/types/leave.dto';
 
-const APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  comment: {
-    fieldType: EDataType.TEXT_AREA,
-    id: 'comment',
-    fieldName: 'comment',
-    label: 'Comment',
-    conditionalValidators: [
-      {
-        shouldApply: (context): boolean => {
-          const { actionType } = context;
-          return (
-            actionType === EButtonActionType.REJECT ||
-            actionType === EButtonActionType.CANCEL
-          );
+const APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ILeaveActionUIFormDto> =
+  {
+    remark: {
+      fieldType: EDataType.TEXT_AREA,
+      id: 'remark',
+      fieldName: 'remark',
+      label: 'Note',
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            const { actionType } = context;
+            return (
+              actionType === EButtonActionType.REJECT ||
+              actionType === EButtonActionType.CANCEL
+            );
+          },
+          validators: [Validators.required],
         },
-        validators: [Validators.required],
-      },
-    ],
-  },
-  attendanceStatus: {
-    fieldType: EDataType.SELECT,
-    id: 'attendanceStatus',
-    fieldName: 'attendanceStatus',
-    label: 'Attendance Status',
-    selectConfig: {
-      haveFilter: false,
-      dynamicDropdown: {
-        moduleName: MODULE_NAMES.ATTENDANCE,
-        dropdownName: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
-      },
-      filterOptions: {
-        include: [EAttendanceStatus.PRESENT, EAttendanceStatus.ABSENT],
-      },
+      ],
     },
-    conditionalValidators: [
-      {
-        shouldApply: (context): boolean => {
-          const { actionType, fromDate } = context;
-          return shouldShowAttendanceStatusField(
-            actionType as EButtonActionType,
-            new Date(fromDate)
-          );
+    attendanceStatus: {
+      fieldType: EDataType.SELECT,
+      id: 'attendanceStatus',
+      fieldName: 'attendanceStatus',
+      label: 'Attendance Status',
+      selectConfig: {
+        haveFilter: false,
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.ATTENDANCE,
+          dropdownName: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
         },
-        validators: [Validators.required],
+        filterOptions: {
+          include: [EAttendanceStatus.PRESENT, EAttendanceStatus.ABSENT],
+        },
       },
-    ],
-  },
-};
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            const { actionType, fromDate } = context;
+            return shouldShowAttendanceStatusField(
+              actionType as EButtonActionType,
+              new Date(fromDate)
+            );
+          },
+          validators: [Validators.required],
+        },
+      ],
+    },
+  };
 
-export const APPROVAL_ACTION_LEAVE_FORM_CONFIG: IFormConfig = {
-  fields: APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG,
-};
+export const APPROVAL_ACTION_LEAVE_FORM_CONFIG: IFormConfig<ILeaveActionUIFormDto> =
+  {
+    fields: APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG,
+  };

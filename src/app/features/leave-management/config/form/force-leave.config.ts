@@ -9,37 +9,36 @@ import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { Validators } from '@angular/forms';
 import { getPayslipCutoffMinDate } from '@shared/utility';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import { ILeaveForceFormDto } from '@features/leave-management/types/leave.dto';
 
 const {
-  fields: { leaveDate, description },
+  fields: { leaveDate, leaveReason },
 } = APPLY_LEAVE_FORM_CONFIG;
 
-const FORCE_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  employeeName: {
-    fieldType: EDataType.SELECT,
-    id: 'employeeName',
-    fieldName: 'employeeName',
-    label: 'Employee Name',
-    selectConfig: {
-      dynamicDropdown: {
-        moduleName: MODULE_NAMES.EMPLOYEE,
-        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+const FORCE_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ILeaveForceFormDto> =
+  {
+    employeeName: {
+      fieldType: EDataType.SELECT,
+      id: 'employeeName',
+      fieldName: 'employeeName',
+      label: 'Employee Name',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.EMPLOYEE,
+          dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+        },
+      },
+      validators: [Validators.required],
+    },
+    leaveDate: {
+      ...leaveDate,
+      dateConfig: {
+        ...leaveDate.dateConfig,
+        minDate: getPayslipCutoffMinDate(),
       },
     },
-    validators: [Validators.required],
-  },
-  leaveDate: {
-    ...leaveDate,
-    dateConfig: {
-      ...leaveDate.dateConfig,
-      minDate: getPayslipCutoffMinDate(),
-    },
-  },
-  description,
-  approvalReason: {
-    ...description,
-  },
-};
+    leaveReason,
+  };
 
 const FORCE_LEAVE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -52,7 +51,7 @@ const FORCE_LEAVE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const FORCE_LEAVE_FORM_CONFIG: IFormConfig = {
+export const FORCE_LEAVE_FORM_CONFIG: IFormConfig<ILeaveForceFormDto> = {
   fields: FORCE_LEAVE_FORM_FIELDS_CONFIG,
   buttons: FORCE_LEAVE_FORM_BUTTONS_CONFIG,
 };

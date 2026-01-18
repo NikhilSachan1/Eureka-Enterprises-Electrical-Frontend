@@ -1,4 +1,5 @@
-﻿import {
+﻿import { IEmployeeAddFormDto } from '@features/employee-management/types/employee.dto';
+import {
   TEST_FIRST_NAMES,
   TEST_LAST_NAMES,
   TEST_FATHER_NAMES,
@@ -31,8 +32,8 @@ const lastName = getRandomItem(TEST_LAST_NAMES);
 const contactNumber = getRandomItem(TEST_MOBILE_NUMBERS);
 
 export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
-  string,
-  Record<string, unknown>
+  number,
+  Partial<IEmployeeAddFormDto>
 > = {
   // Step 1: Personal Details
   1: {

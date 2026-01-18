@@ -4,20 +4,24 @@ import { attendanceStatusSchema } from '@features/attendance-management/schemas/
 
 const { id, approvalStatus, approvalReason } = LeaveBaseSchema.shape;
 
-export const LeaveActionBaseRequestSchema = z
-  .object({
-    approvalStatus,
-    approvalComment: approvalReason,
-    leaveApplicationId: id,
-    attendanceStatus: attendanceStatusSchema.optional().nullable(),
-  })
-  .strict();
-
 export const LeaveActionRequestSchema = z
   .object({
-    approvals: z.array(LeaveActionBaseRequestSchema).min(1).max(50),
+    approvalStatus,
+    remark: approvalReason,
+    leaveIds: z.array(id),
+    attendanceStatus: attendanceStatusSchema.optional().nullable(), //TODO: implement attendance status
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      approvals: data.leaveIds.map(leaveId => ({
+        leaveApplicationId: leaveId,
+        approvalStatus: data.approvalStatus,
+        approvalComment: data.remark,
+        attendanceStatus: data.attendanceStatus,
+      })),
+    };
+  });
 
 export const LeaveActionResultSchema = z
   .object({

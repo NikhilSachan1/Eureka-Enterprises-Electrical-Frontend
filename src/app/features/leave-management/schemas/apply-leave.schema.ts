@@ -1,16 +1,19 @@
 import { z } from 'zod';
-import { onlyDateStringField } from '@shared/schemas';
 import { ELeaveCategory, ELeaveDayType } from '../types/leave.type';
+import { LeaveUpsertShapeSchema } from './base-leave.schema';
+import { transformDateFormat } from '@shared/utility';
 
-export const LeaveApplyRequestSchema = z
-  .object({
-    fromDate: onlyDateStringField,
-    toDate: onlyDateStringField,
-    reason: z.string().trim().optional(),
-    leaveType: z.string().min(1).default(ELeaveDayType.FULL_DAY).optional(),
-    leaveCategory: z.string().min(1).default(ELeaveCategory.EARNED).optional(),
-  })
-  .strict();
+export const LeaveApplyRequestSchema =
+  LeaveUpsertShapeSchema.strict().transform(({ leaveDate, leaveReason }) => {
+    const [fromDate, toDate] = leaveDate;
+    return {
+      fromDate: transformDateFormat(fromDate),
+      toDate: transformDateFormat(toDate),
+      leaveType: ELeaveDayType.FULL_DAY,
+      leaveCategory: ELeaveCategory.EARNED,
+      reason: leaveReason,
+    };
+  });
 
 export const LeaveApplyResponseSchema = z
   .object({

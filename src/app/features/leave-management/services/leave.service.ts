@@ -1,13 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService, LoggerService } from '@core/services';
 import {
-  ILeaveActionRequestDto,
+  ILeaveActionFormDto,
   ILeaveActionResponseDto,
-  ILeaveApplyRequestDto,
+  ILeaveApplyFormDto,
   ILeaveApplyResponseDto,
-  ILeaveForceRequestDto,
+  ILeaveForceFormDto,
   ILeaveForceResponseDto,
-  ILeaveGetRequestDto,
+  ILeaveGetFormDto,
   ILeaveGetResponseDto,
 } from '../types/leave.dto';
 import { catchError, Observable, tap, throwError } from 'rxjs';
@@ -30,17 +30,17 @@ export class LeaveService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
-  applyLeave(
-    formData: ILeaveApplyRequestDto
-  ): Observable<ILeaveApplyResponseDto> {
+  applyLeave(formData: ILeaveApplyFormDto): Observable<ILeaveApplyResponseDto> {
     this.logger.logUserAction('Apply Leave Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.LEAVE.APPLY,
-        formData,
-        LeaveApplyRequestSchema,
-        LeaveApplyResponseSchema
+        {
+          response: LeaveApplyResponseSchema,
+          request: LeaveApplyRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: ILeaveApplyResponseDto) => {
@@ -58,16 +58,18 @@ export class LeaveService {
   }
 
   actionLeave(
-    formData: ILeaveActionRequestDto
+    formData: ILeaveActionFormDto
   ): Observable<ILeaveActionResponseDto> {
     this.logger.logUserAction('Action Leave Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.LEAVE.APPROVAL_ACTION,
-        formData,
-        LeaveActionRequestSchema,
-        LeaveActionResponseSchema
+        {
+          response: LeaveActionResponseSchema,
+          request: LeaveActionRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: ILeaveActionResponseDto) => {
@@ -84,17 +86,17 @@ export class LeaveService {
       );
   }
 
-  forceLeave(
-    formData: ILeaveForceRequestDto
-  ): Observable<ILeaveForceResponseDto> {
+  forceLeave(formData: ILeaveForceFormDto): Observable<ILeaveForceResponseDto> {
     this.logger.logUserAction('Force Leave Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.LEAVE.FORCE,
-        formData,
-        LeaveForceRequestSchema,
-        LeaveForceResponseSchema
+        {
+          response: LeaveForceResponseSchema,
+          request: LeaveForceRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: ILeaveForceResponseDto) => {
@@ -111,15 +113,17 @@ export class LeaveService {
       );
   }
 
-  getLeaveList(params?: ILeaveGetRequestDto): Observable<ILeaveGetResponseDto> {
+  getLeaveList(params?: ILeaveGetFormDto): Observable<ILeaveGetResponseDto> {
     this.logger.logUserAction('Get Leave List Request');
 
     return this.apiService
       .getValidated(
         API_ROUTES.LEAVE.LIST,
-        LeaveGetResponseSchema,
-        params,
-        LeaveGetRequestSchema
+        {
+          response: LeaveGetResponseSchema,
+          request: LeaveGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: ILeaveGetResponseDto) => {

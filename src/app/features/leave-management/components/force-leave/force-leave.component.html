@@ -8,18 +8,18 @@
   <div class="grid grid-cols-1 md:grid-cols-2">
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['employeeName']"
+      [inputFieldConfig]="form.fieldConfigs.employeeName"
     />
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['leaveDate']"
+      [inputFieldConfig]="form.fieldConfigs.leaveDate"
     />
   </div>
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['description']"
+    [inputFieldConfig]="form.fieldConfigs.leaveReason"
   />
 
   <div class="button-container">

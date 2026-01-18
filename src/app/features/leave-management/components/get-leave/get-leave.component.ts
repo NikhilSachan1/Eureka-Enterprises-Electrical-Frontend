@@ -17,7 +17,7 @@ import {
 } from '@features/leave-management/config';
 import {
   ILeaveGetBaseResponseDto,
-  ILeaveGetRequestDto,
+  ILeaveGetFormDto,
   ILeaveGetResponseDto,
   ILeaveGetStatsResponseDto,
 } from '@features/leave-management/types/leave.dto';
@@ -132,9 +132,9 @@ export class GetLeaveComponent implements OnInit {
       });
   }
 
-  private prepareParamData(): ILeaveGetRequestDto {
+  private prepareParamData(): ILeaveGetFormDto {
     const queryFilterParams =
-      this.tableServerSideFilterAndSortService.buildQueryParams<ILeaveGetRequestDto>(
+      this.tableServerSideFilterAndSortService.buildQueryParams<ILeaveGetFormDto>(
         this.tableFilterData,
         this.table.getHeaders()
       );

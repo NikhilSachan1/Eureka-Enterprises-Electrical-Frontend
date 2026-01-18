@@ -2,39 +2,31 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   input,
   OnInit,
-  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { LoggerService } from '@core/services';
-import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { APPROVAL_ACTION_LEAVE_FORM_CONFIG } from '@features/leave-management/config';
 import { LeaveService } from '@features/leave-management/services/leave.service';
 import { shouldShowAttendanceStatusField } from '@features/leave-management/utils/leave.util';
 import {
-  ILeaveActionRequestDto,
+  ILeaveActionFormDto,
   ILeaveActionResponseDto,
+  ILeaveActionUIFormDto,
   ILeaveGetBaseResponseDto,
 } from '@features/leave-management/types/leave.dto';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import {
-  ConfirmationDialogService,
-  FormService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
+import { ConfirmationDialogService } from '@shared/services';
 import {
   EApprovalStatus,
   EButtonActionType,
   ETableActionTypeValue,
-  IEnhancedForm,
 } from '@shared/types';
 import { finalize } from 'rxjs';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-approval-leave',
@@ -43,13 +35,11 @@ import { finalize } from 'rxjs';
   styleUrl: './approval-leave.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ApprovalLeaveComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class ApprovalLeaveComponent
+  extends FormBase<ILeaveActionUIFormDto>
+  implements OnInit
+{
   private readonly leaveService = inject(LeaveService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -59,10 +49,7 @@ export class ApprovalLeaveComponent implements OnInit {
   protected readonly dialogActionType = input.required<EButtonActionType>();
   protected readonly onSuccess = input.required<() => void>();
 
-  protected form!: IEnhancedForm;
   protected readonly EButtonActionTypeEnum = EButtonActionType;
-
-  protected readonly isSubmitting = signal(false);
 
   protected readonly shouldShowAttendanceStatus = computed(() => {
     const { fromDate } = this.selectedRecord()[0];
@@ -88,38 +75,32 @@ export class ApprovalLeaveComponent implements OnInit {
     const { fromDate: fromDateString } = record[0];
     const fromDate = new Date(fromDateString);
 
-    this.form = this.formService.createForm(APPROVAL_ACTION_LEAVE_FORM_CONFIG, {
-      destroyRef: this.destroyRef,
-      defaultValues: null,
-      context: {
-        actionType,
-        fromDate,
-      },
-    });
+    this.form = this.formService.createForm<ILeaveActionUIFormDto>(
+      APPROVAL_ACTION_LEAVE_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+        context: {
+          actionType,
+          fromDate,
+        },
+      }
+    );
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: ILeaveGetBaseResponseDto[]): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData();
     this.executeLeaveApprovalAction(formData);
   }
 
-  private prepareFormData(
-    record: ILeaveGetBaseResponseDto[]
-  ): ILeaveActionRequestDto {
-    const { comment, attendanceStatus } = this.form.getData() as {
-      comment: string;
-      attendanceStatus: EAttendanceStatus;
-    };
+  private prepareFormData(): ILeaveActionFormDto {
+    const record = this.selectedRecord();
+    const formData = this.form.getData();
 
-    let actionTypeValue: ETableActionTypeValue;
+    let actionTypeValue!: ETableActionTypeValue;
 
     if (this.dialogActionType() === EButtonActionType.APPROVE) {
       actionTypeValue = ETableActionTypeValue.APPROVED;
@@ -130,16 +111,13 @@ export class ApprovalLeaveComponent implements OnInit {
     }
 
     return {
-      approvals: record.map((row: ILeaveGetBaseResponseDto) => ({
-        leaveApplicationId: row.id,
-        approvalStatus: actionTypeValue as unknown as EApprovalStatus,
-        approvalComment: comment,
-        attendanceStatus,
-      })),
+      ...formData,
+      leaveIds: record.map((row: ILeaveGetBaseResponseDto) => row.id),
+      approvalStatus: actionTypeValue as unknown as EApprovalStatus,
     };
   }
 
-  private executeLeaveApprovalAction(formData: ILeaveActionRequestDto): void {
+  private executeLeaveApprovalAction(formData: ILeaveActionFormDto): void {
     let loadingMessage;
 
     if (this.dialogActionType() === EButtonActionType.APPROVE) {
@@ -158,7 +136,6 @@ export class ApprovalLeaveComponent implements OnInit {
         message: 'Please wait while we cancel the leave...',
       };
     }
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
     this.form.disable();
 
@@ -187,16 +164,5 @@ export class ApprovalLeaveComponent implements OnInit {
           this.confirmationDialogService.closeDialog();
         },
       });
-  }
-
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Approval leave form validation failed');
-      return false;
-    }
-    return true;
   }
 }

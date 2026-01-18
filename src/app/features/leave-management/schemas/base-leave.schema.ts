@@ -1,5 +1,6 @@
 import {
   AuditSchema,
+  dateField,
   isoDateTimeField,
   UserSchema,
   uuidField,
@@ -36,3 +37,8 @@ export const LeaveBaseSchema = z
     createdBy,
   })
   .strict();
+
+export const LeaveUpsertShapeSchema = z.object({
+  leaveDate: z.array(dateField),
+  leaveReason: z.string().trim(),
+});
