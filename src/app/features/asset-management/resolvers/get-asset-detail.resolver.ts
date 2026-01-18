@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
 import { AssetService } from '../services/asset.service';
 import {
-  IAssetDetailGetRequestDto,
+  IAssetDetailGetFormDto,
   IAssetDetailGetResponseDto,
 } from '../types/asset.dto';
 import { LoggerService } from '@core/services';
@@ -91,9 +91,9 @@ export class GetAssetDetailResolver
     void this.routerNavigationService.navigateToRoute(routeSegments);
   }
 
-  private prepareParamData(assetId: string): IAssetDetailGetRequestDto {
+  private prepareParamData(assetId: string): IAssetDetailGetFormDto {
     return {
-      id: assetId,
+      assetId,
     };
   }
 }

@@ -1,19 +1,19 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService, LoggerService } from '@core/services';
 import {
-  IActionAssetRequestDto,
+  IActionAssetFormDto,
   IActionAssetResponseDto,
-  IAssetAddRequestDto,
+  IAssetAddFormDto,
   IAssetAddResponseDto,
-  IAssetDeleteRequestDto,
+  IAssetDeleteFormDto,
   IAssetDeleteResponseDto,
-  IAssetDetailGetRequestDto,
+  IAssetDetailGetFormDto,
   IAssetDetailGetResponseDto,
-  IAssetEditRequestDto,
+  IAssetEditFormDto,
   IAssetEditResponseDto,
-  IAssetEventHistoryGetRequestDto,
+  IAssetEventHistoryGetFormDto,
   IAssetEventHistoryGetResponseDto,
-  IAssetGetRequestDto,
+  IAssetGetFormDto,
   IAssetGetResponseDto,
 } from '../types/asset.dto';
 import { catchError, Observable, tap, throwError } from 'rxjs';
@@ -41,7 +41,7 @@ export class AssetService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
-  addAsset(formData: IAssetAddRequestDto): Observable<IAssetAddResponseDto> {
+  addAsset(formData: IAssetAddFormDto): Observable<IAssetAddResponseDto> {
     this.logger.logUserAction('Add Asset Request');
 
     return this.apiService
@@ -70,7 +70,7 @@ export class AssetService {
   }
 
   editAsset(
-    formData: IAssetEditRequestDto,
+    formData: IAssetEditFormDto,
     assetId: string
   ): Observable<IAssetEditResponseDto> {
     this.logger.logUserAction('Edit Asset Request');
@@ -101,7 +101,7 @@ export class AssetService {
   }
 
   deleteAsset(
-    formData: IAssetDeleteRequestDto
+    formData: IAssetDeleteFormDto
   ): Observable<IAssetDeleteResponseDto> {
     this.logger.logUserAction('Delete Asset Request');
 
@@ -130,7 +130,7 @@ export class AssetService {
   }
 
   actionAsset(
-    formData: IActionAssetRequestDto
+    formData: IActionAssetFormDto
   ): Observable<IActionAssetResponseDto> {
     this.logger.logUserAction('Action Asset Request');
 
@@ -159,7 +159,7 @@ export class AssetService {
       );
   }
 
-  getAssetList(params?: IAssetGetRequestDto): Observable<IAssetGetResponseDto> {
+  getAssetList(params?: IAssetGetFormDto): Observable<IAssetGetResponseDto> {
     this.logger.logUserAction('Get Asset List Request');
 
     return this.apiService
@@ -187,13 +187,13 @@ export class AssetService {
   }
 
   getAssetDetailById(
-    params: IAssetDetailGetRequestDto
+    params: IAssetDetailGetFormDto
   ): Observable<IAssetDetailGetResponseDto> {
     this.logger.logUserAction('Get Asset Detail By Id Request');
 
     return this.apiService
       .getValidated(
-        API_ROUTES.ASSET.GET_ASSET_BY_ID(params.id),
+        API_ROUTES.ASSET.GET_ASSET_BY_ID(params.assetId),
         {
           response: AssetDetailGetResponseSchema,
         },
@@ -221,7 +221,7 @@ export class AssetService {
   }
 
   getAssetEventHistory(
-    params: IAssetEventHistoryGetRequestDto,
+    params: IAssetEventHistoryGetFormDto,
     assetId: string
   ): Observable<IAssetEventHistoryGetResponseDto> {
     this.logger.logUserAction('Get Asset Event History Request');

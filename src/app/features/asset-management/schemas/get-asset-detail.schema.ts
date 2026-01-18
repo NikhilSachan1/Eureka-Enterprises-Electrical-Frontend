@@ -13,9 +13,14 @@ const { createdAt, updatedAt, createdBy, updatedBy, deletedBy, deletedAt } =
 
 export const AssetDetailGetRequestSchema = z
   .object({
-    id: uuidField,
+    assetId: uuidField,
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      id: data.assetId,
+    };
+  });
 
 export const AssetDetailGetBaseResponseSchema = AssetBaseSchema.extend({
   createdAt,

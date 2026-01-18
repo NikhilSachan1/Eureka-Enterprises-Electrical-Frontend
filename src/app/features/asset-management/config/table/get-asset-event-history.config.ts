@@ -22,7 +22,7 @@ export const ASSET_EVENT_HISTORY_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCo
       dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME,
       serverSideFilterAndSortConfig: {
         sortField: 'createdAt',
-        filterField: 'eventDate', // Required for date range filter to be sent in API payload
+        filterField: 'assetEventDate', // Required for date range filter to be sent in API payload
       },
     },
     {

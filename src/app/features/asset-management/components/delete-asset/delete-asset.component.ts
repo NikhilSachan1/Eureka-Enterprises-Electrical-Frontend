@@ -1,26 +1,20 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
-  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import { AssetService } from '@features/asset-management/services/asset.service';
 import {
-  IAssetDeleteRequestDto,
+  IAssetDeleteFormDto,
   IAssetDeleteResponseDto,
   IAssetGetBaseResponseDto,
 } from '@features/asset-management/types/asset.dto';
+import { FormBase } from '@shared/base/form.base';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import {
-  ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
+import { ConfirmationDialogService } from '@shared/services';
 import { EButtonActionType } from '@shared/types';
 import { finalize } from 'rxjs';
 
@@ -31,12 +25,11 @@ import { finalize } from 'rxjs';
   styleUrl: './delete-asset.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeleteAssetComponent implements OnInit {
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class DeleteAssetComponent
+  extends FormBase<IAssetDeleteFormDto>
+  implements OnInit
+{
   private readonly assetService = inject(AssetService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -44,8 +37,6 @@ export class DeleteAssetComponent implements OnInit {
   protected readonly selectedRecord =
     input.required<IAssetGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
-
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -61,32 +52,27 @@ export class DeleteAssetComponent implements OnInit {
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: IAssetGetBaseResponseDto[]): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData(this.selectedRecord());
     this.executeAssetDeleteAction(formData);
   }
 
   private prepareFormData(
     record: IAssetGetBaseResponseDto[]
-  ): IAssetDeleteRequestDto {
+  ): IAssetDeleteFormDto {
     return {
       assetIds: record.map((row: IAssetGetBaseResponseDto) => row.id),
     };
   }
 
-  private executeAssetDeleteAction(formData: IAssetDeleteRequestDto): void {
+  private executeAssetDeleteAction(formData: IAssetDeleteFormDto): void {
     const loadingMessage = {
       title: 'Deleting Asset',
       message: 'Please wait while we delete the asset...',
     };
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
 
     this.assetService

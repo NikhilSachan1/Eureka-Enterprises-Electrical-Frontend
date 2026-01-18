@@ -14,34 +14,34 @@
       <div class="grid grid-cols-1 md:grid-cols-3">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['assetId']"
+          [inputFieldConfig]="form.fieldConfigs.assetId"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['assetType']"
+          [inputFieldConfig]="form.fieldConfigs.assetType"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['assetName']"
+          [inputFieldConfig]="form.fieldConfigs.assetName"
         />
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['assetModel']"
+          [inputFieldConfig]="form.fieldConfigs.assetModel"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['assetSerialNumber']"
+          [inputFieldConfig]="form.fieldConfigs.assetSerialNumber"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['assetCategory']"
+          [inputFieldConfig]="form.fieldConfigs.assetCategory"
         />
       </div>
     </div>
@@ -56,17 +56,17 @@
       <div class="grid grid-cols-1 md:grid-cols-3">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['calibrationFrom']"
+          [inputFieldConfig]="form.fieldConfigs.assetCalibrationFrom"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['calibrationFrequency']"
+          [inputFieldConfig]="form.fieldConfigs.assetCalibrationFrequency"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['calibrationPeriod']"
+          [inputFieldConfig]="form.fieldConfigs.assetCalibrationDate"
         />
       </div>
     </div>
@@ -81,17 +81,17 @@
       <div class="grid grid-cols-1 md:grid-cols-3">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['assetPurchaseDate']"
+          [inputFieldConfig]="form.fieldConfigs.assetPurchaseDate"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['vendorName']"
+          [inputFieldConfig]="form.fieldConfigs.assetVendorName"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['warrantyPeriod']"
+          [inputFieldConfig]="form.fieldConfigs.assetWarrantyDate"
         />
       </div>
     </div>
@@ -105,12 +105,12 @@
     <div class="form-section__content">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['assetDocuments']"
+        [inputFieldConfig]="form.fieldConfigs.assetFiles"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['remarks']"
+        [inputFieldConfig]="form.fieldConfigs.remarks"
       />
     </div>
   </div>

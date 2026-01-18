@@ -1,35 +1,28 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
-  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { LoggerService } from '@core/services';
 import { ACTION_ASSET_FORM_CONFIG } from '@features/asset-management/config';
 import { AssetService } from '@features/asset-management/services/asset.service';
 import {
-  IActionAssetRequestDto,
+  IActionAssetFormDto,
   IActionAssetResponseDto,
+  IActionAssetUIFormDto,
   IAssetGetBaseResponseDto,
 } from '@features/asset-management/types/asset.dto';
+import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import {
-  ConfirmationDialogService,
-  FormService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
+import { ConfirmationDialogService } from '@shared/services';
 import {
   EButtonActionType,
   ETableActionTypeValue,
   IDialogActionHandler,
-  IEnhancedForm,
 } from '@shared/types';
 import { finalize } from 'rxjs';
 
@@ -40,13 +33,11 @@ import { finalize } from 'rxjs';
   styleUrl: './action-asset.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ActionAssetComponent implements OnInit, IDialogActionHandler {
-  private readonly formService = inject(FormService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class ActionAssetComponent
+  extends FormBase<IActionAssetUIFormDto>
+  implements OnInit, IDialogActionHandler
+{
   private readonly assetService = inject(AssetService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -56,10 +47,7 @@ export class ActionAssetComponent implements OnInit, IDialogActionHandler {
   protected readonly dialogActionType = input.required<EButtonActionType>();
   protected readonly onSuccess = input.required<() => void>();
 
-  protected form!: IEnhancedForm;
   protected readonly EButtonActionTypeEnum = EButtonActionType;
-
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -74,38 +62,30 @@ export class ActionAssetComponent implements OnInit, IDialogActionHandler {
     }
 
     const actionType = this.dialogActionType();
-    this.form = this.formService.createForm(ACTION_ASSET_FORM_CONFIG, {
-      destroyRef: this.destroyRef,
-      defaultValues: null,
-      context: {
-        actionType,
-      },
-    });
+    this.form = this.formService.createForm<IActionAssetUIFormDto>(
+      ACTION_ASSET_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+        context: {
+          actionType,
+        },
+      }
+    );
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: IAssetGetBaseResponseDto[]): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData();
     this.executeAssetAction(formData);
   }
 
-  private prepareFormData(
-    record: IAssetGetBaseResponseDto[]
-  ): IActionAssetRequestDto {
-    const { assetAssignee, assetImages, comment } = this.form.getData() as {
-      assetAssignee: string;
-      assetImages: File[];
-      comment: string;
-    };
+  private prepareFormData(): IActionAssetFormDto {
+    const formData = this.form.getData();
 
-    let actionTypeValue: ETableActionTypeValue | undefined;
+    let actionTypeValue!: ETableActionTypeValue;
 
     if (this.dialogActionType() === EButtonActionType.HANDOVER_INITIATE) {
       actionTypeValue = ETableActionTypeValue.HANDOVER_INITIATED;
@@ -125,18 +105,16 @@ export class ActionAssetComponent implements OnInit, IDialogActionHandler {
       actionTypeValue = ETableActionTypeValue.DEALLOCATED;
     }
 
+    const { id: assetId } = this.selectedRecord()[0];
+
     return {
-      assetId: record[0].id,
-      action: actionTypeValue as unknown as string,
-      toUserId: assetAssignee,
-      assetFiles: assetImages,
-      metadata: {
-        remark: comment,
-      },
+      ...formData,
+      assetId,
+      actionType: actionTypeValue,
     };
   }
 
-  private executeAssetAction(formData: IActionAssetRequestDto): void {
+  private executeAssetAction(formData: IActionAssetFormDto): void {
     let loadingMessage;
 
     if (this.dialogActionType() === EButtonActionType.HANDOVER_INITIATE) {
@@ -172,7 +150,6 @@ export class ActionAssetComponent implements OnInit, IDialogActionHandler {
       };
     }
 
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
     this.form.disable();
 
@@ -193,16 +170,5 @@ export class ActionAssetComponent implements OnInit, IDialogActionHandler {
           this.confirmationDialogService.closeDialog();
         },
       });
-  }
-
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Action asset form validation failed');
-      return false;
-    }
-    return true;
   }
 }

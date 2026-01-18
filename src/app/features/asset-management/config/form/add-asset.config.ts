@@ -1,5 +1,6 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
+import { IAssetAddFormDto } from '@features/asset-management/types/asset.dto';
 import { EAssetType } from '@features/asset-management/types/asset.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
@@ -12,7 +13,7 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 
-const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
+const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
   assetId: {
     fieldType: EDataType.TEXT,
     id: 'assetId',
@@ -77,10 +78,10 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     },
     validators: [Validators.required],
   },
-  calibrationFrom: {
+  assetCalibrationFrom: {
     fieldType: EDataType.SELECT,
-    id: 'calibrationFrom',
-    fieldName: 'calibrationFrom',
+    id: 'assetCalibrationFrom',
+    fieldName: 'assetCalibrationFrom',
     label: 'Calibration From',
     selectConfig: {
       dynamicDropdown: {
@@ -96,10 +97,10 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       },
     ],
   },
-  calibrationFrequency: {
+  assetCalibrationFrequency: {
     fieldType: EDataType.SELECT,
-    id: 'calibrationFrequency',
-    fieldName: 'calibrationFrequency',
+    id: 'assetCalibrationFrequency',
+    fieldName: 'assetCalibrationFrequency',
     label: 'Calibration Frequency',
     selectConfig: {
       dynamicDropdown: {
@@ -115,11 +116,11 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
       },
     ],
   },
-  calibrationPeriod: {
+  assetCalibrationDate: {
     fieldType: EDataType.DATE,
-    id: 'calibrationPeriod',
-    fieldName: 'calibrationPeriod',
-    label: 'Calibration Period',
+    id: 'assetCalibrationDate',
+    fieldName: 'assetCalibrationDate',
+    label: 'Calibration Date',
     dateConfig: {
       selectionMode: EDateSelectionMode.Range,
     },
@@ -141,29 +142,29 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
     },
     validators: [Validators.required],
   },
-  vendorName: {
+  assetVendorName: {
     fieldType: EDataType.TEXT,
-    id: 'vendorName',
-    fieldName: 'vendorName',
+    id: 'assetVendorName',
+    fieldName: 'assetVendorName',
     label: 'Vendor Name',
     textConfig: {
       textCase: ETextCase.TITLECASE,
     },
   },
-  warrantyPeriod: {
+  assetWarrantyDate: {
     fieldType: EDataType.DATE,
-    id: 'warrantyPeriod',
-    fieldName: 'warrantyPeriod',
-    label: 'Warranty Period',
+    id: 'assetWarrantyDate',
+    fieldName: 'assetWarrantyDate',
+    label: 'Warranty Date',
     dateConfig: {
       selectionMode: EDateSelectionMode.Range,
     },
   },
-  assetDocuments: {
+  assetFiles: {
     fieldType: EDataType.ATTACHMENTS,
-    id: 'assetDocuments',
-    fieldName: 'assetDocuments',
-    label: 'Asset Documents & Images',
+    id: 'assetFiles',
+    fieldName: 'assetFiles',
+    label: 'Asset Files',
     fileConfig: {
       fileLimit: 10,
       acceptFileTypes: [
@@ -192,7 +193,7 @@ const ADD_ASSET_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const ADD_ASSET_FORM_CONFIG: IFormConfig = {
+export const ADD_ASSET_FORM_CONFIG: IFormConfig<IAssetAddFormDto> = {
   fields: ADD_ASSET_FORM_FIELDS_CONFIG,
   buttons: ADD_ASSET_FORM_BUTTONS_CONFIG,
 };

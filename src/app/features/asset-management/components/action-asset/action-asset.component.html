@@ -5,17 +5,17 @@
   @if (dialogActionType() === EButtonActionTypeEnum.HANDOVER_INITIATE) {
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['assetAssignee']"
+      [inputFieldConfig]="form.fieldConfigs.allocatedToEmployeeName"
     />
   }
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['assetImages']"
+    [inputFieldConfig]="form.fieldConfigs.assetImages"
   />
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['comment']"
+    [inputFieldConfig]="form.fieldConfigs.remark"
   />
 </form>

@@ -29,7 +29,7 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'category',
     header: 'Asset Category',
     serverSideFilterAndSortConfig: {
-      filterField: 'category',
+      filterField: 'assetCategory',
     },
     showSort: false,
   },
@@ -38,7 +38,7 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'Asset Status',
     bodyTemplate: EDataType.STATUS,
     serverSideFilterAndSortConfig: {
-      filterField: 'status',
+      filterField: 'assetStatus',
     },
     showSort: false,
   },
@@ -73,7 +73,7 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'Calibration Status',
     bodyTemplate: EDataType.STATUS,
     serverSideFilterAndSortConfig: {
-      filterField: 'calibrationStatus',
+      filterField: 'assetCalibrationStatus',
     },
     showSort: false,
   },
@@ -82,7 +82,7 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'Warranty Status',
     bodyTemplate: EDataType.STATUS,
     serverSideFilterAndSortConfig: {
-      filterField: 'warrantyStatus',
+      filterField: 'assetWarrantyStatus',
     },
     showSort: false,
   },

@@ -1,5 +1,11 @@
-import { AuditSchema, isoDateTimeField, uuidField } from '@shared/schemas';
-import z from 'zod';
+import {
+  AuditSchema,
+  dateField,
+  fileField,
+  isoDateTimeField,
+  uuidField,
+} from '@shared/schemas';
+import { z } from 'zod';
 
 const { createdBy, updatedBy, deletedBy, createdAt, updatedAt, deletedAt } =
   AuditSchema.shape;
@@ -42,5 +48,36 @@ export const AssetBaseDocumentsSchema = z
     label: z.string().nullable(),
     assetEventsId: uuidField.optional(),
     assetVersionId: uuidField.optional(),
+  })
+  .strict();
+
+const {
+  assetId,
+  name,
+  model,
+  serialNumber,
+  category,
+  assetType,
+  calibrationFrom,
+  calibrationFrequency,
+  vendorName,
+  remarks,
+} = AssetBaseSchema.shape;
+export const AssetUpsertShapeSchema = z
+  .object({
+    assetId,
+    assetName: name,
+    assetModel: model,
+    assetSerialNumber: serialNumber,
+    assetCategory: category,
+    assetType,
+    assetCalibrationFrom: calibrationFrom,
+    assetCalibrationFrequency: calibrationFrequency,
+    assetCalibrationDate: z.array(dateField),
+    assetPurchaseDate: dateField,
+    assetVendorName: vendorName,
+    assetWarrantyDate: z.array(dateField),
+    assetFiles: z.array(fileField),
+    remarks,
   })
   .strict();

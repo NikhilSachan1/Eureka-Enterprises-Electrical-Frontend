@@ -7,12 +7,23 @@ const { id } = AssetBaseSchema.shape;
 export const ActionAssetRequestSchema = z
   .object({
     assetId: id,
-    action: z.string().min(1),
-    toUserId: uuidField.nullable(),
-    assetFiles: z.array(fileField).nullable(),
-    metadata: z.record(z.string(), z.string()),
+    actionType: z.string().min(1),
+    allocatedToEmployeeName: uuidField.nullable(),
+    assetImages: z.array(fileField).nullable(),
+    remark: z.string().nullable(),
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      assetId: data.assetId,
+      action: data.actionType,
+      toUserId: data.allocatedToEmployeeName,
+      assetFiles: data.assetImages,
+      metadata: {
+        remark: data.remark,
+      },
+    };
+  });
 
 export const ActionAssetResponseSchema = z
   .object({

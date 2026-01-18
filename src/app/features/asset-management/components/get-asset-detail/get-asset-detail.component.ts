@@ -8,7 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppConfigService } from '@core/services';
 import { AssetService } from '@features/asset-management/services/asset.service';
 import {
-  IAssetDetailGetRequestDto,
+  IAssetDetailGetFormDto,
   IAssetDetailGetResponseDto,
   IAssetGetBaseResponseDto,
 } from '@features/asset-management/types/asset.dto';
@@ -79,9 +79,9 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
       });
   }
 
-  private prepareParamData(): IAssetDetailGetRequestDto {
+  private prepareParamData(): IAssetDetailGetFormDto {
     return {
-      id: this.drawerData.asset.id,
+      assetId: this.drawerData.asset.id,
     };
   }
 

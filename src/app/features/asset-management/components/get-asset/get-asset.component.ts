@@ -17,7 +17,7 @@ import {
 import { AssetService } from '@features/asset-management/services/asset.service';
 import {
   IAssetGetBaseResponseDto,
-  IAssetGetRequestDto,
+  IAssetGetFormDto,
   IAssetGetResponseDto,
   IAssetGetStatsResponseDto,
 } from '@features/asset-management/types/asset.dto';
@@ -129,8 +129,8 @@ export class GetAssetComponent implements OnInit {
       });
   }
 
-  private prepareParamData(): IAssetGetRequestDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IAssetGetRequestDto>(
+  private prepareParamData(): IAssetGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IAssetGetFormDto>(
       this.tableFilterData,
       this.table.getHeaders()
     );

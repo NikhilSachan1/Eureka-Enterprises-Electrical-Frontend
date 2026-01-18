@@ -16,7 +16,7 @@ import {
 import { AssetService } from '@features/asset-management/services/asset.service';
 import {
   IAssetEventHistoryGetBaseResponseDto,
-  IAssetEventHistoryGetRequestDto,
+  IAssetEventHistoryGetFormDto,
   IAssetEventHistoryGetResponseDto,
   IAssetEventHistoryGetStatsResponseDto,
 } from '@features/asset-management/types/asset.dto';
@@ -141,8 +141,8 @@ export class GetAssetEventHistoryComponent implements OnInit {
       });
   }
 
-  private prepareParamData(): IAssetEventHistoryGetRequestDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IAssetEventHistoryGetRequestDto>(
+  private prepareParamData(): IAssetEventHistoryGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IAssetEventHistoryGetFormDto>(
       this.tableFilterData,
       this.table.getHeaders()
     );

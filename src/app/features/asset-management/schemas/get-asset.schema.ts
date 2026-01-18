@@ -14,11 +14,11 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 export const AssetGetRequestSchema = z
   .object({
     assetAssignee: z.string().optional(),
-    warrantyStatus: z.array(z.string()).optional(),
-    calibrationStatus: z.array(z.string()).optional(),
+    assetWarrantyStatus: z.array(z.string()).optional(),
+    assetCalibrationStatus: z.array(z.string()).optional(),
     assetStatus: z.array(z.string()).optional(),
     assetType: z.string().optional(),
-    category: z.array(z.string()).optional(),
+    assetCategory: z.array(z.string()).optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -26,13 +26,25 @@ export const AssetGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ assetStatus, assetAssignee, ...rest }) => {
-    return {
-      ...rest,
-      assignedTo: assetAssignee,
-      status: assetStatus,
-    };
-  });
+  .transform(
+    ({
+      assetStatus,
+      assetAssignee,
+      assetCategory,
+      assetCalibrationStatus,
+      assetWarrantyStatus,
+      ...rest
+    }) => {
+      return {
+        ...rest,
+        assignedTo: assetAssignee,
+        status: assetStatus,
+        category: assetCategory,
+        calibrationStatus: assetCalibrationStatus,
+        warrantyStatus: assetWarrantyStatus,
+      };
+    }
+  );
 
 export const AssetGetBaseResponseSchema = z
   .object({

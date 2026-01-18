@@ -7,7 +7,7 @@ import {
 } from '@shared/schemas';
 import { z } from 'zod';
 import { AssetDetailGetBaseResponseSchema } from './get-asset-detail.schema';
-import { makeFieldsNullable } from '@shared/utility';
+import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 import { AssetBaseDocumentsSchema } from './base-asset.schema';
 
 const { createdAt, updatedAt, createdBy } = AuditSchema.shape;
@@ -17,31 +17,31 @@ const { id, name, assetId, model, serialNumber, category, status } =
 export const AssetEventHistoryGetRequestSchema = z
   .object({
     ...FilterSchema.shape,
-    eventTypes: z.array(z.string()).min(1).optional(),
-    fromUser: z.string().optional(),
-    toUser: z.string().optional(),
-    eventDate: z.array(dateField).min(1).optional(),
+    assetEventTypes: z.array(z.string()).min(1).optional(),
+    assetFromEmployeeName: z.string().optional(),
+    assetToEmployeeName: z.string().optional(),
+    assetEventDate: z.array(dateField).min(1).optional(),
   })
   .strict()
-  .transform(({ eventDate: dateRange, ...rest }) => {
-    if (!dateRange || dateRange.length < 1) {
-      return rest;
+  .transform(
+    ({
+      assetEventDate: dateRange,
+      assetFromEmployeeName,
+      assetToEmployeeName,
+      assetEventTypes,
+      ...rest
+    }) => {
+      const [start, end] = dateRange ?? [];
+      return {
+        ...rest,
+        fromUser: assetFromEmployeeName,
+        toUser: assetToEmployeeName,
+        eventTypes: assetEventTypes,
+        startDate: transformDateFormat(start),
+        endDate: transformDateFormat(end),
+      };
     }
-
-    const start = dateRange[0];
-    const end = dateRange[dateRange.length - 1];
-
-    const toISODate = (d: Date): string =>
-      new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
-        .toISOString()
-        .split('T')[0];
-
-    return {
-      ...rest,
-      startDate: toISODate(start),
-      endDate: toISODate(end),
-    };
-  });
+  );
 
 export const AssetEventHistoryGetStatsResponseSchema = z
   .object({

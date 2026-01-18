@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   signal,
   OnInit,
@@ -10,27 +9,17 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { LoggerService } from '@core/services/logger.service';
 import { EDIT_ASSET_FORM_CONFIG } from '@features/asset-management/config';
 import { AssetService } from '@features/asset-management/services/asset.service';
-import { IAssetEditRequestDto } from '@features/asset-management/types/asset.dto';
+import { IAssetEditFormDto } from '@features/asset-management/types/asset.dto';
 import { IAssetDetailResolverResponse } from '@features/asset-management/types/asset.interface';
+import { FormBase } from '@shared/base/form.base';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import {
-  FORM_VALIDATION_MESSAGES,
-  ROUTE_BASE_PATHS,
-  ROUTES,
-} from '@shared/constants';
-import {
-  FormService,
-  LoadingService,
-  NotificationService,
-  RouterNavigationService,
-} from '@shared/services';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
-import { transformDateFormat } from '@shared/utility';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { RouterNavigationService } from '@shared/services';
+import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -45,30 +34,27 @@ import { finalize } from 'rxjs';
   styleUrl: './edit-asset.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditAssetComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly loadingService = inject(LoadingService);
+export class EditAssetComponent
+  extends FormBase<IAssetEditFormDto>
+  implements OnInit
+{
   private readonly assetService = inject(AssetService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
-  protected form!: IEnhancedForm;
-
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly isSubmitting = signal(false);
-  protected readonly initialAssetData = signal<Record<string, unknown> | null>(
-    null
-  );
+  protected readonly initialAssetData = signal<IAssetEditFormDto | null>(null);
 
   ngOnInit(): void {
     this.loadAssetDataFromRoute();
-    this.form = this.formService.createForm(EDIT_ASSET_FORM_CONFIG, {
-      destroyRef: this.destroyRef,
-      defaultValues: this.initialAssetData(),
-    });
+
+    this.form = this.formService.createForm<IAssetEditFormDto>(
+      EDIT_ASSET_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+        defaultValues: this.initialAssetData(),
+      }
+    );
   }
 
   private loadAssetDataFromRoute(): void {
@@ -91,7 +77,7 @@ export class EditAssetComponent implements OnInit {
 
   private preparePrefilledFormData(
     assetDetailFromResolver: IAssetDetailResolverResponse
-  ): Record<string, unknown> {
+  ): IAssetEditFormDto {
     const preloadedFiles = assetDetailFromResolver.preloadedFiles ?? [];
 
     const {
@@ -119,31 +105,26 @@ export class EditAssetComponent implements OnInit {
       assetModel: model,
       assetSerialNumber: serialNumber,
       assetCategory: category,
-      calibrationFrom,
-      calibrationFrequency,
-      calibrationPeriod: [
+      assetCalibrationFrom: calibrationFrom,
+      assetCalibrationFrequency: calibrationFrequency,
+      assetCalibrationDate: [
         new Date(calibrationStartDate),
         new Date(calibrationEndDate),
       ],
       assetPurchaseDate: new Date(purchaseDate),
-      vendorName,
-      warrantyPeriod: [new Date(warrantyStartDate), new Date(warrantyEndDate)],
+      assetVendorName: vendorName,
+      assetWarrantyDate: [
+        new Date(warrantyStartDate),
+        new Date(warrantyEndDate),
+      ],
       remarks,
-      assetDocuments: preloadedFiles,
+      assetFiles: preloadedFiles,
     };
   }
 
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const assetId = this.activatedRoute.snapshot.params['assetId'] as string;
     if (!assetId) {
-      this.logger.logUserAction('No asset id found in route');
-      this.notificationService.error(
-        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
-      );
       return;
     }
 
@@ -151,64 +132,12 @@ export class EditAssetComponent implements OnInit {
     this.executeEditAsset(formData, assetId);
   }
 
-  private prepareFormData(): IAssetEditRequestDto {
-    const {
-      assetName,
-      assetModel,
-      assetSerialNumber,
-      assetCategory,
-      assetType,
-      calibrationFrom,
-      calibrationFrequency,
-      calibrationPeriod,
-      assetPurchaseDate,
-      vendorName,
-      warrantyPeriod,
-      assetDocuments,
-      remarks,
-    } = this.form.getData() as {
-      assetName: string;
-      assetModel: string;
-      assetSerialNumber: string;
-      assetCategory: string;
-      assetType: string;
-      calibrationFrom: string;
-      calibrationFrequency: string;
-      calibrationPeriod: Date[];
-      assetPurchaseDate: Date;
-      vendorName: string;
-      warrantyPeriod: Date[];
-      assetDocuments: File[];
-      remarks: string;
-    };
-
-    const [calibrationStartDate, calibrationEndDate] = calibrationPeriod ?? [];
-    const [warrantyStartDate, warrantyEndDate] = warrantyPeriod ?? [];
-
-    return {
-      name: assetName,
-      model: assetModel,
-      serialNumber: assetSerialNumber,
-      category: assetCategory,
-      assetType,
-      calibrationFrom,
-      calibrationFrequency,
-      calibrationStartDate: transformDateFormat(calibrationStartDate),
-      calibrationEndDate: transformDateFormat(calibrationEndDate),
-      purchaseDate: transformDateFormat(assetPurchaseDate),
-      vendorName,
-      warrantyStartDate: transformDateFormat(warrantyStartDate),
-      warrantyEndDate: transformDateFormat(warrantyEndDate),
-      remarks,
-      assetFiles: assetDocuments,
-    };
+  private prepareFormData(): IAssetEditFormDto {
+    const formData = this.form.getData();
+    return formData;
   }
 
-  private executeEditAsset(
-    formData: IAssetEditRequestDto,
-    assetId: string
-  ): void {
-    this.isSubmitting.set(true);
+  private executeEditAsset(formData: IAssetEditFormDto, assetId: string): void {
     this.loadingService.show({
       title: 'Edit Asset',
       message: 'Please wait while we edit asset...',
@@ -237,24 +166,8 @@ export class EditAssetComponent implements OnInit {
       });
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Edit asset form validation failed');
-      return false;
-    }
-    return true;
-  }
-
   protected onReset(): void {
-    try {
-      this.logger.logUserAction('Reset Edit Asset Form');
-      this.form.reset(this.initialAssetData() ?? {});
-    } catch (error) {
-      this.logger.error('Error resetting form', error);
-    }
+    this.onResetSingleForm(this.initialAssetData() ?? {});
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
