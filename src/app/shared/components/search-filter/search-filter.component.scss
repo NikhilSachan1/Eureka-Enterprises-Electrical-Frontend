@@ -1,13 +1,107 @@
-// Panel Styling - matching the original design
+// === SEARCH FILTER PANEL STYLING ===
+.search-filter-container {
+  margin-bottom: 1.5rem;
+}
+
 ::ng-deep .search-filter-panel {
   border-radius: 1rem !important;
   border: 1px solid rgba(226, 232, 240, 0.6) !important;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  background: white !important;
+  transition: all 0.3s ease !important;
+  overflow: hidden !important;
 
-  .p-panel-header {
-    padding: 1.25rem 1.5rem !important;
+  &:hover {
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    border-color: rgba(0, 163, 137, 0.2) !important;
   }
 
+  // Panel Header
+  .p-panel-header {
+    padding: 1.25rem 1.5rem !important;
+    background: linear-gradient(to right, rgba(0, 163, 137, 0.02), rgba(255, 255, 255, 1)) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+    transition: all 0.2s ease !important;
+
+    // Toggle icon styling
+    .p-panel-header-icon {
+      color: rgba(0, 163, 137, 1) !important;
+      transition: all 0.2s ease !important;
+      width: 2rem !important;
+      height: 2rem !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 0.5rem !important;
+
+      &:hover {
+        background: rgba(0, 163, 137, 0.1) !important;
+        color: rgba(0, 191, 159, 1) !important;
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  // Panel Content
   .p-panel-content {
-    padding: 0 1.5rem 1.5rem !important;
+    padding: 1.5rem !important;
+    background: white !important;
+  }
+
+  // Collapsed state
+  &.p-panel-collapsed {
+    .p-panel-header {
+      border-bottom: none !important;
+    }
+  }
+}
+
+// === FILTER FIELDS GRID ===
+.search-filter-container {
+  .grid {
+    // Smooth transitions for grid items
+    .filter-field-wrapper {
+      transition: all 0.2s ease;
+      border-radius: 0.5rem;
+      padding: 0.25rem;
+
+      &:hover {
+        background: rgba(0, 163, 137, 0.02);
+        transform: translateY(-1px);
+      }
+    }
+  }
+}
+
+// === ACTION BAR STYLING ===
+.search-filter-container {
+  // Action bar border styling
+  .border-t {
+    border-color: rgba(226, 232, 240, 0.8) !important;
+    position: relative;
+
+    // Subtle gradient line effect
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(0, 163, 137, 0.2), transparent);
+    }
+  }
+
+  // Button improvements
+  app-button {
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
   }
 }

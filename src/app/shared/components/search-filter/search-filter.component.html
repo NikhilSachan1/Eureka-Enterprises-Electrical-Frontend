@@ -9,11 +9,11 @@
       <ng-template pTemplate="header">
         <div class="flex items-center gap-3">
           <div
-            class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25"
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 transition-transform duration-200 hover:scale-105"
           >
-            <i class="pi pi-search text-white"></i>
+            <i class="pi pi-filter text-white text-sm"></i>
           </div>
-          <div>
+          <div class="flex-1">
             <h3 class="font-bold text-slate-800 text-lg leading-tight">Search & Filter</h3>
             <p class="text-slate-500 text-xs mt-0.5">Find exactly what you need</p>
           </div>
@@ -28,15 +28,17 @@
         <!-- Filter Fields -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           @for (field of form.fieldConfigs | keyvalue: customSort; track field.key) {
-            <app-input-field
-              [formGroup]="form.formGroup"
-              [inputFieldConfig]="field.value"
-            />
+            <div class="filter-field-wrapper">
+              <app-input-field
+                [formGroup]="form.formGroup"
+                [inputFieldConfig]="field.value"
+              />
+            </div>
           }
         </div>
 
         <!-- Action Bar -->
-        <div class="flex items-center justify-end gap-2 mt-6 pt-5 border-t border-slate-100">
+        <div class="flex items-center justify-end gap-3 mt-6 pt-5 border-t border-slate-100">
           <app-button
             [buttonConfig]="form.buttonConfigs['reset']"
             [showDisabledButton]="!form.formGroup.dirty && !hasSearched"
