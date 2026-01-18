@@ -102,6 +102,7 @@ export type IActionPayrollRequestDto = z.infer<
   typeof ActionPayrollRequestSchema
 >;
 export type IActionPayrollFormDto = z.input<typeof ActionPayrollRequestSchema>;
+export type IActionPayrollUIFormDto = Pick<IActionPayrollFormDto, 'comment'>;
 export type IActionPayrollResponseDto = z.infer<
   typeof ActionPayrollResponseSchema
 >;

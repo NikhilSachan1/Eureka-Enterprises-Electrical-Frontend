@@ -13,8 +13,8 @@ export const AttendanceCurrentStatusGetResponseSchema = z
     status,
     approvalStatus,
     workDuration,
-    location: z.string().nullable(),
-    clientName: z.string().nullable(),
+    location: z.string(),
+    clientName: z.string(),
     associateEmployeeName: z.string().nullable().optional(), // TODO: Remove optional once we have the associate employee name
     user: UserSchema,
   })

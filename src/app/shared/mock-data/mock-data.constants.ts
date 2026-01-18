@@ -423,8 +423,10 @@ export const TEST_ATTENDANCE_STATUSES = [
 ];
 
 export const TEST_EMPLOYEE_LIST = [
-  '06bfe35a-71be-4a02-ba0a-386ef1fac7b5',
-  '2ff0c1c0-f7a1-4549-8a4f-21614286e5d6',
+  '51f8ff1b-65c1-41b3-8cf8-437c3a4b70ef',
+  '2920bd38-2729-4751-882b-fd0bbf460409',
+  '2c5163cc-1e61-466b-9fd0-4473674aed9c',
+  'b57aa3b9-ea32-449e-9db8-cabc30cc142a',
   '508eee21-d0fb-45cf-9cfa-a7d83e8531e5',
 ];
 

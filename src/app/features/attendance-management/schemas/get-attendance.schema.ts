@@ -25,9 +25,9 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 export const AttendanceGetRequestSchema = z
   .object({
     attendanceDate: z.array(dateField).min(1).optional(),
-    userIds: z.array(uuidField).min(1).optional(),
-    statuses: z.array(status).min(1).optional(),
-    approvalStatuses: z.array(approvalStatus).min(1).optional(),
+    employeeName: z.array(uuidField).min(1).optional(),
+    attendanceStatus: z.array(status).min(1).optional(),
+    approvalStatus: z.array(approvalStatus).min(1).optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -35,25 +35,32 @@ export const AttendanceGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ attendanceDate: dateRange, ...rest }) => {
-    if (!dateRange || dateRange.length < 1) {
-      return rest;
+  .transform(
+    ({
+      attendanceDate: dateRange,
+      employeeName,
+      attendanceStatus,
+      approvalStatus: attendanceApprovalStatus,
+      ...rest
+    }) => {
+      const start = dateRange?.[0];
+      const end = dateRange?.[dateRange.length - 1];
+
+      const toISODate = (d: Date): string =>
+        new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+          .toISOString()
+          .split('T')[0];
+
+      return {
+        ...rest,
+        userIds: employeeName,
+        statuses: attendanceStatus,
+        approvalStatuses: attendanceApprovalStatus,
+        startDate: start ? toISODate(start) : undefined,
+        endDate: end ? toISODate(end) : undefined,
+      };
     }
-
-    const start = dateRange[0];
-    const end = dateRange[dateRange.length - 1];
-
-    const toISODate = (d: Date): string =>
-      new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
-        .toISOString()
-        .split('T')[0];
-
-    return {
-      ...rest,
-      startDate: toISODate(start),
-      endDate: toISODate(end),
-    };
-  });
+  );
 
 export const AttendanceGetBaseResponseSchema = z
   .object({
@@ -61,7 +68,7 @@ export const AttendanceGetBaseResponseSchema = z
     attendanceDate,
     checkInTime,
     checkOutTime,
-    notes,
+    notes: notes.nullable(), // ToDo: remove this nullable after backend is updated
     workDuration,
     attendanceType,
     status: status.transform(toTitleCase),

@@ -42,7 +42,10 @@ export const toSentenceCase = (text: string): string => {
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 };
 
-export const stringToArray = (text: string, separator = ' '): string[] => {
+export const stringToArray = (
+  text: string | null,
+  separator = ' '
+): string[] => {
   if (!text || typeof text !== 'string') {
     return [];
   }

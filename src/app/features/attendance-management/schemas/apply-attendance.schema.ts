@@ -2,12 +2,19 @@ import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
 import { EApplyAttendanceAction } from '../types/attendance.enum';
 
-const { notes, checkInTime } = AttendanceBaseSchema.shape;
+const { checkInTime } = AttendanceBaseSchema.shape;
 
-export const AttendanceApplyRequestSchema = z.object({
-  notes,
-  action: z.enum(EApplyAttendanceAction),
-});
+export const AttendanceApplyRequestSchema = z
+  .object({
+    locationName: z.string(),
+    clientName: z.string(),
+    associateEngineerName: z.string(),
+    associatedVehicle: z.string(),
+  })
+  .transform(data => ({
+    notes: `${data.clientName} - ${data.locationName}`,
+    action: EApplyAttendanceAction.CHECK_IN,
+  }));
 
 export const AttendanceApplyResponseSchema = z.object({
   checkInTime,

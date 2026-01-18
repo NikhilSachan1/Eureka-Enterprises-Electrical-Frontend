@@ -51,13 +51,13 @@ export const routes: Routes = [
             m => m.EMPLOYEE_MANAGEMENT_ROUTES
           ),
       },
-      // {
-      //   path: ROUTE_BASE_PATHS.ATTENDANCE,
-      //   loadChildren: () =>
-      //     import('./features/attendance-management/attendance.routes').then(
-      //       m => m.ATTENDANCE_MANAGEMENT_ROUTES
-      //     ),
-      // },
+      {
+        path: ROUTE_BASE_PATHS.ATTENDANCE,
+        loadChildren: () =>
+          import('./features/attendance-management/attendance.routes').then(
+            m => m.ATTENDANCE_MANAGEMENT_ROUTES
+          ),
+      },
       // {
       //   path: ROUTE_BASE_PATHS.EXPENSE,
       //   loadChildren: () =>

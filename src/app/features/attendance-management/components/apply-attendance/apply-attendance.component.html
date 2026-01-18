@@ -71,13 +71,11 @@
         !isEditingAssignment() && currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
       @let showCheckOutButton =
         !isEditingAssignment() && !currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
-      @let attendanceStatus =
-        showCheckInButton ? ALL_APPLY_ATTENDANCE_ACTIONS.CHECK_IN : ALL_APPLY_ATTENDANCE_ACTIONS.CHECK_OUT;
 
       <form
         class="form"
         [formGroup]="form.formGroup"
-        (ngSubmit)="onSubmit(attendanceStatus)"
+        (ngSubmit)="onSubmit()"
       >
         <div class="assignment-card">
           <div class="assignment-card__header">
@@ -119,7 +117,7 @@
               <div class="assignment-card__content">
                 <app-input-field
                   [formGroup]="form.formGroup"
-                  [inputFieldConfig]="form.fieldConfigs['locationName']"
+                  [inputFieldConfig]="form.fieldConfigs.locationName"
                 />
               </div>
             } @else {
@@ -141,7 +139,7 @@
               <div class="assignment-card__content">
                 <app-input-field
                   [formGroup]="form.formGroup"
-                  [inputFieldConfig]="form.fieldConfigs['clientName']"
+                  [inputFieldConfig]="form.fieldConfigs.clientName"
                 />
               </div>
             } @else {
@@ -162,7 +160,7 @@
               <div class="assignment-card__content">
                 <app-input-field
                   [formGroup]="form.formGroup"
-                  [inputFieldConfig]="form.fieldConfigs['associateEngineerName']"
+                  [inputFieldConfig]="form.fieldConfigs.associateEngineerName"
                 />
               </div>
             } @else {
@@ -183,7 +181,7 @@
               <div class="assignment-card__content">
                 <app-input-field
                   [formGroup]="form.formGroup"
-                  [inputFieldConfig]="form.fieldConfigs['associatedVehicle']"
+                  [inputFieldConfig]="form.fieldConfigs.associatedVehicle"
                 />
               </div>
             } @else {

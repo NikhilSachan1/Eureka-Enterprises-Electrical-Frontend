@@ -10,6 +10,7 @@ import { getPayslipCutoffMinDate } from '@shared/utility';
 import { APPLY_ATTENDANCE_FORM_CONFIG } from './apply-attendance.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+import { IAttendanceForceFormDto } from '@features/attendance-management/types/attendance.dto';
 
 const {
   fields: {
@@ -20,60 +21,64 @@ const {
   },
 } = APPLY_ATTENDANCE_FORM_CONFIG;
 
-const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  employeeName: {
-    fieldType: EDataType.MULTI_SELECT,
-    id: 'employeeName',
-    fieldName: 'employeeName',
-    label: 'Employee Name',
-    multiSelectConfig: {
-      dynamicDropdown: {
-        moduleName: MODULE_NAMES.EMPLOYEE,
-        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceForceFormDto> =
+  {
+    employeeName: {
+      fieldType: EDataType.SELECT,
+      id: 'employeeName',
+      fieldName: 'employeeName',
+      label: 'Employee Name',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.EMPLOYEE,
+          dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+        },
       },
+      validators: [Validators.required],
     },
-    validators: [Validators.required],
-  },
-  date: {
-    fieldType: EDataType.DATE,
-    id: 'date',
-    fieldName: 'date',
-    label: 'Date',
-    dateConfig: {
-      minDate: getPayslipCutoffMinDate(),
-      maxDate: new Date(),
-    },
-    validators: [Validators.required],
-  },
-  attendanceStatus: {
-    fieldType: EDataType.SELECT,
-    id: 'attendanceStatus',
-    fieldName: 'attendanceStatus',
-    label: 'Attendance Status',
-    selectConfig: {
-      haveFilter: false,
-      dynamicDropdown: {
-        moduleName: MODULE_NAMES.ATTENDANCE,
-        dropdownName: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
+    attendanceDate: {
+      fieldType: EDataType.DATE,
+      id: 'attendanceDate',
+      fieldName: 'attendanceDate',
+      label: 'Attendance Date',
+      dateConfig: {
+        minDate: getPayslipCutoffMinDate(),
+        maxDate: new Date(),
       },
-      filterOptions: {
-        exclude: [EAttendanceStatus.CHECKED_IN, EAttendanceStatus.CHECKED_OUT],
-      },
+      validators: [Validators.required],
     },
-    validators: [Validators.required],
-  },
-  forceReason: {
-    fieldType: EDataType.TEXT_AREA,
-    id: 'forceReason',
-    fieldName: 'forceReason',
-    label: 'Force Reason',
-    validators: [Validators.required],
-  },
-  clientName,
-  locationName,
-  associateEngineerName,
-  associatedVehicle,
-};
+    attendanceStatus: {
+      fieldType: EDataType.SELECT,
+      id: 'attendanceStatus',
+      fieldName: 'attendanceStatus',
+      label: 'Attendance Status',
+      selectConfig: {
+        haveFilter: false,
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.ATTENDANCE,
+          dropdownName: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
+        },
+        filterOptions: {
+          exclude: [
+            EAttendanceStatus.CHECKED_IN,
+            EAttendanceStatus.CHECKED_OUT,
+          ],
+        },
+      },
+      validators: [Validators.required],
+    },
+    remark: {
+      fieldType: EDataType.TEXT_AREA,
+      id: 'remark',
+      fieldName: 'remark',
+      label: 'Note',
+      validators: [Validators.required],
+    },
+    clientName,
+    locationName,
+    associateEngineerName,
+    associatedVehicle,
+  };
 
 const FORCE_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -86,7 +91,8 @@ const FORCE_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const FORCE_ATTENDANCE_FORM_CONFIG: IFormConfig = {
-  fields: FORCE_ATTENDANCE_FORM_FIELDS_CONFIG,
-  buttons: FORCE_ATTENDANCE_FORM_BUTTONS_CONFIG,
-};
+export const FORCE_ATTENDANCE_FORM_CONFIG: IFormConfig<IAttendanceForceFormDto> =
+  {
+    fields: FORCE_ATTENDANCE_FORM_FIELDS_CONFIG,
+    buttons: FORCE_ATTENDANCE_FORM_BUTTONS_CONFIG,
+  };

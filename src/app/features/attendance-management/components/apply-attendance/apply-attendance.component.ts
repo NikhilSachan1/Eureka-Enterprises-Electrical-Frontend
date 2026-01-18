@@ -6,21 +6,18 @@ import {
   inject,
   signal,
   OnInit,
-  DestroyRef,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AppConfigService } from '@core/services/app-config.service';
-import { LoggerService } from '@core/services/logger.service';
-import { EnvironmentService } from '@core/services';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 import {
-  IAttendanceApplyRequestDto,
+  IAttendanceApplyFormDto,
   IAttendanceCurrentStatusGetResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import {
-  FORM_VALIDATION_MESSAGES,
+  EUserRole,
   PERMISSION_KEYS,
   ROUTE_BASE_PATHS,
   ROUTES,
@@ -30,17 +27,11 @@ import {
   EButtonActionType,
   EButtonVariant,
   IButtonConfig,
-  IEnhancedForm,
   IPageHeaderConfig,
 } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
-import {
-  FormService,
-  LoadingService,
-  NotificationService,
-  RouterNavigationService,
-} from '@shared/services';
+import { RouterNavigationService } from '@shared/services';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { EApplyAttendanceAction } from '@features/attendance-management/types/attendance.enum';
@@ -48,7 +39,7 @@ import { APPLY_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/co
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { APPLY_ATTENDANCE_PREFILLED_DATA } from '@shared/mock-data/apply-attendance.mock-data';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-apply-attendance',
@@ -65,53 +56,48 @@ import { APPLY_ATTENDANCE_PREFILLED_DATA } from '@shared/mock-data/apply-attenda
   styleUrl: './apply-attendance.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ApplyAttendanceComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly authService = inject(AuthService);
-  private readonly environmentService = inject(EnvironmentService);
-  protected readonly appConfig = inject(AppConfigService);
+export class ApplyAttendanceComponent
+  extends FormBase<IAttendanceApplyFormDto>
+  implements OnInit
+{
   protected readonly attendanceService = inject(AttendanceService);
+  private readonly authService = inject(AuthService);
   protected readonly activatedRoute = inject(ActivatedRoute);
-  protected readonly logger = inject(LoggerService);
   protected readonly routerNavigationService = inject(RouterNavigationService);
-  protected readonly loadingService = inject(LoadingService);
-  protected readonly notificationService = inject(NotificationService);
-  protected readonly destroyRef = inject(DestroyRef);
-
-  protected readonly initialAttendanceData = signal<Record<
-    string,
-    unknown
-  > | null>(null);
-  protected readonly currentStatusData =
-    signal<IAttendanceCurrentStatusGetResponseDto | null>(null);
-  protected readonly isSubmitting = signal(false);
-  protected readonly isEditingAssignment = signal(false);
+  protected readonly appConfig = inject(AppConfigService);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected assignmentHeaderButtonConfig = computed(() =>
     this.getAssignmentHeaderButtonConfig()
   );
 
+  protected readonly initialAttendanceData =
+    signal<IAttendanceApplyFormDto | null>(null);
+  protected readonly currentStatusData =
+    signal<IAttendanceCurrentStatusGetResponseDto | null>(null);
+  protected readonly isEditingAssignment = signal(false);
+
   protected readonly todayDate = new Date();
   protected readonly ALL_APPLY_ATTENDANCE_ACTIONS = EApplyAttendanceAction;
   protected readonly ALL_ICONS = ICONS;
   protected readonly ALL_PERMISSION_KEYS = PERMISSION_KEYS;
-  protected form!: IEnhancedForm;
 
   ngOnInit(): void {
-    const currentUser = this.authService.getCurrentUser();
-    const isDriverUser =
-      (currentUser?.designation ?? '').toLowerCase() === 'driver'; // TODO: Remove this static driver field use enum for user role
-
     this.loadCurrentStatusDataFromRoute();
-    this.loadMockData();
-    this.form = this.formService.createForm(APPLY_ATTENDANCE_FORM_CONFIG, {
-      destroyRef: this.destroyRef,
-      defaultValues: this.initialAttendanceData(),
-      context: {
-        isDriver: isDriverUser,
-      },
-    });
+
+    const currentUser = this.authService.getCurrentUser();
+    const isDriverUser = currentUser?.activeRole === EUserRole.DRIVER;
+
+    this.form = this.formService.createForm<IAttendanceApplyFormDto>(
+      APPLY_ATTENDANCE_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+        defaultValues: this.initialAttendanceData(),
+        context: {
+          isDriver: isDriverUser,
+        },
+      }
+    );
   }
 
   private loadCurrentStatusDataFromRoute(): void {
@@ -137,46 +123,28 @@ export class ApplyAttendanceComponent implements OnInit {
 
   private preparePrefilledFormData(
     currentStatusFromResolver: IAttendanceCurrentStatusGetResponseDto
-  ): Record<string, unknown> {
+  ): IAttendanceApplyFormDto {
     const { location, clientName, associateEmployeeName } =
       currentStatusFromResolver;
     return {
       locationName: location,
       clientName,
-      associateEmployeeName,
+      associateEngineerName: associateEmployeeName ?? '',
+      associatedVehicle: '',
     };
   }
 
-  protected onSubmit(applyAttendanceStatus: EApplyAttendanceAction): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(applyAttendanceStatus);
-    this.executeApplyAttendance(formData, applyAttendanceStatus);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData();
+    this.executeApplyAttendance(formData);
   }
 
-  private prepareFormData(
-    applyAttendanceStatus: EApplyAttendanceAction
-  ): IAttendanceApplyRequestDto {
-    //TODO: Add associate employee and associated vehicle name once we have the associate employee and associated vehicle name functionality
-
-    const { clientName, locationName } = this.form.getData() as {
-      clientName: string;
-      locationName: string;
-    };
-
-    return {
-      notes: `${clientName} - ${locationName}`,
-      action: applyAttendanceStatus,
-    };
+  private prepareFormData(): IAttendanceApplyFormDto {
+    const formData = this.form.getData();
+    return formData;
   }
 
-  protected executeApplyAttendance(
-    formData: IAttendanceApplyRequestDto,
-    applyAttendanceStatus: EApplyAttendanceAction
-  ): void {
-    this.isSubmitting.set(true);
+  protected executeApplyAttendance(formData: IAttendanceApplyFormDto): void {
     this.loadingService.show({
       title: 'Apply Attendance',
       message: 'Please wait while we apply attendance...',
@@ -188,6 +156,7 @@ export class ApplyAttendanceComponent implements OnInit {
         finalize(() => {
           this.isSubmitting.set(false);
           this.loadingService.hide();
+          this.form.enable();
         }),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -198,33 +167,12 @@ export class ApplyAttendanceComponent implements OnInit {
             ROUTES.ATTENDANCE.LIST,
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
-          this.notificationService.success(
-            `${applyAttendanceStatus} successfull`
-          );
+          this.notificationService.success('Attendance applied successfully');
         },
         error: () => {
           this.notificationService.error('Failed to apply attendance');
         },
       });
-  }
-
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Apply attendance form validation failed');
-      return false;
-    }
-    return true;
-  }
-
-  private getPageHeaderConfig(): IPageHeaderConfig {
-    return {
-      title: 'Apply Attendance',
-      subtitle: 'Check in or check out from your assigned location',
-      showHeaderButton: false,
-    };
   }
 
   private getAssignmentHeaderButtonConfig(): Partial<IButtonConfig> {
@@ -247,12 +195,11 @@ export class ApplyAttendanceComponent implements OnInit {
     this.isEditingAssignment.update(isEditing => !isEditing);
   }
 
-  private loadMockData(): void {
-    if (this.environmentService.isTestDataEnabled) {
-      this.initialAttendanceData.update(existingData => ({
-        ...APPLY_ATTENDANCE_PREFILLED_DATA,
-        ...existingData,
-      }));
-    }
+  private getPageHeaderConfig(): IPageHeaderConfig {
+    return {
+      title: 'Apply Attendance',
+      subtitle: 'Check in or check out from your assigned location',
+      showHeaderButton: false,
+    };
   }
 }

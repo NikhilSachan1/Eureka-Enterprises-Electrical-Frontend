@@ -1,25 +1,32 @@
 import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
-import { uuidField } from '@shared/schemas';
-import {
-  onlyDateStringField,
-  onlyTimeStringField,
-} from '@shared/schemas/common.schema';
+import { dateField } from '@shared/schemas/common.schema';
 import { SHIFT_DATA } from '@shared/config/static-data.config';
+import { transformDateFormat } from '@shared/utility';
 
-const { notes, status } = AttendanceBaseSchema.shape;
+const { notes, status, id } = AttendanceBaseSchema.shape;
 
 export const AttendanceForceRequestSchema = z
   .object({
-    attendanceDate: onlyDateStringField,
-    checkInTime: onlyTimeStringField.default(SHIFT_DATA.START_TIME).optional(),
-    checkOutTime: onlyTimeStringField.default(SHIFT_DATA.END_TIME).optional(),
-    notes,
-    status,
-    userIds: z.array(uuidField).min(1).max(100),
-    reason: z.string(),
+    employeeName: id,
+    attendanceDate: dateField,
+    attendanceStatus: status,
+    clientName: z.string(),
+    locationName: z.string(),
+    associateEngineerName: z.string(),
+    associatedVehicle: z.string(),
+    remark: notes,
   })
-  .strict();
+  .strict()
+  .transform(data => ({
+    userIds: data.employeeName,
+    attendanceDate: transformDateFormat(data.attendanceDate),
+    notes: `${data.locationName} - ${data.clientName}`,
+    reason: data.remark,
+    status: data.attendanceStatus,
+    checkInTime: SHIFT_DATA.START_TIME,
+    checkOutTime: SHIFT_DATA.END_TIME,
+  }));
 
 export const AttendanceForceResponseSchema = z
   .object({

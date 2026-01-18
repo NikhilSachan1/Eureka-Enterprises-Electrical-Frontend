@@ -1,4 +1,5 @@
 import { Validators } from '@angular/forms';
+import { IAttendanceActionUIFormDto } from '@features/attendance-management/types/attendance.dto';
 import {
   EButtonActionType,
   EDataType,
@@ -6,24 +7,26 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 
-const APPROVAL_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  comment: {
-    fieldType: EDataType.TEXT_AREA,
-    id: 'approveReason',
-    fieldName: 'comment',
-    label: 'Comment',
-    conditionalValidators: [
-      {
-        shouldApply: (context): boolean => {
-          const { actionType } = context;
-          return actionType === EButtonActionType.REJECT;
+const APPROVAL_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceActionUIFormDto> =
+  {
+    remark: {
+      fieldType: EDataType.TEXT_AREA,
+      id: 'remark',
+      fieldName: 'remark',
+      label: 'Note',
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            const { actionType } = context;
+            return actionType === EButtonActionType.REJECT;
+          },
+          validators: [Validators.required],
         },
-        validators: [Validators.required],
-      },
-    ],
-  },
-};
+      ],
+    },
+  };
 
-export const APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG: IFormConfig = {
-  fields: APPROVAL_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG,
-};
+export const APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG: IFormConfig<IAttendanceActionUIFormDto> =
+  {
+    fields: APPROVAL_ACTION_ATTENDANCE_FORM_FIELDS_CONFIG,
+  };

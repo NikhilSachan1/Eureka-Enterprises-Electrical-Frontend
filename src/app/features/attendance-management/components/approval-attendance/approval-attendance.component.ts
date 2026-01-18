@@ -1,38 +1,31 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
-  signal,
 } from '@angular/core';
 import { APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG } from '@features/attendance-management/config/form/approval-action-attendance.config';
 import {
-  IEnhancedForm,
   EButtonActionType,
   ETableActionTypeValue,
   EApprovalStatus,
   IDialogActionHandler,
 } from '@shared/types';
-import {
-  ConfirmationDialogService,
-  FormService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
+import { ConfirmationDialogService } from '@shared/services';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  IAttendanceActionRequestDto,
+  IAttendanceActionFormDto,
   IAttendanceActionResponseDto,
+  IAttendanceActionUIFormDto,
   IAttendanceGetBaseResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
 import { finalize } from 'rxjs';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { LoggerService } from '@core/services';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-approval-attendance',
@@ -42,14 +35,10 @@ import { LoggerService } from '@core/services';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApprovalAttendanceComponent
+  extends FormBase<IAttendanceActionUIFormDto>
   implements OnInit, IDialogActionHandler
 {
-  private readonly formService = inject(FormService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
   private readonly attendanceService = inject(AttendanceService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -59,10 +48,7 @@ export class ApprovalAttendanceComponent
   protected readonly dialogActionType = input.required<EButtonActionType>();
   protected readonly onSuccess = input.required<() => void>();
 
-  protected form!: IEnhancedForm;
   protected readonly EButtonActionTypeEnum = EButtonActionType;
-
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -77,11 +63,10 @@ export class ApprovalAttendanceComponent
     }
 
     const actionType = this.dialogActionType();
-    this.form = this.formService.createForm(
+    this.form = this.formService.createForm<IAttendanceActionUIFormDto>(
       APPROVAL_ACTION_ATTENDANCE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
-        defaultValues: null,
         context: {
           actionType,
         },
@@ -90,26 +75,20 @@ export class ApprovalAttendanceComponent
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: IAttendanceGetBaseResponseDto[]): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData();
     this.executeAttendanceApprovalAction(formData);
   }
 
-  private prepareFormData(
-    record: IAttendanceGetBaseResponseDto[]
-  ): IAttendanceActionRequestDto {
-    const { comment } = this.form.getData() as {
-      comment: string;
-    };
+  private prepareFormData(): IAttendanceActionFormDto {
+    const record = this.selectedRecord();
 
-    let actionTypeValue: ETableActionTypeValue;
+    const formData = this.form.getData();
+
+    let actionTypeValue!: ETableActionTypeValue;
 
     if (this.dialogActionType() === EButtonActionType.APPROVE) {
       actionTypeValue = ETableActionTypeValue.APPROVED;
@@ -118,16 +97,14 @@ export class ApprovalAttendanceComponent
     }
 
     return {
-      approvals: record.map((row: IAttendanceGetBaseResponseDto) => ({
-        attendanceId: row.id,
-        approvalStatus: actionTypeValue as unknown as EApprovalStatus,
-        approvalComment: comment,
-      })),
+      ...formData,
+      attendanceIds: record.map((row: IAttendanceGetBaseResponseDto) => row.id),
+      approvalStatus: actionTypeValue as unknown as EApprovalStatus,
     };
   }
 
   private executeAttendanceApprovalAction(
-    formData: IAttendanceActionRequestDto
+    formData: IAttendanceActionFormDto
   ): void {
     let loadingMessage;
 
@@ -142,7 +119,6 @@ export class ApprovalAttendanceComponent
         message: 'Please wait while we reject the attendance...',
       };
     }
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
     this.form.disable();
 
@@ -170,17 +146,9 @@ export class ApprovalAttendanceComponent
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
+        error: () => {
+          this.notificationService.error('Failed to approve/reject attendance');
+        },
       });
-  }
-
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Approval attendance form validation failed');
-      return false;
-    }
-    return true;
   }
 }

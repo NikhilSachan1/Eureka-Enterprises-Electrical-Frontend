@@ -6,19 +6,20 @@ import {
 
 const { id, approvalStatus, approvalComment } = AttendanceBaseSchema.shape;
 
-export const AttendanceActionBaseRequestSchema = z
-  .object({
-    approvalStatus,
-    approvalComment,
-    attendanceId: id,
-  })
-  .strict();
-
 export const AttendanceActionRequestSchema = z
   .object({
-    approvals: z.array(AttendanceActionBaseRequestSchema).min(1).max(50),
+    attendanceIds: z.array(id),
+    approvalStatus,
+    remark: approvalComment,
   })
-  .strict();
+  .strict()
+  .transform(data => ({
+    approvals: data.attendanceIds.map(attendanceId => ({
+      attendanceId,
+      approvalStatus: data.approvalStatus,
+      approvalComment: data.remark,
+    })),
+  }));
 
 export const AttendanceActionResultSchema = z
   .object({

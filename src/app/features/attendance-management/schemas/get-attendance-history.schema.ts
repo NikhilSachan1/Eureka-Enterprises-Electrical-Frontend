@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
 import { makeFieldsNullable } from '@shared/utility/zod.util';
 
-const { userId, attendanceDate } = AttendanceBaseSchema.shape;
+const { userId, attendanceDate, notes } = AttendanceBaseSchema.shape;
 
 export const AttendanceHistoryGetRequestSchema = z
   .object({
@@ -14,6 +14,7 @@ export const AttendanceHistoryGetRequestSchema = z
 
 export const AttendanceHistoryGetResponseSchema = z.array(
   AttendanceBaseSchema.extend({
+    notes: notes.nullable(), // ToDo: remove this nullable after backend is updated
     user: UserSchema,
     createdByUser: makeFieldsNullable(UserSchema).nullable().optional(),
     updatedByUser: makeFieldsNullable(UserSchema).nullable().optional(),

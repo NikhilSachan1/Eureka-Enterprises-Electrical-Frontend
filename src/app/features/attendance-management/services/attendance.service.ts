@@ -3,18 +3,18 @@ import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
-  IAttendanceActionRequestDto,
+  IAttendanceActionFormDto,
   IAttendanceActionResponseDto,
-  IAttendanceApplyRequestDto,
+  IAttendanceApplyFormDto,
   IAttendanceApplyResponseDto,
   IAttendanceCurrentStatusGetResponseDto,
-  IAttendanceForceRequestDto,
+  IAttendanceForceFormDto,
   IAttendanceForceResponseDto,
-  IAttendanceGetRequestDto,
+  IAttendanceGetFormDto,
   IAttendanceGetResponseDto,
-  IAttendanceHistoryGetRequestDto,
+  IAttendanceHistoryGetFormDto,
   IAttendanceHistoryGetResponseDto,
-  IAttendanceRegularizedRequestDto,
+  IAttendanceRegularizedFormDto,
   IAttendanceRegularizedResponseDto,
 } from '../types/attendance.dto';
 import {
@@ -41,16 +41,18 @@ export class AttendanceService {
   private readonly apiService = inject(ApiService);
 
   applyAttendance(
-    formData: IAttendanceApplyRequestDto
+    formData: IAttendanceApplyFormDto
   ): Observable<IAttendanceApplyResponseDto> {
     this.logger.logUserAction('Apply Attendance Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.ATTENDANCE.APPLY,
-        formData,
-        AttendanceApplyRequestSchema,
-        AttendanceApplyResponseSchema
+        {
+          response: AttendanceApplyResponseSchema,
+          request: AttendanceApplyRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IAttendanceApplyResponseDto) => {
@@ -68,16 +70,18 @@ export class AttendanceService {
   }
 
   forceAttendance(
-    formData: IAttendanceForceRequestDto
+    formData: IAttendanceForceFormDto
   ): Observable<IAttendanceForceResponseDto> {
     this.logger.logUserAction('Force Attendance Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.ATTENDANCE.FORCE,
-        formData,
-        AttendanceForceRequestSchema,
-        AttendanceForceResponseSchema
+        {
+          response: AttendanceForceResponseSchema,
+          request: AttendanceForceRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IAttendanceForceResponseDto) => {
@@ -95,7 +99,7 @@ export class AttendanceService {
   }
 
   regularizedAttendance(
-    formData: IAttendanceRegularizedRequestDto,
+    formData: IAttendanceRegularizedFormDto,
     attendanceId: string
   ): Observable<IAttendanceRegularizedResponseDto> {
     this.logger.logUserAction('Regularized Attendance Request');
@@ -103,9 +107,11 @@ export class AttendanceService {
     return this.apiService
       .postValidated(
         API_ROUTES.ATTENDANCE.REGULARIZE(attendanceId),
-        formData,
-        AttendanceRegularizedRequestSchema,
-        AttendanceRegularizedResponseSchema
+        {
+          response: AttendanceRegularizedResponseSchema,
+          request: AttendanceRegularizedRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IAttendanceRegularizedResponseDto) => {
@@ -129,16 +135,18 @@ export class AttendanceService {
   }
 
   actionAttendance(
-    formData: IAttendanceActionRequestDto
+    formData: IAttendanceActionFormDto
   ): Observable<IAttendanceActionResponseDto> {
     this.logger.logUserAction('Action Attendance Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.ATTENDANCE.APPROVAL_ACTION,
-        formData,
-        AttendanceActionRequestSchema,
-        AttendanceActionResponseSchema
+        {
+          response: AttendanceActionResponseSchema,
+          request: AttendanceActionRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IAttendanceActionResponseDto) => {
@@ -159,16 +167,18 @@ export class AttendanceService {
   }
 
   getAttendanceList(
-    params?: IAttendanceGetRequestDto
+    params?: IAttendanceGetFormDto
   ): Observable<IAttendanceGetResponseDto> {
     this.logger.logUserAction('Get Attendance List Request');
 
     return this.apiService
       .getValidated(
         API_ROUTES.ATTENDANCE.LIST,
-        AttendanceGetResponseSchema,
-        params,
-        AttendanceGetRequestSchema
+        {
+          response: AttendanceGetResponseSchema,
+          request: AttendanceGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IAttendanceGetResponseDto) => {
@@ -189,16 +199,18 @@ export class AttendanceService {
   }
 
   getAttendanceHistory(
-    params?: IAttendanceHistoryGetRequestDto
+    params?: IAttendanceHistoryGetFormDto
   ): Observable<IAttendanceHistoryGetResponseDto> {
     this.logger.logUserAction('Get Attendance History Request');
 
     return this.apiService
       .getValidated(
         API_ROUTES.ATTENDANCE.HISTORY,
-        AttendanceHistoryGetResponseSchema,
-        params,
-        AttendanceHistoryGetRequestSchema
+        {
+          response: AttendanceHistoryGetResponseSchema,
+          request: AttendanceHistoryGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IAttendanceHistoryGetResponseDto) => {
@@ -225,10 +237,9 @@ export class AttendanceService {
     this.logger.logUserAction('Get Attendance Current Status Request');
 
     return this.apiService
-      .getValidated(
-        API_ROUTES.ATTENDANCE.CURRENT_STATUS,
-        AttendanceCurrentStatusGetResponseSchema
-      )
+      .getValidated(API_ROUTES.ATTENDANCE.CURRENT_STATUS, {
+        response: AttendanceCurrentStatusGetResponseSchema,
+      })
       .pipe(
         tap((response: IAttendanceCurrentStatusGetResponseDto) => {
           this.logger.logUserAction(

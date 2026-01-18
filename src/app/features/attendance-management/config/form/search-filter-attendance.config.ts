@@ -1,3 +1,4 @@
+import { IAttendanceGetFormDto } from '@features/attendance-management/types/attendance.dto';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
@@ -11,46 +12,47 @@ import {
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
 
-const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
-  {
-    employeeName: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
-    },
-    attendanceDate: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
-      label: 'Attendance Date',
-      fieldName: 'attendanceDate',
-    },
-    attendanceStatus: {
-      fieldType: EDataType.MULTI_SELECT,
-      id: 'attendanceStatus',
-      fieldName: 'attendanceStatus',
-      label: 'Attendance Status',
-      multiSelectConfig: {
-        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.ATTENDANCE,
-          dropdownName: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
-        },
-        filterOptions: {
-          exclude: [EAttendanceStatus.CHECKED_OUT],
-        },
+const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
+  IAttendanceGetFormDto & { globalSearch?: string }
+> = {
+  employeeName: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
+  },
+  attendanceDate: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
+    label: 'Attendance Date',
+    fieldName: 'attendanceDate',
+  },
+  attendanceStatus: {
+    fieldType: EDataType.MULTI_SELECT,
+    id: 'attendanceStatus',
+    fieldName: 'attendanceStatus',
+    label: 'Attendance Status',
+    multiSelectConfig: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.ATTENDANCE,
+        dropdownName: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
       },
-      matchmode: ETableFilterMatchMode.IN,
-    },
-    approvalStatus: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
-      multiSelectConfig: {
-        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
-        filterOptions: {
-          exclude: [EApprovalStatus.CANCELLED],
-        },
+      filterOptions: {
+        exclude: [EAttendanceStatus.CHECKED_OUT],
       },
     },
-    globalSearch: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+    matchmode: ETableFilterMatchMode.IN,
+  },
+  approvalStatus: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
+    multiSelectConfig: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
+      filterOptions: {
+        exclude: [EApprovalStatus.CANCELLED],
+      },
     },
-  };
+  },
+  globalSearch: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+  },
+};
 
 const SEARCH_FILTER_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -61,7 +63,7 @@ const SEARCH_FILTER_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const SEARCH_FILTER_ATTENDANCE_FORM_CONFIG: ITableSearchFilterFormConfig =
+export const SEARCH_FILTER_ATTENDANCE_FORM_CONFIG: ITableSearchFilterFormConfig<IAttendanceGetFormDto> =
   {
     fields: SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG,
     buttons: SEARCH_FILTER_ATTENDANCE_FORM_BUTTONS_CONFIG,

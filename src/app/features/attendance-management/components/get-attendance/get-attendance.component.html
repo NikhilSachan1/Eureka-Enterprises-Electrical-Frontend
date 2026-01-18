@@ -24,11 +24,11 @@
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-1.5">
         <span class="text-slate-400">Location:</span>
-        <span class="text-slate-700">{{ row.siteLocation }}</span>
+        <span class="text-slate-700">{{ row.siteLocation || '-' }}</span>
       </div>
       <div class="flex items-center gap-1.5">
         <span class="text-slate-400">Client:</span>
-        <span class="text-slate-700">{{ row.clientName }}</span>
+        <span class="text-slate-700">{{ row.clientName || '-' }}</span>
       </div>
     </div>
 
@@ -36,11 +36,11 @@
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-1.5">
         <span class="text-slate-400">Engineer:</span>
-        <span class="text-slate-700">{{ row.associateEngineerName }}</span>
+        <span class="text-slate-700">{{ row.associateEngineerName || '-' }}</span>
       </div>
       <div class="flex items-center gap-1.5">
         <span class="text-slate-400">Vehicle:</span>
-        <span class="text-slate-700">{{ row.associatedVehicle }}</span>
+        <span class="text-slate-700">{{ row.associatedVehicle || '-' }}</span>
       </div>
     </div>
   </div>

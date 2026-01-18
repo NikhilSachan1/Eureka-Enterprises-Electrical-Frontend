@@ -31,7 +31,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       },
       serverSideFilterAndSortConfig: {
         sortField: 'USER_NAME',
-        filterField: 'userIds',
+        filterField: 'employeeName',
       },
     },
     {
@@ -56,7 +56,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       bodyTemplate: EDataType.STATUS,
       serverSideFilterAndSortConfig: {
         sortField: 'STATUS',
-        filterField: 'statuses',
+        filterField: 'attendanceStatus',
       },
     },
     {
@@ -64,7 +64,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       header: 'Approval Status',
       bodyTemplate: EDataType.STATUS,
       serverSideFilterAndSortConfig: {
-        filterField: 'approvalStatuses',
+        filterField: 'approvalStatus',
       },
       showSort: false,
     },

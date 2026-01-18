@@ -11,17 +11,14 @@ import { PayrollService } from '@features/payroll-management/services/payroll.se
 import {
   IActionPayrollFormDto,
   IActionPayrollResponseDto,
+  IActionPayrollUIFormDto,
   IPayslipGetBaseResponseDto,
 } from '@features/payroll-management/types/payroll.dto';
 import { EPayslipStatus } from '@features/payroll-management/types/payroll.enum';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { ConfirmationDialogService } from '@shared/services';
 import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
-import {
-  EButtonActionType,
-  IDialogActionHandler,
-  IFormConfig,
-} from '@shared/types';
+import { EButtonActionType, IDialogActionHandler } from '@shared/types';
 import { finalize, Observable } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -35,7 +32,7 @@ import { FormBase } from '@shared/base/form.base';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActionPayrollComponent
-  extends FormBase<IActionPayrollFormDto>
+  extends FormBase<IActionPayrollUIFormDto>
   implements OnInit, IDialogActionHandler
 {
   private readonly payrollService = inject(PayrollService);
@@ -63,8 +60,8 @@ export class ActionPayrollComponent
     }
 
     const actionType = this.dialogActionType();
-    this.form = this.formService.createForm<IActionPayrollFormDto>(
-      ACTION_PAYROLL_FORM_CONFIG as IFormConfig<IActionPayrollFormDto>,
+    this.form = this.formService.createForm<IActionPayrollUIFormDto>(
+      ACTION_PAYROLL_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
         context: {

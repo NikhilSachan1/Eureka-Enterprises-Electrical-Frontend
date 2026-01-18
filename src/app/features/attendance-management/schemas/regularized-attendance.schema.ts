@@ -1,18 +1,21 @@
 import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
-import { onlyTimeStringField } from '@shared/schemas/common.schema';
+import { SHIFT_DATA } from '@shared/config';
 
-const { id, notes, status, userId } = AttendanceBaseSchema.shape;
+const { id, status, userId } = AttendanceBaseSchema.shape;
 
 export const AttendanceRegularizedRequestSchema = z
   .object({
-    checkInTime: onlyTimeStringField,
-    checkOutTime: onlyTimeStringField,
-    notes,
-    status,
-    userId,
+    attendanceStatus: status,
+    employeeName: userId,
   })
-  .strict();
+  .strict()
+  .transform(data => ({
+    status: data.attendanceStatus,
+    checkInTime: SHIFT_DATA.START_TIME,
+    checkOutTime: SHIFT_DATA.END_TIME,
+    userId: data.employeeName,
+  }));
 
 export const AttendanceRegularizedResponseSchema = z
   .object({

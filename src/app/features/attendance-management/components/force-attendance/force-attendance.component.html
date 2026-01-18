@@ -7,48 +7,48 @@
 >
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['employeeName']"
+    [inputFieldConfig]="form.fieldConfigs.employeeName"
   />
 
   <div class="grid grid-cols-1 md:grid-cols-2">
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['date']"
+      [inputFieldConfig]="form.fieldConfigs.attendanceDate"
     />
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['attendanceStatus']"
-    />
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2">
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['locationName']"
-    />
-
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['clientName']"
+      [inputFieldConfig]="form.fieldConfigs.attendanceStatus"
     />
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2">
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['associateEngineerName']"
+      [inputFieldConfig]="form.fieldConfigs.locationName"
     />
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['associatedVehicle']"
+      [inputFieldConfig]="form.fieldConfigs.clientName"
+    />
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.associateEngineerName"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.associatedVehicle"
     />
   </div>
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['forceReason']"
+    [inputFieldConfig]="form.fieldConfigs.remark"
   />
 
   <div class="button-container">
