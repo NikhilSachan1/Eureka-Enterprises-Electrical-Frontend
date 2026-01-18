@@ -4,6 +4,7 @@ import {
   computed,
   DestroyRef,
   inject,
+  input,
   ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -18,17 +19,22 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { PopoverModule, Popover } from 'primeng/popover';
-import { RoleSwitcherComponent } from '../role-switcher/role-switcher.component';
 
 @Component({
   selector: 'app-sidebar-user-profile',
-  imports: [NgClass, PopoverModule, RoleSwitcherComponent],
+  imports: [NgClass, PopoverModule],
   templateUrl: './sidebar-user-profile.component.html',
   styleUrls: ['./sidebar-user-profile.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarUserProfileComponent {
   @ViewChild('userPopover') userPopover!: Popover;
+
+  // Input to control layout style - centered (top) or compact (bottom)
+  compact = input<boolean>(false);
+
+  // Input to know if sidebar is collapsed
+  isSidebarCollapsed = input<boolean>(false);
 
   private router = inject(Router);
   private readonly themeService = inject(ThemeService);

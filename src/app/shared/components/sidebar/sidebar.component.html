@@ -2,40 +2,58 @@
   class="sidebar-layout"
   [ngClass]="{ 'dark-theme-active': themeService.isDarkMode() }"
 >
-  <!-- Toggle Button -->
-  <button
-    type="button"
-    class="sidebar-toggle"
-    [class.sidebar-toggle--visible]="sidebarVisible()"
-    [class.transition-enabled]="transitionEnabled()"
-    [attr.aria-expanded]="sidebarVisible()"
-    [attr.aria-label]="sidebarVisible() ? 'Hide sidebar' : 'Show sidebar'"
-    (click)="toggleSidebar()"
-    @fadeInOut
-  >
-    <i
-      class="pi"
-      [ngClass]="sidebarVisible() ? 'pi-times' : 'pi-bars'"
-    ></i>
-  </button>
+  <!-- Toggle Button - Only on Mobile -->
+  @if (isMobile()) {
+    <button
+      type="button"
+      class="sidebar-toggle"
+      [class.sidebar-toggle--visible]="sidebarVisible()"
+      [class.transition-enabled]="transitionEnabled()"
+      [attr.aria-expanded]="sidebarVisible()"
+      [attr.aria-label]="sidebarVisible() ? 'Hide sidebar' : 'Show sidebar'"
+      (click)="toggleSidebar()"
+      @fadeInOut
+    >
+      <i
+        class="pi"
+        [ngClass]="sidebarVisible() ? 'pi-times' : 'pi-bars'"
+      ></i>
+    </button>
+  }
 
   <!-- Sidebar -->
   <aside
     class="sidebar"
-    [ngClass]="sidebarVisible() ? 'sidebar--expanded' : 'sidebar--collapsed'"
+    [ngClass]="{
+      'sidebar--expanded': sidebarVisible(),
+      'sidebar--collapsed': !sidebarVisible(),
+    }"
     [attr.aria-hidden]="!sidebarVisible()"
   >
-    <app-sidebar-header />
-    <div class="sidebar-content">
-      <app-sidebar-menu />
-    </div>
+    <app-sidebar-header
+      [sidebarVisible]="sidebarVisible()"
+      [isMobile]="isMobile()"
+      (toggleSidebar)="toggleSidebar()"
+    />
+    <!-- User Profile - Top (Centered) -->
     <app-sidebar-user-profile />
+    <div class="sidebar-content">
+      <app-sidebar-menu [isCollapsed]="!sidebarVisible() && !isMobile()" />
+    </div>
+    <!-- Role Switcher - Above Compact Profile -->
+    <app-role-switcher [isSidebarCollapsed]="!sidebarVisible() && !isMobile()" />
+    <!-- User Profile - Bottom (Compact) -->
+    <app-sidebar-user-profile
+      [compact]="true"
+      [isSidebarCollapsed]="!sidebarVisible() && !isMobile()"
+    />
   </aside>
 
   <!-- Main Content Area -->
   <app-content-area
     [sidebarVisible]="sidebarVisible()"
     [isMobile]="isMobile()"
+    [sidebarCollapsed]="!sidebarVisible()"
   >
     <ng-content />
   </app-content-area>

@@ -1,24 +1,39 @@
 <!-- Only show if user has multiple roles -->
 @if (hasMultipleRoles()) {
-  <!-- Compact Role Switcher Button -->
-  <button
-    type="button"
-    class="role-btn"
-    [disabled]="isSubmitting()"
-    (click)="togglePopover($event)"
-  >
-    <div class="role-icon">
-      <i [class]="ALL_ICONS.COMMON.ID_CARD"></i>
-    </div>
-    <div class="role-info">
-      <span class="role-label">Current Role</span>
-      <span class="role-name">{{ activeRole().name }}</span>
-    </div>
-    <i
-      class="pi pi-sync switch-icon"
-      [class.spinning]="isSubmitting()"
-    ></i>
-  </button>
+  @if (isSidebarCollapsed()) {
+    <!-- Collapsed Sidebar - Only Icon (clickable) -->
+    <button
+      type="button"
+      class="role-btn-compact"
+      [disabled]="isSubmitting()"
+      (click)="togglePopover($event)"
+      [attr.aria-label]="'Switch Role: ' + activeRole().name"
+    >
+      <div class="role-icon-compact">
+        <i [class]="ALL_ICONS.COMMON.ID_CARD"></i>
+      </div>
+    </button>
+  } @else {
+    <!-- Expanded Sidebar - Full Role Switcher Button -->
+    <button
+      type="button"
+      class="role-btn"
+      [disabled]="isSubmitting()"
+      (click)="togglePopover($event)"
+    >
+      <div class="role-icon">
+        <i [class]="ALL_ICONS.COMMON.ID_CARD"></i>
+      </div>
+      <div class="role-info">
+        <span class="role-label">Current Role</span>
+        <span class="role-name">{{ activeRole().name }}</span>
+      </div>
+      <i
+        class="pi pi-sync switch-icon"
+        [class.spinning]="isSubmitting()"
+      ></i>
+    </button>
+  }
 
   <!-- Role Selection Popover -->
   <p-popover

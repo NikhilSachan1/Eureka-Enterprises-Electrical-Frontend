@@ -4,7 +4,8 @@
 <main
   class="content-area"
   [ngClass]="{
-    'content-area--with-sidebar': sidebarVisible() && !isMobile(),
+    'content-area--with-sidebar': sidebarVisible() && !isMobile() && !sidebarCollapsed(),
+    'content-area--sidebar-collapsed': sidebarCollapsed() && !isMobile(),
     'content-area--dark': themeService.isDarkMode(),
     'transition-enabled': transitionEnabled(),
   }"

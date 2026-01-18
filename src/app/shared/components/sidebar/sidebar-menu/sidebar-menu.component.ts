@@ -1,6 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  effect,
+} from '@angular/core';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
+import { PopoverModule, Popover } from 'primeng/popover';
 import { MenuService } from '@core/services';
 import { slideInOut } from '@shared/animations';
 import { MenuItem } from '@shared/types';
@@ -9,7 +16,7 @@ import { ICONS } from '@shared/constants';
 @Component({
   selector: 'app-sidebar-menu',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet],
+  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet, PopoverModule],
   templateUrl: './sidebar-menu.component.html',
   styleUrls: ['./sidebar-menu.component.scss'],
   animations: [slideInOut],
@@ -17,7 +24,37 @@ import { ICONS } from '@shared/constants';
 })
 export class SidebarMenuComponent {
   readonly menuService = inject(MenuService);
+  readonly router = inject(Router);
   readonly icons = ICONS;
+
+  // Input to know if sidebar is collapsed (for popover display)
+  isCollapsed = input<boolean>(false);
+
+  // Track popover hide timeout
+  private popoverHideTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // Store popover references by menu item ID
+  private popoverRefs = new Map<string, Popover>();
+
+  // Track which popovers have been registered to avoid re-registration
+  private registeredPopovers = new Set<string>();
+
+  constructor() {
+    // Watch for collapsed state changes and reset popover registrations
+    effect(() => {
+      // When collapsed state changes, clear all registrations and references
+      // This ensures popovers can re-register when sidebar state changes
+      this.registeredPopovers.clear();
+      this.popoverRefs.clear();
+      this.closeAllPopovers();
+
+      // Clear any pending hide timeout
+      if (this.popoverHideTimeout) {
+        clearTimeout(this.popoverHideTimeout);
+        this.popoverHideTimeout = null;
+      }
+    });
+  }
 
   /**
    * Toggle a top-level submenu item's expanded state
@@ -127,5 +164,124 @@ export class SidebarMenuComponent {
     }
 
     return item.routerLink;
+  }
+
+  /**
+   * Handle submenu item click in popover
+   */
+  protected onSubmenuItemClick(
+    child: MenuItem,
+    parentBasePath: string | null
+  ): void {
+    const fullPath = this.getFullRouterLink(child, parentBasePath);
+    if (fullPath) {
+      void this.router.navigate([fullPath]);
+      this.closeAllSubmenus();
+    }
+  }
+
+  /**
+   * Register popover reference for a menu item
+   * Returns empty string to avoid rendering anything
+   */
+  protected registerPopover(
+    itemId: string,
+    popover: Popover | undefined
+  ): string {
+    if (popover) {
+      // Always update the reference, even if already registered
+      // This ensures we have the latest popover instance
+      this.popoverRefs.set(itemId, popover);
+      this.registeredPopovers.add(itemId);
+    }
+    return '';
+  }
+
+  /**
+   * Get popover reference for a menu item
+   */
+  protected getPopover(itemId: string): Popover | undefined {
+    return this.popoverRefs.get(itemId);
+  }
+
+  /**
+   * Handle mouse enter on parent button
+   */
+  protected onParentMouseEnter(
+    event: MouseEvent,
+    target: HTMLElement,
+    itemId: string
+  ): void {
+    if (this.popoverHideTimeout) {
+      clearTimeout(this.popoverHideTimeout);
+      this.popoverHideTimeout = null;
+    }
+
+    // Close all nested menus first when switching to a different parent
+    this.closeAllSubmenus();
+
+    // Close all other popovers first
+    this.closeAllPopoversExcept(itemId);
+
+    const popover = this.getPopover(itemId);
+    if (popover && target) {
+      // Use PrimeNG's native show method - let it handle positioning
+      popover.show(event, target);
+    }
+  }
+
+  /**
+   * Close all popovers except the one with the given itemId
+   */
+  private closeAllPopoversExcept(currentItemId: string): void {
+    this.popoverRefs.forEach((popover, itemId) => {
+      if (itemId !== currentItemId) {
+        popover.hide();
+      }
+    });
+  }
+
+  /**
+   * Close all popovers
+   */
+  private closeAllPopovers(): void {
+    // Close via PrimeNG API
+    this.popoverRefs.forEach(popover => {
+      popover.hide();
+    });
+
+    // Also hide all popovers in DOM to ensure they're closed
+    setTimeout(() => {
+      const popoverElements = document.querySelectorAll('.p-popover');
+      popoverElements.forEach((el: Element) => {
+        (el as HTMLElement).style.display = 'none';
+      });
+    }, 0);
+  }
+
+  /**
+   * Handle mouse leave on parent button with delay
+   */
+  protected onParentMouseLeave(itemId: string): void {
+    if (this.popoverHideTimeout) {
+      clearTimeout(this.popoverHideTimeout);
+    }
+    this.popoverHideTimeout = setTimeout(() => {
+      const popover = this.getPopover(itemId);
+      if (popover) {
+        popover.hide();
+      }
+      this.popoverHideTimeout = null;
+    }, 100);
+  }
+
+  /**
+   * Handle mouse enter on popover content
+   */
+  protected onPopoverMouseEnter(_itemId: string): void {
+    if (this.popoverHideTimeout) {
+      clearTimeout(this.popoverHideTimeout);
+      this.popoverHideTimeout = null;
+    }
   }
 }

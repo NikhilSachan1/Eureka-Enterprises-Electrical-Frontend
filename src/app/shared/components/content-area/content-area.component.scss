@@ -3,6 +3,10 @@
   flex: 1;
   height: 100vh;
   overflow: hidden;
+
+  // Sidebar width variables
+  --sidebar-width: 300px;
+  --sidebar-collapsed-width: 70px;
 }
 
 // Content area component with light/dark theme support
@@ -26,9 +30,16 @@
       color 0.3s ease;
   }
 
-  // With sidebar variant
+  // With sidebar variant - expanded
   &--with-sidebar {
     margin-left: var(--sidebar-width, 300px);
+  }
+
+  // With sidebar variant - collapsed (desktop only)
+  &--sidebar-collapsed {
+    @media (min-width: 769px) {
+      margin-left: var(--sidebar-collapsed-width, 70px);
+    }
   }
 
   // Dark theme variant

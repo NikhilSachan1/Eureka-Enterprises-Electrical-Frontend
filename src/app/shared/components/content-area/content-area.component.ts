@@ -28,6 +28,7 @@ export class ContentAreaComponent {
   // Input signals
   sidebarVisible = input<boolean>(true);
   isMobile = input<boolean>(false);
+  sidebarCollapsed = input<boolean>(false); // Desktop collapsed state
 
   readonly themeService = inject(ThemeService);
   readonly routeLoading = inject(RouteLoadingService);

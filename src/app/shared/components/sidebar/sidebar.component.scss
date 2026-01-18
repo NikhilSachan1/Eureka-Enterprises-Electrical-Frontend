@@ -19,6 +19,7 @@
 
   // Layout variables
   --sidebar-width: 300px;
+  --sidebar-collapsed-width: 70px; // Icon-only width for desktop collapsed state
   --header-height: 70px;
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -64,23 +65,41 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: transform 0.2s ease-out;
+  transition:
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateX(0);
-  will-change: transform;
+  will-change: transform, width;
   box-shadow: var(--shadow-md);
   border-right: 1px solid var(--sidebar-border-color);
 
+  // Desktop: Collapsed state - show icon width only
   &--collapsed {
-    transform: translateX(-100%);
+    @media (min-width: 769px) {
+      width: var(--sidebar-collapsed-width);
+      transform: translateX(0); // Don't hide on desktop, just narrow
+    }
+
+    // Mobile: Hide completely
+    @media (max-width: 768px) {
+      transform: translateX(-100%);
+    }
   }
 
   &--expanded {
+    width: var(--sidebar-width);
     transform: translateX(0);
   }
 
   // Child component styles
   app-sidebar-header {
     flex-shrink: 0;
+  }
+
+  // User Profile - Top (centered)
+  app-sidebar-user-profile:first-of-type {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--sidebar-border-color);
   }
 
   // Scrollable content area
@@ -110,12 +129,52 @@
     flex: 1;
   }
 
-  app-sidebar-user-profile {
+  // User Profile - Bottom (compact)
+  app-sidebar-user-profile:last-of-type {
     flex-shrink: 0;
+    margin-top: auto;
+  }
+
+  app-role-switcher {
+    flex-shrink: 0;
+  }
+
+  // Desktop collapsed state - hide content, show only icons
+  &--collapsed {
+    @media (min-width: 769px) {
+      // Hide top profile only
+      app-sidebar-user-profile:first-of-type {
+        display: none;
+      }
+
+      // Show bottom profile but only avatar (handled in component)
+      app-sidebar-user-profile:last-of-type {
+        display: block;
+      }
+
+      // Role switcher shows compact version (handled in component)
+      app-role-switcher {
+        display: block;
+      }
+
+      // Show only menu icons in collapsed state
+      .sidebar-content {
+        padding: 0.5rem;
+        overflow: visible;
+      }
+
+      app-sidebar-menu {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        width: 100%;
+      }
+    }
   }
 }
 
-// Toggle Button
+// Toggle Button - Only visible on mobile
 .sidebar-toggle {
   position: fixed;
   left: 0;
@@ -132,6 +191,12 @@
   border: 1px solid var(--sidebar-border-color);
   box-shadow: var(--shadow-md);
   padding: 0;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Hide on desktop, show only on mobile
+  @media (min-width: 769px) {
+    display: none !important;
+  }
 
   // Enable transition only when explicitly requested (not on page load)
   &.transition-enabled {
@@ -139,7 +204,22 @@
   }
 
   &--visible {
-    left: var(--sidebar-width);
+    // Desktop: position based on sidebar width (expanded or collapsed)
+    @media (min-width: 769px) {
+      left: var(--sidebar-width);
+    }
+
+    // Mobile: always use full width
+    @media (max-width: 768px) {
+      left: var(--sidebar-width);
+    }
+  }
+
+  // Adjust position when sidebar is collapsed on desktop
+  :host.sidebar-collapsed &--visible {
+    @media (min-width: 769px) {
+      left: var(--sidebar-collapsed-width);
+    }
   }
 
   &:hover,

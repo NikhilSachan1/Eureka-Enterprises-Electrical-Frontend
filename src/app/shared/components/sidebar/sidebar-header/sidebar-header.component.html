@@ -1,5 +1,11 @@
 <header class="sidebar-header">
-  <div class="logo-section">
+  <div
+    class="logo-section"
+    [class.clickable]="!isMobile()"
+    (click)="onHeaderClick()"
+    [attr.role]="!isMobile() ? 'button' : null"
+    [attr.tabindex]="!isMobile() ? '0' : null"
+  >
     <img
       src="https://i.postimg.cc/3w9krVGY/Untitled-design.png"
       alt="Eureka Logo"
@@ -11,4 +17,11 @@
       <h2>{{ companyDescription() }}</h2>
     </div>
   </div>
+  @if (!isMobile() && sidebarVisible()) {
+    <i
+      [class]="collapseIcon"
+      class="collapse-icon"
+      (click)="onHeaderClick()"
+    ></i>
+  }
 </header>

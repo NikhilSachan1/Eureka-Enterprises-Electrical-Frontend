@@ -1,32 +1,65 @@
-<!-- User Profile Section - Bottom of Sidebar -->
-<div class="user-section">
-  <!-- Role Switcher (self-contained, shows only if multiple roles) -->
-  <app-role-switcher />
-
-  <!-- Divider (only if role switcher is visible) -->
-  <div class="divider"></div>
-
+<!-- User Profile Section -->
+<div
+  class="user-section"
+  [class.compact]="compact()"
+>
   <!-- User Card -->
-  <div class="user-card">
-    <img
-      [src]="userAvatar()"
-      [alt]="user()?.fullName"
-      class="user-avatar"
-      loading="lazy"
-    />
-    <div class="user-info">
-      <span class="user-name">{{ user()?.fullName }}</span>
-      <span class="user-role">{{ getLoogedUserDesignation() }}</span>
-    </div>
-    <button
-      type="button"
-      class="user-menu-btn"
-      (click)="toggleUserOptions($event)"
-      (keydown.enter)="toggleUserOptions($event)"
-      tabindex="0"
-    >
-      <i class="pi pi-ellipsis-v"></i>
-    </button>
+  <div
+    class="user-card"
+    [class.compact]="compact()"
+  >
+    @if (!compact()) {
+      <!-- Top Section - Centered with Avatar and Info -->
+      <!-- Avatar - Center -->
+      <img
+        [src]="userAvatar()"
+        [alt]="user()?.fullName"
+        class="user-avatar"
+        loading="lazy"
+      />
+
+      <!-- User Info - Below Avatar -->
+      <div class="user-info">
+        <span class="user-name">{{ user()?.fullName }}</span>
+        <span class="user-role">{{ getLoogedUserDesignation() }}</span>
+      </div>
+    } @else {
+      <!-- Bottom Section -->
+      @if (isSidebarCollapsed()) {
+        <!-- Collapsed Sidebar - Only Avatar (clickable) -->
+        <img
+          [src]="userAvatar()"
+          [alt]="user()?.fullName"
+          class="user-avatar user-avatar-compact"
+          (click)="toggleUserOptions($event)"
+          (keydown.enter)="toggleUserOptions($event)"
+          tabindex="0"
+          role="button"
+          loading="lazy"
+        />
+      } @else {
+        <!-- Expanded Sidebar - Avatar + Name + Role -->
+        <img
+          [src]="userAvatar()"
+          [alt]="user()?.fullName"
+          class="user-avatar"
+          loading="lazy"
+        />
+        <div class="user-info">
+          <span class="user-name">{{ user()?.fullName }}</span>
+          <span class="user-role">{{ getLoogedUserDesignation() }}</span>
+        </div>
+        <button
+          type="button"
+          class="user-menu-btn"
+          (click)="toggleUserOptions($event)"
+          (keydown.enter)="toggleUserOptions($event)"
+          tabindex="0"
+        >
+          <i class="pi pi-ellipsis-v"></i>
+        </button>
+      }
+    }
   </div>
 
   <!-- User Menu Popover -->

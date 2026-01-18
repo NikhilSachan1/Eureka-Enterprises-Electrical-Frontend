@@ -12,6 +12,7 @@ import { SidebarHeaderComponent } from './sidebar-header/sidebar-header.componen
 import { SidebarUserProfileComponent } from './sidebar-user-profile/sidebar-user-profile.component';
 import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
 import { ContentAreaComponent } from '../content-area/content-area.component';
+import { RoleSwitcherComponent } from './role-switcher/role-switcher.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -22,11 +23,15 @@ import { ContentAreaComponent } from '../content-area/content-area.component';
     SidebarUserProfileComponent,
     SidebarMenuComponent,
     ContentAreaComponent,
+    RoleSwitcherComponent,
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [fadeInOut],
+  host: {
+    '[class.sidebar-collapsed]': '!sidebarVisible() && !isMobile()',
+  },
 })
 export class SidebarComponent {
   readonly menuService = inject(MenuService);

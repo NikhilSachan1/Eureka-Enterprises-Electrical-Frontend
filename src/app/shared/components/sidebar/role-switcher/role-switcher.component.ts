@@ -4,6 +4,7 @@ import {
   computed,
   DestroyRef,
   inject,
+  input,
   signal,
   ViewChild,
 } from '@angular/core';
@@ -39,6 +40,9 @@ export interface UserRole {
 })
 export class RoleSwitcherComponent {
   @ViewChild('rolePopover') rolePopover!: Popover;
+
+  // Input for sidebar collapsed state
+  isSidebarCollapsed = input<boolean>(false);
 
   private readonly authService = inject(AuthService);
   private readonly logger = inject(LoggerService);
