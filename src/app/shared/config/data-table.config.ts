@@ -114,5 +114,5 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
 export const DEFAULT_BULK_ACTION_CONFIG: Partial<ITableActionConfig> = {};
 export const DEFAULT_ROW_ACTION_CONFIG: Partial<ITableActionConfig> = {
   variant: EButtonVariant.OUTLINED,
-  rounded: true,
+  shadow: true,
 };
