@@ -4,7 +4,11 @@ import {
   uuidField,
   dateField,
 } from '@shared/schemas';
-import { makeFieldsNullable, toTitleCase } from '@shared/utility';
+import {
+  makeFieldsNullable,
+  toTitleCase,
+  transformDateFormat,
+} from '@shared/utility';
 import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
 
@@ -43,21 +47,15 @@ export const AttendanceGetRequestSchema = z
       approvalStatus: attendanceApprovalStatus,
       ...rest
     }) => {
-      const start = dateRange?.[0];
-      const end = dateRange?.[dateRange.length - 1];
-
-      const toISODate = (d: Date): string =>
-        new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
-          .toISOString()
-          .split('T')[0];
+      const [start, end] = dateRange ?? [];
 
       return {
         ...rest,
         userIds: employeeName,
         statuses: attendanceStatus,
         approvalStatuses: attendanceApprovalStatus,
-        startDate: start ? toISODate(start) : undefined,
-        endDate: end ? toISODate(end) : undefined,
+        startDate: transformDateFormat(start),
+        endDate: transformDateFormat(end),
       };
     }
   );
