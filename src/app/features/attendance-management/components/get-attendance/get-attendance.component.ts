@@ -41,7 +41,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import {
   IAttendanceGetBaseResponseDto,
-  IAttendanceGetRequestDto,
+  IAttendanceGetFormDto,
   IAttendanceGetResponseDto,
   IAttendanceGetStatsResponseDto,
 } from '../../types/attendance.dto';
@@ -135,9 +135,9 @@ export class GetAttendanceComponent implements OnInit {
       });
   }
 
-  private prepareParamData(): IAttendanceGetRequestDto {
+  private prepareParamData(): IAttendanceGetFormDto {
     const queryFilterParams =
-      this.tableServerSideFilterAndSortService.buildQueryParams<IAttendanceGetRequestDto>(
+      this.tableServerSideFilterAndSortService.buildQueryParams<IAttendanceGetFormDto>(
         this.tableFilterData,
         this.table.getHeaders()
       );

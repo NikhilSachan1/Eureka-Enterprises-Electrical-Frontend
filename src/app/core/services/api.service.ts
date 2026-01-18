@@ -337,7 +337,20 @@ export class ApiService {
       return result;
     }
 
+    if (this.isFileOrBlob(value)) {
+      if (parentKey) {
+        result[parentKey] = value;
+      }
+      return result;
+    }
+
     if (Array.isArray(value)) {
+      const hasFiles = value.some(item => this.isFileOrBlob(item));
+      if (hasFiles && parentKey) {
+        result[parentKey] = value;
+        return result;
+      }
+
       value.forEach((item, index) => {
         const key = parentKey ? `${parentKey}[${index}]` : String(index);
         this.flattenObject(item, key, result);
@@ -345,7 +358,8 @@ export class ApiService {
       return result;
     }
 
-    if (typeof value === 'object' && !this.isFileOrBlob(value)) {
+    // 🔹 Object case - nested objects को flatten करें
+    if (typeof value === 'object') {
       Object.entries(value as Record<string, unknown>).forEach(([k, v]) => {
         const key = parentKey ? `${parentKey}[${k}]` : k;
         this.flattenObject(v, key, result);
@@ -353,6 +367,7 @@ export class ApiService {
       return result;
     }
 
+    // 🔹 Primitive value
     result[parentKey] = value;
     return result;
   }
@@ -364,7 +379,15 @@ export class ApiService {
     }
 
     Object.entries(body).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (Array.isArray(value)) {
+        value.forEach(item => {
+          if (item !== null && item !== undefined) {
+            formData.append(key, item as Blob);
+          }
+        });
+      } else {
+        formData.append(key, value as Blob);
+      }
     });
     return formData;
   }

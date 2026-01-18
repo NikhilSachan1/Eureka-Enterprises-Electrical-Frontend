@@ -3,21 +3,21 @@ import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
-  IExpenseActionRequestDto,
+  IExpenseActionFormDto,
   IExpenseActionResponseDto,
-  IExpenseAddRequestDto,
+  IExpenseAddFormDto,
   IExpenseAddResponseDto,
-  IExpenseDeleteRequestDto,
+  IExpenseDeleteFormDto,
   IExpenseDeleteResponseDto,
   IExpenseDetailGetRequestDto,
   IExpenseDetailGetResponseDto,
-  IExpenseEditRequestDto,
+  IExpenseEditFormDto,
   IExpenseEditResponseDto,
-  IExpenseForceRequestDto,
+  IExpenseForceFormDto,
   IExpenseForceResponseDto,
-  IExpenseGetRequestDto,
+  IExpenseGetFormDto,
   IExpenseGetResponseDto,
-  IExpenseReimburseRequestDto,
+  IExpenseReimburseFormDto,
   IExpenseReimburseResponseDto,
 } from '../types/expense.dto';
 import {
@@ -49,17 +49,17 @@ export class ExpenseService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
-  addExpense(
-    formData: IExpenseAddRequestDto
-  ): Observable<IExpenseAddResponseDto> {
+  addExpense(formData: IExpenseAddFormDto): Observable<IExpenseAddResponseDto> {
     this.logger.logUserAction('Add Expense Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.EXPENSE.ADD,
+        {
+          response: ExpenseAddResponseSchema,
+          request: ExpenseAddRequestSchema,
+        },
         formData,
-        ExpenseAddRequestSchema,
-        ExpenseAddResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -78,16 +78,18 @@ export class ExpenseService {
   }
 
   reimburseExpense(
-    formData: IExpenseReimburseRequestDto
+    formData: IExpenseReimburseFormDto
   ): Observable<IExpenseReimburseResponseDto> {
     this.logger.logUserAction('Reimburse Expense Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.EXPENSE.REIMBURSE,
+        {
+          response: ExpenseReimburseResponseSchema,
+          request: ExpenseReimburseRequestSchema,
+        },
         formData,
-        ExpenseReimburseRequestSchema,
-        ExpenseReimburseResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -109,7 +111,7 @@ export class ExpenseService {
   }
 
   editExpense(
-    formData: IExpenseEditRequestDto,
+    formData: IExpenseEditFormDto,
     expenseId: string
   ): Observable<IExpenseEditResponseDto> {
     this.logger.logUserAction('Edit Expense Request');
@@ -117,9 +119,11 @@ export class ExpenseService {
     return this.apiService
       .patchValidated(
         API_ROUTES.EXPENSE.EDIT(expenseId),
+        {
+          response: ExpenseEditResponseSchema,
+          request: ExpenseEditRequestSchema,
+        },
         formData,
-        ExpenseEditRequestSchema,
-        ExpenseEditResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -138,16 +142,18 @@ export class ExpenseService {
   }
 
   forceExpense(
-    formData: IExpenseForceRequestDto
+    formData: IExpenseForceFormDto
   ): Observable<IExpenseForceResponseDto> {
     this.logger.logUserAction('Force Expense Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.EXPENSE.FORCE,
+        {
+          response: ExpenseForceResponseSchema,
+          request: ExpenseForceRequestSchema,
+        },
         formData,
-        ExpenseForceRequestSchema,
-        ExpenseForceResponseSchema,
         { multipart: true }
       )
       .pipe(
@@ -166,16 +172,18 @@ export class ExpenseService {
   }
 
   actionExpense(
-    formData: IExpenseActionRequestDto
+    formData: IExpenseActionFormDto
   ): Observable<IExpenseActionResponseDto> {
     this.logger.logUserAction('Action Expense Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.EXPENSE.APPROVAL_ACTION,
-        formData,
-        ExpenseActionRequestSchema,
-        ExpenseActionResponseSchema
+        {
+          response: ExpenseActionResponseSchema,
+          request: ExpenseActionRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IExpenseActionResponseDto) => {
@@ -193,16 +201,18 @@ export class ExpenseService {
   }
 
   deleteExpense(
-    formData: IExpenseDeleteRequestDto
+    formData: IExpenseDeleteFormDto
   ): Observable<IExpenseDeleteResponseDto> {
     this.logger.logUserAction('Delete Expense Request');
 
     return this.apiService
       .deleteValidated(
         API_ROUTES.EXPENSE.DELETE,
-        ExpenseDeleteResponseSchema,
-        formData,
-        ExpenseDeleteRequestSchema
+        {
+          response: ExpenseDeleteResponseSchema,
+          request: ExpenseDeleteRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IExpenseDeleteResponseDto) => {
@@ -220,16 +230,18 @@ export class ExpenseService {
   }
 
   getExpenseList(
-    params?: IExpenseGetRequestDto
+    params?: IExpenseGetFormDto
   ): Observable<IExpenseGetResponseDto> {
     this.logger.logUserAction('Get Expense List Request');
 
     return this.apiService
       .getValidated(
         API_ROUTES.EXPENSE.LIST,
-        ExpenseGetResponseSchema,
-        params,
-        ExpenseGetRequestSchema
+        {
+          response: ExpenseGetResponseSchema,
+          request: ExpenseGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IExpenseGetResponseDto) => {
@@ -252,10 +264,9 @@ export class ExpenseService {
     this.logger.logUserAction('Get Expense Detail By Id Request');
 
     return this.apiService
-      .getValidated(
-        API_ROUTES.EXPENSE.GET_EXPENSE_BY_ID(params.id),
-        ExpenseDetailGetResponseSchema
-      )
+      .getValidated(API_ROUTES.EXPENSE.GET_EXPENSE_BY_ID(params.id), {
+        response: ExpenseDetailGetResponseSchema,
+      })
       .pipe(
         tap((response: IExpenseDetailGetResponseDto) => {
           this.logger.logUserAction(

@@ -7,41 +7,41 @@
 >
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['employeeName']"
+    [inputFieldConfig]="form.fieldConfigs.employeeName"
   />
 
   <div class="grid grid-cols-1 md:grid-cols-2">
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['expenseDate']"
+      [inputFieldConfig]="form.fieldConfigs.expenseDate"
     />
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['expenseAmount']"
+      [inputFieldConfig]="form.fieldConfigs.expenseAmount"
     />
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2">
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['paymentMode']"
+      [inputFieldConfig]="form.fieldConfigs.paymentMode"
     />
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['transactionId']"
+      [inputFieldConfig]="form.fieldConfigs.transactionId"
     />
   </div>
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['description']"
+    [inputFieldConfig]="form.fieldConfigs.remark"
   />
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['attachment']"
+    [inputFieldConfig]="form.fieldConfigs.expenseAttachments"
   />
 
   <div class="button-container">

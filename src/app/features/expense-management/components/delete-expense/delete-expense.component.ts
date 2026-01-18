@@ -1,26 +1,20 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
-  signal,
   OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import {
-  IExpenseDeleteRequestDto,
+  IExpenseDeleteFormDto,
   IExpenseDeleteResponseDto,
   IExpenseGetBaseResponseDto,
 } from '@features/expense-management/types/expense.dto';
+import { FormBase } from '@shared/base/form.base';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import {
-  ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
+import { ConfirmationDialogService } from '@shared/services';
 import { EButtonActionType, IDialogActionHandler } from '@shared/types';
 import { finalize } from 'rxjs';
 
@@ -31,12 +25,11 @@ import { finalize } from 'rxjs';
   styleUrl: './delete-expense.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeleteExpenseComponent implements IDialogActionHandler, OnInit {
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class DeleteExpenseComponent
+  extends FormBase<IExpenseDeleteFormDto>
+  implements IDialogActionHandler, OnInit
+{
   private readonly expenseService = inject(ExpenseService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -44,8 +37,6 @@ export class DeleteExpenseComponent implements IDialogActionHandler, OnInit {
   protected readonly selectedRecord =
     input.required<IExpenseGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
-
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -61,32 +52,27 @@ export class DeleteExpenseComponent implements IDialogActionHandler, OnInit {
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: IExpenseGetBaseResponseDto[]): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData(this.selectedRecord());
     this.executeExpenseDeleteAction(formData);
   }
 
   private prepareFormData(
     record: IExpenseGetBaseResponseDto[]
-  ): IExpenseDeleteRequestDto {
+  ): IExpenseDeleteFormDto {
     return {
       expenseIds: record.map((row: IExpenseGetBaseResponseDto) => row.id),
     };
   }
 
-  private executeExpenseDeleteAction(formData: IExpenseDeleteRequestDto): void {
+  private executeExpenseDeleteAction(formData: IExpenseDeleteFormDto): void {
     const loadingMessage = {
       title: 'Deleting Expense',
       message: 'Please wait while we delete the expense...',
     };
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
 
     this.expenseService

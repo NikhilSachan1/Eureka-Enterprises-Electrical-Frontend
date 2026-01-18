@@ -58,13 +58,13 @@ export const routes: Routes = [
             m => m.ATTENDANCE_MANAGEMENT_ROUTES
           ),
       },
-      // {
-      //   path: ROUTE_BASE_PATHS.EXPENSE,
-      //   loadChildren: () =>
-      //     import('./features/expense-management/expense.routes').then(
-      //       m => m.EXPENSE_MANAGEMENT_ROUTES
-      //     ),
-      // },
+      {
+        path: ROUTE_BASE_PATHS.EXPENSE,
+        loadChildren: () =>
+          import('./features/expense-management/expense.routes').then(
+            m => m.EXPENSE_MANAGEMENT_ROUTES
+          ),
+      },
       // {
       //   path: ROUTE_BASE_PATHS.LEAVE,
       //   loadChildren: () =>

@@ -10,9 +10,14 @@ const { approvalByUser, updatedAt, createdAt } =
 
 export const ExpenseDetailGetRequestSchema = z
   .object({
-    id,
+    expenseId: id,
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      id: data.expenseId,
+    };
+  });
 
 export const ExpenseDetailGetResponseSchema = z
   .object({

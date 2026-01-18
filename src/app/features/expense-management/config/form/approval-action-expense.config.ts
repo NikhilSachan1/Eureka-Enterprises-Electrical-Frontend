@@ -1,4 +1,5 @@
 import { Validators } from '@angular/forms';
+import { IExpenseActionUIFormDto } from '@features/expense-management/types/expense.dto';
 import {
   EButtonActionType,
   EDataType,
@@ -6,24 +7,26 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 
-const APPROVAL_ACTION_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  comment: {
-    fieldType: EDataType.TEXT_AREA,
-    id: 'comment',
-    fieldName: 'comment',
-    label: 'Comment',
-    conditionalValidators: [
-      {
-        shouldApply: (context): boolean => {
-          const { actionType } = context;
-          return actionType === EButtonActionType.REJECT;
+const APPROVAL_ACTION_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseActionUIFormDto> =
+  {
+    remark: {
+      fieldType: EDataType.TEXT_AREA,
+      id: 'remark',
+      fieldName: 'remark',
+      label: 'Remark',
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            const { actionType } = context;
+            return actionType === EButtonActionType.REJECT;
+          },
+          validators: [Validators.required],
         },
-        validators: [Validators.required],
-      },
-    ],
-  },
-};
+      ],
+    },
+  };
 
-export const APPROVAL_ACTION_EXPENSE_FORM_CONFIG: IFormConfig = {
-  fields: APPROVAL_ACTION_EXPENSE_FORM_FIELDS_CONFIG,
-};
+export const APPROVAL_ACTION_EXPENSE_FORM_CONFIG: IFormConfig<IExpenseActionUIFormDto> =
+  {
+    fields: APPROVAL_ACTION_EXPENSE_FORM_FIELDS_CONFIG,
+  };

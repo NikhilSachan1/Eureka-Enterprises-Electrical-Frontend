@@ -1,21 +1,19 @@
 import { z } from 'zod';
-import { onlyDateStringField, fileField } from '@shared/schemas';
-import { ExpenseGetBaseResponseSchema } from './get-expense.schema';
+import { ExpenseUpsertShapeSchema } from './base-expense.schema';
+import { transformDateFormat } from '@shared/utility';
 
-const { category, description, amount, paymentMode } =
-  ExpenseGetBaseResponseSchema.shape;
-
-export const ExpenseAddRequestSchema = z
-  .object({
-    category,
-    description,
-    amount,
-    expenseDate: onlyDateStringField,
-    paymentMode,
-    files: z.array(fileField),
-    transactionId: z.string().nullable().default(null),
-  })
-  .strict();
+export const ExpenseAddRequestSchema =
+  ExpenseUpsertShapeSchema.strict().transform(data => {
+    return {
+      category: data.expenseCategory,
+      description: data.remark,
+      amount: data.expenseAmount,
+      expenseDate: transformDateFormat(data.expenseDate),
+      paymentMode: data.paymentMode,
+      files: data.expenseAttachments,
+      transactionId: data.transactionId,
+    };
+  });
 
 export const ExpenseAddResponseSchema = z
   .object({

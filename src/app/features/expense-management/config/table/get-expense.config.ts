@@ -26,7 +26,7 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     },
     serverSideFilterAndSortConfig: {
       sortField: 'userName',
-      filterField: 'userIds',
+      filterField: 'employeeName',
     },
   },
   {
@@ -44,7 +44,7 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'Expense Type',
     serverSideFilterAndSortConfig: {
       sortField: 'category',
-      filterField: 'categories',
+      filterField: 'expenseType',
     },
     showSort: false,
   },
@@ -73,7 +73,7 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'Approval Status',
     bodyTemplate: EDataType.STATUS,
     serverSideFilterAndSortConfig: {
-      filterField: 'approvalStatuses',
+      filterField: 'approvalStatus',
     },
     showSort: false,
   },

@@ -7,7 +7,11 @@ import {
 } from '@shared/schemas';
 import z from 'zod';
 import { ExpenseBaseSchema } from './base-expense.schema';
-import { makeFieldsNullable, toTitleCase } from '@shared/utility';
+import {
+  makeFieldsNullable,
+  toTitleCase,
+  transformDateFormat,
+} from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 const { approvalStatus, category } = ExpenseBaseSchema.shape;
@@ -16,9 +20,9 @@ const { createdAt, updatedAt } = AuditSchema.shape;
 export const ExpenseGetRequestSchema = z
   .object({
     expenseDate: z.array(dateField).min(1).optional(),
-    userIds: z.array(uuidField).min(1).optional(),
-    approvalStatuses: z.array(approvalStatus).min(1).optional(),
-    categories: z.array(category).min(1).optional(),
+    employeeName: z.array(uuidField).min(1).optional(),
+    approvalStatus: z.array(approvalStatus).min(1).optional(),
+    expenseType: z.array(category).min(1).optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -26,25 +30,26 @@ export const ExpenseGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ expenseDate: dateRange, ...rest }) => {
-    if (!dateRange || dateRange.length < 1) {
-      return rest;
+  .transform(
+    ({
+      expenseDate: dateRange,
+      employeeName,
+      approvalStatus: expenseApprovalStatus,
+      expenseType,
+      ...rest
+    }) => {
+      const [start, end] = dateRange ?? [];
+
+      return {
+        ...rest,
+        userIds: employeeName,
+        approvalStatuses: expenseApprovalStatus,
+        categories: expenseType,
+        startDate: transformDateFormat(start),
+        endDate: transformDateFormat(end),
+      };
     }
-
-    const start = dateRange[0];
-    const end = dateRange[dateRange.length - 1];
-
-    const toISODate = (d: Date): string =>
-      new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
-        .toISOString()
-        .split('T')[0];
-
-    return {
-      ...rest,
-      startDate: toISODate(start),
-      endDate: toISODate(end),
-    };
-  });
+  );
 
 export const ExpenseGetBaseResponseSchema = z
   .object({

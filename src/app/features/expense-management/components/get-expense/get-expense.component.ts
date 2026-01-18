@@ -23,7 +23,6 @@ import {
 } from '@shared/services';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import {
-  EApprovalStatus,
   EButtonActionType,
   EDataType,
   IDataViewDetails,
@@ -38,7 +37,7 @@ import {
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   IExpenseGetBaseResponseDto,
-  IExpenseGetRequestDto,
+  IExpenseGetFormDto,
   IExpenseGetResponseDto,
   IExpenseGetStatsResponseDto,
 } from '@features/expense-management/types/expense.dto';
@@ -138,15 +137,10 @@ export class GetExpenseComponent implements OnInit {
       });
   }
 
-  private prepareParamData(): IExpenseGetRequestDto {
-    const initialFilterData: Partial<IExpenseGetRequestDto> = {
-      approvalStatuses: [EApprovalStatus.PENDING],
-    };
-
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IExpenseGetRequestDto>(
+  private prepareParamData(): IExpenseGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IExpenseGetFormDto>(
       this.tableFilterData,
-      this.table.getHeaders(),
-      initialFilterData
+      this.table.getHeaders()
     );
   }
 

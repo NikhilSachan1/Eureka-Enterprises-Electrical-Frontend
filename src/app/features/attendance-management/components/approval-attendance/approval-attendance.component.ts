@@ -85,7 +85,6 @@ export class ApprovalAttendanceComponent
 
   private prepareFormData(): IAttendanceActionFormDto {
     const record = this.selectedRecord();
-
     const formData = this.form.getData();
 
     let actionTypeValue!: ETableActionTypeValue;

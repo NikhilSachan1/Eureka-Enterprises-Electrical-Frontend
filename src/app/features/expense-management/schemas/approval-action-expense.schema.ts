@@ -3,19 +3,22 @@ import { ExpenseBaseSchema } from './base-expense.schema';
 
 const { id, approvalStatus, approvalReason } = ExpenseBaseSchema.shape;
 
-export const ExpenseActionBaseRequestSchema = z
-  .object({
-    approvalStatus,
-    approvalComment: approvalReason,
-    expenseId: id,
-  })
-  .strict();
-
 export const ExpenseActionRequestSchema = z
   .object({
-    approvals: z.array(ExpenseActionBaseRequestSchema).min(1).max(50),
+    expenseIds: z.array(id),
+    approvalStatus,
+    remark: approvalReason,
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      approvals: data.expenseIds.map(expenseId => ({
+        expenseId,
+        approvalStatus: data.approvalStatus,
+        approvalComment: data.remark,
+      })),
+    };
+  });
 
 export const ExpenseActionResultSchema = z
   .object({

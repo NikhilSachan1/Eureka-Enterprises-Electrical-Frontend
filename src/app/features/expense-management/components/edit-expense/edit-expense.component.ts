@@ -2,36 +2,25 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { LoggerService } from '@core/services';
 import { EDIT_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
-import {
-  FormService,
-  LoadingService,
-  NotificationService,
-  RouterNavigationService,
-} from '@shared/services';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
+import { RouterNavigationService } from '@shared/services';
+import { IPageHeaderConfig } from '@shared/types';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import {
-  FORM_VALIDATION_MESSAGES,
-  ROUTE_BASE_PATHS,
-  ROUTES,
-} from '@shared/constants';
-import { IExpenseEditRequestDto } from '@features/expense-management/types/expense.dto';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { IExpenseEditFormDto } from '@features/expense-management/types/expense.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { IExpenseDetailResolverResponse } from '@features/expense-management/types/expense.interface';
-import { transformDateFormat } from '@shared/utility';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-edit-expense',
@@ -45,31 +34,29 @@ import { transformDateFormat } from '@shared/utility';
   styleUrl: './edit-expense.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditExpenseComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly loadingService = inject(LoadingService);
+export class EditExpenseComponent
+  extends FormBase<IExpenseEditFormDto>
+  implements OnInit
+{
   private readonly expenseService = inject(ExpenseService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
-  protected form!: IEnhancedForm;
-
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly isSubmitting = signal(false);
-  protected readonly initialExpenseData = signal<Record<
-    string,
-    unknown
-  > | null>(null);
+  protected readonly initialExpenseData = signal<IExpenseEditFormDto | null>(
+    null
+  );
 
   ngOnInit(): void {
     this.loadExpenseDataFromRoute();
-    this.form = this.formService.createForm(EDIT_EXPENSE_FORM_CONFIG, {
-      destroyRef: this.destroyRef,
-      defaultValues: this.initialExpenseData(),
-    });
+
+    this.form = this.formService.createForm<IExpenseEditFormDto>(
+      EDIT_EXPENSE_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+        defaultValues: this.initialExpenseData(),
+      }
+    );
   }
 
   private loadExpenseDataFromRoute(): void {
@@ -92,7 +79,7 @@ export class EditExpenseComponent implements OnInit {
 
   private preparePrefilledFormData(
     expenseDetailFromResolver: IExpenseDetailResolverResponse
-  ): Record<string, unknown> {
+  ): IExpenseEditFormDto {
     const latestExpenseData =
       expenseDetailFromResolver.history[
         expenseDetailFromResolver.history.length - 1
@@ -108,29 +95,21 @@ export class EditExpenseComponent implements OnInit {
       transactionId,
     } = latestExpenseData;
     return {
-      expenseType: category,
-      description,
+      expenseCategory: category,
+      remark: description,
       expenseAmount: Number(amount),
       expenseDate: new Date(expenseDate),
       paymentMode,
       transactionId,
-      attachment: preloadedFiles,
+      expenseAttachments: preloadedFiles,
     };
   }
 
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const expenseId = this.activatedRoute.snapshot.params[
       'expenseId'
     ] as string;
     if (!expenseId) {
-      this.logger.logUserAction('No expense id found in route');
-      this.notificationService.error(
-        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
-      );
       return;
     }
 
@@ -138,41 +117,15 @@ export class EditExpenseComponent implements OnInit {
     this.executeEditExpense(formData, expenseId);
   }
 
-  private prepareFormData(): IExpenseEditRequestDto {
-    const {
-      expenseDate,
-      description,
-      paymentMode,
-      expenseType,
-      expenseAmount,
-      attachment,
-      transactionId,
-    } = this.form.getData() as {
-      expenseDate: string;
-      description: string;
-      paymentMode: string;
-      expenseType: string;
-      expenseAmount: number;
-      attachment: File[];
-      transactionId: string | null;
-    };
-
-    return {
-      category: expenseType,
-      description,
-      amount: expenseAmount,
-      expenseDate: transformDateFormat(expenseDate),
-      paymentMode,
-      files: attachment,
-      transactionId,
-    };
+  private prepareFormData(): IExpenseEditFormDto {
+    const formData = this.form.getData();
+    return formData;
   }
 
   private executeEditExpense(
-    formData: IExpenseEditRequestDto,
+    formData: IExpenseEditFormDto,
     expenseId: string
   ): void {
-    this.isSubmitting.set(true);
     this.loadingService.show({
       title: 'Edit Expense',
       message: 'Please wait while we edit expense...',
@@ -204,24 +157,8 @@ export class EditExpenseComponent implements OnInit {
       });
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Edit expense form validation failed');
-      return false;
-    }
-    return true;
-  }
-
   protected onReset(): void {
-    try {
-      this.logger.logUserAction('Reset Edit Expense Form');
-      this.form.reset(this.initialExpenseData() ?? {});
-    } catch (error) {
-      this.logger.error('Error resetting form', error);
-    }
+    this.onResetSingleForm(this.initialExpenseData() ?? {});
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

@@ -8,40 +8,42 @@
   <div class="grid grid-cols-1 md:grid-cols-2">
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['expenseType']"
+      [inputFieldConfig]="form.fieldConfigs.expenseCategory"
     />
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['expenseDate']"
+      [inputFieldConfig]="form.fieldConfigs.expenseDate"
     />
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3">
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['paymentMode']"
+      [inputFieldConfig]="form.fieldConfigs.paymentMode"
     />
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['expenseAmount']"
+      [inputFieldConfig]="form.fieldConfigs.expenseAmount"
     />
 
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs['transactionId']"
-    />
+    @if (form.fieldConfigs.transactionId) {
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.transactionId"
+      />
+    }
   </div>
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['description']"
+    [inputFieldConfig]="form.fieldConfigs.remark"
   />
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['attachment']"
+    [inputFieldConfig]="form.fieldConfigs.expenseAttachments"
   />
 
   <div class="button-container">

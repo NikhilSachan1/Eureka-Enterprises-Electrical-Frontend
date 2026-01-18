@@ -1,4 +1,9 @@
-import { isoDateTimeField, uuidField } from '@shared/schemas';
+import {
+  dateField,
+  fileField,
+  isoDateTimeField,
+  uuidField,
+} from '@shared/schemas';
 import z from 'zod';
 import { EExpenseTransactionType } from '../types/expense.enum';
 import { EApprovalStatus, EEntrySourceType, EEntryType } from '@shared/types';
@@ -32,3 +37,13 @@ export const ExpenseBaseSchema = z
     editReason: z.string().trim().nullable().optional(),
   })
   .strict();
+
+export const ExpenseUpsertShapeSchema = z.object({
+  expenseCategory: z.string(),
+  remark: z.string(),
+  expenseAmount: z.number(),
+  expenseDate: dateField,
+  paymentMode: z.string(),
+  expenseAttachments: z.array(fileField),
+  transactionId: z.string().nullable().default(null),
+});

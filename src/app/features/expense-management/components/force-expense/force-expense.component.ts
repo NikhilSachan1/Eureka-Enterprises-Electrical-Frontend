@@ -3,35 +3,23 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   OnInit,
-  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService, EnvironmentService } from '@core/services';
 import { FORCE_EXPENSE_FORM_CONFIG } from '@features/expense-management/config';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
-import { IExpenseForceRequestDto } from '@features/expense-management/types/expense.dto';
-import {
-  FORM_VALIDATION_MESSAGES,
-  ROUTE_BASE_PATHS,
-  ROUTES,
-} from '@shared/constants';
-import {
-  FormService,
-  LoadingService,
-  NotificationService,
-  RouterNavigationService,
-} from '@shared/services';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
+import { IExpenseForceFormDto } from '@features/expense-management/types/expense.dto';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { RouterNavigationService } from '@shared/services';
+import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { transformDateFormat } from '@shared/utility';
 import { FORCE_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/force-expense.mock-data';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-force-expense',
@@ -46,77 +34,37 @@ import { FORCE_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/force-expense.mo
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [DatePipe],
 })
-export class ForceExpenseComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly loadingService = inject(LoadingService);
+export class ForceExpenseComponent
+  extends FormBase<IExpenseForceFormDto>
+  implements OnInit
+{
   private readonly expenseService = inject(ExpenseService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly environmentService = inject(EnvironmentService);
-
-  protected form!: IEnhancedForm;
-  protected readonly initialExpenseData = signal<Record<
-    string,
-    unknown
-  > | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    this.loadMockData();
-    this.form = this.formService.createForm(FORCE_EXPENSE_FORM_CONFIG, {
-      destroyRef: this.destroyRef,
-      defaultValues: this.initialExpenseData(),
-    });
+    this.form = this.formService.createForm<IExpenseForceFormDto>(
+      FORCE_EXPENSE_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+      }
+    );
+
+    this.loadMockData(FORCE_EXPENSE_PREFILLED_DATA);
   }
 
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const formData = this.prepareFormData();
     this.executeForceExpense(formData);
   }
 
-  private prepareFormData(): IExpenseForceRequestDto {
-    const {
-      employeeName,
-      expenseDate,
-      description,
-      paymentMode,
-      expenseType,
-      expenseAmount,
-      attachment,
-      transactionId,
-    } = this.form.getData() as {
-      employeeName: string;
-      expenseDate: string;
-      description: string;
-      paymentMode: string;
-      expenseType: string;
-      expenseAmount: number;
-      attachment: File[];
-      transactionId: string | null;
-    };
-
-    return {
-      userId: employeeName,
-      category: expenseType,
-      description,
-      amount: expenseAmount,
-      expenseDate: transformDateFormat(expenseDate),
-      paymentMode,
-      files: attachment,
-      transactionId,
-    };
+  private prepareFormData(): IExpenseForceFormDto {
+    const formData = this.form.getData();
+    return formData;
   }
 
-  private executeForceExpense(formData: IExpenseForceRequestDto): void {
-    this.isSubmitting.set(true);
+  private executeForceExpense(formData: IExpenseForceFormDto): void {
     this.loadingService.show({
       title: 'Force Expense',
       message: 'Please wait while we process the force expense...',
@@ -135,7 +83,9 @@ export class ForceExpenseComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.notificationService.success('Expense forced successfully');
+          this.notificationService.success(
+            'Force expense applied successfully'
+          );
           const routeSegments = [
             ROUTE_BASE_PATHS.EXPENSE,
             ROUTES.EXPENSE.LEDGER,
@@ -143,29 +93,13 @@ export class ForceExpenseComponent implements OnInit {
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {
-          this.notificationService.error('Failed to force expense');
+          this.notificationService.error('Failed to apply force expense');
         },
       });
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Force expense form validation failed');
-      return false;
-    }
-    return true;
-  }
-
   protected onReset(): void {
-    try {
-      this.logger.logUserAction('Reset Force Expense Form');
-      this.form.reset();
-    } catch (error) {
-      this.logger.error('Error resetting form', error);
-    }
+    this.onResetSingleForm();
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
@@ -173,11 +107,5 @@ export class ForceExpenseComponent implements OnInit {
       title: 'Force Expense',
       subtitle: 'Force an expense on behalf of an employee',
     };
-  }
-
-  private loadMockData(): void {
-    if (this.environmentService.isTestDataEnabled) {
-      this.initialExpenseData.set(FORCE_EXPENSE_PREFILLED_DATA);
-    }
   }
 }

@@ -1,38 +1,31 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
-  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import { APPROVAL_ACTION_EXPENSE_FORM_CONFIG } from '@features/expense-management/config/form/approval-action-expense.config';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import {
-  IExpenseActionRequestDto,
+  IExpenseActionFormDto,
   IExpenseActionResponseDto,
+  IExpenseActionUIFormDto,
   IExpenseGetBaseResponseDto,
 } from '@features/expense-management/types/expense.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import {
-  ConfirmationDialogService,
-  FormService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
+import { ConfirmationDialogService } from '@shared/services';
 import {
   EApprovalStatus,
   EButtonActionType,
   ETableActionTypeValue,
   IDialogActionHandler,
-  IEnhancedForm,
 } from '@shared/types';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-approval-expense',
@@ -41,13 +34,11 @@ import { ReactiveFormsModule } from '@angular/forms';
   styleUrl: './approval-expense.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
-  private readonly formService = inject(FormService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class ApprovalExpenseComponent
+  extends FormBase<IExpenseActionUIFormDto>
+  implements OnInit, IDialogActionHandler
+{
   private readonly expenseService = inject(ExpenseService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -57,10 +48,7 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
   protected readonly dialogActionType = input.required<EButtonActionType>();
   protected readonly onSuccess = input.required<() => void>();
 
-  protected form!: IEnhancedForm;
   protected readonly EButtonActionTypeEnum = EButtonActionType;
-
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -75,11 +63,10 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
     }
 
     const actionType = this.dialogActionType();
-    this.form = this.formService.createForm(
+    this.form = this.formService.createForm<IExpenseActionUIFormDto>(
       APPROVAL_ACTION_EXPENSE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
-        defaultValues: null,
         context: {
           actionType,
         },
@@ -88,26 +75,19 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: IExpenseGetBaseResponseDto[]): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData();
     this.executeExpenseApprovalAction(formData);
   }
 
-  private prepareFormData(
-    record: IExpenseGetBaseResponseDto[]
-  ): IExpenseActionRequestDto {
-    const { comment } = this.form.getData() as {
-      comment: string;
-    };
+  private prepareFormData(): IExpenseActionFormDto {
+    const record = this.selectedRecord();
+    const formData = this.form.getData();
 
-    let actionTypeValue: ETableActionTypeValue;
+    let actionTypeValue!: ETableActionTypeValue;
 
     if (this.dialogActionType() === EButtonActionType.APPROVE) {
       actionTypeValue = ETableActionTypeValue.APPROVED;
@@ -116,17 +96,13 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
     }
 
     return {
-      approvals: record.map((row: IExpenseGetBaseResponseDto) => ({
-        expenseId: row.id,
-        approvalStatus: actionTypeValue as unknown as EApprovalStatus,
-        approvalComment: comment,
-      })),
+      ...formData,
+      expenseIds: record.map((row: IExpenseGetBaseResponseDto) => row.id),
+      approvalStatus: actionTypeValue as unknown as EApprovalStatus,
     };
   }
 
-  private executeExpenseApprovalAction(
-    formData: IExpenseActionRequestDto
-  ): void {
+  private executeExpenseApprovalAction(formData: IExpenseActionFormDto): void {
     let loadingMessage;
 
     if (this.dialogActionType() === EButtonActionType.APPROVE) {
@@ -140,7 +116,6 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
         message: 'Please wait while we reject the expense...',
       };
     }
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
     this.form.disable();
 
@@ -169,16 +144,5 @@ export class ApprovalExpenseComponent implements OnInit, IDialogActionHandler {
           this.confirmationDialogService.closeDialog();
         },
       });
-  }
-
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Approval expense form validation failed');
-      return false;
-    }
-    return true;
   }
 }

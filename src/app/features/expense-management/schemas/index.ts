@@ -14,7 +14,7 @@ export {
 
 export {
   ExpenseActionRequestSchema,
-  ExpenseActionResponseSchema,
+  ExpenseActionResultSchema,
 } from './approval-action-expense.schema';
 
 export {
