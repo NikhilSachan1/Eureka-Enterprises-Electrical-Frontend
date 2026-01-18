@@ -72,7 +72,7 @@ export class ActionPayrollComponent
   }
 
   onDialogAccept(): void {
-    this.handleSubmit();
+    super.onSubmit();
   }
 
   protected override handleSubmit(): void {

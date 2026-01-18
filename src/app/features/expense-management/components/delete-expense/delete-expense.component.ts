@@ -52,7 +52,7 @@ export class DeleteExpenseComponent
   }
 
   onDialogAccept(): void {
-    this.handleSubmit();
+    super.onSubmit();
   }
 
   protected override handleSubmit(): void {

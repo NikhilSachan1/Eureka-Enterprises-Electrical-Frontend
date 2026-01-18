@@ -94,7 +94,7 @@ export class GeneratePayrollComponent
   }
 
   onDialogAccept(): void {
-    this.handleSubmit();
+    super.onSubmit();
   }
 
   protected override handleSubmit(): void {

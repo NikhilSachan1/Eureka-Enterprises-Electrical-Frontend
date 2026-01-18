@@ -75,7 +75,7 @@ export class ApprovalAttendanceComponent
   }
 
   onDialogAccept(): void {
-    this.handleSubmit();
+    super.onSubmit();
   }
 
   protected override handleSubmit(): void {
