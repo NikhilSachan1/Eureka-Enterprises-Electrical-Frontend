@@ -4,10 +4,12 @@ import {
   input,
   output,
   signal,
+  model,
   inject,
   viewChild,
   TemplateRef,
   computed,
+  effect,
 } from '@angular/core';
 import {
   Table,
@@ -27,6 +29,8 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuModule } from 'primeng/menu';
 import { PanelModule } from 'primeng/panel';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import {
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -80,6 +84,8 @@ import { ReadMoreComponent } from '../read-more/read-more.component';
     ReadMoreComponent,
     PanelModule,
     DecimalPipe,
+    PaginatorModule,
+    SelectButtonModule,
   ],
 
   templateUrl: './data-table.component.html',
@@ -116,12 +122,112 @@ export class DataTableComponent {
     return this.permissionService.filterByPermission(this.tableHeader());
   });
 
+  // View mode: 'list' or 'card' - using model signal for two-way binding with SelectButton
+  protected viewMode = model<'list' | 'card'>('list');
+
+  // Track pagination state for card view
+  protected paginationFirst = signal<number>(0);
+  protected paginationRows = signal<number>(0);
+
+  // SelectButton options for view mode toggle
+  protected readonly viewModeOptions = [
+    { label: 'List', value: 'list', icon: ICONS.COMMON.LIST },
+    { label: 'Card', value: 'card', icon: ICONS.COMMON.TH_LARGE },
+  ];
+
+  constructor() {
+    // Load view mode from localStorage on init
+    const savedViewMode = localStorage.getItem('table-view-mode') as
+      | 'list'
+      | 'card'
+      | null;
+    if (savedViewMode === 'list' || savedViewMode === 'card') {
+      this.viewMode.set(savedViewMode);
+    }
+
+    // Save view mode to localStorage when it changes
+    effect(() => {
+      const mode = this.viewMode();
+      localStorage.setItem('table-view-mode', mode);
+    });
+
+    // Initialize pagination rows from config when available
+    effect(() => {
+      const config = this.tableConfig();
+      if (config && this.paginationRows() === 0) {
+        this.paginationRows.set(config.displayRows);
+      }
+    });
+  }
+
+  protected toggleViewMode(): void {
+    this.viewMode.update(mode => (mode === 'list' ? 'card' : 'list'));
+  }
+
   protected clear(table: Table): void {
     table.clear();
   }
 
   protected clearSelection(): void {
     this.selectedTableRows.set([]);
+  }
+
+  /**
+   * Check if a row is selected (for card view checkbox)
+   */
+  protected isRowSelected(rowData: Record<string, unknown>): boolean {
+    const rowId = this.resolveNestedProperty<string>(
+      rowData,
+      this.tableConfig().tableUniqueId
+    );
+    return this.selectedTableRows().some(
+      row =>
+        this.resolveNestedProperty<string>(
+          row,
+          this.tableConfig().tableUniqueId
+        ) === rowId
+    );
+  }
+
+  /**
+   * Toggle row selection (for card view checkbox)
+   */
+  protected toggleRowSelection(
+    rowData: Record<string, unknown>,
+    event: Event
+  ): void {
+    const target = event.target as HTMLInputElement;
+    const currentSelection = this.selectedTableRows();
+    const rowId = this.resolveNestedProperty<string>(
+      rowData,
+      this.tableConfig().tableUniqueId
+    );
+
+    if (target.checked) {
+      // Add to selection
+      if (
+        !currentSelection.some(
+          row =>
+            this.resolveNestedProperty<string>(
+              row,
+              this.tableConfig().tableUniqueId
+            ) === rowId
+        )
+      ) {
+        this.selectedTableRows.set([...currentSelection, rowData]);
+      }
+    } else {
+      // Remove from selection
+      this.selectedTableRows.set(
+        currentSelection.filter(
+          row =>
+            this.resolveNestedProperty<string>(
+              row,
+              this.tableConfig().tableUniqueId
+            ) !== rowId
+        )
+      );
+    }
   }
 
   resolveNestedProperty<T = unknown>(
@@ -142,7 +248,48 @@ export class DataTableComponent {
 
   protected onLazyLoad(event: TableLazyLoadEvent): void {
     this.logger.logUserAction('Lazy load', event);
+    // Sync pagination state - update paginationFirst and rows to keep both views in sync
+    const newFirst = event.first ?? 0;
+    const newRows = event.rows ?? this.tableConfig().displayRows;
+
+    if (this.paginationFirst() !== newFirst) {
+      this.paginationFirst.set(newFirst);
+    }
+    if (this.paginationRows() !== newRows) {
+      this.paginationRows.set(newRows);
+    }
+
     this.filterData.emit(event);
+  }
+
+  /**
+   * Handle pagination change from card view paginator
+   * Converts paginator event to TableLazyLoadEvent format and syncs with table
+   */
+  protected onCardPaginatorChange(event: PaginatorState): void {
+    // Update pagination state - handle undefined values
+    const first = event.first ?? 0;
+    const rows = event.rows ?? this.tableConfig().displayRows;
+
+    // Update pagination signals
+    this.paginationFirst.set(first);
+    this.paginationRows.set(rows);
+
+    // Get current table state to preserve filters and sorting
+    const table = this.dt();
+    if (table) {
+      // Create TableLazyLoadEvent compatible object
+      const lazyLoadEvent: TableLazyLoadEvent = {
+        first,
+        rows,
+        sortField: table.sortField,
+        sortOrder: table.sortOrder,
+        filters: table.filters,
+      };
+
+      // Trigger lazy load to fetch new data and sync table
+      this.onLazyLoad(lazyLoadEvent);
+    }
   }
 
   private extractOriginalData(

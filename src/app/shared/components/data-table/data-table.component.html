@@ -1,4 +1,27 @@
 @let selectedCount = selectedTableRows().length;
+@let currentViewMode = viewMode();
+
+<!-- View Mode Toggle -->
+<div class="flex items-center justify-end gap-2 mb-4">
+  <p-selectButton
+    [options]="viewModeOptions"
+    [(ngModel)]="viewMode"
+    optionLabel="label"
+    optionValue="value"
+    [allowEmpty]="false"
+    styleClass="view-mode-toggle"
+  >
+    <ng-template
+      let-option
+      pTemplate="item"
+    >
+      <div class="flex items-center gap-2 px-2">
+        <i [class]="option.icon"></i>
+        <span>{{ option.label }}</span>
+      </div>
+    </ng-template>
+  </p-selectButton>
+</div>
 
 @if (selectedCount > 1 && tableConfig().showCheckbox) {
   <p-panel class="bulk-action-panel">
@@ -33,13 +56,18 @@
     }
   </p-panel>
 }
-<p-panel class="data-table-panel">
+
+<!-- Table always present for ViewChild reference, conditionally hidden -->
+<p-panel
+  class="data-table-panel"
+  [class.hidden]="currentViewMode === 'card'"
+>
   <p-table
     #dt
     [rowHover]="tableConfig().rowHover"
     [value]="tableData()"
     [dataKey]="tableConfig().tableUniqueId"
-    [rows]="tableConfig().displayRows"
+    [rows]="paginationRows()"
     [rowsPerPageOptions]="tableConfig().rowsPerPageOptions"
     [loading]="loading()"
     [showCurrentPageReport]="true"
@@ -50,6 +78,7 @@
     (onFilter)="onFilterChange($event)"
     [globalFilterFields]="tableConfig().globalFilterFields"
     [lazy]="tableConfig().enableServerSide"
+    [first]="paginationFirst()"
     (onLazyLoad)="onLazyLoad($event)"
     [totalRecords]="tableConfig().totalRecords ?? 0"
   >
@@ -414,3 +443,215 @@
     </ng-template>
   </p-table>
 </p-panel>
+
+@if (currentViewMode === 'card') {
+  <!-- Card Layout -->
+  <div class="card-layout-container">
+    @if (loading()) {
+      <div class="flex items-center justify-center py-12">
+        <i [class]="icons.COMMON.SPINNER + ' pi-spin text-2xl text-slate-400'"></i>
+      </div>
+    } @else if (tableData().length === 0) {
+      <div class="text-center py-12">
+        <app-empty-messages
+          [icon]="tableConfig().emptyMessageIcon"
+          [title]="tableConfig().emptyMessage"
+          [description]="tableConfig().emptyMessageDescription"
+        />
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        @for (rowData of tableData(); track resolveNestedProperty(rowData, tableConfig().tableUniqueId)) {
+          <div
+            class="card-item bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-lg hover:border-emerald-300 transition-all duration-300 group"
+          >
+            @if (tableConfig().showCheckbox) {
+              <div class="mb-4 pb-3 border-b border-slate-100">
+                <label class="flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [checked]="isRowSelected(rowData)"
+                    (change)="toggleRowSelection(rowData, $event)"
+                    class="w-4 h-4 text-emerald-600 bg-white border-2 border-slate-300 rounded focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 cursor-pointer transition-colors"
+                  />
+                  <span class="ml-2 text-xs font-medium text-slate-600">Select</span>
+                </label>
+              </div>
+            }
+
+            @for (column of visibleTableHeaders(); track $index) {
+              @let shouldShowColumn = column.showColumn !== false;
+              @let columnData = $any(resolveNestedProperty(rowData, column.field));
+              @let bodyTemplate = column.bodyTemplate;
+
+              @if (shouldShowColumn) {
+                <div class="mb-4 last:mb-0">
+                  <div class="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">
+                    {{ column.header }}
+                  </div>
+                  <div class="text-sm text-slate-800 font-medium">
+                    @let templates = customBodyTemplates();
+                    @if (column.customTemplateKey && templates && templates[column.customTemplateKey]) {
+                      <ng-container
+                        [ngTemplateOutlet]="templates[column.customTemplateKey]"
+                        [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
+                      />
+                    } @else {
+                      @switch (bodyTemplate) {
+                        @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
+                          @let config = column.textWithSubtitleAndImageConfig;
+                          @if (columnData && config) {
+                            <div class="flex items-center gap-3">
+                              @if (config.showImage && config.dummyImageField) {
+                                @let imageName = $any(resolveNestedProperty(rowData, config.dummyImageField));
+                                <img
+                                  [src]="getAvatarUrl(imageName)"
+                                  [alt]="imageName"
+                                  class="w-10 h-10 rounded-xl bg-slate-100 object-cover ring-2 ring-slate-100"
+                                />
+                              }
+                              <div class="flex-1 min-w-0">
+                                <div class="font-semibold text-slate-900 truncate">
+                                  @switch (column.dataType) {
+                                    @case ('date') {
+                                      {{ columnData | date: column.dateFormat }}
+                                    }
+                                    @default {
+                                      {{ columnData }}
+                                    }
+                                  }
+                                </div>
+                                @if (config.secondaryField) {
+                                  @let secondaryData = $any(resolveNestedProperty(rowData, config.secondaryField));
+                                  <div class="text-xs text-slate-500 mt-0.5 truncate">
+                                    @switch (config.dataType) {
+                                      @case ('date') {
+                                        {{ secondaryData | date: column.dateFormat }}
+                                      }
+                                      @default {
+                                        {{ secondaryData }}
+                                      }
+                                    }
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          } @else {
+                            <span class="text-slate-400 italic">-</span>
+                          }
+                        }
+                        @case (ALL_DATA_TYPES.STATUS) {
+                          @let statusConfig = column.statusConfig;
+                          <app-status-tag
+                            [value]="columnData"
+                            [config]="statusConfig"
+                          />
+                        }
+                        @case (ALL_DATA_TYPES.DATE) {
+                          @if (columnData) {
+                            <div class="flex items-center gap-2 text-slate-700">
+                              <i [class]="icons.COMMON.CALENDAR + ' text-emerald-500 text-sm'"></i>
+                              <span class="font-medium">{{ columnData | date: column.dateFormat }}</span>
+                            </div>
+                          } @else {
+                            <span class="text-slate-400 italic">-</span>
+                          }
+                        }
+                        @case (ALL_DATA_TYPES.CURRENCY) {
+                          <span class="font-bold text-emerald-600">
+                            {{ columnData | currency: column.currencyFormat }}
+                          </span>
+                        }
+                        @case (ALL_DATA_TYPES.NUMBER) {
+                          <span class="font-bold text-slate-700">{{ columnData | number: column.numberFormat }}</span>
+                        }
+                        @case (ALL_DATA_TYPES.ATTACHMENTS) {
+                          @if (columnData && columnData.length > 0) {
+                            <app-chip
+                              [label]="'Attachments (' + columnData.length + ')'"
+                              [icon]="icons.COMMON.PAPERCLIP"
+                              [styleClass]="
+                                'text-xs font-medium bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-colors duration-150 cursor-pointer'
+                              "
+                              (click)="openAttachmentsGallery(columnData, rowData, column)"
+                            />
+                          } @else {
+                            <span class="text-slate-400">No attachments</span>
+                          }
+                        }
+                        @case (ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
+                          <app-read-more
+                            [text]="columnData"
+                            [readMoreConfig]="column.readMoreConfig ?? {}"
+                          />
+                        }
+                        @case (ALL_DATA_TYPES.EMAIL) {
+                          @if (columnData) {
+                            <a
+                              [href]="'mailto:' + columnData"
+                              class="text-emerald-600 hover:text-emerald-700 hover:underline"
+                              (click)="$event.stopPropagation()"
+                            >
+                              {{ columnData }}
+                            </a>
+                          } @else {
+                            <span class="text-slate-400">-</span>
+                          }
+                        }
+                        @case (ALL_DATA_TYPES.PHONE) {
+                          @if (columnData) {
+                            <a
+                              [href]="'tel:' + columnData"
+                              class="text-indigo-600 hover:text-indigo-700 hover:underline"
+                              (click)="$event.stopPropagation()"
+                            >
+                              {{ columnData }}
+                            </a>
+                          } @else {
+                            <span class="text-slate-400">-</span>
+                          }
+                        }
+                        @default {
+                          <span class="text-slate-800">{{ columnData || '-' }}</span>
+                        }
+                      }
+                    }
+                  </div>
+                </div>
+              }
+            }
+
+            @let visibleRowActions = getVisibleRowActions(rowData);
+            @if (rowActions() && rowActions().length > 0 && visibleRowActions.length > 0) {
+              <div class="mt-5 pt-4 border-t border-slate-100 flex items-center gap-2 flex-wrap">
+                @for (action of visibleRowActions; track action.id) {
+                  <app-button
+                    [buttonConfig]="action"
+                    [showDisabledButton]="isActionDisabled(action, rowData)"
+                    [pTooltip]="action.tooltip"
+                    (onButtonClick)="onRowActionClick(action.id, rowData)"
+                  />
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Pagination for Card View -->
+      @if (tableConfig().showPaginator) {
+        <div class="mt-6">
+          <p-paginator
+            [rows]="paginationRows()"
+            [rowsPerPageOptions]="tableConfig().rowsPerPageOptions"
+            [totalRecords]="tableConfig().totalRecords ?? tableData().length"
+            [first]="paginationFirst()"
+            (onPageChange)="onCardPaginatorChange($event)"
+            [showCurrentPageReport]="true"
+            [currentPageReportTemplate]="tableConfig().paginationTemplate"
+          />
+        </div>
+      }
+    }
+  </div>
+}
