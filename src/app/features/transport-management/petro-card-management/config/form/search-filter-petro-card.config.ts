@@ -11,27 +11,29 @@ import {
   ITableSearchFilterFormConfig,
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
+import { IPetroCardGetFormDto } from '../../types/petro-card.dto';
 
-const SEARCH_FILTER_PETRO_CARD_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
-  {
-    cardStatus: {
-      fieldType: EDataType.SELECT,
-      id: 'cardStatus',
-      fieldName: 'cardStatus',
-      label: 'Status',
-      selectConfig: {
-        ...DEFAULT_SELECT_INPUT_FIELD_CONFIG.selectConfig,
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.PETRO_CARD,
-          dropdownName: CONFIGURATION_KEYS.PETRO_CARD.STATUS,
-        },
+const SEARCH_FILTER_PETRO_CARD_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
+  IPetroCardGetFormDto & { globalSearch?: string }
+> = {
+  petroCardStatus: {
+    fieldType: EDataType.SELECT,
+    id: 'petroCardStatus',
+    fieldName: 'petroCardStatus',
+    label: 'Status',
+    selectConfig: {
+      ...DEFAULT_SELECT_INPUT_FIELD_CONFIG.selectConfig,
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.PETRO_CARD,
+        dropdownName: CONFIGURATION_KEYS.PETRO_CARD.STATUS,
       },
-      matchmode: ETableFilterMatchMode.IN,
     },
-    globalSearch: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
-    },
-  };
+    matchmode: ETableFilterMatchMode.IN,
+  },
+  globalSearch: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+  },
+};
 
 const SEARCH_FILTER_PETRO_CARD_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -42,7 +44,7 @@ const SEARCH_FILTER_PETRO_CARD_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const SEARCH_FILTER_PETRO_CARD_FORM_CONFIG: ITableSearchFilterFormConfig =
+export const SEARCH_FILTER_PETRO_CARD_FORM_CONFIG: ITableSearchFilterFormConfig<IPetroCardGetFormDto> =
   {
     fields: SEARCH_FILTER_PETRO_CARD_FORM_FIELDS_CONFIG,
     buttons: SEARCH_FILTER_PETRO_CARD_FORM_BUTTONS_CONFIG,

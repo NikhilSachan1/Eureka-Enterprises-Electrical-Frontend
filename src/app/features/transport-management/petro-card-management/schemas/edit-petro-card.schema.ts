@@ -1,7 +1,14 @@
 import { z } from 'zod';
-import { PetroCardAddRequestSchema } from './add-petro-card.schema';
+import { PetroCardUpsertShapeSchema } from './base-petro-card.schema';
 
-export const PetroCardEditRequestSchema = PetroCardAddRequestSchema.strict();
+export const PetroCardEditRequestSchema =
+  PetroCardUpsertShapeSchema.strict().transform(data => {
+    return {
+      cardNumber: data.petroCardNumber,
+      cardName: data.petroCardName,
+    };
+  });
+
 export const PetroCardEditResponseSchema = z.object({
   message: z.string(),
 });

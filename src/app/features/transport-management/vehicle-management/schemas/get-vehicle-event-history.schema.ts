@@ -7,7 +7,7 @@ import {
 } from '@shared/schemas';
 import { z } from 'zod';
 import { VehicleDetailGetBaseResponseSchema } from './get-vehicle-detail.schema';
-import { makeFieldsNullable } from '@shared/utility';
+import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 import { VehicleBaseDocumentsSchema } from './base-vehicle.schema';
 
 const { createdAt, updatedAt, createdBy } = AuditSchema.shape;
@@ -17,31 +17,31 @@ const { id, registrationNo, model, brand, status } =
 export const VehicleEventHistoryGetRequestSchema = z
   .object({
     ...FilterSchema.shape,
-    eventTypes: z.array(z.string()).min(1).optional(),
-    fromUser: z.string().optional(),
-    toUser: z.string().optional(),
-    eventDate: z.array(dateField).min(1).optional(),
+    vehicleEventTypes: z.array(z.string()).min(1).optional(),
+    vehicleFromEmployeeName: z.string().optional(),
+    vehicleToEmployeeName: z.string().optional(),
+    vehicleEventDate: z.array(dateField).min(1).optional(),
   })
   .strict()
-  .transform(({ eventDate: dateRange, ...rest }) => {
-    if (!dateRange || dateRange.length < 1) {
-      return rest;
+  .transform(
+    ({
+      vehicleEventDate: dateRange,
+      vehicleFromEmployeeName,
+      vehicleToEmployeeName,
+      vehicleEventTypes,
+      ...rest
+    }) => {
+      const [start, end] = dateRange ?? [];
+      return {
+        ...rest,
+        fromUser: vehicleFromEmployeeName,
+        toUser: vehicleToEmployeeName,
+        eventTypes: vehicleEventTypes,
+        startDate: transformDateFormat(start),
+        endDate: transformDateFormat(end),
+      };
     }
-
-    const start = dateRange[0];
-    const end = dateRange[dateRange.length - 1];
-
-    const toISODate = (d: Date): string =>
-      new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
-        .toISOString()
-        .split('T')[0];
-
-    return {
-      ...rest,
-      startDate: toISODate(start),
-      endDate: toISODate(end),
-    };
-  });
+  );
 
 export const VehicleEventHistoryGetStatsResponseSchema = z
   .object({

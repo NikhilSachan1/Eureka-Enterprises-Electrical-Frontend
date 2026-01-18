@@ -16,7 +16,7 @@ import {
   IEntityViewDetails,
 } from '@shared/types';
 import {
-  IVehicleDetailGetRequestDto,
+  IvehicleDetailGetFormDto,
   IVehicleDetailGetResponseDto,
   IVehicleGetBaseResponseDto,
 } from '../../types/vehicle.dto';
@@ -80,9 +80,9 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
       });
   }
 
-  private prepareParamData(): IVehicleDetailGetRequestDto {
+  private prepareParamData(): IvehicleDetailGetFormDto {
     return {
-      id: this.drawerData.vehicle.id,
+      vehicleId: this.drawerData.vehicle.id,
     };
   }
 

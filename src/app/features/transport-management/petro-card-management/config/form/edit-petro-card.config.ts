@@ -5,10 +5,12 @@ import {
 } from '@shared/types';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { ADD_PETRO_CARD_FORM_CONFIG } from './add-petro-card.config';
+import { IPetroCardEditFormDto } from '../../types/petro-card.dto';
 
-const EDIT_PETRO_CARD_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  ...ADD_PETRO_CARD_FORM_CONFIG.fields,
-};
+const EDIT_PETRO_CARD_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPetroCardEditFormDto> =
+  {
+    ...ADD_PETRO_CARD_FORM_CONFIG.fields,
+  };
 
 const EDIT_PETRO_CARD_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -21,7 +23,7 @@ const EDIT_PETRO_CARD_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const EDIT_PETRO_CARD_FORM_CONFIG: IFormConfig = {
+export const EDIT_PETRO_CARD_FORM_CONFIG: IFormConfig<IPetroCardEditFormDto> = {
   fields: EDIT_PETRO_CARD_FORM_FIELDS_CONFIG,
   buttons: EDIT_PETRO_CARD_FORM_BUTTONS_CONFIG,
 };

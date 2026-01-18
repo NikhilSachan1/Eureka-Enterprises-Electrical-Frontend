@@ -8,13 +8,14 @@ import {
   ITableSearchFilterFormConfig,
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
+import { IVehicleEventHistoryGetFormDto } from '../../types/vehicle.dto';
 
-const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig =
+const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<IVehicleEventHistoryGetFormDto> =
   {
-    eventTypes: {
+    vehicleEventTypes: {
       fieldType: EDataType.MULTI_SELECT,
-      id: 'eventTypes',
-      fieldName: 'eventTypes',
+      id: 'vehicleEventTypes',
+      fieldName: 'vehicleEventTypes',
       label: 'Event Types',
       multiSelectConfig: {
         dynamicDropdown: {
@@ -24,9 +25,9 @@ const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilter
       },
       matchmode: ETableFilterMatchMode.IN,
     },
-    fromUser: {
+    vehicleFromEmployeeName: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
-      fieldName: 'fromUser',
+      fieldName: 'vehicleFromEmployeeName',
       fieldType: EDataType.SELECT,
       label: 'From User',
       selectConfig: {
@@ -38,9 +39,9 @@ const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilter
       },
       matchmode: ETableFilterMatchMode.IN,
     },
-    toUser: {
+    vehicleToEmployeeName: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
-      fieldName: 'toUser',
+      fieldName: 'vehicleToEmployeeName',
       label: 'To User',
       fieldType: EDataType.SELECT,
       selectConfig: {
@@ -52,10 +53,11 @@ const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilter
       },
       matchmode: ETableFilterMatchMode.IN,
     },
-    eventDate: {
+    vehicleEventDate: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
-      fieldName: 'eventDate',
+      fieldName: 'vehicleEventDate',
       label: 'Event Date',
+      matchmode: ETableFilterMatchMode.BETWEEN,
     },
   };
 
@@ -69,7 +71,7 @@ const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_BUTTONS_CONFIG: IFormButtonConfig
     },
   };
 
-export const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_CONFIG: ITableSearchFilterFormConfig =
+export const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_CONFIG: ITableSearchFilterFormConfig<IVehicleEventHistoryGetFormDto> =
   {
     fields: SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG,
     buttons: SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_BUTTONS_CONFIG,

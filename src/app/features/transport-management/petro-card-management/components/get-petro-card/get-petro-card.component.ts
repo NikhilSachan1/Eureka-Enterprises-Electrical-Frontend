@@ -29,7 +29,7 @@ import {
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   IPetroCardGetBaseResponseDto,
-  IPetroCardGetRequestDto,
+  IPetroCardGetFormDto,
   IPetroCardGetResponseDto,
   IPetroCardGetStatsResponseDto,
 } from '../../types/petro-card.dto';
@@ -127,8 +127,8 @@ export class GetPetroCardComponent implements OnInit {
       });
   }
 
-  private prepareParamData(): IPetroCardGetRequestDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IPetroCardGetRequestDto>(
+  private prepareParamData(): IPetroCardGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IPetroCardGetFormDto>(
       this.tableFilterData,
       this.table.getHeaders()
     );

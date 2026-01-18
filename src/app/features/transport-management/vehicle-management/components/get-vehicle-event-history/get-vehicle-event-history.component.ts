@@ -27,7 +27,7 @@ import {
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   IVehicleEventHistoryGetBaseResponseDto,
-  IVehicleEventHistoryGetRequestDto,
+  IVehicleEventHistoryGetFormDto,
   IVehicleEventHistoryGetResponseDto,
   IVehicleEventHistoryGetStatsResponseDto,
 } from '../../types/vehicle.dto';
@@ -124,7 +124,7 @@ export class GetVehicleEventHistoryComponent implements OnInit {
 
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
-          this.vehicleDetails.set(records[0].vehicle);
+          this.vehicleDetails.set(records[0]?.vehicle);
           this.table.updateTableConfig({ totalRecords });
           this.vehicleEventHistoryStats.set(stats);
           this.logger.logUserAction(
@@ -142,8 +142,8 @@ export class GetVehicleEventHistoryComponent implements OnInit {
       });
   }
 
-  private prepareParamData(): IVehicleEventHistoryGetRequestDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IVehicleEventHistoryGetRequestDto>(
+  private prepareParamData(): IVehicleEventHistoryGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IVehicleEventHistoryGetFormDto>(
       this.tableFilterData,
       this.table.getHeaders()
     );

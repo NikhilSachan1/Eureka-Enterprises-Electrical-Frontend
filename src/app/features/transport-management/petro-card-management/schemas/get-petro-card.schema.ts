@@ -18,14 +18,15 @@ export const PetroCardGetRequestSchema = z
     pageSize,
     page,
     search,
-    cardStatus: z.string().min(1).optional(),
+    petroCardStatus: z.string().min(1).optional(),
   })
   .strict()
-  .transform(({ cardStatus, ...rest }) => {
+  .transform(({ petroCardStatus, ...rest }) => {
     return {
       ...rest,
-      ...(cardStatus !== undefined && {
-        isAllocated: cardStatus === EPetroCardStatus.ALLOCATED.toLowerCase(),
+      ...(petroCardStatus !== undefined && {
+        isAllocated:
+          petroCardStatus === EPetroCardStatus.ALLOCATED.toLowerCase(),
       }),
     };
   });

@@ -19,11 +19,11 @@ export const VehicleGetRequestSchema = z
   .object({
     vehicleStatus: z.array(z.string()).optional(),
     vehicleAssignee: z.string().optional(),
-    insuranceStatus: z.array(z.string()).optional(),
-    pucStatus: z.array(z.string()).optional(),
-    fitnessStatus: z.array(z.string()).optional(),
-    serviceDueStatus: z.array(z.string()).optional(),
-    fuelType: z.array(z.string()).optional(),
+    vehicleInsuranceStatus: z.array(z.string()).optional(),
+    vehiclePUCStatus: z.array(z.string()).optional(),
+    vehicleFitnessStatus: z.array(z.string()).optional(),
+    vehicleServiceDueStatus: z.array(z.string()).optional(),
+    vehicleFuelType: z.array(z.string()).optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -31,13 +31,29 @@ export const VehicleGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ vehicleStatus, vehicleAssignee, ...rest }) => {
-    return {
-      ...rest,
-      assignedTo: vehicleAssignee,
-      status: vehicleStatus,
-    };
-  });
+  .transform(
+    ({
+      vehicleStatus,
+      vehicleAssignee,
+      vehicleInsuranceStatus,
+      vehiclePUCStatus,
+      vehicleFitnessStatus,
+      vehicleServiceDueStatus,
+      vehicleFuelType,
+      ...rest
+    }) => {
+      return {
+        ...rest,
+        assignedTo: vehicleAssignee,
+        statuses: vehicleStatus,
+        insuranceStatuses: vehicleInsuranceStatus,
+        pucStatuses: vehiclePUCStatus,
+        fitnessStatuses: vehicleFitnessStatus,
+        serviceDueStatuses: vehicleServiceDueStatus,
+        fuelTypes: vehicleFuelType,
+      };
+    }
+  );
 
 export const VehicleGetBaseResponseSchema = z
   .object({

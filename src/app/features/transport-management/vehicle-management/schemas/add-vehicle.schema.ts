@@ -1,25 +1,31 @@
 import { z } from 'zod';
-import { VehicleBaseSchema } from './base-vehicle.schema';
-import { fileField, onlyDateStringField } from '@shared/schemas';
+import { VehicleUpsertShapeSchema } from './base-vehicle.schema';
+import { transformDateFormat } from '@shared/utility';
 
-export const VehicleAddRequestSchema = VehicleBaseSchema.omit({
-  id: true,
-  status: true,
-  additionalData: true,
-  cardId: true,
-})
-  .extend({
-    purchaseDate: onlyDateStringField,
-    insuranceStartDate: onlyDateStringField,
-    insuranceEndDate: onlyDateStringField,
-    pucStartDate: onlyDateStringField,
-    pucEndDate: onlyDateStringField,
-    fitnessStartDate: onlyDateStringField,
-    fitnessEndDate: onlyDateStringField,
-    vehicleFiles: z.array(fileField),
-  })
-  .strict();
-
+export const VehicleAddRequestSchema =
+  VehicleUpsertShapeSchema.strict().transform(data => {
+    const [insuranceStartDate, insuranceEndDate] =
+      data.vehicleInsuranceDate ?? [];
+    const [pucStartDate, pucEndDate] = data.vehiclePUCDate ?? [];
+    const [fitnessStartDate, fitnessEndDate] = data.vehicleFitnessDate ?? [];
+    return {
+      registrationNo: data.vehicleRegistrationNo,
+      brand: data.vehicleBrand,
+      model: data.vehicleModel,
+      mileage: data.vehicleMileage,
+      fuelType: data.vehicleFuelType,
+      purchaseDate: transformDateFormat(data.vehiclePurchaseDate),
+      dealerName: data.vehicleDealerName,
+      insuranceStartDate: transformDateFormat(insuranceStartDate),
+      insuranceEndDate: transformDateFormat(insuranceEndDate),
+      pucStartDate: transformDateFormat(pucStartDate),
+      pucEndDate: transformDateFormat(pucEndDate),
+      fitnessStartDate: transformDateFormat(fitnessStartDate),
+      fitnessEndDate: transformDateFormat(fitnessEndDate),
+      remarks: data.remarks,
+      vehicleFiles: data.vehicleFiles,
+    };
+  });
 export const VehicleAddResponseSchema = z
   .object({
     message: z.string(),

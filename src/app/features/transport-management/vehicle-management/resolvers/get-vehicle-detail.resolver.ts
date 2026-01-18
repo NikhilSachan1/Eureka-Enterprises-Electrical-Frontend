@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
 import {
-  IVehicleDetailGetRequestDto,
+  IvehicleDetailGetFormDto,
   IVehicleDetailGetResponseDto,
 } from '../types/vehicle.dto';
 import { LoggerService } from '@core/services';
@@ -95,9 +95,9 @@ export class GetVehicleDetailResolver
     void this.routerNavigationService.navigateToRoute(routeSegments);
   }
 
-  private prepareParamData(vehicleId: string): IVehicleDetailGetRequestDto {
+  private prepareParamData(vehicleId: string): IvehicleDetailGetFormDto {
     return {
-      id: vehicleId,
+      vehicleId,
     };
   }
 }

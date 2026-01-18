@@ -14,29 +14,29 @@
       <div class="grid grid-cols-1 md:grid-cols-2">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['registrationNo']"
+          [inputFieldConfig]="form.fieldConfigs.vehicleRegistrationNo"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['fuelType']"
+          [inputFieldConfig]="form.fieldConfigs.vehicleFuelType"
         />
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['vehicleBrand']"
+          [inputFieldConfig]="form.fieldConfigs.vehicleBrand"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['vehicleModel']"
+          [inputFieldConfig]="form.fieldConfigs.vehicleModel"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['mileage']"
+          [inputFieldConfig]="form.fieldConfigs.vehicleMileage"
         />
       </div>
     </div>
@@ -51,29 +51,29 @@
       <div class="grid grid-cols-1 md:grid-cols-2">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['vehiclePurchaseDate']"
+          [inputFieldConfig]="form.fieldConfigs.vehiclePurchaseDate"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['dealerName']"
+          [inputFieldConfig]="form.fieldConfigs.vehicleDealerName"
         />
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3">
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['insurancePeriod']"
+          [inputFieldConfig]="form.fieldConfigs.vehicleInsuranceDate"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['pucPeriod']"
+          [inputFieldConfig]="form.fieldConfigs.vehiclePUCDate"
         />
 
         <app-input-field
           [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs['fitnessPeriod']"
+          [inputFieldConfig]="form.fieldConfigs.vehicleFitnessDate"
         />
       </div>
     </div>
@@ -87,12 +87,12 @@
     <div class="form-section__content">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['vehicleDocuments']"
+        [inputFieldConfig]="form.fieldConfigs.vehicleFiles"
       />
 
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs['remarks']"
+        [inputFieldConfig]="form.fieldConfigs.remarks"
       />
     </div>
   </div>

@@ -2,29 +2,18 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
-import {
-  FormService,
-  LoadingService,
-  NotificationService,
-  RouterNavigationService,
-} from '@shared/services';
+import { RouterNavigationService } from '@shared/services';
 import { PetroCardService } from '../../services/petro-card.service';
 import { ActivatedRoute } from '@angular/router';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
+import { IPageHeaderConfig } from '@shared/types';
 import { EDIT_PETRO_CARD_FORM_CONFIG } from '../../config';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
-  FORM_VALIDATION_MESSAGES,
-  ROUTE_BASE_PATHS,
-  ROUTES,
-} from '@shared/constants';
-import {
-  IPetroCardEditRequestDto,
+  IPetroCardEditFormDto,
   IPetroCardGetBaseResponseDto,
 } from '../../types/petro-card.dto';
 import { finalize } from 'rxjs';
@@ -33,6 +22,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-edit-petro-card',
@@ -46,27 +36,21 @@ import { ReactiveFormsModule } from '@angular/forms';
   styleUrl: './edit-petro-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditPetroCardComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly loadingService = inject(LoadingService);
+export class EditPetroCardComponent
+  extends FormBase<IPetroCardEditFormDto>
+  implements OnInit
+{
   private readonly petroCardService = inject(PetroCardService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
-  protected form!: IEnhancedForm;
-
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly isSubmitting = signal(false);
-  protected readonly initialPetroCardData = signal<Record<
-    string,
-    unknown
-  > | null>(null);
+  protected readonly initialPetroCardData =
+    signal<IPetroCardEditFormDto | null>(null);
 
   ngOnInit(): void {
     this.loadPetroCardDataFromRoute();
+
     this.form = this.formService.createForm(EDIT_PETRO_CARD_FORM_CONFIG, {
       destroyRef: this.destroyRef,
       defaultValues: this.initialPetroCardData(),
@@ -97,28 +81,20 @@ export class EditPetroCardComponent implements OnInit {
 
   private preparePrefilledFormData(
     routeStateData: IPetroCardGetBaseResponseDto
-  ): Record<string, unknown> {
+  ): IPetroCardEditFormDto {
     const { cardNumber, cardName } = routeStateData;
 
     return {
-      cardNumber,
-      cardName,
+      petroCardNumber: cardNumber,
+      petroCardName: cardName,
     };
   }
 
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const petroCardId = this.activatedRoute.snapshot.params[
       'petroCardId'
     ] as string;
     if (!petroCardId) {
-      this.logger.logUserAction('No petro card id found in route');
-      this.notificationService.error(
-        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
-      );
       return;
     }
 
@@ -126,23 +102,15 @@ export class EditPetroCardComponent implements OnInit {
     this.executeEditPetroCard(formData, petroCardId);
   }
 
-  private prepareFormData(): IPetroCardEditRequestDto {
-    const { cardName, cardNumber } = this.form.getData() as {
-      cardName: string;
-      cardNumber: string;
-    };
-
-    return {
-      cardName,
-      cardNumber,
-    };
+  private prepareFormData(): IPetroCardEditFormDto {
+    const formData = this.form.getData();
+    return formData;
   }
 
   private executeEditPetroCard(
-    formData: IPetroCardEditRequestDto,
+    formData: IPetroCardEditFormDto,
     petroCardId: string
   ): void {
-    this.isSubmitting.set(true);
     this.loadingService.show({
       title: 'Edit Petro Card',
       message: 'Please wait while we edit a petro card...',
@@ -175,24 +143,8 @@ export class EditPetroCardComponent implements OnInit {
       });
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Edit petro card form validation failed');
-      return false;
-    }
-    return true;
-  }
-
   protected onReset(): void {
-    try {
-      this.logger.logUserAction('Reset Edit Petro Card Form');
-      this.form.reset(this.initialPetroCardData() ?? {});
-    } catch (error) {
-      this.logger.error('Error resetting form', error);
-    }
+    this.onResetSingleForm(this.initialPetroCardData() ?? {});
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

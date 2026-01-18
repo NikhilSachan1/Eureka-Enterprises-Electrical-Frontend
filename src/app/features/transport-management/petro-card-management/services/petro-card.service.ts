@@ -2,13 +2,13 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService, LoggerService } from '@core/services';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
-  IPetroCardAddRequestDto,
+  IPetroCardAddFormDto,
   IPetroCardAddResponseDto,
-  IPetroCardDeleteRequestDto,
+  IPetroCardDeleteFormDto,
   IPetroCardDeleteResponseDto,
-  IPetroCardEditRequestDto,
+  IPetroCardEditFormDto,
   IPetroCardEditResponseDto,
-  IPetroCardGetRequestDto,
+  IPetroCardGetFormDto,
   IPetroCardGetResponseDto,
 } from '../types/petro-card.dto';
 import { API_ROUTES } from '@core/constants';
@@ -31,16 +31,18 @@ export class PetroCardService {
   private readonly apiService = inject(ApiService);
 
   addPetroCard(
-    formData: IPetroCardAddRequestDto
+    formData: IPetroCardAddFormDto
   ): Observable<IPetroCardAddResponseDto> {
     this.logger.logUserAction('Add Petro Card Request');
 
     return this.apiService
       .postValidated(
         API_ROUTES.PETRO_CARD.ADD,
-        formData,
-        PetroCardAddRequestSchema,
-        PetroCardAddResponseSchema
+        {
+          response: PetroCardAddResponseSchema,
+          request: PetroCardAddRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IPetroCardAddResponseDto) => {
@@ -58,7 +60,7 @@ export class PetroCardService {
   }
 
   editPetroCard(
-    formData: IPetroCardEditRequestDto,
+    formData: IPetroCardEditFormDto,
     petroCardId: string
   ): Observable<IPetroCardEditResponseDto> {
     this.logger.logUserAction('Edit Petro Card Request');
@@ -66,9 +68,11 @@ export class PetroCardService {
     return this.apiService
       .patchValidated(
         API_ROUTES.PETRO_CARD.EDIT(petroCardId),
-        formData,
-        PetroCardEditRequestSchema,
-        PetroCardEditResponseSchema
+        {
+          response: PetroCardEditResponseSchema,
+          request: PetroCardEditRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IPetroCardEditResponseDto) => {
@@ -86,16 +90,18 @@ export class PetroCardService {
   }
 
   deletePetroCard(
-    formData: IPetroCardDeleteRequestDto
+    formData: IPetroCardDeleteFormDto
   ): Observable<IPetroCardDeleteResponseDto> {
     this.logger.logUserAction('Delete Petro Card Request');
 
     return this.apiService
       .deleteValidated(
         API_ROUTES.PETRO_CARD.DELETE,
-        PetroCardDeleteResponseSchema,
-        formData,
-        PetroCardDeleteRequestSchema
+        {
+          response: PetroCardDeleteResponseSchema,
+          request: PetroCardDeleteRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IPetroCardDeleteResponseDto) => {
@@ -116,16 +122,18 @@ export class PetroCardService {
   }
 
   getPetroCardList(
-    params?: IPetroCardGetRequestDto
+    params?: IPetroCardGetFormDto
   ): Observable<IPetroCardGetResponseDto> {
     this.logger.logUserAction('Get Petro Card List Request');
 
     return this.apiService
       .getValidated(
         API_ROUTES.PETRO_CARD.LIST,
-        PetroCardGetResponseSchema,
-        params,
-        PetroCardGetRequestSchema
+        {
+          response: PetroCardGetResponseSchema,
+          request: PetroCardGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IPetroCardGetResponseDto) => {

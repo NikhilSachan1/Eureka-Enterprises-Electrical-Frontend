@@ -2,34 +2,23 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   OnInit,
-  signal,
 } from '@angular/core';
-import { EnvironmentService, LoggerService } from '@core/services';
-import {
-  FormService,
-  LoadingService,
-  NotificationService,
-  RouterNavigationService,
-} from '@shared/services';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
+import { RouterNavigationService } from '@shared/services';
+import { IPageHeaderConfig } from '@shared/types';
 import { PetroCardService } from '../../services/petro-card.service';
 import { ADD_PETRO_CARD_FORM_CONFIG } from '../../config';
-import { IPetroCardAddRequestDto } from '../../types/petro-card.dto';
+import { IPetroCardAddFormDto } from '../../types/petro-card.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
-import {
-  FORM_VALIDATION_MESSAGES,
-  ROUTE_BASE_PATHS,
-  ROUTES,
-} from '@shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { ADD_PETRO_CARD_PREFILLED_DATA } from '@shared/mock-data/add-petro-card.mock-data';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-add-petro-card',
@@ -43,56 +32,37 @@ import { ReactiveFormsModule } from '@angular/forms';
   styleUrl: './add-petro-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddPetroCardComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  private readonly logger = inject(LoggerService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly loadingService = inject(LoadingService);
+export class AddPetroCardComponent
+  extends FormBase<IPetroCardAddFormDto>
+  implements OnInit
+{
   private readonly petroCardService = inject(PetroCardService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly environmentService = inject(EnvironmentService);
-
-  protected form!: IEnhancedForm;
-  protected readonly initialPetroCardData = signal<Record<
-    string,
-    unknown
-  > | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    this.loadMockData();
-    this.form = this.formService.createForm(ADD_PETRO_CARD_FORM_CONFIG, {
-      destroyRef: this.destroyRef,
-      defaultValues: this.initialPetroCardData(),
-    });
+    this.form = this.formService.createForm<IPetroCardAddFormDto>(
+      ADD_PETRO_CARD_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+      }
+    );
+
+    this.loadMockData(ADD_PETRO_CARD_PREFILLED_DATA);
   }
 
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const formData = this.prepareFormData();
     this.executeAddPetroCard(formData);
   }
 
-  private prepareFormData(): IPetroCardAddRequestDto {
-    const { cardName, cardNumber } = this.form.getData() as {
-      cardName: string;
-      cardNumber: string;
-    };
-
-    return {
-      cardName,
-      cardNumber,
-    };
+  private prepareFormData(): IPetroCardAddFormDto {
+    const formData = this.form.getData();
+    return formData;
   }
 
-  private executeAddPetroCard(formData: IPetroCardAddRequestDto): void {
-    this.isSubmitting.set(true);
+  private executeAddPetroCard(formData: IPetroCardAddFormDto): void {
     this.loadingService.show({
       title: 'Adding Petro Card',
       message: 'Please wait while we are adding the petro card...',
@@ -125,24 +95,8 @@ export class AddPetroCardComponent implements OnInit {
       });
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Add petro card form validation failed');
-      return false;
-    }
-    return true;
-  }
-
   protected onReset(): void {
-    try {
-      this.logger.logUserAction('Reset Add Petro Card Form');
-      this.form.reset();
-    } catch (error) {
-      this.logger.error('Error resetting form', error);
-    }
+    this.onResetSingleForm();
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
@@ -150,11 +104,5 @@ export class AddPetroCardComponent implements OnInit {
       title: 'Add Petro Card',
       subtitle: 'Add a new petro card',
     };
-  }
-
-  private loadMockData(): void {
-    if (this.environmentService.isTestDataEnabled) {
-      this.initialPetroCardData.set(ADD_PETRO_CARD_PREFILLED_DATA);
-    }
   }
 }

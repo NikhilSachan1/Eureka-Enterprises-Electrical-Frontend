@@ -18,20 +18,20 @@ import {
   VehicleGetResponseSchema,
 } from '../schemas';
 import {
-  IVehicleAddRequestDto,
   IVehicleAddResponseDto,
   IVehicleEditResponseDto,
-  IVehicleEditRequestDto,
-  IVehicleDeleteRequestDto,
   IVehicleDeleteResponseDto,
-  IVehicleActionRequestDto,
   IVehicleActionResponseDto,
-  IVehicleGetRequestDto,
   IVehicleGetResponseDto,
-  IVehicleDetailGetRequestDto,
   IVehicleDetailGetResponseDto,
   IVehicleEventHistoryGetResponseDto,
-  IVehicleEventHistoryGetRequestDto,
+  IvehicleActionFormDto,
+  IvehicleAddFormDto,
+  IvehicleEditFormDto,
+  IvehicleDeleteFormDto,
+  IvehicleGetFormDto,
+  IvehicleDetailGetFormDto,
+  IVehicleEventHistoryGetFormDto,
 } from '../types/vehicle.dto';
 
 @Injectable({
@@ -41,9 +41,7 @@ export class VehicleService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
-  addVehicle(
-    formData: IVehicleAddRequestDto
-  ): Observable<IVehicleAddResponseDto> {
+  addVehicle(formData: IvehicleAddFormDto): Observable<IVehicleAddResponseDto> {
     this.logger.logUserAction('Add Vehicle Request');
 
     return this.apiService
@@ -72,7 +70,7 @@ export class VehicleService {
   }
 
   editVehicle(
-    formData: IVehicleEditRequestDto,
+    formData: IvehicleEditFormDto,
     vehicleId: string
   ): Observable<IVehicleEditResponseDto> {
     this.logger.logUserAction('Edit Vehicle Request');
@@ -103,7 +101,7 @@ export class VehicleService {
   }
 
   deleteVehicle(
-    formData: IVehicleDeleteRequestDto
+    formData: IvehicleDeleteFormDto
   ): Observable<IVehicleDeleteResponseDto> {
     this.logger.logUserAction('Delete Vehicle Request');
 
@@ -132,7 +130,7 @@ export class VehicleService {
   }
 
   actionVehicle(
-    formData: IVehicleActionRequestDto
+    formData: IvehicleActionFormDto
   ): Observable<IVehicleActionResponseDto> {
     this.logger.logUserAction('Action Vehicle Request');
 
@@ -162,7 +160,7 @@ export class VehicleService {
   }
 
   getVehicleList(
-    params?: IVehicleGetRequestDto
+    params?: IvehicleGetFormDto
   ): Observable<IVehicleGetResponseDto> {
     this.logger.logUserAction('Get Vehicle List Request');
 
@@ -191,12 +189,12 @@ export class VehicleService {
   }
 
   getVehicleDetailById(
-    params: IVehicleDetailGetRequestDto
+    params: IvehicleDetailGetFormDto
   ): Observable<IVehicleDetailGetResponseDto> {
     this.logger.logUserAction('Get Vehicle Detail By Id Request');
 
     return this.apiService
-      .getValidated(API_ROUTES.VEHICLE.GET_VEHICLE_BY_ID(params.id), {
+      .getValidated(API_ROUTES.VEHICLE.GET_VEHICLE_BY_ID(params.vehicleId), {
         response: VehicleDetailGetResponseSchema,
       })
       .pipe(
@@ -221,7 +219,7 @@ export class VehicleService {
   }
 
   getVehicleEventHistory(
-    params: IVehicleEventHistoryGetRequestDto,
+    params: IVehicleEventHistoryGetFormDto,
     vehicleId: string
   ): Observable<IVehicleEventHistoryGetResponseDto> {
     this.logger.logUserAction('Get Vehicle Event History Request');

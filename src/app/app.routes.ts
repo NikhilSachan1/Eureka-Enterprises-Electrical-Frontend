@@ -79,20 +79,20 @@ export const routes: Routes = [
             m => m.ASSET_MANAGEMENT_ROUTES
           ),
       },
-      // {
-      //   path: ROUTE_BASE_PATHS.TRANSPORT,
-      //   loadChildren: () =>
-      //     import('./features/transport-management/transport.routes').then(
-      //       m => m.TRANSPORT_MANAGEMENT_ROUTES
-      //     ),
-      // },
-      // {
-      //   path: ROUTE_BASE_PATHS.ANNOUNCEMENT,
-      //   loadChildren: () =>
-      //     import('./features/announcement-management/announcement.routes').then(
-      //       m => m.ANNOUNCEMENT_MANAGEMENT_ROUTES
-      //     ),
-      // },
+      {
+        path: ROUTE_BASE_PATHS.TRANSPORT,
+        loadChildren: () =>
+          import('./features/transport-management/transport.routes').then(
+            m => m.TRANSPORT_MANAGEMENT_ROUTES
+          ),
+      },
+      {
+        path: ROUTE_BASE_PATHS.ANNOUNCEMENT,
+        loadChildren: () =>
+          import('./features/announcement-management/announcement.routes').then(
+            m => m.ANNOUNCEMENT_MANAGEMENT_ROUTES
+          ),
+      },
       {
         path: ROUTE_BASE_PATHS.PAYROLL,
         loadChildren: () =>

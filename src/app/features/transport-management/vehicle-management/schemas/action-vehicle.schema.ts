@@ -7,13 +7,23 @@ const { id } = VehicleBaseSchema.shape;
 export const ActionVehicleRequestSchema = z
   .object({
     vehicleId: id,
-    action: z.string().min(1),
-    toUserId: uuidField.nullable(),
-    vehicleFiles: z.array(fileField).nullable(),
-    metadata: z.record(z.string(), z.string()),
+    actionType: z.string().min(1),
+    allocatedToEmployeeName: uuidField.nullable(),
+    vehicleImages: z.array(fileField).nullable(),
+    remark: z.string().nullable(),
   })
-  .strict();
-
+  .strict()
+  .transform(data => {
+    return {
+      vehicleId: data.vehicleId,
+      action: data.actionType,
+      toUserId: data.allocatedToEmployeeName,
+      vehicleFiles: data.vehicleImages,
+      metadata: {
+        remark: data.remark,
+      },
+    };
+  });
 export const ActionVehicleResponseSchema = z
   .object({
     message: z.string().min(1),

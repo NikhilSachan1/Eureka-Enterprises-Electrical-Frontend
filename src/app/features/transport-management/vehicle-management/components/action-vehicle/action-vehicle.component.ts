@@ -1,30 +1,22 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
-  signal,
 } from '@angular/core';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import {
-  ConfirmationDialogService,
-  FormService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
+import { ConfirmationDialogService } from '@shared/services';
 import {
   EButtonActionType,
   ETableActionTypeValue,
   IDialogActionHandler,
-  IEnhancedForm,
 } from '@shared/types';
 import { VehicleService } from '../../services/vehicle.service';
-import { LoggerService } from '@core/services';
 import {
-  IVehicleActionRequestDto,
+  IvehicleActionFormDto,
   IVehicleActionResponseDto,
+  IvehicleActionUIFormDto,
   IVehicleGetBaseResponseDto,
 } from '../../types/vehicle.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
@@ -32,6 +24,7 @@ import { ACTION_VEHICLE_FORM_CONFIG } from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-action-vehicle',
@@ -40,13 +33,11 @@ import { ReactiveFormsModule } from '@angular/forms';
   styleUrl: './action-vehicle.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ActionVehicleComponent implements OnInit, IDialogActionHandler {
-  private readonly formService = inject(FormService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class ActionVehicleComponent
+  extends FormBase<IvehicleActionUIFormDto>
+  implements OnInit, IDialogActionHandler
+{
   private readonly vehicleService = inject(VehicleService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -56,10 +47,7 @@ export class ActionVehicleComponent implements OnInit, IDialogActionHandler {
   protected readonly dialogActionType = input.required<EButtonActionType>();
   protected readonly onSuccess = input.required<() => void>();
 
-  protected form!: IEnhancedForm;
   protected readonly EButtonActionTypeEnum = EButtonActionType;
-
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -74,38 +62,30 @@ export class ActionVehicleComponent implements OnInit, IDialogActionHandler {
     }
 
     const actionType = this.dialogActionType();
-    this.form = this.formService.createForm(ACTION_VEHICLE_FORM_CONFIG, {
-      destroyRef: this.destroyRef,
-      defaultValues: null,
-      context: {
-        actionType,
-      },
-    });
+    this.form = this.formService.createForm<IvehicleActionUIFormDto>(
+      ACTION_VEHICLE_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+        context: {
+          actionType,
+        },
+      }
+    );
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: IVehicleGetBaseResponseDto[]): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData();
     this.executeVehicleAction(formData);
   }
 
-  private prepareFormData(
-    record: IVehicleGetBaseResponseDto[]
-  ): IVehicleActionRequestDto {
-    const { vehicleAssignee, vehicleImages, comment } = this.form.getData() as {
-      vehicleAssignee: string;
-      vehicleImages: File[];
-      comment: string;
-    };
+  private prepareFormData(): IvehicleActionFormDto {
+    const formData = this.form.getData();
 
-    let actionTypeValue: ETableActionTypeValue | undefined;
+    let actionTypeValue!: ETableActionTypeValue;
 
     if (this.dialogActionType() === EButtonActionType.HANDOVER_INITIATE) {
       actionTypeValue = ETableActionTypeValue.HANDOVER_INITIATED;
@@ -125,18 +105,15 @@ export class ActionVehicleComponent implements OnInit, IDialogActionHandler {
       actionTypeValue = ETableActionTypeValue.DEALLOCATED;
     }
 
+    const { id: vehicleId } = this.selectedRecord()[0];
     return {
-      vehicleId: record[0].id,
-      action: actionTypeValue as unknown as string,
-      toUserId: vehicleAssignee,
-      vehicleFiles: vehicleImages,
-      metadata: {
-        remark: comment,
-      },
+      ...formData,
+      vehicleId,
+      actionType: actionTypeValue,
     };
   }
 
-  private executeVehicleAction(formData: IVehicleActionRequestDto): void {
+  private executeVehicleAction(formData: IvehicleActionFormDto): void {
     let loadingMessage;
 
     if (this.dialogActionType() === EButtonActionType.HANDOVER_INITIATE) {
@@ -172,7 +149,6 @@ export class ActionVehicleComponent implements OnInit, IDialogActionHandler {
       };
     }
 
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
     this.form.disable();
 
@@ -193,16 +169,5 @@ export class ActionVehicleComponent implements OnInit, IDialogActionHandler {
           this.confirmationDialogService.closeDialog();
         },
       });
-  }
-
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Action vehicle form validation failed');
-      return false;
-    }
-    return true;
   }
 }

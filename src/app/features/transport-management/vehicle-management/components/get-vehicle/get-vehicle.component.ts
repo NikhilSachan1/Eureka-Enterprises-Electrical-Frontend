@@ -31,7 +31,7 @@ import {
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   IVehicleGetBaseResponseDto,
-  IVehicleGetRequestDto,
+  IvehicleGetFormDto,
   IVehicleGetResponseDto,
   IVehicleGetStatsResponseDto,
 } from '../../types/vehicle.dto';
@@ -139,8 +139,8 @@ export class GetVehicleComponent implements OnInit {
       });
   }
 
-  private prepareParamData(): IVehicleGetRequestDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IVehicleGetRequestDto>(
+  private prepareParamData(): IvehicleGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IvehicleGetFormDto>(
       this.tableFilterData,
       this.table.getHeaders()
     );

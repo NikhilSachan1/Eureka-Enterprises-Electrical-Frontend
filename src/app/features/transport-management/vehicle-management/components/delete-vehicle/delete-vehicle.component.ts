@@ -1,21 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
-  signal,
 } from '@angular/core';
-import {
-  ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
+import { ConfirmationDialogService } from '@shared/services';
 import { VehicleService } from '../../services/vehicle.service';
-import { LoggerService } from '@core/services';
 import {
-  IVehicleDeleteRequestDto,
+  IvehicleDeleteFormDto,
   IVehicleDeleteResponseDto,
   IVehicleGetBaseResponseDto,
 } from '../../types/vehicle.dto';
@@ -23,6 +16,7 @@ import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { EButtonActionType } from '@shared/types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-delete-vehicle',
@@ -31,12 +25,11 @@ import { finalize } from 'rxjs';
   styleUrl: './delete-vehicle.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeleteVehicleComponent implements OnInit {
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class DeleteVehicleComponent
+  extends FormBase<IvehicleDeleteFormDto>
+  implements OnInit
+{
   private readonly vehicleService = inject(VehicleService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -44,8 +37,6 @@ export class DeleteVehicleComponent implements OnInit {
   protected readonly selectedRecord =
     input.required<IVehicleGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
-
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -61,32 +52,27 @@ export class DeleteVehicleComponent implements OnInit {
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: IVehicleGetBaseResponseDto[]): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData(this.selectedRecord());
     this.executeVehicleDeleteAction(formData);
   }
 
   private prepareFormData(
     record: IVehicleGetBaseResponseDto[]
-  ): IVehicleDeleteRequestDto {
+  ): IvehicleDeleteFormDto {
     return {
       vehicleIds: record.map((row: IVehicleGetBaseResponseDto) => row.id),
     };
   }
 
-  private executeVehicleDeleteAction(formData: IVehicleDeleteRequestDto): void {
+  private executeVehicleDeleteAction(formData: IvehicleDeleteFormDto): void {
     const loadingMessage = {
       title: 'Deleting Vehicle',
       message: 'Please wait while we delete the vehicle...',
     };
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
 
     this.vehicleService

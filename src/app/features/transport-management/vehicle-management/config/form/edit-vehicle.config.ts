@@ -5,14 +5,16 @@ import {
 } from '@shared/types';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { ADD_VEHICLE_FORM_CONFIG } from './add-vehicle.config';
+import { IvehicleEditFormDto } from '../../types/vehicle.dto';
 
-const EDIT_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  ...ADD_VEHICLE_FORM_CONFIG.fields,
-  registrationNo: {
-    ...ADD_VEHICLE_FORM_CONFIG.fields['registrationNo'],
-    disabledInput: true,
-  },
-};
+const EDIT_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleEditFormDto> =
+  {
+    ...ADD_VEHICLE_FORM_CONFIG.fields,
+    vehicleRegistrationNo: {
+      ...ADD_VEHICLE_FORM_CONFIG.fields['vehicleRegistrationNo'],
+      disabledInput: true,
+    },
+  };
 
 const EDIT_VEHICLE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -25,7 +27,7 @@ const EDIT_VEHICLE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const EDIT_VEHICLE_FORM_CONFIG: IFormConfig = {
+export const EDIT_VEHICLE_FORM_CONFIG: IFormConfig<IvehicleEditFormDto> = {
   fields: EDIT_VEHICLE_FORM_FIELDS_CONFIG,
   buttons: EDIT_VEHICLE_FORM_BUTTONS_CONFIG,
 };

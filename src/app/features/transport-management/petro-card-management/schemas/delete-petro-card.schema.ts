@@ -3,9 +3,14 @@ import { z } from 'zod';
 
 export const PetroCardDeleteRequestSchema = z
   .object({
-    cardIds: z.array(uuidField).min(1),
+    petroCardIds: z.array(uuidField).min(1),
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      cardIds: data.petroCardIds,
+    };
+  });
 
 export const PetroCardDeleteResultSchema = z
   .object({

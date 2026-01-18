@@ -16,9 +16,14 @@ const { createdAt, updatedAt, createdBy, updatedBy, deletedBy, deletedAt } =
 
 export const VehicleDetailGetRequestSchema = z
   .object({
-    id: uuidField,
+    vehicleId: uuidField,
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      id: data.vehicleId,
+    };
+  });
 
 export const VehicleDetailGetBaseResponseSchema = VehicleBaseSchema.omit({
   cardId: true,

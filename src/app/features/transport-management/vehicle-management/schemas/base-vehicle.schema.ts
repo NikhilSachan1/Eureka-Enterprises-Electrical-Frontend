@@ -1,4 +1,10 @@
-import { AuditSchema, isoDateTimeField, uuidField } from '@shared/schemas';
+import {
+  AuditSchema,
+  dateField,
+  fileField,
+  isoDateTimeField,
+  uuidField,
+} from '@shared/schemas';
 import z from 'zod';
 
 const { createdBy, updatedBy, deletedBy, createdAt, updatedAt, deletedAt } =
@@ -44,5 +50,25 @@ export const VehicleBaseDocumentsSchema = z
     label: z.string().nullable(),
     vehicleEventsId: uuidField.optional(),
     vehicleVersionId: uuidField.optional(),
+  })
+  .strict();
+
+const { registrationNo, brand, model, mileage, fuelType, dealerName, remarks } =
+  VehicleBaseSchema.shape;
+
+export const VehicleUpsertShapeSchema = z
+  .object({
+    vehicleRegistrationNo: registrationNo,
+    vehicleBrand: brand,
+    vehicleModel: model,
+    vehicleMileage: mileage,
+    vehicleFuelType: fuelType,
+    vehiclePurchaseDate: dateField,
+    vehicleDealerName: dealerName,
+    vehicleInsuranceDate: z.array(dateField),
+    vehicleFitnessDate: z.array(dateField),
+    vehiclePUCDate: z.array(dateField),
+    remarks,
+    vehicleFiles: z.array(fileField),
   })
   .strict();

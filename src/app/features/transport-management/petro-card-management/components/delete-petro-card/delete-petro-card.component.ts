@@ -1,20 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
-  signal,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
+import { ConfirmationDialogService } from '@shared/services';
 import {
-  ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
-import {
-  IPetroCardDeleteRequestDto,
+  IPetroCardDeleteFormDto,
   IPetroCardDeleteResponseDto,
   IPetroCardGetBaseResponseDto,
 } from '../../types/petro-card.dto';
@@ -23,6 +16,7 @@ import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { EButtonActionType } from '@shared/types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-delete-petro-card',
@@ -31,12 +25,11 @@ import { finalize } from 'rxjs';
   styleUrl: './delete-petro-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeletePetroCardComponent implements OnInit {
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly notificationService = inject(NotificationService);
+export class DeletePetroCardComponent
+  extends FormBase<IPetroCardDeleteFormDto>
+  implements OnInit
+{
   private readonly petroCardService = inject(PetroCardService);
-  private readonly logger = inject(LoggerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -44,8 +37,6 @@ export class DeletePetroCardComponent implements OnInit {
   protected readonly selectedRecord =
     input.required<IPetroCardGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
-
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -61,34 +52,28 @@ export class DeletePetroCardComponent implements OnInit {
   }
 
   onDialogAccept(): void {
-    this.onSubmit(this.selectedRecord());
+    this.handleSubmit();
   }
 
-  protected onSubmit(record: IPetroCardGetBaseResponseDto[]): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
-    const formData = this.prepareFormData(record);
+  protected override handleSubmit(): void {
+    const formData = this.prepareFormData(this.selectedRecord());
     this.executePetroCardDeleteAction(formData);
   }
-
   private prepareFormData(
     record: IPetroCardGetBaseResponseDto[]
-  ): IPetroCardDeleteRequestDto {
+  ): IPetroCardDeleteFormDto {
     return {
-      cardIds: record.map((row: IPetroCardGetBaseResponseDto) => row.id),
+      petroCardIds: record.map((row: IPetroCardGetBaseResponseDto) => row.id),
     };
   }
 
   private executePetroCardDeleteAction(
-    formData: IPetroCardDeleteRequestDto
+    formData: IPetroCardDeleteFormDto
   ): void {
     const loadingMessage = {
       title: 'Deleting Petro Card',
       message: 'Please wait while we delete the petro card...',
     };
-    this.isSubmitting.set(true);
     this.loadingService.show(loadingMessage);
 
     this.petroCardService

@@ -12,3 +12,10 @@ export const PetroCardBaseSchema = z
     expiryStatus: z.string().min(1).nullable(),
   })
   .strict();
+
+const { cardNumber, cardName } = PetroCardBaseSchema.shape;
+
+export const PetroCardUpsertShapeSchema = z.object({
+  petroCardNumber: cardNumber,
+  petroCardName: cardName,
+});
