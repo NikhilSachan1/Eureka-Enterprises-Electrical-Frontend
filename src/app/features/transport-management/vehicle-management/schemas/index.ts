@@ -32,3 +32,25 @@ export {
   VehicleAddRequestSchema,
   VehicleAddResponseSchema,
 } from './add-vehicle.schema';
+export {
+  VehicleServiceAddRequestSchema,
+  VehicleServiceAddResponseSchema,
+} from './add-vehicle-service.schema';
+export {
+  VehicleServiceEditRequestSchema,
+  VehicleServiceEditResponseSchema,
+} from './edit-vehicle-service.schema';
+export {
+  VehicleServiceDeleteRequestSchema,
+  VehicleServiceDeleteResponseSchema,
+} from './delete-vehicle-service.schema';
+export {
+  VehicleServiceBaseSchema,
+  VehicleServiceUpsertShapeSchema,
+} from './base-vehicle-service.schema';
+export {
+  VehicleServiceGetRequestSchema,
+  VehicleServiceGetBaseResponseSchema,
+  VehicleServiceGetStatsResponseSchema,
+  VehicleServiceGetResponseSchema,
+} from './get-vehicle-service.schema';

@@ -69,6 +69,12 @@ export const API_ROUTES = {
     GET_VEHICLE_EVENT_HISTORY: (vehicleId: string) =>
       `vehicle-events/${vehicleId}`,
   },
+  VEHICLE_SERVICE: {
+    ADD: 'vehicle-service',
+    DELETE: 'vehicle-service/bulk',
+    EDIT: (vehicleServiceId: string) => `vehicle-service/${vehicleServiceId}`,
+    LIST: 'vehicle-service',
+  },
   PETRO_CARD: {
     LIST: 'cards',
     ADD: 'cards',
