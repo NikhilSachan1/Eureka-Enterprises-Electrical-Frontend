@@ -1,27 +1,29 @@
 @let selectedCount = selectedTableRows().length;
 @let currentViewMode = viewMode();
+@let showToggle = tableConfig().showViewModeToggle ?? true;
 
 <!-- View Mode Toggle -->
-<div class="flex items-center justify-end gap-2 mb-4">
-  <p-selectButton
-    [options]="viewModeOptions"
-    [(ngModel)]="viewMode"
-    optionLabel="label"
-    optionValue="value"
-    [allowEmpty]="false"
-    styleClass="view-mode-toggle"
-  >
-    <ng-template
-      let-option
-      pTemplate="item"
+@if (showToggle) {
+  <div class="flex items-center justify-end gap-2 mb-4">
+    <p-selectButton
+      [options]="viewModeOptions"
+      [(ngModel)]="viewMode"
+      optionLabel="label"
+      optionValue="value"
+      [allowEmpty]="false"
+      styleClass="view-mode-toggle"
     >
-      <div class="flex items-center gap-2 px-2">
-        <i [class]="option.icon"></i>
-        <span>{{ option.label }}</span>
-      </div>
-    </ng-template>
-  </p-selectButton>
-</div>
+      <ng-template
+        let-option
+        pTemplate="item"
+      >
+        <div class="flex items-center gap-2 px-2">
+          <i [class]="option.icon"></i>
+        </div>
+      </ng-template>
+    </p-selectButton>
+  </div>
+}
 
 @if (selectedCount > 1 && tableConfig().showCheckbox) {
   <p-panel class="bulk-action-panel">

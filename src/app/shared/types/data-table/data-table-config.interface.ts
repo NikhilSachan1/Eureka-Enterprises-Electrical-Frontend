@@ -25,6 +25,7 @@ export interface IDataTableConfig {
   paginationTemplate: string;
   totalRecords?: number;
   enableServerSide: boolean;
+  showViewModeToggle?: boolean; // Show/hide list & card layout toggle (default: true)
 }
 
 export interface IDataTableServerSideFilterAndSortConfig {

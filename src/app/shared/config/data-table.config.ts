@@ -32,6 +32,7 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
     "You don't have any data yet. Please add records first.",
   paginationTemplate: 'Showing {first} to {last} of {totalRecords} entries',
   enableServerSide: true,
+  showViewModeToggle: false, // Default: show the toggle
 };
 
 // default table header config
