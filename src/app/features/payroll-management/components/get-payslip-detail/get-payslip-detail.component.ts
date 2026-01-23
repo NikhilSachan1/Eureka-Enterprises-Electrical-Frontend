@@ -191,9 +191,7 @@ export class GetPayslipDetailComponent extends DrawerDetailBase {
         },
         entryData,
         approvalBy: {
-          name:
-            `${record.approver?.firstName ?? ''} ${record.approver?.lastName ?? ''}`.trim() ||
-            'N/A',
+          user: record.approver,
           date: record.approvedAt,
           notes: record.remarks,
         },

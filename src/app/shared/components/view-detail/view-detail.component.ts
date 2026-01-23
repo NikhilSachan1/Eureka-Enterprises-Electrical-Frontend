@@ -14,6 +14,7 @@ import {
   IDataViewDetailsWithEntity,
   IDetailEntryData,
   EEntryType,
+  IUserInfo,
 } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
@@ -103,5 +104,12 @@ export class ViewDetailComponent {
     entryData: IDetailEntryData[]
   ): IDetailEntryData[] {
     return this.permissionService.filterByPermission(entryData);
+  }
+
+  protected getUserName(user: IUserInfo | null | undefined): string {
+    if (!user) {
+      return 'N/A';
+    }
+    return `${user.firstName} ${user.lastName}`.trim();
   }
 }

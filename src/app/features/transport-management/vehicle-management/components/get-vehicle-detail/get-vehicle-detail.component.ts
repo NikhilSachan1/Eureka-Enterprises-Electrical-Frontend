@@ -155,7 +155,7 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
         },
         entryData,
         createdBy: {
-          name: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
+          user: record.createdByUser,
           date: record.createdAt,
           notes: record.remarks,
         },

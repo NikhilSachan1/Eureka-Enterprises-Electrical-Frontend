@@ -147,6 +147,7 @@ export type {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IDetailEntryData,
+  IUserInfo,
 } from './detail-display/detail-display.interface';
 export { EDataType } from './common/data-types.type';
 export { EStepperOrientation } from './stepper/stepper.types';

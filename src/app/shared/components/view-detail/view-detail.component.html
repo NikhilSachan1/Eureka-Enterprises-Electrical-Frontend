@@ -139,11 +139,12 @@
         }
 
         @if (detail.status?.approvalStatus !== 'pending' && detail.approvalBy) {
+          @let approvalByName = getUserName(detail.approvalBy.user);
           <p-divider />
           <div class="space-y-1">
             <p class="text-xs text-gray-600">
               {{ detail.status?.approvalStatus ?? '' | textCase: 'title' }} by
-              <span class="font-semibold">{{ detail.approvalBy.name ?? 'N/A' }}</span>
+              <span class="font-semibold">{{ approvalByName }}</span>
               at
               <span class="font-semibold">
                 {{ detail.approvalBy.date | date: appConfigService.dateFormats.DEFAULT }}
@@ -160,11 +161,12 @@
         }
 
         @if (detail.createdBy) {
+          @let createdByName = getUserName(detail.createdBy.user);
           <p-divider />
           <div class="space-y-1">
             <p class="text-xs text-gray-600">
               Added by
-              <span class="font-semibold">{{ detail.createdBy.name }}</span>
+              <span class="font-semibold">{{ createdByName }}</span>
               at
               <span class="font-semibold">
                 {{ detail.createdBy.date | date: appConfigService.dateFormats.DEFAULT }}
@@ -182,12 +184,13 @@
         }
 
         @if (detail.updatedBy) {
+          @let updatedByName = getUserName(detail.updatedBy.user);
           <p-divider />
           <div class="space-y-1">
-            @if (detail.updatedBy.name !== 'N/A') {
+            @if (updatedByName !== 'N/A') {
               <p class="text-xs text-gray-600">
                 Updated by
-                <span class="font-semibold">{{ detail.updatedBy.name }}</span>
+                <span class="font-semibold">{{ updatedByName }}</span>
                 at
                 <span class="font-semibold">
                   {{ detail.updatedBy.date | date: appConfigService.dateFormats.DEFAULT }}

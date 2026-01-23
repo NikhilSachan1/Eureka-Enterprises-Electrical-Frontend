@@ -137,22 +137,18 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
         },
         entryData,
         approvalBy: {
-          name:
-            `${record.approvalByUser?.firstName ?? ''} ${record.approvalByUser?.lastName ?? ''}`.trim() ||
-            'N/A',
+          user: record.approvalByUser,
           date: record.approvalAt,
           notes: record.approvalReason,
         },
         createdBy: {
-          name: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
+          user: record.createdByUser,
           date: record.createdAt,
           notes: record.description,
         },
         updatedBy: {
-          name: record.updatedByUser
-            ? `${record.updatedByUser.firstName} ${record.updatedByUser.lastName}`
-            : 'N/A',
-          date: record.updatedAt ?? 'N/A',
+          user: record.updatedByUser,
+          date: record.updatedAt,
         },
       };
     });

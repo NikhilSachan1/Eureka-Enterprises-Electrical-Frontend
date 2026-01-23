@@ -35,7 +35,15 @@ export interface IDataViewDetailsWithEntity {
 }
 
 interface IUserAuditInfo {
-  name?: string | null;
+  user: IUserInfo | null | undefined;
   date?: string | null;
   notes?: string | null;
+}
+
+export interface IUserInfo {
+  id: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  employeeId: string | null;
 }
