@@ -93,6 +93,7 @@ export const ROUTES = {
     PROJECT: {
       LIST: `list`,
       ADD: `add`,
+      EDIT: `edit`,
     },
   },
 

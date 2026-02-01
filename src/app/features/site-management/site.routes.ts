@@ -21,4 +21,11 @@ export const SITE_MANAGEMENT_ROUTES: Routes = [
         m => m.CONTRACTOR_MANAGEMENT_ROUTES
       ),
   },
+  {
+    path: ROUTE_BASE_PATHS.SITE.PROJECT,
+    loadChildren: () =>
+      import('./project-management/project.routes').then(
+        m => m.PROJECT_MANAGEMENT_ROUTES
+      ),
+  },
 ];
