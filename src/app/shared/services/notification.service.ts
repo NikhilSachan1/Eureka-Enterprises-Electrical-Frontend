@@ -58,6 +58,29 @@ export class NotificationService {
     );
   }
 
+  /**
+   * Handles bulk operation API response directly (results array with success flag).
+   * Splits results into errors/result and shows appropriate notification.
+   */
+  bulkOperationFromApiResponse(
+    response: { results: { id: string; success: boolean; message?: string }[] },
+    entityLabel: string,
+    actionLabel: string
+  ): void {
+    const errors = response.results
+      .filter(item => !item.success)
+      .map(item => ({ id: item.id, message: item.message }));
+    const result = response.results
+      .filter(item => item.success)
+      .map(item => ({ id: item.id }));
+    this.bulkOperationResult({
+      entityLabel,
+      actionLabel,
+      errors,
+      result,
+    });
+  }
+
   bulkOperationResult<TError = unknown, TResult = unknown>(config: {
     entityLabel: string;
     actionLabel: string;

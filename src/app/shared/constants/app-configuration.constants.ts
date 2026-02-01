@@ -8,12 +8,15 @@ export const MODULE_NAMES = {
   ASSET: 'asset',
   PETRO_CARD: 'petro_card',
   PAYROLL: 'payroll',
+  COMPANY: 'company',
 } as const;
 
 export const CONFIGURATION_KEYS = {
   COMMON: {
     APPROVAL_STATUS: 'approval_status',
     ROLE_LIST: 'role_list',
+    STATES: 'states',
+    CITIES: 'cities',
   },
   EMPLOYEE: {
     GENDERS: 'genders',
@@ -25,8 +28,6 @@ export const CONFIGURATION_KEYS = {
     BLOOD_GROUPS: 'blood_groups',
     PASSING_YEARS: 'passing_years',
     BANK_NAMES: 'bank_names',
-    STATES: 'states',
-    CITIES: 'cities',
     EMPLOYEE_LIST: 'employee_list',
   },
   EXPENSE: {
@@ -66,5 +67,9 @@ export const CONFIGURATION_KEYS = {
   },
   PAYROLL: {
     STATUS: 'payroll_statuses',
+  },
+  COMPANY: {
+    COMPANY_LIST: 'company_list',
+    COMPANY_STATUS: 'company_statuses',
   },
 } as const;

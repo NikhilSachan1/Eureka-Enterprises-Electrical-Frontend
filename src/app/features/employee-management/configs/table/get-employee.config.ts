@@ -79,7 +79,7 @@ const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'Edit Employee',
   },
   {
-    id: EButtonActionType.CHANGE_EMPLOYEE_STATUS,
+    id: EButtonActionType.CHANGE_STATUS,
     tooltip: 'Change Employee Status',
   },
   {

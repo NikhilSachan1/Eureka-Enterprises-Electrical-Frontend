@@ -85,6 +85,14 @@ export interface ISelectFieldConfig {
     dropdownName: string;
     filterByRole?: string[]; // Filter employees by roles (e.g., ['TECHNICIAN', 'ADMIN'])
   };
+  dependentDropdown?: {
+    /** The field name this dropdown depends on (e.g., 'state') */
+    dependsOnField: string;
+    /** The method name in AppConfigurationService to get options (e.g., 'getCitiesByState') */
+    optionsProviderMethod: string;
+    /** Whether to reset this field when parent field changes (default: true) */
+    resetOnParentChange?: boolean;
+  };
   filterOptions?: {
     include?: string[];
     exclude?: string[];
@@ -107,6 +115,18 @@ export interface IMultiSelectFieldConfig {
     moduleName: string;
     dropdownName: string;
     filterByRole?: string[]; // Filter employees by roles (e.g., ['TECHNICIAN', 'ADMIN'])
+  };
+  /**
+   * Dependent dropdown configuration - options depend on another field's value
+   * Example: City dropdown depends on State selection
+   */
+  dependentDropdown?: {
+    /** The field name this dropdown depends on (e.g., 'state') */
+    dependsOnField: string;
+    /** The method name in AppConfigurationService to get options (e.g., 'getCitiesByState') */
+    optionsProviderMethod: string;
+    /** Whether to reset this field when parent field changes (default: true) */
+    resetOnParentChange?: boolean;
   };
   filterOptions?: {
     include?: string[];

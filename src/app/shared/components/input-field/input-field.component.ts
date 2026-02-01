@@ -10,6 +10,7 @@ import {
   AfterViewInit,
   DestroyRef,
   computed,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -20,7 +21,7 @@ import {
 } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
+import { InputNumberInputEvent, InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -126,8 +127,12 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
   dropdownOptions = computed(() => this.getDropdownOptions());
 
+  // Signal for dependent dropdown options (e.g., cities based on state)
+  private dependentDropdownOptions = signal<IOptionDropdown[]>([]);
+
   // Cached validator values to avoid recalculation on every input
   private cachedMaxLength: number | null = null;
+  private cachedMinLength: number | null = null;
   private cachedPattern: RegExp | null = null;
   private validatorsInitialized = false;
 
@@ -142,9 +147,13 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     // Initialize cached validator values once
     if (!this.validatorsInitialized) {
       this.cachedMaxLength = this.extractMaxLength();
+      this.cachedMinLength = this.extractMinLength();
       this.cachedPattern = this.extractPattern();
       this.validatorsInitialized = true;
     }
+
+    // Handle dependent dropdown (e.g., city depends on state)
+    this.setupDependentDropdown(config);
 
     if (config.fieldType === EDataType.ATTACHMENTS) {
       control?.valueChanges
@@ -160,6 +169,86 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
           }
         });
     }
+  }
+
+  /**
+   * Setup dependent dropdown - watches parent field and updates options accordingly
+   */
+  private setupDependentDropdown(config: IInputFieldsConfig): void {
+    const dropdownConfig =
+      config.fieldType === EDataType.SELECT
+        ? config.selectConfig
+        : config.fieldType === EDataType.MULTI_SELECT
+          ? config.multiSelectConfig
+          : undefined;
+
+    const dependentConfig = dropdownConfig?.dependentDropdown;
+    if (!dependentConfig) {
+      return;
+    }
+
+    const {
+      dependsOnField,
+      optionsProviderMethod,
+      resetOnParentChange = true,
+    } = dependentConfig;
+    const parentControl = this.formGroup().get(dependsOnField);
+    const currentControl = this.formGroup().get(config.fieldName);
+
+    if (!parentControl) {
+      console.warn(
+        `Dependent dropdown: Parent field '${dependsOnField}' not found in form`
+      );
+      return;
+    }
+
+    // Check if the method exists on AppConfigurationService
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const serviceMethod = (this.appConfigurationService as any)[
+      optionsProviderMethod
+    ];
+    if (typeof serviceMethod !== 'function') {
+      console.warn(
+        `Dependent dropdown: Method '${optionsProviderMethod}' not found on AppConfigurationService`
+      );
+      return;
+    }
+
+    // Set initial options if parent already has a value
+    const initialParentValue = parentControl.value;
+    if (initialParentValue) {
+      const initialOptions = (
+        serviceMethod as (value: string) => IOptionDropdown[]
+      ).call(this.appConfigurationService, initialParentValue);
+      this.dependentDropdownOptions.set(initialOptions);
+    }
+
+    // Subscribe to parent field changes - only reset child when parent value actually changed
+    // (form.disable() / enable() also emit valueChanges; we must not clear city on that)
+    let previousParentValue: string | null = initialParentValue ?? null;
+
+    parentControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((parentValue: string) => {
+        // Get new options based on parent value
+        const newOptions = parentValue
+          ? (serviceMethod as (value: string) => IOptionDropdown[]).call(
+              this.appConfigurationService,
+              parentValue
+            )
+          : [];
+
+        this.dependentDropdownOptions.set(newOptions);
+
+        // Reset current field only when parent value actually changed (not on disable/enable etc.)
+        const parentValueChanged =
+          previousParentValue !== (parentValue ?? null);
+        previousParentValue = parentValue ?? null;
+
+        if (resetOnParentChange && parentValueChanged && currentControl) {
+          currentControl.setValue('');
+        }
+      });
   }
 
   ngAfterViewInit(): void {
@@ -190,7 +279,10 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     let dropdownOptions: IOptionDropdown[] = [];
 
-    if (dropdownConfig.dynamicDropdown) {
+    // Check for dependent dropdown first (e.g., city depends on state)
+    if (dropdownConfig.dependentDropdown) {
+      dropdownOptions = this.dependentDropdownOptions();
+    } else if (dropdownConfig.dynamicDropdown) {
       const { moduleName, dropdownName, filterByRole } =
         dropdownConfig.dynamicDropdown;
 
@@ -541,6 +633,134 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       control.setValue(value, { emitEvent: false });
       control.markAsDirty();
     }
+  }
+
+  /**
+   * Input handler for NUMBER type fields
+   * Validates digit count using minLength/maxLength validators
+   */
+  onNumberInput(event: InputNumberInputEvent): void {
+    const control = this.formGroup().get(this.inputFieldConfig().fieldName);
+    if (!control) {
+      return;
+    }
+
+    // Use numeric value, not formattedValue (which can have formatting chars)
+    const numericValue = event.value;
+
+    // If field is empty (null/undefined/empty string), clear length errors
+    // Let required validator handle empty field validation
+    const isEmpty =
+      numericValue === null ||
+      numericValue === undefined ||
+      numericValue === '' ||
+      (typeof numericValue === 'string' && numericValue.trim() === '');
+
+    if (isEmpty) {
+      this.clearLengthErrors(control);
+      return;
+    }
+
+    // Convert to string for digit counting (handles both string and number)
+    const valueStr = String(numericValue);
+    const digitCount = valueStr.length;
+
+    // Only validate if we have cached length validators
+    if (this.cachedMinLength !== null || this.cachedMaxLength !== null) {
+      this.validateDigitLength(control, digitCount);
+    }
+  }
+
+  /**
+   * Validates digit length and sets minlength/maxlength errors
+   */
+  private validateDigitLength(
+    control: AbstractControl,
+    digitCount: number
+  ): void {
+    let hasMinLengthError = false;
+    let hasMaxLengthError = false;
+
+    // Check minLength validation: error if digits < required minimum
+    if (this.cachedMinLength !== null) {
+      hasMinLengthError = digitCount < this.cachedMinLength;
+    }
+
+    // Check maxLength validation: error if digits > allowed maximum
+    if (this.cachedMaxLength !== null) {
+      hasMaxLengthError = digitCount > this.cachedMaxLength;
+    }
+
+    // Build new errors object
+    const currentErrors = control.errors ? { ...control.errors } : {};
+
+    // Handle minLength error
+    if (hasMinLengthError) {
+      currentErrors['minlength'] = {
+        requiredLength: this.cachedMinLength,
+        actualLength: digitCount,
+      };
+    } else {
+      delete currentErrors['minlength'];
+    }
+
+    // Handle maxLength error
+    if (hasMaxLengthError) {
+      currentErrors['maxlength'] = {
+        requiredLength: this.cachedMaxLength,
+        actualLength: digitCount,
+      };
+    } else {
+      delete currentErrors['maxlength'];
+    }
+
+    // Set errors (null if no errors)
+    const hasErrors = Object.keys(currentErrors).length > 0;
+    control.setErrors(hasErrors ? currentErrors : null);
+    control.markAsDirty();
+  }
+
+  /**
+   * Clears both minlength and maxlength errors from control
+   */
+  private clearLengthErrors(control: AbstractControl): void {
+    if (control.errors?.['minlength'] || control.errors?.['maxlength']) {
+      const errors = { ...control.errors };
+      delete errors['minlength'];
+      delete errors['maxlength'];
+      control.setErrors(Object.keys(errors).length > 0 ? errors : null);
+    }
+  }
+
+  /**
+   * Extracts minlength from validators (cached on init)
+   */
+  private extractMinLength(): number | null {
+    const { validators } = this.inputFieldConfig();
+    if (!validators?.length) {
+      return null;
+    }
+
+    // Use a short string - minLength returns null for empty value
+    const testControl = { value: 'x' } as AbstractControl;
+    for (const validator of validators) {
+      const wrappedValidator = validator as ValidatorFn & {
+        __originalValidator?: ValidatorFn;
+      };
+      const originalValidator =
+        wrappedValidator.__originalValidator ?? validator;
+
+      const result = originalValidator(testControl);
+      const minlengthError = result?.['minlength'];
+      if (
+        minlengthError &&
+        typeof minlengthError === 'object' &&
+        'requiredLength' in minlengthError
+      ) {
+        return minlengthError.requiredLength as number;
+      }
+    }
+    return null;
   }
 
   /**

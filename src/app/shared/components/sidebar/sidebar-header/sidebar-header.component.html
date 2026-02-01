@@ -19,9 +19,10 @@
   </div>
   @if (!isMobile() && sidebarVisible()) {
     <i
-      [class]="collapseIcon"
-      class="collapse-icon"
+      [ngClass]="['collapse-icon', collapseIcon]"
       (click)="onHeaderClick()"
+      ,
+      tabindex="0"
     ></i>
   }
 </header>

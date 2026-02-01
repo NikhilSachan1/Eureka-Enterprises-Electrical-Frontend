@@ -17,9 +17,12 @@ import {
   CLIENT_NAME_DATA,
   EMPLOYEE_STATUS_DATA,
   INDIA_STATE_DATA,
+  INDIA_CITY_BY_STATE_DATA,
+  INDIA_ALL_CITIES_DATA,
   LOCATION_DATA,
   PASSING_YEAR_DATA,
   PETRO_CARD_STATUS_DATA,
+  COMPANY_STATUS_DATA,
 } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { AppConfiguationResponseSchema } from '@shared/schemas';
@@ -32,6 +35,8 @@ import { IAssetGetResponseDto } from '@features/asset-management/types/asset.dto
 import { VehicleService } from '@features/transport-management/vehicle-management/services/vehicle.service';
 import { AssetService } from '@features/asset-management/services/asset.service';
 import { IVehicleGetResponseDto } from '@features/transport-management/vehicle-management/types/vehicle.dto';
+import { ICompanyGetResponseDto } from '@features/site-management/company-management/types/company.dto';
+import { CompanyService } from '@features/site-management/company-management/services/company.service';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +49,7 @@ export class AppConfigurationService {
   private readonly userPermissionService = inject(UserPermissionService);
   private readonly assetService = inject(AssetService);
   private readonly vehicleService = inject(VehicleService);
+  private readonly companyService = inject(CompanyService);
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
 
@@ -79,6 +85,8 @@ export class AppConfigurationService {
   private readonly _vehicleServiceTypes = signal<IOptionDropdown[]>([]);
   private readonly _vehicleServiceStatus = signal<IOptionDropdown[]>([]);
   private readonly _payrollStatus = signal<IOptionDropdown[]>([]);
+  private readonly _companyList = signal<IOptionDropdown[]>([]);
+  private readonly _companyStatus = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
   private readonly _employeeListByRole = signal<
@@ -125,6 +133,8 @@ export class AppConfigurationService {
   readonly vehicleServiceTypes = this._vehicleServiceTypes.asReadonly();
   readonly vehicleServiceStatus = this._vehicleServiceStatus.asReadonly();
   readonly payrollStatus = this._payrollStatus.asReadonly();
+  readonly companyList = this._companyList.asReadonly();
+  readonly companyStatus = this._companyStatus.asReadonly();
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
   readonly employeeListByRole = this._employeeListByRole.asReadonly();
@@ -141,7 +151,6 @@ export class AppConfigurationService {
     [MODULE_NAMES.EMPLOYEE]: {
       [CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS]: PASSING_YEAR_DATA,
       [CONFIGURATION_KEYS.EMPLOYEE.BANK_NAMES]: BANK_NAME_DATA,
-      [CONFIGURATION_KEYS.EMPLOYEE.STATES]: INDIA_STATE_DATA,
       [CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_STATUS]: EMPLOYEE_STATUS_DATA,
     },
     [MODULE_NAMES.ATTENDANCE]: {
@@ -149,6 +158,8 @@ export class AppConfigurationService {
     },
     [MODULE_NAMES.COMMON]: {
       [CONFIGURATION_KEYS.COMMON.APPROVAL_STATUS]: APPROVAL_STATUS_DATA,
+      [CONFIGURATION_KEYS.COMMON.STATES]: INDIA_STATE_DATA,
+      [CONFIGURATION_KEYS.COMMON.CITIES]: INDIA_ALL_CITIES_DATA,
     },
     [MODULE_NAMES.SITE]: {
       [CONFIGURATION_KEYS.SITE.CLIENT_LIST]: CLIENT_NAME_DATA,
@@ -156,6 +167,9 @@ export class AppConfigurationService {
     },
     [MODULE_NAMES.PETRO_CARD]: {
       [CONFIGURATION_KEYS.PETRO_CARD.STATUS]: PETRO_CARD_STATUS_DATA,
+    },
+    [MODULE_NAMES.COMPANY]: {
+      [CONFIGURATION_KEYS.COMPANY.COMPANY_STATUS]: COMPANY_STATUS_DATA,
     },
   };
 
@@ -191,14 +205,6 @@ export class AppConfigurationService {
         signal: this._bankNames,
       },
       {
-        key: CONFIGURATION_KEYS.EMPLOYEE.STATES,
-        signal: this._states,
-      },
-      {
-        key: CONFIGURATION_KEYS.EMPLOYEE.CITIES,
-        signal: this._cities,
-      },
-      {
         key: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_STATUS,
         signal: this._employeeStatus,
       },
@@ -231,6 +237,14 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.COMMON.ROLE_LIST,
         signal: this._roleList,
+      },
+      {
+        key: CONFIGURATION_KEYS.COMMON.STATES,
+        signal: this._states,
+      },
+      {
+        key: CONFIGURATION_KEYS.COMMON.CITIES,
+        signal: this._cities,
       },
     ],
     [MODULE_NAMES.SITE]: [
@@ -329,6 +343,16 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PAYROLL.STATUS,
         signal: this._payrollStatus,
+      },
+    ],
+    [MODULE_NAMES.COMPANY]: [
+      {
+        key: CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
+        signal: this._companyList,
+      },
+      {
+        key: CONFIGURATION_KEYS.COMPANY.COMPANY_STATUS,
+        signal: this._companyStatus,
       },
     ],
   };
@@ -443,6 +467,18 @@ export class AppConfigurationService {
     return this._employeeListByRole()[roleName] ?? [];
   }
 
+  /**
+   * Get cities based on selected state
+   * @param stateValue - The value of the selected state
+   * @returns Array of city options for the given state
+   */
+  getCitiesByState(stateValue: string): IOptionDropdown[] {
+    if (!stateValue) {
+      return [];
+    }
+    return INDIA_CITY_BY_STATE_DATA[stateValue] ?? [];
+  }
+
   private populateAllModuleDropdowns(
     moduleConfigMap: Record<string, Record<string, unknown>>
   ): void {
@@ -526,6 +562,35 @@ export class AppConfigurationService {
       }),
       catchError(error => {
         this.logger.logUserAction('Failed to load Vehicle List', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  loadCompanyList(): Observable<ICompanyGetResponseDto> {
+    this.logger.logUserAction('Loading app data - Company List');
+
+    return this.companyService.getCompanyList().pipe(
+      tap(response => {
+        this.logger.logUserAction('Company List loaded successfully', {
+          count: response.totalRecords,
+        });
+
+        const companyList: IOptionDropdown[] = [];
+
+        response.records.forEach(company => {
+          const dropdownItem: IOptionDropdown = {
+            label: company.name,
+            value: company.id,
+          };
+
+          companyList.push(dropdownItem);
+        });
+
+        this._companyList.set(companyList);
+      }),
+      catchError(error => {
+        this.logger.logUserAction('Failed to load Company List', error);
         return throwError(() => error);
       })
     );

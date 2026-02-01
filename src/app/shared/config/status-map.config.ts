@@ -183,7 +183,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   delete: { icon: ICONS.ACTIONS.TRASH, severity: 'danger' },
   deallocate: { icon: ICONS.ACTIONS.TRASH, severity: 'danger' },
   sendpasswordlink: { icon: ICONS.ACTIONS.SEND, severity: 'warning' },
-  changeemployeestatus: { icon: ICONS.COMMON.TOGGLE, severity: 'warning' },
+  changestatus: { icon: ICONS.COMMON.TOGGLE, severity: 'warning' },
   eventhistory: { icon: ICONS.COMMON.LIST, severity: 'info' },
   vehicleserviceinfo: { icon: ICONS.COMMON.LIST, severity: 'info' },
   setpermissions: { icon: ICONS.SECURITY.SHIELD, severity: 'info' },

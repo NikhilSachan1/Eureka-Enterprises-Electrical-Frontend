@@ -184,6 +184,64 @@ export const appMenu: ApplicationMenu = {
           ],
         },
         {
+          label: 'Site',
+          icon: ICONS.ASSET.CAR,
+          basePath: ROUTE_BASE_PATHS.SITE.BASE,
+          children: [
+            {
+              label: 'Company',
+              icon: ICONS.ASSET.CAR,
+              basePath: ROUTE_BASE_PATHS.SITE.COMPANY,
+              children: [
+                {
+                  label: 'Company List',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.SITE.COMPANY.LIST,
+                },
+                {
+                  label: 'Add Company',
+                  icon: ICONS.COMMON.PLUS,
+                  routerLink: ROUTES.SITE.COMPANY.ADD,
+                },
+              ],
+            },
+            {
+              label: 'Contractor',
+              icon: ICONS.COMMON.CREDIT_CARD,
+              basePath: ROUTE_BASE_PATHS.SITE.CONTRACTOR,
+              children: [
+                {
+                  label: 'Contractor List',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.SITE.CONTRACTOR.LIST,
+                },
+                {
+                  label: 'Add Contractor',
+                  icon: ICONS.COMMON.PLUS,
+                  routerLink: ROUTES.SITE.CONTRACTOR.ADD,
+                },
+              ],
+            },
+            {
+              label: 'Project',
+              icon: ICONS.EXPENSE.MONEY,
+              basePath: ROUTE_BASE_PATHS.SITE.PROJECT,
+              children: [
+                {
+                  label: 'Project List',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.SITE.PROJECT.LIST,
+                },
+                {
+                  label: 'Add Project',
+                  icon: ICONS.ACTIONS.PENCIL,
+                  routerLink: ROUTES.SITE.PROJECT.ADD,
+                },
+              ],
+            },
+          ],
+        },
+        {
           label: 'Announcement',
           icon: ICONS.ASSET.BOX,
           basePath: ROUTE_BASE_PATHS.ANNOUNCEMENT,

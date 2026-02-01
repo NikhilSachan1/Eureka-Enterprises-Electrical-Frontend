@@ -123,6 +123,23 @@ export const API_ROUTES = {
       },
     },
   },
+  SITE: {
+    COMPANY: {
+      LIST: 'companies',
+      ADD: 'companies',
+      DELETE: 'companies',
+      EDIT: (companyId: string) => `companies/${companyId}`,
+      GET_COMPANY_BY_ID: (companyId: string) => `companies/${companyId}`,
+    },
+    CONTRACTOR: {
+      LIST: 'contractor',
+      ADD: 'contractor',
+      DELETE: 'contractor',
+      EDIT: (contractorId: string) => `contractor/${contractorId}`,
+      GET_CONTRACTOR_BY_ID: (contractorId: string) =>
+        `contractor/${contractorId}`,
+    },
+  },
 } as const;
 
 export const SKIP_AUTH_ENDPOINTS = [

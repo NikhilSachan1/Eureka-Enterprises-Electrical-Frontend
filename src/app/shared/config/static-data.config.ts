@@ -27,7 +27,7 @@ export const INDIA_STATE_DATA: IOptionDropdown[] = [
   { label: 'Bihar', value: 'bihar' },
 ];
 
-export const INDIA_CITY_DATA: Record<string, IOptionDropdown[]> = {
+export const INDIA_CITY_BY_STATE_DATA: Record<string, IOptionDropdown[]> = {
   maharashtra: [
     { label: 'Mumbai', value: 'mumbai' },
     { label: 'Pune', value: 'pune' },
@@ -101,6 +101,12 @@ export const INDIA_CITY_DATA: Record<string, IOptionDropdown[]> = {
   ],
 };
 
+export const INDIA_ALL_CITIES_DATA: IOptionDropdown[] = Object.values(
+  INDIA_CITY_BY_STATE_DATA
+)
+  .flat()
+  .sort((a, b) => a.label.localeCompare(b.label));
+
 export const PASSING_YEAR_DATA: IOptionDropdown[] = [
   { label: '2020', value: '2020' },
   { label: '2021', value: '2021' },
@@ -157,4 +163,9 @@ export const LOCATION_DATA: IOptionDropdown[] = [
 export const PETRO_CARD_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Allocated', value: 'allocated' },
   { label: 'Available', value: 'available' },
+];
+
+export const COMPANY_STATUS_DATA: IOptionDropdown[] = [
+  { label: 'Active', value: 'true' },
+  { label: 'Archived', value: 'false' },
 ];

@@ -72,7 +72,7 @@ export class ChangeStatusEmployeeComponent extends FormBase implements OnInit {
   }
 
   onDialogAccept(): void {
-    super.onSubmit();
+    this.handleSubmit();
   }
 
   protected override handleSubmit(): void {

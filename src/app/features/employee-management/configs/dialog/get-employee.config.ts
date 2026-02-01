@@ -16,7 +16,7 @@ export const EMPLOYEE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
     },
     dynamicComponent: SendPasswordLinkEmployeeComponent,
   },
-  [EButtonActionType.CHANGE_EMPLOYEE_STATUS]: {
+  [EButtonActionType.CHANGE_STATUS]: {
     dialogConfig: {
       header: 'Change Employee Status',
       message:

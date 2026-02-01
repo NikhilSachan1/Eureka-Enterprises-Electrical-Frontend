@@ -60,6 +60,7 @@
           [readonly]="inputFieldConfig().readonlyInput || false"
           [formControlName]="inputFieldConfig().fieldName"
           [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
+          (onInput)="onNumberInput($event)"
         />
         @if (!inputFieldConfig().showStandardLabel) {
           <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>

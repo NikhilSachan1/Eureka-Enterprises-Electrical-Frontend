@@ -35,7 +35,7 @@ export const DEFAULT_NUMBER_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
   numberConfig: {
     mode: EInputNumberMode.Decimal,
     allowNumberFormatting: true,
-    showUpAndDownButtons: true,
+    showUpAndDownButtons: false,
     upAndDownButtonLayout: EUpAndDownButtonLayout.Horizontal,
     spinnerMode: ESpinnerMode.Horizontal,
     locale: 'en-IN',

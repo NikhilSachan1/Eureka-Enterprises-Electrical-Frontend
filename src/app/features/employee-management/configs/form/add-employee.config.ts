@@ -190,8 +190,8 @@ export const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfi
     fieldType: EDataType.SELECT,
     selectConfig: {
       dynamicDropdown: {
-        moduleName: MODULE_NAMES.EMPLOYEE,
-        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.STATES,
+        moduleName: MODULE_NAMES.COMMON,
+        dropdownName: CONFIGURATION_KEYS.COMMON.STATES,
       },
     },
     validators: [Validators.required],
@@ -202,7 +202,10 @@ export const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfi
     label: 'City',
     fieldType: EDataType.SELECT,
     selectConfig: {
-      optionsDropdown: [],
+      dependentDropdown: {
+        dependsOnField: 'state',
+        optionsProviderMethod: 'getCitiesByState',
+      },
     },
     validators: [Validators.required],
   },
@@ -211,9 +214,6 @@ export const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfi
     fieldName: 'pinCode',
     label: 'Pin Code',
     fieldType: EDataType.TEXT,
-    textConfig: {
-      textCase: ETextCase.UPPERCASE,
-    },
     validators: [
       Validators.required,
       Validators.minLength(6),

@@ -83,10 +83,12 @@ export const ROUTES = {
     CONTRACTOR: {
       LIST: `list`,
       ADD: `add`,
+      EDIT: `edit`,
     },
     COMPANY: {
       LIST: `list`,
       ADD: `add`,
+      EDIT: `edit`,
     },
     PROJECT: {
       LIST: `list`,

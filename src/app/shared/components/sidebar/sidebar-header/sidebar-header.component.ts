@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,7 +12,7 @@ import { AppConfigService } from '@core/services';
 @Component({
   selector: 'app-sidebar-header',
   standalone: true,
-  imports: [],
+  imports: [NgClass],
   templateUrl: './sidebar-header.component.html',
   styleUrls: ['./sidebar-header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

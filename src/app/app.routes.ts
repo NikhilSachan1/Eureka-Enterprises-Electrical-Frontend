@@ -87,6 +87,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.SITE.BASE,
+        loadChildren: () =>
+          import('./features/site-management/site.routes').then(
+            m => m.SITE_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: ROUTE_BASE_PATHS.ANNOUNCEMENT,
         loadChildren: () =>
           import('./features/announcement-management/announcement.routes').then(

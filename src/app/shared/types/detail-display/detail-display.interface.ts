@@ -3,7 +3,7 @@ import { EDataType } from '../common/data-types.type';
 
 export interface IEntityViewDetails {
   name: string;
-  subtitle: string;
+  subtitle?: string | null;
   showImage?: boolean;
 }
 
@@ -41,9 +41,9 @@ interface IUserAuditInfo {
 }
 
 export interface IUserInfo {
-  id: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  email: string | null;
-  employeeId: string | null;
+  id?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  employeeId?: string | null;
 }
