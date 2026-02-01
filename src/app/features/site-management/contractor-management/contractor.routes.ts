@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetContractorDetailResolver } from './resolvers/get-contractor-detail.resolver';
 
 export const CONTRACTOR_MANAGEMENT_ROUTES: Routes = [
   {
@@ -27,5 +28,8 @@ export const CONTRACTOR_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-contractor/edit-contractor.component').then(
         m => m.EditContractorComponent
       ),
+    resolve: {
+      contractorDetail: GetContractorDetailResolver,
+    },
   },
 ];

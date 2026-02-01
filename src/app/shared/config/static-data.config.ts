@@ -169,3 +169,8 @@ export const COMPANY_STATUS_DATA: IOptionDropdown[] = [
   { label: 'Active', value: 'true' },
   { label: 'Archived', value: 'false' },
 ];
+
+export const CONTRACTOR_STATUS_DATA: IOptionDropdown[] = [
+  { label: 'Active', value: 'true' },
+  { label: 'Archived', value: 'false' },
+];

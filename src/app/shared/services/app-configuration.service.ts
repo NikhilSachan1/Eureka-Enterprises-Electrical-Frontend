@@ -23,6 +23,7 @@ import {
   PASSING_YEAR_DATA,
   PETRO_CARD_STATUS_DATA,
   COMPANY_STATUS_DATA,
+  CONTRACTOR_STATUS_DATA,
 } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { AppConfiguationResponseSchema } from '@shared/schemas';
@@ -37,6 +38,8 @@ import { AssetService } from '@features/asset-management/services/asset.service'
 import { IVehicleGetResponseDto } from '@features/transport-management/vehicle-management/types/vehicle.dto';
 import { ICompanyGetResponseDto } from '@features/site-management/company-management/types/company.dto';
 import { CompanyService } from '@features/site-management/company-management/services/company.service';
+import { IContractorGetResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
+import { ContractorService } from '@features/site-management/contractor-management/services/contractor.service';
 
 @Injectable({
   providedIn: 'root',
@@ -50,6 +53,7 @@ export class AppConfigurationService {
   private readonly assetService = inject(AssetService);
   private readonly vehicleService = inject(VehicleService);
   private readonly companyService = inject(CompanyService);
+  private readonly contractorService = inject(ContractorService);
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
 
@@ -87,6 +91,8 @@ export class AppConfigurationService {
   private readonly _payrollStatus = signal<IOptionDropdown[]>([]);
   private readonly _companyList = signal<IOptionDropdown[]>([]);
   private readonly _companyStatus = signal<IOptionDropdown[]>([]);
+  private readonly _contractorList = signal<IOptionDropdown[]>([]);
+  private readonly _contractorStatus = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
   private readonly _employeeListByRole = signal<
@@ -135,6 +141,8 @@ export class AppConfigurationService {
   readonly payrollStatus = this._payrollStatus.asReadonly();
   readonly companyList = this._companyList.asReadonly();
   readonly companyStatus = this._companyStatus.asReadonly();
+  readonly contractorList = this._contractorList.asReadonly();
+  readonly contractorStatus = this._contractorStatus.asReadonly();
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
   readonly employeeListByRole = this._employeeListByRole.asReadonly();
@@ -170,6 +178,9 @@ export class AppConfigurationService {
     },
     [MODULE_NAMES.COMPANY]: {
       [CONFIGURATION_KEYS.COMPANY.COMPANY_STATUS]: COMPANY_STATUS_DATA,
+    },
+    [MODULE_NAMES.CONTRACTOR]: {
+      [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_STATUS]: CONTRACTOR_STATUS_DATA,
     },
   };
 
@@ -353,6 +364,16 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.COMPANY.COMPANY_STATUS,
         signal: this._companyStatus,
+      },
+    ],
+    [MODULE_NAMES.CONTRACTOR]: [
+      {
+        key: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+        signal: this._contractorList,
+      },
+      {
+        key: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_STATUS,
+        signal: this._contractorStatus,
       },
     ],
   };
@@ -591,6 +612,35 @@ export class AppConfigurationService {
       }),
       catchError(error => {
         this.logger.logUserAction('Failed to load Company List', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  loadContractorList(): Observable<IContractorGetResponseDto> {
+    this.logger.logUserAction('Loading app data - Contractor List');
+
+    return this.contractorService.getContractorList().pipe(
+      tap(response => {
+        this.logger.logUserAction('Contractor List loaded successfully', {
+          count: response.totalRecords,
+        });
+
+        const contractorList: IOptionDropdown[] = [];
+
+        response.records.forEach(contractor => {
+          const dropdownItem: IOptionDropdown = {
+            label: contractor.name,
+            value: contractor.id,
+          };
+
+          contractorList.push(dropdownItem);
+        });
+
+        this._contractorList.set(contractorList);
+      }),
+      catchError(error => {
+        this.logger.logUserAction('Failed to load Contractor List', error);
         return throwError(() => error);
       })
     );

@@ -73,6 +73,7 @@ export class GetCompanyDetailResolver
   private navigateToCompanyList(): void {
     const routeSegments = [
       ROUTE_BASE_PATHS.SITE.BASE,
+      ROUTE_BASE_PATHS.SITE.COMPANY,
       ROUTES.SITE.COMPANY.LIST,
     ];
     void this.routerNavigationService.navigateToRoute(routeSegments);

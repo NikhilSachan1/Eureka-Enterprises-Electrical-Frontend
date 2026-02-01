@@ -7,12 +7,7 @@ export const CompanyDetailGetRequestSchema = z
   .object({
     companyId: uuidField,
   })
-  .strict()
-  .transform(data => {
-    return {
-      ...data,
-    };
-  });
+  .strict();
 
 export const CompanyDetailGetResponseSchema =
   CompanyGetBaseResponseSchema.extend({

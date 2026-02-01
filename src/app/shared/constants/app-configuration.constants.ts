@@ -9,6 +9,7 @@ export const MODULE_NAMES = {
   PETRO_CARD: 'petro_card',
   PAYROLL: 'payroll',
   COMPANY: 'company',
+  CONTRACTOR: 'contractor',
 } as const;
 
 export const CONFIGURATION_KEYS = {
@@ -71,5 +72,9 @@ export const CONFIGURATION_KEYS = {
   COMPANY: {
     COMPANY_LIST: 'company_list',
     COMPANY_STATUS: 'company_statuses',
+  },
+  CONTRACTOR: {
+    CONTRACTOR_LIST: 'contractor_list',
+    CONTRACTOR_STATUS: 'contractor_statuses',
   },
 } as const;
