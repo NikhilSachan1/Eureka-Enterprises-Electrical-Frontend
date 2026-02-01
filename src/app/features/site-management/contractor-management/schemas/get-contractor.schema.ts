@@ -30,6 +30,7 @@ export const ContractorGetRequestSchema = z
 export const ContractorGetBaseResponseSchema = ContractorBaseSchema.extend({
   ...AuditSchema.shape,
   fullAddress: z.string().nullable(),
+  isSelfContractor: z.boolean(),
 }).strict();
 
 export const ContractorGetStatsResponseSchema = z
@@ -38,6 +39,7 @@ export const ContractorGetStatsResponseSchema = z
     activeContractors: z.number().int().nonnegative(),
     archivedContractors: z.number().int().nonnegative(),
     inactiveContractors: z.number().int().nonnegative(),
+    selfContractors: z.number().int().nonnegative(),
   })
   .strict();
 
@@ -48,6 +50,11 @@ export const ContractorLevelGetStatsResponseSchema = z
     holdSites: z.number().int().nonnegative(),
     totalSites: z.number().int().nonnegative(),
     upcomingSites: z.number().int().nonnegative(),
+    totalDocuments: z.number().int().nonnegative(),
+    totalInvoices: z.number().int().nonnegative(),
+    totalQuotations: z.number().int().nonnegative(),
+    totalAmountBilled: z.number().int().nonnegative(),
+    pendingPayments: z.number().int().nonnegative(),
   })
   .strict();
 

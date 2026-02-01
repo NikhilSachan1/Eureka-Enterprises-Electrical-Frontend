@@ -1,1 +1,17 @@
-<p>change-status-contractor works!</p>
+<div class="flex items-center justify-center gap-3 py-3">
+  <span
+    [ngClass]="
+      currentStatus() === ALL_CONTRACTOR_STATUS.ACTIVE ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+    "
+    class="px-3 py-1.5 rounded-md text-sm font-semibold"
+  >
+    {{ getStatusLabel(currentStatus()) }}
+  </span>
+  <i [class]="ICONS.COMMON.ARROW_RIGHT + ' text-gray-500 text-lg'"></i>
+  <span
+    [ngClass]="newStatus() === ALL_CONTRACTOR_STATUS.ACTIVE ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+    class="px-3 py-1.5 rounded-md text-sm font-semibold"
+  >
+    {{ getStatusLabel(newStatus()) }}
+  </span>
+</div>

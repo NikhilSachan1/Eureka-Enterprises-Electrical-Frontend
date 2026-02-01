@@ -12,7 +12,7 @@ import {
   ICompanyGetBaseResponseDto,
 } from '../../types/company.dto';
 import { CompanyService } from '../../services/company.service';
-import { LoadingService } from '@shared/services';
+import { AppConfigurationService, LoadingService } from '@shared/services';
 import { AppConfigService } from '@core/services';
 import {
   IDataViewDetails,
@@ -23,6 +23,7 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { ECompanyStatus } from '../../types/company.enum';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-get-company-detail',
@@ -38,6 +39,7 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
   private readonly companyService = inject(CompanyService);
   private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _companyDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -112,11 +114,17 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'City',
-          value: record.city,
+          value: getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.cities(),
+            record.city
+          ),
         },
         {
           label: 'State',
-          value: record.state,
+          value: getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.states(),
+            record.state
+          ),
         },
         {
           label: 'Pincode',

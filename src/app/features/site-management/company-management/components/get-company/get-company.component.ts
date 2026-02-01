@@ -51,6 +51,7 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { ECompanyStatus } from '../../types/company.enum';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-get-company',
@@ -150,7 +151,7 @@ export class GetCompanyComponent implements OnInit {
         status: record.isActive
           ? ECompanyStatus.ACTIVE
           : ECompanyStatus.ARCHIVED,
-        stateCity: `${record.state}, ${record.city}`,
+        stateCity: `${getMappedValueFromArrayOfObjects(this.appConfigurationService.states(), record.state)}, ${getMappedValueFromArrayOfObjects(this.appConfigurationService.cities(), record.city)}`,
         pincode: record.pincode,
         parentCompanyName: record.parentCompany?.name ?? null,
         originalRawData: record,

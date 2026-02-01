@@ -79,8 +79,7 @@ export class ContractorService {
           response: ContractorEditResponseSchema,
           request: ContractorEditRequestSchema,
         },
-        formData,
-        { multipart: true }
+        formData
       )
       .pipe(
         tap((response: IContractorEditResponseDto) => {
@@ -110,8 +109,7 @@ export class ContractorService {
           response: ContractorChangeStatusResponseSchema,
           request: ContractorChangeStatusRequestSchema,
         },
-        formData,
-        { multipart: true }
+        formData
       )
       .pipe(
         tap((response: IContractorChangeStatusResponseDto) => {

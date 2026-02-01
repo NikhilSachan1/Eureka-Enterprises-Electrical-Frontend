@@ -132,12 +132,12 @@ export const API_ROUTES = {
       GET_COMPANY_BY_ID: (companyId: string) => `companies/${companyId}`,
     },
     CONTRACTOR: {
-      LIST: 'contractor',
-      ADD: 'contractor',
-      DELETE: 'contractor',
-      EDIT: (contractorId: string) => `contractor/${contractorId}`,
+      LIST: 'contractors',
+      ADD: 'contractors',
+      DELETE: 'contractors',
+      EDIT: (contractorId: string) => `contractors/${contractorId}`,
       GET_CONTRACTOR_BY_ID: (contractorId: string) =>
-        `contractor/${contractorId}`,
+        `contractors/${contractorId}`,
     },
   },
 } as const;

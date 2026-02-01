@@ -5,7 +5,7 @@ export const ContractorEditRequestSchema =
   ContractorUpsertShapeSchema.strict().transform(data => {
     return {
       name: data.contractorName,
-      contactNumber: data.contactNumber,
+      contactNumber: data.contactNumber?.toString(),
       email: data.emailAddress,
       gstNumber: data.contractorGSTNumber,
       blockNumber: data.blockNumber,
@@ -13,7 +13,7 @@ export const ContractorEditRequestSchema =
       landmark: data.landmark,
       city: data.city,
       state: data.state,
-      pincode: data.pincode,
+      pincode: data.pincode?.toString(),
       country: 'India',
     };
   });

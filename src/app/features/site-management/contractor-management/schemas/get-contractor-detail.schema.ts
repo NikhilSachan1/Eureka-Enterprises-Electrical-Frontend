@@ -11,6 +11,6 @@ export const ContractorDetailGetRequestSchema = z
 
 export const ContractorDetailGetResponseSchema =
   ContractorGetBaseResponseSchema.extend({
-    createdByUser: UserSchema,
+    createdByUser: makeFieldsNullable(UserSchema).nullable(),
     updatedByUser: makeFieldsNullable(UserSchema).nullable(),
   });
