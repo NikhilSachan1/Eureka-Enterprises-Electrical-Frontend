@@ -14,12 +14,10 @@ import {
   APPROVAL_STATUS_DATA,
   ATTENDANCE_STATUS_DATA,
   BANK_NAME_DATA,
-  CLIENT_NAME_DATA,
   EMPLOYEE_STATUS_DATA,
   INDIA_STATE_DATA,
   INDIA_CITY_BY_STATE_DATA,
   INDIA_ALL_CITIES_DATA,
-  LOCATION_DATA,
   PASSING_YEAR_DATA,
   PETRO_CARD_STATUS_DATA,
   COMPANY_STATUS_DATA,
@@ -93,6 +91,8 @@ export class AppConfigurationService {
   private readonly _companyStatus = signal<IOptionDropdown[]>([]);
   private readonly _contractorList = signal<IOptionDropdown[]>([]);
   private readonly _contractorStatus = signal<IOptionDropdown[]>([]);
+  private readonly _projectStatus = signal<IOptionDropdown[]>([]);
+  private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
   private readonly _employeeListByRole = signal<
@@ -143,6 +143,8 @@ export class AppConfigurationService {
   readonly companyStatus = this._companyStatus.asReadonly();
   readonly contractorList = this._contractorList.asReadonly();
   readonly contractorStatus = this._contractorStatus.asReadonly();
+  readonly projectStatus = this._projectStatus.asReadonly();
+  readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
   readonly employeeListByRole = this._employeeListByRole.asReadonly();
@@ -168,10 +170,6 @@ export class AppConfigurationService {
       [CONFIGURATION_KEYS.COMMON.APPROVAL_STATUS]: APPROVAL_STATUS_DATA,
       [CONFIGURATION_KEYS.COMMON.STATES]: INDIA_STATE_DATA,
       [CONFIGURATION_KEYS.COMMON.CITIES]: INDIA_ALL_CITIES_DATA,
-    },
-    [MODULE_NAMES.SITE]: {
-      [CONFIGURATION_KEYS.SITE.CLIENT_LIST]: CLIENT_NAME_DATA,
-      [CONFIGURATION_KEYS.SITE.LOCATION_LIST]: LOCATION_DATA,
     },
     [MODULE_NAMES.PETRO_CARD]: {
       [CONFIGURATION_KEYS.PETRO_CARD.STATUS]: PETRO_CARD_STATUS_DATA,
@@ -256,16 +254,6 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.COMMON.CITIES,
         signal: this._cities,
-      },
-    ],
-    [MODULE_NAMES.SITE]: [
-      {
-        key: CONFIGURATION_KEYS.SITE.CLIENT_LIST,
-        signal: this._clientList,
-      },
-      {
-        key: CONFIGURATION_KEYS.SITE.LOCATION_LIST,
-        signal: this._locationList,
       },
     ],
     [MODULE_NAMES.VEHICLE]: [
@@ -374,6 +362,16 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_STATUS,
         signal: this._contractorStatus,
+      },
+    ],
+    [MODULE_NAMES.PROJECT]: [
+      {
+        key: CONFIGURATION_KEYS.PROJECT.PROJECT_STATUS,
+        signal: this._projectStatus,
+      },
+      {
+        key: CONFIGURATION_KEYS.PROJECT.PROJECT_WORK_TYPES,
+        signal: this._projectWorkTypes,
       },
     ],
   };
@@ -518,7 +516,6 @@ export class AppConfigurationService {
           } else if (staticFallback) {
             nextValue = staticFallback;
           }
-
           if (dropdown.signal() !== nextValue) {
             dropdown.signal.set(nextValue);
           }
@@ -603,6 +600,7 @@ export class AppConfigurationService {
           const dropdownItem: IOptionDropdown = {
             label: company.name,
             value: company.id,
+            data: company,
           };
 
           companyList.push(dropdownItem);

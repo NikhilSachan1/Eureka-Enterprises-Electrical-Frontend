@@ -222,4 +222,12 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
     icon: ICONS.ACTIONS.BAN,
     severity: 'success',
   },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PROJECT STATUS
+  // ═══════════════════════════════════════════════════════════════════════════
+  upcoming: { icon: ICONS.ACTIONS.TIMES, severity: 'warning' },
+  ongoing: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'info' },
+  hold: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
+  completed: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
 };

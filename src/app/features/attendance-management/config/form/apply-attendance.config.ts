@@ -19,8 +19,8 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
       label: 'Location',
       selectConfig: {
         dynamicDropdown: {
-          moduleName: MODULE_NAMES.SITE,
-          dropdownName: CONFIGURATION_KEYS.SITE.LOCATION_LIST,
+          moduleName: MODULE_NAMES.COMPANY,
+          dropdownName: CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
         },
       },
       validators: [Validators.required],
@@ -32,8 +32,8 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
       label: 'Client',
       selectConfig: {
         dynamicDropdown: {
-          moduleName: MODULE_NAMES.SITE,
-          dropdownName: CONFIGURATION_KEYS.SITE.CLIENT_LIST,
+          moduleName: MODULE_NAMES.CONTRACTOR,
+          dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
         },
       },
       validators: [Validators.required],

@@ -439,6 +439,45 @@ export const TEST_LOGIN_EMAILS = [
   'nikhilsachan159@gmail.com',
 ];
 
+export const TEST_PROJECT_WORK_TYPES = [
+  'CONSTRUCTION',
+  'REPAIR',
+  'MAINTENANCE',
+  'OTHER',
+];
+
+export const TEST_PROJECT_NAMES = [
+  'Project 1',
+  'Project 2',
+  'Project 3',
+  'Project 4',
+  'Project 5',
+];
+
+export const TEST_COMPANY_NAMES = [
+  'Company 1',
+  'Company 2',
+  'Company 3',
+  'Company 4',
+  'Company 5',
+];
+
+export const TEST_CONTRACTOR_NAMES = [
+  'Contractor 1',
+  'Contractor 2',
+  'Contractor 3',
+  'Contractor 4',
+  'Contractor 5',
+];
+
+export const TEST_EMPLOYEE_NAMES = [
+  'Employee 1',
+  'Employee 2',
+  'Employee 3',
+  'Employee 4',
+  'Employee 5',
+];
+
 export const getRandomItem = <T>(array: T[]): T => {
   if (!array || array.length === 0) {
     throw new Error('Array is empty or undefined');

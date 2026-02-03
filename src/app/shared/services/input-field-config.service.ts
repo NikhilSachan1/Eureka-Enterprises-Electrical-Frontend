@@ -5,6 +5,7 @@ import {
   DEFAULT_FILE_INPUT_FIELD_CONFIG,
   DEFAULT_INDIVIDUAL_NUMBER_INPUT_FIELD_CONFIG,
   DEFAULT_INPUT_FIELD_CONFIG,
+  DEFAULT_AUTOCOMPLETE_INPUT_FIELD_CONFIG,
   DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG,
   DEFAULT_NUMBER_INPUT_FIELD_CONFIG,
   DEFAULT_PASSWORD_INPUT_FIELD_CONFIG,
@@ -30,6 +31,8 @@ export class InputFieldConfigService {
     DEFAULT_NUMBER_INPUT_FIELD_CONFIG;
   private readonly defaultSelectInputFieldConfig: Partial<IInputFieldsConfig> =
     DEFAULT_SELECT_INPUT_FIELD_CONFIG;
+  private readonly defaultAutocompleteInputFieldConfig: Partial<IInputFieldsConfig> =
+    DEFAULT_AUTOCOMPLETE_INPUT_FIELD_CONFIG;
   private readonly defaultMultiSelectInputFieldConfig: Partial<IInputFieldsConfig> =
     DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG;
   private readonly defaultDateInputFieldConfig: Partial<IInputFieldsConfig> =
@@ -81,6 +84,8 @@ export class InputFieldConfigService {
         return this.defaultNumberInputFieldConfig;
       case EDataType.SELECT:
         return this.defaultSelectInputFieldConfig;
+      case EDataType.AUTOCOMPLETE:
+        return this.defaultAutocompleteInputFieldConfig;
       case EDataType.MULTI_SELECT:
         return this.defaultMultiSelectInputFieldConfig;
       case EDataType.DATE:

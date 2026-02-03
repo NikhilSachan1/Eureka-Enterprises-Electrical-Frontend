@@ -60,6 +60,18 @@ export const DEFAULT_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
   },
 };
 
+export const DEFAULT_AUTOCOMPLETE_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> =
+  {
+    ...DEFAULT_INPUT_FIELD_CONFIG,
+    autocompleteConfig: {
+      optionLabel: 'label',
+      optionValue: 'value',
+      filterBy: 'label',
+      showClearButton: true,
+      forceSelection: false,
+    },
+  };
+
 export const DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> =
   {
     ...DEFAULT_INPUT_FIELD_CONFIG,

@@ -13,6 +13,7 @@ export enum EDataType {
   PHONE = 'phone', //only for display - clickable phone link
   NUMBER = 'number',
   SELECT = 'select',
+  AUTOCOMPLETE = 'autocomplete',
   MULTI_SELECT = 'multiselect',
   PASSWORD = 'password',
   CHECKBOX = 'checkbox',

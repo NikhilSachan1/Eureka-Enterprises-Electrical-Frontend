@@ -139,6 +139,14 @@ export const API_ROUTES = {
       GET_CONTRACTOR_BY_ID: (contractorId: string) =>
         `contractors/${contractorId}`,
     },
+    PROJECT: {
+      LIST: 'sites',
+      ADD: 'sites',
+      DELETE: 'sites',
+      EDIT: (projectId: string) => `sites/${projectId}`,
+      GET_PROJECT_BY_ID: (projectId: string) => `sites/${projectId}`,
+      CHANGE_STATUS: (projectId: string) => `sites/${projectId}/status`,
+    },
   },
 } as const;
 

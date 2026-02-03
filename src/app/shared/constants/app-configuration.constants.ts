@@ -3,13 +3,13 @@ export const MODULE_NAMES = {
   EXPENSE: 'expense',
   ATTENDANCE: 'attendance',
   COMMON: 'common',
-  SITE: 'site',
   VEHICLE: 'vehicle',
   ASSET: 'asset',
   PETRO_CARD: 'petro_card',
   PAYROLL: 'payroll',
   COMPANY: 'company',
   CONTRACTOR: 'contractor',
+  PROJECT: 'site',
 } as const;
 
 export const CONFIGURATION_KEYS = {
@@ -76,5 +76,9 @@ export const CONFIGURATION_KEYS = {
   CONTRACTOR: {
     CONTRACTOR_LIST: 'contractor_list',
     CONTRACTOR_STATUS: 'contractor_statuses',
+  },
+  PROJECT: {
+    PROJECT_STATUS: 'site_statuses',
+    PROJECT_WORK_TYPES: 'site_work_types',
   },
 } as const;

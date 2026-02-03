@@ -84,6 +84,7 @@ export type {
   IInputFieldsConfig,
   IInputNumberFieldConfig,
   ISelectFieldConfig,
+  IAutocompleteFieldConfig,
   IMultiSelectFieldConfig,
   IDateFieldConfig,
   IPasswordFieldConfig,

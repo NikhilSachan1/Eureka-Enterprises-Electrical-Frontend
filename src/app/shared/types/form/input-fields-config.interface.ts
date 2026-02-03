@@ -34,6 +34,7 @@ export interface IInputFieldsConfig {
   defaultValue?: unknown;
   numberConfig?: Partial<IInputNumberFieldConfig>;
   selectConfig?: Partial<ISelectFieldConfig>;
+  autocompleteConfig?: Partial<IAutocompleteFieldConfig>;
   multiSelectConfig?: Partial<IMultiSelectFieldConfig>;
   dateConfig?: Partial<IDateFieldConfig>;
   passwordConfig?: Partial<IPasswordFieldConfig>;
@@ -92,6 +93,24 @@ export interface ISelectFieldConfig {
     optionsProviderMethod: string;
     /** Whether to reset this field when parent field changes (default: true) */
     resetOnParentChange?: boolean;
+  };
+  filterOptions?: {
+    include?: string[];
+    exclude?: string[];
+  };
+}
+
+export interface IAutocompleteFieldConfig {
+  optionsDropdown?: IOptionDropdown[];
+  optionLabel: string;
+  optionValue?: string;
+  filterBy: string;
+  showClearButton: boolean;
+  forceSelection?: boolean;
+  dynamicDropdown?: {
+    moduleName: string;
+    dropdownName: string;
+    filterByRole?: string[];
   };
   filterOptions?: {
     include?: string[];
@@ -199,10 +218,11 @@ export interface ITextFieldConfig {
   textCase: ETextCase;
 }
 
-export interface IOptionDropdown {
+export interface IOptionDropdown<T = unknown> {
   label: string;
   value: string;
   disabled?: boolean;
+  data?: T;
 }
 
 export interface IIndividualNumberFieldConfig {

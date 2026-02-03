@@ -106,6 +106,33 @@
         }
       </p-floatlabel>
     }
+    @case (ALL_DATA_TYPES.AUTOCOMPLETE) {
+      <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
+        @let autocompleteConfig = inputFieldConfig().autocompleteConfig;
+
+        <p-autocomplete
+          [inputId]="inputFieldConfig().id"
+          [fluid]="inputFieldConfig().haveFullWidth"
+          [size]="inputFieldConfig().fieldSize"
+          [placeholder]="placeholder"
+          [suggestions]="autocompleteSuggestions()"
+          (completeMethod)="onAutocompleteComplete($event)"
+          (onBlur)="onAutocompleteBlur($event)"
+          (onSelect)="onAutocompleteSelect($event)"
+          [optionLabel]="autocompleteConfig?.optionLabel ?? 'label'"
+          [optionValue]="autocompleteConfig?.optionValue ?? 'value'"
+          [forceSelection]="autocompleteConfig?.forceSelection ?? false"
+          [showClear]="autocompleteConfig?.showClearButton ?? true"
+          [appendTo]="'body'"
+          [formControlName]="inputFieldConfig().fieldName"
+          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
+          (onChange)="onChange()"
+        />
+        @if (!inputFieldConfig().showStandardLabel) {
+          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        }
+      </p-floatlabel>
+    }
     @case (ALL_DATA_TYPES.MULTI_SELECT) {
       <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
         @let multiSelectConfig = inputFieldConfig().multiSelectConfig;

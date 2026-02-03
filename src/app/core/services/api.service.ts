@@ -223,7 +223,8 @@ export class ApiService {
         input && schema.request ? schema.request.parse(input) : input;
 
       return this.get<unknown>(endpoint, params).pipe(
-        map(res => schema.response.parse(res))
+        map(res => schema.response.parse(res)),
+        catchError(err => this.handleHttpError(err))
       );
     } catch (err) {
       return this.handleZodError(err);

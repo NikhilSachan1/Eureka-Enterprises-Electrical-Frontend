@@ -36,6 +36,7 @@ import {
 } from 'primeng/fileupload';
 import { TextareaModule } from 'primeng/textarea';
 import { InputOtpModule } from 'primeng/inputotp';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import {
   EButtonActionType,
@@ -90,6 +91,7 @@ import { ImageModule } from 'primeng/image';
     FileUploadModule,
     TextareaModule,
     InputOtpModule,
+    AutoCompleteModule,
     ButtonComponent,
     ImageModule,
   ],
@@ -127,6 +129,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
   dropdownOptions = computed(() => this.getDropdownOptions());
 
+  /** Filtered suggestions for autocomplete (filtered by user query) */
+  autocompleteSuggestions = signal<IOptionDropdown[]>([]);
+
   // Signal for dependent dropdown options (e.g., cities based on state)
   private dependentDropdownOptions = signal<IOptionDropdown[]>([]);
 
@@ -154,6 +159,11 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     // Handle dependent dropdown (e.g., city depends on state)
     this.setupDependentDropdown(config);
+
+    // Pre-populate autocomplete suggestions when control has value (e.g. edit mode) so label displays
+    if (config.fieldType === EDataType.AUTOCOMPLETE && control?.value) {
+      this.autocompleteSuggestions.set(this.getAutocompleteOptions());
+    }
 
     if (config.fieldType === EDataType.ATTACHMENTS) {
       control?.valueChanges
@@ -319,6 +329,106 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     }
 
     return dropdownOptions;
+  }
+
+  getAutocompleteOptions(): IOptionDropdown[] {
+    const config = this.inputFieldConfig();
+    const { autocompleteConfig } = config;
+    if (!autocompleteConfig) {
+      return [];
+    }
+
+    let options: IOptionDropdown[] = [];
+
+    if (autocompleteConfig.dynamicDropdown) {
+      const { moduleName, dropdownName, filterByRole } =
+        autocompleteConfig.dynamicDropdown;
+      if (filterByRole && filterByRole.length > 0) {
+        const employeeMap = new Map<string, IOptionDropdown>();
+        filterByRole.forEach(role => {
+          this.appConfigurationService
+            .getEmployeesByRole(role)
+            .forEach(employee => employeeMap.set(employee.value, employee));
+        });
+        options = Array.from(employeeMap.values());
+      } else {
+        options =
+          this.appConfigurationService.getDropdown(
+            moduleName,
+            dropdownName
+          )() ?? [];
+      }
+    } else {
+      options = autocompleteConfig.optionsDropdown ?? [];
+    }
+
+    if (autocompleteConfig.filterOptions) {
+      options = filterOptionsByIncludeExclude(
+        options,
+        autocompleteConfig.filterOptions.include ?? [],
+        autocompleteConfig.filterOptions.exclude ?? []
+      );
+    }
+
+    return options;
+  }
+
+  onAutocompleteComplete(event: { query: string }): void {
+    const options = this.getAutocompleteOptions();
+    const config = this.inputFieldConfig().autocompleteConfig;
+    const filterBy = config?.filterBy ?? 'label';
+    const query = (event.query ?? '').trim().toLowerCase();
+
+    const filtered = query
+      ? options.filter(item => {
+          const label = String(
+            item[filterBy as keyof IOptionDropdown] ?? item.label ?? ''
+          ).toLowerCase();
+          return label.includes(query);
+        })
+      : options;
+
+    this.autocompleteSuggestions.set(filtered);
+  }
+
+  /**
+   * When forceSelection is false: sync typed text to form control on blur so random/free text is accepted.
+   */
+  onAutocompleteBlur(event: Event): void {
+    const config = this.inputFieldConfig();
+    if (
+      config.fieldType !== EDataType.AUTOCOMPLETE ||
+      config.autocompleteConfig?.forceSelection
+    ) {
+      return;
+    }
+    const targetInput = event.target as HTMLInputElement | null;
+    const typedValue = targetInput?.value?.trim() ?? '';
+    const control = this.formGroup().get(config.fieldName);
+    if (control && typedValue !== control.value) {
+      control.setValue(typedValue, { emitEvent: true });
+    }
+  }
+
+  /**
+   * When optionValue is 'label': ensure form control gets the label string on select (keeps value dynamic).
+   */
+  onAutocompleteSelect(event: { value: IOptionDropdown }): void {
+    const config = this.inputFieldConfig();
+    if (config.fieldType !== EDataType.AUTOCOMPLETE) {
+      return;
+    }
+    const optionLabel = config.autocompleteConfig?.optionLabel ?? 'label';
+    const optionValue = config.autocompleteConfig?.optionValue ?? 'value';
+    if (optionValue !== 'label' || !event?.value) {
+      return;
+    }
+    const item = event.value as unknown as Record<string, unknown>;
+    const label = String(item[optionLabel] ?? event.value?.label ?? '');
+    const control = this.formGroup().get(config.fieldName);
+    if (control) {
+      control.setValue(label, { emitEvent: true });
+    }
   }
 
   onChoosingFile(chooseCallback: () => void): void {

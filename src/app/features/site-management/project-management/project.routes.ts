@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetProjectDetailResolver } from './resolvers/get-project-detail.resolver';
 
 export const PROJECT_MANAGEMENT_ROUTES: Routes = [
   {
@@ -27,8 +28,8 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-project/edit-project.component').then(
         m => m.EditProjectComponent
       ),
-    // resolve: {
-    //   projectDetail: GetProjectDetailResolver,
-    // },
+    resolve: {
+      projectDetail: GetProjectDetailResolver,
+    },
   },
 ];
