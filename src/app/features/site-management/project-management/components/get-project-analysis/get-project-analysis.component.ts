@@ -1,15 +1,25 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ChartsComponent } from '@shared/components/charts/charts.component';
-import { EChartType, IChartsConfig } from '@shared/types';
+import {
+  EChartType,
+  EProgressBarMode,
+  IChartsConfig,
+  IProgressBarConfig,
+} from '@shared/types';
+import { ProgressBarComponent } from '@shared/components/progress-bar/progress-bar.component';
 
 @Component({
   selector: 'app-get-project-analysis',
-  imports: [ChartsComponent],
+  imports: [ChartsComponent, ProgressBarComponent],
   templateUrl: './get-project-analysis.component.html',
   styleUrl: './get-project-analysis.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetProjectAnalysisComponent {
+  protected progressBarConfig: Partial<IProgressBarConfig> = {
+    value: 50,
+    mode: EProgressBarMode.DETERMINATE,
+  };
   // Example chart configuration
   protected barChartConfig: IChartsConfig = {
     chartType: EChartType.BAR,

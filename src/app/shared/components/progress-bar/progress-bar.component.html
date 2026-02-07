@@ -1,0 +1,13 @@
+<p-progressbar
+  [value]="progressBarConfig().value"
+  [mode]="mode()"
+  [showValue]="shouldShowValue"
+>
+  @if (shouldShowValue) {
+    <ng-template pTemplate="content">
+      <div class="progress-bar-content">
+        {{ displayContent }}
+      </div>
+    </ng-template>
+  }
+</p-progressbar>

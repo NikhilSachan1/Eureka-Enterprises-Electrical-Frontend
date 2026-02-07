@@ -1,3 +1,4 @@
+export { EProgressBarMode } from './progress-bar/progress-bar.types';
 export { EDialogPosition } from './confirmation-dialog/confirmation-dialog.types';
 export {
   ETableActionTypeValue,
@@ -168,6 +169,7 @@ export type {
   IDoughnutChartDataset,
   IDoughnutChartOptions,
 } from './charts/charts.interface';
+export type { IProgressBarConfig } from './progress-bar/progress-bar.interface';
 export {
   EChartType,
   EChartLegendPosition,

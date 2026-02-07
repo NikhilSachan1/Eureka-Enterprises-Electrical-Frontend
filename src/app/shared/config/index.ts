@@ -58,3 +58,4 @@ export {
   DEFAULT_DOUGHNUT_CHART_OPTIONS,
   DEFAULT_DOUGHNUT_DATASET,
 } from './chart.config';
+export { DEFAULT_PROGRESS_BAR_CONFIG } from './progress-bar.config';
