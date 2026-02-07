@@ -9,11 +9,13 @@ import { CommonModule } from '@angular/common';
 import { EDataType, IMetric } from '@shared/types';
 import { StatusUtil } from '@shared/utility';
 import { AppPermissionService } from '@core/services';
+import { KnobComponent } from '@shared/components/knob/knob.component';
+import { ProgressBarComponent } from '@shared/components/progress-bar/progress-bar.component';
 
 @Component({
   selector: 'app-metrics-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, KnobComponent, ProgressBarComponent],
   templateUrl: './metrics-card.component.html',
   styleUrls: ['./metrics-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

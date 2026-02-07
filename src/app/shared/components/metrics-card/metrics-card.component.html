@@ -14,31 +14,59 @@
 
       <!-- Card content -->
       <div class="metric-card-body">
-        <!-- Icon - absolute positioned top right -->
-        @let icon = getIcon(metric);
-        @if (icon) {
-          <div class="metric-icon">
-            <i [class]="icon"></i>
+        <!-- Header: Icon and Action Button -->
+        <div class="metric-header">
+          @let icon = getIcon(metric);
+          @if (icon) {
+            <div class="metric-icon">
+              <i [class]="icon"></i>
+            </div>
+          }
+        </div>
+
+        <!-- Title -->
+        <span class="metric-label">{{ metric.label }}</span>
+
+        <!-- Value/Visualization Section -->
+        <div class="metric-value-section">
+          @if (metric.metricType === ALL_DATA_TYPES.KNOB && metric.knobConfig) {
+            <!-- Knob Visualization using shared component -->
+            <div class="metric-knob">
+              <app-knob [config]="metric.knobConfig" />
+            </div>
+          } @else {
+            <!-- Regular Value Display -->
+            <span
+              class="metric-value"
+              [ngClass]="colorScheme.textClass"
+            >
+              @if (metric.type === ALL_DATA_TYPES.CURRENCY && metric.format) {
+                {{ metric.value | currency: metric.format }}
+              } @else {
+                {{ metric.value }}
+              }
+            </span>
+          }
+        </div>
+
+        <!-- Subtitle -->
+        @if (metric.subtitle) {
+          <span class="metric-subtitle">{{ metric.subtitle }}</span>
+        }
+
+        <!-- Progress Bar Visualization using shared component -->
+        @if (metric.metricType === ALL_DATA_TYPES.PROGRESS && metric.progressBarConfig) {
+          <div class="metric-progress">
+            <app-progress-bar [config]="metric.progressBarConfig" />
           </div>
         }
 
-        <!-- Title and Value section - pass pass -->
-        <div class="metric-content">
-          <span class="metric-label">{{ metric.label }}</span>
-          <span
-            class="metric-value"
-            [ngClass]="colorScheme.textClass"
-          >
-            @if (metric.type === ALL_DATA_TYPES.CURRENCY) {
-              {{ metric.value | currency: metric.format }}
-            } @else {
-              {{ metric.value }}
-            }
-          </span>
-          @if (metric.subtitle) {
-            <span class="metric-subtitle">{{ metric.subtitle }}</span>
-          }
-        </div>
+        <!-- Description (Footer) -->
+        @if (metric.description) {
+          <div class="metric-description">
+            {{ metric.description }}
+          </div>
+        }
       </div>
     </div>
   }

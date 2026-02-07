@@ -20,4 +20,6 @@ export enum EDataType {
   RADIO = 'radio',
   TEXT_AREA = 'textarea',
   INDIVIDUAL_NUMBER = 'individual-number',
+  PROGRESS = 'progress',
+  KNOB = 'knob',
 }
