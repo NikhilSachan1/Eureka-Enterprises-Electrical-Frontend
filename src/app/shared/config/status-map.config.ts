@@ -190,6 +190,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   clearselection: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   download: { icon: ICONS.COMMON.DOWNLOAD, severity: 'success' },
   filter: { icon: ICONS.COMMON.SEARCH, severity: 'success' },
+  analyze: { icon: ICONS.COMMON.CHART, severity: 'info' },
 
   // Page header buttons
   pageheaderbutton1: { icon: ICONS.COMMON.PLUS, severity: 'success' },

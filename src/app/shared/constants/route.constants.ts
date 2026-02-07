@@ -94,6 +94,7 @@ export const ROUTES = {
       LIST: `list`,
       ADD: `add`,
       EDIT: `edit`,
+      ANALYSIS: `analysis`,
     },
   },
 

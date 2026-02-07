@@ -32,4 +32,11 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
       projectDetail: GetProjectDetailResolver,
     },
   },
+  {
+    path: `${ROUTES.SITE.PROJECT.ANALYSIS}/:projectId`,
+    loadComponent: () =>
+      import(
+        './components/get-project-analysis/get-project-analysis.component'
+      ).then(m => m.GetProjectAnalysisComponent),
+  },
 ];

@@ -60,6 +60,10 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'View Project Details',
   },
   {
+    id: EButtonActionType.ANALYZE,
+    tooltip: 'Analyze Project',
+  },
+  {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Project',
   },

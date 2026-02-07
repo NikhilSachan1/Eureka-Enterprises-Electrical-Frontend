@@ -204,6 +204,11 @@ export class GetProjectComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.ANALYZE) {
+      this.navigateToProjectAnalysis(selectedFirstRow.id);
+      return;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
@@ -290,6 +295,23 @@ export class GetProjectComponent implements OnInit {
     } catch (error) {
       this.logger.logUserAction(
         'Navigation error while editing project',
+        error
+      );
+    }
+  }
+
+  private navigateToProjectAnalysis(projectId: string): void {
+    try {
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SITE.BASE,
+        ROUTE_BASE_PATHS.SITE.PROJECT,
+        ROUTES.SITE.PROJECT.ANALYSIS,
+        projectId,
+      ];
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+    } catch (error) {
+      this.logger.logUserAction(
+        'Navigation error while analyzing project',
         error
       );
     }

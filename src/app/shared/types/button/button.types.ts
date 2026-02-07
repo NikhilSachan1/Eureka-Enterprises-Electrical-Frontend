@@ -75,4 +75,5 @@ export enum EButtonActionType {
   RETIRED = 'retired',
   PAID = 'paid',
   GENERATE = 'generate',
+  ANALYZE = 'analyze',
 }

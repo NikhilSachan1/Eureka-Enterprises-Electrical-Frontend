@@ -161,3 +161,16 @@ export type {
   IAppConfiguationRequestDto,
   IAppConfiguationResponseDto,
 } from './app-configuartion/app-configuarion.dto';
+export type {
+  IBarChartDataset,
+  IBarChartOptions,
+  IChartsConfig,
+  IDoughnutChartDataset,
+  IDoughnutChartOptions,
+} from './charts/charts.interface';
+export {
+  EChartType,
+  EChartLegendPosition,
+  EChartLegendAlign,
+  EChartTooltipMode,
+} from './charts/charts.types';
