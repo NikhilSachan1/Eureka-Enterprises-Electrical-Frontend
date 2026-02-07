@@ -550,3 +550,16 @@ body {
     background: rgba(0, 0, 0, 0.3);
   }
 }
+
+// ============================================
+// Global P-Card Fixes
+// ============================================
+// Ensures rounded borders are visible for all p-cards
+.p-card {
+  overflow: hidden;
+}
+
+// Alternative: Specific fix for p-cards with nav-tabs (using :has selector)
+p-card:has(app-nav-tabs) .p-card {
+  overflow: hidden;
+}

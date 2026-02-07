@@ -1,0 +1,62 @@
+<div class="dsr-container">
+  @for (dsr of dsrEntries; track dsr.id) {
+    <div class="dsr-card">
+      <!-- Header Section -->
+      <div class="dsr-header">
+        <div class="dsr-user">
+          <img
+            [src]="getAvatarUrl(dsr.userName)"
+            [alt]="dsr.userName"
+            class="dsr-avatar"
+          />
+          <div class="dsr-user-info">
+            <h3 class="dsr-user-name">{{ dsr.userName }}</h3>
+            <span class="dsr-date">{{ dsr.date }}</span>
+          </div>
+        </div>
+        <div class="dsr-action-buttons">
+          <button
+            class="dsr-action-btn edit-btn"
+            (click)="onEditDsr(dsr)"
+            type="button"
+          >
+            <i [class]="icons.ACTIONS.PENCIL"></i>
+          </button>
+          <button
+            class="dsr-action-btn delete-btn"
+            (click)="onDeleteDsr(dsr)"
+            type="button"
+          >
+            <i [class]="icons.ACTIONS.TRASH"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <p class="dsr-description">{{ dsr.description }}</p>
+
+      <!-- Details Grid -->
+      <div class="dsr-details">
+        <div class="dsr-detail-item">
+          <span class="dsr-detail-label">Work Type</span>
+          <span class="dsr-detail-value">{{ dsr.workType }}</span>
+        </div>
+
+        <div class="dsr-detail-item">
+          <span class="dsr-detail-label">Hours Worked</span>
+          <span class="dsr-detail-value">{{ dsr.hoursWorked }} hrs</span>
+        </div>
+
+        <div class="dsr-detail-item">
+          <span class="dsr-detail-label">Progress</span>
+          <span class="dsr-detail-value">{{ dsr.progress }}%</span>
+        </div>
+
+        <div class="dsr-detail-item">
+          <span class="dsr-detail-label">Manpower</span>
+          <span class="dsr-detail-value">{{ dsr.manpower }} people</span>
+        </div>
+      </div>
+    </div>
+  }
+</div>

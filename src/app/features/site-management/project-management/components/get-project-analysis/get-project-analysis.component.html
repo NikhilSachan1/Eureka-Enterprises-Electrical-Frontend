@@ -1,15 +1,21 @@
-<app-timeline [config]="timelineConfig">
-  <ng-template
-    #content
-    let-event
-  >
-    <div>
-      <h4>{{ event.status }}</h4>
-      <p>{{ event.date }}</p>
-    </div>
-  </ng-template>
-</app-timeline>
-<app-progress-bar [config]="progressBarConfig" />
-<app-knob [config]="knobConfig" />
-<app-charts [chartConfig]="doughnutChartConfig" />
-<app-charts [chartConfig]="barChartConfig" />
+<div class="grid grid-cols-1md:grid-cols-[minmax(280px,25%)_1fr] lg:grid-cols-[minmax(320px,25%)_1fr] gap-4">
+  <p-card class="pb-4">
+    <app-get-project-timeline />
+  </p-card>
+
+  <p-card>
+    <app-nav-tabs
+      [tabs]="tabs()"
+      [tabMode]="tabModeType"
+      (tabChanged)="onTabChanged($event)"
+    >
+      @if (activeTabIndex() === 0) {
+        <app-get-project-profitability />
+      } @else if (activeTabIndex() === 1) {
+        <app-get-project-doc />
+      } @else if (activeTabIndex() === 2) {
+        <app-get-dsr />
+      }
+    </app-nav-tabs>
+  </p-card>
+</div>

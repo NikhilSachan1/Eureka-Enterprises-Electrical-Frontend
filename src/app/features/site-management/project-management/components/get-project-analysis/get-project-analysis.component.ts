@@ -1,72 +1,61 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { ChartsComponent } from '@shared/components/charts/charts.component';
 import {
-  EChartType,
-  EProgressBarMode,
-  IChartsConfig,
-  IKnobConfig,
-  IProgressBarConfig,
-  ITimelineConfig,
-} from '@shared/types';
-import { ProgressBarComponent } from '@shared/components/progress-bar/progress-bar.component';
-import { KnobComponent } from '@shared/components/knob/knob.component';
-import { TimelineComponent } from '@shared/components/timeline/timeline.component';
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  signal,
+} from '@angular/core';
+import { CardModule } from 'primeng/card';
+import { ETabMode, ITabItem, ITabChange } from '@shared/types';
+import { ICONS } from '@shared/constants';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
+import { GetProjectProfitabilityComponent } from '../get-project-profitability/get-project-profitability.component';
+import { GetProjectDocComponent } from '../project-doc/get-project-doc/get-project-doc.component';
+import { GetDsrComponent } from '../project-dsr/get-dsr/get-dsr.component';
+import { GetProjectTimelineComponent } from '../get-project-timeline/get-project-timeline.component';
 
 @Component({
   selector: 'app-get-project-analysis',
   imports: [
-    ChartsComponent,
-    ProgressBarComponent,
-    KnobComponent,
-    TimelineComponent,
+    CardModule,
+    NavTabsComponent,
+    GetProjectProfitabilityComponent,
+    GetProjectDocComponent,
+    GetDsrComponent,
+    GetProjectTimelineComponent,
   ],
   templateUrl: './get-project-analysis.component.html',
   styleUrl: './get-project-analysis.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetProjectAnalysisComponent {
-  protected progressBarConfig: Partial<IProgressBarConfig> = {
-    value: 50,
-    mode: EProgressBarMode.DETERMINATE,
-  };
+  tabModeType = ETabMode.CONTENT;
+  icons = ICONS;
 
-  protected knobConfig: Partial<IKnobConfig> = {
-    value: 50,
-  };
+  protected readonly activeTabIndex = signal(0);
 
-  protected timelineConfig: Partial<ITimelineConfig> = {
-    value: [
-      { status: 'Started', date: '15/10/2024 10:30' },
-      { status: 'In Progress', date: '15/10/2024 14:00' },
-      { status: 'Completed', date: '16/10/2024 10:00' },
-    ],
-  };
-  // Example chart configuration
-  protected barChartConfig: IChartsConfig = {
-    chartType: EChartType.BAR,
-    chartTitle: 'Quarterly Sales Performance',
-    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-    datasets: [
+  protected tabs = computed(() => this.getTabs());
+
+  private getTabs(): ITabItem[] {
+    return [
       {
-        label: 'Sales 2024',
-        data: [540, 325, null, 620],
+        route: 'profitability',
+        label: 'Profitability',
+        icon: this.icons.COMMON.CHART,
       },
       {
-        label: 'Sales 2023',
-        data: [450, 380, 650, 580],
+        route: 'documents',
+        label: 'Documents',
+        icon: this.icons.COMMON.FILE,
       },
-    ],
-  };
-
-  protected doughnutChartConfig: IChartsConfig = {
-    chartType: EChartType.DOUGHNUT,
-    chartTitle: 'Quarterly Sales Performance',
-    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-    datasets: [
       {
-        label: 'Sales 2024',
-        data: [540, 325, 2, 620],
+        route: 'daily-progress',
+        label: 'Daily Progress',
+        icon: this.icons.COMMON.CALENDAR,
       },
-    ],
-  };
+    ];
+  }
+
+  protected onTabChanged(event: ITabChange): void {
+    this.activeTabIndex.set(event.index);
+  }
 }

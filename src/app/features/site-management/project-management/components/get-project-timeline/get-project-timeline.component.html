@@ -1,0 +1,49 @@
+<!-- Timeline Header -->
+<div class="timeline-header">
+  <div class="timeline-header__icon">
+    <i [class]="icons.COMMON.HISTORY"></i>
+  </div>
+  <div class="timeline-header__content">
+    <h3 class="timeline-header__title">Site Timeline</h3>
+    <p class="timeline-header__subtitle">Track progress like Amazon tracking</p>
+  </div>
+</div>
+
+<div class="pl-4">
+  <!-- Timeline Component -->
+  <app-timeline [config]="timelineConfig()">
+    <!-- Custom Marker Template -->
+    <ng-template
+      #marker
+      let-event
+    >
+      <div class="timeline-marker">
+        @if (event.icon) {
+          <i [class]="event.icon"></i>
+        }
+      </div>
+    </ng-template>
+
+    <!-- Custom Content Template -->
+    <ng-template
+      #content
+      let-event
+    >
+      <div class="timeline-event">
+        <div class="timeline-event__header">
+          @if (event.icon) {
+            <i [class]="event.icon + ' timeline-event__check'"></i>
+          }
+          <h4 class="timeline-event__title">{{ event.title }}</h4>
+        </div>
+
+        <p class="timeline-event__description">{{ event.description }}</p>
+
+        <div class="timeline-event__footer">
+          <i [class]="icons.COMMON.CALENDAR"></i>
+          <span class="timeline-event__date">{{ event.date }}, {{ event.time }}</span>
+        </div>
+      </div>
+    </ng-template>
+  </app-timeline>
+</div>
