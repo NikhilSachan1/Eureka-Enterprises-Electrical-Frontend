@@ -1,0 +1,14 @@
+<div class="knob-container">
+  <div class="knob-wrapper">
+    <p-knob
+      [(ngModel)]="knobConfig().value"
+      [min]="knobConfig().min"
+      [max]="knobConfig().max"
+      [step]="knobConfig().step"
+      [readonly]="knobConfig().readonly"
+      [disabled]="knobConfig().disabled"
+      [strokeWidth]="knobConfig().strokeWidth"
+      [showValue]="knobConfig().showValue"
+    ></p-knob>
+  </div>
+</div>

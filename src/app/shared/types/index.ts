@@ -170,6 +170,7 @@ export type {
   IDoughnutChartOptions,
 } from './charts/charts.interface';
 export type { IProgressBarConfig } from './progress-bar/progress-bar.interface';
+export type { IKnobConfig } from './knob/knob.interface';
 export {
   EChartType,
   EChartLegendPosition,

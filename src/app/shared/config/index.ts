@@ -59,3 +59,4 @@ export {
   DEFAULT_DOUGHNUT_DATASET,
 } from './chart.config';
 export { DEFAULT_PROGRESS_BAR_CONFIG } from './progress-bar.config';
+export { DEFAULT_KNOB_CONFIG } from './knob.config';
