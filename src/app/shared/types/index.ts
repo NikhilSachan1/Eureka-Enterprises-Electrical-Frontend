@@ -177,3 +177,5 @@ export {
   EChartLegendAlign,
   EChartTooltipMode,
 } from './charts/charts.types';
+export type { ITimelineConfig } from './timeline/timeline.interface';
+export { ETimelineLayout, ETimelineAlign } from './timeline/timeline.types';

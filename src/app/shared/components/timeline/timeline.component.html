@@ -1,0 +1,21 @@
+<p-timeline
+  [value]="timelineConfig().value"
+  [align]="timelineConfig().align"
+  [layout]="timelineConfig().layout"
+>
+  <ng-template
+    #content
+    let-event
+  >
+    <ng-container *ngTemplateOutlet="contentTemplate(); context: { $implicit: event }" />
+  </ng-template>
+
+  @if (markerTemplate()) {
+    <ng-template
+      #marker
+      let-event
+    >
+      <ng-container *ngTemplateOutlet="markerTemplate()!; context: { $implicit: event }" />
+    </ng-template>
+  }
+</p-timeline>

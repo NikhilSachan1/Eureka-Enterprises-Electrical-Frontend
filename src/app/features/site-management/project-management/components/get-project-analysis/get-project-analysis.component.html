@@ -1,3 +1,14 @@
+<app-timeline [config]="timelineConfig">
+  <ng-template
+    #content
+    let-event
+  >
+    <div>
+      <h4>{{ event.status }}</h4>
+      <p>{{ event.date }}</p>
+    </div>
+  </ng-template>
+</app-timeline>
 <app-progress-bar [config]="progressBarConfig" />
 <app-knob [config]="knobConfig" />
 <app-charts [chartConfig]="doughnutChartConfig" />
