@@ -19,13 +19,11 @@ const EMPLOYEE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'employeeName',
     header: 'Employee Name',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'employeeCode',
-      showImage: true,
-      dummyImageField: 'employeeName',
-      primaryFieldHighlight: true,
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'employeeCode' },
+    showImage: true,
+    dummyImageField: 'employeeName',
+    primaryFieldHighlight: true,
     serverSideFilterAndSortConfig: {
       sortField: 'userName',
     },

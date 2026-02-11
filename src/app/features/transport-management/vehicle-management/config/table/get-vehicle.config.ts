@@ -17,24 +17,20 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'vehicleNumber',
     header: 'Vehicle Number',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'vehicleName',
-      showImage: false,
-      dummyImageField: 'vehicleName',
-      primaryFieldHighlight: true,
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'vehicleName' },
+    showImage: false,
+    dummyImageField: 'vehicleName',
+    primaryFieldHighlight: true,
   },
   {
     field: 'petroCardNumber',
     header: 'Petro Card',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'petroCardName',
-      showImage: false,
-      dummyImageField: 'petroCardName',
-      primaryFieldHighlight: true,
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'petroCardName' },
+    showImage: false,
+    dummyImageField: 'petroCardName',
+    primaryFieldHighlight: true,
     showSort: false,
   },
   {
@@ -49,13 +45,11 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'vehicleAssigneeName',
     header: 'Assigned To',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'vehicleAssigneeCode',
-      showImage: true,
-      dummyImageField: 'vehicleAssigneeName',
-      primaryFieldHighlight: true,
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'vehicleAssigneeCode' },
+    showImage: true,
+    dummyImageField: 'vehicleAssigneeName',
+    primaryFieldHighlight: true,
     serverSideFilterAndSortConfig: {
       filterField: 'vehicleAssignee',
     },

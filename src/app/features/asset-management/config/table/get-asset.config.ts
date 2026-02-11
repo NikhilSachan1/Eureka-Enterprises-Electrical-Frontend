@@ -17,13 +17,11 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'name',
     header: 'Asset Name',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'assetId',
-      showImage: false,
-      dummyImageField: 'name',
-      primaryFieldHighlight: true,
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'assetId' },
+    showImage: false,
+    dummyImageField: 'name',
+    primaryFieldHighlight: true,
   },
   {
     field: 'category',
@@ -45,13 +43,11 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'assetAssigneeName',
     header: 'Assigned To',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'assetAssigneeCode',
-      showImage: true,
-      dummyImageField: 'assetAssigneeName',
-      primaryFieldHighlight: true,
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'assetAssigneeCode' },
+    showImage: true,
+    dummyImageField: 'assetAssigneeName',
+    primaryFieldHighlight: true,
     serverSideFilterAndSortConfig: {
       filterField: 'assetAssignee',
     },

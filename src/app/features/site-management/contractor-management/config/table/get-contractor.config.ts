@@ -17,12 +17,10 @@ const CONTRACTOR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'contractorName',
     header: 'Contractor Name',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      showImage: true,
-      dummyImageField: 'contractorName',
-      primaryFieldHighlight: true,
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    showImage: true,
+    dummyImageField: 'contractorName',
+    primaryFieldHighlight: true,
   },
   {
     field: 'status',
@@ -36,10 +34,8 @@ const CONTRACTOR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'stateCity',
     header: 'Location',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'pincode',
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'pincode' },
     serverSideFilterAndSortConfig: {
       filterField: 'location',
     },
@@ -48,10 +44,8 @@ const CONTRACTOR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'emailAddress',
     header: 'Contact',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'contactNumber',
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'contactNumber' },
     showSort: false,
   },
 ];

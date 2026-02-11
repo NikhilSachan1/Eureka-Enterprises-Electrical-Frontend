@@ -52,7 +52,7 @@ export type {
 export type {
   IDataTableConfig,
   IDataTableHeaderConfig,
-  ITextWithSubtitleAndImageConfig,
+  ISubtitleConfig,
   IStatusConfig,
   IFilterConfig,
   IMatchModeOption,

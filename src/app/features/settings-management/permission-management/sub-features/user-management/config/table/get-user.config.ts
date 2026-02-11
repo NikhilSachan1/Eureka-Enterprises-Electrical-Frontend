@@ -30,13 +30,11 @@ export const USER_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'fullName',
     header: 'User Details',
-    bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'email',
-      primaryFieldHighlight: true,
-      showImage: true,
-      dummyImageField: 'fullName',
-    },
+    bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'email' },
+    primaryFieldHighlight: true,
+    showImage: true,
+    dummyImageField: 'fullName',
     filterConfig: {
       filterField: 'fullName',
       placeholder: 'Search User Name',

@@ -17,13 +17,11 @@ const COMPANY_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'companyName',
     header: 'Company Name',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      showImage: true,
-      dummyImageField: 'companyName',
-      primaryFieldHighlight: true,
-      secondaryField: 'parentCompanyName',
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    showImage: true,
+    dummyImageField: 'companyName',
+    primaryFieldHighlight: true,
+    subtitle: { field: 'parentCompanyName' },
   },
   {
     field: 'status',
@@ -37,10 +35,8 @@ const COMPANY_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'stateCity',
     header: 'Location',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'pincode',
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'pincode' },
     serverSideFilterAndSortConfig: {
       filterField: 'location',
     },
@@ -49,10 +45,8 @@ const COMPANY_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'emailAddress',
     header: 'Contact',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'contactNumber',
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'contactNumber' },
     showSort: false,
   },
 ];

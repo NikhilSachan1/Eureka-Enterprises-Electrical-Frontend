@@ -4,7 +4,6 @@ import {
   IDataTableHeaderConfig,
   IFilterConfig,
   IStatusConfig,
-  ITextWithSubtitleAndImageConfig,
   IMatchModeOption,
   ITableActionConfig,
   EButtonVariant,
@@ -88,11 +87,6 @@ export const STATUS_CONFIG: IStatusConfig = {
   rounded: false,
 };
 
-export const TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG: Partial<ITextWithSubtitleAndImageConfig> =
-  {
-    dataType: EDataType.TEXT,
-  };
-
 export const TEXT_WITH_READ_MORE_CONFIG: Partial<IReadMoreConfig> = {
   ...DEFAULT_READ_MORE_CONFIG,
 };
@@ -103,7 +97,6 @@ export const DEFAULT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig> = {
   dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
   currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
   numberFormat: APP_CONFIG.NUMBER_FORMATS.DEFAULT,
-  textWithSubtitleAndImageConfig: TEXT_WITH_SUBTITLE_AND_IMAGE_CONFIG,
   readMoreConfig: TEXT_WITH_READ_MORE_CONFIG,
   statusConfig: STATUS_CONFIG,
   showFilter: false,

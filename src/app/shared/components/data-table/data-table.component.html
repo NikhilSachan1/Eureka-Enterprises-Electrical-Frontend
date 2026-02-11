@@ -190,7 +190,7 @@
           @let bodyTemplate = column.bodyTemplate;
 
           @if (shouldShowColumn) {
-            <td>
+            <td [class.cell-allow-wrap]="bodyTemplate === ALL_DATA_TYPES.TEXT_WITH_READ_MORE">
               @let templates = customBodyTemplates();
               @if (column.customTemplateKey && templates && templates[column.customTemplateKey]) {
                 <ng-container
@@ -198,213 +198,16 @@
                   [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
                 />
               } @else {
-                @switch (bodyTemplate) {
-                  @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
-                    @let config = column.textWithSubtitleAndImageConfig;
-
-                    <!-- Show content only when columnData exists, otherwise show dash -->
-                    @if (columnData) {
-                      <div class="flex items-center gap-3">
-                        @if (config.showImage) {
-                          @let imageName = $any(resolveNestedProperty(rowData, config.dummyImageField));
-                          <img
-                            [src]="getAvatarUrl(imageName)"
-                            [alt]="imageName"
-                            class="w-9 h-9 rounded-lg bg-slate-100 object-cover"
-                          />
-                        }
-
-                        <div>
-                          <div>
-                            @if (config.primaryFieldLabel) {
-                              <span class="font-medium text-slate-600">{{ config.primaryFieldLabel }}:</span>
-                            }
-                            <span
-                              [ngClass]="{
-                                'font-medium text-slate-700': config.primaryFieldHighlight,
-                                'text-slate-700': !config.primaryFieldHighlight,
-                              }"
-                            >
-                              @switch (column.dataType) {
-                                @case ('date') {
-                                  {{ columnData | date: column.dateFormat }}
-                                }
-                                @default {
-                                  {{ columnData }}
-                                }
-                              }
-                            </span>
-                          </div>
-
-                          @if (config.secondaryField) {
-                            @let secondaryData = $any(resolveNestedProperty(rowData, config.secondaryField));
-                            <div>
-                              @if (config.secondaryFieldLabel) {
-                                <span
-                                  [ngClass]="{
-                                    'text-slate-600': !config.secondaryFieldLabel,
-                                    'font-medium text-slate-600': config.secondaryFieldLabel,
-                                  }"
-                                >
-                                  {{ config.secondaryFieldLabel }}:
-                                </span>
-                              }
-                              <span
-                                [ngClass]="{
-                                  'text-slate-600': !config.secondaryFieldLabel,
-                                  'text-slate-700': config.secondaryFieldLabel,
-                                }"
-                              >
-                                @switch (config.dataType) {
-                                  @case ('date') {
-                                    {{ secondaryData | date: column.dateFormat }}
-                                  }
-                                  @default {
-                                    {{ secondaryData }}
-                                  }
-                                }
-                              </span>
-                            </div>
-                          }
-                        </div>
-                      </div>
-                    } @else {
-                      <!-- Placeholder when no data (e.g., asset not assigned to anyone) -->
-                      <span class="text-slate-400">-</span>
-                    }
-                  }
-                  @case (ALL_DATA_TYPES.STATUS) {
-                    @let statusConfig = column.statusConfig;
-                    @let statusValue = columnData;
-
-                    <div class="flex items-center gap-3">
-                      <app-status-tag
-                        [value]="statusValue"
-                        [config]="statusConfig"
-                      />
-                    </div>
-                  }
-                  @case (ALL_DATA_TYPES.DATE) {
-                    @if (columnData) {
-                      <div class="flex items-center gap-2">
-                        <i [class]="icons.COMMON.CALENDAR + ' text-slate-400 text-xs'"></i>
-                        <span class="text-slate-700">{{ columnData | date: column.dateFormat }}</span>
-                      </div>
-                    } @else {
-                      <span class="text-slate-400">-</span>
-                    }
-                  }
-                  @case (ALL_DATA_TYPES.DATE_RANGE) {
-                    @let dateRange = $any(columnData);
-                    @let fromDate = $any(dateRange[0])?.toString() ?? '';
-                    @let toDate = $any(dateRange[1])?.toString() ?? '';
-                    <div class="flex items-center gap-2">
-                      <i [class]="icons.COMMON.CALENDAR + ' text-slate-400 text-xs'"></i>
-                      <span class="text-slate-700">
-                        {{ fromDate | date: column.format }}
-                        <span class="text-slate-400 mx-1">→</span>
-                        {{ toDate | date: column.format }}
-                      </span>
-                    </div>
-                  }
-                  @case (ALL_DATA_TYPES.CURRENCY) {
-                    @let entryType = resolveNestedProperty(rowData, 'transactionType');
-                    @let colorClass =
-                      entryType === 'credit'
-                        ? 'text-green-600 font-semibold'
-                        : entryType === 'debit'
-                          ? 'text-red-600 font-semibold'
-                          : 'text-slate-700 font-semibold';
-
-                    <div class="flex items-center gap-3">
-                      <span [ngClass]="colorClass">{{ columnData | currency: column.currencyFormat }}</span>
-                    </div>
-                  }
-                  @case (ALL_DATA_TYPES.NUMBER) {
-                    @let colorClass = 'text-slate-700 font-semibold';
-
-                    <div class="flex items-center gap-3">
-                      <span [ngClass]="colorClass">{{ columnData | number: column.numberFormat }}</span>
-                    </div>
-                  }
-                  @case (ALL_DATA_TYPES.ATTACHMENTS) {
-                    <div class="flex items-center gap-1">
-                      @if (columnData && columnData.length > 0) {
-                        <app-chip
-                          [label]="'Attachments (' + columnData.length + ')'"
-                          [icon]="icons.COMMON.PAPERCLIP"
-                          [styleClass]="
-                            'text-xs font-medium bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-colors duration-150 cursor-pointer'
-                          "
-                          (click)="openAttachmentsGallery(columnData, rowData, column)"
-                        />
-                      } @else {
-                        <app-chip
-                          label="No attachments"
-                          [icon]="icons.ACTIONS.BAN"
-                          [styleClass]="
-                            'text-[11px] font-medium text-slate-400 bg-slate-50 border border-dashed border-slate-200 cursor-not-allowed'
-                          "
-                        />
-                      }
-                    </div>
-                  }
-                  @case (ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
-                    <app-read-more
-                      [text]="columnData"
-                      [readMoreConfig]="column.readMoreConfig"
-                    />
-                  }
-                  @case (ALL_DATA_TYPES.EMAIL) {
-                    @if (columnData) {
-                      <div class="flex items-center gap-2">
-                        <a
-                          [href]="'mailto:' + columnData"
-                          class="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 hover:underline transition-colors duration-200 group"
-                          (click)="$event.stopPropagation()"
-                        >
-                          <i
-                            [class]="
-                              icons.COMMON.EMAIL + ' text-sm group-hover:scale-110 transition-transform duration-200'
-                            "
-                          ></i>
-                          <span class="text-slate-700 group-hover:text-emerald-700 transition-colors">
-                            {{ columnData }}
-                          </span>
-                        </a>
-                      </div>
-                    } @else {
-                      <span class="text-slate-400">-</span>
-                    }
-                  }
-                  @case (ALL_DATA_TYPES.PHONE) {
-                    @if (columnData) {
-                      <div class="flex items-center gap-2">
-                        <a
-                          [href]="'tel:' + columnData"
-                          class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 hover:underline transition-colors duration-200 group"
-                          (click)="$event.stopPropagation()"
-                        >
-                          <i
-                            [class]="
-                              icons.COMMON.PHONE + ' text-sm group-hover:scale-110 transition-transform duration-200'
-                            "
-                          ></i>
-                          <span class="text-slate-700 group-hover:text-indigo-700 transition-colors">
-                            {{ columnData }}
-                          </span>
-                        </a>
-                      </div>
-                    } @else {
-                      <span class="text-slate-400">-</span>
-                    }
-                  }
-                  @default {
-                    <div class="flex items-center gap-3">
-                      <span class="text-slate-700">{{ columnData }}</span>
-                    </div>
-                  }
-                }
+                <ng-container
+                  [ngTemplateOutlet]="cellValueTmpl"
+                  [ngTemplateOutletContext]="{
+                    value: columnData,
+                    bodyType: bodyTemplate,
+                    column: column,
+                    row: rowData,
+                    compact: false,
+                  }"
+                />
               }
             </td>
           }
@@ -500,124 +303,16 @@
                         [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
                       />
                     } @else {
-                      @switch (bodyTemplate) {
-                        @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE_AND_IMAGE) {
-                          @let config = column.textWithSubtitleAndImageConfig;
-                          @if (columnData && config) {
-                            <div class="flex items-center gap-3">
-                              @if (config.showImage && config.dummyImageField) {
-                                @let imageName = $any(resolveNestedProperty(rowData, config.dummyImageField));
-                                <img
-                                  [src]="getAvatarUrl(imageName)"
-                                  [alt]="imageName"
-                                  class="w-10 h-10 rounded-xl bg-slate-100 object-cover ring-2 ring-slate-100"
-                                />
-                              }
-                              <div class="flex-1 min-w-0">
-                                <div class="font-semibold text-slate-900 truncate">
-                                  @switch (column.dataType) {
-                                    @case ('date') {
-                                      {{ columnData | date: column.dateFormat }}
-                                    }
-                                    @default {
-                                      {{ columnData }}
-                                    }
-                                  }
-                                </div>
-                                @if (config.secondaryField) {
-                                  @let secondaryData = $any(resolveNestedProperty(rowData, config.secondaryField));
-                                  <div class="text-xs text-slate-500 mt-0.5 truncate">
-                                    @switch (config.dataType) {
-                                      @case ('date') {
-                                        {{ secondaryData | date: column.dateFormat }}
-                                      }
-                                      @default {
-                                        {{ secondaryData }}
-                                      }
-                                    }
-                                  </div>
-                                }
-                              </div>
-                            </div>
-                          } @else {
-                            <span class="text-slate-400 italic">-</span>
-                          }
-                        }
-                        @case (ALL_DATA_TYPES.STATUS) {
-                          @let statusConfig = column.statusConfig;
-                          <app-status-tag
-                            [value]="columnData"
-                            [config]="statusConfig"
-                          />
-                        }
-                        @case (ALL_DATA_TYPES.DATE) {
-                          @if (columnData) {
-                            <div class="flex items-center gap-2 text-slate-700">
-                              <i [class]="icons.COMMON.CALENDAR + ' text-emerald-500 text-sm'"></i>
-                              <span class="font-medium">{{ columnData | date: column.dateFormat }}</span>
-                            </div>
-                          } @else {
-                            <span class="text-slate-400 italic">-</span>
-                          }
-                        }
-                        @case (ALL_DATA_TYPES.CURRENCY) {
-                          <span class="font-bold text-emerald-600">
-                            {{ columnData | currency: column.currencyFormat }}
-                          </span>
-                        }
-                        @case (ALL_DATA_TYPES.NUMBER) {
-                          <span class="font-bold text-slate-700">{{ columnData | number: column.numberFormat }}</span>
-                        }
-                        @case (ALL_DATA_TYPES.ATTACHMENTS) {
-                          @if (columnData && columnData.length > 0) {
-                            <app-chip
-                              [label]="'Attachments (' + columnData.length + ')'"
-                              [icon]="icons.COMMON.PAPERCLIP"
-                              [styleClass]="
-                                'text-xs font-medium bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-colors duration-150 cursor-pointer'
-                              "
-                              (click)="openAttachmentsGallery(columnData, rowData, column)"
-                            />
-                          } @else {
-                            <span class="text-slate-400">No attachments</span>
-                          }
-                        }
-                        @case (ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
-                          <app-read-more
-                            [text]="columnData"
-                            [readMoreConfig]="column.readMoreConfig ?? {}"
-                          />
-                        }
-                        @case (ALL_DATA_TYPES.EMAIL) {
-                          @if (columnData) {
-                            <a
-                              [href]="'mailto:' + columnData"
-                              class="text-emerald-600 hover:text-emerald-700 hover:underline"
-                              (click)="$event.stopPropagation()"
-                            >
-                              {{ columnData }}
-                            </a>
-                          } @else {
-                            <span class="text-slate-400">-</span>
-                          }
-                        }
-                        @case (ALL_DATA_TYPES.PHONE) {
-                          @if (columnData) {
-                            <a
-                              [href]="'tel:' + columnData"
-                              class="text-indigo-600 hover:text-indigo-700 hover:underline"
-                              (click)="$event.stopPropagation()"
-                            >
-                              {{ columnData }}
-                            </a>
-                          } @else {
-                            <span class="text-slate-400">-</span>
-                          }
-                        }
-                        @default {
-                          <span class="text-slate-800">{{ columnData || '-' }}</span>
-                        }
-                      }
+                      <ng-container
+                        [ngTemplateOutlet]="cellValueTmpl"
+                        [ngTemplateOutletContext]="{
+                          value: columnData,
+                          bodyType: bodyTemplate,
+                          column: column,
+                          row: rowData,
+                          compact: false,
+                        }"
+                      />
                     }
                   </div>
                 </div>
@@ -655,3 +350,225 @@
     }
   </div>
 }
+
+<!-- Reusable cell value renderer by body type (used for cells and subtitles) -->
+<ng-template
+  #cellValueTmpl
+  let-val="value"
+  let-type="bodyType"
+  let-col="column"
+  let-row="row"
+  let-isCompact="compact"
+>
+  @switch (type) {
+    @case (ALL_DATA_TYPES.STATUS) {
+      <div
+        class="flex items-center gap-3"
+        [class.text-xs]="isCompact"
+      >
+        <app-status-tag
+          [value]="$any(val)"
+          [config]="col.statusConfig"
+        />
+      </div>
+    }
+    @case (ALL_DATA_TYPES.DATE) {
+      @if (val) {
+        <div
+          class="flex items-center gap-2"
+          [class.text-xs]="isCompact"
+        >
+          <i [class]="icons.COMMON.CALENDAR + ' text-slate-400 text-xs'"></i>
+          <span class="text-slate-700">{{ $any(val) | date: col.dateFormat ?? 'mediumDate' }}</span>
+        </div>
+      } @else {
+        <span class="text-slate-400">-</span>
+      }
+    }
+    @case (ALL_DATA_TYPES.DATE_RANGE) {
+      @let dateRange = $any(val);
+      @let fromDate = $any(dateRange?.[0])?.toString() ?? '';
+      @let toDate = $any(dateRange?.[1])?.toString() ?? '';
+      @let rangeFormat = $any(col).format ?? col.dateFormat ?? 'mediumDate';
+      <div
+        class="flex items-center gap-2"
+        [class.text-xs]="isCompact"
+      >
+        <i [class]="icons.COMMON.CALENDAR + ' text-slate-400 text-xs'"></i>
+        <span class="text-slate-700">
+          {{ fromDate | date: rangeFormat }}
+          <span class="text-slate-400 mx-1">→</span>
+          {{ toDate | date: rangeFormat }}
+        </span>
+      </div>
+    }
+    @case (ALL_DATA_TYPES.CURRENCY) {
+      @let entryType = row ? $any(row)['transactionType'] : null;
+      @let colorClass =
+        entryType === 'credit'
+          ? 'text-green-600 font-semibold'
+          : entryType === 'debit'
+            ? 'text-red-600 font-semibold'
+            : 'text-slate-700 font-semibold';
+      <div
+        class="flex items-center gap-3"
+        [class.text-xs]="isCompact"
+      >
+        <span [ngClass]="colorClass">{{ $any(val) | currency: col.currencyFormat }}</span>
+      </div>
+    }
+    @case (ALL_DATA_TYPES.NUMBER) {
+      <div
+        class="flex items-center gap-3"
+        [class.text-xs]="isCompact"
+      >
+        <span class="text-slate-700 font-semibold">{{ $any(val) | number: col.numberFormat }}</span>
+      </div>
+    }
+    @case (ALL_DATA_TYPES.ATTACHMENTS) {
+      @let keys = $any(val);
+      @if (keys && keys.length > 0) {
+        <div
+          class="flex items-center gap-1"
+          [class.text-xs]="isCompact"
+        >
+          <app-chip
+            [label]="'Attachments (' + keys.length + ')'"
+            [icon]="icons.COMMON.PAPERCLIP"
+            [styleClass]="
+              'text-xs font-medium bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-colors duration-150 cursor-pointer'
+            "
+            (click)="openAttachmentsGallery(keys, row, col)"
+          />
+        </div>
+      } @else {
+        <app-chip
+          label="No attachments"
+          [icon]="icons.ACTIONS.BAN"
+          [styleClass]="
+            'text-[11px] font-medium text-slate-400 bg-slate-50 border border-dashed border-slate-200 cursor-not-allowed'
+          "
+        />
+      }
+    }
+    @case (ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
+      <app-read-more
+        [text]="$any(val)"
+        [readMoreConfig]="col.readMoreConfig ?? {}"
+      />
+    }
+    @case (ALL_DATA_TYPES.EMAIL) {
+      @if (val) {
+        <div
+          class="flex items-center gap-2"
+          [class.text-xs]="isCompact"
+        >
+          <a
+            [href]="'mailto:' + val"
+            class="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 hover:underline transition-colors duration-200 group"
+            (click)="$event.stopPropagation()"
+          >
+            <i [class]="icons.COMMON.EMAIL + ' text-sm group-hover:scale-110 transition-transform duration-200'"></i>
+            <span class="text-slate-700 group-hover:text-emerald-700 transition-colors">{{ val }}</span>
+          </a>
+        </div>
+      } @else {
+        <span class="text-slate-400">-</span>
+      }
+    }
+    @case (ALL_DATA_TYPES.PHONE) {
+      @if (val) {
+        <div
+          class="flex items-center gap-2"
+          [class.text-xs]="isCompact"
+        >
+          <a
+            [href]="'tel:' + val"
+            class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 hover:underline transition-colors duration-200 group"
+            (click)="$event.stopPropagation()"
+          >
+            <i [class]="icons.COMMON.PHONE + ' text-sm group-hover:scale-110 transition-transform duration-200'"></i>
+            <span class="text-slate-700 group-hover:text-indigo-700 transition-colors">{{ val }}</span>
+          </a>
+        </div>
+      } @else {
+        <span class="text-slate-400">-</span>
+      }
+    }
+    @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE) {
+      @if (val) {
+        <div class="flex items-center gap-3">
+          @if (col.showImage && col.dummyImageField) {
+            @let imageName = $any(resolveNestedProperty(row, col.dummyImageField));
+            <img
+              [src]="getAvatarUrl(imageName)"
+              [alt]="imageName"
+              class="w-9 h-9 rounded-lg bg-slate-100 object-cover"
+            />
+          }
+          <div class="flex-1 min-w-0">
+            <div>
+              @if (col.primaryFieldLabel) {
+                <span class="font-medium text-slate-600">{{ col.primaryFieldLabel }}:</span>
+              }
+              <div
+                [ngClass]="{
+                  'font-medium text-slate-700': col.primaryFieldHighlight,
+                  'text-slate-700': !col.primaryFieldHighlight,
+                }"
+              >
+                <ng-container
+                  [ngTemplateOutlet]="cellValueTmpl"
+                  [ngTemplateOutletContext]="{
+                    value: val,
+                    bodyType: col.dataType,
+                    column: col,
+                    row: row,
+                    compact: false,
+                  }"
+                />
+              </div>
+            </div>
+            @if (col.subtitle?.field) {
+              @let subtitleField = col.subtitle.field;
+              @let secondaryData = $any(resolveNestedProperty(row, subtitleField));
+              @let subtitleType = col.subtitle.bodyTemplate ?? ALL_DATA_TYPES.TEXT;
+              @let subtitleLabel = col.subtitle.label;
+              <div>
+                @if (subtitleLabel) {
+                  <span class="font-medium text-slate-600">{{ subtitleLabel }}:</span>
+                }
+                <span class="text-slate-600">
+                  <ng-container
+                    [ngTemplateOutlet]="cellValueTmpl"
+                    [ngTemplateOutletContext]="{
+                      value: secondaryData,
+                      bodyType: subtitleType,
+                      column: col,
+                      row: row,
+                      compact: true,
+                    }"
+                  />
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <span class="text-slate-400">-</span>
+      }
+    }
+    @default {
+      <div
+        class="flex items-center gap-3"
+        [class.text-xs]="isCompact"
+      >
+        @if (col.dataType === 'date') {
+          <span class="text-slate-700">{{ $any(val) | date: col.dateFormat ?? 'mediumDate' }}</span>
+        } @else {
+          <span class="text-slate-700">{{ val }}</span>
+        }
+      </div>
+    }
+  }
+</ng-template>

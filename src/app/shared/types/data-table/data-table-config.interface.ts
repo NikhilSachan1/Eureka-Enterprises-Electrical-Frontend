@@ -35,6 +35,16 @@ export interface IDataTableServerSideFilterAndSortConfig {
 
 export type IDataTableHeaderFilterConfig = Partial<IFilterConfig>;
 
+/** Subtitle config for TEXT_WITH_SUBTITLE columns. All subtitle-related options in one object. */
+export interface ISubtitleConfig {
+  /** Field key for subtitle value (e.g. 'parentCompanyName', 'employeeCode'). */
+  field: string;
+  /** Body template type for subtitle (date, currency, status, etc.). Defaults to TEXT. */
+  bodyTemplate?: EDataType;
+  /** Optional label shown before subtitle value. */
+  label?: string;
+}
+
 export interface IDataTableHeaderConfig {
   field: string;
   header: string;
@@ -43,7 +53,15 @@ export interface IDataTableHeaderConfig {
   dateFormat?: string;
   currencyFormat?: string;
   numberFormat?: string;
-  textWithSubtitleAndImageConfig?: ITextWithSubtitleAndImageConfig;
+  /** Show image (avatar) for text-with-subtitle-and-image columns. Can be used with or without subtitle. */
+  showImage?: boolean;
+  /** Field used to resolve image/avatar (e.g. name for initials). Used when showImage is true. */
+  dummyImageField?: string;
+  /** Whether to highlight the primary field (bold). */
+  primaryFieldHighlight?: boolean;
+  /** Subtitle config (field, bodyTemplate, label). */
+  subtitle?: ISubtitleConfig;
+  primaryFieldLabel?: string;
   readMoreConfig?: Partial<IReadMoreConfig>;
   statusConfig?: IStatusConfig;
   customTemplateKey?: string;
@@ -54,16 +72,6 @@ export interface IDataTableHeaderConfig {
   serverSideFilterAndSortConfig?: IDataTableServerSideFilterAndSortConfig;
   permission?: string[];
   enableAttachmentGallery?: boolean; // Flag to control attachment gallery opening for this column (default: true)
-}
-
-export interface ITextWithSubtitleAndImageConfig {
-  secondaryField?: string;
-  showImage?: boolean;
-  dummyImageField?: string;
-  primaryFieldHighlight?: boolean;
-  primaryFieldLabel?: string;
-  secondaryFieldLabel?: string;
-  dataType?: EDataType;
 }
 
 export interface IStatusConfig {

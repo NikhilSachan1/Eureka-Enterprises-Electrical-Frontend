@@ -21,12 +21,10 @@ export const ROLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'label',
     header: 'Role Details',
-    bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      secondaryField: 'description',
-      primaryFieldHighlight: true,
-      showImage: false,
-    },
+    bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'description' },
+    primaryFieldHighlight: true,
+    showImage: false,
     filterConfig: {
       filterField: 'label',
       placeholder: 'Search Role Name',

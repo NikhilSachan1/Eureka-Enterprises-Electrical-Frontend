@@ -1,6 +1,6 @@
 export enum EDataType {
   TEXT = 'text', // Default nput field & normal text display
-  TEXT_WITH_SUBTITLE_AND_IMAGE = 'textWithSubtitleAndImage', //only for display
+  TEXT_WITH_SUBTITLE = 'textWithSubtitle', //only for display
   TEXT_WITH_READ_MORE = 'textWithReadMore', //only for display
   STATUS = 'status', //only for display
   DATE = 'date', //only for display

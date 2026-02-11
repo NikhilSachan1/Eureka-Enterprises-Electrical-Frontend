@@ -18,13 +18,11 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'projectName',
     header: 'Project Name',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-    textWithSubtitleAndImageConfig: {
-      showImage: true,
-      dummyImageField: 'projectName',
-      primaryFieldHighlight: true,
-      secondaryField: 'projectLocation',
-    },
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    showImage: true,
+    dummyImageField: 'projectName',
+    primaryFieldHighlight: true,
+    subtitle: { field: 'projectLocation' },
   },
   {
     field: 'projectStatus',

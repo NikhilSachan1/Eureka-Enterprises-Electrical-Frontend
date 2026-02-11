@@ -67,14 +67,6 @@ export class TableService {
             ...this.defaultTableHeaderConfig.clientSideFilterConfig,
             ...override.clientSideFilterConfig,
           },
-          textWithSubtitleAndImageConfig:
-            override.textWithSubtitleAndImageConfig
-              ? {
-                  ...this.defaultTableHeaderConfig
-                    .textWithSubtitleAndImageConfig,
-                  ...override.textWithSubtitleAndImageConfig,
-                }
-              : undefined,
           statusConfig: override.statusConfig
             ? {
                 ...this.defaultTableHeaderConfig.statusConfig,

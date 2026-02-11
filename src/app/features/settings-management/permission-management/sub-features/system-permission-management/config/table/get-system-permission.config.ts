@@ -32,12 +32,10 @@ export const SYSTEM_PERMISSION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConf
     {
       field: 'label',
       header: 'Permission Details',
-      bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE_AND_IMAGE,
-      textWithSubtitleAndImageConfig: {
-        secondaryField: 'description',
-        primaryFieldHighlight: true,
-        showImage: false,
-      },
+      bodyTemplate: ETableBodyTemplate.TEXT_WITH_SUBTITLE,
+      subtitle: { field: 'description' },
+      primaryFieldHighlight: true,
+      showImage: false,
       filterConfig: {
         filterField: 'label',
         placeholder: 'Search Permission Name',

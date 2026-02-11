@@ -36,24 +36,20 @@ export const PETRO_CARD_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
     {
       field: 'vehicleNumber',
       header: 'Allocated To',
-      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-      textWithSubtitleAndImageConfig: {
-        secondaryField: 'vehicleName',
-        dummyImageField: 'vehicleName',
-        primaryFieldHighlight: true,
-      },
+      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+      subtitle: { field: 'vehicleName' },
+      dummyImageField: 'vehicleName',
+      primaryFieldHighlight: true,
       showSort: false,
     },
     {
       field: 'addedBy',
       header: 'Added By',
-      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE_AND_IMAGE,
-      textWithSubtitleAndImageConfig: {
-        secondaryField: 'employeeId',
-        showImage: true,
-        dummyImageField: 'addedBy',
-        primaryFieldHighlight: true,
-      },
+      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+      subtitle: { field: 'employeeId' },
+      showImage: true,
+      dummyImageField: 'addedBy',
+      primaryFieldHighlight: true,
       showSort: false,
     },
     {

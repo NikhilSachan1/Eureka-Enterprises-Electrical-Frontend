@@ -42,11 +42,11 @@ import {
   EDataType,
 } from '@shared/types';
 import {
-  CurrencyPipe,
-  DatePipe,
-  DecimalPipe,
   NgClass,
   NgTemplateOutlet,
+  DatePipe,
+  CurrencyPipe,
+  DecimalPipe,
 } from '@angular/common';
 import { AvatarService, GalleryService } from '@shared/services';
 import { ICONS } from '@shared/constants';
@@ -68,7 +68,6 @@ import { PaginatorComponent } from '../paginator/paginator.component';
     SelectModule,
     MultiSelectModule,
     ButtonComponent,
-    StatusTagComponent,
     IconFieldModule,
     InputIconModule,
     SliderModule,
@@ -79,15 +78,16 @@ import { PaginatorComponent } from '../paginator/paginator.component';
     NgClass,
     DatePipe,
     CurrencyPipe,
-    EmptyMessagesComponent,
-    ChipComponent,
-    NgTemplateOutlet,
-    ReadMoreComponent,
-    PanelModule,
     DecimalPipe,
+    EmptyMessagesComponent,
+    NgTemplateOutlet,
+    PanelModule,
     PaginatorModule,
     PaginatorComponent,
     SelectButtonModule,
+    StatusTagComponent,
+    ChipComponent,
+    ReadMoreComponent,
   ],
 
   templateUrl: './data-table.component.html',
