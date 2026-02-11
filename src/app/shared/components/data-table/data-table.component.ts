@@ -56,6 +56,7 @@ import { EmptyMessagesComponent } from '../empty-messages/empty-messages.compone
 import { AppPermissionService, LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
 import { ReadMoreComponent } from '../read-more/read-more.component';
+import { PaginatorComponent } from '../paginator/paginator.component';
 
 @Component({
   selector: 'app-data-table',
@@ -85,6 +86,7 @@ import { ReadMoreComponent } from '../read-more/read-more.component';
     PanelModule,
     DecimalPipe,
     PaginatorModule,
+    PaginatorComponent,
     SelectButtonModule,
   ],
 

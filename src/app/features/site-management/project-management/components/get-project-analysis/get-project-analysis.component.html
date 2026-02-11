@@ -1,3 +1,12 @@
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<!-- <div class="metrics-card-wrapper">
+  <app-metrics-card [metricCardConfig]="metricsCards()" />
+</div> -->
+
 <div class="grid grid-cols-1md:grid-cols-[minmax(280px,25%)_1fr] lg:grid-cols-[minmax(320px,25%)_1fr] gap-4">
   <p-card class="pb-4">
     <app-get-project-timeline />

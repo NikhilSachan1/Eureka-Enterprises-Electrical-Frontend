@@ -147,6 +147,12 @@ export const API_ROUTES = {
       GET_PROJECT_BY_ID: (projectId: string) => `sites/${projectId}`,
       CHANGE_STATUS: (projectId: string) => `sites/${projectId}/status`,
     },
+    DSR: {
+      ADD: 'daily-status-reports',
+      EDIT: (dsrId: string) => `daily-status-reports/${dsrId}`,
+      DELETE: (dsrId: string) => `daily-status-reports/${dsrId}`,
+      LIST: 'daily-status-reports',
+    },
   },
 } as const;
 

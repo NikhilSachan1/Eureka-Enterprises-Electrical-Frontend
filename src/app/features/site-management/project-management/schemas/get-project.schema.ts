@@ -63,7 +63,21 @@ export const ProjectGetBaseResponseSchema = ProjectBaseSchema.extend({
     )
     .nullable(),
   fullAddress: z.string().nullable(),
-  allocatedEmployees: z.array(EmployeeBaseSchema).nullable(),
+  allocatedEmployees: z
+    .array(
+      EmployeeBaseSchema.pick({
+        id: true,
+        employeeId: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        profilePicture: true,
+      }).extend({
+        role: z.string(),
+        allocationType: z.string(),
+      })
+    )
+    .nullable(),
   allocatedEmployeeCount: z.number().int().nonnegative().nullable(),
 }).strict();
 

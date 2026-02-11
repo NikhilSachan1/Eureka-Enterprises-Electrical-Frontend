@@ -1,62 +1,71 @@
 <div class="dsr-container">
-  @for (dsr of dsrEntries; track dsr.id) {
-    <div class="dsr-card">
-      <!-- Header Section -->
-      <div class="dsr-header">
-        <div class="dsr-user">
-          <img
-            [src]="getAvatarUrl(dsr.userName)"
-            [alt]="dsr.userName"
-            class="dsr-avatar"
-          />
-          <div class="dsr-user-info">
-            <h3 class="dsr-user-name">{{ dsr.userName }}</h3>
-            <span class="dsr-date">{{ dsr.date }}</span>
+  @if (loading()) {
+    <div class="dsr-loading">
+      <i [class]="icons.COMMON.SPINNER + ' dsr-loading-icon'"></i>
+      <span>Loading DSR...</span>
+    </div>
+  } @else if (dsrEntries().length === 0) {
+    <div class="dsr-empty">
+      <i [class]="icons.COMMON.INFO_CIRCLE + ' dsr-empty-icon'"></i>
+      <p>No DSR records found.</p>
+    </div>
+  } @else {
+    @for (dsr of dsrEntries(); track dsr.id) {
+      <div class="dsr-card">
+        <!-- Row 1: Avatar + Name (Employee ID as subtitle), Actions -->
+        <div class="dsr-header">
+          <div class="dsr-user">
+            <img
+              [src]="getAvatarUrl(dsr.userName)"
+              [alt]="dsr.userName"
+              class="dsr-avatar"
+            />
+            <div class="dsr-user-info">
+              <h3 class="dsr-user-name">{{ dsr.userName }}</h3>
+              <span class="dsr-employee-id">ID: {{ dsr.employeeId }}</span>
+            </div>
+          </div>
+          <div class="dsr-action-buttons">
+            <button
+              class="dsr-action-btn edit-btn"
+              type="button"
+            >
+              <i [class]="icons.ACTIONS.PENCIL"></i>
+            </button>
+            <button
+              class="dsr-action-btn delete-btn"
+              type="button"
+            >
+              <i [class]="icons.ACTIONS.TRASH"></i>
+            </button>
           </div>
         </div>
-        <div class="dsr-action-buttons">
-          <button
-            class="dsr-action-btn edit-btn"
-            (click)="onEditDsr(dsr)"
-            type="button"
-          >
-            <i [class]="icons.ACTIONS.PENCIL"></i>
-          </button>
-          <button
-            class="dsr-action-btn delete-btn"
-            (click)="onDeleteDsr(dsr)"
-            type="button"
-          >
-            <i [class]="icons.ACTIONS.TRASH"></i>
-          </button>
+
+        <!-- Row 2: Date | Work Type (info strip) -->
+        <div class="dsr-info-strip">
+          <div class="dsr-info-item">
+            <span class="dsr-info-label">Date</span>
+            <span class="dsr-info-value">{{ dsr.date }}</span>
+          </div>
+          <div class="dsr-info-item dsr-info-work-type">
+            <span class="dsr-info-label">Work Type</span>
+            <span class="dsr-info-value">{{ dsr.workType }}</span>
+          </div>
         </div>
+
+        <!-- Row 3: Description -->
+        <p class="dsr-description">{{ dsr.description }}</p>
       </div>
+    }
 
-      <!-- Description -->
-      <p class="dsr-description">{{ dsr.description }}</p>
-
-      <!-- Details Grid -->
-      <div class="dsr-details">
-        <div class="dsr-detail-item">
-          <span class="dsr-detail-label">Work Type</span>
-          <span class="dsr-detail-value">{{ dsr.workType }}</span>
-        </div>
-
-        <div class="dsr-detail-item">
-          <span class="dsr-detail-label">Hours Worked</span>
-          <span class="dsr-detail-value">{{ dsr.hoursWorked }} hrs</span>
-        </div>
-
-        <div class="dsr-detail-item">
-          <span class="dsr-detail-label">Progress</span>
-          <span class="dsr-detail-value">{{ dsr.progress }}%</span>
-        </div>
-
-        <div class="dsr-detail-item">
-          <span class="dsr-detail-label">Manpower</span>
-          <span class="dsr-detail-value">{{ dsr.manpower }} people</span>
-        </div>
-      </div>
+    <!-- Paginator -->
+    <div class="dsr-paginator-wrapper">
+      <app-paginator
+        [rows]="paginatorRows()"
+        [totalRecords]="totalRecords()"
+        [first]="paginatorFirst()"
+        (pageChange)="onPageChange($event)"
+      />
     </div>
   }
 </div>

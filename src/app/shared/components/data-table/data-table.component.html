@@ -75,6 +75,7 @@
     [showCurrentPageReport]="true"
     [paginator]="tableConfig().showPaginator"
     [currentPageReportTemplate]="tableConfig().paginationTemplate"
+    paginatorDropdownAppendTo="body"
     [columns]="visibleTableHeaders()"
     [(selection)]="selectedTableRows"
     (onFilter)="onFilterChange($event)"
@@ -643,14 +644,11 @@
       <!-- Pagination for Card View -->
       @if (tableConfig().showPaginator) {
         <div class="mt-6">
-          <p-paginator
+          <app-paginator
             [rows]="paginationRows()"
-            [rowsPerPageOptions]="tableConfig().rowsPerPageOptions"
             [totalRecords]="tableConfig().totalRecords ?? tableData().length"
             [first]="paginationFirst()"
-            (onPageChange)="onCardPaginatorChange($event)"
-            [showCurrentPageReport]="true"
-            [currentPageReportTemplate]="tableConfig().paginationTemplate"
+            (pageChange)="onCardPaginatorChange($event)"
           />
         </div>
       }

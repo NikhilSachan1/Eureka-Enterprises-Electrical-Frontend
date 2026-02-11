@@ -39,4 +39,11 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
         './components/get-project-analysis/get-project-analysis.component'
       ).then(m => m.GetProjectAnalysisComponent),
   },
+  {
+    path: `${ROUTES.SITE.PROJECT.DAILY_STATUS}/:projectId`,
+    loadComponent: () =>
+      import('./components/project-dsr/add-dsr/add-dsr.component').then(
+        m => m.AddDsrComponent
+      ),
+  },
 ];

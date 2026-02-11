@@ -71,6 +71,8 @@ export const APP_CONFIG = {
   TABLE_PAGINATION_CONFIG: {
     DEFAULT_PAGE_SIZE: 10,
     DEFAULT_PAGE_SIZE_OPTIONS: [5, 10, 20, 50],
+    CURRENT_PAGE_REPORT_TEMPLATE:
+      'Showing {first} to {last} of {totalRecords} entries',
   },
 
   // Dialog Configuration

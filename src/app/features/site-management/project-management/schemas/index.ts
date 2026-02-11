@@ -28,3 +28,18 @@ export {
   ProjectChangeStatusRequestSchema,
   ProjectChangeStatusResponseSchema,
 } from './change-status-project.schema';
+export { DsrBaseSchema, DsrUpsertShapeSchema } from './dsr/base-dsr.schema';
+export {
+  DsrAddRequestSchema,
+  DsrAddResponseSchema,
+} from './dsr/add-dsr.schema';
+export {
+  DsrEditRequestSchema,
+  DsrEditResponseSchema,
+} from './dsr/edit-dsr.schema';
+export { DsrDeleteResponseSchema } from './dsr/delete.dsr.schema';
+export {
+  DsrGetRequestSchema,
+  DsrGetBaseResponseSchema,
+  DsrGetResponseSchema,
+} from './dsr/get-dsr.schema';

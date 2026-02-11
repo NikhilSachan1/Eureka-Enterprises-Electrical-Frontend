@@ -30,7 +30,8 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessageIcon: ICONS.COMMON.INFO_CIRCLE,
   emptyMessageDescription:
     "You don't have any data yet. Please add records first.",
-  paginationTemplate: 'Showing {first} to {last} of {totalRecords} entries',
+  paginationTemplate:
+    APP_CONFIG.TABLE_PAGINATION_CONFIG.CURRENT_PAGE_REPORT_TEMPLATE,
   enableServerSide: true,
   showViewModeToggle: false, // Default: show the toggle
 };
