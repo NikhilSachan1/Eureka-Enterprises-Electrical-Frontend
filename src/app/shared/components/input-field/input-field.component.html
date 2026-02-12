@@ -1,549 +1,527 @@
-<div [formGroup]="formGroup()">
-  @let isFieldInvalid = checkIsFieldInvalid(inputFieldConfig().fieldName);
-  @let errorMessage = getErrorMessage(inputFieldConfig().fieldName);
-  @let showStandardLabel = inputFieldConfig().showStandardLabel;
-  @let placeholder = showStandardLabel ? inputFieldConfig().placeholder : '';
+@let config = resolvedInputFieldConfig();
+@let isFieldInvalid = isFieldInvalidDisplay();
+@let invalidClass = isFieldInvalid ? 'ng-invalid ng-dirty' : '';
+@let errorMessage = getErrorMessage(inputFieldConfig().fieldName);
+@let showStandardLabel = config.showStandardLabel;
+@let effectivePlaceholder = showStandardLabel && config.placeholder ? config.placeholder : '';
 
-  @if (inputFieldConfig().showStandardLabel) {
-    <label
-      [for]="inputFieldConfig().id"
-      class="text-md font-semibold"
-    >
-      {{ inputFieldConfig().label }}
-    </label>
+@if (showStandardLabel) {
+  <label
+    [for]="config.id"
+    class="text-md font-semibold"
+  >
+    {{ config.label }}
+  </label>
+}
+@switch (config.fieldType) {
+  @case (ALL_DATA_TYPES.TEXT) {
+    <p-floatlabel [variant]="config.floatLabelVariant">
+      <input
+        pInputText
+        [id]="config.id"
+        [autocomplete]="config.autocomplete"
+        [fluid]="config.haveFullWidth"
+        [pSize]="config.fieldSize"
+        [attr.placeholder]="effectivePlaceholder || null"
+        [attr.maxlength]="getMaxLengthAttribute()"
+        [disabled]="config.disabledInput || false"
+        [readonly]="config.readonlyInput || false"
+        [ngModel]="effectiveValue()"
+        [ngModelOptions]="{ standalone: true }"
+        [class]="invalidClass"
+        (input)="onValueChange($event)"
+        (blur)="onBlur()"
+      />
+      @if (!showStandardLabel) {
+        <label [for]="config.id">{{ config.label }}</label>
+      }
+    </p-floatlabel>
   }
-
-  @switch (inputFieldConfig().fieldType) {
-    @case (ALL_DATA_TYPES.TEXT) {
-      <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
-        <input
-          pInputText
-          [id]="inputFieldConfig().id"
-          [autocomplete]="inputFieldConfig().autocomplete"
-          [fluid]="inputFieldConfig().haveFullWidth"
-          [pSize]="inputFieldConfig().fieldSize"
-          [attr.placeholder]="placeholder ? placeholder : null"
-          [readonly]="inputFieldConfig().readonlyInput || false"
-          [formControlName]="inputFieldConfig().fieldName"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-          (input)="onInput($event)"
-        />
-        @if (!inputFieldConfig().showStandardLabel) {
-          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
-        }
-      </p-floatlabel>
+  @case (ALL_DATA_TYPES.NUMBER) {
+    <p-floatlabel [variant]="config.floatLabelVariant">
+      @let numberConfig = config.numberConfig || {};
+      <p-inputnumber
+        [inputId]="config.id"
+        [fluid]="config.haveFullWidth"
+        [size]="config.fieldSize"
+        [mode]="numberConfig?.mode"
+        [min]="numberConfig?.minimumBoundaryValue ?? null"
+        [max]="numberConfig?.maximumBoundaryValue ?? null"
+        [minFractionDigits]="numberConfig?.minimumFractionDigits"
+        [maxFractionDigits]="numberConfig?.maximumFractionDigits"
+        [useGrouping]="numberConfig?.allowNumberFormatting"
+        [locale]="numberConfig?.locale"
+        [currencyDisplay]="numberConfig?.currencyDisplay"
+        [currency]="numberConfig?.currency"
+        [prefix]="numberConfig?.prefix"
+        [suffix]="numberConfig?.suffix"
+        [showButtons]="numberConfig?.showUpAndDownButtons"
+        [buttonLayout]="numberConfig?.upAndDownButtonLayout || ALL_UP_AND_DOWN_BUTTON_LAYOUTS.Default"
+        [step]="numberConfig?.step || 1"
+        [disabled]="config.disabledInput || false"
+        [readonly]="config.readonlyInput || false"
+        [ngModel]="effectiveValue()"
+        [ngModelOptions]="{ standalone: true }"
+        [class]="invalidClass"
+        (onInput)="onValueChange($event)"
+        (blur)="onBlur()"
+      />
+      @if (!showStandardLabel) {
+        <label [for]="config.id">{{ config.label }}</label>
+      }
+    </p-floatlabel>
+  }
+  @case (ALL_DATA_TYPES.SELECT) {
+    <p-floatlabel [variant]="config.floatLabelVariant">
+      @let selectConfig = config.selectConfig;
+      @let optionsDropdownLength = selectConfig?.optionsDropdown?.length;
+      <p-select
+        [id]="config.id"
+        [fluid]="config.haveFullWidth"
+        [size]="config.fieldSize"
+        [placeholder]="effectivePlaceholder"
+        [appendTo]="'body'"
+        [options]="selectConfig?.optionsDropdown ?? []"
+        [optionLabel]="selectConfig?.optionLabel ?? 'label'"
+        [optionValue]="selectConfig?.optionValue ?? 'value'"
+        [optionDisabled]="selectConfig?.optionDisabled"
+        [checkmark]="selectConfig?.showCheckmark"
+        [filter]="selectConfig?.haveFilter && (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH"
+        [filterBy]="selectConfig?.filterBy"
+        [loading]="selectConfig?.loading ?? false"
+        [showClear]="selectConfig?.showClearButton"
+        [editable]="selectConfig?.isEditable"
+        [virtualScroll]="selectConfig?.virtualScroll"
+        [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize"
+        [disabled]="config.disabledInput || false"
+        [ngModel]="effectiveValue()"
+        [ngModelOptions]="{ standalone: true }"
+        [class]="invalidClass"
+        (onChange)="onValueChange($event.value)"
+        (onBlur)="onBlur()"
+      />
+      @if (!showStandardLabel) {
+        <label [for]="config.id">{{ config.label }}</label>
+      }
+    </p-floatlabel>
+  }
+  @case (ALL_DATA_TYPES.AUTOCOMPLETE) {
+    <p-floatlabel [variant]="config.floatLabelVariant">
+      @let autocompleteConfig = config.autocompleteConfig;
+      <p-autocomplete
+        [inputId]="config.id"
+        [fluid]="config.haveFullWidth"
+        [size]="config.fieldSize"
+        [placeholder]="config.placeholder"
+        [suggestions]="autocompleteSuggestions()"
+        (completeMethod)="onAutocompleteComplete($event)"
+        (onSelect)="onAutocompleteSelect($event)"
+        [optionLabel]="autocompleteConfig?.optionLabel ?? 'label'"
+        [optionValue]="autocompleteConfig?.optionValue ?? 'value'"
+        [forceSelection]="autocompleteConfig?.forceSelection ?? false"
+        [showClear]="autocompleteConfig?.showClearButton ?? true"
+        [appendTo]="'body'"
+        [disabled]="config.disabledInput || false"
+        [ngModel]="effectiveValue()"
+        [ngModelOptions]="{ standalone: true }"
+        [class]="invalidClass"
+        (onChange)="onValueChange($event)"
+        (onBlur)="onAutocompleteBlur($event)"
+      />
+      @if (!showStandardLabel) {
+        <label [for]="config.id">{{ config.label }}</label>
+      }
+    </p-floatlabel>
+  }
+  @case (ALL_DATA_TYPES.MULTI_SELECT) {
+    <p-floatlabel [variant]="config.floatLabelVariant">
+      @let multiSelectConfig = config.multiSelectConfig;
+      @let optionsDropdownLengthMs = multiSelectConfig?.optionsDropdown?.length;
+      <p-multiselect
+        [id]="config.id"
+        [fluid]="config.haveFullWidth"
+        [size]="config.fieldSize"
+        [placeholder]="effectivePlaceholder"
+        [appendTo]="'body'"
+        [options]="multiSelectConfig?.optionsDropdown ?? []"
+        [optionLabel]="multiSelectConfig?.optionLabel ?? 'label'"
+        [optionValue]="multiSelectConfig?.optionValue ?? 'value'"
+        [optionDisabled]="multiSelectConfig?.optionDisabled"
+        [maxSelectedLabels]="multiSelectConfig?.maxSelectedLabels"
+        [filter]="
+          multiSelectConfig?.haveFilter && (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
+        "
+        [filterBy]="multiSelectConfig?.filterBy"
+        [loading]="multiSelectConfig?.loading ?? false"
+        [showToggleAll]="multiSelectConfig?.showToggleAll"
+        [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip"
+        [showClear]="multiSelectConfig?.showClearButton"
+        [disabled]="config.disabledInput || false"
+        [ngModel]="effectiveValue()"
+        [ngModelOptions]="{ standalone: true }"
+        [class]="invalidClass"
+        (onChange)="onValueChange($event.value)"
+        (onBlur)="onBlur()"
+      />
+      @if (!showStandardLabel) {
+        <label [for]="config.id">{{ config.label }}</label>
+      }
+    </p-floatlabel>
+  }
+  @case (ALL_DATA_TYPES.DATE) {
+    <p-floatlabel [variant]="config.floatLabelVariant">
+      @let dateConfig = config.dateConfig;
+      <p-datepicker
+        [id]="config.id"
+        [fluid]="config.haveFullWidth"
+        [size]="config.fieldSize"
+        [attr.placeholder]="effectivePlaceholder || null"
+        [dateFormat]="dateConfig?.dateFormat"
+        [showIcon]="dateConfig?.showCalendarIcon"
+        [iconDisplay]="dateConfig?.iconDisplay || ALL_DATE_ICON_DISPLAY_TYPES.Input"
+        [timeOnly]="dateConfig?.timeOnly"
+        [minDate]="dateConfig?.minDate"
+        [maxDate]="dateConfig?.maxDate"
+        [showButtonBar]="dateConfig?.showButtonBar"
+        [selectionMode]="dateConfig?.selectionMode || ALL_DATE_SELECTION_MODES.Single"
+        [showTime]="dateConfig?.showTime || false"
+        [hourFormat]="dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve"
+        [view]="dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date"
+        [numberOfMonths]="dateConfig?.numberOfMonths || 1"
+        [touchUI]="dateConfig?.touchUI"
+        [appendTo]="dateConfig?.touchUI ? undefined : 'body'"
+        [readonlyInput]="config.readonlyInput"
+        [disabled]="config.disabledInput || false"
+        [ngModel]="effectiveValue()"
+        [ngModelOptions]="{ standalone: true }"
+        [class]="invalidClass"
+        (onSelect)="onValueChange($event)"
+        (onBlur)="onBlur()"
+      />
+      @if (!showStandardLabel) {
+        <label [for]="config.id">{{ config.label }}</label>
+      }
+    </p-floatlabel>
+  }
+  @case (ALL_DATA_TYPES.PASSWORD) {
+    <p-floatlabel [variant]="config.floatLabelVariant">
+      @let passwordConfig = config.passwordConfig;
+      <p-password
+        [inputId]="config.id"
+        [fluid]="config.haveFullWidth"
+        [size]="config.fieldSize"
+        [autocomplete]="config.autocomplete"
+        [feedback]="passwordConfig?.feedback || false"
+        [promptLabel]="passwordConfig?.promptLabel"
+        [weakLabel]="passwordConfig?.weakLabel"
+        [mediumLabel]="passwordConfig?.mediumLabel"
+        [strongLabel]="passwordConfig?.strongLabel"
+        [toggleMask]="passwordConfig?.toggleMask"
+        [strongRegex]="passwordConfig?.strongRegex || ''"
+        [mediumRegex]="passwordConfig?.mediumRegex || ''"
+        [disabled]="config.disabledInput || false"
+        [ngModel]="effectiveValue()"
+        [ngModelOptions]="{ standalone: true }"
+        [class]="invalidClass"
+        (onBlur)="onBlur(); onValueChange($event)"
+      />
+      @if (!showStandardLabel) {
+        <label [for]="config.id">{{ config.label }}</label>
+      }
+    </p-floatlabel>
+  }
+  @case (ALL_DATA_TYPES.CHECKBOX) {
+    @if (!showStandardLabel) {
+      <label [for]="`checkbox-${config.id}`">{{ config.label }}</label>
     }
-    @case (ALL_DATA_TYPES.NUMBER) {
-      <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
-        @let numberConfig = inputFieldConfig().numberConfig || {};
-
-        <p-inputnumber
-          [inputId]="inputFieldConfig().id"
-          [autocomplete]="inputFieldConfig().autocomplete"
-          [fluid]="inputFieldConfig().haveFullWidth"
-          [size]="inputFieldConfig().fieldSize"
-          [attr.placeholder]="placeholder"
-          [mode]="numberConfig?.mode"
-          [min]="numberConfig?.minimumBoundaryValue ?? null"
-          [max]="numberConfig?.maximumBoundaryValue ?? null"
-          [minFractionDigits]="numberConfig?.minimumFractionDigits"
-          [maxFractionDigits]="numberConfig?.maximumFractionDigits"
-          [useGrouping]="numberConfig?.allowNumberFormatting"
-          [locale]="numberConfig?.locale"
-          [currencyDisplay]="numberConfig?.currencyDisplay"
-          [currency]="numberConfig?.currency"
-          [prefix]="numberConfig?.prefix"
-          [suffix]="numberConfig?.suffix"
-          [showButtons]="numberConfig?.showUpAndDownButtons"
-          [buttonLayout]="numberConfig?.upAndDownButtonLayout || ALL_UP_AND_DOWN_BUTTON_LAYOUTS.Default"
-          [step]="numberConfig?.step || 1"
-          [readonly]="inputFieldConfig().readonlyInput || false"
-          [formControlName]="inputFieldConfig().fieldName"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-          (onInput)="onNumberInput($event)"
-        />
-        @if (!inputFieldConfig().showStandardLabel) {
-          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
-        }
-      </p-floatlabel>
-    }
-    @case (ALL_DATA_TYPES.SELECT) {
-      <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
-        @let selectConfig = inputFieldConfig().selectConfig;
-        @let optionsDropdown = dropdownOptions();
-        @let optionsDropdownLength = optionsDropdown.length;
-        @let displayOptions =
-          optionsDropdownLength > 0 ? optionsDropdown : [{ label: 'No data found', value: '', disabled: true }];
-
-        <p-select
-          [id]="inputFieldConfig().id"
-          [fluid]="inputFieldConfig().haveFullWidth"
-          [size]="inputFieldConfig().fieldSize"
-          [placeholder]="placeholder"
-          [appendTo]="'body'"
-          [options]="displayOptions"
-          [optionLabel]="selectConfig?.optionLabel"
-          [optionValue]="selectConfig?.optionValue"
-          [optionDisabled]="selectConfig?.optionDisabled"
-          [checkmark]="selectConfig?.showCheckmark"
-          [filter]="
-            selectConfig?.haveFilter &&
-            optionsDropdownLength > 0 &&
-            optionsDropdownLength > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
-          "
-          [filterBy]="selectConfig?.filterBy"
-          [loading]="selectConfig?.loading ?? false"
-          [showClear]="selectConfig?.showClearButton"
-          [editable]="selectConfig?.isEditable"
-          [virtualScroll]="selectConfig?.virtualScroll"
-          [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize"
-          [formControlName]="inputFieldConfig().fieldName"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-          (onChange)="onChange()"
-        />
-        @if (!inputFieldConfig().showStandardLabel) {
-          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
-        }
-      </p-floatlabel>
-    }
-    @case (ALL_DATA_TYPES.AUTOCOMPLETE) {
-      <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
-        @let autocompleteConfig = inputFieldConfig().autocompleteConfig;
-
-        <p-autocomplete
-          [inputId]="inputFieldConfig().id"
-          [fluid]="inputFieldConfig().haveFullWidth"
-          [size]="inputFieldConfig().fieldSize"
-          [placeholder]="placeholder"
-          [suggestions]="autocompleteSuggestions()"
-          (completeMethod)="onAutocompleteComplete($event)"
-          (onBlur)="onAutocompleteBlur($event)"
-          (onSelect)="onAutocompleteSelect($event)"
-          [optionLabel]="autocompleteConfig?.optionLabel ?? 'label'"
-          [optionValue]="autocompleteConfig?.optionValue ?? 'value'"
-          [forceSelection]="autocompleteConfig?.forceSelection ?? false"
-          [showClear]="autocompleteConfig?.showClearButton ?? true"
-          [appendTo]="'body'"
-          [formControlName]="inputFieldConfig().fieldName"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-          (onChange)="onChange()"
-        />
-        @if (!inputFieldConfig().showStandardLabel) {
-          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
-        }
-      </p-floatlabel>
-    }
-    @case (ALL_DATA_TYPES.MULTI_SELECT) {
-      <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
-        @let multiSelectConfig = inputFieldConfig().multiSelectConfig;
-        @let optionsDropdown = dropdownOptions();
-        @let optionsDropdownLength = optionsDropdown.length;
-        @let displayOptions =
-          optionsDropdownLength > 0 ? optionsDropdown : [{ label: 'No data found', value: '', disabled: true }];
-
-        <p-multiselect
-          [id]="inputFieldConfig().id"
-          [fluid]="inputFieldConfig().haveFullWidth"
-          [size]="inputFieldConfig().fieldSize"
-          [placeholder]="placeholder"
-          [appendTo]="'body'"
-          [options]="displayOptions"
-          [optionLabel]="multiSelectConfig?.optionLabel"
-          [optionValue]="multiSelectConfig?.optionValue"
-          [optionDisabled]="multiSelectConfig?.optionDisabled"
-          [maxSelectedLabels]="multiSelectConfig?.maxSelectedLabels"
-          [filter]="
-            multiSelectConfig?.haveFilter &&
-            optionsDropdownLength &&
-            optionsDropdownLength > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
-          "
-          [filterBy]="multiSelectConfig?.filterBy"
-          [loading]="multiSelectConfig?.loading ?? false"
-          [showToggleAll]="multiSelectConfig?.showToggleAll"
-          [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip"
-          [showClear]="multiSelectConfig?.showClearButton"
-          [formControlName]="inputFieldConfig().fieldName"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-          (onChange)="onChange()"
-        />
-        @if (!inputFieldConfig().showStandardLabel) {
-          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
-        }
-      </p-floatlabel>
-    }
-    @case (ALL_DATA_TYPES.DATE) {
-      <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
-        @let dateConfig = inputFieldConfig().dateConfig;
-
-        <p-datepicker
-          [id]="inputFieldConfig().id"
-          [fluid]="inputFieldConfig().haveFullWidth"
-          [size]="inputFieldConfig().fieldSize"
-          [attr.placeholder]="placeholder ? placeholder : ''"
-          [dateFormat]="dateConfig?.dateFormat"
-          [showIcon]="dateConfig?.showCalendarIcon"
-          [iconDisplay]="dateConfig?.iconDisplay || ALL_DATE_ICON_DISPLAY_TYPES.Input"
-          [timeOnly]="dateConfig?.timeOnly"
-          [minDate]="dateConfig?.minDate"
-          [maxDate]="dateConfig?.maxDate"
-          [showButtonBar]="dateConfig?.showButtonBar"
-          [selectionMode]="dateConfig?.selectionMode || ALL_DATE_SELECTION_MODES.Single"
-          [showTime]="dateConfig?.showTime || false"
-          [hourFormat]="dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve"
-          [view]="dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date"
-          [numberOfMonths]="dateConfig?.numberOfMonths || 1"
-          [touchUI]="dateConfig?.touchUI"
-          [appendTo]="dateConfig?.touchUI ? undefined : 'body'"
-          [readonlyInput]="inputFieldConfig().readonlyInput"
-          [formControlName]="inputFieldConfig().fieldName"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-        />
-        @if (!inputFieldConfig().showStandardLabel) {
-          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
-        }
-      </p-floatlabel>
-    }
-    @case (ALL_DATA_TYPES.PASSWORD) {
-      <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
-        @let passwordConfig = inputFieldConfig().passwordConfig;
-
-        <p-password
-          [inputId]="inputFieldConfig().id"
-          [fluid]="inputFieldConfig().haveFullWidth"
-          [size]="inputFieldConfig().fieldSize"
-          [autocomplete]="inputFieldConfig().autocomplete"
-          [feedback]="passwordConfig?.feedback || false"
-          [promptLabel]="passwordConfig?.promptLabel"
-          [weakLabel]="passwordConfig?.weakLabel"
-          [mediumLabel]="passwordConfig?.mediumLabel"
-          [strongLabel]="passwordConfig?.strongLabel"
-          [toggleMask]="passwordConfig?.toggleMask"
-          [strongRegex]="passwordConfig?.strongRegex || ''"
-          [mediumRegex]="passwordConfig?.mediumRegex || ''"
-          [formControlName]="inputFieldConfig().fieldName"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-        />
-        @if (!inputFieldConfig().showStandardLabel) {
-          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
-        }
-      </p-floatlabel>
-    }
-    @case (ALL_DATA_TYPES.CHECKBOX) {
-      <label [for]="`checkbox-${inputFieldConfig().id}`">{{ inputFieldConfig().label }}</label>
-
-      @let checkboxConfig = inputFieldConfig().checkboxConfig;
-
-      <div [class]="`flex flex-${checkboxConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical} gap-4`">
-        @for (option of checkboxConfig?.options; track option.value) {
-          <div class="flex items-center">
-            <p-checkbox
-              [inputId]="'checkbox-' + option.value"
-              [value]="option"
-              [binary]="checkboxConfig?.binary || false"
-              [indeterminate]="checkboxConfig?.indeterminate || false"
-              [size]="inputFieldConfig().fieldSize"
-              [readonly]="inputFieldConfig().readonlyInput || false"
-              [formControlName]="inputFieldConfig().fieldName"
-              [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-              (onChange)="onChange()"
-            />
-            <label
-              [for]="'checkbox-' + option.value"
-              class="ml-2"
-            >
-              {{ option.label }}
-            </label>
-          </div>
-        }
-      </div>
-    }
-    @case (ALL_DATA_TYPES.RADIO) {
-      <label [for]="`radio-${inputFieldConfig().id}`">{{ inputFieldConfig().label }}</label>
-
-      @let radioConfig = inputFieldConfig().radioConfig;
-
-      <div [class]="`flex flex-${radioConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical} gap-4`">
-        @for (option of radioConfig?.options; track option.value) {
-          <div class="flex items-center">
-            <p-radioButton
-              [inputId]="'radio-' + option.value"
-              [value]="option"
-              [size]="inputFieldConfig().fieldSize"
-              [formControlName]="inputFieldConfig().fieldName"
-              [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-            />
-            <label
-              [for]="'radio-' + option.value"
-              class="ml-2"
-            >
-              {{ option.label }}
-            </label>
-          </div>
-        }
-      </div>
-    }
-    @case (ALL_DATA_TYPES.ATTACHMENTS) {
-      @let fileConfig = inputFieldConfig().fileConfig;
-
-      <div
-        class="rounded-lg border border-gray-300 shadow-sm"
-        [ngClass]="{ 'border-red-500': isFieldInvalid }"
-      >
-        <p-fileupload
-          #fileUploadRef
-          [id]="inputFieldConfig().id"
-          [customUpload]="fileConfig?.customUpload"
-          [multiple]="fileConfig?.multipleFiles"
-          [accept]="getAllowedFileTypes(',.') || undefined"
-          [maxFileSize]="fileConfig?.maxFileSize"
-          [mode]="fileConfig?.mode"
-          [auto]="fileConfig?.automaticUpload"
-          [chooseLabel]="fileConfig?.chooseLabel"
-          [cancelLabel]="fileConfig?.cancelLabel"
-          [showUploadButton]="fileConfig?.showUploadButton"
-          [showCancelButton]="fileConfig?.showCancelButton"
-          [name]="inputFieldConfig().fieldName"
-          [fileLimit]="fileConfig?.fileLimit"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-          (onSelect)="onFilesSelected($event)"
-          (onRemove)="onFileRemoved($event)"
-        >
-          <ng-template
-            #header
-            let-files
-            let-chooseCallback="chooseCallback"
-            let-clearCallback="clearCallback"
+    @let checkboxConfig = config.checkboxConfig;
+    <div [class]="`flex flex-${checkboxConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical} gap-4`">
+      @for (option of checkboxConfig?.options; track option.value) {
+        <div class="flex items-center">
+          <p-checkbox
+            [inputId]="'checkbox-' + option.value"
+            [value]="option"
+            [binary]="checkboxConfig?.binary || false"
+            [indeterminate]="checkboxConfig?.indeterminate || false"
+            [size]="config.fieldSize"
+            [readonly]="config.readonlyInput || false"
+            [disabled]="config.disabledInput || false"
+            [ngModel]="effectiveValue()"
+            [ngModelOptions]="{ standalone: true }"
+            [class]="invalidClass"
+            (onChange)="onValueChange($event)"
+          />
+          <label
+            [for]="'checkbox-' + option.value"
+            class="ml-2"
           >
-            <div class="flex w-full flex-col gap-3">
-              <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                  <div class="flex h-9 w-9 items-center justify-center rounded-full bg-surface-100">
-                    <i
-                      [ngClass]="ALL_MEDIA_ICONS.COMMON.PAPERCLIP"
-                      class="text-sm text-muted-color"
-                    ></i>
-                  </div>
-
+            {{ option.label }}
+          </label>
+        </div>
+      }
+    </div>
+  }
+  @case (ALL_DATA_TYPES.RADIO) {
+    @if (!showStandardLabel) {
+      <label [for]="`radio-${config.id}`">{{ config.label }}</label>
+    }
+    @let radioConfig = config.radioConfig;
+    <div [class]="`flex flex-${radioConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical} gap-4`">
+      @for (option of radioConfig?.options; track option.value) {
+        <div class="flex items-center">
+          <p-radioButton
+            [inputId]="'radio-' + option.value"
+            [value]="option"
+            [size]="config.fieldSize"
+            [disabled]="config.disabledInput || false"
+            [ngModel]="effectiveValue()"
+            [ngModelOptions]="{ standalone: true }"
+            [class]="invalidClass"
+            (onClick)="onValueChange($event)"
+          />
+          <label
+            [for]="'radio-' + option.value"
+            class="ml-2"
+          >
+            {{ option.label }}
+          </label>
+        </div>
+      }
+    </div>
+  }
+  @case (ALL_DATA_TYPES.ATTACHMENTS) {
+    @let fileConfig = config.fileConfig;
+    <div
+      class="rounded-lg border border-gray-300 shadow-sm"
+      [ngClass]="{ 'border-red-500': isFieldInvalid }"
+    >
+      <p-fileupload
+        #fileUploadRef
+        [id]="config.id"
+        [customUpload]="fileConfig?.customUpload"
+        [multiple]="fileConfig?.multipleFiles"
+        [accept]="getAllowedFileTypes(',.') || undefined"
+        [maxFileSize]="fileConfig?.maxFileSize"
+        [mode]="fileConfig?.mode"
+        [auto]="fileConfig?.automaticUpload"
+        [chooseLabel]="fileConfig?.chooseLabel"
+        [cancelLabel]="fileConfig?.cancelLabel"
+        [showUploadButton]="fileConfig?.showUploadButton"
+        [showCancelButton]="fileConfig?.showCancelButton"
+        [name]="config.fieldName"
+        [fileLimit]="fileConfig?.fileLimit"
+        [class]="invalidClass"
+        (onSelect)="onFilesSelected($event)"
+        (onRemove)="onFileRemoved($event)"
+      >
+        <ng-template
+          #header
+          let-files
+          let-chooseCallback="chooseCallback"
+          let-clearCallback="clearCallback"
+        >
+          <div class="flex w-full flex-col gap-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="flex h-9 w-9 items-center justify-center rounded-full bg-surface-100">
+                  <i
+                    [ngClass]="ALL_MEDIA_ICONS.COMMON.PAPERCLIP"
+                    class="text-sm text-muted-color"
+                  ></i>
+                </div>
+                @if (!showStandardLabel) {
                   <div class="flex flex-col">
                     <span
                       class="text-sm font-semibold"
                       [ngClass]="isFieldInvalid ? 'text-red-500' : 'text-primary-600'"
                     >
-                      {{ inputFieldConfig().label }}
+                      {{ config.label }}
                     </span>
                   </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                  <!-- View all files -->
-                  <app-button
-                    [buttonConfig]="getFileUploadButtonConfig('viewMedia')"
-                    [showDisabledButton]="!files || files.length === 0"
-                    (onButtonClick)="openFilePreview(files)"
-                  />
-
-                  <!-- Open file picker -->
-                  <app-button
-                    [buttonConfig]="getFileUploadButtonConfig('uploadMedia')"
-                    [showDisabledButton]="!files || (files?.length ?? 0) >= (fileConfig?.fileLimit ?? 0)"
-                    (onButtonClick)="onChoosingFile(chooseCallback)"
-                  />
-
-                  <!-- Clear all selected files -->
-                  <app-button
-                    [buttonConfig]="getFileUploadButtonConfig('deleteMedia')"
-                    [showDisabledButton]="!files || files.length === 0"
-                    (onButtonClick)="onClearAllSelectedFiles($any($event), clearCallback)"
-                  />
-                </div>
-              </div>
-
-              <!-- Meta row: file count, total uploaded size and allowed types -->
-              <div class="flex flex-col gap-1 text-xs text-muted-color sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span>
-                    @let fileCount = files?.length || 0;
-                    @let fileLimit = fileConfig?.fileLimit || 0;
-
-                    @if (!fileConfig?.fileLimit) {
-                      <span>
-                        {{ fileCount }} of
-                        {{ fileLimit }}
-                        files
-                      </span>
-                    } @else {
-                      <span>
-                        {{ fileCount }}
-                        file{{ fileCount === 1 || fileCount === 0 ? '' : 's' }}
-                      </span>
-                    }
-                  </span>
-
-                  @if (fileConfig?.maxFileSize) {
-                    <span class="h-1 w-1 rounded-full bg-surface-300"></span>
-                    <span>
-                      {{ formatSize(totalUploadedSize) }} of
-                      {{ formatSize(fileConfig?.maxFileSize) }}
-                      uploaded
-                    </span>
-                  }
-                </div>
-
-                @if (fileConfig?.acceptFileTypes) {
-                  <span class="text-[11px] text-muted-color">
-                    Allowed types:
-                    <span class="font-medium">
-                      {{ getAllowedFileTypes(', ', true) }}
-                    </span>
-                  </span>
                 }
               </div>
+              <div class="flex items-center gap-2">
+                <app-button
+                  [buttonConfig]="getFileUploadButtonConfig('viewMedia')"
+                  [showDisabledButton]="!files || files.length === 0"
+                  (onButtonClick)="openFilePreview(files)"
+                />
+                <app-button
+                  [buttonConfig]="getFileUploadButtonConfig('uploadMedia')"
+                  [showDisabledButton]="!files || (files?.length ?? 0) >= (fileConfig?.fileLimit ?? 0)"
+                  (onButtonClick)="onChoosingFile(chooseCallback)"
+                />
+                <app-button
+                  [buttonConfig]="getFileUploadButtonConfig('deleteMedia')"
+                  [showDisabledButton]="!files || files.length === 0"
+                  (onButtonClick)="onClearAllSelectedFiles($any($event), clearCallback)"
+                />
+              </div>
             </div>
-          </ng-template>
-
-          <!-- Content template: show selected files in responsive cards -->
-          <ng-template
-            #content
-            let-files
-            let-removeFileCallback="removeFileCallback"
-          >
-            <div class="flex flex-col gap-4 pt-3">
-              @if (files?.length > 0) {
-                <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-1 lg:grid-cols-2">
-                  @for (file of files; track file.name; let i = $index) {
+            <div class="flex flex-col gap-1 text-xs text-muted-color sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex flex-wrap items-center gap-2">
+                <span>
+                  @let fileCount = files?.length || 0;
+                  @if (fileConfig?.fileLimit) {
+                    <span>{{ fileCount }} of {{ fileConfig?.fileLimit }} files</span>
+                  } @else {
+                    <span>{{ fileCount }} file{{ fileCount === 1 || fileCount === 0 ? '' : 's' }}</span>
+                  }
+                </span>
+                @if (fileConfig?.maxFileSize) {
+                  <span class="h-1 w-1 rounded-full bg-surface-300"></span>
+                  <span>{{ formatSize(totalUploadedSize) }} of {{ formatSize(fileConfig?.maxFileSize) }} uploaded</span>
+                }
+              </div>
+              @if (fileConfig?.acceptFileTypes?.length) {
+                <span class="text-[11px] text-muted-color">
+                  Allowed types:
+                  <span class="font-medium">{{ getAllowedFileTypes(', ', true) }}</span>
+                </span>
+              }
+            </div>
+          </div>
+        </ng-template>
+        <ng-template
+          #content
+          let-files
+          let-removeFileCallback="removeFileCallback"
+        >
+          <div class="flex flex-col gap-4 pt-3">
+            @if (files?.length > 0) {
+              <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-1 lg:grid-cols-2">
+                @for (file of files; track file.name; let i = $index) {
+                  <div
+                    class="group flex w-full items-center gap-3 rounded-lg border border-surface-200 bg-surface-0 px-2.5 py-2 shadow-sm transition-all duration-150 hover:border-primary-300 hover:shadow-md"
+                  >
                     <div
-                      class="group flex w-full items-center gap-3 rounded-lg border border-surface-200 bg-surface-0 px-2.5 py-2 shadow-sm transition-all duration-150 hover:border-primary-300 hover:shadow-md"
+                      class="flex h-12 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-surface-100"
+                      role="button"
+                      tabindex="0"
+                      (click)="openFilePreview(file)"
                     >
-                      <!-- Thumbnail left -->
-                      <div
-                        class="flex h-12 w-16 items-center justify-center overflow-hidden rounded-md bg-surface-100 cursor-pointer"
-                        role="button"
-                        tabindex="0"
-                        (click)="openFilePreview(file)"
-                      >
-                        @if (isImageFile(file)) {
-                          <p-image
-                            [alt]="file.name"
-                            [src]="file.objectURL"
-                            [preview]="false"
-                          />
-                        } @else {
-                          <i
-                            class="text-2xl text-muted-color"
-                            [ngClass]="ALL_MEDIA_ICONS.COMMON.FILE"
-                          ></i>
-                        }
+                      @if (isImageFile(file)) {
+                        <p-image
+                          [alt]="file.name"
+                          [src]="file.objectURL"
+                          [preview]="false"
+                        />
+                      } @else {
+                        <i
+                          class="text-2xl text-muted-color"
+                          [ngClass]="ALL_MEDIA_ICONS.COMMON.FILE"
+                        ></i>
+                      }
+                    </div>
+                    <div class="flex min-w-0 flex-1 items-center justify-between gap-2">
+                      <div class="flex min-w-0 flex-col gap-0.5">
+                        <span
+                          class="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs font-semibold text-slate-800"
+                        >
+                          {{ file.name }}
+                        </span>
+                        <div class="flex flex-wrap items-center gap-2 text-[11px] text-muted-color">
+                          <span>{{ formatSize(file.size) }}</span>
+                        </div>
                       </div>
-
-                      <!-- Content right -->
-                      <div class="flex flex-1 items-center justify-between gap-2 min-w-0">
-                        <div class="flex flex-col gap-0.5 min-w-0">
-                          <span
-                            class="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs font-semibold text-slate-800"
-                          >
-                            {{ file.name }}
-                          </span>
-                          <div class="flex flex-wrap items-center gap-2 text-[11px] text-muted-color">
-                            <span>{{ formatSize(file.size) }}</span>
-                          </div>
-                        </div>
-
-                        <div class="flex items-center gap-1.5">
-                          <app-button
-                            [buttonConfig]="getFileUploadButtonConfig('deleteMedia')"
-                            (onButtonClick)="onRemovingSelectedFile($any($event), removeFileCallback, $index)"
-                          />
-                        </div>
+                      <div class="flex items-center gap-1.5">
+                        <app-button
+                          [buttonConfig]="getFileUploadButtonConfig('deleteMedia')"
+                          (onButtonClick)="onRemovingSelectedFile($any($event), removeFileCallback, i)"
+                        />
                       </div>
                     </div>
-                  }
-                </div>
-              }
-            </div>
-          </ng-template>
-
-          <!-- Empty state template -->
-          <ng-template #empty>
-            <div
-              class="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-200 py-6 text-center"
-            >
-              <i
-                [ngClass]="ALL_MEDIA_ICONS.COMMON.CLOUD_UPLOAD"
-                class="mb-3 rounded-full border-2 border-surface-200 p-4 text-2xl text-muted-color"
-              ></i>
-              <p class="m-0 text-sm text-muted-color">
-                Drag and drop files here, or click the upload button to browse from your device.
-              </p>
-            </div>
-          </ng-template>
-        </p-fileupload>
-      </div>
-    }
-    @case (ALL_DATA_TYPES.TEXT_AREA) {
-      <p-floatlabel [variant]="inputFieldConfig().floatLabelVariant">
-        @let textAreaConfig = inputFieldConfig().textAreaConfig;
-
-        <textarea
-          pTextarea
-          [id]="inputFieldConfig().id"
-          [fluid]="inputFieldConfig().haveFullWidth"
-          [pSize]="inputFieldConfig().fieldSize"
-          [placeholder]="placeholder"
-          [rows]="textAreaConfig?.rows"
-          [cols]="textAreaConfig?.cols"
-          [autoResize]="textAreaConfig?.autoResize"
-          [readonly]="inputFieldConfig().readonlyInput || false"
-          [formControlName]="inputFieldConfig().fieldName"
-          [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
-          (input)="onInput($event)"
-        ></textarea>
-        @if (!inputFieldConfig().showStandardLabel) {
-          <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
-        }
-      </p-floatlabel>
-    }
-    @case (ALL_DATA_TYPES.INDIVIDUAL_NUMBER) {
-      @let individualNumberConfig = inputFieldConfig().individualNumberConfig;
-
-      <p-inputotp
-        [id]="inputFieldConfig().id"
-        [length]="individualNumberConfig?.length || 2"
-        [size]="inputFieldConfig().fieldSize"
-        [integerOnly]="individualNumberConfig?.integerOnly || true"
-        [readonly]="inputFieldConfig().readonlyInput || false"
-        [formControlName]="inputFieldConfig().fieldName"
-        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid }"
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </ng-template>
+        <ng-template #empty>
+          <div
+            class="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-200 py-6 text-center"
+          >
+            <i
+              [ngClass]="ALL_MEDIA_ICONS.COMMON.CLOUD_UPLOAD"
+              class="mb-3 rounded-full border-2 border-surface-200 p-4 text-2xl text-muted-color"
+            ></i>
+            <p class="m-0 text-sm text-muted-color">
+              Drag and drop files here, or click the upload button to browse from your device.
+            </p>
+          </div>
+        </ng-template>
+      </p-fileupload>
+    </div>
+  }
+  @case (ALL_DATA_TYPES.TEXT_AREA) {
+    <p-floatlabel [variant]="config.floatLabelVariant">
+      @let textAreaConfig = config.textAreaConfig;
+      <textarea
+        pTextarea
+        [id]="config.id"
+        [fluid]="config.haveFullWidth"
+        [pSize]="config.fieldSize"
+        [placeholder]="effectivePlaceholder"
+        [attr.maxlength]="getMaxLengthAttribute()"
+        [rows]="textAreaConfig?.rows"
+        [cols]="textAreaConfig?.cols"
+        [autoResize]="textAreaConfig?.autoResize"
+        [readonly]="config.readonlyInput || false"
+        [disabled]="config.disabledInput || false"
+        [ngModel]="effectiveValue()"
+        [ngModelOptions]="{ standalone: true }"
+        [class]="invalidClass"
+        (input)="onValueChange($event)"
+        (blur)="onBlur()"
+      ></textarea>
+      @if (!showStandardLabel) {
+        <label [for]="config.id">{{ config.label }}</label>
+      }
+    </p-floatlabel>
+  }
+  @case (ALL_DATA_TYPES.INDIVIDUAL_NUMBER) {
+    @let individualNumberConfig = config.individualNumberConfig;
+    <p-inputotp
+      [id]="config.id"
+      [length]="individualNumberConfig?.length || 2"
+      [size]="config.fieldSize"
+      [integerOnly]="individualNumberConfig?.integerOnly ?? true"
+      [readonly]="config.readonlyInput || false"
+      [ngModel]="effectiveValue()"
+      [ngModelOptions]="{ standalone: true }"
+      [class]="invalidClass"
+      (ngModelChange)="onValueChange($event)"
+      (blur)="onBlur()"
+    >
+      <ng-template
+        #input
+        let-token
+        let-events="events"
+        let-index="index"
       >
-        <ng-template
-          #input
-          let-token
-          let-events="events"
-          let-index="index"
-        >
-          <input
-            type="text"
-            [maxLength]="1"
-            (input)="events.input($event)"
-            (keydown)="events.keydown($event)"
-            [attr.value]="token"
-            class="p-inputtext p-component individual-number-input"
-          />
-          @let separators = individualNumberConfig?.separators;
-          @if (separators && separators.length > 0) {
-            @for (separator of separators; track separator.position) {
-              @if (index === separator.position) {
-                <div class="px-2">
-                  <span [innerHTML]="separator.content"></span>
-                </div>
-              }
+        <input
+          type="text"
+          [maxLength]="1"
+          (input)="events.input($event)"
+          (keydown)="events.keydown($event)"
+          [attr.value]="token"
+          class="p-inputtext p-component individual-number-input"
+        />
+        @let separators = individualNumberConfig?.separators;
+        @if (separators && separators.length > 0) {
+          @for (separator of separators; track separator.position) {
+            @if (index === separator.position) {
+              <div class="px-2"><span [innerHTML]="separator.content"></span></div>
             }
           }
-        </ng-template>
-      </p-inputotp>
-      <label [for]="inputFieldConfig().id">{{ inputFieldConfig().label }}</label>
+        }
+      </ng-template>
+    </p-inputotp>
+    @if (!showStandardLabel) {
+      <label [for]="config.id">{{ config.label }}</label>
     }
   }
-  @if (isFieldInvalid) {
-    <small class="p-error text-red-500">{{ errorMessage }}</small>
-  }
-</div>
+}
+@if (isFormMode() && isFieldInvalid) {
+  <small class="p-error text-red-500">{{ errorMessage }}</small>
+}

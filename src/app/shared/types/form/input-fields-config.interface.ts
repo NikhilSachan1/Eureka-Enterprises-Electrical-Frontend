@@ -46,7 +46,7 @@ export interface IInputFieldsConfig {
   individualNumberConfig?: Partial<IIndividualNumberFieldConfig>;
   validators?: ValidatorFn[];
   conditionalValidators?: IConditionalValidator[];
-  preventMaxLength?: boolean; // Default: true - prevents typing beyond maxlength
+  preventMaxLength?: boolean;
   applyPatternFilter?: boolean; // Default: true - filters characters based on pattern validator
 }
 

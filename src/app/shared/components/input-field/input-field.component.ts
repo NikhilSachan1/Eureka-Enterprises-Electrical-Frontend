@@ -1,4 +1,3 @@
-import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,6 +10,7 @@ import {
   DestroyRef,
   computed,
   signal,
+  effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -18,10 +18,11 @@ import {
   FormGroup,
   ReactiveFormsModule,
   ValidatorFn,
+  FormsModule,
 } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberInputEvent, InputNumberModule } from 'primeng/inputnumber';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -55,6 +56,8 @@ import {
   IGalleryInputData,
   IButtonConfig,
   IOptionDropdown,
+  InputEventLike,
+  CheckboxEventLike,
 } from '@shared/types';
 import { APP_CONFIG } from '@core/config';
 import { ICONS } from '@shared/constants';
@@ -73,14 +76,16 @@ import {
   toUpperCase,
 } from '@shared/utility';
 import { ImageModule } from 'primeng/image';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-input-field',
   imports: [
     ReactiveFormsModule,
+    FormsModule,
+    NgClass,
     FloatLabelModule,
     InputTextModule,
-    NgClass,
     InputNumberModule,
     SelectModule,
     MultiSelectModule,
@@ -123,11 +128,76 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
   @ViewChild('fileUploadRef') fileUploadRef?: FileUpload;
 
-  formGroup = input.required<FormGroup>();
+  /** When provided = form mode (reactive form). When not provided = standalone mode (use fieldValue + onFieldChange). */
+  formGroup = input<FormGroup | undefined>(undefined);
   inputFieldConfig = input.required<IInputFieldsConfig>();
-  onFieldChange = output<boolean>();
+  /** For standalone mode: external value binding */
+  fieldValue = input<unknown>(undefined);
+  /** For standalone mode: show invalid state */
+  isFieldInvalidInput = input<boolean>(false);
 
-  dropdownOptions = computed(() => this.getDropdownOptions());
+  /** For standalone mode: optional error message to show when invalid */
+  standaloneErrorMessage = input<string | undefined>(undefined);
+
+  /** Optional: bind to a value that changes when form is submitted (e.g. submitted()) so per-field errors update after markAllAsTouched(). */
+  externalValidationTrigger = input<unknown>(undefined);
+
+  onFieldChange = output<unknown>();
+
+  /** True when used with a form (formGroup provided). */
+  isFormMode = computed(() => !!this.formGroup());
+
+  /** In form mode: synced from control; in standalone: from fieldValue/defaultValue */
+  formControlValue = signal<unknown>(undefined);
+  effectiveValue = computed(() =>
+    this.isFormMode()
+      ? this.formControlValue()
+      : (this.fieldValue() ?? this.inputFieldConfig().defaultValue)
+  );
+
+  /** Bump this when control validation/touched state changes so template updates (OnPush). */
+  private validationTrigger = signal(0);
+
+  /** Invalid state: from form control when form mode, else from isFieldInvalidInput */
+  isFieldInvalidDisplay = computed(() => {
+    this.validationTrigger(); // re-run when control value/status changes
+    this.externalValidationTrigger(); // re-run when parent e.g. submits (markAllAsTouched)
+    return this.isFormMode()
+      ? this.checkIsFieldInvalid(this.inputFieldConfig().fieldName)
+      : this.isFieldInvalidInput();
+  });
+
+  /** Config with resolved dropdown options (dynamic/dependent) for SELECT/MULTI_SELECT */
+  resolvedInputFieldConfig = computed(() => {
+    const config = this.inputFieldConfig();
+    const opts = this.getDropdownOptions();
+    const displayOptions =
+      opts.length > 0
+        ? opts
+        : [{ label: 'No data found', value: '', disabled: true }];
+    if (config.fieldType === EDataType.SELECT && config.selectConfig) {
+      return {
+        ...config,
+        selectConfig: {
+          ...config.selectConfig,
+          optionsDropdown: displayOptions,
+        },
+      };
+    }
+    if (
+      config.fieldType === EDataType.MULTI_SELECT &&
+      config.multiSelectConfig
+    ) {
+      return {
+        ...config,
+        multiSelectConfig: {
+          ...config.multiSelectConfig,
+          optionsDropdown: displayOptions,
+        },
+      };
+    }
+    return config;
+  });
 
   /** Filtered suggestions for autocomplete (filtered by user query) */
   autocompleteSuggestions = signal<IOptionDropdown[]>([]);
@@ -137,40 +207,82 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
   // Cached validator values to avoid recalculation on every input
   private cachedMaxLength: number | null = null;
-  private cachedMinLength: number | null = null;
   private cachedPattern: RegExp | null = null;
   private validatorsInitialized = false;
 
+  constructor() {
+    // Standalone mode: sync file upload when fieldValue (effectiveValue) changes for ATTACHMENTS
+    effect(() => {
+      if (this.isFormMode()) {
+        return;
+      }
+      const config = this.inputFieldConfig();
+      const value = this.effectiveValue();
+      if (config.fieldType !== EDataType.ATTACHMENTS) {
+        return;
+      }
+      if (Array.isArray(value) && value.length === 0) {
+        setTimeout(() => {
+          this.fileUploadRef?.clear();
+          this.totalUploadedSize = 0;
+        }, 0);
+      } else if (this.shouldUpdateFileUpload(value)) {
+        setTimeout(() => this.updateFileUpload(value), 0);
+      }
+    });
+  }
+
   ngOnInit(): void {
     const config = this.inputFieldConfig();
-    const control = this.formGroup().get(config.fieldName);
+    const fg = this.formGroup();
+    const control = fg?.get(config.fieldName);
 
-    if (config.disabledInput) {
-      control?.disable();
+    if (config.disabledInput && control) {
+      control.disable();
     }
 
-    // Initialize cached validator values once
+    // Initialize cached validator values once (used in form mode for text/textarea)
     if (!this.validatorsInitialized) {
       this.cachedMaxLength = this.extractMaxLength();
-      this.cachedMinLength = this.extractMinLength();
       this.cachedPattern = this.extractPattern();
       this.validatorsInitialized = true;
     }
 
-    // Handle dependent dropdown (e.g., city depends on state)
-    this.setupDependentDropdown(config);
+    if (fg && control) {
+      // Form mode: sync formControlValue from control and keep in sync
+      this.formControlValue.set(control.value);
+      control.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(value => {
+          this.formControlValue.set(value);
+          this.validationTrigger.update(v => v + 1);
+        });
+      // So validation errors re-render when status (valid/invalid) or touched/dirty change
+      control.statusChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.validationTrigger.update(v => v + 1));
 
-    // Pre-populate autocomplete suggestions when control has value (e.g. edit mode) so label displays
-    if (config.fieldType === EDataType.AUTOCOMPLETE && control?.value) {
+      // When form validity or any control's touched state changes (e.g. markAllAsTouched on submit), re-check
+      fg.statusChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.validationTrigger.update(v => v + 1));
+    }
+
+    // Handle dependent dropdown (form mode only)
+    if (fg) {
+      this.setupDependentDropdown(config);
+    }
+
+    // Pre-populate autocomplete suggestions when value exists (edit / standalone)
+    if (config.fieldType === EDataType.AUTOCOMPLETE && this.effectiveValue()) {
       this.autocompleteSuggestions.set(this.getAutocompleteOptions());
     }
 
-    if (config.fieldType === EDataType.ATTACHMENTS) {
-      control?.valueChanges
+    if (fg && config.fieldType === EDataType.ATTACHMENTS && control) {
+      control.valueChanges
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(value => {
           const hasFiles = Array.isArray(value) ? value.length > 0 : !!value;
-
           if (!hasFiles) {
             this.fileUploadRef?.clear();
             this.totalUploadedSize = 0;
@@ -202,8 +314,12 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       optionsProviderMethod,
       resetOnParentChange = true,
     } = dependentConfig;
-    const parentControl = this.formGroup().get(dependsOnField);
-    const currentControl = this.formGroup().get(config.fieldName);
+    const fg = this.formGroup();
+    if (!fg) {
+      return;
+    }
+    const parentControl = fg.get(dependsOnField);
+    const currentControl = fg.get(config.fieldName);
 
     if (!parentControl) {
       console.warn(
@@ -262,94 +378,42 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.inputFieldConfig().fieldType === EDataType.ATTACHMENTS) {
-      const control = this.formGroup().get(this.inputFieldConfig().fieldName);
-      const files = control?.value;
-
-      if (this.shouldUpdateFileUpload(files)) {
-        this.updateFileUpload(files);
-      }
+    if (
+      this.inputFieldConfig().fieldType === EDataType.ATTACHMENTS &&
+      this.shouldUpdateFileUpload(this.effectiveValue())
+    ) {
+      this.updateFileUpload(this.effectiveValue() as File[]);
     }
   }
 
-  private getDropdownOptions(): IOptionDropdown[] {
-    const config = this.inputFieldConfig();
-    const { fieldType, selectConfig, multiSelectConfig } = config;
+  /** Shared options resolution for SELECT, MULTI_SELECT, and AUTOCOMPLETE */
+  private getOptionsFromDropdownLikeConfig(
+    dropdownConfig: {
+      dependentDropdown?: unknown;
+      dynamicDropdown?: {
+        moduleName: string;
+        dropdownName: string;
+        filterByRole?: string[];
+      };
+      optionsDropdown?: IOptionDropdown[];
+      filterOptions?: { include?: string[]; exclude?: string[] };
+    },
+    dependentOptions: IOptionDropdown[] = []
+  ): IOptionDropdown[] {
+    let options: IOptionDropdown[] = [];
 
-    const dropdownConfig =
-      fieldType === EDataType.SELECT
-        ? selectConfig
-        : fieldType === EDataType.MULTI_SELECT
-          ? multiSelectConfig
-          : undefined;
-
-    if (!dropdownConfig) {
-      return [];
-    }
-
-    let dropdownOptions: IOptionDropdown[] = [];
-
-    // Check for dependent dropdown first (e.g., city depends on state)
     if (dropdownConfig.dependentDropdown) {
-      dropdownOptions = this.dependentDropdownOptions();
+      options = dependentOptions;
     } else if (dropdownConfig.dynamicDropdown) {
       const { moduleName, dropdownName, filterByRole } =
         dropdownConfig.dynamicDropdown;
-
-      // If filterByRole is specified, use role-based employee list
-      if (filterByRole && filterByRole.length > 0) {
-        // Collect employees from all specified roles and remove duplicates
+      if (filterByRole?.length) {
         const employeeMap = new Map<string, IOptionDropdown>();
-        filterByRole.forEach(role => {
+        filterByRole.forEach(role =>
           this.appConfigurationService
             .getEmployeesByRole(role)
-            .forEach(employee => employeeMap.set(employee.value, employee));
-        });
-        dropdownOptions = Array.from(employeeMap.values());
-      } else {
-        const dynamicOptions = this.appConfigurationService.getDropdown(
-          moduleName,
-          dropdownName
-        )();
-
-        if (dynamicOptions.length > 0) {
-          dropdownOptions = dynamicOptions;
-        }
-      }
-    } else {
-      dropdownOptions = dropdownConfig.optionsDropdown ?? [];
-    }
-
-    if (dropdownConfig.filterOptions) {
-      dropdownOptions = filterOptionsByIncludeExclude(
-        dropdownOptions,
-        dropdownConfig.filterOptions.include ?? [],
-        dropdownConfig.filterOptions.exclude ?? []
-      );
-    }
-
-    return dropdownOptions;
-  }
-
-  getAutocompleteOptions(): IOptionDropdown[] {
-    const config = this.inputFieldConfig();
-    const { autocompleteConfig } = config;
-    if (!autocompleteConfig) {
-      return [];
-    }
-
-    let options: IOptionDropdown[] = [];
-
-    if (autocompleteConfig.dynamicDropdown) {
-      const { moduleName, dropdownName, filterByRole } =
-        autocompleteConfig.dynamicDropdown;
-      if (filterByRole && filterByRole.length > 0) {
-        const employeeMap = new Map<string, IOptionDropdown>();
-        filterByRole.forEach(role => {
-          this.appConfigurationService
-            .getEmployeesByRole(role)
-            .forEach(employee => employeeMap.set(employee.value, employee));
-        });
+            .forEach(employee => employeeMap.set(employee.value, employee))
+        );
         options = Array.from(employeeMap.values());
       } else {
         options =
@@ -359,18 +423,42 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
           )() ?? [];
       }
     } else {
-      options = autocompleteConfig.optionsDropdown ?? [];
+      options = dropdownConfig.optionsDropdown ?? [];
     }
 
-    if (autocompleteConfig.filterOptions) {
+    if (dropdownConfig.filterOptions) {
       options = filterOptionsByIncludeExclude(
         options,
-        autocompleteConfig.filterOptions.include ?? [],
-        autocompleteConfig.filterOptions.exclude ?? []
+        dropdownConfig.filterOptions.include ?? [],
+        dropdownConfig.filterOptions.exclude ?? []
       );
     }
-
     return options;
+  }
+
+  private getDropdownOptions(): IOptionDropdown[] {
+    const config = this.inputFieldConfig();
+    const dropdownConfig =
+      config.fieldType === EDataType.SELECT
+        ? config.selectConfig
+        : config.fieldType === EDataType.MULTI_SELECT
+          ? config.multiSelectConfig
+          : undefined;
+    if (!dropdownConfig) {
+      return [];
+    }
+    return this.getOptionsFromDropdownLikeConfig(
+      dropdownConfig,
+      this.dependentDropdownOptions()
+    );
+  }
+
+  getAutocompleteOptions(): IOptionDropdown[] {
+    const { autocompleteConfig } = this.inputFieldConfig();
+    if (!autocompleteConfig) {
+      return [];
+    }
+    return this.getOptionsFromDropdownLikeConfig(autocompleteConfig);
   }
 
   onAutocompleteComplete(event: { query: string }): void {
@@ -392,7 +480,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * When forceSelection is false: sync typed text to form control on blur so random/free text is accepted.
+   * When forceSelection is false: sync typed text on blur (form: setValue; standalone: emit).
    */
   onAutocompleteBlur(event: Event): void {
     const config = this.inputFieldConfig();
@@ -404,14 +492,19 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     }
     const targetInput = event.target as HTMLInputElement | null;
     const typedValue = targetInput?.value?.trim() ?? '';
-    const control = this.formGroup().get(config.fieldName);
-    if (control && typedValue !== control.value) {
-      control.setValue(typedValue, { emitEvent: true });
+    if (this.isFormMode()) {
+      const fg = this.formGroup();
+      const control = fg?.get(config.fieldName);
+      if (control && typedValue !== control.value) {
+        control.setValue(typedValue, { emitEvent: true });
+      }
+    } else {
+      this.onValueChange(typedValue);
     }
   }
 
   /**
-   * When optionValue is 'label': ensure form control gets the label string on select (keeps value dynamic).
+   * When optionValue is 'label': ensure value is label string on select.
    */
   onAutocompleteSelect(event: { value: IOptionDropdown }): void {
     const config = this.inputFieldConfig();
@@ -421,13 +514,17 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     const optionLabel = config.autocompleteConfig?.optionLabel ?? 'label';
     const optionValue = config.autocompleteConfig?.optionValue ?? 'value';
     if (optionValue !== 'label' || !event?.value) {
+      this.onValueChange(event.value);
       return;
     }
     const item = event.value as unknown as Record<string, unknown>;
     const label = String(item[optionLabel] ?? event.value?.label ?? '');
-    const control = this.formGroup().get(config.fieldName);
-    if (control) {
-      control.setValue(label, { emitEvent: true });
+    if (this.isFormMode()) {
+      this.formGroup()?.get(config.fieldName)?.setValue(label, {
+        emitEvent: true,
+      });
+    } else {
+      this.onValueChange(label);
     }
   }
 
@@ -448,57 +545,57 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     clearCallback: (event: FileRemoveEvent) => void
   ): void {
     clearCallback(event);
-    const control = this.formGroup().get(this.inputFieldConfig().fieldName);
-    if (!control) {
-      return;
-    }
-
-    control.setValue([]);
     this.totalUploadedSize = 0;
+    if (this.isFormMode()) {
+      const fg = this.formGroup();
+      fg?.get(this.inputFieldConfig().fieldName)?.setValue([]);
+    } else {
+      this.onValueChange([]);
+    }
   }
 
   onFilesSelected(event: FileSelectEvent): void {
-    const control = this.formGroup().get(this.inputFieldConfig().fieldName);
-    if (!control) {
-      return;
+    const files = event.currentFiles;
+    this.totalUploadedSize = files.reduce((acc, file) => acc + file.size, 0);
+    if (this.isFormMode()) {
+      const fg = this.formGroup();
+      const control = fg?.get(this.inputFieldConfig().fieldName);
+      if (!control) {
+        return;
+      }
+      const { fileConfig } = this.inputFieldConfig();
+      const existingValidator = control.validator;
+      const fileValidators = [
+        fileLimitValidator(fileConfig?.fileLimit ?? 0),
+        fileSizeValidator(fileConfig?.maxFileSize ?? 0),
+        fileFormatValidator(fileConfig?.acceptFileTypes ?? []),
+      ];
+      control.setValidators(
+        existingValidator
+          ? [existingValidator, ...fileValidators]
+          : fileValidators
+      );
+      control.setValue(files);
+      control.markAsDirty();
+      control.updateValueAndValidity();
+      this.onFieldChange.emit(true);
+    } else {
+      this.onFieldChange.emit(files);
     }
-
-    const existingValidator = control.validator;
-    const fileValidators = [
-      fileLimitValidator(this.inputFieldConfig().fileConfig?.fileLimit ?? 0),
-      fileSizeValidator(this.inputFieldConfig().fileConfig?.maxFileSize ?? 0),
-      fileFormatValidator(
-        this.inputFieldConfig().fileConfig?.acceptFileTypes ?? []
-      ),
-    ];
-
-    control.setValidators(
-      existingValidator
-        ? [existingValidator, ...fileValidators]
-        : fileValidators
-    );
-
-    this.totalUploadedSize = event.currentFiles.reduce(
-      (acc, file) => acc + file.size,
-      0
-    );
-    control.setValue(event.currentFiles);
-    control.markAsDirty();
-    control.updateValueAndValidity();
   }
 
   onFileRemoved(event: FileRemoveEvent): void {
-    const control = this.formGroup().get(this.inputFieldConfig().fieldName);
-
     this.totalUploadedSize -= event.file.size;
-    if (!control) {
-      return;
+    if (this.isFormMode()) {
+      const control = this.formGroup()?.get(this.inputFieldConfig().fieldName);
+      const currentFiles = (control?.value as File[]) ?? [];
+      const updatedFiles = currentFiles.filter(file => file !== event.file);
+      control?.setValue(updatedFiles);
+    } else {
+      const currentFiles = (this.effectiveValue() as File[]) ?? [];
+      const updatedFiles = currentFiles.filter(file => file !== event.file);
+      this.onValueChange(updatedFiles);
     }
-
-    const currentFiles = control.value as File[];
-    const updatedFiles = currentFiles.filter(file => file !== event.file);
-
-    control.setValue(updatedFiles);
   }
 
   private shouldUpdateFileUpload(files: unknown): files is File[] {
@@ -571,7 +668,11 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   checkIsFieldInvalid(fieldName: string): boolean {
-    const control = this.formGroup().get(fieldName);
+    const fg = this.formGroup();
+    if (!fg) {
+      return false;
+    }
+    const control = fg.get(fieldName);
     return control
       ? control.invalid && (control.dirty || control.touched)
       : false;
@@ -579,6 +680,100 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
   onChange(): void {
     this.onFieldChange.emit(true);
+  }
+
+  /** Mark form control as touched on blur so validation errors can show (invalid + touched). */
+  onBlur(): void {
+    if (!this.isFormMode()) {
+      return;
+    }
+    const control = this.formGroup()?.get(this.inputFieldConfig().fieldName);
+    if (control && !control.touched) {
+      control.markAsTouched();
+      this.validationTrigger.update(v => v + 1);
+    }
+  }
+
+  /**
+   * Single handler for value changes: form mode = update control; standalone = emit value.
+   * Event can be input event, checkbox event, or raw value.
+   */
+  onValueChange(eventOrValue: unknown): void {
+    let value: unknown;
+    if (this.isInputEvent(eventOrValue)) {
+      value = eventOrValue.target.value;
+    } else if (this.isCheckboxEvent(eventOrValue)) {
+      value = eventOrValue.checked;
+    } else {
+      value = eventOrValue;
+    }
+
+    if (this.isFormMode()) {
+      const config = this.inputFieldConfig();
+      const fg = this.formGroup();
+      const control = fg?.get(config.fieldName);
+      if (!control) {
+        return;
+      }
+
+      let valueToSet = value;
+      if (
+        (config.fieldType === EDataType.TEXT ||
+          config.fieldType === EDataType.TEXT_AREA) &&
+        typeof valueToSet === 'string'
+      ) {
+        if (config.applyPatternFilter !== false && this.cachedPattern) {
+          const pattern = this.cachedPattern;
+          valueToSet = valueToSet
+            .split('')
+            .filter(char => pattern.test(char))
+            .join('');
+        }
+        if (config.textConfig?.textCase) {
+          valueToSet = this.applyTextCase(
+            valueToSet as string,
+            config.textConfig.textCase
+          );
+        }
+      }
+      if (
+        config.fieldType === EDataType.ATTACHMENTS &&
+        Array.isArray(valueToSet)
+      ) {
+        const existingValidator = control.validator;
+        const fileValidators = [
+          fileLimitValidator(config.fileConfig?.fileLimit ?? 0),
+          fileSizeValidator(config.fileConfig?.maxFileSize ?? 0),
+          fileFormatValidator(config.fileConfig?.acceptFileTypes ?? []),
+        ];
+        control.setValidators(
+          existingValidator
+            ? [existingValidator, ...fileValidators]
+            : fileValidators
+        );
+      }
+      control.setValue(valueToSet);
+      control.markAsDirty();
+      control.updateValueAndValidity();
+      this.onFieldChange.emit(true);
+    } else {
+      this.onFieldChange.emit(value);
+    }
+  }
+
+  private isInputEvent(event: unknown): event is InputEventLike {
+    return (
+      typeof event === 'object' &&
+      event !== null &&
+      'target' in event &&
+      typeof (event as InputEventLike).target === 'object' &&
+      (event as InputEventLike).target !== null &&
+      'value' in (event as InputEventLike).target
+    );
+  }
+
+  private isCheckboxEvent(event: unknown): event is CheckboxEventLike {
+    return typeof event === 'object' && event !== null && 'checked' in event;
   }
 
   getAllowedFileTypes(separator = ', ', forLabel = false): string {
@@ -656,7 +851,11 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   getErrorMessage(fieldName: string): string {
-    const control = this.formGroup().get(fieldName);
+    const fg = this.formGroup();
+    if (!fg) {
+      return '';
+    }
+    const control = fg.get(fieldName);
     if (!control) {
       return '';
     }
@@ -701,197 +900,36 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Global input handler for all text-based fields (TEXT, TEXT_AREA, PASSWORD)
-   * Handles maxlength prevention, pattern filtering, and text case formatting
+   * Max length for native maxlength attribute when preventMaxLength is true (prevents typing beyond limit).
+   * Returns null when preventMaxLength is false/undefined so no attribute is set and validation error shows instead.
    */
-  onInput(event: Event): void {
-    const inputElement = event.target as HTMLInputElement | HTMLTextAreaElement;
-    const control = this.formGroup().get(this.inputFieldConfig().fieldName);
-    if (!control) {
-      return;
-    }
-
+  getMaxLengthAttribute(): number | null {
     const config = this.inputFieldConfig();
-    let { value } = inputElement;
-
-    // Apply maxlength prevention
-    if (
-      config.preventMaxLength !== false &&
-      this.cachedMaxLength !== null &&
-      value.length > this.cachedMaxLength
-    ) {
-      value = value.substring(0, this.cachedMaxLength);
-    }
-
-    // Apply pattern filtering
-    if (config.applyPatternFilter !== false && this.cachedPattern) {
-      const pattern = this.cachedPattern;
-      value = value
-        .split('')
-        .filter(char => pattern.test(char))
-        .join('');
-    }
-
-    // Apply text case formatting (only for TEXT field type)
-    if (config.textConfig?.textCase) {
-      value = this.applyTextCase(value, config.textConfig.textCase);
-    }
-
-    // Update if changed
-    if (value !== inputElement.value) {
-      inputElement.value = value;
-      control.setValue(value, { emitEvent: false });
-      control.markAsDirty();
-    }
-  }
-
-  /**
-   * Input handler for NUMBER type fields
-   * Validates digit count using minLength/maxLength validators
-   */
-  onNumberInput(event: InputNumberInputEvent): void {
-    const control = this.formGroup().get(this.inputFieldConfig().fieldName);
-    if (!control) {
-      return;
-    }
-
-    // Use numeric value, not formattedValue (which can have formatting chars)
-    const numericValue = event.value;
-
-    // If field is empty (null/undefined/empty string), clear length errors
-    // Let required validator handle empty field validation
-    const isEmpty =
-      numericValue === null ||
-      numericValue === undefined ||
-      numericValue === '' ||
-      (typeof numericValue === 'string' && numericValue.trim() === '');
-
-    if (isEmpty) {
-      this.clearLengthErrors(control);
-      return;
-    }
-
-    // Convert to string for digit counting (handles both string and number)
-    const valueStr = String(numericValue);
-    const digitCount = valueStr.length;
-
-    // Only validate if we have cached length validators
-    if (this.cachedMinLength !== null || this.cachedMaxLength !== null) {
-      this.validateDigitLength(control, digitCount);
-    }
-  }
-
-  /**
-   * Validates digit length and sets minlength/maxlength errors
-   */
-  private validateDigitLength(
-    control: AbstractControl,
-    digitCount: number
-  ): void {
-    let hasMinLengthError = false;
-    let hasMaxLengthError = false;
-
-    // Check minLength validation: error if digits < required minimum
-    if (this.cachedMinLength !== null) {
-      hasMinLengthError = digitCount < this.cachedMinLength;
-    }
-
-    // Check maxLength validation: error if digits > allowed maximum
-    if (this.cachedMaxLength !== null) {
-      hasMaxLengthError = digitCount > this.cachedMaxLength;
-    }
-
-    // Build new errors object
-    const currentErrors = control.errors ? { ...control.errors } : {};
-
-    // Handle minLength error
-    if (hasMinLengthError) {
-      currentErrors['minlength'] = {
-        requiredLength: this.cachedMinLength,
-        actualLength: digitCount,
-      };
-    } else {
-      delete currentErrors['minlength'];
-    }
-
-    // Handle maxLength error
-    if (hasMaxLengthError) {
-      currentErrors['maxlength'] = {
-        requiredLength: this.cachedMaxLength,
-        actualLength: digitCount,
-      };
-    } else {
-      delete currentErrors['maxlength'];
-    }
-
-    // Set errors (null if no errors)
-    const hasErrors = Object.keys(currentErrors).length > 0;
-    control.setErrors(hasErrors ? currentErrors : null);
-    control.markAsDirty();
-  }
-
-  /**
-   * Clears both minlength and maxlength errors from control
-   */
-  private clearLengthErrors(control: AbstractControl): void {
-    if (control.errors?.['minlength'] || control.errors?.['maxlength']) {
-      const errors = { ...control.errors };
-      delete errors['minlength'];
-      delete errors['maxlength'];
-      control.setErrors(Object.keys(errors).length > 0 ? errors : null);
-    }
-  }
-
-  /**
-   * Extracts minlength from validators (cached on init)
-   */
-  private extractMinLength(): number | null {
-    const { validators } = this.inputFieldConfig();
-    if (!validators?.length) {
+    if (config.preventMaxLength !== true || this.cachedMaxLength === null) {
       return null;
     }
-
-    // Use a short string - minLength returns null for empty value
-    const testControl = { value: 'x' } as AbstractControl;
-    for (const validator of validators) {
-      const wrappedValidator = validator as ValidatorFn & {
-        __originalValidator?: ValidatorFn;
-      };
-      const originalValidator =
-        wrappedValidator.__originalValidator ?? validator;
-
-      const result = originalValidator(testControl);
-      const minlengthError = result?.['minlength'];
-      if (
-        minlengthError &&
-        typeof minlengthError === 'object' &&
-        'requiredLength' in minlengthError
-      ) {
-        return minlengthError.requiredLength as number;
-      }
-    }
-    return null;
+    return this.cachedMaxLength;
   }
 
   /**
-   * Extracts maxlength from validators (cached on init)
+   * Extracts maxlength requiredLength from validators (cached on init).
    */
   private extractMaxLength(): number | null {
     const { validators } = this.inputFieldConfig();
     if (!validators?.length) {
       return null;
     }
-
     const testControl = { value: 'x'.repeat(1000) } as AbstractControl;
     for (const validator of validators) {
-      // Check if validator is wrapped with withCustomMessage
       const wrappedValidator = validator as ValidatorFn & {
         __originalValidator?: ValidatorFn;
       };
       const originalValidator =
         wrappedValidator.__originalValidator ?? validator;
-
-      const result = originalValidator(testControl);
+      const result = originalValidator(testControl) as Record<
+        string,
+        unknown
+      > | null;
       const maxlengthError = result?.['maxlength'];
       if (
         maxlengthError &&
