@@ -5,7 +5,6 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AppConfigService } from '@core/services';
 import { AssetService } from '@features/asset-management/services/asset.service';
 import {
   IAssetDetailGetFormDto,
@@ -24,6 +23,7 @@ import {
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { finalize } from 'rxjs';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-get-asset-detail',
@@ -38,7 +38,7 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
   };
   private readonly assetService = inject(AssetService);
   private readonly loadingService = inject(LoadingService);
-  protected readonly appConfigService = inject(AppConfigService);
+  protected readonly appConfigService = inject(AppConfigurationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _assetDetails = signal<
@@ -134,13 +134,13 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
           label: 'Calibration Period',
           value: [record.calibrationStartDate, record.calibrationEndDate],
           type: EDataType.DATE_RANGE,
-          format: this.appConfigService.dateFormats.DEFAULT,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'Purchase Date',
           value: record.purchaseDate,
           type: EDataType.DATE,
-          format: this.appConfigService.dateFormats.DEFAULT,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'Vendor Name',
@@ -150,7 +150,7 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
           label: 'Warranty Period',
           value: [record.warrantyStartDate, record.warrantyEndDate],
           type: EDataType.DATE_RANGE,
-          format: this.appConfigService.dateFormats.DEFAULT,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'Attachment(s)',

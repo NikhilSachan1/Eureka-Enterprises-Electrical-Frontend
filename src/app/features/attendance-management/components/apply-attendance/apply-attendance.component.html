@@ -14,10 +14,10 @@
 
         <div class="time-info">
           <p class="time-info__current">
-            {{ todayDate | date: appConfig.dateFormats.WITH_SHORT_MONTH }}
+            {{ todayDate | date: APP_CONFIG.DATE_FORMATS.WITH_SHORT_MONTH }}
           </p>
           <p class="time-info__date">
-            {{ todayDate | date: appConfig.timeFormats.DEFAULT }}
+            {{ todayDate | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
           </p>
         </div>
       </div>
@@ -41,7 +41,7 @@
           <span class="time-summary__label">Started</span>
           <span class="time-summary__time time-summary__time--started">
             @if (currentStatusData()?.checkInTime) {
-              {{ currentStatusData()?.checkInTime | date: appConfig.timeFormats.DEFAULT }}
+              {{ currentStatusData()?.checkInTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
             } @else {
               -
             }
@@ -53,7 +53,7 @@
           <span class="time-summary__label">Ended</span>
           <span class="time-summary__time time-summary__time--ended">
             @if (currentStatusData()?.checkOutTime) {
-              {{ currentStatusData()?.checkOutTime | date: appConfig.timeFormats.DEFAULT }}
+              {{ currentStatusData()?.checkOutTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
             } @else {
               -
             }

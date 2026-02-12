@@ -22,8 +22,9 @@ import {
   IDataViewDetailsWithEntity,
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
-import { AppConfigService } from '@core/services';
+import { AppConfigurationService } from '@shared/services';
 import { stringToArray } from '@shared/utility';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-get-attendance-detail',
@@ -38,7 +39,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   };
   private readonly attendanceService = inject(AttendanceService);
   private readonly loadingService = inject(LoadingService);
-  protected readonly appConfigService = inject(AppConfigService);
+  protected readonly appConfigService = inject(AppConfigurationService);
 
   protected readonly _attendanceDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -97,19 +98,19 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           label: 'Date',
           value: record.attendanceDate,
           type: EDataType.DATE,
-          format: this.appConfigService.dateFormats.DEFAULT,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'Check-in',
           value: record.checkInTime,
           type: EDataType.TIME,
-          format: this.appConfigService.timeFormats.DEFAULT,
+          format: APP_CONFIG.TIME_FORMATS.DEFAULT,
         },
         {
           label: 'Check-out',
           value: record.checkOutTime,
           type: EDataType.TIME,
-          format: this.appConfigService.timeFormats.DEFAULT,
+          format: APP_CONFIG.TIME_FORMATS.DEFAULT,
         },
         {
           label: 'Work Duration',

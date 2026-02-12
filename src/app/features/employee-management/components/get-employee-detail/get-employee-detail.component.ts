@@ -8,7 +8,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
-import { AppConfigService } from '@core/services';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
 import {
   IEmployeeDetailGetRequestDto,
@@ -87,7 +86,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
 
   private readonly employeeService = inject(EmployeeService);
   private readonly loadingService = inject(LoadingService);
-  protected readonly appConfigService = inject(AppConfigService);
+  protected readonly appConfigService = inject(AppConfigurationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly avatarService = inject(AvatarService);
   private readonly galleryService = inject(GalleryService);
@@ -98,6 +97,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
   icons = ICONS;
   tabModeType = ETabMode.CONTENT;
   protected readonly ALL_DATA_TYPES = EDataType;
+  protected readonly APP_CONFIG = APP_CONFIG;
 
   protected tabs = computed(() => this.getTabs());
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
@@ -274,7 +274,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
               label: 'Date of Birth',
               value: response.dateOfBirth,
               type: EDataType.DATE,
-              format: this.appConfigService.dateFormats.DEFAULT,
+              format: APP_CONFIG.DATE_FORMATS.DEFAULT,
             },
             {
               label: 'Blood Group',
@@ -375,7 +375,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
               label: 'Date of Joining',
               value: response.dateOfJoining,
               type: EDataType.DATE,
-              format: this.appConfigService.dateFormats.DEFAULT,
+              format: APP_CONFIG.DATE_FORMATS.DEFAULT,
             },
             {
               label: 'Previous Experience',

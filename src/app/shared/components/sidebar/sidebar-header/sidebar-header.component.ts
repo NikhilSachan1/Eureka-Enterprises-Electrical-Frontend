@@ -3,11 +3,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  inject,
   input,
   output,
 } from '@angular/core';
-import { AppConfigService } from '@core/services';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-sidebar-header',
@@ -18,8 +17,6 @@ import { AppConfigService } from '@core/services';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarHeaderComponent {
-  private readonly appConfigService = inject(AppConfigService);
-
   // Inputs
   sidebarVisible = input<boolean>(true);
   isMobile = input<boolean>(false);
@@ -31,10 +28,8 @@ export class SidebarHeaderComponent {
   readonly collapseIcon = 'pi pi-chevron-left';
 
   // Using computed signals for reactive data - Angular v19 best practice
-  readonly companyName = computed(() => this.appConfigService.appName);
-  readonly companyDescription = computed(
-    () => this.appConfigService.appDescription
-  );
+  readonly companyName = computed(() => APP_CONFIG.name);
+  readonly companyDescription = computed(() => APP_CONFIG.description);
 
   /**
    * Handle logo/company name click to toggle sidebar (desktop only)

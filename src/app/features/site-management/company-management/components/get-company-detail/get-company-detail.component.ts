@@ -13,7 +13,6 @@ import {
 } from '../../types/company.dto';
 import { CompanyService } from '../../services/company.service';
 import { AppConfigurationService, LoadingService } from '@shared/services';
-import { AppConfigService } from '@core/services';
 import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -38,8 +37,7 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
   };
   private readonly companyService = inject(CompanyService);
   private readonly loadingService = inject(LoadingService);
-  protected readonly appConfigService = inject(AppConfigService);
-  private readonly appConfigurationService = inject(AppConfigurationService);
+  protected readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _companyDetails = signal<
     IDataViewDetailsWithEntity | undefined

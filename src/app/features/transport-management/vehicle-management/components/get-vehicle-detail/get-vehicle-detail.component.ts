@@ -8,7 +8,6 @@ import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { VehicleService } from '../../services/vehicle.service';
 import { AppConfigurationService, LoadingService } from '@shared/services';
-import { AppConfigService } from '@core/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -39,7 +38,6 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
   };
   private readonly vehicleService = inject(VehicleService);
   private readonly loadingService = inject(LoadingService);
-  protected readonly appConfigService = inject(AppConfigService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _vehicleDetails = signal<
@@ -118,7 +116,7 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
           label: 'Purchase Date',
           value: record.purchaseDate,
           type: EDataType.DATE,
-          format: this.appConfigService.dateFormats.DEFAULT,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'Dealer Name',
@@ -128,19 +126,19 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
           label: 'Insurance Period',
           value: [record.insuranceStartDate, record.insuranceEndDate],
           type: EDataType.DATE_RANGE,
-          format: this.appConfigService.dateFormats.DEFAULT,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'PUC Period',
           value: [record.pucStartDate, record.pucEndDate],
           type: EDataType.DATE_RANGE,
-          format: this.appConfigService.dateFormats.DEFAULT,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'Fitness Period',
           value: [record.fitnessStartDate, record.fitnessEndDate],
           type: EDataType.DATE_RANGE,
-          format: this.appConfigService.dateFormats.DEFAULT,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'Attachment(s)',

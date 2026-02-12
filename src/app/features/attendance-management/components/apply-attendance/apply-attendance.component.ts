@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import { AppConfigService } from '@core/services/app-config.service';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 import {
   IAttendanceApplyFormDto,
@@ -40,6 +39,7 @@ import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBase } from '@shared/base/form.base';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-apply-attendance',
@@ -64,7 +64,6 @@ export class ApplyAttendanceComponent
   private readonly authService = inject(AuthService);
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly routerNavigationService = inject(RouterNavigationService);
-  protected readonly appConfig = inject(AppConfigService);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected assignmentHeaderButtonConfig = computed(() =>
@@ -81,6 +80,7 @@ export class ApplyAttendanceComponent
   protected readonly ALL_APPLY_ATTENDANCE_ACTIONS = EApplyAttendanceAction;
   protected readonly ALL_ICONS = ICONS;
   protected readonly ALL_PERMISSION_KEYS = PERMISSION_KEYS;
+  protected readonly APP_CONFIG = APP_CONFIG;
 
   ngOnInit(): void {
     this.loadCurrentStatusDataFromRoute();

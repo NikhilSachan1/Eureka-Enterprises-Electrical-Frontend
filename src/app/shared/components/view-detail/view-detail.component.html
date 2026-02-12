@@ -147,11 +147,11 @@
               <span class="font-semibold">{{ approvalByName }}</span>
               at
               <span class="font-semibold">
-                {{ detail.approvalBy.date | date: appConfigService.dateFormats.DEFAULT }}
+                {{ detail.approvalBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
               </span>
               on
               <span class="font-semibold">
-                {{ detail.approvalBy.date | date: appConfigService.timeFormats.DEFAULT }}
+                {{ detail.approvalBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
               </span>
             </p>
             @if (detail.approvalBy.notes && detail.approvalBy.notes !== '') {
@@ -169,11 +169,11 @@
               <span class="font-semibold">{{ createdByName }}</span>
               at
               <span class="font-semibold">
-                {{ detail.createdBy.date | date: appConfigService.dateFormats.DEFAULT }}
+                {{ detail.createdBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
               </span>
               on
               <span class="font-semibold">
-                {{ detail.createdBy.date | date: appConfigService.timeFormats.DEFAULT }}
+                {{ detail.createdBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
               </span>
             </p>
 
@@ -193,11 +193,11 @@
                 <span class="font-semibold">{{ updatedByName }}</span>
                 at
                 <span class="font-semibold">
-                  {{ detail.updatedBy.date | date: appConfigService.dateFormats.DEFAULT }}
+                  {{ detail.updatedBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
                 </span>
                 on
                 <span class="font-semibold">
-                  {{ detail.updatedBy.date | date: appConfigService.timeFormats.DEFAULT }}
+                  {{ detail.updatedBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
                 </span>
               </p>
 

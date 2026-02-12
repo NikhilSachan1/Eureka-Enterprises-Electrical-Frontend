@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { EnvironmentService } from '@core/services/environment.service';
 import { LoggerService } from '@core/services/logger.service';
 import { NotificationService } from '@shared/services';
-import { AppConfigService } from '@core/services/app-config.service';
+import { APP_CONFIG } from '@core/config';
 
 export interface ApiSchema<TRequest, TResponse> {
   request?: z.ZodType<TRequest>;
@@ -23,7 +23,6 @@ export interface ApiSchema<TRequest, TResponse> {
 export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly environmentService = inject(EnvironmentService);
-  private readonly appConfigService = inject(AppConfigService);
   private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
 
@@ -32,11 +31,11 @@ export class ApiService {
   }
 
   private get timeout(): number {
-    return this.appConfigService.apiTimeout;
+    return APP_CONFIG.API_CONFIG.timeout;
   }
 
   private get retryAttempts(): number {
-    return this.appConfigService.apiRetryAttempts;
+    return APP_CONFIG.API_CONFIG.retryAttempts;
   }
 
   // =====================================================
@@ -434,9 +433,9 @@ export class ApiService {
   private calculateRetryDelay(): Observable<number> {
     return new Observable(sub => {
       setTimeout(() => {
-        sub.next(this.appConfigService.apiRetryDelay);
+        sub.next(APP_CONFIG.API_CONFIG.retryDelay);
         sub.complete();
-      }, this.appConfigService.apiRetryDelay);
+      }, APP_CONFIG.API_CONFIG.retryDelay);
     });
   }
 

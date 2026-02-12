@@ -6,7 +6,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { AppConfigService, AppPermissionService } from '@core/services';
+import { AppPermissionService } from '@core/services';
 import {
   EDataType,
   EPrimeNGSeverity,
@@ -17,8 +17,12 @@ import {
   IUserInfo,
 } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
+import {
+  AvatarService,
+  GalleryService,
+  AppConfigurationService,
+} from '@shared/services';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
-import { AvatarService, GalleryService } from '@shared/services';
 import { StatusUtil } from '@shared/utility';
 import { ICONS } from '@shared/constants';
 import { CardModule } from 'primeng/card';
@@ -27,6 +31,7 @@ import { Tag } from 'primeng/tag';
 import { ReadMoreComponent } from '../read-more/read-more.component';
 import { APP_PERMISSION } from '@core/constants';
 import { AppPermissionDirective } from '@shared/directives/app-permission.directive';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-view-detail',
@@ -50,7 +55,7 @@ export class ViewDetailComponent {
   private readonly avatarService = inject(AvatarService);
   private readonly galleryService = inject(GalleryService);
   private readonly permissionService = inject(AppPermissionService);
-  protected readonly appConfigService = inject(AppConfigService);
+  protected readonly appConfigService = inject(AppConfigurationService);
 
   protected readonly _avtarImageUrl = computed(() => {
     const name = this.drawerDetails()?.entity?.name ?? 'N/A';
@@ -63,6 +68,7 @@ export class ViewDetailComponent {
   protected readonly icons = ICONS;
   protected readonly ALL_ENTRY_TYPES = EEntryType;
   protected readonly APP_PERMISSION = APP_PERMISSION;
+  protected readonly APP_CONFIG = APP_CONFIG;
 
   protected getApprovalStatusColor(status: string): EPrimeNGSeverity {
     return StatusUtil.getSeverity(status) as EPrimeNGSeverity;

@@ -4,7 +4,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { AppConfigService } from '@core/services';
 import { ExpenseService } from '@features/expense-management/services/expense.service';
 import {
   IExpenseDetailGetRequestDto,
@@ -24,6 +23,7 @@ import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { APP_CONFIG } from '@core/config';
 
 @Component({
   selector: 'app-get-expense-detail',
@@ -38,7 +38,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
   };
   private readonly expenseService = inject(ExpenseService);
   private readonly loadingService = inject(LoadingService);
-  protected readonly appConfigService = inject(AppConfigService);
+  protected readonly appConfigService = inject(AppConfigurationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _expenseDetails = signal<
@@ -94,7 +94,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
           label: 'Date',
           value: record.expenseDate,
           type: EDataType.DATE,
-          format: this.appConfigService.dateFormats.DEFAULT,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'Category',
@@ -107,7 +107,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
           label: 'Amount',
           value: record.amount,
           type: EDataType.CURRENCY,
-          format: this.appConfigService.currencyConfig.DEFAULT,
+          format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           metadata: {
             transactionType: record.transactionType,
           },

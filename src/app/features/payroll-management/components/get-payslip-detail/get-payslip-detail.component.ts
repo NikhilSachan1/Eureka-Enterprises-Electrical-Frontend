@@ -5,7 +5,6 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AppConfigService } from '@core/services';
 import { PayrollService } from '@features/payroll-management/services/payroll.service';
 import {
   IPayslipDetailGetRequestDto,
@@ -40,8 +39,7 @@ export class GetPayslipDetailComponent extends DrawerDetailBase {
   };
   private readonly payrollService = inject(PayrollService);
   private readonly loadingService = inject(LoadingService);
-  protected readonly appConfigService = inject(AppConfigService);
-  private readonly appConfigurationService = inject(AppConfigurationService);
+  protected readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _payslipDetails = signal<
     IDataViewDetailsWithEntity | undefined

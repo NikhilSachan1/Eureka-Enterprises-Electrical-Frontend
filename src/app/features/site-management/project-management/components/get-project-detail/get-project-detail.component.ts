@@ -13,7 +13,6 @@ import {
 } from '../../types/project.dto';
 import { ProjectService } from '../../services/project.service';
 import { AppConfigurationService, LoadingService } from '@shared/services';
-import { AppConfigService } from '@core/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -39,8 +38,7 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
   };
   private readonly projectService = inject(ProjectService);
   private readonly loadingService = inject(LoadingService);
-  protected readonly appConfigService = inject(AppConfigService);
-  private readonly appConfigurationService = inject(AppConfigurationService);
+  protected readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _projectDetails = signal<
     IDataViewDetailsWithEntity | undefined

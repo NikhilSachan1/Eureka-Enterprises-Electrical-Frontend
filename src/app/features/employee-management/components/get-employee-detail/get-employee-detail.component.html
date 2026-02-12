@@ -104,9 +104,9 @@
                 <span class="font-semibold text-gray-700">{{ item.name }}</span>
               </span>
               <span class="text-gray-400">•</span>
-              <span>{{ item.date | date: appConfigService.dateFormats.DEFAULT }}</span>
+              <span>{{ item.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}</span>
               <span class="text-gray-400">•</span>
-              <span>{{ item.date | date: appConfigService.timeFormats.DEFAULT }}</span>
+              <span>{{ item.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}</span>
             </div>
           }
         }
