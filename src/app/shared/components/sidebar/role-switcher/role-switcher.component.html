@@ -7,7 +7,7 @@
       class="role-btn-compact"
       [disabled]="isSubmitting()"
       (click)="togglePopover($event)"
-      [attr.aria-label]="'Switch Role: ' + activeRole().name"
+      [attr.aria-label]="`Switch Role: ${activeRole().name}`"
     >
       <div class="role-icon-compact">
         <i [class]="ALL_ICONS.COMMON.ID_CARD"></i>

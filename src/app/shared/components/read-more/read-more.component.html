@@ -2,7 +2,7 @@
   <!-- COLLAPSED VIEW -->
   <ng-template #display>
     <span class="read-more-text">
-      {{ shouldTruncate() ? truncatedText() + '...' : text() || 'N/A' }}
+      {{ shouldTruncate() ? `${truncatedText()}...` : text() || 'N/A' }}
 
       @if (shouldTruncate()) {
         <span class="text-blue-600 hover:underline cursor-pointer ml-1">

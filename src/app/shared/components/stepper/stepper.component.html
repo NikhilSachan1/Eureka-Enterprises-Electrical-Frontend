@@ -130,7 +130,7 @@
       [ngClass]="[bgClass, textClass, borderClass, 'shadow-md']"
     >
       @if (_stepValid && _stepValid[value] === true) {
-        <i [class]="ICONS.ACTIONS.CHECK + ' text-white text-lg font-bold'"></i>
+        <i [class]="`${ICONS.ACTIONS.CHECK} text-white text-lg font-bold`"></i>
       } @else if (step?.icon) {
         <i [class]="step.icon"></i>
       } @else {

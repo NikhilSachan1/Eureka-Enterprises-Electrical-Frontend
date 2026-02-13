@@ -239,7 +239,7 @@
       @for (option of checkboxConfig?.options; track option.value) {
         <div class="flex items-center">
           <p-checkbox
-            [inputId]="'checkbox-' + option.value"
+            [inputId]="`checkbox-${option.value}`"
             [value]="option"
             [binary]="checkboxConfig?.binary || false"
             [indeterminate]="checkboxConfig?.indeterminate || false"
@@ -252,7 +252,7 @@
             (onChange)="onValueChange($event)"
           />
           <label
-            [for]="'checkbox-' + option.value"
+            [for]="`checkbox-${option.value}`"
             class="ml-2"
           >
             {{ option.label }}
@@ -270,7 +270,7 @@
       @for (option of radioConfig?.options; track option.value) {
         <div class="flex items-center">
           <p-radioButton
-            [inputId]="'radio-' + option.value"
+            [inputId]="`radio-${option.value}`"
             [value]="option"
             [size]="config.fieldSize"
             [disabled]="config.disabledInput || false"
@@ -280,7 +280,7 @@
             (onClick)="onValueChange($event)"
           />
           <label
-            [for]="'radio-' + option.value"
+            [for]="`radio-${option.value}`"
             class="ml-2"
           >
             {{ option.label }}

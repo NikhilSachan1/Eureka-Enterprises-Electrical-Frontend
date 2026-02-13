@@ -1,3 +1,71 @@
 :host {
   overflow-wrap: break-word;
 }
+
+// Heading upar, content neeche — theme-aware, responsive
+.view-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.view-detail-field {
+  min-width: 0;
+}
+
+.view-detail-label {
+  color: var(--text-secondary-color);
+  letter-spacing: 0.05em;
+}
+
+// Value: card often has light bg from status (Tailwind), so use dark text so content shows in both themes
+.view-detail-value {
+  color: #1e293b !important;
+}
+
+.view-detail-currency {
+  font-weight: 600;
+  color: #1e293b !important;
+}
+
+.view-detail-meta {
+  color: var(--text-secondary-color);
+}
+
+// Attachment block — theme-aware
+.view-detail-attachment {
+  border-color: var(--border-main-color);
+  background-color: var(--surface-100);
+
+  &.view-detail-attachment--has {
+    cursor: pointer;
+    &:hover {
+      background-color: var(--surface-200);
+      border-color: var(--border-dark-color);
+    }
+  }
+  &.view-detail-attachment--empty {
+    cursor: not-allowed;
+    opacity: 0.85;
+  }
+}
+
+.view-detail-attachment-icon--has {
+  color: var(--primary-color);
+}
+
+.view-detail-attachment-icon--empty {
+  color: var(--text-disabled-color);
+}
+
+.view-detail-attachment-label {
+  color: var(--text-primary-color);
+}
+
+.view-detail-attachment-chevron {
+  color: var(--primary-light-color);
+}

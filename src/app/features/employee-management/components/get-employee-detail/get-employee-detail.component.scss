@@ -11,6 +11,24 @@
   border: 1px solid var(--border-main-color) !important;
 }
 
+// Card field labels (FULL NAME, FATHER'S NAME, etc.) — slate like view-detail
+.employee-detail-field-label {
+  color: var(--text-secondary-color);
+  letter-spacing: 0.05em;
+}
+
+.employee-detail-field-value {
+  color: var(--text-primary-color);
+}
+
+.employee-detail-profile-label {
+  color: var(--text-secondary-color);
+}
+
+.employee-detail-profile-value {
+  color: var(--text-primary-color);
+}
+
 ::ng-deep {
   .p-card {
     .p-card-body {

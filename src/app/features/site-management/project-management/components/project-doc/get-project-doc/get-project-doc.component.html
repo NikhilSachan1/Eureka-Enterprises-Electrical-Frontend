@@ -4,7 +4,7 @@
       <!-- Left: Icon -->
       <div
         class="document-icon"
-        [style.background-color]="getDocumentColor(doc.type) + '15'"
+        [style.background-color]="`${getDocumentColor(doc.type)}15`"
       >
         <i
           [class]="getDocumentIcon(doc.type)"
@@ -18,7 +18,7 @@
           <h3 class="document-number">{{ doc.documentNumber }}</h3>
           <span
             class="document-type"
-            [style.background-color]="getDocumentColor(doc.type) + '20'"
+            [style.background-color]="`${getDocumentColor(doc.type)}20`"
             [style.color]="getDocumentColor(doc.type)"
           >
             {{ doc.type }}

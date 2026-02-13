@@ -1,12 +1,12 @@
 <div class="dsr-container">
   @if (loading()) {
     <div class="dsr-loading">
-      <i [class]="icons.COMMON.SPINNER + ' dsr-loading-icon'"></i>
+      <i [class]="`${icons.COMMON.SPINNER} dsr-loading-icon`"></i>
       <span>Loading DSR...</span>
     </div>
   } @else if (dsrEntries().length === 0) {
     <div class="dsr-empty">
-      <i [class]="icons.COMMON.INFO_CIRCLE + ' dsr-empty-icon'"></i>
+      <i [class]="`${icons.COMMON.INFO_CIRCLE} dsr-empty-icon`"></i>
       <p>No DSR records found.</p>
     </div>
   } @else {

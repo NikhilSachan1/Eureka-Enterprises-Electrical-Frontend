@@ -32,7 +32,7 @@
       <div class="timeline-event">
         <div class="timeline-event__header">
           @if (event.icon) {
-            <i [class]="event.icon + ' timeline-event__check'"></i>
+            <i [class]="`${event.icon} timeline-event__check`"></i>
           }
           <h4 class="timeline-event__title">{{ event.title }}</h4>
         </div>

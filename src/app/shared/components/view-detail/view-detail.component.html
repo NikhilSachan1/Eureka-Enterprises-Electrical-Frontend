@@ -50,12 +50,12 @@
           </div>
         }
 
-        <div class="space-y-2 mb-4">
+        <div class="view-detail-grid grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           @for (entry of visibleEntryData; track entry.label) {
             @if (entry.type !== ALL_DATA_TYPES.ATTACHMENTS) {
-              <div class="flex justify-between gap-4">
-                <span class="text-sm flex-shrink-0 text-gray-500">{{ entry.label }}:</span>
-                <span class="text-sm font-medium text-right flex-1 text-gray-900">
+              <div class="view-detail-field flex flex-col gap-1">
+                <span class="view-detail-label text-xs font-semibold uppercase tracking-wider">{{ entry.label }}</span>
+                <span class="view-detail-value text-sm font-medium">
                   @if (entry.value !== null && entry.value !== undefined) {
                     @if (entry.type === ALL_DATA_TYPES.DATE) {
                       {{ entry.value.toString() | date: entry.format }}
@@ -81,7 +81,7 @@
                           ? 'text-green-600 font-semibold'
                           : entryType === 'debit'
                             ? 'text-red-600 font-semibold'
-                            : 'text-slate-700 font-semibold';
+                            : 'view-detail-currency';
                       <span [ngClass]="colorClass">
                         {{ entry.value.toString() | currency: entry.format }}
                       </span>
@@ -105,27 +105,21 @@
           @let attachmentCount = $any(attachmentEntry.value).length;
           @let hasAttachments = attachmentCount > 0;
           <div
-            class="flex items-center gap-3 rounded-lg border px-4 py-3 transition-all hover:shadow-sm"
-            [ngClass]="
-              hasAttachments
-                ? 'border-blue-200 bg-blue-50 hover:border-blue-300 hover:bg-blue-100 cursor-pointer'
-                : 'border-gray-200 bg-gray-50 cursor-not-allowed'
-            "
+            class="view-detail-attachment flex items-center gap-3 rounded-lg border px-4 py-3 transition-all hover:shadow-sm"
+            [class.view-detail-attachment--has]="hasAttachments"
+            [class.view-detail-attachment--empty]="!hasAttachments"
             [tabindex]="hasAttachments ? 0 : -1"
             role="button"
             (click)="hasAttachments && viewAttachment($any(attachmentEntry.value))"
           >
             <i
-              [ngClass]="
-                (hasAttachments ? icons.COMMON.PAPERCLIP : icons.ACTIONS.BAN) +
-                ' text-lg ' +
-                (hasAttachments ? 'text-blue-600' : 'text-gray-400')
+              [class]="
+                `${hasAttachments ? icons.COMMON.PAPERCLIP : icons.ACTIONS.BAN} text-lg view-detail-attachment-icon`
               "
+              [class.view-detail-attachment-icon--has]="hasAttachments"
+              [class.view-detail-attachment-icon--empty]="!hasAttachments"
             ></i>
-            <span
-              class="text-sm font-semibold flex-1"
-              [ngClass]="hasAttachments ? 'text-blue-700' : 'text-gray-500'"
-            >
+            <span class="text-sm font-semibold flex-1 view-detail-attachment-label">
               @if (hasAttachments) {
                 {{ attachmentCount }} {{ attachmentEntry.label }}
               } @else {
@@ -133,7 +127,7 @@
               }
             </span>
             @if (hasAttachments) {
-              <i [class]="icons.COMMON.CHEVRON_RIGHT + ' text-blue-400'"></i>
+              <i [class]="`${icons.COMMON.CHEVRON_RIGHT} view-detail-attachment-chevron`"></i>
             }
           </div>
         }
@@ -141,8 +135,8 @@
         @if (detail.status?.approvalStatus !== 'pending' && detail.approvalBy) {
           @let approvalByName = getUserName(detail.approvalBy.user);
           <p-divider />
-          <div class="space-y-1">
-            <p class="text-xs text-gray-600">
+          <div class="space-y-1 view-detail-meta">
+            <p class="text-xs">
               {{ detail.status?.approvalStatus ?? '' | textCase: 'title' }} by
               <span class="font-semibold">{{ approvalByName }}</span>
               at
@@ -155,7 +149,7 @@
               </span>
             </p>
             @if (detail.approvalBy.notes && detail.approvalBy.notes !== '') {
-              <p class="text-xs text-gray-600 italic">"{{ detail.approvalBy.notes }}"</p>
+              <p class="text-xs italic">"{{ detail.approvalBy.notes }}"</p>
             }
           </div>
         }
@@ -163,8 +157,8 @@
         @if (detail.createdBy) {
           @let createdByName = getUserName(detail.createdBy.user);
           <p-divider />
-          <div class="space-y-1">
-            <p class="text-xs text-gray-600">
+          <div class="space-y-1 view-detail-meta">
+            <p class="text-xs">
               Added by
               <span class="font-semibold">{{ createdByName }}</span>
               at
@@ -178,7 +172,7 @@
             </p>
 
             @if (detail.createdBy.notes && detail.createdBy.notes !== '') {
-              <p class="text-xs text-gray-600 italic">"{{ detail.createdBy.notes }}"</p>
+              <p class="text-xs italic">"{{ detail.createdBy.notes }}"</p>
             }
           </div>
         }
@@ -186,9 +180,9 @@
         @if (detail.updatedBy) {
           @let updatedByName = getUserName(detail.updatedBy.user);
           <p-divider />
-          <div class="space-y-1">
+          <div class="space-y-1 view-detail-meta">
             @if (updatedByName !== 'N/A') {
-              <p class="text-xs text-gray-600">
+              <p class="text-xs">
                 Updated by
                 <span class="font-semibold">{{ updatedByName }}</span>
                 at
@@ -202,7 +196,7 @@
               </p>
 
               @if (detail.updatedBy.notes && detail.updatedBy.notes !== '') {
-                <p class="text-xs text-gray-600 italic">"{{ detail.updatedBy.notes }}"</p>
+                <p class="text-xs italic">"{{ detail.updatedBy.notes }}"</p>
               }
             }
           </div>

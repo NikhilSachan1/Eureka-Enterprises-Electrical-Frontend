@@ -7,7 +7,7 @@
   >
     {{ getStatusLabel(currentStatus()) }}
   </span>
-  <i [class]="ICONS.COMMON.ARROW_RIGHT + ' text-gray-500 text-lg'"></i>
+  <i [class]="`${ICONS.COMMON.ARROW_RIGHT} text-gray-500 text-lg`"></i>
   <span
     [ngClass]="newStatus() === ALL_COMPANY_STATUS.ACTIVE ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
     class="px-3 py-1.5 rounded-md text-sm font-semibold"

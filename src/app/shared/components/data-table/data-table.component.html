@@ -31,7 +31,7 @@
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <div class="bulk-action-icon-wrap w-7 h-7 rounded-md flex items-center justify-center">
-          <i [class]="icons.ACTIONS.CHECK_CIRCLE + ' text-white text-sm'"></i>
+          <i [class]="`${icons.ACTIONS.CHECK_CIRCLE} text-white text-sm`"></i>
         </div>
         <span class="font-semibold">{{ selectedCount }} selected</span>
       </div>
@@ -255,7 +255,7 @@
   <div class="card-layout-container">
     @if (loading()) {
       <div class="flex items-center justify-center py-12">
-        <i [class]="icons.COMMON.SPINNER + ' pi-spin text-2xl'"></i>
+        <i [class]="`${icons.COMMON.SPINNER} pi-spin text-2xl`"></i>
       </div>
     } @else if (tableData().length === 0) {
       <div class="text-center py-12">
@@ -378,7 +378,7 @@
           class="flex items-center gap-2"
           [class.text-xs]="isCompact"
         >
-          <i [class]="icons.COMMON.CALENDAR + ' text-xs'"></i>
+          <i [class]="`${icons.COMMON.CALENDAR} text-xs`"></i>
           <span>{{ $any(val) | date: col.dateFormat ?? 'mediumDate' }}</span>
         </div>
       } @else {
@@ -394,7 +394,7 @@
         class="flex items-center gap-2"
         [class.text-xs]="isCompact"
       >
-        <i [class]="icons.COMMON.CALENDAR + ' text-xs'"></i>
+        <i [class]="`${icons.COMMON.CALENDAR} text-xs`"></i>
         <span>
           {{ fromDate | date: rangeFormat }}
           <span class="mx-1">→</span>
@@ -433,7 +433,7 @@
           [class.text-xs]="isCompact"
         >
           <app-chip
-            [label]="'Attachments (' + keys.length + ')'"
+            [label]="`Attachments (${keys.length})`"
             [icon]="icons.COMMON.PAPERCLIP"
             [styleClass]="
               'text-xs font-medium bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 transition-colors duration-150 cursor-pointer'
@@ -462,11 +462,11 @@
           [class.text-xs]="isCompact"
         >
           <a
-            [href]="'mailto:' + val"
+            [href]="`mailto:${val}`"
             class="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 hover:underline transition-colors duration-200 group"
             (click)="$event.stopPropagation()"
           >
-            <i [class]="icons.COMMON.EMAIL + ' text-sm group-hover:scale-110 transition-transform duration-200'"></i>
+            <i [class]="`${icons.COMMON.EMAIL} text-sm group-hover:scale-110 transition-transform duration-200`"></i>
             <span class="group-hover:text-emerald-700 transition-colors">{{ val }}</span>
           </a>
         </div>
@@ -481,11 +481,11 @@
           [class.text-xs]="isCompact"
         >
           <a
-            [href]="'tel:' + val"
+            [href]="`tel:${val}`"
             class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 hover:underline transition-colors duration-200 group"
             (click)="$event.stopPropagation()"
           >
-            <i [class]="icons.COMMON.PHONE + ' text-sm group-hover:scale-110 transition-transform duration-200'"></i>
+            <i [class]="`${icons.COMMON.PHONE} text-sm group-hover:scale-110 transition-transform duration-200`"></i>
             <span class="group-hover:text-indigo-700 transition-colors">{{ val }}</span>
           </a>
         </div>

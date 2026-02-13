@@ -65,11 +65,11 @@
                     class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                     [ngClass]="info.bgColor || 'employee-detail-icon-box--default'"
                   >
-                    <i [class]="(info.icon || icons.COMMON.INFO_CIRCLE) + ' text-primary'"></i>
+                    <i [class]="`${info.icon || icons.COMMON.INFO_CIRCLE} text-primary`"></i>
                   </div>
                   <div class="min-w-0 flex-1">
-                    <p class="text-xs mb-0.5">{{ info.label }}</p>
-                    <p class="text-sm font-medium break-words">
+                    <p class="employee-detail-profile-label text-xs mb-0.5">{{ info.label }}</p>
+                    <p class="employee-detail-profile-value text-sm font-medium break-words">
                       @if (info.value) {
                         @if (info.type === ALL_DATA_TYPES.DATE) {
                           {{ info.value.toString() | date: info.format }}
@@ -138,11 +138,11 @@
                     @if (card.fields && card.fields.length > 0) {
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         @for (field of card.fields; track field.label) {
-                          <div class="flex flex-col gap-1">
-                            <span class="text-xs font-semibold uppercase tracking-wider">
+                          <div class="flex flex-col gap-1 employee-detail-field">
+                            <span class="employee-detail-field-label text-xs font-semibold uppercase tracking-wider">
                               {{ field.label }}
                             </span>
-                            <span class="text-sm font-medium">
+                            <span class="employee-detail-field-value text-sm font-medium">
                               @if (field.value) {
                                 @if (field.type === ALL_DATA_TYPES.DATE) {
                                   {{ field.value.toString() | date: field.format }}
@@ -196,7 +196,7 @@
                               class="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
                               [ngClass]="isEmpty ? bgColor : `${bgColor} ${hoverBg}`"
                             >
-                              <i [class]="icons.MEDIA.PDF + ' ' + iconColor + ' text-lg'"></i>
+                              <i [class]="`${icons.MEDIA.PDF} ${iconColor} text-lg`"></i>
                             </div>
                             <div class="flex-1 min-w-0 text-left">
                               <p class="text-sm font-semibold truncate">
