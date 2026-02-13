@@ -1,95 +1,79 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()"></app-page-header>
 
 <div class="attendance-card">
-  <!-- Main Content Card -->
   <div class="content-card">
-    <!-- Status Header -->
-    <header class="status-header">
-      <div class="status-content">
-        <div class="status-indicator">
-          <span class="status-indicator__text">
-            {{ currentStatusData()?.status || '' | textCase: 'title' }}
-          </span>
-        </div>
-
-        <div class="time-info">
-          <p class="time-info__current">
-            {{ todayDate | date: APP_CONFIG.DATE_FORMATS.WITH_SHORT_MONTH }}
-          </p>
-          <p class="time-info__date">
-            {{ todayDate | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-          </p>
-        </div>
-      </div>
-    </header>
-
-    <!-- Hours Display -->
-    <section class="hours-section">
-      <div class="hours-display">
-        <div class="hours-display__number">
-          {{ currentStatusData()?.workDuration || 0 | secondsToDhms }}
-        </div>
-        <div class="hours-display__underline hours-display__underline--inactive"></div>
-      </div>
-
-      <p class="hours-label">Total Hours Today</p>
-
-      <!-- Time Summary -->
-      <div class="time-summary">
-        <div class="time-summary__item">
-          <div class="time-summary__dot time-summary__dot--started-inactive"></div>
-          <span class="time-summary__label">Started</span>
-          <span class="time-summary__time time-summary__time--started">
-            @if (currentStatusData()?.checkInTime) {
-              {{ currentStatusData()?.checkInTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-            } @else {
-              -
-            }
-          </span>
-        </div>
-
-        <div class="time-summary__item">
-          <div class="time-summary__dot time-summary__dot--ended-active"></div>
-          <span class="time-summary__label">Ended</span>
-          <span class="time-summary__time time-summary__time--ended">
-            @if (currentStatusData()?.checkOutTime) {
-              {{ currentStatusData()?.checkOutTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-            } @else {
-              -
-            }
-          </span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Divider -->
-    <div class="section-divider"></div>
-
-    <!-- Assignment Details -->
-    <section class="assignment-section">
-      @let showCheckInButton =
-        !isEditingAssignment() && currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
-      @let showCheckOutButton =
-        !isEditingAssignment() && !currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
-
-      <form
-        class="form"
-        [formGroup]="form.formGroup"
-        (ngSubmit)="onSubmit()"
-      >
-        <div class="assignment-card">
-          <div class="assignment-card__header">
-            <p class="assignment-card__section-title">Assignment Details</p>
-            <app-button
-              [buttonConfig]="assignmentHeaderButtonConfig()"
-              (onButtonClick)="toggleAssignmentEditing()"
-            />
+    <div class="content-card__layout">
+      <!-- Status header (gradient) -->
+      <header class="status-header">
+        <div class="status-header__bg"></div>
+        <div class="status-content">
+          <div class="status-pill">
+            <span class="status-pill__dot"></span>
+            <span class="status-pill__text">
+              {{ currentStatusData()?.status || '' | textCase: 'title' }}
+            </span>
           </div>
+          <div class="time-info">
+            <span class="time-info__date">
+              {{ todayDate | date: APP_CONFIG.DATE_FORMATS.WITH_SHORT_MONTH }}
+            </span>
+            <span class="time-info__time">
+              {{ todayDate | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Hours + Check-in / Check-out (pehle wala style) -->
+      <section class="hours-section">
+        <div class="hours-block">
+          <div class="hours-block__value">
+            {{ currentStatusData()?.workDuration || 0 | secondsToDhms }}
+          </div>
+          <p class="hours-block__label">Total Hours Today</p>
+        </div>
+        <div class="time-pills">
+          <div class="time-pill time-pill--start">
+            <span class="time-pill__label">Check-in</span>
+            <span class="time-pill__value time-pill__value--start">
+              @if (currentStatusData()?.checkInTime) {
+                {{ currentStatusData()?.checkInTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+              } @else {
+                —
+              }
+            </span>
+          </div>
+          <div class="time-pill__connector"></div>
+          <div class="time-pill time-pill--end">
+            <span class="time-pill__label">Check-out</span>
+            <span class="time-pill__value time-pill__value--end">
+              @if (currentStatusData()?.checkOutTime) {
+                {{ currentStatusData()?.checkOutTime | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+              } @else {
+                —
+              }
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Assignment Details -->
+      <section class="content-card__main assignment-section">
+        @let showCheckInButton =
+          !isEditingAssignment() && currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
+        @let showCheckOutButton =
+          !isEditingAssignment() && !currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
+
+        <form
+          class="form"
+          [formGroup]="form.formGroup"
+          (ngSubmit)="onSubmit()"
+        >
           @if (!isEditingAssignment()) {
-            <div class="assignment-card__note assignment-card__note--important">
+            <div class="assignment-note">
               <p>Before applying attendance, please review your assignment details.</p>
               <p>If any information is incorrect, you may edit it here or contact your Admin / HR.</p>
-              <ul class="assignment-card__note-list">
+              <ul class="assignment-note__list">
                 <li>
                   <b>Site Location</b>
                   - This is the site location where you need to report.
@@ -108,109 +92,119 @@
                   - The assigned vehicle will remain under your responsibility.
                 </li>
               </ul>
-              <p>Please ensure these details are accurate before submitting your attendance.</p>
             </div>
           }
-          <!-- Location -->
-          <div class="assignment-card__item">
-            @if (isEditingAssignment()) {
-              <div class="assignment-card__content">
-                <app-input-field
-                  [formGroup]="form.formGroup"
-                  [inputFieldConfig]="form.fieldConfigs.locationName"
-                />
+          <div class="assignment-card">
+            <div class="assignment-card__header">
+              <h3 class="assignment-card__title">Assignment Details</h3>
+              <app-button
+                [buttonConfig]="assignmentHeaderButtonConfig()"
+                (onButtonClick)="toggleAssignmentEditing()"
+              />
+            </div>
+            <div class="assignment-rows">
+              <!-- Location -->
+              <div class="assignment-row">
+                @if (isEditingAssignment()) {
+                  <div class="assignment-row__content assignment-row__content--full">
+                    <app-input-field
+                      [formGroup]="form.formGroup"
+                      [inputFieldConfig]="form.fieldConfigs.locationName"
+                    />
+                  </div>
+                } @else {
+                  <div class="assignment-row__icon assignment-row__icon--location">
+                    <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
+                  </div>
+                  <div class="assignment-row__content">
+                    <span class="assignment-row__label">Location</span>
+                    <span class="assignment-row__value">
+                      {{ $any(form.getFieldData('locationName')) ?? '-' | textCase: 'title' }}
+                    </span>
+                  </div>
+                }
               </div>
-            } @else {
-              <div class="assignment-card__icon assignment-card__icon--location">
-                <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
-              </div>
-              <div class="assignment-card__content">
-                <p class="assignment-card__label assignment-card__label--location">Location</p>
-                <p class="assignment-card__value">
-                  {{ $any(form.getFieldData('locationName')) ?? '-' | textCase: 'title' }}
-                </p>
-              </div>
-            }
-          </div>
 
-          <!-- Client -->
-          <div class="assignment-card__item">
-            @if (isEditingAssignment()) {
-              <div class="assignment-card__content">
-                <app-input-field
-                  [formGroup]="form.formGroup"
-                  [inputFieldConfig]="form.fieldConfigs.clientName"
-                />
+              <!-- Client -->
+              <div class="assignment-row">
+                @if (isEditingAssignment()) {
+                  <div class="assignment-row__content assignment-row__content--full">
+                    <app-input-field
+                      [formGroup]="form.formGroup"
+                      [inputFieldConfig]="form.fieldConfigs.clientName"
+                    />
+                  </div>
+                } @else {
+                  <div class="assignment-row__icon assignment-row__icon--client">
+                    <i [class]="ALL_ICONS.COMMON.USER"></i>
+                  </div>
+                  <div class="assignment-row__content">
+                    <span class="assignment-row__label">Client</span>
+                    <span class="assignment-row__value">
+                      {{ $any(form.getFieldData('clientName')) ?? '-' | textCase: 'title' }}
+                    </span>
+                  </div>
+                }
               </div>
-            } @else {
-              <div class="assignment-card__icon assignment-card__icon--client">
-                <i [class]="ALL_ICONS.COMMON.USER"></i>
-              </div>
-              <div class="assignment-card__content">
-                <p class="assignment-card__label assignment-card__label--client">Client</p>
-                <p class="assignment-card__value">
-                  {{ $any(form.getFieldData('clientName')) ?? '-' | textCase: 'title' }}
-                </p>
-              </div>
-            }
-          </div>
 
-          <div class="assignment-card__item">
-            @if (isEditingAssignment()) {
-              <div class="assignment-card__content">
-                <app-input-field
-                  [formGroup]="form.formGroup"
-                  [inputFieldConfig]="form.fieldConfigs.associateEngineerName"
-                />
+              <div class="assignment-row">
+                @if (isEditingAssignment()) {
+                  <div class="assignment-row__content assignment-row__content--full">
+                    <app-input-field
+                      [formGroup]="form.formGroup"
+                      [inputFieldConfig]="form.fieldConfigs.associateEngineerName"
+                    />
+                  </div>
+                } @else {
+                  <div class="assignment-row__icon assignment-row__icon--associate">
+                    <i [class]="ALL_ICONS.COMMON.USER"></i>
+                  </div>
+                  <div class="assignment-row__content">
+                    <span class="assignment-row__label">Associate Engineer</span>
+                    <span class="assignment-row__value">
+                      {{ $any(form.getFieldData('associateEngineerName')) ?? '-' | textCase: 'title' }}
+                    </span>
+                  </div>
+                }
               </div>
-            } @else {
-              <div class="assignment-card__icon assignment-card__icon--associate">
-                <i [class]="ALL_ICONS.COMMON.USER"></i>
-              </div>
-              <div class="assignment-card__content">
-                <p class="assignment-card__label assignment-card__label--associate">Associate Engineer</p>
-                <p class="assignment-card__value">
-                  {{ $any(form.getFieldData('associateEngineerName')) ?? '-' | textCase: 'title' }}
-                </p>
-              </div>
-            }
-          </div>
 
-          <div class="assignment-card__item">
-            @if (isEditingAssignment()) {
-              <div class="assignment-card__content">
-                <app-input-field
-                  [formGroup]="form.formGroup"
-                  [inputFieldConfig]="form.fieldConfigs.associatedVehicle"
-                />
+              <div class="assignment-row">
+                @if (isEditingAssignment()) {
+                  <div class="assignment-row__content assignment-row__content--full">
+                    <app-input-field
+                      [formGroup]="form.formGroup"
+                      [inputFieldConfig]="form.fieldConfigs.associatedVehicle"
+                    />
+                  </div>
+                } @else {
+                  <div class="assignment-row__icon assignment-row__icon--vehicle">
+                    <i [class]="ALL_ICONS.COMMON.CAR"></i>
+                  </div>
+                  <div class="assignment-row__content">
+                    <span class="assignment-row__label">Associated Vehicle</span>
+                    <span class="assignment-row__value">
+                      {{ $any(form.getFieldData('associatedVehicle')) ?? '-' | textCase: 'title' }}
+                    </span>
+                  </div>
+                }
               </div>
-            } @else {
-              <div class="assignment-card__icon assignment-card__icon--vehicle">
-                <i [class]="ALL_ICONS.COMMON.CAR"></i>
-              </div>
-              <div class="assignment-card__content">
-                <p class="assignment-card__label assignment-card__label--vehicle">Associated Vehicle</p>
-                <p class="assignment-card__value">
-                  {{ $any(form.getFieldData('associatedVehicle')) ?? '-' | textCase: 'title' }}
-                </p>
-              </div>
+            </div>
+          </div>
+          <div class="action-button">
+            @if (showCheckOutButton) {
+              <app-button
+                [buttonConfig]="form.buttonConfigs['checkOut']"
+                [showButtonLoader]="isSubmitting()"
+              ></app-button>
+            } @else if (showCheckInButton) {
+              <app-button
+                [buttonConfig]="form.buttonConfigs['checkIn']"
+                [showButtonLoader]="isSubmitting()"
+              ></app-button>
             }
           </div>
-        </div>
-        <div class="action-button">
-          @if (showCheckOutButton) {
-            <app-button
-              [buttonConfig]="form.buttonConfigs['checkOut']"
-              [showButtonLoader]="isSubmitting()"
-            ></app-button>
-          } @else if (showCheckInButton) {
-            <app-button
-              [buttonConfig]="form.buttonConfigs['checkIn']"
-              [showButtonLoader]="isSubmitting()"
-            ></app-button>
-          }
-        </div>
-      </form>
-    </section>
+        </form>
+      </section>
+    </div>
   </div>
 </div>

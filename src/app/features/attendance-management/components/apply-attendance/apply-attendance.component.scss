@@ -1,222 +1,357 @@
 @import "tailwindcss" reference;
 
 .attendance-card {
-  @apply max-w-md mx-auto space-y-6;
+  max-width: 44rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 1.25rem;
+
+  @media (min-width: 768px) {
+    max-width: 56rem;
+  }
 }
 
-// Main content card
 .content-card {
-  @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20;
+  background-color: var(--background-paper-color);
+  border: 1px solid var(--border-light-color);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
-// Status header
-.status-header {
-  @apply relative px-6 py-6 pb-4;
-  @apply bg-gradient-to-r from-slate-500 via-gray-500 to-slate-600;
+.content-card__layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
 
-  // Decorative circles
+// Status header — gradient, pill, date/time
+.status-header {
+  position: relative;
+  padding: 0.875rem 1.25rem;
+  overflow: hidden;
+}
+
+.status-header__bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--surface-600) 0%, var(--primary-color) 40%, var(--surface-600) 100%);
+  opacity: 0.95;
+
   &::before {
     content: "";
-    @apply absolute top-2 right-4 w-20 h-20 bg-white/10 rounded-full;
-  }
-
-  &::after {
-    content: "";
-    @apply absolute -top-4 -right-2 w-16 h-16 bg-white/5 rounded-full;
-  }
-
-  .status-content {
-    @apply relative flex items-center justify-between text-white;
-  }
-
-  .status-indicator {
-    @apply flex items-center gap-3;
-
-    &__text {
-      @apply font-semibold text-lg;
-    }
-  }
-
-  .time-info {
-    @apply text-right;
-
-    &__current {
-      @apply text-sm font-medium opacity-90;
-    }
-
-    &__date {
-      @apply text-xs opacity-75;
-    }
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 80%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
+    pointer-events: none;
   }
 }
 
-// Hours section
+.status-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+}
+
+.status-pill__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.1);
+  }
+}
+
+.status-pill__text {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.time-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.time-info__date {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.time-info__time {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.03em;
+}
+
+// Hours section — compact
 .hours-section {
-  @apply px-6 pt-6 pb-3 text-center;
-
-  .hours-display {
-    @apply inline-block relative;
-
-    &__number {
-      @apply text-4xl font-black font-mono mb-2 tracking-tight bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent;
-    }
-
-    &__underline {
-      @apply absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-0.5 rounded-full;
-
-      &--inactive {
-        @apply bg-gradient-to-r from-gray-300 to-gray-400;
-      }
-    }
-  }
-
-  .hours-label {
-    @apply text-xs font-medium text-gray-500 uppercase tracking-wide mt-3 mb-4;
-  }
+  padding: 0.75rem 1.25rem 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border-light-color);
 }
 
-// Time summary
-.time-summary {
-  @apply flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm;
-
-  &__item {
-    @apply flex items-center gap-2;
-  }
-
-  &__dot {
-    @apply w-2.5 h-2.5 rounded-full;
-
-    &--started-inactive {
-      @apply bg-emerald-400;
-    }
-
-    &--ended-active {
-      @apply bg-orange-500;
-    }
-  }
-
-  &__label {
-    @apply text-gray-600 text-xs;
-  }
-
-  &__time {
-    @apply font-bold;
-
-    &--started {
-      @apply text-emerald-600;
-    }
-
-    &--ended {
-      @apply text-orange-600;
-    }
-  }
+.hours-block {
+  margin-bottom: 0.5rem;
 }
 
-// Divider
-.section-divider {
-  @apply mx-6 border-t border-gray-100;
+.hours-block__value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text-primary-color);
 }
 
-// Assignment section
+.hours-block__label {
+  margin-top: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary-color);
+}
+
+.time-pills {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.time-pill {
+  flex: 1;
+  min-width: 5.5rem;
+  max-width: 10rem;
+  padding: 0.4rem 0.625rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-light-color);
+  background-color: var(--surface-50);
+  text-align: center;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.time-pill__label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary-color);
+  margin-bottom: 0.125rem;
+}
+
+.time-pill__value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary-color);
+}
+
+.time-pill__value--start {
+  color: #059669;
+}
+
+.time-pill__value--end {
+  color: #ea580c;
+}
+
+.time-pill__connector {
+  width: 1.5rem;
+  height: 1px;
+  background: var(--border-main-color);
+  flex-shrink: 0;
+}
+
+.content-card__main {
+  min-width: 0;
+}
+
+// Assignment section — compact
 .assignment-section {
-  @apply px-6 pt-6 pb-4;
+  padding: 1rem 1.25rem 1rem;
+}
 
-  .assignment-card {
-    @apply bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4;
+// Note — card ke bahar
+.assignment-note {
+  margin-bottom: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.45;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-main-color);
+  background-color: var(--surface-200);
+  color: var(--text-primary-color);
+}
 
-    &__section-title {
-      @apply text-xs font-semibold text-gray-600 uppercase tracking-wide;
-    }
+.assignment-note__list {
+  list-style: disc;
+  padding-left: 1rem;
+  margin-top: 0.375rem;
+  margin-bottom: 0;
 
-    &__note {
-      @apply mt-1 mb-2 text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-300 rounded px-3 py-2 leading-snug shadow-sm;
-    }
+  li {
+    margin-bottom: 0.25rem;
 
-    &__note--important {
-      @apply mb-4;
-    }
-
-    &__note-list {
-      @apply list-disc pl-5 space-y-1 mt-1;
-    }
-
-    &__item {
-      @apply flex items-center gap-3;
-
-      &:not(:last-child) {
-        @apply mb-3;
-      }
-    }
-
-    &__icon {
-      @apply w-8 h-8 rounded-lg flex items-center justify-center shadow-sm;
-
-      &--location {
-        @apply bg-blue-500;
-      }
-
-      &--client {
-        @apply bg-emerald-500;
-      }
-
-      &--associate {
-        @apply bg-violet-500;
-      }
-
-      &--vehicle {
-        @apply bg-amber-500;
-      }
-
-      i {
-        @apply text-white text-xs;
-      }
-    }
-
-    &__content {
-      @apply flex-1;
-    }
-
-    &__label {
-      @apply text-xs font-medium mb-0.5;
-
-      &--location {
-        @apply text-blue-600;
-      }
-
-      &--client {
-        @apply text-emerald-600;
-      }
-
-      &--associate {
-        @apply text-violet-600;
-      }
-
-      &--vehicle {
-        @apply text-amber-600;
-      }
-    }
-
-    &__value {
-      @apply font-semibold text-gray-800 text-sm;
-    }
-
-    &__header {
-      @apply flex items-center justify-between gap-2 mb-0.5;
-    }
-
-    &__edit-button {
-      @apply inline-flex items-center justify-center text-[10px] text-blue-600 hover:text-blue-800 transition-colors;
-
-      &--save {
-        @apply text-emerald-600 hover:text-emerald-700;
-      }
+    b {
+      font-weight: 600;
+      color: var(--text-primary-color);
     }
   }
+}
+
+.assignment-card {
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background-color: var(--surface-200);
+}
+
+.assignment-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.625rem;
+}
+
+.assignment-card__title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary-color);
+}
+
+// Assignment rows — 2-2 pair, compact
+.assignment-rows {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.assignment-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background-color: var(--surface-100);
+
+  // Input field wale row ke peeche background mat do
+  &:has(.assignment-row__content--full) {
+    background-color: transparent;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.assignment-row__icon {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+  i {
+    font-size: 0.8125rem;
+    color: #fff;
+  }
+
+  &--location {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+
+  &--client {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  &--associate {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+
+  &--vehicle {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+}
+
+.assignment-row__content {
+  flex: 1;
+  min-width: 0;
+
+  &--full {
+    width: 100%;
+  }
+}
+
+.assignment-row__label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary-color);
+  margin-bottom: 0.125rem;
+}
+
+.assignment-row__value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary-color);
 }
 
 // Action button
 .action-button {
-  @apply mt-4;
+  margin-top: 0.75rem;
 }
 
 :host ::ng-deep .p-button {

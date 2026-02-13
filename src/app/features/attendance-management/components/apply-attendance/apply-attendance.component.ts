@@ -24,6 +24,7 @@ import {
 import { ICONS } from '@shared/constants/icon.constants';
 import {
   EButtonActionType,
+  EButtonSeverity,
   EButtonVariant,
   IButtonConfig,
   IPageHeaderConfig,
@@ -181,6 +182,7 @@ export class ApplyAttendanceComponent
         id: EButtonActionType.SUBMIT,
         icon: ICONS.ACTIONS.CHECK,
         variant: EButtonVariant.TEXT,
+        severity: EButtonSeverity.SUCCESS,
       };
     }
 

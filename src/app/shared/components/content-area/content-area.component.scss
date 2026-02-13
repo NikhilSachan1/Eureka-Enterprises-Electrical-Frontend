@@ -9,13 +9,13 @@
   --sidebar-collapsed-width: 70px;
 }
 
-// Content area component with light/dark theme support
+// Content area — same bg as auth layout (primary + surface mix)
 .content-area {
   flex: 1;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  background: linear-gradient(180deg, var(--background-default-color) 0%, var(--background-paper-color) 100%);
+  background-color: var(--primary-lightest-color);
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
