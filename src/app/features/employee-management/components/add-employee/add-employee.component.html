@@ -1,35 +1,37 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
-<app-stepper
-  [stepperConfig]="stepperConfig"
-  [(activeStep)]="activeStep"
-  [stepErrors]="stepErrors()"
-  [stepValid]="stepValid()"
-  (nextStepRequested)="onStepperNextRequested()"
-  (previousStepRequested)="onStepperPreviousRequested()"
-  (resetRequested)="onStepperResetRequested()"
-  [panelTemplates]="{
-    personalDetailsTemplate: personalDetailsTemplate,
-    employmentDetailsTemplate: employmentDetailsTemplate,
-    educationDetailsTemplate: educationDetailsTemplate,
-    bankDetailsTemplate: bankDetailsTemplate,
-    documentsDetailsTemplate: documentsDetailsTemplate,
-    salaryDetailsTemplate: salaryDetailsTemplate,
-  }"
-/>
-
-<div class="multi-step-button-container">
-  @let form = multiStepForm;
-  <app-button
-    [buttonConfig]="form.buttonConfigs['reset']"
-    (onButtonClick)="onReset()"
+<div class="form-page">
+  <app-stepper
+    [stepperConfig]="stepperConfig"
+    [(activeStep)]="activeStep"
+    [stepErrors]="stepErrors()"
+    [stepValid]="stepValid()"
+    (nextStepRequested)="onStepperNextRequested()"
+    (previousStepRequested)="onStepperPreviousRequested()"
+    (resetRequested)="onStepperResetRequested()"
+    [panelTemplates]="{
+      personalDetailsTemplate: personalDetailsTemplate,
+      employmentDetailsTemplate: employmentDetailsTemplate,
+      educationDetailsTemplate: educationDetailsTemplate,
+      bankDetailsTemplate: bankDetailsTemplate,
+      documentsDetailsTemplate: documentsDetailsTemplate,
+      salaryDetailsTemplate: salaryDetailsTemplate,
+    }"
   />
 
-  <app-button
-    [buttonConfig]="multiStepForm.buttonConfigs['submit']"
-    [showButtonLoader]="isSubmitting()"
-    (onButtonClick)="onSubmit()"
-  />
+  <div class="multi-step-button-container">
+    @let form = multiStepForm;
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    />
+
+    <app-button
+      [buttonConfig]="multiStepForm.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+      (onButtonClick)="onSubmit()"
+    />
+  </div>
 </div>
 
 <!-- Step 1: Personal Details -->

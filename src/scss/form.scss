@@ -1,14 +1,36 @@
+// Single-card wrapper for multi-step pages: stepper + form + buttons in one background
+.form-page {
+  background-color: var(--background-paper-color);
+  padding: 1.5rem;
+  border-radius: 1rem;
+
+  .form {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+  }
+}
+
 .form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  // background-color: #fff;
-  // padding: 1.5rem;
-  // border-radius: 1rem;
+  background-color: var(--background-paper-color);
+  padding: 1.5rem;
+  border-radius: 1rem;
 
   .grid {
     gap: 1.5rem;
   }
+}
+
+// Exclude: apply-attendance form and forms inside dialogs — no single wrapper bg
+app-apply-attendance .form,
+.p-dialog .form,
+p-dialog .form {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
 }
 
 .multi-step-button-container,
