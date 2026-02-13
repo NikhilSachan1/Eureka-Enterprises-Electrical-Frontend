@@ -39,6 +39,17 @@
   }
 }
 
+// Email & phone links — same color as table text, underline on hover
+.data-table-link {
+  color: var(--text-primary-color);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    color: var(--text-primary-color);
+  }
+}
+
 :host ::ng-deep {
   .p-datatable {
     .p-datatable-table {

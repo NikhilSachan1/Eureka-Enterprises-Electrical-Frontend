@@ -463,11 +463,11 @@
         >
           <a
             [href]="`mailto:${val}`"
-            class="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 hover:underline transition-colors duration-200 group"
+            class="data-table-link flex items-center gap-2 transition-colors duration-200 group"
             (click)="$event.stopPropagation()"
           >
             <i [class]="`${icons.COMMON.EMAIL} text-sm group-hover:scale-110 transition-transform duration-200`"></i>
-            <span class="group-hover:text-emerald-700 transition-colors">{{ val }}</span>
+            <span>{{ val }}</span>
           </a>
         </div>
       } @else {
@@ -482,11 +482,11 @@
         >
           <a
             [href]="`tel:${val}`"
-            class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 hover:underline transition-colors duration-200 group"
+            class="data-table-link flex items-center gap-2 transition-colors duration-200 group"
             (click)="$event.stopPropagation()"
           >
             <i [class]="`${icons.COMMON.PHONE} text-sm group-hover:scale-110 transition-transform duration-200`"></i>
-            <span class="group-hover:text-indigo-700 transition-colors">{{ val }}</span>
+            <span>{{ val }}</span>
           </a>
         </div>
       } @else {
