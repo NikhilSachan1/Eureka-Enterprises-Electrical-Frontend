@@ -495,41 +495,17 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
     } = response.documents;
 
     const documentInfo: IEmployeeDocumentInfo[] = [
-      {
-        label: 'Aadhar Document',
-        documentKey: AADHAR,
-        color: 'red',
-      },
-      {
-        label: 'PAN Document',
-        documentKey: PAN,
-        color: 'blue',
-      },
-      {
-        label: 'Passport Document',
-        documentKey: PASSPORT,
-        color: 'green',
-      },
+      { label: 'Aadhar Document', documentKey: AADHAR, color: 'red' },
+      { label: 'PAN Document', documentKey: PAN, color: 'blue' },
+      { label: 'Passport Document', documentKey: PASSPORT, color: 'green' },
       {
         label: 'Driving License Document',
         documentKey: DRIVING_LICENSE,
         color: 'purple',
       },
-      {
-        label: 'ESIC Document',
-        documentKey: ESIC,
-        color: 'red',
-      },
-      {
-        label: 'UAN Document',
-        documentKey: UAN,
-        color: 'yellow',
-      },
-      {
-        label: 'Degree Document',
-        documentKey: DEGREE,
-        color: 'blue',
-      },
+      { label: 'ESIC Document', documentKey: ESIC, color: 'red' },
+      { label: 'UAN Document', documentKey: UAN, color: 'yellow' },
+      { label: 'Degree Document', documentKey: DEGREE, color: 'blue' },
       {
         label: 'Offer Letter Document',
         documentKey: OFFER_LETTER,

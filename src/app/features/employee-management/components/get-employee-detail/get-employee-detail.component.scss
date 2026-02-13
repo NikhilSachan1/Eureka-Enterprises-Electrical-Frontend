@@ -1,3 +1,16 @@
+// All employee detail cards (profile, Personal, Employment, UAN, Documents) - theme-aware border
+// Use border-main in dark so border is visible against card background
+:host {
+  ::ng-deep p-card.employee-detail-card,
+  ::ng-deep .employee-detail-card .p-card {
+    border: 1px solid var(--border-main-color) !important;
+  }
+}
+
+.employee-detail-doc-item {
+  border: 1px solid var(--border-main-color) !important;
+}
+
 ::ng-deep {
   .p-card {
     .p-card-body {

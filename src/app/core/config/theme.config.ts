@@ -2,7 +2,7 @@ import { ThemeConfig } from '@shared/types';
 import { generatePrimaryShades } from './theme.utils';
 
 /** Single source of truth: set this hex to change the entire primary palette (light theme). */
-export const PRIMARY_MAIN = '#BA8E23';
+export const PRIMARY_MAIN = '#006D5B';
 
 /** Primary color for dark theme: muted slate (dark-mode style, no bright accent). */
 export const DARK_PRIMARY_MAIN = '#94a3b8';
@@ -73,7 +73,7 @@ export const themeConfig: ThemeConfig = {
     },
     text: {
       primary: '#ffffff',
-      secondary: '#e2e8f0',
+      secondary: '#94a3b8', // Muted so headings/labels are distinct from content (primary)
       disabled: '#64748b',
     },
     background: {

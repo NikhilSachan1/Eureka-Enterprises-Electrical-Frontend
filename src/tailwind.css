@@ -1,6 +1,9 @@
 @import 'tailwindcss-primeui';
 @layer tailwind, primeng;
 
+/* Safelist for employee document icons (dynamic doc.color → bg/text-{color}-100/600/200) */
+@source inline("bg-{red,blue,green,purple,yellow}-100 text-{red,blue,green,purple,yellow}-600 group-hover:bg-{red,blue,green,purple,yellow}-200");
+
 @layer tailwind {
   @import 'tailwindcss';
 }
