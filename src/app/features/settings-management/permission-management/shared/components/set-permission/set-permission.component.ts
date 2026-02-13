@@ -437,7 +437,11 @@ export class SetPermissionComponent implements OnInit {
       globalTotal += moduleTotal;
 
       const moduleStatsArray = [
-        { label: 'Total', value: moduleTotal, colorClass: 'text-gray-600' },
+        {
+          label: 'Total',
+          value: moduleTotal,
+          colorClass: 'text-content-secondary',
+        },
         {
           label: 'Granted',
           value: moduleGranted,
@@ -459,7 +463,11 @@ export class SetPermissionComponent implements OnInit {
     });
 
     const globalStatsArray = [
-      { label: 'Total', value: globalTotal, colorClass: 'text-gray-600' },
+      {
+        label: 'Total',
+        value: globalTotal,
+        colorClass: 'text-content-secondary',
+      },
       {
         label: 'Granted',
         value: globalGranted,
@@ -564,7 +572,7 @@ export class SetPermissionComponent implements OnInit {
     return {
       label: 'Not Granted',
       icon: this.icons.ACTIONS.TIMES,
-      cardStyle: 'border-gray-300',
+      cardStyle: 'border-border-medium',
       source,
     };
   }

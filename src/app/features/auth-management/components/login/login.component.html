@@ -62,7 +62,7 @@
     <div class="flex flex-col">
       <!-- Welcome message -->
       @if (userName()) {
-        <p class="text-sm text-slate-500 text-center mb-1 leading-relaxed">
+        <p class="text-sm text-content-secondary text-center mb-1 leading-relaxed">
           Welcome back,
           <span class="text-primary-500 font-semibold">{{ userName() }}</span>
           !
@@ -70,7 +70,7 @@
       }
 
       <!-- Instructions -->
-      <p class="text-sm text-slate-500 text-center mb-5 leading-relaxed">
+      <p class="text-sm text-content-secondary text-center mb-5 leading-relaxed">
         You have access to multiple roles. Select how you'd like to continue:
       </p>
 
@@ -79,7 +79,7 @@
         @for (role of availableRoles(); track role) {
           <button
             type="button"
-            class="role-card flex items-center gap-3.5 w-full p-3.5 bg-white border border-slate-200 rounded-xl cursor-pointer transition-all duration-150 ease-out"
+            class="role-card flex items-center gap-3.5 w-full p-3.5 bg-bg-paper border border-border rounded-xl cursor-pointer transition-all duration-150 ease-out"
             [class.selected]="isRoleSelected(role)"
             (click)="selectRole(role)"
           >
@@ -95,7 +95,7 @@
 
             <!-- Role Name -->
             <div class="flex-1 min-w-0 text-left">
-              <span class="role-name block text-[15px] font-medium text-slate-800">
+              <span class="role-name block text-[15px] font-medium text-content">
                 {{ formatRoleName(role) }}
               </span>
             </div>
@@ -107,7 +107,7 @@
                   <i class="pi pi-check text-xs text-white font-bold"></i>
                 </div>
               } @else {
-                <div class="unselected-circle w-5 h-5 border-2 border-slate-200 rounded-full transition-colors"></div>
+                <div class="unselected-circle w-5 h-5 border-2 border-border rounded-full transition-colors"></div>
               }
             </div>
           </button>

@@ -9,13 +9,13 @@
 }
 
 .empty-state-icon {
-  @apply text-5xl text-gray-500;
+  @apply text-5xl text-content-secondary;
 }
 
 .empty-state-title {
-  @apply text-xl font-medium text-gray-700 m-0;
+  @apply text-xl font-medium text-content m-0;
 }
 
 .empty-state-description {
-  @apply text-sm text-gray-500 m-0 leading-relaxed;
+  @apply text-sm text-content-secondary m-0 leading-relaxed;
 }

@@ -116,9 +116,9 @@
   @let hasError = _stepErrors && _stepErrors[value] === true;
   @let isValid = _stepValid && _stepValid[value] === true;
 
-  @let bgClass = hasError ? 'bg-red-500' : isValid ? 'bg-green-500' : 'bg-slate-200';
-  @let textClass = hasError ? 'text-white' : isValid ? 'text-white' : 'text-slate-700';
-  @let borderClass = hasError ? 'border-red-500' : isValid ? 'border-green-500' : 'border-slate-400';
+  @let bgClass = hasError ? 'bg-red-500' : isValid ? 'bg-green-500' : 'bg-surface-200';
+  @let textClass = hasError ? 'text-white' : isValid ? 'text-white' : 'text-content';
+  @let borderClass = hasError ? 'border-red-500' : isValid ? 'border-green-500' : 'border-border-medium';
 
   <div
     class="bg-transparent border-0 inline-flex items-center gap-2"
@@ -138,7 +138,7 @@
       }
     </span>
     @if (step?.label) {
-      <span class="text-sm text-center text-gray-500 font-medium tracking-wide">{{ step.label }}</span>
+      <span class="text-sm text-center text-content-secondary font-medium tracking-wide">{{ step.label }}</span>
     }
   </div>
 </ng-template>

@@ -32,9 +32,9 @@ export const SEVERITY_STYLES: Record<StatusSeverity, IStatusStyle> = {
   },
   secondary: {
     severity: 'secondary',
-    bg: 'bg-gray-50',
-    border: 'border-gray-200',
-    text: 'text-gray-600',
+    bg: 'bg-surface-50',
+    border: 'border-border',
+    text: 'text-content-secondary',
     hex: { primary: '#6b7280', light: '#f3f4f6', dark: '#4b5563' },
   },
   purple: {

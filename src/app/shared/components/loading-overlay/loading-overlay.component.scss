@@ -9,10 +9,10 @@ $spinner-border-width: 4px;
 
 // Colors
 $backdrop-color: rgba(0, 0, 0, 0.5);
-$content-bg: white;
-$text-primary: #111827;
-$text-secondary: #6b7280;
-$border-color: rgba(0, 0, 0, 0.1);
+$content-bg: var(--background-default-color);
+$text-primary: var(--text-primary-color);
+$text-secondary: var(--text-secondary-color);
+$border-color: var(--border-light-color);
 $spinner-track: var(--surface-300, #e5e7eb); // Theme-aware track color
 $spinner-active: var(--primary-color, #3b82f6); // Theme-aware primary color
 $shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);

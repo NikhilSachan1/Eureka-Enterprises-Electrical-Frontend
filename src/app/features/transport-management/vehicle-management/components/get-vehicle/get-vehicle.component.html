@@ -58,10 +58,10 @@
           </div>
           <!-- Content -->
           <div class="flex flex-col">
-            <span class="text-xs text-slate-400 uppercase tracking-wide">Next Service</span>
+            <span class="text-xs text-content-secondary uppercase tracking-wide">Next Service</span>
             <div class="flex items-center gap-2">
               @if (data.nextServiceDueKm > 0) {
-                <span class="font-medium text-slate-700">
+                <span class="font-medium text-content">
                   {{ data.nextServiceDueKm | number: numFormat : numLocale }} km
                 </span>
               }
@@ -89,18 +89,20 @@
       @if (data.lastServiceDate || data.lastServiceKm > 0) {
         <div class="flex items-center gap-3">
           <!-- Icon -->
-          <div class="w-7 h-7 rounded-md bg-slate-100 flex items-center justify-center flex-shrink-0">
-            <i class="pi pi-history text-xs text-slate-500"></i>
+          <div class="w-7 h-7 rounded-md bg-surface-100 flex items-center justify-center flex-shrink-0">
+            <i class="pi pi-history text-xs text-content-secondary"></i>
           </div>
           <!-- Content -->
           <div class="flex flex-col">
-            <span class="text-xs text-slate-400 uppercase tracking-wide">Last Service</span>
+            <span class="text-xs text-content-secondary uppercase tracking-wide">Last Service</span>
             <div class="flex items-center gap-2 text-sm">
               @if (data.lastServiceDate) {
-                <span class="font-medium text-slate-700">{{ data.lastServiceDate | date: dateFormat }}</span>
+                <span class="font-medium text-content">{{ data.lastServiceDate | date: dateFormat }}</span>
               }
               @if (data.lastServiceKm > 0) {
-                <span class="text-slate-500">at {{ data.lastServiceKm | number: numFormat : numLocale }} km</span>
+                <span class="text-content-secondary">
+                  at {{ data.lastServiceKm | number: numFormat : numLocale }} km
+                </span>
               }
             </div>
           </div>
@@ -109,7 +111,7 @@
 
       <!-- CURRENT ODOMETER (small footer) -->
       @if (+data.currentOdometerKm > 0) {
-        <div class="flex items-center gap-1.5 text-xs text-slate-400 pl-10">
+        <div class="flex items-center gap-1.5 text-xs text-content-secondary pl-10">
           <i class="pi pi-gauge text-[10px]"></i>
           <span>Current: {{ +data.currentOdometerKm | number: numFormat : numLocale }} km</span>
           @if (data.kmSinceLastService > 0) {
@@ -119,6 +121,6 @@
       }
     </div>
   } @else {
-    <span class="text-slate-400">-</span>
+    <span class="text-content-secondary">-</span>
   }
 </ng-template>

@@ -26,14 +26,14 @@
 @if (data) {
   <app-salary-annexure [annexureData]="data">
     <div footer>
-      <div class="px-6 sm:px-8 py-6 bg-gradient-to-b from-gray-50/30 to-white flex flex-col gap-5">
+      <div class="px-6 sm:px-8 py-6 bg-gradient-to-b from-surface-50/30 to-bg-paper flex flex-col gap-5">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div class="flex-1">
-            <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <h4 class="text-sm font-semibold text-content mb-2 flex items-center gap-2">
               <i class="pi pi-bolt text-primary"></i>
               Quick Actions
             </h4>
-            <p class="text-xs text-gray-500 m-0 mt-1">
+            <p class="text-xs text-content-secondary m-0 mt-1">
               View complete salary revision history and track all changes over time
             </p>
           </div>
@@ -45,10 +45,10 @@
 
         <!-- Contact HR Section -->
         <div
-          class="border-t border-gray-200 pt-5"
+          class="border-t border-border pt-5"
           *appHasPermission="APP_PERMISSION.UI.SALARY_STRUCTURE.CONTACT_ANNEXURE"
         >
-          <p class="text-xs text-gray-500 text-center m-0 italic">
+          <p class="text-xs text-content-secondary text-center m-0 italic">
             If you face any discrepancy or have questions about your salary structure, feel free to reach out to our HR
             department.
           </p>

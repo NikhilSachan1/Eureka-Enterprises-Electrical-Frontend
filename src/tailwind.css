@@ -1,6 +1,32 @@
 @import 'tailwindcss-primeui';
 @layer tailwind, primeng;
 
+/* Theme config colors → Tailwind utilities (theme.service sets --text-*, --border-*, --surface-* on :root) */
+@theme {
+  /* Text: primary content, secondary/muted, disabled */
+  --color-content: var(--text-primary-color);
+  --color-content-secondary: var(--text-secondary-color);
+  --color-content-disabled: var(--text-disabled-color);
+  /* Border: light / main / dark */
+  --color-border: var(--border-light-color);
+  --color-border-medium: var(--border-main-color);
+  --color-border-strong: var(--border-dark-color);
+  /* Surface: cards, panels (50=lightest, 900=darkest) */
+  --color-surface-50: var(--surface-50);
+  --color-surface-100: var(--surface-100);
+  --color-surface-200: var(--surface-200);
+  --color-surface-300: var(--surface-300);
+  --color-surface-400: var(--surface-400);
+  --color-surface-500: var(--surface-500);
+  --color-surface-600: var(--surface-600);
+  --color-surface-700: var(--surface-700);
+  --color-surface-800: var(--surface-800);
+  --color-surface-900: var(--surface-900);
+  /* Page/card background */
+  --color-bg-default: var(--background-default-color);
+  --color-bg-paper: var(--background-paper-color);
+}
+
 /* Safelist for employee document icons (dynamic doc.color → bg/text-{color}-100/600/200) */
 @source inline("bg-{red,blue,green,purple,yellow}-100 text-{red,blue,green,purple,yellow}-600 group-hover:bg-{red,blue,green,purple,yellow}-200");
 

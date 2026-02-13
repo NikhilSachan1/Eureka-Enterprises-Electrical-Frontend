@@ -24,12 +24,12 @@
 
 // Value: card often has light bg from status (Tailwind), so use dark text so content shows in both themes
 .view-detail-value {
-  color: #1e293b !important;
+  color: var(--text-primary-color) !important;
 }
 
 .view-detail-currency {
   font-weight: 600;
-  color: #1e293b !important;
+  color: var(--text-primary-color) !important;
 }
 
 .view-detail-meta {

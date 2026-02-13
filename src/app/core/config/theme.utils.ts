@@ -1,6 +1,12 @@
 /**
- * Theme utilities: generate primary color shades from a single hex (main) color.
- * Set PRIMARY_MAIN in theme.config.ts to change the entire primary palette.
+ * Theme utilities: ek hi primary hex se saare shades generate hote hain.
+ * theme.config.ts mein PRIMARY_MAIN / DARK_PRIMARY_MAIN change karo → yahan se auto shades ban jayenge.
+ *
+ * Shades ka matlab:
+ *   50  = sabse light (almost white ke paas)
+ *   500 = main brand color (jo tumne diya)
+ *   900 = sabse dark (almost black ke paas)
+ *   light = 400, dark = 600 (buttons hover/press ke liye)
  */
 
 export interface PrimaryShades {
@@ -56,9 +62,8 @@ export function mixHex(hex1: string, hex2: string, weight: number): string {
 }
 
 /**
- * Generates a full primary palette from one main hex color.
- * 50 = lightest tint (toward white), 500 = main, 900 = darkest shade (toward black).
- * Light theme only (dark theme will be handled later).
+ * Ek main hex se pura primary palette banaata hai (50 → 950).
+ * Isi se theme.config mein primary.* values aati hain.
  */
 export function generatePrimaryShades(mainHex: string): PrimaryShades {
   const white = '#ffffff';
