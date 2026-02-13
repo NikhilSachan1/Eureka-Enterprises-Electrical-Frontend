@@ -195,7 +195,7 @@
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
         [class]="invalidClass"
-        (onSelect)="onValueChange($event)"
+        (ngModelChange)="onValueChange($event)"
         (onBlur)="onBlur()"
       />
       @if (!showStandardLabel) {
@@ -392,10 +392,10 @@
               <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-1 lg:grid-cols-2">
                 @for (file of files; track file.name; let i = $index) {
                   <div
-                    class="group flex w-full items-center gap-3 rounded-lg border border-surface-200 bg-surface-0 px-2.5 py-2 shadow-sm transition-all duration-150 hover:border-primary-300 hover:shadow-md"
+                    class="file-entry-card group flex w-full items-center gap-3 rounded-lg border px-2.5 py-2 shadow-sm transition-all duration-150 hover:shadow-md"
                   >
                     <div
-                      class="flex h-12 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-surface-100"
+                      class="file-entry-card__thumb flex h-12 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-md"
                       role="button"
                       tabindex="0"
                       (click)="openFilePreview(file)"
@@ -408,7 +408,7 @@
                         />
                       } @else {
                         <i
-                          class="text-2xl text-muted-color"
+                          class="file-entry-card__icon text-2xl"
                           [ngClass]="ALL_MEDIA_ICONS.COMMON.FILE"
                         ></i>
                       }
@@ -416,11 +416,11 @@
                     <div class="flex min-w-0 flex-1 items-center justify-between gap-2">
                       <div class="flex min-w-0 flex-col gap-0.5">
                         <span
-                          class="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs font-semibold text-slate-800"
+                          class="file-entry-card__name block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs font-semibold"
                         >
                           {{ file.name }}
                         </span>
-                        <div class="flex flex-wrap items-center gap-2 text-[11px] text-muted-color">
+                        <div class="file-entry-card__size flex flex-wrap items-center gap-2 text-[11px]">
                           <span>{{ formatSize(file.size) }}</span>
                         </div>
                       </div>

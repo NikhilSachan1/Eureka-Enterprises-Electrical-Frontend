@@ -1,7 +1,3 @@
-// Primary color variable
-$primary: #00a389;
-$primary-dark: #008975;
-
 :host {
   display: block;
   padding: 0.75rem;
@@ -19,25 +15,25 @@ $primary-dark: #008975;
   }
 }
 
-// Main Role Button - original bottom design
+// Main Role Button – generic (works with any theme/primary)
 .role-btn {
   width: 100%;
   display: flex;
   align-items: center;
   gap: 0.625rem;
   padding: 0.5rem 0.625rem;
-  background: linear-gradient(135deg, rgba($primary, 0.08), rgba($primary, 0.02));
-  border: 1px solid rgba($primary, 0.2);
+  background: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200));
+  border: 1px solid color-mix(in srgb, var(--primary-color) 30%, var(--surface-200));
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: linear-gradient(135deg, rgba($primary, 0.12), rgba($primary, 0.04));
-    border-color: $primary;
+    background: color-mix(in srgb, var(--primary-color) 22%, var(--surface-200));
+    border-color: var(--primary-color);
 
     .switch-icon {
-      color: $primary;
+      color: var(--primary-color);
       transform: rotate(180deg);
     }
   }
@@ -80,7 +76,7 @@ $primary-dark: #008975;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $primary;
+  background: var(--primary-color);
   border-radius: 50%;
   flex-shrink: 0;
   margin: 0;
@@ -101,7 +97,7 @@ $primary-dark: #008975;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $primary;
+  background: var(--primary-color);
   border-radius: 0.375rem;
   flex-shrink: 0;
 
@@ -144,7 +140,7 @@ $primary-dark: #008975;
 
   &.spinning {
     animation: spin 1s linear infinite;
-    color: $primary;
+    color: var(--primary-color);
   }
 }
 
@@ -172,7 +168,7 @@ $primary-dark: #008975;
 
   i {
     font-size: 0.75rem;
-    color: $primary;
+    color: var(--primary-color);
   }
 
   span {
@@ -206,10 +202,10 @@ $primary-dark: #008975;
   transition: all 0.15s ease-out;
   text-align: left;
 
-  // Hover state (unselected)
+  // Hover state (unselected) – generic
   &:hover:not(.selected) {
-    border-color: $primary;
-    background: rgba($primary, 0.08);
+    border-color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200));
     transform: translateX(2px);
 
     .role-card-icon {
@@ -217,28 +213,27 @@ $primary-dark: #008975;
     }
 
     .unselected-circle {
-      border-color: $primary;
+      border-color: var(--primary-color);
     }
 
     .role-card-name {
-      color: $primary;
+      color: var(--primary-color);
     }
   }
 
-  // Selected state
+  // Selected state – generic
   &.selected {
-    border-color: $primary;
+    border-color: var(--primary-color);
     border-width: 2px;
-    background: rgba($primary, 0.05);
+    background: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200));
 
     .role-card-name {
-      color: $primary-dark;
+      color: var(--primary-dark-color);
       font-weight: 600;
     }
 
-    // Hover on selected
     &:hover {
-      background: rgba($primary, 0.1);
+      background: color-mix(in srgb, var(--primary-color) 22%, var(--surface-200));
     }
   }
 }
@@ -249,7 +244,7 @@ $primary-dark: #008975;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $primary;
+  background: var(--primary-color);
   border-radius: 0.375rem;
   flex-shrink: 0;
   transition: all 0.15s ease-out;
@@ -286,7 +281,7 @@ $primary-dark: #008975;
 .selected-circle {
   width: 1.25rem;
   height: 1.25rem;
-  background: $primary;
+  background: var(--primary-color);
   border-radius: 50%;
   display: flex;
   align-items: center;

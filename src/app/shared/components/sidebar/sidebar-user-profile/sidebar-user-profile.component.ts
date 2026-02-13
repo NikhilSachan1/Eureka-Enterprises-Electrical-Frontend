@@ -17,7 +17,7 @@ import { AuthService } from '@features/auth-management/services/auth.service';
 import { AppConfigurationService, LoadingService } from '@shared/services';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { PopoverModule, Popover } from 'primeng/popover';
 
@@ -61,7 +61,7 @@ export class SidebarUserProfileComponent {
   readonly secondaryOptions = secondaryUserOptions;
 
   getThemeIcon(): string {
-    return this.themeService.isDarkMode() ? 'pi-sun' : 'pi-moon';
+    return this.themeService.isDarkMode() ? ICONS.THEME.SUN : ICONS.THEME.MOON;
   }
 
   getThemeLabel(): string {

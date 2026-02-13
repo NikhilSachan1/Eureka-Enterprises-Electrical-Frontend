@@ -15,8 +15,7 @@
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-  color: var(--text-primary-color, #1e293b);
+  background: linear-gradient(180deg, var(--background-default-color) 0%, var(--background-paper-color) 100%);
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
@@ -40,12 +39,6 @@
     @media (min-width: 769px) {
       margin-left: var(--sidebar-collapsed-width, 70px);
     }
-  }
-
-  // Dark theme variant
-  &--dark {
-    background: linear-gradient(180deg, var(--surface-50, #0f172a) 0%, var(--surface-100, #1e293b) 100%);
-    color: var(--text-primary-color, #f8fafc);
   }
 }
 

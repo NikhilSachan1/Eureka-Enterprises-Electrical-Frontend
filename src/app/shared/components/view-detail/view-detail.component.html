@@ -7,13 +7,13 @@
       <img
         [src]="_avtarImageUrl()"
         [alt]="entityDetails.name"
-        class="w-8 h-8 rounded-full bg-slate-100"
+        class="w-8 h-8 rounded-full"
         loading="lazy"
       />
 
       <div>
-        <h3 class="text-sm font-semibold text-slate-800">{{ entityDetails.name }}</h3>
-        <p class="text-xs text-slate-500">{{ entityDetails.subtitle }}</p>
+        <h3 class="text-sm font-semibold">{{ entityDetails.name }}</h3>
+        <p class="text-xs">{{ entityDetails.subtitle }}</p>
       </div>
     </div>
   }
@@ -54,8 +54,8 @@
           @for (entry of visibleEntryData; track entry.label) {
             @if (entry.type !== ALL_DATA_TYPES.ATTACHMENTS) {
               <div class="flex justify-between gap-4">
-                <span class="text-sm text-gray-700 flex-shrink-0">{{ entry.label }}:</span>
-                <span class="text-sm font-medium text-gray-900 text-right flex-1">
+                <span class="text-sm flex-shrink-0 text-gray-500">{{ entry.label }}:</span>
+                <span class="text-sm font-medium text-right flex-1 text-gray-900">
                   @if (entry.value !== null && entry.value !== undefined) {
                     @if (entry.type === ALL_DATA_TYPES.DATE) {
                       {{ entry.value.toString() | date: entry.format }}

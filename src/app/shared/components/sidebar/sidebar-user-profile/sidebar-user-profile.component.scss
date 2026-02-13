@@ -76,7 +76,7 @@
     &:hover {
       transform: scale(1.05);
       border-color: var(--sidebar-primary-color);
-      box-shadow: 0 2px 8px rgba(0, 163, 137, 0.2);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--primary-color) 20%, transparent);
     }
 
     &:active {
@@ -181,10 +181,12 @@
   font-size: 0.6875rem;
 }
 
-// Popover Menu
+// Popover Menu – theme-aware (popover is appendTo body, so use global theme vars)
 .user-menu {
   min-width: 180px;
   padding: 0.25rem;
+  background: var(--background-paper-color);
+  color: var(--text-primary-color);
 }
 
 .menu-item {
@@ -199,30 +201,31 @@
   cursor: pointer;
   transition: all 0.15s ease;
   text-align: left;
+  color: var(--text-primary-color);
 
   i {
     font-size: 0.875rem;
-    color: var(--sidebar-text-secondary);
+    color: var(--text-secondary-color);
     width: 1rem;
     transition: color 0.15s ease;
   }
 
   span {
     font-size: 0.8125rem;
-    color: var(--sidebar-text-primary);
+    color: var(--text-primary-color);
     transition: color 0.15s ease;
   }
 
   &:hover {
-    background: rgba(0, 163, 137, 0.1);
+    background: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200));
     transform: translateX(2px);
 
     i {
-      color: var(--sidebar-primary-color);
+      color: var(--primary-color);
     }
 
     span {
-      color: var(--sidebar-primary-color);
+      color: var(--primary-color);
     }
   }
 
@@ -244,13 +247,16 @@
 
 .menu-divider {
   height: 1px;
-  background: var(--sidebar-border-color);
+  background: var(--surface-200);
   margin: 0.25rem 0.5rem;
 }
 
-// Popover override
+// Popover override – ensure panel uses theme so content is visible in dark theme
 ::ng-deep .p-popover .p-popover-content {
   padding: 0;
   border-radius: 0.5rem;
   overflow: hidden;
+  background: var(--background-paper-color) !important;
+  border-color: var(--surface-200);
+  color: var(--text-primary-color);
 }

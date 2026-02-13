@@ -4,15 +4,32 @@
 export type ThemeMode = 'light' | 'dark';
 
 /**
+ * Primary color palette: main + semantic (light/dark/contrast) + full shades for UI states.
+ * Shades 50–900 are used for hover, selected, backgrounds, borders, etc.
+ */
+export interface ThemePrimaryColors {
+  main: string;
+  light: string;
+  dark: string;
+  contrast: string;
+  50: string;
+  100: string;
+  200: string;
+  300: string;
+  400: string;
+  500: string;
+  600: string;
+  700: string;
+  800: string;
+  900: string;
+  950: string;
+}
+
+/**
  * Interface representing the colors for a theme
  */
 export interface ThemeColors {
-  primary: {
-    main: string;
-    light: string;
-    dark: string;
-    contrast: string;
-  };
+  primary: ThemePrimaryColors;
   surface: {
     50: string;
     100: string;

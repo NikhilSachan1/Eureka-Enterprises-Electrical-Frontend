@@ -1,3 +1,29 @@
+// File entry card – uses theme-level vars (see styles.scss :root)
+.file-entry-card {
+  background: var(--primary-lightest-color);
+  border-color: var(--border-light-color);
+
+  &:hover {
+    border-color: var(--primary-color);
+  }
+
+  &__thumb {
+    background: var(--primary-lightest-color);
+  }
+
+  &__name {
+    color: var(--text-primary-color);
+  }
+
+  &__size {
+    color: var(--text-secondary-color);
+  }
+
+  &__icon {
+    color: var(--text-secondary-color);
+  }
+}
+
 // Individual Number Input Field Styling
 :host ::ng-deep {
   .p-inputotp {

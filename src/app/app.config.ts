@@ -22,14 +22,13 @@ import {
 } from '@angular/platform-browser/animations';
 import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import Aura from '@primeng/themes/aura';
+import { AppPreset, APP_CONFIG } from '@core/config';
 import { routes } from './app.routes';
 import { AuthInterceptor, ErrorInterceptor } from '@core/interceptors';
-import { TimezoneService } from '@core/services';
+import { ThemeService, TimezoneService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { AppConfigurationService } from '@shared/services';
-import { APP_CONFIG } from '@core/config';
 import { lastValueFrom, take } from 'rxjs';
 import { FinancialYearService } from '@core/services/financial-year.service';
 
@@ -39,9 +38,9 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(BrowserAnimationsModule),
     providePrimeNG({
       theme: {
-        preset: Aura,
+        preset: AppPreset,
         options: {
-          darkModeSelector: '.my-app-dark',
+          darkModeSelector: '.dark-theme',
           cssLayer: {
             name: 'primeng',
             order: 'tailwind, primeng',
@@ -69,6 +68,9 @@ export const appConfig: ApplicationConfig = {
     ConfirmationService,
     MessageService,
 
+    provideAppInitializer(() => {
+      inject(ThemeService);
+    }),
     provideAppInitializer(async () => {
       const timezoneService = inject(TimezoneService);
       const authService = inject(AuthService);

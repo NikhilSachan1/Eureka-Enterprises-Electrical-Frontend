@@ -717,6 +717,24 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       }
 
       let valueToSet = value;
+      // Range datepicker: ngModelChange gives [start, end] or [start, null]. Use as-is. Single Date fallback -> [date, null].
+      if (
+        config.fieldType === EDataType.DATE &&
+        config.dateConfig?.selectionMode === EDateSelectionMode.Range
+      ) {
+        const isRangeArray =
+          Array.isArray(valueToSet) &&
+          (valueToSet.length === 1 || valueToSet.length === 2) &&
+          (valueToSet[0] instanceof Date || valueToSet[0] === null) &&
+          (valueToSet[1] === undefined ||
+            valueToSet[1] instanceof Date ||
+            valueToSet[1] === null);
+        if (!isRangeArray && valueToSet instanceof Date) {
+          valueToSet = [valueToSet, null];
+        } else if (isRangeArray) {
+          valueToSet = valueToSet as [Date | null, Date | null | undefined];
+        }
+      }
       if (
         (config.fieldType === EDataType.TEXT ||
           config.fieldType === EDataType.TEXT_AREA) &&
@@ -755,6 +773,8 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       control.setValue(valueToSet);
       control.markAsDirty();
       control.updateValueAndValidity();
+      this.formControlValue.set(valueToSet);
+      this.validationTrigger.update(v => v + 1);
       this.onFieldChange.emit(true);
     } else {
       this.onFieldChange.emit(value);

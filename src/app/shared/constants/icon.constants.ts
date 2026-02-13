@@ -120,6 +120,7 @@ export const ICONS = {
   },
   THEME: {
     MOON: 'pi pi-moon',
+    SUN: 'pi pi-sun',
   },
   // Common status icons for metrics/stats
   STATUS: {

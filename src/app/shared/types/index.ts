@@ -119,6 +119,7 @@ export type {
   ThemeMode,
   ThemeConfig,
   ThemeColors,
+  ThemePrimaryColors,
 } from './theme/theme.interface';
 export type { UserOption } from './sidebar/user-option.interface';
 export type { IButtonConfig } from './button/button.interface';

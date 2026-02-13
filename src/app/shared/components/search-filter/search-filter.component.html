@@ -8,14 +8,12 @@
       <!-- Custom Header -->
       <ng-template pTemplate="header">
         <div class="flex items-center gap-3">
-          <div
-            class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 transition-transform duration-200 hover:scale-105"
-          >
+          <div class="search-filter-header-icon">
             <i class="pi pi-filter text-white text-sm"></i>
           </div>
           <div class="flex-1">
-            <h3 class="font-bold text-slate-800 text-lg leading-tight">Search & Filter</h3>
-            <p class="text-slate-500 text-xs mt-0.5">Find exactly what you need</p>
+            <h3 class="font-bold text-lg leading-tight">Search & Filter</h3>
+            <p class="text-xs mt-0.5">Find exactly what you need</p>
           </div>
         </div>
       </ng-template>
@@ -38,7 +36,7 @@
         </div>
 
         <!-- Action Bar -->
-        <div class="flex items-center justify-end gap-3 mt-6 pt-5 border-t border-slate-100">
+        <div class="flex items-center justify-end gap-3 mt-6 pt-5 border-t">
           <app-button
             [buttonConfig]="form.buttonConfigs['reset']"
             [showDisabledButton]="!form.formGroup.dirty && !hasSearched"

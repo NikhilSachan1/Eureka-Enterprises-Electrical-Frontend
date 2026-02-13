@@ -13,14 +13,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--background-default-color);
   color: var(--text-primary-color);
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
 }
 
-// ============================================
-// Professional Bootstrap Loader Styles
-// ============================================
 .boot-loader {
   position: fixed;
   inset: 0;
@@ -28,7 +22,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0a0f1c 0%, #141b2d 50%, #1a2332 100%);
+  // background: linear-gradient(135deg, var(--loader-bg) 0%, var(--loader-bg-end) 50%, var(--loader-bg) 100%);
   font-family: "Segoe UI", system-ui, sans-serif;
   overflow: hidden;
 
@@ -39,13 +33,14 @@ body {
     overflow: hidden;
   }
 
-  // Subtle grid pattern
+  // Subtle grid pattern (uses loader primary for first paint before theme service)
   &__grid {
     position: absolute;
     inset: 0;
+    --p: var(--primary-color, var(--loader-primary));
     background-image:
-      linear-gradient(rgba(0, 163, 137, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 163, 137, 0.03) 1px, transparent 1px);
+      linear-gradient(color-mix(in srgb, var(--p) 3%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--p) 3%, transparent) 1px, transparent 1px);
     background-size: 50px 50px;
     animation: gridMove 20s linear infinite;
   }
@@ -56,11 +51,12 @@ body {
     border-radius: 50%;
     filter: blur(80px);
     opacity: 0.4;
+    --p: var(--primary-color, var(--loader-primary));
 
     &--1 {
       width: 400px;
       height: 400px;
-      background: radial-gradient(circle, rgba(0, 163, 137, 0.6) 0%, transparent 70%);
+      background: radial-gradient(circle, color-mix(in srgb, var(--p) 60%, transparent) 0%, transparent 70%);
       top: -100px;
       right: -100px;
       animation: glowPulse 4s ease-in-out infinite;
@@ -69,7 +65,7 @@ body {
     &--2 {
       width: 300px;
       height: 300px;
-      background: radial-gradient(circle, rgba(59, 130, 246, 0.5) 0%, transparent 70%);
+      background: radial-gradient(circle, color-mix(in srgb, var(--p) 50%, transparent) 0%, transparent 70%);
       bottom: -50px;
       left: -50px;
       animation: glowPulse 4s ease-in-out infinite 2s;
@@ -102,8 +98,10 @@ body {
     position: absolute;
     inset: 0;
     border: 2px solid transparent;
-    border-top-color: rgba(0, 163, 137, 0.8);
-    border-right-color: rgba(0, 163, 137, 0.4);
+    --p: var(--primary-color, var(--loader-primary));
+    --pl: var(--primary-light-color, var(--loader-primary-light));
+    border-top-color: color-mix(in srgb, var(--p) 80%, transparent);
+    border-right-color: color-mix(in srgb, var(--p) 40%, transparent);
     border-radius: 50%;
     animation: orbitSpin 3s linear infinite;
 
@@ -114,20 +112,20 @@ body {
       left: 50%;
       width: 8px;
       height: 8px;
-      background: #00d1ae;
+      background: var(--pl);
       border-radius: 50%;
-      box-shadow: 0 0 12px 4px rgba(0, 209, 174, 0.6);
+      box-shadow: 0 0 12px 4px color-mix(in srgb, var(--pl) 60%, transparent);
     }
 
     &--reverse {
       inset: 15px;
-      border-top-color: rgba(59, 130, 246, 0.6);
-      border-right-color: rgba(59, 130, 246, 0.3);
+      border-top-color: color-mix(in srgb, var(--p) 60%, transparent);
+      border-right-color: color-mix(in srgb, var(--p) 30%, transparent);
       animation: orbitSpinReverse 2.5s linear infinite;
 
       &::before {
-        background: #3b82f6;
-        box-shadow: 0 0 12px 4px rgba(59, 130, 246, 0.6);
+        background: var(--p);
+        box-shadow: 0 0 12px 4px color-mix(in srgb, var(--p) 60%, transparent);
         width: 6px;
         height: 6px;
         top: -3px;
@@ -137,23 +135,26 @@ body {
 
   // Lightning bolt core
   &__core {
+    --p: var(--primary-color, var(--loader-primary));
+    --pl: var(--primary-light-color, var(--loader-primary-light));
+    --pc: var(--primary-contrast-color, var(--loader-primary-contrast));
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #00d1ae 0%, #00a389 100%);
+    background: linear-gradient(135deg, var(--pl) 0%, var(--p) 100%);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow:
-      0 0 30px rgba(0, 163, 137, 0.5),
-      0 0 60px rgba(0, 163, 137, 0.3),
+      0 0 30px color-mix(in srgb, var(--p) 50%, transparent),
+      0 0 60px color-mix(in srgb, var(--p) 30%, transparent),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
     animation: corePulse 2s ease-in-out infinite;
 
     svg {
       width: 28px;
       height: 28px;
-      color: white;
+      color: var(--pc);
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     }
   }
@@ -167,15 +168,15 @@ body {
   &__title {
     font-size: 2rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--loader-text);
     margin: 0 0 0.5rem;
     letter-spacing: -0.02em;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
   &__subtitle {
     font-size: 1rem;
-    color: rgba(148, 163, 184, 0.9);
+    color: var(--loader-text-muted);
     margin: 0;
     font-weight: 400;
     letter-spacing: 0.05em;
@@ -189,15 +190,17 @@ body {
 
   &__track {
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--loader-track);
     border-radius: 2px;
     overflow: hidden;
     position: relative;
   }
 
   &__bar {
+    --p: var(--primary-color, var(--loader-primary));
+    --pl: var(--primary-light-color, var(--loader-primary-light));
     height: 100%;
-    background: linear-gradient(90deg, #00a389, #00d1ae, #3b82f6);
+    background: linear-gradient(90deg, var(--p), var(--pl), var(--p));
     background-size: 200% 100%;
     border-radius: 2px;
     animation:
@@ -246,14 +249,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--loader-step-bg);
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--loader-step-border);
   }
 
   &__step-text {
     font-size: 0.875rem;
-    color: rgba(148, 163, 184, 0.8);
+    color: var(--loader-text-muted);
     font-weight: 400;
     animation: textGlow 2s ease-in-out infinite;
   }
@@ -263,7 +266,8 @@ body {
     position: absolute;
     bottom: 2rem;
     font-size: 0.75rem;
-    color: rgba(100, 116, 139, 0.6);
+    color: var(--loader-text-muted);
+    opacity: 0.8;
     letter-spacing: 0.1em;
     font-weight: 500;
   }
@@ -316,15 +320,15 @@ body {
   100% {
     transform: scale(1);
     box-shadow:
-      0 0 30px rgba(0, 163, 137, 0.5),
-      0 0 60px rgba(0, 163, 137, 0.3),
+      0 0 30px color-mix(in srgb, var(--p) 50%, transparent),
+      0 0 60px color-mix(in srgb, var(--p) 30%, transparent),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
   50% {
     transform: scale(1.05);
     box-shadow:
-      0 0 40px rgba(0, 163, 137, 0.6),
-      0 0 80px rgba(0, 163, 137, 0.4),
+      0 0 40px color-mix(in srgb, var(--p) 60%, transparent),
+      0 0 80px color-mix(in srgb, var(--p) 40%, transparent),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 }
@@ -387,151 +391,6 @@ body {
   }
 }
 
-// Theme variables with fallbacks
-:root {
-  // Primary colors
-  --primary-color: #00a389;
-  --primary-light-color: #00bf9f;
-  --primary-dark-color: #008975;
-  --primary-contrast-color: #ffffff;
-
-  // Surface colors
-  --surface-50: #f0fdfb;
-  --surface-100: #e6f7f4;
-  --surface-200: #d1ebe7;
-  --surface-300: #bcded9;
-  --surface-400: #a7d1cc;
-  --surface-500: #92c4bf;
-  --surface-600: #7db7b2;
-  --surface-700: #68aaa5;
-  --surface-800: #539d98;
-  --surface-900: #3e908b;
-
-  // Text colors
-  --text-primary-color: #1e293b;
-  --text-secondary-color: #64748b;
-  --text-disabled-color: #94a3b8;
-
-  // Background colors
-  --background-default-color: #ffffff;
-  --background-paper-color: #f8fafc;
-
-  // Border colors
-  --border-light-color: #e2e8f0;
-  --border-main-color: #cbd5e1;
-  --border-dark-color: #94a3b8;
-
-  // Shadow values
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-}
-
-// Dark theme overrides
-.dark-theme {
-  // Primary colors
-  --primary-color: #00d1ae;
-  --primary-light-color: #00e2bc;
-  --primary-dark-color: #00bf9f;
-  --primary-contrast-color: #ffffff;
-
-  // Surface colors
-  --surface-50: #0f172a;
-  --surface-100: #1e293b;
-  --surface-200: #334155;
-  --surface-300: #475569;
-  --surface-400: #64748b;
-  --surface-500: #94a3b8;
-  --surface-600: #cbd5e1;
-  --surface-700: #e2e8f0;
-  --surface-800: #f1f5f9;
-  --surface-900: #f8fafc;
-
-  // Text colors
-  --text-primary-color: #f8fafc;
-  --text-secondary-color: #94a3b8;
-  --text-disabled-color: #64748b;
-
-  // Background colors
-  --background-default-color: #0f172a;
-  --background-paper-color: #1e293b;
-
-  // Border colors
-  --border-light-color: #334155;
-  --border-main-color: #475569;
-  --border-dark-color: #64748b;
-
-  // Shadow values
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-}
-
-// Utility classes
-.text-primary {
-  color: var(--text-primary-color);
-}
-.text-secondary {
-  color: var(--text-secondary-color);
-}
-.text-disabled {
-  color: var(--text-disabled-color);
-}
-
-.bg-primary {
-  background-color: var(--primary-color);
-}
-.bg-surface-50 {
-  background-color: var(--surface-50);
-}
-.bg-surface-100 {
-  background-color: var(--surface-100);
-}
-.bg-surface-200 {
-  background-color: var(--surface-200);
-}
-.bg-surface-300 {
-  background-color: var(--surface-300);
-}
-.bg-surface-400 {
-  background-color: var(--surface-400);
-}
-.bg-surface-500 {
-  background-color: var(--surface-500);
-}
-.bg-surface-600 {
-  background-color: var(--surface-600);
-}
-.bg-surface-700 {
-  background-color: var(--surface-700);
-}
-.bg-surface-800 {
-  background-color: var(--surface-800);
-}
-.bg-surface-900 {
-  background-color: var(--surface-900);
-}
-
-.border-light {
-  border-color: var(--border-light-color);
-}
-.border-main {
-  border-color: var(--border-main-color);
-}
-.border-dark {
-  border-color: var(--border-dark-color);
-}
-
-.shadow-sm {
-  box-shadow: var(--shadow-sm);
-}
-.shadow-md {
-  box-shadow: var(--shadow-md);
-}
-.shadow-lg {
-  box-shadow: var(--shadow-lg);
-}
-
 // Scrollbar styling
 * {
   &::-webkit-scrollbar {
@@ -543,11 +402,11 @@ body {
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--surface-200);
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--surface-400);
   }
 }
 
@@ -562,4 +421,29 @@ body {
 // Alternative: Specific fix for p-cards with nav-tabs (using :has selector)
 p-card:has(app-nav-tabs) .p-card {
   overflow: hidden;
+}
+
+// ============================================
+// PrimeNG theme consistency (light theme)
+// ============================================
+// Primary palette is applied via updatePrimaryPalette in app.config.
+// Below overrides ensure dropdowns, datepicker, select, multiselect use theme vars for hover/selected.
+@layer primeng {
+  .p-dropdown-panel .p-dropdown-item.p-highlight,
+  .p-multiselect-panel .p-multiselect-item.p-highlight,
+  .p-datepicker .p-datepicker-calendar td span.p-highlight {
+    background: var(--primary-color);
+    color: var(--primary-contrast-color);
+  }
+
+  .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover,
+  .p-multiselect-panel .p-multiselect-item:not(.p-highlight):hover {
+    background: var(--primary-100);
+    color: var(--primary-color);
+  }
+
+  .p-datepicker .p-datepicker-calendar td span:not(.p-disabled):hover {
+    background: var(--primary-100);
+    color: var(--primary-color);
+  }
 }

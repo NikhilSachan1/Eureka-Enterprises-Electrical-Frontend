@@ -1,0 +1,28 @@
+// Paginator uses PrimeNG; primary is applied via Aura preset (updatePrimaryPalette).
+// Optional overrides for hover/selected/current page using theme variables.
+:host ::ng-deep .p-paginator {
+  .p-paginator-pages .p-button {
+    &.p-highlight {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: var(--primary-contrast-color);
+    }
+
+    &:not(.p-disabled):not(.p-highlight):hover {
+      background: var(--primary-100);
+      border-color: var(--primary-200);
+      color: var(--primary-color);
+    }
+  }
+
+  .p-paginator-first,
+  .p-paginator-prev,
+  .p-paginator-next,
+  .p-paginator-last {
+    &:not(.p-disabled):hover {
+      background: var(--primary-100);
+      border-color: var(--primary-200);
+      color: var(--primary-color);
+    }
+  }
+}

@@ -1,24 +1,35 @@
 import { ThemeConfig } from '@shared/types';
+import { generatePrimaryShades } from './theme.utils';
+
+/** Single source of truth: set this hex to change the entire primary palette (light theme). */
+export const PRIMARY_MAIN = '#BA8E23';
+
+/** Primary color for dark theme: muted slate (dark-mode style, no bright accent). */
+export const DARK_PRIMARY_MAIN = '#94a3b8';
+
+const primaryShades = generatePrimaryShades(PRIMARY_MAIN);
+const darkPrimaryShades = generatePrimaryShades(DARK_PRIMARY_MAIN);
 
 export const themeConfig: ThemeConfig = {
   light: {
     primary: {
-      main: '#00a389',
-      light: '#00bf9f',
-      dark: '#008975',
-      contrast: '#ffffff',
+      ...primaryShades,
+      main: primaryShades[500],
+      light: primaryShades[400],
+      dark: primaryShades[600],
+      contrast: primaryShades.contrast,
     },
     surface: {
-      50: '#f0fdfb',
-      100: '#e6f7f4',
-      200: '#d1ebe7',
-      300: '#bcded9',
-      400: '#a7d1cc',
-      500: '#92c4bf',
-      600: '#7db7b2',
-      700: '#68aaa5',
-      800: '#539d98',
-      900: '#3e908b',
+      50: '#f8fafc',
+      100: '#f1f5f9',
+      200: '#e2e8f0',
+      300: '#cbd5e1',
+      400: '#94a3b8',
+      500: '#64748b',
+      600: '#475569',
+      700: '#334155',
+      800: '#1e293b',
+      900: '#0f172a',
     },
     text: {
       primary: '#1e293b',
@@ -42,36 +53,37 @@ export const themeConfig: ThemeConfig = {
   },
   dark: {
     primary: {
-      main: '#00d1ae',
-      light: '#00e2bc',
-      dark: '#00bf9f',
+      ...darkPrimaryShades,
+      main: darkPrimaryShades[500],
+      light: darkPrimaryShades[400],
+      dark: darkPrimaryShades[600],
       contrast: '#ffffff',
     },
     surface: {
-      50: '#0f172a',
-      100: '#1e293b',
-      200: '#334155',
-      300: '#475569',
-      400: '#64748b',
-      500: '#94a3b8',
-      600: '#cbd5e1',
-      700: '#e2e8f0',
-      800: '#f1f5f9',
-      900: '#f8fafc',
+      50: '#0c1222',
+      100: '#151c2e',
+      200: '#1e293b',
+      300: '#334155',
+      400: '#475569',
+      500: '#64748b',
+      600: '#94a3b8',
+      700: '#cbd5e1',
+      800: '#e2e8f0',
+      900: '#f1f5f9',
     },
     text: {
-      primary: '#f8fafc',
-      secondary: '#94a3b8',
+      primary: '#ffffff',
+      secondary: '#e2e8f0',
       disabled: '#64748b',
     },
     background: {
-      default: '#0f172a',
-      paper: '#1e293b',
+      default: '#0c1222',
+      paper: '#151c2e',
     },
     border: {
-      light: '#334155',
-      main: '#475569',
-      dark: '#64748b',
+      light: '#1e293b',
+      main: '#334155',
+      dark: '#475569',
     },
     shadow: {
       sm: '0 1px 2px 0 rgb(0 0 0 / 0.3)',

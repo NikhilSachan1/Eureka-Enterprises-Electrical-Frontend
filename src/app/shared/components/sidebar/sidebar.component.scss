@@ -3,19 +3,19 @@
   height: 100vh;
   width: 100%;
 
-  // Light theme CSS variables
-  --sidebar-primary-color: #00a389;
-  --sidebar-primary-dark: #008975;
-  --sidebar-primary-light: #00bf9f;
-  --sidebar-surface-50: #f0fdfb;
-  --sidebar-surface-100: #e6f7f4;
-  --sidebar-surface-200: #d1ebe7;
-  --sidebar-text-primary: #1e293b;
-  --sidebar-text-secondary: #64748b;
-  --sidebar-hover-bg: rgba(0, 163, 137, 0.04);
-  --sidebar-active-bg: rgba(0, 163, 137, 0.08);
-  --sidebar-border-color: #e2e8f0;
-  --sidebar-bg: white;
+  // Light theme: inherit from global theme variables
+  --sidebar-primary-color: var(--primary-color);
+  --sidebar-primary-dark: var(--primary-dark-color);
+  --sidebar-primary-light: var(--primary-light-color);
+  --sidebar-surface-50: var(--surface-50);
+  --sidebar-surface-100: var(--surface-100);
+  --sidebar-surface-200: var(--surface-200);
+  --sidebar-text-primary: var(--text-primary-color);
+  --sidebar-text-secondary: var(--text-secondary-color);
+  --sidebar-hover-bg: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200));
+  --sidebar-active-bg: color-mix(in srgb, var(--primary-color) 22%, var(--surface-200));
+  --sidebar-border-color: var(--border-light-color);
+  --sidebar-bg: var(--background-default-color);
 
   // Layout variables
   --sidebar-width: 300px;
@@ -25,26 +25,6 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-}
-
-// Dark theme
-:host-context(.dark-theme) {
-  --sidebar-primary-color: #00d1ae;
-  --sidebar-primary-dark: #00bf9f;
-  --sidebar-primary-light: #00e2bc;
-  --sidebar-surface-50: #0f172a;
-  --sidebar-surface-100: #1e293b;
-  --sidebar-surface-200: #334155;
-  --sidebar-text-primary: #f8fafc;
-  --sidebar-text-secondary: #94a3b8;
-  --sidebar-hover-bg: rgba(0, 209, 174, 0.1);
-  --sidebar-active-bg: rgba(0, 209, 174, 0.15);
-  --sidebar-border-color: #334155;
-  --sidebar-bg: #0f172a;
-
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
 }
 
 // Main layout
@@ -226,7 +206,7 @@
   &:focus {
     background-color: var(--sidebar-primary-color);
     border-color: var(--sidebar-primary-color);
-    box-shadow: 0 0 12px rgba(0, 163, 137, 0.3);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--primary-color) 30%, transparent);
     outline: none;
 
     .pi {

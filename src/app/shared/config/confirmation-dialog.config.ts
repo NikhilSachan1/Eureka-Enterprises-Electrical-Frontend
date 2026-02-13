@@ -12,7 +12,7 @@ export const CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
   closable: true,
   position: EDialogPosition.CENTER,
   blockScroll: false,
-  styleClass: 'bg-primary',
+  styleClass: 'confirmation-dialog-panel',
   acceptButtonProps: {
     label: 'Yes',
     id: EButtonActionType.SUBMIT,

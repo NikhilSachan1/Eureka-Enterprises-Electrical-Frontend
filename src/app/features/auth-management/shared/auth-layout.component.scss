@@ -1,46 +1,10 @@
-// Theme color variables
-$primary-color: #00a389;
-$primary-light: #00bf9f;
-$primary-dark: #008975;
-
-$text-primary: #1e293b;
-$text-secondary: #64748b;
-
-$border-light: #e2e8f0;
-
-$shadow-md:
-  0 4px 6px -1px rgb(0 0 0 / 0.1),
-  0 2px 4px -2px rgb(0 0 0 / 0.1);
-$shadow-lg:
-  0 10px 15px -3px rgb(0 0 0 / 0.1),
-  0 4px 6px -4px rgb(0 0 0 / 0.1);
-
-// Dark theme variables
-$dark-primary-color: #00d1ae;
-$dark-primary-dark: #00bf9f;
-
-$dark-text-primary: #f8fafc;
-$dark-text-secondary: #94a3b8;
-
-$dark-background-paper: #1e293b;
-$dark-surface-100: #1e293b;
-$dark-surface-200: #334155;
-
-$dark-border-light: #334155;
-
-$dark-shadow-md:
-  0 4px 6px -1px rgb(0 0 0 / 0.3),
-  0 2px 4px -2px rgb(0 0 0 / 0.3);
-$dark-shadow-lg:
-  0 10px 15px -3px rgb(0 0 0 / 0.3),
-  0 4px 6px -4px rgb(0 0 0 / 0.3);
-
 .auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom right, #f8fafc, #dbeafe, #e0e7ff);
+  /* Same as sidebar background (primary + surface mix) */
+  background: var(--primary-lightest-color);
   padding: 1rem;
 
   .auth-card {
@@ -48,11 +12,11 @@ $dark-shadow-lg:
     max-width: 28rem;
 
     .auth-card-inner {
-      background: rgba(255, 255, 255, 0.8);
+      background: color-mix(in srgb, var(--background-default-color) 80%, transparent);
       backdrop-filter: blur(8px);
       border-radius: 1rem;
-      box-shadow: $shadow-lg;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid color-mix(in srgb, var(--background-default-color) 20%, transparent);
       padding: 2rem;
       position: relative;
       overflow: hidden;
@@ -63,7 +27,12 @@ $dark-shadow-lg:
         left: 0;
         width: 100%;
         height: 4px;
-        background: linear-gradient(to right, $primary-color, $primary-light, $primary-dark);
+        background: linear-gradient(
+          to right,
+          var(--primary-color),
+          var(--primary-light-color),
+          var(--primary-dark-color)
+        );
       }
 
       .auth-logo-container {
@@ -79,10 +48,10 @@ $dark-shadow-lg:
             width: 4rem;
             height: 4rem;
             margin: 0 auto;
-            background: linear-gradient(to bottom right, $primary-color, $primary-dark);
+            background: linear-gradient(to bottom right, var(--primary-color), var(--primary-dark-color));
             border-radius: 1rem;
             padding: 0.75rem;
-            box-shadow: $shadow-md;
+            box-shadow: var(--shadow-md);
 
             .auth-logo-image {
               width: 100%;
@@ -95,12 +64,12 @@ $dark-shadow-lg:
         .auth-title {
           font-size: 1.5rem;
           font-weight: 600;
-          color: $text-primary;
+          color: var(--text-primary-color);
           margin-bottom: 0.25rem;
         }
 
         .auth-subtitle {
-          color: $text-secondary;
+          color: var(--text-secondary-color);
           font-size: 0.875rem;
         }
       }
@@ -109,52 +78,52 @@ $dark-shadow-lg:
         text-align: center;
         margin-top: 2rem;
         padding-top: 1.5rem;
-        border-top: 1px solid $border-light;
+        border-top: 1px solid var(--border-light-color);
         position: relative;
         z-index: 10;
 
         .auth-footer-text {
           font-size: 0.875rem;
-          color: $text-secondary;
+          color: var(--text-secondary-color);
         }
       }
     }
   }
 }
 
-// Dark theme overrides
+// Dark theme – same sidebar-style bg (variables handle the look)
 .dark-theme {
   .auth-container {
-    background: linear-gradient(to bottom right, $dark-background-paper, $dark-surface-100, $dark-surface-200);
+    background: var(--primary-darkest-color);
 
     .auth-card {
       .auth-card-inner {
-        box-shadow: $dark-shadow-lg;
+        box-shadow: var(--shadow-lg);
 
         .auth-decorative-border {
-          background: linear-gradient(to right, $dark-primary-color, $dark-primary-dark);
+          background: linear-gradient(to right, var(--primary-color), var(--primary-dark-color));
         }
 
         .auth-logo-container {
           .auth-logo {
-            background: linear-gradient(to bottom right, $dark-primary-color, $dark-primary-dark);
-            box-shadow: $dark-shadow-md;
+            background: linear-gradient(to bottom right, var(--primary-color), var(--primary-dark-color));
+            box-shadow: var(--shadow-md);
           }
 
           .auth-title {
-            color: $dark-text-primary;
+            color: var(--text-primary-color);
           }
 
           .auth-subtitle {
-            color: $dark-text-secondary;
+            color: var(--text-secondary-color);
           }
         }
 
         .auth-footer {
-          border-top: 1px solid $dark-border-light;
+          border-top: 1px solid var(--border-light-color);
 
           .auth-footer-text {
-            color: $dark-text-secondary;
+            color: var(--text-secondary-color);
           }
         }
       }
