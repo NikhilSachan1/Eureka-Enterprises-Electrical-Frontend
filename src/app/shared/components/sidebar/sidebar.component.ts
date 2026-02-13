@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   HostListener,
   inject,
   signal,
@@ -30,19 +31,22 @@ import { RoleSwitcherComponent } from './role-switcher/role-switcher.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [fadeInOut],
   host: {
-    '[class.sidebar-collapsed]': '!sidebarVisible() && !isMobile()',
+    '[class.sidebar-collapsed]':
+      '!sidebarVisible() && !isMobile() && !hoverExpanded()',
   },
 })
 export class SidebarComponent {
   readonly menuService = inject(MenuService);
   readonly themeService = inject(ThemeService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Reactive state with signals
   readonly sidebarVisible = signal(true);
   readonly isMobile = signal(window.innerWidth <= 768);
-
-  // Signal to control when transition should be enabled
+  readonly hoverExpanded = signal(false);
   protected transitionEnabled = signal<boolean>(false);
+  private clickInsideSidebarGuard = false;
+  private clickGuardTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.initSidebarState();
@@ -117,5 +121,33 @@ export class SidebarComponent {
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
+  }
+
+  onSidebarMouseDown(): void {
+    if (this.clickGuardTimeout !== null) {
+      clearTimeout(this.clickGuardTimeout);
+    }
+    this.clickInsideSidebarGuard = true;
+    this.clickGuardTimeout = setTimeout(() => {
+      this.clickGuardTimeout = null;
+      this.clickInsideSidebarGuard = false;
+    }, 450);
+  }
+
+  onSidebarMouseEnter(): void {
+    if (!this.sidebarVisible() && !this.isMobile()) {
+      this.hoverExpanded.set(true);
+    }
+  }
+
+  onSidebarMouseLeave(): void {
+    if (this.clickInsideSidebarGuard) {
+      return;
+    }
+    setTimeout(() => {
+      if (!this.sidebarVisible() && !this.isMobile()) {
+        this.hoverExpanded.set(false);
+      }
+    }, 200);
   }
 }

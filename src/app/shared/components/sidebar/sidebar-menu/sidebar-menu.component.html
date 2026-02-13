@@ -78,19 +78,13 @@
     @if (level === 0) {
       <!-- Top level parent -->
       <div class="menu-item">
-        @let itemKey = item.id || item.label;
         <div
           class="flex items-center rounded-lg cursor-pointer"
           [class.active-menu-item]="isMenuItemActive(item, parentBasePath)"
-          (click)="isCollapsed() ? null : toggleSubmenu(item)"
-          (mouseenter)="
-            isCollapsed() && item.children?.length ? onParentMouseEnter($event, parentButton, itemKey) : null
-          "
-          (mouseleave)="isCollapsed() && item.children?.length ? onParentMouseLeave(itemKey) : null"
+          (click)="toggleSubmenu(item)"
           role="button"
           [attr.aria-expanded]="isMenuItemExpanded(item)"
           tabindex="0"
-          #parentButton
         >
           @if (item.icon) {
             <i
@@ -105,42 +99,6 @@
             aria-hidden="true"
           ></i>
         </div>
-
-        <!-- Submenu Popover for collapsed state -->
-        @if (isCollapsed() && item.children?.length) {
-          <p-popover
-            #submenuPopover
-            [appendTo]="'body'"
-            [dismissable]="false"
-          >
-            <div
-              class="submenu-popover-content"
-              (mouseenter)="onPopoverMouseEnter(itemKey)"
-              (mouseleave)="onParentMouseLeave(itemKey)"
-            >
-              <!-- Register popover reference -->
-              {{ registerPopover(itemKey, submenuPopover) }}
-              <div class="submenu-popover-header">
-                <span>{{ item.label }}</span>
-              </div>
-              <div class="submenu-popover-items">
-                @for (child of item.children; track child.id || child.label) {
-                  <!-- Use recursive template to handle nested items -->
-                  <ng-container
-                    *ngTemplateOutlet="
-                      menuItemTemplate;
-                      context: {
-                        item: child,
-                        level: 1,
-                        parentBasePath: getAccumulatedBasePath(parentBasePath, item.basePath),
-                      }
-                    "
-                  ></ng-container>
-                }
-              </div>
-            </div>
-          </p-popover>
-        }
 
         <!-- Level 1 submenu (expanded state) -->
         @if (!isCollapsed()) {

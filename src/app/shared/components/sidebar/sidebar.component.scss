@@ -242,6 +242,26 @@
   }
 }
 
+// Blur backdrop when sidebar is hover-expanded (desktop overlay)
+.sidebar-blur-backdrop {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-collapsed-width);
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  background-color: rgba(15, 23, 42, 0.08);
+  transition:
+    opacity 0.25s ease,
+    backdrop-filter 0.25s ease;
+
+  @media (min-width: 769px) {
+    background-color: rgba(15, 23, 42, 0.06);
+  }
+}
+
 // Mobile Backdrop
 .sidebar-backdrop {
   position: fixed;

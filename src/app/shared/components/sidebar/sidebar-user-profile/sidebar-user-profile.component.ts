@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   input,
   ViewChild,
@@ -44,6 +45,14 @@ export class SidebarUserProfileComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
+  constructor() {
+    effect(() => {
+      if (this.isSidebarCollapsed() && this.userPopover) {
+        this.userPopover.hide();
+      }
+    });
+  }
+
   readonly user = computed(() => this.authService.user());
   readonly userAvatar = computed(() => this.authService.loggedInUserAvatar());
 
@@ -67,6 +76,9 @@ export class SidebarUserProfileComponent {
   }
 
   toggleUserOptions(event: Event): void {
+    if (this.isSidebarCollapsed()) {
+      return;
+    }
     this.userPopover.toggle(event);
   }
 

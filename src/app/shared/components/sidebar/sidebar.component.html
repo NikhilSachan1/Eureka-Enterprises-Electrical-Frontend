@@ -21,14 +21,18 @@
     </button>
   }
 
-  <!-- Sidebar -->
+  <!-- Sidebar: hover on collapsed desktop expands as overlay -->
   <aside
     class="sidebar"
     [ngClass]="{
-      'sidebar--expanded': sidebarVisible(),
-      'sidebar--collapsed': !sidebarVisible(),
+      'sidebar--expanded': sidebarVisible() || hoverExpanded(),
+      'sidebar--collapsed': !sidebarVisible() && !hoverExpanded(),
+      'sidebar--overlay': hoverExpanded(),
     }"
-    [attr.aria-hidden]="!sidebarVisible()"
+    [attr.aria-hidden]="!sidebarVisible() && !hoverExpanded()"
+    (mousedown)="onSidebarMouseDown()"
+    (mouseenter)="onSidebarMouseEnter()"
+    (mouseleave)="onSidebarMouseLeave()"
   >
     <app-sidebar-header
       [sidebarVisible]="sidebarVisible()"
@@ -38,16 +42,24 @@
     <!-- User Profile - Top (Centered) -->
     <app-sidebar-user-profile />
     <div class="sidebar-content">
-      <app-sidebar-menu [isCollapsed]="!sidebarVisible() && !isMobile()" />
+      <app-sidebar-menu [isCollapsed]="!sidebarVisible() && !hoverExpanded()" />
     </div>
     <!-- Role Switcher - Above Compact Profile -->
-    <app-role-switcher [isSidebarCollapsed]="!sidebarVisible() && !isMobile()" />
+    <app-role-switcher [isSidebarCollapsed]="!sidebarVisible() && !hoverExpanded()" />
     <!-- User Profile - Bottom (Compact) -->
     <app-sidebar-user-profile
       [compact]="true"
-      [isSidebarCollapsed]="!sidebarVisible() && !isMobile()"
+      [isSidebarCollapsed]="!sidebarVisible() && !hoverExpanded()"
     />
   </aside>
+
+  <!-- Blur backdrop when sidebar is hover-expanded (desktop) -->
+  @if (hoverExpanded() && !isMobile()) {
+    <div
+      class="sidebar-blur-backdrop"
+      aria-hidden="true"
+    ></div>
+  }
 
   <!-- Main Content Area -->
   <app-content-area

@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   input,
   signal,
@@ -53,6 +54,14 @@ export class RoleSwitcherComponent {
 
   protected readonly isSubmitting = signal(false);
 
+  constructor() {
+    effect(() => {
+      if (this.isSidebarCollapsed() && this.rolePopover) {
+        this.rolePopover.hide();
+      }
+    });
+  }
+
   /** Computed roles from auth service */
   readonly roles = computed<UserRole[]>(() => {
     const user = this.authService.user();
@@ -83,6 +92,9 @@ export class RoleSwitcherComponent {
   ALL_ICONS = ICONS;
 
   togglePopover(event: Event): void {
+    if (this.isSidebarCollapsed()) {
+      return;
+    }
     this.rolePopover.toggle(event);
   }
 
