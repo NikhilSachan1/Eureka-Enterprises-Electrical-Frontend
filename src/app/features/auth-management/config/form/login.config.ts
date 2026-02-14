@@ -34,6 +34,7 @@ const LOGIN_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ILoginFormDto> = {
     id: 'remember-me',
     fieldName: 'rememberMe',
     fieldSize: EFieldSize.Large,
+    defaultValue: true,
     checkboxConfig: {
       options: [{ label: 'Remember me', value: 'rememberMe' }],
       binary: true,

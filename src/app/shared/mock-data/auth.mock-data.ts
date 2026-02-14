@@ -8,7 +8,7 @@ import { getRandomItem, TEST_LOGIN_EMAILS } from './mock-data.constants';
 export const LOGIN_PREFILLED_DATA: ILoginFormDto = {
   email: getRandomItem(TEST_LOGIN_EMAILS),
   password: 'Admin@123',
-  rememberMe: false,
+  rememberMe: true,
 };
 
 export const FORGOT_PASSWORD_PREFILLED_DATA: IForgetPasswordFormDto = {
