@@ -1,21 +1,19 @@
 import { z } from 'zod';
 import { toLowerCase } from '@shared/utility';
-import { RoleBaseSchema } from './base-role.schema';
+import { RoleUpsertShapeSchema } from './base-role.schema';
 
-const { description, label } = RoleBaseSchema.shape;
-
-export const RoleEditRequestSchema = RoleBaseSchema.pick({
-  description: true,
-  label: true,
+export const RoleEditRequestSchema = RoleUpsertShapeSchema.pick({
+  roleDescription: true,
 })
-  .extend({
-    description: description.transform(val => toLowerCase(val)),
-    label: label.transform(val => toLowerCase(val)),
-  })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      description: toLowerCase(data.roleDescription),
+    };
+  });
 
 export const RoleEditResponseSchema = z
   .object({
-    message: z.string().nonempty(),
+    message: z.string(),
   })
   .strict();

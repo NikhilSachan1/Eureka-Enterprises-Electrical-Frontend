@@ -1,5 +1,8 @@
 export {
   UserGetBaseResponseSchema,
   UserGetResponseSchema,
-  UserGetRequestSchema,
 } from './get-user.schema';
+export {
+  UserPermissionDeleteRequestSchema,
+  UserPermissionDeleteResponseSchema,
+} from './delete-user-permission.schema';

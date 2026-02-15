@@ -22,6 +22,8 @@ import {
   PETRO_CARD_STATUS_DATA,
   COMPANY_STATUS_DATA,
   CONTRACTOR_STATUS_DATA,
+  MODULES_NAME_DATA,
+  MODULE_ACTIONS_BY_MODULE_NAME_DATA,
 } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { AppConfiguationResponseSchema } from '@shared/schemas';
@@ -93,6 +95,7 @@ export class AppConfigurationService {
   private readonly _contractorStatus = signal<IOptionDropdown[]>([]);
   private readonly _projectStatus = signal<IOptionDropdown[]>([]);
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
+  private readonly _moduleNames = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
   private readonly _employeeListByRole = signal<
@@ -145,6 +148,7 @@ export class AppConfigurationService {
   readonly contractorStatus = this._contractorStatus.asReadonly();
   readonly projectStatus = this._projectStatus.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
+  readonly moduleNames = this._moduleNames.asReadonly();
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
   readonly employeeListByRole = this._employeeListByRole.asReadonly();
@@ -179,6 +183,9 @@ export class AppConfigurationService {
     },
     [MODULE_NAMES.CONTRACTOR]: {
       [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_STATUS]: CONTRACTOR_STATUS_DATA,
+    },
+    [MODULE_NAMES.PERMISSION]: {
+      [CONFIGURATION_KEYS.PERMISSION.MODULE_NAMES]: MODULES_NAME_DATA,
     },
   };
 
@@ -374,6 +381,12 @@ export class AppConfigurationService {
         signal: this._projectWorkTypes,
       },
     ],
+    [MODULE_NAMES.PERMISSION]: [
+      {
+        key: CONFIGURATION_KEYS.PERMISSION.MODULE_NAMES,
+        signal: this._moduleNames,
+      },
+    ],
   };
 
   loadAppConfiguration(): Observable<IAppConfiguationResponseDto> {
@@ -496,6 +509,10 @@ export class AppConfigurationService {
       return [];
     }
     return INDIA_CITY_BY_STATE_DATA[stateValue] ?? [];
+  }
+
+  getModuleActionsByModuleName(moduleName: string): IOptionDropdown[] {
+    return MODULE_ACTIONS_BY_MODULE_NAME_DATA[moduleName] ?? [];
   }
 
   private populateAllModuleDropdowns(

@@ -1,63 +1,13 @@
-import { EButtonSeverity } from '@shared/types';
-import { IConfirmationDialogConfig } from '@shared/models';
-import { ISystemPermissionGetBaseResponseDto } from '../../types/system-permission.dto';
+import { EButtonActionType, IDialogActionConfig } from '@shared/types';
+import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
+import { DeleteSystemPermissionComponent } from '../../components/delete-system-permission/delete-system-permission.component';
 
-export const SYSTEM_PERMISSION_DIALOG_DELETE_CONFIG: IConfirmationDialogConfig =
-  {
-    dialogSettingConfig: {
-      header: 'Delete Permission',
-      message: 'Are you sure you want to delete this permission?',
-      acceptButtonProps: {
-        label: 'Delete',
-        severity: EButtonSeverity.DANGER,
-      },
-      rejectButtonProps: {
-        label: 'Cancel',
-        severity: EButtonSeverity.SECONDARY,
-      },
-    },
-  };
-
-export const SYSTEM_PERMISSION_DIALOG_BULK_DELETE_CONFIG: IConfirmationDialogConfig =
-  {
-    dialogSettingConfig: {
-      header: 'Delete Permissions',
-      message: 'Are you sure you want to delete the selected permissions?',
-      acceptButtonProps: {
-        label: 'Delete All',
-        severity: EButtonSeverity.DANGER,
-      },
-      rejectButtonProps: {
-        label: 'Cancel',
-        severity: EButtonSeverity.SECONDARY,
-      },
-    },
-  };
-
-export const createSystemPermissionDeleteDialogConfig = (
-  rowData: ISystemPermissionGetBaseResponseDto,
-  onAccept?: () => void,
-  onReject?: () => void
-): IConfirmationDialogConfig => ({
-  ...SYSTEM_PERMISSION_DIALOG_DELETE_CONFIG,
-  recordDetails: {
-    details: [
-      { label: 'Name', value: rowData.label },
-      { label: 'Module', value: rowData.module },
-      { label: 'Description', value: rowData.description },
-      { label: 'Code', value: rowData.name },
-    ],
+export const SYSTEM_PERMISSION_ACTION_CONFIG_MAP: Record<
+  string,
+  IDialogActionConfig
+> = {
+  [EButtonActionType.DELETE]: {
+    dialogConfig: DELETE_CONFIRMATION_DIALOG_CONFIG,
+    dynamicComponent: DeleteSystemPermissionComponent,
   },
-  onAccept,
-  onReject,
-});
-
-export const createSystemPermissionBulkDeleteDialogConfig = (
-  selectedRows: ISystemPermissionGetBaseResponseDto[],
-  onAccept?: () => void,
-  onReject?: () => void
-): IConfirmationDialogConfig => ({
-  ...SYSTEM_PERMISSION_DIALOG_BULK_DELETE_CONFIG,
-  onAccept,
-  onReject,
-});
+};

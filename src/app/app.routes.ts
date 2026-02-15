@@ -37,13 +37,13 @@ export const routes: Routes = [
       ).then(m => m.PrivateLayoutComponent),
     canActivate: [authGuard],
     children: [
-      // {
-      //   path: ROUTE_BASE_PATHS.SETTINGS.BASE,
-      //   loadChildren: () =>
-      //     import(
-      //       './features/settings-management/setting-management.routes'
-      //     ).then(m => m.SETTING_MANAGEMENT_ROUTES),
-      // },
+      {
+        path: ROUTE_BASE_PATHS.SETTINGS.BASE,
+        loadChildren: () =>
+          import(
+            './features/settings-management/setting-management.routes'
+          ).then(m => m.SETTING_MANAGEMENT_ROUTES),
+      },
       {
         path: ROUTE_BASE_PATHS.EMPLOYEE,
         loadChildren: () =>

@@ -5,9 +5,21 @@
   [formGroup]="form.formGroup"
   class="form"
 >
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.moduleName"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.moduleAction"
+    />
+  </div>
+
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs['comment']"
+    [inputFieldConfig]="form.fieldConfigs.permissionDescription"
   />
 
   <div class="button-container">

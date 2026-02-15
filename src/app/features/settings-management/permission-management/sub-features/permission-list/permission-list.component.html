@@ -1,15 +1,9 @@
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
-  (headerButtonClick)="onAddButtonClick()"
+  (headerButtonClick)="onHeaderButtonClick()"
 />
 
-<div class="content-wrapper">
-  <div class="metrics-grid">
-    <app-metrics-card [metricCardConfig]="metricsCards()" />
-  </div>
-
-  <app-nav-tabs
-    [tabs]="tabs()"
-    [tabMode]="tabModeType"
-  />
-</div>
+<app-nav-tabs
+  [tabs]="tabs()"
+  [tabMode]="tabModeType"
+/>

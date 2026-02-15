@@ -21,13 +21,12 @@
 
 @if (drawerDetail && drawerDetail.length > 0) {
   @for (detail of drawerDetail; track $index) {
-    @let colorClass = getColor(detail.status?.approvalStatus ?? '');
     @let visibleEntryData = getVisibleEntries(detail.entryData);
 
     @if (visibleEntryData && visibleEntryData.length > 0) {
       <p-card
         class="mb-4"
-        [ngClass]="`${colorClass.bg}`"
+        [ngClass]="getDetailCardBg(detail)"
       >
         @let entryType = detail.status?.entryType ?? '';
         @let approvalStatus = detail.status?.approvalStatus ?? '';

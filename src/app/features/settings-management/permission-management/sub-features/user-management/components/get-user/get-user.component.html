@@ -1,9 +1,12 @@
 <app-data-table
+  #dataTable
   [tableConfig]="table.tableConfig()"
   [tableHeader]="table.headers()"
   [tableData]="table.data()"
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
-  (rowActionClick)="handleRowActionClick($event)"
+  (rowActionClick)="handleUserTableActionClick($any($event), false)"
+  (bulkActionClick)="handleUserTableActionClick($any($event), true)"
+  (filterData)="onTableStateChange()"
 />

@@ -3,38 +3,50 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
   IFormButtonConfig,
-} from '@shared/models';
-import { EFieldType } from '@shared/types';
-import { COMMON_FORM_ACTIONS, MODULES_NAME_DATA } from '@shared/config';
+  EDataType,
+} from '@shared/types';
+import { COMMON_FORM_ACTIONS } from '@shared/config';
+import { ISystemPermissionAddFormDto } from '../../types/system-permission.dto';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 
-const SYSTEM_PERMISSION_FORM_ADD_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  moduleName: {
-    fieldType: EFieldType.Select,
-    id: 'moduleName',
-    fieldName: 'moduleName',
-    label: 'Module Name',
-    selectConfig: {
-      optionsDropdown: MODULES_NAME_DATA,
+const ADD_SYSTEM_PERMISSION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISystemPermissionAddFormDto> =
+  {
+    moduleName: {
+      fieldType: EDataType.SELECT,
+      id: 'moduleName',
+      fieldName: 'moduleName',
+      label: 'Module Name',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.PERMISSION,
+          dropdownName: CONFIGURATION_KEYS.PERMISSION.MODULE_NAMES,
+        },
+      },
+      validators: [Validators.required],
     },
-    validators: [Validators.required],
-  },
-  action: {
-    fieldType: EFieldType.Select,
-    id: 'action',
-    fieldName: 'action',
-    label: 'Actions',
-    validators: [Validators.required],
-  },
-  comment: {
-    fieldType: EFieldType.TextArea,
-    id: 'comment',
-    fieldName: 'comment',
-    label: 'Description',
-    validators: [Validators.required, Validators.minLength(10)],
-  },
-};
+    moduleAction: {
+      fieldType: EDataType.SELECT,
+      id: 'moduleAction',
+      fieldName: 'moduleAction',
+      label: 'Module Action',
+      selectConfig: {
+        dependentDropdown: {
+          dependsOnField: 'moduleName',
+          optionsProviderMethod: 'getModuleActionsByModuleName',
+        },
+      },
+      validators: [Validators.required],
+    },
+    permissionDescription: {
+      fieldType: EDataType.TEXT_AREA,
+      id: 'permissionDescription',
+      fieldName: 'permissionDescription',
+      label: 'Permission Description',
+      validators: [Validators.required, Validators.minLength(10)],
+    },
+  };
 
-const SYSTEM_PERMISSION_FORM_ADD_BUTTONS_CONFIG: IFormButtonConfig = {
+const ADD_SYSTEM_PERMISSION_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
     ...COMMON_FORM_ACTIONS.RESET,
   },
@@ -45,7 +57,8 @@ const SYSTEM_PERMISSION_FORM_ADD_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const SYSTEM_PERMISSION_FORM_ADD_CONFIG: IFormConfig = {
-  fields: SYSTEM_PERMISSION_FORM_ADD_FIELDS_CONFIG,
-  buttons: SYSTEM_PERMISSION_FORM_ADD_BUTTONS_CONFIG,
-};
+export const ADD_SYSTEM_PERMISSION_FORM_CONFIG: IFormConfig<ISystemPermissionAddFormDto> =
+  {
+    fields: ADD_SYSTEM_PERMISSION_FORM_FIELDS_CONFIG,
+    buttons: ADD_SYSTEM_PERMISSION_FORM_BUTTONS_CONFIG,
+  };

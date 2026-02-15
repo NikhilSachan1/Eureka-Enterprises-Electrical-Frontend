@@ -6,7 +6,7 @@ export const ROLE_ROUTES: Routes = [
     path: '',
     loadComponent: () =>
       import('./components/get-role/get-role.component').then(
-        m => m.RoleListComponent
+        m => m.GetRoleComponent
       ),
   },
 ];

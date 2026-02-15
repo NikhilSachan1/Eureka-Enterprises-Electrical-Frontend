@@ -1,14 +1,27 @@
 import { z } from 'zod';
+import { SystemPermissionBaseSchema } from './base-system-permission.schema';
+
+const { id } = SystemPermissionBaseSchema.shape;
 
 export const SystemPermissionDeleteRequestSchema = z
   .object({
-    ids: z.array(z.string()).min(1),
+    systemPermissionIds: z.array(id).min(1),
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      ids: data.systemPermissionIds,
+    };
+  });
 
 export const SystemPermissionDeleteResponseSchema = z
   .object({
-    failed: z.array(z.string()),
+    failed: z.array(
+      z.object({
+        error: z.string(),
+        id,
+      })
+    ),
     success: z.array(z.string()),
   })
   .strict();

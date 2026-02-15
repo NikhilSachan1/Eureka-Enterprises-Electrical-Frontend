@@ -1,21 +1,21 @@
 import { replaceTextWithSeparator, toLowerCase } from '@shared/utility';
-import { RoleGetBaseResponseSchema } from './get-role.schema';
-import { RoleBaseSchema } from './base-role.schema';
+import { RoleUpsertShapeSchema } from './base-role.schema';
+import { z } from 'zod';
 
-const { name, description, label } = RoleBaseSchema.shape;
+export const RoleAddRequestSchema = RoleUpsertShapeSchema.strict().transform(
+  data => {
+    return {
+      name: replaceTextWithSeparator(toLowerCase(data.roleName), ' ', '_'),
+      label: toLowerCase(data.roleName),
+      description: toLowerCase(data.roleDescription),
+      isDeletable: true,
+      isEditable: true,
+    };
+  }
+);
 
-export const RoleAddRequestSchema = RoleBaseSchema.pick({
-  name: true,
-  description: true,
-  label: true,
-})
-  .extend({
-    name: name.transform(val =>
-      replaceTextWithSeparator(toLowerCase(val), ' ', '_')
-    ),
-    description: description.transform(val => toLowerCase(val)),
-    label: label.transform(val => toLowerCase(val)),
+export const RoleAddResponseSchema = z
+  .object({
+    message: z.string(),
   })
   .strict();
-
-export const RoleAddResponseSchema = RoleGetBaseResponseSchema;

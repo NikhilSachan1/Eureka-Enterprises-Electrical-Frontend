@@ -4,28 +4,29 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
   IFormButtonConfig,
-} from '@shared/models';
-import { EFieldType } from '@shared/types';
+  EDataType,
+} from '@shared/types';
+import { IRoleAddFormDto } from '../../types/role.dto';
 
-const ROLE_FORM_ADD_FIELDS_CONFIG: IFormInputFieldsConfig = {
+const ADD_ROLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IRoleAddFormDto> = {
   roleName: {
-    fieldType: EFieldType.Text,
+    fieldType: EDataType.TEXT,
     id: 'roleName',
     fieldName: 'roleName',
     label: 'Role Name',
     validators: [Validators.required, Validators.minLength(2)],
   },
 
-  comment: {
-    fieldType: EFieldType.TextArea,
-    id: 'comment',
-    fieldName: 'comment',
-    label: 'Description',
+  roleDescription: {
+    fieldType: EDataType.TEXT_AREA,
+    id: 'roleDescription',
+    fieldName: 'roleDescription',
+    label: 'Role Description',
     validators: [Validators.required, Validators.minLength(10)],
   },
 };
 
-const ROLE_FORM_ADD_BUTTONS_CONFIG: IFormButtonConfig = {
+const ADD_ROLE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
     ...COMMON_FORM_ACTIONS.RESET,
   },
@@ -36,7 +37,7 @@ const ROLE_FORM_ADD_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const ROLE_FORM_ADD_CONFIG: IFormConfig = {
-  fields: ROLE_FORM_ADD_FIELDS_CONFIG,
-  buttons: ROLE_FORM_ADD_BUTTONS_CONFIG,
+export const ADD_ROLE_FORM_CONFIG: IFormConfig<IRoleAddFormDto> = {
+  fields: ADD_ROLE_FORM_FIELDS_CONFIG,
+  buttons: ADD_ROLE_FORM_BUTTONS_CONFIG,
 };

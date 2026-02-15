@@ -1,24 +1,23 @@
-import { toLowerCase } from '@shared/utility';
-import { SystemPermissionGetBaseResponseSchema } from './get-system-permission.schema';
-import { SystemPermissionBaseSchema } from './base-system-permission.schema';
+import { SystemPermissionUpsertShapeSchema } from './base-system-permission.schema';
+import { replaceTextWithSeparator, toLowerCase } from '@shared/utility';
+import { z } from 'zod';
 
-const { name, module, label, description } = SystemPermissionBaseSchema.shape;
+export const SystemPermissionAddRequestSchema =
+  SystemPermissionUpsertShapeSchema.strict().transform(data => {
+    const moduleAction = toLowerCase(data.moduleAction);
+    const moduleName = toLowerCase(data.moduleName);
+    return {
+      module: moduleName,
+      name: `${moduleAction}_${moduleName}`,
+      label: `${replaceTextWithSeparator(moduleAction, '_', ' ')} ${moduleName}`,
+      description: toLowerCase(data.permissionDescription),
+      isDeletable: true,
+      isEditable: true,
+    };
+  });
 
-export const SystemPermissionAddRequestSchema = SystemPermissionBaseSchema.pick(
-  {
-    name: true,
-    module: true,
-    label: true,
-    description: true,
-  }
-)
-  .extend({
-    name: name.transform(val => toLowerCase(val)),
-    module: module.transform(val => toLowerCase(val)),
-    label: label.transform(val => toLowerCase(val)),
-    description: description.transform(val => toLowerCase(val)),
+export const SystemPermissionAddResponseSchema = z
+  .object({
+    message: z.string(),
   })
   .strict();
-
-export const SystemPermissionAddResponseSchema =
-  SystemPermissionGetBaseResponseSchema;

@@ -1,7 +1,9 @@
+import { uuidField } from '@shared/schemas';
 import { z } from 'zod';
 
 export const SystemPermissionBaseSchema = z
   .object({
+    id: uuidField,
     name: z.string().trim().min(1),
     module: z.string().trim().min(1),
     label: z.string().trim().min(1),
@@ -10,3 +12,11 @@ export const SystemPermissionBaseSchema = z
     isDeletable: z.boolean(),
   })
   .strict();
+
+const { module, description } = SystemPermissionBaseSchema.shape;
+
+export const SystemPermissionUpsertShapeSchema = z.object({
+  moduleName: module,
+  moduleAction: z.string().trim().min(1),
+  permissionDescription: description,
+});

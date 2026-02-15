@@ -10,6 +10,7 @@ export const MODULE_NAMES = {
   COMPANY: 'company',
   CONTRACTOR: 'contractor',
   PROJECT: 'site',
+  PERMISSION: 'permission',
 } as const;
 
 export const CONFIGURATION_KEYS = {
@@ -80,5 +81,8 @@ export const CONFIGURATION_KEYS = {
   PROJECT: {
     PROJECT_STATUS: 'site_statuses',
     PROJECT_WORK_TYPES: 'site_work_types',
+  },
+  PERMISSION: {
+    MODULE_NAMES: 'module_names',
   },
 } as const;

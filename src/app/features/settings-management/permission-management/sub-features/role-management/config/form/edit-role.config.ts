@@ -2,16 +2,20 @@ import {
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
-} from '@shared/models';
-import { ROLE_FORM_ADD_CONFIG } from './add-role.config';
+} from '@shared/types';
+import { ADD_ROLE_FORM_CONFIG } from './add-role.config';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
+import { IRoleEditFormDto } from '../../types/role.dto';
 
-const ROLE_FORM_EDIT_FIELDS_CONFIG: IFormInputFieldsConfig = {
-  roleName: ROLE_FORM_ADD_CONFIG.fields['roleName'],
-  comment: ROLE_FORM_ADD_CONFIG.fields['comment'],
+const EDIT_ROLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IRoleEditFormDto> = {
+  ...ADD_ROLE_FORM_CONFIG.fields,
+  roleName: {
+    ...ADD_ROLE_FORM_CONFIG.fields.roleName,
+    disabledInput: true,
+  },
 };
 
-const ROLE_FORM_EDIT_BUTTONS_CONFIG: IFormButtonConfig = {
+const EDIT_ROLE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
     ...COMMON_FORM_ACTIONS.RESET,
   },
@@ -22,7 +26,7 @@ const ROLE_FORM_EDIT_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const ROLE_FORM_EDIT_CONFIG: IFormConfig = {
-  fields: ROLE_FORM_EDIT_FIELDS_CONFIG,
-  buttons: ROLE_FORM_EDIT_BUTTONS_CONFIG,
+export const EDIT_ROLE_FORM_CONFIG: IFormConfig<IRoleEditFormDto> = {
+  fields: EDIT_ROLE_FORM_FIELDS_CONFIG,
+  buttons: EDIT_ROLE_FORM_BUTTONS_CONFIG,
 };

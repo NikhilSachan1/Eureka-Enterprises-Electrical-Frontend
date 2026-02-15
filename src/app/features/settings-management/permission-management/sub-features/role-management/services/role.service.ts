@@ -3,11 +3,11 @@ import { ApiService, LoggerService } from '@core/services';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
 import {
-  IRoleAddRequestDto,
+  IRoleAddFormDto,
   IRoleAddResponseDto,
-  IRoleDeleteRequestDto,
+  IRoleDeleteFormDto,
   IRoleDeleteResponseDto,
-  IRoleEditRequestDto,
+  IRoleEditFormDto,
   IRoleEditResponseDto,
   IRoleGetResponseDto,
 } from '../types/role.dto';
@@ -28,7 +28,7 @@ export class RoleService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
-  addRole(formData: IRoleAddRequestDto): Observable<IRoleAddResponseDto> {
+  addRole(formData: IRoleAddFormDto): Observable<IRoleAddResponseDto> {
     this.logger.logUserAction('Add Role Request', formData);
 
     return this.apiService
@@ -56,7 +56,7 @@ export class RoleService {
   }
 
   updateRole(
-    formData: IRoleEditRequestDto,
+    formData: IRoleEditFormDto,
     roleId: string
   ): Observable<IRoleEditResponseDto> {
     this.logger.logUserAction('Update Role Request', {
@@ -66,7 +66,7 @@ export class RoleService {
 
     return this.apiService
       .patchValidated(
-        `${API_ROUTES.SETTINGS.PERMISSION.ROLE.UPDATE}/${roleId}`,
+        API_ROUTES.SETTINGS.PERMISSION.ROLE.UPDATE(roleId),
         {
           response: RoleEditResponseSchema,
           request: RoleEditRequestSchema,
@@ -94,6 +94,33 @@ export class RoleService {
       );
   }
 
+  deleteRole(formData: IRoleDeleteFormDto): Observable<IRoleDeleteResponseDto> {
+    this.logger.logUserAction('Delete Role Request', formData);
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.SETTINGS.PERMISSION.ROLE.DELETE,
+        {
+          response: RoleDeleteResponseSchema,
+          request: RoleDeleteRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IRoleDeleteResponseDto) => {
+          this.logger.logUserAction('Delete Role Success', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Delete Role Error', error);
+          } else {
+            this.logger.logUserAction('Delete Role Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   getRoleList(): Observable<IRoleGetResponseDto> {
     this.logger.logUserAction('Get Role List Request');
 
@@ -110,35 +137,6 @@ export class RoleService {
             this.logger.logDtoValidationErrors('Get Role List Error', error);
           } else {
             this.logger.logUserAction('Get Role List Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
-  }
-
-  deleteRole(
-    formData: IRoleDeleteRequestDto
-  ): Observable<IRoleDeleteResponseDto> {
-    this.logger.logUserAction('Delete Role Request', formData);
-
-    return this.apiService
-      .deleteValidated(
-        `${API_ROUTES.SETTINGS.PERMISSION.ROLE.DELETE}`,
-        {
-          response: RoleDeleteResponseSchema,
-          request: RoleDeleteRequestSchema,
-        },
-        formData
-      )
-      .pipe(
-        tap((response: IRoleDeleteResponseDto) => {
-          this.logger.logUserAction('Delete Role Success', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Delete Role Error', error);
-          } else {
-            this.logger.logUserAction('Delete Role Error', error);
           }
           return throwError(() => error);
         })

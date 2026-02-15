@@ -1,5 +1,60 @@
 import { IOptionDropdown } from '@shared/types';
 
+export const MODULES_NAME_DATA: IOptionDropdown[] = [
+  { label: 'Dashboard', value: 'dashboard' },
+  { label: 'Employee', value: 'employee' },
+  { label: 'Attendance', value: 'attendance' },
+  { label: 'Expense', value: 'expense' },
+  { label: 'Leave', value: 'leave' },
+  { label: 'Asset', value: 'asset' },
+  { label: 'Vehicle', value: 'vehicle' },
+  { label: 'Petro Card', value: 'petro_card' },
+  { label: 'Fuel', value: 'fuel' },
+  { label: 'Company', value: 'company' },
+  { label: 'Contractor', value: 'contractor' },
+  { label: 'Project', value: 'project' },
+  { label: 'Announcement', value: 'announcement' },
+  { label: 'Payroll', value: 'payroll' },
+  { label: 'System Permission', value: 'system_permission' },
+  { label: 'User Permission', value: 'user_permission' },
+  { label: 'Role Permission', value: 'role_permission' },
+];
+
+export const MODULE_ACTIONS_BY_MODULE_NAME_DATA: Record<
+  string,
+  IOptionDropdown[]
+> = {
+  attendance: [
+    { value: 'apply', label: 'Apply' },
+    { value: 'force', label: 'Force' },
+    { value: 'view', label: 'Table View' },
+    { value: 'view_detail', label: 'View Detail' },
+    { value: 'regularize', label: 'Regularize' },
+    { value: 'approve', label: 'Approve' },
+    { value: 'reject', label: 'Reject' },
+  ],
+  system_permission: [
+    { value: 'add', label: 'Add' },
+    { value: 'edit', label: 'Edit' },
+    { value: 'delete', label: 'Delete' },
+  ],
+  user_permission: [
+    { value: 'delete', label: 'Delete' },
+    { value: 'set', label: 'Set Permission' },
+  ],
+  role_permission: [
+    { value: 'add', label: 'Add' },
+    { value: 'edit', label: 'Edit' },
+    { value: 'delete', label: 'Delete' },
+    { value: 'set', label: 'Set Permission' },
+  ],
+  project: [
+    { value: 'add', label: 'Add' },
+    { value: 'edit', label: 'Edit' },
+    { value: 'delete', label: 'Delete' },
+  ],
+};
+
 export const SHIFT_DATA = {
   START_TIME: '09:00',
   END_TIME: '18:00',

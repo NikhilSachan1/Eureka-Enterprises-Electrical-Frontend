@@ -10,10 +10,11 @@ import { AppPermissionService } from '@core/services';
 import {
   EDataType,
   EPrimeNGSeverity,
-  IGalleryInputData,
+  IDataViewDetails,
   IDataViewDetailsWithEntity,
   IDetailEntryData,
   EEntryType,
+  IGalleryInputData,
   IUserInfo,
 } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
@@ -80,6 +81,13 @@ export class ViewDetailComponent {
     text: string;
   } {
     return StatusUtil.getColorClass(status);
+  }
+
+  protected getDetailCardBg(detail: IDataViewDetails): string {
+    const approvalStatus = detail.status?.approvalStatus ?? '';
+    return approvalStatus !== ''
+      ? StatusUtil.getColorClass(approvalStatus).bg
+      : '!bg-gray-50';
   }
 
   protected getAvatarUrl(name: string): string {

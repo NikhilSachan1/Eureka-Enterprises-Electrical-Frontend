@@ -9,3 +9,15 @@ export interface IModulePermission {
     'id' | 'description' | 'label'
   >[];
 }
+
+export interface ISystemPermission
+  extends Pick<
+    ISystemPermissionGetBaseResponseDto,
+    'id' | 'isEditable' | 'isDeletable'
+  > {
+  permissionLabel: string;
+  permissionDescription: string;
+  moduleName: string;
+  permissionCode: string;
+  originalRawData: ISystemPermissionGetBaseResponseDto;
+}

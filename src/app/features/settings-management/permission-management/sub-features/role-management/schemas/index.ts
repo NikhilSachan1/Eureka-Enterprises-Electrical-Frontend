@@ -15,4 +15,4 @@ export {
   RoleGetResponseSchema,
 } from './get-role.schema';
 
-export { RoleBaseSchema } from './base-role.schema';
+export { RoleBaseSchema, RoleUpsertShapeSchema } from './base-role.schema';

@@ -280,6 +280,18 @@ export const appMenu: ApplicationMenu = {
             },
           ],
         },
+        {
+          label: 'Settings',
+          icon: ICONS.SETTINGS.COG,
+          basePath: ROUTE_BASE_PATHS.SETTINGS.BASE,
+          children: [
+            {
+              label: 'Permission Management',
+              icon: ICONS.SECURITY.SHIELD,
+              routerLink: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+            },
+          ],
+        },
       ],
     },
   ],

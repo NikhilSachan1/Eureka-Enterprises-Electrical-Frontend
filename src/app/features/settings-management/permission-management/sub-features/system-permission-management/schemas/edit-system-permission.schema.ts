@@ -1,20 +1,20 @@
 import { z } from 'zod';
 import { toLowerCase } from '@shared/utility';
-import { SystemPermissionBaseSchema } from './base-system-permission.schema';
-
-const { description } = SystemPermissionBaseSchema.shape;
+import { SystemPermissionUpsertShapeSchema } from './base-system-permission.schema';
 
 export const SystemPermissionEditRequestSchema =
-  SystemPermissionBaseSchema.pick({
-    description: true,
+  SystemPermissionUpsertShapeSchema.pick({
+    permissionDescription: true,
   })
-    .extend({
-      description: description.transform(val => toLowerCase(val)),
-    })
-    .strict();
+    .strict()
+    .transform(data => {
+      return {
+        description: toLowerCase(data.permissionDescription),
+      };
+    });
 
 export const SystemPermissionEditResponseSchema = z
   .object({
-    message: z.string({ error: 'Message is required' }).nonempty(),
+    message: z.string(),
   })
   .strict();

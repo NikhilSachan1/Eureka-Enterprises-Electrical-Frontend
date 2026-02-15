@@ -10,31 +10,36 @@ import {
   RouterNavigationService,
   LoadingService,
   ConfirmationDialogService,
-  NotificationService,
 } from '@shared/services/';
 import { LoggerService } from '@core/services';
 import {
-  IEnhancedTable,
-  IEnhancedTableConfig,
-  ITableActionClickEvent,
-} from '@shared/models';
-import {
-  ISystemPermissionDeleteRequestDto,
-  ISystemPermissionDeleteResponseDto,
   ISystemPermissionGetBaseResponseDto,
   ISystemPermissionGetResponseDto,
 } from '../../types/system-permission.dto';
-import { ETableActionType, EDialogType } from '@shared/types';
 import { finalize } from 'rxjs/operators';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
-  createSystemPermissionDeleteDialogConfig,
-  createSystemPermissionBulkDeleteDialogConfig,
+  SYSTEM_PERMISSION_ACTION_CONFIG_MAP,
   SYSTEM_PERMISSION_TABLE_ENHANCED_CONFIG,
 } from '../../config';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import {
+  EButtonActionType,
+  EDataType,
+  IDataViewDetails,
+  IDataViewDetailsWithEntity,
+  IEnhancedTable,
+  IEnhancedTableConfig,
+  ITableActionClickEvent,
+} from '@shared/types';
+import { ISystemPermission } from '../../types/system-permission.interface';
+import {
+  replaceTextWithSeparator,
+  toSentenceCase,
+  toTitleCase,
+} from '@shared/utility';
 
 @Component({
   selector: 'app-get-system-permission',
@@ -44,16 +49,15 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetSystemPermissionComponent implements OnInit {
-  private readonly systemPermissionService = inject(SystemPermissionService);
-  private readonly dataTableService = inject(TableService);
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly dataTableService = inject(TableService);
+  private readonly systemPermissionService = inject(SystemPermissionService);
   private readonly loadingService = inject(LoadingService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly notificationService = inject(NotificationService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected table!: IEnhancedTable;
 
@@ -61,7 +65,6 @@ export class GetSystemPermissionComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       SYSTEM_PERMISSION_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
     );
-    this.loadSystemPermissionList();
   }
 
   private loadSystemPermissionList(): void {
@@ -82,8 +85,10 @@ export class GetSystemPermissionComponent implements OnInit {
       )
       .subscribe({
         next: (response: ISystemPermissionGetResponseDto) => {
-          const mappedData = this.mapTableData(response);
+          const { records, totalRecords } = response;
+          const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
+          this.table.updateTableConfig({ totalRecords });
           this.logger.logUserAction('System permissions loaded successfully');
         },
         error: error => {
@@ -93,188 +98,128 @@ export class GetSystemPermissionComponent implements OnInit {
       });
   }
 
-  private executeDeleteSystemPermission(
-    formData: ISystemPermissionDeleteRequestDto
-  ): void {
-    this.logger.logUserAction('Executing delete system permission', formData);
-    this.loadingService.show({
-      title: 'Deleting System Permission(s)',
-      message: 'Please wait while we delete the system permission(s)...',
-    });
-    this.systemPermissionService
-      .deleteSystemPermission(formData)
-      .pipe(
-        finalize(() => {
-          this.loadingService.hide();
-          this.table.setData([]);
-          this.loadSystemPermissionList();
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response: ISystemPermissionDeleteResponseDto) => {
-          this.logger.logUserAction('Delete permission response', response);
-          this.notificationService.success(
-            'System Permission(s) deleted successfully'
-          );
-        },
-        error: error => {
-          this.logger.logUserAction('Delete system permission error', error);
-          this.notificationService.error(
-            'Failed to delete system permission(s)'
-          );
-        },
-      });
-  }
-
-  protected handleBulkActionClick(event: ITableActionClickEvent): void {
-    this.logger.logUserAction('Bulk action clicked', event);
-
-    const { actionType, selectedRows } = event;
-
-    switch (actionType) {
-      case ETableActionType.DELETE:
-        this.showBulkDeleteConfirmationDialog(
-          selectedRows as ISystemPermissionGetBaseResponseDto[]
-        );
-        break;
-      default:
-        this.logger.warn('Unknown bulk action:', actionType);
-    }
-  }
-
-  protected handleRowActionClick(event: ITableActionClickEvent): void {
-    this.logger.logUserAction('Row action clicked', event);
-
-    const { actionType, selectedRows } = event;
-
-    switch (actionType) {
-      case ETableActionType.EDIT:
-        this.navigateToEditSystemPermission(
-          selectedRows as unknown as ISystemPermissionGetBaseResponseDto
-        );
-        break;
-      case ETableActionType.DELETE:
-        this.showSingleDeleteConfirmationDialog(
-          selectedRows as unknown as ISystemPermissionGetBaseResponseDto
-        );
-        break;
-      default:
-        this.logger.warn('Unknown row action:', actionType);
-    }
-  }
-
   private mapTableData(
-    response: ISystemPermissionGetResponseDto
-  ): Partial<ISystemPermissionGetBaseResponseDto>[] {
-    return response.records.map(
-      (record: ISystemPermissionGetBaseResponseDto) => ({
-        id: record.id,
-        name: record.name,
-        module: record.module,
-        label: record.label,
-        description: record.description,
-        isEditable: record.isEditable,
-        isDeletable: record.isDeletable,
-      })
+    response: ISystemPermissionGetBaseResponseDto[]
+  ): ISystemPermission[] {
+    return response.map((record: ISystemPermissionGetBaseResponseDto) => ({
+      id: record.id,
+      permissionLabel: toTitleCase(
+        replaceTextWithSeparator(record.label, '_', ' ')
+      ),
+      permissionDescription: toSentenceCase(record.description),
+      moduleName: toTitleCase(
+        replaceTextWithSeparator(record.module, '_', ' ')
+      ),
+      permissionCode: record.name,
+      isEditable: record.isEditable,
+      isDeletable: record.isDeletable,
+      originalRawData: record,
+    }));
+  }
+
+  protected onTableStateChange(): void {
+    this.loadSystemPermissionList();
+  }
+
+  protected handleSystemPermissionTableActionClick(
+    event: ITableActionClickEvent<ISystemPermissionGetBaseResponseDto>,
+    isBulk: boolean
+  ): void {
+    const { actionType, selectedRows } = event;
+    const [selectedFirstRow] = selectedRows;
+
+    if (actionType === EButtonActionType.EDIT) {
+      this.navigateToEditSystemPermission(
+        selectedFirstRow.id,
+        selectedFirstRow
+      );
+      return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dynamicComponentInputs: any = {
+      selectedRecord: selectedRows,
+      onSuccess: () => {
+        this.loadSystemPermissionList();
+      },
+    };
+
+    const recordDetail =
+      this.prepareSystemPermissionRecordDetail(selectedFirstRow);
+
+    this.confirmationDialogService.showConfirmationDialog(
+      actionType,
+      SYSTEM_PERMISSION_ACTION_CONFIG_MAP[actionType],
+      recordDetail,
+      isBulk,
+      !isBulk,
+      dynamicComponentInputs
     );
   }
 
-  private navigateToEditSystemPermission(
-    rowData: ISystemPermissionGetBaseResponseDto
-  ): void {
-    this.logger.logUserAction('Navigating to edit permission', rowData);
+  private prepareSystemPermissionRecordDetail(
+    selectedRow: ISystemPermissionGetBaseResponseDto
+  ): IDataViewDetailsWithEntity {
+    const entryData: IDataViewDetails['entryData'] = [
+      {
+        label: 'Permission Label',
+        value: toTitleCase(
+          replaceTextWithSeparator(selectedRow.label, '_', ' ')
+        ),
+        type: EDataType.TEXT,
+      },
+      {
+        label: 'Module Name',
+        value: toTitleCase(
+          replaceTextWithSeparator(selectedRow.module, '_', ' ')
+        ),
+        type: EDataType.TEXT,
+      },
+      {
+        label: 'Permission Code',
+        value: selectedRow.name,
+        type: EDataType.TEXT,
+      },
+    ];
+    return {
+      details: [
+        {
+          entryData,
+        },
+      ],
+    };
+  }
 
+  private navigateToEditSystemPermission(
+    systemPermissionId: string,
+    selectedRow: ISystemPermissionGetBaseResponseDto
+  ): void {
     try {
       const routeSegments = [
         ROUTE_BASE_PATHS.SETTINGS.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
         ROUTES.SETTINGS.PERMISSION.SYSTEM.EDIT,
-        rowData.id,
+        systemPermissionId,
       ];
 
       const success = this.routerNavigationService.navigateWithState(
         routeSegments,
-        {
-          systemPermissionData: rowData,
-        }
+        { systemPermissionDetail: selectedRow }
       );
 
       if (!success) {
-        this.logger.logUserAction('Navigation failed for edit button', {
-          systemPermissionId: rowData.id,
-        });
+        this.logger.logUserAction(
+          'Navigation failed for edit system permission',
+          {
+            systemPermissionId,
+          }
+        );
       }
     } catch (error) {
-      this.logger.logUserAction('Navigation error', error);
+      this.logger.logUserAction(
+        'Navigation error while editing system permission',
+        error
+      );
     }
-  }
-
-  private showSingleDeleteConfirmationDialog(
-    rowData: ISystemPermissionGetBaseResponseDto
-  ): void {
-    this.logger.logUserAction(
-      'Single system permission delete action triggered',
-      rowData
-    );
-
-    const formattedSystemPermissionData =
-      this.formatSingleDeleteSystemPermissionData(rowData);
-    const formData = this.prepareDeleteSystemPermissionFormData(
-      formattedSystemPermissionData
-    );
-    const dialogConfig = createSystemPermissionDeleteDialogConfig(rowData, () =>
-      this.executeDeleteSystemPermission(formData)
-    );
-
-    this.confirmationDialogService.showConfirmationDialog(
-      dialogConfig,
-      EDialogType.DELETE
-    );
-  }
-
-  private showBulkDeleteConfirmationDialog(
-    selectedRows: ISystemPermissionGetBaseResponseDto[]
-  ): void {
-    this.logger.logUserAction(
-      'Bulk system permission delete action triggered',
-      selectedRows
-    );
-
-    const formattedSystemPermissionData =
-      this.formatBulkDeleteSystemPermissionData(selectedRows);
-    const formData = this.prepareDeleteSystemPermissionFormData(
-      formattedSystemPermissionData
-    );
-    const dialogConfig = createSystemPermissionBulkDeleteDialogConfig(
-      selectedRows,
-      () => this.executeDeleteSystemPermission(formData)
-    );
-
-    this.confirmationDialogService.showConfirmationDialog(
-      dialogConfig,
-      EDialogType.DELETE
-    );
-  }
-
-  private formatSingleDeleteSystemPermissionData(
-    rowData: ISystemPermissionGetBaseResponseDto
-  ): string[] {
-    return [rowData.id];
-  }
-
-  private formatBulkDeleteSystemPermissionData(
-    selectedRows: ISystemPermissionGetBaseResponseDto[]
-  ): string[] {
-    return selectedRows.map(row => row.id);
-  }
-
-  private prepareDeleteSystemPermissionFormData(
-    systemPermissionIds: string[]
-  ): ISystemPermissionDeleteRequestDto {
-    return {
-      ids: systemPermissionIds,
-    };
   }
 }

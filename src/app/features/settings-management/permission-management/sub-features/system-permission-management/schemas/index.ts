@@ -18,4 +18,7 @@ export {
   SystemPermissionGetResponseSchema,
 } from './get-system-permission.schema';
 
-export { SystemPermissionBaseSchema } from './base-system-permission.schema';
+export {
+  SystemPermissionBaseSchema,
+  SystemPermissionUpsertShapeSchema,
+} from './base-system-permission.schema';

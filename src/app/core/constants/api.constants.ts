@@ -100,13 +100,13 @@ export const API_ROUTES = {
       SYSTEM: {
         ADD: 'permissions',
         LIST: 'permissions',
-        UPDATE: 'permissions',
+        UPDATE: (permissionId: string) => `permissions/${permissionId}`,
         DELETE: 'permissions/bulk',
       },
       ROLE: {
         LIST: 'role',
         ADD: 'role',
-        UPDATE: 'role',
+        UPDATE: (roleId: string) => `role/${roleId}`,
         DELETE: 'role/bulk',
       },
       ROLE_PERMISSION: {

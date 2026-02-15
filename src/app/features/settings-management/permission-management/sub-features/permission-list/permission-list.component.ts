@@ -8,42 +8,35 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { IMetric, IPageHeaderConfig, ITabItem } from '@shared/models';
 import { CardModule } from 'primeng/card';
 import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '@shared/constants';
 import { filter } from 'rxjs/operators';
 import { LoggerService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
-import { ETabMode } from '@shared/types';
+import { ETabMode, IPageHeaderConfig, ITabItem } from '@shared/types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 
 @Component({
   selector: 'app-permission-list',
-  imports: [
-    PageHeaderComponent,
-    MetricsCardComponent,
-    NavTabsComponent,
-    CardModule,
-  ],
+  imports: [PageHeaderComponent, NavTabsComponent, CardModule],
   standalone: true,
   templateUrl: './permission-list.component.html',
   styleUrl: './permission-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PermissionListComponent implements OnInit {
-  private readonly router = inject(Router);
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   readonly tabModeType = ETabMode.ROUTER_OUTLET;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected tabs = signal(this.getTabsData());
-  protected metricsCards = signal(this.getMetricCardsData());
+  protected tabs = computed(() => this.getTabs());
   protected currentRoute = signal<string>('');
 
   ngOnInit(): void {
@@ -59,24 +52,30 @@ export class PermissionListComponent implements OnInit {
       });
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getTabs(): ITabItem[] {
     return [
       {
-        label: 'Employee Access',
-        value: 42,
+        route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
+        label: 'Permissions',
+        icon: ICONS.SECURITY.SHIELD,
+        tooltip: 'Manage system permissions',
       },
       {
-        label: 'Department Roles',
-        value: 35,
+        route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+        label: 'Roles',
+        icon: ICONS.EMPLOYEE.GROUP,
+        tooltip: 'Manage user roles',
       },
       {
-        label: 'Department Roles',
-        value: 35,
+        route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
+        label: 'Users',
+        icon: ICONS.EMPLOYEE.USER,
+        tooltip: 'Manage system users',
       },
     ];
   }
 
-  protected onAddButtonClick(): void {
+  protected onHeaderButtonClick(): void {
     const currentUrl = this.currentRoute();
     const navigationRoute = this.buildNavigationRoute(currentUrl);
 
@@ -105,24 +104,27 @@ export class PermissionListComponent implements OnInit {
     ];
 
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM)) {
-      return this.routerNavigationService.buildRouteSegments(
-        [...basePaths, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM],
-        ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD
-      );
+      return [
+        ...basePaths,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
+        ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD,
+      ];
     }
 
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
-      return this.routerNavigationService.buildRouteSegments(
-        [...basePaths, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE],
-        ROUTES.SETTINGS.PERMISSION.ROLE.ADD
-      );
+      return [
+        ...basePaths,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+        ROUTES.SETTINGS.PERMISSION.ROLE.ADD,
+      ];
     }
 
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
-      return this.routerNavigationService.buildRouteSegments(
-        [...basePaths, ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER],
-        ROUTES.SETTINGS.PERMISSION.USER.ADD
-      );
+      return [
+        ...basePaths,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
+        ROUTES.SETTINGS.PERMISSION.USER.ADD,
+      ];
     }
 
     return null;
@@ -133,10 +135,12 @@ export class PermissionListComponent implements OnInit {
       title: 'Permission Management',
       subtitle: 'Manage system permissions, roles, and user access',
       showHeaderButton: true,
-      headerButtonConfig: {
-        label: this.getPageHeaderButtonLabel(),
-        icon: ICONS.COMMON.PLUS,
-      },
+      headerButtonConfig: [
+        {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+          label: this.getPageHeaderButtonLabel(),
+        },
+      ],
     };
   }
 
@@ -150,28 +154,5 @@ export class PermissionListComponent implements OnInit {
     }
 
     return 'Add New Permission';
-  }
-
-  private getTabsData(): ITabItem[] {
-    return [
-      {
-        route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
-        label: 'Permissions',
-        icon: ICONS.SECURITY.SHIELD,
-        tooltip: 'Manage system permissions',
-      },
-      {
-        route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
-        label: 'Roles',
-        icon: ICONS.EMPLOYEE.GROUP,
-        tooltip: 'Manage user roles',
-      },
-      {
-        route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
-        label: 'Users',
-        icon: ICONS.EMPLOYEE.USER,
-        tooltip: 'Manage system users',
-      },
-    ];
   }
 }

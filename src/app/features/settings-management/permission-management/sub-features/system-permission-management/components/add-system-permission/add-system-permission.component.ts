@@ -1,31 +1,23 @@
 import {
   Component,
   OnInit,
-  signal,
   inject,
   ChangeDetectionStrategy,
-  DestroyRef,
   computed,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { LoggerService } from '@core/services';
-import {
-  FormService,
-  LoadingService,
-  NotificationService,
-  RouterNavigationService,
-} from '@shared/services/';
-import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
-import { IEnhancedForm, IPageHeaderConfig } from '@shared/types';
-import { MODULE_ACTIONS_DATA } from '@shared/config';
+import { RouterNavigationService } from '@shared/services/';
+import { ROUTE_BASE_PATHS } from '@shared/constants';
+import { IPageHeaderConfig } from '@shared/types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
-import { SYSTEM_PERMISSION_FORM_ADD_CONFIG } from '../../config';
+import { ADD_SYSTEM_PERMISSION_FORM_CONFIG } from '../../config';
 import { SystemPermissionService } from '../../services/system-permission.service';
-import { ISystemPermissionAddRequestDto } from '../../types/system-permission.dto';
+import { ISystemPermissionAddFormDto } from '../../types/system-permission.dto';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-add-system-permission',
@@ -39,37 +31,37 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
   styleUrl: './add-system-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddSystemPermissionComponent implements OnInit {
-  private readonly formService = inject(FormService);
-  protected readonly logger = inject(LoggerService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly loadingService = inject(LoadingService);
+export class AddSystemPermissionComponent
+  extends FormBase<ISystemPermissionAddFormDto>
+  implements OnInit
+{
   private readonly systemPermissionService = inject(SystemPermissionService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly routerNavigationService = inject(RouterNavigationService);
 
-  protected form!: IEnhancedForm;
-
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly isSubmitting = signal(false);
 
   ngOnInit(): void {
-    this.form = this.formService.createForm(SYSTEM_PERMISSION_FORM_ADD_CONFIG);
+    this.form = this.formService.createForm<ISystemPermissionAddFormDto>(
+      ADD_SYSTEM_PERMISSION_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+      }
+    );
   }
 
-  protected onSubmit(): void {
-    if (this.isSubmitting() || !this.validateForm()) {
-      return;
-    }
-
+  protected override handleSubmit(): void {
     const formData = this.prepareFormData();
     this.executeAddSystemPermission(formData);
   }
 
+  private prepareFormData(): ISystemPermissionAddFormDto {
+    const formData = this.form.getData();
+    return formData;
+  }
+
   private executeAddSystemPermission(
-    formData: ISystemPermissionAddRequestDto
+    formData: ISystemPermissionAddFormDto
   ): void {
-    this.isSubmitting.set(true);
     this.loadingService.show({
       title: 'Adding System Permission',
       message: 'Please wait while we add the system permission...',
@@ -102,56 +94,14 @@ export class AddSystemPermissionComponent implements OnInit {
       });
   }
 
-  private validateForm(): boolean {
-    if (!this.form.validateAndMarkTouched()) {
-      this.notificationService.validationError(
-        FORM_VALIDATION_MESSAGES.FORM_INVALID
-      );
-      this.logger.warn('Add system permission form validation failed');
-      return false;
-    }
-    return true;
-  }
-
-  protected onModuleNameChange(): void {
-    const moduleName = this.form.getFieldData('moduleName');
-    const actions = MODULE_ACTIONS_DATA[moduleName as string];
-    const { selectConfig } = this.form.fieldConfigs['action'];
-    if (selectConfig) {
-      selectConfig.optionsDropdown = actions;
-    }
-  }
-
   protected onReset(): void {
-    try {
-      this.logger.logUserAction('Reset Add System Permission Form');
-      this.form.reset();
-      const { selectConfig } = this.form.fieldConfigs['action'];
-      if (selectConfig) {
-        selectConfig.optionsDropdown = [];
-      }
-    } catch (error) {
-      this.logger.error('Error resetting form', error);
-    }
+    this.onResetSingleForm();
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
       title: 'Add System Permission',
       subtitle: 'Add a new system permission to the system',
-    };
-  }
-
-  private prepareFormData(): ISystemPermissionAddRequestDto {
-    const { moduleName, action, comment } = this.form.getData() as Record<
-      string,
-      string
-    >;
-    return {
-      module: moduleName,
-      name: `${action}_${moduleName}`,
-      label: `${action} ${moduleName}`,
-      description: comment,
     };
   }
 }
