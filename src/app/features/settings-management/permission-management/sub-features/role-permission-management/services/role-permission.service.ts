@@ -2,9 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { ApiService, LoggerService } from '@core/services';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import {
-  IRolePermissionsGetRequestDto,
+  IRolePermissionsGetFormDto,
   IRolePermissionsGetResponseDto,
-  IRolePermissionsSetRequestDto,
+  IRolePermissionsSetFormDto,
   IRolePermissionsSetResponseDto,
 } from '../types/role-permission.dto';
 import {
@@ -23,16 +23,18 @@ export class RolePermissionService {
   private readonly apiService = inject(ApiService);
 
   setRolePermission(
-    formData: IRolePermissionsSetRequestDto
+    formData: IRolePermissionsSetFormDto
   ): Observable<IRolePermissionsSetResponseDto> {
     this.logger.logUserAction('Set Role Permission Request', formData);
 
     return this.apiService
       .postValidated(
         `${API_ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.SET}`,
-        formData,
-        RolePermissionsSetRequestSchema,
-        RolePermissionsSetResponseSchema
+        {
+          response: RolePermissionsSetResponseSchema,
+          request: RolePermissionsSetRequestSchema,
+        },
+        formData
       )
       .pipe(
         tap((response: IRolePermissionsSetResponseDto) => {
@@ -53,16 +55,18 @@ export class RolePermissionService {
   }
 
   getRolePermission(
-    params: IRolePermissionsGetRequestDto
+    params: IRolePermissionsGetFormDto
   ): Observable<IRolePermissionsGetResponseDto> {
     this.logger.logUserAction('Get Role Permission Request', params);
 
     return this.apiService
       .getValidated(
         `${API_ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.LIST}`,
-        RolePermissionsGetResponseSchema,
-        params,
-        RolePermissionsGetRequestSchema
+        {
+          response: RolePermissionsGetResponseSchema,
+          request: RolePermissionsGetRequestSchema,
+        },
+        params
       )
       .pipe(
         tap((response: IRolePermissionsGetResponseDto) => {

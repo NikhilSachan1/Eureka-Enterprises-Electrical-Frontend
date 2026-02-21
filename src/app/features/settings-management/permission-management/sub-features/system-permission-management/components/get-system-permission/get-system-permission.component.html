@@ -1,3 +1,10 @@
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -8,5 +15,5 @@
   [rowActions]="table.rowActions()"
   (rowActionClick)="handleSystemPermissionTableActionClick($any($event), false)"
   (bulkActionClick)="handleSystemPermissionTableActionClick($any($event), true)"
-  (filterData)="onTableStateChange()"
+  (filterData)="onTableStateChange($event)"
 />

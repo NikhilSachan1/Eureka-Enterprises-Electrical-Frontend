@@ -6,7 +6,7 @@ import { LoadingService, RouterNavigationService } from '@shared/services';
 import { ROUTE_BASE_PATHS } from '@shared/constants/route.constants';
 import { RolePermissionService } from '../services/role-permission.service';
 import {
-  IRolePermissionsGetRequestDto,
+  IRolePermissionsGetFormDto,
   IRolePermissionsGetResponseDto,
 } from '../types/role-permission.dto';
 
@@ -73,10 +73,9 @@ export class RolePermissionResolver
     void this.routerNavigationService.navigateToRoute(routeSegments);
   }
 
-  private prepareParamData(roleId: string): IRolePermissionsGetRequestDto {
+  private prepareParamData(roleId: string): IRolePermissionsGetFormDto {
     return {
       roleId,
-      isActive: true,
     };
   }
 }

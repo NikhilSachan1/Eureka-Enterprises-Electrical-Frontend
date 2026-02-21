@@ -9,6 +9,7 @@ import {
   IRoleDeleteResponseDto,
   IRoleEditFormDto,
   IRoleEditResponseDto,
+  IRoleGetFormDto,
   IRoleGetResponseDto,
 } from '../types/role.dto';
 import {
@@ -18,6 +19,7 @@ import {
   RoleDeleteResponseSchema,
   RoleEditRequestSchema,
   RoleEditResponseSchema,
+  RoleGetRequestSchema,
   RoleGetResponseSchema,
 } from '../schemas';
 
@@ -121,13 +123,18 @@ export class RoleService {
       );
   }
 
-  getRoleList(): Observable<IRoleGetResponseDto> {
+  getRoleList(paramData?: IRoleGetFormDto): Observable<IRoleGetResponseDto> {
     this.logger.logUserAction('Get Role List Request');
 
     return this.apiService
-      .getValidated(API_ROUTES.SETTINGS.PERMISSION.ROLE.LIST, {
-        response: RoleGetResponseSchema,
-      })
+      .getValidated(
+        API_ROUTES.SETTINGS.PERMISSION.ROLE.LIST,
+        {
+          response: RoleGetResponseSchema,
+          request: RoleGetRequestSchema,
+        },
+        paramData
+      )
       .pipe(
         tap((response: IRoleGetResponseDto) => {
           this.logger.logUserAction('Get Role List Response', response);

@@ -8,6 +8,7 @@ import {
   SystemPermissionEditRequestSchema,
   SystemPermissionEditResponseSchema,
   SystemPermissionGetBaseResponseSchema,
+  SystemPermissionGetRequestSchema,
 } from '../schemas';
 
 /**
@@ -53,4 +54,10 @@ export type ISystemPermissionGetResponseDto = z.infer<
 >;
 export type ISystemPermissionGetBaseResponseDto = z.infer<
   typeof SystemPermissionGetBaseResponseSchema
+>;
+export type ISystemPermissionGetRequestDto = z.infer<
+  typeof SystemPermissionGetRequestSchema
+>;
+export type ISystemPermissionGetFormDto = z.input<
+  typeof SystemPermissionGetRequestSchema
 >;

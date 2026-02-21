@@ -29,7 +29,3 @@ export {
   EmployeeChangeStatusRequestSchema,
   EmployeeChangeStatusResponseSchema,
 } from './change-status-employee.schema';
-export {
-  EmployeeChangeRoleRequestSchema,
-  EmployeeChangeRoleResponseSchema,
-} from './change-role-employee.schema';

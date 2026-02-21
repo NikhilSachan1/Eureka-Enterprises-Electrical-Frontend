@@ -119,7 +119,8 @@ export const API_ROUTES = {
       USER_PERMISSION: {
         LIST: 'user-permissions',
         SET: 'user-permissions/bulk',
-        DELETE: 'user-permissions/bulk',
+        DELETE: 'user-permissions/bulk-by-users',
+        CHANGE_ROLE: (userId: string) => `user-roles/user/${userId}`,
       },
     },
   },

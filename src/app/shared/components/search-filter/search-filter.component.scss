@@ -44,11 +44,12 @@
     border-color: var(--primary-200) !important;
   }
 
-  // Panel Header
+  // Panel Header – rounded top corners to match panel
   .p-panel-header {
     padding: 1.25rem 1.5rem !important;
     background: linear-gradient(to right, var(--primary-50), var(--background-default-color)) !important;
     border-bottom: 1px solid var(--border-light-color) !important;
+    border-radius: 1rem 1rem 0 0 !important;
     transition: all 0.2s ease !important;
 
     // Toggle icon styling
@@ -69,16 +70,18 @@
     }
   }
 
-  // Panel Content – overflow visible so datepicker overlay is not cropped
+  // Panel Content – rounded bottom corners; overflow visible so datepicker is not cropped
   .p-panel-content {
     padding: 1.5rem !important;
     background: var(--background-default-color) !important;
+    border-radius: 0 0 1rem 1rem !important;
   }
 
-  // Collapsed state
+  // Collapsed state – header shows all rounded corners
   &.p-panel-collapsed {
     .p-panel-header {
       border-bottom: none !important;
+      border-radius: 1rem !important;
     }
   }
 }

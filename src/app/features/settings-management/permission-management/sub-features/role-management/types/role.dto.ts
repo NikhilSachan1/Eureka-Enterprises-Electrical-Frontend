@@ -8,6 +8,7 @@ import {
   RoleDeleteResponseSchema,
   RoleGetBaseResponseSchema,
   RoleGetResponseSchema,
+  RoleGetRequestSchema,
 } from '../schemas';
 
 /**
@@ -33,3 +34,5 @@ export type IRoleDeleteFormDto = z.input<typeof RoleDeleteRequestSchema>;
  */
 export type IRoleGetBaseResponseDto = z.infer<typeof RoleGetBaseResponseSchema>;
 export type IRoleGetResponseDto = z.infer<typeof RoleGetResponseSchema>;
+export type IRoleGetRequestDto = z.infer<typeof RoleGetRequestSchema>;
+export type IRoleGetFormDto = z.input<typeof RoleGetRequestSchema>;

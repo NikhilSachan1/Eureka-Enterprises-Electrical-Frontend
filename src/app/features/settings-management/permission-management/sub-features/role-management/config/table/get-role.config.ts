@@ -31,6 +31,7 @@ export const ROLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'rolePermissionCount',
     header: 'Permission Count',
     bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'permissionCountRole',
   },
 ];
 

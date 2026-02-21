@@ -1,23 +1,23 @@
 import { IOptionDropdown } from '@shared/types';
 
 export const MODULES_NAME_DATA: IOptionDropdown[] = [
-  { label: 'Dashboard', value: 'dashboard' },
-  { label: 'Employee', value: 'employee' },
+  // { label: 'Dashboard', value: 'dashboard' },
+  // { label: 'Employee', value: 'employee' },
   { label: 'Attendance', value: 'attendance' },
   { label: 'Expense', value: 'expense' },
   { label: 'Leave', value: 'leave' },
-  { label: 'Asset', value: 'asset' },
-  { label: 'Vehicle', value: 'vehicle' },
-  { label: 'Petro Card', value: 'petro_card' },
-  { label: 'Fuel', value: 'fuel' },
-  { label: 'Company', value: 'company' },
-  { label: 'Contractor', value: 'contractor' },
+  // { label: 'Asset', value: 'asset' },
+  // { label: 'Vehicle', value: 'vehicle' },
+  // { label: 'Petro Card', value: 'petro_card' },
+  // { label: 'Fuel', value: 'fuel' },
+  // { label: 'Company', value: 'company' },
+  // { label: 'Contractor', value: 'contractor' },
   { label: 'Project', value: 'project' },
-  { label: 'Announcement', value: 'announcement' },
-  { label: 'Payroll', value: 'payroll' },
+  // { label: 'Announcement', value: 'announcement' },
+  // { label: 'Payroll', value: 'payroll' },
   { label: 'System Permission', value: 'system_permission' },
-  { label: 'User Permission', value: 'user_permission' },
-  { label: 'Role Permission', value: 'role_permission' },
+  // { label: 'User Permission', value: 'user_permission' },
+  // { label: 'Role Permission', value: 'role_permission' },
 ];
 
 export const MODULE_ACTIONS_BY_MODULE_NAME_DATA: Record<
@@ -38,11 +38,11 @@ export const MODULE_ACTIONS_BY_MODULE_NAME_DATA: Record<
     { value: 'edit', label: 'Edit' },
     { value: 'delete', label: 'Delete' },
   ],
-  user_permission: [
+  expense: [
     { value: 'delete', label: 'Delete' },
     { value: 'set', label: 'Set Permission' },
   ],
-  role_permission: [
+  leave: [
     { value: 'add', label: 'Add' },
     { value: 'edit', label: 'Edit' },
     { value: 'delete', label: 'Delete' },

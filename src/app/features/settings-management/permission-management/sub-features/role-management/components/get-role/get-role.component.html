@@ -1,3 +1,26 @@
+<ng-template
+  #permissionCountRole
+  let-row
+>
+  <div class="flex flex-wrap gap-1.5 items-center">
+    <app-status-tag
+      [value]="row.rolePermissionCount.current + ' Assigned'"
+      [config]="{ severity: 'info' }"
+    />
+    <app-status-tag
+      [value]="row.rolePermissionCount.total + ' Total'"
+      [config]="{ severity: 'success' }"
+    />
+  </div>
+</ng-template>
+
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -6,7 +29,8 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{ permissionCountRole: permissionCountRole }"
   (rowActionClick)="handleRoleTableActionClick($any($event), false)"
   (bulkActionClick)="handleRoleTableActionClick($any($event), true)"
-  (filterData)="onTableStateChange()"
+  (filterData)="onTableStateChange($event)"
 />

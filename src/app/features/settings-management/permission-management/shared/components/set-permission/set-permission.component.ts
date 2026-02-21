@@ -12,29 +12,28 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
+import { AccordionModule } from 'primeng/accordion';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ICONS } from '@shared/constants';
-import { ETabMode, EFieldType, EPrimeNGSeverity } from '@shared/types';
 import {
+  EDataType,
+  EButtonSeverity,
+  EButtonVariant,
+  IButtonConfig,
   IEnhancedForm,
-  ITabChange,
   IFormInputFieldsConfig,
   IInputFieldsConfig,
-  ITabItem,
-} from '@shared/models';
-import { MODULES_NAME_DATA } from '@shared/config';
+} from '@shared/types';
 import {
   LoadingService,
   FormService,
   InputFieldConfigService,
 } from '@shared/services';
 import { CardModule } from 'primeng/card';
-import { TagModule } from 'primeng/tag';
-import { NgClass } from '@angular/common';
+import { NgClass, TitleCasePipe } from '@angular/common';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { IModulePermission } from '../../../sub-features/system-permission-management/types/system-permission.interface';
 import { SystemPermissionService } from '../../../sub-features/system-permission-management/services/system-permission.service';
 import { ROLE_PERMISSION_FORM_SET_CONFIG } from '../../config/form/set-permission-form.config';
@@ -49,23 +48,61 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services';
-import { StandaloneInputFieldComponent } from '@shared/components/standalone-input-field/standalone-input-field.component';
+
+const STAT_LABEL = {
+  TOTAL: 'Total',
+  GRANTED: 'Granted',
+  REVOKED: 'Revoked',
+  NEW: 'New',
+  OVERRIDES: 'Overrides',
+  PENDING: 'Pending',
+} as const;
+
+function buildStatsArray(
+  total: number,
+  granted: number,
+  revoked: number,
+  newCount: number,
+  includeOverrides?: number
+): IModuleStats[] {
+  const arr: IModuleStats[] = [
+    {
+      label: STAT_LABEL.TOTAL,
+      value: total,
+      colorClass: 'text-content-secondary',
+    },
+    {
+      label: STAT_LABEL.GRANTED,
+      value: granted,
+      colorClass: 'text-emerald-600',
+    },
+    { label: STAT_LABEL.REVOKED, value: revoked, colorClass: 'text-red-600' },
+    { label: STAT_LABEL.NEW, value: newCount, colorClass: 'text-blue-600' },
+  ];
+  if (includeOverrides !== undefined) {
+    arr.push({
+      label: STAT_LABEL.OVERRIDES,
+      value: includeOverrides,
+      colorClass: 'text-purple-600',
+    });
+  }
+  return arr;
+}
 
 @Component({
   selector: 'app-set-permission',
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    NavTabsComponent,
+    AccordionModule,
     ButtonComponent,
     CardModule,
-    TagModule,
     InputFieldComponent,
-    StandaloneInputFieldComponent,
     NgClass,
     EmptyMessagesComponent,
+    StatusTagComponent,
+    TitleCasePipe,
   ],
-  providers: [MessageService, ConfirmationService],
   templateUrl: './set-permission.component.html',
   styleUrls: ['./set-permission.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,11 +116,9 @@ export class SetPermissionComponent implements OnInit {
   private readonly logger = inject(LoggerService);
 
   icons = ICONS;
-  tabModeType = ETabMode.CONTENT;
 
-  protected form!: IEnhancedForm;
+  protected form!: IEnhancedForm<Record<string, boolean>>;
 
-  protected tabs = computed(() => this.getTabs());
   protected computedSelectAllValues = computed(() => this.selectAllValues());
   protected computedGetStats = computed(() => this.getStats());
   protected computedGetPendingCounts = computed(() => this.getPendingCounts());
@@ -95,7 +130,24 @@ export class SetPermissionComponent implements OnInit {
     Record<string, IInputFieldsConfig>
   >({});
   protected modulePermissions = signal<IModulePermission[]>([]);
-  protected readonly activeTabIndex = signal(0);
+  /** For multiple accordion: array of open panel values (e.g. ['0','1','2']) */
+  protected readonly activeTabIndex = signal<string[]>([]);
+
+  protected readonly expandAllButtonConfig: Partial<IButtonConfig> = {
+    label: 'Expand All',
+    severity: EButtonSeverity.SUCCESS,
+    variant: EButtonVariant.OUTLINED,
+    icon: ICONS.ACTIONS.CHECK_CIRCLE,
+    actionName: 'expandAll',
+  };
+
+  protected readonly collapseAllButtonConfig: Partial<IButtonConfig> = {
+    label: 'Collapse All',
+    severity: EButtonSeverity.DANGER,
+    variant: EButtonVariant.OUTLINED,
+    icon: ICONS.ACTIONS.TIMES,
+    actionName: 'collapseAll',
+  };
   private readonly formChangeTrigger = signal(0);
 
   readonly defaultPermissionSelected = input<IDefaultPermissions | null>({});
@@ -127,7 +179,7 @@ export class SetPermissionComponent implements OnInit {
   }
 
   protected onSubmit(): void {
-    const formData = this.form.getData() as Record<string, boolean>;
+    const formData = this.form.getData();
     const groupedData = this.groupPermissionsByModule(formData);
     const categorizedPermissionsData = this.getCategorizePermissions(formData);
     this.modulePermissionsData.emit({
@@ -168,14 +220,19 @@ export class SetPermissionComponent implements OnInit {
       return;
     }
 
-    const dynamicFields: IFormInputFieldsConfig = {};
-    const standaloneInputFieldConfig: IFormInputFieldsConfig = {};
+    const dynamicFields: IFormInputFieldsConfig<Record<string, boolean>> = {};
+    const standaloneInputFieldConfig: IFormInputFieldsConfig<
+      Record<string, boolean>
+    > = {};
 
     modules.forEach(module => {
+      const hasNoPermissions =
+        !module.permissions || module.permissions.length === 0;
       standaloneInputFieldConfig[module.id] = {
-        fieldType: EFieldType.Checkbox,
+        fieldType: EDataType.CHECKBOX,
         fieldName: module.id,
         id: module.id,
+        disabledInput: hasNoPermissions,
         checkboxConfig: {
           options: [
             {
@@ -190,7 +247,7 @@ export class SetPermissionComponent implements OnInit {
         if (permission.id) {
           const fieldName = `${permission.id}`;
           dynamicFields[fieldName] = {
-            fieldType: EFieldType.Checkbox,
+            fieldType: EDataType.CHECKBOX,
             fieldName,
             id: fieldName,
             checkboxConfig: {
@@ -216,10 +273,10 @@ export class SetPermissionComponent implements OnInit {
     const formInitialValues =
       this.convertToSimpleBooleanValues(defaultPermissions);
 
-    this.form = this.formService.createForm(
-      finalSetPermissionFormConfig,
-      formInitialValues
-    );
+    this.form = this.formService.createForm(finalSetPermissionFormConfig, {
+      destroyRef: this.destroyRef,
+      defaultValues: formInitialValues,
+    });
     const fullStandaloneInputFieldConfig =
       this.inputFieldConfigService.initializeFieldConfigs(
         standaloneInputFieldConfig
@@ -264,31 +321,74 @@ export class SetPermissionComponent implements OnInit {
     formData: Record<string, boolean>
   ): Record<string, string[]> {
     const modules = this.modulePermissions();
-    const initialGrouped = modules.reduce(
-      (acc, module) => {
-        acc[module.id] = [];
+    const permissionToModule = new Map<string, string>();
+    modules.forEach(module => {
+      module.permissions.forEach(p => {
+        if (p.id) {
+          permissionToModule.set(p.id, module.id);
+        }
+      });
+    });
+
+    const grouped = modules.reduce(
+      (acc, m) => {
+        acc[m.id] = [];
         return acc;
       },
       {} as Record<string, string[]>
     );
 
-    return Object.entries(formData)
-      .filter(([, value]) => value === true)
-      .reduce((grouped, [fieldName]) => {
-        const module = modules.find(m =>
-          m.permissions.some(p => p.id === fieldName)
-        );
-
-        if (module) {
-          grouped[module.id].push(fieldName);
+    Object.entries(formData).forEach(([fieldName, value]) => {
+      if (value === true) {
+        const moduleId = permissionToModule.get(fieldName);
+        if (moduleId) {
+          grouped[moduleId].push(fieldName);
         }
+      }
+    });
 
-        return grouped;
-      }, initialGrouped);
+    return grouped;
   }
 
-  onTabChanged(event: ITabChange): void {
-    this.activeTabIndex.set(event.index);
+  protected onAccordionValueChange(
+    value: string | number | string[] | number[] | null | undefined
+  ): void {
+    if (value === null || value === undefined) {
+      return;
+    }
+    const arr = Array.isArray(value)
+      ? value.map(v => (typeof v === 'number' ? String(v) : v))
+      : [String(value)];
+    this.activeTabIndex.set(arr);
+  }
+
+  protected expandAll(): void {
+    const modules = this.modulePermissions();
+    this.activeTabIndex.set(modules.map((_, i) => String(i)));
+  }
+
+  protected collapseAll(): void {
+    this.activeTabIndex.set([]);
+  }
+
+  protected onAccordionActionClick(actionName: string): void {
+    if (actionName === 'expandAll') {
+      this.expandAll();
+    } else if (actionName === 'collapseAll') {
+      this.collapseAll();
+    }
+  }
+
+  /** Builds badge string (e.g. "2/3") from module stats. Use from template with rowStats to avoid duplicate getStats. */
+  protected getModuleBadgeFromStats(stats: IModuleStats[] | undefined): string {
+    if (!stats?.length) {
+      return '';
+    }
+    const total = stats.find(s => s.label === STAT_LABEL.TOTAL)?.value ?? 0;
+    const granted = stats.find(s => s.label === STAT_LABEL.GRANTED)?.value ?? 0;
+    const newCount = stats.find(s => s.label === STAT_LABEL.NEW)?.value ?? 0;
+    const revoked = stats.find(s => s.label === STAT_LABEL.REVOKED)?.value ?? 0;
+    return `${granted + newCount - revoked}/${total}`;
   }
 
   protected onClickPermissionCard(
@@ -308,9 +408,17 @@ export class SetPermissionComponent implements OnInit {
 
   protected selectAllPermissions(moduleId: string, checked: unknown): void {
     const { formGroup } = this.form;
-    const module = this.modulePermissions().find(m => m.id === moduleId);
-    if (!module) {
+    const modules = this.modulePermissions();
+    const panelIndex = modules.findIndex(m => m.id === moduleId);
+    if (panelIndex === -1) {
       return;
+    }
+    const module = modules[panelIndex];
+
+    const key = String(panelIndex);
+    const open = this.activeTabIndex();
+    if (!open.includes(key)) {
+      this.activeTabIndex.set([...open, key]);
     }
 
     module.permissions.forEach(permission => {
@@ -328,38 +436,6 @@ export class SetPermissionComponent implements OnInit {
     this.formChangeTrigger.update(prev => prev + 1);
   }
 
-  private getTabs(): ITabItem[] {
-    const modules = MODULES_NAME_DATA;
-    const modulePermissions = this.modulePermissions();
-    const stats = this.getStats();
-
-    return modules.map((module, index) => {
-      const actualModule = modulePermissions.find(
-        m => m.moduleName === module.label
-      ) as IModulePermission;
-      const moduleStats = stats.modules[actualModule.id];
-
-      const granted =
-        moduleStats.find(stat => stat.label === 'Granted')?.value ?? 0;
-      const newCount =
-        moduleStats.find(stat => stat.label === 'New')?.value ?? 0;
-      const revoked =
-        moduleStats.find(stat => stat.label === 'Revoked')?.value ?? 0;
-      const total =
-        moduleStats.find(stat => stat.label === 'Total')?.value ?? 0;
-
-      const netEffective = granted + newCount - revoked;
-
-      return {
-        route: `tab-${index}`,
-        label: module.label,
-        icon: this.icons.SECURITY.SHIELD,
-        badge: `${netEffective}/${total}`,
-        tooltip: `Set permissions for ${module.label}`,
-      };
-    });
-  }
-
   private selectAllValues(): Record<string, boolean> {
     this.formChangeTrigger();
 
@@ -373,6 +449,10 @@ export class SetPermissionComponent implements OnInit {
     const result: Record<string, boolean> = {};
 
     modules.forEach(module => {
+      if (!module.permissions || module.permissions.length === 0) {
+        result[module.id] = false;
+        return;
+      }
       const allChecked = module.permissions.every(permission => {
         const fieldName = `${permission.id}`;
         const control = formGroup.get(fieldName);
@@ -436,56 +516,22 @@ export class SetPermissionComponent implements OnInit {
 
       globalTotal += moduleTotal;
 
-      const moduleStatsArray = [
-        {
-          label: 'Total',
-          value: moduleTotal,
-          colorClass: 'text-content-secondary',
-        },
-        {
-          label: 'Granted',
-          value: moduleGranted,
-          colorClass: 'text-emerald-600',
-        },
-        { label: 'Revoked', value: moduleRevoked, colorClass: 'text-red-600' },
-        { label: 'New', value: moduleNew, colorClass: 'text-blue-600' },
-      ];
-
-      if (this.isUserPermissionComponent()) {
-        moduleStatsArray.push({
-          label: 'Overrides',
-          value: moduleOverride,
-          colorClass: 'text-purple-600',
-        });
-      }
-
-      moduleStats[module.id] = moduleStatsArray;
+      moduleStats[module.id] = buildStatsArray(
+        moduleTotal,
+        moduleGranted,
+        moduleRevoked,
+        moduleNew,
+        this.isUserPermissionComponent() ? moduleOverride : undefined
+      );
     });
 
-    const globalStatsArray = [
-      {
-        label: 'Total',
-        value: globalTotal,
-        colorClass: 'text-content-secondary',
-      },
-      {
-        label: 'Granted',
-        value: globalGranted,
-        colorClass: 'text-emerald-600',
-      },
-      { label: 'Revoked', value: globalRevoked, colorClass: 'text-red-600' },
-      { label: 'New', value: globalNew, colorClass: 'text-blue-600' },
-    ];
-
-    if (this.isUserPermissionComponent()) {
-      globalStatsArray.push({
-        label: 'Overrides',
-        value: globalOverride,
-        colorClass: 'text-purple-600',
-      });
-    }
-
-    const globalStats = globalStatsArray;
+    const globalStats = buildStatsArray(
+      globalTotal,
+      globalGranted,
+      globalRevoked,
+      globalNew,
+      this.isUserPermissionComponent() ? globalOverride : undefined
+    );
 
     return {
       global: globalStats,
@@ -494,17 +540,16 @@ export class SetPermissionComponent implements OnInit {
   }
 
   private getPendingCounts(): IPermissionStats {
-    const stats = this.getStats();
+    const stats = this.computedGetStats();
 
     const globalRevoked =
-      stats.global.find(stat => stat.label === 'Revoked')?.value ?? 0;
+      stats.global.find(stat => stat.label === STAT_LABEL.REVOKED)?.value ?? 0;
     const globalNew =
-      stats.global.find(stat => stat.label === 'New')?.value ?? 0;
-    const globalPending = globalRevoked + globalNew;
-    const globalPendingStats = [
+      stats.global.find(stat => stat.label === STAT_LABEL.NEW)?.value ?? 0;
+    const globalPendingStats: IModuleStats[] = [
       {
-        label: 'Pending',
-        value: globalPending,
+        label: STAT_LABEL.PENDING,
+        value: globalRevoked + globalNew,
         colorClass: 'text-yellow-600',
       },
     ];
@@ -513,15 +558,13 @@ export class SetPermissionComponent implements OnInit {
     Object.keys(stats.modules).forEach(moduleId => {
       const moduleStats = stats.modules[moduleId];
       const revoked =
-        moduleStats.find(stat => stat.label === 'Revoked')?.value ?? 0;
+        moduleStats.find(stat => stat.label === STAT_LABEL.REVOKED)?.value ?? 0;
       const newCount =
-        moduleStats.find(stat => stat.label === 'New')?.value ?? 0;
-      const pendingCount = revoked + newCount;
-
+        moduleStats.find(stat => stat.label === STAT_LABEL.NEW)?.value ?? 0;
       modulePendingStats[moduleId] = [
         {
-          label: 'Pending',
-          value: pendingCount,
+          label: STAT_LABEL.PENDING,
+          value: revoked + newCount,
           colorClass: 'text-yellow-600',
         },
       ];
@@ -591,21 +634,6 @@ export class SetPermissionComponent implements OnInit {
       }),
       {} as Record<string, boolean>
     );
-  }
-
-  protected getBadgeSeverity(label: string): EPrimeNGSeverity {
-    switch (label) {
-      case 'Granted':
-        return 'success';
-      case 'Revoked':
-        return 'danger';
-      case 'New':
-        return 'info';
-      case 'Not Granted':
-        return 'secondary';
-      default:
-        return 'secondary';
-    }
   }
 
   protected onReset(): void {

@@ -24,7 +24,7 @@ import {
   IUserPermissionsDeleteResponseDto,
   IUserPermissionsGetRequestDto,
   IUserPermissionsGetResponseDto,
-  IUserPermissionsSetRequestDto,
+  IUserPermissionsSetFormDto,
   IUserPermissionsSetResponseDto,
 } from '../types/user-permissions.dto';
 import {
@@ -50,7 +50,7 @@ export class UserPermissionService {
   private permissions$ = new BehaviorSubject<IAppPermission>([]);
 
   setUserPermission(
-    formData: IUserPermissionsSetRequestDto
+    formData: IUserPermissionsSetFormDto
   ): Observable<IUserPermissionsSetResponseDto> {
     this.logger.logUserAction('Set User Permission Request', formData);
 

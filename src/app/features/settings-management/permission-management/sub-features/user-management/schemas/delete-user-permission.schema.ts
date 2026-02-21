@@ -3,18 +3,17 @@ import { z } from 'zod';
 
 export const UserPermissionDeleteRequestSchema = z
   .object({
-    userId: z.array(uuidField).min(1),
+    employeeNames: z.array(uuidField).min(1),
   })
-  .strict();
+  .strict()
+  .transform(data => ({
+    userIds: data.employeeNames,
+  }));
 
 export const UserPermissionDeleteResponseSchema = z
   .object({
-    failed: z.array(
-      z.object({
-        error: z.string(),
-        userId: uuidField,
-      })
-    ),
-    success: z.array(z.string()),
+    message: z.string(),
+    totalDeleted: z.number(),
+    deletedCounts: z.record(uuidField, z.number()),
   })
   .strict();

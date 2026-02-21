@@ -1,21 +1,36 @@
-@import "tailwindcss" reference;
-
 .empty-state-container {
-  @apply flex items-center justify-center p-8 text-center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  min-height: 12rem;
 }
 
 .empty-state-content {
-  @apply flex flex-col items-center gap-2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 24rem;
 }
 
 .empty-state-icon {
-  @apply text-5xl text-content-secondary;
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--text-secondary-color, #64748b);
 }
 
 .empty-state-title {
-  @apply text-xl font-medium text-content m-0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--text-primary-color, #0f172a);
 }
 
 .empty-state-description {
-  @apply text-sm text-content-secondary m-0 leading-relaxed;
+  font-size: 0.875rem;
+  line-height: 1.625;
+  margin: 0;
+  color: var(--text-secondary-color, #64748b);
 }

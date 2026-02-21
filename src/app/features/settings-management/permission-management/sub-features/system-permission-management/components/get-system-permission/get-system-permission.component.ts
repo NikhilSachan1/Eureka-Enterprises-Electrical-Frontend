@@ -10,15 +10,18 @@ import {
   RouterNavigationService,
   LoadingService,
   ConfirmationDialogService,
+  TableServerSideParamsBuilderService,
 } from '@shared/services/';
 import { LoggerService } from '@core/services';
 import {
   ISystemPermissionGetBaseResponseDto,
+  ISystemPermissionGetFormDto,
   ISystemPermissionGetResponseDto,
 } from '../../types/system-permission.dto';
 import { finalize } from 'rxjs/operators';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
+  SEARCH_FILTER_SYSTEM_PERMISSION_FORM_CONFIG,
   SYSTEM_PERMISSION_ACTION_CONFIG_MAP,
   SYSTEM_PERMISSION_TABLE_ENHANCED_CONFIG,
 } from '../../config';
@@ -33,6 +36,7 @@ import {
   IEnhancedTable,
   IEnhancedTableConfig,
   ITableActionClickEvent,
+  ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { ISystemPermission } from '../../types/system-permission.interface';
 import {
@@ -40,10 +44,12 @@ import {
   toSentenceCase,
   toTitleCase,
 } from '@shared/utility';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 
 @Component({
   selector: 'app-get-system-permission',
-  imports: [DataTableComponent],
+  imports: [DataTableComponent, SearchFilterComponent],
   templateUrl: './get-system-permission.component.html',
   styleUrl: './get-system-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,13 +64,19 @@ export class GetSystemPermissionComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly tableServerSideFilterAndSortService = inject(
+    TableServerSideParamsBuilderService
+  );
 
   protected table!: IEnhancedTable;
+  protected tableFilterData!: TableLazyLoadEvent;
+  protected searchFilterConfig!: ITableSearchFilterFormConfig;
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
       SYSTEM_PERMISSION_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
     );
+    this.searchFilterConfig = SEARCH_FILTER_SYSTEM_PERMISSION_FORM_CONFIG;
   }
 
   private loadSystemPermissionList(): void {
@@ -74,8 +86,10 @@ export class GetSystemPermissionComponent implements OnInit {
       message: 'Please wait while we load the system permissions...',
     });
 
+    const paramData = this.prepareParamData();
+
     this.systemPermissionService
-      .getSystemPermissionList()
+      .getSystemPermissionList(paramData)
       .pipe(
         finalize(() => {
           this.table.setLoading(false);
@@ -98,6 +112,13 @@ export class GetSystemPermissionComponent implements OnInit {
       });
   }
 
+  private prepareParamData(): ISystemPermissionGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<ISystemPermissionGetFormDto>(
+      this.tableFilterData,
+      this.table.getHeaders()
+    );
+  }
+
   private mapTableData(
     response: ISystemPermissionGetBaseResponseDto[]
   ): ISystemPermission[] {
@@ -117,7 +138,8 @@ export class GetSystemPermissionComponent implements OnInit {
     }));
   }
 
-  protected onTableStateChange(): void {
+  protected onTableStateChange(filterData: TableLazyLoadEvent): void {
+    this.tableFilterData = filterData;
     this.loadSystemPermissionList();
   }
 

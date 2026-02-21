@@ -11,7 +11,7 @@ import {
   IUserPermissionDeleteFormDto,
   IUserPermissionDeleteResponseDto,
 } from '../../types/user.dto';
-import { EButtonActionType, IDialogActionHandler } from '@shared/types';
+import { IDialogActionHandler } from '@shared/types';
 import { UserService } from '../../services/user.service';
 import { ConfirmationDialogService } from '@shared/services';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
@@ -64,7 +64,7 @@ export class DeleteUserPermissionComponent
     record: IUserGetBaseResponseDto[]
   ): IUserPermissionDeleteFormDto {
     return {
-      userId: record.map((row: IUserGetBaseResponseDto) => row.id),
+      employeeNames: record.map((row: IUserGetBaseResponseDto) => row.id),
     };
   }
 
@@ -88,14 +88,7 @@ export class DeleteUserPermissionComponent
       )
       .subscribe({
         next: (response: IUserPermissionDeleteResponseDto) => {
-          const { failed, success } = response;
-
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'user permission',
-            actionLabel: EButtonActionType.DELETE,
-            errors: failed,
-            result: success,
-          });
+          this.notificationService.success(response.message);
 
           const successCallback = this.onSuccess();
           successCallback?.();

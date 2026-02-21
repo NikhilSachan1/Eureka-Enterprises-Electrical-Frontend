@@ -3,7 +3,7 @@ import {
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
-} from '@shared/models';
+} from '@shared/types';
 
 export const ROLE_PERMISSION_FORM_SET_BUTTONS_CONFIG: IFormButtonConfig = {
   reset: {
@@ -16,7 +16,9 @@ export const ROLE_PERMISSION_FORM_SET_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const ROLE_PERMISSION_FORM_SET_CONFIG: IFormConfig = {
-  fields: {} as IFormInputFieldsConfig,
+export const ROLE_PERMISSION_FORM_SET_CONFIG: IFormConfig<
+  Record<string, boolean>
+> = {
+  fields: {} as IFormInputFieldsConfig<Record<string, boolean>>,
   buttons: ROLE_PERMISSION_FORM_SET_BUTTONS_CONFIG,
 };

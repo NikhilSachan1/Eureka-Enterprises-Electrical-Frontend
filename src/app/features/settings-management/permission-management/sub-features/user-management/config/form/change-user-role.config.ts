@@ -1,9 +1,9 @@
 import { Validators } from '@angular/forms';
 import { IFormConfig, IFormInputFieldsConfig, EDataType } from '@shared/types';
-import { IEmployeeChangeRoleFormDto } from '@features/employee-management/types/employee.dto';
+import { IUserChangeRoleFormDto } from '../../types/user.dto';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 
-const CHANGE_USER_ROLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IEmployeeChangeRoleFormDto> =
+const CHANGE_USER_ROLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IUserChangeRoleFormDto> =
   {
     employeeRoles: {
       fieldType: EDataType.MULTI_SELECT,
@@ -20,7 +20,7 @@ const CHANGE_USER_ROLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IEmployeeChang
     },
   };
 
-export const CHANGE_USER_ROLE_FORM_CONFIG: IFormConfig<IEmployeeChangeRoleFormDto> =
+export const CHANGE_USER_ROLE_FORM_CONFIG: IFormConfig<IUserChangeRoleFormDto> =
   {
     fields: CHANGE_USER_ROLE_FORM_FIELDS_CONFIG,
   };

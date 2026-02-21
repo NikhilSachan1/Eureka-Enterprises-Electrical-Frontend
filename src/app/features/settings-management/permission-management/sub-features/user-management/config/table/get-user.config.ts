@@ -34,6 +34,7 @@ export const USER_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'userPermissionCount',
     header: 'Permission Count',
     bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'permissionCountUser',
     showSort: false,
   },
 ];

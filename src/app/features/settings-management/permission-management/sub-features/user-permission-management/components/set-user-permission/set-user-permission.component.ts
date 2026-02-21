@@ -2,20 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   signal,
   OnInit,
-  viewChild,
 } from '@angular/core';
 import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
 import { ActivatedRoute } from '@angular/router';
-import { LoggerService } from '@core/services';
-import {
-  RouterNavigationService,
-  NotificationService,
-  LoadingService,
-} from '@shared/services';
+import { RouterNavigationService } from '@shared/services';
 import {
   ICategorizedPermissions,
   ISetPermissionData,
@@ -25,12 +18,13 @@ import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
 import { IPageHeaderConfig } from '@shared/types';
 import {
   IUserPermissionsGetResponseDto,
-  IUserPermissionsSetRequestDto,
+  IUserPermissionsSetFormDto,
 } from '../../types/user-permissions.dto';
 import { UserPermissionService } from '../../services/user-permission.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-set-user-permission',
@@ -39,34 +33,67 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
   styleUrl: './set-user-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetUserPermissionComponent implements OnInit {
-  readonly setPermissionComponent = viewChild.required(SetPermissionComponent);
-
-  protected readonly logger = inject(LoggerService);
+export class SetUserPermissionComponent extends FormBase implements OnInit {
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly notificationService = inject(NotificationService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly userPermissionService = inject(UserPermissionService);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-
-  protected readonly isSubmitting = signal(false);
-  protected readonly editUserPermissionData =
+  protected readonly initialUserPermissionData =
     signal<IDefaultPermissions | null>(null);
+  private readonly latestPermissionsData = signal<ISetPermissionData | null>(
+    null
+  );
 
   ngOnInit(): void {
     this.loadUserPermissionDataFromRoute();
   }
 
-  protected onSubmit(setPermissionData: ISetPermissionData): void {
-    if (this.isSubmitting()) {
+  private loadUserPermissionDataFromRoute(): void {
+    const userPermissionRouteData = this.activatedRoute.snapshot.data[
+      'userPermissionData'
+    ] as IUserPermissionsGetResponseDto | null;
+
+    if (!userPermissionRouteData) {
+      this.logger.logUserAction('No user permission data found in route');
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SETTINGS.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
+      ];
+      void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
 
-    const userId = this.activatedRoute.snapshot.paramMap.get('userId');
+    const userPermissionData = this.preparePrefilledFormData(
+      userPermissionRouteData
+    );
+    this.initialUserPermissionData.set(userPermissionData);
+  }
 
+  private preparePrefilledFormData(
+    userPermissionRouteData: IUserPermissionsGetResponseDto
+  ): IDefaultPermissions {
+    return userPermissionRouteData.permissions
+      .flatMap(module => module.permissions)
+      .reduce(
+        (acc, permission) => ({
+          ...acc,
+          [permission.id]: {
+            value: permission.isGranted,
+            source: permission.source,
+          },
+        }),
+        {} as IDefaultPermissions
+      );
+  }
+
+  protected override handleSubmit(): void {
+    const data = this.latestPermissionsData();
+    if (!data) {
+      return;
+    }
+    const userId = this.activatedRoute.snapshot.paramMap.get('userId');
     if (!userId) {
       this.logger.logUserAction('No user id found in route');
       this.notificationService.error(
@@ -74,17 +101,28 @@ export class SetUserPermissionComponent implements OnInit {
       );
       return;
     }
-
-    const { categorizedPermissions } = setPermissionData;
-
-    const formData = this.prepareFormData(categorizedPermissions, userId);
+    const formData = this.prepareFormData(data.categorizedPermissions, userId);
     this.executeSetUserPermission(formData);
   }
 
-  private executeSetUserPermission(
-    formData: IUserPermissionsSetRequestDto
+  protected onModulePermissionsSubmit(
+    setPermissionData: ISetPermissionData
   ): void {
-    this.isSubmitting.set(true);
+    this.latestPermissionsData.set(setPermissionData);
+    this.handleSubmit();
+  }
+
+  private prepareFormData(
+    categorizedPermissions: ICategorizedPermissions,
+    userId: string
+  ): IUserPermissionsSetFormDto {
+    return {
+      userId,
+      ...categorizedPermissions,
+    };
+  }
+
+  private executeSetUserPermission(formData: IUserPermissionsSetFormDto): void {
     this.loadingService.show({
       title: 'Updating User Permission',
       message: 'Please wait while we update the user permission...',
@@ -117,69 +155,10 @@ export class SetUserPermissionComponent implements OnInit {
       });
   }
 
-  private loadUserPermissionDataFromRoute(): void {
-    const userPermissionRouteData = this.activatedRoute.snapshot.data[
-      'userPermissionData'
-    ] as IUserPermissionsGetResponseDto | null;
-
-    if (!userPermissionRouteData) {
-      this.logger.logUserAction('No user permission data found in route');
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SETTINGS.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
-      ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
-      return;
-    }
-
-    const userPermissionData = this.prepareUserPermissionData(
-      userPermissionRouteData
-    );
-    this.editUserPermissionData.set(userPermissionData);
-  }
-
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
       title: 'Set User Permissions',
       subtitle: 'Set the permissions for the user',
     };
-  }
-
-  private prepareFormData(
-    categorizedPermissions: ICategorizedPermissions,
-    userId: string
-  ): IUserPermissionsSetRequestDto {
-    const userPermissions = [
-      ...categorizedPermissions.newPermissions.map(permissionId => ({
-        permissionId,
-        isGranted: true,
-      })),
-      ...categorizedPermissions.revokedPermissions.map(permissionId => ({
-        permissionId,
-        isGranted: false,
-      })),
-    ];
-    return {
-      userId,
-      userPermissions,
-    };
-  }
-
-  private prepareUserPermissionData(
-    userPermissionRouteData: IUserPermissionsGetResponseDto
-  ): IDefaultPermissions {
-    return userPermissionRouteData.permissions
-      .flatMap(module => module.permissions)
-      .reduce(
-        (acc, permission) => ({
-          ...acc,
-          [permission.id]: {
-            value: permission.isGranted,
-            source: permission.source,
-          },
-        }),
-        {} as IDefaultPermissions
-      );
   }
 }

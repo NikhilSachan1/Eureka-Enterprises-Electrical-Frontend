@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { ApiService, LoggerService } from '@core/services';
 import {
   ISystemPermissionAddFormDto,
@@ -9,6 +9,8 @@ import {
   ISystemPermissionEditFormDto,
   ISystemPermissionEditResponseDto,
   ISystemPermissionGetResponseDto,
+  ISystemPermissionGetBaseResponseDto,
+  ISystemPermissionGetFormDto,
 } from '../types/system-permission.dto';
 import { API_ROUTES } from '@core/constants';
 import {
@@ -18,8 +20,12 @@ import {
   SystemPermissionDeleteResponseSchema,
   SystemPermissionEditRequestSchema,
   SystemPermissionEditResponseSchema,
+  SystemPermissionGetRequestSchema,
   SystemPermissionGetResponseSchema,
 } from '../schemas';
+import { MODULES_NAME_DATA } from '@shared/config/static-data.config';
+import { replaceTextWithSeparator } from '@shared/utility';
+import { IModulePermission } from '../types/system-permission.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -134,13 +140,20 @@ export class SystemPermissionService {
       );
   }
 
-  getSystemPermissionList(): Observable<ISystemPermissionGetResponseDto> {
+  getSystemPermissionList(
+    paramData?: ISystemPermissionGetFormDto
+  ): Observable<ISystemPermissionGetResponseDto> {
     this.logger.logUserAction('Get System Permission List Request');
 
     return this.apiService
-      .getValidated(API_ROUTES.SETTINGS.PERMISSION.SYSTEM.LIST, {
-        response: SystemPermissionGetResponseSchema,
-      })
+      .getValidated(
+        API_ROUTES.SETTINGS.PERMISSION.SYSTEM.LIST,
+        {
+          response: SystemPermissionGetResponseSchema,
+          request: SystemPermissionGetRequestSchema,
+        },
+        paramData
+      )
       .pipe(
         tap((response: ISystemPermissionGetResponseDto) => {
           this.logger.logUserAction(
@@ -165,51 +178,51 @@ export class SystemPermissionService {
       );
   }
 
-  // getSystemPermissionModuleWise(): Observable<IModulePermission[]> {
-  //   this.logger.logUserAction('Get System Permission Module Wise Request');
+  getSystemPermissionModuleWise(): Observable<IModulePermission[]> {
+    this.logger.logUserAction('Get System Permission Module Wise Request');
 
-  //   return this.getSystemPermissionList().pipe(
-  //     map((response: ISystemPermissionGetResponseDto) => {
-  //       const moduleMap = MODULES_NAME_DATA.reduce((acc, staticModule) => {
-  //         const moduleKey = staticModule.value.toLowerCase();
-  //         acc.set(moduleKey, {
-  //           id: `module-${moduleKey}`,
-  //           moduleName: staticModule.label,
-  //           permissions: [],
-  //         });
-  //         return acc;
-  //       }, new Map<string, IModulePermission>());
+    return this.getSystemPermissionList().pipe(
+      map((response: ISystemPermissionGetResponseDto) => {
+        const moduleMap = MODULES_NAME_DATA.reduce((acc, staticModule) => {
+          const moduleKey = staticModule.value.toLowerCase();
+          acc.set(moduleKey, {
+            id: `module-${moduleKey}`,
+            moduleName: staticModule.label,
+            permissions: [],
+          });
+          return acc;
+        }, new Map<string, IModulePermission>());
 
-  //       response.records.forEach(
-  //         (permission: ISystemPermissionGetBaseResponseDto) => {
-  //           const moduleKey = replaceTextWithSeparator(
-  //             permission.module.toLowerCase(),
-  //             ' ',
-  //             '_'
-  //           );
+        response.records.forEach(
+          (permission: ISystemPermissionGetBaseResponseDto) => {
+            const moduleKey = replaceTextWithSeparator(
+              permission.module.toLowerCase(),
+              ' ',
+              '_'
+            );
 
-  //           if (moduleMap.has(moduleKey)) {
-  //             moduleMap.get(moduleKey)?.permissions.push({
-  //               id: permission.id,
-  //               label: permission.label,
-  //               description: permission.description,
-  //             });
-  //           }
-  //         }
-  //       );
+            if (moduleMap.has(moduleKey)) {
+              moduleMap.get(moduleKey)?.permissions.push({
+                id: permission.id,
+                label: permission.label,
+                description: permission.description,
+              });
+            }
+          }
+        );
 
-  //       return Array.from(moduleMap.values());
-  //     }),
-  //     tap(() => {
-  //       this.logger.logUserAction('Get System Permission Module Wise Success');
-  //     }),
-  //     catchError(error => {
-  //       this.logger.logUserAction(
-  //         'Get System Permission Module Wise Error',
-  //         error
-  //       );
-  //       return throwError(() => error);
-  //     })
-  //   );
-  // }
+        return Array.from(moduleMap.values());
+      }),
+      tap(() => {
+        this.logger.logUserAction('Get System Permission Module Wise Success');
+      }),
+      catchError(error => {
+        this.logger.logUserAction(
+          'Get System Permission Module Wise Error',
+          error
+        );
+        return throwError(() => error);
+      })
+    );
+  }
 }

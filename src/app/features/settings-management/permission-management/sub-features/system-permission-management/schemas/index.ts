@@ -16,6 +16,7 @@ export {
 export {
   SystemPermissionGetBaseResponseSchema,
   SystemPermissionGetResponseSchema,
+  SystemPermissionGetRequestSchema,
 } from './get-system-permission.schema';
 
 export {

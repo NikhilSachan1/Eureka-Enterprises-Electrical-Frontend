@@ -2,35 +2,29 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   OnInit,
   signal,
-  viewChild,
 } from '@angular/core';
 import { IPageHeaderConfig } from '@shared/types';
 import { ActivatedRoute } from '@angular/router';
-import {
-  LoadingService,
-  NotificationService,
-  RouterNavigationService,
-} from '@shared/services';
-import { LoggerService } from '@core/services';
-import { FORM_VALIDATION_MESSAGES, ROUTE_BASE_PATHS } from '@shared/constants';
+import { RouterNavigationService } from '@shared/services';
+import { ROUTE_BASE_PATHS, FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RolePermissionService } from '../../services/role-permission.service';
 import {
   IRolePermissionsGetResponseDto,
-  IRolePermissionsSetRequestDto,
+  IRolePermissionsSetFormDto,
 } from '../../types/role-permission.dto';
 import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
 import {
   ICategorizedPermissions,
-  ISetPermissionData,
   IDefaultPermissions,
+  ISetPermissionData,
 } from '../../../../shared/types/set-permission.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { FormBase } from '@shared/base/form.base';
 
 @Component({
   selector: 'app-set-role-permission',
@@ -39,34 +33,64 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
   styleUrl: './set-role-permission.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetRolePermissionComponent implements OnInit {
-  readonly setPermissionComponent = viewChild.required(SetPermissionComponent);
-
-  protected readonly logger = inject(LoggerService);
+export class SetRolePermissionComponent extends FormBase implements OnInit {
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly notificationService = inject(NotificationService);
-  private readonly loadingService = inject(LoadingService);
   private readonly rolePermissionService = inject(RolePermissionService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-
-  protected readonly isSubmitting = signal(false);
-  protected readonly editRolePermissionData =
+  protected readonly initialRolePermissionData =
     signal<IDefaultPermissions | null>(null);
+  private readonly latestPermissionsData = signal<ISetPermissionData | null>(
+    null
+  );
 
   ngOnInit(): void {
     this.loadRolePermissionDataFromRoute();
   }
 
-  protected onSubmit(setPermissionData: ISetPermissionData): void {
-    if (this.isSubmitting()) {
+  private loadRolePermissionDataFromRoute(): void {
+    const rolePermissionRouteData = this.activatedRoute.snapshot.data[
+      'rolePermissionData'
+    ] as IRolePermissionsGetResponseDto | null;
+
+    if (!rolePermissionRouteData) {
+      this.logger.logUserAction('No role permission data found in route');
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SETTINGS.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+      ];
+      void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
 
-    const roleId = this.activatedRoute.snapshot.paramMap.get('roleId');
+    const rolePermissionData = this.preparePrefilledFormData(
+      rolePermissionRouteData
+    );
+    this.initialRolePermissionData.set(rolePermissionData);
+  }
 
+  private preparePrefilledFormData(
+    rolePermissionRouteData: IRolePermissionsGetResponseDto
+  ): IDefaultPermissions {
+    return rolePermissionRouteData.records.reduce(
+      (acc, record) => ({
+        ...acc,
+        [record.permissionId]: {
+          value: record.isActive,
+        },
+      }),
+      {} as IDefaultPermissions
+    );
+  }
+
+  protected override handleSubmit(): void {
+    const data = this.latestPermissionsData();
+    if (!data) {
+      return;
+    }
+    const roleId = this.activatedRoute.snapshot.paramMap.get('roleId');
     if (!roleId) {
       this.logger.logUserAction('No role id found in route');
       this.notificationService.error(
@@ -74,17 +98,28 @@ export class SetRolePermissionComponent implements OnInit {
       );
       return;
     }
-
-    const { categorizedPermissions } = setPermissionData;
-
-    const formData = this.prepareFormData(categorizedPermissions, roleId);
+    const formData = this.prepareFormData(data.categorizedPermissions, roleId);
     this.executeSetRolePermission(formData);
   }
 
-  private executeSetRolePermission(
-    formData: IRolePermissionsSetRequestDto
+  protected onModulePermissionsSubmit(
+    setPermissionData: ISetPermissionData
   ): void {
-    this.isSubmitting.set(true);
+    this.latestPermissionsData.set(setPermissionData);
+    this.handleSubmit();
+  }
+
+  private prepareFormData(
+    categorizedPermissions: ICategorizedPermissions,
+    roleId: string
+  ): IRolePermissionsSetFormDto {
+    return {
+      roleId,
+      ...categorizedPermissions,
+    };
+  }
+
+  private executeSetRolePermission(formData: IRolePermissionsSetFormDto): void {
     this.loadingService.show({
       title: 'Updating Role Permission',
       message: 'Please wait while we update the role permission...',
@@ -117,26 +152,8 @@ export class SetRolePermissionComponent implements OnInit {
       });
   }
 
-  private loadRolePermissionDataFromRoute(): void {
-    const rolePermissionRouteData = this.activatedRoute.snapshot.data[
-      'rolePermissionData'
-    ] as IRolePermissionsGetResponseDto | null;
-
-    if (!rolePermissionRouteData) {
-      this.logger.logUserAction('No role permission data found in route');
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SETTINGS.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
-      ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
-      return;
-    }
-
-    const rolePermissionData = this.prepareRolePermissionData(
-      rolePermissionRouteData
-    );
-    this.editRolePermissionData.set(rolePermissionData);
+  protected onReset(): void {
+    this.onResetSingleForm(this.initialRolePermissionData() ?? {});
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
@@ -144,39 +161,5 @@ export class SetRolePermissionComponent implements OnInit {
       title: 'Set Role Permissions',
       subtitle: 'Set the permissions for the role',
     };
-  }
-
-  private prepareFormData(
-    categorizedPermissions: ICategorizedPermissions,
-    roleId: string
-  ): IRolePermissionsSetRequestDto {
-    const rolePermissions = [
-      ...categorizedPermissions.newPermissions.map(permissionId => ({
-        permissionId,
-        isActive: true,
-      })),
-      ...categorizedPermissions.revokedPermissions.map(permissionId => ({
-        permissionId,
-        isActive: false,
-      })),
-    ];
-    return {
-      roleId,
-      rolePermissions,
-    };
-  }
-
-  private prepareRolePermissionData(
-    rolePermissionRouteData: IRolePermissionsGetResponseDto
-  ): IDefaultPermissions {
-    return rolePermissionRouteData.records.reduce(
-      (acc, record) => ({
-        ...acc,
-        [record.permissionId]: {
-          value: record.isActive,
-        },
-      }),
-      {} as IDefaultPermissions
-    );
   }
 }

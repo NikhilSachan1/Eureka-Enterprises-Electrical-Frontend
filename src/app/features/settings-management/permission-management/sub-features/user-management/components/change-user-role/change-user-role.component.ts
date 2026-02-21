@@ -5,20 +5,27 @@ import {
   input,
   OnInit,
 } from '@angular/core';
-import { EmployeeService } from '@features/employee-management/services/employee.service';
-import {
-  IEmployeeChangeRoleFormDto,
-  IEmployeeChangeRoleResponseDto,
-} from '@features/employee-management/types/employee.dto';
 import { FormBase } from '@shared/base/form.base';
-import { ConfirmationDialogService } from '@shared/services';
-import { IUserGetBaseResponseDto } from '../../types/user.dto';
+import {
+  AppConfigurationService,
+  ConfirmationDialogService,
+} from '@shared/services';
+import {
+  IUserChangeRoleFormDto,
+  IUserChangeRoleResponseDto,
+  IUserGetBaseResponseDto,
+} from '../../types/user.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CHANGE_USER_ROLE_FORM_CONFIG } from '../../config';
+import {
+  getMappedValueFromArrayOfObjects,
+  stringToArray,
+} from '@shared/utility';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-change-user-role',
@@ -28,13 +35,14 @@ import { CHANGE_USER_ROLE_FORM_CONFIG } from '../../config';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChangeUserRoleComponent
-  extends FormBase<IEmployeeChangeRoleFormDto>
+  extends FormBase<IUserChangeRoleFormDto>
   implements OnInit
 {
-  private readonly employeeService = inject(EmployeeService);
+  private readonly userService = inject(UserService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  protected readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly selectedRecord =
     input.required<IUserGetBaseResponseDto[]>();
@@ -51,11 +59,26 @@ export class ChangeUserRoleComponent
       );
       return;
     }
+    const roles = stringToArray(record[0].role ?? '', ',');
+    const mappedRoles = roles
+      .map(role => role.trim())
+      .filter(Boolean)
+      .map(role =>
+        getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.roleList(),
+          role,
+          'label',
+          'value'
+        )
+      );
 
-    this.form = this.formService.createForm<IEmployeeChangeRoleFormDto>(
+    this.form = this.formService.createForm<IUserChangeRoleFormDto>(
       CHANGE_USER_ROLE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        defaultValues: {
+          employeeRoles: mappedRoles,
+        },
       }
     );
   }
@@ -70,13 +93,21 @@ export class ChangeUserRoleComponent
     this.executeChangeUserRole(formData, userId);
   }
 
-  private prepareFormData(): IEmployeeChangeRoleFormDto {
+  private prepareFormData(): IUserChangeRoleFormDto {
     const formData = this.form.getData();
-    return formData;
+    const roleList = this.appConfigurationService.roleList();
+    const roleIds = (formData.employeeRoles ?? [])
+      .map(roleName => {
+        const option = roleList.find(opt => opt.value === roleName);
+        const id = (option?.data as { id?: string })?.id;
+        return id ?? roleName;
+      })
+      .filter(Boolean);
+    return { ...formData, employeeRoles: roleIds };
   }
 
   private executeChangeUserRole(
-    formData: IEmployeeChangeRoleFormDto,
+    formData: IUserChangeRoleFormDto,
     employeeId: string
   ): void {
     this.loadingService.show({
@@ -84,8 +115,8 @@ export class ChangeUserRoleComponent
       message: 'Please wait while we change the user role...',
     });
 
-    this.employeeService
-      .changeEmployeeRole(formData, employeeId)
+    this.userService
+      .changeUserRole(formData, employeeId)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -94,7 +125,7 @@ export class ChangeUserRoleComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (_response: IEmployeeChangeRoleResponseDto) => {
+        next: (_response: IUserChangeRoleResponseDto) => {
           this.notificationService.success('User role changed successfully');
 
           const successCallback = this.onSuccess();

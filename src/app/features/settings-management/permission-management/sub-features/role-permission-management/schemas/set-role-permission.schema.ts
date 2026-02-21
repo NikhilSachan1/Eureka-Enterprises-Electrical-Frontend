@@ -4,14 +4,26 @@ import { RolePermissionsBaseSchema } from './base-role-permission.schema';
 export const RolePermissionsSetRequestSchema = z
   .object({
     roleId: z.uuid(),
-    rolePermissions: z.array(
-      z.object({
-        permissionId: z.uuid(),
-        isActive: z.boolean(),
-      })
-    ),
+    newPermissions: z.array(z.uuid()),
+    revokedPermissions: z.array(z.uuid()),
+    defaultPermissions: z.array(z.uuid()),
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      roleId: data.roleId,
+      rolePermissions: [
+        ...data.newPermissions.map(permissionId => ({
+          permissionId,
+          isActive: true,
+        })),
+        ...data.revokedPermissions.map(permissionId => ({
+          permissionId,
+          isActive: false,
+        })),
+      ],
+    };
+  });
 
 export const RolePermissionsSetResponseSchema = z.array(
   z.object(RolePermissionsBaseSchema.shape)

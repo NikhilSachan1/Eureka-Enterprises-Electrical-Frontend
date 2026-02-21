@@ -51,18 +51,18 @@ export const PERMISSION_MANAGEMENT_ROUTES: Routes = [
         m => m.ROLE_OUTSIDE_TAB_ROUTES
       ),
   },
-  // {
-  //   path: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE_PERMISSION,
-  //   loadChildren: () =>
-  //     import(
-  //       './sub-features/role-permission-management/role-permission.routes'
-  //     ).then(m => m.ROLE_PERMISSION_ROUTES),
-  // },
-  // {
-  //   path: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER_PERMISSION,
-  //   loadChildren: () =>
-  //     import(
-  //       './sub-features/user-permission-management/user-permission.routes'
-  //     ).then(m => m.USER_PERMISSION_ROUTES),
-  // },
+  {
+    path: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE_PERMISSION,
+    loadChildren: () =>
+      import(
+        './sub-features/role-permission-management/role-permission.routes'
+      ).then(m => m.ROLE_PERMISSION_ROUTES),
+  },
+  {
+    path: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER_PERMISSION,
+    loadChildren: () =>
+      import(
+        './sub-features/user-permission-management/user-permission.routes'
+      ).then(m => m.USER_PERMISSION_ROUTES),
+  },
 ];

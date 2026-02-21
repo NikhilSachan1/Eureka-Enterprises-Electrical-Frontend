@@ -476,6 +476,7 @@ export class AppConfigurationService {
         const roleList = response.records.map(role => ({
           label: role.label,
           value: role.name,
+          data: role,
         }));
 
         this._roleList.set(roleList);

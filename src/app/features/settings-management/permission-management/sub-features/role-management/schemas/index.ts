@@ -13,6 +13,7 @@ export {
 export {
   RoleGetBaseResponseSchema,
   RoleGetResponseSchema,
+  RoleGetRequestSchema,
 } from './get-role.schema';
 
 export { RoleBaseSchema, RoleUpsertShapeSchema } from './base-role.schema';

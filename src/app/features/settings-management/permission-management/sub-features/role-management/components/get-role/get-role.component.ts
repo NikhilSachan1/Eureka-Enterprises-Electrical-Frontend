@@ -13,6 +13,7 @@ import {
   IEnhancedTable,
   IEnhancedTableConfig,
   ITableActionClickEvent,
+  ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { finalize } from 'rxjs';
 import { LoggerService } from '@core/services';
@@ -21,25 +22,31 @@ import {
   ConfirmationDialogService,
   LoadingService,
   RouterNavigationService,
+  TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
 import { RoleService } from '../../services/role.service';
 import {
   ROLE_ACTION_CONFIG_MAP,
   ROLE_TABLE_ENHANCED_CONFIG,
+  SEARCH_FILTER_ROLE_FORM_CONFIG,
 } from '../../config';
 import {
   IRoleGetBaseResponseDto,
+  IRoleGetFormDto,
   IRoleGetResponseDto,
 } from '../../types/role.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IRole } from '../../types/role.interface';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { toTitleCase } from '@shared/utility';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 
 @Component({
   selector: 'app-get-role',
-  imports: [DataTableComponent],
+  imports: [DataTableComponent, SearchFilterComponent, StatusTagComponent],
   templateUrl: './get-role.component.html',
   styleUrl: './get-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,13 +61,19 @@ export class GetRoleComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly tableServerSideFilterAndSortService = inject(
+    TableServerSideParamsBuilderService
+  );
 
   protected table!: IEnhancedTable;
+  protected tableFilterData!: TableLazyLoadEvent;
+  protected searchFilterConfig!: ITableSearchFilterFormConfig;
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
       ROLE_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
     );
+    this.searchFilterConfig = SEARCH_FILTER_ROLE_FORM_CONFIG;
   }
 
   private loadRoleList(): void {
@@ -70,8 +83,10 @@ export class GetRoleComponent implements OnInit {
       message: 'Please wait while we load the roles...',
     });
 
+    const paramData = this.prepareParamData();
+
     this.roleService
-      .getRoleList()
+      .getRoleList(paramData)
       .pipe(
         finalize(() => {
           this.table.setLoading(false);
@@ -94,6 +109,13 @@ export class GetRoleComponent implements OnInit {
       });
   }
 
+  private prepareParamData(): IRoleGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IRoleGetFormDto>(
+      this.tableFilterData,
+      this.table.getHeaders()
+    );
+  }
+
   private mapTableData(
     response: IRoleGetBaseResponseDto[],
     totalPermissions: number
@@ -103,14 +125,18 @@ export class GetRoleComponent implements OnInit {
       roleCode: record.name,
       roleDescription: toTitleCase(record.description),
       roleLabel: toTitleCase(record.label),
-      rolePermissionCount: `${record.permissionCount} / ${totalPermissions}`,
+      rolePermissionCount: {
+        current: record.permissionCount,
+        total: totalPermissions,
+      },
       isDeletable: record.isDeletable,
       isEditable: record.isEditable,
       originalRawData: record,
     }));
   }
 
-  protected onTableStateChange(): void {
+  protected onTableStateChange(filterData: TableLazyLoadEvent): void {
+    this.tableFilterData = filterData;
     this.loadRoleList();
   }
 
@@ -125,6 +151,12 @@ export class GetRoleComponent implements OnInit {
       this.navigateToEditRole(selectedFirstRow.id, selectedFirstRow);
       return;
     }
+
+    if (actionType === EButtonActionType.SET_PERMISSIONS) {
+      this.navigateToSetRolePermissions(selectedFirstRow.id);
+      return;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
@@ -194,6 +226,25 @@ export class GetRoleComponent implements OnInit {
       }
     } catch (error) {
       this.logger.logUserAction('Navigation error while editing role', error);
+    }
+  }
+
+  private navigateToSetRolePermissions(roleId: string): void {
+    try {
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SETTINGS.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE_PERMISSION,
+        ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.SET_PERMISSIONS,
+        roleId,
+      ];
+
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+    } catch (error) {
+      this.logger.logUserAction(
+        'Navigation error while setting role permissions',
+        error
+      );
     }
   }
 }

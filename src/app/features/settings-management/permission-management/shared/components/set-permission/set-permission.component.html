@@ -10,28 +10,27 @@
 } @else {
   <p-card class="header-card">
     <div class="header-row">
-      <div class="header-title-row">
+      <div class="header-title-block">
         <div class="header-icon">
           <i [class]="icons.SECURITY.SHIELD"></i>
         </div>
         <div class="header-title-col">
           <h3 class="header-title">Manage Permissions</h3>
-          <div class="header-pending-row">
-            @let pendingStats = computedGetPendingCounts().global;
-            <span [class]="`header-pending-value ${pendingStats[0].colorClass}`">
-              {{ `${pendingStats[0].value} ${pendingStats[0].label}` }}
-            </span>
-          </div>
+          @let pendingStats = computedGetPendingCounts().global;
+          @if (pendingStats?.[0]) {
+            <div class="header-pending-row">
+              <span [class]="`header-pending-value ${pendingStats[0].colorClass}`">
+                {{ `${pendingStats[0].value} ${pendingStats[0].label}` }}
+              </span>
+            </div>
+          }
         </div>
       </div>
-
-      <div class="header-stats-row">
+      <div class="header-stats-block">
         @for (stat of computedGetStats().global; track stat.label) {
           <div class="header-stat">
-            <div [class]="`header-stat-value ${stat.colorClass}`">
-              {{ stat.value }}
-            </div>
-            <div class="header-stat-label">{{ stat.label }}</div>
+            <span [class]="`header-stat-value ${stat.colorClass}`">{{ stat.value }}</span>
+            <span class="header-stat-label">{{ stat.label }}</span>
           </div>
         }
       </div>
@@ -42,105 +41,129 @@
     <form
       (ngSubmit)="onSubmit()"
       [formGroup]="form.formGroup"
-      class="form"
     >
-      <!-- Navigation Tabs -->
-      <app-nav-tabs
-        [tabs]="tabs()"
-        [tabMode]="tabModeType"
-        (tabChanged)="onTabChanged($event)"
-        class="nav-tabs-row"
-      >
-        <!-- Module Content -->
+      <!-- Expand / Collapse All (multiple mode) -->
+      @if (modulesPermissions.length > 0) {
+        <div class="accordion-actions">
+          <app-button
+            [buttonConfig]="expandAllButtonConfig"
+            (onButtonClick)="onAccordionActionClick($event)"
+          />
+          <app-button
+            [buttonConfig]="collapseAllButtonConfig"
+            (onButtonClick)="onAccordionActionClick($event)"
+          />
+        </div>
+      }
 
+      <!-- Module accordion (multiple panels can be open) -->
+      <p-accordion
+        [value]="activeTabIndex()"
+        (valueChange)="onAccordionValueChange($event)"
+        [multiple]="true"
+        class="permission-accordion"
+      >
         @for (module of modulesPermissions; track module.id) {
-          @if (activeTabIndex() === $index) {
-            <div class="tab-content">
-              @if (module.permissions && module.permissions.length > 0) {
-                <!-- Module Card -->
-                <p-card class="module-card">
-                  <div class="module-row">
-                    <div class="module-title-row">
-                      <app-standalone-input-field
+          <p-accordion-panel [value]="$index.toString()">
+            <p-accordion-header>
+              @let rowStats = computedGetStats().modules[module.id];
+              <div class="accordion-header-content">
+                <div class="accordion-header-left">
+                  <div class="accordion-header-title-row">
+                    <div
+                      tabindex="0"
+                      class="accordion-header-select"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <app-input-field
                         [inputFieldConfig]="standaloneInputFieldConfig()[module.id]"
                         [fieldValue]="computedSelectAllValues()[module.id]"
                         (onFieldChange)="selectAllPermissions(module.id, $event)"
                       />
-
-                      <div class="module-title-col">
-                        <h3 class="module-title">{{ module.moduleName }}</h3>
-                        <div class="module-pending-row">
-                          @let pendingStats = computedGetPendingCounts().modules[module.id];
-                          <span [class]="`module-pending-value ${pendingStats[0].colorClass}`">
-                            {{ `${pendingStats[0].value} ${pendingStats[0].label}` }}
-                          </span>
-                        </div>
-                      </div>
                     </div>
-
-                    <div class="module-stats-row">
-                      @for (stat of computedGetStats().modules[module.id]; track stat.label) {
-                        <div class="module-stat">
-                          <div [class]="`module-stat-value ${stat.colorClass}`">
-                            {{ stat.value }}
-                          </div>
-                          <div class="module-stat-label">{{ stat.label }}</div>
-                        </div>
+                    <div class="accordion-header-label-block">
+                      <div class="accordion-header-name-row">
+                        <span class="accordion-header-label">{{ module.moduleName }}</span>
+                        @let badge = getModuleBadgeFromStats(rowStats);
+                        @if (badge) {
+                          <app-status-tag
+                            [value]="badge"
+                            [config]="{ severity: 'secondary', rounded: true }"
+                          />
+                        }
+                      </div>
+                      @let modulePending = computedGetPendingCounts().modules[module.id];
+                      @if (modulePending?.[0]) {
+                        <span class="accordion-header-pending">
+                          {{ modulePending[0].value }} {{ modulePending[0].label }}
+                        </span>
                       }
                     </div>
                   </div>
-                </p-card>
-
-                <!-- Permissions Grid -->
-                <div class="permissions-grid">
-                  @for (permission of module.permissions; track permission.id) {
-                    <p-card
-                      (click)="onClickPermissionCard(module.id, permission.id)"
-                      class="permission-card"
-                      [ngClass]="computedGetPermissionStatus(permission.id)().cardStyle"
-                    >
-                      <!-- Permission Content -->
-                      <div class="permission-content-row">
-                        <div
-                          class="permission-checkbox-col"
-                          (click)="$event.stopPropagation()"
-                          tabindex="0"
-                        >
-                          <app-input-field
-                            [formGroup]="form.formGroup"
-                            [inputFieldConfig]="form.fieldConfigs[`${permission.id}`]"
-                            (onFieldChange)="onPermissionChange()"
-                          />
-                        </div>
-
-                        <div class="permission-info-col">
-                          <div class="permission-info-row">
-                            <div class="permission-label-col">
-                              <h4 class="permission-label">{{ permission.label }}</h4>
-                              <p class="permission-description line-clamp-3">{{ permission.description }}</p>
-                              @let permissionInfo = computedGetPermissionStatus(permission.id)();
-                              @if (permissionInfo.source) {
-                                <p-tag
-                                  [value]="permissionInfo.source === 'override' ? 'Override' : 'Role'"
-                                  [icon]="permissionInfo.source === 'override' ? icons.COMMON.USER : icons.COMMON.USERS"
-                                  [severity]="permissionInfo.source === 'override' ? 'warn' : 'info'"
-                                  class="mt-1 text-xs"
-                                />
-                              }
-                            </div>
-                            <p-tag
-                              [value]="permissionInfo.label"
-                              [icon]="permissionInfo.icon"
-                              [severity]="getBadgeSeverity(permissionInfo.label)"
+                </div>
+                @if (rowStats) {
+                  <div class="accordion-header-stats">
+                    @for (stat of rowStats; track stat.label) {
+                      <span [class]="`accordion-header-stat ${stat.colorClass}`">
+                        <span class="accordion-header-stat-value">{{ stat.value }}</span>
+                        <span class="accordion-header-stat-label">{{ stat.label }}</span>
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            </p-accordion-header>
+            <p-accordion-content>
+              @if (module.permissions && module.permissions.length > 0) {
+                <div class="accordion-content-grid">
+                  <div class="permissions-grid">
+                    @for (permission of module.permissions; track permission.id) {
+                      @let permissionInfo = computedGetPermissionStatus(permission.id)();
+                      <p-card
+                        (click)="onClickPermissionCard(module.id, permission.id)"
+                        class="permission-card"
+                        [ngClass]="permissionInfo.cardStyle"
+                      >
+                        <div class="permission-content-row">
+                          <div
+                            class="permission-checkbox-col"
+                            (click)="$event.stopPropagation()"
+                            tabindex="0"
+                          >
+                            <app-input-field
+                              [formGroup]="form.formGroup"
+                              [inputFieldConfig]="form.fieldConfigs[permission.id]"
+                              (onFieldChange)="onPermissionChange()"
                             />
                           </div>
+                          <div class="permission-info-col">
+                            <div class="permission-info-row">
+                              <div class="permission-label-col">
+                                <h4 class="permission-label">{{ permission.label | titlecase }}</h4>
+                                @if (permission.description) {
+                                  <p class="permission-description line-clamp-2">
+                                    {{ permission.description | titlecase }}
+                                  </p>
+                                }
+                              </div>
+                              <div class="permission-meta-col">
+                                @if (permissionInfo.source) {
+                                  <span [class]="`permission-source permission-source-${permissionInfo.source}`">
+                                    <span class="permission-source-label">
+                                      {{ permissionInfo.source === 'override' ? 'Override' : 'Role' }}
+                                    </span>
+                                  </span>
+                                }
+                                <app-status-tag [value]="permissionInfo.label" />
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </p-card>
-                  }
+                      </p-card>
+                    }
+                  </div>
                 </div>
               } @else {
-                <!-- Empty State -->
                 <app-empty-messages
                   [icon]="icons.SECURITY.SHIELD"
                   [title]="'No permissions available'"
@@ -149,10 +172,10 @@
                   "
                 />
               }
-            </div>
-          }
+            </p-accordion-content>
+          </p-accordion-panel>
         }
-      </app-nav-tabs>
+      </p-accordion>
 
       <!-- Action Buttons -->
       @if (modulesPermissions.length > 0) {

@@ -12,6 +12,7 @@ import {
   LoadingService,
   ConfirmationDialogService,
   TableService,
+  TableServerSideParamsBuilderService,
 } from '@shared/services';
 import {
   IEnhancedTable,
@@ -21,22 +22,30 @@ import {
   IDataViewDetails,
   EDataType,
   EButtonActionType,
+  ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { USER_TABLE_ENHANCED_CONFIG } from '../../config/table/get-user.config';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import {
   IUserGetBaseResponseDto,
+  IUserGetFormDto,
   IUserGetResponseDto,
 } from '../../types/user.dto';
 import { IUser } from '../../types/user.interface';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { USER_ACTION_CONFIG_MAP } from '../../config';
+import {
+  SEARCH_FILTER_USER_FORM_CONFIG,
+  USER_ACTION_CONFIG_MAP,
+} from '../../config';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 
 @Component({
   selector: 'app-get-user',
-  imports: [DataTableComponent],
+  imports: [DataTableComponent, SearchFilterComponent, StatusTagComponent],
   templateUrl: './get-user.component.html',
   styleUrl: './get-user.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,13 +60,19 @@ export class GetUserComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly tableServerSideFilterAndSortService = inject(
+    TableServerSideParamsBuilderService
+  );
 
   protected table!: IEnhancedTable;
+  protected tableFilterData!: TableLazyLoadEvent;
+  protected searchFilterConfig!: ITableSearchFilterFormConfig;
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
       USER_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
     );
+    this.searchFilterConfig = SEARCH_FILTER_USER_FORM_CONFIG;
   }
 
   private loadUserList(): void {
@@ -67,8 +82,10 @@ export class GetUserComponent implements OnInit {
       message: 'Please wait while we load the users permissions...',
     });
 
+    const paramData = this.prepareParamData();
+
     this.userService
-      .getUserList()
+      .getUserList(paramData)
       .pipe(
         finalize(() => {
           this.table.setLoading(false);
@@ -91,21 +108,33 @@ export class GetUserComponent implements OnInit {
       });
   }
 
+  private prepareParamData(): IUserGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IUserGetFormDto>(
+      this.tableFilterData,
+      this.table.getHeaders()
+    );
+  }
+
   private mapTableData(response: IUserGetBaseResponseDto[]): IUser[] {
     return response.map((record: IUserGetBaseResponseDto) => {
       return {
         id: record.id,
         employeeName: `${record.firstName} ${record.lastName}`,
-        employeeCode: record.id,
+        employeeCode: record.employeeId,
         employeeStatus: record.status,
         employeeRole: record.role ?? '', // TODO: Remove this nullable once the role is added to the user
-        userPermissionCount: `${record.userPermissionsCount} / ${record.rolePermissionsCount} / ${record.totalPermissions}`,
+        userPermissionCount: {
+          user: record.userPermissionsCount,
+          role: record.rolePermissionsCount,
+          total: record.totalPermissions,
+        },
         originalRawData: record,
       };
     });
   }
 
-  protected onTableStateChange(): void {
+  protected onTableStateChange(filterData: TableLazyLoadEvent): void {
+    this.tableFilterData = filterData;
     this.loadUserList();
   }
 
@@ -166,7 +195,7 @@ export class GetUserComponent implements OnInit {
       ],
       entity: {
         name: `${selectedRow.firstName} ${selectedRow.lastName}`,
-        subtitle: selectedRow.id,
+        subtitle: selectedRow.employeeId,
       },
     };
   }
