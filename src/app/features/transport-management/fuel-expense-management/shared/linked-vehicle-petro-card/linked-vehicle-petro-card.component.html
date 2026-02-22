@@ -1,0 +1,42 @@
+<div class="linked-entities-section">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="linked-card linked-card--vehicle">
+      <div class="linked-card__icon">
+        <i [class]="ALL_ICONS.COMMON.CAR"></i>
+      </div>
+      <div class="linked-card__content">
+        @let linkedVehicle = vehicle();
+
+        <span class="linked-card__label">Linked Vehicle</span>
+        <span class="linked-card__title">{{ linkedVehicle.vehicle.registrationNumber }}</span>
+        <span class="linked-card__subtitle">
+          {{ linkedVehicle.vehicle.vehicleType }} {{ linkedVehicle.vehicle.vehicleModel }}
+        </span>
+        <span class="linked-card__meta">{{ linkedVehicle.vehicle.vehicleType }}</span>
+      </div>
+    </div>
+
+    @if (petroCard(); as linkedPetroCard) {
+      <div class="linked-card linked-card--petro">
+        <div class="linked-card__icon">
+          <i [class]="ALL_ICONS.COMMON.CREDIT_CARD"></i>
+        </div>
+        <div class="linked-card__content">
+          <span class="linked-card__label">Linked Petro Card</span>
+          <span class="linked-card__title">{{ linkedPetroCard.cardNumber }}</span>
+          <span class="linked-card__subtitle">{{ linkedPetroCard.cardType }}</span>
+        </div>
+      </div>
+    } @else {
+      <div class="linked-card linked-card--empty">
+        <div class="linked-card__icon linked-card__icon--muted">
+          <i [class]="ALL_ICONS.COMMON.CREDIT_CARD"></i>
+        </div>
+        <div class="linked-card__content">
+          <span class="linked-card__label">Linked Petro Card</span>
+          <span class="linked-card__subtitle text-content-secondary">No card linked to this vehicle</span>
+        </div>
+      </div>
+    }
+  </div>
+</div>

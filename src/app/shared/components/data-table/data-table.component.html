@@ -496,7 +496,17 @@
     @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE) {
       @if (val) {
         <div class="flex items-center gap-3">
-          @if (col.showImage && col.dummyImageField) {
+          @if (col.showImage && col.icon) {
+            @let seedField = col.backgroundSeedField ?? col.field ?? col.dummyImageField;
+            @let seedValue = $any(resolveNestedProperty(row, seedField)) ?? '';
+            @let bgColor = getBackgroundColorForSeed(seedValue);
+            <div
+              class="flex w-9 h-9 shrink-0 items-center justify-center rounded-lg text-white"
+              [style.background-color]="'#' + bgColor"
+            >
+              <i [class]="col.icon + ' text-base'"></i>
+            </div>
+          } @else if (col.showImage && col.dummyImageField) {
             @let imageName = $any(resolveNestedProperty(row, col.dummyImageField));
             <img
               [src]="getAvatarUrl(imageName)"

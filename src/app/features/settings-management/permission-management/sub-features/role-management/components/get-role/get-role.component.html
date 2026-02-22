@@ -2,15 +2,15 @@
   #permissionCountRole
   let-row
 >
-  <div class="flex flex-wrap gap-1.5 items-center">
-    <app-status-tag
-      [value]="row.rolePermissionCount.current + ' Assigned'"
-      [config]="{ severity: 'info' }"
-    />
-    <app-status-tag
-      [value]="row.rolePermissionCount.total + ' Total'"
-      [config]="{ severity: 'success' }"
-    />
+  <div class="flex flex-col gap-1.5 text-sm whitespace-nowrap">
+    <div class="flex items-center gap-1.5">
+      <span class="text-content-secondary">Assigned:</span>
+      <span class="text-content">{{ row.rolePermissionCount.current }}</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="text-content-secondary">Total:</span>
+      <span class="text-content">{{ row.rolePermissionCount.total }}</span>
+    </div>
   </div>
 </ng-template>
 

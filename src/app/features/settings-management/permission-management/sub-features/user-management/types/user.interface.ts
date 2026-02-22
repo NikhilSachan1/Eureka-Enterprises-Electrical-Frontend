@@ -1,7 +1,8 @@
 import { IUserGetBaseResponseDto } from './user.dto';
 
 export interface IUserPermissionCount {
-  user: number;
+  grantedUser: number;
+  revokedUser: number;
   role: number;
   total: number;
 }

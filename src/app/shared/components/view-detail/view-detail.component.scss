@@ -27,6 +27,11 @@
   color: var(--text-primary-color) !important;
 }
 
+.view-detail-prefix,
+.view-detail-suffix {
+  color: var(--text-secondary-color);
+}
+
 .view-detail-currency {
   font-weight: 600;
   color: var(--text-primary-color) !important;

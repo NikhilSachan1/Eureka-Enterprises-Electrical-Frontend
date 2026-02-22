@@ -406,6 +406,12 @@ export class DataTableComponent {
     return this.avatarService.getAvatarFromName(name);
   }
 
+  protected getBackgroundColorForSeed(seed: unknown): string {
+    return this.avatarService.getConsistentColor(
+      seed !== null && seed !== undefined ? String(seed) : ''
+    );
+  }
+
   protected getClearSelectionButtonConfig(): Partial<IButtonConfig> {
     return {
       id: EButtonActionType.CLEAR_SELECTION,

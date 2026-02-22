@@ -18,7 +18,7 @@ export const RoleGetRequestSchema = z
   .transform(({ roleName, ...rest }) => {
     return {
       ...rest,
-      name: roleName,
+      names: roleName,
     };
   });
 

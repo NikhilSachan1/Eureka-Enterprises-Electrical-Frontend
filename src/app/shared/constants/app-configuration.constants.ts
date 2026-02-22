@@ -1,6 +1,7 @@
 export const MODULE_NAMES = {
   EMPLOYEE: 'employee',
   EXPENSE: 'expense',
+  FUEL_EXPENSE: 'fuel_expense',
   ATTENDANCE: 'attendance',
   COMMON: 'common',
   VEHICLE: 'vehicle',
@@ -34,6 +35,9 @@ export const CONFIGURATION_KEYS = {
   },
   EXPENSE: {
     CATEGORIES: 'expense_categories',
+    PAYMENT_METHODS: 'payment_modes',
+  },
+  FUEL_EXPENSE: {
     PAYMENT_METHODS: 'payment_modes',
   },
   ATTENDANCE: {

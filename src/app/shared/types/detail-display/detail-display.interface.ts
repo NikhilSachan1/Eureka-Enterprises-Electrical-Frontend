@@ -1,5 +1,6 @@
 import { EExpenseTransactionType } from '@features/expense-management/types/expense.enum';
 import { EDataType } from '../common/data-types.type';
+import { EFuelExpenseTransactionType } from '@features/transport-management/fuel-expense-management/types/fuel-expense.enum';
 
 export interface IEntityViewDetails {
   name: string;
@@ -10,10 +11,12 @@ export interface IEntityViewDetails {
 export interface IDetailEntryData {
   label: string;
   value: string | number | null | string[];
+  suffix?: string;
+  prefix?: string;
   type?: EDataType;
   format?: string;
   metadata?: {
-    transactionType?: EExpenseTransactionType;
+    transactionType?: EExpenseTransactionType | EFuelExpenseTransactionType;
   };
   permission?: string[];
 }

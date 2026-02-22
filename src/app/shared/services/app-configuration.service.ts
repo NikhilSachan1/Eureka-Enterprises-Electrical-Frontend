@@ -70,6 +70,7 @@ export class AppConfigurationService {
   private readonly _employeeStatus = signal<IOptionDropdown[]>([]);
   private readonly _expenseCategories = signal<IOptionDropdown[]>([]);
   private readonly _expensePaymentMethods = signal<IOptionDropdown[]>([]);
+  private readonly _fuelExpensePaymentMethods = signal<IOptionDropdown[]>([]);
   private readonly _attendanceStatus = signal<IOptionDropdown[]>([]);
   private readonly _approvalStatus = signal<IOptionDropdown[]>([]);
   private readonly _assetCategories = signal<IOptionDropdown[]>([]);
@@ -121,6 +122,8 @@ export class AppConfigurationService {
   readonly employeeStatus = this._employeeStatus.asReadonly();
   readonly expenseCategories = this._expenseCategories.asReadonly();
   readonly expensePaymentMethods = this._expensePaymentMethods.asReadonly();
+  readonly fuelExpensePaymentMethods =
+    this._fuelExpensePaymentMethods.asReadonly();
   readonly attendanceStatus = this._attendanceStatus.asReadonly();
   readonly approvalStatus = this._approvalStatus.asReadonly();
   readonly assetCategories = this._assetCategories.asReadonly();
@@ -237,6 +240,12 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.EXPENSE.PAYMENT_METHODS,
         signal: this._expensePaymentMethods,
+      },
+    ],
+    [MODULE_NAMES.FUEL_EXPENSE]: [
+      {
+        key: CONFIGURATION_KEYS.FUEL_EXPENSE.PAYMENT_METHODS,
+        signal: this._fuelExpensePaymentMethods,
       },
     ],
     [MODULE_NAMES.ATTENDANCE]: [

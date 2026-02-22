@@ -56,6 +56,9 @@
                 <span class="view-detail-label text-xs font-semibold uppercase tracking-wider">{{ entry.label }}</span>
                 <span class="view-detail-value text-sm font-medium">
                   @if (entry.value !== null && entry.value !== undefined) {
+                    @if (entry.prefix) {
+                      <span class="view-detail-prefix">{{ entry.prefix }}</span>
+                    }
                     @if (entry.type === ALL_DATA_TYPES.DATE) {
                       {{ entry.value.toString() | date: entry.format }}
                     } @else if (entry.type === ALL_DATA_TYPES.DATE_RANGE) {
@@ -88,6 +91,9 @@
                       <app-read-more [text]="entry.value.toString()" />
                     } @else {
                       {{ entry.value }}
+                    }
+                    @if (entry.suffix) {
+                      <span class="view-detail-suffix">{{ entry.suffix }}</span>
                     }
                   } @else {
                     N/A

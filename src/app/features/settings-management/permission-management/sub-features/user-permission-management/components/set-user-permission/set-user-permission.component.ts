@@ -19,6 +19,7 @@ import { IPageHeaderConfig } from '@shared/types';
 import {
   IUserPermissionsGetResponseDto,
   IUserPermissionsSetFormDto,
+  IUserPermissionsSetResponseDto,
 } from '../../types/user-permissions.dto';
 import { UserPermissionService } from '../../services/user-permission.service';
 import { finalize } from 'rxjs';
@@ -138,9 +139,11 @@ export class SetUserPermissionComponent extends FormBase implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: () => {
-          this.notificationService.success(
-            'User permission updated successfully'
+        next: (response: IUserPermissionsSetResponseDto) => {
+          this.notificationService.bulkOperationFromApiResponse(
+            response,
+            'user permission',
+            'update'
           );
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,

@@ -1,4 +1,4 @@
-import { AuditSchema } from '@shared/schemas';
+import { uuidField } from '@shared/schemas';
 import { z } from 'zod';
 
 export const UserPermissionsSetRequestSchema = z
@@ -25,22 +25,20 @@ export const UserPermissionsSetRequestSchema = z
     };
   });
 
-export const UserPermissionsSetResponseSchema = z.array(
-  z
-    .object({
-      userId: z.uuid(),
-      permissionId: z.uuid(),
-      isGranted: z.boolean(),
-      id: z.uuid(),
-    })
-    .merge(
-      AuditSchema.pick({
-        createdBy: true,
-        updatedBy: true,
-        deletedBy: true,
-        createdAt: true,
-        updatedAt: true,
-        deletedAt: true,
-      })
-    )
-);
+export const UserPermissionsSetResultSchema = z
+  .object({
+    id: uuidField,
+    message: z.string(),
+    success: z.boolean(),
+  })
+  .strict();
+
+export const UserPermissionsSetResponseSchema = z
+  .object({
+    message: z.string(),
+    failureCount: z.number().int().nonnegative(),
+    successCount: z.number().int().nonnegative(),
+    totalRequested: z.number().int().nonnegative(),
+    results: z.array(UserPermissionsSetResultSchema),
+  })
+  .strict();

@@ -35,7 +35,7 @@ export class AvatarService {
     return `${this.API_BASE_URL}?${params.toString()}`;
   }
 
-  private getConsistentColor(name: string): string {
+  getConsistentColor(name: string): string {
     if (!name) {
       return this.SOLID_COLORS[0];
     }

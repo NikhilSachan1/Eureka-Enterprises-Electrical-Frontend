@@ -39,14 +39,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IRole } from '../../types/role.interface';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { toTitleCase } from '@shared/utility';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 
 @Component({
   selector: 'app-get-role',
-  imports: [DataTableComponent, SearchFilterComponent, StatusTagComponent],
+  imports: [DataTableComponent, SearchFilterComponent],
   templateUrl: './get-role.component.html',
   styleUrl: './get-role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

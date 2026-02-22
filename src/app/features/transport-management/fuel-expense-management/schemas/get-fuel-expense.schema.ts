@@ -1,0 +1,102 @@
+import {
+  AuditSchema,
+  dateField,
+  FilterSchema,
+  UserSchema,
+  uuidField,
+} from '@shared/schemas';
+import z from 'zod';
+import { FuelExpenseBaseSchema } from './base-fuel-expense.schema';
+import {
+  makeFieldsNullable,
+  toTitleCase,
+  transformDateFormat,
+} from '@shared/utility';
+
+const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
+const { approvalStatus } = FuelExpenseBaseSchema.shape;
+const { createdAt, updatedAt } = AuditSchema.shape;
+
+export const FuelExpenseGetRequestSchema = z
+  .object({
+    fuelExpenseDate: z.array(dateField).min(1).optional(),
+    employeeName: z.array(uuidField).min(1).optional(),
+    approvalStatus: z.array(approvalStatus).min(1).optional(),
+    sortOrder,
+    sortField,
+    pageSize,
+    page,
+    search,
+  })
+  .strict()
+  .transform(
+    ({
+      fuelExpenseDate: dateRange,
+      employeeName,
+      approvalStatus: fuelExpenseApprovalStatus,
+      ...rest
+    }) => {
+      const [start, end] = dateRange ?? [];
+
+      return {
+        ...rest,
+        userIds: employeeName,
+        approvalStatuses: fuelExpenseApprovalStatus,
+        startDate: transformDateFormat(start),
+        endDate: transformDateFormat(end),
+      };
+    }
+  );
+
+export const FuelExpenseGetBaseResponseSchema = z
+  .object({
+    ...FuelExpenseBaseSchema.shape,
+    user: UserSchema,
+    approvalByUser: makeFieldsNullable(UserSchema).nullable(),
+    vehicle: z
+      .object({
+        id: uuidField,
+        registrationNumber: z.string().min(1),
+        vehicleType: z.string().min(1),
+        vehicleModel: z.string().min(1),
+      })
+      .nullable(),
+    card: z
+      .object({
+        id: uuidField,
+        cardNumber: z.string().min(1),
+        cardType: z.string().min(1),
+      })
+      .nullable(),
+    approvalStatus: approvalStatus.transform(toTitleCase),
+    createdAt,
+    updatedAt,
+  })
+  .strict();
+
+export const FuelExpenseGetStatsResponseSchema = z
+  .object({
+    balances: z.object({
+      openingBalance: z.number(),
+      closingBalance: z.number(),
+      totalCredit: z.number().nonnegative(),
+      totalDebit: z.number().nonnegative(),
+      periodCredit: z.number().nonnegative(),
+      periodDebit: z.number().nonnegative(),
+    }),
+    approval: z.object({
+      pending: z.number().int().nonnegative(),
+      approved: z.number().int().nonnegative(),
+      rejected: z.number().int().nonnegative(),
+      total: z.number().int().nonnegative(),
+    }),
+  })
+  .strict();
+
+export const FuelExpenseGetResponseSchema = z
+  .object({
+    records: z.array(FuelExpenseGetBaseResponseSchema),
+    stats: FuelExpenseGetStatsResponseSchema.strict(),
+    totalRecords: z.number().int().nonnegative(),
+  })
+  .strict();

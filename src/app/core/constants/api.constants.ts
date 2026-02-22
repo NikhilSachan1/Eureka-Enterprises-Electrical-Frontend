@@ -44,6 +44,17 @@ export const API_ROUTES = {
     APPROVAL_ACTION: 'expenses/approval',
     GET_EXPENSE_BY_ID: (expenseId: string) => `expenses/${expenseId}/history`,
   },
+  FUEL_EXPENSE: {
+    LIST: 'fuel-expenses',
+    ADD: 'fuel-expenses',
+    FORCE: 'fuel-expenses/force',
+    REIMBURSE: 'fuel-expenses/credit',
+    EDIT: (fuelExpenseId: string) => `fuel-expenses/${fuelExpenseId}`,
+    DELETE: 'fuel-expenses',
+    APPROVAL_ACTION: 'fuel-expenses/approval',
+    GET_FUEL_EXPENSE_BY_ID: (fuelExpenseId: string) =>
+      `fuel-expenses/${fuelExpenseId}/history`,
+  },
   LEAVE: {
     LIST: 'leave',
     APPLY: 'leave/apply',

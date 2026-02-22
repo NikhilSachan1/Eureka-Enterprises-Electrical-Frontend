@@ -1,1 +1,51 @@
-<p>get-fuel-expense works!</p>
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<div class="metrics-card-wrapper">
+  <app-metrics-card [metricCardConfig]="metricsCards()" />
+</div>
+
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
+<ng-template
+  #fuelDetails
+  let-row
+>
+  @if (row.originalRawData.transactionType === 'credit') {
+    <span class="text-content-secondary">-</span>
+  } @else {
+    @let numFormat = APP_CONFIG.NUMBER_FORMATS.FLEXIBLE_DECIMALS;
+    @let numLocale = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+    <div class="flex flex-col gap-1.5 text-sm whitespace-nowrap">
+      <div class="flex items-center gap-1.5">
+        <span class="text-content-secondary">Odometer:</span>
+        <span class="text-content">{{ row.originalRawData.odometerKm | number: numFormat : numLocale }} km</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="text-content-secondary">Fuel:</span>
+        <span class="text-content">{{ row.originalRawData.fuelLiters | number: numFormat : numLocale }} L</span>
+      </div>
+    </div>
+  }
+</ng-template>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [bulkActionButtons]="table.bulkActions()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{ fuelDetails: fuelDetails }"
+  (rowActionClick)="handleFuelExpenseTableActionClick($any($event), false)"
+  (bulkActionClick)="handleFuelExpenseTableActionClick($any($event), true)"
+  (filterData)="onTableStateChange($event)"
+/>

@@ -45,8 +45,8 @@
         [fluid]="config.haveFullWidth"
         [size]="config.fieldSize"
         [mode]="numberConfig?.mode"
-        [min]="numberConfig?.minimumBoundaryValue ?? null"
-        [max]="numberConfig?.maximumBoundaryValue ?? null"
+        [min]="numberConfig?.minimumBoundaryValue"
+        [max]="numberConfig?.maximumBoundaryValue"
         [minFractionDigits]="numberConfig?.minimumFractionDigits"
         [maxFractionDigits]="numberConfig?.maximumFractionDigits"
         [useGrouping]="numberConfig?.allowNumberFormatting"
@@ -63,7 +63,7 @@
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
         [class]="invalidClass"
-        (onInput)="onValueChange($event)"
+        (ngModelChange)="onValueChange($event)"
         (blur)="onBlur()"
       />
       @if (!showStandardLabel) {

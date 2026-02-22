@@ -39,13 +39,12 @@ import {
   USER_ACTION_CONFIG_MAP,
 } from '../../config';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 
 @Component({
   selector: 'app-get-user',
-  imports: [DataTableComponent, SearchFilterComponent, StatusTagComponent],
+  imports: [DataTableComponent, SearchFilterComponent],
   templateUrl: './get-user.component.html',
   styleUrl: './get-user.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -95,8 +94,8 @@ export class GetUserComponent implements OnInit {
       )
       .subscribe({
         next: (response: IUserGetResponseDto) => {
-          const { records, totalRecords } = response;
-          const mappedData = this.mapTableData(records);
+          const { records, totalRecords, systemTotalPermissions } = response;
+          const mappedData = this.mapTableData(records, systemTotalPermissions);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.logger.logUserAction('Users loaded successfully');
@@ -115,18 +114,22 @@ export class GetUserComponent implements OnInit {
     );
   }
 
-  private mapTableData(response: IUserGetBaseResponseDto[]): IUser[] {
+  private mapTableData(
+    response: IUserGetBaseResponseDto[],
+    systemTotalPermissions: number
+  ): IUser[] {
     return response.map((record: IUserGetBaseResponseDto) => {
       return {
         id: record.id,
         employeeName: `${record.firstName} ${record.lastName}`,
         employeeCode: record.employeeId,
         employeeStatus: record.status,
-        employeeRole: record.role ?? '', // TODO: Remove this nullable once the role is added to the user
+        employeeRole: record.role,
         userPermissionCount: {
-          user: record.userPermissionsCount,
+          grantedUser: record.userPermissionsGrantedCount,
+          revokedUser: record.userPermissionsRevokedCount,
           role: record.rolePermissionsCount,
-          total: record.totalPermissions,
+          total: systemTotalPermissions,
         },
         originalRawData: record,
       };
@@ -179,8 +182,13 @@ export class GetUserComponent implements OnInit {
         type: EDataType.TEXT,
       },
       {
-        label: 'User Permission Count',
-        value: selectedRow.userPermissionsCount,
+        label: 'User Permission',
+        value: selectedRow.userPermissionsGrantedCount,
+        type: EDataType.TEXT,
+      },
+      {
+        label: 'Revoked User Permission',
+        value: selectedRow.userPermissionsRevokedCount,
         type: EDataType.TEXT,
       },
     ];

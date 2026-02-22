@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { RolePermissionsBaseSchema } from './base-role-permission.schema';
+import { uuidField } from '@shared/schemas';
 
 export const RolePermissionsSetRequestSchema = z
   .object({
@@ -25,6 +25,20 @@ export const RolePermissionsSetRequestSchema = z
     };
   });
 
-export const RolePermissionsSetResponseSchema = z.array(
-  z.object(RolePermissionsBaseSchema.shape)
-);
+export const RolePermissionSetResultSchema = z
+  .object({
+    id: uuidField,
+    message: z.string(),
+    success: z.boolean(),
+  })
+  .strict();
+
+export const RolePermissionsSetResponseSchema = z
+  .object({
+    message: z.string(),
+    failureCount: z.number().int().nonnegative(),
+    successCount: z.number().int().nonnegative(),
+    totalRequested: z.number().int().nonnegative(),
+    results: z.array(RolePermissionSetResultSchema),
+  })
+  .strict();

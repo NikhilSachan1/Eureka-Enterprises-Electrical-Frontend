@@ -2,19 +2,23 @@
   #permissionCountUser
   let-row
 >
-  <div class="flex flex-wrap gap-1.5 items-center">
-    <app-status-tag
-      [value]="row.userPermissionCount.user + ' User'"
-      [config]="{ severity: 'info' }"
-    />
-    <app-status-tag
-      [value]="row.userPermissionCount.role + ' Role'"
-      [config]="{ severity: 'warn' }"
-    />
-    <app-status-tag
-      [value]="row.userPermissionCount.total + ' Total'"
-      [config]="{ severity: 'success' }"
-    />
+  <div class="flex flex-col gap-1.5 text-sm whitespace-nowrap">
+    <div class="flex items-center gap-1.5">
+      <span class="text-content-secondary">Granted User Permissions:</span>
+      <span class="text-content">{{ row.userPermissionCount.grantedUser }}</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="text-content-secondary">Revoked User Permissions:</span>
+      <span class="text-content">{{ row.userPermissionCount.revokedUser }}</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="text-content-secondary">Role Permissions:</span>
+      <span class="text-content">{{ row.userPermissionCount.role }}</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="text-content-secondary">Total Available Permissions:</span>
+      <span class="text-content">{{ row.userPermissionCount.total }}</span>
+    </div>
   </div>
 </ng-template>
 

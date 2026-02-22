@@ -16,6 +16,7 @@ import { RolePermissionService } from '../../services/role-permission.service';
 import {
   IRolePermissionsGetResponseDto,
   IRolePermissionsSetFormDto,
+  IRolePermissionsSetResponseDto,
 } from '../../types/role-permission.dto';
 import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
 import {
@@ -135,9 +136,11 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: () => {
-          this.notificationService.success(
-            'Role permission updated successfully'
+        next: (response: IRolePermissionsSetResponseDto) => {
+          this.notificationService.bulkOperationFromApiResponse(
+            response,
+            'role permission',
+            'update'
           );
           const routeSegments = [
             ROUTE_BASE_PATHS.SETTINGS.BASE,

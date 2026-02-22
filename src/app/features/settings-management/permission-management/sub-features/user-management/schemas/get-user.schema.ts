@@ -18,8 +18,8 @@ export const UserGetRequestSchema = z
   .transform(({ employeeName, roleName, ...rest }) => {
     return {
       ...rest,
-      userId: employeeName,
-      roleId: roleName,
+      userIds: employeeName,
+      roles: roleName,
     };
   });
 
@@ -31,10 +31,11 @@ export const UserGetBaseResponseSchema = z
     email: z.string(),
     employeeId: z.string(),
     status: z.string(),
-    role: z.string().nullable(), // TODO: Remove this nullable once the role is added to the user
+    role: z.string(),
     rolePermissionsCount: z.number(),
-    userPermissionsCount: z.number(),
-    totalPermissions: z.number(),
+    userPermissionsRevokedCount: z.number(),
+    userPermissionsGrantedCount: z.number(),
+    effectivePermissionsCount: z.number(),
     createdAt,
     updatedAt,
   })

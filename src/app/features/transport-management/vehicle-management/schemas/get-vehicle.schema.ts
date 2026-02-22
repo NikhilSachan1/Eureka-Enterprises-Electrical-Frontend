@@ -69,8 +69,8 @@ export const VehicleGetBaseResponseSchema = z
     fitnessStatus: z.string().min(1),
     serviceDueStatus: z.string().min(1),
     nextServiceDueKm: z.number().int().nonnegative().nullable(),
-    kmToNextService: z.number().int().nonnegative().nullable(),
-    kmSinceLastService: z.number().int().nonnegative().nullable(),
+    kmToNextService: z.number().nullable(), // TODO: Can be negative
+    kmSinceLastService: z.number().nullable(), // TODO: Can be negative
     files: z.array(VehicleBaseDocumentsSchema),
     associatedCard: z
       .object({

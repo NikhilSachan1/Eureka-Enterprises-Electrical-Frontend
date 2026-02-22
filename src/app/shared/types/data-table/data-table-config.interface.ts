@@ -53,10 +53,12 @@ export interface IDataTableHeaderConfig {
   dateFormat?: string;
   currencyFormat?: string;
   numberFormat?: string;
-  /** Show image (avatar) for text-with-subtitle-and-image columns. Can be used with or without subtitle. */
+  /** Show image (avatar) or icon placeholder for text-with-subtitle columns. */
   showImage?: boolean;
-  /** Field used to resolve image/avatar (e.g. name for initials). Used when showImage is true. */
+  /** Field used to resolve image/avatar (e.g. name for initials). Used when showImage is true and icon is not set. */
   dummyImageField?: string;
+  /** Icon class (e.g. 'pi pi-car'). When set with showImage, renders icon with colored background instead of avatar. */
+  icon?: string;
   /** Whether to highlight the primary field (bold). */
   primaryFieldHighlight?: boolean;
   /** Subtitle config (field, bodyTemplate, label). */

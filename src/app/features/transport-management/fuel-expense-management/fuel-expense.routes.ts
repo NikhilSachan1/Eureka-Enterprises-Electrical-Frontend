@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetFuelExpenseDetailResolver } from './resolvers/get-fuel-expense-detail.resolver';
 
 export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -27,6 +28,9 @@ export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-fuel-expense/edit-fuel-expense.component').then(
         m => m.EditFuelExpenseComponent
       ),
+    resolve: {
+      fuelExpenseDetail: GetFuelExpenseDetailResolver,
+    },
   },
   {
     path: ROUTES.FUEL.FORCE,
