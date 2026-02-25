@@ -13,6 +13,19 @@ import { IVehicleServiceGetUIFormDto } from '../../types/vehicle-service.dto';
 const SEARCH_FILTER_VEHICLE_SERVICE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   IVehicleServiceGetUIFormDto & { globalSearch?: string }
 > = {
+  vehicleName: {
+    fieldType: EDataType.SELECT,
+    id: 'vehicleName',
+    fieldName: 'vehicleName',
+    label: 'Vehicle Name',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.VEHICLE,
+        dropdownName: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
+      },
+    },
+    matchmode: ETableFilterMatchMode.IN,
+  },
   serviceType: {
     fieldType: EDataType.MULTI_SELECT,
     id: 'serviceType',

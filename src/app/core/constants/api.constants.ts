@@ -85,6 +85,8 @@ export const API_ROUTES = {
     DELETE: 'vehicle-service/bulk',
     EDIT: (vehicleServiceId: string) => `vehicle-service/${vehicleServiceId}`,
     LIST: 'vehicle-service',
+    GET_VEHICLE_SERVICE_BY_ID: (vehicleServiceId: string) =>
+      `vehicle-service/${vehicleServiceId}`,
   },
   PETRO_CARD: {
     LIST: 'cards',

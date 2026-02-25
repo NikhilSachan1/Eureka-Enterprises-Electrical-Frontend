@@ -16,14 +16,16 @@ export const VehicleServiceDeleteRequestSchema = z
 
 export const VehicleServiceDeleteResultSchema = z
   .object({
-    vehicleServiceId: id,
+    serviceId: id,
     message: z.string(),
+    serviceType: z.string(),
+    serviceStatus: z.string(),
   })
   .strict();
 
 export const VehicleServiceDeleteErrorSchema = z
   .object({
-    vehicleServiceId: id,
+    serviceId: id,
     error: z.string().min(1),
   })
   .strict();

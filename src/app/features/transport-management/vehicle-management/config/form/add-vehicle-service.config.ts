@@ -14,11 +14,11 @@ import { IvehicleServiceAddFormDto } from '../../types/vehicle-service.dto';
 
 const ADD_VEHICLE_SERVICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleServiceAddFormDto> =
   {
-    vehicleId: {
+    vehicleName: {
       fieldType: EDataType.SELECT,
-      id: 'vehicleId',
-      fieldName: 'vehicleId',
-      label: 'Vehicle ID',
+      id: 'vehicleName',
+      fieldName: 'vehicleName',
+      label: 'Vehicle Name',
       selectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.VEHICLE,
@@ -33,14 +33,14 @@ const ADD_VEHICLE_SERVICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleSer
       fieldName: 'serviceDate',
       label: 'Service Date',
       dateConfig: {
-        minDate: new Date(),
+        maxDate: new Date(),
       },
       validators: [Validators.required],
     },
-    odometerKm: {
+    odometerReading: {
       fieldType: EDataType.NUMBER,
-      id: 'odometerKm',
-      fieldName: 'odometerKm',
+      id: 'odometerReading',
+      fieldName: 'odometerReading',
       label: 'Odometer Reading',
       numberConfig: {
         mode: EInputNumberMode.Decimal,
@@ -58,12 +58,7 @@ const ADD_VEHICLE_SERVICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleSer
           dropdownName: CONFIGURATION_KEYS.VEHICLE.SERVICE_TYPE_LIST,
         },
       },
-    },
-    serviceDescription: {
-      fieldType: EDataType.TEXT_AREA,
-      id: 'serviceDescription',
-      fieldName: 'serviceDescription',
-      label: 'Service Description',
+      validators: [Validators.required],
     },
     serviceAttachments: {
       fieldType: EDataType.ATTACHMENTS,
@@ -98,6 +93,7 @@ const ADD_VEHICLE_SERVICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleSer
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
+      validators: [Validators.required],
     },
     remarks: {
       fieldType: EDataType.TEXT_AREA,

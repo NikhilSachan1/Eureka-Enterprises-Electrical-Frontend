@@ -6,9 +6,15 @@ import {
   VehicleServiceDeleteResponseSchema,
   VehicleServiceDeleteRequestSchema,
   VehicleServiceGetRequestSchema,
+  VehicleServiceDetailGetRequestSchema,
+  VehicleServiceDetailGetResponseSchema,
 } from '../schemas';
 import { z } from 'zod';
-import { VehicleServiceGetResponseSchema } from '../schemas/get-vehicle-service.schema';
+import {
+  VehicleServiceGetBaseResponseSchema,
+  VehicleServiceGetResponseSchema,
+  VehicleServiceGetStatsResponseSchema,
+} from '../schemas/get-vehicle-service.schema';
 
 /**
  * Vehicle Service Add
@@ -64,4 +70,23 @@ export type IVehicleServiceGetUIFormDto = Omit<
 >;
 export type IVehicleServiceGetResponseDto = z.infer<
   typeof VehicleServiceGetResponseSchema
+>;
+export type IVehicleServiceGetStatsResponseDto = z.infer<
+  typeof VehicleServiceGetStatsResponseSchema
+>;
+export type IVehicleServiceGetBaseResponseDto = z.infer<
+  typeof VehicleServiceGetBaseResponseSchema
+>;
+
+/**
+ * Vehicle Service Detail
+ */
+export type IVehicleServiceDetailGetRequestDto = z.infer<
+  typeof VehicleServiceDetailGetRequestSchema
+>;
+export type IVehicleServiceDetailGetFormDto = z.input<
+  typeof VehicleServiceDetailGetRequestSchema
+>;
+export type IVehicleServiceDetailGetResponseDto = z.infer<
+  typeof VehicleServiceDetailGetResponseSchema
 >;

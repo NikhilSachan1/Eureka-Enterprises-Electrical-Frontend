@@ -54,3 +54,7 @@ export {
   VehicleServiceGetStatsResponseSchema,
   VehicleServiceGetResponseSchema,
 } from './get-vehicle-service.schema';
+export {
+  VehicleServiceDetailGetRequestSchema,
+  VehicleServiceDetailGetResponseSchema,
+} from './get-vehicle-service-detail.schema';

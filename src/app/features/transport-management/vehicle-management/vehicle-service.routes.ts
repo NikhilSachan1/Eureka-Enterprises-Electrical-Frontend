@@ -8,7 +8,7 @@ export const VEHICLE_SERVICE_MANAGEMENT_ROUTES: Routes = [
     pathMatch: 'full',
   },
   {
-    path: `${ROUTES.VEHICLE_SERVICE.LIST}/:vehicleId`,
+    path: `${ROUTES.VEHICLE_SERVICE.LIST}`,
     loadComponent: () =>
       import(
         './components/get-vehicle-service/get-vehicle-service.component'

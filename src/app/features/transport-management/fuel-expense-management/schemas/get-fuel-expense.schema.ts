@@ -56,9 +56,12 @@ export const FuelExpenseGetBaseResponseSchema = z
     vehicle: z
       .object({
         id: uuidField,
-        registrationNumber: z.string().min(1),
-        vehicleType: z.string().min(1),
-        vehicleModel: z.string().min(1),
+        registrationNo: z.string().min(1),
+        brand: z.string().min(1),
+        model: z.string().min(1),
+        fuelType: z.string().min(1),
+        mileage: z.string().min(1),
+        status: z.string().min(1),
       })
       .nullable(),
     card: z

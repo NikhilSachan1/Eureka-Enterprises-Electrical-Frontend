@@ -158,8 +158,8 @@ export class GetFuelExpenseComponent implements OnInit {
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
         employeeCode: record.user.employeeId,
         vehicle: {
-          registrationNumber: record.vehicle?.registrationNumber ?? '',
-          vehicleModel: record.vehicle?.vehicleModel ?? '',
+          registrationNumber: record.vehicle?.registrationNo ?? '',
+          vehicleModel: record.vehicle?.model ?? '',
         },
         fuelAmount: record.fuelAmount,
         fileKeys: record.fileKeys,

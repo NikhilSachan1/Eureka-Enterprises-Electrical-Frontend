@@ -6,3 +6,7 @@ export { EDIT_VEHICLE_FORM_CONFIG } from './form/edit-vehicle.config';
 export { ACTION_VEHICLE_FORM_CONFIG } from './form/action-vehicle.config';
 export { SEARCH_FILTER_VEHICLE_FORM_CONFIG } from './form/search-filter-vehicle.config';
 export { SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_CONFIG } from './form/search-filter-vehicle-event-history.config';
+export { VEHICLE_SERVICE_TABLE_ENHANCED_CONFIG } from './table/get-vehicle-service.config';
+export { SEARCH_FILTER_VEHICLE_SERVICE_FORM_CONFIG } from './form/search-filter-vehicle-service.config';
+export { ADD_VEHICLE_SERVICE_FORM_CONFIG } from './form/add-vehicle-service.config';
+export { EDIT_VEHICLE_SERVICE_FORM_CONFIG } from './form/edit-vehicle-service.config';

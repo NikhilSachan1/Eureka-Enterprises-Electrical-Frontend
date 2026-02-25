@@ -138,6 +138,23 @@ export const appMenu: ApplicationMenu = {
               ],
             },
             {
+              label: 'Vehicle Services',
+              icon: ICONS.ASSET.CAR,
+              basePath: ROUTE_BASE_PATHS.VEHICLE_SERVICE,
+              children: [
+                {
+                  label: 'Vehicle Service List',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.VEHICLE_SERVICE.LIST,
+                },
+                {
+                  label: 'Add Vehicle Service',
+                  icon: ICONS.COMMON.PLUS,
+                  routerLink: ROUTES.VEHICLE_SERVICE.ADD,
+                },
+              ],
+            },
+            {
               label: 'Petro Cards',
               icon: ICONS.COMMON.CREDIT_CARD,
               basePath: ROUTE_BASE_PATHS.PETRO_CARD,

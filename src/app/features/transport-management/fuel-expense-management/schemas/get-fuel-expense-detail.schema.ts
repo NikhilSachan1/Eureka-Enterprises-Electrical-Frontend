@@ -38,9 +38,13 @@ export const FuelExpenseDetailGetResponseSchema = z
           .object({
             id: uuidField,
             registrationNo: z.string().min(1),
-            // vehicleType: z.string().min(1),
-            // vehicleModel: z.string().min(1),
+            brand: z.string().min(1),
+            model: z.string().min(1),
+            fuelType: z.string().min(1),
+            mileage: z.string().min(1),
+            status: z.string().min(1),
           })
+          .strict()
           .nullable(),
         card: z
           .object({
@@ -48,6 +52,7 @@ export const FuelExpenseDetailGetResponseSchema = z
             cardNumber: z.string().min(1),
             cardType: z.string().min(1),
           })
+          .strict()
           .nullable(),
         updatedAt,
         createdAt,

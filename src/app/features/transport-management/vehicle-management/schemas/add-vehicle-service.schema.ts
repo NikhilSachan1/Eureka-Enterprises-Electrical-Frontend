@@ -6,11 +6,10 @@ import z from 'zod';
 export const VehicleServiceAddRequestSchema =
   VehicleServiceUpsertShapeSchema.strict().transform(data => {
     return {
-      vehicleMasterId: data.vehicleId,
+      vehicleMasterId: data.vehicleName,
       serviceDate: transformDateFormat(data.serviceDate),
-      odometerReading: data.odometerKm,
+      odometerReading: data.odometerReading,
       serviceType: data.serviceType,
-      serviceDetails: data.serviceDescription,
       serviceFiles: data.serviceAttachments,
       serviceCenterName: data.serviceCenterName,
       serviceCost: data.serviceCost,

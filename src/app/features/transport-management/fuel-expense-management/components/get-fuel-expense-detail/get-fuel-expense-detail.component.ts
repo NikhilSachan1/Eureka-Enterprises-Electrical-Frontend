@@ -131,6 +131,14 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
           format: APP_CONFIG.NUMBER_FORMATS.FLEXIBLE_DECIMALS,
         },
         {
+          label: 'Vehicle Number',
+          value: record.vehicle?.registrationNo ?? '',
+        },
+        {
+          label: 'Petro Card Number',
+          value: record.card?.cardNumber ?? '',
+        },
+        {
           label: 'Attachment(s)',
           value: record.fileKeys,
           type: EDataType.ATTACHMENTS,

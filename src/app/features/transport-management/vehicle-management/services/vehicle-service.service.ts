@@ -7,6 +7,7 @@ import {
   VehicleServiceAddResponseSchema,
   VehicleServiceDeleteRequestSchema,
   VehicleServiceDeleteResponseSchema,
+  VehicleServiceDetailGetResponseSchema,
   VehicleServiceEditRequestSchema,
   VehicleServiceEditResponseSchema,
   VehicleServiceGetRequestSchema,
@@ -17,9 +18,11 @@ import {
   IVehicleServiceAddResponseDto,
   IvehicleServiceDeleteFormDto,
   IVehicleServiceDeleteResponseDto,
+  IVehicleServiceDetailGetFormDto,
+  IVehicleServiceDetailGetResponseDto,
   IvehicleServiceEditFormDto,
   IVehicleServiceEditResponseDto,
-  IvehicleServiceGetFormDto,
+  IVehicleServiceGetFormDto,
   IVehicleServiceGetResponseDto,
 } from '../types/vehicle-service.dto';
 
@@ -133,7 +136,7 @@ export class VehicleServiceService {
   }
 
   getVehicleServiceList(
-    params?: IvehicleServiceGetFormDto
+    params?: IVehicleServiceGetFormDto
   ): Observable<IVehicleServiceGetResponseDto> {
     this.logger.logUserAction('Get Vehicle Service List Request');
 
@@ -161,6 +164,44 @@ export class VehicleServiceService {
             );
           } else {
             this.logger.logUserAction('Get Vehicle Service List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getVehicleServiceDetailById(
+    params: IVehicleServiceDetailGetFormDto
+  ): Observable<IVehicleServiceDetailGetResponseDto> {
+    this.logger.logUserAction('Get Vehicle Service Detail By Id Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.VEHICLE_SERVICE.GET_VEHICLE_SERVICE_BY_ID(
+          params.vehicleServiceId
+        ),
+        {
+          response: VehicleServiceDetailGetResponseSchema,
+        }
+      )
+      .pipe(
+        tap((response: IVehicleServiceDetailGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Vehicle Service Detail By Id Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Vehicle Service Detail By Id Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Get Vehicle Service Detail By Id Error',
+              error
+            );
           }
           return throwError(() => error);
         })
