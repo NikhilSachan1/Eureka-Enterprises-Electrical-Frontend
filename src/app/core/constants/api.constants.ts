@@ -79,6 +79,7 @@ export const API_ROUTES = {
     ACTION: 'vehicles/action',
     GET_VEHICLE_EVENT_HISTORY: (vehicleId: string) =>
       `vehicle-events/${vehicleId}`,
+    GET_LINKED_USER_VEHICLE_DETAIL: 'vehicles/assigned',
   },
   VEHICLE_SERVICE: {
     ADD: 'vehicle-service',
