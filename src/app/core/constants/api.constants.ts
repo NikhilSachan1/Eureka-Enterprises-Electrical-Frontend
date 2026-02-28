@@ -169,6 +169,14 @@ export const API_ROUTES = {
       LIST: 'daily-status-reports',
     },
   },
+  ANNOUNCEMENT: {
+    ADD: 'announcement',
+    LIST: 'announcement',
+    GET_ANNOUNCEMENT_BY_ID: (announcementId: string) =>
+      `announcement/${announcementId}`,
+    EDIT: (announcementId: string) => `announcement/${announcementId}`,
+    DELETE: 'announcement/bulk',
+  },
 } as const;
 
 export const SKIP_AUTH_ENDPOINTS = [

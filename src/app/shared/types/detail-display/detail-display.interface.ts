@@ -15,6 +15,7 @@ export interface IDetailEntryData {
   prefix?: string;
   type?: EDataType;
   format?: string;
+  customTemplateKey?: string;
   metadata?: {
     transactionType?: EExpenseTransactionType | EFuelExpenseTransactionType;
   };

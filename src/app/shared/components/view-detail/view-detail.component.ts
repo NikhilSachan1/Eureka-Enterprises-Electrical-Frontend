@@ -1,10 +1,16 @@
-import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
+import {
+  CurrencyPipe,
+  DatePipe,
+  NgClass,
+  NgTemplateOutlet,
+} from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
+  TemplateRef,
 } from '@angular/core';
 import { AppPermissionService } from '@core/services';
 import {
@@ -40,6 +46,7 @@ import { APP_CONFIG } from '@core/config';
     CardModule,
     Tag,
     Divider,
+    NgTemplateOutlet,
     DatePipe,
     TextCasePipe,
     SecondsToDhmsPipe,
@@ -64,6 +71,7 @@ export class ViewDetailComponent {
   });
 
   drawerDetails = input<IDataViewDetailsWithEntity>();
+  customTemplates = input<Record<string, TemplateRef<unknown>>>({});
 
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly icons = ICONS;

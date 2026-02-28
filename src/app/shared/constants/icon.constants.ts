@@ -47,6 +47,7 @@ export const ICONS = {
     SPIN: 'pi pi-spin',
     EXCLAMATION_TRIANGLE: 'pi pi-exclamation-triangle',
     HISTORY: 'pi pi-history',
+    MEGAPHONE: 'pi pi-megaphone',
   },
   MEDIA: {
     PDF: 'pi pi-file-pdf',

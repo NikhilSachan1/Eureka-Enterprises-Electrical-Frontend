@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetAnnouncementDetailResolver } from './resolvers/get-announcement-detail.resolver';
 
 export const ANNOUNCEMENT_MANAGEMENT_ROUTES: Routes = [
   {
@@ -27,5 +28,8 @@ export const ANNOUNCEMENT_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-announcement/edit-announcement.component').then(
         m => m.EditAnnouncementComponent
       ),
+    resolve: {
+      announcementDetail: GetAnnouncementDetailResolver,
+    },
   },
 ];

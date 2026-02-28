@@ -190,25 +190,43 @@
           @let bodyTemplate = column.bodyTemplate;
 
           @if (shouldShowColumn) {
-            <td [class.cell-allow-wrap]="bodyTemplate === ALL_DATA_TYPES.TEXT_WITH_READ_MORE">
-              @let templates = customBodyTemplates();
-              @if (column.customTemplateKey && templates && templates[column.customTemplateKey]) {
-                <ng-container
-                  [ngTemplateOutlet]="templates[column.customTemplateKey]"
-                  [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
-                />
-              } @else {
-                <ng-container
-                  [ngTemplateOutlet]="cellValueTmpl"
-                  [ngTemplateOutletContext]="{
-                    value: columnData,
-                    bodyType: bodyTemplate,
-                    column: column,
-                    row: rowData,
-                    compact: false,
-                  }"
-                />
-              }
+            @let hasLead = column.icon || (column.showImage && column.dummyImageField);
+            @let t = customBodyTemplates();
+            <td [class.cell-allow-wrap]="hasLead">
+              <div
+                [class.flex]="hasLead"
+                [class.items-center]="hasLead"
+                [class.gap-3]="hasLead"
+              >
+                @if (hasLead) {
+                  <ng-container
+                    [ngTemplateOutlet]="leadingVisualTmpl"
+                    [ngTemplateOutletContext]="{ column: column, row: rowData }"
+                  />
+                }
+                <div
+                  [class.flex-1]="hasLead"
+                  [class.min-w-0]="hasLead"
+                >
+                  @if (column.customTemplateKey && t?.[column.customTemplateKey]) {
+                    <ng-container
+                      [ngTemplateOutlet]="t[column.customTemplateKey]"
+                      [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
+                    />
+                  } @else {
+                    <ng-container
+                      [ngTemplateOutlet]="cellValueTmpl"
+                      [ngTemplateOutletContext]="{
+                        value: columnData,
+                        bodyType: bodyTemplate,
+                        column: column,
+                        row: rowData,
+                        compact: false,
+                      }"
+                    />
+                  }
+                </div>
+              </div>
             </td>
           }
         }
@@ -291,29 +309,44 @@
               @let bodyTemplate = column.bodyTemplate;
 
               @if (shouldShowColumn) {
+                @let hasLead = column.icon || (column.showImage && column.dummyImageField);
                 <div class="mb-4 last:mb-0">
-                  <div class="text-xs font-semibold mb-2 uppercase tracking-wider">
-                    {{ column.header }}
-                  </div>
-                  <div class="text-sm font-medium">
-                    @let templates = customBodyTemplates();
-                    @if (column.customTemplateKey && templates && templates[column.customTemplateKey]) {
+                  <div class="text-xs font-semibold mb-2 uppercase tracking-wider">{{ column.header }}</div>
+                  <div
+                    class="text-sm font-medium"
+                    [class.flex]="hasLead"
+                    [class.items-center]="hasLead"
+                    [class.gap-3]="hasLead"
+                  >
+                    @if (hasLead) {
                       <ng-container
-                        [ngTemplateOutlet]="templates[column.customTemplateKey]"
-                        [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
-                      />
-                    } @else {
-                      <ng-container
-                        [ngTemplateOutlet]="cellValueTmpl"
-                        [ngTemplateOutletContext]="{
-                          value: columnData,
-                          bodyType: bodyTemplate,
-                          column: column,
-                          row: rowData,
-                          compact: false,
-                        }"
+                        [ngTemplateOutlet]="leadingVisualTmpl"
+                        [ngTemplateOutletContext]="{ column: column, row: rowData }"
                       />
                     }
+                    <div
+                      [class.flex-1]="hasLead"
+                      [class.min-w-0]="hasLead"
+                    >
+                      @let t = customBodyTemplates();
+                      @if (column.customTemplateKey && t?.[column.customTemplateKey]) {
+                        <ng-container
+                          [ngTemplateOutlet]="t[column.customTemplateKey]"
+                          [ngTemplateOutletContext]="{ $implicit: rowData, column: column }"
+                        />
+                      } @else {
+                        <ng-container
+                          [ngTemplateOutlet]="cellValueTmpl"
+                          [ngTemplateOutletContext]="{
+                            value: columnData,
+                            bodyType: bodyTemplate,
+                            column: column,
+                            row: rowData,
+                            compact: false,
+                          }"
+                        />
+                      }
+                    </div>
                   </div>
                 </div>
               }
@@ -496,24 +529,6 @@
     @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE) {
       @if (val) {
         <div class="flex items-center gap-3">
-          @if (col.showImage && col.icon) {
-            @let seedField = col.backgroundSeedField ?? col.field ?? col.dummyImageField;
-            @let seedValue = $any(resolveNestedProperty(row, seedField)) ?? '';
-            @let bgColor = getBackgroundColorForSeed(seedValue);
-            <div
-              class="flex w-9 h-9 shrink-0 items-center justify-center rounded-lg text-white"
-              [style.background-color]="'#' + bgColor"
-            >
-              <i [class]="col.icon + ' text-base'"></i>
-            </div>
-          } @else if (col.showImage && col.dummyImageField) {
-            @let imageName = $any(resolveNestedProperty(row, col.dummyImageField));
-            <img
-              [src]="getAvatarUrl(imageName)"
-              [alt]="imageName"
-              class="w-9 h-9 rounded-lg bg-surface-100 object-cover"
-            />
-          }
           <div class="flex-1 min-w-0">
             <div>
               @if (col.primaryFieldLabel) {
@@ -577,5 +592,30 @@
         }
       </div>
     }
+  }
+</ng-template>
+
+<ng-template
+  #leadingVisualTmpl
+  let-col="column"
+  let-row="row"
+>
+  @if (col.icon) {
+    @let seedField = col.backgroundSeedField ?? col.field ?? col.dummyImageField;
+    @let seedValue = $any(resolveNestedProperty(row, seedField)) ?? '';
+    @let bgColor = getBackgroundColorForSeed(seedValue);
+    <div
+      class="flex w-9 h-9 shrink-0 items-center justify-center rounded-lg text-white"
+      [style.background-color]="'#' + bgColor"
+    >
+      <i [class]="col.icon + ' text-base'"></i>
+    </div>
+  } @else if (col.showImage && col.dummyImageField) {
+    @let imageName = $any(resolveNestedProperty(row, col.dummyImageField));
+    <img
+      [src]="getAvatarUrl(imageName)"
+      [alt]="imageName"
+      class="w-9 h-9 shrink-0 rounded-lg bg-surface-100 object-cover"
+    />
   }
 </ng-template>
