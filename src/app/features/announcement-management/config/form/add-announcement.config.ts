@@ -1,9 +1,11 @@
 import { Validators } from '@angular/forms';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import { editorRequiredValidator } from '@shared/utility/validators.util';
 import {
   EDataType,
   EDateSelectionMode,
+  EEditorToolbarOption,
   ETextCase,
   IFormButtonConfig,
   IFormConfig,
@@ -25,11 +27,29 @@ const ADD_ANNOUNCEMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAnnouncementA
       validators: [Validators.required],
     },
     content: {
-      fieldType: EDataType.TEXT_AREA,
+      fieldType: EDataType.EDITOR,
       id: 'content',
       fieldName: 'content',
       label: 'Content',
-      validators: [Validators.required],
+      placeholder: 'Write your announcement content here',
+      editorConfig: {
+        height: '320px',
+        toolbarFilter: {
+          include: [
+            EEditorToolbarOption.HEADER,
+            EEditorToolbarOption.FONT,
+            EEditorToolbarOption.SIZE,
+            EEditorToolbarOption.LIST,
+            EEditorToolbarOption.ALIGNMENT,
+            EEditorToolbarOption.BOLD,
+            EEditorToolbarOption.ITALIC,
+            EEditorToolbarOption.LINK,
+            EEditorToolbarOption.COLOR,
+            EEditorToolbarOption.BACKGROUND,
+          ],
+        },
+      },
+      validators: [editorRequiredValidator()],
     },
     announcementDate: {
       fieldType: EDataType.DATE,

@@ -232,4 +232,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   ongoing: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'info' },
   hold: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   completed: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ANNOUNCEMENT STATUS
+  // ═══════════════════════════════════════════════════════════════════════════
+  draft: { icon: ICONS.ACTIONS.TIMES, severity: 'warning' },
+  published: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'info' },
 };

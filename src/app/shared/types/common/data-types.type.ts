@@ -19,6 +19,7 @@ export enum EDataType {
   CHECKBOX = 'checkbox',
   RADIO = 'radio',
   TEXT_AREA = 'textarea',
+  EDITOR = 'editor',
   INDIVIDUAL_NUMBER = 'individual-number',
   PROGRESS = 'progress',
   KNOB = 'knob',

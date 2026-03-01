@@ -1,3 +1,9 @@
+// When using toolbar array, hide PrimeNG’s empty toolbar row so only Quill’s toolbar (one row) shows
+:host ::ng-deep .editor-custom-toolbar .p-editor-toolbar:empty,
+:host ::ng-deep .editor-custom-toolbar .p-editor-toolbar:not(:has(.ql-toolbar)) {
+  display: none;
+}
+
 // File entry card – uses theme-level vars (see styles.scss :root)
 .file-entry-card {
   background: var(--primary-lightest-color);

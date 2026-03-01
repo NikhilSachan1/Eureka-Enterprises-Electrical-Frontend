@@ -15,6 +15,7 @@ export {
 } from './string.util';
 export {
   noSpecialCharactersValidator,
+  editorRequiredValidator,
   fileLimitValidator,
   fileSizeValidator,
   fileFormatValidator,

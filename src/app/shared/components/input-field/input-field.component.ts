@@ -36,6 +36,7 @@ import {
   FileUploadModule,
 } from 'primeng/fileupload';
 import { TextareaModule } from 'primeng/textarea';
+import { EditorModule } from 'primeng/editor';
 import { InputOtpModule } from 'primeng/inputotp';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonComponent } from '@shared/components/button/button.component';
@@ -47,11 +48,13 @@ import {
   EDateIconDisplay,
   EDateSelectionMode,
   EDataType,
+  EEditorToolbarOption,
   EFileMode,
   EHourFormat,
   EMultiSelectDisplayType,
   EUpAndDownButtonLayout,
   ETextCase,
+  IEditorFieldConfig,
   IInputFieldsConfig,
   IGalleryInputData,
   IButtonConfig,
@@ -95,6 +98,7 @@ import { NgClass } from '@angular/common';
     RadioButtonModule,
     FileUploadModule,
     TextareaModule,
+    EditorModule,
     InputOtpModule,
     AutoCompleteModule,
     ButtonComponent,
@@ -459,6 +463,69 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       return [];
     }
     return this.getOptionsFromDropdownLikeConfig(autocompleteConfig);
+  }
+
+  getEditorToolbarOptions(
+    editorConfig: Partial<IEditorFieldConfig> | undefined
+  ): string[] {
+    const filter = editorConfig?.toolbarFilter;
+    const include = filter?.include ?? [];
+    const exclude = filter?.exclude ?? [];
+
+    if (include.length > 0) {
+      return include;
+    }
+    if (exclude.length > 0) {
+      const excludeSet = new Set<string>(exclude);
+      return Object.values(EEditorToolbarOption).filter(
+        opt => !excludeSet.has(opt)
+      );
+    }
+    return [];
+  }
+
+  /**
+   * Map our option string to Quill toolbar item. Dropdowns use {} with empty array so Quill uses theme defaults.
+   */
+  private static toQuillToolbarItem(opt: string): string | object | object[] {
+    switch (opt) {
+      case 'script_sub':
+        return { script: 'sub' };
+      case 'script_super':
+        return { script: 'super' };
+      case 'align':
+        return { align: [] };
+      case 'background':
+        return { background: [] };
+      case 'color':
+        return { color: [] };
+      case 'font':
+        return { font: [] };
+      case 'size':
+        return { size: ['small', false, 'large', 'huge'] };
+      case 'header':
+        return { header: [1, 2, 3, 4, 5, 6, false] };
+      case 'list':
+        return [{ list: 'ordered' }, { list: 'bullet' }];
+      case 'direction':
+        return { direction: 'rtl' };
+      default:
+        return opt;
+    }
+  }
+
+  getEditorModules(
+    editorConfig: Partial<IEditorFieldConfig> | undefined
+  ): { toolbar: (string | object)[][] } | undefined {
+    const options = this.getEditorToolbarOptions(editorConfig);
+    if (options.length === 0) {
+      return undefined;
+    }
+    const items = options.flatMap(opt => {
+      const item = InputFieldComponent.toQuillToolbarItem(opt);
+      return Array.isArray(item) ? item : [item];
+    });
+    return { toolbar: [items] };
   }
 
   onAutocompleteComplete(event: { query: string }): void {

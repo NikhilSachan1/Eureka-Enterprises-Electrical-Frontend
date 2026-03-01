@@ -17,6 +17,7 @@ import {
   ETextCase,
   EUpAndDownButtonLayout,
 } from '@shared/types';
+import { EEditorToolbarOption } from '@shared/types/editor/editor.enum';
 
 export interface IInputFieldsConfig {
   fieldType: EDataType;
@@ -42,6 +43,7 @@ export interface IInputFieldsConfig {
   radioConfig?: Partial<IRadioFieldConfig>;
   fileConfig?: Partial<IFileFieldConfig>;
   textAreaConfig?: Partial<ITextAreaFieldConfig>;
+  editorConfig?: Partial<IEditorFieldConfig>;
   textConfig?: Partial<ITextFieldConfig>;
   individualNumberConfig?: Partial<IIndividualNumberFieldConfig>;
   validators?: ValidatorFn[];
@@ -212,6 +214,16 @@ export interface ITextAreaFieldConfig {
   rows: number;
   cols: number;
   autoResize: boolean;
+}
+
+export interface IEditorToolbarFilter {
+  include?: EEditorToolbarOption[];
+  exclude?: EEditorToolbarOption[];
+}
+
+export interface IEditorFieldConfig {
+  height?: string;
+  toolbarFilter?: IEditorToolbarFilter;
 }
 
 export interface ITextFieldConfig {

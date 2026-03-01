@@ -64,6 +64,26 @@ export const fileFormatValidator = (
   };
 };
 
+/**
+ * Validator for rich text editor (Quill/PrimeNG) content.
+ * Editor "empty" state often contains HTML like `<p><br></p>` which bypasses Validators.required.
+ * This strips HTML and treats whitespace-only content as empty.
+ */
+export const editorRequiredValidator = (): ValidatorFn => {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const { value } = control;
+    if (value === null || value === '') {
+      return { required: true };
+    }
+    const html = String(value);
+    const stripped = html
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .trim();
+    return stripped.length === 0 ? { required: true } : null;
+  };
+};
+
 export const withCustomMessage = (
   validator: ValidatorFn,
   message: string

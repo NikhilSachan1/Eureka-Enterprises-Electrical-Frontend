@@ -22,6 +22,7 @@ export {
   EDateSelectionMode,
   ECheckBoxAndRadioAlign,
 } from './form/form-input.types';
+export { EEditorToolbarOption } from './editor/editor.enum';
 export { ESeverity } from './common/severity.types';
 export type {
   EPrimeNGSeverity,
@@ -93,6 +94,8 @@ export type {
   IRadioFieldConfig,
   IFileFieldConfig,
   ITextAreaFieldConfig,
+  IEditorFieldConfig,
+  IEditorToolbarFilter,
   ITextFieldConfig,
   IOptionDropdown,
   IIndividualNumberFieldConfig,

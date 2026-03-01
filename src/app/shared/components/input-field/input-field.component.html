@@ -479,6 +479,26 @@
       }
     </p-floatlabel>
   }
+  @case (ALL_DATA_TYPES.EDITOR) {
+    @let editorConfig = config.editorConfig;
+    <div
+      class="flex flex-col gap-1 overflow-hidden rounded-lg border transition-colors editor-custom-toolbar"
+      [ngClass]="isFieldInvalid ? 'border-red-500' : 'border-border-medium'"
+    >
+      <p-editor
+        [id]="config.id"
+        [ngModel]="effectiveValue()"
+        [ngModelOptions]="{ standalone: true }"
+        [invalid]="isFieldInvalid"
+        [style]="{ height: editorConfig?.height ?? '320px' }"
+        [modules]="getEditorModules(editorConfig)"
+        [readonly]="config.readonlyInput || false"
+        [disabled]="config.disabledInput || false"
+        [placeholder]="config.placeholder"
+        (ngModelChange)="onValueChange($event)"
+      ></p-editor>
+    </div>
+  }
   @case (ALL_DATA_TYPES.INDIVIDUAL_NUMBER) {
     @let individualNumberConfig = config.individualNumberConfig;
     <p-inputotp

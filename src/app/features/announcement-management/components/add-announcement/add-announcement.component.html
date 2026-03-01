@@ -10,11 +10,6 @@
     [inputFieldConfig]="form.fieldConfigs.title"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.content"
-  />
-
   <div class="grid grid-cols-1 md:grid-cols-2">
     <app-input-field
       [formGroup]="form.formGroup"
@@ -25,6 +20,12 @@
       [inputFieldConfig]="form.fieldConfigs.announcementSentTo"
     />
   </div>
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.content"
+  />
+
   <div class="button-container">
     <app-button
       [buttonConfig]="form.buttonConfigs['reset']"
