@@ -76,9 +76,12 @@ export class ConfirmationDialogService {
 
     const colorClass = StatusUtil.getColorClass(actionType);
 
-    // Merge icon and colors into dialogConfig
-    const icon = StatusUtil.getIcon(actionType) ?? undefined;
-    const iconContainerClass = `${colorClass.bg} ${colorClass.border} ${colorClass.text}`;
+    // Merge icon and colors into dialogConfig (allow config to override)
+    const icon =
+      config.dialogConfig?.icon ?? StatusUtil.getIcon(actionType) ?? undefined;
+    const iconContainerClass =
+      config.dialogConfig?.iconContainerClass ??
+      `${colorClass.bg} ${colorClass.border} ${colorClass.text}`;
 
     // Merge header/message into dialogConfig
     const processedDialogConfig: Partial<IDialogConfig> = {

@@ -17,7 +17,17 @@
   }
 </ng-template>
 
+<ng-template
+  #announcementMessage
+  let-entry
+>
+  <app-announcement-content-preview [message]="entry.value ?? ''" />
+</ng-template>
+
 <app-view-detail
   [drawerDetails]="_announcementDetails()"
-  [customTemplates]="{ announcementTargets: announcementTargets }"
+  [customTemplates]="{
+    announcementTargets: announcementTargets,
+    announcementMessage: announcementMessage,
+  }"
 />

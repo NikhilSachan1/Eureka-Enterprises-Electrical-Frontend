@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   OnInit,
+  Signal,
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -23,6 +24,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AnnouncementContentPreviewComponent } from '../announcement-content-preview/announcement-content-preview.component';
 
 @Component({
   selector: 'app-edit-announcement',
@@ -31,6 +33,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
+    AnnouncementContentPreviewComponent,
   ],
   templateUrl: './edit-announcement.component.html',
   styleUrl: './edit-announcement.component.scss',
@@ -47,6 +50,7 @@ export class EditAnnouncementComponent
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly initialAnnouncementData =
     signal<IAnnouncementEditFormDto | null>(null);
+  protected contentPreview!: Signal<string>;
 
   ngOnInit(): void {
     this.loadAnnouncementDataFromRoute();
@@ -57,6 +61,11 @@ export class EditAnnouncementComponent
         destroyRef: this.destroyRef,
         defaultValues: this.initialAnnouncementData(),
       }
+    );
+    this.contentPreview = this.formService.trackFieldChanges<string>(
+      this.form.formGroup,
+      'content',
+      this.destroyRef
     );
   }
 

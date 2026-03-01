@@ -23,10 +23,15 @@ import {
 import { finalize } from 'rxjs';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
+import { AnnouncementContentPreviewComponent } from '../announcement-content-preview/announcement-content-preview.component';
 
 @Component({
   selector: 'app-get-announcement-detail',
-  imports: [ViewDetailComponent, StatusTagComponent],
+  imports: [
+    ViewDetailComponent,
+    StatusTagComponent,
+    AnnouncementContentPreviewComponent,
+  ],
   templateUrl: './get-announcement-detail.component.html',
   styleUrl: './get-announcement-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -103,6 +108,7 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
           label: 'Message',
           value: record.message,
           type: EDataType.TEXT,
+          customTemplateKey: 'announcementMessage',
         },
         {
           label: 'Published At',

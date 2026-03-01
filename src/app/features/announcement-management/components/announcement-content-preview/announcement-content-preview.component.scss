@@ -1,0 +1,199 @@
+// Announcement-style notice UI (message only, no title/dates)
+.announcement-preview {
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
+}
+
+.announcement-preview__card {
+  background: var(--surface-0, #fff);
+  border-radius: 12px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  min-width: 0;
+  border: 1px solid var(--border-light-color, #e2e8f0);
+}
+
+.announcement-preview__body {
+  max-height: 52vh;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 1.25rem;
+  min-width: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  background: linear-gradient(180deg, var(--surface-50, #fafafa) 0%, var(--surface-0, #fff) 12%);
+
+  @media (min-width: 640px) {
+    padding: 1.5rem 1.75rem;
+    max-height: 55vh;
+  }
+}
+
+// Editor content – announcement document typography
+.announcement-preview__body.editor-preview-content {
+  font-family: var(--font-sans, "Inter", system-ui, sans-serif);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-primary-color, #334155);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+
+  @media (min-width: 640px) {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  ::ng-deep {
+    margin: 0 0 1rem;
+    line-height: inherit;
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ::ng-deep h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary-color, #1e293b);
+    margin: 0 0 0.85rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-light-color, #e2e8f0);
+    letter-spacing: -0.02em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+
+    @media (min-width: 640px) {
+      font-size: 1.5rem;
+      margin: 0 0 1rem;
+    }
+  }
+
+  ::ng-deep h2 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary-color, #334155);
+    margin: 1.25rem 0 0.5rem;
+    letter-spacing: -0.01em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+
+    @media (min-width: 640px) {
+      font-size: 1.25rem;
+      margin: 1.35rem 0 0.55rem;
+    }
+  }
+
+  ::ng-deep h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary-color, #475569);
+    margin: 1rem 0 0.4rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+
+    @media (min-width: 640px) {
+      font-size: 1.1rem;
+    }
+  }
+
+  ::ng-deep p {
+    margin: 0 0 0.75rem;
+    color: var(--text-secondary-color, #475569);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
+
+  ::ng-deep ul,
+  ::ng-deep ol {
+    margin: 0.6rem 0 1rem;
+    padding-left: 1.6rem;
+  }
+
+  ::ng-deep li {
+    margin-bottom: 0.4rem;
+  }
+
+  ::ng-deep ul li {
+    list-style-type: disc;
+  }
+
+  ::ng-deep ol li {
+    list-style-type: decimal;
+  }
+
+  ::ng-deep blockquote {
+    margin: 1.1rem 0;
+    padding: 0.85rem 1.1rem;
+    background: var(--surface-100, #f1f5f9);
+    border-left: 4px solid var(--primary-500, #3b82f6);
+    border-radius: 0 8px 8px 0;
+    color: var(--text-secondary-color, #475569);
+    font-style: italic;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+    @media (min-width: 640px) {
+      padding: 1rem 1.25rem;
+    }
+  }
+
+  ::ng-deep hr {
+    margin: 1.25rem 0;
+    border: none;
+    border-top: 1px solid var(--border-light-color, #e2e8f0);
+  }
+
+  ::ng-deep strong {
+    font-weight: 600;
+    color: var(--text-primary-color, #1e293b);
+  }
+
+  ::ng-deep a {
+    color: var(--primary-500, #3b82f6);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: var(--primary-600, #2563eb);
+    }
+  }
+
+  // Quill alignment
+  ::ng-deep .ql-align-left {
+    text-align: left;
+  }
+
+  ::ng-deep .ql-align-center {
+    text-align: center;
+  }
+
+  ::ng-deep .ql-align-right {
+    text-align: right;
+  }
+
+  ::ng-deep .ql-align-justify {
+    text-align: justify;
+  }
+
+  ::ng-deep p[style*="font-size"] {
+    font-size: 0.8125rem !important;
+    color: var(--text-muted-color, #64748b);
+    margin-top: 0.85rem;
+  }
+}

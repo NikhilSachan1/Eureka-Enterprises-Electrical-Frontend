@@ -172,10 +172,12 @@ export const API_ROUTES = {
   ANNOUNCEMENT: {
     ADD: 'announcement',
     LIST: 'announcement',
+    UNACKNOWLEDGE_LIST: 'announcement/unacknowledged',
     GET_ANNOUNCEMENT_BY_ID: (announcementId: string) =>
       `announcement/${announcementId}`,
     EDIT: (announcementId: string) => `announcement/${announcementId}`,
     DELETE: 'announcement/bulk',
+    ACKNOWLEDGE: 'announcement/acknowledge',
   },
 } as const;
 

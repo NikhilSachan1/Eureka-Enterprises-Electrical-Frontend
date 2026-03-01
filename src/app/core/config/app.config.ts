@@ -100,4 +100,9 @@ export const APP_CONFIG = {
   VEHICLE_CONFIG: {
     MILEAGE_UNIT: 'km/ltr',
   },
+
+  // Announcement Configuration
+  ANNOUNCEMENT_CONFIG: {
+    UNACKNOWLEDGED_CHECK_INTERVAL_MS: 35 * 60 * 1000, // 35 minutes
+  },
 };

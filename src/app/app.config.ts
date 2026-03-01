@@ -28,6 +28,7 @@ import { AuthInterceptor, ErrorInterceptor } from '@core/interceptors';
 import { ThemeService, TimezoneService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
+import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
 import { AppConfigurationService } from '@shared/services';
 import { lastValueFrom, take } from 'rxjs';
 import { FinancialYearService } from '@core/services/financial-year.service';
@@ -77,6 +78,7 @@ export const appConfig: ApplicationConfig = {
       const userPermissionService = inject(UserPermissionService);
       const financialYearService = inject(FinancialYearService);
       const appConfigurationService = inject(AppConfigurationService);
+      const announcementService = inject(AnnouncementService);
 
       timezoneService.getTimezone();
 
@@ -115,6 +117,8 @@ export const appConfig: ApplicationConfig = {
       } catch (error) {
         console.error(error);
       }
+
+      announcementService.startPeriodicUnacknowledgedCheck();
     }),
   ],
 };

@@ -26,6 +26,13 @@
     [inputFieldConfig]="form.fieldConfigs.content"
   />
 
+  @if (contentPreview()) {
+    <div class="content-preview-section">
+      <span class="content-preview-label">Preview</span>
+      <app-announcement-content-preview [message]="contentPreview()" />
+    </div>
+  }
+
   <div class="button-container">
     <app-button
       [buttonConfig]="form.buttonConfigs['reset']"

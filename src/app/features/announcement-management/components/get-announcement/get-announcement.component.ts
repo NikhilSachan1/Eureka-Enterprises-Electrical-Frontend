@@ -29,6 +29,7 @@ import {
 import {
   EButtonActionType,
   EDataType,
+  EDrawerSize,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
@@ -262,6 +263,7 @@ export class GetAnnouncementComponent implements OnInit {
     this.drawerService.showDrawer(GetAnnouncementDetailComponent, {
       header: `Announcement Details`,
       subtitle: `Detailed view of announcement`,
+      size: EDrawerSize.LARGE,
       componentData: {
         announcement: rowData,
       },

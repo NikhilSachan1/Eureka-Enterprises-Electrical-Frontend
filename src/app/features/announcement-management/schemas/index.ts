@@ -26,8 +26,10 @@ export {
   AnnouncementDetailGetResponseSchema,
 } from './get-announcement-detail.schema';
 export {
-  AnnouncementUnacknowledgeGetRequestSchema,
   AnnouncementUnacknowledgeGetBaseResponseSchema,
-  AnnouncementUnacknowledgeGetStatsResponseSchema,
   AnnouncementUnacknowledgeGetResponseSchema,
 } from './get-unacknowledge-announcement.schema';
+export {
+  AnnouncementAcknowledgeRequestSchema,
+  AnnouncementAcknowledgeResponseSchema,
+} from './acknowledge-announcement.schema';

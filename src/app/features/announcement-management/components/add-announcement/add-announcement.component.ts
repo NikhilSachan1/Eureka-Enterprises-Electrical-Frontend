@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ADD_ANNOUNCEMENT_FORM_CONFIG } from '@features/announcement-management/config';
@@ -18,6 +19,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AnnouncementContentPreviewComponent } from '../announcement-content-preview/announcement-content-preview.component';
 
 @Component({
   selector: 'app-add-announcement',
@@ -26,6 +28,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
+    AnnouncementContentPreviewComponent,
   ],
   templateUrl: './add-announcement.component.html',
   styleUrl: './add-announcement.component.scss',
@@ -39,6 +42,7 @@ export class AddAnnouncementComponent
   private readonly routerNavigationService = inject(RouterNavigationService);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected contentPreview!: Signal<string>;
 
   ngOnInit(): void {
     this.form = this.formService.createForm<IAnnouncementAddFormDto>(
@@ -47,8 +51,11 @@ export class AddAnnouncementComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    // this.loadMockData(ADD_ANNOUNCEMENT_PREFILLED_DATA);
+    this.contentPreview = this.formService.trackFieldChanges<string>(
+      this.form.formGroup,
+      'content',
+      this.destroyRef
+    );
   }
 
   protected override handleSubmit(): void {

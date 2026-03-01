@@ -4,9 +4,7 @@ import {
   AnnouncementGetResponseSchema,
   AnnouncementDetailGetRequestSchema,
   AnnouncementDetailGetResponseSchema,
-  AnnouncementUnacknowledgeGetRequestSchema,
   AnnouncementUnacknowledgeGetBaseResponseSchema,
-  AnnouncementUnacknowledgeGetStatsResponseSchema,
   AnnouncementUnacknowledgeGetResponseSchema,
   AnnouncementAddResponseSchema,
   AnnouncementAddRequestSchema,
@@ -16,6 +14,8 @@ import {
   AnnouncementDeleteRequestSchema,
   AnnouncementGetBaseResponseSchema,
   AnnouncementUpsertShapeSchema,
+  AnnouncementAcknowledgeRequestSchema,
+  AnnouncementAcknowledgeResponseSchema,
 } from '../schemas';
 import { z } from 'zod';
 
@@ -54,17 +54,8 @@ export type IAnnouncementDetailGetResponseDto = z.infer<
 /*
   Announcement Unacknowledge Get
 */
-export type IAnnouncementUnacknowledgeGetRequestDto = z.infer<
-  typeof AnnouncementUnacknowledgeGetRequestSchema
->;
-export type IAnnouncementUnacknowledgeGetFormDto = z.input<
-  typeof AnnouncementUnacknowledgeGetRequestSchema
->;
 export type IAnnouncementUnacknowledgeGetBaseResponseDto = z.infer<
   typeof AnnouncementUnacknowledgeGetBaseResponseSchema
->;
-export type IAnnouncementUnacknowledgeGetStatsResponseDto = z.infer<
-  typeof AnnouncementUnacknowledgeGetStatsResponseSchema
 >;
 export type IAnnouncementUnacknowledgeGetResponseDto = z.infer<
   typeof AnnouncementUnacknowledgeGetResponseSchema
@@ -117,4 +108,17 @@ export type IAnnouncementBaseResponseDto = z.infer<
 >;
 export type IAnnouncementUpsertShapeDto = z.infer<
   typeof AnnouncementUpsertShapeSchema
+>;
+
+/*
+  Announcement Acknowledge
+*/
+export type IAnnouncementAcknowledgeRequestDto = z.infer<
+  typeof AnnouncementAcknowledgeRequestSchema
+>;
+export type IAnnouncementAcknowledgeFormDto = z.input<
+  typeof AnnouncementAcknowledgeRequestSchema
+>;
+export type IAnnouncementAcknowledgeResponseDto = z.infer<
+  typeof AnnouncementAcknowledgeResponseSchema
 >;

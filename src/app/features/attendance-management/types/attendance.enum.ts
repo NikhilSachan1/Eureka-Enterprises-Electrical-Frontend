@@ -5,6 +5,7 @@ export enum EAttendanceStatus {
   HOLIDAY = 'holiday',
   CHECKED_IN = 'checkedIn',
   CHECKED_OUT = 'checkedOut',
+  NOT_CHECKED_IN = 'notCheckedInYet',
 }
 
 export enum EApplyAttendanceAction {
