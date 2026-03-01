@@ -20,14 +20,15 @@
   max-height: 52vh;
   overflow-y: auto;
   overflow-x: auto;
-  padding: 1.25rem;
+  padding: 1.25rem 1.25rem 2rem 1.25rem;
   min-width: 0;
   word-wrap: break-word;
   overflow-wrap: break-word;
   background: linear-gradient(180deg, var(--surface-50, #fafafa) 0%, var(--surface-0, #fff) 12%);
+  scroll-behavior: smooth;
 
   @media (min-width: 640px) {
-    padding: 1.5rem 1.75rem;
+    padding: 1.5rem 1.75rem 2rem 1.75rem;
     max-height: 55vh;
   }
 }

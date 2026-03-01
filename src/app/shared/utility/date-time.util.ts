@@ -84,6 +84,22 @@ export const transformDateFormat = (
   return datePipe.transform(value, dateFormat) as string;
 };
 
+/**
+ * Formats date with time for API payload, using browser timezone.
+ * Use when API expects date+time (e.g. startAt, expiryAt).
+ */
+export const transformDateTimeFormat = (
+  value: string | Date | null | undefined,
+  dateTimeFormat: string = APP_CONFIG.DATE_FORMATS.API_DATETIME,
+  timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone
+): string => {
+  if (value === null || value === undefined) {
+    return '';
+  }
+  const datePipe = new DatePipe('en-US');
+  return datePipe.transform(value, dateTimeFormat, timezone) as string;
+};
+
 export const getDateBeforeXDays = (xDays: number): Date => {
   return new Date(new Date().setDate(new Date().getDate() - xDays));
 };

@@ -1,10 +1,10 @@
 import z from 'zod';
 import { AnnouncementBaseSchema } from './base-announcement.schema';
 import { AnnouncementGetBaseResponseSchema } from './get-announcement.schema';
-import { AuditSchema, isoDateTimeField, uuidField } from '@shared/schemas';
+import { isoDateTimeField, UserSchema, uuidField } from '@shared/schemas';
+import { makeFieldsNullable } from '@shared/utility';
 
 const { id } = AnnouncementBaseSchema.shape;
-const { updatedBy, deletedBy, deletedAt } = AuditSchema.shape;
 
 export const AnnouncementDetailGetRequestSchema = z
   .object({
@@ -20,21 +20,20 @@ export const AnnouncementDetailGetRequestSchema = z
 export const AnnouncementDetailGetResponseSchema =
   AnnouncementGetBaseResponseSchema.omit({
     stats: true,
+    createdBy: true,
   })
     .extend({
-      updatedBy,
-      deletedBy,
-      deletedAt,
       publishedAt: isoDateTimeField.nullable(),
       expiredAt: isoDateTimeField.nullable(),
+      createdByUser: UserSchema.nullable(),
+      updatedByUser: makeFieldsNullable(UserSchema).optional(),
       targets: z.array(
         z
           .object({
-            id: uuidField,
-            targetType: z.string().min(1),
             targetId: uuidField,
-            announcementId: uuidField,
-            ...AuditSchema.shape,
+            targetType: z.string().min(1),
+            employeeId: z.string().min(1),
+            employeeName: z.string().min(1),
           })
           .strict()
       ),

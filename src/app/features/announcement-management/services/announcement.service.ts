@@ -333,8 +333,6 @@ export class AnnouncementService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: firstRecord,
-      currentIndex,
-      totalCount: total,
       onDialogClose: () => {
         if (rest.length) {
           setTimeout(() => this.loadAnnouncementDialog(rest, total), 120);

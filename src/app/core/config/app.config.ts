@@ -41,6 +41,7 @@ export const APP_CONFIG = {
     DEFAULT_CALENDAR_MONTH: 'M yy',
     CALENDAR: 'dd/mm/yy',
     API: 'yyyy-MM-dd',
+    API_DATETIME: 'yyyy-MM-ddTHH:mm:ss',
     WITH_SHORT_MONTH: 'MMM d, yyyy',
     MONTH_YEAR: 'MMM yyyy',
   },

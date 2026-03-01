@@ -26,6 +26,7 @@ export {
   getPayslipCutoffMinDate,
   getPayslipCutoffMaxDate,
   transformDateFormat,
+  transformDateTimeFormat,
   getDateBeforeXDays,
   formatMonthYear,
 } from './date-time.util';

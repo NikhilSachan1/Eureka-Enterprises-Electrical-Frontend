@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { AnnouncementUpsertShapeSchema } from './base-announcement.schema';
-import { transformDateFormat } from '@shared/utility';
+import { transformDateTimeFormat } from '@shared/utility';
 
 export const AnnouncementAddRequestSchema =
   AnnouncementUpsertShapeSchema.strict().transform(data => {
@@ -8,8 +8,8 @@ export const AnnouncementAddRequestSchema =
     return {
       title: data.title,
       message: data.content,
-      startAt: transformDateFormat(startAt),
-      expiryAt: transformDateFormat(expiryAt),
+      startAt: transformDateTimeFormat(startAt),
+      expiryAt: transformDateTimeFormat(expiryAt),
       targets: data.announcementSentTo.map(targetId => ({
         targetType: 'USER' as const,
         targetId,

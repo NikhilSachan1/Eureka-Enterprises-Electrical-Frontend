@@ -1,7 +1,12 @@
-.content-preview-label {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-muted-color, #64748b);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.content-preview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0;
+}
+
+// Match editor height (320px) so preview scroll aligns with editor column
+.content-preview-section ::ng-deep .announcement-preview__body {
+  min-height: 350px;
+  max-height: 350px;
 }

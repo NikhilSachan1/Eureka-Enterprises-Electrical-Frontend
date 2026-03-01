@@ -21,17 +21,16 @@
     />
   </div>
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.content"
-  />
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.content"
+    />
 
-  @if (contentPreview()) {
     <div class="content-preview-section">
-      <span class="content-preview-label">Preview</span>
       <app-announcement-content-preview [message]="contentPreview()" />
     </div>
-  }
+  </div>
 
   <div class="button-container">
     <app-button

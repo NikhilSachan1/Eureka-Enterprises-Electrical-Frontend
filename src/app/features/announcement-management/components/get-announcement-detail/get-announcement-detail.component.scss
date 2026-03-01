@@ -1,0 +1,57 @@
+.targets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.targets-grid__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--surface-50, #f8fafc) 0%, var(--surface-100, #f1f5f9) 100%);
+  border: 1px solid var(--border-light-color, #e2e8f0);
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--primary-200, #bfdbfe);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
+  }
+}
+
+.targets-grid__avatar {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.targets-grid__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.targets-grid__name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary-color, #334155);
+  line-height: 1.3;
+}
+
+.targets-grid__id {
+  font-size: 0.75rem;
+  color: var(--text-muted-color, #64748b);
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.02em;
+}
+
+.targets-empty {
+  color: var(--text-muted-color, #64748b);
+  font-style: italic;
+}

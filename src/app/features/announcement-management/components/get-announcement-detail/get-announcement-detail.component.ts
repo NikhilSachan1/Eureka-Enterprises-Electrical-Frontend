@@ -14,7 +14,11 @@ import {
 } from '@features/announcement-management/types/announcement.dto';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import {
+  AppConfigurationService,
+  AvatarService,
+  LoadingService,
+} from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -22,16 +26,11 @@ import {
 } from '@shared/types';
 import { finalize } from 'rxjs';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
-import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { AnnouncementContentPreviewComponent } from '../announcement-content-preview/announcement-content-preview.component';
 
 @Component({
   selector: 'app-get-announcement-detail',
-  imports: [
-    ViewDetailComponent,
-    StatusTagComponent,
-    AnnouncementContentPreviewComponent,
-  ],
+  imports: [ViewDetailComponent, AnnouncementContentPreviewComponent],
   templateUrl: './get-announcement-detail.component.html',
   styleUrl: './get-announcement-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,6 +42,11 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
   private readonly announcementService = inject(AnnouncementService);
   private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigurationService);
+  private readonly avatarService = inject(AvatarService);
+
+  protected getAvatarUrl(name: string): string {
+    return this.avatarService.getAvatarFromName(name ?? '');
+  }
 
   protected readonly _announcementDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -124,7 +128,7 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Targets',
-          value: record.targets?.map(t => t.targetId) ?? [],
+          value: record.targets ?? [],
           customTemplateKey: 'announcementTargets',
         },
       ];
@@ -135,11 +139,11 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
         },
         entryData,
         createdBy: {
-          user: {},
+          user: record.createdByUser,
           date: record.createdAt,
         },
         updatedBy: {
-          user: {},
+          user: record.updatedByUser,
           date: record.updatedAt,
         },
       };

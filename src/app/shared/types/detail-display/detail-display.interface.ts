@@ -10,7 +10,7 @@ export interface IEntityViewDetails {
 
 export interface IDetailEntryData {
   label: string;
-  value: string | number | null | string[];
+  value: string | number | null | string[] | Record<string, unknown>[];
   suffix?: string;
   prefix?: string;
   type?: EDataType;

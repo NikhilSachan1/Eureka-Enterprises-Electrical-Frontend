@@ -2,18 +2,26 @@
   #announcementTargets
   let-entry
 >
-  @let ids = $any(entry.value) ?? [];
-  @if (ids.length > 0) {
-    <div class="flex flex-wrap gap-2">
-      @for (id of ids; track id) {
-        <app-status-tag
-          [value]="id"
-          [config]="{ severity: 'secondary' }"
-        />
+  @let targets = $any(entry.value) ?? [];
+  @if (targets.length > 0) {
+    <div class="targets-grid">
+      @for (target of targets; track target.targetId) {
+        <div class="targets-grid__item">
+          <img
+            [src]="getAvatarUrl(target.employeeName)"
+            [alt]="target.employeeName"
+            class="targets-grid__avatar"
+            loading="lazy"
+          />
+          <div class="targets-grid__content">
+            <span class="targets-grid__name">{{ target.employeeName }}</span>
+            <span class="targets-grid__id">{{ target.employeeId }}</span>
+          </div>
+        </div>
       }
     </div>
   } @else {
-    <span>-</span>
+    <span class="targets-empty">—</span>
   }
 </ng-template>
 
