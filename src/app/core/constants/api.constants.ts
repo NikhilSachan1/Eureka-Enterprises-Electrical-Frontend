@@ -11,7 +11,6 @@ export const API_ROUTES = {
     EDIT: (employeeId: string) => `user/${employeeId}`,
     DELETE: 'user',
     SEND_PASSWORD_LINK: 'user/resend-password-link',
-    GET_MY_PROFILE: 'user/508eee21-d0fb-45cf-9cfa-a7d83e8531e5', //ToDo Remove thi smanual UUid
   },
   ATTACHMENTS: {
     GET_FILE_URL: 'files',

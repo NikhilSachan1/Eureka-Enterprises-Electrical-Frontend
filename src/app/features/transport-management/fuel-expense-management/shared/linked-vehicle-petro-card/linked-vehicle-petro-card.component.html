@@ -5,26 +5,24 @@
         <i [class]="ALL_ICONS.COMMON.CAR"></i>
       </div>
       <div class="linked-card__content">
-        @let linkedVehicle = vehicle();
+        @let linkedVehicle = linkedUserVehicleDetail().vehicle;
 
         <span class="linked-card__label">Linked Vehicle</span>
-        <span class="linked-card__title">{{ linkedVehicle.vehicle.registrationNumber }}</span>
-        <span class="linked-card__subtitle">
-          {{ linkedVehicle.vehicle.vehicleType }} {{ linkedVehicle.vehicle.vehicleModel }}
-        </span>
-        <span class="linked-card__meta">{{ linkedVehicle.vehicle.vehicleType }}</span>
+        <span class="linked-card__title">{{ linkedVehicle.registrationNo }}</span>
+        <span class="linked-card__subtitle">{{ linkedVehicle.brand }} {{ linkedVehicle.model }}</span>
+        <span class="linked-card__meta">{{ linkedVehicle.fuelType }}</span>
       </div>
     </div>
 
-    @if (petroCard(); as linkedPetroCard) {
+    @if (linkedUserVehicleDetail().card) {
       <div class="linked-card linked-card--petro">
         <div class="linked-card__icon">
           <i [class]="ALL_ICONS.COMMON.CREDIT_CARD"></i>
         </div>
         <div class="linked-card__content">
           <span class="linked-card__label">Linked Petro Card</span>
-          <span class="linked-card__title">{{ linkedPetroCard.cardNumber }}</span>
-          <span class="linked-card__subtitle">{{ linkedPetroCard.cardType }}</span>
+          <span class="linked-card__title">{{ linkedUserVehicleDetail().card?.cardNumber }}</span>
+          <span class="linked-card__subtitle">{{ linkedUserVehicleDetail().card?.cardType }}</span>
         </div>
       </div>
     } @else {

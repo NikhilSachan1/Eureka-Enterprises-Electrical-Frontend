@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
 import { GetFuelExpenseDetailResolver } from './resolvers/get-fuel-expense-detail.resolver';
+import { GetLinkedUserVehicleDetailResolver } from './resolvers/get-linked-user-vehicle-detail.resolver';
 
 export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -21,6 +22,9 @@ export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import('./components/add-fuel-expense/add-fuel-expense.component').then(
         m => m.AddFuelExpenseComponent
       ),
+    resolve: {
+      linkedUserVehicleDetail: GetLinkedUserVehicleDetailResolver,
+    },
   },
   {
     path: `${ROUTES.FUEL.EDIT}/:fuelExpenseId`,

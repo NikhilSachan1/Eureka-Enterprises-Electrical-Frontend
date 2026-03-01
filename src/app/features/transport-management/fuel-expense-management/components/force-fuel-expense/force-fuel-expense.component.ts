@@ -2,8 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import { RouterNavigationService } from '@shared/services';
@@ -11,12 +13,14 @@ import { FORCE_FUEL_EXPENSE_FORM_CONFIG } from '../../config';
 import {
   IFuelExpenseForceFormDto,
   IFuelExpenseForceUIFormDto,
+  ILinkedUserVehicleDetailGetFormDto,
+  ILinkedUserVehicleDetailGetResponseDto,
 } from '../../types/fuel-expense.dto';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { IPageHeaderConfig } from '@shared/types';
+import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -43,17 +47,23 @@ export class ForceFuelExpenseComponent
   private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
 
+  private trackedFuelExpenseFields!: ITrackedFields<IFuelExpenseForceUIFormDto>;
+
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly linkedUserVehicleDetail =
+    signal<ILinkedUserVehicleDetailGetResponseDto | null>(null);
 
-  //TODO: Remove this mock data
-  protected readonly linkedVehicle = {
-    registrationNo: 'DL 01 AB 1234',
-    brand: 'Maruti Suzuki',
-    model: 'Swift Dzire',
-    fuelType: 'Petrol',
-  };
-
-  protected readonly linkedPetroCard = null;
+  constructor() {
+    super();
+    effect(() => {
+      if (this.trackedFuelExpenseFields?.employeeName) {
+        const employeeName = this.trackedFuelExpenseFields.employeeName();
+        if (employeeName && typeof employeeName === 'string') {
+          this.loadLinkedUserVehicleDetail(employeeName);
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.form = this.formService.createForm<IFuelExpenseForceUIFormDto>(
@@ -63,7 +73,66 @@ export class ForceFuelExpenseComponent
       }
     );
 
+    const trackedFields: (keyof IFuelExpenseForceUIFormDto)[] = [
+      'employeeName',
+    ];
+
+    this.trackedFuelExpenseFields =
+      this.formService.trackMultipleFieldChanges<IFuelExpenseForceUIFormDto>(
+        this.form.formGroup,
+        trackedFields,
+        this.destroyRef
+      );
+
     // this.loadMockData(FORCE_EXPENSE_PREFILLED_DATA);
+  }
+
+  private loadLinkedUserVehicleDetail(employeeName: string): void {
+    this.loadingService.show({
+      title: 'Loading Linked User Vehicle Detail',
+      message: 'Please wait while we load the linked user vehicle detail...',
+    });
+
+    const paramData =
+      this.prepareParamDataForLinkedUserVehicleDetail(employeeName);
+
+    this.fuelExpenseService
+      .getLinkedUserVehicleDetail(paramData)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: ILinkedUserVehicleDetailGetResponseDto) => {
+          const hasValidVehicle =
+            response?.vehicle && Object.keys(response.vehicle).length > 0;
+          if (!hasValidVehicle) {
+            this.linkedUserVehicleDetail.set(null);
+            this.notificationService.error(
+              'No vehicle linked for this employee.'
+            );
+            return;
+          }
+          this.linkedUserVehicleDetail.set(response);
+        },
+        error: error => {
+          this.linkedUserVehicleDetail.set(null);
+          this.notificationService.error(
+            'Failed to load linked vehicle detail.'
+          );
+          this.logger.error('Failed to load linked user vehicle detail', error);
+        },
+      });
+  }
+
+  private prepareParamDataForLinkedUserVehicleDetail(
+    employeeName: string
+  ): ILinkedUserVehicleDetailGetFormDto {
+    return {
+      employeeName,
+    };
   }
 
   protected override handleSubmit(): void {
@@ -75,12 +144,20 @@ export class ForceFuelExpenseComponent
     const formData = this.form.getData();
     return {
       ...formData,
-      vehicleName: '',
-      cardName: null,
+      vehicleName: this.linkedUserVehicleDetail()?.vehicle?.id ?? '',
+      cardName: this.linkedUserVehicleDetail()?.card?.id ?? null,
     };
   }
 
   private executeForceExpense(formData: IFuelExpenseForceFormDto): void {
+    const detail = this.linkedUserVehicleDetail();
+    const hasValidVehicle =
+      detail?.vehicle && Object.keys(detail.vehicle).length > 0;
+    if (!hasValidVehicle) {
+      this.notificationService.error('No vehicle linked for this employee.');
+      return;
+    }
+
     this.loadingService.show({
       title: 'Force Fuel Expense',
       message: 'Please wait while we process the force fuel expense...',

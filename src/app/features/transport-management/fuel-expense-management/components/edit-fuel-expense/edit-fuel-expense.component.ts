@@ -10,8 +10,7 @@ import { FormBase } from '@shared/base/form.base';
 import {
   IFuelExpenseEditFormDto,
   IFuelExpenseEditUIFormDto,
-  ILinkedUserVehicleDetailDto,
-  ILinkedVehiclePetroCardDto,
+  ILinkedUserVehicleDetailGetResponseDto,
 } from '../../types/fuel-expense.dto';
 import { RouterNavigationService } from '@shared/services';
 import { ActivatedRoute } from '@angular/router';
@@ -52,11 +51,8 @@ export class EditFuelExpenseComponent
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly initialFuelExpenseData =
     signal<IFuelExpenseEditUIFormDto | null>(null);
-  protected readonly linkedVehicle = signal<ILinkedUserVehicleDetailDto | null>(
-    null
-  );
-  protected readonly linkedPetroCard =
-    signal<ILinkedVehiclePetroCardDto | null>(null);
+  protected readonly linkedUserVehicleDetail =
+    signal<ILinkedUserVehicleDetailGetResponseDto | null>(null);
 
   ngOnInit(): void {
     this.loadFuelExpenseDataFromRoute();
@@ -92,8 +88,10 @@ export class EditFuelExpenseComponent
       fuelExpenseDetailFromResolver.history[
         fuelExpenseDetailFromResolver.history.length - 1
       ];
-    this.linkedVehicle.set(fuelExpenseDetail.vehicle);
-    this.linkedPetroCard.set(fuelExpenseDetail.card);
+    this.linkedUserVehicleDetail.set({
+      vehicle: fuelExpenseDetail.vehicle,
+      card: fuelExpenseDetail.card,
+    });
     this.initialFuelExpenseData.set(prefilledFuelExpenseData);
   }
 
@@ -143,8 +141,8 @@ export class EditFuelExpenseComponent
     const formData = this.form.getData();
     return {
       ...formData,
-      vehicleName: '',
-      cardName: null,
+      vehicleName: this.linkedUserVehicleDetail()?.vehicle?.id ?? '',
+      cardName: this.linkedUserVehicleDetail()?.card?.id ?? null,
     };
   }
 

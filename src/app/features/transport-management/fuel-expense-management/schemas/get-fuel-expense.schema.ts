@@ -71,6 +71,17 @@ export const FuelExpenseGetBaseResponseSchema = z
         cardType: z.string().min(1),
       })
       .nullable(),
+    fuelEfficiency: z
+      .object({
+        distanceTraveled: z.number(),
+        kmPerLiter: z.number(),
+        previousOdometerKm: z.number(),
+        previousKmPerLiter: z.number().nullable(),
+        efficiencyChange: z.number().nullable(),
+        efficiencyChangePercent: z.number().nullable(),
+      })
+      .nullable()
+      .optional(),
     approvalStatus: approvalStatus.transform(toTitleCase),
     createdAt,
     updatedAt,

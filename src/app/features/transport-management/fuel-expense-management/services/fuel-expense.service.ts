@@ -19,6 +19,8 @@ import {
   IFuelExpenseGetResponseDto,
   IFuelExpenseReimburseFormDto,
   IFuelExpenseReimburseResponseDto,
+  ILinkedUserVehicleDetailGetFormDto,
+  ILinkedUserVehicleDetailGetResponseDto,
 } from '../types/fuel-expense.dto';
 import {
   FuelExpenseAddRequestSchema,
@@ -36,6 +38,8 @@ import {
   FuelExpenseActionResponseSchema,
   FuelExpenseDeleteRequestSchema,
   FuelExpenseDeleteResponseSchema,
+  LinkedUserVehicleDetailGetResponseSchema,
+  LinkedUserVehicleDetailGetRequestSchema,
 } from '../schemas';
 
 @Injectable({
@@ -299,6 +303,44 @@ export class FuelExpenseService {
           } else {
             this.logger.logUserAction(
               'Get Fuel Expense Detail By Id Error',
+              error
+            );
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getLinkedUserVehicleDetail(
+    params?: ILinkedUserVehicleDetailGetFormDto
+  ): Observable<ILinkedUserVehicleDetailGetResponseDto> {
+    this.logger.logUserAction('Get Linked User Vehicle Detail Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.VEHICLE.GET_LINKED_USER_VEHICLE_DETAIL,
+        {
+          response: LinkedUserVehicleDetailGetResponseSchema,
+          request: LinkedUserVehicleDetailGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: ILinkedUserVehicleDetailGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Linked User Vehicle Detail Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Linked User Vehicle Detail Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Get Linked User Vehicle Detail Error',
               error
             );
           }

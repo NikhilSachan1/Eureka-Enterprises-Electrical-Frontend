@@ -1,13 +1,9 @@
 import { z } from 'zod';
-import {
-  AuditSchema,
-  FilterSchema,
-  UserSchema,
-  uuidField,
-} from '@shared/schemas';
+import { AuditSchema, FilterSchema, UserSchema } from '@shared/schemas';
 import { PetroCardBaseSchema } from './base-petro-card.schema';
 import { makeFieldsNullable } from '@shared/utility';
 import { EPetroCardStatus } from '../types/petro-card.enum';
+import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
@@ -31,18 +27,14 @@ export const PetroCardGetRequestSchema = z
     };
   });
 
-const VehicleSchema = z.object({
-  id: uuidField,
-  name: z.string().min(1),
-  number: z.string().min(1),
-});
-
 export const PetroCardGetBaseResponseSchema = z
   .object({
     ...PetroCardBaseSchema.shape,
     ...AuditSchema.shape,
     isAllocated: z.boolean(),
-    allocatedVehicle: makeFieldsNullable(VehicleSchema).nullable(),
+    allocatedVehicle: makeFieldsNullable(
+      VehicleBaseSchema.pick({ id: true, registrationNo: true })
+    ).nullable(),
     createdByUser: UserSchema.omit({
       employeeId: true,
     }),

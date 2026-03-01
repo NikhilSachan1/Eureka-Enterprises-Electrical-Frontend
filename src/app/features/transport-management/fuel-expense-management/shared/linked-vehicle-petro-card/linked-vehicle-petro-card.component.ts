@@ -1,9 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ICONS } from '@shared/constants';
-import {
-  ILinkedUserVehicleDetailDto,
-  ILinkedVehiclePetroCardDto,
-} from '../../types/fuel-expense.dto';
+import { ILinkedUserVehicleDetailGetResponseDto } from '../../types/fuel-expense.dto';
 
 @Component({
   selector: 'app-linked-vehicle-petro-card',
@@ -15,6 +12,6 @@ import {
 export class LinkedVehiclePetroCardComponent {
   ALL_ICONS = ICONS;
 
-  vehicle = input.required<ILinkedUserVehicleDetailDto>();
-  petroCard = input<ILinkedVehiclePetroCardDto | null>(null);
+  linkedUserVehicleDetail =
+    input.required<ILinkedUserVehicleDetailGetResponseDto>();
 }

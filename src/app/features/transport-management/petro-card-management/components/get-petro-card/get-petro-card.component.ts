@@ -143,10 +143,10 @@ export class GetPetroCardComponent implements OnInit {
           ? EPetroCardStatus.ALLOCATED
           : EPetroCardStatus.AVAILABLE,
         vehicleNumber: record.allocatedVehicle
-          ? record.allocatedVehicle.number
+          ? record.allocatedVehicle.registrationNo
           : null,
         vehicleName: record.allocatedVehicle
-          ? record.allocatedVehicle.name
+          ? record.allocatedVehicle.registrationNo
           : null,
         addedBy:
           `${record.createdByUser.firstName} ${record.createdByUser.lastName}`.trim(),
@@ -226,7 +226,7 @@ export class GetPetroCardComponent implements OnInit {
       },
       {
         label: 'Allocated To',
-        value: selectedRow.allocatedVehicle?.name ?? '-',
+        value: selectedRow.allocatedVehicle?.registrationNo ?? '-',
       },
     ];
     return {

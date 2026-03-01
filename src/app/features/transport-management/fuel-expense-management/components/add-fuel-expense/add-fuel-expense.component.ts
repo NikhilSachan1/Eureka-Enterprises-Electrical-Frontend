@@ -4,11 +4,13 @@ import {
   computed,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import {
   IFuelExpenseAddFormDto,
   IFuelExpenseAddUIFormDto,
+  ILinkedUserVehicleDetailGetResponseDto,
 } from '../../types/fuel-expense.dto';
 import { RouterNavigationService } from '@shared/services';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
@@ -23,6 +25,7 @@ import { LinkedVehiclePetroCardComponent } from '@features/transport-management/
 import { ReactiveFormsModule } from '@angular/forms';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ADD_FUEL_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/add-fuel-expense.mock-data';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-add-fuel-expense',
@@ -43,20 +46,15 @@ export class AddFuelExpenseComponent
 {
   private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-
-  //TODO: Remove this mock data
-  protected readonly linkedVehicle = {
-    registrationNo: 'DL 01 AB 1234',
-    brand: 'Maruti Suzuki',
-    model: 'Swift Dzire',
-    fuelType: 'Petrol',
-  };
-
-  protected readonly linkedPetroCard = null;
+  protected readonly linkedUserVehicleDetail =
+    signal<ILinkedUserVehicleDetailGetResponseDto | null>(null);
 
   ngOnInit(): void {
+    this.loadLinkedUserVehicleDetailFromRoute();
+
     this.form = this.formService.createForm<IFuelExpenseAddUIFormDto>(
       ADD_FUEL_EXPENSE_FORM_CONFIG,
       {
@@ -65,6 +63,35 @@ export class AddFuelExpenseComponent
     );
 
     this.loadMockData(ADD_FUEL_EXPENSE_PREFILLED_DATA);
+  }
+
+  private loadLinkedUserVehicleDetailFromRoute(): void {
+    const linkedUserVehicleDetailFromResolver = this.activatedRoute.snapshot
+      .data[
+      'linkedUserVehicleDetail'
+    ] as ILinkedUserVehicleDetailGetResponseDto;
+
+    const hasValidVehicle =
+      linkedUserVehicleDetailFromResolver?.vehicle &&
+      Object.keys(linkedUserVehicleDetailFromResolver.vehicle).length > 0;
+
+    if (!linkedUserVehicleDetailFromResolver || !hasValidVehicle) {
+      this.logger.logUserAction(
+        'No linked user vehicle detail or vehicle is empty'
+      );
+      this.notificationService.warning(
+        'No vehicle linked for this route. Redirecting to ledger.'
+      );
+      const routeSegments = [
+        ROUTE_BASE_PATHS.TRANSPORT,
+        ROUTE_BASE_PATHS.FUEL,
+        ROUTES.FUEL.LEDGER,
+      ];
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+      return;
+    }
+
+    this.linkedUserVehicleDetail.set(linkedUserVehicleDetailFromResolver);
   }
 
   protected override handleSubmit(): void {
@@ -76,8 +103,8 @@ export class AddFuelExpenseComponent
     const formData = this.form.getData();
     return {
       ...formData,
-      vehicleName: '',
-      cardName: null,
+      vehicleName: this.linkedUserVehicleDetail()?.vehicle?.id ?? '',
+      cardName: this.linkedUserVehicleDetail()?.card?.id ?? null,
     };
   }
 
