@@ -17,7 +17,7 @@ export const TRANSPORT_MANAGEMENT_ROUTES: Routes = [
   {
     path: ROUTE_BASE_PATHS.VEHICLE_SERVICE,
     loadChildren: () =>
-      import('./vehicle-management/vehicle-service.routes').then(
+      import('./vehicle-service-management/vehicle-service.routes').then(
         m => m.VEHICLE_SERVICE_MANAGEMENT_ROUTES
       ),
   },

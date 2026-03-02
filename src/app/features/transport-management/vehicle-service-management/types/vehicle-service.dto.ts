@@ -14,7 +14,7 @@ import {
   VehicleServiceGetBaseResponseSchema,
   VehicleServiceGetResponseSchema,
   VehicleServiceGetStatsResponseSchema,
-} from '../schemas/get-vehicle-service.schema';
+} from '../../vehicle-service-management/schemas/get-vehicle-service.schema';
 
 /**
  * Vehicle Service Add

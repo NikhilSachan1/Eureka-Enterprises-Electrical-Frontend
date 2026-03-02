@@ -7,7 +7,7 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { transformDateFormat } from '@shared/utility';
-import { VehicleBaseSchema } from './base-vehicle.schema';
+import { VehicleBaseSchema } from '../../vehicle-management/schemas/base-vehicle.schema';
 import { VehicleServiceBaseSchema } from './base-vehicle-service.schema';
 
 export const { createdAt, updatedAt } = AuditSchema.shape;
