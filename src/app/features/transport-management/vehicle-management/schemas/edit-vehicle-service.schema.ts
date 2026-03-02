@@ -5,7 +5,7 @@ import { transformDateFormat } from '@shared/utility';
 export const VehicleServiceEditRequestSchema =
   VehicleServiceUpsertShapeSchema.strict().transform(data => {
     return {
-      vehicleMasterId: data.vehicleName,
+      // vehicleMasterId: data.vehicleName, //ToDo: Enable it
       serviceDate: transformDateFormat(data.serviceDate),
       odometerReading: data.odometerReading,
       serviceType: data.serviceType,

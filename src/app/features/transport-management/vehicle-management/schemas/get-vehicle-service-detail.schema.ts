@@ -1,6 +1,7 @@
-import { UserSchema, uuidField } from '@shared/schemas';
+import { onlyDateStringField, UserSchema, uuidField } from '@shared/schemas';
 import { z } from 'zod';
 import { VehicleServiceBaseSchema } from './base-vehicle-service.schema';
+import { makeFieldsNullable } from '@shared/utility';
 
 export const VehicleServiceDetailGetRequestSchema = z
   .object({
@@ -15,6 +16,7 @@ export const VehicleServiceDetailGetRequestSchema = z
 
 export const VehicleServiceDetailGetResponseSchema =
   VehicleServiceBaseSchema.extend({
+    serviceDate: onlyDateStringField,
     serviceFiles: z.array(
       z.object({
         id: uuidField,
@@ -24,7 +26,7 @@ export const VehicleServiceDetailGetResponseSchema =
       })
     ),
     createdByUser: UserSchema,
-    // updatedByUser: makeFieldsNullable(UserSchema).nullable(),
+    updatedByUser: makeFieldsNullable(UserSchema).nullable(),
   })
     .strict()
     .transform(({ serviceFiles, ...rest }) => ({

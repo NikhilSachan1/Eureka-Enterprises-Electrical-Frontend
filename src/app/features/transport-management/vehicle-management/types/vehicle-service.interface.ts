@@ -1,4 +1,7 @@
-import { IVehicleServiceGetBaseResponseDto } from './vehicle-service.dto';
+import {
+  IVehicleServiceDetailGetResponseDto,
+  IVehicleServiceGetBaseResponseDto,
+} from './vehicle-service.dto';
 
 export interface IVehicleService
   extends Pick<
@@ -14,4 +17,9 @@ export interface IVehicleService
   vehicleName: string;
   serviceFiles: string[];
   originalRawData: IVehicleServiceGetBaseResponseDto;
+}
+
+export interface IVehicleServiceDetailResolverResponse
+  extends IVehicleServiceDetailGetResponseDto {
+  preloadedFiles?: File[];
 }

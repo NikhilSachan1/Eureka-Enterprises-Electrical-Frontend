@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetVehicleServiceDetailResolver } from './resolvers/get-vehicle-service-detail.resolver';
 
 export const VEHICLE_SERVICE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -22,10 +23,13 @@ export const VEHICLE_SERVICE_MANAGEMENT_ROUTES: Routes = [
       ).then(m => m.AddVehicleServiceComponent),
   },
   {
-    path: `${ROUTES.VEHICLE_SERVICE.EDIT}/:serviceId`,
+    path: `${ROUTES.VEHICLE_SERVICE.EDIT}/:vehicleServiceId`,
     loadComponent: () =>
       import(
         './components/edit-vehicle-service/edit-vehicle-service.component'
       ).then(m => m.EditVehicleServiceComponent),
+    resolve: {
+      vehicleServiceDetail: GetVehicleServiceDetailResolver,
+    },
   },
 ];

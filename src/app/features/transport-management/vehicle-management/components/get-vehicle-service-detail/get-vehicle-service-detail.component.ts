@@ -22,6 +22,8 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
+import { APP_CONFIG } from '@core/config';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-get-vehicle-service-detail',
@@ -90,44 +92,41 @@ export class GetVehicleServiceDetailComponent extends DrawerDetailBase {
     const responseData = [response];
     const mappedDetails = responseData.map(record => {
       const entryData: IDataViewDetails['entryData'] = [
-        // {
-        //   label: 'Date',
-        //   value: record.expenseDate,
-        //   type: EDataType.DATE,
-        //   format: APP_CONFIG.DATE_FORMATS.DEFAULT,
-        // },
-        // {
-        //   label: 'Category',
-        //   value: getMappedValueFromArrayOfObjects(
-        //     this.appConfigurationService.expenseCategories(),
-        //     record.category
-        //   ),
-        // },
-        // {
-        //   label: 'Amount',
-        //   value: record.amount,
-        //   type: EDataType.CURRENCY,
-        //   format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-        //   metadata: {
-        //     transactionType: record.transactionType,
-        //   },
-        // },
-        // {
-        //   label: 'Payment Mode',
-        //   value: getMappedValueFromArrayOfObjects(
-        //     this.appConfigurationService.expensePaymentMethods(),
-        //     record.paymentMode
-        //   ),
-        // },
-        // {
-        //   label: 'Transaction ID',
-        //   value: record.transactionId,
-        // },
-        // {
-        //   label: 'Attachment(s)',
-        //   value: record.fileKeys,
-        //   type: EDataType.ATTACHMENTS,
-        // },
+        {
+          label: 'Service Date',
+          value: record.serviceDate,
+          type: EDataType.DATE,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        },
+        {
+          label: 'Service Type',
+          value: getMappedValueFromArrayOfObjects(
+            this.appConfigService.vehicleServiceTypes(),
+            record.serviceType
+          ),
+        },
+        {
+          label: 'Service Cost',
+          value: record.serviceCost,
+          type: EDataType.CURRENCY,
+          format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+        },
+        {
+          label: 'Odometer Reading',
+          value: record.odometerReading,
+          suffix: 'km',
+          type: EDataType.NUMBER,
+          format: APP_CONFIG.NUMBER_FORMATS.FLEXIBLE_DECIMALS,
+        },
+        {
+          label: 'Service Center Name',
+          value: record.serviceCenterName,
+        },
+        {
+          label: 'Attachment(s)',
+          value: record.documentKeys,
+          type: EDataType.ATTACHMENTS,
+        },
       ];
 
       return {
@@ -137,10 +136,10 @@ export class GetVehicleServiceDetailComponent extends DrawerDetailBase {
           date: record.createdAt,
           notes: record.remarks,
         },
-        // updatedBy: {
-        //   user: record.updatedByUser,
-        //   date: record.updatedAt,
-        // },
+        updatedBy: {
+          user: record.updatedByUser,
+          date: record.updatedAt,
+        },
       };
     });
 
