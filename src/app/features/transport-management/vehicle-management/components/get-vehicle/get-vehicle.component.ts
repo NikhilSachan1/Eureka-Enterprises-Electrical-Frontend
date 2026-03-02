@@ -177,6 +177,8 @@ export class GetVehicleComponent implements OnInit {
           this.appConfigurationService.vehicleServiceStatuses(),
           record.serviceDueStatus
         ),
+        petroCardNumber: record.associatedCard?.cardNumber ?? null,
+        petroCardName: record.associatedCard?.cardName ?? null,
         originalRawData: record,
       };
     });
@@ -282,9 +284,18 @@ export class GetVehicleComponent implements OnInit {
       actionType === EButtonActionType.HANDOVER_ACCEPTED ||
       actionType === EButtonActionType.HANDOVER_REJECTED ||
       actionType === EButtonActionType.HANDOVER_CANCELLED ||
-      actionType === EButtonActionType.DEALLOCATE
+      actionType === EButtonActionType.DEALLOCATE ||
+      actionType === EButtonActionType.UNLINK ||
+      actionType === EButtonActionType.LINK
     ) {
       dynamicComponentInputs.dialogActionType = actionType;
+    }
+
+    if (
+      actionType === EButtonActionType.LINK ||
+      actionType === EButtonActionType.UNLINK
+    ) {
+      dynamicComponentInputs.sourceComponent = 'vehicle';
     }
 
     const recordDetail = this.prepareVehicleRecordDetail(selectedFirstRow);
@@ -313,6 +324,10 @@ export class GetVehicleComponent implements OnInit {
           this.appConfigurationService.vehicleFuelTypes(),
           selectedRow.fuelType
         ),
+      },
+      {
+        label: 'Petro Card',
+        value: `${selectedRow.associatedCard?.cardName} (${selectedRow.associatedCard?.cardNumber})`,
       },
     ];
     return {

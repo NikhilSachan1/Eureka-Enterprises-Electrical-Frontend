@@ -106,6 +106,9 @@ export const appConfig: ApplicationConfig = {
         lastValueFrom(appConfigurationService.loadAllAppRoles().pipe(take(1))),
         lastValueFrom(appConfigurationService.loadAssetList().pipe(take(1))),
         lastValueFrom(appConfigurationService.loadVehicleList().pipe(take(1))),
+        lastValueFrom(
+          appConfigurationService.loadPetroCardList().pipe(take(1))
+        ),
         lastValueFrom(appConfigurationService.loadCompanyList().pipe(take(1))),
         lastValueFrom(
           appConfigurationService.loadContractorList().pipe(take(1))

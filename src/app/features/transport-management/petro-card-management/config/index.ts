@@ -3,3 +3,4 @@ export { ADD_PETRO_CARD_FORM_CONFIG } from './form/add-petro-card.config';
 export { EDIT_PETRO_CARD_FORM_CONFIG } from './form/edit-petro-card.config';
 export { PETRO_CARD_TABLE_ENHANCED_CONFIG } from './table/get-petro-card.config';
 export { SEARCH_FILTER_PETRO_CARD_FORM_CONFIG } from './form/search-filter-petro-card.config';
+export { LINK_PETRO_CARD_FORM_CONFIG } from './form/link-petro-card.config';

@@ -9,6 +9,8 @@ import {
   PetroCardGetBaseResponseSchema,
   PetroCardGetStatsResponseSchema,
   PetroCardAddResponseSchema,
+  PetroCardLinkResponseSchema,
+  PetroCardLinkRequestSchema,
 } from '../schemas';
 import { z } from 'zod';
 
@@ -58,4 +60,16 @@ export type IPetroCardGetBaseResponseDto = z.infer<
 >;
 export type IPetroCardGetStatsResponseDto = z.infer<
   typeof PetroCardGetStatsResponseSchema
+>;
+
+/*
+ * Link Petro Card
+ */
+export type IPetroCardLinkRequestDto = z.infer<
+  typeof PetroCardLinkRequestSchema
+>;
+export type IPetroCardLinkFormDto = z.input<typeof PetroCardLinkRequestSchema>;
+export type IPetroCardLinkUIFormDto = Omit<IPetroCardLinkFormDto, 'action'>;
+export type IPetroCardLinkResponseDto = z.infer<
+  typeof PetroCardLinkResponseSchema
 >;

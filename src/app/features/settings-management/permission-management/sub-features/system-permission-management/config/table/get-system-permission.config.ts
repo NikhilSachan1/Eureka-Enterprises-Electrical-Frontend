@@ -7,6 +7,7 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
+import { ICONS } from '@shared/constants';
 
 export const SYSTEM_PERMISSION_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No system permissions found.',
@@ -20,6 +21,8 @@ export const SYSTEM_PERMISSION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConf
       bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
       subtitle: { field: 'permissionDescription' },
       primaryFieldHighlight: true,
+      icon: ICONS.SETTINGS.COG,
+      showImage: true,
       showSort: false,
     },
     {

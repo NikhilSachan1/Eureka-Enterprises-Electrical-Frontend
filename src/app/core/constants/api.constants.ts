@@ -93,6 +93,7 @@ export const API_ROUTES = {
     ADD: 'cards',
     DELETE: 'cards/bulk',
     EDIT: (petroCardId: string) => `cards/${petroCardId}`,
+    LINK: 'cards/action',
   },
   PAYROLL: {
     GENERATE: 'payroll/generate-bulk',

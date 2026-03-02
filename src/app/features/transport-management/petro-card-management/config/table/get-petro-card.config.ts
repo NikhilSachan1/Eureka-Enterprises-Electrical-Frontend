@@ -1,5 +1,6 @@
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import {
+  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -7,6 +8,7 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { IPetroCardGetResponseDto } from '../../types/petro-card.dto';
+import { ICONS } from '@shared/constants';
 
 export const PETRO_CARD_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No petro card record found.',
@@ -17,6 +19,9 @@ export const PETRO_CARD_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
     {
       field: 'cardName',
       header: 'Card Name',
+      icon: ICONS.COMMON.CREDIT_CARD,
+      showImage: true,
+      dummyImageField: 'cardName',
       showSort: false,
     },
     {
@@ -71,6 +76,14 @@ export const PETRO_CARD_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Petro Card',
+  },
+  {
+    id: EButtonActionType.LINK,
+    tooltip: 'Link to Vehicle',
+  },
+  {
+    id: EButtonActionType.UNLINK,
+    tooltip: 'Unlink from Vehicle',
   },
 ];
 

@@ -1,0 +1,20 @@
+@if (dialogActionType() === EButtonActionTypeEnum.LINK) {
+  <form
+    [formGroup]="form.formGroup"
+    class="form"
+  >
+    @if (showPetroCardField() && form.fieldConfigs.cardNumber) {
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.cardNumber"
+      />
+    }
+
+    @if (showVehicleField() && form.fieldConfigs.vehicleName) {
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.vehicleName"
+      />
+    }
+  </form>
+}

@@ -238,4 +238,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // ═══════════════════════════════════════════════════════════════════════════
   draft: { icon: ICONS.ACTIONS.TIMES, severity: 'warning' },
   published: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'info' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PETRO CARD STATUS
+  // ═══════════════════════════════════════════════════════════════════════════
+  link: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
+  unlink: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
 };

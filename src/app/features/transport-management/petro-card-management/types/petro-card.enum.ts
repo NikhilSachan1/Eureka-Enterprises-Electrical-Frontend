@@ -6,3 +6,8 @@ export enum EPetroCardStatus {
   ALLOCATED = 'Allocated',
   AVAILABLE = 'Available',
 }
+
+export enum EPetroCardLinkAction {
+  LINK = 'ASSIGN',
+  UNLINK = 'UNASSIGN',
+}

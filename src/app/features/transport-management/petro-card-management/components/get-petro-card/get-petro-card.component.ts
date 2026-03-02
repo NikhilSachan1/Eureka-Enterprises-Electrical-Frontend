@@ -196,8 +196,19 @@ export class GetPetroCardComponent implements OnInit {
       },
     };
 
-    if (actionType === EButtonActionType.DELETE) {
+    if (
+      actionType === EButtonActionType.DELETE ||
+      actionType === EButtonActionType.UNLINK ||
+      actionType === EButtonActionType.LINK
+    ) {
       dynamicComponentInputs.dialogActionType = actionType;
+    }
+
+    if (
+      actionType === EButtonActionType.LINK ||
+      actionType === EButtonActionType.UNLINK
+    ) {
+      dynamicComponentInputs.sourceComponent = 'petro-card';
     }
 
     const recordDetail = this.preparePetroCardRecordDetail(selectedFirstRow);
@@ -225,7 +236,7 @@ export class GetPetroCardComponent implements OnInit {
         value: selectedRow.cardNumber,
       },
       {
-        label: 'Allocated To',
+        label: 'Allocated Vehicle',
         value: selectedRow.allocatedVehicle?.registrationNo ?? '-',
       },
     ];

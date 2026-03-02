@@ -71,6 +71,7 @@ export const CONFIGURATION_KEYS = {
   },
   PETRO_CARD: {
     STATUS: 'status',
+    PETRO_CARD_LIST: 'petro_card_list',
   },
   PAYROLL: {
     STATUS: 'payroll_statuses',

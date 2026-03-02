@@ -10,6 +10,8 @@ import {
   IPetroCardEditResponseDto,
   IPetroCardGetFormDto,
   IPetroCardGetResponseDto,
+  IPetroCardLinkFormDto,
+  IPetroCardLinkResponseDto,
 } from '../types/petro-card.dto';
 import { API_ROUTES } from '@core/constants';
 import {
@@ -21,6 +23,8 @@ import {
   PetroCardEditResponseSchema,
   PetroCardGetRequestSchema,
   PetroCardGetResponseSchema,
+  PetroCardLinkRequestSchema,
+  PetroCardLinkResponseSchema,
 } from '../schemas';
 
 @Injectable({
@@ -147,6 +151,35 @@ export class PetroCardService {
             );
           } else {
             this.logger.logUserAction('Get Petro Card List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  linkPetroCard(
+    formData: IPetroCardLinkFormDto
+  ): Observable<IPetroCardLinkResponseDto> {
+    this.logger.logUserAction('Link Petro Card Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.PETRO_CARD.LINK,
+        {
+          response: PetroCardLinkResponseSchema,
+          request: PetroCardLinkRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IPetroCardLinkResponseDto) => {
+          this.logger.logUserAction('Link Petro Card Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Link Petro Card Error', error);
+          } else {
+            this.logger.logUserAction('Link Petro Card Error', error);
           }
           return throwError(() => error);
         })

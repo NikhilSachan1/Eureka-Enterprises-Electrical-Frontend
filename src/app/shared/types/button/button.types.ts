@@ -77,4 +77,6 @@ export enum EButtonActionType {
   PAID = 'paid',
   GENERATE = 'generate',
   ANALYZE = 'analyze',
+  LINK = 'link',
+  UNLINK = 'unlink',
 }

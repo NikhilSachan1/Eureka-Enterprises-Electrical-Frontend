@@ -8,6 +8,7 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { IVehicleGetResponseDto } from '../../types/vehicle.dto';
+import { ICONS } from '@shared/constants';
 
 export const VEHICLE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No vehicle record found.',
@@ -19,16 +20,18 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'Vehicle Number',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
     subtitle: { field: 'vehicleName' },
-    showImage: false,
+    icon: ICONS.COMMON.CAR,
+    showImage: true,
     dummyImageField: 'vehicleName',
     primaryFieldHighlight: true,
   },
   {
-    field: 'petroCardNumber',
+    field: 'petroCardName',
     header: 'Petro Card',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    subtitle: { field: 'petroCardName' },
-    showImage: false,
+    subtitle: { field: 'petroCardNumber' },
+    showImage: true,
+    icon: ICONS.COMMON.CREDIT_CARD,
     dummyImageField: 'petroCardName',
     primaryFieldHighlight: true,
     showSort: false,
@@ -147,6 +150,14 @@ export const VEHICLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Vehicle',
+  },
+  {
+    id: EButtonActionType.LINK,
+    tooltip: 'Link Petro Card',
+  },
+  {
+    id: EButtonActionType.UNLINK,
+    tooltip: 'Unlink Petro Card',
   },
 ];
 

@@ -18,3 +18,7 @@ export {
   PetroCardGetBaseResponseSchema,
   PetroCardGetStatsResponseSchema,
 } from './get-petro-card.schema';
+export {
+  PetroCardLinkRequestSchema,
+  PetroCardLinkResponseSchema,
+} from './link-petro-card.schema';

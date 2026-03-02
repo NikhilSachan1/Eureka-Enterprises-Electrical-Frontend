@@ -40,6 +40,8 @@ import { ICompanyGetResponseDto } from '@features/site-management/company-manage
 import { CompanyService } from '@features/site-management/company-management/services/company.service';
 import { IContractorGetResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
 import { ContractorService } from '@features/site-management/contractor-management/services/contractor.service';
+import { PetroCardService } from '@features/transport-management/petro-card-management/services/petro-card.service';
+import { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -54,6 +56,7 @@ export class AppConfigurationService {
   private readonly vehicleService = inject(VehicleService);
   private readonly companyService = inject(CompanyService);
   private readonly contractorService = inject(ContractorService);
+  private readonly petroCardService = inject(PetroCardService);
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
 
@@ -108,7 +111,7 @@ export class AppConfigurationService {
   private readonly _locationList = signal<IOptionDropdown[]>([]);
   private readonly _assetList = signal<IOptionDropdown[]>([]);
   private readonly _vehicleList = signal<IOptionDropdown[]>([]);
-
+  private readonly _petroCardList = signal<IOptionDropdown[]>([]);
   // Public readonly signals for common use
   readonly genders = this._genders.asReadonly();
   readonly employmentTypes = this._employmentTypes.asReadonly();
@@ -162,6 +165,7 @@ export class AppConfigurationService {
   readonly locationList = this._locationList.asReadonly();
   readonly assetList = this._assetList.asReadonly();
   readonly vehicleList = this._vehicleList.asReadonly();
+  readonly petroCardList = this._petroCardList.asReadonly();
 
   private readonly STATIC_FALLBACK_DATA: Record<
     string,
@@ -354,6 +358,10 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PETRO_CARD.STATUS,
         signal: this._petroCardStatus,
+      },
+      {
+        key: CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
+        signal: this._petroCardList,
       },
     ],
     [MODULE_NAMES.PAYROLL]: [
@@ -615,6 +623,36 @@ export class AppConfigurationService {
       }),
       catchError(error => {
         this.logger.logUserAction('Failed to load Vehicle List', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  loadPetroCardList(): Observable<IPetroCardGetResponseDto> {
+    this.logger.logUserAction('Loading app data - Petro Card List');
+
+    return this.petroCardService.getPetroCardList().pipe(
+      tap(response => {
+        this.logger.logUserAction('Petro Card List loaded successfully', {
+          count: response.totalRecords,
+        });
+
+        const petroCardList: IOptionDropdown[] = [];
+
+        response.records.forEach(petroCard => {
+          const dropdownItem: IOptionDropdown = {
+            label: `${petroCard.cardName} (${petroCard.cardNumber})`.trim(),
+            value: petroCard.id,
+          };
+
+          // Add to full petro card list
+          petroCardList.push(dropdownItem);
+        });
+
+        this._petroCardList.set(petroCardList);
+      }),
+      catchError(error => {
+        this.logger.logUserAction('Failed to load Petro Card List', error);
         return throwError(() => error);
       })
     );

@@ -1,5 +1,6 @@
 import { IAssetGetResponseDto } from '@features/asset-management/types/asset.dto';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
+import { ICONS } from '@shared/constants';
 import {
   EButtonActionType,
   EDataType,
@@ -19,7 +20,8 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'Asset Name',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
     subtitle: { field: 'assetId' },
-    showImage: false,
+    showImage: true,
+    icon: ICONS.ASSET.BOX,
     dummyImageField: 'name',
     primaryFieldHighlight: true,
   },
