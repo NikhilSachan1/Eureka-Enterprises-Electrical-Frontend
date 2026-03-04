@@ -1,11 +1,11 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
-@if (linkedUserVehicleDetail(); as detail) {
-  <app-linked-vehicle-petro-card
-    class="block mb-8"
-    [linkedUserVehicleDetail]="detail"
-  />
-}
+<app-linked-vehicle-petro-card
+  class="block mb-8"
+  [routeDataKey]="routeDataKey"
+  [redirectRoute]="redirectRoute"
+  (linkedUserVehicleDetailChange)="linkedUserVehicleDetail.set($event)"
+/>
 
 <form
   (ngSubmit)="onSubmit()"

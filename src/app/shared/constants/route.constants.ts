@@ -13,6 +13,7 @@ export const ROUTE_BASE_PATHS = {
   ASSET: 'asset',
   VEHICLE: 'vehicle',
   VEHICLE_SERVICE: 'service',
+  VEHICLE_READING: 'reading',
   PAYROLL: 'payroll',
   DASHBOARD: 'dashboard',
   PETRO_CARD: 'petro-card',
@@ -128,6 +129,11 @@ export const ROUTES = {
   },
 
   VEHICLE_SERVICE: {
+    LIST: `list`,
+    ADD: `add`,
+    EDIT: `edit`,
+  },
+  VEHICLE_READING: {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,

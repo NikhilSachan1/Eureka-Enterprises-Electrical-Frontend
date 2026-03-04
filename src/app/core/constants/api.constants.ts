@@ -88,6 +88,13 @@ export const API_ROUTES = {
     GET_VEHICLE_SERVICE_BY_ID: (vehicleServiceId: string) =>
       `vehicle-service/${vehicleServiceId}`,
   },
+  VEHICLE_READING: {
+    ADD: 'vehicle-logs',
+    LIST: 'vehicle-logs',
+    GET_VEHICLE_READING_BY_ID: (vehicleReadingId: string) =>
+      `vehicle-logs/${vehicleReadingId}`,
+    EDIT: (vehicleReadingId: string) => `vehicle-logs/${vehicleReadingId}`,
+  },
   PETRO_CARD: {
     LIST: 'cards',
     ADD: 'cards',

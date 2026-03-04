@@ -1,0 +1,22 @@
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [rowActions]="table.rowActions()"
+  (rowActionClick)="handleVehicleReadingTableActionClick($any($event))"
+  (filterData)="onTableStateChange($event)"
+/>

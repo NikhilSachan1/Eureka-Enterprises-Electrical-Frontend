@@ -29,6 +29,13 @@ export const TRANSPORT_MANAGEMENT_ROUTES: Routes = [
       ),
   },
   {
+    path: ROUTE_BASE_PATHS.VEHICLE_READING,
+    loadChildren: () =>
+      import('./vehicle-reading-management/vehicle-reading.routes').then(
+        m => m.VEHICLE_READING_MANAGEMENT_ROUTES
+      ),
+  },
+  {
     path: ROUTE_BASE_PATHS.FUEL,
     loadChildren: () =>
       import('./fuel-expense-management/fuel-expense.routes').then(

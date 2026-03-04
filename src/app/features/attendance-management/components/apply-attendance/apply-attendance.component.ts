@@ -15,12 +15,7 @@ import {
   IAttendanceCurrentStatusGetResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import {
-  EUserRole,
-  PERMISSION_KEYS,
-  ROUTE_BASE_PATHS,
-  ROUTES,
-} from '@shared/constants';
+import { EUserRole, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { ICONS } from '@shared/constants/icon.constants';
 import {
   EButtonActionType,
@@ -80,7 +75,6 @@ export class ApplyAttendanceComponent
   protected readonly todayDate = new Date();
   protected readonly ALL_APPLY_ATTENDANCE_ACTIONS = EApplyAttendanceAction;
   protected readonly ALL_ICONS = ICONS;
-  protected readonly ALL_PERMISSION_KEYS = PERMISSION_KEYS;
   protected readonly APP_CONFIG = APP_CONFIG;
 
   ngOnInit(): void {

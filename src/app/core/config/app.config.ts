@@ -49,6 +49,7 @@ export const APP_CONFIG = {
   // Time Formats
   TIME_FORMATS: {
     DEFAULT: 'hh:mm a',
+    API: 'HH:mm',
     WITH_SECONDS: 'HH:mm:ss',
   },
 

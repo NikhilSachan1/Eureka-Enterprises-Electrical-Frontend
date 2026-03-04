@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   OnInit,
   signal,
@@ -13,7 +12,6 @@ import { FORCE_FUEL_EXPENSE_FORM_CONFIG } from '../../config';
 import {
   IFuelExpenseForceFormDto,
   IFuelExpenseForceUIFormDto,
-  ILinkedUserVehicleDetailGetFormDto,
   ILinkedUserVehicleDetailGetResponseDto,
 } from '../../types/fuel-expense.dto';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
@@ -53,17 +51,10 @@ export class ForceFuelExpenseComponent
   protected readonly linkedUserVehicleDetail =
     signal<ILinkedUserVehicleDetailGetResponseDto | null>(null);
 
-  constructor() {
-    super();
-    effect(() => {
-      if (this.trackedFuelExpenseFields?.employeeName) {
-        const employeeName = this.trackedFuelExpenseFields.employeeName();
-        if (employeeName && typeof employeeName === 'string') {
-          this.loadLinkedUserVehicleDetail(employeeName);
-        }
-      }
-    });
-  }
+  protected readonly selectedEmployeeName = computed(() => {
+    const empName = this.trackedFuelExpenseFields?.employeeName?.();
+    return empName && typeof empName === 'string' ? empName : null;
+  });
 
   ngOnInit(): void {
     this.form = this.formService.createForm<IFuelExpenseForceUIFormDto>(
@@ -85,54 +76,6 @@ export class ForceFuelExpenseComponent
       );
 
     // this.loadMockData(FORCE_EXPENSE_PREFILLED_DATA);
-  }
-
-  private loadLinkedUserVehicleDetail(employeeName: string): void {
-    this.loadingService.show({
-      title: 'Loading Linked User Vehicle Detail',
-      message: 'Please wait while we load the linked user vehicle detail...',
-    });
-
-    const paramData =
-      this.prepareParamDataForLinkedUserVehicleDetail(employeeName);
-
-    this.fuelExpenseService
-      .getLinkedUserVehicleDetail(paramData)
-      .pipe(
-        finalize(() => {
-          this.loadingService.hide();
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response: ILinkedUserVehicleDetailGetResponseDto) => {
-          const hasValidVehicle =
-            response?.vehicle && Object.keys(response.vehicle).length > 0;
-          if (!hasValidVehicle) {
-            this.linkedUserVehicleDetail.set(null);
-            this.notificationService.error(
-              'No vehicle linked for this employee.'
-            );
-            return;
-          }
-          this.linkedUserVehicleDetail.set(response);
-        },
-        error: error => {
-          this.linkedUserVehicleDetail.set(null);
-          this.notificationService.error(
-            'Failed to load linked vehicle detail.'
-          );
-          this.logger.error('Failed to load linked user vehicle detail', error);
-        },
-      });
-  }
-
-  private prepareParamDataForLinkedUserVehicleDetail(
-    employeeName: string
-  ): ILinkedUserVehicleDetailGetFormDto {
-    return {
-      employeeName,
-    };
   }
 
   protected override handleSubmit(): void {

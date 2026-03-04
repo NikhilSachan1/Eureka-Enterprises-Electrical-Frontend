@@ -1,0 +1,93 @@
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<app-linked-vehicle-petro-card
+  class="block mb-8"
+  [routeDataKey]="routeDataKey"
+  [redirectRoute]="redirectRoute"
+  [employeeName]="selectedEmployeeName()"
+  [showCard]="false"
+  (linkedUserVehicleDetailChange)="linkedUserVehicleDetail.set($event)"
+/>
+
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    @if (showEmployeeField) {
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.employeeName"
+      />
+    }
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.readingDate"
+    />
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.startTime"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.startLocation"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.startOdometerReading"
+    />
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.endTime"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.endLocation"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.endOdometerReading"
+    />
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.startOdometerReadingAttachments"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.endOdometerReadingAttachments"
+    />
+  </div>
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.remarks"
+  />
+
+  <div class="button-container">
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    />
+
+    <app-button
+      [buttonConfig]="form.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+    />
+  </div>
+</form>

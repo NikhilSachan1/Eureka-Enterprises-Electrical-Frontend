@@ -155,6 +155,23 @@ export const appMenu: ApplicationMenu = {
               ],
             },
             {
+              label: 'Vehicle Readings',
+              icon: ICONS.ASSET.CAR,
+              basePath: ROUTE_BASE_PATHS.VEHICLE_READING,
+              children: [
+                {
+                  label: 'Vehicle Reading List',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.VEHICLE_READING.LIST,
+                },
+                {
+                  label: 'Add Vehicle Reading',
+                  icon: ICONS.COMMON.PLUS,
+                  routerLink: ROUTES.VEHICLE_READING.ADD,
+                },
+              ],
+            },
+            {
               label: 'Petro Cards',
               icon: ICONS.COMMON.CREDIT_CARD,
               basePath: ROUTE_BASE_PATHS.PETRO_CARD,
