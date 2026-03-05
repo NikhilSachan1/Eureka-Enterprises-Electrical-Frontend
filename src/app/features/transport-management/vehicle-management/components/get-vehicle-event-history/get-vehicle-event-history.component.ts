@@ -20,7 +20,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
   IEnhancedTable,
   IEnhancedTableConfig,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
@@ -77,7 +77,7 @@ export class GetVehicleEventHistoryComponent implements OnInit {
     signal<IVehicleEventHistoryGetStatsResponseDto | null>(null);
   private readonly vehicleId = signal<string>('');
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
   protected vehicleDetails = signal<
     IVehicleEventHistoryGetResponseDto['records'][number]['vehicle'] | null
   >(null);
@@ -183,7 +183,7 @@ export class GetVehicleEventHistoryComponent implements OnInit {
     this.loadVehicleEventHistory();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.vehicleEventHistoryStats();
     if (!stats) {
       return [];
@@ -191,40 +191,32 @@ export class GetVehicleEventHistoryComponent implements OnInit {
 
     return [
       {
-        label: 'Total Events',
-        value: stats.total,
+        id: 'overview',
+        title: 'Overview',
+        icon: 'pi pi-chart-bar',
+        metrics: [{ label: 'Total Events', value: stats.total }],
       },
       {
-        label: 'Times Marked Available',
-        value: stats.byEventType.AVAILABLE,
+        id: 'status',
+        title: 'Status Events',
+        icon: 'pi pi-car',
+        metrics: [
+          { label: 'Available', value: stats.byEventType.AVAILABLE },
+          { label: 'Assigned', value: stats.byEventType.ASSIGNED },
+          { label: 'Deallocated', value: stats.byEventType.DEALLOCATED },
+          { label: 'Updated', value: stats.byEventType.UPDATED },
+        ],
       },
       {
-        label: 'Times Marked Assigned',
-        value: stats.byEventType.ASSIGNED,
-      },
-      {
-        label: 'Times Marked Deallocated',
-        value: stats.byEventType.DEALLOCATED,
-      },
-      {
-        label: 'Times Marked Updated',
-        value: stats.byEventType.UPDATED,
-      },
-      {
-        label: 'Times Marked Handover Initiated',
-        value: stats.byEventType.HANDOVER_INITIATED,
-      },
-      {
-        label: 'Times Marked Handover Accepted',
-        value: stats.byEventType.HANDOVER_ACCEPTED,
-      },
-      {
-        label: 'Times Marked Handover Rejected',
-        value: stats.byEventType.HANDOVER_REJECTED,
-      },
-      {
-        label: 'Times Marked Handover Cancelled',
-        value: stats.byEventType.HANDOVER_CANCELLED,
+        id: 'handover',
+        title: 'Handover Events',
+        icon: 'pi pi-sync',
+        metrics: [
+          { label: 'Initiated', value: stats.byEventType.HANDOVER_INITIATED },
+          { label: 'Accepted', value: stats.byEventType.HANDOVER_ACCEPTED },
+          { label: 'Rejected', value: stats.byEventType.HANDOVER_REJECTED },
+          { label: 'Cancelled', value: stats.byEventType.HANDOVER_CANCELLED },
+        ],
       },
     ];
   }

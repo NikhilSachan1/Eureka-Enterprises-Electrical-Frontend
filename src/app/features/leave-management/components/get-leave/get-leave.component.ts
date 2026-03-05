@@ -37,7 +37,7 @@ import {
   IDataViewDetailsWithEntity,
   IEnhancedTable,
   IEnhancedTableConfig,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -87,7 +87,7 @@ export class GetLeaveComponent implements OnInit {
   private readonly leaveStats = signal<ILeaveGetStatsResponseDto | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -161,19 +161,25 @@ export class GetLeaveComponent implements OnInit {
     this.loadLeaveList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.leaveStats();
     if (!stats) {
       return [];
     }
 
-    const leaveStats = [
-      { label: 'Total', value: stats.approval.total },
-      { label: 'Approved', value: stats.approval.approved },
-      { label: 'Pending', value: stats.approval.pending },
-      { label: 'Rejected', value: stats.approval.rejected },
-      { label: 'Cancelled', value: stats.approval.cancelled },
-      { label: 'Total Consumed', value: stats.leaveBalance.totalConsumed },
+    const groups: IMetricGroup[] = [
+      {
+        id: 'approval',
+        title: 'Approval Status',
+        icon: 'pi pi-check-circle',
+        metrics: [
+          { label: 'Total', value: stats.approval.total },
+          { label: 'Approved', value: stats.approval.approved },
+          { label: 'Pending', value: stats.approval.pending },
+          { label: 'Rejected', value: stats.approval.rejected },
+          { label: 'Cancelled', value: stats.approval.cancelled },
+        ],
+      },
     ];
 
     const isEmployeeFilterActive = (
@@ -181,13 +187,19 @@ export class GetLeaveComponent implements OnInit {
     )?.value as string[];
 
     if (isEmployeeFilterActive && isEmployeeFilterActive.length > 0) {
-      leaveStats.push(
-        { label: 'Total Credited', value: stats.leaveBalance.totalCredited },
-        { label: 'Total Balance', value: stats.leaveBalance.totalBalance }
-      );
+      groups.push({
+        id: 'balance',
+        title: 'Leave Balance',
+        icon: 'pi pi-calendar-plus',
+        metrics: [
+          { label: 'Total Credited', value: stats.leaveBalance.totalCredited },
+          { label: 'Total Consumed', value: stats.leaveBalance.totalConsumed },
+          { label: 'Total Balance', value: stats.leaveBalance.totalBalance },
+        ],
+      });
     }
 
-    return leaveStats;
+    return groups;
   }
 
   protected handleLeaveTableActionClick(

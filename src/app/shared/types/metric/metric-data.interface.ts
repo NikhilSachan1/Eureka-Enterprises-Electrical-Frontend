@@ -5,8 +5,8 @@ import { IProgressBarConfig } from '../progress-bar/progress-bar.interface';
 export interface IMetric {
   label: string;
   value: string | number;
-  subtitle?: string; // Optional subtitle text shown below the value
-  description?: string; // Footer description
+  subtitle?: string;
+  description?: string;
   icon?: string;
   type?: EDataType;
   format?: string;
@@ -14,4 +14,13 @@ export interface IMetric {
   metricType?: EDataType;
   knobConfig?: Partial<IKnobConfig>;
   progressBarConfig?: Partial<IProgressBarConfig>;
+}
+
+// Group of metrics with header
+export interface IMetricGroup {
+  id: string;
+  title: string;
+  icon?: string;
+  metrics: IMetric[];
+  permission?: string[];
 }

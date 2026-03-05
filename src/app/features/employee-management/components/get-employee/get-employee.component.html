@@ -3,9 +3,7 @@
   (headerButtonClick)="onHeaderButtonClick($event)"
 />
 
-<div class="metrics-card-wrapper">
-  <app-metrics-card [metricCardConfig]="metricsCards()" />
-</div>
+<app-metrics-card [metricGroups]="metricGroups()" />
 
 <div class="search-filter-wrapper">
   <app-search-filter

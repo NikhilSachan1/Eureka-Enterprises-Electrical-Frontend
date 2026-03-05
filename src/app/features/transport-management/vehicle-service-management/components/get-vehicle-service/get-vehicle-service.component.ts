@@ -23,7 +23,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -89,7 +89,7 @@ export class GetVehicleServiceComponent implements OnInit {
     signal<IVehicleServiceGetStatsResponseDto | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -173,19 +173,42 @@ export class GetVehicleServiceComponent implements OnInit {
     this.loadVehicleServiceList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.vehicleServiceStats();
     if (!stats) {
       return [];
     }
 
     return [
-      { label: 'Total', value: stats.totalServices },
       {
-        label: 'Total Cost',
-        value: stats.totalCost,
-        type: EDataType.CURRENCY,
-        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+        id: 'overview',
+        title: 'Overview',
+        icon: 'pi pi-chart-bar',
+        metrics: [
+          { label: 'Total Services', value: stats.totalServices },
+          {
+            label: 'Total Cost',
+            value: stats.totalCost,
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+          {
+            label: 'Average Cost',
+            value: stats.averageCost,
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+        ],
+      },
+      {
+        id: 'status',
+        title: 'Status',
+        icon: 'pi pi-info-circle',
+        metrics: [
+          { label: 'Pending', value: stats.byStatus.pending },
+          { label: 'Completed', value: stats.byStatus.completed },
+          { label: 'Cancelled', value: stats.byStatus.cancelled },
+        ],
       },
     ];
   }

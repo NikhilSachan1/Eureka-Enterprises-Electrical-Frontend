@@ -44,7 +44,7 @@ import {
   IDataViewDetailsWithEntity,
   IEnhancedTable,
   IEnhancedTableConfig,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -95,7 +95,7 @@ export class GetEmployeeComponent implements OnInit {
   );
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -175,7 +175,7 @@ export class GetEmployeeComponent implements OnInit {
     this.loadEmployeeList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.employeeStats();
 
     if (!stats) {
@@ -183,26 +183,32 @@ export class GetEmployeeComponent implements OnInit {
     }
 
     return [
-      { label: 'Total Employees', value: stats.total },
       {
-        label: 'Active Employees',
-        value: stats.active,
+        id: 'employee-counts',
+        title: 'Employee Counts',
+        metrics: [
+          { label: 'Total Employees', value: stats.total },
+          { label: 'Active Employees', value: stats.active },
+          { label: 'Inactive Employees', value: stats.inactive },
+        ],
       },
       {
-        label: 'Inactive Employees',
-        value: stats.inactive,
+        id: 'recent-activity',
+        title: 'Recent Activity',
+        metrics: [
+          {
+            label: 'New Joiners Last 30 Days',
+            value: stats.newJoinersLast30Days,
+          },
+        ],
       },
       {
-        label: 'New Joiners Last 30 Days',
-        value: stats.newJoinersLast30Days,
-      },
-      {
-        label: 'Male',
-        value: stats.byGender['male'] ?? 0,
-      },
-      {
-        label: 'Female',
-        value: stats.byGender['female'] ?? 0,
+        id: 'by-gender',
+        title: 'By Gender',
+        metrics: [
+          { label: 'Male', value: stats.byGender['male'] ?? 0 },
+          { label: 'Female', value: stats.byGender['female'] ?? 0 },
+        ],
       },
     ];
   }

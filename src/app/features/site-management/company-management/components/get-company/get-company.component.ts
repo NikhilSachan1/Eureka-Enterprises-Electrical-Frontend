@@ -23,7 +23,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -89,7 +89,7 @@ export class GetCompanyComponent implements OnInit {
   );
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -164,17 +164,29 @@ export class GetCompanyComponent implements OnInit {
     this.loadCompanyList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.companyStats();
     if (!stats) {
       return [];
     }
 
     return [
-      { label: 'Total', value: stats.totalCompanies },
-      { label: 'Active', value: stats.activeCompanies },
-      // { label: 'Archived', value: stats.archivedCompanies },
-      { label: 'Inactive', value: stats.inactiveCompanies },
+      {
+        id: 'overview',
+        title: 'Overview',
+        icon: 'pi pi-building',
+        metrics: [{ label: 'Total', value: stats.totalCompanies }],
+      },
+      {
+        id: 'status',
+        title: 'Status',
+        icon: 'pi pi-chart-bar',
+        metrics: [
+          { label: 'Active', value: stats.activeCompanies },
+          { label: 'Inactive', value: stats.inactiveCompanies },
+          { label: 'Archived', value: stats.archivedCompanies },
+        ],
+      },
     ];
   }
 

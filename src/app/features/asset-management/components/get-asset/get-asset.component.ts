@@ -36,7 +36,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -86,7 +86,7 @@ export class GetAssetComponent implements OnInit {
   private readonly assetStats = signal<IAssetGetStatsResponseDto | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(ASSET_TABLE_ENHANCED_CONFIG);
@@ -177,45 +177,58 @@ export class GetAssetComponent implements OnInit {
     this.loadAssetList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.assetStats();
     if (!stats) {
       return [];
     }
 
     return [
-      { label: 'Total', value: stats.total },
       {
-        label: 'Available',
-        value: stats.byStatus.available,
+        id: 'overview',
+        title: 'Overview',
+        metrics: [{ label: 'Total', value: stats.total }],
       },
       {
-        label: 'Assigned',
-        value: stats.byStatus.assigned,
+        id: 'status',
+        title: 'Status',
+        metrics: [
+          { label: 'Available', value: stats.byStatus.available },
+          { label: 'Assigned', value: stats.byStatus.assigned },
+        ],
       },
       {
-        label: 'Calibrated Assets',
-        value: stats.byAssetType.calibrated,
+        id: 'asset-type',
+        title: 'Asset Type',
+        metrics: [
+          { label: 'Calibrated Assets', value: stats.byAssetType.calibrated },
+          {
+            label: 'Non Calibrated Assets',
+            value: stats.byAssetType.nonCalibrated,
+          },
+        ],
       },
       {
-        label: 'Non Calibrated Assets',
-        value: stats.byAssetType.nonCalibrated,
+        id: 'calibration',
+        title: 'Calibration',
+        metrics: [
+          {
+            label: 'Calibration Expiring Soon',
+            value: stats.calibration.expiringSoon,
+          },
+          { label: 'Calibration Expired', value: stats.calibration.expired },
+        ],
       },
       {
-        label: 'Calibration Expiring Soon',
-        value: stats.calibration.expiringSoon,
-      },
-      {
-        label: 'Calibration Expired',
-        value: stats.calibration.expired,
-      },
-      {
-        label: 'Warranty Expiring Soon',
-        value: stats.warranty.expiringSoon,
-      },
-      {
-        label: 'Warranty Expired',
-        value: stats.warranty.expired,
+        id: 'warranty',
+        title: 'Warranty',
+        metrics: [
+          {
+            label: 'Warranty Expiring Soon',
+            value: stats.warranty.expiringSoon,
+          },
+          { label: 'Warranty Expired', value: stats.warranty.expired },
+        ],
       },
     ];
   }

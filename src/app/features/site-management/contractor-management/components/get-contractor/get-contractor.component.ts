@@ -23,7 +23,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -88,7 +88,7 @@ export class GetContractorComponent implements OnInit {
     signal<IContractorGetStatsResponseDto | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -164,17 +164,26 @@ export class GetContractorComponent implements OnInit {
     this.loadContractorList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.contractorStats();
     if (!stats) {
       return [];
     }
 
     return [
-      { label: 'Total', value: stats.totalContractors },
-      { label: 'Active', value: stats.activeContractors },
-      // { label: 'Archived', value: stats.archivedContractors },
-      { label: 'Inactive', value: stats.inactiveContractors },
+      {
+        id: 'overview',
+        title: 'Overview',
+        metrics: [{ label: 'Total', value: stats.totalContractors }],
+      },
+      {
+        id: 'status',
+        title: 'Status',
+        metrics: [
+          { label: 'Active', value: stats.activeContractors },
+          { label: 'Inactive', value: stats.inactiveContractors },
+        ],
+      },
     ];
   }
 

@@ -110,7 +110,7 @@ export type {
   MenuSection,
   ApplicationMenu,
 } from './sidebar/menu.interface';
-export type { IMetric } from './metric/metric-data.interface';
+export type { IMetric, IMetricGroup } from './metric/metric-data.interface';
 export type { INotificationOptions } from './notification/notification.interface';
 export type { SidebarMenuItem } from './sidebar/sidebar.interface';
 export type { ITabItem, ITabChange } from './nav-tabs/tab-item.interface';

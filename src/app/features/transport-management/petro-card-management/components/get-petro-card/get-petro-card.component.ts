@@ -21,7 +21,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -82,7 +82,7 @@ export class GetPetroCardComponent implements OnInit {
     signal<IPetroCardGetStatsResponseDto | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -163,16 +163,33 @@ export class GetPetroCardComponent implements OnInit {
     this.loadPetroCardList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.petroCardStats();
     if (!stats) {
       return [];
     }
 
     return [
-      { label: 'Total', value: stats.total },
-      { label: 'Available', value: stats.available },
-      { label: 'Assigned', value: stats.allocated },
+      {
+        id: 'status',
+        title: 'Card Status',
+        icon: 'pi pi-credit-card',
+        metrics: [
+          { label: 'Total', value: stats.total },
+          { label: 'Available', value: stats.available },
+          { label: 'Assigned', value: stats.allocated },
+        ],
+      },
+      {
+        id: 'expiry',
+        title: 'Expiry Status',
+        icon: 'pi pi-calendar',
+        metrics: [
+          { label: 'Valid', value: stats.byExpiryStatus.VALID },
+          { label: 'Expiring Soon', value: stats.byExpiryStatus.EXPIRING_SOON },
+          { label: 'Expired', value: stats.byExpiryStatus.EXPIRED },
+        ],
+      },
     ];
   }
 

@@ -24,7 +24,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -90,7 +90,7 @@ export class GetProjectComponent implements OnInit {
   );
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -172,18 +172,28 @@ export class GetProjectComponent implements OnInit {
     this.loadProjectList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.projectStats();
     if (!stats) {
       return [];
     }
 
     return [
-      { label: 'Total', value: stats.totalSites },
-      { label: 'Upcoming', value: stats.upcomingSites },
-      { label: 'Ongoing', value: stats.ongoingSites },
-      { label: 'Hold', value: stats.holdSites },
-      { label: 'Completed', value: stats.completedSites },
+      {
+        id: 'overview',
+        title: 'Overview',
+        metrics: [{ label: 'Total', value: stats.totalSites }],
+      },
+      {
+        id: 'status',
+        title: 'By Status',
+        metrics: [
+          { label: 'Upcoming', value: stats.upcomingSites },
+          { label: 'Ongoing', value: stats.ongoingSites },
+          { label: 'Hold', value: stats.holdSites },
+          { label: 'Completed', value: stats.completedSites },
+        ],
+      },
     ];
   }
 

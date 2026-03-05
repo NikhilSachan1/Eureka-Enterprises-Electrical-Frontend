@@ -9,13 +9,14 @@
   --sidebar-collapsed-width: 70px;
 }
 
-// Content area — same bg as auth layout (primary + surface mix)
+// Content area — outer wrapper with padding and scroll
 .content-area {
   flex: 1;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: var(--primary-lightest-color);
+  background-color: var(--background-default-color);
+  padding: 0.75rem;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
@@ -40,6 +41,14 @@
       margin-left: var(--sidebar-collapsed-width, 70px);
     }
   }
+}
+
+// Page content - inner wrapper with themed background
+.page-content {
+  background-color: var(--surface-100);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  min-height: calc(100vh - 2.5rem);
 }
 
 // Dark overlay mask (like popup/modal backdrop)

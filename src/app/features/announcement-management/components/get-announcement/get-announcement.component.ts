@@ -34,7 +34,7 @@ import {
   IDataViewDetailsWithEntity,
   IEnhancedTable,
   IEnhancedTableConfig,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -91,7 +91,7 @@ export class GetAnnouncementComponent implements OnInit {
     signal<IAnnouncementGetStatsResponseDto | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -173,16 +173,23 @@ export class GetAnnouncementComponent implements OnInit {
     this.loadAnnouncementList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.announcementStats();
     if (!stats) {
       return [];
     }
 
     return [
-      { label: 'Total', value: stats.total },
-      { label: 'Acknowledged', value: stats.acknowledged },
-      { label: 'Pending', value: stats.pending },
+      {
+        id: 'acknowledgment',
+        title: 'Acknowledgment Status',
+        icon: 'pi pi-megaphone',
+        metrics: [
+          { label: 'Total', value: stats.total },
+          { label: 'Acknowledged', value: stats.acknowledged },
+          { label: 'Pending', value: stats.pending },
+        ],
+      },
     ];
   }
 

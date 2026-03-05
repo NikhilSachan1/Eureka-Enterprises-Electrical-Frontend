@@ -26,6 +26,7 @@ import {
   IDataViewDetailsWithEntity,
   IEnhancedTable,
   IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -93,6 +94,7 @@ export class GetFuelExpenseComponent implements OnInit {
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -175,61 +177,79 @@ export class GetFuelExpenseComponent implements OnInit {
     this.loadFuelExpenseList();
   }
 
+  // Flat metrics - not used when using grouped layout
   private getMetricCardsData(): IMetric[] {
+    return [];
+  }
+
+  // Grouped metrics layout
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.fuelExpenseStats();
     if (!stats) {
       return [];
     }
 
     return [
-      { label: 'Total', value: stats.approval.total },
       {
-        label: 'Approved',
-        value: stats.approval.approved,
+        id: 'approval',
+        title: 'Approval Status',
+        icon: 'pi pi-check-circle',
+        metrics: [
+          { label: 'Total', value: stats.approval.total },
+          { label: 'Approved', value: stats.approval.approved },
+          { label: 'Pending', value: stats.approval.pending },
+          { label: 'Rejected', value: stats.approval.rejected },
+        ],
       },
       {
-        label: 'Pending',
-        value: stats.approval.pending,
+        id: 'balance',
+        title: 'Balance',
+        icon: 'pi pi-wallet',
+        metrics: [
+          {
+            label: 'Opening Balance',
+            value: stats.balances.openingBalance,
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+          {
+            label: 'Closing Balance',
+            value: stats.balances.closingBalance,
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+        ],
       },
       {
-        label: 'Rejected',
-        value: stats.approval.rejected,
-      },
-      {
-        label: 'Opening Balance',
-        value: stats.balances.openingBalance,
-        type: EDataType.CURRENCY,
-        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      {
-        label: 'Closing Balance',
-        value: stats.balances.closingBalance,
-        type: EDataType.CURRENCY,
-        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      {
-        label: 'Total Debit',
-        value: stats.balances.totalDebit,
-        type: EDataType.CURRENCY,
-        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      {
-        label: 'Total Credit',
-        value: stats.balances.totalCredit,
-        type: EDataType.CURRENCY,
-        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      {
-        label: 'Period Credit',
-        value: stats.balances.periodCredit,
-        type: EDataType.CURRENCY,
-        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      {
-        label: 'Period Debit',
-        value: stats.balances.periodDebit,
-        type: EDataType.CURRENCY,
-        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+        id: 'transactions',
+        title: 'Transactions',
+        icon: 'pi pi-arrow-right-arrow-left',
+        metrics: [
+          {
+            label: 'Total Debit',
+            value: stats.balances.totalDebit,
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+          {
+            label: 'Total Credit',
+            value: stats.balances.totalCredit,
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+          {
+            label: 'Period Debit',
+            value: stats.balances.periodDebit,
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+          {
+            label: 'Period Credit',
+            value: stats.balances.periodCredit,
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+        ],
       },
     ];
   }

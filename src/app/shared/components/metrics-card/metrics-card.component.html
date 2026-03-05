@@ -1,73 +1,81 @@
-@let metrics = visibleMetrics();
-
-<div class="metrics-container">
-  @for (metric of metrics; track metric.label; let i = $index) {
-    @let colorScheme = getColorScheme(metric.label);
-    <div
-      class="metric-card"
-      [style.--metric-color]="colorScheme.primary"
-      [style.--metric-color-light]="colorScheme.light"
-      [style.--metric-color-dark]="colorScheme.dark"
-    >
-      <!-- Left accent border -->
-      <div class="metric-accent-border"></div>
-
-      <!-- Card content -->
-      <div class="metric-card-body">
-        <!-- Header: Icon and Action Button -->
-        <div class="metric-header">
-          @let icon = getIcon(metric);
-          @if (icon) {
-            <div class="metric-icon">
-              <i [class]="icon"></i>
-            </div>
-          }
-        </div>
-
-        <!-- Title -->
-        <span class="metric-label">{{ metric.label }}</span>
-
-        <!-- Value/Visualization Section -->
-        <div class="metric-value-section">
-          @if (metric.metricType === ALL_DATA_TYPES.KNOB && metric.knobConfig) {
-            <!-- Knob Visualization using shared component -->
-            <div class="metric-knob">
-              <app-knob [config]="metric.knobConfig" />
-            </div>
-          } @else {
-            <!-- Regular Value Display -->
-            <span
-              class="metric-value"
-              [ngClass]="colorScheme.textClass"
-            >
-              @if (metric.type === ALL_DATA_TYPES.CURRENCY && metric.format) {
-                {{ metric.value | currency: metric.format }}
-              } @else {
-                {{ metric.value }}
-              }
-            </span>
-          }
-        </div>
-
-        <!-- Subtitle -->
-        @if (metric.subtitle) {
-          <span class="metric-subtitle">{{ metric.subtitle }}</span>
-        }
-
-        <!-- Progress Bar Visualization using shared component -->
-        @if (metric.metricType === ALL_DATA_TYPES.PROGRESS && metric.progressBarConfig) {
-          <div class="metric-progress">
-            <app-progress-bar [config]="metric.progressBarConfig" />
+@if (hasData()) {
+  <!-- GROUPED LAYOUT -->
+  @if (isGrouped()) {
+    <div class="metrics-grouped-layout">
+      @for (group of visibleGroups(); track group.id) {
+        <div class="metric-group">
+          <!-- Group Header -->
+          <div class="group-header">
+            @if (group.icon) {
+              <i
+                [class]="group.icon"
+                class="group-icon"
+              ></i>
+            }
+            <span class="group-title">{{ group.title }}</span>
           </div>
-        }
 
-        <!-- Description (Footer) -->
-        @if (metric.description) {
-          <div class="metric-description">
-            {{ metric.description }}
+          <!-- Group Cards -->
+          <div class="group-cards">
+            @for (metric of group.metrics; track metric.label) {
+              <ng-container *ngTemplateOutlet="cardTpl; context: { $implicit: metric }" />
+            }
           </div>
-        }
-      </div>
+        </div>
+      }
     </div>
   }
-</div>
+
+  <!-- FLAT LAYOUT -->
+  @if (!isGrouped()) {
+    <div class="metrics-flat-layout">
+      @for (metric of visibleMetrics(); track metric.label) {
+        <ng-container *ngTemplateOutlet="cardTpl; context: { $implicit: metric }" />
+      }
+    </div>
+  }
+}
+
+<!-- REUSABLE CARD TEMPLATE -->
+<ng-template
+  #cardTpl
+  let-metric
+>
+  @let colors = getColorScheme(metric.label);
+
+  <div
+    class="metric-pill"
+    [style.--m-color]="colors.primary"
+    [style.--m-light]="colors.light"
+  >
+    <!-- Icon (optional) -->
+    @let icon = getIcon(metric);
+    @if (icon) {
+      <i
+        [class]="icon"
+        class="pill-icon"
+      ></i>
+    }
+
+    <!-- Value -->
+    @if (metric.metricType === ALL_DATA_TYPES.KNOB && metric.knobConfig) {
+      <app-knob [config]="metric.knobConfig" />
+    } @else {
+      <span class="pill-value">
+        @if (metric.type === ALL_DATA_TYPES.CURRENCY && metric.format) {
+          {{ metric.value | currency: metric.format }}
+        } @else {
+          {{ metric.value }}
+        }
+      </span>
+    }
+
+    <!-- Label -->
+    <span class="pill-label">{{ metric.label }}</span>
+
+    <!-- Progress Bar -->
+    @if (metric.metricType === ALL_DATA_TYPES.PROGRESS && metric.progressBarConfig) {
+      <app-progress-bar [config]="metric.progressBarConfig" />
+    }
+  </div>
+</ng-template>

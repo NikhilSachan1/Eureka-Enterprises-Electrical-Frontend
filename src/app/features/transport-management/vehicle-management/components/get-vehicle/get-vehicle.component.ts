@@ -23,7 +23,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -94,7 +94,7 @@ export class GetVehicleComponent implements OnInit {
   protected readonly ALL_APP_CONFIG = APP_CONFIG;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -189,57 +189,71 @@ export class GetVehicleComponent implements OnInit {
     this.loadVehicleList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.vehicleStats();
     if (!stats) {
       return [];
     }
 
     return [
-      { label: 'Total', value: stats.total },
       {
-        label: 'Available',
-        value: stats.byStatus.available,
+        id: 'vehicle-overview',
+        title: 'Vehicle Overview',
+        icon: 'pi pi-car',
+        metrics: [
+          { label: 'Total', value: stats.total },
+          { label: 'Available', value: stats.byStatus.available },
+          { label: 'Assigned', value: stats.byStatus.assigned },
+          {
+            label: 'Under Maintenance',
+            value: stats.byStatus.underMaintenance,
+          },
+        ],
       },
       {
-        label: 'Assigned',
-        value: stats.byStatus.assigned,
+        id: 'puc-status',
+        title: 'PUC Status',
+        icon: 'pi pi-file',
+        metrics: [
+          { label: 'PUC Expiring Soon', value: stats.pucStatus.expiringSoon },
+          { label: 'PUC Expired', value: stats.pucStatus.expired },
+        ],
       },
       {
-        label: 'Under Maintenance',
-        value: stats.byStatus.underMaintenance,
+        id: 'fitness-status',
+        title: 'Fitness Status',
+        icon: 'pi pi-check-circle',
+        metrics: [
+          {
+            label: 'Fitness Expiring Soon',
+            value: stats.fitnessStatus.expiringSoon,
+          },
+          { label: 'Fitness Expired', value: stats.fitnessStatus.expired },
+        ],
       },
       {
-        label: 'PUC Expiring Soon',
-        value: stats.pucStatus.expiringSoon,
+        id: 'insurance-status',
+        title: 'Insurance Status',
+        icon: 'pi pi-shield',
+        metrics: [
+          {
+            label: 'Insurance Expiring Soon',
+            value: stats.insuranceStatus.expiringSoon,
+          },
+          { label: 'Insurance Expired', value: stats.insuranceStatus.expired },
+        ],
       },
       {
-        label: 'PUC Expired',
-        value: stats.pucStatus.expired,
-      },
-      {
-        label: 'Fitness Expiring Soon',
-        value: stats.fitnessStatus.expiringSoon,
-      },
-      {
-        label: 'Fitness Expired',
-        value: stats.fitnessStatus.expired,
-      },
-      {
-        label: 'Insurance Expiring Soon',
-        value: stats.insuranceStatus.expiringSoon,
-      },
-      {
-        label: 'Insurance Expired',
-        value: stats.insuranceStatus.expired,
-      },
-      {
-        label: 'Service Due Soon',
-        value: stats.serviceDueStatus.dueSoon,
-      },
-      {
-        label: 'Service Due Overdue',
-        value: stats.serviceDueStatus.overdue,
+        id: 'service-status',
+        title: 'Service Status',
+        icon: 'pi pi-wrench',
+        metrics: [
+          { label: 'Service Due Soon', value: stats.serviceDueStatus.dueSoon },
+          {
+            label: 'Service Due Overdue',
+            value: stats.serviceDueStatus.overdue,
+          },
+        ],
       },
     ];
   }

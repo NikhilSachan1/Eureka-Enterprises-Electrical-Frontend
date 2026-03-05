@@ -15,7 +15,7 @@ import {
   IDataViewDetailsWithEntity,
   IEnhancedTable,
   IEnhancedTableConfig,
-  IMetric,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
@@ -90,7 +90,7 @@ export class GetAttendanceComponent implements OnInit {
   protected readonly ALL_ICONS = ICONS;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -175,20 +175,35 @@ export class GetAttendanceComponent implements OnInit {
     this.loadAttendanceList();
   }
 
-  private getMetricCardsData(): IMetric[] {
+  private getMetricGroups(): IMetricGroup[] {
     const stats = this.attendanceStats();
     if (!stats) {
       return [];
     }
 
     return [
-      { label: 'Approved', value: stats.approval.approved },
-      { label: 'Pending', value: stats.approval.pending },
-      { label: 'Rejected', value: stats.approval.rejected },
-      { label: 'Present', value: stats.attendance.present },
-      { label: 'Absent', value: stats.attendance.absent },
-      { label: 'Leave', value: stats.attendance.leave },
-      { label: 'Holiday', value: stats.attendance.holiday },
+      {
+        id: 'attendance',
+        title: 'Attendance Statistics',
+        icon: 'pi pi-calendar',
+        metrics: [
+          { label: 'Present', value: stats.attendance.present },
+          { label: 'Absent', value: stats.attendance.absent },
+          { label: 'Leave', value: stats.attendance.leave },
+          { label: 'Total', value: stats.attendance.total || 0 },
+        ],
+      },
+      {
+        id: 'approval',
+        title: 'Approval Status',
+        icon: 'pi pi-check-circle',
+        metrics: [
+          { label: 'Pending', value: stats.approval.pending },
+          { label: 'Approved', value: stats.approval.approved },
+          { label: 'Rejected', value: stats.approval.rejected },
+          { label: 'Total', value: stats.approval.total || 0 },
+        ],
+      },
     ];
   }
 
