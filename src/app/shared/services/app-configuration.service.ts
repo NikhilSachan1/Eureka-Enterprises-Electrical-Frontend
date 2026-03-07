@@ -448,30 +448,35 @@ export class AppConfigurationService {
           count: response.totalRecords,
         });
 
-        const employeeList: IOptionDropdown[] = [];
         const employeeListByRole: Record<string, IOptionDropdown[]> = {};
 
-        response.records.forEach(employee => {
-          const dropdownItem: IOptionDropdown = {
-            label: `${employee.firstName} ${employee.lastName}`.trim(),
-            value: employee.id,
-          };
+        const employeeList: IOptionDropdown[] = response.records
+          .map(employee => {
+            const dropdownItem: IOptionDropdown = {
+              label: `${employee.firstName} ${employee.lastName}`.trim(),
+              value: employee.id,
+            };
 
-          // Add to full employee list
-          employeeList.push(dropdownItem);
+            // Parse roles and add to role-based lists
+            const roles = employee.roles
+              .split(',')
+              .map(role => role.trim())
+              .filter(role => role.length > 0);
 
-          // Parse roles (comma-separated string) and add to role-based lists
-          const roles = employee.roles
-            .split(',')
-            .map(role => role.trim())
-            .filter(role => role.length > 0);
+            roles.forEach(role => {
+              if (!employeeListByRole[role]) {
+                employeeListByRole[role] = [];
+              }
+              employeeListByRole[role].push(dropdownItem);
+            });
 
-          roles.forEach(role => {
-            if (!employeeListByRole[role]) {
-              employeeListByRole[role] = [];
-            }
-            employeeListByRole[role].push(dropdownItem);
-          });
+            return dropdownItem;
+          })
+          .sort(this.sortByLabel);
+
+        // Sort role-based lists as well
+        Object.keys(employeeListByRole).forEach(role => {
+          employeeListByRole[role].sort(this.sortByLabel);
         });
 
         this._employeeList.set(employeeList);
@@ -493,11 +498,13 @@ export class AppConfigurationService {
           count: response.totalRecords,
         });
 
-        const roleList = response.records.map(role => ({
-          label: role.label,
-          value: role.name,
-          data: role,
-        }));
+        const roleList = response.records
+          .map(role => ({
+            label: role.label,
+            value: role.name,
+            data: role,
+          }))
+          .sort(this.sortByLabel);
 
         this._roleList.set(roleList);
       }),
@@ -533,10 +540,12 @@ export class AppConfigurationService {
     // Try dynamic data first, then fallback to static
     const dynamicCities = this._stateCityMap()[stateValue];
     if (dynamicCities && Array.isArray(dynamicCities)) {
-      return dynamicCities.map(city => ({
-        label: city,
-        value: city,
-      }));
+      return dynamicCities
+        .map(city => ({
+          label: city,
+          value: city,
+        }))
+        .sort(this.sortByLabel);
     }
 
     return this.cities().filter(city => city.value === stateValue);
@@ -609,12 +618,12 @@ export class AppConfigurationService {
     if (modulesConfig && typeof modulesConfig === 'object') {
       this._modulesConfig.set(modulesConfig);
 
-      const moduleNameOptions: IOptionDropdown[] = Object.entries(
-        modulesConfig
-      ).map(([key, config]) => ({
-        label: config.label,
-        value: key,
-      }));
+      const moduleNameOptions: IOptionDropdown[] = Object.entries(modulesConfig)
+        .map(([key, config]) => ({
+          label: config.label,
+          value: key,
+        }))
+        .sort(this.sortByLabel);
 
       this._moduleNames.set(moduleNameOptions);
     }
@@ -664,17 +673,12 @@ export class AppConfigurationService {
           count: response.totalRecords,
         });
 
-        const assetList: IOptionDropdown[] = [];
-
-        response.records.forEach(asset => {
-          const dropdownItem: IOptionDropdown = {
+        const assetList: IOptionDropdown[] = response.records
+          .map(asset => ({
             label: `${asset.name}`.trim(),
             value: asset.id,
-          };
-
-          // Add to full asset list
-          assetList.push(dropdownItem);
-        });
+          }))
+          .sort(this.sortByLabel);
 
         this._assetList.set(assetList);
       }),
@@ -694,18 +698,13 @@ export class AppConfigurationService {
           count: response.totalRecords,
         });
 
-        const vehicleList: IOptionDropdown[] = [];
-
-        response.records.forEach(vehicle => {
-          const dropdownItem: IOptionDropdown = {
+        const vehicleList: IOptionDropdown[] = response.records
+          .map(vehicle => ({
             label:
               `${vehicle.registrationNo} (${vehicle.brand} ${vehicle.model})`.trim(),
             value: vehicle.id,
-          };
-
-          // Add to full asset list
-          vehicleList.push(dropdownItem);
-        });
+          }))
+          .sort(this.sortByLabel);
 
         this._vehicleList.set(vehicleList);
       }),
@@ -725,17 +724,12 @@ export class AppConfigurationService {
           count: response.totalRecords,
         });
 
-        const petroCardList: IOptionDropdown[] = [];
-
-        response.records.forEach(petroCard => {
-          const dropdownItem: IOptionDropdown = {
+        const petroCardList: IOptionDropdown[] = response.records
+          .map(petroCard => ({
             label: `${petroCard.cardName} (${petroCard.cardNumber})`.trim(),
             value: petroCard.id,
-          };
-
-          // Add to full petro card list
-          petroCardList.push(dropdownItem);
-        });
+          }))
+          .sort(this.sortByLabel);
 
         this._petroCardList.set(petroCardList);
       }),
@@ -755,17 +749,13 @@ export class AppConfigurationService {
           count: response.totalRecords,
         });
 
-        const companyList: IOptionDropdown[] = [];
-
-        response.records.forEach(company => {
-          const dropdownItem: IOptionDropdown = {
+        const companyList: IOptionDropdown[] = response.records
+          .map(company => ({
             label: company.name,
             value: company.id,
             data: company,
-          };
-
-          companyList.push(dropdownItem);
-        });
+          }))
+          .sort(this.sortByLabel);
 
         this._companyList.set(companyList);
       }),
@@ -785,16 +775,12 @@ export class AppConfigurationService {
           count: response.totalRecords,
         });
 
-        const contractorList: IOptionDropdown[] = [];
-
-        response.records.forEach(contractor => {
-          const dropdownItem: IOptionDropdown = {
+        const contractorList: IOptionDropdown[] = response.records
+          .map(contractor => ({
             label: contractor.name,
             value: contractor.id,
-          };
-
-          contractorList.push(dropdownItem);
-        });
+          }))
+          .sort(this.sortByLabel);
 
         this._contractorList.set(contractorList);
       }),
@@ -806,14 +792,23 @@ export class AppConfigurationService {
   }
 
   private normalizeDropdownData(data: unknown[]): IOptionDropdown[] {
-    return data.map(item => {
-      const obj = item as { label: string; value?: string; name?: string };
-      return {
-        label: obj.label,
-        value: obj.value ?? obj.name ?? '',
-      };
-    });
+    return data
+      .map(item => {
+        const obj = item as { label: string; value?: string; name?: string };
+        return {
+          label: obj.label,
+          value: obj.value ?? obj.name ?? '',
+        };
+      })
+      .sort(this.sortByLabel);
   }
+
+  /**
+   * Sorting comparator for dropdown options by label
+   */
+  private sortByLabel = (a: IOptionDropdown, b: IOptionDropdown): number => {
+    return a.label.localeCompare(b.label);
+  };
 
   private buildModuleConfigMap(
     response: IAppConfiguationResponseDto
