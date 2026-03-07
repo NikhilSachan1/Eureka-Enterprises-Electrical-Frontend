@@ -14,7 +14,9 @@ export const VehicleReadingAddRequestSchema =
       endOdometerReading: data.endOdometerReading,
       endTime: transformTimeFormat(data.endTime),
       endLocation: data.endLocation,
-      remark: data.remarks,
+      driverRemarks: data.remarks,
+      vehicleLogStartOdometer: data.startOdometerReadingAttachments,
+      vehicleLogEndOdometer: data.endOdometerReadingAttachments,
     };
   });
 export const VehicleReadingAddResponseSchema = z

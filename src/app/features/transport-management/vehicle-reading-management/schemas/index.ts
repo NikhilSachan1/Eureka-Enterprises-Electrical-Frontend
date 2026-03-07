@@ -20,3 +20,7 @@ export {
   VehicleReadingGetBaseResponseSchema,
   VehicleReadingGetResponseSchema,
 } from './get-vehicle-reading.schema';
+export {
+  VehicleReadingForceRequestSchema,
+  VehicleReadingForceResponseSchema,
+} from './force-vehicle-reading.schema';

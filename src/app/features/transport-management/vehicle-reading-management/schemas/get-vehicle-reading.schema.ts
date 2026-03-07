@@ -27,6 +27,11 @@ export const VehicleReadingGetRequestSchema = z
         siteId: projectName,
         fromDate: transformDateFormat(start),
         toDate: transformDateFormat(end),
+        anomalyDetected: true,
+        includeVehicle: true,
+        includeDriver: true,
+        includeSite: true,
+        includeFiles: true,
       };
     }
   );

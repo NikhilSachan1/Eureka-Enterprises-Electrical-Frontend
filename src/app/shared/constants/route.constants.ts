@@ -137,6 +137,7 @@ export const ROUTES = {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,
+    FORCE: `force`,
   },
   ANNOUNCEMENT: {
     LIST: `list`,

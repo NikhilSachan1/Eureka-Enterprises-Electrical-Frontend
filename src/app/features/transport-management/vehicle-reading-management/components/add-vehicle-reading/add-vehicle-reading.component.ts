@@ -17,15 +17,13 @@ import { ADD_VEHICLE_READING_FORM_CONFIG } from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
+import { IPageHeaderConfig } from '@shared/types';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LinkedVehiclePetroCardComponent } from '@features/transport-management/fuel-expense-management/shared/linked-vehicle-petro-card/linked-vehicle-petro-card.component';
 import { ILinkedUserVehicleDetailGetResponseDto } from '@features/transport-management/fuel-expense-management/types/fuel-expense.dto';
-import { AppPermissionService } from '@core/services/app-permission.service';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-add-vehicle-reading',
@@ -46,28 +44,12 @@ export class AddVehicleReadingComponent
 {
   private readonly vehicleReadingService = inject(VehicleReadingService);
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly appPermissionService = inject(AppPermissionService);
-
-  private trackedFields!: ITrackedFields<IVehicleReadingAddUIFormDto>;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly linkedUserVehicleDetail =
     signal<ILinkedUserVehicleDetailGetResponseDto | null>(null);
 
-  protected readonly showEmployeeField =
-    this.appPermissionService.hasPermission(
-      APP_PERMISSION.UI.VEHICLE_READING.ADD_FORM_EMPLOYEE_FIELD
-    );
-
   protected readonly routeDataKey = 'linkedUserVehicleDetail';
-
-  protected readonly selectedEmployeeName = computed(() => {
-    if (!this.showEmployeeField) {
-      return null;
-    }
-    const empName = this.trackedFields?.employeeName?.();
-    return empName && typeof empName === 'string' ? empName : null;
-  });
 
   protected readonly redirectRoute = [
     ROUTE_BASE_PATHS.TRANSPORT,
@@ -82,15 +64,6 @@ export class AddVehicleReadingComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    if (this.showEmployeeField) {
-      this.trackedFields =
-        this.formService.trackMultipleFieldChanges<IVehicleReadingAddUIFormDto>(
-          this.form.formGroup,
-          ['employeeName'],
-          this.destroyRef
-        );
-    }
 
     // this.loadMockData(ADD_VEHICLE_READING_PREFILLED_DATA);
   }

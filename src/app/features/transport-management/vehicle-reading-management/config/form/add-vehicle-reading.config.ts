@@ -1,7 +1,6 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
   IFormButtonConfig,
@@ -13,18 +12,6 @@ import { IVehicleReadingAddUIFormDto } from '../../types/vehicle-reading.dto';
 
 const ADD_VEHICLE_READING_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVehicleReadingAddUIFormDto> =
   {
-    employeeName: {
-      fieldType: EDataType.SELECT,
-      id: 'employeeName',
-      fieldName: 'employeeName',
-      label: 'Select Employee',
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.EMPLOYEE,
-          dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-        },
-      },
-    },
     readingDate: {
       fieldType: EDataType.DATE,
       id: 'readingDate',

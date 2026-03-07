@@ -169,6 +169,11 @@ export const appMenu: ApplicationMenu = {
                   icon: ICONS.COMMON.PLUS,
                   routerLink: ROUTES.VEHICLE_READING.ADD,
                 },
+                {
+                  label: 'Manual Vehicle Reading',
+                  icon: ICONS.ACTIONS.PENCIL,
+                  routerLink: ROUTES.VEHICLE_READING.FORCE,
+                },
               ],
             },
             {

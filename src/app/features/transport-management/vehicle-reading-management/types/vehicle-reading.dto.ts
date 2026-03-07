@@ -6,6 +6,8 @@ import {
   VehicleReadingDetailGetResponseSchema,
   VehicleReadingEditRequestSchema,
   VehicleReadingEditResponseSchema,
+  VehicleReadingForceRequestSchema,
+  VehicleReadingForceResponseSchema,
   VehicleReadingGetBaseResponseSchema,
   VehicleReadingGetRequestSchema,
   VehicleReadingGetResponseSchema,
@@ -20,14 +22,10 @@ export type IVehicleReadingAddRequestDto = z.infer<
 export type IvehicleReadingAddFormDto = z.input<
   typeof VehicleReadingAddRequestSchema
 >;
-
 export type IVehicleReadingAddUIFormDto = Omit<
   IvehicleReadingAddFormDto,
   'vehicleName'
-> & {
-  employeeName: string;
-};
-
+>;
 export type IVehicleReadingAddResponseDto = z.infer<
   typeof VehicleReadingAddResponseSchema
 >;
@@ -44,9 +42,7 @@ export type IvehicleReadingEditFormDto = z.input<
 export type IVehicleReadingEditUIFormDto = Omit<
   IvehicleReadingEditFormDto,
   'vehicleName'
-> & {
-  employeeName: string;
-};
+>;
 export type IVehicleReadingEditResponseDto = z.infer<
   typeof VehicleReadingEditResponseSchema
 >;
@@ -78,4 +74,21 @@ export type IVehicleReadingGetBaseResponseDto = z.infer<
 >;
 export type IVehicleReadingGetResponseDto = z.infer<
   typeof VehicleReadingGetResponseSchema
+>;
+
+/**
+ * Vehicle Reading Force
+ */
+export type IVehicleReadingForceRequestDto = z.infer<
+  typeof VehicleReadingForceRequestSchema
+>;
+export type IvehicleReadingForceFormDto = z.input<
+  typeof VehicleReadingForceRequestSchema
+>;
+export type IVehicleReadingForceUIFormDto = Omit<
+  IvehicleReadingForceFormDto,
+  'vehicleName'
+>;
+export type IVehicleReadingForceResponseDto = z.infer<
+  typeof VehicleReadingForceResponseSchema
 >;

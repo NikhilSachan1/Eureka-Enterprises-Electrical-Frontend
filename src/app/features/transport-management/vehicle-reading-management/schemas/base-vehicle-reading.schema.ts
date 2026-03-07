@@ -9,7 +9,6 @@ export const VehicleReadingBaseSchema = z
 
 export const VehicleReadingUpsertShapeSchema = z
   .object({
-    employeeName: uuidField,
     vehicleName: uuidField,
     readingDate: dateField,
     startOdometerReading: z.number(),

@@ -199,6 +199,13 @@ export class GetVehicleReadingComponent implements OnInit {
         ROUTES.VEHICLE_READING.ADD,
       ];
     }
+    if (actionName === 'manualVehicleReading') {
+      navigationRoute = [
+        ROUTE_BASE_PATHS.TRANSPORT,
+        ROUTE_BASE_PATHS.VEHICLE_READING,
+        ROUTES.VEHICLE_READING.FORCE,
+      ];
+    }
     const success =
       this.routerNavigationService.navigateToRoute(navigationRoute);
 
@@ -221,6 +228,12 @@ export class GetVehicleReadingComponent implements OnInit {
           label: 'Add Vehicle Reading',
           icon: ICONS.COMMON.PLUS,
           actionName: 'addVehicleReading',
+        },
+        {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
+          label: 'Manual Vehicle Reading',
+          icon: ICONS.ACTIONS.PENCIL,
+          actionName: 'manualVehicleReading',
         },
       ],
     };

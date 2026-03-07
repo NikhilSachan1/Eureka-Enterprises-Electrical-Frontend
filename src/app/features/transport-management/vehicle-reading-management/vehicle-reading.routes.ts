@@ -16,6 +16,13 @@ export const VEHICLE_READING_MANAGEMENT_ROUTES: Routes = [
       ).then(m => m.GetVehicleReadingComponent),
   },
   {
+    path: ROUTES.VEHICLE_READING.FORCE,
+    loadComponent: () =>
+      import(
+        './components/add-vehicle-reading/add-vehicle-reading.component'
+      ).then(m => m.AddVehicleReadingComponent),
+  },
+  {
     path: ROUTES.VEHICLE_READING.ADD,
     loadComponent: () =>
       import(

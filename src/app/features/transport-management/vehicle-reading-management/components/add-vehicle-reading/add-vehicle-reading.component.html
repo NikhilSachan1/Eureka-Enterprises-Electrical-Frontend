@@ -4,7 +4,6 @@
   class="block mb-8"
   [routeDataKey]="routeDataKey"
   [redirectRoute]="redirectRoute"
-  [employeeName]="selectedEmployeeName()"
   [showCard]="false"
   (linkedUserVehicleDetailChange)="linkedUserVehicleDetail.set($event)"
 />
@@ -14,19 +13,10 @@
   [formGroup]="form.formGroup"
   class="form"
 >
-  <div class="grid grid-cols-1 md:grid-cols-2">
-    @if (showEmployeeField) {
-      <app-input-field
-        [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs.employeeName"
-      />
-    }
-
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.readingDate"
-    />
-  </div>
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.readingDate"
+  />
 
   <div class="grid grid-cols-1 md:grid-cols-3">
     <app-input-field

@@ -2,12 +2,20 @@ import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
 import { UserSchema } from '@shared/schemas';
 
-const { id, checkInTime, checkOutTime, status, approvalStatus, workDuration } =
-  AttendanceBaseSchema.shape;
+const {
+  id,
+  checkInTime,
+  checkOutTime,
+  status,
+  approvalStatus,
+  workDuration,
+  attendanceDate,
+} = AttendanceBaseSchema.shape;
 
 export const AttendanceCurrentStatusGetResponseSchema = z
   .object({
     id,
+    attendanceDate,
     checkInTime,
     checkOutTime,
     status,

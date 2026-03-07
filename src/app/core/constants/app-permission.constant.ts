@@ -91,9 +91,6 @@ export const APP_PERMISSION = {
     COMMON: {
       SIDEBAR_INITIALS: 'ui_common_sidebar_initials',
     },
-    VEHICLE_READING: {
-      ADD_FORM_EMPLOYEE_FIELD: 'ui_vehicle_reading_add_form_employee_field',
-    },
   },
 } as const;
 
@@ -110,12 +107,6 @@ export const UI_PERMISSIONS_ROLE_MAP = {
   },
   COMMON: {
     SIDEBAR_INITIALS: {
-      ADMIN: true,
-      DRIVER: false,
-    },
-  },
-  VEHICLE_READING: {
-    ADD_FORM_EMPLOYEE_FIELD: {
       ADMIN: true,
       DRIVER: false,
     },
