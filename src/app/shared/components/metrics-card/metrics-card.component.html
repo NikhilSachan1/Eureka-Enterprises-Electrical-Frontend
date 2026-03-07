@@ -7,10 +7,7 @@
           <!-- Group Header -->
           <div class="group-header">
             @if (group.icon) {
-              <i
-                [class]="group.icon"
-                class="group-icon"
-              ></i>
+              <i [ngClass]="['group-icon', group.icon]"></i>
             }
             <span class="group-title">{{ group.title }}</span>
           </div>
@@ -51,10 +48,7 @@
     <!-- Icon (optional) -->
     @let icon = getIcon(metric);
     @if (icon) {
-      <i
-        [class]="icon"
-        class="pill-icon"
-      ></i>
+      <i [ngClass]="['pill-icon', icon]"></i>
     }
 
     <!-- Value -->

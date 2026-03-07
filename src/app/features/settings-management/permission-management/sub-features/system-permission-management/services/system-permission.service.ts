@@ -23,9 +23,9 @@ import {
   SystemPermissionGetRequestSchema,
   SystemPermissionGetResponseSchema,
 } from '../schemas';
-import { MODULES_NAME_DATA } from '@shared/config/static-data.config';
 import { replaceTextWithSeparator } from '@shared/utility';
 import { IModulePermission } from '../types/system-permission.interface';
+import { AppConfigurationService } from '@shared/services';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +33,7 @@ import { IModulePermission } from '../types/system-permission.interface';
 export class SystemPermissionService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   addSystemPermission(
     formData: ISystemPermissionAddFormDto
@@ -183,11 +184,13 @@ export class SystemPermissionService {
 
     return this.getSystemPermissionList().pipe(
       map((response: ISystemPermissionGetResponseDto) => {
-        const moduleMap = MODULES_NAME_DATA.reduce((acc, staticModule) => {
-          const moduleKey = staticModule.value.toLowerCase();
+        const moduleNames = this.appConfigurationService.moduleNames();
+
+        const moduleMap = moduleNames.reduce((acc, module) => {
+          const moduleKey = module.value.toLowerCase();
           acc.set(moduleKey, {
             id: `module-${moduleKey}`,
-            moduleName: staticModule.label,
+            moduleName: module.label,
             permissions: [],
           });
           return acc;

@@ -15,15 +15,10 @@ import {
   ATTENDANCE_STATUS_DATA,
   BANK_NAME_DATA,
   EMPLOYEE_STATUS_DATA,
-  INDIA_STATE_DATA,
-  INDIA_CITY_BY_STATE_DATA,
-  INDIA_ALL_CITIES_DATA,
   PASSING_YEAR_DATA,
   PETRO_CARD_STATUS_DATA,
   COMPANY_STATUS_DATA,
   CONTRACTOR_STATUS_DATA,
-  MODULES_NAME_DATA,
-  MODULE_ACTIONS_BY_MODULE_NAME_DATA,
 } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { AppConfiguationResponseSchema } from '@shared/schemas';
@@ -70,6 +65,7 @@ export class AppConfigurationService {
   private readonly _bankNames = signal<IOptionDropdown[]>([]);
   private readonly _states = signal<IOptionDropdown[]>([]);
   private readonly _cities = signal<IOptionDropdown[]>([]);
+  private readonly _stateCityMap = signal<Record<string, string[]>>({});
   private readonly _employeeStatus = signal<IOptionDropdown[]>([]);
   private readonly _expenseCategories = signal<IOptionDropdown[]>([]);
   private readonly _expensePaymentMethods = signal<IOptionDropdown[]>([]);
@@ -100,6 +96,9 @@ export class AppConfigurationService {
   private readonly _projectStatus = signal<IOptionDropdown[]>([]);
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
   private readonly _moduleNames = signal<IOptionDropdown[]>([]);
+  private readonly _modulesConfig = signal<
+    Record<string, { label: string; actions: IOptionDropdown[] }>
+  >({});
   private readonly _announcementStatuses = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
@@ -156,6 +155,7 @@ export class AppConfigurationService {
   readonly projectStatus = this._projectStatus.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
   readonly moduleNames = this._moduleNames.asReadonly();
+  readonly modulesConfig = this._modulesConfig.asReadonly();
   readonly announcementStatuses = this._announcementStatuses.asReadonly();
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
@@ -181,8 +181,6 @@ export class AppConfigurationService {
     },
     [MODULE_NAMES.COMMON]: {
       [CONFIGURATION_KEYS.COMMON.APPROVAL_STATUS]: APPROVAL_STATUS_DATA,
-      [CONFIGURATION_KEYS.COMMON.STATES]: INDIA_STATE_DATA,
-      [CONFIGURATION_KEYS.COMMON.CITIES]: INDIA_ALL_CITIES_DATA,
     },
     [MODULE_NAMES.PETRO_CARD]: {
       [CONFIGURATION_KEYS.PETRO_CARD.STATUS]: PETRO_CARD_STATUS_DATA,
@@ -192,9 +190,6 @@ export class AppConfigurationService {
     },
     [MODULE_NAMES.CONTRACTOR]: {
       [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_STATUS]: CONTRACTOR_STATUS_DATA,
-    },
-    [MODULE_NAMES.PERMISSION]: {
-      [CONFIGURATION_KEYS.PERMISSION.MODULE_NAMES]: MODULES_NAME_DATA,
     },
   };
 
@@ -402,7 +397,7 @@ export class AppConfigurationService {
     ],
     [MODULE_NAMES.PERMISSION]: [
       {
-        key: CONFIGURATION_KEYS.PERMISSION.MODULE_NAMES,
+        key: CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN,
         signal: this._moduleNames,
       },
     ],
@@ -534,19 +529,53 @@ export class AppConfigurationService {
     if (!stateValue) {
       return [];
     }
-    return INDIA_CITY_BY_STATE_DATA[stateValue] ?? [];
+
+    // Try dynamic data first, then fallback to static
+    const dynamicCities = this._stateCityMap()[stateValue];
+    if (dynamicCities && Array.isArray(dynamicCities)) {
+      return dynamicCities.map(city => ({
+        label: city,
+        value: city,
+      }));
+    }
+
+    return this.cities().filter(city => city.value === stateValue);
   }
 
   getModuleActionsByModuleName(moduleName: string): IOptionDropdown[] {
-    return MODULE_ACTIONS_BY_MODULE_NAME_DATA[moduleName] ?? [];
+    const config = this._modulesConfig();
+    const moduleConfig = config[moduleName];
+
+    if (!moduleConfig?.actions || !Array.isArray(moduleConfig.actions)) {
+      return [];
+    }
+
+    return this.normalizeDropdownData(moduleConfig.actions);
   }
 
   private populateAllModuleDropdowns(
     moduleConfigMap: Record<string, Record<string, unknown>>
   ): void {
+    // Handle modules_config_dropdown specially
+    this.handleModulesConfigDropdown(moduleConfigMap);
+
+    // Handle geography/location config for states and cities
+    this.handleGeographyLocationConfig(moduleConfigMap);
+
+    // Populate all other dropdowns from API config or static fallback
     Object.entries(this.MODULE_DROPDOWN_REGISTRY).forEach(
       ([moduleName, dropdowns]) => {
         dropdowns.forEach(dropdown => {
+          // Skip dropdowns that are handled separately
+          if (
+            dropdown.key ===
+              CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN ||
+            dropdown.key === CONFIGURATION_KEYS.COMMON.STATES ||
+            dropdown.key === CONFIGURATION_KEYS.COMMON.CITIES
+          ) {
+            return;
+          }
+
           const apiValue = moduleConfigMap[moduleName]?.[dropdown.key];
           const staticFallback =
             this.STATIC_FALLBACK_DATA[moduleName]?.[dropdown.key];
@@ -559,12 +588,71 @@ export class AppConfigurationService {
           } else if (staticFallback) {
             nextValue = staticFallback;
           }
+
           if (dropdown.signal() !== nextValue) {
             dropdown.signal.set(nextValue);
           }
         });
       }
     );
+  }
+
+  private handleModulesConfigDropdown(
+    moduleConfigMap: Record<string, Record<string, unknown>>
+  ): void {
+    const modulesConfig = moduleConfigMap[MODULE_NAMES.PERMISSION]?.[
+      CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN
+    ] as
+      | Record<string, { label: string; actions: IOptionDropdown[] }>
+      | undefined;
+
+    if (modulesConfig && typeof modulesConfig === 'object') {
+      this._modulesConfig.set(modulesConfig);
+
+      const moduleNameOptions: IOptionDropdown[] = Object.entries(
+        modulesConfig
+      ).map(([key, config]) => ({
+        label: config.label,
+        value: key,
+      }));
+
+      this._moduleNames.set(moduleNameOptions);
+    }
+  }
+
+  private handleGeographyLocationConfig(
+    moduleConfigMap: Record<string, Record<string, unknown>>
+  ): void {
+    const locationConfig = moduleConfigMap[MODULE_NAMES.GEOGRAPHY]?.[
+      CONFIGURATION_KEYS.GEOGRAPHY.LOCATION
+    ] as Record<string, string[]> | undefined;
+
+    if (locationConfig && typeof locationConfig === 'object') {
+      // Store the state-city mapping for getCitiesByState
+      this._stateCityMap.set(locationConfig);
+
+      // Populate states dropdown from the keys (state names)
+      const stateOptions: IOptionDropdown[] = Object.keys(locationConfig)
+        .sort()
+        .map(stateName => ({
+          label: stateName,
+          value: stateName,
+        }));
+
+      this._states.set(stateOptions);
+
+      // Populate all cities dropdown (flattened list)
+      const allCities: IOptionDropdown[] = Object.values(locationConfig)
+        .flat()
+        .sort()
+        .filter((city, index, self) => self.indexOf(city) === index)
+        .map(city => ({
+          label: city,
+          value: city,
+        }));
+
+      this._cities.set(allCities);
+    }
   }
 
   loadAssetList(): Observable<IAssetGetResponseDto> {

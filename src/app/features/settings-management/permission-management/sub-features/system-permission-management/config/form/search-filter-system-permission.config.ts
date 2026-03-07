@@ -21,7 +21,7 @@ const SEARCH_FILTER_SYSTEM_PERMISSION_FORM_FIELDS_CONFIG: ITableSearchFilterInpu
     multiSelectConfig: {
       dynamicDropdown: {
         moduleName: MODULE_NAMES.PERMISSION,
-        dropdownName: CONFIGURATION_KEYS.PERMISSION.MODULE_NAMES,
+        dropdownName: CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN,
       },
     },
     matchmode: ETableFilterMatchMode.IN,

@@ -19,7 +19,7 @@ const ADD_SYSTEM_PERMISSION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISystemPe
       selectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.PERMISSION,
-          dropdownName: CONFIGURATION_KEYS.PERMISSION.MODULE_NAMES,
+          dropdownName: CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN,
         },
       },
       validators: [Validators.required],

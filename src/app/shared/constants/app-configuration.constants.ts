@@ -13,6 +13,7 @@ export const MODULE_NAMES = {
   PROJECT: 'site',
   PERMISSION: 'permission',
   ANNOUNCEMENT: 'announcement',
+  GEOGRAPHY: 'geography',
 } as const;
 
 export const CONFIGURATION_KEYS = {
@@ -89,9 +90,12 @@ export const CONFIGURATION_KEYS = {
     PROJECT_WORK_TYPES: 'site_work_types',
   },
   PERMISSION: {
-    MODULE_NAMES: 'module_names',
+    MODULE_CONFIG_DROPDOWN: 'modules_config_dropdown',
   },
   ANNOUNCEMENT: {
     ANNOUNCEMENT_STATUS: 'announcement_statuses',
+  },
+  GEOGRAPHY: {
+    LOCATION: 'location',
   },
 } as const;
