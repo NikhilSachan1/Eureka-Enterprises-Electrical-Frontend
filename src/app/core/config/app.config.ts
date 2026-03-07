@@ -96,6 +96,8 @@ export const APP_CONFIG = {
   // Dropdown Configuration
   DROPDOWN_CONFIG: {
     DEFAULT_FILTER_LENGTH: 7,
+    VIRTUAL_SCROLL_ITEM_SIZE: 38,
+    VIRTUAL_SCROLL_THRESHOLD: 100,
   },
 
   // Vehicle Configuration

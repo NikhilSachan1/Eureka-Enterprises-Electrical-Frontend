@@ -132,6 +132,8 @@ export interface IMultiSelectFieldConfig {
   display: string | EMultiSelectDisplayType;
   showClearButton: boolean;
   optionDisabled?: string;
+  virtualScroll?: boolean;
+  virtualScrollItemSize?: number;
   dynamicDropdown?: {
     moduleName: string;
     dropdownName: string;

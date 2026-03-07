@@ -91,8 +91,10 @@
         [loading]="selectConfig?.loading ?? false"
         [showClear]="selectConfig?.showClearButton"
         [editable]="selectConfig?.isEditable"
-        [virtualScroll]="selectConfig?.virtualScroll"
-        [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize"
+        [virtualScroll]="
+          selectConfig?.virtualScroll ?? (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD
+        "
+        [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize ?? ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_ITEM_SIZE"
         [disabled]="config.disabledInput || false"
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
@@ -156,6 +158,13 @@
         [showToggleAll]="multiSelectConfig?.showToggleAll"
         [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip"
         [showClear]="multiSelectConfig?.showClearButton"
+        [virtualScroll]="
+          multiSelectConfig?.virtualScroll ??
+          (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD
+        "
+        [virtualScrollItemSize]="
+          multiSelectConfig?.virtualScrollItemSize ?? ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_ITEM_SIZE
+        "
         [disabled]="config.disabledInput || false"
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
