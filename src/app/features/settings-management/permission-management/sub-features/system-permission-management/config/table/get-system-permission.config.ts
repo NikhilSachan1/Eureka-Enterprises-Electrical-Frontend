@@ -20,7 +20,10 @@ export const SYSTEM_PERMISSION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConf
       field: 'permissionLabel',
       header: 'Permission Detail',
       bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-      subtitle: { field: 'permissionDescription' },
+      subtitle: {
+        field: 'permissionDescription',
+        bodyTemplate: EDataType.TEXT_WITH_READ_MORE,
+      },
       primaryFieldHighlight: true,
       icon: ICONS.SETTINGS.COG,
       showImage: true,

@@ -41,10 +41,18 @@ import {
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
+import { toTitleCase } from '@shared/utility';
+import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 
 @Component({
   selector: 'app-get-user',
-  imports: [DataTableComponent, SearchFilterComponent],
+  imports: [
+    DataTableComponent,
+    SearchFilterComponent,
+    StatusTagComponent,
+    TextCasePipe,
+  ],
   templateUrl: './get-user.component.html',
   styleUrl: './get-user.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -124,7 +132,7 @@ export class GetUserComponent implements OnInit {
         employeeName: `${record.firstName} ${record.lastName}`,
         employeeCode: record.employeeId,
         employeeStatus: record.status,
-        employeeRole: record.role,
+        roles: record.roles,
         userPermissionCount: {
           grantedUser: record.userPermissionsGrantedCount,
           revokedUser: record.userPermissionsRevokedCount,
@@ -178,7 +186,7 @@ export class GetUserComponent implements OnInit {
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Employee Role',
-        value: selectedRow.role,
+        value: selectedRow.roles.map(role => toTitleCase(role.name)).join(','),
         type: EDataType.TEXT,
       },
       {

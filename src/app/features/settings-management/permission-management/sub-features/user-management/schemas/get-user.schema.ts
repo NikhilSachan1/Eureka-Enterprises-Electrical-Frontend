@@ -31,7 +31,12 @@ export const UserGetBaseResponseSchema = z
     email: z.string(),
     employeeId: z.string(),
     status: z.string(),
-    role: z.string().nullable(),
+    roles: z.array(
+      z.object({
+        name: z.string(),
+        label: z.string(),
+      })
+    ),
     rolePermissionsCount: z.number(),
     userPermissionsRevokedCount: z.number(),
     userPermissionsGrantedCount: z.number(),

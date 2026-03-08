@@ -20,7 +20,10 @@ export const ROLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'roleLabel',
     header: 'Role Detail',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    subtitle: { field: 'roleDescription' },
+    subtitle: {
+      field: 'roleDescription',
+      bodyTemplate: EDataType.TEXT_WITH_READ_MORE,
+    },
     primaryFieldHighlight: true,
     icon: ICONS.SETTINGS.COG,
     showImage: true,

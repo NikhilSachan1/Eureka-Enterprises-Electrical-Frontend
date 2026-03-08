@@ -26,9 +26,10 @@ export const USER_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     dummyImageField: 'employeeName',
   },
   {
-    field: 'employeeRole',
+    field: 'employeeRoles',
     header: 'Employee Role',
     bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'employeeRoleBadges',
     showSort: false,
   },
   {

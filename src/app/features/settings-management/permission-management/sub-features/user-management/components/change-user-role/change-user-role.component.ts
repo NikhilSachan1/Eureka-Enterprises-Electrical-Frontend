@@ -21,10 +21,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CHANGE_USER_ROLE_FORM_CONFIG } from '../../config';
-import {
-  getMappedValueFromArrayOfObjects,
-  stringToArray,
-} from '@shared/utility';
 import { UserService } from '../../services/user.service';
 
 @Component({
@@ -59,18 +55,8 @@ export class ChangeUserRoleComponent
       );
       return;
     }
-    const roles = stringToArray(record[0].role ?? '', ',');
-    const mappedRoles = roles
-      .map(role => role.trim())
-      .filter(Boolean)
-      .map(role =>
-        getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.roleList(),
-          role,
-          'label',
-          'value'
-        )
-      );
+    const { roles } = record[0];
+    const mappedRoles = roles.map(role => role.name);
 
     this.form = this.formService.createForm<IUserChangeRoleFormDto>(
       CHANGE_USER_ROLE_FORM_CONFIG,

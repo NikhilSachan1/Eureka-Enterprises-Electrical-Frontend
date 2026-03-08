@@ -7,11 +7,10 @@ export interface IUserPermissionCount {
   total: number;
 }
 
-export interface IUser extends Pick<IUserGetBaseResponseDto, 'id'> {
+export interface IUser extends Pick<IUserGetBaseResponseDto, 'id' | 'roles'> {
   employeeName: string;
   employeeCode: string;
   employeeStatus: string;
-  employeeRole: string | null;
   userPermissionCount: IUserPermissionCount;
   originalRawData: IUserGetBaseResponseDto;
 }
