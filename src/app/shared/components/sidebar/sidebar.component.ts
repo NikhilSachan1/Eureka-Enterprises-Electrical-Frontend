@@ -105,6 +105,11 @@ export class SidebarComponent {
     const wasVisible = this.sidebarVisible();
     this.sidebarVisible.update(value => !value);
 
+    // Jab user sidebar reopen kare to blur backdrop hata do (hoverExpanded reset)
+    if (!wasVisible && this.sidebarVisible()) {
+      this.hoverExpanded.set(false);
+    }
+
     // Save state to localStorage (desktop only)
     this.saveSidebarState();
 

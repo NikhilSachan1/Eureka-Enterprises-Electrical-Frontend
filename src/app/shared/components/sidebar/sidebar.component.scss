@@ -82,7 +82,7 @@
     border-bottom: 1px solid var(--sidebar-border-color);
   }
 
-  // Scrollable content area
+  // Scrollable content area – same light bg taaki scroll karte waqt white na dikhe
   .sidebar-content {
     flex: 1;
     display: flex;
@@ -90,9 +90,14 @@
     overflow-y: auto;
     overflow-x: hidden;
     min-height: 0;
+    background: var(--primary-lightest-color);
 
     &::-webkit-scrollbar {
       width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--primary-lightest-color);
     }
 
     &::-webkit-scrollbar-thumb {
