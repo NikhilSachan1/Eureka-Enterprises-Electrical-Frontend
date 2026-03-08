@@ -1,7 +1,11 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, delay, tap } from 'rxjs/operators';
-import { ApiService, LoggerService } from '@core/services';
+import {
+  ApiService,
+  LoggerService,
+  AppPermissionService,
+} from '@core/services';
 import {
   AttachmentsService,
   AvatarService,
@@ -50,6 +54,7 @@ export class AuthService {
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly notificationService = inject(NotificationService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appPermissionService = inject(AppPermissionService);
 
   public readonly loggedInUserInitials = computed(() =>
     this.getLoggedInUserInitials()
@@ -111,6 +116,13 @@ export class AuthService {
         this._refreshToken.set(refreshTokenValue);
         this._user.set(user);
         this._isAuthenticated.set(true);
+
+        if (user.permissions && Array.isArray(user.permissions)) {
+          this.appPermissionService.setPermissions(user.permissions);
+          this.logger.info('User permissions restored from storage', {
+            permissionCount: user.permissions.length,
+          });
+        }
 
         this.logger.info('User authentication state restored from storage');
       } else {
