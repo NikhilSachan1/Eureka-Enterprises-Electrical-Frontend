@@ -70,7 +70,10 @@ export class RoleSwitcherComponent {
     }
     return user.roles.map(role => ({
       id: role,
-      name: toTitleCase(role),
+      name: getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.roleList(),
+        role
+      ),
     }));
   });
 
