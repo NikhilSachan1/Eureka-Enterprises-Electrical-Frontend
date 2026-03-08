@@ -24,7 +24,7 @@ import { AuthService } from '../../services/auth.service';
 import { ROLE_SELECTION_BUTTON_CONFIG, AUTH_MESSAGES } from '../../constants';
 import { finalize } from 'rxjs/operators';
 import { ILoginFormDto, ILoginResponseDto } from '../../types/auth.dto';
-import { toTitleCase } from '@shared/utility';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { FormBase } from '@shared/base/form.base';
 import { LOGIN_PREFILLED_DATA } from '@shared/mock-data/auth.mock-data';
 
@@ -134,7 +134,11 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
   }
 
   protected formatRoleName(roleId: string): string {
-    return toTitleCase(roleId);
+    const roleName = getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.roleList(),
+      roleId
+    );
+    return roleName;
   }
 
   protected continueWithRole(): void {
