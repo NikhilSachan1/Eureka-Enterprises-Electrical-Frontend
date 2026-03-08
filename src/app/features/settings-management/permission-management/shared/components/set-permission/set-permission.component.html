@@ -139,10 +139,10 @@
                           <div class="permission-info-col">
                             <div class="permission-info-row">
                               <div class="permission-label-col">
-                                <h4 class="permission-label">{{ permission.label | titlecase }}</h4>
+                                <h4 class="permission-label">{{ permission.label | textCase: 'title' }}</h4>
                                 @if (permission.description) {
                                   <p class="permission-description line-clamp-2">
-                                    {{ permission.description | titlecase }}
+                                    {{ permission.description | textCase: 'capitalize' }}
                                   </p>
                                 }
                               </div>

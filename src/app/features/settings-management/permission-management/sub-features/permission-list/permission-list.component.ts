@@ -119,14 +119,6 @@ export class PermissionListComponent implements OnInit {
       ];
     }
 
-    if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
-      return [
-        ...basePaths,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
-        ROUTES.SETTINGS.PERMISSION.USER.ADD,
-      ];
-    }
-
     return null;
   }
 
@@ -134,25 +126,27 @@ export class PermissionListComponent implements OnInit {
     return {
       title: 'Permission Management',
       subtitle: 'Manage system permissions, roles, and user access',
-      showHeaderButton: true,
+      showHeaderButton: this.getPageHeaderButtonLabel() !== null,
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
-          label: this.getPageHeaderButtonLabel(),
+          label: this.getPageHeaderButtonLabel() ?? undefined,
         },
       ],
     };
   }
 
-  protected getPageHeaderButtonLabel(): string {
+  protected getPageHeaderButtonLabel(): string | null {
     const currentUrl = this.currentRoute();
 
     if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
       return 'Add New Role';
-    } else if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER)) {
-      return 'Add New User Permission';
+    } else if (
+      currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM)
+    ) {
+      return 'Add System Permission';
     }
 
-    return 'Add New Permission';
+    return null;
   }
 }

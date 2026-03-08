@@ -37,6 +37,7 @@ import { IContractorGetResponseDto } from '@features/site-management/contractor-
 import { ContractorService } from '@features/site-management/contractor-management/services/contractor.service';
 import { PetroCardService } from '@features/transport-management/petro-card-management/services/petro-card.service';
 import { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
+import { toTitleCase } from '@shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -453,7 +454,9 @@ export class AppConfigurationService {
         const employeeList: IOptionDropdown[] = response.records
           .map(employee => {
             const dropdownItem: IOptionDropdown = {
-              label: `${employee.firstName} ${employee.lastName}`.trim(),
+              label: toTitleCase(
+                `${employee.firstName} ${employee.lastName}`.trim()
+              ),
               value: employee.id,
             };
 
@@ -500,7 +503,7 @@ export class AppConfigurationService {
 
         const roleList = response.records
           .map(role => ({
-            label: role.label,
+            label: toTitleCase(role.label),
             value: role.name,
             data: role,
           }))
@@ -542,7 +545,7 @@ export class AppConfigurationService {
     if (dynamicCities && Array.isArray(dynamicCities)) {
       return dynamicCities
         .map(city => ({
-          label: city,
+          label: toTitleCase(city),
           value: city,
         }))
         .sort(this.sortByLabel);
@@ -620,7 +623,7 @@ export class AppConfigurationService {
 
       const moduleNameOptions: IOptionDropdown[] = Object.entries(modulesConfig)
         .map(([key, config]) => ({
-          label: config.label,
+          label: toTitleCase(config.label),
           value: key,
         }))
         .sort(this.sortByLabel);
@@ -644,7 +647,7 @@ export class AppConfigurationService {
       const stateOptions: IOptionDropdown[] = Object.keys(locationConfig)
         .sort()
         .map(stateName => ({
-          label: stateName,
+          label: toTitleCase(stateName),
           value: stateName,
         }));
 
@@ -656,7 +659,7 @@ export class AppConfigurationService {
         .sort()
         .filter((city, index, self) => self.indexOf(city) === index)
         .map(city => ({
-          label: city,
+          label: toTitleCase(city),
           value: city,
         }));
 
@@ -675,7 +678,7 @@ export class AppConfigurationService {
 
         const assetList: IOptionDropdown[] = response.records
           .map(asset => ({
-            label: `${asset.name}`.trim(),
+            label: toTitleCase(`${asset.name}`.trim()),
             value: asset.id,
           }))
           .sort(this.sortByLabel);
@@ -700,8 +703,9 @@ export class AppConfigurationService {
 
         const vehicleList: IOptionDropdown[] = response.records
           .map(vehicle => ({
-            label:
-              `${vehicle.registrationNo} (${vehicle.brand} ${vehicle.model})`.trim(),
+            label: toTitleCase(
+              `${vehicle.registrationNo} (${vehicle.brand} ${vehicle.model})`.trim()
+            ),
             value: vehicle.id,
           }))
           .sort(this.sortByLabel);
@@ -726,7 +730,9 @@ export class AppConfigurationService {
 
         const petroCardList: IOptionDropdown[] = response.records
           .map(petroCard => ({
-            label: `${petroCard.cardName} (${petroCard.cardNumber})`.trim(),
+            label: toTitleCase(
+              `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
+            ),
             value: petroCard.id,
           }))
           .sort(this.sortByLabel);
@@ -751,7 +757,7 @@ export class AppConfigurationService {
 
         const companyList: IOptionDropdown[] = response.records
           .map(company => ({
-            label: company.name,
+            label: toTitleCase(company.name),
             value: company.id,
             data: company,
           }))
@@ -777,7 +783,7 @@ export class AppConfigurationService {
 
         const contractorList: IOptionDropdown[] = response.records
           .map(contractor => ({
-            label: contractor.name,
+            label: toTitleCase(contractor.name),
             value: contractor.id,
           }))
           .sort(this.sortByLabel);
@@ -796,7 +802,7 @@ export class AppConfigurationService {
       .map(item => {
         const obj = item as { label: string; value?: string; name?: string };
         return {
-          label: obj.label,
+          label: toTitleCase(obj.label),
           value: obj.value ?? obj.name ?? '',
         };
       })

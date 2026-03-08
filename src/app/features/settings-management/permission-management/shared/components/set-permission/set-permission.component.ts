@@ -32,7 +32,7 @@ import {
   InputFieldConfigService,
 } from '@shared/services';
 import { CardModule } from 'primeng/card';
-import { NgClass, TitleCasePipe } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { IModulePermission } from '../../../sub-features/system-permission-management/types/system-permission.interface';
 import { SystemPermissionService } from '../../../sub-features/system-permission-management/services/system-permission.service';
@@ -48,6 +48,7 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services';
+import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 
 const STAT_LABEL = {
   TOTAL: 'Total',
@@ -101,7 +102,7 @@ function buildStatsArray(
     NgClass,
     EmptyMessagesComponent,
     StatusTagComponent,
-    TitleCasePipe,
+    TextCasePipe,
   ],
   templateUrl: './set-permission.component.html',
   styleUrls: ['./set-permission.component.scss'],

@@ -11,7 +11,7 @@ export interface IUser extends Pick<IUserGetBaseResponseDto, 'id'> {
   employeeName: string;
   employeeCode: string;
   employeeStatus: string;
-  employeeRole: string;
+  employeeRole: string | null;
   userPermissionCount: IUserPermissionCount;
   originalRawData: IUserGetBaseResponseDto;
 }

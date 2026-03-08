@@ -31,7 +31,7 @@ export const UserGetBaseResponseSchema = z
     email: z.string(),
     employeeId: z.string(),
     status: z.string(),
-    role: z.string(),
+    role: z.string().nullable(),
     rolePermissionsCount: z.number(),
     userPermissionsRevokedCount: z.number(),
     userPermissionsGrantedCount: z.number(),
