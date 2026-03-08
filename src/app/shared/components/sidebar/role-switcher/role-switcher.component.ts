@@ -10,7 +10,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, switchMap } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { PopoverModule, Popover } from 'primeng/popover';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import {
@@ -127,18 +127,6 @@ export class RoleSwitcherComponent {
     this.authService
       .switchActiveRole(this.prepareFormData(targetRole))
       .pipe(
-        // After role switch, reload all app data
-        switchMap((response: ISwitchActiveRoleResponseDto) => {
-          this.logger.info(
-            `Role switched to: ${response.activeRole}, reloading app data...`
-          );
-
-          // Use common method to reload all app data
-          return this.appConfigurationService.loadAllAppData().pipe(
-            // Pass the original response for success notification
-            switchMap(() => [response])
-          );
-        }),
         finalize(() => {
           this.isSubmitting.set(false);
           this.loadingService.hide();

@@ -5,10 +5,19 @@ import {
   Signal,
   WritableSignal,
 } from '@angular/core';
-import { catchError, forkJoin, Observable, tap, throwError } from 'rxjs';
+import {
+  catchError,
+  forkJoin,
+  Observable,
+  of,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
 
 import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import {
   APPROVAL_STATUS_DATA,
@@ -25,7 +34,10 @@ import { AppConfiguationResponseSchema } from '@shared/schemas';
 import { IAppConfiguationResponseDto, IOptionDropdown } from '@shared/types';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
 import { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
-import { IRoleGetResponseDto } from '@features/settings-management/permission-management/sub-features/role-management/types/role.dto';
+import {
+  IRoleGetBaseResponseDto,
+  IRoleGetResponseDto,
+} from '@features/settings-management/permission-management/sub-features/role-management/types/role.dto';
 import { RoleService } from '@features/settings-management/permission-management/sub-features/role-management/services/role.service';
 import { IAssetGetResponseDto } from '@features/asset-management/types/asset.dto';
 import { VehicleService } from '@features/transport-management/vehicle-management/services/vehicle.service';
@@ -45,6 +57,7 @@ import { toTitleCase } from '@shared/utility';
 export class AppConfigurationService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
+  private readonly authService = inject(AuthService);
   private readonly employeeService = inject(EmployeeService);
   private readonly roleService = inject(RoleService);
   private readonly userPermissionService = inject(UserPermissionService);
@@ -306,10 +319,6 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.VEHICLE.SERVICE_STATUS,
         signal: this._vehicleServiceStatus,
-      },
-      {
-        key: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
-        signal: this._vehicleList,
       },
     ],
     [MODULE_NAMES.ASSET]: [
@@ -583,11 +592,17 @@ export class AppConfigurationService {
             dropdown.key ===
               CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN ||
             dropdown.key === CONFIGURATION_KEYS.COMMON.STATES ||
-            dropdown.key === CONFIGURATION_KEYS.COMMON.CITIES
+            dropdown.key === CONFIGURATION_KEYS.COMMON.CITIES ||
+            dropdown.key === CONFIGURATION_KEYS.COMMON.ROLE_LIST ||
+            dropdown.key === CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST ||
+            dropdown.key === CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST ||
+            dropdown.key === CONFIGURATION_KEYS.ASSET.ASSET_LIST ||
+            dropdown.key === CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST ||
+            dropdown.key === CONFIGURATION_KEYS.COMPANY.COMPANY_LIST ||
+            dropdown.key === CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST
           ) {
             return;
           }
-
           const apiValue = moduleConfigMap[moduleName]?.[dropdown.key];
           const staticFallback =
             this.STATIC_FALLBACK_DATA[moduleName]?.[dropdown.key];
@@ -839,25 +854,48 @@ export class AppConfigurationService {
   }
 
   loadAllAppData(): Observable<{
+    roles: IRoleGetResponseDto;
     permissions: unknown;
     appConfiguration: IAppConfiguationResponseDto;
     employeeList: IEmployeeGetResponseDto;
-    roles: IRoleGetResponseDto;
+    assetList: IAssetGetResponseDto;
+    vehicleList: IVehicleGetResponseDto;
+    petroCardList: IPetroCardGetResponseDto;
+    companyList: ICompanyGetResponseDto;
+    contractorList: IContractorGetResponseDto;
   }> {
     this.logger.info('Loading all app data...');
 
-    return forkJoin({
-      permissions:
-        this.userPermissionService.fetchAndStoreLoggedInUserPermissions(),
-      appConfiguration: this.loadAppConfiguration(),
-      employeeList: this.loadEmployeeList(),
-      roles: this.loadAllAppRoles(),
-      assetList: this.loadAssetList(),
-      vehicleList: this.loadVehicleList(),
-      petroCardList: this.loadPetroCardList(),
-      companyList: this.loadCompanyList(),
-      contractorList: this.loadContractorList(),
-    }).pipe(
+    return this.loadAllAppRoles().pipe(
+      switchMap(rolesResponse => {
+        const currentRole = this._roleList().find(
+          role => role.value === this.authService.getCurrentUser()?.activeRole
+        );
+        const currentRoleId = (currentRole?.data as IRoleGetBaseResponseDto)
+          ?.id;
+
+        return forkJoin({
+          permissions:
+            this.userPermissionService.fetchAndStoreLoggedInUserPermissions({
+              roleId: currentRoleId,
+            }),
+          appConfiguration: this.loadAppConfiguration(),
+          employeeList: this.loadEmployeeList(),
+          assetList: this.loadAssetList(),
+          vehicleList: this.loadVehicleList(),
+          petroCardList: this.loadPetroCardList(),
+          companyList: this.loadCompanyList(),
+          contractorList: this.loadContractorList(),
+        }).pipe(
+          // Combine roles response with the rest
+          switchMap(parallelResults =>
+            of({
+              roles: rolesResponse,
+              ...parallelResults,
+            })
+          )
+        );
+      }),
       tap(() => {
         this.logger.info('All app data loaded successfully');
       }),
