@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
 import { GetVehicleDetailResolver } from './resolvers/get-vehicle-detail.resolver';
+import { permissionGuard } from '@core/guards';
+import { APP_PERMISSION } from '@core/constants';
 
 export const VEHICLE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -14,6 +16,10 @@ export const VEHICLE_MANAGEMENT_ROUTES: Routes = [
       import('./components/get-vehicle/get-vehicle.component').then(
         m => m.GetVehicleComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.VEHICLE.TABLE_VIEW],
+    },
   },
   {
     path: ROUTES.VEHICLE.ADD,
@@ -21,6 +27,10 @@ export const VEHICLE_MANAGEMENT_ROUTES: Routes = [
       import('./components/add-vehicle/add-vehicle.component').then(
         m => m.AddVehicleComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.VEHICLE.ADD],
+    },
   },
   {
     path: `${ROUTES.VEHICLE.EDIT}/:vehicleId`,
@@ -31,6 +41,10 @@ export const VEHICLE_MANAGEMENT_ROUTES: Routes = [
     resolve: {
       vehicleDetail: GetVehicleDetailResolver,
     },
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.VEHICLE.EDIT],
+    },
   },
   {
     path: `${ROUTES.VEHICLE.EVENT_HISTORY}/:vehicleId`,
@@ -38,5 +52,9 @@ export const VEHICLE_MANAGEMENT_ROUTES: Routes = [
       import(
         './components/get-vehicle-event-history/get-vehicle-event-history.component'
       ).then(m => m.GetVehicleEventHistoryComponent),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.VEHICLE.EVENT_HISTORY],
+    },
   },
 ];

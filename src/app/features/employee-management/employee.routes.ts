@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
 import { GetNextEmployeeCodeResolver } from './resolvers/get-next-employee-code.resolver';
 import { GetEmployeeDetailResolver } from './resolvers/get-employee-detail.resolver';
+import { APP_PERMISSION } from '@core/constants';
+import { permissionGuard } from '@core/guards';
 
 export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -15,6 +17,10 @@ export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
       import('./components/get-employee/get-employee.component').then(
         m => m.GetEmployeeComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.EMPLOYEE.TABLE_VIEW],
+    },
   },
   {
     path: ROUTES.EMPLOYEE.MY_PROFILE,
@@ -32,6 +38,10 @@ export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
       import('./components/add-employee/add-employee.component').then(
         m => m.AddEmployeeComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.EMPLOYEE.ADD],
+    },
     resolve: {
       nextEmployeeCode: GetNextEmployeeCodeResolver,
     },
@@ -42,6 +52,10 @@ export const EMPLOYEE_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-employee/edit-employee.component').then(
         m => m.EditEmployeeComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.EMPLOYEE.EDIT],
+    },
     resolve: {
       employeeDetail: GetEmployeeDetailResolver,
     },

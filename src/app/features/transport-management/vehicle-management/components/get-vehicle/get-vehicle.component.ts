@@ -53,6 +53,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { APP_CONFIG } from '@core/config';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-vehicle',
@@ -456,6 +457,7 @@ export class GetVehicleComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Vehicle',
           actionName: 'addVehicle',
+          permission: [APP_PERMISSION.VEHICLE.ADD],
         },
       ],
     };

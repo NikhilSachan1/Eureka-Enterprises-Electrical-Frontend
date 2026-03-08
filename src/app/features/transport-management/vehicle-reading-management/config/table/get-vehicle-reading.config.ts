@@ -1,3 +1,4 @@
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IExpenseGetResponseDto } from '@features/expense-management/types/expense.dto';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
@@ -20,22 +21,12 @@ export const VEHICLE_READING_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Expense Details',
+    permission: [APP_PERMISSION.VEHICLE_READING.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Expense',
-  },
-  {
-    ...COMMON_ROW_ACTIONS.DELETE,
-    tooltip: 'Delete Expense',
-  },
-  {
-    ...COMMON_ROW_ACTIONS.APPROVE,
-    tooltip: 'Approve Expense',
-  },
-  {
-    ...COMMON_ROW_ACTIONS.REJECT,
-    tooltip: 'Reject Expense',
+    permission: [APP_PERMISSION.VEHICLE_READING.EDIT],
   },
 ];
 

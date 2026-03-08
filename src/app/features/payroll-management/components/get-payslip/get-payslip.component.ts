@@ -51,6 +51,7 @@ import { APP_CONFIG } from '@core/config';
 import { GetPayslipDetailComponent } from '../get-payslip-detail/get-payslip-detail.component';
 import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
 import { ICONS } from '@shared/constants';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-payslip',
@@ -348,12 +349,14 @@ export class GetPayslipComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Generate Payroll',
           actionName: 'generatePayroll',
+          permission: [APP_PERMISSION.PAYROLL.GENERATE],
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
           icon: ICONS.COMMON.DOWNLOAD,
           label: 'Download Monthly Report',
           actionName: 'downloadMonthlyReport',
+          permission: [APP_PERMISSION.PAYROLL.MONTHLY_REPORT],
         },
       ],
     };

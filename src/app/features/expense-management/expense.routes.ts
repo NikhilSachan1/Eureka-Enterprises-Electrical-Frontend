@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
 import { GetExpenseDetailResolver } from './resolvers/get-expense-detail.resolver';
+import { APP_PERMISSION } from '@core/constants';
+import { permissionGuard } from '@core/guards';
 
 export const EXPENSE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -14,6 +16,10 @@ export const EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import('./components/get-expense/get-expense.component').then(
         m => m.GetExpenseComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.EXPENSE.TABLE_VIEW],
+    },
   },
   {
     path: ROUTES.EXPENSE.ADD,
@@ -21,6 +27,10 @@ export const EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import('./components/add-expense/add-expense.component').then(
         m => m.AddExpenseComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.EXPENSE.ADD],
+    },
   },
   {
     path: `${ROUTES.EXPENSE.EDIT}/:expenseId`,
@@ -31,6 +41,10 @@ export const EXPENSE_MANAGEMENT_ROUTES: Routes = [
     resolve: {
       expenseDetail: GetExpenseDetailResolver,
     },
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.EXPENSE.EDIT],
+    },
   },
   {
     path: ROUTES.EXPENSE.FORCE,
@@ -38,6 +52,10 @@ export const EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import('./components/force-expense/force-expense.component').then(
         m => m.ForceExpenseComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.EXPENSE.FORCE],
+    },
   },
   {
     path: ROUTES.EXPENSE.REIMBURSE,
@@ -45,5 +63,9 @@ export const EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import('./components/reimburse-expense/reimburse-expense.component').then(
         m => m.ReimburseExpenseComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.EXPENSE.REIMBURSE],
+    },
   },
 ];

@@ -9,6 +9,7 @@ import {
   EDataType,
 } from '@shared/types';
 import { IUserGetResponseDto } from '../../types/user.dto';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 export const USER_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No users found.',
@@ -46,14 +47,17 @@ export const USER_TABLE_ROW_ACTIONS_CONFIG: Partial<
     id: EButtonActionType.SET_PERMISSIONS,
     icon: ICONS.SETTINGS.COG,
     tooltip: 'Set User Permissions',
+    permission: [APP_PERMISSION.USER_PERMISSION.SET],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete User Permissions',
+    permission: [APP_PERMISSION.USER_PERMISSION.DELETE],
   },
   {
     id: EButtonActionType.CHANGE_USER_ROLE,
     tooltip: 'Change User Role',
+    permission: [APP_PERMISSION.USER_PERMISSION.CHANGE_ROLE],
   },
 ];
 
@@ -63,6 +67,7 @@ export const USER_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Users Permissions',
+    permission: [APP_PERMISSION.USER_PERMISSION.DELETE],
   },
 ];
 

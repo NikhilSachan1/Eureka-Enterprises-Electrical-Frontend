@@ -9,6 +9,7 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 export const PAYSLIP_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No payslip record found.',
@@ -93,22 +94,27 @@ export const PAYSLIP_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Payslip Details',
+    permission: [APP_PERMISSION.PAYROLL.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve Payslip',
+    permission: [APP_PERMISSION.PAYROLL.APPROVE],
   },
   {
     id: EButtonActionType.PAID,
     tooltip: 'Mark as Paid',
+    permission: [APP_PERMISSION.PAYROLL.PAID],
   },
   {
     ...COMMON_ROW_ACTIONS.CANCEL,
     tooltip: 'Cancel Payslip',
+    permission: [APP_PERMISSION.PAYROLL.CANCEL],
   },
   {
     id: EButtonActionType.GENERATE,
     tooltip: 'Generate Payslip',
+    permission: [APP_PERMISSION.PAYROLL.GENERATE],
   },
 ];
 
@@ -118,15 +124,18 @@ export const PAYSLIP_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.APPROVE,
     tooltip: 'Approve Payslip',
+    permission: [APP_PERMISSION.PAYROLL.APPROVE],
   },
   {
     id: EButtonActionType.PAID,
     tooltip: 'Mark as Paid',
     label: 'Mark as Paid',
+    permission: [APP_PERMISSION.PAYROLL.PAID],
   },
   {
     ...COMMON_BULK_ACTIONS.CANCEL,
     tooltip: 'Cancel Payslip',
+    permission: [APP_PERMISSION.PAYROLL.CANCEL],
   },
 ];
 

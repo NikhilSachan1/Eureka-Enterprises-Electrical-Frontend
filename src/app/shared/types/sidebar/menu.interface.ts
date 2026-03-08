@@ -7,6 +7,7 @@ export interface MenuItem {
   routerLink?: string;
   children?: MenuItem[];
   basePath?: string; // Base path for parent items to match child routes (e.g., '/asset' matches '/asset/event-history/:id')
+  permission?: string[]; // Permissions required - item shows if user has ANY of these
 }
 
 /**

@@ -42,6 +42,7 @@ import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-ac
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-vehicle-reading',
@@ -228,12 +229,14 @@ export class GetVehicleReadingComponent implements OnInit {
           label: 'Add Vehicle Reading',
           icon: ICONS.COMMON.PLUS,
           actionName: 'addVehicleReading',
+          permission: [APP_PERMISSION.VEHICLE_READING.ADD],
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
-          label: 'Manual Vehicle Reading',
+          label: 'Force Vehicle Reading',
           icon: ICONS.ACTIONS.PENCIL,
           actionName: 'manualVehicleReading',
+          permission: [APP_PERMISSION.VEHICLE_READING.FORCE],
         },
       ],
     };

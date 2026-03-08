@@ -9,6 +9,7 @@ import {
 } from '@shared/types';
 import { IFuelExpenseGetResponseDto } from '../../types/fuel-expense.dto';
 import { ICONS } from '@shared/constants';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 export const FUEL_EXPENSE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No fuel expense record found.',
@@ -93,22 +94,27 @@ export const FUEL_EXPENSE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Fuel Expense Details',
+    permission: [APP_PERMISSION.FUEL_EXPENSE.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Fuel Expense',
+    permission: [APP_PERMISSION.FUEL_EXPENSE.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Fuel Expense',
+    permission: [APP_PERMISSION.FUEL_EXPENSE.DELETE],
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve Fuel Expense',
+    permission: [APP_PERMISSION.FUEL_EXPENSE.APPROVE],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Fuel Expense',
+    permission: [APP_PERMISSION.FUEL_EXPENSE.REJECT],
   },
 ];
 
@@ -117,14 +123,17 @@ export const FUEL_EXPENSE_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>
     {
       ...COMMON_BULK_ACTIONS.DELETE,
       tooltip: 'Delete Selected Fuel Expense',
+      permission: [APP_PERMISSION.FUEL_EXPENSE.DELETE],
     },
     {
       ...COMMON_BULK_ACTIONS.APPROVE,
       tooltip: 'Approve Selected Fuel Expense',
+      permission: [APP_PERMISSION.FUEL_EXPENSE.APPROVE],
     },
     {
       ...COMMON_BULK_ACTIONS.REJECT,
       tooltip: 'Reject Selected Fuel Expense',
+      permission: [APP_PERMISSION.FUEL_EXPENSE.REJECT],
     },
   ];
 

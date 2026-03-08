@@ -51,6 +51,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-asset',
@@ -390,6 +391,7 @@ export class GetAssetComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Asset',
           actionName: 'addAsset',
+          permission: [APP_PERMISSION.ASSET.ADD],
         },
       ],
     };

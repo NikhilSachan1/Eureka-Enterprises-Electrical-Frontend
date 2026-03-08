@@ -1,4 +1,5 @@
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IExpenseGetResponseDto } from '@features/expense-management/types/expense.dto';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import {
@@ -83,22 +84,27 @@ export const EXPENSE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Expense Details',
+    permission: [APP_PERMISSION.EXPENSE.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Expense',
+    permission: [APP_PERMISSION.EXPENSE.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Expense',
+    permission: [APP_PERMISSION.EXPENSE.DELETE],
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve Expense',
+    permission: [APP_PERMISSION.EXPENSE.APPROVE],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Expense',
+    permission: [APP_PERMISSION.EXPENSE.REJECT],
   },
 ];
 
@@ -107,14 +113,17 @@ export const EXPENSE_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] =
     {
       ...COMMON_BULK_ACTIONS.DELETE,
       tooltip: 'Delete Selected Expense',
+      permission: [APP_PERMISSION.EXPENSE.DELETE],
     },
     {
       ...COMMON_BULK_ACTIONS.APPROVE,
       tooltip: 'Approve Selected Expense',
+      permission: [APP_PERMISSION.EXPENSE.APPROVE],
     },
     {
       ...COMMON_BULK_ACTIONS.REJECT,
       tooltip: 'Reject Selected Expense',
+      permission: [APP_PERMISSION.EXPENSE.REJECT],
     },
   ];
 

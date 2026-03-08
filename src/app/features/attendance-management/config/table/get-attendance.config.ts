@@ -9,6 +9,7 @@ import {
 import { ICONS } from '@shared/constants';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { IAttendanceGetResponseDto } from '../../types/attendance.dto';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 export const ATTENDANCE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No attendance record found.',
@@ -73,18 +74,22 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] 
     {
       ...COMMON_ROW_ACTIONS.VIEW,
       tooltip: 'View Attendance Details',
+      permission: [APP_PERMISSION.ATTENDANCE.VIEW_DETAIL],
     },
     {
       id: EButtonActionType.REGULARIZE,
       tooltip: 'Regularize Attendance',
+      permission: [APP_PERMISSION.ATTENDANCE.REGULARIZE],
     },
     {
       ...COMMON_ROW_ACTIONS.APPROVE,
       tooltip: 'Approve Attendance',
+      permission: [APP_PERMISSION.ATTENDANCE.APPROVE],
     },
     {
       ...COMMON_ROW_ACTIONS.REJECT,
       tooltip: 'Reject Attendance',
+      permission: [APP_PERMISSION.ATTENDANCE.REJECT],
     },
   ];
 
@@ -93,10 +98,12 @@ export const ATTENDANCE_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[]
     {
       ...COMMON_BULK_ACTIONS.APPROVE,
       tooltip: 'Approve Selected Attendance',
+      permission: [APP_PERMISSION.ATTENDANCE.APPROVE],
     },
     {
       ...COMMON_BULK_ACTIONS.REJECT,
       tooltip: 'Reject Selected Attendance',
+      permission: [APP_PERMISSION.ATTENDANCE.REJECT],
     },
   ];
 

@@ -25,4 +25,5 @@ export interface IButtonConfig {
   visible?: boolean;
   tooltip?: string;
   actionName?: string;
+  permission?: string[];
 }

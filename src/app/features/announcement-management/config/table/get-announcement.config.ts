@@ -1,4 +1,5 @@
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IAnnouncementGetResponseDto } from '@features/announcement-management/types/announcement.dto';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { ICONS } from '@shared/constants';
@@ -59,14 +60,17 @@ const ANNOUNCEMENT_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Announcement',
+    permission: [APP_PERMISSION.ANNOUNCEMENT.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Announcement',
+    permission: [APP_PERMISSION.ANNOUNCEMENT.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Announcement',
+    permission: [APP_PERMISSION.ANNOUNCEMENT.DELETE],
   },
 ];
 
@@ -76,6 +80,7 @@ const ANNOUNCEMENT_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Announcement',
+    permission: [APP_PERMISSION.ANNOUNCEMENT.DELETE],
   },
 ];
 

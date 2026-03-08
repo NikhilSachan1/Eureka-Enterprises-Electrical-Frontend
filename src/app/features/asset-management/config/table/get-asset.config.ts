@@ -1,3 +1,4 @@
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IAssetGetResponseDto } from '@features/asset-management/types/asset.dto';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { ICONS } from '@shared/constants';
@@ -92,47 +93,56 @@ export const ASSET_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Asset Details',
+    permission: [APP_PERMISSION.ASSET.VIEW_DETAIL],
   },
   {
     id: EButtonActionType.EVENT_HISTORY,
     tooltip: 'View Event History',
+    permission: [APP_PERMISSION.ASSET.EVENT_HISTORY],
   },
   {
     id: EButtonActionType.HANDOVER_INITIATE,
     tooltip: 'Allocate Asset',
     // disableWhen: row => row.status === 'AVAILABLE',
+    permission: [APP_PERMISSION.ASSET.HANDOVER_INITIATE],
   },
   {
     id: EButtonActionType.HANDOVER_ACCEPTED,
     tooltip: 'Accept Allocation',
     // hideWhen: row => row.status !== 'pending_handover',
+    permission: [APP_PERMISSION.ASSET.HANDOVER_ACCEPTED],
   },
   {
     id: EButtonActionType.HANDOVER_REJECTED,
     tooltip: 'Reject Allocation',
     // hideWhen: row => row.status !== 'pending_handover',
+    permission: [APP_PERMISSION.ASSET.HANDOVER_REJECTED],
   },
   {
     id: EButtonActionType.HANDOVER_CANCELLED,
     tooltip: 'Cancel Allocation',
     // hideWhen: row => row.status !== 'pending_handover',
+    permission: [APP_PERMISSION.ASSET.HANDOVER_CANCELLED],
   },
   {
     id: EButtonActionType.DEALLOCATE,
     tooltip: 'Deallocate Asset',
     // hideWhen: row => !row.assignedTo,
+    permission: [APP_PERMISSION.ASSET.DEALLOCATE],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Asset',
     // permission: 'asset.edit',
     // disableWhen: row => row.status === 'disposed',
+    permission: [APP_PERMISSION.ASSET.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Asset',
     // permission: 'asset.delete',
     //disableWhen: row => !!row.assignedTo,
+    permission: [APP_PERMISSION.ASSET.DELETE],
   },
 ];
 
@@ -143,6 +153,7 @@ export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Asset',
     // permission: 'asset.delete',
+    permission: [APP_PERMISSION.ASSET.DELETE],
   },
 ];
 

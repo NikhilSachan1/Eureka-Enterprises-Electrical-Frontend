@@ -1,6 +1,5 @@
 export const APP_PERMISSION = {
   ANNOUNCEMENT: {
-    MODULE: 'module_announcement',
     VIEW_DETAIL: 'view_detail_announcement',
     TABLE_VIEW: 'table_view_announcement',
     CARD_VIEW: 'card_view_announcement',
@@ -9,7 +8,6 @@ export const APP_PERMISSION = {
     DELETE: 'delete_announcement',
   },
   ASSET: {
-    MODULE: 'module_asset',
     VIEW_DETAIL: 'view_detail_asset',
     TABLE_VIEW: 'table_view_asset',
     CARD_VIEW: 'card_view_asset',
@@ -24,7 +22,6 @@ export const APP_PERMISSION = {
     EVENT_HISTORY: 'event_history_asset',
   },
   ATTENDANCE: {
-    MODULE: 'module_attendance',
     VIEW_DETAIL: 'view_detail_attendance',
     TABLE_VIEW: 'table_view_attendance',
     CARD_VIEW: 'card_view_attendance',
@@ -35,7 +32,6 @@ export const APP_PERMISSION = {
     REJECT: 'reject_attendance',
   },
   COMPANY: {
-    MODULE: 'module_company',
     VIEW_DETAIL: 'view_detail_company',
     TABLE_VIEW: 'table_view_company',
     CARD_VIEW: 'card_view_company',
@@ -45,7 +41,6 @@ export const APP_PERMISSION = {
     CHANGE_STATUS: 'change_status_company',
   },
   CONTRACTOR: {
-    MODULE: 'module_contractor',
     VIEW_DETAIL: 'view_detail_contractor',
     TABLE_VIEW: 'table_view_contractor',
     CARD_VIEW: 'card_view_contractor',
@@ -55,7 +50,6 @@ export const APP_PERMISSION = {
     CHANGE_STATUS: 'change_status_contractor',
   },
   EMPLOYEE: {
-    MODULE: 'module_employee',
     VIEW_DETAIL: 'view_detail_employee',
     TABLE_VIEW: 'table_view_employee',
     CARD_VIEW: 'card_view_employee',
@@ -66,7 +60,6 @@ export const APP_PERMISSION = {
     SEND_PASSWORD_LINK: 'send_password_link_employee',
   },
   EXPENSE: {
-    MODULE: 'module_expense',
     VIEW_DETAIL: 'view_detail_expense',
     TABLE_VIEW: 'table_view_expense',
     CARD_VIEW: 'card_view_expense',
@@ -79,20 +72,18 @@ export const APP_PERMISSION = {
     REJECT: 'reject_expense',
   },
   FUEL_EXPENSE: {
-    MODULE: 'module_fuel_expense',
-    VIEW_DETAIL: 'view_detail_fuel_expense',
-    TABLE_VIEW: 'table_view_fuel_expense',
-    CARD_VIEW: 'card_view_fuel_expense',
-    ADD: 'add_fuel_expense',
-    EDIT: 'edit_fuel_expense',
-    DELETE: 'delete_fuel_expense',
-    FORCE: 'force_fuel_expense',
-    REIMBURSE: 'reimburse_fuel_expense',
-    APPROVE: 'approve_fuel_expense',
-    REJECT: 'reject_fuel_expense',
+    VIEW_DETAIL: 'view_detail_fuel',
+    TABLE_VIEW: 'table_view_fuel',
+    CARD_VIEW: 'card_view_fuel',
+    ADD: 'add_fuel',
+    EDIT: 'edit_fuel',
+    DELETE: 'delete_fuel',
+    FORCE: 'force_fuel',
+    REIMBURSE: 'reimburse_fuel',
+    APPROVE: 'approve_fuel',
+    REJECT: 'reject_fuel',
   },
   LEAVE: {
-    MODULE: 'module_leave',
     VIEW_DETAIL: 'view_detail_leave',
     TABLE_VIEW: 'table_view_leave',
     CARD_VIEW: 'card_view_leave',
@@ -103,7 +94,6 @@ export const APP_PERMISSION = {
     CANCEL: 'cancel_leave',
   },
   PAYROLL: {
-    MODULE: 'module_payroll',
     VIEW_DETAIL: 'view_detail_payroll',
     TABLE_VIEW: 'table_view_payroll',
     CARD_VIEW: 'card_view_payroll',
@@ -116,7 +106,6 @@ export const APP_PERMISSION = {
     ADD_INCREMENT: 'add_increment_payroll',
   },
   PETRO_CARD: {
-    MODULE: 'module_petro_card',
     TABLE_VIEW: 'table_view_petro_card',
     CARD_VIEW: 'card_view_petro_card',
     ADD: 'add_petro_card',
@@ -126,7 +115,6 @@ export const APP_PERMISSION = {
     UNLINK_VEHICLE: 'unlink_vehicle_petro_card',
   },
   PROJECT: {
-    MODULE: 'module_project',
     VIEW_DETAIL: 'view_detail_project',
     TABLE_VIEW: 'table_view_project',
     CARD_VIEW: 'card_view_project',
@@ -137,7 +125,6 @@ export const APP_PERMISSION = {
     ANALYSIS: 'analysis_project',
   },
   ROLE_PERMISSION: {
-    MODULE: 'module_role_permission',
     TABLE_VIEW: 'table_view_role_permission',
     CARD_VIEW: 'card_view_role_permission',
     ADD: 'add_role_permission',
@@ -146,14 +133,12 @@ export const APP_PERMISSION = {
     SET: 'set_permission_role_permission',
   },
   SALARY_STRUCTURE: {
-    MODULE: 'module_salary_structure',
     VIEW_DETAIL: 'view_detail_salary_structure',
     TABLE_VIEW: 'table_view_salary_structure',
     CARD_VIEW: 'card_view_salary_structure',
     EDIT: 'edit_salary_structure',
   },
   SYSTEM_PERMISSION: {
-    MODULE: 'module_system_permission',
     TABLE_VIEW: 'table_view_system_permission',
     CARD_VIEW: 'card_view_system_permission',
     ADD: 'add_system_permission',
@@ -162,7 +147,6 @@ export const APP_PERMISSION = {
     SET: 'set_permission_system_permission',
   },
   USER_PERMISSION: {
-    MODULE: 'module_user_permission',
     TABLE_VIEW: 'table_view_user_permission',
     CARD_VIEW: 'card_view_user_permission',
     DELETE: 'delete_user_permission',
@@ -170,7 +154,6 @@ export const APP_PERMISSION = {
     CHANGE_ROLE: 'change_role_user_permission',
   },
   VEHICLE: {
-    MODULE: 'module_vehicle',
     VIEW_DETAIL: 'view_detail_vehicle',
     TABLE_VIEW: 'table_view_vehicle',
     CARD_VIEW: 'card_view_vehicle',
@@ -188,7 +171,6 @@ export const APP_PERMISSION = {
     UNLINK_PETRO_CARD: 'unlink_petro_card_vehicle',
   },
   VEHICLE_READING: {
-    MODULE: 'module_vehicle_reading',
     VIEW_DETAIL: 'view_detail_vehicle_reading',
     TABLE_VIEW: 'table_view_vehicle_reading',
     CARD_VIEW: 'card_view_vehicle_reading',
@@ -197,7 +179,6 @@ export const APP_PERMISSION = {
     FORCE: 'force_vehicle_reading',
   },
   VEHICLE_SERVICE: {
-    MODULE: 'module_vehicle_service',
     VIEW_DETAIL: 'view_detail_vehicle_service',
     TABLE_VIEW: 'table_view_vehicle_service',
     CARD_VIEW: 'card_view_vehicle_service',

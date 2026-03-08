@@ -53,6 +53,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 import { GetVehicleServiceDetailComponent } from '../get-vehicle-service-detail/get-vehicle-service-detail.component';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-vehicle-service',
@@ -368,6 +369,7 @@ export class GetVehicleServiceComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Vehicle Service',
           actionName: 'addVehicleService',
+          permission: [APP_PERMISSION.VEHICLE_SERVICE.ADD],
         },
       ],
     };

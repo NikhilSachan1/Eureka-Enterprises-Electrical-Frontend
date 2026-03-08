@@ -7,6 +7,7 @@ import {
   inject,
 } from '@angular/core';
 import { Location } from '@angular/common';
+import { AppPermissionService } from '@core/services/app-permission.service';
 import {
   IButtonConfig,
   IPageHeaderConfig,
@@ -27,12 +28,18 @@ import { ICONS } from '@shared/constants';
 })
 export class PageHeaderComponent {
   private readonly location = inject(Location);
+  private readonly appPermissionService = inject(AppPermissionService);
 
   // Input signals
   pageHeaderConfig = input<Partial<IPageHeaderConfig>>();
 
   protected finalPageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected goBackButtonConfig = computed(() => this.getGoBackButtonConfig());
+
+  // Filter header buttons based on user permissions
+  protected permittedHeaderButtons = computed(() =>
+    this.getPermittedHeaderButtons()
+  );
 
   // Output signals
   // Emit a string action name so parent components can differentiate buttons
@@ -51,6 +58,17 @@ export class PageHeaderComponent {
       severity: EButtonSeverity.SECONDARY,
       variant: EButtonVariant.TEXT,
     } as IButtonConfig;
+  }
+
+  // Returns only the buttons the user has permission to see
+  private getPermittedHeaderButtons(): Partial<IButtonConfig>[] {
+    const config = this.finalPageHeaderConfig();
+    if (!config.headerButtonConfig) {
+      return [];
+    }
+    return this.appPermissionService.filterByPermission(
+      config.headerButtonConfig
+    );
   }
 
   protected onGoBackClick(): void {

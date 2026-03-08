@@ -9,6 +9,7 @@ import {
 } from '@shared/types';
 import { IProjectGetResponseDto } from '../../types/project.dto';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 const PROJECT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No project record found.',
@@ -56,22 +57,27 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Project Details',
+    permission: [APP_PERMISSION.PROJECT.VIEW_DETAIL],
   },
   {
     id: EButtonActionType.ANALYZE,
     tooltip: 'Analyze Project',
+    permission: [APP_PERMISSION.PROJECT.ANALYSIS],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Project',
+    permission: [APP_PERMISSION.PROJECT.EDIT],
   },
   {
     id: EButtonActionType.CHANGE_STATUS,
     tooltip: 'Change Project Status',
+    permission: [APP_PERMISSION.PROJECT.CHANGE_STATUS],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Project',
+    permission: [APP_PERMISSION.PROJECT.DELETE],
   },
 ];
 
@@ -81,6 +87,7 @@ const PROJECT_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Project',
+    permission: [APP_PERMISSION.PROJECT.DELETE],
   },
 ];
 

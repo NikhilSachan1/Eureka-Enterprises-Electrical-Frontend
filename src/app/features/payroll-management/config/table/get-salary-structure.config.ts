@@ -1,3 +1,4 @@
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { ISalaryStructureGetResponseDto } from '@features/payroll-management/types/payroll.dto';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
@@ -46,10 +47,12 @@ export const SALARY_STRUCTURE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Salary Structure Details',
+    permission: [APP_PERMISSION.SALARY_STRUCTURE.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Salary Structure',
+    permission: [APP_PERMISSION.SALARY_STRUCTURE.EDIT],
   },
 ];
 

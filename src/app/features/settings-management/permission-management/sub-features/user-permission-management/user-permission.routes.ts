@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
 import { UserPermissionResolver } from './resolvers/user-permission.resolver';
+import { permissionGuard } from '@core/guards';
+import { APP_PERMISSION } from '@core/constants';
 
 export const USER_PERMISSION_ROUTES: Routes = [
   {
@@ -11,6 +13,10 @@ export const USER_PERMISSION_ROUTES: Routes = [
       ).then(m => m.SetUserPermissionComponent),
     resolve: {
       userPermissionData: UserPermissionResolver,
+    },
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.USER_PERMISSION.SET],
     },
   },
 ];

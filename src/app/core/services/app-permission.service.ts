@@ -7,6 +7,10 @@ import { IAppPermission } from '@features/settings-management/permission-managem
 export class AppPermissionService {
   private readonly _permissions = signal<IAppPermission>([]);
 
+  getPermissions(): IAppPermission {
+    return this._permissions();
+  }
+
   setPermissions(permissions: IAppPermission): void {
     this._permissions.set(permissions);
   }

@@ -109,7 +109,7 @@ export const routes: Routes = [
       },
       {
         path: '**',
-        redirectTo: `${ROUTE_BASE_PATHS.EMPLOYEE}`,
+        redirectTo: ROUTE_BASE_PATHS.DASHBOARD,
       },
     ],
   },

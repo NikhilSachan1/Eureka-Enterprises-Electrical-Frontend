@@ -8,6 +8,7 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 export const SYSTEM_PERMISSION_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No system permissions found.',
@@ -44,10 +45,12 @@ export const SYSTEM_PERMISSION_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Permission',
+    permission: [APP_PERMISSION.SYSTEM_PERMISSION.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Permission',
+    permission: [APP_PERMISSION.SYSTEM_PERMISSION.DELETE],
   },
 ];
 
@@ -57,6 +60,7 @@ export const SYSTEM_PERMISSION_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete selected Permission',
+    permission: [APP_PERMISSION.SYSTEM_PERMISSION.DELETE],
   },
 ];
 

@@ -26,10 +26,10 @@
       </div>
     </div>
 
-    <!-- Right Section - Action Buttons -->
-    @if (finalPageHeader.showHeaderButton && finalPageHeader.headerButtonConfig) {
+    <!-- Right Section - Action Buttons (filtered by user permissions) -->
+    @if (finalPageHeader.showHeaderButton && permittedHeaderButtons().length) {
       <div class="flex items-center gap-2 flex-wrap max-sm:w-full max-sm:justify-end">
-        @for (buttonConfig of finalPageHeader.headerButtonConfig; track buttonConfig.id) {
+        @for (buttonConfig of permittedHeaderButtons(); track buttonConfig.id) {
           <app-button
             [buttonConfig]="buttonConfig"
             (onButtonClick)="headerButtonClick.emit(buttonConfig.actionName || '')"

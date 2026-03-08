@@ -53,6 +53,7 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { FilterMetadata } from 'primeng/api';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-leave',
@@ -312,12 +313,14 @@ export class GetLeaveComponent implements OnInit {
           label: 'Force Leave',
           icon: ICONS.COMMON.FORCE,
           actionName: 'forceLeave',
+          permission: [APP_PERMISSION.LEAVE.FORCE],
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Apply Leave',
           icon: ICONS.COMMON.PLUS,
           actionName: 'applyLeave',
+          permission: [APP_PERMISSION.LEAVE.APPLY],
         },
       ],
     };

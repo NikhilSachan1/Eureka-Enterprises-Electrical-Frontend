@@ -8,6 +8,7 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { ICompanyGetResponseDto } from '../../types/company.dto';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 const COMPANY_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No company record found.',
@@ -57,18 +58,22 @@ const COMPANY_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Company Details',
+    permission: [APP_PERMISSION.COMPANY.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Company',
+    permission: [APP_PERMISSION.COMPANY.EDIT],
   },
   {
     id: EButtonActionType.CHANGE_STATUS,
     tooltip: 'Change Company Status',
+    permission: [APP_PERMISSION.COMPANY.CHANGE_STATUS],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Company',
+    permission: [APP_PERMISSION.COMPANY.DELETE],
   },
 ];
 
@@ -78,6 +83,7 @@ const COMPANY_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Company',
+    permission: [APP_PERMISSION.COMPANY.DELETE],
   },
 ];
 

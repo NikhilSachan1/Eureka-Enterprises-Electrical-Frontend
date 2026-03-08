@@ -48,6 +48,7 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { EPetroCardStatus } from '../../types/petro-card.enum';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-petro-card',
@@ -331,6 +332,7 @@ export class GetPetroCardComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Petro Card',
           actionName: 'addPetroCard',
+          permission: [APP_PERMISSION.PETRO_CARD.ADD],
         },
       ],
     };

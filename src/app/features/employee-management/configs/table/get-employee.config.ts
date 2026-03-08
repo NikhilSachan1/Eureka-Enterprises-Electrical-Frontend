@@ -1,3 +1,4 @@
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import {
@@ -67,22 +68,27 @@ const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Employee profile',
+    permission: [APP_PERMISSION.EMPLOYEE.VIEW_DETAIL],
   },
   {
     id: EButtonActionType.SEND_PASSWORD_LINK,
     tooltip: 'Send Password Link',
+    permission: [APP_PERMISSION.EMPLOYEE.SEND_PASSWORD_LINK],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Employee',
+    permission: [APP_PERMISSION.EMPLOYEE.EDIT],
   },
   {
     id: EButtonActionType.CHANGE_STATUS,
     tooltip: 'Change Employee Status',
+    permission: [APP_PERMISSION.EMPLOYEE.CHANGE_STATUS],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Employee',
+    permission: [APP_PERMISSION.EMPLOYEE.DELETE],
   },
 ];
 
@@ -92,11 +98,13 @@ const EMPLOYEE_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Employee',
+    permission: [APP_PERMISSION.EMPLOYEE.DELETE],
   },
   {
     id: EButtonActionType.SEND_PASSWORD_LINK,
     tooltip: 'Send Password Link to Selected',
     label: 'Send Password Link',
+    permission: [APP_PERMISSION.EMPLOYEE.SEND_PASSWORD_LINK],
   },
 ];
 

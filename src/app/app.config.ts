@@ -32,6 +32,7 @@ import { AnnouncementService } from '@features/announcement-management/services/
 import { AppConfigurationService } from '@shared/services';
 import { lastValueFrom, take } from 'rxjs';
 import { FinancialYearService } from '@core/services/financial-year.service';
+import { IRoleGetBaseResponseDto } from '@features/settings-management/permission-management/sub-features/role-management/types/role.dto';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -93,29 +94,47 @@ export const appConfig: ApplicationConfig = {
         userPermissionService.startPeriodicRefresh();
       }
 
-      const blockingTasks: Promise<unknown>[] = [
-        lastValueFrom(
-          userPermissionService
-            .fetchAndStoreLoggedInUserPermissions()
-            .pipe(take(1))
-        ),
-        lastValueFrom(
-          appConfigurationService.loadAppConfiguration().pipe(take(1))
-        ),
-        lastValueFrom(appConfigurationService.loadEmployeeList().pipe(take(1))),
-        lastValueFrom(appConfigurationService.loadAllAppRoles().pipe(take(1))),
-        lastValueFrom(appConfigurationService.loadAssetList().pipe(take(1))),
-        lastValueFrom(appConfigurationService.loadVehicleList().pipe(take(1))),
-        lastValueFrom(
-          appConfigurationService.loadPetroCardList().pipe(take(1))
-        ),
-        lastValueFrom(appConfigurationService.loadCompanyList().pipe(take(1))),
-        lastValueFrom(
-          appConfigurationService.loadContractorList().pipe(take(1))
-        ),
-      ];
-
       try {
+        // Load roles first - required before fetching user permissions
+        await lastValueFrom(
+          appConfigurationService.loadAllAppRoles().pipe(take(1))
+        );
+
+        const roleList = appConfigurationService.roleList();
+        const currentRole = roleList.find(
+          role => role.value === authService.getCurrentUser()?.activeRole
+        );
+        const currentRoleId = (currentRole?.data as IRoleGetBaseResponseDto)
+          ?.id;
+
+        // Now load remaining data in parallel (permissions need roles to be loaded first)
+        const blockingTasks: Promise<unknown>[] = [
+          lastValueFrom(
+            userPermissionService
+              .fetchAndStoreLoggedInUserPermissions({ roleId: currentRoleId })
+              .pipe(take(1))
+          ),
+          lastValueFrom(
+            appConfigurationService.loadAppConfiguration().pipe(take(1))
+          ),
+          lastValueFrom(
+            appConfigurationService.loadEmployeeList().pipe(take(1))
+          ),
+          lastValueFrom(appConfigurationService.loadAssetList().pipe(take(1))),
+          lastValueFrom(
+            appConfigurationService.loadVehicleList().pipe(take(1))
+          ),
+          lastValueFrom(
+            appConfigurationService.loadPetroCardList().pipe(take(1))
+          ),
+          lastValueFrom(
+            appConfigurationService.loadCompanyList().pipe(take(1))
+          ),
+          lastValueFrom(
+            appConfigurationService.loadContractorList().pipe(take(1))
+          ),
+        ];
+
         await Promise.all(blockingTasks);
       } catch (error) {
         console.error(error);

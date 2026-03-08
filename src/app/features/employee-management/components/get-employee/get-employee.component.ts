@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants';
 import { LoggerService } from '@core/services';
 import {
   EMPLOYEE_ACTION_CONFIG_MAP,
@@ -363,6 +364,7 @@ export class GetEmployeeComponent implements OnInit {
           label: 'Add Employee',
           icon: ICONS.COMMON.PLUS,
           actionName: 'addEmployee',
+          permission: [APP_PERMISSION.EMPLOYEE.ADD],
         },
       ],
     };

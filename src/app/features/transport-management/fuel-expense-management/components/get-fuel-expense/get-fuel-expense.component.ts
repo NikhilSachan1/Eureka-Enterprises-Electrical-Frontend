@@ -55,6 +55,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { DecimalPipe } from '@angular/common';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-fuel-expense',
@@ -436,18 +437,21 @@ export class GetFuelExpenseComponent implements OnInit {
           label: 'Reimburse Fuel Expense',
           icon: ICONS.ACTIONS.PENCIL,
           actionName: 'reimburseFuelExpense',
+          permission: [APP_PERMISSION.FUEL_EXPENSE.REIMBURSE],
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Force Fuel Expense',
           icon: ICONS.COMMON.FORCE,
           actionName: 'forceFuelExpense',
+          permission: [APP_PERMISSION.FUEL_EXPENSE.FORCE],
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Fuel Expense',
           icon: ICONS.COMMON.PLUS,
           actionName: 'addFuelExpense',
+          permission: [APP_PERMISSION.FUEL_EXPENSE.ADD],
         },
       ],
     };

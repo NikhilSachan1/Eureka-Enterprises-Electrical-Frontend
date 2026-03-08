@@ -53,6 +53,7 @@ import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-attendance',
@@ -342,12 +343,14 @@ export class GetAttendanceComponent implements OnInit {
           label: 'Force Attendance',
           icon: ICONS.COMMON.FORCE,
           actionName: 'forceAttendance',
+          permission: [APP_PERMISSION.ATTENDANCE.FORCE],
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Apply Attendance',
           icon: ICONS.ATTENDANCE.CHECK_IN,
           actionName: 'applyAttendance',
+          permission: [APP_PERMISSION.ATTENDANCE.APPLY],
         },
       ],
     };

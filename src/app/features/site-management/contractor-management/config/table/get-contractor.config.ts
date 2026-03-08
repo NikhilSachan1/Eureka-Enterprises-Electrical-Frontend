@@ -8,6 +8,7 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { IContractorGetResponseDto } from '../../types/contractor.dto';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 const CONTRACTOR_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No contractor record found.',
@@ -56,18 +57,22 @@ const CONTRACTOR_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Contractor Details',
+    permission: [APP_PERMISSION.CONTRACTOR.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Contractor',
+    permission: [APP_PERMISSION.CONTRACTOR.EDIT],
   },
   {
     id: EButtonActionType.CHANGE_STATUS,
     tooltip: 'Change Contractor Status',
+    permission: [APP_PERMISSION.CONTRACTOR.CHANGE_STATUS],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Contractor',
+    permission: [APP_PERMISSION.CONTRACTOR.DELETE],
   },
 ];
 
@@ -77,6 +82,7 @@ const CONTRACTOR_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Contractor',
+    permission: [APP_PERMISSION.CONTRACTOR.DELETE],
   },
 ];
 

@@ -52,6 +52,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { ECompanyStatus } from '../../types/company.enum';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-company',
@@ -322,6 +323,7 @@ export class GetCompanyComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Company',
           actionName: 'addCompany',
+          permission: [APP_PERMISSION.COMPANY.ADD],
         },
       ],
     };

@@ -9,6 +9,7 @@ import { ICONS } from '@shared/constants';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { ILeaveGetResponseDto } from '../../types/leave.dto';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 export const LEAVE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No leave record found.',
@@ -63,18 +64,22 @@ export const LEAVE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Leave Details',
+    permission: [APP_PERMISSION.LEAVE.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve Attendance',
+    permission: [APP_PERMISSION.LEAVE.APPROVE],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Attendance',
+    permission: [APP_PERMISSION.LEAVE.REJECT],
   },
   {
     ...COMMON_ROW_ACTIONS.CANCEL,
     tooltip: 'Cancel Leave',
+    permission: [APP_PERMISSION.LEAVE.CANCEL],
   },
 ];
 
@@ -82,14 +87,17 @@ export const LEAVE_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
   {
     ...COMMON_BULK_ACTIONS.APPROVE,
     tooltip: 'Approve Selected Attendance',
+    permission: [APP_PERMISSION.LEAVE.APPROVE],
   },
   {
     ...COMMON_BULK_ACTIONS.REJECT,
     tooltip: 'Reject Selected Attendance',
+    permission: [APP_PERMISSION.LEAVE.REJECT],
   },
   {
     ...COMMON_BULK_ACTIONS.CANCEL,
     tooltip: 'Cancel Selected Leave',
+    permission: [APP_PERMISSION.LEAVE.CANCEL],
   },
 ];
 

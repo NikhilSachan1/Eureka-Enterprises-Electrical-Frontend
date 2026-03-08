@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { permissionGuard } from '@core/guards';
+import { APP_PERMISSION } from '@core/constants';
 
 export const PETRO_CARD_MANAGEMENT_ROUTES: Routes = [
   {
@@ -13,6 +15,10 @@ export const PETRO_CARD_MANAGEMENT_ROUTES: Routes = [
       import('./components/get-petro-card/get-petro-card.component').then(
         m => m.GetPetroCardComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.PETRO_CARD.TABLE_VIEW],
+    },
   },
   {
     path: ROUTES.PETRO_CARD.ADD,
@@ -20,6 +26,10 @@ export const PETRO_CARD_MANAGEMENT_ROUTES: Routes = [
       import('./components/add-petro-card/add-petro-card.component').then(
         m => m.AddPetroCardComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.PETRO_CARD.ADD],
+    },
   },
   {
     path: `${ROUTES.PETRO_CARD.EDIT}/:petroCardId`,
@@ -27,5 +37,9 @@ export const PETRO_CARD_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-petro-card/edit-petro-card.component').then(
         m => m.EditPetroCardComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.PETRO_CARD.EDIT],
+    },
   },
 ];

@@ -55,6 +55,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-announcement',
@@ -324,6 +325,7 @@ export class GetAnnouncementComponent implements OnInit {
           label: 'Add Announcement',
           icon: ICONS.COMMON.PLUS,
           actionName: 'addAnnouncement',
+          permission: [APP_PERMISSION.ANNOUNCEMENT.ADD],
         },
       ],
     };

@@ -53,6 +53,7 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-project',
@@ -357,6 +358,7 @@ export class GetProjectComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Project',
           actionName: 'addProject',
+          permission: [APP_PERMISSION.PROJECT.ADD],
         },
       ],
     };

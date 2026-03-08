@@ -852,6 +852,11 @@ export class AppConfigurationService {
       appConfiguration: this.loadAppConfiguration(),
       employeeList: this.loadEmployeeList(),
       roles: this.loadAllAppRoles(),
+      assetList: this.loadAssetList(),
+      vehicleList: this.loadVehicleList(),
+      petroCardList: this.loadPetroCardList(),
+      companyList: this.loadCompanyList(),
+      contractorList: this.loadContractorList(),
     }).pipe(
       tap(() => {
         this.logger.info('All app data loaded successfully');

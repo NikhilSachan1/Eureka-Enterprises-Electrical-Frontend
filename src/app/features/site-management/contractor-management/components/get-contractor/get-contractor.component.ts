@@ -52,6 +52,7 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-contractor',
@@ -320,6 +321,7 @@ export class GetContractorComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Contractor',
           actionName: 'addContractor',
+          permission: [APP_PERMISSION.CONTRACTOR.ADD],
         },
       ],
     };

@@ -54,6 +54,7 @@ import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-ac
 import { GetExpenseDetailComponent } from '../get-expense-detail/get-expense-detail.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-expense',
@@ -401,18 +402,21 @@ export class GetExpenseComponent implements OnInit {
           label: 'Reimburse Expense',
           icon: ICONS.ACTIONS.PENCIL,
           actionName: 'reimburseExpense',
+          permission: [APP_PERMISSION.EXPENSE.REIMBURSE],
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Force Expense',
           icon: ICONS.COMMON.FORCE,
           actionName: 'forceExpense',
+          permission: [APP_PERMISSION.EXPENSE.FORCE],
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Expense',
           icon: ICONS.COMMON.PLUS,
           actionName: 'addExpense',
+          permission: [APP_PERMISSION.EXPENSE.ADD],
         },
       ],
     };

@@ -1,8 +1,9 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ApplicationMenu, MenuItem, MenuSection } from '@shared/types';
 import { appMenu } from '@core/config';
+import { AppPermissionService } from './app-permission.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,21 @@ export class MenuService {
   private readonly activeParentItem = signal<string | null>(null);
 
   private readonly router = inject(Router);
+  private readonly appPermissionService = inject(AppPermissionService);
+
+  // Filtered menu sections based on user permissions
+  private readonly filteredMenuSections = computed(() => {
+    // Get current permissions from the service
+    const currentPermissions = this.appPermissionService.getPermissions();
+
+    return this.menuState().sections.map(section => ({
+      ...section,
+      items: this.filterMenuItemsByPermission(
+        section.items,
+        currentPermissions
+      ),
+    }));
+  });
 
   constructor() {
     // Set initial active route on service initialization
@@ -37,10 +53,69 @@ export class MenuService {
   }
 
   /**
-   * Get menu sections
+   * Get menu sections filtered by user permissions
    */
   getMenuSections(): MenuSection[] {
-    return this.menuState().sections;
+    return this.filteredMenuSections();
+  }
+
+  /**
+   * Recursively filter menu items based on user permissions
+   * If a parent has no permission, it's shown if any child has permission
+   * If a parent has a permission, user must have that permission
+   * @param items Menu items to filter
+   * @param permissions Current user permissions array
+   */
+  private filterMenuItemsByPermission(
+    items: MenuItem[],
+    permissions: string[]
+  ): MenuItem[] {
+    return items
+      .map(item => {
+        // If item has children, recursively filter them first
+        if (item.children?.length) {
+          const filteredChildren = this.filterMenuItemsByPermission(
+            item.children,
+            permissions
+          );
+
+          // If no children remain after filtering, check parent permission
+          if (filteredChildren.length === 0) {
+            // No accessible children - hide the parent
+            return null;
+          }
+
+          // If parent has permission requirement, check if user has any of them
+          if (item.permission && item.permission.length > 0) {
+            const hasAnyPermission = item.permission.some(p =>
+              permissions.includes(p)
+            );
+            if (!hasAnyPermission) {
+              // Parent permission denied - hide even if children exist
+              return null;
+            }
+          }
+
+          // Return item with filtered children
+          return {
+            ...item,
+            children: filteredChildren,
+          };
+        }
+
+        // Leaf item - check if user has any of the required permissions
+        if (item.permission && item.permission.length > 0) {
+          const hasAnyPermission = item.permission.some(p =>
+            permissions.includes(p)
+          );
+          if (!hasAnyPermission) {
+            return null;
+          }
+        }
+
+        return item;
+      })
+      .filter((item): item is MenuItem => item !== null);
   }
 
   /**

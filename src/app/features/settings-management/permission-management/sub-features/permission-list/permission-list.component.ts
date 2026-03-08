@@ -18,6 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
+import { APP_PERMISSION } from '@core/constants';
 
 @Component({
   selector: 'app-permission-list',
@@ -131,6 +132,7 @@ export class PermissionListComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: this.getPageHeaderButtonLabel() ?? undefined,
+          permission: this.getPageHeaderButtonPermission(),
         },
       ],
     };
@@ -148,5 +150,15 @@ export class PermissionListComponent implements OnInit {
     }
 
     return null;
+  }
+
+  private getPageHeaderButtonPermission(): string[] {
+    const currentUrl = this.currentRoute();
+
+    if (currentUrl.includes(ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE)) {
+      return [APP_PERMISSION.ROLE_PERMISSION.ADD];
+    }
+
+    return [APP_PERMISSION.SYSTEM_PERMISSION.ADD];
   }
 }

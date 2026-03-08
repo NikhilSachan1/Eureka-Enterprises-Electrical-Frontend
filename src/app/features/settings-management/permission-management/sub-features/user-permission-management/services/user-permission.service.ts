@@ -180,8 +180,10 @@ export class UserPermissionService {
     return uiPermissions;
   }
 
-  fetchAndStoreLoggedInUserPermissions(): Observable<IUserPermissionsGetResponseDto> {
-    return this.getUserPermission().pipe(
+  fetchAndStoreLoggedInUserPermissions(
+    params?: IUserPermissionsGetRequestDto
+  ): Observable<IUserPermissionsGetResponseDto> {
+    return this.getUserPermission(params).pipe(
       tap(res => {
         const backendPermissions = this.getFormatedPermissions(res);
         const uiPermissions = this.getUIPermissionsByRole();

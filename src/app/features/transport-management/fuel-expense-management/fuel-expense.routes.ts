@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
 import { GetFuelExpenseDetailResolver } from './resolvers/get-fuel-expense-detail.resolver';
 import { GetLinkedUserVehicleDetailResolver } from './resolvers/get-linked-user-vehicle-detail.resolver';
+import { permissionGuard } from '@core/guards';
+import { APP_PERMISSION } from '@core/constants';
 
 export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -15,6 +17,10 @@ export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import('./components/get-fuel-expense/get-fuel-expense.component').then(
         m => m.GetFuelExpenseComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.FUEL_EXPENSE.TABLE_VIEW],
+    },
   },
   {
     path: ROUTES.FUEL.ADD,
@@ -22,6 +28,10 @@ export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import('./components/add-fuel-expense/add-fuel-expense.component').then(
         m => m.AddFuelExpenseComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.FUEL_EXPENSE.ADD],
+    },
     resolve: {
       linkedUserVehicleDetail: GetLinkedUserVehicleDetailResolver,
     },
@@ -32,6 +42,10 @@ export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-fuel-expense/edit-fuel-expense.component').then(
         m => m.EditFuelExpenseComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.FUEL_EXPENSE.EDIT],
+    },
     resolve: {
       fuelExpenseDetail: GetFuelExpenseDetailResolver,
     },
@@ -42,6 +56,10 @@ export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import(
         './components/force-fuel-expense/force-fuel-expense.component'
       ).then(m => m.ForceFuelExpenseComponent),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.FUEL_EXPENSE.FORCE],
+    },
   },
   {
     path: ROUTES.FUEL.REIMBURSEMENT,
@@ -49,5 +67,9 @@ export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
       import(
         './components/reimburse-fuel-expense/reimburse-fuel-expense.component'
       ).then(m => m.ReimburseFuelExpenseComponent),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.FUEL_EXPENSE.REIMBURSE],
+    },
   },
 ];

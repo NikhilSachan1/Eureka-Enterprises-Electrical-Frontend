@@ -9,6 +9,7 @@ import {
 } from '@shared/types';
 import { IPetroCardGetResponseDto } from '../../types/petro-card.dto';
 import { ICONS } from '@shared/constants';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 export const PETRO_CARD_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No petro card record found.',
@@ -72,18 +73,22 @@ export const PETRO_CARD_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Petro Card',
+    permission: [APP_PERMISSION.PETRO_CARD.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Petro Card',
+    permission: [APP_PERMISSION.PETRO_CARD.DELETE],
   },
   {
     id: EButtonActionType.LINK,
     tooltip: 'Link to Vehicle',
+    permission: [APP_PERMISSION.PETRO_CARD.LINK_VEHICLE],
   },
   {
     id: EButtonActionType.UNLINK,
     tooltip: 'Unlink from Vehicle',
+    permission: [APP_PERMISSION.PETRO_CARD.UNLINK_VEHICLE],
   },
 ];
 
@@ -93,6 +98,7 @@ export const PETRO_CARD_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Petro Card',
+    permission: [APP_PERMISSION.PETRO_CARD.DELETE],
   },
 ];
 
