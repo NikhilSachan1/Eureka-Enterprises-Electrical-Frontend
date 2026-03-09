@@ -23,7 +23,10 @@ import {
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { AppConfigurationService } from '@shared/services';
-import { stringToArray } from '@shared/utility';
+import {
+  getMappedValueFromArrayOfObjects,
+  stringToArray,
+} from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 
 @Component({
@@ -39,7 +42,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   };
   private readonly attendanceService = inject(AttendanceService);
   private readonly loadingService = inject(LoadingService);
-  protected readonly appConfigService = inject(AppConfigurationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _attendanceDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -119,7 +122,10 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Status',
-          value: record.status,
+          value: getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.attendanceStatus(),
+            record.status
+          ),
           type: EDataType.STATUS,
         },
         {
@@ -143,7 +149,10 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
       return {
         status: {
           entryType: record.attendanceType,
-          approvalStatus: record.approvalStatus,
+          approvalStatus: getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.approvalStatus(),
+            record.approvalStatus
+          ),
         },
         entryData,
         approvalBy: {

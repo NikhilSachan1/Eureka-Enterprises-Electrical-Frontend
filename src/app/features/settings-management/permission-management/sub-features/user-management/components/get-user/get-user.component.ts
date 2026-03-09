@@ -13,6 +13,7 @@ import {
   ConfirmationDialogService,
   TableService,
   TableServerSideParamsBuilderService,
+  AppConfigurationService,
 } from '@shared/services';
 import {
   IEnhancedTable,
@@ -42,7 +43,7 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { TableLazyLoadEvent } from 'primeng/table';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
-import { toTitleCase } from '@shared/utility';
+import { getMappedValueFromArrayOfObjects, toTitleCase } from '@shared/utility';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 
 @Component({
@@ -70,6 +71,7 @@ export class GetUserComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -131,7 +133,10 @@ export class GetUserComponent implements OnInit {
         id: record.id,
         employeeName: `${record.firstName} ${record.lastName}`,
         employeeCode: record.employeeId,
-        employeeStatus: record.status,
+        employeeStatus: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.employeeStatus(),
+          record.status
+        ),
         roles: record.roles,
         userPermissionCount: {
           grantedUser: record.userPermissionsGrantedCount,
@@ -204,7 +209,10 @@ export class GetUserComponent implements OnInit {
       details: [
         {
           status: {
-            approvalStatus: selectedRow.status,
+            approvalStatus: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.employeeStatus(),
+              selectedRow.status
+            ),
           },
           entryData,
         },

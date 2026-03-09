@@ -2,6 +2,7 @@ import {
   EDataType,
   ETableFilterMatchMode,
   EDateSelectionMode,
+  EApprovalStatus,
 } from '@shared/types';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 
@@ -38,6 +39,9 @@ export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
       dynamicDropdown: {
         moduleName: MODULE_NAMES.COMMON,
         dropdownName: CONFIGURATION_KEYS.COMMON.APPROVAL_STATUS,
+      },
+      filterOptions: {
+        exclude: [EApprovalStatus.NOT_APPLICABLE],
       },
       haveFilter: false,
       showToggleAll: false,

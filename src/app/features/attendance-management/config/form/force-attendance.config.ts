@@ -62,6 +62,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceFor
           exclude: [
             EAttendanceStatus.CHECKED_IN,
             EAttendanceStatus.CHECKED_OUT,
+            EAttendanceStatus.NOT_CHECKED_IN_YET,
           ],
         },
       },

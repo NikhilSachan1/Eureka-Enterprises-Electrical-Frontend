@@ -24,6 +24,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
 } from '@shared/types';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { finalize } from 'rxjs';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { AnnouncementContentPreviewComponent } from '../announcement-content-preview/announcement-content-preview.component';
@@ -135,7 +136,10 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
 
       return {
         status: {
-          approvalStatus: record.status,
+          approvalStatus: getMappedValueFromArrayOfObjects(
+            this.appConfigService.announcementStatuses(),
+            record.status
+          ),
         },
         entryData,
         createdBy: {

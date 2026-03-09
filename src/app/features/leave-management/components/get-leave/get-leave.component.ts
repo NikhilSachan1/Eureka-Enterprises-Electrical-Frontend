@@ -23,6 +23,7 @@ import {
 } from '@features/leave-management/types/leave.dto';
 import { ILeave } from '@features/leave-management/types/leave.interface';
 import {
+  AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
   LoadingService,
@@ -52,6 +53,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { FilterMetadata } from 'primeng/api';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
@@ -81,6 +83,7 @@ export class GetLeaveComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -149,7 +152,10 @@ export class GetLeaveComponent implements OnInit {
         id: record.id,
         leaveDate: [record.fromDate, record.toDate],
         reason: record.reason,
-        approvalStatus: record.approvalStatus,
+        approvalStatus: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.approvalStatus(),
+          record.approvalStatus
+        ),
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
         employeeCode: record.user.employeeId,
         originalRawData: record,
@@ -260,7 +266,10 @@ export class GetLeaveComponent implements OnInit {
         {
           status: {
             entryType: selectedRow.leaveApplicationType,
-            approvalStatus: selectedRow.approvalStatus,
+            approvalStatus: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.approvalStatus(),
+              selectedRow.approvalStatus
+            ),
           },
           entryData,
         },

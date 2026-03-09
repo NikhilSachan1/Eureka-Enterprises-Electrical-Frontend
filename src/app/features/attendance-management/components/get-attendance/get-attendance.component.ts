@@ -31,6 +31,7 @@ import {
   RouterNavigationService,
   TableService,
   TableServerSideParamsBuilderService,
+  AppConfigurationService,
 } from '@shared/services';
 import {
   ATTENDANCE_ACTION_CONFIG_MAP,
@@ -47,7 +48,10 @@ import {
 } from '../../types/attendance.dto';
 import { IAttendance } from '../../types/attendance.interface';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
-import { stringToArray } from '@shared/utility';
+import {
+  getMappedValueFromArrayOfObjects,
+  stringToArray,
+} from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
@@ -82,6 +86,7 @@ export class GetAttendanceComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -149,6 +154,9 @@ export class GetAttendanceComponent implements OnInit {
   private mapTableData(
     response: IAttendanceGetBaseResponseDto[]
   ): IAttendance[] {
+    const attendanceStatus = this.appConfigurationService.attendanceStatus();
+    const approvalStatus = this.appConfigurationService.approvalStatus();
+
     return response.map((record: IAttendanceGetBaseResponseDto) => {
       const [clientName, siteLocation] = stringToArray(record.notes, '-');
       const associateEngineerName = 'John Doe'; // TODO: Add associate employee name once we have the associate employee name functionality
@@ -157,8 +165,14 @@ export class GetAttendanceComponent implements OnInit {
       return {
         id: record.id,
         attendanceDate: record.attendanceDate,
-        attendanceStatus: record.status,
-        approvalStatus: record.approvalStatus,
+        attendanceStatus: getMappedValueFromArrayOfObjects(
+          attendanceStatus,
+          record.status
+        ),
+        approvalStatus: getMappedValueFromArrayOfObjects(
+          approvalStatus,
+          record.approvalStatus
+        ),
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
         employeeCode: record.user.employeeId,
         siteLocation,
@@ -261,10 +275,12 @@ export class GetAttendanceComponent implements OnInit {
       },
       {
         label: 'Status',
-        value: selectedRow.status,
+        value: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.attendanceStatus(),
+          selectedRow.status
+        ),
         type: EDataType.STATUS,
       },
-      { label: 'Approval Status', value: selectedRow.approvalStatus },
       {
         label: 'Site Location',
         value: siteLocation,
@@ -288,7 +304,10 @@ export class GetAttendanceComponent implements OnInit {
         {
           status: {
             entryType: selectedRow.attendanceType,
-            approvalStatus: selectedRow.approvalStatus,
+            approvalStatus: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.approvalStatus(),
+              selectedRow.approvalStatus
+            ),
           },
           entryData,
         },

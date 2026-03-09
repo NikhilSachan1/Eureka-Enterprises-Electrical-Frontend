@@ -9,12 +9,14 @@ import {
 } from '@angular/core';
 import { LoggerService } from '@core/services';
 import {
+  AppConfigurationService,
   ConfirmationDialogService,
   LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { PetroCardService } from '../../services/petro-card.service';
 import {
   EButtonActionType,
@@ -75,6 +77,7 @@ export class GetPetroCardComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -262,9 +265,12 @@ export class GetPetroCardComponent implements OnInit {
       details: [
         {
           status: {
-            approvalStatus: selectedRow.isAllocated
-              ? EPetroCardStatus.ALLOCATED
-              : EPetroCardStatus.AVAILABLE,
+            approvalStatus: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.petroCardStatus(),
+              selectedRow.isAllocated
+                ? EPetroCardStatus.ALLOCATED
+                : EPetroCardStatus.AVAILABLE
+            ),
           },
           entryData,
         },

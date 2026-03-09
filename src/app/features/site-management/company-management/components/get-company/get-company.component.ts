@@ -149,9 +149,10 @@ export class GetCompanyComponent implements OnInit {
         companyName: record.name,
         contactNumber: record.contactNumber,
         emailAddress: record.email,
-        status: record.isActive
-          ? ECompanyStatus.ACTIVE
-          : ECompanyStatus.ARCHIVED,
+        status: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.companyStatus(),
+          record.isActive ? ECompanyStatus.ACTIVE : ECompanyStatus.ARCHIVED
+        ),
         stateCity: `${getMappedValueFromArrayOfObjects(this.appConfigurationService.states(), record.state)}, ${getMappedValueFromArrayOfObjects(this.appConfigurationService.cities(), record.city)}`,
         pincode: record.pincode,
         parentCompanyName: record.parentCompany?.name ?? null,
@@ -249,9 +250,12 @@ export class GetCompanyComponent implements OnInit {
       details: [
         {
           status: {
-            approvalStatus: selectedRow.isActive
-              ? ECompanyStatus.ACTIVE
-              : ECompanyStatus.ARCHIVED,
+            approvalStatus: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.companyStatus(),
+              selectedRow.isActive
+                ? ECompanyStatus.ACTIVE
+                : ECompanyStatus.ARCHIVED
+            ),
           },
           entryData,
         },

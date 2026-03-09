@@ -298,7 +298,10 @@ export class GetEmployeeComponent implements OnInit {
               this.appConfigurationService.employmentTypes(),
               selectedRow.employeeType
             ),
-            approvalStatus: selectedRow.status,
+            approvalStatus: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.employeeStatus(),
+              selectedRow.status
+            ),
           },
         },
       ],

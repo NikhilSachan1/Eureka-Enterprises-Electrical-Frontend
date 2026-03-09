@@ -42,7 +42,7 @@
 
             @if (approvalStatus && approvalStatus !== '') {
               <p-tag
-                [value]="approvalStatus | textCase: 'title'"
+                [value]="getApprovalStatusDisplay(approvalStatus)"
                 [severity]="getApprovalStatusColor(approvalStatus)"
               />
             }

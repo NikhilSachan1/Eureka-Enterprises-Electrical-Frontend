@@ -18,7 +18,7 @@ export const MODULE_NAMES = {
 
 export const CONFIGURATION_KEYS = {
   COMMON: {
-    APPROVAL_STATUS: 'approval_status',
+    APPROVAL_STATUS: 'approval_status_dropdown',
     ROLE_LIST: 'role_list',
     STATES: 'states',
     CITIES: 'cities',
@@ -26,13 +26,13 @@ export const CONFIGURATION_KEYS = {
   EMPLOYEE: {
     GENDERS: 'genders',
     EMPLOYMENT_TYPES: 'employee_types',
-    EMPLOYEE_STATUS: 'employee_status',
+    EMPLOYEE_STATUS: 'employee_status_dropdown',
     DESIGNATIONS: 'designations',
     DEGREES: 'degrees',
     BRANCHES: 'branches',
     BLOOD_GROUPS: 'blood_groups',
     PASSING_YEARS: 'passing_years',
-    BANK_NAMES: 'bank_names',
+    BANK_NAMES: 'bank_names_dropdown',
     EMPLOYEE_LIST: 'employee_list',
   },
   EXPENSE: {
@@ -43,7 +43,7 @@ export const CONFIGURATION_KEYS = {
     PAYMENT_METHODS: 'payment_modes',
   },
   ATTENDANCE: {
-    STATUS: 'attendance_status',
+    STATUS: 'attendance_status_dropdown',
   },
   SITE: {
     CLIENT_LIST: 'client_list',
@@ -71,7 +71,7 @@ export const CONFIGURATION_KEYS = {
     EVENT_STATUS_LIST: 'asset_event_types',
   },
   PETRO_CARD: {
-    STATUS: 'status',
+    STATUS: 'petro_card_status_dropdown',
     PETRO_CARD_LIST: 'petro_card_list',
   },
   PAYROLL: {
@@ -79,11 +79,11 @@ export const CONFIGURATION_KEYS = {
   },
   COMPANY: {
     COMPANY_LIST: 'company_list',
-    COMPANY_STATUS: 'company_statuses',
+    COMPANY_STATUS: 'company_status_dropdown',
   },
   CONTRACTOR: {
     CONTRACTOR_LIST: 'contractor_list',
-    CONTRACTOR_STATUS: 'contractor_statuses',
+    CONTRACTOR_STATUS: 'contractor_status_dropdown',
   },
   PROJECT: {
     PROJECT_STATUS: 'site_statuses',

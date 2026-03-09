@@ -205,7 +205,10 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
     response: IEmployeeDetailGetResponseDto
   ): IEmployeeDetail {
     const quickInfo: IEmployeeDetailQuickInfo = {
-      employeeStatus: response.status,
+      employeeStatus: getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.employeeStatus(),
+        response.status
+      ),
       employeeDesignation: getMappedValueFromArrayOfObjects(
         this.appConfigurationService.designations(),
         response.designation

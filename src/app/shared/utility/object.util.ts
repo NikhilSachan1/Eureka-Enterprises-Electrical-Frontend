@@ -43,7 +43,13 @@ export const getMappedValueFromArrayOfObjects = <
   searchKey: SearchKey = 'value' as unknown as SearchKey,
   returnKey: ReturnKey = 'label' as unknown as ReturnKey
 ): T[ReturnKey] | T[SearchKey] => {
-  const match = list.find((item: T) => item[searchKey] === searchValue);
+  const match =
+    list.find((item: T) => item[searchKey] === searchValue) ??
+    list.find(
+      (item: T) =>
+        String(item[searchKey]).toLowerCase() ===
+        String(searchValue).toLowerCase()
+    );
   const returnValue = match?.[returnKey];
   return (returnValue ?? searchValue) as T[ReturnKey] | T[SearchKey];
 };

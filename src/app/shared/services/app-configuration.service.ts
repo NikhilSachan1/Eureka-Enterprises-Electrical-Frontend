@@ -19,16 +19,7 @@ import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
-import {
-  APPROVAL_STATUS_DATA,
-  ATTENDANCE_STATUS_DATA,
-  BANK_NAME_DATA,
-  EMPLOYEE_STATUS_DATA,
-  PASSING_YEAR_DATA,
-  PETRO_CARD_STATUS_DATA,
-  COMPANY_STATUS_DATA,
-  CONTRACTOR_STATUS_DATA,
-} from '@shared/config/static-data.config';
+import { PASSING_YEAR_DATA } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { AppConfiguationResponseSchema } from '@shared/schemas';
 import { IAppConfiguationResponseDto, IOptionDropdown } from '@shared/types';
@@ -187,23 +178,6 @@ export class AppConfigurationService {
   > = {
     [MODULE_NAMES.EMPLOYEE]: {
       [CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS]: PASSING_YEAR_DATA,
-      [CONFIGURATION_KEYS.EMPLOYEE.BANK_NAMES]: BANK_NAME_DATA,
-      [CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_STATUS]: EMPLOYEE_STATUS_DATA,
-    },
-    [MODULE_NAMES.ATTENDANCE]: {
-      [CONFIGURATION_KEYS.ATTENDANCE.STATUS]: ATTENDANCE_STATUS_DATA,
-    },
-    [MODULE_NAMES.COMMON]: {
-      [CONFIGURATION_KEYS.COMMON.APPROVAL_STATUS]: APPROVAL_STATUS_DATA,
-    },
-    [MODULE_NAMES.PETRO_CARD]: {
-      [CONFIGURATION_KEYS.PETRO_CARD.STATUS]: PETRO_CARD_STATUS_DATA,
-    },
-    [MODULE_NAMES.COMPANY]: {
-      [CONFIGURATION_KEYS.COMPANY.COMPANY_STATUS]: COMPANY_STATUS_DATA,
-    },
-    [MODULE_NAMES.CONTRACTOR]: {
-      [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_STATUS]: CONTRACTOR_STATUS_DATA,
     },
   };
 
@@ -816,8 +790,12 @@ export class AppConfigurationService {
     return data
       .map(item => {
         const obj = item as { label: string; value?: string; name?: string };
+        const rawLabel = obj.label ?? '';
+        // "NA" ko as-is rakhna, toTitleCase se "Na" na bane
+        const label =
+          rawLabel.toUpperCase() === 'N/A' ? 'N/A' : toTitleCase(rawLabel);
         return {
-          label: toTitleCase(obj.label),
+          label,
           value: obj.value ?? obj.name ?? '',
         };
       })

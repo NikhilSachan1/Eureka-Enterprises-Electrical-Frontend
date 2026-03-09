@@ -30,7 +30,7 @@ import {
   AppConfigurationService,
 } from '@shared/services';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
-import { StatusUtil } from '@shared/utility';
+import { StatusUtil, toTitleCase } from '@shared/utility';
 import { ICONS } from '@shared/constants';
 import { CardModule } from 'primeng/card';
 import { Divider } from 'primeng/divider';
@@ -81,6 +81,18 @@ export class ViewDetailComponent {
 
   protected getApprovalStatusColor(status: string): EPrimeNGSeverity {
     return StatusUtil.getSeverity(status) as EPrimeNGSeverity;
+  }
+
+  /** N/A / NA ko as-is; baaki ko title case. Sirf isi component ke liye. */
+  protected getApprovalStatusDisplay(value: string): string {
+    if (!value) {
+      return value;
+    }
+    const n = value.trim().toUpperCase().replace(/\s/g, '');
+    if (n === 'NA' || n === 'N/A') {
+      return 'N/A';
+    }
+    return toTitleCase(value);
   }
 
   protected getColor(status: string): {

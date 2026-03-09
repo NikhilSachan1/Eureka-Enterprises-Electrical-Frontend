@@ -150,9 +150,12 @@ export class GetContractorComponent implements OnInit {
         contractorName: record.name,
         contactNumber: record.contactNumber,
         emailAddress: record.email,
-        status: record.isActive
-          ? EContractorStatus.ACTIVE
-          : EContractorStatus.ARCHIVED,
+        status: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.contractorStatus(),
+          record.isActive
+            ? EContractorStatus.ACTIVE
+            : EContractorStatus.ARCHIVED
+        ),
         stateCity: `${getMappedValueFromArrayOfObjects(this.appConfigurationService.states(), record.state)}, ${getMappedValueFromArrayOfObjects(this.appConfigurationService.cities(), record.city)}`,
         pincode: record.pincode,
         originalRawData: record,
@@ -246,9 +249,12 @@ export class GetContractorComponent implements OnInit {
       details: [
         {
           status: {
-            approvalStatus: selectedRow.isActive
-              ? EContractorStatus.ACTIVE
-              : EContractorStatus.ARCHIVED,
+            approvalStatus: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.contractorStatus(),
+              selectedRow.isActive
+                ? EContractorStatus.ACTIVE
+                : EContractorStatus.ARCHIVED
+            ),
           },
           entryData,
         },

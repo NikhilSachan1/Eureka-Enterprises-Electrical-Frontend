@@ -157,7 +157,10 @@ export class GetFuelExpenseComponent implements OnInit {
       return {
         id: record.id,
         fuelFillDate: record.fillDate,
-        approvalStatus: record.approvalStatus,
+        approvalStatus: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.approvalStatus(),
+          record.approvalStatus
+        ),
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
         employeeCode: record.user.employeeId,
         vehicle: {
@@ -350,7 +353,10 @@ export class GetFuelExpenseComponent implements OnInit {
         {
           status: {
             entryType: selectedRow.expenseEntryType,
-            approvalStatus: selectedRow.approvalStatus,
+            approvalStatus: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.approvalStatus(),
+              selectedRow.approvalStatus
+            ),
           },
           entryData,
         },

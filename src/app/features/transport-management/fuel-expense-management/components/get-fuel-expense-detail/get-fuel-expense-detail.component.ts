@@ -148,7 +148,10 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
       return {
         status: {
           entryType: record.expenseEntryType,
-          approvalStatus: record.approvalStatus,
+          approvalStatus: getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.approvalStatus(),
+            record.approvalStatus
+          ),
         },
         entryData,
         approvalBy: {

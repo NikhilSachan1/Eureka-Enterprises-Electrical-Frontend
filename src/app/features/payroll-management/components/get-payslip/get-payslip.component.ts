@@ -21,6 +21,7 @@ import {
 } from '@features/payroll-management/types/payroll.dto';
 import { IPayslip } from '@features/payroll-management/types/payroll.interface';
 import {
+  AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
   GalleryService,
@@ -44,7 +45,11 @@ import { finalize } from 'rxjs';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { ChipComponent } from '@shared/components/chip/chip.component';
-import { StatusUtil, formatMonthYear } from '@shared/utility';
+import {
+  getMappedValueFromArrayOfObjects,
+  StatusUtil,
+  formatMonthYear,
+} from '@shared/utility';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_CONFIG } from '@core/config';
@@ -79,6 +84,7 @@ export class GetPayslipComponent implements OnInit {
     ConfirmationDialogService
   );
   private readonly drawerService = inject(DrawerService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -251,7 +257,10 @@ export class GetPayslipComponent implements OnInit {
       details: [
         {
           status: {
-            approvalStatus: selectedRow.status,
+            approvalStatus: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.payrollStatus(),
+              selectedRow.status
+            ),
           },
           entryData,
         },

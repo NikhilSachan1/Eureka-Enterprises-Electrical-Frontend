@@ -45,7 +45,11 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
     multiSelectConfig: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus.multiSelectConfig,
       filterOptions: {
-        exclude: [EApprovalStatus.CANCELLED],
+        exclude: [
+          ...(COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus
+            .multiSelectConfig.filterOptions?.exclude ?? []),
+          EApprovalStatus.CANCELLED,
+        ],
       },
     },
   },

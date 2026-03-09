@@ -33,6 +33,13 @@ export const USER_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'employeeStatus',
+    header: 'Employee Status',
+    bodyTemplate: EDataType.STATUS,
+    customTemplateKey: 'employeeStatus',
+    showSort: false,
+  },
+  {
     field: 'userPermissionCount',
     header: 'Permission Count',
     bodyTemplate: EDataType.TEXT,

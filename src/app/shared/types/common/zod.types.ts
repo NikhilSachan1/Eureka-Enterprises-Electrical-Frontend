@@ -18,4 +18,5 @@ export enum EApprovalStatus {
   APPROVED = ETableActionTypeValue.APPROVED,
   REJECTED = ETableActionTypeValue.REJECTED,
   CANCELLED = ETableActionTypeValue.CANCELLED,
+  NOT_APPLICABLE = 'not_applicable',
 }
