@@ -1,7 +1,7 @@
 export { ICONS } from './icon.constants';
 export { ROUTE_BASE_PATHS, ROUTES } from './route.constants';
 export { FORM_VALIDATION_MESSAGES } from './form-messages.constants';
-export { EUserRole } from './role.constants';
+export { EUserRole, RESTRICTED_ROLES_FOR_USER_ID } from './role.constants';
 export { REGEX } from './regex.constants';
 export {
   MODULE_NAMES,

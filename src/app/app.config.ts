@@ -24,7 +24,11 @@ import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { AppPreset, APP_CONFIG } from '@core/config';
 import { routes } from './app.routes';
-import { AuthInterceptor, ErrorInterceptor } from '@core/interceptors';
+import {
+  AuthInterceptor,
+  ErrorInterceptor,
+  RolePayloadSanitizerInterceptor,
+} from '@core/interceptors';
 import { ThemeService, TimezoneService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
@@ -55,7 +59,11 @@ export const appConfig: ApplicationConfig = {
     }),
     provideHttpClient(
       withFetch(),
-      withInterceptors([AuthInterceptor, ErrorInterceptor])
+      withInterceptors([
+        AuthInterceptor,
+        RolePayloadSanitizerInterceptor,
+        ErrorInterceptor,
+      ])
     ),
     provideRouter(
       routes,
