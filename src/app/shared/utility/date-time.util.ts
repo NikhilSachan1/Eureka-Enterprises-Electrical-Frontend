@@ -112,7 +112,10 @@ export const transformDateTimeFormat = (
 };
 
 export const getDateBeforeXDays = (xDays: number): Date => {
-  return new Date(new Date().setDate(new Date().getDate() - xDays));
+  const date = new Date();
+  date.setDate(date.getDate() - xDays);
+  date.setHours(0, 0, 0, 0);
+  return date;
 };
 
 export const formatMonthYear = (month: number, year: number): string => {

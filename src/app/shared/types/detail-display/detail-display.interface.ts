@@ -13,7 +13,11 @@ export interface IDetailEntryData {
   value: string | number | null | string[] | Record<string, unknown>[];
   suffix?: string;
   prefix?: string;
+  /** Body template type for display (e.g., RANGE, DATE, NUMBER, CURRENCY, STATUS). */
   type?: EDataType;
+  /** Data type for value formatting within RANGE (e.g., DATE, NUMBER, CURRENCY). */
+  dataType?: EDataType;
+  /** Date/number format string (e.g., 'dd MMM yyyy', '1.0-2'). */
   format?: string;
   customTemplateKey?: string;
   metadata?: {

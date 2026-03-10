@@ -35,16 +35,6 @@ export interface IDataTableServerSideFilterAndSortConfig {
 
 export type IDataTableHeaderFilterConfig = Partial<IFilterConfig>;
 
-/** Subtitle config for TEXT_WITH_SUBTITLE columns. All subtitle-related options in one object. */
-export interface ISubtitleConfig {
-  /** Field key for subtitle value (e.g. 'parentCompanyName', 'employeeCode'). */
-  field: string;
-  /** Body template type for subtitle (date, currency, status, etc.). Defaults to TEXT. */
-  bodyTemplate?: EDataType;
-  /** Optional label shown before subtitle value. */
-  label?: string;
-}
-
 export interface IDataTableHeaderConfig {
   field: string;
   header: string;
@@ -53,6 +43,10 @@ export interface IDataTableHeaderConfig {
   dateFormat?: string;
   currencyFormat?: string;
   numberFormat?: string;
+  /** Text to show before the value (e.g., '$', 'Rs.', 'Start:'). */
+  prefix?: string;
+  /** Text to show after the value (e.g., 'KM', '%', 'units'). */
+  suffix?: string;
   /** Show image (avatar) or icon placeholder for text-with-subtitle columns. */
   showImage?: boolean;
   /** Field used to resolve image/avatar (e.g. name for initials). Used when showImage is true and icon is not set. */
@@ -62,7 +56,7 @@ export interface IDataTableHeaderConfig {
   /** Whether to highlight the primary field (bold). */
   primaryFieldHighlight?: boolean;
   /** Subtitle config (field, bodyTemplate, label). */
-  subtitle?: ISubtitleConfig;
+  subtitle?: Partial<IDataTableHeaderConfig>;
   primaryFieldLabel?: string;
   readMoreConfig?: Partial<IReadMoreConfig>;
   statusConfig?: IStatusConfig;

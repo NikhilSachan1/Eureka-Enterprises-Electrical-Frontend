@@ -212,6 +212,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
     SIDEBAR_INITIALS: {
       ADMIN: true,
       DRIVER: false,
+      SUPER_ADMIN: true,
     },
   },
 } as const;

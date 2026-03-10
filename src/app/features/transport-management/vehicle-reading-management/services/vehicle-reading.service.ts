@@ -5,7 +5,7 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   IvehicleReadingAddFormDto,
   IVehicleReadingAddResponseDto,
-  IVehicleReadingDetailGetRequestDto,
+  IvehicleReadingDetailGetFormDto,
   IVehicleReadingDetailGetResponseDto,
   IvehicleReadingEditFormDto,
   IVehicleReadingEditResponseDto,
@@ -132,13 +132,15 @@ export class VehicleReadingService {
   }
 
   getVehicleReadingDetailById(
-    params: IVehicleReadingDetailGetRequestDto
+    params: IvehicleReadingDetailGetFormDto
   ): Observable<IVehicleReadingDetailGetResponseDto> {
     this.logger.logUserAction('Get Vehicle Reading Detail By Id Request');
 
     return this.apiService
       .getValidated(
-        API_ROUTES.VEHICLE_READING.GET_VEHICLE_READING_BY_ID(params.id),
+        API_ROUTES.VEHICLE_READING.GET_VEHICLE_READING_BY_ID(
+          params.vehicleReadingId
+        ),
         {
           response: VehicleReadingDetailGetResponseSchema,
         }

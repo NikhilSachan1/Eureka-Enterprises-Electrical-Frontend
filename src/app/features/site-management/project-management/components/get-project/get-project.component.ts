@@ -255,7 +255,8 @@ export class GetProjectComponent implements OnInit {
       {
         label: 'Time Line',
         value: [selectedRow.startDate, selectedRow.endDate],
-        type: EDataType.DATE_RANGE,
+        type: EDataType.RANGE,
+        dataType: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {

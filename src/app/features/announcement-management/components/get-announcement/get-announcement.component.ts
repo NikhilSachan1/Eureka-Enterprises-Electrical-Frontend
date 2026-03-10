@@ -247,7 +247,8 @@ export class GetAnnouncementComponent implements OnInit {
       {
         label: 'Announcement Period',
         value: [selectedRow.startAt, selectedRow.expiryAt],
-        type: EDataType.DATE_RANGE,
+        type: EDataType.RANGE,
+        dataType: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
     ];

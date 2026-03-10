@@ -12,7 +12,6 @@ export {
 } from './edit-vehicle-reading.schema';
 export {
   VehicleReadingDetailGetRequestSchema,
-  VehicleReadingDetailGetBaseResponseSchema,
   VehicleReadingDetailGetResponseSchema,
 } from './get-vehicle-reading-detail.schema';
 export {

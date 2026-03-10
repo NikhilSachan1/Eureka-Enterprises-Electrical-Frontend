@@ -393,47 +393,95 @@
   let-row="row"
   let-isCompact="compact"
 >
+  @let skipPrefixSuffix =
+    type === ALL_DATA_TYPES.TEXT_WITH_SUBTITLE ||
+    type === ALL_DATA_TYPES.ATTACHMENTS ||
+    type === ALL_DATA_TYPES.TEXT_WITH_READ_MORE ||
+    type === ALL_DATA_TYPES.EMAIL ||
+    type === ALL_DATA_TYPES.PHONE;
+  @let showPrefix = !skipPrefixSuffix && col.prefix;
+  @let showSuffix = !skipPrefixSuffix && col.suffix;
+
+  <div
+    class="flex items-center gap-2"
+    [class.text-xs]="isCompact"
+  >
+    @if (showPrefix) {
+      <span class="text-text-secondary">{{ col.prefix }}</span>
+    }
+
+    <ng-container
+      [ngTemplateOutlet]="cellValueInnerTmpl"
+      [ngTemplateOutletContext]="{
+        value: val,
+        bodyType: type,
+        column: col,
+        row: row,
+        compact: isCompact,
+      }"
+    />
+
+    @if (showSuffix) {
+      <span class="text-text-secondary">{{ col.suffix }}</span>
+    }
+  </div>
+</ng-template>
+
+<!-- Inner template for actual value rendering (without prefix/suffix) -->
+<ng-template
+  #cellValueInnerTmpl
+  let-val="value"
+  let-type="bodyType"
+  let-col="column"
+  let-row="row"
+  let-isCompact="compact"
+>
   @switch (type) {
     @case (ALL_DATA_TYPES.STATUS) {
-      <div
-        class="flex items-center gap-3"
-        [class.text-xs]="isCompact"
-      >
-        <app-status-tag
-          [value]="$any(val)"
-          [config]="col.statusConfig"
-        />
-      </div>
+      <app-status-tag
+        [value]="$any(val)"
+        [config]="col.statusConfig"
+      />
     }
     @case (ALL_DATA_TYPES.DATE) {
       @if (val) {
-        <div
-          class="flex items-center gap-2"
-          [class.text-xs]="isCompact"
-        >
-          <i [class]="`${icons.COMMON.CALENDAR} text-xs`"></i>
-          <span>{{ $any(val) | date: col.dateFormat ?? 'mediumDate' }}</span>
-        </div>
+        <i [class]="`${icons.COMMON.CALENDAR} text-xs`"></i>
+        <span>{{ $any(val) | date: col.dateFormat ?? 'mediumDate' }}</span>
       } @else {
         <span>-</span>
       }
     }
-    @case (ALL_DATA_TYPES.DATE_RANGE) {
-      @let dateRange = $any(val);
-      @let fromDate = $any(dateRange?.[0])?.toString() ?? '';
-      @let toDate = $any(dateRange?.[1])?.toString() ?? '';
-      @let rangeFormat = $any(col).format ?? col.dateFormat ?? 'mediumDate';
-      <div
-        class="flex items-center gap-2"
-        [class.text-xs]="isCompact"
-      >
-        <i [class]="`${icons.COMMON.CALENDAR} text-xs`"></i>
+    @case (ALL_DATA_TYPES.RANGE) {
+      @let rangeValues = $any(val);
+      @let rangeDataType = col.dataType;
+      @let rangeDateFormat = col.dateFormat ?? 'mediumDate';
+      @let rangeNumberFormat = col.numberFormat;
+      @let rangeCurrencyFormat = col.currencyFormat;
+      @if (rangeValues && rangeValues.length > 0) {
         <span>
-          {{ fromDate | date: rangeFormat }}
-          <span class="mx-1">→</span>
-          {{ toDate | date: rangeFormat }}
+          @for (item of rangeValues; track $index; let isLast = $last) {
+            @switch (rangeDataType) {
+              @case (ALL_DATA_TYPES.DATE) {
+                {{ item | date: rangeDateFormat }}
+              }
+              @case (ALL_DATA_TYPES.NUMBER) {
+                {{ item | number: rangeNumberFormat }}
+              }
+              @case (ALL_DATA_TYPES.CURRENCY) {
+                {{ item | currency: rangeCurrencyFormat }}
+              }
+              @default {
+                {{ item }}
+              }
+            }
+            @if (!isLast) {
+              <span class="mx-1 text-text-secondary">→</span>
+            }
+          }
         </span>
-      </div>
+      } @else {
+        <span>-</span>
+      }
     }
     @case (ALL_DATA_TYPES.CURRENCY) {
       @let entryType = row ? $any(row)['transactionType'] : null;
@@ -443,37 +491,22 @@
           : entryType === 'debit'
             ? 'text-red-600 font-semibold'
             : 'font-semibold';
-      <div
-        class="flex items-center gap-3"
-        [class.text-xs]="isCompact"
-      >
-        <span [ngClass]="colorClass">{{ $any(val) | currency: col.currencyFormat }}</span>
-      </div>
+      <span [ngClass]="colorClass">{{ $any(val) | currency: col.currencyFormat }}</span>
     }
     @case (ALL_DATA_TYPES.NUMBER) {
-      <div
-        class="flex items-center gap-3"
-        [class.text-xs]="isCompact"
-      >
-        <span class="font-semibold">{{ $any(val) | number: col.numberFormat }}</span>
-      </div>
+      <span class="font-semibold">{{ $any(val) | number: col.numberFormat }}</span>
     }
     @case (ALL_DATA_TYPES.ATTACHMENTS) {
       @let keys = $any(val);
       @if (keys && keys.length > 0) {
-        <div
-          class="flex items-center gap-1"
-          [class.text-xs]="isCompact"
-        >
-          <app-chip
-            [label]="`Attachments (${keys.length})`"
-            [icon]="icons.COMMON.PAPERCLIP"
-            [styleClass]="
-              'text-xs font-medium bg-surface-50 border border-border hover:bg-surface-100 hover:border-border-medium transition-colors duration-150 cursor-pointer'
-            "
-            (click)="openAttachmentsGallery(keys, row, col)"
-          />
-        </div>
+        <app-chip
+          [label]="`Attachments (${keys.length})`"
+          [icon]="icons.COMMON.PAPERCLIP"
+          [styleClass]="
+            'text-xs font-medium bg-surface-50 border border-border hover:bg-surface-100 hover:border-border-medium transition-colors duration-150 cursor-pointer'
+          "
+          (click)="openAttachmentsGallery(keys, row, col)"
+        />
       } @else {
         <app-chip
           label="No attachments"
@@ -490,44 +523,34 @@
     }
     @case (ALL_DATA_TYPES.EMAIL) {
       @if (val) {
-        <div
-          class="flex items-center gap-2"
-          [class.text-xs]="isCompact"
+        <a
+          [href]="`mailto:${val}`"
+          class="data-table-link flex items-center gap-2 transition-colors duration-200 group"
+          (click)="$event.stopPropagation()"
         >
-          <a
-            [href]="`mailto:${val}`"
-            class="data-table-link flex items-center gap-2 transition-colors duration-200 group"
-            (click)="$event.stopPropagation()"
-          >
-            <i [class]="`${icons.COMMON.EMAIL} text-sm group-hover:scale-110 transition-transform duration-200`"></i>
-            <span>{{ val }}</span>
-          </a>
-        </div>
+          <i [class]="`${icons.COMMON.EMAIL} text-sm group-hover:scale-110 transition-transform duration-200`"></i>
+          <span>{{ val }}</span>
+        </a>
       } @else {
         <span>-</span>
       }
     }
     @case (ALL_DATA_TYPES.PHONE) {
       @if (val) {
-        <div
-          class="flex items-center gap-2"
-          [class.text-xs]="isCompact"
+        <a
+          [href]="`tel:${val}`"
+          class="data-table-link flex items-center gap-2 transition-colors duration-200 group"
+          (click)="$event.stopPropagation()"
         >
-          <a
-            [href]="`tel:${val}`"
-            class="data-table-link flex items-center gap-2 transition-colors duration-200 group"
-            (click)="$event.stopPropagation()"
-          >
-            <i [class]="`${icons.COMMON.PHONE} text-sm group-hover:scale-110 transition-transform duration-200`"></i>
-            <span>{{ val }}</span>
-          </a>
-        </div>
+          <i [class]="`${icons.COMMON.PHONE} text-sm group-hover:scale-110 transition-transform duration-200`"></i>
+          <span>{{ val }}</span>
+        </a>
       } @else {
         <span>-</span>
       }
     }
     @case (ALL_DATA_TYPES.TEXT_WITH_SUBTITLE) {
-      @if (val) {
+      @if (val !== null && val !== undefined && val !== '') {
         <div class="flex items-center gap-3">
           <div class="flex-1 min-w-0">
             <div>
@@ -566,7 +589,7 @@
                     [ngTemplateOutletContext]="{
                       value: secondaryData,
                       bodyType: subtitleType,
-                      column: col,
+                      column: col.subtitle,
                       row: row,
                       compact: true,
                     }"
@@ -581,16 +604,11 @@
       }
     }
     @default {
-      <div
-        class="flex items-center gap-3"
-        [class.text-xs]="isCompact"
-      >
-        @if (col.dataType === 'date') {
-          <span>{{ $any(val) | date: col.dateFormat ?? 'mediumDate' }}</span>
-        } @else {
-          <span>{{ val }}</span>
-        }
-      </div>
+      @if (col.dataType === 'date') {
+        <span>{{ $any(val) | date: col.dateFormat ?? 'mediumDate' }}</span>
+      } @else {
+        <span>{{ val ?? '-' }}</span>
+      }
     }
   }
 </ng-template>
@@ -600,9 +618,10 @@
   let-col="column"
   let-row="row"
 >
-  @if (col.icon) {
-    @let cellVal = resolveNestedProperty(row, col.field);
-    @if (cellVal !== null && cellVal !== '') {
+  @let cellVal = resolveNestedProperty(row, col.field);
+  @let hasData = cellVal !== null && cellVal !== undefined && cellVal !== '';
+  @if (hasData) {
+    @if (col.icon) {
       @let seedField = col.backgroundSeedField ?? col.field ?? col.dummyImageField;
       @let seedValue = $any(resolveNestedProperty(row, seedField)) ?? '';
       @let bgColor = getBackgroundColorForSeed(seedValue);
@@ -612,15 +631,15 @@
       >
         <i [class]="col.icon + ' text-base'"></i>
       </div>
-    }
-  } @else if (col.showImage && col.dummyImageField) {
-    @let imageName = $any(resolveNestedProperty(row, col.dummyImageField));
-    @if (imageName !== null && imageName !== '') {
-      <img
-        [src]="getAvatarUrl(imageName)"
-        [alt]="imageName"
-        class="w-9 h-9 shrink-0 rounded-lg bg-surface-100 object-cover"
-      />
+    } @else if (col.showImage && col.dummyImageField) {
+      @let imageName = $any(resolveNestedProperty(row, col.dummyImageField));
+      @if (imageName !== null && imageName !== '') {
+        <img
+          [src]="getAvatarUrl(imageName)"
+          [alt]="imageName"
+          class="w-9 h-9 shrink-0 rounded-lg bg-surface-100 object-cover"
+        />
+      }
     }
   }
 </ng-template>

@@ -3,6 +3,7 @@ import { ROUTES } from '@shared/constants';
 import { GetLinkedUserVehicleDetailResolver } from '../fuel-expense-management/resolvers/get-linked-user-vehicle-detail.resolver';
 import { permissionGuard } from '@core/guards';
 import { APP_PERMISSION } from '@core/constants';
+import { GetVehicleReadingDetailResolver } from './resolvers/get-vehicle-reading-detail.resolver';
 
 export const VEHICLE_READING_MANAGEMENT_ROUTES: Routes = [
   {
@@ -52,9 +53,9 @@ export const VEHICLE_READING_MANAGEMENT_ROUTES: Routes = [
       import(
         './components/edit-vehicle-reading/edit-vehicle-reading.component'
       ).then(m => m.EditVehicleReadingComponent),
-    // resolve: {
-    //     vehicleReadingDetail: GetVehicleReadingDetailResolver,
-    // },
+    resolve: {
+      vehicleReadingDetail: GetVehicleReadingDetailResolver,
+    },
     canActivate: [permissionGuard],
     data: {
       permissions: [APP_PERMISSION.VEHICLE_READING.EDIT],

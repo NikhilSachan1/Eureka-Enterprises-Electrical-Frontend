@@ -101,7 +101,8 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
         {
           label: 'Announcement Period',
           value: [record.startAt, record.expiryAt],
-          type: EDataType.DATE_RANGE,
+          type: EDataType.RANGE,
+          dataType: EDataType.DATE,
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {

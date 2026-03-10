@@ -39,10 +39,9 @@ export type IVehicleReadingEditRequestDto = z.infer<
 export type IvehicleReadingEditFormDto = z.input<
   typeof VehicleReadingEditRequestSchema
 >;
-export type IVehicleReadingEditUIFormDto = Omit<
-  IvehicleReadingEditFormDto,
-  'vehicleName'
->;
+export type IVehicleReadingEditUIFormDto = IvehicleReadingEditFormDto & {
+  readingDate: Date;
+};
 export type IVehicleReadingEditResponseDto = z.infer<
   typeof VehicleReadingEditResponseSchema
 >;

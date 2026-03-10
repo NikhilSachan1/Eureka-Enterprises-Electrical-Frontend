@@ -1,6 +1,7 @@
 import {
   CurrencyPipe,
   DatePipe,
+  DecimalPipe,
   NgClass,
   NgTemplateOutlet,
 } from '@angular/common';
@@ -48,6 +49,7 @@ import { APP_CONFIG } from '@core/config';
     Divider,
     NgTemplateOutlet,
     DatePipe,
+    DecimalPipe,
     TextCasePipe,
     SecondsToDhmsPipe,
     NgClass,

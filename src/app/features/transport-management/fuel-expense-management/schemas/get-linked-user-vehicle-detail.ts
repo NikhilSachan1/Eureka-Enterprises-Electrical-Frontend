@@ -1,6 +1,6 @@
 import { PetroCardBaseSchema } from '@features/transport-management/petro-card-management/schemas';
 import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
-import { onlyDateStringField, uuidField } from '@shared/schemas';
+import { uuidField } from '@shared/schemas';
 import z from 'zod';
 
 export const LinkedUserVehicleDetailGetRequestSchema = z
@@ -14,26 +14,25 @@ export const LinkedUserVehicleDetailGetRequestSchema = z
     };
   });
 
-export const LinkedUserVehicleDetailSchema = VehicleBaseSchema.omit({
-  cardId: true,
-  additionalData: true,
-}).extend({
-  purchaseDate: onlyDateStringField,
-  insuranceStartDate: onlyDateStringField,
-  insuranceEndDate: onlyDateStringField,
-  pucStartDate: onlyDateStringField,
-  pucEndDate: onlyDateStringField,
-  fitnessStartDate: onlyDateStringField,
-  fitnessEndDate: onlyDateStringField,
-  lastServiceDate: onlyDateStringField,
-  lastServiceKm: z.number().int().min(1).nullable(),
-});
+export const LinkedUserVehicleDetailSchema = VehicleBaseSchema.pick({
+  id: true,
+  registrationNo: true,
+  brand: true,
+  model: true,
+  fuelType: true,
+  mileage: true,
+}).loose();
 
-export const LinkedVehiclePetroCardSchema = PetroCardBaseSchema.nullable();
+export const LinkedVehiclePetroCardSchema = PetroCardBaseSchema.pick({
+  id: true,
+  cardNumber: true,
+  cardType: true,
+  cardName: true,
+}).loose();
 
 export const LinkedUserVehicleDetailGetResponseSchema = z
   .object({
     vehicle: LinkedUserVehicleDetailSchema,
     card: LinkedVehiclePetroCardSchema.nullable(),
   })
-  .strict();
+  .loose();

@@ -35,8 +35,8 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'leaveDate',
     header: 'Leave Date',
-    bodyTemplate: EDataType.DATE_RANGE,
-    dataType: EDataType.DATE_RANGE,
+    bodyTemplate: EDataType.RANGE,
+    dataType: EDataType.DATE,
     dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
     serverSideFilterAndSortConfig: {
       sortField: 'fromDate',

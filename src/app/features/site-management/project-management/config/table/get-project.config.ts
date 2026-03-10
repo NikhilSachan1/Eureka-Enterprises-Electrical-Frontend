@@ -37,8 +37,8 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'timeLine',
     header: 'Time Line',
-    bodyTemplate: EDataType.DATE_RANGE,
-    dataType: EDataType.DATE_RANGE,
+    bodyTemplate: EDataType.RANGE,
+    dataType: EDataType.DATE,
     dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
     showSort: false,
   },

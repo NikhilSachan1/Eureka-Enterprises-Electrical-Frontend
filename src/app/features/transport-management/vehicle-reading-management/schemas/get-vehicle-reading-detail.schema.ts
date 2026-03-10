@@ -1,6 +1,6 @@
 import { uuidField } from '@shared/schemas';
 import { z } from 'zod';
-import { VehicleReadingBaseSchema } from './base-vehicle-reading.schema';
+import { VehicleReadingGetBaseResponseSchema } from './get-vehicle-reading.schema';
 
 export const VehicleReadingDetailGetRequestSchema = z
   .object({
@@ -13,7 +13,5 @@ export const VehicleReadingDetailGetRequestSchema = z
     };
   });
 
-export const VehicleReadingDetailGetBaseResponseSchema =
-  VehicleReadingBaseSchema.strict();
-
-export const VehicleReadingDetailGetResponseSchema = z.object({}).strict();
+export const VehicleReadingDetailGetResponseSchema =
+  VehicleReadingGetBaseResponseSchema;

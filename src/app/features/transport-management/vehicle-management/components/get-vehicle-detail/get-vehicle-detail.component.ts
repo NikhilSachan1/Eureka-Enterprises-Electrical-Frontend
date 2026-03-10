@@ -125,19 +125,22 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
         {
           label: 'Insurance Period',
           value: [record.insuranceStartDate, record.insuranceEndDate],
-          type: EDataType.DATE_RANGE,
+          type: EDataType.RANGE,
+          dataType: EDataType.DATE,
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'PUC Period',
           value: [record.pucStartDate, record.pucEndDate],
-          type: EDataType.DATE_RANGE,
+          type: EDataType.RANGE,
+          dataType: EDataType.DATE,
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
           label: 'Fitness Period',
           value: [record.fitnessStartDate, record.fitnessEndDate],
-          type: EDataType.DATE_RANGE,
+          type: EDataType.RANGE,
+          dataType: EDataType.DATE,
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {

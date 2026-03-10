@@ -43,6 +43,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-get-vehicle-reading',
@@ -127,8 +128,38 @@ export class GetVehicleReadingComponent implements OnInit {
     response: IVehicleReadingGetBaseResponseDto[]
   ): IVehicleReading[] {
     return response.map((record: IVehicleReadingGetBaseResponseDto) => {
+      const city = getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.cities(),
+        record.site.city
+      );
+      const state = getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.states(),
+        record.site.state
+      );
       return {
         id: record.id,
+        readingDate: record.logDate,
+        vehicle: {
+          ...record.vehicle,
+          brandModel: `${record.vehicle['brand']} ${record.vehicle['model']}`, // TODO: Add brand and model
+        },
+        driver: {
+          ...record.driver,
+          fullName: `${record.driver.firstName} ${record.driver.lastName}`,
+        },
+        site: {
+          ...record.site,
+          location: `${city}, ${state}`,
+        },
+        meterReading: [
+          record.startOdometerReading ?? 0,
+          record.endOdometerReading ?? 0,
+        ],
+        totalKmTraveled: record.totalKmTraveled,
+        anomalyStatus: record.anomalyDetected ? 'Anomaly Detected' : 'Normal',
+        anomalyReason: record.anomalyReason,
+        driverRemarks: record.driverRemarks,
+        documentKeys: record.documentKeys,
         originalRawData: record,
       };
     });

@@ -1,21 +1,23 @@
 import { z } from 'zod';
 import { VehicleReadingUpsertShapeSchema } from './base-vehicle-reading.schema';
-import { transformDateFormat } from '@shared/utility';
+import { transformTimeFormat } from '@shared/utility';
 
 export const VehicleReadingEditRequestSchema =
-  VehicleReadingUpsertShapeSchema.strict().transform(data => {
-    return {
-      vehicleId: data.vehicleName,
-      logDate: transformDateFormat(data.readingDate),
-      startOdometerReading: data.startOdometerReading,
-      startTime: data.startTime,
-      startLocation: data.startLocation,
-      endOdometerReading: data.endOdometerReading,
-      endTime: data.endTime,
-      endLocation: data.endLocation,
-      remarks: data.remarks,
-    };
-  });
+  VehicleReadingUpsertShapeSchema.omit({ vehicleName: true, readingDate: true })
+    .strict()
+    .transform(data => {
+      return {
+        startOdometerReading: data.startOdometerReading,
+        startTime: transformTimeFormat(data.startTime),
+        startLocation: data.startLocation,
+        endOdometerReading: data.endOdometerReading,
+        endTime: transformTimeFormat(data.endTime),
+        endLocation: data.endLocation,
+        driverRemarks: data.remarks,
+        vehicleLogStartOdometer: data.startOdometerReadingAttachments,
+        vehicleLogEndOdometer: data.endOdometerReadingAttachments,
+      };
+    });
 export const VehicleReadingEditResponseSchema = z
   .object({
     message: z.string(),

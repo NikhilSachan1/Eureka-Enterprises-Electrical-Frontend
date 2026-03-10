@@ -90,7 +90,8 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
         {
           label: 'Time Line',
           value: [record.startDate, record.endDate],
-          type: EDataType.DATE_RANGE,
+          type: EDataType.RANGE,
+          dataType: EDataType.DATE,
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {

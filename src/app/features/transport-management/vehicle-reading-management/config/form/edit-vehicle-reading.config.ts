@@ -10,6 +10,10 @@ import { IVehicleReadingEditUIFormDto } from '../../types/vehicle-reading.dto';
 const EDIT_VEHICLE_READING_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVehicleReadingEditUIFormDto> =
   {
     ...ADD_VEHICLE_READING_FORM_CONFIG.fields,
+    readingDate: {
+      ...ADD_VEHICLE_READING_FORM_CONFIG.fields.readingDate,
+      disabledInput: true,
+    },
   };
 
 const EDIT_VEHICLE_READING_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

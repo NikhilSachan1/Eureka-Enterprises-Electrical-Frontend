@@ -133,7 +133,8 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
         {
           label: 'Calibration Period',
           value: [record.calibrationStartDate, record.calibrationEndDate],
-          type: EDataType.DATE_RANGE,
+          type: EDataType.RANGE,
+          dataType: EDataType.DATE,
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
@@ -149,7 +150,8 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
         {
           label: 'Warranty Period',
           value: [record.warrantyStartDate, record.warrantyEndDate],
-          type: EDataType.DATE_RANGE,
+          type: EDataType.RANGE,
+          dataType: EDataType.DATE,
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {

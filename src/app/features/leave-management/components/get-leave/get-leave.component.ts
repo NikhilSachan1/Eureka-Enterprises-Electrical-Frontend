@@ -256,7 +256,8 @@ export class GetLeaveComponent implements OnInit {
       {
         label: 'Leave Date',
         value: [selectedRow.fromDate, selectedRow.toDate],
-        type: EDataType.DATE_RANGE,
+        type: EDataType.RANGE,
+        dataType: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       { label: 'Reason', value: selectedRow.reason },
