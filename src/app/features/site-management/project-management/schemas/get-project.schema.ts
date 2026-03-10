@@ -11,7 +11,7 @@ export const ProjectGetRequestSchema = z
     companyNames: z.array(z.string()).optional(),
     contractorNames: z.array(z.string()).optional(),
     managerNames: z.array(z.string()).optional(),
-    projectStatus: z.string().optional(),
+    projectStatus: z.array(z.string()).optional(),
     projectCity: z.array(z.string()).optional(),
     projectState: z.array(z.string()).optional(),
     includeContractors: z.boolean().optional().default(true),
