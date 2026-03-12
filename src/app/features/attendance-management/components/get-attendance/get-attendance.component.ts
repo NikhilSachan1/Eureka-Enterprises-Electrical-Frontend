@@ -23,7 +23,6 @@ import {
   EDataType,
 } from '@shared/types';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
   DrawerService,
@@ -73,7 +72,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetAttendanceComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -131,12 +129,10 @@ export class GetAttendanceComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.attendanceStats.set(stats);
-          this.logger.logUserAction('Attendance records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.attendanceStats.set(null);
-          this.logger.logUserAction('Failed to load attendance records', error);
         },
       });
   }
@@ -322,8 +318,6 @@ export class GetAttendanceComponent implements OnInit {
   private showAttendanceDetailsDrawer(
     rowData: IAttendanceGetBaseResponseDto
   ): void {
-    this.logger.logUserAction('Opening attendance details drawer', rowData);
-
     this.drawerService.showDrawer(GetAttendanceDetailComponent, {
       header: `Attendance Details`,
       subtitle: `Detailed view of attendance`,
@@ -340,15 +334,7 @@ export class GetAttendanceComponent implements OnInit {
     } else if (actionName === 'applyAttendance') {
       navigationRoute = [ROUTE_BASE_PATHS.ATTENDANCE, ROUTES.ATTENDANCE.APPLY];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

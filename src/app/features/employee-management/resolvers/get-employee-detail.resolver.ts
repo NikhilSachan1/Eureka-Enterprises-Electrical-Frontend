@@ -5,7 +5,6 @@ import {
   IEmployeeDetailGetResponseDto,
 } from '../types/employee.dto';
 import { EmployeeService } from '../services/employee.service';
-import { LoggerService } from '@core/services';
 import {
   AttachmentsService,
   LoadingService,
@@ -26,7 +25,6 @@ export class GetEmployeeDetailResolver
   implements Resolve<IEmployeeDetailResolverResponse | null>
 {
   private readonly employeeService = inject(EmployeeService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
   private readonly attachmentsService = inject(AttachmentsService);
@@ -36,15 +34,7 @@ export class GetEmployeeDetailResolver
   ): Observable<IEmployeeDetailResolverResponse | null> {
     const employeeId = route.paramMap.get('employeeId');
 
-    this.logger.logUserAction(
-      'Get Employee Detail Resolver: Starting resolution',
-      { employeeId }
-    );
-
     if (!employeeId) {
-      this.logger.logUserAction(
-        'Get Employee Detail Resolver: No employeeId found in route'
-      );
       this.navigateToEmployeeList();
       return of(null);
     }
@@ -58,11 +48,6 @@ export class GetEmployeeDetailResolver
 
     return this.employeeService.getEmployeeDetailById(paramData).pipe(
       switchMap((response: IEmployeeDetailGetResponseDto) => {
-        this.logger.logUserAction(
-          'Get Employee Detail Resolver: Data resolved successfully',
-          response
-        );
-
         const fileKeysWithType: { key: string; type: string }[] = [];
 
         Object.entries(response.documents).forEach(([docType, keys]) => {
@@ -110,11 +95,7 @@ export class GetEmployeeDetailResolver
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'Get Employee Detail Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToEmployeeList();
         return of(null);
       })

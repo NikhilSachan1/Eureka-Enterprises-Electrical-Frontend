@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   importProvidersFrom,
   inject,
   provideAppInitializer,
@@ -27,9 +28,15 @@ import { routes } from './app.routes';
 import {
   AuthInterceptor,
   ErrorInterceptor,
+  HttpLoggingInterceptor,
   RolePayloadSanitizerInterceptor,
 } from '@core/interceptors';
-import { ThemeService, TimezoneService } from '@core/services';
+import { LoggingErrorHandler } from '@core/error-handlers/logging-error.handler';
+import {
+  ThemeService,
+  TimezoneService,
+  RouterLoggingService,
+} from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
@@ -62,9 +69,11 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([
         AuthInterceptor,
         RolePayloadSanitizerInterceptor,
+        HttpLoggingInterceptor,
         ErrorInterceptor,
       ])
     ),
+    { provide: ErrorHandler, useClass: LoggingErrorHandler },
     provideRouter(
       routes,
       withComponentInputBinding(),
@@ -79,6 +88,9 @@ export const appConfig: ApplicationConfig = {
 
     provideAppInitializer(() => {
       inject(ThemeService);
+    }),
+    provideAppInitializer(() => {
+      inject(RouterLoggingService);
     }),
     provideAppInitializer(async () => {
       const timezoneService = inject(TimezoneService);

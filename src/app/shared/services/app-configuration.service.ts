@@ -16,7 +16,7 @@ import {
 } from 'rxjs';
 
 import { API_ROUTES } from '@core/constants';
-import { ApiService, LoggerService } from '@core/services';
+import { ApiService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { PASSING_YEAR_DATA } from '@shared/config/static-data.config';
@@ -46,7 +46,6 @@ import { toTitleCase } from '@shared/utility';
   providedIn: 'root',
 })
 export class AppConfigurationService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
   private readonly authService = inject(AuthService);
   private readonly employeeService = inject(EmployeeService);
@@ -394,44 +393,22 @@ export class AppConfigurationService {
   };
 
   loadAppConfiguration(): Observable<IAppConfiguationResponseDto> {
-    this.logger.logUserAction('Load App Configuration Request');
-
     return this.apiService
       .getValidated(API_ROUTES.APP_CONFIGUATION.GET, {
         response: AppConfiguationResponseSchema,
       })
       .pipe(
         tap(response => {
-          this.logger.logUserAction(
-            'Load App Configuration Response',
-            response
-          );
           const moduleConfigMap = this.buildModuleConfigMap(response);
           this.populateAllModuleDropdowns(moduleConfigMap);
         }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Load App Configuration Validation Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Load App Configuration Error', error);
-          }
-          return throwError(() => error);
-        })
+        catchError(error => throwError(() => error))
       );
   }
 
   loadEmployeeList(): Observable<IEmployeeGetResponseDto> {
-    this.logger.logUserAction('Loading app data - Employee List');
-
     return this.employeeService.getEmployeeList().pipe(
       tap(response => {
-        this.logger.logUserAction('Employee List loaded successfully', {
-          count: response.totalRecords,
-        });
-
         const employeeListByRole: Record<string, IOptionDropdown[]> = {};
 
         const employeeList: IOptionDropdown[] = response.records
@@ -468,22 +445,13 @@ export class AppConfigurationService {
         this._employeeList.set(employeeList);
         this._employeeListByRole.set(employeeListByRole);
       }),
-      catchError(error => {
-        this.logger.logUserAction('Failed to load Employee List', error);
-        return throwError(() => error);
-      })
+      catchError(error => throwError(() => error))
     );
   }
 
   loadAllAppRoles(): Observable<IRoleGetResponseDto> {
-    this.logger.logUserAction('Loading app data - All App Roles');
-
     return this.roleService.getRoleList().pipe(
       tap(response => {
-        this.logger.logUserAction('All App Roles loaded successfully', {
-          count: response.totalRecords,
-        });
-
         const roleList = response.records
           .map(role => ({
             label: toTitleCase(role.label),
@@ -494,10 +462,7 @@ export class AppConfigurationService {
 
         this._roleList.set(roleList);
       }),
-      catchError(error => {
-        this.logger.logUserAction('Failed to load All App Roles', error);
-        return throwError(() => error);
-      })
+      catchError(error => throwError(() => error))
     );
   }
 
@@ -657,14 +622,8 @@ export class AppConfigurationService {
   }
 
   loadAssetList(): Observable<IAssetGetResponseDto> {
-    this.logger.logUserAction('Loading app data - Asset List');
-
     return this.assetService.getAssetList().pipe(
       tap(response => {
-        this.logger.logUserAction('Asset List loaded successfully', {
-          count: response.totalRecords,
-        });
-
         const assetList: IOptionDropdown[] = response.records
           .map(asset => ({
             label: toTitleCase(`${asset.name}`.trim()),
@@ -674,22 +633,13 @@ export class AppConfigurationService {
 
         this._assetList.set(assetList);
       }),
-      catchError(error => {
-        this.logger.logUserAction('Failed to load Asset List', error);
-        return throwError(() => error);
-      })
+      catchError(error => throwError(() => error))
     );
   }
 
   loadVehicleList(): Observable<IVehicleGetResponseDto> {
-    this.logger.logUserAction('Loading app data - Vehicle List');
-
     return this.vehicleService.getVehicleList().pipe(
       tap(response => {
-        this.logger.logUserAction('Vehicle List loaded successfully', {
-          count: response.totalRecords,
-        });
-
         const vehicleList: IOptionDropdown[] = response.records
           .map(vehicle => ({
             label: toTitleCase(
@@ -701,22 +651,13 @@ export class AppConfigurationService {
 
         this._vehicleList.set(vehicleList);
       }),
-      catchError(error => {
-        this.logger.logUserAction('Failed to load Vehicle List', error);
-        return throwError(() => error);
-      })
+      catchError(error => throwError(() => error))
     );
   }
 
   loadPetroCardList(): Observable<IPetroCardGetResponseDto> {
-    this.logger.logUserAction('Loading app data - Petro Card List');
-
     return this.petroCardService.getPetroCardList().pipe(
       tap(response => {
-        this.logger.logUserAction('Petro Card List loaded successfully', {
-          count: response.totalRecords,
-        });
-
         const petroCardList: IOptionDropdown[] = response.records
           .map(petroCard => ({
             label: toTitleCase(
@@ -728,22 +669,13 @@ export class AppConfigurationService {
 
         this._petroCardList.set(petroCardList);
       }),
-      catchError(error => {
-        this.logger.logUserAction('Failed to load Petro Card List', error);
-        return throwError(() => error);
-      })
+      catchError(error => throwError(() => error))
     );
   }
 
   loadCompanyList(): Observable<ICompanyGetResponseDto> {
-    this.logger.logUserAction('Loading app data - Company List');
-
     return this.companyService.getCompanyList().pipe(
       tap(response => {
-        this.logger.logUserAction('Company List loaded successfully', {
-          count: response.totalRecords,
-        });
-
         const companyList: IOptionDropdown[] = response.records
           .map(company => ({
             label: toTitleCase(company.name),
@@ -754,22 +686,13 @@ export class AppConfigurationService {
 
         this._companyList.set(companyList);
       }),
-      catchError(error => {
-        this.logger.logUserAction('Failed to load Company List', error);
-        return throwError(() => error);
-      })
+      catchError(error => throwError(() => error))
     );
   }
 
   loadContractorList(): Observable<IContractorGetResponseDto> {
-    this.logger.logUserAction('Loading app data - Contractor List');
-
     return this.contractorService.getContractorList().pipe(
       tap(response => {
-        this.logger.logUserAction('Contractor List loaded successfully', {
-          count: response.totalRecords,
-        });
-
         const contractorList: IOptionDropdown[] = response.records
           .map(contractor => ({
             label: toTitleCase(contractor.name),
@@ -779,10 +702,7 @@ export class AppConfigurationService {
 
         this._contractorList.set(contractorList);
       }),
-      catchError(error => {
-        this.logger.logUserAction('Failed to load Contractor List', error);
-        return throwError(() => error);
-      })
+      catchError(error => throwError(() => error))
     );
   }
 
@@ -842,8 +762,6 @@ export class AppConfigurationService {
     companyList: ICompanyGetResponseDto;
     contractorList: IContractorGetResponseDto;
   }> {
-    this.logger.info('Loading all app data...');
-
     return this.loadAllAppRoles().pipe(
       switchMap(rolesResponse => {
         const currentRole = this._roleList().find(
@@ -874,13 +792,7 @@ export class AppConfigurationService {
           )
         );
       }),
-      tap(() => {
-        this.logger.info('All app data loaded successfully');
-      }),
-      catchError(error => {
-        this.logger.error('Failed to load app data', error);
-        return throwError(() => error);
-      })
+      catchError(error => throwError(() => error))
     );
   }
 }

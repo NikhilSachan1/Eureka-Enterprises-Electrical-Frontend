@@ -7,7 +7,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -67,7 +66,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetCompanyComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -125,12 +123,10 @@ export class GetCompanyComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.companyStats.set(stats);
-          this.logger.logUserAction('Company records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.companyStats.set(null);
-          this.logger.logUserAction('Failed to load company records', error);
         },
       });
   }
@@ -268,8 +264,6 @@ export class GetCompanyComponent implements OnInit {
   }
 
   private showCompanyDetailsDrawer(rowData: ICompanyGetBaseResponseDto): void {
-    this.logger.logUserAction('Opening company details drawer', rowData);
-
     this.drawerService.showDrawer(GetCompanyDetailComponent, {
       header: `Company Details`,
       subtitle: `Detailed view of company`,
@@ -289,11 +283,8 @@ export class GetCompanyComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing company',
-        error
-      );
+    } catch {
+      // Navigation error - silently fail
     }
   }
 
@@ -306,15 +297,7 @@ export class GetCompanyComponent implements OnInit {
         ROUTES.SITE.COMPANY.ADD,
       ];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

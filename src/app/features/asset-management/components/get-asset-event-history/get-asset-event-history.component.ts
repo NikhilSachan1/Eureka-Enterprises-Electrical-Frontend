@@ -8,7 +8,6 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import {
   ASSET_EVENT_HISTORY_TABLE_ENHANCED_CONFIG,
   SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_CONFIG,
@@ -58,7 +57,6 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetAssetEventHistoryComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly assetService = inject(AssetService);
@@ -85,7 +83,6 @@ export class GetAssetEventHistoryComponent implements OnInit {
   ngOnInit(): void {
     const assetId = this.activatedRoute.snapshot.params['assetId'] as string;
     if (!assetId) {
-      this.logger.logUserAction('No asset id found in route');
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
@@ -126,17 +123,10 @@ export class GetAssetEventHistoryComponent implements OnInit {
           this.assetDetails.set(records[0].asset);
           this.table.updateTableConfig({ totalRecords });
           this.assetEventHistoryStats.set(stats);
-          this.logger.logUserAction(
-            'Asset event history records loaded successfully'
-          );
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.assetEventHistoryStats.set(null);
-          this.logger.logUserAction(
-            'Failed to load asset event history records',
-            error
-          );
         },
       });
   }

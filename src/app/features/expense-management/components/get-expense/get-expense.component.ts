@@ -11,7 +11,6 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -70,7 +69,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   providers: [],
 })
 export class GetExpenseComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -128,12 +126,10 @@ export class GetExpenseComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.expenseStats.set(stats);
-          this.logger.logUserAction('Expense records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.expenseStats.set(null);
-          this.logger.logUserAction('Failed to load expense records', error);
         },
       });
   }
@@ -349,8 +345,6 @@ export class GetExpenseComponent implements OnInit {
   }
 
   private showExpenseDetailsDrawer(rowData: IExpenseGetBaseResponseDto): void {
-    this.logger.logUserAction('Opening expense details drawer', rowData);
-
     this.drawerService.showDrawer(GetExpenseDetailComponent, {
       header: `Expense Details`,
       subtitle: `Detailed view of expense`,
@@ -369,11 +363,8 @@ export class GetExpenseComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing expense',
-        error
-      );
+    } catch {
+      // Navigation error
     }
   }
 
@@ -386,15 +377,7 @@ export class GetExpenseComponent implements OnInit {
     } else if (actionName === 'reimburseExpense') {
       navigationRoute = [ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.REIMBURSE];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

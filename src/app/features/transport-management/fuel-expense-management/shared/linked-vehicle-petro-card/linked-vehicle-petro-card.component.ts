@@ -18,7 +18,6 @@ import {
   NotificationService,
   RouterNavigationService,
 } from '@shared/services';
-import { LoggerService } from '@core/services';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
 import {
   ILinkedUserVehicleDetailGetFormDto,
@@ -38,7 +37,6 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
 
   ALL_ICONS = ICONS;
@@ -95,9 +93,6 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
     const hasValidVehicle = this.hasValidVehicle(resolverData);
 
     if (!resolverData || !hasValidVehicle) {
-      this.logger.logUserAction(
-        'No linked user vehicle detail or vehicle is empty'
-      );
       this.handleInvalidVehicleData();
       return;
     }
@@ -136,12 +131,11 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
 
           this.linkedUserVehicleDetail.set(response);
         },
-        error: error => {
+        error: () => {
           this.linkedUserVehicleDetail.set(null);
           this.notificationService.error(
             'Failed to load linked vehicle detail.'
           );
-          this.logger.error('Failed to load linked user vehicle detail', error);
         },
       });
   }

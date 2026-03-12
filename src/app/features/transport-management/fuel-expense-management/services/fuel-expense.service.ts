@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { API_ROUTES } from '@core/constants';
-import { ApiService, LoggerService } from '@core/services';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { ApiService } from '@core/services';
+import { catchError, Observable, throwError } from 'rxjs';
 import {
   IFuelExpenseActionFormDto,
   IFuelExpenseActionResponseDto,
@@ -46,14 +46,11 @@ import {
   providedIn: 'root',
 })
 export class FuelExpenseService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
   addFuelExpense(
     formData: IFuelExpenseAddFormDto
   ): Observable<IFuelExpenseAddResponseDto> {
-    this.logger.logUserAction('Add Fuel Expense Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.FUEL_EXPENSE.ADD,
@@ -64,26 +61,12 @@ export class FuelExpenseService {
         formData,
         { multipart: true }
       )
-      .pipe(
-        tap((response: IFuelExpenseAddResponseDto) => {
-          this.logger.logUserAction('Add Fuel Expense Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Add Fuel Expense Error', error);
-          } else {
-            this.logger.logUserAction('Add Fuel Expense Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   reimburseFuelExpense(
     formData: IFuelExpenseReimburseFormDto
   ): Observable<IFuelExpenseReimburseResponseDto> {
-    this.logger.logUserAction('Reimburse Fuel Expense Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.FUEL_EXPENSE.REIMBURSE,
@@ -94,33 +77,13 @@ export class FuelExpenseService {
         formData,
         { multipart: true }
       )
-      .pipe(
-        tap((response: IFuelExpenseReimburseResponseDto) => {
-          this.logger.logUserAction(
-            'Reimburse Fuel Expense Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Reimburse Fuel Expense Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Reimburse Fuel Expense Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   editFuelExpense(
     formData: IFuelExpenseEditFormDto,
     fuelExpenseId: string
   ): Observable<IFuelExpenseEditResponseDto> {
-    this.logger.logUserAction('Edit Fuel Expense Request');
-
     return this.apiService
       .patchValidated(
         API_ROUTES.FUEL_EXPENSE.EDIT(fuelExpenseId),
@@ -131,29 +94,12 @@ export class FuelExpenseService {
         formData,
         { multipart: true }
       )
-      .pipe(
-        tap((response: IFuelExpenseEditResponseDto) => {
-          this.logger.logUserAction('Edit Fuel Expense Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Edit Fuel Expense Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Edit Fuel Expense Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   forceFuelExpense(
     formData: IFuelExpenseForceFormDto
   ): Observable<IFuelExpenseForceResponseDto> {
-    this.logger.logUserAction('Force Expense Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.FUEL_EXPENSE.FORCE,
@@ -164,29 +110,12 @@ export class FuelExpenseService {
         formData,
         { multipart: true }
       )
-      .pipe(
-        tap((response: IFuelExpenseForceResponseDto) => {
-          this.logger.logUserAction('Force Fuel Expense Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Force Fuel Expense Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Force Fuel Expense Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   actionFuelExpense(
     formData: IFuelExpenseActionFormDto
   ): Observable<IFuelExpenseActionResponseDto> {
-    this.logger.logUserAction('Action Fuel Expense Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.FUEL_EXPENSE.APPROVAL_ACTION,
@@ -196,29 +125,12 @@ export class FuelExpenseService {
         },
         formData
       )
-      .pipe(
-        tap((response: IFuelExpenseActionResponseDto) => {
-          this.logger.logUserAction('Action Fuel Expense Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Action Fuel Expense Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Action Fuel Expense Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   deleteFuelExpense(
     formData: IFuelExpenseDeleteFormDto
   ): Observable<IFuelExpenseDeleteResponseDto> {
-    this.logger.logUserAction('Delete Fuel Expense Request');
-
     return this.apiService
       .deleteValidated(
         API_ROUTES.FUEL_EXPENSE.DELETE,
@@ -228,29 +140,12 @@ export class FuelExpenseService {
         },
         formData
       )
-      .pipe(
-        tap((response: IFuelExpenseDeleteResponseDto) => {
-          this.logger.logUserAction('Delete Fuel Expense Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Delete Fuel Expense Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Delete Fuel Expense Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getFuelExpenseList(
     params?: IFuelExpenseGetFormDto
   ): Observable<IFuelExpenseGetResponseDto> {
-    this.logger.logUserAction('Get Fuel Expense List Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.FUEL_EXPENSE.LIST,
@@ -260,62 +155,22 @@ export class FuelExpenseService {
         },
         params
       )
-      .pipe(
-        tap((response: IFuelExpenseGetResponseDto) => {
-          this.logger.logUserAction('Get Fuel Expense List Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Fuel Expense List Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Fuel Expense List Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getFuelExpenseDetailById(
     params: IFuelExpenseDetailGetRequestDto
   ): Observable<IFuelExpenseDetailGetResponseDto> {
-    this.logger.logUserAction('Get Fuel Expense Detail By Id Request');
-
     return this.apiService
       .getValidated(API_ROUTES.FUEL_EXPENSE.GET_FUEL_EXPENSE_BY_ID(params.id), {
         response: FuelExpenseDetailGetResponseSchema,
       })
-      .pipe(
-        tap((response: IFuelExpenseDetailGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Fuel Expense Detail By Id Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Fuel Expense Detail By Id Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction(
-              'Get Fuel Expense Detail By Id Error',
-              error
-            );
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getLinkedUserVehicleDetail(
     params?: ILinkedUserVehicleDetailGetFormDto
   ): Observable<ILinkedUserVehicleDetailGetResponseDto> {
-    this.logger.logUserAction('Get Linked User Vehicle Detail Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.VEHICLE.GET_LINKED_USER_VEHICLE_DETAIL,
@@ -325,27 +180,6 @@ export class FuelExpenseService {
         },
         params
       )
-      .pipe(
-        tap((response: ILinkedUserVehicleDetailGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Linked User Vehicle Detail Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Linked User Vehicle Detail Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction(
-              'Get Linked User Vehicle Detail Error',
-              error
-            );
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 }

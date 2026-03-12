@@ -12,7 +12,6 @@ import {
   switchMap,
 } from 'rxjs';
 import { inject, Injectable } from '@angular/core';
-import { LoggerService } from '@core/services';
 import {
   AttachmentsService,
   LoadingService,
@@ -29,7 +28,6 @@ export class GetVehicleReadingDetailResolver
   implements Resolve<IVehicleReadingDetailResolverResponse | null>
 {
   private readonly vehicleReadingService = inject(VehicleReadingService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
   private readonly attachmentsService = inject(AttachmentsService);
@@ -39,15 +37,7 @@ export class GetVehicleReadingDetailResolver
   ): Observable<IVehicleReadingDetailResolverResponse | null> {
     const vehicleReadingId = route.paramMap.get('vehicleReadingId');
 
-    this.logger.logUserAction(
-      'Get Vehicle Reading Detail Resolver: Starting resolution',
-      { vehicleReadingId }
-    );
-
     if (!vehicleReadingId) {
-      this.logger.logUserAction(
-        'Get Vehicle Reading Detail Resolver: No vehicleReadingId found in route'
-      );
       this.navigateToVehicleReadingList();
       return of(null);
     }
@@ -63,11 +53,6 @@ export class GetVehicleReadingDetailResolver
       .getVehicleReadingDetailById(paramData)
       .pipe(
         switchMap((response: IVehicleReadingDetailGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Vehicle Reading Detail Resolver: Data resolved successfully',
-            response
-          );
-
           const startOdometerKeys = response.startOdometerReadingKeys ?? [];
           const endOdometerKeys = response.endOdometerReadingKeys ?? [];
 
@@ -89,11 +74,7 @@ export class GetVehicleReadingDetailResolver
         finalize(() => {
           this.loadingService.hide();
         }),
-        catchError((error: unknown) => {
-          this.logger.logUserAction(
-            'Get Vehicle Reading Detail Resolver: Error resolving data',
-            error
-          );
+        catchError(() => {
           this.navigateToVehicleReadingList();
           return of(null);
         })

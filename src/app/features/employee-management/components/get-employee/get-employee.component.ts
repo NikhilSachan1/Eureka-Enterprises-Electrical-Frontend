@@ -10,7 +10,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants';
-import { LoggerService } from '@core/services';
 import {
   EMPLOYEE_ACTION_CONFIG_MAP,
   EMPLOYEE_TABLE_ENHANCED_CONFIG,
@@ -72,7 +71,6 @@ import { GetEmployeeDetailComponent } from '../get-employee-detail/get-employee-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetEmployeeComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -131,12 +129,10 @@ export class GetEmployeeComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.employeeStats.set(stats);
-          this.logger.logUserAction('Employee records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.employeeStats.set(null);
-          this.logger.error(EMPLOYEE_MESSAGES.ERROR.GET_LIST, error);
           this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.GET_LIST);
         },
       });
@@ -311,8 +307,6 @@ export class GetEmployeeComponent implements OnInit {
   private showEmployeeDetailsDrawer(
     rowData: IEmployeeGetBaseResponseDto
   ): void {
-    this.logger.logUserAction('Opening employee details drawer', rowData);
-
     this.drawerService.showDrawer(GetEmployeeDetailComponent, {
       header: `Employee Details`,
       subtitle: `Detailed view of employee`,
@@ -332,11 +326,8 @@ export class GetEmployeeComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing employee',
-        error
-      );
+    } catch {
+      // Navigation error - silently fail
     }
   }
 
@@ -345,15 +336,7 @@ export class GetEmployeeComponent implements OnInit {
     if (actionName === 'addEmployee') {
       navigationRoute = [ROUTE_BASE_PATHS.EMPLOYEE, ROUTES.EMPLOYEE.ADD];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

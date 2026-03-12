@@ -71,7 +71,6 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
         next: (response: IExpenseDetailGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._expenseDetails.set(mappedData);
-          this.logger.logUserAction('Attendance history loaded successfully');
         },
         error: error => {
           console.error('error', error);

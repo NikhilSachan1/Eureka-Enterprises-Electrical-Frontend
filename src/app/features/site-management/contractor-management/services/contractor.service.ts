@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { ApiService, LoggerService } from '@core/services';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { ApiService } from '@core/services';
+import { catchError, Observable, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
 import {
   ContractorAddRequestSchema,
@@ -34,14 +34,11 @@ import {
   providedIn: 'root',
 })
 export class ContractorService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
   addContractor(
     formData: IContractorAddFormDto
   ): Observable<IContractorAddResponseDto> {
-    this.logger.logUserAction('Add Contractor Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.SITE.CONTRACTOR.ADD,
@@ -51,27 +48,13 @@ export class ContractorService {
         },
         formData
       )
-      .pipe(
-        tap((response: IContractorAddResponseDto) => {
-          this.logger.logUserAction('Add Contractor Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Add Contractor Error', error);
-          } else {
-            this.logger.logUserAction('Add Contractor Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   editContractor(
     formData: IContractorEditFormDto,
     contractorId: string
   ): Observable<IContractorEditResponseDto> {
-    this.logger.logUserAction('Edit Contractor Request');
-
     return this.apiService
       .patchValidated(
         API_ROUTES.SITE.CONTRACTOR.EDIT(contractorId),
@@ -81,27 +64,13 @@ export class ContractorService {
         },
         formData
       )
-      .pipe(
-        tap((response: IContractorEditResponseDto) => {
-          this.logger.logUserAction('Edit Contractor Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Edit Contractor Error', error);
-          } else {
-            this.logger.logUserAction('Edit Contractor Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   changeContractorStatus(
     formData: IContractorChangeStatusFormDto,
     contractorId: string
   ): Observable<IContractorChangeStatusResponseDto> {
-    this.logger.logUserAction('Change Contractor Status Request');
-
     return this.apiService
       .patchValidated(
         API_ROUTES.SITE.CONTRACTOR.EDIT(contractorId),
@@ -111,32 +80,12 @@ export class ContractorService {
         },
         formData
       )
-      .pipe(
-        tap((response: IContractorChangeStatusResponseDto) => {
-          this.logger.logUserAction(
-            'Change Contractor Status Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Change Contractor Status Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Change Contractor Status Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   deleteContractor(
     formData: IContractorDeleteFormDto
   ): Observable<IContractorDeleteResponseDto> {
-    this.logger.logUserAction('Delete Contractor Request');
-
     return this.apiService
       .deleteValidated(
         API_ROUTES.SITE.CONTRACTOR.DELETE,
@@ -146,29 +95,12 @@ export class ContractorService {
         },
         formData
       )
-      .pipe(
-        tap((response: IContractorDeleteResponseDto) => {
-          this.logger.logUserAction('Delete Contractor Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Delete Contractor Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Delete Contractor Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getContractorList(
     params?: IContractorGetFormDto
   ): Observable<IContractorGetResponseDto> {
-    this.logger.logUserAction('Get Contractor List Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.SITE.CONTRACTOR.LIST,
@@ -178,29 +110,12 @@ export class ContractorService {
         },
         params
       )
-      .pipe(
-        tap((response: IContractorGetResponseDto) => {
-          this.logger.logUserAction('Get Contractor List Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Contractor List Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Contractor List Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getContractorDetailById(
     params: IContractorDetailGetFormDto
   ): Observable<IContractorDetailGetResponseDto> {
-    this.logger.logUserAction('Get Contractor Detail By Id Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.SITE.CONTRACTOR.GET_CONTRACTOR_BY_ID(params.contractorId),
@@ -209,27 +124,6 @@ export class ContractorService {
         },
         params
       )
-      .pipe(
-        tap((response: IContractorDetailGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Contractor Detail By Id Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Contractor Detail By Id Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction(
-              'Get Contractor Detail By Id Error',
-              error
-            );
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 }

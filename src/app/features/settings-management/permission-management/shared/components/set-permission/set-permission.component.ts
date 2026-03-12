@@ -47,7 +47,6 @@ import {
 } from '../../types/set-permission.interface';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 
 const STAT_LABEL = {
@@ -114,7 +113,6 @@ export class SetPermissionComponent implements OnInit {
   private readonly formService = inject(FormService);
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly logger = inject(LoggerService);
 
   icons = ICONS;
 
@@ -209,7 +207,6 @@ export class SetPermissionComponent implements OnInit {
         },
         error: () => {
           this.modulePermissions.set([]);
-          this.logger.logUserAction('Failed to load module permissions');
         },
       });
   }
@@ -646,12 +643,6 @@ export class SetPermissionComponent implements OnInit {
   }
 
   public hasUnsavedChanges(): boolean {
-    if (this.form.isDirty()) {
-      this.logger.info('Set Permission Component: Form has unsaved changes');
-      return true;
-    }
-
-    this.logger.info('Set Permission Component: Form has no unsaved changes');
-    return false;
+    return this.form.isDirty();
   }
 }

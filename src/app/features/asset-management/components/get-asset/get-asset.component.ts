@@ -8,7 +8,6 @@ import {
   OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import {
   ASSET_ACTION_CONFIG_MAP,
   ASSET_TABLE_ENHANCED_CONFIG,
@@ -66,7 +65,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetAssetComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -120,12 +118,10 @@ export class GetAssetComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.assetStats.set(stats);
-          this.logger.logUserAction('Asset records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.assetStats.set(null);
-          this.logger.logUserAction('Failed to load asset records', error);
         },
       });
   }
@@ -323,8 +319,6 @@ export class GetAssetComponent implements OnInit {
   }
 
   private showAssetDetailsDrawer(rowData: IAssetGetBaseResponseDto): void {
-    this.logger.logUserAction('Opening asset details drawer', rowData);
-
     this.drawerService.showDrawer(GetAssetDetailComponent, {
       header: `Asset Details`,
       subtitle: `Detailed view of asset`,
@@ -343,8 +337,8 @@ export class GetAssetComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction('Navigation error while editing asset', error);
+    } catch {
+      // Navigation error
     }
   }
 
@@ -357,11 +351,8 @@ export class GetAssetComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while viewing event history',
-        error
-      );
+    } catch {
+      // Navigation error
     }
   }
 
@@ -370,15 +361,7 @@ export class GetAssetComponent implements OnInit {
     if (actionName === 'addAsset') {
       navigationRoute = [ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.ADD];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

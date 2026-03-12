@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { LoggerService } from '@core/services';
 import { DEFAULT_GALLERY_CONFIG } from '@shared/config/gallery.config';
 import { ICONS } from '@shared/constants';
 import {
@@ -41,7 +40,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class GalleryComponent {
   private readonly sanitizer = inject(DomSanitizer);
-  private readonly logger = inject(LoggerService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly loadingService = inject(LoadingService);
   private readonly destroyRef = inject(DestroyRef);
@@ -106,15 +104,9 @@ export class GalleryComponent {
         return of({ url: item.actualMediaUrl ?? '' });
       }
 
-      return this.attachmentsService.getFullMediaUrl(item.mediaKey).pipe(
-        catchError(error => {
-          this.logger.logUserAction('Error loading attachment', {
-            mediaKey: item.mediaKey,
-            error,
-          });
-          return of({ url: null as string | null });
-        })
-      );
+      return this.attachmentsService
+        .getFullMediaUrl(item.mediaKey)
+        .pipe(catchError(() => of({ url: null as string | null })));
     });
 
     forkJoin(requests)
@@ -168,19 +160,15 @@ export class GalleryComponent {
 
           this.resolvedMedia.set(updatedMedia);
           this.displayBasic.set(true);
-          this.logger.logUserAction('Attachments loaded successfully');
         },
       });
   }
 
   onActiveIndexChange(event: number): void {
-    this.logger.debug('Active index changed', event);
     this.activeIndex.set(event);
   }
 
   onVisibleChange(event: boolean): void {
-    this.logger.debug('Visible changed', event);
-
     if (!event) {
       this.activeIndex.set(0);
       this.closed.emit();

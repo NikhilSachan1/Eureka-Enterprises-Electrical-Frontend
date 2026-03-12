@@ -68,7 +68,6 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
         next: (response: IProjectDetailGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._projectDetails.set(mappedData);
-          this.logger.logUserAction('Project details loaded successfully');
         },
         error: error => {
           console.error('error', error);

@@ -86,15 +86,8 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
         next: (response: ISalaryStructureHistoryGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._salaryDetails.set(mappedData);
-          this.logger.info(
-            PAYROLL_MESSAGES.SUCCESS.SALARY_REVISION_HISTORY_LOADED
-          );
         },
-        error: error => {
-          this.logger.error(
-            PAYROLL_MESSAGES.ERROR.SALARY_REVISION_HISTORY_LOAD_FAILED,
-            error
-          );
+        error: () => {
           this._salaryDetails.set([]);
         },
       });

@@ -99,7 +99,6 @@ export class EditProjectComponent
     ] as IProjectDetailGetResponseDto;
 
     if (!projectDetailFromResolver) {
-      this.logger.logUserAction('No project data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.PROJECT,

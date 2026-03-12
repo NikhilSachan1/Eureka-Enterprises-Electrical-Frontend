@@ -1,7 +1,6 @@
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
 import { catchError, finalize, Observable, of, switchMap } from 'rxjs';
 import { inject, Injectable } from '@angular/core';
-import { LoggerService } from '@core/services';
 import { LoadingService, RouterNavigationService } from '@shared/services';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { AnnouncementService } from '../services/announcement.service';
@@ -17,7 +16,6 @@ export class GetAnnouncementDetailResolver
   implements Resolve<IAnnouncementDetailGetResponseDto | null>
 {
   private readonly announcementService = inject(AnnouncementService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
 
@@ -26,15 +24,7 @@ export class GetAnnouncementDetailResolver
   ): Observable<IAnnouncementDetailGetResponseDto | null> {
     const announcementId = route.paramMap.get('announcementId');
 
-    this.logger.logUserAction(
-      'Get Announcement Detail Resolver: Starting resolution',
-      { announcementId }
-    );
-
     if (!announcementId) {
-      this.logger.logUserAction(
-        'Get Announcement Detail Resolver: No announcementId found in route'
-      );
       this.navigateToAnnouncementList();
       return of(null);
     }
@@ -47,23 +37,13 @@ export class GetAnnouncementDetailResolver
     const paramData = this.prepareParamData(announcementId);
 
     return this.announcementService.getAnnouncementDetailById(paramData).pipe(
-      switchMap((response: IAnnouncementDetailGetResponseDto) => {
-        this.logger.logUserAction(
-          'Get Announcement Detail Resolver: Data resolved successfully',
-          response
-        );
-        return of({
-          ...response,
-        });
-      }),
+      switchMap((response: IAnnouncementDetailGetResponseDto) =>
+        of({ ...response })
+      ),
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'Get Announcement Detail Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToAnnouncementList();
         return of(null);
       })

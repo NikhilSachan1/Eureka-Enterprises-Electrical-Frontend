@@ -5,7 +5,6 @@ import {
   IAssetDetailGetFormDto,
   IAssetDetailGetResponseDto,
 } from '../types/asset.dto';
-import { LoggerService } from '@core/services';
 import {
   AttachmentsService,
   LoadingService,
@@ -22,7 +21,6 @@ export class GetAssetDetailResolver
   implements Resolve<IAssetDetailResolverResponse | null>
 {
   private readonly assetService = inject(AssetService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
   private readonly attachmentsService = inject(AttachmentsService);
@@ -32,15 +30,7 @@ export class GetAssetDetailResolver
   ): Observable<IAssetDetailResolverResponse | null> {
     const assetId = route.paramMap.get('assetId');
 
-    this.logger.logUserAction(
-      'Get Asset Detail Resolver: Starting resolution',
-      { assetId }
-    );
-
     if (!assetId) {
-      this.logger.logUserAction(
-        'Get Asset Detail Resolver: No assetId found in route'
-      );
       this.navigateToAssetList();
       return of(null);
     }
@@ -54,11 +44,6 @@ export class GetAssetDetailResolver
 
     return this.assetService.getAssetDetailById(paramData).pipe(
       switchMap((response: IAssetDetailGetResponseDto) => {
-        this.logger.logUserAction(
-          'Get Asset Detail Resolver: Data resolved successfully',
-          response
-        );
-
         const latestHistoryItem =
           response.versionHistory[response.versionHistory.length - 1];
         const fileKeys = latestHistoryItem?.documentKeys || [];
@@ -75,11 +60,7 @@ export class GetAssetDetailResolver
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'Get Asset Detail Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToAssetList();
         return of(null);
       })

@@ -11,6 +11,7 @@ export const environment: Environment = {
 
   // Feature Flags (environment-specific)
   ENABLE_LOGGING: true,
+  LOG_LEVEL: 'debug',
 
   // Test Data Flags (environment-specific)
   ENABLE_TEST_DATA: true,

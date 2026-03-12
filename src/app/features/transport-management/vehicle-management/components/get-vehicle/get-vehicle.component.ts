@@ -7,7 +7,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -70,7 +69,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetVehicleComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -130,12 +128,10 @@ export class GetVehicleComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.vehicleStats.set(stats);
-          this.logger.logUserAction('Vehicle records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.vehicleStats.set(null);
-          this.logger.logUserAction('Failed to load vehicle records', error);
         },
       });
   }
@@ -362,8 +358,6 @@ export class GetVehicleComponent implements OnInit {
   }
 
   private showVehicleDetailsDrawer(rowData: IVehicleGetBaseResponseDto): void {
-    this.logger.logUserAction('Opening vehicle details drawer', rowData);
-
     this.drawerService.showDrawer(GetVehicleDetailComponent, {
       header: `Vehicle Details`,
       subtitle: `Detailed view of vehicle`,
@@ -383,11 +377,8 @@ export class GetVehicleComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing vehicle',
-        error
-      );
+    } catch {
+      // Navigation error
     }
   }
 
@@ -401,11 +392,8 @@ export class GetVehicleComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while viewing event history',
-        error
-      );
+    } catch {
+      // Navigation error
     }
   }
 
@@ -419,11 +407,8 @@ export class GetVehicleComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while viewing service info',
-        error
-      );
+    } catch {
+      // Navigation error
     }
   }
 
@@ -436,15 +421,7 @@ export class GetVehicleComponent implements OnInit {
         ROUTES.VEHICLE.ADD,
       ];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

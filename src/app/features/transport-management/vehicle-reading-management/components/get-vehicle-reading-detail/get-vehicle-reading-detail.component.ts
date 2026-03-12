@@ -70,9 +70,6 @@ export class GetVehicleReadingDetailComponent extends DrawerDetailBase {
         next: (response: IVehicleReadingDetailGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._vehicleReadingDetails.set(mappedData);
-          this.logger.logUserAction(
-            'Vehicle reading details loaded successfully'
-          );
         },
         error: error => {
           console.error('error', error);

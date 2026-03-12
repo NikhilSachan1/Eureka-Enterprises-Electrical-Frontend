@@ -5,12 +5,12 @@ import {
 } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError, OperatorFunction } from 'rxjs';
-import { retry, timeout, map, tap, catchError } from 'rxjs/operators';
+import { retry, timeout, map, catchError } from 'rxjs/operators';
 import { z } from 'zod';
-import { EnvironmentService } from '@core/services/environment.service';
-import { LoggerService } from '@core/services/logger.service';
+import { EnvironmentService, LoggerService } from '@core/services';
 import { NotificationService } from '@shared/services';
 import { APP_CONFIG } from '@core/config';
+import { ELogTypes } from '@core/types';
 
 export interface ApiSchema<TRequest, TResponse> {
   request?: z.ZodType<TRequest>;
@@ -23,8 +23,8 @@ export interface ApiSchema<TRequest, TResponse> {
 export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly environmentService = inject(EnvironmentService);
-  private readonly logger = inject(LoggerService);
   private readonly notificationService = inject(NotificationService);
+  private readonly logger = inject(LoggerService);
 
   private get baseUrl(): string {
     return this.environmentService.apiBaseUrl;
@@ -46,11 +46,8 @@ export class ApiService {
     const url = `${this.baseUrl}/${endpoint}`;
     const httpParams = this.buildHttpParams(params);
 
-    this.logger.logApiRequest('GET', url, params);
-
     return this.http.get<T>(url, { params: httpParams }).pipe(
       timeout(this.timeout),
-      tap(res => this.logger.logApiResponse('GET', url, res)),
       this.createRetryConfig<T>('GET', url),
       catchError(err => this.handleHttpError(err))
     );
@@ -60,8 +57,6 @@ export class ApiService {
     const url = `${this.baseUrl}/${endpoint}`;
     const httpParams = this.buildHttpParams(params);
 
-    this.logger.logApiRequest('GET BLOB', url, params);
-
     return this.http
       .get(url, {
         params: httpParams,
@@ -69,7 +64,6 @@ export class ApiService {
       })
       .pipe(
         timeout(this.timeout),
-        tap(() => this.logger.logApiResponse('GET BLOB', url, 'Blob received')),
         this.createRetryConfig<Blob>('GET', url),
         catchError(err => this.handleHttpError(err))
       );
@@ -79,11 +73,8 @@ export class ApiService {
     const url = `${this.baseUrl}/${endpoint}`;
     const finalBody = this.cleanParams(body);
 
-    this.logger.logApiRequest('POST', url, finalBody);
-
     return this.http.post<T>(url, finalBody).pipe(
       timeout(this.timeout),
-      tap(res => this.logger.logApiResponse('POST', url, res)),
       this.createRetryConfig<T>('POST', url),
       catchError(err => this.handleHttpError(err))
     );
@@ -93,11 +84,8 @@ export class ApiService {
     const url = `${this.baseUrl}/${endpoint}`;
     const finalBody = this.cleanParams(body);
 
-    this.logger.logApiRequest('PUT', url, finalBody);
-
     return this.http.put<T>(url, finalBody).pipe(
       timeout(this.timeout),
-      tap(res => this.logger.logApiResponse('PUT', url, res)),
       this.createRetryConfig<T>('PUT', url),
       catchError(err => this.handleHttpError(err))
     );
@@ -107,11 +95,8 @@ export class ApiService {
     const url = `${this.baseUrl}/${endpoint}`;
     const finalBody = this.cleanParams(body);
 
-    this.logger.logApiRequest('PATCH', url, finalBody);
-
     return this.http.patch<T>(url, finalBody).pipe(
       timeout(this.timeout),
-      tap(res => this.logger.logApiResponse('PATCH', url, res)),
       this.createRetryConfig<T>('PATCH', url),
       catchError(err => this.handleHttpError(err))
     );
@@ -121,11 +106,8 @@ export class ApiService {
     const url = `${this.baseUrl}/${endpoint}`;
     const cleanedBody = this.cleanParams(body);
 
-    this.logger.logApiRequest('DELETE', url, cleanedBody);
-
     return this.http.delete<T>(url, { body: cleanedBody }).pipe(
       timeout(this.timeout),
-      tap(res => this.logger.logApiResponse('DELETE', url, res)),
       this.createRetryConfig<T>('DELETE', url),
       catchError(err => this.handleHttpError(err))
     );
@@ -146,14 +128,15 @@ export class ApiService {
       const body = this.resolveRequestBody(payload, options);
       const url = `${this.baseUrl}/${endpoint}`;
 
-      this.logger.logApiRequest('POST', url, body);
-
       return this.http.post<unknown>(url, body).pipe(
         timeout(this.timeout),
-        tap(res => this.logger.logApiResponse('POST', url, res)),
         this.createRetryConfig<unknown>('POST', url),
         map(res => schema.response.parse(res)),
-        catchError(err => this.handleHttpError(err))
+        catchError(err =>
+          err instanceof z.ZodError
+            ? this.handleZodError(err)
+            : this.handleHttpError(err)
+        )
       );
     } catch (err) {
       return this.handleZodError(err);
@@ -172,14 +155,15 @@ export class ApiService {
       const body = this.resolveRequestBody(payload, options);
       const url = `${this.baseUrl}/${endpoint}`;
 
-      this.logger.logApiRequest('PUT', url, body);
-
       return this.http.put<unknown>(url, body).pipe(
         timeout(this.timeout),
-        tap(res => this.logger.logApiResponse('PUT', url, res)),
         this.createRetryConfig<unknown>('PUT', url),
         map(res => schema.response.parse(res)),
-        catchError(err => this.handleHttpError(err))
+        catchError(err =>
+          err instanceof z.ZodError
+            ? this.handleZodError(err)
+            : this.handleHttpError(err)
+        )
       );
     } catch (err) {
       return this.handleZodError(err);
@@ -198,14 +182,15 @@ export class ApiService {
       const body = this.resolveRequestBody(payload, options);
       const url = `${this.baseUrl}/${endpoint}`;
 
-      this.logger.logApiRequest('PATCH', url, body);
-
       return this.http.patch<unknown>(url, body).pipe(
         timeout(this.timeout),
-        tap(res => this.logger.logApiResponse('PATCH', url, res)),
         this.createRetryConfig<unknown>('PATCH', url),
         map(res => schema.response.parse(res)),
-        catchError(err => this.handleHttpError(err))
+        catchError(err =>
+          err instanceof z.ZodError
+            ? this.handleZodError(err)
+            : this.handleHttpError(err)
+        )
       );
     } catch (err) {
       return this.handleZodError(err);
@@ -223,7 +208,11 @@ export class ApiService {
 
       return this.get<unknown>(endpoint, params).pipe(
         map(res => schema.response.parse(res)),
-        catchError(err => this.handleHttpError(err))
+        catchError(err =>
+          err instanceof z.ZodError
+            ? this.handleZodError(err)
+            : this.handleHttpError(err)
+        )
       );
     } catch (err) {
       return this.handleZodError(err);
@@ -241,7 +230,11 @@ export class ApiService {
 
       return this.delete<unknown>(endpoint, body).pipe(
         map(res => schema.response.parse(res)),
-        catchError(err => this.handleHttpError(err))
+        catchError(err =>
+          err instanceof z.ZodError
+            ? this.handleZodError(err)
+            : this.handleHttpError(err)
+        )
       );
     } catch (err) {
       return this.handleZodError(err);
@@ -413,16 +406,13 @@ export class ApiService {
   }
 
   private createRetryConfig<T>(
-    method: string,
-    url: string
+    _method: string,
+    _url: string
   ): OperatorFunction<T, T> {
     return retry<T>({
       count: this.retryAttempts,
-      delay: (error: HttpErrorResponse, retryCount: number) => {
+      delay: (error: HttpErrorResponse) => {
         if (!error.status || error.status >= 500) {
-          this.logger.info(
-            `Retry ${retryCount}/${this.retryAttempts} - ${method} ${url}`
-          );
           return this.calculateRetryDelay();
         }
         throw error;
@@ -454,6 +444,22 @@ export class ApiService {
         .map(i => `${i.path.join('.')}: ${i.message}`)
         .join(', ');
       this.notificationService.error(`Validation failed: ${message}`);
+      this.logger.addStructuredLog(
+        ELogTypes.ERROR,
+        'error',
+        `Zod validation failed: ${message}`,
+        {
+          source: 'ApiService',
+          method: 'handleZodError',
+          data: {
+            issues: error.issues,
+            formatted: error.issues.map(i => ({
+              path: i.path.join('.') || '(root)',
+              message: i.message,
+            })),
+          },
+        }
+      );
     }
     return throwError(() => error);
   }

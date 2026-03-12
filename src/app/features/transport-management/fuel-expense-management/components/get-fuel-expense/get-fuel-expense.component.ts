@@ -7,7 +7,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -71,7 +70,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetFuelExpenseComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -130,15 +128,10 @@ export class GetFuelExpenseComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.fuelExpenseStats.set(stats);
-          this.logger.logUserAction('Fuel expense records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.fuelExpenseStats.set(null);
-          this.logger.logUserAction(
-            'Failed to load fuel expense records',
-            error
-          );
         },
       });
   }
@@ -371,8 +364,6 @@ export class GetFuelExpenseComponent implements OnInit {
   private showFuelExpenseDetailsDrawer(
     rowData: IFuelExpenseGetBaseResponseDto
   ): void {
-    this.logger.logUserAction('Opening fuel expense details drawer', rowData);
-
     this.drawerService.showDrawer(GetFuelExpenseDetailComponent, {
       header: `Fuel Expense Details`,
       subtitle: `Detailed view of fuel expense`,
@@ -392,11 +383,8 @@ export class GetFuelExpenseComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing fuel expense',
-        error
-      );
+    } catch {
+      // Navigation error - silently fail
     }
   }
 
@@ -421,15 +409,7 @@ export class GetFuelExpenseComponent implements OnInit {
         ROUTES.FUEL.REIMBURSEMENT,
       ];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

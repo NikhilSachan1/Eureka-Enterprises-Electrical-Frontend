@@ -54,9 +54,6 @@ export class GeneratePayrollComponent
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
-      this.logger.error(
-        PAYROLL_MESSAGES.VALIDATION.GENERATE_PAYROLL_RECORD_REQUIRED
-      );
       return;
     }
 

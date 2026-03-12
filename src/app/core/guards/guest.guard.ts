@@ -7,7 +7,6 @@ import {
   RouterStateSnapshot,
 } from '@angular/router';
 import { ROUTE_BASE_PATHS } from '@shared/constants';
-import { LoggerService } from '@core/services';
 
 @Injectable({
   providedIn: 'root',
@@ -15,38 +14,19 @@ import { LoggerService } from '@core/services';
 export class GuestGuard implements CanActivate {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly logger = inject(LoggerService);
 
   canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    _route: ActivatedRouteSnapshot,
+    _state: RouterStateSnapshot
   ): boolean {
     try {
       if (this.authService.isUserAuthenticated()) {
-        this.logger.info(
-          'Guest Guard: User is authenticated, redirecting to dashboard',
-          {
-            currentUrl: state.url,
-            user: this.authService.getCurrentUser(),
-          }
-        );
-
         void this.router.navigate([`/${ROUTE_BASE_PATHS.DASHBOARD}`]);
         return false;
       }
-
-      this.logger.info(
-        'Guest Guard: User not authenticated, allowing access to auth page',
-        {
-          requestedUrl: state.url,
-        }
-      );
       return true;
-    } catch (error) {
-      this.logger.error(
-        'Guest Guard: Error checking authentication status',
-        error
-      );
+    } catch {
+      // Navigation error - silently fail
       return true;
     }
   }

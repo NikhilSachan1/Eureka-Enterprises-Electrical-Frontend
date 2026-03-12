@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { ApiService, LoggerService } from '@core/services';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { ApiService } from '@core/services';
+import { catchError, Observable, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
 import {
   VehicleServiceAddRequestSchema,
@@ -30,14 +30,11 @@ import {
   providedIn: 'root',
 })
 export class VehicleServiceService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
   addVehicleService(
     formData: IvehicleServiceAddFormDto
   ): Observable<IVehicleServiceAddResponseDto> {
-    this.logger.logUserAction('Add Vehicle Service Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.VEHICLE_SERVICE.ADD,
@@ -48,30 +45,13 @@ export class VehicleServiceService {
         formData,
         { multipart: true }
       )
-      .pipe(
-        tap((response: IVehicleServiceAddResponseDto) => {
-          this.logger.logUserAction('Add Vehicle Service Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Add Vehicle Service Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Add Vehicle Service Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   editVehicleService(
     formData: IvehicleServiceEditFormDto,
     vehicleServiceId: string
   ): Observable<IVehicleServiceEditResponseDto> {
-    this.logger.logUserAction('Edit Vehicle Service Request');
-
     return this.apiService
       .patchValidated(
         API_ROUTES.VEHICLE_SERVICE.EDIT(vehicleServiceId),
@@ -82,29 +62,12 @@ export class VehicleServiceService {
         formData,
         { multipart: true }
       )
-      .pipe(
-        tap((response: IVehicleServiceEditResponseDto) => {
-          this.logger.logUserAction('Edit Vehicle Service Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Edit Vehicle Service Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Edit Vehicle Service Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   deleteVehicleService(
     formData: IvehicleServiceDeleteFormDto
   ): Observable<IVehicleServiceDeleteResponseDto> {
-    this.logger.logUserAction('Delete Vehicle Service Request');
-
     return this.apiService
       .deleteValidated(
         API_ROUTES.VEHICLE_SERVICE.DELETE,
@@ -114,32 +77,12 @@ export class VehicleServiceService {
         },
         formData
       )
-      .pipe(
-        tap((response: IVehicleServiceDeleteResponseDto) => {
-          this.logger.logUserAction(
-            'Delete Vehicle Service Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Delete Vehicle Service Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Delete Vehicle Service Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getVehicleServiceList(
     params?: IVehicleServiceGetFormDto
   ): Observable<IVehicleServiceGetResponseDto> {
-    this.logger.logUserAction('Get Vehicle Service List Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.VEHICLE_SERVICE.LIST,
@@ -149,32 +92,12 @@ export class VehicleServiceService {
         },
         params
       )
-      .pipe(
-        tap((response: IVehicleServiceGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Vehicle Service List Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Vehicle Service List Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Vehicle Service List Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getVehicleServiceDetailById(
     params: IVehicleServiceDetailGetFormDto
   ): Observable<IVehicleServiceDetailGetResponseDto> {
-    this.logger.logUserAction('Get Vehicle Service Detail By Id Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.VEHICLE_SERVICE.GET_VEHICLE_SERVICE_BY_ID(
@@ -184,27 +107,6 @@ export class VehicleServiceService {
           response: VehicleServiceDetailGetResponseSchema,
         }
       )
-      .pipe(
-        tap((response: IVehicleServiceDetailGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Vehicle Service Detail By Id Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Vehicle Service Detail By Id Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction(
-              'Get Vehicle Service Detail By Id Error',
-              error
-            );
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 }

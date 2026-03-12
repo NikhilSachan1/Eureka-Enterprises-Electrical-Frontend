@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { API_ROUTES } from '@core/constants';
-import { ApiService, LoggerService } from '@core/services';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { ApiService } from '@core/services';
+import { catchError, Observable, throwError } from 'rxjs';
 import {
   IAttendanceActionFormDto,
   IAttendanceActionResponseDto,
@@ -37,14 +37,11 @@ import {
   providedIn: 'root',
 })
 export class AttendanceService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
   applyAttendance(
     formData: IAttendanceApplyFormDto
   ): Observable<IAttendanceApplyResponseDto> {
-    this.logger.logUserAction('Apply Attendance Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.ATTENDANCE.APPLY,
@@ -54,26 +51,12 @@ export class AttendanceService {
         },
         formData
       )
-      .pipe(
-        tap((response: IAttendanceApplyResponseDto) => {
-          this.logger.logUserAction('Apply Attendance Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Apply Attendance Error', error);
-          } else {
-            this.logger.logUserAction('Apply Attendance Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   forceAttendance(
     formData: IAttendanceForceFormDto
   ): Observable<IAttendanceForceResponseDto> {
-    this.logger.logUserAction('Force Attendance Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.ATTENDANCE.FORCE,
@@ -83,27 +66,13 @@ export class AttendanceService {
         },
         formData
       )
-      .pipe(
-        tap((response: IAttendanceForceResponseDto) => {
-          this.logger.logUserAction('Force Attendance Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Force Attendance Error', error);
-          } else {
-            this.logger.logUserAction('Force Attendance Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   regularizedAttendance(
     formData: IAttendanceRegularizedFormDto,
     attendanceId: string
   ): Observable<IAttendanceRegularizedResponseDto> {
-    this.logger.logUserAction('Regularized Attendance Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.ATTENDANCE.REGULARIZE(attendanceId),
@@ -113,32 +82,12 @@ export class AttendanceService {
         },
         formData
       )
-      .pipe(
-        tap((response: IAttendanceRegularizedResponseDto) => {
-          this.logger.logUserAction(
-            'Regularized Attendance Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Regularized Attendance Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Regularized Attendance Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   actionAttendance(
     formData: IAttendanceActionFormDto
   ): Observable<IAttendanceActionResponseDto> {
-    this.logger.logUserAction('Action Attendance Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.ATTENDANCE.APPROVAL_ACTION,
@@ -148,29 +97,12 @@ export class AttendanceService {
         },
         formData
       )
-      .pipe(
-        tap((response: IAttendanceActionResponseDto) => {
-          this.logger.logUserAction('Action Attendance Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Action Attendance Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Action Attendance Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getAttendanceList(
     params?: IAttendanceGetFormDto
   ): Observable<IAttendanceGetResponseDto> {
-    this.logger.logUserAction('Get Attendance List Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.ATTENDANCE.LIST,
@@ -180,29 +112,12 @@ export class AttendanceService {
         },
         params
       )
-      .pipe(
-        tap((response: IAttendanceGetResponseDto) => {
-          this.logger.logUserAction('Get Attendance List Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Attendance List Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Attendance List Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getAttendanceHistory(
     params?: IAttendanceHistoryGetFormDto
   ): Observable<IAttendanceHistoryGetResponseDto> {
-    this.logger.logUserAction('Get Attendance History Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.ATTENDANCE.HISTORY,
@@ -212,55 +127,14 @@ export class AttendanceService {
         },
         params
       )
-      .pipe(
-        tap((response: IAttendanceHistoryGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Attendance History Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Attendance History Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Attendance History Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getAttendanceCurrentStatus(): Observable<IAttendanceCurrentStatusGetResponseDto> {
-    this.logger.logUserAction('Get Attendance Current Status Request');
-
     return this.apiService
       .getValidated(API_ROUTES.ATTENDANCE.CURRENT_STATUS, {
         response: AttendanceCurrentStatusGetResponseSchema,
       })
-      .pipe(
-        tap((response: IAttendanceCurrentStatusGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Attendance Current Status Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Attendance Current Status Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction(
-              'Get Attendance Current Status Error',
-              error
-            );
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 }

@@ -6,7 +6,6 @@ import {
 import { catchError, finalize, Observable, of, switchMap } from 'rxjs';
 import { inject, Injectable } from '@angular/core';
 import { FuelExpenseService } from '../services/fuel-expense.service';
-import { LoggerService } from '@core/services';
 import {
   AttachmentsService,
   LoadingService,
@@ -22,7 +21,6 @@ export class GetFuelExpenseDetailResolver
   implements Resolve<IFuelExpenseDetailResolverResponse | null>
 {
   private readonly fuelExpenseService = inject(FuelExpenseService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
   private readonly attachmentsService = inject(AttachmentsService);
@@ -32,15 +30,7 @@ export class GetFuelExpenseDetailResolver
   ): Observable<IFuelExpenseDetailResolverResponse | null> {
     const fuelExpenseId = route.paramMap.get('fuelExpenseId');
 
-    this.logger.logUserAction(
-      'Get Fuel Expense Detail Resolver: Starting resolution',
-      { fuelExpenseId }
-    );
-
     if (!fuelExpenseId) {
-      this.logger.logUserAction(
-        'Get Fuel Expense Detail Resolver: No fuelExpenseId found in route'
-      );
       this.navigateToFuelExpenseList();
       return of(null);
     }
@@ -54,11 +44,6 @@ export class GetFuelExpenseDetailResolver
 
     return this.fuelExpenseService.getFuelExpenseDetailById(paramData).pipe(
       switchMap((response: IFuelExpenseDetailGetResponseDto) => {
-        this.logger.logUserAction(
-          'Get Fuel Expense Detail Resolver: Data resolved successfully',
-          response
-        );
-
         const latestHistoryItem = response.history[response.history.length - 1];
         const fileKeys = latestHistoryItem?.fileKeys || [];
 
@@ -74,11 +59,7 @@ export class GetFuelExpenseDetailResolver
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'Get Fuel Expense Detail Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToFuelExpenseList();
         return of(null);
       })

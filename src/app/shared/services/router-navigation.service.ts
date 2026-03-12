@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { LoggerService } from '@core/services';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +7,6 @@ import { LoggerService } from '@core/services';
 export class RouterNavigationService {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly logger = inject(LoggerService);
 
   async navigateToRoute(
     segments: string[],
@@ -25,17 +23,8 @@ export class RouterNavigationService {
         replaceUrl: options?.replaceUrl ?? false,
       });
 
-      if (success) {
-        this.logger.logUserAction(
-          `Navigation successful to: ${segments.join('/')}`
-        );
-      } else {
-        this.logger.logUserAction('Navigation failed');
-      }
-
       return success;
-    } catch (error: unknown) {
-      this.logger.logUserAction(`Navigation error: ${error}`);
+    } catch {
       return false;
     }
   }
@@ -51,15 +40,8 @@ export class RouterNavigationService {
         replaceUrl: options?.replaceUrl ?? false,
       });
 
-      if (success) {
-        this.logger.logUserAction(`Navigation successful to: ${url}`);
-      } else {
-        this.logger.logUserAction('Navigation failed');
-      }
-
       return success;
-    } catch (error: unknown) {
-      this.logger.logUserAction(`Navigation error: ${error}`);
+    } catch {
       return false;
     }
   }
@@ -83,17 +65,8 @@ export class RouterNavigationService {
         relativeTo: options?.relativeTo ?? null,
       });
 
-      if (success) {
-        this.logger.logUserAction(
-          `Navigation with query params successful to: ${route.join('/')}`
-        );
-      } else {
-        this.logger.logUserAction('Navigation with query params failed');
-      }
-
       return success;
-    } catch (error: unknown) {
-      this.logger.logUserAction(`Navigation with query params error: ${error}`);
+    } catch {
       return false;
     }
   }
@@ -103,28 +76,8 @@ export class RouterNavigationService {
     state: Record<string, unknown>
   ): Promise<boolean> {
     try {
-      this.logger.logUserAction(
-        `Attempting navigation to: ${route.join('/')} with state:`,
-        state
-      );
-
-      const success = await this.router.navigate(route, {
-        state,
-      });
-
-      if (success) {
-        this.logger.logUserAction(
-          `Navigation with state successful to: ${route.join('/')}`
-        );
-      } else {
-        this.logger.logUserAction(
-          `Navigation with state failed to: ${route.join('/')}`
-        );
-      }
-
-      return success;
-    } catch (error: unknown) {
-      this.logger.logUserAction(`Navigation with state error: ${error}`);
+      return await this.router.navigate(route, { state });
+    } catch {
       return false;
     }
   }
@@ -137,53 +90,27 @@ export class RouterNavigationService {
       state ??= window.history.state;
 
       if (state && typeof state === 'object' && key in state) {
-        this.logger.logUserAction(
-          `Router state data retrieved for key: ${key}`
-        );
         return state[key] as T;
       }
 
-      this.logger.logUserAction(`Router state data not found for key: ${key}`);
       return null;
-    } catch (error: unknown) {
-      this.logger.logUserAction(
-        `Error retrieving router state data for key ${key}: ${error}`
-      );
+    } catch {
       return null;
     }
   }
 
   getRouteQueryParam(paramName: string): string | null {
     try {
-      const param = this.activatedRoute.snapshot.queryParamMap.get(paramName);
-      if (param) {
-        this.logger.logUserAction(
-          `Route query parameter retrieved: ${paramName} = ${param}`
-        );
-      }
-      return param;
-    } catch (error: unknown) {
-      this.logger.logUserAction(
-        `Error retrieving route query parameter ${paramName}: ${error}`
-      );
+      return this.activatedRoute.snapshot.queryParamMap.get(paramName);
+    } catch {
       return null;
     }
   }
 
   getRouterStateDataFromRoute(key: string): unknown | null {
     try {
-      const data = this.activatedRoute.snapshot.data[key];
-      if (data) {
-        this.logger.logUserAction(
-          `Router state data retrieved from route for key: ${key}`
-        );
-        return data;
-      }
-      return null;
-    } catch (error: unknown) {
-      this.logger.logUserAction(
-        `Error retrieving router state data from route for key ${key}: ${error}`
-      );
+      return this.activatedRoute.snapshot.data[key] ?? null;
+    } catch {
       return null;
     }
   }

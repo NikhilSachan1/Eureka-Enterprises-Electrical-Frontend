@@ -64,7 +64,6 @@ export class EditPetroCardComponent
       );
 
     if (!routeStateData) {
-      this.logger.logUserAction('No petro card data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.TRANSPORT,
         ROUTE_BASE_PATHS.PETRO_CARD,

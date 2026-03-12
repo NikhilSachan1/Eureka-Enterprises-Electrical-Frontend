@@ -82,7 +82,6 @@ export class EditEmployeeComponent
     ] as IEmployeeDetailResolverResponse;
 
     if (!employeeDetailFromResolver) {
-      this.logger.logUserAction('No employee detail found in route');
       const routeSegments = [ROUTE_BASE_PATHS.EMPLOYEE, ROUTES.EMPLOYEE.LIST];
       void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
@@ -195,7 +194,6 @@ export class EditEmployeeComponent
       'employeeId'
     ] as string;
     if (!employeeId) {
-      this.logger.logUserAction('No employee id found in route');
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
@@ -236,8 +234,7 @@ export class EditEmployeeComponent
           this.notificationService.success(EMPLOYEE_MESSAGES.SUCCESS.EDIT);
           this.handlePostEditNavigation(response);
         },
-        error: error => {
-          this.logger.error(EMPLOYEE_MESSAGES.ERROR.EDIT, error);
+        error: () => {
           this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.EDIT);
         },
       });
@@ -297,8 +294,7 @@ export class EditEmployeeComponent
             const routeSegments = [ROUTE_BASE_PATHS.AUTH, ROUTES.AUTH.LOGIN];
             void this.routerNavigationService.navigateToRoute(routeSegments);
           },
-          error: error => {
-            this.logger.error('Error during logout', error);
+          error: () => {
             this.notificationService.error('Error during logout');
           },
         });

@@ -84,19 +84,18 @@ export class ForgotPasswordComponent
           const routeSegments = [ROUTE_BASE_PATHS.AUTH, ROUTES.AUTH.LOGIN];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
-        error: error => {
-          this.logger.error(AUTH_MESSAGES.ERROR.FORGOT_PASSWORD, error);
+        error: (): void => {
+          void 0;
         },
       });
   }
 
   protected onBackToLogin(): void {
     try {
-      this.logger.logUserAction('Navigate back to Login');
       const routeSegments = [ROUTE_BASE_PATHS.AUTH, ROUTES.AUTH.LOGIN];
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.error('Error navigating back to login', error);
+    } catch {
+      // Navigation error
     }
   }
 }

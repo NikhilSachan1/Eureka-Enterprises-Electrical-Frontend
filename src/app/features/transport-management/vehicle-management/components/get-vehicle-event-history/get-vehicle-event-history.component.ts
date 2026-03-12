@@ -7,7 +7,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   LoadingService,
@@ -58,7 +57,6 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetVehicleEventHistoryComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly vehicleService = inject(VehicleService);
@@ -86,7 +84,6 @@ export class GetVehicleEventHistoryComponent implements OnInit {
       'vehicleId'
     ] as string;
     if (!vehicleId) {
-      this.logger.logUserAction('No vehicle id found in route');
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
@@ -127,17 +124,10 @@ export class GetVehicleEventHistoryComponent implements OnInit {
           this.vehicleDetails.set(records[0]?.vehicle);
           this.table.updateTableConfig({ totalRecords });
           this.vehicleEventHistoryStats.set(stats);
-          this.logger.logUserAction(
-            'Vehicle event history records loaded successfully'
-          );
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.vehicleEventHistoryStats.set(null);
-          this.logger.logUserAction(
-            'Failed to load vehicle event history records',
-            error
-          );
         },
       });
   }

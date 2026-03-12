@@ -6,7 +6,6 @@ import {
   inject,
   OnInit,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   DrawerService,
@@ -53,7 +52,6 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetVehicleReadingComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -103,16 +101,9 @@ export class GetVehicleReadingComponent implements OnInit {
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.logger.logUserAction(
-            'Vehicle reading records loaded successfully'
-          );
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
-          this.logger.logUserAction(
-            'Failed to load vehicle reading records',
-            error
-          );
         },
       });
   }
@@ -190,11 +181,6 @@ export class GetVehicleReadingComponent implements OnInit {
   private showVehicleReadingDetailsDrawer(
     rowData: IVehicleReadingGetBaseResponseDto
   ): void {
-    this.logger.logUserAction(
-      'Opening vehicle reading details drawer',
-      rowData
-    );
-
     this.drawerService.showDrawer(GetVehicleReadingDetailComponent, {
       header: `Vehicle Reading Details`,
       subtitle: `Detailed view of vehicle reading`,
@@ -214,11 +200,8 @@ export class GetVehicleReadingComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing vehicle reading',
-        error
-      );
+    } catch {
+      // Navigation error
     }
   }
 
@@ -238,15 +221,7 @@ export class GetVehicleReadingComponent implements OnInit {
         ROUTES.VEHICLE_READING.FORCE,
       ];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

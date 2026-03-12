@@ -7,7 +7,6 @@ import {
   signal,
   OnInit,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -65,7 +64,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetPetroCardComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -121,12 +119,10 @@ export class GetPetroCardComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.petroCardStats.set(stats);
-          this.logger.logUserAction('Petro card records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.petroCardStats.set(null);
-          this.logger.logUserAction('Failed to load petro card records', error);
         },
       });
   }
@@ -290,21 +286,11 @@ export class GetPetroCardComponent implements OnInit {
         petroCardId,
       ];
 
-      const success = this.routerNavigationService.navigateWithState(
-        routeSegments,
-        { cardData: selectedRow }
-      );
-
-      if (!success) {
-        this.logger.logUserAction('Navigation failed for edit petro card', {
-          petroCardId,
-        });
-      }
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing petro card',
-        error
-      );
+      void this.routerNavigationService.navigateWithState(routeSegments, {
+        cardData: selectedRow,
+      });
+    } catch {
+      // Navigation error
     }
   }
 
@@ -317,15 +303,7 @@ export class GetPetroCardComponent implements OnInit {
         ROUTES.PETRO_CARD.ADD,
       ];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

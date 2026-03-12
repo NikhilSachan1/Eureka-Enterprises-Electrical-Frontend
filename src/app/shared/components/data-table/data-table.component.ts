@@ -53,7 +53,7 @@ import { ICONS } from '@shared/constants';
 import { ButtonComponent } from '../button/button.component';
 import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { EmptyMessagesComponent } from '../empty-messages/empty-messages.component';
-import { AppPermissionService, LoggerService } from '@core/services';
+import { AppPermissionService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
 import { ReadMoreComponent } from '../read-more/read-more.component';
 import { PaginatorComponent } from '../paginator/paginator.component';
@@ -102,7 +102,6 @@ export class DataTableComponent {
 
   private avatarService = inject(AvatarService);
   private galleryService = inject(GalleryService);
-  private logger = inject(LoggerService);
   private permissionService = inject(AppPermissionService);
 
   // Input signals
@@ -245,11 +244,10 @@ export class DataTableComponent {
   }
 
   protected onFilterChange(_event: TableFilterEvent): void {
-    this.logger.logUserAction('Filter changed', _event);
+    // Filter change handled by emit
   }
 
   protected onLazyLoad(event: TableLazyLoadEvent): void {
-    this.logger.logUserAction('Lazy load', event);
     // Sync pagination state - update paginationFirst and rows to keep both views in sync
     const newFirst = event.first ?? 0;
     const newRows = event.rows ?? this.tableConfig().displayRows;

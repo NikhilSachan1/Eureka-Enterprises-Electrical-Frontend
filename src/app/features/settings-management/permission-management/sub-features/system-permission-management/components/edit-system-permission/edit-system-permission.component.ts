@@ -67,7 +67,6 @@ export class EditSystemPermissionComponent
       );
 
     if (!routeStateData) {
-      this.logger.logUserAction('No system permission data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.SETTINGS.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,

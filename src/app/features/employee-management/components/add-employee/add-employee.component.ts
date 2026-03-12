@@ -97,7 +97,6 @@ export class AddEmployeeComponent
     ] as IEmployeeGetNextEmployeeIdResponseDto;
 
     if (!nextEmployeeCodeFromResolver) {
-      this.logger.logUserAction('No next employee code found in route');
       const routeSegments = [ROUTE_BASE_PATHS.EMPLOYEE, ROUTES.EMPLOYEE.LIST];
       void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
@@ -162,8 +161,7 @@ export class AddEmployeeComponent
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
-        error: error => {
-          this.logger.error(EMPLOYEE_MESSAGES.ERROR.ADD, error);
+        error: () => {
           this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.ADD);
         },
       });

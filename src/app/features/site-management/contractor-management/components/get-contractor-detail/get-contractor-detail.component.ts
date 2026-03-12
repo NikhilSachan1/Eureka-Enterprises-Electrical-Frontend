@@ -67,7 +67,6 @@ export class GetContractorDetailComponent extends DrawerDetailBase {
         next: (response: IContractorDetailGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._contractorDetails.set(mappedData);
-          this.logger.logUserAction('Contractor details loaded successfully');
         },
         error: error => {
           console.error('error', error);

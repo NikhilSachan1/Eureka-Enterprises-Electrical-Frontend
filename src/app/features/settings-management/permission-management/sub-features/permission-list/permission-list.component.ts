@@ -11,7 +11,6 @@ import { Router, NavigationEnd } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '@shared/constants';
 import { filter } from 'rxjs/operators';
-import { LoggerService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
 import { ETabMode, IPageHeaderConfig, ITabItem } from '@shared/types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,7 +28,6 @@ import { APP_PERMISSION } from '@core/constants';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PermissionListComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
@@ -81,20 +79,7 @@ export class PermissionListComponent implements OnInit {
     const navigationRoute = this.buildNavigationRoute(currentUrl);
 
     if (navigationRoute) {
-      const success =
-        void this.routerNavigationService.navigateToRoute(navigationRoute);
-
-      if (!success) {
-        this.logger.logUserAction(
-          'Navigation failed for add button',
-          currentUrl
-        );
-      }
-    } else {
-      this.logger.logUserAction(
-        'Add button clicked - no matching route found',
-        currentUrl
-      );
+      void this.routerNavigationService.navigateToRoute(navigationRoute);
     }
   }
 

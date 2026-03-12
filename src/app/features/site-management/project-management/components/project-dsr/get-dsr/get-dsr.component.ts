@@ -14,7 +14,6 @@ import {
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
-import { LoggerService } from '@core/services';
 import { DsrService } from '@features/site-management/project-management/services/dsr.service';
 import {
   IDsrGetBaseResponseDto,
@@ -54,7 +53,6 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetDsrComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dsrService = inject(DsrService);
   private readonly dataTableService = inject(TableService);
@@ -95,11 +93,9 @@ export class GetDsrComponent implements OnInit {
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.logger.logUserAction('DSR records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
-          this.logger.logUserAction('Failed to load DSR records', error);
         },
       });
   }
@@ -219,8 +215,6 @@ export class GetDsrComponent implements OnInit {
   }
 
   private showDsrDetailsDrawer(rowData: IDsrGetBaseResponseDto): void {
-    this.logger.logUserAction('Opening expense details drawer', rowData);
-
     this.drawerService.showDrawer(GetDsrDetailComponent, {
       header: `DSR Details`,
       subtitle: `Detailed view of DSR`,
@@ -240,8 +234,8 @@ export class GetDsrComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction('Navigation error while editing DSR', error);
+    } catch {
+      // Navigation error - silently fail
     }
   }
 }

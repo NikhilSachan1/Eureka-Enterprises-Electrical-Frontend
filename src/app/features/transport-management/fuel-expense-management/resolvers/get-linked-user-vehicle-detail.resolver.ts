@@ -1,7 +1,6 @@
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
 import { catchError, finalize, Observable, of, switchMap } from 'rxjs';
 import { inject, Injectable } from '@angular/core';
-import { LoggerService } from '@core/services';
 import { LoadingService, RouterNavigationService } from '@shared/services';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
@@ -17,7 +16,6 @@ export class GetLinkedUserVehicleDetailResolver
   implements Resolve<ILinkedUserVehicleDetailGetResponseDto | null>
 {
   private readonly fuelExpenseService = inject(FuelExpenseService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
 
@@ -25,11 +23,6 @@ export class GetLinkedUserVehicleDetailResolver
     route: ActivatedRouteSnapshot
   ): Observable<ILinkedUserVehicleDetailGetResponseDto | null> {
     const employeeName = route.paramMap.get('employeeName');
-
-    this.logger.logUserAction(
-      'Get Linked User Vehicle Detail Resolver: Starting resolution',
-      { employeeName }
-    );
 
     this.loadingService.show({
       title: 'Loading Linked User Vehicle Detail',
@@ -39,21 +32,13 @@ export class GetLinkedUserVehicleDetailResolver
     const paramData = this.prepareParamData(employeeName);
 
     return this.fuelExpenseService.getLinkedUserVehicleDetail(paramData).pipe(
-      switchMap((response: ILinkedUserVehicleDetailGetResponseDto) => {
-        this.logger.logUserAction(
-          'Get Linked User Vehicle Detail Resolver: Data resolved successfully',
-          response
-        );
-        return of(response);
-      }),
+      switchMap((response: ILinkedUserVehicleDetailGetResponseDto) =>
+        of(response)
+      ),
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'Get Linked User Vehicle Detail Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToFuelExpenseList();
         return of(null);
       })

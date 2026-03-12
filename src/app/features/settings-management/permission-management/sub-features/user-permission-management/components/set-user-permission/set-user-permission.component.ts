@@ -56,7 +56,6 @@ export class SetUserPermissionComponent extends FormBase implements OnInit {
     ] as IUserPermissionsGetResponseDto | null;
 
     if (!userPermissionRouteData) {
-      this.logger.logUserAction('No user permission data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.SETTINGS.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
@@ -96,7 +95,6 @@ export class SetUserPermissionComponent extends FormBase implements OnInit {
     }
     const userId = this.activatedRoute.snapshot.paramMap.get('userId');
     if (!userId) {
-      this.logger.logUserAction('No user id found in route');
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );

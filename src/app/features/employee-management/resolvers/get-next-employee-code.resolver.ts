@@ -1,7 +1,6 @@
 import { Resolve } from '@angular/router';
-import { catchError, finalize, Observable, of, tap } from 'rxjs';
+import { catchError, finalize, Observable, of } from 'rxjs';
 import { inject, Injectable } from '@angular/core';
-import { LoggerService } from '@core/services';
 import { LoadingService, RouterNavigationService } from '@shared/services';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { IEmployeeGetNextEmployeeIdResponseDto } from '../types/employee.dto';
@@ -15,35 +14,20 @@ export class GetNextEmployeeCodeResolver
   implements Resolve<IEmployeeGetNextEmployeeIdResponseDto | null>
 {
   private readonly employeeService = inject(EmployeeService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
 
   resolve(): Observable<IEmployeeGetNextEmployeeIdResponseDto | null> {
-    this.logger.logUserAction(
-      'Get Next Employee Code Resolver: Starting resolution'
-    );
-
     this.loadingService.show({
       title: EMPLOYEE_MESSAGES.LOADING.GET_NEXT_ID,
       message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.GET_NEXT_ID,
     });
 
     return this.employeeService.getNextEmployeeId().pipe(
-      tap((response: IEmployeeGetNextEmployeeIdResponseDto) => {
-        this.logger.logUserAction(
-          'Get Next Employee Code Resolver: Data resolved successfully',
-          response
-        );
-      }),
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'Get Next Employee Code Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToEmployeeList();
         return of(null);
       })

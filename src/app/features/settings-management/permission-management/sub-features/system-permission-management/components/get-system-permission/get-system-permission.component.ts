@@ -12,7 +12,6 @@ import {
   ConfirmationDialogService,
   TableServerSideParamsBuilderService,
 } from '@shared/services/';
-import { LoggerService } from '@core/services';
 import {
   ISystemPermissionGetBaseResponseDto,
   ISystemPermissionGetFormDto,
@@ -55,7 +54,6 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetSystemPermissionComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -103,11 +101,9 @@ export class GetSystemPermissionComponent implements OnInit {
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.logger.logUserAction('System permissions loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
-          this.logger.logUserAction('Failed to load system permissions', error);
         },
       });
   }
@@ -224,24 +220,11 @@ export class GetSystemPermissionComponent implements OnInit {
         systemPermissionId,
       ];
 
-      const success = this.routerNavigationService.navigateWithState(
-        routeSegments,
-        { systemPermissionDetail: selectedRow }
-      );
-
-      if (!success) {
-        this.logger.logUserAction(
-          'Navigation failed for edit system permission',
-          {
-            systemPermissionId,
-          }
-        );
-      }
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing system permission',
-        error
-      );
+      void this.routerNavigationService.navigateWithState(routeSegments, {
+        systemPermissionDetail: selectedRow,
+      });
+    } catch {
+      // Navigation error - silently fail
     }
   }
 }

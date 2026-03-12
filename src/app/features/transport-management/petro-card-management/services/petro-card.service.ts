@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { ApiService, LoggerService } from '@core/services';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { ApiService } from '@core/services';
+import { catchError, Observable, throwError } from 'rxjs';
 import {
   IPetroCardAddFormDto,
   IPetroCardAddResponseDto,
@@ -31,14 +31,11 @@ import {
   providedIn: 'root',
 })
 export class PetroCardService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
   addPetroCard(
     formData: IPetroCardAddFormDto
   ): Observable<IPetroCardAddResponseDto> {
-    this.logger.logUserAction('Add Petro Card Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.PETRO_CARD.ADD,
@@ -48,27 +45,13 @@ export class PetroCardService {
         },
         formData
       )
-      .pipe(
-        tap((response: IPetroCardAddResponseDto) => {
-          this.logger.logUserAction('Add Petro Card Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Add Petro Card Error', error);
-          } else {
-            this.logger.logUserAction('Add Petro Card Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   editPetroCard(
     formData: IPetroCardEditFormDto,
     petroCardId: string
   ): Observable<IPetroCardEditResponseDto> {
-    this.logger.logUserAction('Edit Petro Card Request');
-
     return this.apiService
       .patchValidated(
         API_ROUTES.PETRO_CARD.EDIT(petroCardId),
@@ -78,26 +61,12 @@ export class PetroCardService {
         },
         formData
       )
-      .pipe(
-        tap((response: IPetroCardEditResponseDto) => {
-          this.logger.logUserAction('Edit Petro Card Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Edit Petro Card Error', error);
-          } else {
-            this.logger.logUserAction('Edit Petro Card Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   deletePetroCard(
     formData: IPetroCardDeleteFormDto
   ): Observable<IPetroCardDeleteResponseDto> {
-    this.logger.logUserAction('Delete Petro Card Request');
-
     return this.apiService
       .deleteValidated(
         API_ROUTES.PETRO_CARD.DELETE,
@@ -107,29 +76,12 @@ export class PetroCardService {
         },
         formData
       )
-      .pipe(
-        tap((response: IPetroCardDeleteResponseDto) => {
-          this.logger.logUserAction('Delete Petro Card Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Delete Petro Card Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Delete Petro Card Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getPetroCardList(
     params?: IPetroCardGetFormDto
   ): Observable<IPetroCardGetResponseDto> {
-    this.logger.logUserAction('Get Petro Card List Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.PETRO_CARD.LIST,
@@ -139,29 +91,12 @@ export class PetroCardService {
         },
         params
       )
-      .pipe(
-        tap((response: IPetroCardGetResponseDto) => {
-          this.logger.logUserAction('Get Petro Card List Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Petro Card List Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Petro Card List Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   linkPetroCard(
     formData: IPetroCardLinkFormDto
   ): Observable<IPetroCardLinkResponseDto> {
-    this.logger.logUserAction('Link Petro Card Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.PETRO_CARD.LINK,
@@ -171,18 +106,6 @@ export class PetroCardService {
         },
         formData
       )
-      .pipe(
-        tap((response: IPetroCardLinkResponseDto) => {
-          this.logger.logUserAction('Link Petro Card Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Link Petro Card Error', error);
-          } else {
-            this.logger.logUserAction('Link Petro Card Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 }

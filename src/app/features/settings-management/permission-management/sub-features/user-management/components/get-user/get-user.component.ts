@@ -6,7 +6,6 @@ import {
   OnInit,
 } from '@angular/core';
 import { UserService } from '../../services/user.service';
-import { LoggerService } from '@core/services';
 import {
   RouterNavigationService,
   LoadingService,
@@ -59,7 +58,6 @@ import { TextCasePipe } from '@shared/pipes/text-case.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetUserComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -108,11 +106,9 @@ export class GetUserComponent implements OnInit {
           const mappedData = this.mapTableData(records, systemTotalPermissions);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.logger.logUserAction('Users loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
-          this.logger.logUserAction('Failed to load users', error);
         },
       });
   }
@@ -235,11 +231,8 @@ export class GetUserComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while setting user permissions',
-        error
-      );
+    } catch {
+      // Navigation error - silently fail
     }
   }
 }

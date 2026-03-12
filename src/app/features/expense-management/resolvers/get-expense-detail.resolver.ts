@@ -6,7 +6,6 @@ import {
 import { catchError, finalize, Observable, of, switchMap } from 'rxjs';
 import { inject, Injectable } from '@angular/core';
 import { ExpenseService } from '../services/expense.service';
-import { LoggerService } from '@core/services';
 import {
   AttachmentsService,
   LoadingService,
@@ -22,7 +21,6 @@ export class GetExpenseDetailResolver
   implements Resolve<IExpenseDetailResolverResponse | null>
 {
   private readonly expenseService = inject(ExpenseService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
   private readonly attachmentsService = inject(AttachmentsService);
@@ -32,15 +30,7 @@ export class GetExpenseDetailResolver
   ): Observable<IExpenseDetailResolverResponse | null> {
     const expenseId = route.paramMap.get('expenseId');
 
-    this.logger.logUserAction(
-      'Get Expense Detail Resolver: Starting resolution',
-      { expenseId }
-    );
-
     if (!expenseId) {
-      this.logger.logUserAction(
-        'Get Expense Detail Resolver: No expenseId found in route'
-      );
       this.navigateToExpenseList();
       return of(null);
     }
@@ -54,11 +44,6 @@ export class GetExpenseDetailResolver
 
     return this.expenseService.getExpenseDetailById(paramData).pipe(
       switchMap((response: IExpenseDetailGetResponseDto) => {
-        this.logger.logUserAction(
-          'Get Expense Detail Resolver: Data resolved successfully',
-          response
-        );
-
         const latestHistoryItem = response.history[response.history.length - 1];
         const fileKeys = latestHistoryItem?.fileKeys || [];
 
@@ -74,11 +59,7 @@ export class GetExpenseDetailResolver
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'Get Expense Detail Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToExpenseList();
         return of(null);
       })

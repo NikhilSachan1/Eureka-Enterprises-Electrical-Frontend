@@ -67,7 +67,6 @@ export class EditDsrComponent
     ] as IDsrDetailResolverResponse | null;
 
     if (!dsrDetailFromResolver) {
-      this.logger.logUserAction('No DSR data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.PROJECT,
@@ -147,8 +146,7 @@ export class EditDsrComponent
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
-        error: (error: unknown) => {
-          this.logger.logUserAction('Failed to update DSR', error);
+        error: (): void => {
           this.notificationService.error('Failed to update DSR');
         },
       });

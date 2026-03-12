@@ -9,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoggerService, ThemeService } from '@core/services';
+import { ThemeService } from '@core/services';
 import { UserOption } from '@shared/types';
 import { NgClass } from '@angular/common';
 import { primaryUserOptions, secondaryUserOptions } from '@core/config';
@@ -41,7 +41,6 @@ export class SidebarUserProfileComponent {
   private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
   private readonly loadingService = inject(LoadingService);
-  private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
@@ -109,13 +108,12 @@ export class SidebarUserProfileComponent {
       )
       .subscribe({
         next: () => {
-          this.logger.info('Logging out user');
           void this.router.navigate([
             `/${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`,
           ]);
         },
-        error: error => {
-          this.logger.error('Error during logout', error);
+        error: (): void => {
+          void 0;
         },
       });
   }

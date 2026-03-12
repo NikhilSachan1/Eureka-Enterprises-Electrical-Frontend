@@ -67,7 +67,6 @@ export class EditCompanyComponent
     ] as ICompanyDetailGetResponseDto;
 
     if (!companyDetailFromResolver) {
-      this.logger.logUserAction('No company data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.COMPANY,

@@ -161,12 +161,6 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
 
           this._employeeDetails.set(mappedData);
 
-          const logMessage = this.isRouteMode
-            ? 'Profile details loaded successfully'
-            : 'Employee details loaded successfully';
-
-          this.logger.logUserAction(logMessage);
-
           if (!employeeProfilePicture) {
             return of(null);
           }
@@ -188,8 +182,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
             this._employeeDetails.set({ ...employeeDetails });
           }
         },
-        error: error => {
-          this.logger.error(EMPLOYEE_MESSAGES.ERROR.GET_DETAIL, error);
+        error: () => {
           this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.GET_DETAIL);
         },
       });

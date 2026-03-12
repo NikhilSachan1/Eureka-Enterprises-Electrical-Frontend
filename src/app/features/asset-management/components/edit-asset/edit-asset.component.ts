@@ -63,7 +63,6 @@ export class EditAssetComponent
     ] as IAssetDetailResolverResponse | null;
 
     if (!assetDetailFromResolver) {
-      this.logger.logUserAction('No asset data found in route');
       const routeSegments = [ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.LIST];
       void this.routerNavigationService.navigateToRoute(routeSegments);
       return;

@@ -17,7 +17,6 @@ import {
   ISwitchActiveRoleFormDto,
   ISwitchActiveRoleResponseDto,
 } from '@features/auth-management/types/auth.dto';
-import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   LoadingService,
@@ -46,7 +45,6 @@ export class RoleSwitcherComponent {
   isSidebarCollapsed = input<boolean>(false);
 
   private readonly authService = inject(AuthService);
-  private readonly logger = inject(LoggerService);
   private readonly loadingService = inject(LoadingService);
   private readonly notificationService = inject(NotificationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
@@ -141,14 +139,9 @@ export class RoleSwitcherComponent {
           this.notificationService.success(
             `Switched to role: ${toTitleCase(response.activeRole)}`
           );
-          this.logger.info('Role switch complete with app data reloaded');
-          this.logger.info(
-            'Reinitializing application with full page refresh...'
-          );
           window.location.reload();
         },
-        error: error => {
-          this.logger.error('Error during switch active role', error);
+        error: () => {
           this.notificationService.error(
             'Failed to switch role. Please try again.'
           );

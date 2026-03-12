@@ -7,7 +7,6 @@ import {
   OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import {
   PAYROLL_ACTION_CONFIG_MAP,
   PAYSLIP_TABLE_ENHANCED_CONFIG,
@@ -71,7 +70,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetPayslipComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly payrollService = inject(PayrollService);
@@ -122,14 +120,9 @@ export class GetPayslipComponent implements OnInit {
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.logger.info(PAYROLL_MESSAGES.SUCCESS.PAYSLIP_LIST_LOADED);
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
-          this.logger.error(
-            PAYROLL_MESSAGES.ERROR.PAYSLIP_LIST_LOAD_FAILED,
-            error
-          );
         },
       });
   }
@@ -179,10 +172,6 @@ export class GetPayslipComponent implements OnInit {
   ): void {
     const { actionType, selectedRows } = event;
     const [selectedFirstRow] = selectedRows;
-    this.logger.logUserAction('Payslip action clicked', {
-      actionType,
-      selectedFirstRow,
-    });
 
     if (actionType === EButtonActionType.VIEW) {
       this.showPayslipDetailsDrawer(selectedFirstRow);
@@ -273,8 +262,6 @@ export class GetPayslipComponent implements OnInit {
   }
 
   private showPayslipDetailsDrawer(rowData: IPayslipGetBaseResponseDto): void {
-    this.logger.logUserAction('Opening payslip details drawer', rowData);
-
     this.drawerService.showDrawer(GetPayslipDetailComponent, {
       header: `Payslip Details`,
       subtitle: PAYROLL_MESSAGES.DRAWER.PAYSLIP_DETAIL_SUBTITLE,
@@ -285,8 +272,6 @@ export class GetPayslipComponent implements OnInit {
   }
 
   private generatePayroll(): void {
-    this.logger.logUserAction('Generating payroll');
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       onSuccess: () => {
@@ -304,8 +289,6 @@ export class GetPayslipComponent implements OnInit {
   }
 
   private showPayslip(payslip: IPayslipGetBaseResponseDto): void {
-    this.logger.logUserAction('Opening payslip', payslip);
-
     this.loadingService.show({
       title: PAYROLL_MESSAGES.LOADING.PAYSLIP_DETAIL,
       message: PAYROLL_MESSAGES.LOADING_MESSAGES.PAYSLIP_DETAIL,
@@ -329,15 +312,9 @@ export class GetPayslipComponent implements OnInit {
             },
           ];
           this.galleryService.show(galleryMedia);
-          this.logger.info(PAYROLL_MESSAGES.SUCCESS.PAYSLIP_DETAIL_LOADED, {
-            payslipId: payslip.id,
-          });
         },
-        error: error => {
-          this.logger.error(
-            PAYROLL_MESSAGES.ERROR.PAYSLIP_DETAIL_LOAD_FAILED,
-            error
-          );
+        error: () => {
+          // Payslip detail load failed - silently fail
         },
       });
   }

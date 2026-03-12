@@ -56,9 +56,6 @@ export class ApprovalAttendanceComponent
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
-      this.logger.error(
-        'Selected record is required to approve/reject attendance but was not provided'
-      );
       return;
     }
 

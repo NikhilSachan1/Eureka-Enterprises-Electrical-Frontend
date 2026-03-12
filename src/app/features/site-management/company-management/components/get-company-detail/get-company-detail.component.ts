@@ -67,7 +67,6 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
         next: (response: ICompanyDetailGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._companyDetails.set(mappedData);
-          this.logger.logUserAction('Company details loaded successfully');
         },
         error: error => {
           console.error('error', error);

@@ -7,7 +7,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -68,7 +67,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetProjectComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -126,12 +124,10 @@ export class GetProjectComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.projectStats.set(stats);
-          this.logger.logUserAction('Project records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.projectStats.set(null);
-          this.logger.logUserAction('Failed to load project records', error);
         },
       });
   }
@@ -283,8 +279,6 @@ export class GetProjectComponent implements OnInit {
   }
 
   private showProjectDetailsDrawer(rowData: IProjectGetBaseResponseDto): void {
-    this.logger.logUserAction('Opening project details drawer', rowData);
-
     this.drawerService.showDrawer(GetProjectDetailComponent, {
       header: `Project Details`,
       subtitle: `Detailed view of project`,
@@ -304,11 +298,8 @@ export class GetProjectComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing project',
-        error
-      );
+    } catch {
+      // Navigation error - silently fail
     }
   }
 
@@ -321,11 +312,8 @@ export class GetProjectComponent implements OnInit {
         projectId,
       ];
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while analyzing project',
-        error
-      );
+    } catch {
+      // Navigation error - silently fail
     }
   }
 
@@ -338,15 +326,7 @@ export class GetProjectComponent implements OnInit {
         ROUTES.SITE.PROJECT.ADD,
       ];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

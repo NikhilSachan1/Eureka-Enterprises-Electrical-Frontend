@@ -19,7 +19,6 @@ import {
   IDrawerPageHeaderConfig,
   IDrawerState,
 } from '@shared/types/drawer/drawer.interface';
-import { LoggerService } from '@core/services';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { EDrawerPosition, EDrawerSize } from '@shared/types';
 
@@ -34,7 +33,6 @@ import { EDrawerPosition, EDrawerSize } from '@shared/types';
 export class DrawerComponent implements OnInit {
   private readonly drawerService = inject(DrawerService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly logger = inject(LoggerService);
   private readonly injector = inject(Injector);
 
   protected readonly visible = signal<boolean>(false);
@@ -66,35 +64,22 @@ export class DrawerComponent implements OnInit {
         next: (state: IDrawerState) => {
           this.currentConfig.set(state.config);
           this.visible.set(state.visible);
-
-          if (state.visible && state.config?.component) {
-            this.logger.logUserAction('Drawer opened with component', {
-              component: state.config.component.name,
-              data: state.config.componentData,
-            });
-          }
         },
-        error: error => {
-          this.logger.logUserAction(
-            'Error in drawer state subscription',
-            error
-          );
+        error: (): void => {
+          void 0;
         },
       });
   }
 
   protected onDrawerVisibleChange(): void {
-    this.logger.logUserAction('Drawer visible changed');
     this.drawerService.emitDrawerVisibleChange(this.visible());
   }
 
   protected onDrawerShow(): void {
-    this.logger.logUserAction('Drawer shown');
     this.drawerService.emitDrawerShow();
   }
 
   protected onDrawerHide(): void {
-    this.logger.logUserAction('Drawer closed');
     this.drawerService.emitDrawerHide();
   }
 

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { FilterMetadata } from 'primeng/api';
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
@@ -6,7 +6,6 @@ import {
   IDataTableServerSideFilterAndSortConfig,
 } from '@shared/types';
 import { APP_CONFIG } from '@core/config';
-import { LoggerService } from '@core/services';
 
 /**
  * Centralized service for building server-side query parameters from table events.
@@ -17,8 +16,6 @@ import { LoggerService } from '@core/services';
   providedIn: 'root',
 })
 export class TableServerSideParamsBuilderService {
-  private readonly logger = inject(LoggerService);
-
   /**
    * Builds complete query parameters from a table lazy load event.
    * This is the main entry point for converting UI table state to API parameters.

@@ -71,7 +71,6 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
         next: (response: IFuelExpenseDetailGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._fuelExpenseDetails.set(mappedData);
-          this.logger.logUserAction('Fuel expense details loaded successfully');
         },
         error: error => {
           console.error('error', error);

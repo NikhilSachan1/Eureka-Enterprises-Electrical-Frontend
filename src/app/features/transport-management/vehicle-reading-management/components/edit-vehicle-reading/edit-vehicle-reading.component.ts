@@ -72,7 +72,6 @@ export class EditVehicleReadingComponent
     ] as IVehicleReadingDetailResolverResponse | null;
 
     if (!vehicleReadingDetailFromResolver) {
-      this.logger.logUserAction('No vehicle reading data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.TRANSPORT,
         ROUTE_BASE_PATHS.VEHICLE_READING,

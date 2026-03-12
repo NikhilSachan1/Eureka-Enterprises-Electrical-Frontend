@@ -1,6 +1,6 @@
 import { inject, Injectable, NgZone } from '@angular/core';
 import { API_ROUTES } from '@core/constants';
-import { ApiService, LoggerService } from '@core/services';
+import { ApiService } from '@core/services';
 import {
   catchError,
   Observable,
@@ -51,7 +51,6 @@ const DIALOG_OPEN_DELAY_MS = 150; // defer so DOM/overlay is ready after app ini
   providedIn: 'root',
 })
 export class AnnouncementService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -61,8 +60,6 @@ export class AnnouncementService {
   addAnnouncement(
     formData: IAnnouncementAddFormDto
   ): Observable<IAnnouncementAddResponseDto> {
-    this.logger.logUserAction('Add Announcement Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.ANNOUNCEMENT.ADD,
@@ -72,27 +69,13 @@ export class AnnouncementService {
         },
         formData
       )
-      .pipe(
-        tap((response: IAnnouncementAddResponseDto) => {
-          this.logger.logUserAction('Add Announcement Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Add Announcement Error', error);
-          } else {
-            this.logger.logUserAction('Add Announcement Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   editAnnouncement(
     formData: IAnnouncementEditFormDto,
     announcementId: string
   ): Observable<IAnnouncementEditResponseDto> {
-    this.logger.logUserAction('Edit Announcement Request');
-
     return this.apiService
       .patchValidated(
         API_ROUTES.ANNOUNCEMENT.EDIT(announcementId),
@@ -102,29 +85,12 @@ export class AnnouncementService {
         },
         formData
       )
-      .pipe(
-        tap((response: IAnnouncementEditResponseDto) => {
-          this.logger.logUserAction('Edit Announcement Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Edit Announcement Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Edit Announcement Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   deleteAnnouncement(
     formData: IAnnouncementDeleteFormDto
   ): Observable<IAnnouncementDeleteResponseDto> {
-    this.logger.logUserAction('Delete Announcement Request');
-
     return this.apiService
       .deleteValidated(
         API_ROUTES.ANNOUNCEMENT.DELETE,
@@ -134,29 +100,12 @@ export class AnnouncementService {
         },
         formData
       )
-      .pipe(
-        tap((response: IAnnouncementDeleteResponseDto) => {
-          this.logger.logUserAction('Delete Announcement Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Delete Announcement Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Delete Announcement Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   acknowledgeAnnouncement(
     formData: IAnnouncementAcknowledgeFormDto
   ): Observable<IAnnouncementAcknowledgeResponseDto> {
-    this.logger.logUserAction('Acknowledge Announcement Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.ANNOUNCEMENT.ACKNOWLEDGE,
@@ -166,32 +115,12 @@ export class AnnouncementService {
         },
         formData
       )
-      .pipe(
-        tap((response: IAnnouncementAcknowledgeResponseDto) => {
-          this.logger.logUserAction(
-            'Acknowledge Announcement Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Acknowledge Announcement Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Acknowledge Announcement Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getAnnouncementList(
     params?: IAnnouncementGetFormDto
   ): Observable<IAnnouncementGetResponseDto> {
-    this.logger.logUserAction('Get Announcement List Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.ANNOUNCEMENT.LIST,
@@ -201,53 +130,15 @@ export class AnnouncementService {
         },
         params
       )
-      .pipe(
-        tap((response: IAnnouncementGetResponseDto) => {
-          this.logger.logUserAction('Get Announcement List Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Announcement List Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Announcement List Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getUnacknowledgedAnnouncements(): Observable<IAnnouncementUnacknowledgeGetResponseDto> {
-    this.logger.logUserAction('Get Unacknowledged Announcements Request');
-
     return this.apiService
       .getValidated(API_ROUTES.ANNOUNCEMENT.UNACKNOWLEDGE_LIST, {
         response: AnnouncementUnacknowledgeGetResponseSchema,
       })
-      .pipe(
-        tap((response: IAnnouncementUnacknowledgeGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Unacknowledged Announcements Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Unacknowledged Announcements Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction(
-              'Get Unacknowledged Announcements Error',
-              error
-            );
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   loadUnacknowledgedAnnouncements(): Observable<IAnnouncementUnacknowledgeGetResponseDto> {
@@ -263,19 +154,8 @@ export class AnnouncementService {
             }, DIALOG_OPEN_DELAY_MS);
           });
         }
-
-        this.logger.logUserAction(
-          'Unacknowledged announcement records loaded successfully',
-          response
-        );
       }),
-      catchError(error => {
-        this.logger.logUserAction(
-          'Failed to load unacknowledged announcement records',
-          error
-        );
-        return of({ records: [], totalRecords: 0 });
-      })
+      catchError(() => of({ records: [], totalRecords: 0 }))
     );
   }
 
@@ -288,8 +168,6 @@ export class AnnouncementService {
   getAnnouncementDetailById(
     params: IAnnouncementDetailGetFormDto
   ): Observable<IAnnouncementDetailGetResponseDto> {
-    this.logger.logUserAction('Get Announcement Detail By Id Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.ANNOUNCEMENT.GET_ANNOUNCEMENT_BY_ID(params.announcementId),
@@ -297,28 +175,7 @@ export class AnnouncementService {
           response: AnnouncementDetailGetResponseSchema,
         }
       )
-      .pipe(
-        tap((response: IAnnouncementDetailGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Announcement Detail By Id Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Announcement Detail By Id Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction(
-              'Get Announcement Detail By Id Error',
-              error
-            );
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   private loadAnnouncementDialog(

@@ -1,11 +1,7 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, delay, tap } from 'rxjs/operators';
-import {
-  ApiService,
-  LoggerService,
-  AppPermissionService,
-} from '@core/services';
+import { ApiService, AppPermissionService } from '@core/services';
 import {
   AttachmentsService,
   AvatarService,
@@ -49,7 +45,6 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 })
 export class AuthService {
   private readonly apiService = inject(ApiService);
-  private readonly logger = inject(LoggerService);
   private readonly avatarService = inject(AvatarService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly notificationService = inject(NotificationService);
@@ -119,24 +114,16 @@ export class AuthService {
 
         if (user.permissions && Array.isArray(user.permissions)) {
           this.appPermissionService.setPermissions(user.permissions);
-          this.logger.info('User permissions restored from storage', {
-            permissionCount: user.permissions.length,
-          });
         }
-
-        this.logger.info('User authentication state restored from storage');
       } else {
         this.clearAuthState();
       }
-    } catch (error) {
-      this.logger.error('Error initializing auth state', error);
+    } catch {
       this.clearAuthState();
     }
   }
 
   login(formData: ILoginFormDto): Observable<ILoginResponseDto> {
-    this.logger.logUserAction('Login Attempt');
-
     return this.apiService
       .postValidated(
         API_ROUTES.AUTH.LOGIN,
@@ -147,15 +134,7 @@ export class AuthService {
         formData
       )
       .pipe(
-        tap((response: ILoginResponseDto) => {
-          this.logger.logUserAction('Login Response', response);
-        }),
         catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Login Error', error);
-          } else {
-            this.logger.logUserAction('Login Error', error);
-          }
           this.clearAuthState();
           return throwError(() => error);
         })
@@ -165,8 +144,6 @@ export class AuthService {
   forgetPassword(
     formData: IForgetPasswordFormDto
   ): Observable<IForgetPasswordResponseDto> {
-    this.logger.logUserAction('Forget Password Attempt');
-
     return this.apiService
       .postValidated(
         API_ROUTES.AUTH.FORGOT_PASSWORD,
@@ -176,27 +153,13 @@ export class AuthService {
         },
         formData
       )
-      .pipe(
-        tap((response: IForgetPasswordResponseDto) => {
-          this.logger.logUserAction('Forget Password Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Forget Password Error', error);
-          } else {
-            this.logger.logUserAction('Forget Password Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   resetPassword(
     formData: IResetPasswordFormDto,
     token: string
   ): Observable<IResetPasswordResponseDto> {
-    this.logger.logUserAction('Reset Password Attempt');
-
     return this.apiService
       .postValidated(
         API_ROUTES.AUTH.RESET_PASSWORD(token),
@@ -206,26 +169,13 @@ export class AuthService {
         },
         formData
       )
-      .pipe(
-        tap((response: IResetPasswordResponseDto) => {
-          this.logger.logUserAction('Reset Password Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Reset Password Error', error);
-          } else {
-            this.logger.logUserAction('Reset Password Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   logout(): Observable<ILogoutResponseDto> {
     const currentRefreshToken = this.getRefreshToken();
 
     if (!currentRefreshToken) {
-      this.logger.warn('No refresh token available');
       this.clearAuthState();
       return throwError(() => new Error('No refresh token available'));
     }
@@ -245,16 +195,10 @@ export class AuthService {
       )
       .pipe(
         delay(2000),
-        tap((response: ILogoutResponseDto) => {
-          this.logger.logUserAction('Logout Response', response);
+        tap(() => {
           this.clearAuthState();
         }),
         catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Logout Error', error);
-          } else {
-            this.logger.logUserAction('Logout Error', error);
-          }
           this.clearAuthState();
           return throwError(() => error);
         })
@@ -264,8 +208,6 @@ export class AuthService {
   switchActiveRole(
     formData: ISwitchActiveRoleFormDto
   ): Observable<ISwitchActiveRoleResponseDto> {
-    this.logger.logUserAction('Switch Active Role Request', formData);
-
     return this.apiService
       .postValidated(
         API_ROUTES.AUTH.SWITCH_ACTIVE_ROLE,
@@ -277,7 +219,6 @@ export class AuthService {
       )
       .pipe(
         tap((response: ISwitchActiveRoleResponseDto) => {
-          this.logger.logUserAction('Switch Active Role Response', response);
           this._accessToken.set(response.accessToken);
 
           const currentUser = this._user();
@@ -294,22 +235,8 @@ export class AuthService {
               updatedUser
             );
           }
-
-          this.logger.info('Active role switched successfully', {
-            newRole: response.activeRole,
-          });
         }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Switch Active Role Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Switch Active Role Error', error);
-          }
-          return throwError(() => error);
-        })
+        catchError(error => throwError(() => error))
       );
   }
 
@@ -317,7 +244,6 @@ export class AuthService {
     const currentRefreshToken = this.getRefreshToken();
 
     if (!currentRefreshToken) {
-      this.logger.warn('No refresh token available');
       this.clearAuthState();
       return throwError(() => new Error('No refresh token available'));
     }
@@ -337,8 +263,6 @@ export class AuthService {
       )
       .pipe(
         tap((response: IRefreshTokenResponseDto) => {
-          this.logger.info('Token refreshed successfully');
-
           this._accessToken.set(response.accessToken);
           this._refreshToken.set(response.refreshToken);
 
@@ -347,15 +271,11 @@ export class AuthService {
             response.refreshToken
           );
         }),
-        catchError(error => {
-          this.logger.error('Failed to refresh token', error);
-          return throwError(() => error);
-        })
+        catchError(error => throwError(() => error))
       );
   }
 
   forceLogout(): void {
-    this.logger.warn('Force logout: Session expired, redirecting to login');
     this.clearAuthState();
     this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
     this.notificationService.error(
@@ -400,10 +320,7 @@ export class AuthService {
       this._isAuthenticated.set(true);
 
       this.updateDetailsInStorage(accessToken, refreshToken, user, rememberMe);
-
-      this.logger.info('Login successful', user);
     } catch (error) {
-      this.logger.error('Error handling login success', error);
       this.clearAuthState();
       throw error;
     }
@@ -469,8 +386,7 @@ export class AuthService {
         localStorage.getItem('user_data') ??
         sessionStorage.getItem('user_data');
       return userData ? JSON.parse(userData) : null;
-    } catch (error) {
-      this.logger.error('Error getting stored user', error);
+    } catch {
       this.clearAuthState();
       return null;
     }
@@ -558,10 +474,8 @@ export class AuthService {
       .pipe(
         tap(response => {
           this._userAvatarUrl.set(response.url);
-          this.logger.info('User profile picture loaded', response.url);
         }),
-        catchError(error => {
-          this.logger.error('Failed to load profile picture', error);
+        catchError(() => {
           this._userAvatarUrl.set('');
           return of(null);
         })
@@ -577,7 +491,6 @@ export class AuthService {
   }): void {
     const currentUser = this._user();
     if (!currentUser) {
-      this.logger.warn('Cannot update user details: No user logged in');
       return;
     }
 
@@ -598,7 +511,5 @@ export class AuthService {
       ? localStorage
       : sessionStorage;
     storage.setItem('user_data', JSON.stringify(updatedUser));
-
-    this.logger.info('User details updated successfully', updatedUser);
   }
 }

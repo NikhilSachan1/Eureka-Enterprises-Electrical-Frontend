@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, map, Observable, tap, throwError } from 'rxjs';
-import { ApiService, LoggerService } from '@core/services';
+import { catchError, map, Observable, throwError } from 'rxjs';
+import { ApiService } from '@core/services';
 import {
   ISystemPermissionAddFormDto,
   ISystemPermissionAddResponseDto,
@@ -31,15 +31,12 @@ import { AppConfigurationService } from '@shared/services';
   providedIn: 'root',
 })
 export class SystemPermissionService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   addSystemPermission(
     formData: ISystemPermissionAddFormDto
   ): Observable<ISystemPermissionAddResponseDto> {
-    this.logger.logUserAction('Add System Permission Request', formData);
-
     return this.apiService
       .postValidated(
         API_ROUTES.SETTINGS.PERMISSION.SYSTEM.ADD,
@@ -49,33 +46,13 @@ export class SystemPermissionService {
         },
         formData
       )
-      .pipe(
-        tap((response: ISystemPermissionAddResponseDto) => {
-          this.logger.logUserAction('Add System Permission Success', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Add System Permission Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Add System Permission Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   updateSystemPermission(
     formData: ISystemPermissionEditFormDto,
     permissionId: string
   ): Observable<ISystemPermissionEditResponseDto> {
-    this.logger.logUserAction('Update System Permission Request', {
-      permissionId,
-      formData,
-    });
-
     return this.apiService
       .patchValidated(
         API_ROUTES.SETTINGS.PERMISSION.SYSTEM.UPDATE(permissionId),
@@ -85,32 +62,12 @@ export class SystemPermissionService {
         },
         formData
       )
-      .pipe(
-        tap((response: ISystemPermissionEditResponseDto) => {
-          this.logger.logUserAction(
-            'Update System Permission Success',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Update System Permission Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Update System Permission Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   deleteSystemPermission(
     formData: ISystemPermissionDeleteFormDto
   ): Observable<ISystemPermissionDeleteResponseDto> {
-    this.logger.logUserAction('Delete System Permission Request', formData);
-
     return this.apiService
       .deleteValidated(
         `${API_ROUTES.SETTINGS.PERMISSION.SYSTEM.DELETE}`,
@@ -120,32 +77,12 @@ export class SystemPermissionService {
         },
         formData
       )
-      .pipe(
-        tap((response: ISystemPermissionDeleteResponseDto) => {
-          this.logger.logUserAction(
-            'Delete System Permission Success',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Delete System Permission Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Delete System Permission Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getSystemPermissionList(
     paramData?: ISystemPermissionGetFormDto
   ): Observable<ISystemPermissionGetResponseDto> {
-    this.logger.logUserAction('Get System Permission List Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.SETTINGS.PERMISSION.SYSTEM.LIST,
@@ -155,33 +92,10 @@ export class SystemPermissionService {
         },
         paramData
       )
-      .pipe(
-        tap((response: ISystemPermissionGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get System Permission List Success',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get System Permission List Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction(
-              'Get System Permission List Error',
-              error
-            );
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getSystemPermissionModuleWise(): Observable<IModulePermission[]> {
-    this.logger.logUserAction('Get System Permission Module Wise Request');
-
     return this.getSystemPermissionList().pipe(
       map((response: ISystemPermissionGetResponseDto) => {
         const moduleNames = this.appConfigurationService.moduleNames();
@@ -216,16 +130,7 @@ export class SystemPermissionService {
 
         return Array.from(moduleMap.values());
       }),
-      tap(() => {
-        this.logger.logUserAction('Get System Permission Module Wise Success');
-      }),
-      catchError(error => {
-        this.logger.logUserAction(
-          'Get System Permission Module Wise Error',
-          error
-        );
-        return throwError(() => error);
-      })
+      catchError(error => throwError(() => error))
     );
   }
 }

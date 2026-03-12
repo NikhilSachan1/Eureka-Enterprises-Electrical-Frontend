@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ApiService, LoggerService } from '@core/services';
+import { ApiService } from '@core/services';
 import {
   IActionAssetFormDto,
   IActionAssetResponseDto,
@@ -16,7 +16,7 @@ import {
   IAssetGetFormDto,
   IAssetGetResponseDto,
 } from '../types/asset.dto';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
 import {
   ActionAssetRequestSchema,
@@ -38,12 +38,9 @@ import {
   providedIn: 'root',
 })
 export class AssetService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
   addAsset(formData: IAssetAddFormDto): Observable<IAssetAddResponseDto> {
-    this.logger.logUserAction('Add Asset Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.ASSET.ADD,
@@ -54,27 +51,13 @@ export class AssetService {
         formData,
         { multipart: true }
       )
-      .pipe(
-        tap((response: IAssetAddResponseDto) => {
-          this.logger.logUserAction('Add Asset Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Add Asset Error', error);
-          } else {
-            this.logger.logUserAction('Add Asset Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   editAsset(
     formData: IAssetEditFormDto,
     assetId: string
   ): Observable<IAssetEditResponseDto> {
-    this.logger.logUserAction('Edit Asset Request');
-
     return this.apiService
       .patchValidated(
         API_ROUTES.ASSET.EDIT(assetId),
@@ -85,26 +68,12 @@ export class AssetService {
         formData,
         { multipart: true }
       )
-      .pipe(
-        tap((response: IAssetEditResponseDto) => {
-          this.logger.logUserAction('Edit Asset Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Edit Asset Error', error);
-          } else {
-            this.logger.logUserAction('Edit Asset Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   deleteAsset(
     formData: IAssetDeleteFormDto
   ): Observable<IAssetDeleteResponseDto> {
-    this.logger.logUserAction('Delete Asset Request');
-
     return this.apiService
       .deleteValidated(
         API_ROUTES.ASSET.DELETE,
@@ -114,26 +83,12 @@ export class AssetService {
         },
         formData
       )
-      .pipe(
-        tap((response: IAssetDeleteResponseDto) => {
-          this.logger.logUserAction('Delete Asset Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Delete Asset Error', error);
-          } else {
-            this.logger.logUserAction('Delete Asset Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   actionAsset(
     formData: IActionAssetFormDto
   ): Observable<IActionAssetResponseDto> {
-    this.logger.logUserAction('Action Asset Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.ASSET.ACTION,
@@ -144,24 +99,10 @@ export class AssetService {
         formData,
         { multipart: true }
       )
-      .pipe(
-        tap((response: IActionAssetResponseDto) => {
-          this.logger.logUserAction('Action Asset Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Action Asset Error', error);
-          } else {
-            this.logger.logUserAction('Action Asset Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getAssetList(params?: IAssetGetFormDto): Observable<IAssetGetResponseDto> {
-    this.logger.logUserAction('Get Asset List Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.ASSET.LIST,
@@ -171,26 +112,12 @@ export class AssetService {
         },
         params
       )
-      .pipe(
-        tap((response: IAssetGetResponseDto) => {
-          this.logger.logUserAction('Get Asset List Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Get Asset List Error', error);
-          } else {
-            this.logger.logUserAction('Get Asset List Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getAssetDetailById(
     params: IAssetDetailGetFormDto
   ): Observable<IAssetDetailGetResponseDto> {
-    this.logger.logUserAction('Get Asset Detail By Id Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.ASSET.GET_ASSET_BY_ID(params.assetId),
@@ -199,33 +126,13 @@ export class AssetService {
         },
         params
       )
-      .pipe(
-        tap((response: IAssetDetailGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Asset Detail By Id Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Asset Detail By Id Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Asset Detail By Id Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getAssetEventHistory(
     params: IAssetEventHistoryGetFormDto,
     assetId: string
   ): Observable<IAssetEventHistoryGetResponseDto> {
-    this.logger.logUserAction('Get Asset Event History Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.ASSET.GET_ASSET_EVENT_HISTORY(assetId),
@@ -235,24 +142,6 @@ export class AssetService {
         },
         params
       )
-      .pipe(
-        tap((response: IAssetEventHistoryGetResponseDto) => {
-          this.logger.logUserAction(
-            'Get Asset Event History Response',
-            response
-          );
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Asset Event History Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Asset Event History Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 }

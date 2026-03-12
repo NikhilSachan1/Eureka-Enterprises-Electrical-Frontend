@@ -22,7 +22,6 @@ import { GetProjectTimelineComponent } from '../get-project-timeline/get-project
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
-import { LoggerService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
 
 @Component({
@@ -43,7 +42,6 @@ import { RouterNavigationService } from '@shared/services';
 })
 export class GetProjectAnalysisComponent {
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly logger = inject(LoggerService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   tabModeType = ETabMode.CONTENT;
@@ -97,15 +95,7 @@ export class GetProjectAnalysisComponent {
         projectId,
       ];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

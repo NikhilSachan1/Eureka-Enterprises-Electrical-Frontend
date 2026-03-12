@@ -66,7 +66,6 @@ export class EditContractorComponent
     ] as IContractorDetailGetResponseDto;
 
     if (!contractorDetailFromResolver) {
-      this.logger.logUserAction('No contractor data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.CONTRACTOR,

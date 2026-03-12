@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AppPermissionService, LoggerService } from '@core/services';
+import { AppPermissionService } from '@core/services';
 import {
   SALARY_STRUCTURE_TABLE_ENHANCED_CONFIG,
   SEARCH_FILTER_SALARY_STRUCTURE_FORM_CONFIG,
@@ -68,7 +68,6 @@ import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetSalaryStructureComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -141,20 +140,13 @@ export class GetSalaryStructureComponent implements OnInit {
             const mappedData = this.mapEmployeeAnnexureData(records[0]);
             this.employeeAnnexureData.set(mappedData);
           }
-          this.logger.info(
-            PAYROLL_MESSAGES.SUCCESS.SALARY_STRUCTURE_LIST_LOADED
-          );
         },
-        error: error => {
+        error: () => {
           if (isTableVisible) {
             this.table.setData([]);
           } else {
             this.employeeAnnexureData.set(null);
           }
-          this.logger.error(
-            PAYROLL_MESSAGES.ERROR.SALARY_STRUCTURE_LIST_LOAD_FAILED,
-            error
-          );
         },
       });
   }
@@ -271,11 +263,6 @@ export class GetSalaryStructureComponent implements OnInit {
   private showSalaryStructureDetailsDrawer(
     rowData: ISalaryStructureGetBaseResponseDto
   ): void {
-    this.logger.logUserAction(
-      'Opening salary structure details drawer',
-      rowData
-    );
-
     this.drawerService.showDrawer(GetSalaryStructureHistoryComponent, {
       header: `Revision History`,
       subtitle: PAYROLL_MESSAGES.DRAWER.SALARY_STRUCTURE_REVISION_SUBTITLE,
@@ -295,17 +282,14 @@ export class GetSalaryStructureComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.error(PAYROLL_MESSAGES.ERROR.NAVIGATION_ERROR, error);
+    } catch {
+      // Navigation error - silently fail
     }
   }
 
   protected showRevisionHistory(): void {
     const annexureData = this.employeeAnnexureData();
     if (!annexureData?.originalRawData) {
-      this.logger.logUserAction(
-        'Cannot show revision history - missing salary structure data'
-      );
       return;
     }
 

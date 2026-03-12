@@ -64,9 +64,6 @@ export class ChangeStatusEmployeeComponent extends FormBase implements OnInit {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
-      this.logger.error(
-        'Selected record is required to change status of employee but was not provided'
-      );
       return;
     }
   }
@@ -117,8 +114,7 @@ export class ChangeStatusEmployeeComponent extends FormBase implements OnInit {
           successCallback?.();
           this.confirmationDialogService.closeDialog();
         },
-        error: error => {
-          this.logger.error(EMPLOYEE_MESSAGES.ERROR.CHANGE_STATUS, error);
+        error: () => {
           this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.CHANGE_STATUS);
         },
       });

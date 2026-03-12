@@ -71,7 +71,6 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
         next: (response: IAssetDetailGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._assetDetails.set(mappedData);
-          this.logger.logUserAction('Asset details loaded successfully');
         },
         error: error => {
           console.error('error', error);

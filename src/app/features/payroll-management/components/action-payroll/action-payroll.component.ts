@@ -53,9 +53,6 @@ export class ActionPayrollComponent
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
-      this.logger.error(
-        PAYROLL_MESSAGES.VALIDATION.ACTION_PAYROLL_RECORD_REQUIRED
-      );
       return;
     }
 

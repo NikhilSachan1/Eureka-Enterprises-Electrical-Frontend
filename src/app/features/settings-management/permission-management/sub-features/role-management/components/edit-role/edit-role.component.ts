@@ -66,7 +66,6 @@ export class EditRoleComponent
       );
 
     if (!routeStateData) {
-      this.logger.logUserAction('No role data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.SETTINGS.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,

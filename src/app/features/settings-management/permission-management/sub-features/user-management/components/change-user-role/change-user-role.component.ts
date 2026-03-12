@@ -50,9 +50,6 @@ export class ChangeUserRoleComponent
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
-      this.logger.error(
-        'Selected record is required to change user role but was not provided'
-      );
       return;
     }
     const { roles } = record[0];
@@ -118,8 +115,7 @@ export class ChangeUserRoleComponent
           successCallback?.();
           this.confirmationDialogService.closeDialog();
         },
-        error: error => {
-          this.logger.error('Failed to change user role', error);
+        error: () => {
           this.notificationService.error('Failed to change user role');
         },
       });

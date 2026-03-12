@@ -117,11 +117,8 @@ export class AddSalaryIncrementComponent
             this.form.patch(prefilledSalaryDetailData);
           }
         },
-        error: error => {
-          this.logger.error(
-            PAYROLL_MESSAGES.ERROR.LOAD_EMPLOYEE_SALARY_DETAIL,
-            error
-          );
+        error: (): void => {
+          void 0;
         },
       });
   }

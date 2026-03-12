@@ -42,9 +42,6 @@ export class DeleteEmployeeComponent extends FormBase implements OnInit {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
-      this.logger.error(
-        'Selected record is required to delete employee but was not provided'
-      );
       return;
     }
   }
@@ -97,8 +94,7 @@ export class DeleteEmployeeComponent extends FormBase implements OnInit {
           successCallback?.();
           this.confirmationDialogService.closeDialog();
         },
-        error: error => {
-          this.logger.error(EMPLOYEE_MESSAGES.ERROR.DELETE, error);
+        error: () => {
           this.notificationService.error(EMPLOYEE_MESSAGES.ERROR.DELETE);
         },
       });

@@ -4,7 +4,7 @@ import {
   NotificationService,
   LoadingService,
 } from '@shared/services';
-import { LoggerService, EnvironmentService } from '@core/services';
+import { EnvironmentService } from '@core/services';
 import {
   IEnhancedMultiStepForm,
   IEnhancedForm,
@@ -22,7 +22,6 @@ export abstract class FormBase<
   // Services
   // ---------------------------------------------------------------------
   protected readonly formService = inject(FormService);
-  protected readonly logger = inject(LoggerService);
   protected readonly notificationService = inject(NotificationService);
   protected readonly destroyRef = inject(DestroyRef);
   protected readonly environmentService = inject(EnvironmentService);
@@ -166,7 +165,6 @@ export abstract class FormBase<
       this.notificationService.validationError(
         FORM_VALIDATION_MESSAGES.FORM_INVALID
       );
-      this.logger.warn('Multi-step form validation failed');
       return false;
     }
     return true;
@@ -177,7 +175,6 @@ export abstract class FormBase<
       this.notificationService.validationError(
         FORM_VALIDATION_MESSAGES.FORM_INVALID
       );
-      this.logger.warn('Single-step form validation failed');
       return false;
     }
     return true;
@@ -186,7 +183,6 @@ export abstract class FormBase<
   protected validateParticularForm(): boolean {
     const form = this.multiStepForm.forms[this.activeStep()];
     if (!form.validateAndMarkTouched()) {
-      this.logger.warn(`Validation failed for step ${this.activeStep()}`);
       return false;
     }
     return true;
@@ -221,8 +217,8 @@ export abstract class FormBase<
     try {
       const form = this.multiStepForm.forms[this.activeStep()];
       form.reset(initialData ?? undefined);
-    } catch (error) {
-      this.logger.error('Error resetting step form', error);
+    } catch {
+      // Error resetting step form
     }
   }
 
@@ -231,16 +227,16 @@ export abstract class FormBase<
   ): void {
     try {
       this.multiStepForm.reset(initialData ?? undefined);
-    } catch (error) {
-      this.logger.error('Error resetting multi-step form', error);
+    } catch {
+      // Error resetting multi-step form
     }
   }
 
   protected onResetSingleForm(initialData?: Partial<TSingle>): void {
     try {
       this.form.reset(initialData ?? undefined);
-    } catch (error) {
-      this.logger.error('Error resetting single form', error);
+    } catch {
+      // Error resetting single form
     }
   }
 
@@ -266,8 +262,7 @@ export abstract class FormBase<
 
     try {
       this.handleSubmit();
-    } catch (error) {
-      this.logger.error('Form submission failed', error);
+    } catch {
       this.notificationService.error('Something went wrong');
     } finally {
       this.isSubmitting.set(false);
@@ -296,13 +291,11 @@ export abstract class FormBase<
         this.multiStepForm.patch(
           mockData as Partial<Record<string, Partial<T>>>
         );
-        this.logger.logUserAction('Mock data loaded into multi-step form');
       } else if (this.isSingleStepForm() && this.form) {
         this.form.patch(mockData as Partial<TSingle>);
-        this.logger.logUserAction('Mock data loaded into single form');
       }
-    } catch (error) {
-      this.logger.error('Error loading mock data', error);
+    } catch {
+      // Error loading mock data
     }
   }
 

@@ -1,13 +1,11 @@
 import { Directive, inject, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DrawerService } from '@shared/services/drawer.service';
-import { LoggerService } from '@core/services';
 import { IDrawerEvent } from '@shared/types';
 
 @Directive()
 export abstract class DrawerDetailBase implements OnInit {
   protected readonly drawerService = inject(DrawerService);
-  protected readonly logger = inject(LoggerService);
   protected readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
@@ -22,11 +20,8 @@ export abstract class DrawerDetailBase implements OnInit {
         next: (event: IDrawerEvent) => {
           this.handleDrawerEvent(event);
         },
-        error: error => {
-          this.logger.logUserAction(
-            'Error in drawer events subscription',
-            error
-          );
+        error: (): void => {
+          void 0;
         },
       });
   }
@@ -43,20 +38,19 @@ export abstract class DrawerDetailBase implements OnInit {
         this.onDrawerVisibleChange(event.visible ?? false);
         break;
       default:
-        this.logger.logUserAction('Unknown drawer event type', event.type);
         break;
     }
   }
 
   protected onDrawerShow(): void {
-    this.logger.logUserAction(`drawer shown`);
+    void 0;
   }
 
   protected onDrawerHide(): void {
-    this.logger.logUserAction(`drawer hidden`);
+    void 0;
   }
 
-  protected onDrawerVisibleChange(visible: boolean): void {
-    this.logger.logUserAction(`drawer visibility changed to: ${visible}`);
+  protected onDrawerVisibleChange(_visible: boolean): void {
+    void 0;
   }
 }

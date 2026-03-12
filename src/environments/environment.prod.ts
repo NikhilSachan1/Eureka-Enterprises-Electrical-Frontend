@@ -10,7 +10,8 @@ export const environment: Environment = {
   API_BASE_URL: 'https://prod.european-union.onrender.com/api/v2',
 
   // Feature Flags (environment-specific)
-  ENABLE_LOGGING: true, // Disable logging in production
+  ENABLE_LOGGING: true,
+  LOG_LEVEL: 'error',
 
   // Test Data Flags (environment-specific)
   ENABLE_TEST_DATA: false,

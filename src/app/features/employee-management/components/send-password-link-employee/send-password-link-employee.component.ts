@@ -44,9 +44,6 @@ export class SendPasswordLinkEmployeeComponent
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
-      this.logger.error(
-        'Selected record is required to send password link to employee but was not provided'
-      );
       return;
     }
   }
@@ -101,8 +98,7 @@ export class SendPasswordLinkEmployeeComponent
           successCallback?.();
           this.confirmationDialogService.closeDialog();
         },
-        error: error => {
-          this.logger.error(EMPLOYEE_MESSAGES.ERROR.SEND_PASSWORD_LINK, error);
+        error: () => {
           this.notificationService.error(
             EMPLOYEE_MESSAGES.ERROR.SEND_PASSWORD_LINK
           );

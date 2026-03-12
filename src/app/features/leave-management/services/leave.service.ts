@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ApiService, LoggerService } from '@core/services';
+import { ApiService } from '@core/services';
 import {
   ILeaveActionFormDto,
   ILeaveActionResponseDto,
@@ -10,7 +10,7 @@ import {
   ILeaveGetFormDto,
   ILeaveGetResponseDto,
 } from '../types/leave.dto';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
 import {
   LeaveActionRequestSchema,
@@ -27,12 +27,9 @@ import {
   providedIn: 'root',
 })
 export class LeaveService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
   applyLeave(formData: ILeaveApplyFormDto): Observable<ILeaveApplyResponseDto> {
-    this.logger.logUserAction('Apply Leave Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.LEAVE.APPLY,
@@ -42,26 +39,12 @@ export class LeaveService {
         },
         formData
       )
-      .pipe(
-        tap((response: ILeaveApplyResponseDto) => {
-          this.logger.logUserAction('Apply Leave Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Apply Leave Error', error);
-          } else {
-            this.logger.logUserAction('Apply Leave Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   actionLeave(
     formData: ILeaveActionFormDto
   ): Observable<ILeaveActionResponseDto> {
-    this.logger.logUserAction('Action Leave Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.LEAVE.APPROVAL_ACTION,
@@ -71,24 +54,10 @@ export class LeaveService {
         },
         formData
       )
-      .pipe(
-        tap((response: ILeaveActionResponseDto) => {
-          this.logger.logUserAction('Action Leave Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Action Leave Error', error);
-          } else {
-            this.logger.logUserAction('Action Leave Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   forceLeave(formData: ILeaveForceFormDto): Observable<ILeaveForceResponseDto> {
-    this.logger.logUserAction('Force Leave Request');
-
     return this.apiService
       .postValidated(
         API_ROUTES.LEAVE.FORCE,
@@ -98,24 +67,10 @@ export class LeaveService {
         },
         formData
       )
-      .pipe(
-        tap((response: ILeaveForceResponseDto) => {
-          this.logger.logUserAction('Force Leave Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Force Leave Error', error);
-          } else {
-            this.logger.logUserAction('Force Leave Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   getLeaveList(params?: ILeaveGetFormDto): Observable<ILeaveGetResponseDto> {
-    this.logger.logUserAction('Get Leave List Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.LEAVE.LIST,
@@ -125,18 +80,6 @@ export class LeaveService {
         },
         params
       )
-      .pipe(
-        tap((response: ILeaveGetResponseDto) => {
-          this.logger.logUserAction('Get Leave List Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Get Leave List Error', error);
-          } else {
-            this.logger.logUserAction('Get Leave List Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 }

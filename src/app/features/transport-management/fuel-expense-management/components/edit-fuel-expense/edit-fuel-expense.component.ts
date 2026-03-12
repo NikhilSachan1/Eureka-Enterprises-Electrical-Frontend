@@ -71,7 +71,6 @@ export class EditFuelExpenseComponent
       this.activatedRoute.snapshot.data['fuelExpenseDetail'];
 
     if (!fuelExpenseDetailFromResolver) {
-      this.logger.logUserAction('No fuel expense data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.TRANSPORT,
         ROUTE_BASE_PATHS.FUEL,

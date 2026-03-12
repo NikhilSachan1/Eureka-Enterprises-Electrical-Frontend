@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
-import { Environment } from '@core/types/environment.interface';
+import { Environment, LogLevel } from '@core/types/environment.interface';
 import { EEnvironment } from '@core/types';
 
 @Injectable({
@@ -62,6 +62,33 @@ export class EnvironmentService {
    */
   get isLoggingEnabled(): boolean {
     return this._environment.ENABLE_LOGGING;
+  }
+
+  /**
+   * Get configured log level (default: debug in dev, error in prod)
+   */
+  get logLevel(): LogLevel {
+    return (
+      this._environment.LOG_LEVEL ?? (this._isProduction ? 'error' : 'debug')
+    );
+  }
+
+  /**
+   * Check if a log level should be output based on env config.
+   * Order: debug < info < warn < error. Level passes if >= configured min.
+   */
+  shouldLogLevel(level: LogLevel): boolean {
+    if (!this._environment.ENABLE_LOGGING) {
+      return false;
+    }
+    const order: Record<LogLevel, number> = {
+      debug: 0,
+      info: 1,
+      warn: 2,
+      error: 3,
+    };
+    const minLevel = this.logLevel;
+    return order[level] >= order[minLevel];
   }
 
   /**

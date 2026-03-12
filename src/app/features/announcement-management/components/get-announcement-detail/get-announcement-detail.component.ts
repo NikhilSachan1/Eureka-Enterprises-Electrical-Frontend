@@ -79,7 +79,6 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
         next: (response: IAnnouncementDetailGetResponseDto) => {
           const mappedData = this.mapDetailData(response);
           this._announcementDetails.set(mappedData);
-          this.logger.logUserAction('Announcement details loaded successfully');
         },
         error: error => {
           console.error('error', error);

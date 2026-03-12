@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
-import { Observable, catchError, finalize, of, tap } from 'rxjs';
-import { LoggerService } from '@core/services/logger.service';
+import { Observable, catchError, finalize, of } from 'rxjs';
 import { LoadingService, RouterNavigationService } from '@shared/services';
 import { ROUTE_BASE_PATHS } from '@shared/constants/route.constants';
 import { UserPermissionService } from '../services/user-permission.service';
@@ -17,7 +16,6 @@ export class UserPermissionResolver
   implements Resolve<IUserPermissionsGetResponseDto | null>
 {
   private readonly userPermissionService = inject(UserPermissionService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
 
@@ -26,12 +24,7 @@ export class UserPermissionResolver
   ): Observable<IUserPermissionsGetResponseDto | null> {
     const userId = route.paramMap.get('userId');
 
-    this.logger.logUserAction('User Permission Resolver: Starting resolution');
-
     if (!userId) {
-      this.logger.logUserAction(
-        'User Permission Resolver: No userId found in route'
-      );
       this.navigateToUserList();
       return of(null);
     }
@@ -44,20 +37,10 @@ export class UserPermissionResolver
     const paramData = this.prepareParamData(userId);
 
     return this.userPermissionService.getUserPermission(paramData).pipe(
-      tap((response: IUserPermissionsGetResponseDto) => {
-        this.logger.logUserAction(
-          'User Permission Resolver: Data resolved successfully',
-          response
-        );
-      }),
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'User Permission Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToUserList();
         return of(null);
       })

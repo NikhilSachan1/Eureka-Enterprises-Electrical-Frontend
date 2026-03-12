@@ -16,7 +16,6 @@ import {
   ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { finalize } from 'rxjs';
-import { LoggerService } from '@core/services';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   ConfirmationDialogService,
@@ -51,7 +50,6 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetRoleComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -99,11 +97,9 @@ export class GetRoleComponent implements OnInit {
           const mappedData = this.mapTableData(records, totalPermissions);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.logger.logUserAction('Roles loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
-          this.logger.logUserAction('Failed to load roles', error);
         },
       });
   }
@@ -213,18 +209,11 @@ export class GetRoleComponent implements OnInit {
         roleId,
       ];
 
-      const success = this.routerNavigationService.navigateWithState(
-        routeSegments,
-        { roleDetail: selectedRow }
-      );
-
-      if (!success) {
-        this.logger.logUserAction('Navigation failed for edit role', {
-          roleId,
-        });
-      }
-    } catch (error) {
-      this.logger.logUserAction('Navigation error while editing role', error);
+      void this.routerNavigationService.navigateWithState(routeSegments, {
+        roleDetail: selectedRow,
+      });
+    } catch {
+      // Navigation error - silently fail
     }
   }
 
@@ -239,11 +228,8 @@ export class GetRoleComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while setting role permissions',
-        error
-      );
+    } catch {
+      // Navigation error - silently fail
     }
   }
 }

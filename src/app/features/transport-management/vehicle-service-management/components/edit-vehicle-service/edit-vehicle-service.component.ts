@@ -66,7 +66,6 @@ export class EditVehicleServiceComponent
       this.activatedRoute.snapshot.data['vehicleServiceDetail'];
 
     if (!vehicleServiceDetailFromResolver) {
-      this.logger.logUserAction('No vehicle service data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.TRANSPORT,
         ROUTE_BASE_PATHS.VEHICLE_SERVICE,

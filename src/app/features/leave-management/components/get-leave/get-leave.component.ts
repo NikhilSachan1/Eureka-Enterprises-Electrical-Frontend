@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
-import { LoggerService } from '@core/services';
 import {
   LEAVE_ACTION_CONFIG_MAP,
   LEAVE_TABLE_ENHANCED_CONFIG,
@@ -70,7 +69,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetLeaveComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -126,12 +124,10 @@ export class GetLeaveComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.leaveStats.set(stats);
-          this.logger.logUserAction('Leave applications loaded successfully');
         },
-        error: error => {
+        error: (): void => {
           this.table.setData([]);
           this.leaveStats.set(null);
-          this.logger.logUserAction('Failed to load leave applications', error);
         },
       });
   }
@@ -283,8 +279,6 @@ export class GetLeaveComponent implements OnInit {
   }
 
   private showLeaveDetailsDrawer(rowData: ILeaveGetBaseResponseDto): void {
-    this.logger.logUserAction('Opening leave details drawer', rowData);
-
     this.drawerService.showDrawer(GetLeaveDetailComponent, {
       header: `Leave Details`,
       subtitle: `Detailed view of leave`,
@@ -301,15 +295,7 @@ export class GetLeaveComponent implements OnInit {
     } else if (actionName === 'addLeave') {
       navigationRoute = [ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.APPLY];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

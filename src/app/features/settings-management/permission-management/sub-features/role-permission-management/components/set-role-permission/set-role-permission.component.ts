@@ -56,7 +56,6 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
     ] as IRolePermissionsGetResponseDto | null;
 
     if (!rolePermissionRouteData) {
-      this.logger.logUserAction('No role permission data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.SETTINGS.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
@@ -93,7 +92,6 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
     }
     const roleId = this.activatedRoute.snapshot.paramMap.get('roleId');
     if (!roleId) {
-      this.logger.logUserAction('No role id found in route');
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );

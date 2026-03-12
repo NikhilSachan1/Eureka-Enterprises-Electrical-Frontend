@@ -101,7 +101,6 @@ export class ApplyAttendanceComponent
     ] as IAttendanceCurrentStatusGetResponseDto;
 
     if (!currentStatusFromResolver) {
-      this.logger.logUserAction('No current status data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.ATTENDANCE,
         ROUTES.ATTENDANCE.LIST,

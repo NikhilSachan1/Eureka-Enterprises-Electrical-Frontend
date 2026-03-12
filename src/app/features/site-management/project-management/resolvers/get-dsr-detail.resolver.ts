@@ -1,7 +1,6 @@
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
 import { catchError, finalize, Observable, of, switchMap } from 'rxjs';
 import { inject, Injectable } from '@angular/core';
-import { LoggerService } from '@core/services';
 import {
   AttachmentsService,
   LoadingService,
@@ -22,7 +21,6 @@ export class GetDsrDetailResolver
   implements Resolve<IDsrDetailResolverResponse | null>
 {
   private readonly dsrService = inject(DsrService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
   private readonly attachmentsService = inject(AttachmentsService);
@@ -32,14 +30,7 @@ export class GetDsrDetailResolver
   ): Observable<IDsrDetailResolverResponse | null> {
     const dsrId = route.paramMap.get('dsrId');
 
-    this.logger.logUserAction('Get Dsr Detail Resolver: Starting resolution', {
-      dsrId,
-    });
-
     if (!dsrId) {
-      this.logger.logUserAction(
-        'Get Dsr Detail Resolver: No dsrId found in route'
-      );
       this.navigateToDsrList();
       return of(null);
     }
@@ -53,11 +44,6 @@ export class GetDsrDetailResolver
 
     return this.dsrService.getDsrDetailById(paramData).pipe(
       switchMap((response: IDsrDetailGetResponseDto) => {
-        this.logger.logUserAction(
-          'Get Dsr Detail Resolver: Data resolved successfully',
-          response
-        );
-
         const fileKeys = response.files ?? [];
 
         return this.attachmentsService.loadFilesFromKeys(fileKeys).pipe(
@@ -72,11 +58,7 @@ export class GetDsrDetailResolver
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'Get Expense Detail Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToDsrList();
         return of(null);
       })

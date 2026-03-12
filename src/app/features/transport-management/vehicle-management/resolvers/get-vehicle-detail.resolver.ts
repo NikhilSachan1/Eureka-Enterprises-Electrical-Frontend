@@ -4,7 +4,6 @@ import {
   IvehicleDetailGetFormDto,
   IVehicleDetailGetResponseDto,
 } from '../types/vehicle.dto';
-import { LoggerService } from '@core/services';
 import {
   AttachmentsService,
   LoadingService,
@@ -22,7 +21,6 @@ export class GetVehicleDetailResolver
   implements Resolve<IVehicleDetailResolverResponse | null>
 {
   private readonly vehicleService = inject(VehicleService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
   private readonly attachmentsService = inject(AttachmentsService);
@@ -32,15 +30,7 @@ export class GetVehicleDetailResolver
   ): Observable<IVehicleDetailResolverResponse | null> {
     const vehicleId = route.paramMap.get('vehicleId');
 
-    this.logger.logUserAction(
-      'Get Vehicle Detail Resolver: Starting resolution',
-      { vehicleId }
-    );
-
     if (!vehicleId) {
-      this.logger.logUserAction(
-        'Get Vehicle Detail Resolver: No vehicleId found in route'
-      );
       this.navigateToVehicleList();
       return of(null);
     }
@@ -54,11 +44,6 @@ export class GetVehicleDetailResolver
 
     return this.vehicleService.getVehicleDetailById(paramData).pipe(
       switchMap((response: IVehicleDetailGetResponseDto) => {
-        this.logger.logUserAction(
-          'Get Vehicle Detail Resolver: Data resolved successfully',
-          response
-        );
-
         const latestHistoryItem =
           response.versionHistory[response.versionHistory.length - 1];
         const fileKeys = latestHistoryItem?.documentKeys || [];
@@ -75,11 +60,7 @@ export class GetVehicleDetailResolver
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'Get Vehicle Detail Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToVehicleList();
         return of(null);
       })

@@ -65,7 +65,6 @@ export class EditExpenseComponent
     ] as IExpenseDetailResolverResponse | null;
 
     if (!expenseDetailFromResolver) {
-      this.logger.logUserAction('No expense data found in route');
       const routeSegments = [ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.LEDGER];
       void this.routerNavigationService.navigateToRoute(routeSegments);
       return;

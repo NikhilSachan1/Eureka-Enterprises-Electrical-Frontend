@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { API_ROUTES } from '@core/constants';
-import { ApiService, LoggerService } from '@core/services';
+import { ApiService } from '@core/services';
 import {
   AttachmentsGetRequestSchema,
   AttachmentsGetResponseSchema,
@@ -14,7 +14,6 @@ import {
   Observable,
   of,
   switchMap,
-  tap,
   throwError,
 } from 'rxjs';
 
@@ -22,12 +21,9 @@ import {
   providedIn: 'root',
 })
 export class AttachmentsService {
-  private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
 
   getFullMediaUrl(key: string): Observable<IAttachmentsGetResponseDto> {
-    this.logger.logUserAction('Get Image URLs Request');
-
     return this.apiService
       .getValidated(
         API_ROUTES.ATTACHMENTS.GET_FILE_URL,
@@ -37,30 +33,13 @@ export class AttachmentsService {
         },
         { key }
       )
-      .pipe(
-        tap((response: IAttachmentsGetResponseDto) => {
-          this.logger.logUserAction('Get Full Media URL Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Get Full Media URL Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Get Full Media URL Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   loadFilesFromKeys(fileKeys: string[]): Observable<File[]> {
     if (!fileKeys || fileKeys.length === 0) {
       return of([]);
     }
-
-    this.logger.logUserAction('Loading files from keys:', fileKeys);
 
     // Step 1: Fetch all file URLs in parallel using forkJoin
     const fileUrlRequests = fileKeys.map(key => this.getFullMediaUrl(key));
@@ -77,16 +56,7 @@ export class AttachmentsService {
       }),
       // Step 3: Filter out failed downloads (null values)
       map(files => files.filter((file): file is File => file !== null)),
-      tap(files => {
-        this.logger.logUserAction(
-          `Files loaded successfully: ${files.length}/${fileKeys.length}`,
-          files
-        );
-      }),
-      catchError(error => {
-        this.logger.error('Failed to load files from keys', error);
-        return of([]);
-      })
+      catchError(() => of([]))
     );
   }
 
@@ -111,11 +81,6 @@ export class AttachmentsService {
             fileKey?.split('/').pop() ?? `attachment_${index + 1}`;
           return new File([blob], fileName, { type: blob.type });
         })
-    ).pipe(
-      catchError(error => {
-        this.logger.error(`Failed to fetch file at index ${index}:`, error);
-        return of(null);
-      })
-    );
+    ).pipe(catchError(() => of(null)));
   }
 }

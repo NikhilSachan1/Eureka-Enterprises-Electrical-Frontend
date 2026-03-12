@@ -7,7 +7,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -67,7 +66,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetContractorComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -124,12 +122,10 @@ export class GetContractorComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.contractorStats.set(stats);
-          this.logger.logUserAction('Contractor records loaded successfully');
         },
-        error: error => {
+        error: (): void => {
           this.table.setData([]);
           this.contractorStats.set(null);
-          this.logger.logUserAction('Failed to load contractor records', error);
         },
       });
   }
@@ -268,8 +264,6 @@ export class GetContractorComponent implements OnInit {
   private showContractorDetailsDrawer(
     rowData: IContractorGetBaseResponseDto
   ): void {
-    this.logger.logUserAction('Opening contractor details drawer', rowData);
-
     this.drawerService.showDrawer(GetContractorDetailComponent, {
       header: `Contractor Details`,
       subtitle: `Detailed view of contractor`,
@@ -289,11 +283,8 @@ export class GetContractorComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing contractor',
-        error
-      );
+    } catch {
+      // Navigation error - silently fail
     }
   }
 
@@ -306,15 +297,7 @@ export class GetContractorComponent implements OnInit {
         ROUTES.SITE.CONTRACTOR.ADD,
       ];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

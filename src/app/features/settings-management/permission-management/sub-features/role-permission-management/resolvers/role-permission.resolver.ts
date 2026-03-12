@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
-import { Observable, catchError, finalize, of, tap } from 'rxjs';
-import { LoggerService } from '@core/services/logger.service';
+import { Observable, catchError, finalize, of } from 'rxjs';
 import { LoadingService, RouterNavigationService } from '@shared/services';
 import { ROUTE_BASE_PATHS } from '@shared/constants/route.constants';
 import { RolePermissionService } from '../services/role-permission.service';
@@ -17,7 +16,6 @@ export class RolePermissionResolver
   implements Resolve<IRolePermissionsGetResponseDto | null>
 {
   private readonly rolePermissionService = inject(RolePermissionService);
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly loadingService = inject(LoadingService);
 
@@ -26,12 +24,7 @@ export class RolePermissionResolver
   ): Observable<IRolePermissionsGetResponseDto | null> {
     const roleId = route.paramMap.get('roleId');
 
-    this.logger.logUserAction('Role Permission Resolver: Starting resolution');
-
     if (!roleId) {
-      this.logger.logUserAction(
-        'Role Permission Resolver: No roleId found in route'
-      );
       this.navigateToRoleList();
       return of(null);
     }
@@ -44,20 +37,10 @@ export class RolePermissionResolver
     const paramData = this.prepareParamData(roleId);
 
     return this.rolePermissionService.getRolePermission(paramData).pipe(
-      tap((response: IRolePermissionsGetResponseDto) => {
-        this.logger.logUserAction(
-          'Role Permission Resolver: Data resolved successfully',
-          response
-        );
-      }),
       finalize(() => {
         this.loadingService.hide();
       }),
-      catchError((error: unknown) => {
-        this.logger.logUserAction(
-          'Role Permission Resolver: Error resolving data',
-          error
-        );
+      catchError(() => {
         this.navigateToRoleList();
         return of(null);
       })

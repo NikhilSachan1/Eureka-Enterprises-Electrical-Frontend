@@ -8,7 +8,6 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services';
 import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
 import {
   IAnnouncementGetBaseResponseDto,
@@ -70,7 +69,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetAnnouncementComponent implements OnInit {
-  private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -127,16 +125,10 @@ export class GetAnnouncementComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.announcementStats.set(stats ?? null); //TODO: Remove null when backend is updated
-
-          this.logger.logUserAction('Announcement records loaded successfully');
         },
-        error: error => {
+        error: () => {
           this.table.setData([]);
           this.announcementStats.set(null);
-          this.logger.logUserAction(
-            'Failed to load announcement records',
-            error
-          );
         },
       });
   }
@@ -267,8 +259,6 @@ export class GetAnnouncementComponent implements OnInit {
   private showAnnouncementDetailsDrawer(
     rowData: IAnnouncementGetBaseResponseDto
   ): void {
-    this.logger.logUserAction('Opening expense details drawer', rowData);
-
     this.drawerService.showDrawer(GetAnnouncementDetailComponent, {
       header: `Announcement Details`,
       subtitle: `Detailed view of announcement`,
@@ -288,11 +278,8 @@ export class GetAnnouncementComponent implements OnInit {
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing announcement',
-        error
-      );
+    } catch {
+      // Navigation error - silently fail
     }
   }
 
@@ -304,15 +291,7 @@ export class GetAnnouncementComponent implements OnInit {
         ROUTES.ANNOUNCEMENT.ADD,
       ];
     }
-    const success =
-      this.routerNavigationService.navigateToRoute(navigationRoute);
-
-    if (!success) {
-      this.logger.logUserAction(
-        'Navigation failed for header button',
-        navigationRoute
-      );
-    }
+    void this.routerNavigationService.navigateToRoute(navigationRoute);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

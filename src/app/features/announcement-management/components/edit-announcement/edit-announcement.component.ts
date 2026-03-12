@@ -75,7 +75,6 @@ export class EditAnnouncementComponent
     ] as IAnnouncementDetailGetResponseDto;
 
     if (!announcementDetailFromResolver) {
-      this.logger.logUserAction('No announcement data found in route');
       const routeSegments = [
         ROUTE_BASE_PATHS.ANNOUNCEMENT,
         ROUTES.ANNOUNCEMENT.LIST,

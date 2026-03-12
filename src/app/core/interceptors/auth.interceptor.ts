@@ -16,7 +16,7 @@ import {
 } from 'rxjs';
 
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { LoggerService, TimezoneService } from '@core/services';
+import { TimezoneService } from '@core/services';
 import { SKIP_AUTH_ENDPOINTS, API_ROUTES } from '@core/constants';
 
 export const AuthInterceptor: HttpInterceptorFn = (
@@ -24,7 +24,6 @@ export const AuthInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
-  const logger = inject(LoggerService);
   const timezoneService = inject(TimezoneService);
 
   const reqWithCommonHeaders = setCommonHeaders(
@@ -45,7 +44,7 @@ export const AuthInterceptor: HttpInterceptorFn = (
       const token = authService.getAuthToken();
 
       if (error.status === 401 && token && !isRefreshTokenRequest(authReq)) {
-        return handle401Error(authReq, next, authService, logger);
+        return handle401Error(authReq, next, authService);
       }
 
       return throwError(() => error);
@@ -56,13 +55,10 @@ export const AuthInterceptor: HttpInterceptorFn = (
 function handle401Error(
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
-  authService: AuthService,
-  logger: LoggerService
+  authService: AuthService
 ): Observable<HttpEvent<unknown>> {
   // If refresh already in progress → queue request
   if (authService.isTokenRefreshing()) {
-    logger.info('Token refresh in progress, queuing request');
-
     return authService.getRefreshTokenSubject().pipe(
       filter((token): token is string => !!token),
       take(1),
@@ -74,20 +70,15 @@ function handle401Error(
   authService.setRefreshing(true);
   authService.getRefreshTokenSubject().next(null);
 
-  logger.warn('Access token expired, refreshing token');
-
   return authService.refreshAccessToken().pipe(
     switchMap(response => {
       authService.setRefreshing(false);
       authService.getRefreshTokenSubject().next(response.accessToken);
-
-      logger.info('Token refreshed, retrying request');
       return next(addTokenToRequest(req, response.accessToken));
     }),
     catchError(refreshError => {
       authService.setRefreshing(false);
       authService.getRefreshTokenSubject().next(null);
-      logger.error('Refresh token failed - forcing logout', refreshError);
       authService.forceLogout();
 
       return throwError(() => refreshError);

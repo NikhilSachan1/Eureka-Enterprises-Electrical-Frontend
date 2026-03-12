@@ -94,7 +94,6 @@ export class EditSalaryComponent
     ] as ISalaryDetailResolverResponse;
 
     if (!salaryDetailFromResolver) {
-      this.logger.error(PAYROLL_MESSAGES.ERROR.NO_SALARY_DATA);
       const routeSegments = [
         ROUTE_BASE_PATHS.PAYROLL,
         ROUTES.PAYROLL.STRUCTURE,
@@ -132,7 +131,6 @@ export class EditSalaryComponent
       'salaryStructureId'
     ] as string;
     if (!salaryStructureId) {
-      this.logger.error(PAYROLL_MESSAGES.ERROR.NO_SALARY_STRUCTURE_ID);
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );

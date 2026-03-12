@@ -7,6 +7,7 @@ import { ConfirmationDialogComponent } from '@shared/components/confirmation-dia
 import { DrawerComponent } from '@shared/components/drawer/drawer.component';
 import { GalleryComponent } from '@shared/components/gallery/gallery.component';
 import { OfflineComponent } from '@shared/components/offline/offline.component';
+import { LogViewerComponent } from '@shared/components/log-viewer/log-viewer.component';
 import { NetworkMonitorService } from '@core/services';
 
 @Component({
@@ -20,6 +21,7 @@ import { NetworkMonitorService } from '@core/services';
     DrawerComponent,
     GalleryComponent,
     OfflineComponent,
+    LogViewerComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

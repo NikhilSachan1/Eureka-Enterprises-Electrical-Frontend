@@ -103,8 +103,8 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
         next: (response: ILoginResponseDto) => {
           this.handleLoginResponse(response);
         },
-        error: error => {
-          this.logger.error(AUTH_MESSAGES.ERROR.LOGIN, error);
+        error: (): void => {
+          void 0;
         },
       });
   }
@@ -194,8 +194,8 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
           }
           this.navigateAfterLogin();
         },
-        error: error => {
-          this.logger.error(AUTH_MESSAGES.ERROR.LOAD_APP_DATA, error);
+        error: (): void => {
+          void 0;
         },
       });
   }
@@ -209,11 +209,9 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
     const redirectUrl = sessionStorage.getItem('auth_redirect_url');
 
     if (redirectUrl) {
-      this.logger.info(`Redirecting to stored URL: ${redirectUrl}`);
       sessionStorage.removeItem('auth_redirect_url');
       void this.routerNavigationService.navigateByUrl(redirectUrl);
     } else {
-      this.logger.info('Navigating to dashboard');
       const routeSegments = [ROUTE_BASE_PATHS.DASHBOARD];
       void this.routerNavigationService.navigateToRoute(routeSegments);
     }
@@ -221,26 +219,24 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
 
   protected onForgotPassword(): void {
     try {
-      this.logger.logUserAction('Navigate to Forgot Password');
       const routeSegments = [
         ROUTE_BASE_PATHS.AUTH,
         ROUTES.AUTH.FORGOT_PASSWORD,
       ];
       void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.error('Error navigating to forgot password', error);
+    } catch {
+      // Navigation error
     }
   }
 
   protected onContactAdmin(): void {
     try {
-      this.logger.logUserAction('Navigate to Contact Admin');
       this.notificationService.info(
         'Please contact your system administrator for account assistance.',
         'Contact Admin'
       );
-    } catch (error) {
-      this.logger.error('Error in contact admin action', error);
+    } catch {
+      // Error in contact admin action
     }
   }
 }
