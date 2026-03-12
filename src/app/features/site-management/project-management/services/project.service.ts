@@ -15,6 +15,7 @@ import {
   ProjectGetRequestSchema,
   ProjectGetResponseSchema,
   ProjectTimelineGetResponseSchema,
+  ProjectProfitabilityGetResponseSchema,
 } from '../schemas';
 import {
   IProjectAddFormDto,
@@ -30,6 +31,7 @@ import {
   IProjectGetFormDto,
   IProjectGetResponseDto,
   IProjectTimelineGetResponseDto,
+  IProjectProfitabilityGetResponseDto,
 } from '../types/project.dto';
 
 @Injectable({
@@ -133,6 +135,16 @@ export class ProjectService {
     return this.apiService
       .getValidated(API_ROUTES.SITE.PROJECT.TIMELINE(siteId), {
         response: ProjectTimelineGetResponseSchema,
+      })
+      .pipe(catchError(error => throwError(() => error)));
+  }
+
+  getProjectProfitability(
+    siteId: string
+  ): Observable<IProjectProfitabilityGetResponseDto> {
+    return this.apiService
+      .getValidated(API_ROUTES.SITE.PROJECT.PROFITABILITY(siteId), {
+        response: ProjectProfitabilityGetResponseSchema,
       })
       .pipe(catchError(error => throwError(() => error)));
   }

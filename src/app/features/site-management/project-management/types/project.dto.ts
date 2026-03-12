@@ -27,6 +27,7 @@ import {
   ProjectGetResponseSchema,
   ProjectGetStatsResponseSchema,
   ProjectTimelineGetResponseSchema,
+  ProjectProfitabilityGetResponseSchema,
 } from '../schemas';
 
 /*
@@ -85,6 +86,13 @@ export type IProjectGetStatsResponseDto = z.infer<
 */
 export type IProjectTimelineGetResponseDto = z.infer<
   typeof ProjectTimelineGetResponseSchema
+>;
+
+/*
+  Project Profitability
+*/
+export type IProjectProfitabilityGetResponseDto = z.infer<
+  typeof ProjectProfitabilityGetResponseSchema
 >;
 
 /*

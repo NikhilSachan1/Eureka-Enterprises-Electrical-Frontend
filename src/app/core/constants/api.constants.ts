@@ -169,6 +169,8 @@ export const API_ROUTES = {
       GET_PROJECT_BY_ID: (projectId: string) => `sites/${projectId}`,
       CHANGE_STATUS: (projectId: string) => `sites/${projectId}/status`,
       TIMELINE: (siteId: string) => `analytics/sites/${siteId}/timeline`,
+      PROFITABILITY: (siteId: string) =>
+        `analytics/sites/${siteId}/profitability`,
     },
     DSR: {
       ADD: 'daily-status-reports',

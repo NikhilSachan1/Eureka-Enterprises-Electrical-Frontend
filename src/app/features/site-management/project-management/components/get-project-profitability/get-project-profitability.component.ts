@@ -1,5 +1,15 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { CommonModule, CurrencyPipe } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ChartsComponent } from '@shared/components/charts/charts.component';
 import { ProgressBarComponent } from '@shared/components/progress-bar/progress-bar.component';
 import {
@@ -8,96 +18,143 @@ import {
   IProgressBarConfig,
   EProgressBarMode,
 } from '@shared/types';
-
-interface RevenueData {
-  totalPOValue: number;
-  invoicedTillDate: number;
-  pendingToInvoice: number;
-}
-
-interface ExpenseItem {
-  label: string;
-  amount: number;
-}
-
-interface ProfitabilityData {
-  grossProfit: number;
-  profitMargin: number;
-  roi: number;
-}
+import { ProjectService } from '../../services/project.service';
+import { APP_CONFIG } from '@core/config';
+import { IProjectProfitabilityGetResponseDto } from '../../types/project.dto';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-get-project-profitability',
-  imports: [CommonModule, ChartsComponent, ProgressBarComponent],
+  imports: [CommonModule, CurrencyPipe, ChartsComponent, ProgressBarComponent],
   templateUrl: './get-project-profitability.component.html',
   styleUrl: './get-project-profitability.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetProjectProfitabilityComponent implements OnInit {
-  revenueData: RevenueData = {
-    totalPOValue: 12000000, // ₹1.20 Cr
-    invoicedTillDate: 5000000, // ₹50.00 L
-    pendingToInvoice: 7000000, // ₹70.00 L
-  };
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly projectService = inject(ProjectService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  expenses: ExpenseItem[] = [
-    { label: 'Employee Salary (allocated)', amount: 800000 },
-    { label: 'Travel & Accommodation', amount: 250000 },
-    { label: 'Fuel & Vehicle', amount: 120000 },
-    { label: 'Material/Equipment', amount: 300000 },
-    { label: 'Miscellaneous', amount: 50000 },
-  ];
+  protected readonly currencyFormat = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
 
-  totalExpenses = 2090000; // ₹20.90 L
+  protected readonly loading = signal(true);
+  protected readonly error = signal<string | null>(null);
 
-  profitability: ProfitabilityData = {
-    grossProfit: 2910000, // ₹29.10 L
-    profitMargin: 58.2,
-    roi: 139,
-  };
+  protected readonly revenueData = signal<
+    IProjectProfitabilityGetResponseDto['revenue']
+  >({} as IProjectProfitabilityGetResponseDto['revenue']);
 
-  healthScore = 45;
+  protected readonly expenses = signal<
+    IProjectProfitabilityGetResponseDto['expenses']['byCategory']
+  >([]);
+  protected readonly totalExpenses = signal(0);
 
-  // Chart Configurations
-  expenseDistributionChartConfig!: IChartsConfig;
-  revenueExpenseChartConfig!: IChartsConfig;
+  protected readonly profitability = signal<
+    IProjectProfitabilityGetResponseDto['profitability']
+  >({} as IProjectProfitabilityGetResponseDto['profitability']);
 
-  // Progress Bar Configuration
-  healthScoreConfig: Partial<IProgressBarConfig> = {
-    value: 45,
-    showValue: false,
-    mode: EProgressBarMode.DETERMINATE,
-  };
+  protected readonly healthScore = signal(0);
+
+  protected readonly healthScoreConfig = computed(() =>
+    this.getHealthScoreConfig()
+  );
+
+  protected readonly expenseDistributionChartConfig = computed(() =>
+    this.getExpenseDistributionChartConfig()
+  );
+
+  protected readonly revenueExpenseChartConfig = computed(() =>
+    this.getRevenueExpenseChartConfig()
+  );
 
   ngOnInit(): void {
-    this.initializeChartConfigs();
-  }
+    const projectId = this.activatedRoute.snapshot.params[
+      'projectId'
+    ] as string;
 
-  formatCurrency(amount: number): string {
-    if (amount >= 10000000) {
-      return `₹${(amount / 10000000).toFixed(2)} Cr`;
-    } else if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(2)} L`;
+    if (!projectId) {
+      this.loading.set(false);
+      this.error.set('Project ID is missing');
+      return;
     }
-    return `₹${amount.toLocaleString('en-IN')}`;
+    this.loadProfitability(projectId);
   }
 
-  private initializeChartConfigs(): void {
-    // Expense Distribution Doughnut Chart
-    this.expenseDistributionChartConfig = {
+  private loadProfitability(projectId: string): void {
+    this.projectService
+      .getProjectProfitability(projectId)
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IProjectProfitabilityGetResponseDto) => {
+          this.mapApiResponse(response);
+        },
+        error: () => {
+          this.error.set('Failed to load profitability data');
+        },
+      });
+  }
+
+  private mapApiResponse(res: IProjectProfitabilityGetResponseDto): void {
+    this.revenueData.set({
+      ...res.revenue,
+      collectedAmount: res.revenue.collectedAmount ?? 0,
+      pendingCollection: res.revenue.pendingCollection ?? 0,
+      collectionRate: res.revenue.collectionRate ?? 0,
+    });
+
+    const expenseItems = (res.expenses.byCategory ?? []).map(item => ({
+      label: item.label ?? item.name ?? item.category ?? 'Other',
+      amount: item.amount,
+    }));
+    this.expenses.set(expenseItems);
+    this.totalExpenses.set(res.expenses.total);
+
+    this.profitability.set({
+      grossProfit: res.profitability.grossProfit,
+      profitMarginPercent: res.profitability.profitMarginPercent,
+      revenuePerDay: res.profitability.revenuePerDay ?? 0,
+      expensePerDay: res.profitability.expensePerDay ?? 0,
+      profitPerDay: res.profitability.profitPerDay ?? 0,
+    });
+
+    this.healthScore.set(
+      Math.min(100, Math.max(0, res.profitability.profitMarginPercent))
+    );
+  }
+
+  private getHealthScoreConfig(): Partial<IProgressBarConfig> {
+    return {
+      value: this.healthScore(),
+      showValue: false,
+      mode: EProgressBarMode.DETERMINATE,
+    };
+  }
+
+  private getExpenseDistributionChartConfig(): IChartsConfig | null {
+    const expenseList = this.expenses();
+    if (!expenseList.length) {
+      return null;
+    }
+    const colors = [
+      '#4F8EF7',
+      '#9D4EDD',
+      '#FFA726',
+      '#26C485',
+      '#EC4899',
+      '#66BB6A',
+      '#AB47BC',
+    ];
+    return {
       chartType: EChartType.DOUGHNUT,
-      labels: this.expenses.map(e => e.label),
+      labels: expenseList.map(e => e.label ?? 'Other'),
       datasets: [
         {
           label: 'Expenses',
-          data: this.expenses.map(e => e.amount),
-          backgroundColor: [
-            '#4F8EF7', // Employee Salary - Blue
-            '#9D4EDD', // Travel - Purple
-            '#FFA726', // Fuel - Orange
-            '#26C485', // Material - Green
-            '#EC4899', // Misc - Pink
-          ],
+          data: expenseList.map(e => e.amount),
+          backgroundColor: expenseList.map((_, i) => colors[i % colors.length]),
           borderWidth: 0,
         },
       ],
@@ -106,27 +163,23 @@ export class GetProjectProfitabilityComponent implements OnInit {
         cutout: '70%',
       },
     };
+  }
 
-    // Revenue vs Expenses Bar Chart
-    this.revenueExpenseChartConfig = {
+  private getRevenueExpenseChartConfig(): IChartsConfig | null {
+    const rev = this.revenueData();
+    const total = this.totalExpenses();
+    const profit = this.profitability();
+    const revenueAmount = rev.totalPOValue ?? rev.totalInvoiced;
+    if (revenueAmount === 0 && total === 0 && profit.grossProfit === 0) {
+      return null;
+    }
+    return {
       chartType: EChartType.BAR,
       labels: ['Revenue', 'Expenses', 'Profit'],
       datasets: [
         {
-          label: 'Revenue',
-          data: [
-            this.revenueData.invoicedTillDate,
-            this.totalExpenses,
-            this.profitability.grossProfit,
-          ],
-        },
-        {
-          label: 'Expenses',
-          data: [this.totalExpenses],
-        },
-        {
-          label: 'Profit',
-          data: [this.profitability.grossProfit],
+          label: 'Amount',
+          data: [revenueAmount, total, profit.grossProfit],
         },
       ],
       options: {

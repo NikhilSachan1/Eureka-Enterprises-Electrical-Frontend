@@ -1,92 +1,144 @@
 <div class="profitability-container">
-  <!-- Main Card -->
-  <div class="profitability-card">
-    <!-- Revenue Section -->
-    <div class="revenue-section">
-      <h3 class="section-title">REVENUE</h3>
-      <div class="revenue-cards">
-        <div class="revenue-card">
-          <span class="revenue-label">Total PO Value</span>
-          <span class="revenue-value">
-            {{ formatCurrency(revenueData.totalPOValue) }}
-          </span>
-        </div>
-        <div class="revenue-card">
-          <span class="revenue-label">Invoiced Till Date</span>
-          <span class="revenue-value green">
-            {{ formatCurrency(revenueData.invoicedTillDate) }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Expenses Breakdown -->
-    <div class="expenses-section">
-      <h3 class="section-title">EXPENSES BREAKDOWN</h3>
-      <div class="expense-list">
-        @for (expense of expenses; track $index) {
-          <div class="expense-item">
-            <span class="expense-label">{{ expense.label }}</span>
-            <span class="expense-amount">
-              {{ formatCurrency(expense.amount) }}
+  @if (loading()) {
+    <div class="profitability-loading">Loading...</div>
+  } @else if (error()) {
+    <div class="profitability-error">{{ error() }}</div>
+  } @else {
+    <!-- Main Card -->
+    <div class="profitability-card">
+      <!-- Revenue Section -->
+      <div class="revenue-section">
+        <h3 class="section-title">REVENUE</h3>
+        <div class="revenue-cards">
+          <div class="revenue-card">
+            <span class="revenue-label">Total PO Value</span>
+            <span class="revenue-value">
+              {{ revenueData().totalPOValue | currency: currencyFormat }}
             </span>
           </div>
-        }
+          <div class="revenue-card">
+            <span class="revenue-label">Total Invoiced</span>
+            <span class="revenue-value green">
+              {{ revenueData().totalInvoiced | currency: currencyFormat }}
+            </span>
+          </div>
+          <div class="revenue-card">
+            <span class="revenue-label">Pending to Invoice</span>
+            <span class="revenue-value">
+              {{ revenueData().pendingToInvoice | currency: currencyFormat }}
+            </span>
+          </div>
+          <div class="revenue-card">
+            <span class="revenue-label">Collected Amount</span>
+            <span class="revenue-value green">
+              {{ revenueData().collectedAmount | currency: currencyFormat }}
+            </span>
+          </div>
+          <div class="revenue-card">
+            <span class="revenue-label">Pending Collection</span>
+            <span class="revenue-value">
+              {{ revenueData().pendingCollection | currency: currencyFormat }}
+            </span>
+          </div>
+          <div class="revenue-card">
+            <span class="revenue-label">Collection Rate</span>
+            <span class="revenue-value">{{ revenueData().collectionRate }}%</span>
+          </div>
+        </div>
       </div>
-      <div class="total-expenses">
-        <span class="total-label">TOTAL EXPENSES</span>
-        <span class="total-amount">
-          {{ formatCurrency(totalExpenses) }}
-        </span>
-      </div>
-    </div>
 
-    <!-- Profitability Section -->
-    <div class="profitability-section">
-      <h3 class="section-title-small">PROFITABILITY</h3>
-      <div class="profitability-metrics">
-        <div class="metric">
-          <span class="metric-label">Gross Profit</span>
-          <span class="metric-value green">
-            {{ formatCurrency(profitability.grossProfit) }}
+      <!-- Expenses Breakdown -->
+      <div class="expenses-section">
+        <h3 class="section-title">EXPENSES BREAKDOWN</h3>
+        <div class="expense-list">
+          @for (expense of expenses(); track $index) {
+            <div class="expense-item">
+              <span class="expense-label">{{ expense.label }}</span>
+              <span class="expense-amount">
+                {{ expense.amount | currency: currencyFormat }}
+              </span>
+            </div>
+          } @empty {
+            <div class="expense-empty">No expense data</div>
+          }
+        </div>
+        <div class="total-expenses">
+          <span class="total-label">TOTAL EXPENSES</span>
+          <span class="total-amount">
+            {{ totalExpenses() | currency: currencyFormat }}
           </span>
         </div>
-        <div class="metric">
-          <span class="metric-label">Profit Margin</span>
-          <span class="metric-value">{{ profitability.profitMargin }}%</span>
+      </div>
+
+      <!-- Profitability Section -->
+      <div class="profitability-section">
+        <h3 class="section-title-small">PROFITABILITY</h3>
+        <div class="profitability-metrics">
+          <div class="metric">
+            <span class="metric-label">Gross Profit</span>
+            <span class="metric-value green">
+              {{ profitability().grossProfit | currency: currencyFormat }}
+            </span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Profit Margin</span>
+            <span class="metric-value">{{ profitability().profitMarginPercent }}%</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Revenue Per Day</span>
+            <span class="metric-value">
+              {{ profitability().revenuePerDay | currency: currencyFormat }}
+            </span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Expense Per Day</span>
+            <span class="metric-value">
+              {{ profitability().expensePerDay | currency: currencyFormat }}
+            </span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Profit Per Day</span>
+            <span class="metric-value green">
+              {{ profitability().profitPerDay | currency: currencyFormat }}
+            </span>
+          </div>
         </div>
-        <div class="metric">
-          <span class="metric-label">ROI</span>
-          <span class="metric-value">{{ profitability.roi }}%</span>
+      </div>
+
+      <!-- Health Score -->
+      <div class="health-score-section">
+        <div class="health-score-header">
+          <span class="health-label">HEALTH SCORE</span>
+          <span class="health-value">{{ healthScore() }}/100</span>
+        </div>
+        <app-progress-bar [config]="healthScoreConfig()" />
+      </div>
+    </div>
+
+    <div class="charts-section">
+      <!-- Expense Distribution Chart -->
+      <div class="chart-card">
+        <h3 class="chart-title">Expense Distribution</h3>
+        <div class="chart-wrapper">
+          @if (expenseDistributionChartConfig(); as config) {
+            <app-charts [chartConfig]="config" />
+          } @else {
+            <div class="chart-empty">No expense data to display</div>
+          }
+        </div>
+      </div>
+
+      <!-- Revenue vs Expenses Chart -->
+      <div class="chart-card">
+        <h3 class="chart-title">Revenue vs Expenses</h3>
+        <div class="chart-wrapper">
+          @if (revenueExpenseChartConfig(); as config) {
+            <app-charts [chartConfig]="config" />
+          } @else {
+            <div class="chart-empty">No revenue or expense data to display</div>
+          }
         </div>
       </div>
     </div>
-
-    <!-- Health Score -->
-    <div class="health-score-section">
-      <div class="health-score-header">
-        <span class="health-label">HEALTH SCORE</span>
-        <span class="health-value">{{ healthScore }}/100</span>
-      </div>
-      <app-progress-bar [config]="healthScoreConfig" />
-    </div>
-  </div>
-
-  <div class="charts-section">
-    <!-- Expense Distribution Chart -->
-    <div class="chart-card">
-      <h3 class="chart-title">Expense Distribution</h3>
-      <div class="chart-wrapper">
-        <app-charts [chartConfig]="expenseDistributionChartConfig" />
-      </div>
-    </div>
-
-    <!-- Revenue vs Expenses Chart -->
-    <div class="chart-card">
-      <h3 class="chart-title">Revenue vs Expenses</h3>
-      <div class="chart-wrapper">
-        <app-charts [chartConfig]="revenueExpenseChartConfig" />
-      </div>
-    </div>
-  </div>
+  }
 </div>

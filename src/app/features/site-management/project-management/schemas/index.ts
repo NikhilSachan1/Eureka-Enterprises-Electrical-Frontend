@@ -25,6 +25,7 @@ export {
   ProjectGetResponseSchema,
 } from './get-project.schema';
 export { ProjectTimelineGetResponseSchema } from './get-project-timeline.schema';
+export { ProjectProfitabilityGetResponseSchema } from './get-project-profitability.schema';
 export {
   ProjectChangeStatusRequestSchema,
   ProjectChangeStatusResponseSchema,
