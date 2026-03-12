@@ -10,6 +10,8 @@ import {
   DsrGetBaseResponseSchema,
   DsrGetRequestSchema,
   DsrGetResponseSchema,
+  DsrHistoryGetRequestSchema,
+  DsrHistoryGetResponseSchema,
   ProjectAddRequestSchema,
   ProjectAddResponseSchema,
   ProjectChangeStatusRequestSchema,
@@ -24,6 +26,7 @@ import {
   ProjectGetRequestSchema,
   ProjectGetResponseSchema,
   ProjectGetStatsResponseSchema,
+  ProjectTimelineGetResponseSchema,
 } from '../schemas';
 
 /*
@@ -78,6 +81,13 @@ export type IProjectGetStatsResponseDto = z.infer<
 >;
 
 /*
+  Project Timeline
+*/
+export type IProjectTimelineGetResponseDto = z.infer<
+  typeof ProjectTimelineGetResponseSchema
+>;
+
+/*
   Project Change Status
 */
 export type IProjectChangeStatusRequestDto = z.infer<
@@ -129,3 +139,14 @@ export type IDsrEditResponseDto = z.infer<typeof DsrEditResponseSchema>;
   Dsr Delete
 */
 export type IDsrDeleteResponseDto = z.infer<typeof DsrDeleteResponseSchema>;
+
+/*
+  Dsr History Get
+*/
+export type IDsrHistoryGetRequestDto = z.infer<
+  typeof DsrHistoryGetRequestSchema
+>;
+export type IDsrHistoryGetFormDto = z.input<typeof DsrHistoryGetRequestSchema>;
+export type IDsrHistoryGetResponseDto = z.infer<
+  typeof DsrHistoryGetResponseSchema
+>;

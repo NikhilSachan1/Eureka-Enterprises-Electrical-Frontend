@@ -32,3 +32,19 @@ export interface IDsr
 export interface IDsrDetailResolverResponse extends IDsrDetailGetResponseDto {
   preloadedFiles?: File[];
 }
+
+export interface IProjectTimelineMeta {
+  siteName: string;
+  currentStatus: string;
+  completionPercent?: number;
+  daysElapsed: number;
+  daysRemaining: number;
+}
+
+export interface IProjectTimelineEvent {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  icon?: string;
+}

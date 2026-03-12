@@ -101,10 +101,18 @@ export class GetDsrComponent implements OnInit {
   }
 
   private prepareParamData(): IDsrGetFormDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IDsrGetFormDto>(
-      this.tableFilterData,
-      this.table.getHeaders()
-    );
+    const projectId = this.activatedRoute.snapshot.params[
+      'projectId'
+    ] as string;
+    const baseParams =
+      this.tableServerSideFilterAndSortService.buildQueryParams<IDsrGetFormDto>(
+        this.tableFilterData,
+        this.table.getHeaders()
+      );
+    return {
+      ...baseParams,
+      projectName: projectId,
+    };
   }
 
   private mapTableData(records: IDsrGetBaseResponseDto[]): IDsr[] {
@@ -127,6 +135,7 @@ export class GetDsrComponent implements OnInit {
           ...record.createdByUser,
           fullName: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
         },
+        documentKeys: record.documentKeys,
         originalRawData: record,
       };
     });
@@ -195,11 +204,11 @@ export class GetDsrComponent implements OnInit {
           )
           .join(', '),
       },
-      // {
-      //   label: 'Attachment(s)',
-      //   value: selectedRow.fileKeys,
-      //   type: EDataType.ATTACHMENTS,
-      // },
+      {
+        label: 'Attachment(s)',
+        value: selectedRow.documentKeys,
+        type: EDataType.ATTACHMENTS,
+      },
     ];
     return {
       details: [

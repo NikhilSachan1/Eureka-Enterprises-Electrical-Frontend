@@ -33,14 +33,30 @@ export const DsrGetRequestSchema = z
     };
   });
 
-export const DsrGetBaseResponseSchema = DsrBaseSchema.extend({
+export const DsrGetBaseResponseSchemaInner = DsrBaseSchema.extend({
   ...AuditSchema.shape,
   site: z.unknown().nullable(),
   user: z.unknown().nullable(),
-  files: z.array(z.string()).nullable(),
+  files: z
+    .array(
+      z.looseObject({
+        id: z.string(),
+        fileKey: z.string(),
+        fileName: z.string(),
+        fileType: z.string(),
+      })
+    )
+    .nullable(),
   editHistory: z.array(z.unknown()).nullable(),
   createdByUser: UserSchema,
 }).loose();
+
+export const DsrGetBaseResponseSchema = DsrGetBaseResponseSchemaInner.transform(
+  ({ files, ...rest }) => ({
+    ...rest,
+    documentKeys: files?.map(file => file.fileKey) ?? [],
+  })
+);
 
 export const DsrGetResponseSchema = z
   .object({

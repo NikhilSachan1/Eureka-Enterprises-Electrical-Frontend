@@ -14,6 +14,7 @@ import {
   ProjectEditResponseSchema,
   ProjectGetRequestSchema,
   ProjectGetResponseSchema,
+  ProjectTimelineGetResponseSchema,
 } from '../schemas';
 import {
   IProjectAddFormDto,
@@ -28,6 +29,7 @@ import {
   IProjectEditResponseDto,
   IProjectGetFormDto,
   IProjectGetResponseDto,
+  IProjectTimelineGetResponseDto,
 } from '../types/project.dto';
 
 @Injectable({
@@ -122,6 +124,16 @@ export class ProjectService {
         },
         params
       )
+      .pipe(catchError(error => throwError(() => error)));
+  }
+
+  getProjectTimeline(
+    siteId: string
+  ): Observable<IProjectTimelineGetResponseDto> {
+    return this.apiService
+      .getValidated(API_ROUTES.SITE.PROJECT.TIMELINE(siteId), {
+        response: ProjectTimelineGetResponseSchema,
+      })
       .pipe(catchError(error => throwError(() => error)));
   }
 }

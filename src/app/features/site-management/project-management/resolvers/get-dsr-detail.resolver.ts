@@ -44,7 +44,7 @@ export class GetDsrDetailResolver
 
     return this.dsrService.getDsrDetailById(paramData).pipe(
       switchMap((response: IDsrDetailGetResponseDto) => {
-        const fileKeys = response.files ?? [];
+        const fileKeys = response.documentKeys ?? [];
 
         return this.attachmentsService.loadFilesFromKeys(fileKeys).pipe(
           switchMap(files => {

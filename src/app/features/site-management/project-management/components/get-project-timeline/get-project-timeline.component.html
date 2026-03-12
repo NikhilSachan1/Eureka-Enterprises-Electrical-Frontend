@@ -1,49 +1,72 @@
-<!-- Timeline Header -->
 <div class="timeline-header">
-  <div class="timeline-header__icon">
-    <i [class]="icons.COMMON.HISTORY"></i>
+  <div
+    class="timeline-header__progress"
+    [style.--progress]="(timelineMeta().completionPercent ?? 0) / 100"
+  >
+    <i [attr.class]="'timeline-header__icon ' + icons.COMMON.HISTORY"></i>
   </div>
   <div class="timeline-header__content">
-    <h3 class="timeline-header__title">Site Timeline</h3>
-    <p class="timeline-header__subtitle">Track progress like Amazon tracking</p>
+    <span class="timeline-header__title">{{ timelineMeta().siteName || 'Site Timeline' }}</span>
+    <div class="timeline-header__meta">
+      @if (timelineMeta().currentStatus) {
+        <span class="timeline-header__pill">{{ timelineMeta().currentStatus }}</span>
+      }
+      @if (timelineMeta().completionPercent !== undefined) {
+        <span class="timeline-header__pill timeline-header__pill--accent">{{ timelineMeta().completionPercent }}%</span>
+      }
+      @if (timelineMeta().daysElapsed !== undefined) {
+        <span class="timeline-header__pill">
+          <i [attr.class]="icons.COMMON.CALENDAR"></i>
+          {{ timelineMeta().daysElapsed }}d
+        </span>
+      }
+      @if (timelineMeta().daysRemaining !== undefined) {
+        <span class="timeline-header__pill">
+          <i [attr.class]="icons.COMMON.ARROW_RIGHT"></i>
+          {{ timelineMeta().daysRemaining }}d left
+        </span>
+      }
+    </div>
   </div>
 </div>
 
-<div class="pl-4">
-  <!-- Timeline Component -->
-  <app-timeline [config]="timelineConfig()">
-    <!-- Custom Marker Template -->
-    <ng-template
-      #marker
-      let-event
-    >
-      <div class="timeline-marker">
-        @if (event.icon) {
-          <i [class]="event.icon"></i>
-        }
-      </div>
-    </ng-template>
-
-    <!-- Custom Content Template -->
-    <ng-template
-      #content
-      let-event
-    >
-      <div class="timeline-event">
-        <div class="timeline-event__header">
-          @if (event.icon) {
-            <i [class]="`${event.icon} timeline-event__check`"></i>
-          }
-          <h4 class="timeline-event__title">{{ event.title }}</h4>
+@if (isLoading()) {
+  <div class="timeline-message">Loading...</div>
+} @else if (hasError()) {
+  <div class="timeline-empty timeline-empty--error">
+    <span [ngClass]="icons.COMMON.EXCLAMATION_TRIANGLE"></span>
+    <p class="timeline-empty__text">Something went wrong</p>
+    <span class="timeline-empty__hint">Couldn't load timeline</span>
+  </div>
+} @else if (timelineEvents().length === 0) {
+  <div class="timeline-empty">
+    <div class="timeline-empty__illustration">
+      <i [attr.class]="icons.COMMON.CALENDAR"></i>
+    </div>
+    <p class="timeline-empty__text">No events yet</p>
+    <span class="timeline-empty__hint">Events will appear as the project progresses</span>
+  </div>
+} @else {
+  <div class="timeline-body">
+    <app-timeline [config]="timelineConfig()">
+      <ng-template
+        #content
+        let-event
+      >
+        <div class="timeline-card">
+          <span class="timeline-card__date">{{ event.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}</span>
+          <h4 class="timeline-card__title">{{ event.title }}</h4>
+          <p class="timeline-card__desc">{{ event.description }}</p>
         </div>
-
-        <p class="timeline-event__description">{{ event.description }}</p>
-
-        <div class="timeline-event__footer">
-          <i [class]="icons.COMMON.CALENDAR"></i>
-          <span class="timeline-event__date">{{ event.date }}, {{ event.time }}</span>
-        </div>
-      </div>
-    </ng-template>
-  </app-timeline>
-</div>
+      </ng-template>
+      <ng-template
+        #marker
+        let-event
+      >
+        <span class="timeline-marker">
+          <i [attr.class]="event.icon ?? icons.ACTIONS.CHECK"></i>
+        </span>
+      </ng-template>
+    </app-timeline>
+  </div>
+}

@@ -168,6 +168,7 @@ export const API_ROUTES = {
       EDIT: (projectId: string) => `sites/${projectId}`,
       GET_PROJECT_BY_ID: (projectId: string) => `sites/${projectId}`,
       CHANGE_STATUS: (projectId: string) => `sites/${projectId}/status`,
+      TIMELINE: (siteId: string) => `analytics/sites/${siteId}/timeline`,
     },
     DSR: {
       ADD: 'daily-status-reports',
@@ -175,6 +176,8 @@ export const API_ROUTES = {
       DELETE: (dsrId: string) => `daily-status-reports/${dsrId}`,
       LIST: 'daily-status-reports',
       GET_DSR_BY_ID: (dsrId: string) => `daily-status-reports/${dsrId}`,
+      GET_DSR_HISTORY: (dsrId: string) =>
+        `daily-status-reports/${dsrId}/history`,
     },
   },
   ANNOUNCEMENT: {

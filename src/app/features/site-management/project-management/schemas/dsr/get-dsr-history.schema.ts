@@ -4,7 +4,7 @@ import { DsrGetBaseResponseSchemaInner } from './get-dsr.schema';
 
 const { id } = DsrBaseSchema.shape;
 
-export const DsrDetailGetRequestSchema = z
+export const DsrHistoryGetRequestSchema = z
   .object({
     dsrId: id,
   })
@@ -15,7 +15,7 @@ export const DsrDetailGetRequestSchema = z
     };
   });
 
-export const DsrDetailGetResponseSchema = DsrGetBaseResponseSchemaInner.omit({
+export const DsrHistoryGetResponseSchema = DsrGetBaseResponseSchemaInner.omit({
   createdByUser: true,
 }).transform(({ files, ...rest }) => ({
   ...rest,

@@ -11,6 +11,8 @@ import {
   DsrEditResponseSchema,
   DsrGetRequestSchema,
   DsrGetResponseSchema,
+  DsrHistoryGetRequestSchema,
+  DsrHistoryGetResponseSchema,
 } from '../schemas';
 import {
   IDsrAddFormDto,
@@ -22,6 +24,8 @@ import {
   IDsrEditResponseDto,
   IDsrGetFormDto,
   IDsrGetResponseDto,
+  IDsrHistoryGetFormDto,
+  IDsrHistoryGetResponseDto,
 } from '../types/project.dto';
 
 @Injectable({
@@ -88,6 +92,17 @@ export class DsrService {
     return this.apiService
       .getValidated(API_ROUTES.SITE.DSR.GET_DSR_BY_ID(params.dsrId), {
         response: DsrDetailGetResponseSchema,
+      })
+      .pipe(catchError(error => throwError(() => error)));
+  }
+
+  getDsrHistory(
+    params: IDsrHistoryGetFormDto
+  ): Observable<IDsrHistoryGetResponseDto> {
+    return this.apiService
+      .getValidated(API_ROUTES.SITE.DSR.GET_DSR_HISTORY(params.dsrId), {
+        response: DsrHistoryGetResponseSchema,
+        request: DsrHistoryGetRequestSchema,
       })
       .pipe(catchError(error => throwError(() => error)));
   }

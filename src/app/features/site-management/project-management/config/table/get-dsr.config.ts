@@ -52,7 +52,7 @@ export const DSR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showFilter: false,
   },
   {
-    field: 'files',
+    field: 'documentKeys',
     header: 'Attachments',
     bodyTemplate: EDataType.ATTACHMENTS,
     showSort: false,

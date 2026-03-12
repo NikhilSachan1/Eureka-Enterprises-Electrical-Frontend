@@ -24,6 +24,7 @@ export {
   ProjectGetStatsResponseSchema,
   ProjectGetResponseSchema,
 } from './get-project.schema';
+export { ProjectTimelineGetResponseSchema } from './get-project-timeline.schema';
 export {
   ProjectChangeStatusRequestSchema,
   ProjectChangeStatusResponseSchema,
@@ -47,3 +48,7 @@ export {
   DsrDetailGetRequestSchema,
   DsrDetailGetResponseSchema,
 } from './dsr/get-dsr-detail.schema';
+export {
+  DsrHistoryGetRequestSchema,
+  DsrHistoryGetResponseSchema,
+} from './dsr/get-dsr-history.schema';
