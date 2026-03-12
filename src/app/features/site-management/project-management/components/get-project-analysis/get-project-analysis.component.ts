@@ -93,7 +93,7 @@ export class GetProjectAnalysisComponent {
       navigationRoute = [
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.PROJECT,
-        ROUTES.SITE.PROJECT.DAILY_STATUS,
+        ROUTES.SITE.PROJECT.DAILY_STATUS.ADD,
         projectId,
       ];
     }

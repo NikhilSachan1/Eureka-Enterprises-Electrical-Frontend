@@ -4,156 +4,244 @@ import {
   DestroyRef,
   inject,
   OnInit,
-  signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import {
   AppConfigurationService,
-  AvatarService,
   ConfirmationDialogService,
-  LoadingService,
+  DrawerService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
+  TableService,
 } from '@shared/services';
-import { ICONS } from '@shared/constants';
 import { LoggerService } from '@core/services';
 import { DsrService } from '@features/site-management/project-management/services/dsr.service';
 import {
+  IDsrGetBaseResponseDto,
   IDsrGetFormDto,
   IDsrGetResponseDto,
 } from '@features/site-management/project-management/types/project.dto';
+import {
+  DSR_ACTION_CONFIG_MAP,
+  DSR_TABLE_ENHANCED_CONFIG,
+  SEARCH_FILTER_DSR_FORM_CONFIG,
+} from '@features/site-management/project-management/config';
 import { APP_CONFIG } from '@core/config';
-import { PaginatorState } from 'primeng/paginator';
-import { PaginatorComponent } from '@shared/components/paginator/paginator.component';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-export interface IDsrCardEntry {
-  id: string;
-  userName: string;
-  employeeId: string;
-  date: string;
-  description: string;
-  workType: string;
-}
+import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import {
+  EButtonActionType,
+  EDataType,
+  IDataViewDetails,
+  IDataViewDetailsWithEntity,
+  IEnhancedTable,
+  ITableActionClickEvent,
+  ITableSearchFilterFormConfig,
+} from '@shared/types';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { IDsr } from '@features/site-management/project-management/types/project.interface';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { GetDsrDetailComponent } from '../get-dsr-detail/get-dsr-detail.component';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 
 @Component({
   selector: 'app-get-dsr',
-  imports: [CommonModule, PaginatorComponent],
+  imports: [DataTableComponent, SearchFilterComponent],
   templateUrl: './get-dsr.component.html',
   styleUrl: './get-dsr.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetDsrComponent implements OnInit {
   private readonly logger = inject(LoggerService);
-  private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dsrService = inject(DsrService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly confirmationDialogService = inject(
-    ConfirmationDialogService
-  );
+  private readonly dataTableService = inject(TableService);
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
-  private readonly appConfigurationService = inject(AppConfigurationService);
-  private readonly avatarService = inject(AvatarService);
-  private readonly activatedRoute = inject(ActivatedRoute);
-
-  protected icons = ICONS;
-
-  protected readonly dsrEntries = signal<IDsrCardEntry[]>([]);
-  protected readonly totalRecords = signal(0);
-  protected readonly loading = signal(false);
-  protected readonly paginatorFirst = signal(0);
-  protected readonly paginatorRows = signal(
-    APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
   );
-  protected readonly tablePaginationConfig = APP_CONFIG.TABLE_PAGINATION_CONFIG;
+  private readonly drawerService = inject(DrawerService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
 
-  private get projectId(): string | null {
-    return (
-      this.activatedRoute.snapshot.params['projectId'] ??
-      this.activatedRoute.snapshot.parent?.params['projectId'] ??
-      null
-    );
-  }
+  protected table!: IEnhancedTable;
+  protected tableFilterData!: TableLazyLoadEvent;
+  protected searchFilterConfig!: ITableSearchFilterFormConfig;
 
   ngOnInit(): void {
-    this.loadDsrList();
-  }
-
-  protected onPageChange(event: PaginatorState): void {
-    this.paginatorFirst.set(event.first ?? 0);
-    this.paginatorRows.set(
-      event.rows ?? APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE
-    );
-    this.loadDsrList();
+    this.table = this.dataTableService.createTable(DSR_TABLE_ENHANCED_CONFIG);
+    this.searchFilterConfig = SEARCH_FILTER_DSR_FORM_CONFIG;
   }
 
   private loadDsrList(): void {
-    const { projectId } = this;
-    if (!projectId) {
-      this.logger.logUserAction('Get DSR: projectId not found in route');
-      this.dsrEntries.set([]);
-      this.totalRecords.set(0);
-      return;
-    }
+    this.table.setLoading(true);
 
-    this.loading.set(true);
-    const params: IDsrGetFormDto =
-      this.tableServerSideFilterAndSortService.buildQueryParams<IDsrGetFormDto>(
-        {
-          first: this.paginatorFirst(),
-          rows: this.paginatorRows(),
-          sortField: undefined,
-          sortOrder: 1,
-          filters: {},
-        },
-        [],
-        { projectName: projectId },
-        APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE
-      );
+    const paramData = this.prepareParamData();
 
     this.dsrService
-      .getDSRList(params)
+      .getDSRList(paramData)
       .pipe(
-        finalize(() => this.loading.set(false)),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response: IDsrGetResponseDto) => {
-          this.totalRecords.set(response.totalRecords);
-          this.dsrEntries.set(this.mapToCardEntries(response.records));
+          const { records, totalRecords } = response;
+          const mappedData = this.mapTableData(records);
+          this.table.setData(mappedData);
+          this.table.updateTableConfig({ totalRecords });
           this.logger.logUserAction('DSR records loaded successfully');
         },
         error: error => {
-          this.dsrEntries.set([]);
-          this.totalRecords.set(0);
+          this.table.setData([]);
           this.logger.logUserAction('Failed to load DSR records', error);
         },
       });
   }
 
-  private mapToCardEntries(
-    records: IDsrGetResponseDto['records']
-  ): IDsrCardEntry[] {
-    return records.map(record => ({
-      id: record.id,
-      userName:
-        `${record.createdByUser?.firstName ?? ''} ${record.createdByUser?.lastName ?? ''}`.trim() ||
-        '-',
-      employeeId: record.createdByUser?.employeeId ?? '-',
-      date: record.reportDate ?? '-',
-      description: record.remarks,
-      workType: Array.isArray(record.workTypes)
-        ? record.workTypes.join(', ')
-        : (record.workTypes ?? '-'),
-    }));
+  private prepareParamData(): IDsrGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IDsrGetFormDto>(
+      this.tableFilterData,
+      this.table.getHeaders()
+    );
   }
 
-  getAvatarUrl(name: string): string {
-    return this.avatarService.getAvatarFromName(name);
+  private mapTableData(records: IDsrGetBaseResponseDto[]): IDsr[] {
+    return records.map(record => {
+      return {
+        id: record.id,
+        reportDate: record.reportDate,
+        workTypes: record.workTypes
+          .map(workType =>
+            getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.projectWorkTypes(),
+              workType
+            )
+          )
+          .join(', '),
+        reportingEngineerName: record.reportingEngineerName,
+        reportingEngineerContact: record.reportingEngineerContact,
+        remarks: record.remarks,
+        createdByUser: {
+          ...record.createdByUser,
+          fullName: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
+        },
+        originalRawData: record,
+      };
+    });
+  }
+
+  protected onTableStateChange(event: TableLazyLoadEvent): void {
+    this.tableFilterData = event;
+    this.loadDsrList();
+  }
+
+  protected handleDsrTableActionClick(
+    event: ITableActionClickEvent<IDsrGetBaseResponseDto>,
+    isBulk = false
+  ): void {
+    const { actionType, selectedRows } = event;
+    const [selectedRow] = selectedRows;
+
+    if (actionType === EButtonActionType.VIEW) {
+      this.showDsrDetailsDrawer(selectedRow);
+      return;
+    }
+
+    if (actionType === EButtonActionType.EDIT) {
+      this.navigateToEditDsr(selectedRow.id);
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dynamicComponentInputs: any = {
+      selectedRecord: selectedRows,
+      onSuccess: () => {
+        this.loadDsrList();
+      },
+    };
+
+    const recordDetail = this.prepareDsrRecordDetail(selectedRow);
+
+    this.confirmationDialogService.showConfirmationDialog(
+      actionType,
+      DSR_ACTION_CONFIG_MAP[actionType],
+      recordDetail,
+      isBulk,
+      !isBulk,
+      dynamicComponentInputs
+    );
+  }
+
+  private prepareDsrRecordDetail(
+    selectedRow: IDsrGetBaseResponseDto
+  ): IDataViewDetailsWithEntity {
+    const entryData: IDataViewDetails['entryData'] = [
+      {
+        label: 'Status Date',
+        value: selectedRow.reportDate,
+        type: EDataType.DATE,
+        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+      },
+      {
+        label: 'Work Types',
+        value: selectedRow.workTypes
+          .map(workType =>
+            getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.projectWorkTypes(),
+              workType
+            )
+          )
+          .join(', '),
+      },
+      // {
+      //   label: 'Attachment(s)',
+      //   value: selectedRow.fileKeys,
+      //   type: EDataType.ATTACHMENTS,
+      // },
+    ];
+    return {
+      details: [
+        {
+          entryData,
+        },
+      ],
+      entity: {
+        name: `${selectedRow.createdByUser.firstName} ${selectedRow.createdByUser.lastName}`,
+        subtitle: selectedRow.createdByUser.employeeId,
+      },
+    };
+  }
+
+  private showDsrDetailsDrawer(rowData: IDsrGetBaseResponseDto): void {
+    this.logger.logUserAction('Opening expense details drawer', rowData);
+
+    this.drawerService.showDrawer(GetDsrDetailComponent, {
+      header: `DSR Details`,
+      subtitle: `Detailed view of DSR`,
+      componentData: {
+        dsr: rowData,
+      },
+    });
+  }
+
+  private navigateToEditDsr(dsrId: string): void {
+    try {
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SITE.BASE,
+        ROUTE_BASE_PATHS.SITE.PROJECT,
+        ROUTES.SITE.PROJECT.DAILY_STATUS.EDIT,
+        dsrId,
+      ];
+
+      void this.routerNavigationService.navigateToRoute(routeSegments);
+    } catch (error) {
+      this.logger.logUserAction('Navigation error while editing DSR', error);
+    }
   }
 }

@@ -6,6 +6,7 @@ import {
   DsrAddRequestSchema,
   DsrAddResponseSchema,
   DsrDeleteResponseSchema,
+  DsrDetailGetResponseSchema,
   DsrEditRequestSchema,
   DsrEditResponseSchema,
   DsrGetRequestSchema,
@@ -15,6 +16,8 @@ import {
   IDsrAddFormDto,
   IDsrAddResponseDto,
   IDsrDeleteResponseDto,
+  IDsrDetailGetFormDto,
+  IDsrDetailGetResponseDto,
   IDsrEditFormDto,
   IDsrEditResponseDto,
   IDsrGetFormDto,
@@ -130,6 +133,33 @@ export class DsrService {
             this.logger.logDtoValidationErrors('Get DSR List Error', error);
           } else {
             this.logger.logUserAction('Get DSR List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getDsrDetailById(
+    params: IDsrDetailGetFormDto
+  ): Observable<IDsrDetailGetResponseDto> {
+    this.logger.logUserAction('Get Dsr Detail By Id Request');
+
+    return this.apiService
+      .getValidated(API_ROUTES.SITE.DSR.GET_DSR_BY_ID(params.dsrId), {
+        response: DsrDetailGetResponseSchema,
+      })
+      .pipe(
+        tap((response: IDsrDetailGetResponseDto) => {
+          this.logger.logUserAction('Get Dsr Detail By Id Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Dsr Detail By Id Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Dsr Detail By Id Error', error);
           }
           return throwError(() => error);
         })

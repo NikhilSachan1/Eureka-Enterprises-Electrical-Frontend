@@ -1,5 +1,9 @@
 :host {
   overflow-wrap: break-word;
+
+  ::ng-deep p-card .p-card-body {
+    padding: 1rem;
+  }
 }
 
 // Heading upar, content neeche — theme-aware, responsive

@@ -9,6 +9,10 @@ import { ADD_DSR_FORM_CONFIG } from './add-dsr.config';
 
 const EDIT_DSR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDsrEditUIFormDto> = {
   ...ADD_DSR_FORM_CONFIG.fields,
+  statusDate: {
+    ...ADD_DSR_FORM_CONFIG.fields.statusDate,
+    disabledInput: true,
+  },
 };
 
 const EDIT_DSR_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

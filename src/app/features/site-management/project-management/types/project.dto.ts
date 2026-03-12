@@ -3,8 +3,11 @@ import {
   DsrAddRequestSchema,
   DsrAddResponseSchema,
   DsrDeleteResponseSchema,
+  DsrDetailGetRequestSchema,
+  DsrDetailGetResponseSchema,
   DsrEditRequestSchema,
   DsrEditResponseSchema,
+  DsrGetBaseResponseSchema,
   DsrGetRequestSchema,
   DsrGetResponseSchema,
   ProjectAddRequestSchema,
@@ -93,6 +96,17 @@ export type IProjectChangeStatusResponseDto = z.infer<
 export type IDsrGetRequestDto = z.infer<typeof DsrGetRequestSchema>;
 export type IDsrGetFormDto = z.input<typeof DsrGetRequestSchema>;
 export type IDsrGetResponseDto = z.infer<typeof DsrGetResponseSchema>;
+export type IDsrGetBaseResponseDto = z.infer<typeof DsrGetBaseResponseSchema>;
+
+/*
+  Dsr Detail Get
+*/
+export type IDsrDetailGetRequestDto = z.infer<typeof DsrDetailGetRequestSchema>;
+export type IDsrDetailGetFormDto = z.input<typeof DsrDetailGetRequestSchema>;
+export type IDsrDetailGetResponseDto = z.infer<
+  typeof DsrDetailGetResponseSchema
+>;
+
 /*
   Dsr Add
 */
@@ -106,7 +120,9 @@ export type IDsrAddResponseDto = z.infer<typeof DsrAddResponseSchema>;
 */
 export type IDsrEditRequestDto = z.infer<typeof DsrEditRequestSchema>;
 export type IDsrEditFormDto = z.input<typeof DsrEditRequestSchema>;
-export type IDsrEditUIFormDto = Omit<IDsrEditFormDto, 'projectName'>;
+export type IDsrEditUIFormDto = IDsrEditFormDto & {
+  statusDate: Date;
+};
 export type IDsrEditResponseDto = z.infer<typeof DsrEditResponseSchema>;
 
 /*

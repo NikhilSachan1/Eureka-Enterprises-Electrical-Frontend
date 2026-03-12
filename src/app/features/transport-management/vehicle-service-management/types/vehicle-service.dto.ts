@@ -38,6 +38,9 @@ export type IVehicleServiceEditRequestDto = z.infer<
 export type IvehicleServiceEditFormDto = z.input<
   typeof VehicleServiceEditRequestSchema
 >;
+export type IVehicleServiceEditUIFormDto = IvehicleServiceEditFormDto & {
+  vehicleName: string;
+};
 export type IVehicleServiceEditResponseDto = z.infer<
   typeof VehicleServiceEditResponseSchema
 >;

@@ -141,7 +141,7 @@ export class GetVehicleReadingComponent implements OnInit {
         readingDate: record.logDate,
         vehicle: {
           ...record.vehicle,
-          brandModel: `${record.vehicle['brand']} ${record.vehicle['model']}`, // TODO: Add brand and model
+          brandModel: `${record.vehicle.brand} ${record.vehicle.model}`,
         },
         driver: {
           ...record.driver,

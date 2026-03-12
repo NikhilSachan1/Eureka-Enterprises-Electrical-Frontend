@@ -1,4 +1,8 @@
-import { IProjectGetBaseResponseDto } from './project.dto';
+import {
+  IDsrDetailGetResponseDto,
+  IDsrGetBaseResponseDto,
+  IProjectGetBaseResponseDto,
+} from './project.dto';
 
 export interface IProject extends Pick<IProjectGetBaseResponseDto, 'id'> {
   projectName: string;
@@ -7,4 +11,24 @@ export interface IProject extends Pick<IProjectGetBaseResponseDto, 'id'> {
   timeLine: Date[];
   estimatedBudget: string;
   originalRawData: IProjectGetBaseResponseDto;
+}
+
+export interface IDsr
+  extends Pick<
+    IDsrGetBaseResponseDto,
+    | 'id'
+    | 'reportDate'
+    | 'reportingEngineerName'
+    | 'reportingEngineerContact'
+    | 'remarks'
+  > {
+  workTypes: string;
+  createdByUser: IDsrGetBaseResponseDto['createdByUser'] & {
+    fullName: string;
+  };
+  originalRawData: IDsrGetBaseResponseDto;
+}
+
+export interface IDsrDetailResolverResponse extends IDsrDetailGetResponseDto {
+  preloadedFiles?: File[];
 }

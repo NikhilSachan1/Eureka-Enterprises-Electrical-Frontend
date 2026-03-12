@@ -96,7 +96,10 @@ export const ROUTES = {
       ADD: `add`,
       EDIT: `edit`,
       ANALYSIS: `analysis`,
-      DAILY_STATUS: `add-daily-status`,
+      DAILY_STATUS: {
+        ADD: `add-daily-status`,
+        EDIT: `edit-daily-status`,
+      },
     },
   },
 

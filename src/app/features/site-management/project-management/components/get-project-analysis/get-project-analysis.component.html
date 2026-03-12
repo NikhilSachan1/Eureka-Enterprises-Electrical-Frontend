@@ -18,13 +18,15 @@
       [tabMode]="tabModeType"
       (tabChanged)="onTabChanged($event)"
     >
-      @if (activeTabIndex() === 0) {
-        <app-get-project-profitability />
-      } @else if (activeTabIndex() === 1) {
-        <app-get-project-doc />
-      } @else if (activeTabIndex() === 2) {
-        <app-get-dsr />
-      }
+      <div class="p-4">
+        @if (activeTabIndex() === 0) {
+          <app-get-project-profitability />
+        } @else if (activeTabIndex() === 1) {
+          <app-get-project-doc />
+        } @else if (activeTabIndex() === 2) {
+          <app-get-dsr />
+        }
+      </div>
     </app-nav-tabs>
   </p-card>
 </div>

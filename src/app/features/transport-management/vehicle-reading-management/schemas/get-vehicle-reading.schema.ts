@@ -44,69 +44,62 @@ export const VehicleReadingGetRequestSchema = z
     }
   );
 
-export const VehicleReadingGetBaseResponseSchema =
-  VehicleReadingBaseSchema.extend({
-    ...AuditSchema.shape,
-    totalKmTraveled: z.number(),
-    anomalyDetected: z.boolean(),
-    anomalyReason: z.string().nullable(),
-    vehicle: VehicleBaseSchema.pick({
-      id: true,
-      registrationNo: true,
-      // brand: true, // TODO: Add brand
-      // model: true, // TODO: Add model
-      // mileage: true, // TODO: Add mileage
-      // fuelType: true, // TODO: Add fuel type
+const VehicleReadingGetBaseObjectSchema = VehicleReadingBaseSchema.extend({
+  ...AuditSchema.shape,
+  totalKmTraveled: z.number(),
+  anomalyDetected: z.boolean(),
+  anomalyReason: z.string().nullable(),
+  vehicle: VehicleBaseSchema.pick({
+    id: true,
+    registrationNo: true,
+    brand: true,
+    model: true,
+    mileage: true,
+    fuelType: true,
+  }).loose(),
+  driver: EmployeeBaseSchema.pick({
+    id: true,
+    firstName: true,
+    lastName: true,
+    email: true,
+    contactNumber: true,
+    employeeId: true,
+  }).loose(),
+  site: ProjectGetBaseResponseSchema.pick({
+    id: true,
+    name: true,
+    city: true,
+    state: true,
+  }).loose(),
+  files: z.array(
+    z.looseObject({
+      id: z.string(),
+      vehicleLogId: uuidField,
+      fileKey: z.string(),
+      fileType: z.string(),
+      fileName: z.string().nullable(),
     })
-      .loose()
-      .transform(({ ...rest }) => ({
-        // ToDo: Remove this once we have the brand, model, mileage and fuel type
-        ...rest,
-        brand: `brand`,
-        model: `model`,
-        mileage: 'mileage',
-        fuelType: 'fuel type',
-      })),
-    driver: EmployeeBaseSchema.pick({
-      id: true,
-      firstName: true,
-      lastName: true,
-      email: true,
-      contactNumber: true,
-      employeeId: true,
-    }).loose(),
-    site: ProjectGetBaseResponseSchema.pick({
-      id: true,
-      name: true,
-      city: true,
-      state: true,
-    }).loose(),
-    files: z.array(
-      z.looseObject({
-        id: z.string(),
-        vehicleLogId: uuidField,
-        fileKey: z.string(),
-        fileType: z.string(),
-        fileName: z.string().nullable(),
-      })
-    ),
-  })
-    .loose()
-    .transform(({ files, ...rest }) => {
-      const startOdometerFiles = files.filter(
-        file => file.fileType === 'START_ODOMETER'
-      );
-      const endOdometerFiles = files.filter(
-        file => file.fileType === 'END_ODOMETER'
-      );
+  ),
+}).loose();
 
-      return {
-        ...rest,
-        startOdometerReadingKeys: startOdometerFiles.map(file => file.fileKey),
-        endOdometerReadingKeys: endOdometerFiles.map(file => file.fileKey),
-        documentKeys: files.map(file => file.fileKey),
-      };
-    });
+export { VehicleReadingGetBaseObjectSchema };
+
+export const VehicleReadingGetBaseResponseSchema =
+  VehicleReadingGetBaseObjectSchema.transform(({ files, ...rest }) => {
+    const startOdometerFiles = files.filter(
+      file => file.fileType === 'START_ODOMETER'
+    );
+    const endOdometerFiles = files.filter(
+      file => file.fileType === 'END_ODOMETER'
+    );
+
+    return {
+      ...rest,
+      startOdometerReadingKeys: startOdometerFiles.map(file => file.fileKey),
+      endOdometerReadingKeys: endOdometerFiles.map(file => file.fileKey),
+      documentKeys: files.map(file => file.fileKey),
+    };
+  });
 
 export const VehicleReadingGetResponseSchema = z
   .looseObject({

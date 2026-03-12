@@ -28,7 +28,7 @@ export const VehicleServiceDetailGetResponseSchema =
     createdByUser: UserSchema,
     updatedByUser: makeFieldsNullable(UserSchema).nullable(),
   })
-    .strict()
+    .loose()
     .transform(({ serviceFiles, ...rest }) => ({
       ...rest,
       documentKeys: serviceFiles.map(file => file.fileKey),

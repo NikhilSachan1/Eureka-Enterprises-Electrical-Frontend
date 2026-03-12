@@ -43,3 +43,7 @@ export {
   DsrGetBaseResponseSchema,
   DsrGetResponseSchema,
 } from './dsr/get-dsr.schema';
+export {
+  DsrDetailGetRequestSchema,
+  DsrDetailGetResponseSchema,
+} from './dsr/get-dsr-detail.schema';

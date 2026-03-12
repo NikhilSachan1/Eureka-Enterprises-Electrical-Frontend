@@ -9,7 +9,10 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { FormBase } from '@shared/base/form.base';
 import { RouterNavigationService } from '@shared/services';
-import { IvehicleServiceEditFormDto } from '../../types/vehicle-service.dto';
+import {
+  IvehicleServiceEditFormDto,
+  IVehicleServiceEditUIFormDto,
+} from '../../types/vehicle-service.dto';
 import { VehicleServiceService } from '../../services/vehicle-service.service';
 import { EDIT_VEHICLE_SERVICE_FORM_CONFIG } from '../../config/form/edit-vehicle-service.config';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
@@ -35,7 +38,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditVehicleServiceComponent
-  extends FormBase<IvehicleServiceEditFormDto>
+  extends FormBase<IVehicleServiceEditUIFormDto>
   implements OnInit
 {
   private readonly vehicleServiceService = inject(VehicleServiceService);
@@ -44,12 +47,12 @@ export class EditVehicleServiceComponent
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly initialVehicleServiceData =
-    signal<IvehicleServiceEditFormDto | null>(null);
+    signal<IVehicleServiceEditUIFormDto | null>(null);
 
   ngOnInit(): void {
     this.loadVehicleServiceDataFromRoute();
 
-    this.form = this.formService.createForm<IvehicleServiceEditFormDto>(
+    this.form = this.formService.createForm<IVehicleServiceEditUIFormDto>(
       EDIT_VEHICLE_SERVICE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
@@ -81,7 +84,7 @@ export class EditVehicleServiceComponent
 
   private preparePrefilledFormData(
     vehicleServiceDetailFromResolver: IVehicleServiceDetailResolverResponse
-  ): IvehicleServiceEditFormDto {
+  ): IVehicleServiceEditUIFormDto {
     const preloadedFiles =
       vehicleServiceDetailFromResolver.preloadedFiles ?? [];
 

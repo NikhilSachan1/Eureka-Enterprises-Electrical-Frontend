@@ -163,14 +163,12 @@ export class GetVehicleReadingDetailComponent extends DrawerDetailBase {
         },
         entryData,
         createdBy: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          user: record.createdBy as any,
+          user: record.createdByUser,
           date: record.createdAt,
           notes: record.driverRemarks,
         },
         updatedBy: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          user: record.updatedBy as any,
+          user: record.updatedByUser,
           date: record.updatedAt,
         },
       };

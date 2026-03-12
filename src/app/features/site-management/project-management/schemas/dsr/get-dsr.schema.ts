@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { AuditSchema, dateField, FilterSchema } from '@shared/schemas';
+import {
+  AuditSchema,
+  dateField,
+  FilterSchema,
+  UserSchema,
+} from '@shared/schemas';
 import { transformDateFormat } from '@shared/utility';
 import { DsrBaseSchema } from './base-dsr.schema';
 
@@ -24,30 +29,18 @@ export const DsrGetRequestSchema = z
       userId: employeeName,
       reportDateFrom: transformDateFormat(start),
       reportDateTo: transformDateFormat(end),
+      includeFiles: true,
     };
   });
 
 export const DsrGetBaseResponseSchema = DsrBaseSchema.extend({
   ...AuditSchema.shape,
-  site: z.null().nullable(),
-  user: z.null().nullable(),
-  files: z.null().nullable(),
-  editHistory: z.null().nullable(),
-})
-  .strict()
-  .transform(({ ...rest }) => {
-    //ToDo: Remove this transform once the data is updated
-    return {
-      ...rest,
-      createdByUser: {
-        id: '00000000-0000-0000-0000-000000000000',
-        firstName: 'Unknown',
-        lastName: 'Unknown',
-        email: 'unknown@example.com',
-        employeeId: 'UNKNOWN',
-      },
-    };
-  });
+  site: z.unknown().nullable(),
+  user: z.unknown().nullable(),
+  files: z.array(z.string()).nullable(),
+  editHistory: z.array(z.unknown()).nullable(),
+  createdByUser: UserSchema,
+}).loose();
 
 export const DsrGetResponseSchema = z
   .object({

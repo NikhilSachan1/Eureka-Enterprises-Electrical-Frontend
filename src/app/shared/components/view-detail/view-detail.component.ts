@@ -148,4 +148,17 @@ export class ViewDetailComponent {
     }
     return `${user.firstName} ${user.lastName}`.trim();
   }
+
+  protected isRangeEmpty(rangeValues: unknown[]): boolean {
+    if (!rangeValues || rangeValues.length === 0) {
+      return true;
+    }
+    return rangeValues.every(
+      val => val === null || val === undefined || val === ''
+    );
+  }
+
+  protected isValueEmpty(value: unknown): boolean {
+    return value === null || value === undefined || value === '';
+  }
 }

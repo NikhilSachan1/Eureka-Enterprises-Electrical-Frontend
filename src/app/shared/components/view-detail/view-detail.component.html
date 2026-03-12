@@ -72,28 +72,32 @@
                     } @else if (entry.type === ALL_DATA_TYPES.RANGE) {
                       @let rangeValues = $any(entry.value);
                       @let rangeDataType = entry.dataType;
-                      @if (rangeValues && rangeValues.length > 0) {
+                      @if (isRangeEmpty(rangeValues)) {
+                        N/A
+                      } @else {
                         @for (item of rangeValues; track $index; let isLast = $last) {
-                          @switch (rangeDataType) {
-                            @case (ALL_DATA_TYPES.DATE) {
-                              {{ item | date: entry.format }}
-                            }
-                            @case (ALL_DATA_TYPES.NUMBER) {
-                              {{ item | number: entry.format }}
-                            }
-                            @case (ALL_DATA_TYPES.CURRENCY) {
-                              {{ item | currency: entry.format }}
-                            }
-                            @default {
-                              {{ item }}
+                          @if (isValueEmpty(item)) {
+                            N/A
+                          } @else {
+                            @switch (rangeDataType) {
+                              @case (ALL_DATA_TYPES.DATE) {
+                                {{ item | date: entry.format }}
+                              }
+                              @case (ALL_DATA_TYPES.NUMBER) {
+                                {{ item | number: entry.format }}
+                              }
+                              @case (ALL_DATA_TYPES.CURRENCY) {
+                                {{ item | currency: entry.format }}
+                              }
+                              @default {
+                                {{ item }}
+                              }
                             }
                           }
                           @if (!isLast) {
                             <span class="mx-1 text-text-secondary">→</span>
                           }
                         }
-                      } @else {
-                        N/A
                       }
                     } @else if (entry.type === ALL_DATA_TYPES.TIME) {
                       {{ entry.value.toString() | date: entry.format }}
