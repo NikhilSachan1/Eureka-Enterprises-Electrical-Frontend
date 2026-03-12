@@ -4,12 +4,16 @@ import {
   IProjectGetBaseResponseDto,
 } from './project.dto';
 
-export interface IProject extends Pick<IProjectGetBaseResponseDto, 'id'> {
+export interface IProject
+  extends Pick<IProjectGetBaseResponseDto, 'id' | 'allocatedEmployees'> {
   projectName: string;
   projectLocation: string | null;
   projectStatus: string;
   timeLine: Date[];
   estimatedBudget: string;
+  allocatedEmployeeCount?: number;
+  healthScore?: number;
+  healthGrade?: string;
   originalRawData: IProjectGetBaseResponseDto;
 }
 

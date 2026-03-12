@@ -35,6 +35,20 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'allocatedEmployeeCount',
+    header: 'Employees',
+    customTemplateKey: 'employeeCount',
+    showSort: false,
+    showFilter: false,
+  },
+  {
+    field: 'healthScore',
+    header: 'Health Score',
+    customTemplateKey: 'healthScore',
+    showSort: false,
+    showFilter: false,
+  },
+  {
     field: 'timeLine',
     header: 'Time Line',
     bodyTemplate: EDataType.RANGE,

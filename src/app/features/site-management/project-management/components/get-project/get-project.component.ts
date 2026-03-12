@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import {
   AppConfigurationService,
+  AvatarService,
   ConfirmationDialogService,
   DrawerService,
   LoadingService,
@@ -35,6 +36,7 @@ import {
   IProjectGetResponseDto,
   IProjectGetStatsResponseDto,
 } from '../../types/project.dto';
+import { IProject } from '../../types/project.interface';
 import {
   PROJECT_ACTION_CONFIG_MAP,
   PROJECT_TABLE_ENHANCED_CONFIG,
@@ -44,11 +46,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GetProjectDetailComponent } from '../get-project-detail/get-project-detail.component';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
-import { IProject } from '../../types/project.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { TooltipModule } from 'primeng/tooltip';
+import { PopoverModule } from 'primeng/popover';
+import { KnobComponent } from '@shared/components/knob/knob.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
 import { APP_CONFIG } from '@core/config';
@@ -61,6 +65,9 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     MetricsCardComponent,
     SearchFilterComponent,
     DataTableComponent,
+    TooltipModule,
+    PopoverModule,
+    KnobComponent,
   ],
   templateUrl: './get-project.component.html',
   styleUrl: './get-project.component.scss',
@@ -80,8 +87,10 @@ export class GetProjectComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly avatarService = inject(AvatarService);
 
   protected table!: IEnhancedTable;
+  protected employeePopoverRow = signal<IProject | null>(null);
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
   private readonly projectStats = signal<IProjectGetStatsResponseDto | null>(
@@ -139,8 +148,10 @@ export class GetProjectComponent implements OnInit {
     );
   }
 
-  private mapTableData(response: IProjectGetBaseResponseDto[]): IProject[] {
-    return response.map((record: IProjectGetBaseResponseDto) => {
+  private mapTableData(
+    response: IProjectGetResponseDto['records']
+  ): IProject[] {
+    return response.map(record => {
       const city = getMappedValueFromArrayOfObjects(
         this.appConfigurationService.cities(),
         record.city
@@ -151,6 +162,7 @@ export class GetProjectComponent implements OnInit {
       );
       return {
         id: record.id,
+        allocatedEmployees: record.allocatedEmployees,
         projectName: record.name,
         projectLocation: `${city} - ${state}`,
         projectStatus: getMappedValueFromArrayOfObjects(
@@ -159,8 +171,11 @@ export class GetProjectComponent implements OnInit {
         ),
         timeLine: [new Date(record.startDate), new Date(record.endDate)],
         estimatedBudget: record.estimatedBudget,
+        allocatedEmployeeCount: record.allocatedEmployeeCount ?? 0,
+        healthScore: record.healthScore ?? 0,
+        healthGrade: record.healthGrade,
         originalRawData: record,
-      };
+      } satisfies IProject;
     });
   }
 
@@ -327,6 +342,53 @@ export class GetProjectComponent implements OnInit {
       ];
     }
     void this.routerNavigationService.navigateToRoute(navigationRoute);
+  }
+
+  protected getEmployees(
+    row: IProject | null
+  ): NonNullable<IProject['allocatedEmployees']> {
+    return row?.allocatedEmployees ?? [];
+  }
+
+  protected getEmployeeInitial(emp: {
+    firstName: string;
+    lastName: string;
+  }): string {
+    const first = emp.firstName?.charAt(0) ?? '';
+    const last = emp.lastName?.charAt(0) ?? '';
+    return (first + last).toUpperCase() || '?';
+  }
+
+  protected getAvatarColor(emp: {
+    firstName: string;
+    lastName: string;
+  }): string {
+    const name = `${emp.firstName ?? ''} ${emp.lastName ?? ''}`.trim();
+    const hex = this.avatarService.getConsistentColor(name);
+    return `#${hex}`;
+  }
+
+  protected getEmployeeCount(row: IProject | null): number {
+    if (!row) {
+      return 0;
+    }
+    const raw = row.originalRawData;
+    const employees = raw?.allocatedEmployees ?? [];
+    return raw?.allocatedEmployeeCount ?? employees.length ?? 0;
+  }
+
+  protected getHealthScoreKnobConfig(row: IProject): {
+    value: number;
+    valueTemplate: string;
+    size: number;
+  } {
+    const score = row.healthScore ?? 0;
+    const grade = row.healthGrade ?? '';
+    return {
+      value: score,
+      valueTemplate: grade || String(score),
+      size: 48,
+    };
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

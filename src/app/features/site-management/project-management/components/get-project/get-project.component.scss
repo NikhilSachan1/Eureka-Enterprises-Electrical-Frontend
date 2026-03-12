@@ -1,0 +1,129 @@
+.employee-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200));
+  color: var(--primary-color);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 30%, var(--surface-200));
+  transition: all 0.2s ease;
+  appearance: none;
+
+  &:hover {
+    background: color-mix(in srgb, var(--primary-color) 22%, var(--surface-200));
+    border-color: var(--primary-color);
+  }
+}
+
+/* Popover - same pattern as sidebar role-switcher & user-profile */
+.emp-menu {
+  min-width: 220px;
+  padding: 0.25rem;
+  background: var(--background-paper-color);
+  color: var(--text-primary-color);
+}
+
+.emp-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--surface-200);
+
+  i {
+    font-size: 0.75rem;
+    color: var(--primary-color);
+  }
+
+  span {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary-color);
+  }
+}
+
+.emp-list {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.emp-card {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.625rem;
+  background: transparent;
+  border: 1px solid var(--surface-200);
+  border-radius: 0.5rem;
+  transition: all 0.15s ease-out;
+  text-align: left;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200));
+  }
+}
+
+.emp-card-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  flex-shrink: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.emp-card-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.emp-card-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-primary-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.emp-card-meta {
+  font-size: 0.6875rem;
+  color: var(--text-secondary-color);
+}
+
+.emp-empty {
+  padding: 1rem 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary-color);
+  text-align: center;
+}
+
+/* Popover wrapper - appendTo body, so override for theme */
+::ng-deep .p-popover .p-popover-content {
+  padding: 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--background-paper-color) !important;
+  border-color: var(--surface-200);
+  color: var(--text-primary-color);
+}

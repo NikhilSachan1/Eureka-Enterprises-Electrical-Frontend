@@ -7,4 +7,6 @@ export interface IKnobConfig {
   disabled: boolean;
   showValue: boolean;
   strokeWidth: number;
+  valueTemplate?: string;
+  size?: number;
 }

@@ -1,3 +1,66 @@
+<ng-template
+  #employeeCountTemplate
+  let-row
+>
+  <button
+    type="button"
+    class="employee-count-badge"
+    (click)="employeePopoverRow.set(row); employeeListPopover.toggle($event)"
+    pTooltip="Click to view employees"
+  >
+    {{ getEmployeeCount(row) }}
+  </button>
+</ng-template>
+
+<p-popover
+  #employeeListPopover
+  [appendTo]="'body'"
+  [dismissable]="true"
+>
+  <div class="emp-menu">
+    <div class="emp-menu-header">
+      <i class="pi pi-users"></i>
+      <span>
+        {{ getEmployeeCount(employeePopoverRow() ?? null) }} Employee{{
+          getEmployeeCount(employeePopoverRow() ?? null) !== 1 ? 's' : ''
+        }}
+      </span>
+    </div>
+    <div class="emp-list">
+      @for (emp of getEmployees(employeePopoverRow()); track emp.id) {
+        <div class="emp-card">
+          <div
+            class="emp-card-icon"
+            [style.background]="getAvatarColor(emp)"
+          >
+            {{ getEmployeeInitial(emp) }}
+          </div>
+          <div class="emp-card-details">
+            <span class="emp-card-name">{{ emp.firstName }} {{ emp.lastName }}</span>
+            <span class="emp-card-meta">
+              {{ emp.employeeId }}
+              @if (emp.role) {
+                · {{ emp.role }}
+              }
+            </span>
+          </div>
+        </div>
+      } @empty {
+        <div class="emp-empty">No employees allocated</div>
+      }
+    </div>
+  </div>
+</p-popover>
+
+<ng-template
+  #healthScoreTemplate
+  let-row
+>
+  <div class="health-score-cell">
+    <app-knob [config]="getHealthScoreKnobConfig(row)" />
+  </div>
+</ng-template>
+
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
   (headerButtonClick)="onHeaderButtonClick($event)"
@@ -20,6 +83,10 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    employeeCount: employeeCountTemplate,
+    healthScore: healthScoreTemplate,
+  }"
   (rowActionClick)="handleProjectTableActionClick($any($event), false)"
   (bulkActionClick)="handleProjectTableActionClick($any($event), true)"
   (filterData)="onTableStateChange($event)"

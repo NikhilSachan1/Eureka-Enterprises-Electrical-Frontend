@@ -22,9 +22,11 @@ export class KnobComponent {
   protected knobConfig = computed(() => this.buildKnobConfig());
 
   private buildKnobConfig(): IKnobConfig {
+    const cfg = this.config();
     const finalConfig: IKnobConfig = {
       ...DEFAULT_KNOB_CONFIG,
-      ...this.config(),
+      ...cfg,
+      valueTemplate: cfg?.valueTemplate ?? '{value}',
     } as IKnobConfig;
 
     return finalConfig;
