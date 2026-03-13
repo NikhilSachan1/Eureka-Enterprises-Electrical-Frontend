@@ -1,0 +1,68 @@
+@if (assignmentSnapshot(); as snapshot) {
+  <div class="linked-entities-section">
+    <div class="snapshot-row">
+      @if (snapshot.site) {
+        <div class="linked-card linked-card--site">
+          <div class="linked-card__icon"><i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i></div>
+          <div class="linked-card__content">
+            <span class="linked-card__label">Site</span>
+            <span class="linked-card__title">{{ snapshot.site.name }}</span>
+          </div>
+        </div>
+      }
+      @if (snapshot.company) {
+        <div class="linked-card linked-card--company">
+          <div class="linked-card__icon"><i [class]="ALL_ICONS.SITE.BUILDING"></i></div>
+          <div class="linked-card__content">
+            <span class="linked-card__label">Company</span>
+            <span class="linked-card__title">{{ snapshot.company.name }}</span>
+          </div>
+        </div>
+      }
+      @if (snapshot.contractors && snapshot.contractors.length) {
+        <div class="linked-card linked-card--contractors">
+          <div class="linked-card__icon"><i [class]="ALL_ICONS.COMMON.USER"></i></div>
+          <div class="linked-card__content">
+            <span class="linked-card__label">Contractor(s)</span>
+            <span class="linked-card__title">{{ getContractorNames(snapshot.contractors) }}</span>
+          </div>
+        </div>
+      }
+      @if (snapshot.vehicle) {
+        <div class="linked-card linked-card--vehicle">
+          <div class="linked-card__icon"><i [class]="ALL_ICONS.COMMON.CAR"></i></div>
+          <div class="linked-card__content">
+            <span class="linked-card__label">Vehicle</span>
+            <span class="linked-card__title">{{ snapshot.vehicle.registrationNo }}</span>
+          </div>
+        </div>
+      }
+      @if (snapshot.assignedEngineer) {
+        <div class="linked-card linked-card--associate">
+          <div class="linked-card__icon"><i [class]="ALL_ICONS.COMMON.USER"></i></div>
+          <div class="linked-card__content">
+            <span class="linked-card__label">Assoc. Eng.</span>
+            <span class="linked-card__title">
+              {{ snapshot.assignedEngineer.firstName }} {{ snapshot.assignedEngineer.lastName }}
+            </span>
+          </div>
+        </div>
+      }
+      @if (
+        !snapshot.site &&
+        !snapshot.company &&
+        !(snapshot.contractors && snapshot.contractors.length) &&
+        !snapshot.vehicle &&
+        !snapshot.assignedEngineer
+      ) {
+        <div class="linked-card linked-card--empty">
+          <div class="linked-card__icon linked-card__icon--muted"><i [class]="ALL_ICONS.COMMON.INFO_CIRCLE"></i></div>
+          <div class="linked-card__content">
+            <span class="linked-card__label">Assignment</span>
+            <span class="linked-card__subtitle text-content-secondary">No assignment</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

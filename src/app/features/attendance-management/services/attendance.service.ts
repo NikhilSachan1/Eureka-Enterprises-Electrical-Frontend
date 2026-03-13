@@ -1,11 +1,12 @@
 import { inject, Injectable } from '@angular/core';
+import { z } from 'zod';
 import { API_ROUTES } from '@core/constants';
 import { ApiService } from '@core/services';
 import { catchError, Observable, throwError } from 'rxjs';
 import {
   IAttendanceActionFormDto,
   IAttendanceActionResponseDto,
-  IAttendanceApplyFormDto,
+  IAttendanceApplyRequestDto,
   IAttendanceApplyResponseDto,
   IAttendanceCurrentStatusGetResponseDto,
   IAttendanceForceFormDto,
@@ -40,7 +41,7 @@ export class AttendanceService {
   private readonly apiService = inject(ApiService);
 
   applyAttendance(
-    formData: IAttendanceApplyFormDto
+    payload: IAttendanceApplyRequestDto
   ): Observable<IAttendanceApplyResponseDto> {
     return this.apiService
       .postValidated(
@@ -49,7 +50,7 @@ export class AttendanceService {
           response: AttendanceApplyResponseSchema,
           request: AttendanceApplyRequestSchema,
         },
-        formData
+        payload
       )
       .pipe(catchError(error => throwError(() => error)));
   }
@@ -135,6 +136,21 @@ export class AttendanceService {
       .getValidated(API_ROUTES.ATTENDANCE.CURRENT_STATUS, {
         response: AttendanceCurrentStatusGetResponseSchema,
       })
+      .pipe(catchError(error => throwError(() => error)));
+  }
+
+  getAttendanceCurrentStatusByUser(
+    userId: string
+  ): Observable<IAttendanceCurrentStatusGetResponseDto> {
+    return this.apiService
+      .getValidated(
+        API_ROUTES.ATTENDANCE.CURRENT_STATUS,
+        {
+          response: AttendanceCurrentStatusGetResponseSchema,
+          request: z.object({ userId: z.string() }),
+        },
+        { userId }
+      )
       .pipe(catchError(error => throwError(() => error)));
   }
 }

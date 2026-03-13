@@ -12,6 +12,13 @@ import {
 
 const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApplyFormDto> =
   {
+    notes: {
+      fieldType: EDataType.TEXT_AREA,
+      id: 'notes',
+      fieldName: 'notes',
+      label: 'Notes (optional)',
+      placeholder: 'e.g. I am going to work',
+    },
     locationName: {
       fieldType: EDataType.SELECT,
       id: 'locationName',
@@ -57,7 +64,7 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
             return isDriver === true;
           },
           validators: [Validators.required],
-          resetOnFalse: true,
+          resetOnFalse: false,
         },
       ],
     },
@@ -80,11 +87,13 @@ const APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
     id: EButtonActionType.CHECK_IN,
     label: 'Check In',
     icon: ICONS.ATTENDANCE.CHECK_IN,
+    type: 'submit',
   },
   checkOut: {
     id: EButtonActionType.CHECK_OUT,
     label: 'Check Out',
     icon: ICONS.ATTENDANCE.CHECK_OUT,
+    type: 'submit',
   },
 };
 

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   AttendanceActionRequestSchema,
   AttendanceActionResponseSchema,
+  AttendanceApplyFormSchema,
   AttendanceApplyRequestSchema,
   AttendanceApplyResponseSchema,
   AttendanceCurrentStatusGetResponseSchema,
@@ -66,9 +67,7 @@ export type IAttendanceApplyRequestDto = z.infer<
 export type IAttendanceApplyResponseDto = z.infer<
   typeof AttendanceApplyResponseSchema
 >;
-export type IAttendanceApplyFormDto = z.input<
-  typeof AttendanceApplyRequestSchema
->;
+export type IAttendanceApplyFormDto = z.input<typeof AttendanceApplyFormSchema>;
 
 /*
   Attendance Regularized

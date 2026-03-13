@@ -6,6 +6,16 @@ import { transformDateFormat } from '@shared/utility';
 
 const { notes, status, id } = AttendanceBaseSchema.shape;
 
+const AssignmentSnapshotSchema = z
+  .object({
+    site: z.record(z.string(), z.unknown()),
+    company: z.record(z.string(), z.unknown()),
+    contractors: z.array(z.record(z.string(), z.unknown())),
+    vehicle: z.record(z.string(), z.unknown()),
+    assignedEngineer: z.record(z.string(), z.unknown()),
+  })
+  .optional();
+
 export const AttendanceForceRequestSchema = z
   .object({
     employeeName: id,
@@ -16,6 +26,7 @@ export const AttendanceForceRequestSchema = z
     associateEngineerName: z.string(),
     associatedVehicle: z.string(),
     remark: notes,
+    assignmentSnapshot: AssignmentSnapshotSchema,
   })
   .strict()
   .transform(data => ({
@@ -26,6 +37,13 @@ export const AttendanceForceRequestSchema = z
     status: data.attendanceStatus,
     checkInTime: SHIFT_DATA.START_TIME,
     checkOutTime: SHIFT_DATA.END_TIME,
+    assignmentSnapshot: data.assignmentSnapshot ?? {
+      site: {},
+      company: {},
+      contractors: [],
+      vehicle: {},
+      assignedEngineer: {},
+    },
   }));
 
 export const AttendanceForceResponseSchema = z

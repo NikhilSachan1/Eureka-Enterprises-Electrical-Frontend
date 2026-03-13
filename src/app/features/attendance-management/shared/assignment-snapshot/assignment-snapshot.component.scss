@@ -1,0 +1,128 @@
+.linked-entities-section {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.snapshot-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+}
+
+.linked-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: var(--background-paper-color);
+  border: 1px solid var(--surface-border);
+  flex-shrink: 0;
+  min-width: 0;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--surface-border);
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    color: white;
+
+    i {
+      font-size: 0.75rem;
+    }
+
+    &--muted {
+      background: var(--surface-200);
+      color: var(--text-color-secondary);
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  &__label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-color-secondary);
+    line-height: 1;
+  }
+
+  &__title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 6.5rem;
+  }
+
+  &__subtitle {
+    font-size: 0.6875rem;
+    color: var(--text-color-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 6.5rem;
+  }
+
+  &--site .linked-card__icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+
+  &--company .linked-card__icon {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  &--contractors .linked-card__icon {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+
+  &--vehicle .linked-card__icon {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  &--associate .linked-card__icon {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  }
+
+  &--empty {
+    border: none;
+    opacity: 0.9;
+  }
+}

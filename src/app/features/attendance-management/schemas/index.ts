@@ -11,6 +11,7 @@ export {
 } from './get-attendance-history.schema';
 export { AttendanceCurrentStatusGetResponseSchema } from './get-attendance-current-status.schema';
 export {
+  AttendanceApplyFormSchema,
   AttendanceApplyRequestSchema,
   AttendanceApplyResponseSchema,
 } from './apply-attendance.schema';

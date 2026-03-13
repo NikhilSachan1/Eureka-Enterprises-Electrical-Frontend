@@ -60,9 +60,9 @@
       <!-- Assignment Details -->
       <section class="content-card__main assignment-section">
         @let showCheckInButton =
-          !isEditingAssignment() && currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
-        @let showCheckOutButton =
           !isEditingAssignment() && !currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
+        @let showCheckOutButton =
+          !isEditingAssignment() && currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
 
         <form
           class="form"
@@ -119,7 +119,7 @@
                   <div class="assignment-row__content">
                     <span class="assignment-row__label">Location</span>
                     <span class="assignment-row__value">
-                      {{ $any(form.getFieldData('locationName')) ?? '-' | textCase: 'title' }}
+                      {{ getLocationDisplay() | textCase: 'title' }}
                     </span>
                   </div>
                 }
@@ -141,7 +141,7 @@
                   <div class="assignment-row__content">
                     <span class="assignment-row__label">Client</span>
                     <span class="assignment-row__value">
-                      {{ $any(form.getFieldData('clientName')) ?? '-' | textCase: 'title' }}
+                      {{ getClientDisplay() | textCase: 'title' }}
                     </span>
                   </div>
                 }
@@ -162,7 +162,7 @@
                   <div class="assignment-row__content">
                     <span class="assignment-row__label">Associate Engineer</span>
                     <span class="assignment-row__value">
-                      {{ $any(form.getFieldData('associateEngineerName')) ?? '-' | textCase: 'title' }}
+                      {{ getAssociateEngineerDisplay() | textCase: 'title' }}
                     </span>
                   </div>
                 }
@@ -183,13 +183,21 @@
                   <div class="assignment-row__content">
                     <span class="assignment-row__label">Associated Vehicle</span>
                     <span class="assignment-row__value">
-                      {{ $any(form.getFieldData('associatedVehicle')) ?? '-' | textCase: 'title' }}
+                      {{ getAssociatedVehicleDisplay() | textCase: 'title' }}
                     </span>
                   </div>
                 }
               </div>
             </div>
           </div>
+          @if ((showCheckInButton || showCheckOutButton) && form.fieldConfigs['notes']; as notesConfig) {
+            <div class="notes-section">
+              <app-input-field
+                [formGroup]="form.formGroup"
+                [inputFieldConfig]="notesConfig"
+              />
+            </div>
+          }
           <div class="action-button">
             @if (showCheckOutButton) {
               <app-button

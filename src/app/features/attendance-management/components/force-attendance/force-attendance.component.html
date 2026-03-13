@@ -1,5 +1,11 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
+<app-assignment-snapshot
+  class="block mb-8"
+  [userId]="selectedEmployeeId()"
+  (assignmentSnapshotChange)="assignmentSnapshotData.set($event)"
+/>
+
 <form
   (ngSubmit)="onSubmit()"
   [formGroup]="form.formGroup"
