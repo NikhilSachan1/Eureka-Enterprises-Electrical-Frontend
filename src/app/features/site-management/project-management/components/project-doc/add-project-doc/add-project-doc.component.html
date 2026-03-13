@@ -1,1 +1,88 @@
-<p>add-project-doc works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig" />
+
+<form
+  [formGroup]="formGroup"
+  (ngSubmit)="onSubmit()"
+  class="form"
+>
+  <!-- Document Types Multi-Select -->
+  <div class="form-section">
+    <app-input-field
+      [formGroup]="formGroup"
+      [inputFieldConfig]="documentTypesFieldConfig"
+      [externalValidationTrigger]="validationTrigger()"
+    />
+  </div>
+
+  <!-- Document Entry Forms (one per selected type) -->
+  @if (documentEntriesFormArray.length > 0) {
+    <div class="form-section form-section--doc-entries">
+      <div class="section-header">
+        <i class="section-icon pi pi-file"></i>
+        <div>
+          <h4 class="section-title">Document Details</h4>
+          <p class="section-hint">Fill details for each selected document type.</p>
+        </div>
+      </div>
+
+      <div
+        formArrayName="documentEntries"
+        class="doc-entries"
+      >
+        @for (ctrl of documentEntriesFormArray.controls; track $index) {
+          <div
+            [formGroupName]="$index"
+            class="doc-entry-card"
+          >
+            <div class="doc-entry-header">
+              {{ getDocTypeLabel(getDocEntryGroup($index).get('_docType')?.value) }}
+            </div>
+            <div class="doc-entry-fields">
+              <div class="doc-entry-row doc-entry-row--inline">
+                <app-input-field
+                  [formGroup]="getDocEntryGroup($index)"
+                  [inputFieldConfig]="documentNumberFieldConfig"
+                  [externalValidationTrigger]="validationTrigger()"
+                />
+                <app-input-field
+                  [formGroup]="getDocEntryGroup($index)"
+                  [inputFieldConfig]="documentDateFieldConfig"
+                  [externalValidationTrigger]="validationTrigger()"
+                />
+                <app-input-field
+                  [formGroup]="getDocEntryGroup($index)"
+                  [inputFieldConfig]="totalAmountFieldConfig"
+                  [externalValidationTrigger]="validationTrigger()"
+                />
+              </div>
+              <div class="doc-entry-row doc-entry-row--attachment">
+                <app-input-field
+                  [formGroup]="getDocEntryGroup($index)"
+                  [inputFieldConfig]="attachmentFieldConfig"
+                  [externalValidationTrigger]="validationTrigger()"
+                />
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <i class="empty-state-icon pi pi-inbox"></i>
+      <p class="empty-state-text">Select document types above to add documents.</p>
+    </div>
+  }
+
+  <div class="button-container">
+    <app-button
+      type="button"
+      [buttonConfig]="formConfig.buttons['reset']"
+      (onButtonClick)="onReset()"
+    />
+    <app-button
+      [buttonConfig]="formConfig.buttons['submit']"
+      [showButtonLoader]="isSubmitting()"
+    />
+  </div>
+</form>

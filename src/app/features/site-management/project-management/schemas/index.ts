@@ -26,6 +26,7 @@ export {
 } from './get-project.schema';
 export { ProjectTimelineGetResponseSchema } from './get-project-timeline.schema';
 export { ProjectProfitabilityGetResponseSchema } from './get-project-profitability.schema';
+export { SiteHealthGetResponseSchema } from './get-site-health.schema';
 export {
   ProjectChangeStatusRequestSchema,
   ProjectChangeStatusResponseSchema,
@@ -54,6 +55,25 @@ export {
   DsrDetailGetResponseSchema,
 } from './dsr/get-dsr-detail.schema';
 export {
-  DsrHistoryGetRequestSchema,
-  DsrHistoryGetResponseSchema,
-} from './dsr/get-dsr-history.schema';
+  DsrVersionItemSchema,
+  DsrVersionsGetResponseSchema,
+} from './dsr/get-dsr-versions.schema';
+export { SiteDocumentBaseSchema } from './project-doc/base-project-doc.schema';
+export {
+  SiteDocumentAddRequestSchema,
+  SiteDocumentAddResponseSchema,
+} from './project-doc/add-project-doc.schema';
+export {
+  SiteDocumentGetRequestSchema,
+  SiteDocumentGetResponseSchema,
+  SiteDocumentGetBaseResponseSchema,
+} from './project-doc/get-project-doc.schema';
+export {
+  SiteDocumentDetailGetRequestSchema,
+  SiteDocumentDetailGetResponseSchema,
+} from './project-doc/get-project-doc-detail.schema';
+export {
+  SiteDocumentEditRequestSchema,
+  SiteDocumentEditResponseSchema,
+} from './project-doc/edit-project-doc.schema';
+export { SiteDocumentDeleteResponseSchema } from './project-doc/delete-project-doc.schema';

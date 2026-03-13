@@ -20,8 +20,12 @@ import {
 } from '@shared/types';
 import { ProjectService } from '../../services/project.service';
 import { APP_CONFIG } from '@core/config';
-import { IProjectProfitabilityGetResponseDto } from '../../types/project.dto';
-import { finalize } from 'rxjs';
+import type {
+  IProjectDetailGetResponseDto,
+  IProjectProfitabilityGetResponseDto,
+} from '../../types/project.dto';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { transformDateFormat } from '@shared/utility';
 
 @Component({
   selector: 'app-get-project-profitability',
@@ -40,20 +44,36 @@ export class GetProjectProfitabilityComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
 
+  protected readonly projectDetail =
+    signal<IProjectDetailGetResponseDto | null>(null);
+
   protected readonly revenueData = signal<
     IProjectProfitabilityGetResponseDto['revenue']
   >({} as IProjectProfitabilityGetResponseDto['revenue']);
 
   protected readonly expenses = signal<
-    IProjectProfitabilityGetResponseDto['expenses']['byCategory']
+    { label: string; amount: number; percentage?: number }[]
   >([]);
   protected readonly totalExpenses = signal(0);
+  protected readonly contractorExpenses = signal(0);
+  protected readonly employeeExpenses = signal(0);
+  protected readonly fuelExpenses = signal(0);
+  protected readonly payrollCosts = signal(0);
 
   protected readonly profitability = signal<
     IProjectProfitabilityGetResponseDto['profitability']
   >({} as IProjectProfitabilityGetResponseDto['profitability']);
 
+  protected readonly documentSummary = signal<
+    NonNullable<IProjectProfitabilityGetResponseDto['documentSummary']>
+  >({ totalDocuments: 0, byType: [], byStatus: [] });
+
+  protected readonly monthlyTrend = signal<
+    NonNullable<IProjectProfitabilityGetResponseDto['monthlyTrend']>
+  >([]);
+
   protected readonly healthScore = signal(0);
+  protected readonly healthGrade = signal<string>('');
 
   protected readonly healthScoreConfig = computed(() =>
     this.getHealthScoreConfig()
@@ -65,6 +85,10 @@ export class GetProjectProfitabilityComponent implements OnInit {
 
   protected readonly revenueExpenseChartConfig = computed(() =>
     this.getRevenueExpenseChartConfig()
+  );
+
+  protected readonly monthlyTrendChartConfig = computed(() =>
+    this.getMonthlyTrendChartConfig()
   );
 
   ngOnInit(): void {
@@ -80,16 +104,48 @@ export class GetProjectProfitabilityComponent implements OnInit {
     this.loadProfitability(projectId);
   }
 
+  private getStartOfMonth(): Date {
+    const d = new Date();
+    d.setDate(1);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
   private loadProfitability(projectId: string): void {
-    this.projectService
-      .getProjectProfitability(projectId)
+    const startDate = transformDateFormat(this.getStartOfMonth());
+    const endDate = transformDateFormat(new Date());
+    const params = { startDate, endDate };
+
+    forkJoin({
+      profitability: this.projectService.getProjectProfitability(
+        projectId,
+        params
+      ),
+      projectDetail: this.projectService.getProjectDetailById({ projectId }),
+      health: this.projectService
+        .getSiteHealth(projectId)
+        .pipe(catchError(() => of({ healthScore: 0, healthGrade: '' }))),
+    })
       .pipe(
         finalize(() => this.loading.set(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IProjectProfitabilityGetResponseDto) => {
-          this.mapApiResponse(response);
+        next: ({
+          profitability,
+          projectDetail: detail,
+          health,
+        }: {
+          profitability: IProjectProfitabilityGetResponseDto;
+          projectDetail: IProjectDetailGetResponseDto;
+          health: { healthScore: number; healthGrade?: string };
+        }) => {
+          this.mapApiResponse(profitability);
+          this.projectDetail.set(detail);
+          this.healthScore.set(
+            Math.min(100, Math.max(0, health.healthScore ?? 0))
+          );
+          this.healthGrade.set(health.healthGrade ?? '');
         },
         error: () => {
           this.error.set('Failed to load profitability data');
@@ -100,29 +156,47 @@ export class GetProjectProfitabilityComponent implements OnInit {
   private mapApiResponse(res: IProjectProfitabilityGetResponseDto): void {
     this.revenueData.set({
       ...res.revenue,
-      collectedAmount: res.revenue.collectedAmount ?? 0,
-      pendingCollection: res.revenue.pendingCollection ?? 0,
-      collectionRate: res.revenue.collectionRate ?? 0,
+      collectedAmount: res.revenue?.collectedAmount ?? 0,
+      pendingCollection: res.revenue?.pendingCollection ?? 0,
+      collectionRate: res.revenue?.collectionRate ?? 0,
     });
 
-    const expenseItems = (res.expenses.byCategory ?? []).map(item => ({
-      label: item.label ?? item.name ?? item.category ?? 'Other',
-      amount: item.amount,
-    }));
+    const breakdown = res.expenses?.breakdown ?? [];
+    const byCategory = res.expenses?.byCategory ?? [];
+    const expenseItems =
+      breakdown.length > 0
+        ? breakdown.map(item => ({
+            label: item.category ?? 'Other',
+            amount: item.amount,
+            percentage: item.percentage,
+          }))
+        : byCategory.map(item => ({
+            label: item.label ?? item.name ?? item.category ?? 'Other',
+            amount: item.amount,
+          }));
+
     this.expenses.set(expenseItems);
-    this.totalExpenses.set(res.expenses.total);
+    this.totalExpenses.set(res.expenses?.total ?? 0);
+    this.contractorExpenses.set(res.expenses?.contractorExpenses ?? 0);
+    this.employeeExpenses.set(res.expenses?.employeeExpenses ?? 0);
+    this.fuelExpenses.set(res.expenses?.fuelExpenses ?? 0);
+    this.payrollCosts.set(res.expenses?.payrollCosts ?? 0);
 
     this.profitability.set({
-      grossProfit: res.profitability.grossProfit,
-      profitMarginPercent: res.profitability.profitMarginPercent,
-      revenuePerDay: res.profitability.revenuePerDay ?? 0,
-      expensePerDay: res.profitability.expensePerDay ?? 0,
-      profitPerDay: res.profitability.profitPerDay ?? 0,
+      grossProfit: res.profitability?.grossProfit ?? 0,
+      profitMarginPercent: res.profitability?.profitMarginPercent ?? 0,
+      revenuePerDay: res.profitability?.revenuePerDay ?? 0,
+      expensePerDay: res.profitability?.expensePerDay ?? 0,
+      profitPerDay: res.profitability?.profitPerDay ?? 0,
     });
 
-    this.healthScore.set(
-      Math.min(100, Math.max(0, res.profitability.profitMarginPercent))
-    );
+    this.documentSummary.set({
+      totalDocuments: res.documentSummary?.totalDocuments ?? 0,
+      byType: res.documentSummary?.byType ?? [],
+      byStatus: res.documentSummary?.byStatus ?? [],
+    });
+
+    this.monthlyTrend.set(res.monthlyTrend ?? []);
   }
 
   private getHealthScoreConfig(): Partial<IProgressBarConfig> {
@@ -186,5 +260,49 @@ export class GetProjectProfitabilityComponent implements OnInit {
         maintainAspectRatio: true,
       },
     };
+  }
+
+  private getMonthlyTrendChartConfig(): IChartsConfig | null {
+    const trend = this.monthlyTrend();
+    if (!trend.length) {
+      return null;
+    }
+    return {
+      chartType: EChartType.BAR,
+      labels: trend.map(t => t.monthLabel),
+      datasets: [
+        {
+          label: 'Revenue',
+          data: trend.map(t => t.revenue),
+        },
+        {
+          label: 'Expenses',
+          data: trend.map(t => t.totalExpenses),
+        },
+        {
+          label: 'Profit',
+          data: trend.map(t => t.profit),
+        },
+      ],
+      options: {
+        maintainAspectRatio: true,
+      },
+    };
+  }
+
+  protected formatSiteDate(dateStr: string | undefined): string {
+    if (!dateStr) {
+      return '-';
+    }
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+    } catch {
+      return dateStr;
+    }
   }
 }

@@ -2,6 +2,34 @@
   min-height: 100vh;
 }
 
+.profitability-date-filter {
+  background: color-mix(srgb, var(--primary-color) 8%, var(--background-paper-color));
+  border: 1px solid var(--border-light-color);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+
+  .date-filter-fields {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+
+    p-floatlabel {
+      flex: 0 0 auto;
+    }
+
+    .date-filter-input {
+      min-width: 10rem;
+    }
+
+    p-button {
+      flex-shrink: 0;
+    }
+  }
+}
+
 .profitability-loading,
 .profitability-error {
   color: var(--text-secondary-color);
@@ -12,6 +40,127 @@
 
 .profitability-error {
   color: var(--p-danger-color, #ef4444);
+}
+
+.site-hero-banner {
+  background: linear-gradient(
+    135deg,
+    color-mix(srgb, var(--primary-color) 12%, var(--background-paper-color)) 0%,
+    color-mix(srgb, var(--primary-color) 6%, var(--surface-100)) 100%
+  );
+  border: 1px solid var(--border-light-color);
+  border-radius: 1rem;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-md);
+
+  .site-hero-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .site-hero-main {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .site-hero-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary-color);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  .site-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary-color);
+
+    i {
+      margin-right: 0.35rem;
+      opacity: 0.8;
+    }
+  }
+
+  .site-hero-company,
+  .site-hero-timeline {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .site-hero-status {
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    background: color-mix(srgb, var(--primary-color) 20%, transparent);
+    color: var(--primary-color);
+
+    &.status-ongoing {
+      background: color-mix(srgb, #22c55e 25%, transparent);
+      color: #16a34a;
+    }
+    &.status-completed {
+      background: color-mix(srgb, #3b82f6 25%, transparent);
+      color: #2563eb;
+    }
+  }
+
+  .site-hero-health {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    min-width: 140px;
+  }
+
+  .health-score-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    background: color-mix(srgb, var(--primary-color) 10%, var(--surface-100));
+    border: 1px solid var(--border-light-color);
+    border-radius: 0.75rem;
+
+    .health-score-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      line-height: 1;
+    }
+
+    .health-score-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary-color);
+      margin-top: 0.25rem;
+    }
+
+    .health-grade {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-top: 0.15rem;
+    }
+  }
+
+  .health-progress-wrap {
+    width: 100%;
+    max-width: 120px;
+  }
 }
 
 .profitability-card {
@@ -74,6 +223,35 @@
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--border-light-color);
+
+    .expense-category-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+
+      .expense-category-card {
+        background: color-mix(srgb, var(--primary-color) 6%, var(--surface-100));
+        border: 1px solid var(--border-light-color);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        .expense-category-label {
+          color: var(--text-secondary-color);
+          font-size: 0.75rem;
+          font-weight: 500;
+        }
+
+        .expense-category-amount {
+          color: var(--text-primary-color);
+          font-size: 1rem;
+          font-weight: 600;
+        }
+      }
+    }
 
     .section-title {
       color: var(--text-primary-color);
@@ -191,29 +369,56 @@
     }
   }
 
-  .health-score-section {
-    margin-top: 1.5rem;
+  .document-summary-section {
+    background: color-mix(srgb, var(--primary-color) 4%, var(--surface-100));
+    border: 1px solid var(--border-light-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
 
-    .health-score-header {
+    .document-summary-content {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
 
-      .health-label {
-        color: var(--text-primary-color);
+    .document-summary-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .doc-stat-label {
+        color: var(--text-secondary-color);
         font-size: 0.8125rem;
-        font-weight: 600;
-        letter-spacing: 0.06em;
-        opacity: 0.85;
+        font-weight: 500;
       }
 
-      .health-value {
+      .doc-stat-value {
         color: var(--text-primary-color);
-        font-size: 1rem;
+        font-size: 1.25rem;
         font-weight: 600;
-        letter-spacing: -0.01em;
       }
+    }
+
+    .doc-sub-label {
+      color: var(--text-secondary-color);
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .doc-type-list,
+    .doc-status-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+    }
+
+    .doc-type-item,
+    .doc-status-item {
+      font-size: 0.875rem;
+      color: var(--text-primary-color);
     }
   }
 }
@@ -222,6 +427,10 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
+
+  .chart-card--full {
+    grid-column: 1 / -1;
+  }
 
   .chart-card {
     background: var(--background-paper-color);

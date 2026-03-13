@@ -171,6 +171,7 @@ export const API_ROUTES = {
       TIMELINE: (siteId: string) => `analytics/sites/${siteId}/timeline`,
       PROFITABILITY: (siteId: string) =>
         `analytics/sites/${siteId}/profitability`,
+      HEALTH: (siteId: string) => `analytics/sites/${siteId}/health`,
       MANAGE_ALLOCATIONS: 'site-allocations/manage',
     },
     DSR: {
@@ -179,8 +180,15 @@ export const API_ROUTES = {
       DELETE: (dsrId: string) => `daily-status-reports/${dsrId}`,
       LIST: 'daily-status-reports',
       GET_DSR_BY_ID: (dsrId: string) => `daily-status-reports/${dsrId}`,
-      GET_DSR_HISTORY: (dsrId: string) =>
-        `daily-status-reports/${dsrId}/history`,
+      GET_VERSIONS: (id: string) => `daily-status-reports/${id}/versions`,
+    },
+    SITE_DOCUMENT: {
+      ADD: 'site-documents',
+      LIST: 'site-documents',
+      GET_BY_SITE: (siteId: string) => `site-documents/site/${siteId}`,
+      GET_BY_ID: (id: string) => `site-documents/${id}`,
+      EDIT: (id: string) => `site-documents/${id}`,
+      DELETE: (id: string) => `site-documents/${id}`,
     },
   },
   ANNOUNCEMENT: {

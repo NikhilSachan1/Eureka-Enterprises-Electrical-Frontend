@@ -18,6 +18,7 @@ import {
   ProjectGetResponseSchema,
   ProjectTimelineGetResponseSchema,
   ProjectProfitabilityGetResponseSchema,
+  SiteHealthGetResponseSchema,
 } from '../schemas';
 import {
   IManageAllocationsFormDto,
@@ -36,6 +37,7 @@ import {
   IProjectGetResponseDto,
   IProjectTimelineGetResponseDto,
   IProjectProfitabilityGetResponseDto,
+  ISiteHealthGetResponseDto,
 } from '../types/project.dto';
 
 @Injectable({
@@ -159,11 +161,24 @@ export class ProjectService {
   }
 
   getProjectProfitability(
-    siteId: string
+    siteId: string,
+    params?: { startDate?: string; endDate?: string }
   ): Observable<IProjectProfitabilityGetResponseDto> {
     return this.apiService
-      .getValidated(API_ROUTES.SITE.PROJECT.PROFITABILITY(siteId), {
-        response: ProjectProfitabilityGetResponseSchema,
+      .getValidated(
+        API_ROUTES.SITE.PROJECT.PROFITABILITY(siteId),
+        {
+          response: ProjectProfitabilityGetResponseSchema,
+        },
+        params
+      )
+      .pipe(catchError(error => throwError(() => error)));
+  }
+
+  getSiteHealth(siteId: string): Observable<ISiteHealthGetResponseDto> {
+    return this.apiService
+      .getValidated(API_ROUTES.SITE.PROJECT.HEALTH(siteId), {
+        response: SiteHealthGetResponseSchema,
       })
       .pipe(catchError(error => throwError(() => error)));
   }

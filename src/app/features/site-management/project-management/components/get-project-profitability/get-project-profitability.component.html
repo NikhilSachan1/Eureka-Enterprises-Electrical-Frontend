@@ -1,9 +1,51 @@
 <div class="profitability-container">
+  <!-- Date Filter (commented out - not needed)
+  <div class="profitability-date-filter">
+    ...
+  </div>
+  -->
+
   @if (loading()) {
     <div class="profitability-loading">Loading...</div>
   } @else if (error()) {
     <div class="profitability-error">{{ error() }}</div>
   } @else {
+    <!-- Site Hero Banner (from Get By Id API + Health API) -->
+    @if (projectDetail(); as detail) {
+      <div class="site-hero-banner">
+        <div class="site-hero-content">
+          <div class="site-hero-main">
+            <h1 class="site-hero-title">{{ detail.name }}</h1>
+            <div class="site-hero-meta">
+              <span class="site-hero-company">
+                <i class="pi pi-building"></i>
+                {{ detail.company?.name ?? '—' }}
+              </span>
+              <span [class]="'site-hero-status status-' + detail.status">
+                {{ detail.status }}
+              </span>
+              <span class="site-hero-timeline">
+                <i class="pi pi-calendar"></i>
+                {{ formatSiteDate(detail.startDate) }} → {{ formatSiteDate(detail.endDate) }}
+              </span>
+            </div>
+          </div>
+          <div class="site-hero-health">
+            <div class="health-score-badge">
+              <span class="health-score-value">{{ healthScore() }}</span>
+              <span class="health-score-label">Health</span>
+              @if (healthGrade()) {
+                <span class="health-grade">{{ healthGrade() }}</span>
+              }
+            </div>
+            <div class="health-progress-wrap">
+              <app-progress-bar [config]="healthScoreConfig()" />
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
     <!-- Main Card -->
     <div class="profitability-card">
       <!-- Revenue Section -->
@@ -50,16 +92,36 @@
       <!-- Expenses Breakdown -->
       <div class="expenses-section">
         <h3 class="section-title">EXPENSES BREAKDOWN</h3>
+        <div class="expense-category-cards">
+          <div class="expense-category-card">
+            <span class="expense-category-label">Contractor</span>
+            <span class="expense-category-amount">{{ contractorExpenses() | currency: currencyFormat }}</span>
+          </div>
+          <div class="expense-category-card">
+            <span class="expense-category-label">Employee</span>
+            <span class="expense-category-amount">{{ employeeExpenses() | currency: currencyFormat }}</span>
+          </div>
+          <div class="expense-category-card">
+            <span class="expense-category-label">Fuel</span>
+            <span class="expense-category-amount">{{ fuelExpenses() | currency: currencyFormat }}</span>
+          </div>
+          <div class="expense-category-card">
+            <span class="expense-category-label">Payroll</span>
+            <span class="expense-category-amount">{{ payrollCosts() | currency: currencyFormat }}</span>
+          </div>
+        </div>
         <div class="expense-list">
           @for (expense of expenses(); track $index) {
             <div class="expense-item">
-              <span class="expense-label">{{ expense.label }}</span>
+              <span class="expense-label">
+                {{ expense.label }}{{ expense.percentage !== null ? ' (' + expense.percentage + '%)' : '' }}
+              </span>
               <span class="expense-amount">
                 {{ expense.amount | currency: currencyFormat }}
               </span>
             </div>
           } @empty {
-            <div class="expense-empty">No expense data</div>
+            <div class="expense-empty">No breakdown data</div>
           }
         </div>
         <div class="total-expenses">
@@ -105,13 +167,35 @@
         </div>
       </div>
 
-      <!-- Health Score -->
-      <div class="health-score-section">
-        <div class="health-score-header">
-          <span class="health-label">HEALTH SCORE</span>
-          <span class="health-value">{{ healthScore() }}/100</span>
+      <!-- Document Summary -->
+      <div class="document-summary-section">
+        <h3 class="section-title-small">DOCUMENT SUMMARY</h3>
+        <div class="document-summary-content">
+          <div class="document-summary-stat">
+            <span class="doc-stat-label">Total Documents</span>
+            <span class="doc-stat-value">{{ documentSummary().totalDocuments }}</span>
+          </div>
+          @if (documentSummary().byType.length) {
+            <div class="document-by-type">
+              <span class="doc-sub-label">By Type</span>
+              <div class="doc-type-list">
+                @for (item of documentSummary().byType; track $index) {
+                  <span class="doc-type-item">{{ item.type }}: {{ item.count }}</span>
+                }
+              </div>
+            </div>
+          }
+          @if (documentSummary().byStatus.length) {
+            <div class="document-by-status">
+              <span class="doc-sub-label">By Status</span>
+              <div class="doc-status-list">
+                @for (item of documentSummary().byStatus; track $index) {
+                  <span class="doc-status-item">{{ item.status }}: {{ item.count }}</span>
+                }
+              </div>
+            </div>
+          }
         </div>
-        <app-progress-bar [config]="healthScoreConfig()" />
       </div>
     </div>
 
@@ -128,14 +212,14 @@
         </div>
       </div>
 
-      <!-- Revenue vs Expenses Chart -->
-      <div class="chart-card">
-        <h3 class="chart-title">Revenue vs Expenses</h3>
+      <!-- Monthly Trend Chart -->
+      <div class="chart-card chart-card--full">
+        <h3 class="chart-title">Monthly Trend (Revenue, Expenses, Profit)</h3>
         <div class="chart-wrapper">
-          @if (revenueExpenseChartConfig(); as config) {
+          @if (monthlyTrendChartConfig(); as config) {
             <app-charts [chartConfig]="config" />
           } @else {
-            <div class="chart-empty">No revenue or expense data to display</div>
+            <div class="chart-empty">No monthly trend data to display</div>
           }
         </div>
       </div>

@@ -1,1 +1,45 @@
-<p>edit-project-doc works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig" />
+
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['documentNumber']!"
+      [externalValidationTrigger]="validationTrigger()"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs['documentDate']!"
+      [externalValidationTrigger]="validationTrigger()"
+    />
+  </div>
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs['totalAmount']!"
+    [externalValidationTrigger]="validationTrigger()"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs['attachment']!"
+    [externalValidationTrigger]="validationTrigger()"
+  />
+
+  <div class="button-container">
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    />
+
+    <app-button
+      [buttonConfig]="form.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+    />
+  </div>
+</form>

@@ -9,3 +9,7 @@ export { ADD_DSR_FORM_CONFIG } from './form/add-dsr.config';
 export { EDIT_DSR_FORM_CONFIG } from './form/edit-dsr.config';
 export { SEARCH_FILTER_DSR_FORM_CONFIG } from './form/search-filter-dsr.config';
 export { DSR_ACTION_CONFIG_MAP } from './dialog/get-dsr.config';
+export { PROJECT_DOC_TABLE_ENHANCED_CONFIG } from './table/get-project-doc.config';
+export { PROJECT_DOC_ACTION_CONFIG_MAP } from './dialog/get-project-doc.config';
+export { ADD_PROJECT_DOC_FORM_CONFIG } from './form/add-project-doc.config';
+export { EDIT_PROJECT_DOC_FORM_CONFIG } from './form/edit-project-doc.config';

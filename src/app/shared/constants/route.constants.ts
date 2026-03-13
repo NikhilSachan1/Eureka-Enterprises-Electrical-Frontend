@@ -100,6 +100,10 @@ export const ROUTES = {
         ADD: `add-daily-status`,
         EDIT: `edit-daily-status`,
       },
+      DOCUMENT: {
+        ADD: `add-document`,
+        EDIT: `edit-document`,
+      },
     },
   },
 

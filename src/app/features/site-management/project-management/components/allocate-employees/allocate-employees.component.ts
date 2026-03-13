@@ -311,8 +311,9 @@ export class AllocateEmployeesComponent
   }
 
   protected override handleSubmit(): void {
-    this.validationTrigger.update(v => v + 1);
     if (!this.validateForm()) {
+      // Bump after markAllAsTouched so InputFields re-check and show validation UI
+      this.validationTrigger.update(v => v + 1);
       return;
     }
     const payload = this.preparePayload();

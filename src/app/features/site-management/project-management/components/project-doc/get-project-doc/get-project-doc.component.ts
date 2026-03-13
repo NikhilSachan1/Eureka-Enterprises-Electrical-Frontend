@@ -1,108 +1,237 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ICONS } from '@shared/constants';
-
-interface ProjectDocument {
-  id: string;
-  documentNumber: string;
-  documentName: string;
-  type: 'PO' | 'INVOICE' | 'QUOTATION' | 'CONTRACT';
-  date: string;
-  amount: number;
-  gst: number;
-}
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import {
+  ConfirmationDialogService,
+  DrawerService,
+  GalleryService,
+  NotificationService,
+  RouterNavigationService,
+  TableService,
+} from '@shared/services';
+import { ProjectDocService } from '@features/site-management/project-management/services/project-doc.service';
+import {
+  ISiteDocumentGetBaseResponseDto,
+  ISiteDocumentGetResponseDto,
+} from '@features/site-management/project-management/types/project.dto';
+import {
+  PROJECT_DOC_ACTION_CONFIG_MAP,
+  PROJECT_DOC_TABLE_ENHANCED_CONFIG,
+} from '@features/site-management/project-management/config';
+import { APP_CONFIG } from '@core/config';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import {
+  EButtonActionType,
+  EDataType,
+  IDataViewDetails,
+  IDataViewDetailsWithEntity,
+  IEnhancedTable,
+  ITableActionClickEvent,
+} from '@shared/types';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { GetProjectDocDetailComponent } from '../get-project-doc-detail/get-project-doc-detail.component';
 
 @Component({
   selector: 'app-get-project-doc',
-  imports: [CommonModule],
+  imports: [DataTableComponent],
   templateUrl: './get-project-doc.component.html',
   styleUrl: './get-project-doc.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GetProjectDocComponent {
-  protected icons = ICONS;
+export class GetProjectDocComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly projectDocService = inject(ProjectDocService);
+  private readonly dataTableService = inject(TableService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
+  private readonly drawerService = inject(DrawerService);
+  private readonly galleryService = inject(GalleryService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly notificationService = inject(NotificationService);
 
-  documents: ProjectDocument[] = [
-    {
-      id: '1',
-      documentNumber: 'PO-2026-001',
-      documentName: 'Purchase Order - Electrical Equipment',
-      type: 'PO',
-      date: 'Jan 5, 2026',
-      amount: 5000000,
-      gst: 763000,
-    },
-    {
-      id: '2',
-      documentNumber: 'INV-2026-001',
-      documentName: 'Invoice - Material Supply',
-      type: 'INVOICE',
-      date: 'Jan 15, 2026',
-      amount: 2500000,
-      gst: 381000,
-    },
-    {
-      id: '3',
-      documentNumber: 'INV-2026-002',
-      documentName: 'Invoice - Installation Services',
-      type: 'INVOICE',
-      date: 'Jan 18, 2026',
-      amount: 1000000,
-      gst: 153000,
-    },
-    {
-      id: '4',
-      documentNumber: 'QUO-2026-001',
-      documentName: 'Quotation - Panel Board',
-      type: 'QUOTATION',
-      date: 'Dec 28, 2025',
-      amount: 750000,
-      gst: 114750,
-    },
-  ];
+  protected table!: IEnhancedTable;
 
-  formatCurrency(amount: number): string {
-    if (amount >= 10000000) {
-      return `₹${(amount / 10000000).toFixed(2)} Cr`;
-    } else if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(2)} L`;
+  ngOnInit(): void {
+    this.table = this.dataTableService.createTable(
+      PROJECT_DOC_TABLE_ENHANCED_CONFIG
+    );
+    this.loadDocumentList();
+  }
+
+  private loadDocumentList(): void {
+    const projectId = this.activatedRoute.snapshot.params[
+      'projectId'
+    ] as string;
+
+    this.table.setLoading(true);
+
+    this.projectDocService
+      .getList(projectId)
+      .pipe(
+        finalize(() => this.table.setLoading(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: ISiteDocumentGetResponseDto) => {
+          const records = response.records ?? [];
+          const totalRecords = response.totalRecords ?? records.length;
+          const mappedData = this.mapTableData(records);
+          this.table.setData(mappedData);
+          this.table.updateTableConfig({ totalRecords });
+        },
+        error: () => {
+          this.table.setData([]);
+        },
+      });
+  }
+
+  private mapTableData(
+    records: ISiteDocumentGetBaseResponseDto[]
+  ): Record<string, unknown>[] {
+    return records.map(record => ({
+      id: record.id,
+      documentNumber: record.documentNumber,
+      documentType: record.documentType,
+      documentDate: record.documentDate,
+      amount: record.amount,
+      gstAmount: record.gstAmount,
+      totalAmount: record.totalAmount,
+      status: record.status,
+      paymentStatus: record.paymentStatus,
+      remarks: record.remarks,
+      documentKeys: record.documentKeys ?? [],
+      originalRawData: record,
+    }));
+  }
+
+  protected handleProjectDocTableActionClick(
+    event: ITableActionClickEvent<ISiteDocumentGetBaseResponseDto>,
+    isBulk = false
+  ): void {
+    const { actionType, selectedRows } = event;
+    const [selectedRow] = selectedRows;
+    const rawRow = (selectedRow as Record<string, unknown>)?.[
+      'originalRawData'
+    ] as ISiteDocumentGetBaseResponseDto | undefined;
+    const row =
+      rawRow ?? (selectedRow as unknown as ISiteDocumentGetBaseResponseDto);
+
+    if (actionType === EButtonActionType.VIEW) {
+      this.showDocumentDetailsDrawer(row);
+      return;
     }
-    return `₹${amount.toLocaleString('en-IN')}`;
-  }
 
-  getDocumentIcon(type: string): string {
-    const iconMap: Record<string, string> = {
-      PO: this.icons.COMMON.BRIEFCASE,
-      INVOICE: this.icons.MEDIA.PDF,
-      QUOTATION: this.icons.COMMON.FILE,
-      CONTRACT: this.icons.MEDIA.DOCUMENT,
+    if (actionType === EButtonActionType.EDIT) {
+      this.navigateToEditDocument(row.id);
+      return;
+    }
+
+    if (actionType === EButtonActionType.DOWNLOAD) {
+      this.handleDownload(row);
+      return;
+    }
+
+    const dynamicComponentInputs = {
+      selectedRecord: selectedRows,
+      onSuccess: (): void => {
+        this.loadDocumentList();
+      },
     };
-    return iconMap[type] || this.icons.COMMON.FILE;
+
+    const recordDetail = this.prepareDocumentRecordDetail(row);
+
+    this.confirmationDialogService.showConfirmationDialog(
+      actionType,
+      PROJECT_DOC_ACTION_CONFIG_MAP[actionType],
+      recordDetail,
+      isBulk,
+      !isBulk,
+      dynamicComponentInputs
+    );
   }
 
-  getDocumentColor(type: string): string {
-    const colorMap: Record<string, string> = {
-      PO: '#3b82f6', // Blue
-      INVOICE: '#10b981', // Green
-      QUOTATION: '#f59e0b', // Amber
-      CONTRACT: '#8b5cf6', // Purple
+  private prepareDocumentRecordDetail(
+    row: ISiteDocumentGetBaseResponseDto
+  ): IDataViewDetailsWithEntity {
+    const documentKeys = (row.documentKeys ?? []).filter(
+      (k): k is string => !!k
+    );
+    const entryData: IDataViewDetails['entryData'] = [
+      {
+        label: 'Document Number',
+        value: row.documentNumber ?? null,
+      },
+      {
+        label: 'Type',
+        value: row.documentType ?? null,
+      },
+      {
+        label: 'Document Date',
+        value: row.documentDate ?? null,
+        type: EDataType.DATE,
+        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+      },
+      {
+        label: 'Amount',
+        value: row.amount ?? null,
+        type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+      {
+        label: 'Attachment(s)',
+        value: documentKeys,
+        type: EDataType.ATTACHMENTS,
+      },
+    ];
+    return {
+      details: [{ entryData }],
+      entity: {
+        name: row.documentNumber ?? row.id,
+        subtitle: row.documentType ?? '',
+      },
     };
-    return colorMap[type] || '#6b7280';
   }
 
-  onViewDocument(_doc: ProjectDocument): void {
-    // console.log('View document:', doc);
+  private showDocumentDetailsDrawer(
+    row: ISiteDocumentGetBaseResponseDto
+  ): void {
+    this.drawerService.showDrawer(GetProjectDocDetailComponent, {
+      header: 'Document Details',
+      subtitle: row.documentNumber ?? 'View document',
+      componentData: { document: row },
+    });
   }
 
-  onEditDocument(_doc: ProjectDocument): void {
-    // console.log('Edit document:', doc);
+  private navigateToEditDocument(id: string): void {
+    const routeSegments = [
+      ROUTE_BASE_PATHS.SITE.BASE,
+      ROUTE_BASE_PATHS.SITE.PROJECT,
+      ROUTES.SITE.PROJECT.DOCUMENT.EDIT,
+      id,
+    ];
+    void this.routerNavigationService.navigateToRoute(routeSegments);
   }
 
-  onDownloadDocument(_doc: ProjectDocument): void {
-    // console.log('Download document:', doc);
-  }
-
-  onDeleteDocument(_doc: ProjectDocument): void {
-    // console.log('Delete document:', doc);
+  private handleDownload(row: ISiteDocumentGetBaseResponseDto): void {
+    const documentKeys = row.documentKeys ?? [];
+    if (documentKeys.length === 0) {
+      this.notificationService.info('No attachments to download');
+      return;
+    }
+    const keys = documentKeys.filter((k): k is string => !!k);
+    const media = keys.map((key: string) => ({
+      mediaKey: key,
+      actualMediaUrl: '',
+    }));
+    this.galleryService.show(media);
   }
 }

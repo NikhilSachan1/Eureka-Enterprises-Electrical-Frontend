@@ -10,8 +10,8 @@ import {
   DsrGetBaseResponseSchema,
   DsrGetRequestSchema,
   DsrGetResponseSchema,
-  DsrHistoryGetRequestSchema,
-  DsrHistoryGetResponseSchema,
+  DsrVersionItemSchema,
+  DsrVersionsGetResponseSchema,
   ManageAllocationsRequestSchema,
   ManageAllocationsResponseSchema,
   ProjectAddRequestSchema,
@@ -30,6 +30,15 @@ import {
   ProjectGetStatsResponseSchema,
   ProjectTimelineGetResponseSchema,
   ProjectProfitabilityGetResponseSchema,
+  SiteHealthGetResponseSchema,
+  SiteDocumentAddRequestSchema,
+  SiteDocumentAddResponseSchema,
+  SiteDocumentDeleteResponseSchema,
+  SiteDocumentDetailGetResponseSchema,
+  SiteDocumentEditRequestSchema,
+  SiteDocumentEditResponseSchema,
+  SiteDocumentGetBaseResponseSchema,
+  SiteDocumentGetResponseSchema,
 } from '../schemas';
 
 /*
@@ -95,6 +104,13 @@ export type IProjectTimelineGetResponseDto = z.infer<
 */
 export type IProjectProfitabilityGetResponseDto = z.infer<
   typeof ProjectProfitabilityGetResponseSchema
+>;
+
+/*
+  Site Health
+*/
+export type ISiteHealthGetResponseDto = z.infer<
+  typeof SiteHealthGetResponseSchema
 >;
 
 /*
@@ -181,12 +197,38 @@ export type IDsrEditResponseDto = z.infer<typeof DsrEditResponseSchema>;
 export type IDsrDeleteResponseDto = z.infer<typeof DsrDeleteResponseSchema>;
 
 /*
-  Dsr History Get
+  Dsr Versions Get
 */
-export type IDsrHistoryGetRequestDto = z.infer<
-  typeof DsrHistoryGetRequestSchema
+export type IDsrVersionItemDto = z.infer<typeof DsrVersionItemSchema>;
+export type IDsrVersionsGetResponseDto = z.infer<
+  typeof DsrVersionsGetResponseSchema
 >;
-export type IDsrHistoryGetFormDto = z.input<typeof DsrHistoryGetRequestSchema>;
-export type IDsrHistoryGetResponseDto = z.infer<
-  typeof DsrHistoryGetResponseSchema
+
+/*
+  Site Document (Project Doc)
+*/
+export type ISiteDocumentAddFormDto = z.input<
+  typeof SiteDocumentAddRequestSchema
+>;
+export type ISiteDocumentAddResponseDto = z.infer<
+  typeof SiteDocumentAddResponseSchema
+>;
+export type ISiteDocumentGetFormDto = Record<string, unknown>;
+export type ISiteDocumentGetResponseDto = z.infer<
+  typeof SiteDocumentGetResponseSchema
+>;
+export type ISiteDocumentGetBaseResponseDto = z.infer<
+  typeof SiteDocumentGetBaseResponseSchema
+>;
+export type ISiteDocumentDetailGetResponseDto = z.infer<
+  typeof SiteDocumentDetailGetResponseSchema
+>;
+export type ISiteDocumentEditFormDto = z.input<
+  typeof SiteDocumentEditRequestSchema
+>;
+export type ISiteDocumentEditResponseDto = z.infer<
+  typeof SiteDocumentEditResponseSchema
+>;
+export type ISiteDocumentDeleteResponseDto = z.infer<
+  typeof SiteDocumentDeleteResponseSchema
 >;

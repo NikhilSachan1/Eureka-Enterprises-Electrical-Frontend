@@ -20,7 +20,6 @@ import { GetProjectDocComponent } from '../project-doc/get-project-doc/get-proje
 import { GetDsrComponent } from '../project-dsr/get-dsr/get-dsr.component';
 import { GetProjectTimelineComponent } from '../get-project-timeline/get-project-timeline.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { RouterNavigationService } from '@shared/services';
 
@@ -34,7 +33,6 @@ import { RouterNavigationService } from '@shared/services';
     GetDsrComponent,
     GetProjectTimelineComponent,
     PageHeaderComponent,
-    MetricsCardComponent,
   ],
   templateUrl: './get-project-analysis.component.html',
   styleUrl: './get-project-analysis.component.scss',
@@ -79,19 +77,26 @@ export class GetProjectAnalysisComponent {
 
   protected onHeaderButtonClick(actionName: string): void {
     let navigationRoute: string[] = [];
+    const projectId = this.activatedRoute.snapshot.params[
+      'projectId'
+    ] as string;
+
+    if (!projectId) {
+      return;
+    }
 
     if (actionName === 'addDailyStatus') {
-      const projectId = this.activatedRoute.snapshot.params[
-        'projectId'
-      ] as string;
-      if (!projectId) {
-        return;
-      }
-
       navigationRoute = [
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.PROJECT,
         ROUTES.SITE.PROJECT.DAILY_STATUS.ADD,
+        projectId,
+      ];
+    } else if (actionName === 'addDocument') {
+      navigationRoute = [
+        ROUTE_BASE_PATHS.SITE.BASE,
+        ROUTE_BASE_PATHS.SITE.PROJECT,
+        ROUTES.SITE.PROJECT.DOCUMENT.ADD,
         projectId,
       ];
     }
@@ -108,6 +113,11 @@ export class GetProjectAnalysisComponent {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Daily Status',
           actionName: 'addDailyStatus',
+        },
+        {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
+          label: 'Add Document',
+          actionName: 'addDocument',
         },
       ],
     };
