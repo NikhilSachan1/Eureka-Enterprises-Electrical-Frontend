@@ -76,6 +76,7 @@ export type {
   ITrackedForm,
   FormDataConstraint,
   DefaultFormData,
+  IExplicitFormData,
   MultiStepFormDataConstraint,
   DefaultMultiStepFormData,
   MultiStepFormsRecord,

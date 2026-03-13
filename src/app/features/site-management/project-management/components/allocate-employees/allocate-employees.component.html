@@ -1,0 +1,98 @@
+<form
+  [formGroup]="formGroup"
+  (ngSubmit)="handleSubmit()"
+  class="form"
+>
+  <div class="form-sections">
+    <!-- Allocated Employees -->
+    <app-input-field
+      [formGroup]="formGroup"
+      [inputFieldConfig]="selectedEmployeesFieldConfig"
+      [externalValidationTrigger]="validationTrigger()"
+    />
+
+    <!-- Allocation Dates -->
+    <div class="form-section form-section--card">
+      <div class="section-header">
+        <i class="section-icon pi pi-calendar"></i>
+        <div>
+          <h4 class="section-title">Allocation Dates</h4>
+          <p class="section-hint">Set allocated date for each selected employee.</p>
+        </div>
+      </div>
+      @if ((allocationsFormArray()?.length ?? 0) > 0) {
+        <div
+          formArrayName="allocationRows"
+          class="employee-rows"
+        >
+          @for (ctrl of allocationsFormArray()?.controls ?? []; track $index) {
+            <div
+              [formGroupName]="$index"
+              class="employee-row employee-row--allocation"
+            >
+              <span class="employee-name">{{ getAllocationGroup($index).get('_displayName')?.value }}</span>
+              <div class="employee-row-field">
+                <app-input-field
+                  [formGroup]="getAllocationGroup($index)"
+                  [inputFieldConfig]="allocatedDateFieldConfig"
+                  [externalValidationTrigger]="validationTrigger()"
+                />
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <i class="empty-state-icon pi pi-inbox"></i>
+          <p class="empty-state-text">Select employees above to set allocation dates.</p>
+        </div>
+      }
+    </div>
+
+    <!-- Deallocations -->
+    <div class="form-section form-section--card form-section--dealloc">
+      <div class="section-header">
+        <i class="section-icon pi pi-user-minus"></i>
+        <div>
+          <h4 class="section-title">Deallocations</h4>
+          <p class="section-hint">Set the date when each was deallocated.</p>
+        </div>
+      </div>
+      @if ((deallocationsFormArray()?.length ?? 0) > 0) {
+        <div
+          formArrayName="deallocationRows"
+          class="employee-rows"
+        >
+          @for (ctrl of deallocationsFormArray()?.controls ?? []; track $index) {
+            <div
+              [formGroupName]="$index"
+              class="employee-row employee-row--deallocation"
+            >
+              <span class="employee-name">{{ ctrl.get('_displayName')?.value }}</span>
+              <div class="employee-row-field">
+                <app-input-field
+                  [formGroup]="getDeallocationGroup($index)"
+                  [inputFieldConfig]="deallocatedDateFieldConfig"
+                  [externalValidationTrigger]="validationTrigger()"
+                />
+              </div>
+              <div class="employee-row-field">
+                <app-input-field
+                  [formGroup]="getDeallocationGroup($index)"
+                  [inputFieldConfig]="remarksFieldConfig"
+                  [externalValidationTrigger]="validationTrigger()"
+                />
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <i class="empty-state-icon pi pi-inbox"></i>
+          <p class="empty-state-text">No employees to deallocate.</p>
+          <p class="empty-state-subtext">Remove employees from the selection above to add them here.</p>
+        </div>
+      }
+    </div>
+  </div>
+</form>

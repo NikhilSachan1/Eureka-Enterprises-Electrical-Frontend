@@ -89,6 +89,11 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
     permission: [APP_PERMISSION.PROJECT.CHANGE_STATUS],
   },
   {
+    id: EButtonActionType.ALLOCATE_EMPLOYEES,
+    tooltip: 'Allocate / Deallocate Employees',
+    permission: [APP_PERMISSION.PROJECT.CHANGE_STATUS],
+  },
+  {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Project',
     permission: [APP_PERMISSION.PROJECT.DELETE],

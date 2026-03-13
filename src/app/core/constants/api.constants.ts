@@ -171,6 +171,7 @@ export const API_ROUTES = {
       TIMELINE: (siteId: string) => `analytics/sites/${siteId}/timeline`,
       PROFITABILITY: (siteId: string) =>
         `analytics/sites/${siteId}/profitability`,
+      MANAGE_ALLOCATIONS: 'site-allocations/manage',
     },
     DSR: {
       ADD: 'daily-status-reports',

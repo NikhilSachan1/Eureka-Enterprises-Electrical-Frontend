@@ -30,6 +30,10 @@ export {
   ProjectChangeStatusRequestSchema,
   ProjectChangeStatusResponseSchema,
 } from './change-status-project.schema';
+export {
+  ManageAllocationsRequestSchema,
+  ManageAllocationsResponseSchema,
+} from './allocate-employee.schema';
 export { DsrBaseSchema, DsrUpsertShapeSchema } from './dsr/base-dsr.schema';
 export {
   DsrAddRequestSchema,

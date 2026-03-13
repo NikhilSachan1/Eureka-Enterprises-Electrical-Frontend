@@ -270,6 +270,16 @@ export class FormService {
     return formGroup.getRawValue();
   }
 
+  /**
+   * Wraps an existing FormGroup as IEnhancedForm. Use when the form is built
+   * manually (e.g. with FormBuilder) instead of createForm.
+   */
+  wrapFormGroup<T extends Record<string, unknown>>(
+    formGroup: FormGroup
+  ): IEnhancedForm<T> {
+    return this.createEnhancedForm<T>(formGroup, {}, {});
+  }
+
   trackFieldChanges<T = unknown>(
     formGroup: FormGroup,
     fieldName: string,

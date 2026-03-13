@@ -122,6 +122,7 @@ export const APP_PERMISSION = {
     EDIT: 'edit_project',
     DELETE: 'delete_project',
     CHANGE_STATUS: 'change_status_project',
+    ALLOCATE_EMPLOYEES: 'allocate_employees_project',
     ANALYSIS: 'analysis_project',
   },
   ROLE_PERMISSION: {

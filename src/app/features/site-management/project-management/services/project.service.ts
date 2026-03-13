@@ -3,6 +3,8 @@ import { ApiService } from '@core/services';
 import { catchError, Observable, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
 import {
+  ManageAllocationsRequestSchema,
+  ManageAllocationsResponseSchema,
   ProjectAddRequestSchema,
   ProjectAddResponseSchema,
   ProjectChangeStatusRequestSchema,
@@ -18,6 +20,8 @@ import {
   ProjectProfitabilityGetResponseSchema,
 } from '../schemas';
 import {
+  IManageAllocationsFormDto,
+  IManageAllocationsResponseDto,
   IProjectAddFormDto,
   IProjectAddResponseDto,
   IProjectChangeStatusFormDto,
@@ -79,6 +83,21 @@ export class ProjectService {
         {
           response: ProjectChangeStatusResponseSchema,
           request: ProjectChangeStatusRequestSchema,
+        },
+        formData
+      )
+      .pipe(catchError(error => throwError(() => error)));
+  }
+
+  manageAllocations(
+    formData: IManageAllocationsFormDto
+  ): Observable<IManageAllocationsResponseDto> {
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.PROJECT.MANAGE_ALLOCATIONS,
+        {
+          response: ManageAllocationsResponseSchema,
+          request: ManageAllocationsRequestSchema,
         },
         formData
       )

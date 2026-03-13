@@ -12,6 +12,8 @@ import {
   DsrGetResponseSchema,
   DsrHistoryGetRequestSchema,
   DsrHistoryGetResponseSchema,
+  ManageAllocationsRequestSchema,
+  ManageAllocationsResponseSchema,
   ProjectAddRequestSchema,
   ProjectAddResponseSchema,
   ProjectChangeStatusRequestSchema,
@@ -107,6 +109,36 @@ export type IProjectChangeStatusFormDto = z.input<
 export type IProjectChangeStatusResponseDto = z.infer<
   typeof ProjectChangeStatusResponseSchema
 >;
+
+/*
+  Manage Allocations
+*/
+export type IManageAllocationsRequestDto = z.infer<
+  typeof ManageAllocationsRequestSchema
+>;
+export type IManageAllocationsFormDto = z.input<
+  typeof ManageAllocationsRequestSchema
+>;
+export type IManageAllocationsResponseDto = z.infer<
+  typeof ManageAllocationsResponseSchema
+>;
+
+/** UI form DTO for allocate employees dialog (allocatedEmployees + allocationRows + deallocationRows) */
+export interface IAllocateEmployeesFormDto extends Record<string, unknown> {
+  allocatedEmployees: string[];
+  allocationRows: Record<string, unknown>[];
+  deallocationRows: Record<string, unknown>[];
+}
+
+/** Row/entity info for allocated employee (from API). Explicit keys for dot-notation. */
+export interface IAllocatedEmployeeInfo {
+  allocationId?: string;
+  allocatedAt?: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  deallocatedAt?: string;
+}
 
 /*
   Dsr Get

@@ -5,6 +5,14 @@ import { IButtonConfig } from '@shared/types/button/button.interface';
 
 export type FormDataConstraint = Record<string, unknown> | object;
 export type DefaultFormData = Record<string, unknown>;
+
+/**
+ * Prefer interfaces with explicit keys (no "extends Record<string, unknown>")
+ * for form DTOs and entity maps. This avoids index signatures and enables
+ * dot-notation access (e.g. obj.myField instead of obj['myField']).
+ * Satisfies FormDataConstraint via implicit object compatibility.
+ */
+export type IExplicitFormData = object;
 export type MultiStepFormDataConstraint = Record<string, FormDataConstraint>;
 export type DefaultMultiStepFormData = Record<string, Record<string, unknown>>;
 
@@ -77,6 +85,7 @@ export interface IEnhancedForm<T extends FormDataConstraint> {
   getFieldData<K extends keyof T>(fieldName: K): T[K];
 }
 
+/** Mapped type preserves literal keys for dot-notation access (no index signature) */
 export type ITrackedFields<TFormData extends FormDataConstraint> = Partial<
   Record<keyof TFormData & string, Signal<unknown>>
 > & {

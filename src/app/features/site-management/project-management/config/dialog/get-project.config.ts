@@ -2,6 +2,7 @@ import { EButtonActionType, IDialogActionConfig } from '@shared/types';
 import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
 import { DeleteProjectComponent } from '../../components/delete-project/delete-project.component';
 import { ChangeStatusProjectComponent } from '../../components/change-status-project/change-status-project.component';
+import { AllocateEmployeesComponent } from '../../components/allocate-employees/allocate-employees.component';
 
 export const PROJECT_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.DELETE]: {
@@ -15,5 +16,12 @@ export const PROJECT_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
         'Are you sure you want to change project status to this project?',
     },
     dynamicComponent: ChangeStatusProjectComponent,
+  },
+  [EButtonActionType.ALLOCATE_EMPLOYEES]: {
+    dialogConfig: {
+      header: 'Manage Employee Allocations',
+      message: 'Add or remove employees from this project.',
+    },
+    dynamicComponent: AllocateEmployeesComponent,
   },
 };
