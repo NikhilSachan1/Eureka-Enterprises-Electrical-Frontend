@@ -122,11 +122,11 @@ export const VEHICLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'View Event History',
     permission: [APP_PERMISSION.VEHICLE.EVENT_HISTORY],
   },
-  {
-    id: EButtonActionType.SERVICE_INFO,
-    tooltip: 'View Service History',
-    permission: [APP_PERMISSION.VEHICLE.SERVICE_HISTORY],
-  },
+  // {
+  //   id: EButtonActionType.SERVICE_INFO,
+  //   tooltip: 'View Service History',
+  //   permission: [APP_PERMISSION.VEHICLE.SERVICE_HISTORY],
+  // },
   {
     id: EButtonActionType.HANDOVER_INITIATE,
     tooltip: 'Allocate Vehicle',

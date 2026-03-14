@@ -121,12 +121,19 @@ export class GetVehicleReadingComponent implements OnInit {
     return response.map((record: IVehicleReadingGetBaseResponseDto) => {
       const city = getMappedValueFromArrayOfObjects(
         this.appConfigurationService.cities(),
-        record.site.city
+        record.site?.city ?? '-'
       );
       const state = getMappedValueFromArrayOfObjects(
         this.appConfigurationService.states(),
-        record.site.state
+        record.site?.state ?? '-'
       );
+      const site = record.site
+        ? {
+            ...record.site,
+            name: record.site.name ?? '-',
+            location: `${city}, ${state}`,
+          }
+        : null;
       return {
         id: record.id,
         readingDate: record.logDate,
@@ -138,10 +145,7 @@ export class GetVehicleReadingComponent implements OnInit {
           ...record.driver,
           fullName: `${record.driver.firstName} ${record.driver.lastName}`,
         },
-        site: {
-          ...record.site,
-          location: `${city}, ${state}`,
-        },
+        site,
         meterReading: [
           record.startOdometerReading ?? 0,
           record.endOdometerReading ?? 0,

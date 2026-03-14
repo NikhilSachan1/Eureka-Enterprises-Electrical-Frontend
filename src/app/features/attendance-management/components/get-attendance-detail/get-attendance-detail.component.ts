@@ -23,10 +23,7 @@ import {
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { AppConfigurationService } from '@shared/services';
-import {
-  getMappedValueFromArrayOfObjects,
-  stringToArray,
-} from '@shared/utility';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 
 @Component({
@@ -92,8 +89,8 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
     response: IAttendanceHistoryGetResponseDto
   ): IDataViewDetailsWithEntity {
     const mappedDetails = response.map(record => {
-      const siteLocation = stringToArray(record.notes, '-')[0] || '';
-      const clientName = stringToArray(record.notes, '-')[1] || '';
+      // const siteLocation = stringToArray(record.notes, '-')[0] || '';
+      // const clientName = stringToArray(record.notes, '-')[1] || '';
 
       const entryData: IDataViewDetails['entryData'] = [
         {
@@ -129,19 +126,19 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Site Location',
-          value: siteLocation,
+          value: '-',
         },
         {
           label: 'Client Name',
-          value: clientName,
+          value: '-',
         },
         {
           label: 'Associate Engineer',
-          value: 'John Doe', // TODO: Replace hard-coded name with associate employee name once associate employee mapping is available from backend.
+          value: '-', // TODO: Replace hard-coded name with associate employee name once associate employee mapping is available from backend.
         },
         {
           label: 'Associated Vehicle',
-          value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
+          value: '-', // TODO: Add associated vehicle once we have the associated vehicle functionality
         },
       ];
 

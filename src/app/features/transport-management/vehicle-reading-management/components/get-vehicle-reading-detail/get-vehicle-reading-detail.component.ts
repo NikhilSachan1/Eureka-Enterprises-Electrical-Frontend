@@ -136,12 +136,14 @@ export class GetVehicleReadingDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Project Name',
-          value: record.site.name,
+          value: record.site?.name ?? '-',
           type: EDataType.TEXT,
         },
         {
           label: 'Project Location',
-          value: `${getMappedValueFromArrayOfObjects(this.appConfigurationService.cities(), record.site.city)}, ${getMappedValueFromArrayOfObjects(this.appConfigurationService.states(), record.site.state)}`,
+          value: record.site
+            ? `${getMappedValueFromArrayOfObjects(this.appConfigurationService.cities(), record.site.city)}, ${getMappedValueFromArrayOfObjects(this.appConfigurationService.states(), record.site.state)}`
+            : '-',
           type: EDataType.TEXT,
         },
         {

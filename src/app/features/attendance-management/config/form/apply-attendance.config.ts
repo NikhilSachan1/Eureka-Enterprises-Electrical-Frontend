@@ -30,7 +30,7 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
           dropdownName: CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
         },
       },
-      validators: [Validators.required],
+      // validators: [Validators.required],
     },
     clientName: {
       fieldType: EDataType.SELECT,
@@ -43,7 +43,7 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
           dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
         },
       },
-      validators: [Validators.required],
+      // validators: [Validators.required],
     },
     associateEngineerName: {
       fieldType: EDataType.SELECT,

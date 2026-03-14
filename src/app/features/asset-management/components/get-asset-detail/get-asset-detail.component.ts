@@ -119,14 +119,14 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
           label: 'Calibration From',
           value: getMappedValueFromArrayOfObjects(
             this.appConfigurationService.assetCalibrationSources(),
-            record.calibrationFrom
+            record.calibrationFrom ?? ''
           ),
         },
         {
           label: 'Calibration Frequency',
           value: getMappedValueFromArrayOfObjects(
             this.appConfigurationService.assetCalibrationFrequencies(),
-            record.calibrationFrequency
+            record.calibrationFrequency ?? ''
           ),
         },
         {
@@ -148,7 +148,7 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Warranty Period',
-          value: [record.warrantyStartDate, record.warrantyEndDate],
+          value: [record.warrantyStartDate ?? '', record.warrantyEndDate ?? ''],
           type: EDataType.RANGE,
           dataType: EDataType.DATE,
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,

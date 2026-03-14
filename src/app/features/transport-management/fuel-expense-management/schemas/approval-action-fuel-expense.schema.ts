@@ -22,10 +22,10 @@ export const FuelExpenseActionRequestSchema = z
 
 export const FuelExpenseActionResultSchema = z
   .object({
-    approvalStatus,
-    message: z.string(),
-    previousStatus: approvalStatus,
     fuelExpenseId: id,
+    approvalStatus,
+    message: z.string().optional(),
+    previousStatus: approvalStatus.optional(),
   })
   .strict();
 

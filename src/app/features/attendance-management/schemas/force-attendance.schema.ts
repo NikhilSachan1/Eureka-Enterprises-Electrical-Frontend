@@ -21,29 +21,29 @@ export const AttendanceForceRequestSchema = z
     employeeName: id,
     attendanceDate: dateField,
     attendanceStatus: status,
-    clientName: z.string(),
-    locationName: z.string(),
-    associateEngineerName: z.string(),
-    associatedVehicle: z.string(),
+    clientName: z.string().nullable(),
+    locationName: z.string().nullable(),
+    associateEngineerName: z.string().nullable(),
+    associatedVehicle: z.string().nullable(),
     remark: notes,
-    assignmentSnapshot: AssignmentSnapshotSchema,
+    assignmentSnapshot: AssignmentSnapshotSchema.nullable(),
   })
   .strict()
   .transform(data => ({
     userIds: data.employeeName,
     attendanceDate: transformDateFormat(data.attendanceDate),
-    notes: `${data.locationName} - ${data.clientName}`,
+    notes: data.remark,
     reason: data.remark,
     status: data.attendanceStatus,
     checkInTime: SHIFT_DATA.START_TIME,
     checkOutTime: SHIFT_DATA.END_TIME,
-    assignmentSnapshot: data.assignmentSnapshot ?? {
-      site: {},
-      company: {},
-      contractors: [],
-      vehicle: {},
-      assignedEngineer: {},
-    },
+    // assignmentSnapshot: data.assignmentSnapshot ?? {
+    //   site: {},
+    //   company: {},
+    //   contractors: [],
+    //   vehicle: {},
+    //   assignedEngineer: {},
+    // },
   }));
 
 export const AttendanceForceResponseSchema = z

@@ -1,7 +1,7 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import { IActionAssetUIFormDto } from '@features/asset-management/types/asset.dto';
-import { CONFIGURATION_KEYS, EUserRole, MODULE_NAMES } from '@shared/constants';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EButtonActionType,
   EDataType,
@@ -20,7 +20,7 @@ const ACTION_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IActionAssetUIForm
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-          filterByRole: [EUserRole.EMPLOYEE],
+          // filterByRole: [EUserRole.EMPLOYEE],
         },
       },
       conditionalValidators: [

@@ -19,10 +19,12 @@ export interface IVehicleReading
   driver: IVehicleReadingGetBaseResponseDto['driver'] & {
     fullName: string;
   };
-  site: IVehicleReadingGetBaseResponseDto['site'] & {
-    name: string;
-    location: string;
-  };
+  site:
+    | (IVehicleReadingGetBaseResponseDto['site'] & {
+        name: string;
+        location: string;
+      })
+    | null;
   meterReading: [number, number];
   anomalyStatus: string;
   originalRawData: IVehicleReadingGetBaseResponseDto;

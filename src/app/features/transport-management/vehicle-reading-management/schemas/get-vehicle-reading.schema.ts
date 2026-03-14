@@ -46,6 +46,7 @@ export const VehicleReadingGetRequestSchema = z
 
 const VehicleReadingGetBaseObjectSchema = VehicleReadingBaseSchema.extend({
   ...AuditSchema.shape,
+  siteId: uuidField.nullable(),
   totalKmTraveled: z.number(),
   anomalyDetected: z.boolean(),
   anomalyReason: z.string().nullable(),
@@ -70,7 +71,9 @@ const VehicleReadingGetBaseObjectSchema = VehicleReadingBaseSchema.extend({
     name: true,
     city: true,
     state: true,
-  }).loose(),
+  })
+    .loose()
+    .nullable(),
   files: z.array(
     z.looseObject({
       id: z.string(),

@@ -51,9 +51,9 @@ export const AttendanceCurrentStatusGetResponseSchema = z
     approvalStatus,
     workDuration,
     user: UserSchema,
-    site: SiteSchema,
-    company: CompanySchema,
-    contractors: z.array(ContractorSchema),
+    site: SiteSchema.nullable(),
+    company: CompanySchema.nullable(),
+    contractors: z.array(ContractorSchema).nullable(),
     vehicle: VehicleSchema.nullable().optional(),
     assignedEngineer: AssignedEngineerSchema.nullable().optional(),
   })

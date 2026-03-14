@@ -154,9 +154,12 @@ export class GetAttendanceComponent implements OnInit {
     const approvalStatus = this.appConfigurationService.approvalStatus();
 
     return response.map((record: IAttendanceGetBaseResponseDto) => {
-      const [clientName, siteLocation] = stringToArray(record.notes, '-');
-      const associateEngineerName = 'John Doe'; // TODO: Add associate employee name once we have the associate employee name functionality
-      const associatedVehicle = 'Vehicle 1'; // TODO: Add associated vehicle once we have the associated vehicle functionality
+      const [parsedSiteLocation, parsedClientName] = stringToArray(
+        record.notes,
+        '-'
+      );
+      const associateEngineerName = '-'; // TODO: Add associate employee name once we have the associate employee name functionality
+      const associatedVehicle = '-'; // TODO: Add associated vehicle once we have the associated vehicle functionality
 
       return {
         id: record.id,
@@ -171,8 +174,8 @@ export class GetAttendanceComponent implements OnInit {
         ),
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
         employeeCode: record.user.employeeId,
-        siteLocation,
-        clientName,
+        siteLocation: parsedSiteLocation ?? '-',
+        clientName: parsedClientName ?? '-',
         associateEngineerName,
         associatedVehicle,
         attendanceType: record.attendanceType,
@@ -287,11 +290,11 @@ export class GetAttendanceComponent implements OnInit {
       },
       {
         label: 'Associate Engineer',
-        value: 'John Doe', // TODO: Add associate employee name once we have the associate employee name functionality
+        value: '-', // TODO: Add associate employee name once we have the associate employee name functionality
       },
       {
         label: 'Associated Vehicle',
-        value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
+        value: '-', // TODO: Add associated vehicle once we have the associated vehicle functionality
       },
     ];
 
