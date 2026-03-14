@@ -78,7 +78,7 @@ export const PayslipGetBaseResponseSchema = z
     approvedBy: uuidField.nullable(),
     paidAt: isoDateTimeField.nullable(),
     remarks: z.string().nullable(),
-    user: UserSchema.nullable(),
+    user: z.looseObject(UserSchema.shape),
     salaryStructure: z.object({
       id: uuidField,
       grossSalary: z.string(),
