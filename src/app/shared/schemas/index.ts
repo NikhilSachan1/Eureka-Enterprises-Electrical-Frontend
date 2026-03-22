@@ -13,7 +13,3 @@ export {
   AttachmentsGetRequestSchema,
   AttachmentsGetResponseSchema,
 } from './attachments.schema';
-export {
-  AppConfiguationRequestSchema,
-  AppConfiguationResponseSchema,
-} from './app-configuarion.schema';

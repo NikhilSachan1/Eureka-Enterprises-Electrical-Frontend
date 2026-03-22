@@ -15,14 +15,12 @@ import {
   throwError,
 } from 'rxjs';
 
-import { API_ROUTES } from '@core/constants';
-import { ApiService, LoggerService } from '@core/services';
+import { LoggerService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { PASSING_YEAR_DATA } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
-import { AppConfiguationResponseSchema } from '@shared/schemas';
-import { IAppConfiguationResponseDto, IOptionDropdown } from '@shared/types';
+import { IOptionDropdown } from '@shared/types';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
 import { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
 import {
@@ -41,13 +39,14 @@ import { ContractorService } from '@features/site-management/contractor-manageme
 import { PetroCardService } from '@features/transport-management/petro-card-management/services/petro-card.service';
 import { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
 import { toTitleCase } from '@shared/utility';
+import { ConfigurationService } from '@features/settings-management/configuration-management/services/configuration.service';
+import { IConfigurationGetResponseDto } from '@features/settings-management/configuration-management/types/configuration.dto';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppConfigurationService {
   private readonly logger = inject(LoggerService);
-  private readonly apiService = inject(ApiService);
   private readonly authService = inject(AuthService);
   private readonly employeeService = inject(EmployeeService);
   private readonly roleService = inject(RoleService);
@@ -57,6 +56,7 @@ export class AppConfigurationService {
   private readonly companyService = inject(CompanyService);
   private readonly contractorService = inject(ContractorService);
   private readonly petroCardService = inject(PetroCardService);
+  private readonly configurationService = inject(ConfigurationService);
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
 
@@ -393,34 +393,20 @@ export class AppConfigurationService {
     ],
   };
 
-  loadAppConfiguration(): Observable<IAppConfiguationResponseDto> {
+  loadAppConfiguration(): Observable<IConfigurationGetResponseDto> {
     this.logger.logUserAction('Load App Configuration Request');
 
-    return this.apiService
-      .getValidated(API_ROUTES.APP_CONFIGUATION.GET, {
-        response: AppConfiguationResponseSchema,
+    return this.configurationService.getConfigurationList().pipe(
+      tap(response => {
+        this.logger.logUserAction('Load App Configuration Response', response);
+        const moduleConfigMap = this.buildModuleConfigMap(response);
+        this.populateAllModuleDropdowns(moduleConfigMap);
+      }),
+      catchError(error => {
+        this.logger.logUserAction('Failed to load App Configuration', error);
+        return throwError(() => error);
       })
-      .pipe(
-        tap(response => {
-          this.logger.logUserAction(
-            'Load App Configuration Response',
-            response
-          );
-          const moduleConfigMap = this.buildModuleConfigMap(response);
-          this.populateAllModuleDropdowns(moduleConfigMap);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Load App Configuration Validation Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Load App Configuration Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
+    );
   }
 
   loadEmployeeList(): Observable<IEmployeeGetResponseDto> {
@@ -810,7 +796,7 @@ export class AppConfigurationService {
   };
 
   private buildModuleConfigMap(
-    response: IAppConfiguationResponseDto
+    response: IConfigurationGetResponseDto
   ): Record<string, Record<string, unknown>> {
     return response.records.reduce(
       (acc, record) => {
@@ -834,13 +820,13 @@ export class AppConfigurationService {
   loadAllAppData(): Observable<{
     roles: IRoleGetResponseDto;
     permissions: unknown;
-    appConfiguration: IAppConfiguationResponseDto;
-    employeeList: IEmployeeGetResponseDto;
-    assetList: IAssetGetResponseDto;
-    vehicleList: IVehicleGetResponseDto;
-    petroCardList: IPetroCardGetResponseDto;
-    companyList: ICompanyGetResponseDto;
-    contractorList: IContractorGetResponseDto;
+    appConfiguration: IConfigurationGetResponseDto;
+    // employeeList: IEmployeeGetResponseDto;
+    // assetList: IAssetGetResponseDto;
+    // vehicleList: IVehicleGetResponseDto;
+    // petroCardList: IPetroCardGetResponseDto;
+    // companyList: ICompanyGetResponseDto;
+    // contractorList: IContractorGetResponseDto;
   }> {
     this.logger.info('Loading all app data...');
 
@@ -858,12 +844,12 @@ export class AppConfigurationService {
               roleId: currentRoleId,
             }),
           appConfiguration: this.loadAppConfiguration(),
-          employeeList: this.loadEmployeeList(),
-          assetList: this.loadAssetList(),
-          vehicleList: this.loadVehicleList(),
-          petroCardList: this.loadPetroCardList(),
-          companyList: this.loadCompanyList(),
-          contractorList: this.loadContractorList(),
+          // employeeList: this.loadEmployeeList(),
+          // assetList: this.loadAssetList(),
+          // vehicleList: this.loadVehicleList(),
+          // petroCardList: this.loadPetroCardList(),
+          // companyList: this.loadCompanyList(),
+          // contractorList: this.loadContractorList(),
         }).pipe(
           // Combine roles response with the rest
           switchMap(parallelResults =>

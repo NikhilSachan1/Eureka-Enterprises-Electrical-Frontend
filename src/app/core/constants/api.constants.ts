@@ -144,6 +144,9 @@ export const API_ROUTES = {
         CHANGE_ROLE: (userId: string) => `user-roles/user/${userId}`,
       },
     },
+    CONFIGURATION: {
+      LIST: 'configurations',
+    },
   },
   SITE: {
     COMPANY: {

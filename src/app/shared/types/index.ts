@@ -162,10 +162,6 @@ export type {
   IStepperPanelConfig,
 } from './stepper/stepper.interface';
 export type {
-  IAppConfiguationRequestDto,
-  IAppConfiguationResponseDto,
-} from './app-configuartion/app-configuarion.dto';
-export type {
   IBarChartDataset,
   IBarChartOptions,
   IChartsConfig,
