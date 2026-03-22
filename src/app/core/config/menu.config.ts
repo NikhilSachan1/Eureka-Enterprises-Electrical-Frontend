@@ -366,11 +366,46 @@ export const appMenu: ApplicationMenu = {
             {
               label: 'Permission Management',
               icon: ICONS.SECURITY.SHIELD,
+              basePath: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
               routerLink: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
-              permission: [
-                APP_PERMISSION.SYSTEM_PERMISSION.TABLE_VIEW,
-                APP_PERMISSION.ROLE_PERMISSION.TABLE_VIEW,
-                APP_PERMISSION.USER_PERMISSION.TABLE_VIEW,
+              children: [
+                {
+                  label: 'System Permission',
+                  icon: ICONS.SECURITY.SHIELD,
+                  routerLink: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.SYSTEM,
+                  permission: [APP_PERMISSION.SYSTEM_PERMISSION.TABLE_VIEW],
+                },
+                {
+                  label: 'Role Permission',
+                  icon: ICONS.SECURITY.SHIELD,
+                  routerLink: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+                  permission: [APP_PERMISSION.ROLE_PERMISSION.TABLE_VIEW],
+                },
+                {
+                  label: 'User Permission',
+                  icon: ICONS.SECURITY.SHIELD,
+                  routerLink: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
+                  permission: [APP_PERMISSION.USER_PERMISSION.TABLE_VIEW],
+                },
+              ],
+            },
+            {
+              label: 'Configuration Management',
+              icon: ICONS.SETTINGS.COG,
+              basePath: ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,
+              children: [
+                {
+                  label: 'Configuration List',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.SETTINGS.CONFIGURATION.LIST,
+                  // permission: [APP_PERMISSION.PAYROLL.TABLE_VIEW],
+                },
+                {
+                  label: 'Add Configuration',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.SETTINGS.CONFIGURATION.ADD,
+                  // permission: [APP_PERMISSION.SALARY_STRUCTURE.TABLE_VIEW],
+                },
               ],
             },
           ],

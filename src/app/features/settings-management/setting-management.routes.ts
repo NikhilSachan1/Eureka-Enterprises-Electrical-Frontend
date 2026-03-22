@@ -14,4 +14,11 @@ export const SETTING_MANAGEMENT_ROUTES: Routes = [
         m => m.PERMISSION_MANAGEMENT_ROUTES
       ),
   },
+  {
+    path: ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,
+    loadChildren: () =>
+      import('./configuration-management/configuration-management.routes').then(
+        m => m.CONFIGURATION_MANAGEMENT_ROUTES
+      ),
+  },
 ];

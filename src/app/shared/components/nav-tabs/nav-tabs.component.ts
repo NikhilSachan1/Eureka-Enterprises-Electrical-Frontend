@@ -7,9 +7,17 @@ import {
   OnInit,
   inject,
   ChangeDetectionStrategy,
+  DestroyRef,
 } from '@angular/core';
-import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  RouterModule,
+  Router,
+  ActivatedRoute,
+  NavigationEnd,
+} from '@angular/router';
 import { Location } from '@angular/common';
+import { filter } from 'rxjs/operators';
 import { TabsModule } from 'primeng/tabs';
 import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
@@ -37,6 +45,7 @@ export class NavTabsComponent implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private location = inject(Location);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     if (this.tabMode() === this.allTabMode.CONTENT) {
@@ -67,6 +76,17 @@ export class NavTabsComponent implements OnInit {
       }
     } else {
       this.currentRoute.set(this.router.url);
+
+      this.router.events
+        .pipe(
+          filter(
+            (event): event is NavigationEnd => event instanceof NavigationEnd
+          ),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe((event: NavigationEnd) => {
+          this.currentRoute.set(event.url);
+        });
     }
   }
 
