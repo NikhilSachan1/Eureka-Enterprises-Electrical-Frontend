@@ -39,7 +39,7 @@ const CONFIGURATION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'description',
     header: 'Description',
-    bodyTemplate: EDataType.TEXT,
+    bodyTemplate: EDataType.TEXT_WITH_READ_MORE,
     showSort: false,
   },
 ];

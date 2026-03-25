@@ -10,7 +10,13 @@ export interface IEntityViewDetails {
 
 export interface IDetailEntryData {
   label: string;
-  value: string | number | null | string[] | Record<string, unknown>[];
+  value:
+    | string
+    | number
+    | null
+    | string[]
+    | Record<string, unknown>[]
+    | unknown;
   suffix?: string;
   prefix?: string;
   /** Body template type for display (e.g., RANGE, DATE, NUMBER, CURRENCY, STATUS). */

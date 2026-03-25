@@ -19,6 +19,7 @@ import { ConfigurationService } from '../../services/configuration.service';
 import {
   EButtonActionType,
   EDataType,
+  EDrawerSize,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
@@ -223,6 +224,7 @@ export class GetConfigurationComponent implements OnInit {
     this.drawerService.showDrawer(GetConfigurationDetailComponent, {
       header: `Configuration Details`,
       subtitle: `Detailed view of configuration`,
+      size: EDrawerSize.LARGE,
       componentData: {
         configuration: rowData,
       },

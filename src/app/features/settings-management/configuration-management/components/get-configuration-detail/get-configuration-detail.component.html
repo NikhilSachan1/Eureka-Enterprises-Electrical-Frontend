@@ -1,1 +1,179 @@
-<p>get-configuration-detail works!</p>
+<!-- Recursive config JSON tree (only used here) -->
+<ng-template
+  #configValueTree
+  let-value="value"
+  let-depth="depth"
+  let-embed="embed"
+>
+  @if (depth >= maxDepth) {
+    <div class="cvt cvt--truncated text-xs text-text-secondary italic">Max nesting depth reached — value omitted.</div>
+  } @else {
+    @switch (getConfigValueKind(value)) {
+      @case ('nullish') {
+        <span class="cvt cvt-primitive cvt-primitive--muted text-sm">—</span>
+      }
+      @case ('primitive') {
+        <span
+          class="cvt cvt-primitive cvt-text text-sm"
+          [ngClass]="configPrimitiveClass(value)"
+        >
+          {{ formatConfigPrimitive(value) }}
+        </span>
+      }
+      @case ('array') {
+        @let items = getConfigArrayItems(value);
+        <div
+          class="cvt cvt-array"
+          [class.cvt-array--root]="depth === 0"
+          [class.cvt-canvas--embed]="embed && depth === 0"
+          [attr.data-depth]="depth"
+        >
+          @if (items.length === 0) {
+            <span class="cvt-empty text-xs text-text-secondary">Empty list</span>
+          } @else {
+            @if (depth === 0 && !embed) {
+              <div class="cvt-count">
+                {{ items.length }}
+                {{ items.length === 1 ? 'row' : 'rows' }}
+              </div>
+            }
+            <ul class="cvt-array-list">
+              @for (item of items; track $index) {
+                <li class="cvt-array-item">
+                  <span class="cvt-array-index cvt-text">{{ $index + 1 }}</span>
+                  <div class="cvt-array-value">
+                    <ng-container
+                      [ngTemplateOutlet]="configValueTree"
+                      [ngTemplateOutletContext]="{
+                        value: item,
+                        depth: depth + 1,
+                        embed: embed,
+                      }"
+                    />
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+      @case ('object') {
+        @let entries = getConfigObjectEntries(value);
+        <div
+          class="cvt cvt-object"
+          [class.cvt-object--root]="depth === 0"
+          [class.cvt-canvas--embed]="embed && depth === 0"
+          [attr.data-depth]="depth"
+        >
+          @if (entries.length === 0) {
+            <span class="cvt-empty text-xs text-text-secondary">{{ '{' + '}' }}</span>
+          } @else {
+            @if (depth === 0 && !embed) {
+              <div class="cvt-count">
+                {{ entries.length }}
+                {{ entries.length === 1 ? 'field' : 'fields' }}
+              </div>
+            }
+            <dl class="cvt-object-dl">
+              @for (kv of entries; track kv[0]) {
+                <div class="cvt-object-row">
+                  <dt class="cvt-object-key cvt-text">{{ trimDisplayKey(kv[0]) }}</dt>
+                  <dd class="cvt-object-dd">
+                    <ng-container
+                      [ngTemplateOutlet]="configValueTree"
+                      [ngTemplateOutletContext]="{
+                        value: kv[1],
+                        depth: depth + 1,
+                        embed: embed,
+                      }"
+                    />
+                  </dd>
+                </div>
+              }
+            </dl>
+          }
+        </div>
+      }
+    }
+  }
+</ng-template>
+
+<ng-template
+  #configurationConfigSettings
+  let-entry
+>
+  @let settings = $any(entry.value);
+  @if (settings?.length) {
+    <div class="configuration-settings">
+      @for (row of settings; track row.id) {
+        @let structureText = getStructureDisplay(row.value);
+        <article class="configuration-settings__card">
+          <div class="configuration-settings__meta-band">
+            <div class="configuration-settings__header-bar">
+              <div class="configuration-settings__header-lead">
+                <span class="configuration-settings__structure-badge">{{ structureText }}</span>
+                @if (trimmedContext(row.contextKey)) {
+                  <span
+                    class="configuration-settings__lead-sep"
+                    aria-hidden="true"
+                  >
+                    ·
+                  </span>
+                  <span class="configuration-settings__ctx-text">{{ trimmedContext(row.contextKey) }}</span>
+                }
+              </div>
+              <div class="configuration-settings__header-tail">
+                @if (row.effectiveFrom || row.effectiveTo) {
+                  <span
+                    class="configuration-settings__effective"
+                    aria-label="Effective period"
+                  >
+                    @if (row.effectiveFrom) {
+                      <span class="configuration-settings__effective-value">
+                        {{ row.effectiveFrom | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
+                      </span>
+                    }
+                    @if (row.effectiveFrom && row.effectiveTo) {
+                      <span class="configuration-settings__effective-dash">-</span>
+                    }
+                    @if (row.effectiveTo) {
+                      <span class="configuration-settings__effective-value">
+                        {{ row.effectiveTo | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
+                      </span>
+                    }
+                  </span>
+                }
+                <div
+                  class="configuration-settings__status"
+                  [class.configuration-settings__status--on]="row.isActive"
+                  [class.configuration-settings__status--off]="!row.isActive"
+                >
+                  <span
+                    class="configuration-settings__status-dot"
+                    aria-hidden="true"
+                  ></span>
+                  <span>{{ row.isActive ? 'Active' : 'Inactive' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="configuration-settings__canvas">
+            <ng-container
+              [ngTemplateOutlet]="configValueTree"
+              [ngTemplateOutletContext]="{ value: row.value, depth: 0, embed: true }"
+            />
+          </div>
+        </article>
+      }
+    </div>
+  } @else {
+    <span class="text-sm text-text-secondary">—</span>
+  }
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_configurationDetails()"
+  [customTemplates]="{
+    configurationConfigSettings: configurationConfigSettings,
+  }"
+/>

@@ -2,6 +2,18 @@
   overflow-wrap: break-word;
 }
 
+.view-detail-field:has(.configuration-settings) {
+  align-items: stretch;
+  width: 100%;
+}
+
+.view-detail-field:has(.configuration-settings) .view-detail-value {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  text-align: start;
+}
+
 // Heading upar, content neeche — theme-aware, responsive
 .view-detail-grid {
   display: grid;
