@@ -3,3 +3,8 @@ export {
   ConfigurationGetBaseResponseSchema,
   ConfigurationGetResponseSchema,
 } from './get-configuration.schema';
+export { ConfigurationUpsertShapeSchema } from './base-configuration.schema';
+export {
+  ConfigurationAddRequestSchema,
+  ConfigurationAddResponseSchema,
+} from './add-configuration.schema';

@@ -1,5 +1,5 @@
 import z from 'zod';
-import { onlyDateStringField, uuidField } from '@shared/schemas';
+import { dateField, onlyDateStringField, uuidField } from '@shared/schemas';
 
 export const ConfigurationBaseSchema = z.object({
   id: uuidField,
@@ -19,4 +19,14 @@ export const ConfigurationBaseSchema = z.object({
       isActive: z.boolean(),
     })
   ),
+});
+
+export const ConfigurationUpsertShapeSchema = z.object({
+  moduleName: z.string(),
+  configurationName: z.string(),
+  configurationType: z.string(),
+  description: z.string().nullable(),
+  configContextKey: z.string().nullable(),
+  configValue: z.union([z.array(z.any()), z.json(), z.number()]),
+  configEffectiveDate: z.array(dateField),
 });

@@ -18,7 +18,10 @@ import {
 import { LoggerService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
-import { PASSING_YEAR_DATA } from '@shared/config/static-data.config';
+import {
+  CONFIGURATION_TYPE_DATA,
+  PASSING_YEAR_DATA,
+} from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IOptionDropdown } from '@shared/types';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
@@ -105,6 +108,7 @@ export class AppConfigurationService {
     Record<string, { label: string; actions: IOptionDropdown[] }>
   >({});
   private readonly _announcementStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _configurationTypes = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
   private readonly _employeeListByRole = signal<
@@ -162,6 +166,7 @@ export class AppConfigurationService {
   readonly moduleNames = this._moduleNames.asReadonly();
   readonly modulesConfig = this._modulesConfig.asReadonly();
   readonly announcementStatuses = this._announcementStatuses.asReadonly();
+  readonly configurationTypes = this._configurationTypes.asReadonly();
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
   readonly employeeListByRole = this._employeeListByRole.asReadonly();
@@ -178,6 +183,10 @@ export class AppConfigurationService {
   > = {
     [MODULE_NAMES.EMPLOYEE]: {
       [CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS]: PASSING_YEAR_DATA,
+    },
+    [MODULE_NAMES.CONFIGURATION]: {
+      [CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN]:
+        CONFIGURATION_TYPE_DATA,
     },
   };
 
@@ -389,6 +398,12 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.ANNOUNCEMENT.ANNOUNCEMENT_STATUS,
         signal: this._announcementStatuses,
+      },
+    ],
+    [MODULE_NAMES.CONFIGURATION]: [
+      {
+        key: CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN,
+        signal: this._configurationTypes,
       },
     ],
   };

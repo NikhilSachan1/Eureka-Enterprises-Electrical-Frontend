@@ -146,6 +146,7 @@ export const API_ROUTES = {
     },
     CONFIGURATION: {
       LIST: 'configurations',
+      ADD: 'configurations',
     },
   },
   SITE: {

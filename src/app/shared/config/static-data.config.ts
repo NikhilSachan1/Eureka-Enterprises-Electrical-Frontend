@@ -19,3 +19,13 @@ export const PASSING_YEAR_DATA: IOptionDropdown[] = [
   { label: '2026', value: '2026' },
   { label: '2027', value: '2027' },
 ];
+
+export const CONFIGURATION_TYPE_DATA: IOptionDropdown[] = [
+  { label: 'String', value: 'string' },
+  { label: 'Number', value: 'number' },
+  { label: 'Boolean', value: 'boolean' },
+  { label: 'Array', value: 'array' },
+  { label: 'Object', value: 'object' },
+  { label: 'Date', value: 'date' },
+  { label: 'JSON', value: 'json' },
+];

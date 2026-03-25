@@ -13,10 +13,14 @@ export const MODULE_NAMES = {
   PROJECT: 'site',
   PERMISSION: 'permission',
   ANNOUNCEMENT: 'announcement',
+  CONFIGURATION: 'configuration',
   GEOGRAPHY: 'geography',
 } as const;
 
 export const CONFIGURATION_KEYS = {
+  CONFIGURATION: {
+    CONFIGURATION_TYPE_DROPDOWN: 'configuration_type_dropdown',
+  },
   COMMON: {
     APPROVAL_STATUS: 'approval_status_dropdown',
     ROLE_LIST: 'role_list',
