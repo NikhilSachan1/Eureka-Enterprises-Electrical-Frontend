@@ -21,9 +21,106 @@
     gap: 1rem;
   }
 
+  &__collection-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    align-items: center;
+  }
+
+  &__collection-action {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-color, #3b82f6);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  &__row-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-light-color);
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+  }
+
+  /** One line: chevron | property key input OR array summary | remove */
+  &__row-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.5rem 0.75rem;
+    width: 100%;
+  }
+
+  &__toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin-top: 0.125rem;
+    padding: 0;
+    border: none;
+    border-radius: 0.25rem;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-secondary-color);
+
+    &:hover {
+      background: var(--background-paper-color);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color, #3b82f6);
+      outline-offset: 2px;
+    }
+
+    .pi {
+      font-size: 0.875rem;
+    }
+  }
+
+  &__key {
+    min-width: 0;
+    flex: 1;
+
+    &--inline {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+
+  &__nested-expanded {
+    width: 100%;
+    padding-left: 0.25rem;
+
+    @media (min-width: 769px) {
+      padding-left: 2.25rem;
+    }
+  }
+
+  &__row-header-actions {
+    flex-shrink: 0;
+    margin-left: auto;
+    padding-top: 0.125rem;
+  }
+
   &__row {
     display: grid;
-    grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 0.75rem;
     align-items: start;
 
@@ -32,19 +129,17 @@
     }
 
     &--array {
-      grid-template-columns: auto minmax(0, 1fr) auto;
+      @media (min-width: 769px) {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+      }
     }
-  }
-
-  &__key {
-    min-width: 0;
   }
 
   &__nested {
     min-width: 0;
 
     &--grow {
-      flex: 1;
+      min-width: 0;
     }
   }
 

@@ -20,6 +20,11 @@ export function isConfigValueNodeValid(node: IConfigValueNode): boolean {
       );
     case 'boolean':
       return true;
+    case 'date':
+      return (
+        node.dateValue instanceof Date &&
+        !Number.isNaN(node.dateValue.getTime())
+      );
     case 'object':
       return (node.objectEntries ?? []).every(
         e => (e.key ?? '').trim() !== '' && isConfigValueNodeValid(e.value)
@@ -43,6 +48,8 @@ export function createEmptyNode(
       return { kind: 'number', numberValue: undefined };
     case 'boolean':
       return { kind: 'boolean', boolValue: false };
+    case 'date':
+      return { kind: 'date', dateValue: undefined };
     case 'object':
       return {
         kind: 'object',
@@ -77,6 +84,9 @@ export function mapConfigurationTypeToKind(
   if (['boolean', 'bool'].includes(normalized)) {
     return 'boolean';
   }
+  if (['date', 'datetime', 'date-time', 'timestamp'].includes(normalized)) {
+    return 'date';
+  }
   if (['object', 'map', 'json', 'record'].includes(normalized)) {
     return 'object';
   }
@@ -91,9 +101,34 @@ export function isTValueKind(value: unknown): value is TConfigurationValueKind {
     value === 'string' ||
     value === 'number' ||
     value === 'boolean' ||
+    value === 'date' ||
     value === 'object' ||
     value === 'array'
   );
+}
+
+/** ISO date / datetime strings often used in JSON APIs. */
+export function isLikelyIsoDateString(s: string): boolean {
+  const t = s.trim();
+  if (!t) {
+    return false;
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(t)) {
+    return !Number.isNaN(Date.parse(`${t}T00:00:00`));
+  }
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(t)) {
+    return !Number.isNaN(Date.parse(t));
+  }
+  return false;
+}
+
+export function parseStringToDateValue(s: string): Date | null {
+  const t = s.trim();
+  if (!t) {
+    return null;
+  }
+  const d = new Date(t);
+  return Number.isNaN(d.getTime()) ? null : d;
 }
 
 /**
@@ -108,7 +143,24 @@ export function parseUnknownToConfigValueNode(
   if (raw === null || raw === undefined) {
     return createEmptyNode(kindFallback);
   }
+  if (raw instanceof Date && !Number.isNaN(raw.getTime())) {
+    return { kind: 'date', dateValue: raw };
+  }
   if (typeof raw === 'string') {
+    const hintKind = mapConfigurationTypeToKind(valueTypeHint ?? undefined);
+    if (hintKind === 'date') {
+      const d = parseStringToDateValue(raw);
+      return {
+        kind: 'date',
+        dateValue: d ?? undefined,
+      };
+    }
+    if (isLikelyIsoDateString(raw)) {
+      const d = parseStringToDateValue(raw);
+      if (d) {
+        return { kind: 'date', dateValue: d };
+      }
+    }
     return { kind: 'string', stringValue: raw };
   }
   if (typeof raw === 'number' && !Number.isNaN(raw)) {
@@ -149,6 +201,13 @@ export function serializeConfigValue(node: IConfigValueNode): unknown {
       return node.numberValue ?? 0;
     case 'boolean':
       return node.boolValue ?? false;
+    case 'date': {
+      const dv = node.dateValue;
+      if (dv instanceof Date && !Number.isNaN(dv.getTime())) {
+        return dv.toISOString().split('T')[0];
+      }
+      return '';
+    }
     case 'object': {
       const out: Record<string, unknown> = {};
       for (const e of node.objectEntries ?? []) {
@@ -182,6 +241,8 @@ export function cloneNode(node: IConfigValueNode): IConfigValueNode {
     case 'number':
       return { ...node };
     case 'boolean':
+      return { ...node };
+    case 'date':
       return { ...node };
     case 'object':
       return {

@@ -40,6 +40,16 @@
         (onFieldChange)="onBoolChange($event)"
       />
     }
+    @case ('date') {
+      <app-input-field
+        [inputFieldConfig]="dateFieldConfig()"
+        [fieldValue]="node().dateValue"
+        [isFieldInvalidInput]="isDateValueInvalid()"
+        [standaloneErrorMessage]="isDateValueInvalid() ? requiredFieldMessage : undefined"
+        [externalValidationTrigger]="valueValidationAttempt()"
+        (onFieldChange)="onDateChange($event)"
+      />
+    }
     @case ('object') {
       <div class="add-config-value__collection">
         @if ((node().objectEntries ?? []).length === 0) {
@@ -47,35 +57,67 @@
             {{ hints.emptyObject }}
           </p>
         }
+        @if ((node().objectEntries ?? []).length > 0) {
+          <div class="add-config-value__collection-toolbar">
+            <button
+              type="button"
+              class="add-config-value__collection-action"
+              (click)="expandAllObjectRows()"
+            >
+              {{ collectionActions.expandAll }}
+            </button>
+            <button
+              type="button"
+              class="add-config-value__collection-action"
+              (click)="collapseAllObjectRows()"
+            >
+              {{ collectionActions.collapseAll }}
+            </button>
+          </div>
+        }
         @for (entry of node().objectEntries ?? []; track $index) {
-          <div class="add-config-value__row">
-            <div class="add-config-value__key">
-              <app-input-field
-                [inputFieldConfig]="objectKeyFieldConfig($index)"
-                [fieldValue]="entry.key"
-                [isFieldInvalidInput]="isObjectKeyInvalid($index)"
-                [standaloneErrorMessage]="isObjectKeyInvalid($index) ? requiredFieldMessage : undefined"
-                [externalValidationTrigger]="valueValidationAttempt()"
-                (onFieldChange)="onObjectKeyChange($index, $event)"
-              />
+          <div class="add-config-value__row-wrap">
+            <div class="add-config-value__row-line add-config-value__row-line--object">
+              <button
+                type="button"
+                class="add-config-value__toggle-btn"
+                (click)="toggleObjectRow($index)"
+                [attr.aria-expanded]="isObjectRowExpanded($index)"
+                [attr.aria-label]="isObjectRowExpanded($index) ? 'Collapse property' : 'Expand property'"
+              >
+                <i [class]="objectRowChevronClass($index)"></i>
+              </button>
+              <div class="add-config-value__key add-config-value__key--inline">
+                <app-input-field
+                  [inputFieldConfig]="objectKeyFieldConfig($index)"
+                  [fieldValue]="entry.key"
+                  [isFieldInvalidInput]="isObjectKeyInvalid($index)"
+                  [standaloneErrorMessage]="isObjectKeyInvalid($index) ? requiredFieldMessage : undefined"
+                  [externalValidationTrigger]="valueValidationAttempt()"
+                  (onFieldChange)="onObjectKeyChange($index, $event)"
+                />
+              </div>
+              <div class="add-config-value__row-header-actions">
+                <app-button
+                  [buttonConfig]="removeRowButtonConfig"
+                  (onButtonClick)="removeObjectEntry($index)"
+                />
+              </div>
             </div>
-            <div class="add-config-value__nested">
-              <app-add-configuration-value-node
-                [node]="entry.value"
-                [depth]="depth() + 1"
-                [maxDepth]="maxDepth()"
-                [showKindSelector]="true"
-                [rowKey]="rowKey() + '-oe-' + $index"
-                [valueValidationAttempt]="valueValidationAttempt()"
-                (nodeChange)="onObjectValueChange($index, $event)"
-              />
-            </div>
-            <div class="add-config-value__row-actions">
-              <app-button
-                [buttonConfig]="removeRowButtonConfig"
-                (onButtonClick)="removeObjectEntry($index)"
-              />
-            </div>
+            @if (isObjectRowExpanded($index)) {
+              <div class="add-config-value__nested-expanded">
+                <app-add-configuration-value-node
+                  [node]="entry.value"
+                  [depth]="depth() + 1"
+                  [maxDepth]="maxDepth()"
+                  [showKindSelector]="true"
+                  [rowKey]="rowKey() + '-oe-' + $index"
+                  [valueValidationAttempt]="valueValidationAttempt()"
+                  [collapseChildrenByDefault]="collapseChildrenByDefault()"
+                  (nodeChange)="onObjectValueChange($index, $event)"
+                />
+              </div>
+            }
           </div>
         }
         <app-button
@@ -102,6 +144,7 @@
                 [showKindSelector]="true"
                 [rowKey]="rowKey() + '-ai-' + $index"
                 [valueValidationAttempt]="valueValidationAttempt()"
+                [collapseChildrenByDefault]="collapseChildrenByDefault()"
                 (nodeChange)="onArrayItemChange($index, $event)"
               />
             </div>

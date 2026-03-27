@@ -1,5 +1,6 @@
 import { Validators } from '@angular/forms';
 import {
+  DEFAULT_DATE_INPUT_FIELD_CONFIG,
   DEFAULT_INPUT_FIELD_CONFIG,
   DEFAULT_NUMBER_INPUT_FIELD_CONFIG,
   DEFAULT_SELECT_INPUT_FIELD_CONFIG,
@@ -37,6 +38,7 @@ export const ADD_CONFIGURATION_VALUE_KIND_PRIMITIVE_ONLY: readonly string[] = [
   'string',
   'number',
   'boolean',
+  'date',
 ];
 
 export const ADD_CONFIGURATION_VALUE_EDITOR_DEFAULT_MAX_DEPTH = 8;
@@ -45,6 +47,7 @@ export const ADD_CONFIGURATION_VALUE_EDITOR_LABELS = {
   kindSelect: 'Value type',
   stringValue: 'Text value',
   numberValue: 'Number value',
+  dateValue: 'Date value',
   booleanCheckbox: 'Yes / true',
   objectKey: 'Property name',
 } as const;
@@ -53,6 +56,11 @@ export const ADD_CONFIGURATION_VALUE_EDITOR_HINTS = {
   emptyObject:
     'No properties yet. Add a property name and choose a type for each value.',
   emptyArray: 'Empty list. Add items and pick a type for each.',
+} as const;
+
+export const ADD_CONFIGURATION_VALUE_EDITOR_COLLECTION_ACTIONS = {
+  expandAll: 'Expand all',
+  collapseAll: 'Collapse all',
 } as const;
 
 export const ADD_CONFIGURATION_VALUE_EDITOR_BUTTONS: {
@@ -151,6 +159,21 @@ export function buildAddConfigurationNumberValueFieldConfig(ctx: {
     id: `cfg-num-${ctx.rowKey}-${ctx.depth}`,
     fieldName: 'numberValue',
     label: ADD_CONFIGURATION_VALUE_EDITOR_LABELS.numberValue,
+    validators: [Validators.required],
+  } as IInputFieldsConfig;
+}
+
+export function buildAddConfigurationDateValueFieldConfig(ctx: {
+  rowKey: string;
+  depth: number;
+}): IInputFieldsConfig {
+  return {
+    ...DEFAULT_DATE_INPUT_FIELD_CONFIG,
+    fieldType: EDataType.DATE,
+    id: `cfg-date-${ctx.rowKey}-${ctx.depth}`,
+    fieldName: 'dateValue',
+    label: ADD_CONFIGURATION_VALUE_EDITOR_LABELS.dateValue,
+    readonlyInput: false,
     validators: [Validators.required],
   } as IInputFieldsConfig;
 }
