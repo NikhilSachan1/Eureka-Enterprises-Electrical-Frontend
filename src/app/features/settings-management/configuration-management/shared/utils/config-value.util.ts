@@ -2,7 +2,7 @@ import {
   IConfigObjectEntry,
   IConfigValueNode,
 } from '../types/config-value-node.model';
-import { TConfigurationValueKind } from '../types/configuration.types';
+import { TConfigurationValueKind } from '../../types/configuration.types';
 
 /**
  * Returns true when the value tree satisfies required-field rules (non-empty
@@ -94,6 +94,51 @@ export function isTValueKind(value: unknown): value is TConfigurationValueKind {
     value === 'object' ||
     value === 'array'
   );
+}
+
+/**
+ * Builds a value editor tree from API / JSON (used when editing existing configuration).
+ */
+export function parseUnknownToConfigValueNode(
+  raw: unknown,
+  valueTypeHint?: string | null
+): IConfigValueNode {
+  const kindFallback = mapConfigurationTypeToKind(valueTypeHint ?? undefined);
+
+  if (raw === null || raw === undefined) {
+    return createEmptyNode(kindFallback);
+  }
+  if (typeof raw === 'string') {
+    return { kind: 'string', stringValue: raw };
+  }
+  if (typeof raw === 'number' && !Number.isNaN(raw)) {
+    return { kind: 'number', numberValue: raw };
+  }
+  if (typeof raw === 'boolean') {
+    return { kind: 'boolean', boolValue: raw };
+  }
+  if (Array.isArray(raw)) {
+    return {
+      kind: 'array',
+      arrayItems: raw.map(item => parseUnknownToConfigValueNode(item)),
+    };
+  }
+  if (typeof raw === 'object') {
+    const entries = Object.entries(raw as Record<string, unknown>).map(
+      ([key, value]) => ({
+        key,
+        value: parseUnknownToConfigValueNode(value),
+      })
+    );
+    return {
+      kind: 'object',
+      objectEntries:
+        entries.length > 0
+          ? entries
+          : [{ key: '', value: createEmptyNode('string') }],
+    };
+  }
+  return createEmptyNode(kindFallback);
 }
 
 export function serializeConfigValue(node: IConfigValueNode): unknown {

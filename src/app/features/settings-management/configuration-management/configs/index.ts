@@ -16,3 +16,4 @@ export {
   filterAddConfigurationValueKindOptions,
   mapConfigurationTypeOptionsToValueEditorKinds,
 } from '../shared/config/form/add-configuration-value-editor.config';
+export { EDIT_CONFIGURATION_FORM_CONFIG } from './form/edit-configuration.config';

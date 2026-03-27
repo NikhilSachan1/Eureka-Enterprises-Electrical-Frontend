@@ -6,6 +6,10 @@ import {
   ConfigurationGetResponseSchema,
 } from '../schemas';
 import { z } from 'zod';
+import {
+  ConfigurationEditRequestSchema,
+  ConfigurationEditResponseSchema,
+} from '../schemas/edit-configuration.schema';
 
 /*
   Configuration Get
@@ -38,4 +42,21 @@ export type IConfigurationAddUIFormDto = Omit<
 >;
 export type IConfigurationAddResponseDto = z.infer<
   typeof ConfigurationAddResponseSchema
+>;
+
+/*
+  Configuration Edit
+*/
+export type IConfigurationEditRequestDto = z.infer<
+  typeof ConfigurationEditRequestSchema
+>;
+export type IConfigurationEditFormDto = z.input<
+  typeof ConfigurationEditRequestSchema
+>;
+export type IConfigurationEditUIFormDto = Omit<
+  IConfigurationEditFormDto,
+  'configValue'
+>;
+export type IConfigurationEditResponseDto = z.infer<
+  typeof ConfigurationEditResponseSchema
 >;

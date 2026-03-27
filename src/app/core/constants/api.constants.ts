@@ -147,6 +147,7 @@ export const API_ROUTES = {
     CONFIGURATION: {
       LIST: 'configurations',
       ADD: 'configurations',
+      EDIT: (configurationId: string) => `configurations/${configurationId}`,
     },
   },
   SITE: {

@@ -1,4 +1,4 @@
-import { TConfigurationValueKind } from './configuration.types';
+import { TConfigurationValueKind } from '../../types/configuration.types';
 
 export interface IConfigValueNode {
   kind: TConfigurationValueKind;

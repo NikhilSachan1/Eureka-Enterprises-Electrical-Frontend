@@ -162,7 +162,7 @@ export class GetConfigurationComponent implements OnInit {
     }
 
     if (actionType === EButtonActionType.EDIT) {
-      this.navigateToEditConfiguration(selectedFirstRow.id);
+      this.navigateToEditConfiguration(selectedFirstRow);
       return;
     }
 
@@ -231,16 +231,20 @@ export class GetConfigurationComponent implements OnInit {
     });
   }
 
-  private navigateToEditConfiguration(configurationId: string): void {
+  private navigateToEditConfiguration(
+    row: IConfigurationGetBaseResponseDto
+  ): void {
     try {
       const routeSegments = [
         ROUTE_BASE_PATHS.SETTINGS.BASE,
         ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,
         ROUTES.SETTINGS.CONFIGURATION.EDIT,
-        configurationId,
+        row.id,
       ];
 
-      void this.routerNavigationService.navigateToRoute(routeSegments);
+      void this.routerNavigationService.navigateWithState(routeSegments, {
+        configurationDetail: row,
+      });
     } catch (error) {
       this.logger.logUserAction(
         'Navigation error while editing configuration',

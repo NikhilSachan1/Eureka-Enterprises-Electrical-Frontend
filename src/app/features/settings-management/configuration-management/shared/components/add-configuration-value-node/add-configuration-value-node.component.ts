@@ -25,12 +25,12 @@ import {
   filterAddConfigurationValueKindOptions,
   mapConfigurationTypeOptionsToValueEditorKinds,
 } from '../../../configs';
-import { IConfigValueNode } from '../../../types/config-value-node.model';
+import { IConfigValueNode } from '../../types/config-value-node.model';
 import {
   cloneNode,
   createEmptyNode,
   isTValueKind,
-} from '../../../utils/config-value.util';
+} from '../../utils/config-value.util';
 
 @Component({
   selector: 'app-add-configuration-value-node',

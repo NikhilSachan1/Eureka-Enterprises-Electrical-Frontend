@@ -5,6 +5,8 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   IConfigurationAddFormDto,
   IConfigurationAddResponseDto,
+  IConfigurationEditFormDto,
+  IConfigurationEditResponseDto,
   IConfigurationGetRequestDto,
   IConfigurationGetResponseDto,
 } from '../types/configuration.dto';
@@ -15,6 +17,10 @@ import {
   ConfigurationGetRequestSchema,
   ConfigurationGetResponseSchema,
 } from '../schemas';
+import {
+  ConfigurationEditRequestSchema,
+  ConfigurationEditResponseSchema,
+} from '../schemas/edit-configuration.schema';
 
 @Injectable({
   providedIn: 'root',
@@ -49,6 +55,40 @@ export class ConfigurationService {
             );
           } else {
             this.logger.logUserAction('Add Configuration Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  editConfiguration(
+    formData: IConfigurationEditFormDto,
+    configurationId: string
+  ): Observable<IConfigurationEditResponseDto> {
+    this.logger.logUserAction('Edit Configuration Request');
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.SETTINGS.CONFIGURATION.EDIT(configurationId),
+        {
+          response: ConfigurationEditResponseSchema,
+          request: ConfigurationEditRequestSchema,
+        },
+        formData,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: IConfigurationEditResponseDto) => {
+          this.logger.logUserAction('Edit Configuration Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Edit Configuration Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Edit Configuration Error', error);
           }
           return throwError(() => error);
         })

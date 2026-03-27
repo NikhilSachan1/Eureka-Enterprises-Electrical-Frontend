@@ -31,13 +31,13 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { AddConfigurationValueNodeComponent } from '../../shared/components/add-configuration-value-node/add-configuration-value-node.component';
-import { IConfigValueNode } from '../../types/config-value-node.model';
+import { IConfigValueNode } from '../../shared/types/config-value-node.model';
 import {
   createEmptyNode,
   isConfigValueNodeValid,
   mapConfigurationTypeToKind,
   serializeConfigValue,
-} from '../../utils/config-value.util';
+} from '../../shared/utils/config-value.util';
 
 @Component({
   selector: 'app-add-configuration',

@@ -1,1 +1,94 @@
-<p>edit-configuration works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <section class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h2
+        id="add-configuration-main-section"
+        class="form-section__title"
+      >
+        Configuration
+      </h2>
+    </div>
+
+    <div class="form-section__content">
+      <div class="grid grid-cols-1 md:grid-cols-2">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.moduleName"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.configurationName"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.configurationType"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.configContextKey"
+        />
+
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.configEffectiveDate"
+        />
+      </div>
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.description"
+      />
+    </div>
+  </section>
+
+  @if (showConfigurationValueSection()) {
+    <section
+      class="form-section"
+      aria-labelledby="add-configuration-value-section"
+    >
+      <div class="form-section__header form-section__header--bordered">
+        <h2
+          id="add-configuration-value-section"
+          class="form-section__title"
+        >
+          Configuration value
+        </h2>
+      </div>
+
+      <div class="form-section__content">
+        <app-add-configuration-value-node
+          [node]="valueRoot()"
+          [depth]="0"
+          [maxDepth]="valueEditorMaxDepth"
+          [showKindSelector]="false"
+          [rowKey]="'root'"
+          [valueValidationAttempt]="valueValidationAttempt()"
+          (nodeChange)="onValueRootChange($event)"
+        />
+      </div>
+    </section>
+  }
+
+  <div class="button-container">
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    />
+
+    <app-button
+      [buttonConfig]="form.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+    />
+  </div>
+</form>
