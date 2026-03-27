@@ -25,7 +25,5 @@ export const CONFIGURATION_TYPE_DATA: IOptionDropdown[] = [
   { label: 'Number', value: 'number' },
   { label: 'Boolean', value: 'boolean' },
   { label: 'Array', value: 'array' },
-  { label: 'Object', value: 'object' },
-  { label: 'Date', value: 'date' },
   { label: 'JSON', value: 'json' },
 ];

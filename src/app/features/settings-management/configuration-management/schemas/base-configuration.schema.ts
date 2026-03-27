@@ -13,7 +13,7 @@ export const ConfigurationBaseSchema = z.object({
     z.object({
       id: uuidField,
       contextKey: z.string().nullable(),
-      value: z.union([z.array(z.any()), z.json(), z.number()]),
+      value: z.unknown(),
       effectiveFrom: onlyDateStringField.nullable(),
       effectiveTo: onlyDateStringField.nullable(),
       isActive: z.boolean(),
@@ -27,6 +27,6 @@ export const ConfigurationUpsertShapeSchema = z.object({
   configurationType: z.string(),
   description: z.string().nullable(),
   configContextKey: z.string().nullable(),
-  configValue: z.union([z.array(z.any()), z.json(), z.number()]),
+  configValue: z.unknown(),
   configEffectiveDate: z.array(dateField),
 });

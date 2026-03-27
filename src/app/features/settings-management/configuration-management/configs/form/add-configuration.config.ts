@@ -9,10 +9,10 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { IConfigurationAddFormDto } from '../../types/configuration.dto';
+import { IConfigurationAddUIFormDto } from '../../types/configuration.dto';
 import { FinancialYearService } from '@core/services/financial-year.service';
 
-const ADD_CONFIGURATION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IConfigurationAddFormDto> =
+const ADD_CONFIGURATION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IConfigurationAddUIFormDto> =
   {
     moduleName: {
       fieldType: EDataType.SELECT,
@@ -67,16 +67,6 @@ const ADD_CONFIGURATION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IConfiguratio
         textCase: ETextCase.TITLECASE,
       },
     },
-    configValue: {
-      fieldType: EDataType.TEXT,
-      id: 'configValue',
-      fieldName: 'configValue',
-      label: 'Configuration Value',
-      textConfig: {
-        textCase: ETextCase.TITLECASE,
-      },
-      validators: [Validators.required],
-    },
     configEffectiveDate: {
       fieldType: EDataType.DATE,
       id: 'configEffectiveDate',
@@ -101,7 +91,7 @@ const ADD_CONFIGURATION_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const ADD_CONFIGURATION_FORM_CONFIG: IFormConfig<IConfigurationAddFormDto> =
+export const ADD_CONFIGURATION_FORM_CONFIG: IFormConfig<IConfigurationAddUIFormDto> =
   {
     fields: ADD_CONFIGURATION_FORM_FIELDS_CONFIG,
     buttons: ADD_CONFIGURATION_FORM_BUTTONS_CONFIG,

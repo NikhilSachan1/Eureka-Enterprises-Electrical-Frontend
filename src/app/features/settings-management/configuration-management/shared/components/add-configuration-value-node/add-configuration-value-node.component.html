@@ -1,0 +1,123 @@
+<div
+  class="add-config-value"
+  [class.add-config-value--nested]="depth() > 0"
+>
+  @if (showKindSelector()) {
+    <div class="add-config-value__kind">
+      <app-input-field
+        [inputFieldConfig]="kindSelectFieldConfig()"
+        [fieldValue]="node().kind"
+        [externalValidationTrigger]="valueValidationAttempt()"
+        (onFieldChange)="onKindChange($event)"
+      />
+    </div>
+  }
+
+  @switch (node().kind) {
+    @case ('string') {
+      <app-input-field
+        [inputFieldConfig]="stringFieldConfig()"
+        [fieldValue]="node().stringValue"
+        [isFieldInvalidInput]="isStringValueInvalid()"
+        [standaloneErrorMessage]="isStringValueInvalid() ? requiredFieldMessage : undefined"
+        [externalValidationTrigger]="valueValidationAttempt()"
+        (onFieldChange)="onStringChange($event)"
+      />
+    }
+    @case ('number') {
+      <app-input-field
+        [inputFieldConfig]="numberFieldConfig()"
+        [fieldValue]="node().numberValue"
+        [isFieldInvalidInput]="isNumberValueInvalid()"
+        [standaloneErrorMessage]="isNumberValueInvalid() ? requiredFieldMessage : undefined"
+        [externalValidationTrigger]="valueValidationAttempt()"
+        (onFieldChange)="onNumberChange($event)"
+      />
+    }
+    @case ('boolean') {
+      <app-input-field
+        [inputFieldConfig]="booleanFieldConfig()"
+        (onFieldChange)="onBoolChange($event)"
+      />
+    }
+    @case ('object') {
+      <div class="add-config-value__collection">
+        @if ((node().objectEntries ?? []).length === 0) {
+          <p class="add-config-value__hint text-sm text-text-secondary">
+            {{ hints.emptyObject }}
+          </p>
+        }
+        @for (entry of node().objectEntries ?? []; track $index) {
+          <div class="add-config-value__row">
+            <div class="add-config-value__key">
+              <app-input-field
+                [inputFieldConfig]="objectKeyFieldConfig($index)"
+                [fieldValue]="entry.key"
+                [isFieldInvalidInput]="isObjectKeyInvalid($index)"
+                [standaloneErrorMessage]="isObjectKeyInvalid($index) ? requiredFieldMessage : undefined"
+                [externalValidationTrigger]="valueValidationAttempt()"
+                (onFieldChange)="onObjectKeyChange($index, $event)"
+              />
+            </div>
+            <div class="add-config-value__nested">
+              <app-add-configuration-value-node
+                [node]="entry.value"
+                [depth]="depth() + 1"
+                [maxDepth]="maxDepth()"
+                [showKindSelector]="true"
+                [rowKey]="rowKey() + '-oe-' + $index"
+                [valueValidationAttempt]="valueValidationAttempt()"
+                (nodeChange)="onObjectValueChange($index, $event)"
+              />
+            </div>
+            <div class="add-config-value__row-actions">
+              <app-button
+                [buttonConfig]="removeRowButtonConfig"
+                (onButtonClick)="removeObjectEntry($index)"
+              />
+            </div>
+          </div>
+        }
+        <app-button
+          [buttonConfig]="addObjectRowButtonConfig"
+          (onButtonClick)="addObjectEntry()"
+        />
+      </div>
+    }
+    @case ('array') {
+      <div class="add-config-value__collection">
+        @if ((node().arrayItems ?? []).length === 0) {
+          <p class="add-config-value__hint text-sm text-text-secondary">
+            {{ hints.emptyArray }}
+          </p>
+        }
+        @for (item of node().arrayItems ?? []; track $index) {
+          <div class="add-config-value__row add-config-value__row--array">
+            <span class="add-config-value__index">{{ $index + 1 }}</span>
+            <div class="add-config-value__nested add-config-value__nested--grow">
+              <app-add-configuration-value-node
+                [node]="item"
+                [depth]="depth() + 1"
+                [maxDepth]="maxDepth()"
+                [showKindSelector]="true"
+                [rowKey]="rowKey() + '-ai-' + $index"
+                [valueValidationAttempt]="valueValidationAttempt()"
+                (nodeChange)="onArrayItemChange($index, $event)"
+              />
+            </div>
+            <div class="add-config-value__row-actions">
+              <app-button
+                [buttonConfig]="removeRowButtonConfig"
+                (onButtonClick)="removeArrayItem($index)"
+              />
+            </div>
+          </div>
+        }
+        <app-button
+          [buttonConfig]="addArrayItemButtonConfig"
+          (onButtonClick)="addArrayItem()"
+        />
+      </div>
+    }
+  }
+</div>

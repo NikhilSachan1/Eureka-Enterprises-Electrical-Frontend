@@ -32,6 +32,10 @@ export type IConfigurationAddRequestDto = z.infer<
 export type IConfigurationAddFormDto = z.input<
   typeof ConfigurationAddRequestSchema
 >;
+export type IConfigurationAddUIFormDto = Omit<
+  IConfigurationAddFormDto,
+  'configValue'
+>;
 export type IConfigurationAddResponseDto = z.infer<
   typeof ConfigurationAddResponseSchema
 >;

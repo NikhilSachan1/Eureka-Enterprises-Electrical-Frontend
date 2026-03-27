@@ -2,6 +2,7 @@
 @let isFieldInvalid = isFieldInvalidDisplay();
 @let invalidClass = isFieldInvalid ? 'ng-invalid ng-dirty' : '';
 @let errorMessage = getErrorMessage(inputFieldConfig().fieldName);
+@let standaloneMsg = standaloneErrorMessage();
 @let showStandardLabel = config.showStandardLabel;
 @let effectivePlaceholder = showStandardLabel && config.placeholder ? config.placeholder : '';
 
@@ -551,6 +552,10 @@
     }
   }
 }
-@if (isFormMode() && isFieldInvalid) {
-  <small class="p-error text-red-500">{{ errorMessage }}</small>
+@if (isFieldInvalid) {
+  @if (isFormMode()) {
+    <small class="p-error text-red-500">{{ errorMessage }}</small>
+  } @else if (standaloneMsg) {
+    <small class="p-error text-red-500">{{ standaloneMsg }}</small>
+  }
 }
