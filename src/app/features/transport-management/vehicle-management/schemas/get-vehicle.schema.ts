@@ -21,7 +21,6 @@ export const VehicleGetRequestSchema = z
     vehicleAssignee: z.string().optional(),
     vehicleInsuranceStatus: z.array(z.string()).optional(),
     vehiclePUCStatus: z.array(z.string()).optional(),
-    vehicleFitnessStatus: z.array(z.string()).optional(),
     vehicleServiceDueStatus: z.array(z.string()).optional(),
     vehicleFuelType: z.array(z.string()).optional(),
     sortOrder,
@@ -37,7 +36,6 @@ export const VehicleGetRequestSchema = z
       vehicleAssignee,
       vehicleInsuranceStatus,
       vehiclePUCStatus,
-      vehicleFitnessStatus,
       vehicleServiceDueStatus,
       vehicleFuelType,
       ...rest
@@ -48,7 +46,6 @@ export const VehicleGetRequestSchema = z
         statuses: vehicleStatus,
         insuranceStatuses: vehicleInsuranceStatus,
         pucStatuses: vehiclePUCStatus,
-        fitnessStatuses: vehicleFitnessStatus,
         serviceDueStatuses: vehicleServiceDueStatus,
         fuelTypes: vehicleFuelType,
       };
@@ -66,7 +63,6 @@ export const VehicleGetBaseResponseSchema = z
     currentOdometerKm: z.string().min(1).nullable(),
     insuranceStatus: z.string().min(1),
     pucStatus: z.string().min(1),
-    fitnessStatus: z.string().min(1),
     serviceDueStatus: z.string().min(1),
     nextServiceDueKm: z.number().int().nonnegative().nullable(),
     kmToNextService: z.number().nullable(), // TODO: Can be negative
@@ -88,7 +84,7 @@ export const VehicleGetBaseResponseSchema = z
     updatedAt,
     deletedAt,
   })
-  .strict()
+  .loose()
   .transform(({ files, ...rest }) => ({
     ...rest,
     documentKeys: files.map(file => file.fileKey),
@@ -123,24 +119,18 @@ export const VehicleGetStatsResponseSchema = z
       expired: z.number().int().nonnegative(),
       notApplicable: z.number().int().nonnegative(),
     }),
-    fitnessStatus: z.object({
-      active: z.number().int().nonnegative(),
-      expiringSoon: z.number().int().nonnegative(),
-      expired: z.number().int().nonnegative(),
-      notApplicable: z.number().int().nonnegative(),
-    }),
     serviceDueStatus: z.object({
       ok: z.number().int().nonnegative(),
       dueSoon: z.number().int().nonnegative(),
       overdue: z.number().int().nonnegative(),
     }),
   })
-  .strict();
+  .loose();
 
 export const VehicleGetResponseSchema = z
   .object({
     records: z.array(VehicleGetBaseResponseSchema),
-    stats: VehicleGetStatsResponseSchema.strict(),
+    stats: VehicleGetStatsResponseSchema.loose(),
     totalRecords: z.number().int().nonnegative(),
   })
   .strict();

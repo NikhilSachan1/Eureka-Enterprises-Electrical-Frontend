@@ -7,7 +7,6 @@ export const VehicleAddRequestSchema =
     const [insuranceStartDate, insuranceEndDate] =
       data.vehicleInsuranceDate ?? [];
     const [pucStartDate, pucEndDate] = data.vehiclePUCDate ?? [];
-    const [fitnessStartDate, fitnessEndDate] = data.vehicleFitnessDate ?? [];
     return {
       registrationNo: data.vehicleRegistrationNo,
       brand: data.vehicleBrand,
@@ -20,8 +19,6 @@ export const VehicleAddRequestSchema =
       insuranceEndDate: transformDateFormat(insuranceEndDate),
       pucStartDate: transformDateFormat(pucStartDate),
       pucEndDate: transformDateFormat(pucEndDate),
-      fitnessStartDate: transformDateFormat(fitnessStartDate),
-      fitnessEndDate: transformDateFormat(fitnessEndDate),
       remarks: data.remarks,
       vehicleFiles: data.vehicleFiles,
     };

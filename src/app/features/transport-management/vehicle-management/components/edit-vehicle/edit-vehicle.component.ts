@@ -97,8 +97,6 @@ export class EditVehicleComponent
       insuranceEndDate,
       pucStartDate,
       pucEndDate,
-      fitnessStartDate,
-      fitnessEndDate,
       remarks,
     } = vehicleDetailFromResolver;
 
@@ -115,10 +113,6 @@ export class EditVehicleComponent
         new Date(insuranceEndDate),
       ],
       vehiclePUCDate: [new Date(pucStartDate), new Date(pucEndDate)],
-      vehicleFitnessDate: [
-        new Date(fitnessStartDate),
-        new Date(fitnessEndDate),
-      ],
       remarks,
       vehicleFiles: preloadedFiles,
     };

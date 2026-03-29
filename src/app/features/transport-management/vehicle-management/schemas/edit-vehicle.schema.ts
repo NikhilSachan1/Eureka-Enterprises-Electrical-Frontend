@@ -10,7 +10,6 @@ export const VehicleEditRequestSchema = VehicleUpsertShapeSchema.extend({
     const [insuranceStartDate, insuranceEndDate] =
       data.vehicleInsuranceDate ?? [];
     const [pucStartDate, pucEndDate] = data.vehiclePUCDate ?? [];
-    const [fitnessStartDate, fitnessEndDate] = data.vehicleFitnessDate ?? [];
     return {
       brand: data.vehicleBrand,
       model: data.vehicleModel,
@@ -22,8 +21,6 @@ export const VehicleEditRequestSchema = VehicleUpsertShapeSchema.extend({
       insuranceEndDate: transformDateFormat(insuranceEndDate),
       pucStartDate: transformDateFormat(pucStartDate),
       pucEndDate: transformDateFormat(pucEndDate),
-      fitnessStartDate: transformDateFormat(fitnessStartDate),
-      fitnessEndDate: transformDateFormat(fitnessEndDate),
       remarks: data.remarks,
       vehicleFiles: data.vehicleFiles,
     };

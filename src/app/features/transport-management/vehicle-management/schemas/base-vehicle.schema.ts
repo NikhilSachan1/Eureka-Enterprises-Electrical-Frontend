@@ -33,7 +33,7 @@ export const VehicleBaseSchema = z
       .record(z.string(), z.union([z.string(), z.number()]))
       .nullable(),
   })
-  .strict();
+  .loose();
 
 export const VehicleBaseDocumentsSchema = z
   .object({
@@ -51,7 +51,7 @@ export const VehicleBaseDocumentsSchema = z
     vehicleEventsId: uuidField.optional(),
     vehicleVersionId: uuidField.optional(),
   })
-  .strict();
+  .loose();
 
 const { registrationNo, brand, model, mileage, fuelType, dealerName, remarks } =
   VehicleBaseSchema.shape;
@@ -66,7 +66,6 @@ export const VehicleUpsertShapeSchema = z
     vehiclePurchaseDate: dateField,
     vehicleDealerName: dealerName,
     vehicleInsuranceDate: z.array(dateField),
-    vehicleFitnessDate: z.array(dateField),
     vehiclePUCDate: z.array(dateField),
     remarks,
     vehicleFiles: z.array(fileField),

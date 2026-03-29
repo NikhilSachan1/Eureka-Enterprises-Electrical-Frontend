@@ -20,10 +20,6 @@ export const ADD_VEHICLE_PREFILLED_DATA: IvehicleAddFormDto = {
     getRandomDate(365 * 1, 365),
   ],
   vehiclePUCDate: [getRandomDate(365 * 2, 365), getRandomDate(365 * 1, 365)],
-  vehicleFitnessDate: [
-    getRandomDate(365 * 2, 365),
-    getRandomDate(365 * 1, 365),
-  ],
   vehicleFiles: [
     createFileFromAsset('/mock-docs/vehicle/VEHICLE_DOCUMENT_1.pdf'),
     createFileFromAsset('/mock-docs/vehicle/VEHICLE_DOCUMENT_2.pdf'),

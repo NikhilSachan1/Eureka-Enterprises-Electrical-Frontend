@@ -84,15 +84,6 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
-    field: 'fitnessStatus',
-    header: 'Fitness Status',
-    bodyTemplate: EDataType.STATUS,
-    serverSideFilterAndSortConfig: {
-      filterField: 'fitnessStatus',
-    },
-    showSort: false,
-  },
-  {
     field: 'serviceStatus',
     header: 'Service Status',
     bodyTemplate: EDataType.STATUS,

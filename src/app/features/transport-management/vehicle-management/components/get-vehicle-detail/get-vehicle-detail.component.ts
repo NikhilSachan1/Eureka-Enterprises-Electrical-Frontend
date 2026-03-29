@@ -137,13 +137,6 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
         },
         {
-          label: 'Fitness Period',
-          value: [record.fitnessStartDate, record.fitnessEndDate],
-          type: EDataType.RANGE,
-          dataType: EDataType.DATE,
-          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
-        },
-        {
           label: 'Attachment(s)',
           value: record.documentKeys,
           type: EDataType.ATTACHMENTS,

@@ -170,10 +170,6 @@ export class GetVehicleComponent implements OnInit {
           this.appConfigurationService.vehicleDocumentStatuses(),
           record.pucStatus
         ),
-        fitnessStatus: getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.vehicleDocumentStatuses(),
-          record.fitnessStatus
-        ),
         serviceStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.vehicleServiceStatuses(),
           record.serviceDueStatus
@@ -181,7 +177,7 @@ export class GetVehicleComponent implements OnInit {
         petroCardNumber: record.associatedCard?.cardNumber ?? null,
         petroCardName: record.associatedCard?.cardName ?? null,
         originalRawData: record,
-      };
+      } satisfies IVehicle;
     });
   }
 
@@ -218,18 +214,6 @@ export class GetVehicleComponent implements OnInit {
         metrics: [
           { label: 'PUC Expiring Soon', value: stats.pucStatus.expiringSoon },
           { label: 'PUC Expired', value: stats.pucStatus.expired },
-        ],
-      },
-      {
-        id: 'fitness-status',
-        title: 'Fitness Status',
-        icon: 'pi pi-check-circle',
-        metrics: [
-          {
-            label: 'Fitness Expiring Soon',
-            value: stats.fitnessStatus.expiringSoon,
-          },
-          { label: 'Fitness Expired', value: stats.fitnessStatus.expired },
         ],
       },
       {

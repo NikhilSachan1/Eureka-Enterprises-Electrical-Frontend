@@ -4,12 +4,19 @@ import {
   IVehicleGetBaseResponseDto,
 } from './vehicle.dto';
 
-export interface IVehicle extends Pick<IVehicleGetBaseResponseDto, 'id'> {
+export interface IVehicle
+  extends Pick<
+    IVehicleGetBaseResponseDto,
+    'id' | 'status' | 'insuranceStatus' | 'pucStatus'
+  > {
   vehicleNumber: string;
   vehicleName: string;
   vehicleAssigneeName: string | null;
   vehicleAssigneeCode: string | null;
   vehicleDocuments: string[];
+  serviceStatus: string;
+  petroCardNumber: string | null;
+  petroCardName: string | null;
   originalRawData: IVehicleGetBaseResponseDto;
 }
 

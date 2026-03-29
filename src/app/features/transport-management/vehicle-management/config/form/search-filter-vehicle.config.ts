@@ -52,19 +52,6 @@ const SEARCH_FILTER_VEHICLE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
     },
     matchmode: ETableFilterMatchMode.IN,
   },
-  vehicleFitnessStatus: {
-    fieldType: EDataType.MULTI_SELECT,
-    id: 'vehicleFitnessStatus',
-    fieldName: 'vehicleFitnessStatus',
-    label: 'Fitness Status',
-    multiSelectConfig: {
-      dynamicDropdown: {
-        moduleName: MODULE_NAMES.VEHICLE,
-        dropdownName: CONFIGURATION_KEYS.VEHICLE.DOCUMENT_STATUS_LIST,
-      },
-    },
-    matchmode: ETableFilterMatchMode.IN,
-  },
   vehicleInsuranceStatus: {
     fieldType: EDataType.MULTI_SELECT,
     id: 'vehicleInsuranceStatus',

@@ -105,15 +105,6 @@ const ADD_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleAddFormDto>
         selectionMode: EDateSelectionMode.Range,
       },
     },
-    vehicleFitnessDate: {
-      fieldType: EDataType.DATE,
-      id: 'vehicleFitnessDate',
-      fieldName: 'vehicleFitnessDate',
-      label: 'Fitness Period',
-      dateConfig: {
-        selectionMode: EDateSelectionMode.Range,
-      },
-    },
     vehicleFiles: {
       fieldType: EDataType.ATTACHMENTS,
       id: 'vehicleFiles',

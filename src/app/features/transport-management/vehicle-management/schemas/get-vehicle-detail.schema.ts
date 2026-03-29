@@ -35,29 +35,27 @@ export const VehicleDetailGetBaseResponseSchema = VehicleBaseSchema.omit({
     assignedToUser: makeFieldsNullable(UserSchema).nullable(),
     updatedByUser: makeFieldsNullable(UserSchema).nullable(),
   })
-  .strict();
+  .loose();
 
 export const VehicleDetailGetVersionHistorySchema =
-  VehicleDetailGetBaseResponseSchema.extend({
-    purchaseDate: onlyDateStringField,
-    insuranceStartDate: onlyDateStringField,
-    insuranceEndDate: onlyDateStringField,
-    pucStartDate: onlyDateStringField,
-    pucEndDate: onlyDateStringField,
-    fitnessStartDate: onlyDateStringField,
-    fitnessEndDate: onlyDateStringField,
-    assignedTo: uuidField.nullable(),
-    vehicleMasterId: uuidField,
-    isActive: z.boolean(),
-    files: z.array(VehicleBaseDocumentsSchema),
-    lastServiceDate: onlyDateStringField.nullable(),
-    lastServiceKm: z.number().int().min(1).nullable(),
-    createdBy,
-    updatedBy: updatedBy.nullable(),
-    deletedBy,
-    deletedAt,
+  VehicleDetailGetBaseResponseSchema.omit({
+    fitnessStartDate: true,
+    fitnessEndDate: true,
   })
-    .strict()
+    .extend({
+      purchaseDate: onlyDateStringField,
+      insuranceStartDate: onlyDateStringField,
+      insuranceEndDate: onlyDateStringField,
+      pucStartDate: onlyDateStringField,
+      pucEndDate: onlyDateStringField,
+      isActive: z.boolean(),
+      files: z.array(VehicleBaseDocumentsSchema),
+      createdBy,
+      updatedBy: updatedBy.nullable(),
+      deletedBy,
+      deletedAt,
+    })
+    .loose()
     .transform(({ files, ...rest }) => ({
       ...rest,
       documentKeys: files.map(file => file.fileKey),
@@ -65,7 +63,10 @@ export const VehicleDetailGetVersionHistorySchema =
 
 export const VehicleDetailGetResponseSchema = z
   .object({
-    ...VehicleDetailGetBaseResponseSchema.shape,
+    ...VehicleDetailGetBaseResponseSchema.omit({
+      fitnessStartDate: true,
+      fitnessEndDate: true,
+    }).shape,
     createdBy,
     updatedBy: updatedBy.nullable(),
     deletedBy: deletedBy.nullable(),
@@ -75,23 +76,6 @@ export const VehicleDetailGetResponseSchema = z
     insuranceEndDate: onlyDateStringField,
     pucStartDate: onlyDateStringField,
     pucEndDate: onlyDateStringField,
-    fitnessStartDate: onlyDateStringField,
-    fitnessEndDate: onlyDateStringField,
-    assignedTo: uuidField.nullable(),
-    files: z.array(VehicleBaseDocumentsSchema),
-    deletedByUser: makeFieldsNullable(UserSchema).nullable(),
     versionHistory: z.array(VehicleDetailGetVersionHistorySchema),
-    insuranceStatus: z.string().min(1),
-    pucStatus: z.string().min(1),
-    fitnessStatus: z.string().min(1),
-    lastServiceKm: z.number().int().min(1).nullable(),
-    lastServiceDate: onlyDateStringField.nullable(),
-    associatedCard: z
-      .object({
-        id: uuidField,
-        cardNumber: z.string().min(1),
-        cardType: z.string().min(1),
-      })
-      .nullable(),
   })
-  .strict();
+  .loose();
