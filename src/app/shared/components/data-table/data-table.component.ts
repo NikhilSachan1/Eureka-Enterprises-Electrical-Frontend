@@ -11,6 +11,8 @@ import {
   computed,
   effect,
 } from '@angular/core';
+import { MenuItem } from 'primeng/api';
+import { Menu, MenuModule } from 'primeng/menu';
 import {
   Table,
   TableFilterEvent,
@@ -27,7 +29,6 @@ import { SliderModule } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { MenuModule } from 'primeng/menu';
 import { PanelModule } from 'primeng/panel';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SelectButtonModule } from 'primeng/selectbutton';
@@ -38,6 +39,7 @@ import {
   IButtonConfig,
   ITableActionClickEvent,
   EButtonActionType,
+  EButtonVariant,
   IGalleryInputData,
   EDataType,
 } from '@shared/types';
@@ -57,6 +59,7 @@ import { AppPermissionService, LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
 import { ReadMoreComponent } from '../read-more/read-more.component';
 import { PaginatorComponent } from '../paginator/paginator.component';
+import { StatusUtil } from '@shared/utility';
 
 @Component({
   selector: 'app-data-table',
@@ -99,6 +102,15 @@ export class DataTableComponent {
 
   protected ALL_DATA_TYPES = EDataType;
   protected icons = ICONS;
+
+  /** Icon-only trigger when row actions collapse into the overflow menu (matches row action styling). */
+  protected readonly rowOverflowTriggerButtonConfig: Partial<IButtonConfig> = {
+    label: '',
+    icon: 'pi pi-ellipsis-v',
+    variant: EButtonVariant.OUTLINED,
+    shadow: true,
+    tooltip: 'Actions',
+  };
 
   private avatarService = inject(AvatarService);
   private galleryService = inject(GalleryService);
@@ -369,6 +381,65 @@ export class DataTableComponent {
     return this.rowActions().filter(action =>
       this.isActionVisible(action, rowData)
     );
+  }
+
+  protected getRowActionsLimit(): number {
+    return this.tableConfig().rowActionsLimit ?? 3;
+  }
+
+  protected shouldShowRowActionsInMenuOnly(
+    rowData: Record<string, unknown>
+  ): boolean {
+    return (
+      this.getVisibleRowActions(rowData).length > this.getRowActionsLimit()
+    );
+  }
+
+  protected overflowMenuModel = signal<MenuItem[]>([]);
+  private rowOverflowMenu = viewChild<Menu>('rowOverflowMenu');
+
+  private resolveRowActionMenuLabel(action: ITableActionConfig): string {
+    const fromLabel = action.label?.trim();
+    if (fromLabel) {
+      return fromLabel;
+    }
+    const fromTooltip = action.tooltip?.trim();
+    if (fromTooltip) {
+      return fromTooltip;
+    }
+    return String(action.id);
+  }
+
+  private resolveRowActionMenuIcon(
+    action: ITableActionConfig
+  ): string | undefined {
+    if (action.icon) {
+      return action.icon;
+    }
+    return StatusUtil.getIcon(action.id) ?? undefined;
+  }
+
+  /**
+   * Opens the overflow menu; `anchor` is used as `event.currentTarget` for PrimeNG popup
+   * positioning (shared {@link ButtonComponent} does not emit the native event).
+   */
+  protected openRowOverflowMenuForRow(
+    rowData: Record<string, unknown>,
+    anchor: HTMLElement
+  ): void {
+    const visible = this.getVisibleRowActions(rowData);
+    this.overflowMenuModel.set(
+      visible.map(action => ({
+        label: this.resolveRowActionMenuLabel(action),
+        icon: this.resolveRowActionMenuIcon(action),
+        disabled: this.isActionDisabled(action, rowData),
+        command: (): void => {
+          this.onRowActionClick(action.id, rowData);
+        },
+      }))
+    );
+    const pseudoEvent = { currentTarget: anchor } as unknown as Event;
+    queueMicrotask(() => this.rowOverflowMenu()?.toggle(pseudoEvent));
   }
 
   /**

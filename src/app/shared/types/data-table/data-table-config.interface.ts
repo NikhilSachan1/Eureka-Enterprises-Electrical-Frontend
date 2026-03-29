@@ -26,6 +26,7 @@ export interface IDataTableConfig {
   totalRecords?: number;
   enableServerSide: boolean;
   showViewModeToggle?: boolean; // Show/hide list & card layout toggle (default: true)
+  rowActionsLimit?: number;
 }
 
 export interface IDataTableServerSideFilterAndSortConfig {

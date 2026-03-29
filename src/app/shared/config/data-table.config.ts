@@ -33,6 +33,7 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
     APP_CONFIG.TABLE_PAGINATION_CONFIG.CURRENT_PAGE_REPORT_TEMPLATE,
   enableServerSide: true,
   showViewModeToggle: false, // Default: show the toggle
+  rowActionsLimit: 3,
 };
 
 // default table header config

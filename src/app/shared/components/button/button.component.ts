@@ -29,6 +29,7 @@ export class ButtonComponent {
   buttonConfig = input<Partial<IButtonConfig>>();
   showButtonLoader = input<boolean>(false);
   showDisabledButton = input<boolean>(false);
+  stopClickPropagation = input<boolean>(false);
 
   onButtonClick = output<string>();
 
@@ -61,7 +62,10 @@ export class ButtonComponent {
     return config && Object.keys(config).length > 0;
   });
 
-  onClick(): void {
+  onClick(event: MouseEvent): void {
+    if (this.stopClickPropagation()) {
+      event.stopPropagation();
+    }
     this.onButtonClick.emit(this.buttonConfig()?.actionName ?? '');
   }
 }

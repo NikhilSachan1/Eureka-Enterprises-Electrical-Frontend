@@ -232,18 +232,31 @@
         }
 
         @let visibleRowActions = getVisibleRowActions(rowData);
+        @let useRowActionsMenuOnly = shouldShowRowActionsInMenuOnly(rowData);
         @let shouldShowRowActions = rowActions() && rowActions().length > 0;
         @if (shouldShowRowActions) {
           <td>
             <div class="flex items-center">
-              @for (action of visibleRowActions; track action.id) {
-                <app-button
-                  class="mr-2"
-                  [buttonConfig]="action"
-                  [showDisabledButton]="isActionDisabled(action, rowData)"
-                  [pTooltip]="action.tooltip"
-                  (onButtonClick)="onRowActionClick(action.id, rowData)"
-                />
+              @if (useRowActionsMenuOnly) {
+                <div
+                  #overflowAnchor
+                  class="mr-2 inline-flex"
+                >
+                  <app-button
+                    [buttonConfig]="rowOverflowTriggerButtonConfig"
+                    (onButtonClick)="openRowOverflowMenuForRow(rowData, overflowAnchor)"
+                  />
+                </div>
+              } @else {
+                @for (action of visibleRowActions; track action.id) {
+                  <app-button
+                    class="mr-2"
+                    [buttonConfig]="action"
+                    [showDisabledButton]="isActionDisabled(action, rowData)"
+                    [pTooltip]="action.tooltip"
+                    (onButtonClick)="onRowActionClick(action.id, rowData)"
+                  />
+                }
               }
             </div>
           </td>
@@ -267,6 +280,14 @@
     </ng-template>
   </p-table>
 </p-panel>
+
+<p-menu
+  #rowOverflowMenu
+  [model]="overflowMenuModel()"
+  [popup]="true"
+  appendTo="body"
+  styleClass="row-overflow-actions-menu"
+/>
 
 @if (currentViewMode === 'card') {
   <!-- Card Layout -->
@@ -353,15 +374,28 @@
             }
 
             @let visibleRowActions = getVisibleRowActions(rowData);
+            @let useRowActionsMenuOnly = shouldShowRowActionsInMenuOnly(rowData);
             @if (rowActions() && rowActions().length > 0 && visibleRowActions.length > 0) {
               <div class="mt-5 pt-4 border-t border-border flex items-center gap-2 flex-wrap">
-                @for (action of visibleRowActions; track action.id) {
-                  <app-button
-                    [buttonConfig]="action"
-                    [showDisabledButton]="isActionDisabled(action, rowData)"
-                    [pTooltip]="action.tooltip"
-                    (onButtonClick)="onRowActionClick(action.id, rowData)"
-                  />
+                @if (useRowActionsMenuOnly) {
+                  <div
+                    #overflowAnchor
+                    class="inline-flex"
+                  >
+                    <app-button
+                      [buttonConfig]="rowOverflowTriggerButtonConfig"
+                      (onButtonClick)="openRowOverflowMenuForRow(rowData, overflowAnchor)"
+                    />
+                  </div>
+                } @else {
+                  @for (action of visibleRowActions; track action.id) {
+                    <app-button
+                      [buttonConfig]="action"
+                      [showDisabledButton]="isActionDisabled(action, rowData)"
+                      [pTooltip]="action.tooltip"
+                      (onButtonClick)="onRowActionClick(action.id, rowData)"
+                    />
+                  }
                 }
               </div>
             }
