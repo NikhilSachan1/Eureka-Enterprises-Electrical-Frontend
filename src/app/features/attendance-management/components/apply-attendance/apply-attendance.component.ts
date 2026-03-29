@@ -119,13 +119,13 @@ export class ApplyAttendanceComponent
   private preparePrefilledFormData(
     currentStatusFromResolver: IAttendanceCurrentStatusGetResponseDto
   ): IAttendanceApplyFormDto {
-    const { location, clientName, associateEmployeeName } =
+    const { site, company, vehicle, assignedEngineer } =
       currentStatusFromResolver;
     return {
-      locationName: location,
-      clientName,
-      associateEngineerName: associateEmployeeName ?? '',
-      associatedVehicle: '',
+      locationName: site ?? '',
+      clientName: company ?? '',
+      associateEngineerName: assignedEngineer ?? '',
+      associatedVehicle: vehicle ?? '',
     };
   }
 

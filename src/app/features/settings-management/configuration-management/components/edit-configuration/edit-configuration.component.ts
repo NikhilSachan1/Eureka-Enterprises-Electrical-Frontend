@@ -9,6 +9,7 @@ import {
 import { Location } from '@angular/common';
 import { FormBase } from '@shared/base/form.base';
 import {
+  IConfigurationDetailGetResponseDto,
   IConfigurationEditFormDto,
   IConfigurationEditUIFormDto,
   IConfigurationGetBaseResponseDto,
@@ -41,11 +42,6 @@ import {
   serializeConfigValue,
 } from '../../shared/utils/config-value.util';
 import { IConfigValueNode } from '../../shared/types/config-value-node.model';
-
-/** Router state shape from {@link RouterNavigationService.navigateWithState} */
-interface EditConfigurationNavigationState {
-  configurationDetail?: IConfigurationGetBaseResponseDto;
-}
 
 @Component({
   selector: 'app-edit-configuration',
@@ -98,7 +94,7 @@ export class EditConfigurationComponent
   protected readonly valueValidationAttempt = signal(0);
 
   ngOnInit(): void {
-    this.loadPrefillFromRouterState();
+    this.loadConfigurationDataFromRoute();
 
     if (!this.initialConfigurationData()) {
       this.logger.warn('Edit configuration: no prefilled data in router state');
@@ -143,23 +139,30 @@ export class EditConfigurationComponent
       });
   }
 
-  /**
-   * Prefill from navigation state (pass full row from list via
-   * {@link RouterNavigationService.navigateWithState}). Resolver can be added later
-   * by merging into the same state shape.
-   */
-  private loadPrefillFromRouterState(): void {
-    const state = this.location.getState() as EditConfigurationNavigationState;
-    const detail = state?.configurationDetail;
-    if (!detail) {
+  private loadConfigurationDataFromRoute(): void {
+    const configurationDetailFromResolver = this.activatedRoute.snapshot.data[
+      'configurationDetail'
+    ] as IConfigurationDetailGetResponseDto | null;
+
+    if (!configurationDetailFromResolver) {
+      this.logger.logUserAction('No configuration data found in route');
+      const routeSegments = [
+        ROUTE_BASE_PATHS.SETTINGS.BASE,
+        ROUTE_BASE_PATHS.SETTINGS.CONFIGURATION.BASE,
+        ROUTES.SETTINGS.CONFIGURATION.LIST,
+      ];
+      void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
-    this.prefilledRow.set(detail);
-    this.initialConfigurationData.set(this.buildEditFormDefaults(detail));
+
+    this.prefilledRow.set(configurationDetailFromResolver);
+    this.initialConfigurationData.set(
+      this.buildEditFormDefaults(configurationDetailFromResolver)
+    );
   }
 
   private buildEditFormDefaults(
-    row: IConfigurationGetBaseResponseDto
+    row: IConfigurationDetailGetResponseDto
   ): IConfigurationEditUIFormDto {
     const setting =
       row.configSettings?.find(s => s.isActive) ?? row.configSettings?.[0];

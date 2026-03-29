@@ -145,9 +145,11 @@ export const API_ROUTES = {
       },
     },
     CONFIGURATION: {
-      LIST: 'configurations',
-      ADD: 'configurations',
+      LIST: 'configurations/details',
+      ADD: 'configurations/with-settings',
       EDIT: (configurationId: string) => `configurations/${configurationId}`,
+      GET_CONFIGURATION_BY_ID: (configurationId: string) =>
+        `configurations/${configurationId}`,
     },
   },
   SITE: {

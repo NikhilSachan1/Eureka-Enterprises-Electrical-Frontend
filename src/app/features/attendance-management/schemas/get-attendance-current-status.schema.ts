@@ -22,8 +22,10 @@ export const AttendanceCurrentStatusGetResponseSchema = z
     approvalStatus,
     workDuration,
     user: UserSchema,
-    location: z.string(),
-    clientName: z.string(),
-    associateEmployeeName: z.string().nullable().optional(), // TODO: Remove optional once we have the associate employee name
+    site: z.string().nullable(),
+    company: z.string().nullable(),
+    contractors: z.array(z.string()).nullable(),
+    vehicle: z.string().nullable(),
+    assignedEngineer: z.string().nullable(),
   })
   .strict();

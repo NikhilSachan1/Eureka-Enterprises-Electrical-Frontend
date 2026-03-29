@@ -1,8 +1,5 @@
 import { z } from 'zod';
-import {
-  AttendanceBaseSchema,
-  attendanceStatusSchema,
-} from './base-attendance.schema';
+import { AttendanceBaseSchema } from './base-attendance.schema';
 
 const { id, approvalStatus, approvalComment } = AttendanceBaseSchema.shape;
 
@@ -26,7 +23,7 @@ export const AttendanceActionResultSchema = z
     approvalStatus,
     message: z.string(),
     attendanceId: id,
-    newStatus: attendanceStatusSchema,
+    newStatus: z.string(),
   })
   .strict();
 

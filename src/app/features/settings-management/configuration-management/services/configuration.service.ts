@@ -5,15 +5,18 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   IConfigurationAddFormDto,
   IConfigurationAddResponseDto,
+  IConfigurationDetailGetFormDto,
+  IConfigurationDetailGetResponseDto,
   IConfigurationEditFormDto,
   IConfigurationEditResponseDto,
-  IConfigurationGetRequestDto,
+  IConfigurationGetFormDto,
   IConfigurationGetResponseDto,
 } from '../types/configuration.dto';
 import { API_ROUTES } from '@core/constants/api.constants';
 import {
   ConfigurationAddRequestSchema,
   ConfigurationAddResponseSchema,
+  ConfigurationDetailGetResponseSchema,
   ConfigurationGetRequestSchema,
   ConfigurationGetResponseSchema,
 } from '../schemas';
@@ -96,7 +99,7 @@ export class ConfigurationService {
   }
 
   getConfigurationList(
-    params?: IConfigurationGetRequestDto
+    params?: IConfigurationGetFormDto
   ): Observable<IConfigurationGetResponseDto> {
     this.logger.logUserAction('Get Configuration List Request');
 
@@ -124,6 +127,44 @@ export class ConfigurationService {
             );
           } else {
             this.logger.logUserAction('Get Configuration List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getConfigurationDetailById(
+    params: IConfigurationDetailGetFormDto
+  ): Observable<IConfigurationDetailGetResponseDto> {
+    this.logger.logUserAction('Get Configuration Detail By Id Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SETTINGS.CONFIGURATION.GET_CONFIGURATION_BY_ID(
+          params.configurationId
+        ),
+        {
+          response: ConfigurationDetailGetResponseSchema,
+        }
+      )
+      .pipe(
+        tap((response: IConfigurationDetailGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Configuration Detail By Id Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Configuration Detail By Id Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Get Configuration Detail By Id Error',
+              error
+            );
           }
           return throwError(() => error);
         })

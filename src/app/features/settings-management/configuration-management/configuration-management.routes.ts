@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
+import { GetConfigurationDetailResolver } from './resolvers/get-configuration-detail.resolver';
 
 export const CONFIGURATION_MANAGEMENT_ROUTES: Routes = [
   {
@@ -39,8 +40,8 @@ export const CONFIGURATION_MANAGEMENT_ROUTES: Routes = [
     // data: {
     //     permissions: [APP_PERMISSION.EMPLOYEE.EDIT],
     // },
-    // resolve: {
-    //     employeeDetail: GetEmployeeDetailResolver,
-    // },
+    resolve: {
+      configurationDetail: GetConfigurationDetailResolver,
+    },
   },
 ];

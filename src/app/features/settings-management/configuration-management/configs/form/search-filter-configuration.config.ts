@@ -20,7 +20,7 @@ const SEARCH_FILTER_CONFIGURATION_FORM_FIELDS_CONFIG: ITableSearchFilterInputFie
     label: 'Module Name',
     multiSelectConfig: {
       dynamicDropdown: {
-        moduleName: MODULE_NAMES.COMMON,
+        moduleName: MODULE_NAMES.PERMISSION,
         dropdownName: CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN,
       },
     },

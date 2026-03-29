@@ -8,7 +8,11 @@ import {
 import { APP_CONFIG } from '@core/config';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { IConfigurationGetBaseResponseDto } from '../../types/configuration.dto';
+import {
+  IConfigurationDetailGetFormDto,
+  IConfigurationDetailGetResponseDto,
+  IConfigurationGetBaseResponseDto,
+} from '../../types/configuration.dto';
 import {
   EDataType,
   IDataViewDetails,
@@ -17,6 +21,10 @@ import {
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { toTitleCase } from '@shared/utility';
+import { ConfigurationService } from '../../services/configuration.service';
+import { LoadingService } from '@shared/services';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type ConfigurationValueKind = 'nullish' | 'primitive' | 'array' | 'object';
 
@@ -28,6 +36,9 @@ type ConfigurationValueKind = 'nullish' | 'primitive' | 'array' | 'object';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetConfigurationDetailComponent extends DrawerDetailBase {
+  private readonly configurationService = inject(ConfigurationService);
+  private readonly loadingService = inject(LoadingService);
+
   protected readonly APP_CONFIG = APP_CONFIG;
 
   /** Config value tree recursion limit (inline template). */
@@ -44,8 +55,43 @@ export class GetConfigurationDetailComponent extends DrawerDetailBase {
   protected readonly ALL_DATA_TYPES = EDataType;
 
   override onDrawerShow(): void {
-    const mappedData = this.mapDetailData(this.drawerData.configuration);
-    this._configurationDetails.set(mappedData);
+    this.loadConfigurationDetails();
+  }
+
+  private loadConfigurationDetails(): void {
+    this.loadingService.show({
+      title: 'Loading Configuration Details',
+      message: 'Please wait while we load the configuration details...',
+    });
+
+    const paramData = this.prepareParamData();
+
+    this.configurationService
+      .getConfigurationDetailById(paramData)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IConfigurationDetailGetResponseDto) => {
+          const mappedData = this.mapDetailData(response);
+          this._configurationDetails.set(mappedData);
+          this.logger.logUserAction(
+            'Configuration details loaded successfully'
+          );
+        },
+        error: error => {
+          console.error('error', error);
+        },
+      });
+  }
+
+  private prepareParamData(): IConfigurationDetailGetFormDto {
+    return {
+      configurationId: this.drawerData.configuration.id,
+    };
   }
 
   private mapDetailData(

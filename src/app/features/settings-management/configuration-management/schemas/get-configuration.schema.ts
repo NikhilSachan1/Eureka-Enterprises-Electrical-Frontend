@@ -14,9 +14,9 @@ export const ConfigurationGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ moduleName, ..._rest }) => {
+  .transform(({ moduleName, ...rest }) => {
     return {
-      // ...rest, //TODO: Uncomment this when the rest of the fields are added
+      ...rest,
       module: moduleName,
     };
   });

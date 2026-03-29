@@ -43,7 +43,10 @@ import { PetroCardService } from '@features/transport-management/petro-card-mana
 import { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
 import { toTitleCase } from '@shared/utility';
 import { ConfigurationService } from '@features/settings-management/configuration-management/services/configuration.service';
-import { IConfigurationGetResponseDto } from '@features/settings-management/configuration-management/types/configuration.dto';
+import {
+  IConfigurationGetFormDto,
+  IConfigurationGetResponseDto,
+} from '@features/settings-management/configuration-management/types/configuration.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -411,7 +414,14 @@ export class AppConfigurationService {
   loadAppConfiguration(): Observable<IConfigurationGetResponseDto> {
     this.logger.logUserAction('Load App Configuration Request');
 
-    return this.configurationService.getConfigurationList().pipe(
+    const payload: IConfigurationGetFormDto = {
+      page: 1,
+      pageSize: 100,
+      sortField: 'createdAt',
+      sortOrder: 'DESC',
+    };
+
+    return this.configurationService.getConfigurationList(payload).pipe(
       tap(response => {
         this.logger.logUserAction('Load App Configuration Response', response);
         const moduleConfigMap = this.buildModuleConfigMap(response);

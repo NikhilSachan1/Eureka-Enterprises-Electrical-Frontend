@@ -5,13 +5,11 @@ import {
   onlyDateStringField,
 } from '@shared/schemas';
 import { z } from 'zod';
-import { EAttendanceStatus } from '../types/attendance.enum';
 import { EEntrySourceType, EEntryType } from '@shared/types';
 
 export const notesField = z.string().trim();
 export const entrySourceTypeSchema = z.enum(EEntrySourceType);
 export const attendanceTypeSchema = z.enum(EEntryType);
-export const attendanceStatusSchema = z.enum(EAttendanceStatus);
 
 const auditSchema = AuditSchema.shape;
 
@@ -23,7 +21,7 @@ export const AttendanceBaseSchema = z
     attendanceDate: onlyDateStringField,
     checkInTime: isoDateTimeField.nullable(),
     checkOutTime: isoDateTimeField.nullable(),
-    status: attendanceStatusSchema,
+    status: z.string(),
     approvalStatus: z.string(),
     entrySourceType: entrySourceTypeSchema,
     attendanceType: attendanceTypeSchema,

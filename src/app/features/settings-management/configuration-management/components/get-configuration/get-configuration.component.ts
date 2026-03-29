@@ -70,7 +70,6 @@ export class GetConfigurationComponent implements OnInit {
   private readonly tableServerSideParamsBuilderService = inject(
     TableServerSideParamsBuilderService
   );
-  // private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;

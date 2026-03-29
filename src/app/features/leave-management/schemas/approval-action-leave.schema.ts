@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { LeaveBaseSchema } from './base-leave.schema';
-import { attendanceStatusSchema } from '@features/attendance-management/schemas/base-attendance.schema';
 
 const { id, approvalStatus, approvalReason } = LeaveBaseSchema.shape;
 
@@ -9,7 +8,7 @@ export const LeaveActionRequestSchema = z
     approvalStatus,
     remark: approvalReason,
     leaveIds: z.array(id),
-    attendanceStatus: attendanceStatusSchema.optional().nullable(), //TODO: implement attendance status
+    attendanceStatus: z.string().optional().nullable(),
   })
   .strict()
   .transform(data => {

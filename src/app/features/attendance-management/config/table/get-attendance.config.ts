@@ -28,6 +28,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       showImage: true,
       dummyImageField: 'employeeName',
       primaryFieldHighlight: true,
+      permission: [APP_PERMISSION.UI.ATTENDANCE.TABLE_EMPLOYEE_NAME],
       serverSideFilterAndSortConfig: {
         sortField: 'USER_NAME',
         filterField: 'employeeName',

@@ -1,6 +1,8 @@
 import {
   ConfigurationAddRequestSchema,
   ConfigurationAddResponseSchema,
+  ConfigurationDetailGetRequestSchema,
+  ConfigurationDetailGetResponseSchema,
   ConfigurationGetBaseResponseSchema,
   ConfigurationGetRequestSchema,
   ConfigurationGetResponseSchema,
@@ -59,4 +61,17 @@ export type IConfigurationEditUIFormDto = Omit<
 >;
 export type IConfigurationEditResponseDto = z.infer<
   typeof ConfigurationEditResponseSchema
+>;
+
+/*
+  Configuration Detail
+*/
+export type IConfigurationDetailGetRequestDto = z.infer<
+  typeof ConfigurationDetailGetRequestSchema
+>;
+export type IConfigurationDetailGetFormDto = z.input<
+  typeof ConfigurationDetailGetRequestSchema
+>;
+export type IConfigurationDetailGetResponseDto = z.infer<
+  typeof ConfigurationDetailGetResponseSchema
 >;

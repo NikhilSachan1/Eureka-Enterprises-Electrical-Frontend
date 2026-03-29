@@ -8,3 +8,7 @@ export {
   ConfigurationAddRequestSchema,
   ConfigurationAddResponseSchema,
 } from './add-configuration.schema';
+export {
+  ConfigurationDetailGetRequestSchema,
+  ConfigurationDetailGetResponseSchema,
+} from './get-configuration-detail.schema';

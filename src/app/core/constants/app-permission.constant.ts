@@ -194,6 +194,9 @@ export const APP_PERMISSION = {
     COMMON: {
       SIDEBAR_INITIALS: 'ui_common_sidebar_initials',
     },
+    ATTENDANCE: {
+      TABLE_EMPLOYEE_NAME: 'ui_attendance_table_employee_name',
+    },
   },
 } as const;
 
@@ -213,6 +216,14 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       ADMIN: true,
       DRIVER: false,
       SUPER_ADMIN: true,
+    },
+  },
+  ATTENDANCE: {
+    TABLE_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
     },
   },
 } as const;
