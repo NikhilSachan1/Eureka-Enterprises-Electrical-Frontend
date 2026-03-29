@@ -836,12 +836,12 @@ export class AppConfigurationService {
     roles: IRoleGetResponseDto;
     permissions: unknown;
     appConfiguration: IConfigurationGetResponseDto;
-    // employeeList: IEmployeeGetResponseDto;
-    // assetList: IAssetGetResponseDto;
-    // vehicleList: IVehicleGetResponseDto;
-    // petroCardList: IPetroCardGetResponseDto;
-    // companyList: ICompanyGetResponseDto;
-    // contractorList: IContractorGetResponseDto;
+    employeeList: IEmployeeGetResponseDto;
+    assetList: IAssetGetResponseDto;
+    vehicleList: IVehicleGetResponseDto;
+    petroCardList: IPetroCardGetResponseDto;
+    companyList: ICompanyGetResponseDto;
+    contractorList: IContractorGetResponseDto;
   }> {
     this.logger.info('Loading all app data...');
 
@@ -859,12 +859,12 @@ export class AppConfigurationService {
               roleId: currentRoleId,
             }),
           appConfiguration: this.loadAppConfiguration(),
-          // employeeList: this.loadEmployeeList(),
-          // assetList: this.loadAssetList(),
-          // vehicleList: this.loadVehicleList(),
-          // petroCardList: this.loadPetroCardList(),
-          // companyList: this.loadCompanyList(),
-          // contractorList: this.loadContractorList(),
+          employeeList: this.loadEmployeeList(),
+          assetList: this.loadAssetList(),
+          vehicleList: this.loadVehicleList(),
+          petroCardList: this.loadPetroCardList(),
+          companyList: this.loadCompanyList(),
+          contractorList: this.loadContractorList(),
         }).pipe(
           // Combine roles response with the rest
           switchMap(parallelResults =>

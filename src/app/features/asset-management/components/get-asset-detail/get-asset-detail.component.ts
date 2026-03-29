@@ -118,17 +118,21 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Calibration From',
-          value: getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.assetCalibrationSources(),
-            record.calibrationFrom
-          ),
+          value: record.calibrationFrom
+            ? getMappedValueFromArrayOfObjects(
+                this.appConfigurationService.assetCalibrationSources(),
+                record.calibrationFrom
+              )
+            : '-',
         },
         {
           label: 'Calibration Frequency',
-          value: getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.assetCalibrationFrequencies(),
-            record.calibrationFrequency
-          ),
+          value: record.calibrationFrequency
+            ? getMappedValueFromArrayOfObjects(
+                this.appConfigurationService.assetCalibrationFrequencies(),
+                record.calibrationFrequency
+              )
+            : '-',
         },
         {
           label: 'Calibration Period',

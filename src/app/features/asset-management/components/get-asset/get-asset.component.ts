@@ -151,10 +151,12 @@ export class GetAssetComponent implements OnInit {
           ? `${record.assignedToUser.firstName} ${record.assignedToUser.lastName}`
           : null,
         assetAssigneeCode: record.assignedToUser?.employeeId ?? null,
-        calibrationFrom: getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.assetCalibrationSources(),
-          record.calibrationFrom
-        ),
+        calibrationFrom: record.calibrationFrom
+          ? getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.assetCalibrationSources(),
+              record.calibrationFrom
+            )
+          : '-',
         calibrationStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.assetCalibrationStatuses(),
           record.calibrationStatus
