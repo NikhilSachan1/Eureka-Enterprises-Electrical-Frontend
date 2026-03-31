@@ -136,6 +136,31 @@ export class DataTableComponent {
     return this.permissionService.filterByPermission(this.tableHeader());
   });
 
+  /**
+   * Selection UI only when table allows it and there is at least one visible bulk action.
+   * If bulk config is empty or all actions are hidden by permissions, no checkboxes.
+   */
+  protected showBulkSelectionCheckbox = computed(() => {
+    if (!this.tableConfig().showCheckbox) {
+      return false;
+    }
+    return this.bulkActionButtons().some(action =>
+      this.hasRequiredPermissions(action)
+    );
+  });
+
+  /** Colspan for empty state row: data columns + optional checkbox + optional actions */
+  protected emptyMessageColSpan = computed(() => {
+    let span = this.visibleTableHeaders().length;
+    if (this.showBulkSelectionCheckbox()) {
+      span += 1;
+    }
+    if ((this.rowActions()?.length ?? 0) > 0) {
+      span += 1;
+    }
+    return span;
+  });
+
   // View mode: 'list' or 'card' - using model signal for two-way binding with SelectButton
   protected viewMode = model<'list' | 'card'>('list');
 
@@ -170,6 +195,12 @@ export class DataTableComponent {
       const config = this.tableConfig();
       if (config && this.paginationRows() === 0) {
         this.paginationRows.set(config.displayRows);
+      }
+    });
+
+    effect(() => {
+      if (!this.showBulkSelectionCheckbox()) {
+        this.selectedTableRows.set([]);
       }
     });
   }

@@ -25,7 +25,7 @@
   </div>
 }
 
-@if (selectedCount > 1 && tableConfig().showCheckbox) {
+@if (selectedCount > 1 && showBulkSelectionCheckbox()) {
   <p-panel class="bulk-action-panel">
     <!-- Top Row: Selection Count + Clear Selection Button -->
     <div class="flex items-center justify-between gap-2">
@@ -90,7 +90,7 @@
       let-columns
     >
       <tr>
-        @if (tableConfig().showCheckbox) {
+        @if (showBulkSelectionCheckbox()) {
           <th style="width: 4rem">
             <div class="flex">
               <p-tableHeaderCheckbox />
@@ -178,7 +178,7 @@
       let-columns="columns"
     >
       <tr>
-        @if (tableConfig().showCheckbox) {
+        @if (showBulkSelectionCheckbox()) {
           <td>
             <p-tableCheckbox [value]="rowData" />
           </td>
@@ -267,7 +267,7 @@
     <ng-template #emptymessage>
       <tr>
         <td
-          [colSpan]="visibleTableHeaders().length + 2"
+          [colSpan]="emptyMessageColSpan()"
           class="text-center py-12"
         >
           <app-empty-messages
@@ -310,7 +310,7 @@
           <div
             class="card-item bg-bg-paper border border-border rounded-xl p-5 shadow-sm hover:shadow-lg hover:border-emerald-300 transition-all duration-300 group"
           >
-            @if (tableConfig().showCheckbox) {
+            @if (showBulkSelectionCheckbox()) {
               <div class="mb-4 pb-3 border-b border-border">
                 <label class="flex items-center cursor-pointer">
                   <input

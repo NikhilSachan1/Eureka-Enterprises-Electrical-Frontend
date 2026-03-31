@@ -6,7 +6,7 @@ export const SHIFT_DATA = {
 };
 
 export const PAYSLIP_DATE_DATA = {
-  EVERY_MONTH: 1,
+  EVERY_MONTH: 25,
 };
 
 export const PASSING_YEAR_DATA: IOptionDropdown[] = [

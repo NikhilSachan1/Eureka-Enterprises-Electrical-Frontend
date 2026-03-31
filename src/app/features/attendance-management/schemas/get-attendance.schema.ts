@@ -4,11 +4,7 @@ import {
   uuidField,
   dateField,
 } from '@shared/schemas';
-import {
-  makeFieldsNullable,
-  toTitleCase,
-  transformDateFormat,
-} from '@shared/utility';
+import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
 
@@ -69,8 +65,8 @@ export const AttendanceGetBaseResponseSchema = z
     notes: notes.nullable(), // ToDo: remove this nullable after backend is updated
     workDuration,
     attendanceType,
-    status: status.transform(toTitleCase),
-    approvalStatus: approvalStatus.transform(toTitleCase),
+    status,
+    approvalStatus,
     user: UserSchema,
     createdBy: makeFieldsNullable(UserSchema).nullable(),
     approvalBy: makeFieldsNullable(UserSchema).nullable(),

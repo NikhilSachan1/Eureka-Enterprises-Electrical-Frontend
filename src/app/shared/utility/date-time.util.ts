@@ -22,6 +22,39 @@ const pad = (num: number): string => {
   return num.toString().padStart(2, '0');
 };
 
+/**
+ * Normalizes a value to local midnight for that calendar day.
+ * Supports `YYYY-MM-DD`, ISO datetimes, and `Date`.
+ */
+export const toLocalCalendarDate = (
+  value: Date | string | null | undefined
+): Date | null => {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) {
+      return null;
+    }
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+  }
+  const trimmed = String(value).trim();
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(trimmed);
+  if (ymd) {
+    const y = Number(ymd[1]);
+    const m = Number(ymd[2]);
+    const d = Number(ymd[3]);
+    if (y && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+      return new Date(y, m - 1, d);
+    }
+  }
+  const parsed = new Date(trimmed);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+};
+
 export const getPayslipCutoffMinDate = (): Date => {
   const today = new Date();
   const currentMonth = today.getMonth();
@@ -74,6 +107,47 @@ export const getPayslipCutoffMaxDate = (): Date => {
   }
 
   return new Date(maxYear, maxMonth + 1, 0);
+};
+
+/**
+ * Local start-of-day for `dayOfMonth` in `(year, monthIndex)` (`monthIndex` 0–11).
+ * If `dayOfMonth` is past the month’s length (e.g. 31 in February), uses the last day of that month.
+ */
+export const getStartOfLocalDayInMonth = (
+  year: number,
+  monthIndex: number,
+  dayOfMonth: number
+): Date => {
+  const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+  const day = Math.min(dayOfMonth, lastDay);
+  const d = new Date(year, monthIndex, day);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
+/**
+ * Payroll lock for approve / reject / regularize:
+ * 1. Before the payslip day for the attendance month → locked.
+ * 2. After that day: still locked if the **attendance day-of-month** is before
+ *    {@link PAYSLIP_DATE_DATA.EVERY_MONTH} (e.g. 23rd vs 25th); only rows on/after that day unlock.
+ */
+export const isPayrollLocked = (date: Date | string): boolean => {
+  const calendar = toLocalCalendarDate(date);
+  if (calendar === null) {
+    return false;
+  }
+
+  const payslipDay = PAYSLIP_DATE_DATA.EVERY_MONTH;
+  const payrollRunDate = getStartOfLocalDayInMonth(
+    calendar.getFullYear(),
+    calendar.getMonth(),
+    payslipDay
+  );
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  return todayStart < payrollRunDate || calendar.getDate() < payslipDay;
 };
 
 export const transformDateFormat = (

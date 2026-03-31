@@ -16,29 +16,56 @@
   #attendanceAssignmentDetails
   let-row
 >
-  <!-- Clean Layout for Assignment Details - No truncation since table is scrollable -->
-  <div class="flex flex-col gap-1.5 text-sm whitespace-nowrap">
-    <!-- Row 1: Location + Client -->
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-1.5">
-        <span class="text-content-secondary">Location:</span>
-        <span class="text-content">{{ row.siteLocation || '-' }}</span>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <span class="text-content-secondary">Client:</span>
-        <span class="text-content">{{ row.clientName || '-' }}</span>
+  <div class="attendance-assignment-details">
+    <div class="attendance-assignment-details__cell">
+      <span
+        class="attendance-assignment-details__icon-wrap"
+        aria-hidden="true"
+      >
+        <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
+      </span>
+      <div class="attendance-assignment-details__text">
+        <span class="attendance-assignment-details__label">Location</span>
+        <span class="attendance-assignment-details__value">{{ row.siteLocation || '—' }}</span>
       </div>
     </div>
 
-    <!-- Row 2: Engineer + Vehicle -->
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-1.5">
-        <span class="text-content-secondary">Engineer:</span>
-        <span class="text-content">{{ row.associateEngineerName || '-' }}</span>
+    <div class="attendance-assignment-details__cell">
+      <span
+        class="attendance-assignment-details__icon-wrap"
+        aria-hidden="true"
+      >
+        <i [class]="ALL_ICONS.SITE.BUILDING"></i>
+      </span>
+      <div class="attendance-assignment-details__text">
+        <span class="attendance-assignment-details__label">Client</span>
+        <span class="attendance-assignment-details__value">{{ row.clientName || '—' }}</span>
       </div>
-      <div class="flex items-center gap-1.5">
-        <span class="text-content-secondary">Vehicle:</span>
-        <span class="text-content">{{ row.associatedVehicle || '-' }}</span>
+    </div>
+
+    <div class="attendance-assignment-details__cell">
+      <span
+        class="attendance-assignment-details__icon-wrap"
+        aria-hidden="true"
+      >
+        <i [class]="ALL_ICONS.COMMON.USER"></i>
+      </span>
+      <div class="attendance-assignment-details__text">
+        <span class="attendance-assignment-details__label">Engineer</span>
+        <span class="attendance-assignment-details__value">{{ row.associateEngineerName || '—' }}</span>
+      </div>
+    </div>
+
+    <div class="attendance-assignment-details__cell">
+      <span
+        class="attendance-assignment-details__icon-wrap"
+        aria-hidden="true"
+      >
+        <i [class]="ALL_ICONS.COMMON.CAR"></i>
+      </span>
+      <div class="attendance-assignment-details__text">
+        <span class="attendance-assignment-details__label">Vehicle</span>
+        <span class="attendance-assignment-details__value">{{ row.associatedVehicle || '—' }}</span>
       </div>
     </div>
   </div>

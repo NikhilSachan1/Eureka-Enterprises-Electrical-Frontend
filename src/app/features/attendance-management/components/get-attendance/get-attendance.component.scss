@@ -1,0 +1,72 @@
+// Assignment Details column — compact tiles aligned with app metrics / cards
+.attendance-assignment-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 0.625rem;
+  min-width: 12rem;
+  max-width: 28rem;
+  padding: 0.125rem 0;
+}
+
+.attendance-assignment-details__cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.5rem 0.5rem 0.5rem 0.45rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary-color) 8%, var(--background-paper-color)) 0%,
+    var(--background-paper-color) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--border-light-color) 85%, var(--primary-color) 15%);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--text-primary-color) 4%, transparent);
+}
+
+.attendance-assignment-details__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--primary-color) 12%, var(--background-paper-color));
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.attendance-assignment-details__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.attendance-assignment-details__label {
+  font-size: 0.625rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+  line-height: 1.2;
+}
+
+.attendance-assignment-details__value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary-color);
+  line-height: 1.35;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .attendance-assignment-details {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+}
