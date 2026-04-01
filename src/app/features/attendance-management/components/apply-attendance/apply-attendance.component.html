@@ -10,7 +10,7 @@
           <div class="status-pill">
             <span class="status-pill__dot"></span>
             <span class="status-pill__text">
-              {{ currentStatusData()?.status || '' | textCase: 'title' }}
+              {{ getAttendanceStatusLabel(currentStatusData()?.status) | textCase: 'title' }}
             </span>
           </div>
           <div class="time-info">
@@ -59,41 +59,34 @@
 
       <!-- Assignment Details -->
       <section class="content-card__main assignment-section">
-        @let showCheckInButton =
-          !isEditingAssignment() && currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
-        @let showCheckOutButton =
-          !isEditingAssignment() && !currentStatusData()?.checkInTime && !currentStatusData()?.checkOutTime;
-
         <form
           class="form"
           [formGroup]="form.formGroup"
           (ngSubmit)="onSubmit()"
         >
-          @if (!isEditingAssignment()) {
-            <div class="assignment-note">
-              <p>Before applying attendance, please review your assignment details.</p>
-              <p>If any information is incorrect, you may edit it here or contact your Admin / HR.</p>
-              <ul class="assignment-note__list">
-                <li>
-                  <b>Site Location</b>
-                  - This is the site location where you need to report.
-                </li>
-                <li>
-                  <b>Client</b>
-                  - This is the client for whom you are working at this assignment.
-                </li>
-                <li>
-                  <b>Associate Engineer</b>
-                  - Fooding and benefits will be provided only to the selected associate engineer. Later, the driver
-                  will take the fooding from the same associate engineer.
-                </li>
-                <li>
-                  <b>Associated Vehicle</b>
-                  - The assigned vehicle will remain under your responsibility.
-                </li>
-              </ul>
-            </div>
-          }
+          <div class="assignment-note">
+            <p>Before applying attendance, please review your assignment details.</p>
+            <p>If any information is incorrect, you may edit it here or contact your Admin / HR.</p>
+            <ul class="assignment-note__list">
+              <li>
+                <b>Company</b>
+                - The company (and location) where you are required to report for this assignment.
+              </li>
+              <li>
+                <b>Contractors</b>
+                - The contractor(s) you are working for on this assignment.
+              </li>
+              <li>
+                <b>Assigned Engineer</b>
+                - Fooding and benefits apply only to the selected assigned engineer. If you are a driver, fooding will
+                follow the same assigned engineer.
+              </li>
+              <li>
+                <b>Vehicle</b>
+                - The vehicle you select remains your responsibility for this assignment.
+              </li>
+            </ul>
+          </div>
           <div class="assignment-card">
             <div class="assignment-card__header">
               <h3 class="assignment-card__title">Assignment Details</h3>
@@ -109,7 +102,7 @@
                   <div class="assignment-row__content assignment-row__content--full">
                     <app-input-field
                       [formGroup]="form.formGroup"
-                      [inputFieldConfig]="form.fieldConfigs.locationName"
+                      [inputFieldConfig]="form.fieldConfigs.company"
                     />
                   </div>
                 } @else {
@@ -117,10 +110,28 @@
                     <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
                   </div>
                   <div class="assignment-row__content">
-                    <span class="assignment-row__label">Location</span>
+                    <span class="assignment-row__label">Company</span>
                     <span class="assignment-row__value">
-                      {{ $any(form.getFieldData('locationName')) ?? '-' | textCase: 'title' }}
+                      {{ assignmentDisplayLabels().companyName | textCase: 'title' }}
                     </span>
+                    @if (
+                      assignmentDisplayLabels().companyCity !== '-' || assignmentDisplayLabels().companyState !== '-'
+                    ) {
+                      <span class="assignment-row__meta">
+                        @if (assignmentDisplayLabels().companyCity !== '-') {
+                          {{ assignmentDisplayLabels().companyCity | textCase: 'title' }}
+                        }
+                        @if (
+                          assignmentDisplayLabels().companyCity !== '-' &&
+                          assignmentDisplayLabels().companyState !== '-'
+                        ) {
+                          <span class="assignment-row__meta-sep">·</span>
+                        }
+                        @if (assignmentDisplayLabels().companyState !== '-') {
+                          {{ assignmentDisplayLabels().companyState | textCase: 'title' }}
+                        }
+                      </span>
+                    }
                   </div>
                 }
               </div>
@@ -131,7 +142,7 @@
                   <div class="assignment-row__content assignment-row__content--full">
                     <app-input-field
                       [formGroup]="form.formGroup"
-                      [inputFieldConfig]="form.fieldConfigs.clientName"
+                      [inputFieldConfig]="form.fieldConfigs.contractors"
                     />
                   </div>
                 } @else {
@@ -139,9 +150,9 @@
                     <i [class]="ALL_ICONS.COMMON.USER"></i>
                   </div>
                   <div class="assignment-row__content">
-                    <span class="assignment-row__label">Client</span>
+                    <span class="assignment-row__label">Contractors</span>
                     <span class="assignment-row__value">
-                      {{ $any(form.getFieldData('clientName')) ?? '-' | textCase: 'title' }}
+                      {{ assignmentDisplayLabels().contractors | textCase: 'title' }}
                     </span>
                   </div>
                 }
@@ -152,7 +163,7 @@
                   <div class="assignment-row__content assignment-row__content--full">
                     <app-input-field
                       [formGroup]="form.formGroup"
-                      [inputFieldConfig]="form.fieldConfigs.associateEngineerName"
+                      [inputFieldConfig]="form.fieldConfigs.assignedEngineer"
                     />
                   </div>
                 } @else {
@@ -160,9 +171,9 @@
                     <i [class]="ALL_ICONS.COMMON.USER"></i>
                   </div>
                   <div class="assignment-row__content">
-                    <span class="assignment-row__label">Associate Engineer</span>
+                    <span class="assignment-row__label">Assigned Engineer</span>
                     <span class="assignment-row__value">
-                      {{ $any(form.getFieldData('associateEngineerName')) ?? '-' | textCase: 'title' }}
+                      {{ assignmentDisplayLabels().engineer | textCase: 'title' }}
                     </span>
                   </div>
                 }
@@ -173,7 +184,7 @@
                   <div class="assignment-row__content assignment-row__content--full">
                     <app-input-field
                       [formGroup]="form.formGroup"
-                      [inputFieldConfig]="form.fieldConfigs.associatedVehicle"
+                      [inputFieldConfig]="form.fieldConfigs.vehicle"
                     />
                   </div>
                 } @else {
@@ -181,28 +192,38 @@
                     <i [class]="ALL_ICONS.COMMON.CAR"></i>
                   </div>
                   <div class="assignment-row__content">
-                    <span class="assignment-row__label">Associated Vehicle</span>
+                    <span class="assignment-row__label">Vehicle</span>
                     <span class="assignment-row__value">
-                      {{ $any(form.getFieldData('associatedVehicle')) ?? '-' | textCase: 'title' }}
+                      {{ assignmentDisplayLabels().vehicle | textCase: 'title' }}
                     </span>
                   </div>
                 }
               </div>
             </div>
           </div>
-          <div class="action-button">
-            @if (showCheckOutButton) {
-              <app-button
-                [buttonConfig]="form.buttonConfigs['checkOut']"
-                [showButtonLoader]="isSubmitting()"
-              ></app-button>
-            } @else if (showCheckInButton) {
-              <app-button
-                [buttonConfig]="form.buttonConfigs['checkIn']"
-                [showButtonLoader]="isSubmitting()"
-              ></app-button>
-            }
-          </div>
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs.remark"
+          />
+          @if (!currentStatusData()?.checkInTime || isEditingAssignment()) {
+            <div
+              class="action-button"
+              [class.action-button--split]="isEditingAssignment() && !currentStatusData()?.checkInTime"
+            >
+              @if (!currentStatusData()?.checkInTime) {
+                <app-button
+                  [buttonConfig]="form.buttonConfigs['checkIn']"
+                  [showButtonLoader]="isSubmitting()"
+                />
+              }
+              @if (isEditingAssignment()) {
+                <app-button
+                  [buttonConfig]="form.buttonConfigs['reset']"
+                  (onButtonClick)="onResetAssignmentForm()"
+                />
+              }
+            </div>
+          }
         </form>
       </section>
     </div>

@@ -15,6 +15,7 @@ import {
   AttendanceRegularizedResponseSchema,
   AttendanceGetBaseResponseSchema,
   AttendanceGetStatsResponseSchema,
+  AttendanceCurrentStatusGetFormSchema,
 } from '../schemas';
 
 /**
@@ -55,7 +56,12 @@ export type IAttendanceHistoryGetFormDto = z.input<
 export type IAttendanceCurrentStatusGetResponseDto = z.infer<
   typeof AttendanceCurrentStatusGetResponseSchema
 >;
-
+export type IAttendanceCurrentStatusGetRequestDto = z.infer<
+  typeof AttendanceCurrentStatusGetFormSchema
+>;
+export type IAttendanceCurrentStatusGetFormDto = z.input<
+  typeof AttendanceCurrentStatusGetFormSchema
+>;
 /**
  * Attendance Apply
  */
@@ -69,6 +75,19 @@ export type IAttendanceApplyResponseDto = z.infer<
 export type IAttendanceApplyFormDto = z.input<
   typeof AttendanceApplyRequestSchema
 >;
+export type IAttendanceApplyUIFormDto = Pick<
+  IAttendanceApplyFormDto,
+  'remark'
+> & {
+  company: NonNullable<IAttendanceApplyFormDto['company']>['id'] | null;
+  contractors: NonNullable<
+    IAttendanceApplyFormDto['contractors'][number]
+  >['id'][];
+  vehicle: NonNullable<IAttendanceApplyFormDto['vehicle']>['id'] | null;
+  assignedEngineer:
+    | NonNullable<IAttendanceApplyFormDto['assignedEngineer']>['id']
+    | null;
+};
 
 /*
   Attendance Regularized
@@ -101,6 +120,19 @@ export type IAttendanceForceFormDto = z.input<
 export type IAttendanceForceResponseDto = z.infer<
   typeof AttendanceForceResponseSchema
 >;
+export type IAttendanceForceUIFormDto = Pick<
+  IAttendanceForceFormDto,
+  'employeeName' | 'attendanceDate' | 'attendanceStatus' | 'remark'
+> & {
+  company: NonNullable<IAttendanceForceFormDto['company']>['id'] | null;
+  contractors: NonNullable<
+    IAttendanceForceFormDto['contractors'][number]
+  >['id'][];
+  vehicle: NonNullable<IAttendanceForceFormDto['vehicle']>['id'] | null;
+  assignedEngineer:
+    | NonNullable<IAttendanceForceFormDto['assignedEngineer']>['id']
+    | null;
+};
 
 /**
  * Attendance Action

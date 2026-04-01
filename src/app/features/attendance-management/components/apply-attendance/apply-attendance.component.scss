@@ -330,6 +330,7 @@
 
   &--full {
     width: 100%;
+    min-width: 0;
   }
 }
 
@@ -349,9 +350,29 @@
   color: var(--text-primary-color);
 }
 
-// Action button
+.assignment-row__meta {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary-color);
+}
+
+.assignment-row__meta-sep {
+  font-weight: 500;
+  color: var(--text-secondary-color);
+  opacity: 0.85;
+}
+
+// Action button — full width Check In; in edit mode Check In + Reset 50/50
 .action-button {
   margin-top: 0.75rem;
+
+  &--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
 }
 
 :host ::ng-deep .p-button {

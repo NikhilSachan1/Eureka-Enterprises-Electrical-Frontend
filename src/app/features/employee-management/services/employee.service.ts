@@ -13,8 +13,8 @@ import {
   IEmployeeDetailGetResponseDto,
   IEmployeeEditFormDto,
   IEmployeeEditResponseDto,
+  IEmployeeGetFormDto,
   IEmployeeGetNextEmployeeIdResponseDto,
-  IEmployeeGetRequestDto,
   IEmployeeGetResponseDto,
   IEmployeeSendPasswordLinkFormDto,
   IEmployeeSendPasswordLinkResponseDto,
@@ -172,7 +172,7 @@ export class EmployeeService {
   }
 
   getEmployeeList(
-    params?: IEmployeeGetRequestDto
+    params?: IEmployeeGetFormDto
   ): Observable<IEmployeeGetResponseDto> {
     this.logger.logUserAction('Get Employee List Request');
 

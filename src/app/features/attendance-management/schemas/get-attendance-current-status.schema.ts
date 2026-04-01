@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { AttendanceBaseSchema } from './base-attendance.schema';
-import { UserSchema } from '@shared/schemas';
+import { UserSchema, uuidField } from '@shared/schemas';
 
 const {
   id,
@@ -10,7 +10,19 @@ const {
   approvalStatus,
   workDuration,
   attendanceDate,
+  assignmentSnapshot,
 } = AttendanceBaseSchema.shape;
+
+const assignmentSnapshotShape = assignmentSnapshot.unwrap().shape;
+
+export const AttendanceCurrentStatusGetFormSchema = z
+  .object({
+    employeeName: uuidField,
+  })
+  .strict()
+  .transform(data => ({
+    userId: data.employeeName,
+  }));
 
 export const AttendanceCurrentStatusGetResponseSchema = z
   .object({
@@ -22,10 +34,6 @@ export const AttendanceCurrentStatusGetResponseSchema = z
     approvalStatus,
     workDuration,
     user: UserSchema,
-    site: z.string().nullable(),
-    company: z.string().nullable(),
-    contractors: z.array(z.string()).nullable(),
-    vehicle: z.string().nullable(),
-    assignedEngineer: z.string().nullable(),
+    ...assignmentSnapshotShape,
   })
-  .strict();
+  .loose();

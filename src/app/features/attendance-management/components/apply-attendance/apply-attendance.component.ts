@@ -4,14 +4,15 @@ import {
   Component,
   computed,
   inject,
-  signal,
   OnInit,
+  signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AttendanceService } from '@features/attendance-management/services/attendance.service';
 import {
   IAttendanceApplyFormDto,
+  IAttendanceApplyUIFormDto,
   IAttendanceCurrentStatusGetResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -23,10 +24,14 @@ import {
   EButtonVariant,
   IButtonConfig,
   IPageHeaderConfig,
+  ITrackedFields,
 } from '@shared/types';
 import { SecondsToDhmsPipe } from '@shared/pipes/seconds-to-dhms.pipe';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { EApplyAttendanceAction } from '@features/attendance-management/types/attendance.enum';
@@ -36,6 +41,16 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBase } from '@shared/base/form.base';
 import { APP_CONFIG } from '@core/config';
+import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
+import { IContractorGetBaseResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
+import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
+import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import type { z } from 'zod';
+import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
+
+type VehicleApplyValue = z.infer<typeof VehicleBaseSchema>;
+type EmployeeApplyValue = z.infer<typeof EmployeeBaseSchema>;
 
 @Component({
   selector: 'app-apply-attendance',
@@ -53,21 +68,27 @@ import { APP_CONFIG } from '@core/config';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApplyAttendanceComponent
-  extends FormBase<IAttendanceApplyFormDto>
+  extends FormBase<IAttendanceApplyUIFormDto>
   implements OnInit
 {
   protected readonly attendanceService = inject(AttendanceService);
   private readonly authService = inject(AuthService);
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
+
+  private trackedApplyAttendanceFields!: ITrackedFields<IAttendanceApplyUIFormDto>;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected assignmentHeaderButtonConfig = computed(() =>
     this.getAssignmentHeaderButtonConfig()
   );
+  protected readonly assignmentDisplayLabels = computed(() =>
+    this.getAssignmentDisplayLabels()
+  );
 
   protected readonly initialAttendanceData =
-    signal<IAttendanceApplyFormDto | null>(null);
+    signal<IAttendanceApplyUIFormDto | null>(null);
   protected readonly currentStatusData =
     signal<IAttendanceCurrentStatusGetResponseDto | null>(null);
   protected readonly isEditingAssignment = signal(false);
@@ -83,7 +104,7 @@ export class ApplyAttendanceComponent
     const currentUser = this.authService.getCurrentUser();
     const isDriverUser = currentUser?.activeRole === EUserRole.DRIVER;
 
-    this.form = this.formService.createForm<IAttendanceApplyFormDto>(
+    this.form = this.formService.createForm<IAttendanceApplyUIFormDto>(
       APPLY_ATTENDANCE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
@@ -93,6 +114,109 @@ export class ApplyAttendanceComponent
         },
       }
     );
+
+    const trackedFields: (keyof IAttendanceApplyUIFormDto)[] = [
+      'company',
+      'contractors',
+      'vehicle',
+      'assignedEngineer',
+    ];
+    this.trackedApplyAttendanceFields =
+      this.formService.trackMultipleFieldChanges<IAttendanceApplyUIFormDto>(
+        this.form.formGroup,
+        trackedFields,
+        this.destroyRef
+      );
+  }
+
+  private getAssignmentDisplayLabels(): {
+    companyName: string;
+    companyCity: string;
+    companyState: string;
+    contractors: string;
+    engineer: string;
+    vehicle: string;
+  } {
+    const v = this.trackedApplyAttendanceFields?.getValues();
+    const companyId = v?.company;
+    const contractorIds = v?.contractors;
+    const vehicleId = v?.vehicle;
+    const engineerId = v?.assignedEngineer;
+
+    let companyName = '-';
+    let companyCity = '-';
+    let companyState = '-';
+
+    if (companyId) {
+      const companyData = getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.companyList(),
+        companyId,
+        'value',
+        'data'
+      ) as ICompanyGetBaseResponseDto;
+
+      companyName = companyData?.name?.trim() ?? '-';
+      companyCity =
+        getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.cities(),
+          companyData.city,
+          'value',
+          'label'
+        ) ??
+        companyData?.city?.trim() ??
+        '-';
+      companyState =
+        this.appConfigurationService
+          .states()
+          .find(s => s.value === companyData?.state?.trim())?.label ??
+        companyData?.state?.trim() ??
+        '-';
+    }
+
+    let contractorsNames = '-';
+    if (contractorIds?.length) {
+      const contractorsData = contractorIds.map(
+        id =>
+          getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.contractorList(),
+            id,
+            'value',
+            'data'
+          ) as IContractorGetBaseResponseDto
+      );
+      contractorsNames = contractorsData.map(c => c.name).join(', ');
+    }
+
+    let engineer = '-';
+    if (engineerId) {
+      const emp = getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.employeeList(),
+        engineerId,
+        'value',
+        'data'
+      ) as IEmployeeGetBaseResponseDto;
+      engineer =
+        `${emp?.firstName?.trim()} ${emp?.lastName?.trim()}`.trim() ?? '-';
+    }
+
+    let vehicle = '-';
+    if (vehicleId) {
+      const vehicleData = getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.vehicleList(),
+        vehicleId,
+        'value',
+        'data'
+      ) as VehicleApplyValue;
+      vehicle = vehicleData?.registrationNo?.trim() ?? '-';
+    }
+    return {
+      companyName,
+      companyCity,
+      companyState,
+      contractors: contractorsNames,
+      engineer,
+      vehicle,
+    };
   }
 
   private loadCurrentStatusDataFromRoute(): void {
@@ -118,14 +242,15 @@ export class ApplyAttendanceComponent
 
   private preparePrefilledFormData(
     currentStatusFromResolver: IAttendanceCurrentStatusGetResponseDto
-  ): IAttendanceApplyFormDto {
-    const { site, company, vehicle, assignedEngineer } =
+  ): IAttendanceApplyUIFormDto {
+    const { company, contractors, vehicle, assignedEngineer } =
       currentStatusFromResolver;
     return {
-      locationName: site ?? '',
-      clientName: company ?? '',
-      associateEngineerName: assignedEngineer ?? '',
-      associatedVehicle: vehicle ?? '',
+      company: company?.id ?? null,
+      contractors: contractors?.map(c => c?.id ?? '') ?? [],
+      vehicle: vehicle?.id ?? null,
+      assignedEngineer: assignedEngineer?.id ?? null,
+      remark: null,
     };
   }
 
@@ -136,7 +261,54 @@ export class ApplyAttendanceComponent
 
   private prepareFormData(): IAttendanceApplyFormDto {
     const formData = this.form.getData();
-    return formData;
+    const companyId = formData.company;
+    const vehicleId = formData.vehicle;
+    const engineerId = formData.assignedEngineer;
+
+    return {
+      ...formData,
+      remark: formData.remark?.trim() ? formData.remark.trim() : null,
+      company: this.isBlankId(companyId)
+        ? null
+        : ((getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.companyList(),
+            companyId,
+            'value',
+            'data'
+          ) as ICompanyGetBaseResponseDto) ?? null),
+      contractors: formData.contractors.map(c =>
+        this.isBlankId(c)
+          ? null
+          : ((getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.contractorList(),
+              c,
+              'value',
+              'data'
+            ) as IContractorGetBaseResponseDto) ?? null)
+      ),
+      vehicle: this.isBlankId(vehicleId)
+        ? null
+        : ((getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.vehicleList(),
+            vehicleId,
+            'value',
+            'data'
+          ) as VehicleApplyValue) ?? null),
+      assignedEngineer: this.isBlankId(engineerId)
+        ? null
+        : ((getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.employeeList(),
+            engineerId,
+            'value',
+            'data'
+          ) as EmployeeApplyValue) ?? null),
+    } satisfies IAttendanceApplyFormDto;
+  }
+
+  private isBlankId(
+    value: string | null | undefined
+  ): value is null | undefined | '' {
+    return value === null || value === undefined || value === '';
   }
 
   protected executeApplyAttendance(formData: IAttendanceApplyFormDto): void {
@@ -189,6 +361,18 @@ export class ApplyAttendanceComponent
 
   protected toggleAssignmentEditing(): void {
     this.isEditingAssignment.update(isEditing => !isEditing);
+  }
+
+  protected onResetAssignmentForm(): void {
+    const initial = this.initialAttendanceData();
+    this.onResetSingleForm(initial ?? undefined);
+  }
+
+  protected getAttendanceStatusLabel(status: string | undefined): string {
+    return getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.attendanceStatus(),
+      status ?? ''
+    );
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

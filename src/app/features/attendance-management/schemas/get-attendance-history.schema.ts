@@ -19,6 +19,5 @@ export const AttendanceHistoryGetResponseSchema = z.array(
     createdByUser: makeFieldsNullable(UserSchema).nullable().optional(),
     updatedByUser: makeFieldsNullable(UserSchema).nullable().optional(),
     approvalByUser: makeFieldsNullable(UserSchema).nullable().optional(),
-    assignmentSnapshot: z.null().nullable(),
-  }).strict()
+  }).loose()
 );

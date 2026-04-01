@@ -25,8 +25,8 @@
         <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
       </span>
       <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Location</span>
-        <span class="attendance-assignment-details__value">{{ row.siteLocation || '—' }}</span>
+        <span class="attendance-assignment-details__label">Company</span>
+        <span class="attendance-assignment-details__value">{{ row.assignmentSnapshot?.company?.name || '—' }}</span>
       </div>
     </div>
 
@@ -38,8 +38,8 @@
         <i [class]="ALL_ICONS.SITE.BUILDING"></i>
       </span>
       <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Client</span>
-        <span class="attendance-assignment-details__value">{{ row.clientName || '—' }}</span>
+        <span class="attendance-assignment-details__label">Contractors</span>
+        <span class="attendance-assignment-details__value">{{ row.assignmentSnapshot?.company?.name || '—' }}</span>
       </div>
     </div>
 
@@ -51,8 +51,10 @@
         <i [class]="ALL_ICONS.COMMON.USER"></i>
       </span>
       <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Engineer</span>
-        <span class="attendance-assignment-details__value">{{ row.associateEngineerName || '—' }}</span>
+        <span class="attendance-assignment-details__label">Assigned Engineer</span>
+        <span class="attendance-assignment-details__value">
+          {{ row.assignmentSnapshot?.assignedEngineer?.name || '—' }}
+        </span>
       </div>
     </div>
 
@@ -64,8 +66,10 @@
         <i [class]="ALL_ICONS.COMMON.CAR"></i>
       </span>
       <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Vehicle</span>
-        <span class="attendance-assignment-details__value">{{ row.associatedVehicle || '—' }}</span>
+        <span class="attendance-assignment-details__label">Associated Vehicle</span>
+        <span class="attendance-assignment-details__value">
+          {{ row.assignmentSnapshot?.vehicle?.registrationNo || '—' }}
+        </span>
       </div>
     </div>
   </div>

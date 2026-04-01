@@ -7,6 +7,7 @@ import {
   IAttendanceActionResponseDto,
   IAttendanceApplyFormDto,
   IAttendanceApplyResponseDto,
+  IAttendanceCurrentStatusGetFormDto,
   IAttendanceCurrentStatusGetResponseDto,
   IAttendanceForceFormDto,
   IAttendanceForceResponseDto,
@@ -31,6 +32,7 @@ import {
   AttendanceRegularizedResponseSchema,
   AttendanceGetRequestSchema,
   AttendanceGetResponseSchema,
+  AttendanceCurrentStatusGetFormSchema,
 } from '../schemas';
 
 @Injectable({
@@ -233,13 +235,20 @@ export class AttendanceService {
       );
   }
 
-  getAttendanceCurrentStatus(): Observable<IAttendanceCurrentStatusGetResponseDto> {
+  getAttendanceCurrentStatus(
+    params?: IAttendanceCurrentStatusGetFormDto
+  ): Observable<IAttendanceCurrentStatusGetResponseDto> {
     this.logger.logUserAction('Get Attendance Current Status Request');
 
     return this.apiService
-      .getValidated(API_ROUTES.ATTENDANCE.CURRENT_STATUS, {
-        response: AttendanceCurrentStatusGetResponseSchema,
-      })
+      .getValidated(
+        API_ROUTES.ATTENDANCE.CURRENT_STATUS,
+        {
+          response: AttendanceCurrentStatusGetResponseSchema,
+          request: AttendanceCurrentStatusGetFormSchema,
+        },
+        params
+      )
       .pipe(
         tap((response: IAttendanceCurrentStatusGetResponseDto) => {
           this.logger.logUserAction(

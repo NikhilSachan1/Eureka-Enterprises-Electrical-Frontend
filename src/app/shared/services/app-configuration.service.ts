@@ -25,7 +25,10 @@ import {
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IOptionDropdown } from '@shared/types';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
-import { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
+import {
+  IEmployeeGetFormDto,
+  IEmployeeGetResponseDto,
+} from '@features/employee-management/types/employee.dto';
 import {
   IRoleGetBaseResponseDto,
   IRoleGetResponseDto,
@@ -437,7 +440,12 @@ export class AppConfigurationService {
   loadEmployeeList(): Observable<IEmployeeGetResponseDto> {
     this.logger.logUserAction('Loading app data - Employee List');
 
-    return this.employeeService.getEmployeeList().pipe(
+    const payload: IEmployeeGetFormDto = {
+      page: 1,
+      pageSize: 100,
+    };
+
+    return this.employeeService.getEmployeeList(payload).pipe(
       tap(response => {
         this.logger.logUserAction('Employee List loaded successfully', {
           count: response.totalRecords,
@@ -452,6 +460,7 @@ export class AppConfigurationService {
                 `${employee.firstName} ${employee.lastName}`.trim()
               ),
               value: employee.id,
+              data: employee,
             };
 
             // Parse roles and add to role-based lists
@@ -707,6 +716,7 @@ export class AppConfigurationService {
               `${vehicle.registrationNo} (${vehicle.brand} ${vehicle.model})`.trim()
             ),
             value: vehicle.id,
+            data: vehicle,
           }))
           .sort(this.sortByLabel);
 
@@ -785,6 +795,7 @@ export class AppConfigurationService {
           .map(contractor => ({
             label: toTitleCase(contractor.name),
             value: contractor.id,
+            data: contractor,
           }))
           .sort(this.sortByLabel);
 

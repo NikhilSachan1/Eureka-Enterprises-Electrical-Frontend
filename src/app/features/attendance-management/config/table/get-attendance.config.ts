@@ -51,7 +51,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
       },
     },
     {
-      field: 'siteLocation',
+      field: 'assignmentSnapshot',
       header: 'Assignment Details',
       customTemplateKey: 'attendanceAssignmentDetails',
       showSort: false,

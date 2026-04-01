@@ -9,7 +9,10 @@ export {
   AttendanceHistoryGetRequestSchema,
   AttendanceHistoryGetResponseSchema,
 } from './get-attendance-history.schema';
-export { AttendanceCurrentStatusGetResponseSchema } from './get-attendance-current-status.schema';
+export {
+  AttendanceCurrentStatusGetFormSchema,
+  AttendanceCurrentStatusGetResponseSchema,
+} from './get-attendance-current-status.schema';
 export {
   AttendanceApplyRequestSchema,
   AttendanceApplyResponseSchema,

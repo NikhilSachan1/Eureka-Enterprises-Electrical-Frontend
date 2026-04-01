@@ -40,6 +40,31 @@
     }
   }
 
+  // Long selected labels (e.g. vehicle reg + brand) must wrap instead of overflowing the card
+  .p-select {
+    max-width: 100%;
+    min-width: 0;
+
+    .p-select-label {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      line-height: 1.35;
+    }
+  }
+
+  .p-select-fluid {
+    min-width: 0;
+  }
+
+  p-floatlabel:has(.p-select) {
+    display: block;
+    max-width: 100%;
+    min-width: 0;
+  }
+
   .p-multiselect {
     .p-multiselect-chip {
       border-radius: 1rem;

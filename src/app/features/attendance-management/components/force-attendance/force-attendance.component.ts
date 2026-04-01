@@ -2,14 +2,23 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   OnInit,
 } from '@angular/core';
 import { AttendanceService } from '../../services/attendance.service';
-import { RouterNavigationService } from '@shared/services';
-import { IPageHeaderConfig } from '@shared/types';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
+import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { FORCE_ATTENDANCE_FORM_CONFIG } from '../../config';
-import { IAttendanceForceFormDto } from '@features/attendance-management/types/attendance.dto';
+import {
+  IAttendanceCurrentStatusGetFormDto,
+  IAttendanceCurrentStatusGetResponseDto,
+  IAttendanceForceFormDto,
+  IAttendanceForceUIFormDto,
+} from '@features/attendance-management/types/attendance.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { finalize } from 'rxjs';
@@ -17,8 +26,16 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FORCE_ATTENDANCE_PREFILLED_DATA } from '@shared/mock-data/force-attendance.mock-data';
 import { FormBase } from '@shared/base/form.base';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
+import { IContractorGetBaseResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
+import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
+import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
+import type { z } from 'zod';
+
+type VehicleApplyValue = z.infer<typeof VehicleBaseSchema>;
+type EmployeeApplyValue = z.infer<typeof EmployeeBaseSchema>;
 
 @Component({
   selector: 'app-force-attendance',
@@ -33,23 +50,99 @@ import { FormBase } from '@shared/base/form.base';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ForceAttendanceComponent
-  extends FormBase<IAttendanceForceFormDto>
+  extends FormBase<IAttendanceForceUIFormDto>
   implements OnInit
 {
   private readonly attendanceService = inject(AttendanceService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
+
+  private trackedAttendanceFields!: ITrackedFields<IAttendanceForceUIFormDto>;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
+  constructor() {
+    super();
+    effect(() => {
+      if (
+        this.trackedAttendanceFields &&
+        this.trackedAttendanceFields.employeeName
+      ) {
+        const employeeName = this.trackedAttendanceFields.employeeName();
+        if (employeeName && typeof employeeName === 'string') {
+          this.loadEmployeeCurrentStatusDetail(employeeName);
+        }
+      }
+    });
+  }
+
   ngOnInit(): void {
-    this.form = this.formService.createForm<IAttendanceForceFormDto>(
+    this.form = this.formService.createForm<IAttendanceForceUIFormDto>(
       FORCE_ATTENDANCE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
       }
     );
 
-    this.loadMockData(FORCE_ATTENDANCE_PREFILLED_DATA);
+    const trackedFields: (keyof IAttendanceForceUIFormDto)[] = ['employeeName'];
+    this.trackedAttendanceFields =
+      this.formService.trackMultipleFieldChanges<IAttendanceForceUIFormDto>(
+        this.form.formGroup,
+        trackedFields,
+        this.destroyRef
+      );
+
+    // this.loadMockData(FORCE_ATTENDANCE_PREFILLED_DATA);
+  }
+
+  private loadEmployeeCurrentStatusDetail(employeeName: string): void {
+    this.loadingService.show({
+      title: 'Loading Employee Current Status Detail',
+      message:
+        'Please wait while we load the employee current status detail...',
+    });
+
+    const paramData = this.prepareParamDataForCurrentStatusDetail(employeeName);
+
+    this.attendanceService
+      .getAttendanceCurrentStatus(paramData)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IAttendanceCurrentStatusGetResponseDto) => {
+          const prefilledAttendanceData =
+            this.preparePrefilledFormData(response);
+          this.form.patch(prefilledAttendanceData);
+        },
+        error: error => {
+          this.logger.error(
+            'Error loading employee current status detail',
+            error
+          );
+        },
+      });
+  }
+
+  private prepareParamDataForCurrentStatusDetail(
+    employeeName: string
+  ): IAttendanceCurrentStatusGetFormDto {
+    return {
+      employeeName,
+    };
+  }
+
+  private preparePrefilledFormData(
+    response: IAttendanceCurrentStatusGetResponseDto
+  ): Partial<IAttendanceForceUIFormDto> {
+    return {
+      company: response.company?.id ?? null,
+      contractors: response.contractors?.map(c => c?.id ?? '') ?? [],
+      vehicle: response.vehicle?.id ?? null,
+    };
   }
 
   protected override handleSubmit(): void {
@@ -59,7 +152,54 @@ export class ForceAttendanceComponent
 
   private prepareFormData(): IAttendanceForceFormDto {
     const formData = this.form.getData();
-    return formData;
+    const companyId = formData.company;
+    const vehicleId = formData.vehicle;
+    const engineerId = formData.assignedEngineer;
+
+    return {
+      ...formData,
+      remark: formData.remark?.trim() ? formData.remark.trim() : null,
+      company: this.isBlankId(companyId)
+        ? null
+        : ((getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.companyList(),
+            companyId,
+            'value',
+            'data'
+          ) as ICompanyGetBaseResponseDto) ?? null),
+      contractors: formData.contractors.map(c =>
+        this.isBlankId(c)
+          ? null
+          : ((getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.contractorList(),
+              c,
+              'value',
+              'data'
+            ) as IContractorGetBaseResponseDto) ?? null)
+      ),
+      vehicle: this.isBlankId(vehicleId)
+        ? null
+        : ((getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.vehicleList(),
+            vehicleId,
+            'value',
+            'data'
+          ) as VehicleApplyValue) ?? null),
+      assignedEngineer: this.isBlankId(engineerId)
+        ? null
+        : ((getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.employeeList(),
+            engineerId,
+            'value',
+            'data'
+          ) as EmployeeApplyValue) ?? null),
+    } satisfies IAttendanceForceFormDto;
+  }
+
+  private isBlankId(
+    value: string | null | undefined
+  ): value is null | undefined | '' {
+    return value === null || value === undefined || value === '';
   }
 
   private executeForceAttendance(formData: IAttendanceForceFormDto): void {

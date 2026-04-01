@@ -1,5 +1,6 @@
 import { Validators } from '@angular/forms';
-import { IAttendanceApplyFormDto } from '@features/attendance-management/types/attendance.dto';
+import { IAttendanceApplyUIFormDto } from '@features/attendance-management/types/attendance.dto';
+import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { ICONS } from '@shared/constants/icon.constants';
 import {
@@ -10,46 +11,43 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 
-const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApplyFormDto> =
+const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApplyUIFormDto> =
   {
-    locationName: {
+    company: {
       fieldType: EDataType.SELECT,
-      id: 'locationName',
-      fieldName: 'locationName',
-      label: 'Location',
+      id: 'company',
+      fieldName: 'company',
+      label: 'Company',
       selectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.COMPANY,
           dropdownName: CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
         },
       },
-      validators: [Validators.required],
     },
-    clientName: {
-      fieldType: EDataType.SELECT,
-      id: 'clientName',
-      fieldName: 'clientName',
-      label: 'Client',
-      selectConfig: {
+    contractors: {
+      fieldType: EDataType.MULTI_SELECT,
+      id: 'contractors',
+      fieldName: 'contractors',
+      label: 'Contractors',
+      multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.CONTRACTOR,
           dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
         },
       },
-      validators: [Validators.required],
     },
-    associateEngineerName: {
+    assignedEngineer: {
       fieldType: EDataType.SELECT,
-      id: 'associateEngineerName',
-      fieldName: 'associateEngineerName',
-      label: 'Associate Engineer',
+      id: 'assignedEngineer',
+      fieldName: 'assignedEngineer',
+      label: 'Assigned Engineer',
       selectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
         },
       },
-      validators: [],
       conditionalValidators: [
         {
           shouldApply: (context): boolean => {
@@ -61,11 +59,11 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
         },
       ],
     },
-    associatedVehicle: {
+    vehicle: {
       fieldType: EDataType.SELECT,
-      id: 'associatedVehicle',
-      fieldName: 'associatedVehicle',
-      label: 'Associated Vehicle',
+      id: 'vehicle',
+      fieldName: 'vehicle',
+      label: 'Vehicle',
       selectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.VEHICLE,
@@ -73,22 +71,27 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
         },
       },
     },
+    remark: {
+      fieldType: EDataType.TEXT_AREA,
+      id: 'remark',
+      fieldName: 'remark',
+      label: 'Note',
+    },
   };
 
 const APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   checkIn: {
+    ...COMMON_FORM_ACTIONS.SUBMIT,
     id: EButtonActionType.CHECK_IN,
     label: 'Check In',
     icon: ICONS.ATTENDANCE.CHECK_IN,
   },
-  checkOut: {
-    id: EButtonActionType.CHECK_OUT,
-    label: 'Check Out',
-    icon: ICONS.ATTENDANCE.CHECK_OUT,
+  reset: {
+    ...COMMON_FORM_ACTIONS.RESET,
   },
 };
 
-export const APPLY_ATTENDANCE_FORM_CONFIG: IFormConfig<IAttendanceApplyFormDto> =
+export const APPLY_ATTENDANCE_FORM_CONFIG: IFormConfig<IAttendanceApplyUIFormDto> =
   {
     fields: APPLY_ATTENDANCE_FORM_FIELDS_CONFIG,
     buttons: APPLY_ATTENDANCE_FORM_BUTTONS_CONFIG,

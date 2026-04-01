@@ -6,7 +6,6 @@ import {
 } from '@angular/core';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
-import { CardModule } from 'primeng/card';
 import { AttendanceService } from '../../services/attendance.service';
 import { LoadingService } from '@shared/services/loading.service';
 import { finalize } from 'rxjs';
@@ -23,15 +22,14 @@ import {
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { AppConfigurationService } from '@shared/services';
-import {
-  getMappedValueFromArrayOfObjects,
-  stringToArray,
-} from '@shared/utility';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
+import { ICONS } from '@shared/constants/icon.constants';
+import { TextCasePipe } from '@shared/pipes/text-case.pipe';
 
 @Component({
   selector: 'app-get-attendance-detail',
-  imports: [CardModule, ViewDetailComponent],
+  imports: [ViewDetailComponent, TextCasePipe],
   templateUrl: './get-attendance-detail.component.html',
   styleUrl: './get-attendance-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,6 +47,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   >(undefined);
 
   protected readonly ALL_DATA_TYPES = EDataType;
+  protected readonly ICONS = ICONS;
 
   override onDrawerShow(): void {
     this.loadAttendanceDetails();
@@ -93,9 +92,6 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
     response: IAttendanceHistoryGetResponseDto
   ): IDataViewDetailsWithEntity {
     const mappedDetails = response.map(record => {
-      const siteLocation = stringToArray(record.notes, '-')[0] || '';
-      const clientName = stringToArray(record.notes, '-')[1] || '';
-
       const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Date',
@@ -129,20 +125,9 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           type: EDataType.STATUS,
         },
         {
-          label: 'Site Location',
-          value: siteLocation,
-        },
-        {
-          label: 'Client Name',
-          value: clientName,
-        },
-        {
-          label: 'Associate Engineer',
-          value: 'John Doe', // TODO: Replace hard-coded name with associate employee name once associate employee mapping is available from backend.
-        },
-        {
-          label: 'Associated Vehicle',
-          value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
+          label: 'Assignment Detail',
+          value: record.assignmentSnapshot ?? null,
+          customTemplateKey: 'assignmentSnapshot',
         },
       ];
 

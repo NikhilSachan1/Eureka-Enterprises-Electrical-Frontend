@@ -48,10 +48,7 @@ import {
 } from '../../types/attendance.dto';
 import { IAttendance } from '../../types/attendance.interface';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
-import {
-  getMappedValueFromArrayOfObjects,
-  stringToArray,
-} from '@shared/utility';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
@@ -158,10 +155,6 @@ export class GetAttendanceComponent implements OnInit {
     const approvalStatus = this.appConfigurationService.approvalStatus();
 
     return response.map((record: IAttendanceGetBaseResponseDto) => {
-      const [clientName, siteLocation] = stringToArray(record.notes, '-');
-      const associateEngineerName = 'John Doe'; // TODO: Add associate employee name once we have the associate employee name functionality
-      const associatedVehicle = 'Vehicle 1'; // TODO: Add associated vehicle once we have the associated vehicle functionality
-
       return {
         id: record.id,
         attendanceDate: record.attendanceDate,
@@ -175,13 +168,10 @@ export class GetAttendanceComponent implements OnInit {
         ),
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
         employeeCode: record.user.employeeId,
-        siteLocation,
-        clientName,
-        associateEngineerName,
-        associatedVehicle,
         attendanceType: record.attendanceType,
+        assignmentSnapshot: record.assignmentSnapshot,
         originalRawData: record,
-      };
+      } satisfies IAttendance;
     });
   }
 
@@ -264,8 +254,6 @@ export class GetAttendanceComponent implements OnInit {
   private prepareAttendanceRecordDetail(
     selectedRow: IAttendanceGetBaseResponseDto
   ): IDataViewDetailsWithEntity {
-    const siteLocation = stringToArray(selectedRow.notes, '-')[0] || '';
-    const clientName = stringToArray(selectedRow.notes, '-')[1] || '';
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Date',
@@ -282,20 +270,23 @@ export class GetAttendanceComponent implements OnInit {
         type: EDataType.STATUS,
       },
       {
-        label: 'Site Location',
-        value: siteLocation,
+        label: 'Company',
+        value: selectedRow.assignmentSnapshot?.company?.name || '',
       },
       {
-        label: 'Client Name',
-        value: clientName,
+        label: 'Contractors',
+        value:
+          selectedRow.assignmentSnapshot?.contractors
+            ?.map(c => c.name)
+            .join(', ') || '',
       },
       {
-        label: 'Associate Engineer',
-        value: 'John Doe', // TODO: Add associate employee name once we have the associate employee name functionality
+        label: 'Assigned Engineer',
+        value: selectedRow.assignmentSnapshot?.assignedEngineer?.name || '',
       },
       {
         label: 'Associated Vehicle',
-        value: 'Vehicle 1', // TODO: Add associated vehicle once we have the associated vehicle functionality
+        value: selectedRow.assignmentSnapshot?.vehicle?.registrationNo || '',
       },
     ];
 

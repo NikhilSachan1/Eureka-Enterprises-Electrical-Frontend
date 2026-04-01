@@ -1,1 +1,97 @@
-<app-view-detail [drawerDetails]="_attendanceDetails()" />
+<ng-template
+  #assignmentSnapshot
+  let-entry
+>
+  @let snap = $any(entry.value);
+  @if (snap) {
+    <div class="assignment-snapshot">
+      @if (snap.company) {
+        <div class="assignment-snapshot__tile assignment-snapshot__tile--company">
+          <div
+            class="assignment-snapshot__icon assignment-snapshot__icon--company"
+            aria-hidden="true"
+          >
+            <i [class]="ICONS.COMMON.MAP_MARKER"></i>
+          </div>
+          <div class="assignment-snapshot__body">
+            <span class="assignment-snapshot__kicker">Company</span>
+            <span class="assignment-snapshot__title">
+              {{ snap.company.name | textCase: 'title' }}
+            </span>
+            @if (snap.company.fullAddress?.trim()) {
+              <span class="assignment-snapshot__meta">{{ snap.company.fullAddress }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (snap.contractors?.length) {
+        <div class="assignment-snapshot__tile assignment-snapshot__tile--contractors">
+          <div
+            class="assignment-snapshot__icon assignment-snapshot__icon--contractors"
+            aria-hidden="true"
+          >
+            <i [class]="ICONS.COMMON.USER"></i>
+          </div>
+          <div class="assignment-snapshot__body">
+            <span class="assignment-snapshot__kicker">Contractors</span>
+            <div class="assignment-snapshot__chips">
+              @for (c of snap.contractors; track c?.id ?? $index) {
+                @if (c?.name) {
+                  <span class="assignment-snapshot__chip">{{ c.name | textCase: 'title' }}</span>
+                }
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (snap.assignedEngineer) {
+        <div class="assignment-snapshot__tile assignment-snapshot__tile--engineer">
+          <div
+            class="assignment-snapshot__icon assignment-snapshot__icon--engineer"
+            aria-hidden="true"
+          >
+            <i [class]="ICONS.COMMON.USER"></i>
+          </div>
+          <div class="assignment-snapshot__body">
+            <span class="assignment-snapshot__kicker">Assigned engineer</span>
+            <span class="assignment-snapshot__title">
+              {{
+                ((snap.assignedEngineer.firstName ?? '') + ' ' + (snap.assignedEngineer.lastName ?? '')).trim()
+                  | textCase: 'title'
+              }}
+            </span>
+            @if (snap.assignedEngineer.employeeId?.trim()) {
+              <span class="assignment-snapshot__meta">ID: {{ snap.assignedEngineer.employeeId }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (snap.vehicle) {
+        <div class="assignment-snapshot__tile assignment-snapshot__tile--vehicle">
+          <div
+            class="assignment-snapshot__icon assignment-snapshot__icon--vehicle"
+            aria-hidden="true"
+          >
+            <i [class]="ICONS.COMMON.CAR"></i>
+          </div>
+          <div class="assignment-snapshot__body">
+            <span class="assignment-snapshot__kicker">Vehicle</span>
+            <span class="assignment-snapshot__title">{{ snap.vehicle.registrationNo }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <span class="assignment-snapshot__empty">No assignment data for this entry.</span>
+  }
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_attendanceDetails()"
+  [customTemplates]="{
+    assignmentSnapshot: assignmentSnapshot,
+  }"
+/>

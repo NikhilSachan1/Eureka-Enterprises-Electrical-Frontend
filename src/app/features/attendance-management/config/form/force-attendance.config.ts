@@ -10,18 +10,13 @@ import { getPayslipCutoffMinDate } from '@shared/utility';
 import { APPLY_ATTENDANCE_FORM_CONFIG } from './apply-attendance.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
-import { IAttendanceForceFormDto } from '@features/attendance-management/types/attendance.dto';
+import { IAttendanceForceUIFormDto } from '@features/attendance-management/types/attendance.dto';
 
 const {
-  fields: {
-    clientName,
-    locationName,
-    associateEngineerName,
-    associatedVehicle,
-  },
+  fields: { company, contractors, assignedEngineer, vehicle, remark },
 } = APPLY_ATTENDANCE_FORM_CONFIG;
 
-const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceForceFormDto> =
+const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceForceUIFormDto> =
   {
     employeeName: {
       fieldType: EDataType.SELECT,
@@ -68,17 +63,14 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceFor
       },
       validators: [Validators.required],
     },
+    company,
+    contractors,
+    assignedEngineer,
+    vehicle,
     remark: {
-      fieldType: EDataType.TEXT_AREA,
-      id: 'remark',
-      fieldName: 'remark',
-      label: 'Note',
+      ...remark,
       validators: [Validators.required],
     },
-    clientName,
-    locationName,
-    associateEngineerName,
-    associatedVehicle,
   };
 
 const FORCE_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
@@ -92,7 +84,7 @@ const FORCE_ATTENDANCE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const FORCE_ATTENDANCE_FORM_CONFIG: IFormConfig<IAttendanceForceFormDto> =
+export const FORCE_ATTENDANCE_FORM_CONFIG: IFormConfig<IAttendanceForceUIFormDto> =
   {
     fields: FORCE_ATTENDANCE_FORM_FIELDS_CONFIG,
     buttons: FORCE_ATTENDANCE_FORM_BUTTONS_CONFIG,
