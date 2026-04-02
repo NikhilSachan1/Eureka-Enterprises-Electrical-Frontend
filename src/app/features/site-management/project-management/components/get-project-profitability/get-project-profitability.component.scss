@@ -1,214 +1,441 @@
-.profitability-container {
-  padding: 1.5rem;
-  background: var(--background-paper-color);
-  min-height: 100vh;
+.profitability-report {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  // padding: 1.25rem;
+  // background: var(--background-paper-color);
 
-  .profitability-card {
-    background: linear-gradient(135deg, var(--surface-800) 0%, var(--surface-700) 100%);
+  .hero-card {
     border-radius: 1rem;
-    padding: 2rem;
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    margin-bottom: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(125deg, #1e293b, #334155 55%, #0f172a);
+    color: #e2e8f0;
+    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.22);
+  }
 
-    // Revenue Section
-    .revenue-section {
-      margin-bottom: 2rem;
+  .hero-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
 
-      .section-title {
-        color: var(--text-secondary-color);
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        margin-bottom: 1rem;
-      }
+  .eyebrow {
+    margin: 0 0 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-size: 0.72rem;
+    color: #cbd5e1;
+  }
 
-      .revenue-cards {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+  h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #ffffff;
+  }
 
-        .revenue-card {
-          background: rgba(30, 41, 59, 0.5);
-          border: 1px solid rgba(148, 163, 184, 0.1);
-          border-radius: 0.75rem;
-          padding: 1.5rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
+  .subtle-text {
+    margin: 0.35rem 0 0;
+    color: #bfdbfe;
+    font-size: 0.875rem;
+  }
 
-          .revenue-label {
-            color: var(--text-secondary-color);
-            font-size: 0.875rem;
-            font-weight: 400;
-          }
+  .net-pill {
+    display: flex;
+    flex-direction: column;
+    padding: 0.7rem 1rem;
+    border-radius: 0.75rem;
+    background: rgba(34, 197, 94, 0.18);
+    border: 1px solid rgba(74, 222, 128, 0.4);
+    min-width: 150px;
 
-          .revenue-value {
-            color: #ffffff;
-            font-size: 1.5rem;
-            font-weight: 600;
+    &.loss {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(248, 113, 113, 0.45);
+    }
+  }
 
-            &.green {
-              color: #26c485;
-            }
-          }
-        }
-      }
+  .pill-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #cbd5e1;
+  }
+
+  .pill-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .kpi-card {
+    background: var(--background-default-color);
+    border: 1px solid var(--surface-border);
+    border-radius: 0.9rem;
+    padding: 1rem;
+    box-shadow: 0 8px 16px rgba(15, 23, 42, 0.06);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
     }
 
-    // Expenses Section
-    .expenses-section {
-      margin-bottom: 1.5rem;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-
-      .section-title {
-        color: var(--text-secondary-color);
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        margin-bottom: 1rem;
-      }
-
-      .expense-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-
-        .expense-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-
-          .expense-label {
-            color: var(--surface-700);
-            font-size: 0.9375rem;
-            font-weight: 400;
-          }
-
-          .expense-amount {
-            color: #ffffff;
-            font-size: 0.9375rem;
-            font-weight: 500;
-          }
-        }
-      }
-
-      .total-expenses {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 1.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(148, 163, 184, 0.1);
-
-        .total-label {
-          color: var(--text-secondary-color);
-          font-size: 0.875rem;
-          font-weight: 600;
-          letter-spacing: 0.05em;
-        }
-
-        .total-amount {
-          color: #ef4444;
-          font-size: 1.125rem;
-          font-weight: 600;
-        }
-      }
+    h3 {
+      margin: 0.2rem 0 0.3rem;
+      color: var(--text-primary-color);
+      font-size: 1.15rem;
     }
 
-    // Profitability Section
-    .profitability-section {
-      background: rgba(30, 41, 59, 0.3);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
+    small {
+      color: var(--text-secondary-color);
+      font-size: 0.75rem;
+    }
+  }
 
-      .section-title-small {
-        color: var(--text-secondary-color);
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        margin-bottom: 1rem;
-      }
+  .kpi-label {
+    margin: 0;
+    color: var(--text-secondary-color);
+    font-size: 0.8rem;
+  }
 
-      .profitability-metrics {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
+  .positive {
+    color: #16a34a !important;
+  }
 
-        .metric {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
+  .negative {
+    color: #dc2626 !important;
+  }
 
-          .metric-label {
-            color: var(--text-secondary-color);
-            font-size: 0.875rem;
-            font-weight: 400;
-          }
+  .report-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 0.9rem;
+  }
 
-          .metric-value {
-            color: #ffffff;
-            font-size: 1.5rem;
-            font-weight: 600;
+  .panel,
+  .chart-card {
+    background: var(--background-default-color);
+    border: 1px solid var(--surface-border);
+    border-radius: 0.9rem;
+    padding: 1rem;
+    box-shadow: 0 8px 16px rgba(15, 23, 42, 0.05);
+    position: relative;
+    overflow: hidden;
 
-            &.green {
-              color: #26c485;
-            }
-          }
-        }
-      }
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, #60a5fa, #a78bfa);
+      opacity: 0.75;
+    }
+  }
+
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.9rem;
+
+    h3 {
+      margin: 0;
+      color: var(--text-primary-color);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  }
+
+  .total-chip,
+  .margin-pill {
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.75rem;
+    background: rgba(59, 130, 246, 0.15);
+    color: #1d4ed8;
+  }
+
+  .margin-pill.loss {
+    background: rgba(239, 68, 68, 0.18);
+    color: #b91c1c;
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .category-card {
+    border-radius: 0.7rem;
+    padding: 0.7rem;
+    border: 1px solid transparent;
+
+    p {
+      margin: 0;
+      color: var(--text-secondary-color);
+      font-size: 0.78rem;
     }
 
-    // Health Score Section
-    .health-score-section {
-      margin-top: 1.5rem;
+    h4 {
+      margin: 0.3rem 0;
+      font-size: 1rem;
+      color: var(--text-primary-color);
+    }
 
-      .health-score-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
+    small {
+      color: var(--text-secondary-color);
+      font-size: 0.72rem;
+    }
 
-        .health-label {
-          color: var(--text-secondary-color);
-          font-size: 0.875rem;
-          font-weight: 600;
-          letter-spacing: 0.05em;
-        }
+    &.salary {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.35);
+    }
 
-        .health-value {
-          color: #ffffff;
-          font-size: 0.9375rem;
-          font-weight: 600;
-        }
+    &.fuel {
+      background: rgba(249, 115, 22, 0.1);
+      border-color: rgba(249, 115, 22, 0.35);
+    }
+
+    &.regular {
+      background: rgba(139, 92, 246, 0.1);
+      border-color: rgba(139, 92, 246, 0.35);
+    }
+  }
+
+  .expense-ledger {
+    border: 1px solid var(--surface-border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  .ledger-head,
+  .ledger-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    align-items: center;
+  }
+
+  .ledger-head {
+    background: var(--surface-100);
+    color: var(--text-secondary-color);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .ledger-row {
+    border-top: 1px solid var(--surface-border);
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    span {
+      color: var(--text-primary-color);
+      font-size: 0.84rem;
+    }
+
+    strong {
+      color: var(--text-primary-color);
+      font-size: 0.84rem;
+    }
+  }
+
+  .profit-panel {
+    .pl-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 0.9rem;
+
+      p {
+        margin: 0;
+        color: var(--text-secondary-color);
+        font-size: 0.76rem;
+      }
+
+      h4 {
+        margin: 0.28rem 0 0;
+        color: var(--text-primary-color);
+        font-size: 0.96rem;
       }
     }
   }
 
-  // Charts Section
-  .charts-section {
+  .financial-pulse {
+    border: 1px solid var(--surface-border);
+    border-radius: 0.7rem;
+    padding: 0.7rem;
+    margin-bottom: 0.85rem;
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.02));
+  }
+
+  .pulse-row + .pulse-row {
+    margin-top: 0.55rem;
+  }
+
+  .pulse-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.28rem;
+
+    span {
+      color: var(--text-secondary-color);
+      font-size: 0.73rem;
+    }
+
+    strong {
+      color: var(--text-primary-color);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+  }
+
+  .pulse-track {
+    height: 0.42rem;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+  }
+
+  .pulse-fill {
+    height: 100%;
+    transition: width 0.35s ease;
+    border-radius: inherit;
+
+    &.billed {
+      background: #0ea5e9;
+    }
+
+    &.expense {
+      background: #f97316;
+    }
+
+    &.margin-positive {
+      background: #22c55e;
+    }
+
+    &.margin-negative {
+      background: #ef4444;
+    }
+  }
+
+  .ratio-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin-bottom: 0.85rem;
+  }
 
-    .chart-card {
-      background: var(--background-default-color);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow:
-        0 1px 3px 0 rgba(0, 0, 0, 0.1),
-        0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  .ratio-item {
+    border: 1px solid var(--surface-border);
+    border-radius: 0.6rem;
+    padding: 0.55rem 0.65rem;
+    background: var(--surface-50);
 
-      .chart-title {
-        color: var(--text-primary-color);
-        font-size: 1.125rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-      }
+    span {
+      display: block;
+      color: var(--text-secondary-color);
+      font-size: 0.72rem;
+    }
+
+    strong {
+      display: block;
+      color: var(--text-primary-color);
+      font-size: 0.84rem;
+      margin-top: 0.2rem;
+    }
+  }
+
+  .mini-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    border-top: 1px dashed var(--surface-border);
+    padding-top: 0.8rem;
+
+    div {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.7rem;
+      align-items: center;
+    }
+
+    span {
+      color: var(--text-secondary-color);
+      font-size: 0.8rem;
+    }
+
+    strong {
+      color: var(--text-primary-color);
+      font-size: 0.85rem;
+    }
+  }
+
+  .insight-box {
+    margin-top: 0.75rem;
+    border-radius: 0.65rem;
+    padding: 0.65rem 0.75rem;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+
+    span {
+      display: inline-block;
+      margin-bottom: 0.25rem;
+      color: #1d4ed8;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    p {
+      margin: 0;
+      color: var(--text-primary-color);
+      font-size: 0.81rem;
+      line-height: 1.35;
+    }
+  }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  @media (max-width: 1200px) {
+    .kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .report-grid,
+    .charts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .category-grid,
+    .profit-panel .pl-grid,
+    .ratio-grid {
+      grid-template-columns: 1fr;
     }
   }
 }

@@ -1,18 +1,13 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartsComponent } from '@shared/components/charts/charts.component';
-import { ProgressBarComponent } from '@shared/components/progress-bar/progress-bar.component';
-import {
-  EChartType,
-  IChartsConfig,
-  IProgressBarConfig,
-  EProgressBarMode,
-} from '@shared/types';
+import { EChartType, IChartsConfig } from '@shared/types';
 
 interface RevenueData {
   totalPOValue: number;
   invoicedTillDate: number;
   pendingToInvoice: number;
+  totalInvoicesRaised: number;
 }
 
 interface ExpenseItem {
@@ -28,7 +23,7 @@ interface ProfitabilityData {
 
 @Component({
   selector: 'app-get-project-profitability',
-  imports: [CommonModule, ChartsComponent, ProgressBarComponent],
+  imports: [CommonModule, ChartsComponent],
   templateUrl: './get-project-profitability.component.html',
   styleUrl: './get-project-profitability.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,6 +33,7 @@ export class GetProjectProfitabilityComponent implements OnInit {
     totalPOValue: 12000000, // ₹1.20 Cr
     invoicedTillDate: 5000000, // ₹50.00 L
     pendingToInvoice: 7000000, // ₹70.00 L
+    totalInvoicesRaised: 18,
   };
 
   expenses: ExpenseItem[] = [
@@ -45,6 +41,8 @@ export class GetProjectProfitabilityComponent implements OnInit {
     { label: 'Travel & Accommodation', amount: 250000 },
     { label: 'Fuel & Vehicle', amount: 120000 },
     { label: 'Material/Equipment', amount: 300000 },
+    { label: 'Site Utilities', amount: 320000 },
+    { label: 'Admin & Compliance', amount: 250000 },
     { label: 'Miscellaneous', amount: 50000 },
   ];
 
@@ -56,18 +54,108 @@ export class GetProjectProfitabilityComponent implements OnInit {
     roi: 139,
   };
 
-  healthScore = 45;
-
   // Chart Configurations
   expenseDistributionChartConfig!: IChartsConfig;
   revenueExpenseChartConfig!: IChartsConfig;
 
-  // Progress Bar Configuration
-  healthScoreConfig: Partial<IProgressBarConfig> = {
-    value: 45,
-    showValue: false,
-    mode: EProgressBarMode.DETERMINATE,
-  };
+  get salaryExpenses(): ExpenseItem[] {
+    return this.expenses.filter(expense =>
+      expense.label.toLowerCase().includes('salary')
+    );
+  }
+
+  get fuelExpenses(): ExpenseItem[] {
+    return this.expenses.filter(expense =>
+      expense.label.toLowerCase().includes('fuel')
+    );
+  }
+
+  get regularExpenses(): ExpenseItem[] {
+    return this.expenses.filter(expense => {
+      const label = expense.label.toLowerCase();
+      return !label.includes('salary') && !label.includes('fuel');
+    });
+  }
+
+  get salaryExpenseTotal(): number {
+    return this.salaryExpenses.reduce(
+      (sum, expense) => sum + expense.amount,
+      0
+    );
+  }
+
+  get fuelExpenseTotal(): number {
+    return this.fuelExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+  }
+
+  get regularExpenseTotal(): number {
+    return this.regularExpenses.reduce(
+      (sum, expense) => sum + expense.amount,
+      0
+    );
+  }
+
+  get netProfitOrLoss(): number {
+    return this.revenueData.invoicedTillDate - this.totalExpenses;
+  }
+
+  get netMargin(): number {
+    if (this.revenueData.invoicedTillDate === 0) {
+      return 0;
+    }
+
+    return (this.netProfitOrLoss / this.revenueData.invoicedTillDate) * 100;
+  }
+
+  get invoiceRealizationPercent(): number {
+    if (this.revenueData.totalPOValue === 0) {
+      return 0;
+    }
+
+    return (
+      (this.revenueData.invoicedTillDate / this.revenueData.totalPOValue) * 100
+    );
+  }
+
+  get pendingBillingPercent(): number {
+    if (this.revenueData.totalPOValue === 0) {
+      return 0;
+    }
+
+    return (
+      (this.revenueData.pendingToInvoice / this.revenueData.totalPOValue) * 100
+    );
+  }
+
+  get expenseToRevenuePercent(): number {
+    if (this.revenueData.invoicedTillDate === 0) {
+      return 0;
+    }
+
+    return (this.totalExpenses / this.revenueData.invoicedTillDate) * 100;
+  }
+
+  get averageInvoiceValue(): number {
+    if (this.revenueData.totalInvoicesRaised === 0) {
+      return 0;
+    }
+
+    return (
+      this.revenueData.invoicedTillDate / this.revenueData.totalInvoicesRaised
+    );
+  }
+
+  get invoicedProgressWidth(): number {
+    return Math.min(Math.max(this.invoiceRealizationPercent, 0), 100);
+  }
+
+  get expenseLoadWidth(): number {
+    return Math.min(Math.max(this.expenseToRevenuePercent, 0), 100);
+  }
+
+  get netMarginWidth(): number {
+    return Math.min(Math.abs(this.netMargin), 100);
+  }
 
   ngOnInit(): void {
     this.initializeChartConfigs();
@@ -82,51 +170,61 @@ export class GetProjectProfitabilityComponent implements OnInit {
     return `₹${amount.toLocaleString('en-IN')}`;
   }
 
+  formatNumber(value: number): string {
+    return value.toLocaleString('en-IN');
+  }
+
+  getExpenseShare(amount: number): string {
+    if (!this.totalExpenses) {
+      return '0%';
+    }
+
+    return `${((amount / this.totalExpenses) * 100).toFixed(1)}%`;
+  }
+
   private initializeChartConfigs(): void {
     // Expense Distribution Doughnut Chart
     this.expenseDistributionChartConfig = {
       chartType: EChartType.DOUGHNUT,
-      labels: this.expenses.map(e => e.label),
+      labels: ['Salary', 'Fuel', 'Regular Expenses'],
       datasets: [
         {
-          label: 'Expenses',
-          data: this.expenses.map(e => e.amount),
-          backgroundColor: [
-            '#4F8EF7', // Employee Salary - Blue
-            '#9D4EDD', // Travel - Purple
-            '#FFA726', // Fuel - Orange
-            '#26C485', // Material - Green
-            '#EC4899', // Misc - Pink
+          label: 'Expense Share',
+          data: [
+            this.salaryExpenseTotal,
+            this.fuelExpenseTotal,
+            this.regularExpenseTotal,
           ],
+          backgroundColor: ['#3b82f6', '#f97316', '#8b5cf6'],
           borderWidth: 0,
         },
       ],
       options: {
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
         cutout: '70%',
       },
     };
 
-    // Revenue vs Expenses Bar Chart
+    // Financial Ratios Bar Chart
     this.revenueExpenseChartConfig = {
       chartType: EChartType.BAR,
-      labels: ['Revenue', 'Expenses', 'Profit'],
+      labels: [
+        'Invoice Realization',
+        'Pending Billing',
+        'Expense Load',
+        'Net Margin',
+      ],
       datasets: [
         {
-          label: 'Revenue',
+          label: 'Ratio (%)',
           data: [
-            this.revenueData.invoicedTillDate,
-            this.totalExpenses,
-            this.profitability.grossProfit,
+            Number(this.invoiceRealizationPercent.toFixed(1)),
+            Number(this.pendingBillingPercent.toFixed(1)),
+            Number(this.expenseToRevenuePercent.toFixed(1)),
+            Number(this.netMargin.toFixed(1)),
           ],
-        },
-        {
-          label: 'Expenses',
-          data: [this.totalExpenses],
-        },
-        {
-          label: 'Profit',
-          data: [this.profitability.grossProfit],
+          backgroundColor: ['#16a34a', '#0ea5e9', '#ef4444', '#7c3aed'],
+          borderColor: ['#15803d', '#0284c7', '#dc2626', '#6d28d9'],
         },
       ],
       options: {

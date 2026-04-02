@@ -12,19 +12,19 @@
     <app-get-project-timeline />
   </p-card>
 
-  <p-card>
-    <app-nav-tabs
-      [tabs]="tabs()"
-      [tabMode]="tabModeType"
-      (tabChanged)="onTabChanged($event)"
-    >
-      @if (activeTabIndex() === 0) {
-        <app-get-project-profitability />
-      } @else if (activeTabIndex() === 1) {
-        <app-get-project-doc />
-      } @else if (activeTabIndex() === 2) {
-        <app-get-dsr />
-      }
-    </app-nav-tabs>
-  </p-card>
+  <!-- <p-card> -->
+  <app-nav-tabs
+    [tabs]="tabs()"
+    [tabMode]="tabModeType"
+    (tabChanged)="onTabChanged($event)"
+  >
+    @if (activeTabIndex() === 0) {
+      <app-get-project-profitability />
+    } @else if (activeTabIndex() === 1) {
+      <app-get-project-doc />
+    } @else if (activeTabIndex() === 2) {
+      <app-get-dsr />
+    }
+  </app-nav-tabs>
+  <!-- </p-card> -->
 </div>

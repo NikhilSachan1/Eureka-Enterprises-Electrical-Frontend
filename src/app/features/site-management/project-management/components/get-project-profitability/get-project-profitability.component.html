@@ -1,92 +1,208 @@
-<div class="profitability-container">
-  <!-- Main Card -->
-  <div class="profitability-card">
-    <!-- Revenue Section -->
-    <div class="revenue-section">
-      <h3 class="section-title">REVENUE</h3>
-      <div class="revenue-cards">
-        <div class="revenue-card">
-          <span class="revenue-label">Total PO Value</span>
-          <span class="revenue-value">
-            {{ formatCurrency(revenueData.totalPOValue) }}
-          </span>
-        </div>
-        <div class="revenue-card">
-          <span class="revenue-label">Invoiced Till Date</span>
-          <span class="revenue-value green">
-            {{ formatCurrency(revenueData.invoicedTillDate) }}
-          </span>
-        </div>
+<div class="profitability-report">
+  <section class="hero-card">
+    <div class="hero-content">
+      <div>
+        <p class="eyebrow">Project Finance Snapshot</p>
+        <h2>Profit & Loss Report</h2>
+        <p class="subtle-text">Total purchase order, invoices raised and expense utilisation at one place.</p>
+      </div>
+      <div
+        class="net-pill"
+        [class.loss]="netProfitOrLoss < 0"
+      >
+        <span class="pill-label">Net P/L</span>
+        <span class="pill-value">{{ formatCurrency(netProfitOrLoss) }}</span>
       </div>
     </div>
+  </section>
 
-    <!-- Expenses Breakdown -->
-    <div class="expenses-section">
-      <h3 class="section-title">EXPENSES BREAKDOWN</h3>
-      <div class="expense-list">
+  <section class="kpi-grid">
+    <article class="kpi-card">
+      <p class="kpi-label">Total Purchase Order</p>
+      <h3>{{ formatCurrency(revenueData.totalPOValue) }}</h3>
+      <small>Approved project order value</small>
+    </article>
+    <article class="kpi-card">
+      <p class="kpi-label">Invoices Raised</p>
+      <h3>{{ formatNumber(revenueData.totalInvoicesRaised) }}</h3>
+      <small>Invoices cut till date</small>
+    </article>
+    <article class="kpi-card">
+      <p class="kpi-label">Invoiced Value</p>
+      <h3 class="positive">{{ formatCurrency(revenueData.invoicedTillDate) }}</h3>
+      <small>Revenue billed to client</small>
+    </article>
+    <article class="kpi-card">
+      <p class="kpi-label">Unbilled PO Value</p>
+      <h3>{{ formatCurrency(revenueData.pendingToInvoice) }}</h3>
+      <small>Available billing headroom in PO</small>
+    </article>
+  </section>
+
+  <section class="report-grid">
+    <article class="panel">
+      <div class="panel-head">
+        <h3>Expense Breakdown</h3>
+        <span class="total-chip">Total: {{ formatCurrency(totalExpenses) }}</span>
+      </div>
+
+      <div class="category-grid">
+        <div class="category-card salary">
+          <p>Salary Expense</p>
+          <h4>{{ formatCurrency(salaryExpenseTotal) }}</h4>
+          <small>{{ getExpenseShare(salaryExpenseTotal) }} of total expense</small>
+        </div>
+        <div class="category-card fuel">
+          <p>Fuel Expense</p>
+          <h4>{{ formatCurrency(fuelExpenseTotal) }}</h4>
+          <small>{{ getExpenseShare(fuelExpenseTotal) }} of total expense</small>
+        </div>
+        <div class="category-card regular">
+          <p>Regular Expense</p>
+          <h4>{{ formatCurrency(regularExpenseTotal) }}</h4>
+          <small>{{ getExpenseShare(regularExpenseTotal) }} of total expense</small>
+        </div>
+      </div>
+
+      <div class="expense-ledger">
+        <div class="ledger-head">
+          <span>Expense Head</span>
+          <span>Amount</span>
+        </div>
         @for (expense of expenses; track $index) {
-          <div class="expense-item">
-            <span class="expense-label">{{ expense.label }}</span>
-            <span class="expense-amount">
-              {{ formatCurrency(expense.amount) }}
-            </span>
+          <div class="ledger-row">
+            <span>{{ expense.label }}</span>
+            <strong>{{ formatCurrency(expense.amount) }}</strong>
           </div>
         }
       </div>
-      <div class="total-expenses">
-        <span class="total-label">TOTAL EXPENSES</span>
-        <span class="total-amount">
-          {{ formatCurrency(totalExpenses) }}
+    </article>
+
+    <article class="panel profit-panel">
+      <div class="panel-head">
+        <h3>Profitability</h3>
+        <span
+          class="margin-pill"
+          [class.loss]="netMargin < 0"
+        >
+          Margin {{ netMargin.toFixed(1) }}%
         </span>
       </div>
-    </div>
 
-    <!-- Profitability Section -->
-    <div class="profitability-section">
-      <h3 class="section-title-small">PROFITABILITY</h3>
-      <div class="profitability-metrics">
-        <div class="metric">
-          <span class="metric-label">Gross Profit</span>
-          <span class="metric-value green">
-            {{ formatCurrency(profitability.grossProfit) }}
-          </span>
+      <div class="pl-grid">
+        <div>
+          <p>Net Profit</p>
+          <h4 class="positive">{{ formatCurrency(profitability.grossProfit) }}</h4>
         </div>
-        <div class="metric">
-          <span class="metric-label">Profit Margin</span>
-          <span class="metric-value">{{ profitability.profitMargin }}%</span>
+        <div>
+          <p>Invoice Realization</p>
+          <h4>{{ invoiceRealizationPercent.toFixed(1) }}%</h4>
         </div>
-        <div class="metric">
-          <span class="metric-label">ROI</span>
-          <span class="metric-value">{{ profitability.roi }}%</span>
+        <div>
+          <p>Expense Load</p>
+          <h4>{{ expenseToRevenuePercent.toFixed(1) }}%</h4>
         </div>
       </div>
-    </div>
 
-    <!-- Health Score -->
-    <div class="health-score-section">
-      <div class="health-score-header">
-        <span class="health-label">HEALTH SCORE</span>
-        <span class="health-value">{{ healthScore }}/100</span>
+      <div class="financial-pulse">
+        <div class="pulse-row">
+          <div class="pulse-label">
+            <span>PO Billed</span>
+            <strong>{{ invoiceRealizationPercent.toFixed(1) }}%</strong>
+          </div>
+          <div class="pulse-track">
+            <div
+              class="pulse-fill billed"
+              [style.width.%]="invoicedProgressWidth"
+            ></div>
+          </div>
+        </div>
+        <div class="pulse-row">
+          <div class="pulse-label">
+            <span>Expense Against Billing</span>
+            <strong>{{ expenseToRevenuePercent.toFixed(1) }}%</strong>
+          </div>
+          <div class="pulse-track">
+            <div
+              class="pulse-fill expense"
+              [style.width.%]="expenseLoadWidth"
+            ></div>
+          </div>
+        </div>
+        <div class="pulse-row">
+          <div class="pulse-label">
+            <span>Net Margin</span>
+            <strong
+              [class.positive]="netMargin >= 0"
+              [class.negative]="netMargin < 0"
+            >
+              {{ netMargin.toFixed(1) }}%
+            </strong>
+          </div>
+          <div class="pulse-track">
+            <div
+              class="pulse-fill"
+              [class.margin-positive]="netMargin >= 0"
+              [class.margin-negative]="netMargin < 0"
+              [style.width.%]="netMarginWidth"
+            ></div>
+          </div>
+        </div>
       </div>
-      <app-progress-bar [config]="healthScoreConfig" />
-    </div>
-  </div>
 
-  <div class="charts-section">
-    <!-- Expense Distribution Chart -->
-    <div class="chart-card">
-      <h3 class="chart-title">Expense Distribution</h3>
-      <div class="chart-wrapper">
-        <app-charts [chartConfig]="expenseDistributionChartConfig" />
+      <div class="ratio-grid">
+        <div class="ratio-item">
+          <span>Average Bill Size</span>
+          <strong>{{ formatCurrency(averageInvoiceValue) }}</strong>
+        </div>
+        <div class="ratio-item">
+          <span>Pending Billing</span>
+          <strong>{{ pendingBillingPercent.toFixed(1) }}% of PO</strong>
+        </div>
       </div>
-    </div>
 
-    <!-- Revenue vs Expenses Chart -->
-    <div class="chart-card">
-      <h3 class="chart-title">Revenue vs Expenses</h3>
-      <div class="chart-wrapper">
-        <app-charts [chartConfig]="revenueExpenseChartConfig" />
+      <div class="mini-summary">
+        <div>
+          <span>Revenue (Invoiced)</span>
+          <strong>{{ formatCurrency(revenueData.invoicedTillDate) }}</strong>
+        </div>
+        <div>
+          <span>Total Expense</span>
+          <strong class="negative">{{ formatCurrency(totalExpenses) }}</strong>
+        </div>
+        <div>
+          <span>Net Result</span>
+          <strong
+            [class.positive]="netProfitOrLoss >= 0"
+            [class.negative]="netProfitOrLoss < 0"
+          >
+            {{ formatCurrency(netProfitOrLoss) }}
+          </strong>
+        </div>
       </div>
-    </div>
-  </div>
+
+      <div class="insight-box">
+        <span>Insight</span>
+        <p>
+          {{ invoiceRealizationPercent.toFixed(1) }}% PO billed and {{ netMargin.toFixed(1) }}% net margin with current
+          invoicing.
+        </p>
+      </div>
+    </article>
+  </section>
+
+  <section class="charts-grid">
+    <article class="chart-card">
+      <div class="panel-head">
+        <h3>Expense Share</h3>
+      </div>
+      <app-charts [chartConfig]="expenseDistributionChartConfig" />
+    </article>
+    <article class="chart-card">
+      <div class="panel-head">
+        <h3>Financial Ratios (%)</h3>
+      </div>
+      <app-charts [chartConfig]="revenueExpenseChartConfig" />
+    </article>
+  </section>
 </div>
