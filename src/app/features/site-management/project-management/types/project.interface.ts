@@ -1,4 +1,7 @@
-import { IProjectGetBaseResponseDto } from './project.dto';
+import {
+  IDsrGetBaseResponseDto,
+  IProjectGetBaseResponseDto,
+} from './project.dto';
 
 export interface IProjectStakeholders {
   company: IProjectGetBaseResponseDto['company'];
@@ -7,17 +10,18 @@ export interface IProjectStakeholders {
 }
 
 export interface IProject
-  extends Pick<
-    IProjectGetBaseResponseDto,
-    'id' | 'profitPercentage' | 'totalSpent' | 'workTypes'
-  > {
+  extends Pick<IProjectGetBaseResponseDto, 'id' | 'workTypes'> {
   projectName: string;
   projectLocation: string | null;
   projectStatus: string;
   timeLine: Date[];
-  estimatedBudget: string;
   projectManager: string;
   projectManagerContact: string | null;
   stakeholders: IProjectStakeholders;
   originalRawData: IProjectGetBaseResponseDto;
+}
+
+export interface IDsr {
+  id: string;
+  originalRawData: IDsrGetBaseResponseDto;
 }

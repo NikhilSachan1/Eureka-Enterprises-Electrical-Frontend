@@ -180,9 +180,9 @@ export class GetProjectComponent implements OnInit {
             )
           )
         ),
-        estimatedBudget: record.estimatedBudget,
-        profitPercentage: record.profitPercentage,
-        totalSpent: record.totalSpent,
+        // estimatedBudget: record.estimatedBudget,
+        // profitPercentage: record.profitPercentage,
+        // totalSpent: record.totalSpent,
         projectManager: record.managerName,
         projectManagerContact: record.managerContact,
         stakeholders: {

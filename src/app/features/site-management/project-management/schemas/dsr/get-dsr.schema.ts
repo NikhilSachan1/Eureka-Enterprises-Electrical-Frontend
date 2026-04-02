@@ -29,25 +29,10 @@ export const DsrGetRequestSchema = z
 
 export const DsrGetBaseResponseSchema = DsrBaseSchema.extend({
   ...AuditSchema.shape,
-  site: z.null().nullable(),
   user: z.null().nullable(),
-  files: z.null().nullable(),
-  editHistory: z.null().nullable(),
-})
-  .strict()
-  .transform(({ ...rest }) => {
-    //ToDo: Remove this transform once the data is updated
-    return {
-      ...rest,
-      createdByUser: {
-        id: '00000000-0000-0000-0000-000000000000',
-        firstName: 'Unknown',
-        lastName: 'Unknown',
-        email: 'unknown@example.com',
-        employeeId: 'UNKNOWN',
-      },
-    };
-  });
+  files: z.array(z.string()),
+  editHistory: z.array(z.any()).nullable(),
+}).loose();
 
 export const DsrGetResponseSchema = z
   .object({

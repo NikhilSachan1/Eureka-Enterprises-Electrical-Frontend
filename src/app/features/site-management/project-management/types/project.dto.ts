@@ -5,6 +5,7 @@ import {
   DsrDeleteResponseSchema,
   DsrEditRequestSchema,
   DsrEditResponseSchema,
+  DsrGetBaseResponseSchema,
   DsrGetRequestSchema,
   DsrGetResponseSchema,
   ProjectAddRequestSchema,
@@ -93,6 +94,7 @@ export type IProjectChangeStatusResponseDto = z.infer<
 export type IDsrGetRequestDto = z.infer<typeof DsrGetRequestSchema>;
 export type IDsrGetFormDto = z.input<typeof DsrGetRequestSchema>;
 export type IDsrGetResponseDto = z.infer<typeof DsrGetResponseSchema>;
+export type IDsrGetBaseResponseDto = z.infer<typeof DsrGetBaseResponseSchema>;
 /*
   Dsr Add
 */

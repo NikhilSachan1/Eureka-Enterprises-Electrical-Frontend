@@ -11,7 +11,7 @@
     [searchFilterConfig]="searchFilterConfig"
   />
 </div>
-
+<!--
 <ng-template
   #projectBudget
   let-row
@@ -76,7 +76,7 @@
       </dd>
     </dl>
   </div>
-</ng-template>
+</ng-template> -->
 
 <ng-template
   #projectWorkTypes
@@ -252,7 +252,6 @@
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
-    projectBudget: projectBudget,
     projectWorkTypes: projectWorkTypes,
     projectStakeholders: projectStakeholders,
   }"

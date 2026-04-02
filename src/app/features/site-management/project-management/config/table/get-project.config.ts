@@ -65,12 +65,12 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     customTemplateKey: 'projectWorkTypes',
     showSort: false,
   },
-  {
-    field: 'estimatedBudget',
-    header: 'Budget',
-    customTemplateKey: 'projectBudget',
-    showSort: false,
-  },
+  // {
+  //   field: 'estimatedBudget',
+  //   header: 'Budget',
+  //   customTemplateKey: 'projectBudget',
+  //   showSort: false,
+  // },
 ];
 
 const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<

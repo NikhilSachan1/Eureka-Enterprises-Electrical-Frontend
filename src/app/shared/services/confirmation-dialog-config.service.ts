@@ -21,7 +21,7 @@ export class ConfirmationDialogService {
   showConfirmationDialog(
     actionType: EButtonActionType,
     config: IDialogActionConfig,
-    recordDetail: IDialogActionConfig['recordDetails'],
+    recordDetail: IDialogActionConfig['recordDetails'] | null,
     isBulk = false,
     showRecords = !isBulk,
     dynamicComponentInputs?: IDialogActionConfig['dynamicComponentInputs']
@@ -52,7 +52,7 @@ export class ConfirmationDialogService {
   createDialogConfig(
     actionType: EButtonActionType,
     config: IDialogActionConfig,
-    recordDetail: IDialogActionConfig['recordDetails'],
+    recordDetail: IDialogActionConfig['recordDetails'] | null,
     isBulk = false,
     showRecords = !isBulk,
     dynamicComponentInputs?: IDialogActionConfig['dynamicComponentInputs']
@@ -101,7 +101,7 @@ export class ConfirmationDialogService {
     return {
       ...config,
       dialogConfig: fullDialogConfig,
-      recordDetails: showRecords ? recordDetail : undefined,
+      recordDetails: showRecords ? (recordDetail ?? undefined) : undefined,
       dynamicComponentInputs,
     };
   }

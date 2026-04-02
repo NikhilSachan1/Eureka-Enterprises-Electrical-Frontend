@@ -24,6 +24,7 @@ export const ROUTE_BASE_PATHS = {
     COMPANY: 'company',
     CONTRACTOR: 'contractor',
     PROJECT: 'project',
+    DSR: 'dsr',
   },
   SETTINGS: {
     BASE: 'settings',
@@ -100,6 +101,11 @@ export const ROUTES = {
       EDIT: `edit`,
       ANALYSIS: `analysis`,
       DAILY_STATUS: `add-daily-status`,
+    },
+    DSR: {
+      LIST: `list`,
+      ADD: `add`,
+      EDIT: `edit`,
     },
   },
 
