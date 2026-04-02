@@ -170,6 +170,7 @@ export class GetAssetComponent implements OnInit {
           record.status
         ),
         assetDocuments: record.documentKeys,
+        latestEvent: record.latestEvent,
         originalRawData: record,
       };
     });

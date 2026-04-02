@@ -298,7 +298,7 @@ export class GetLeaveComponent implements OnInit {
     let navigationRoute: string[] = [];
     if (actionName === 'forceLeave') {
       navigationRoute = [ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.FORCE];
-    } else if (actionName === 'addLeave') {
+    } else if (actionName === 'applyLeave') {
       navigationRoute = [ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.APPLY];
     }
     const success =

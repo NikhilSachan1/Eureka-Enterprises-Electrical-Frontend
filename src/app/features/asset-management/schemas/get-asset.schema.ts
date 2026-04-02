@@ -7,6 +7,7 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
+import { AssetEventHistoryGetBaseResponseObjectSchema } from './get-asset-event-history.schema';
 
 const { createdAt, updatedAt } = AuditSchema.shape;
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
@@ -54,10 +55,24 @@ export const AssetGetBaseResponseSchema = z
     files: z.array(AssetBaseDocumentsSchema),
     warrantyStatus: z.string().min(1),
     calibrationStatus: z.string().min(1),
+    latestEvent: AssetEventHistoryGetBaseResponseObjectSchema.pick({
+      id: true,
+      eventType: true,
+      metadata: true,
+      // createdAt: true
+    })
+      .extend({
+        fromUser: uuidField.nullable(),
+        toUser: uuidField.nullable(),
+        fromUserUser: makeFieldsNullable(UserSchema).nullable(),
+        toUserUser: makeFieldsNullable(UserSchema).nullable(),
+        createdBy: uuidField,
+      })
+      .nullable(),
     createdAt,
     updatedAt,
   })
-  .strict()
+  .loose()
   .transform(({ files, ...rest }) => ({
     ...rest,
     documentKeys: files.map(file => file.fileKey),

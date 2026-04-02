@@ -4,10 +4,11 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
   EDataType,
+  EApprovalStatus,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
-import { ILeaveGetResponseDto } from '../../types/leave.dto';
+import { ILeaveGetBaseResponseDto } from '../../types/leave.dto';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
@@ -31,6 +32,7 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
       sortField: 'fullName',
       filterField: 'employeeName',
     },
+    permission: [APP_PERMISSION.UI.LEAVE.TABLE_EMPLOYEE_NAME],
   },
   {
     field: 'leaveDate',
@@ -60,7 +62,9 @@ export const LEAVE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-export const LEAVE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
+export const LEAVE_TABLE_ROW_ACTIONS_CONFIG: Partial<
+  ITableActionConfig<ILeaveGetBaseResponseDto>
+>[] = [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Leave Details',
@@ -70,11 +74,17 @@ export const LEAVE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve Attendance',
     permission: [APP_PERMISSION.LEAVE.APPROVE],
+    disableWhen: (row): boolean =>
+      (row.approvalStatus?.toLowerCase() ?? '') ===
+      EApprovalStatus.APPROVED.toLowerCase(),
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Attendance',
     permission: [APP_PERMISSION.LEAVE.REJECT],
+    disableWhen: (row): boolean =>
+      (row.approvalStatus?.toLowerCase() ?? '') ===
+      EApprovalStatus.REJECTED.toLowerCase(),
   },
   {
     ...COMMON_ROW_ACTIONS.CANCEL,
@@ -83,25 +93,33 @@ export const LEAVE_TABLE_ROW_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
   },
 ];
 
-export const LEAVE_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] = [
+export const LEAVE_TABLE_BULK_ACTIONS_CONFIG: Partial<
+  ITableActionConfig<ILeaveGetBaseResponseDto>
+>[] = [
   {
     ...COMMON_BULK_ACTIONS.APPROVE,
     tooltip: 'Approve Selected Attendance',
     permission: [APP_PERMISSION.LEAVE.APPROVE],
+    disableWhen: (row: ILeaveGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED,
   },
   {
     ...COMMON_BULK_ACTIONS.REJECT,
     tooltip: 'Reject Selected Attendance',
     permission: [APP_PERMISSION.LEAVE.REJECT],
+    disableWhen: (row: ILeaveGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED,
   },
   {
     ...COMMON_BULK_ACTIONS.CANCEL,
     tooltip: 'Cancel Selected Leave',
     permission: [APP_PERMISSION.LEAVE.CANCEL],
+    disableWhen: (row: ILeaveGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.CANCELLED,
   },
 ];
 
-export const LEAVE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<ILeaveGetResponseDto> =
+export const LEAVE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<ILeaveGetBaseResponseDto> =
   {
     tableConfig: LEAVE_TABLE_CONFIG,
     headers: LEAVE_TABLE_HEADER_CONFIG,

@@ -11,6 +11,7 @@ import {
   uuidField,
 } from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
+import { VehicleEventHistoryGetBaseResponseObjectSchema } from './get-vehicle-event-history.schema';
 
 const { createdAt, updatedAt, deletedAt } = AuditSchema.shape;
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
@@ -79,6 +80,20 @@ export const VehicleGetBaseResponseSchema = z
         expiryStatus: z.string().min(1).nullable(),
       })
       .strict()
+      .nullable(),
+    latestEvent: VehicleEventHistoryGetBaseResponseObjectSchema.pick({
+      id: true,
+      eventType: true,
+      metadata: true,
+      // createdAt: true
+    })
+      .extend({
+        fromUser: uuidField.nullable(),
+        toUser: uuidField.nullable(),
+        fromUserUser: makeFieldsNullable(UserSchema).nullable(),
+        toUserUser: makeFieldsNullable(UserSchema).nullable(),
+        createdBy: uuidField,
+      })
       .nullable(),
     createdAt,
     updatedAt,

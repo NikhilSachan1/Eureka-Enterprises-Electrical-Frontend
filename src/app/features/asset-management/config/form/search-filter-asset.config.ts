@@ -1,7 +1,7 @@
 import { IAssetGetFormDto } from '@features/asset-management/types/asset.dto';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
-import { CONFIGURATION_KEYS, EUserRole, MODULE_NAMES } from '@shared/constants';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
   ETableFilterMatchMode,
@@ -87,7 +87,6 @@ const SEARCH_FILTER_ASSET_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfi
       dynamicDropdown: {
         moduleName: MODULE_NAMES.EMPLOYEE,
         dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-        filterByRole: [EUserRole.EMPLOYEE],
       },
     },
     matchmode: ETableFilterMatchMode.IN,

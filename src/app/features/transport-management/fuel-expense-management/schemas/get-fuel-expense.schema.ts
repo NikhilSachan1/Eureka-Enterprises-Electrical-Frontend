@@ -86,7 +86,7 @@ export const FuelExpenseGetBaseResponseSchema = z
     createdAt,
     updatedAt,
   })
-  .strict();
+  .loose();
 
 export const FuelExpenseGetStatsResponseSchema = z
   .object({

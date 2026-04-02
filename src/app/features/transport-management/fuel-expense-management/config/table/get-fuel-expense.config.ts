@@ -1,15 +1,20 @@
 import { APP_CONFIG } from '@core/config';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import {
+  EApprovalStatus,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IFuelExpenseGetResponseDto } from '../../types/fuel-expense.dto';
+import {
+  IFuelExpenseGetBaseResponseDto,
+  IFuelExpenseGetResponseDto,
+} from '../../types/fuel-expense.dto';
 import { ICONS } from '@shared/constants';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { disableFuelExpenseWhenNotPendingApproval } from '../../utils';
 
 export const FUEL_EXPENSE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No fuel expense record found.',
@@ -29,6 +34,7 @@ export const FUEL_EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[]
         sortField: 'userName',
         filterField: 'employeeName',
       },
+      permission: [APP_PERMISSION.UI.FUEL_EXPENSE.TABLE_EMPLOYEE_NAME],
     },
     {
       field: 'fuelFillDate',
@@ -100,42 +106,54 @@ export const FUEL_EXPENSE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Fuel Expense',
     permission: [APP_PERMISSION.FUEL_EXPENSE.EDIT],
+    disableWhen: disableFuelExpenseWhenNotPendingApproval,
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Fuel Expense',
     permission: [APP_PERMISSION.FUEL_EXPENSE.DELETE],
+    disableWhen: disableFuelExpenseWhenNotPendingApproval,
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve Fuel Expense',
     permission: [APP_PERMISSION.FUEL_EXPENSE.APPROVE],
+    disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED,
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Fuel Expense',
     permission: [APP_PERMISSION.FUEL_EXPENSE.REJECT],
+    disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED,
   },
 ];
 
-export const FUEL_EXPENSE_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] =
-  [
-    {
-      ...COMMON_BULK_ACTIONS.DELETE,
-      tooltip: 'Delete Selected Fuel Expense',
-      permission: [APP_PERMISSION.FUEL_EXPENSE.DELETE],
-    },
-    {
-      ...COMMON_BULK_ACTIONS.APPROVE,
-      tooltip: 'Approve Selected Fuel Expense',
-      permission: [APP_PERMISSION.FUEL_EXPENSE.APPROVE],
-    },
-    {
-      ...COMMON_BULK_ACTIONS.REJECT,
-      tooltip: 'Reject Selected Fuel Expense',
-      permission: [APP_PERMISSION.FUEL_EXPENSE.REJECT],
-    },
-  ];
+export const FUEL_EXPENSE_TABLE_BULK_ACTIONS_CONFIG: Partial<
+  ITableActionConfig<IFuelExpenseGetResponseDto['records'][number]>
+>[] = [
+  {
+    ...COMMON_BULK_ACTIONS.DELETE,
+    tooltip: 'Delete Selected Fuel Expense',
+    permission: [APP_PERMISSION.FUEL_EXPENSE.DELETE],
+    disableWhen: disableFuelExpenseWhenNotPendingApproval,
+  },
+  {
+    ...COMMON_BULK_ACTIONS.APPROVE,
+    tooltip: 'Approve Selected Fuel Expense',
+    permission: [APP_PERMISSION.FUEL_EXPENSE.APPROVE],
+    disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED,
+  },
+  {
+    ...COMMON_BULK_ACTIONS.REJECT,
+    tooltip: 'Reject Selected Fuel Expense',
+    permission: [APP_PERMISSION.FUEL_EXPENSE.REJECT],
+    disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED,
+  },
+];
 
 export const FUEL_EXPENSE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
   IFuelExpenseGetResponseDto['records'][number]

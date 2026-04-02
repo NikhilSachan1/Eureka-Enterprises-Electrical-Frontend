@@ -1,3 +1,4 @@
+import { APP_PERMISSION } from '@core/constants';
 import { IAttendanceGetFormDto } from '@features/attendance-management/types/attendance.dto';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
@@ -17,6 +18,7 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
 > = {
   employeeName: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
+    permission: [APP_PERMISSION.UI.ATTENDANCE.SEARCH_FILTER_EMPLOYEE_NAME],
   },
   attendanceDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,

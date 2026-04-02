@@ -63,7 +63,7 @@ export const VehicleEventHistoryGetStatsResponseSchema = z
   })
   .strict();
 
-export const VehicleEventHistoryGetBaseResponseSchema = z
+export const VehicleEventHistoryGetBaseResponseObjectSchema = z
   .object({
     id: uuidField,
     vehicleMasterId: uuidField,
@@ -86,13 +86,17 @@ export const VehicleEventHistoryGetBaseResponseSchema = z
         brand,
         status,
       })
-      .strict(),
+      .loose(),
   })
-  .strict()
-  .transform(({ vehicleFiles, ...rest }) => ({
-    ...rest,
-    documentKeys: vehicleFiles.map(file => file.fileKey),
-  }));
+  .loose();
+
+export const VehicleEventHistoryGetBaseResponseSchema =
+  VehicleEventHistoryGetBaseResponseObjectSchema.transform(
+    ({ vehicleFiles, ...rest }) => ({
+      ...rest,
+      documentKeys: vehicleFiles.map(file => file.fileKey),
+    })
+  );
 
 export const VehicleEventHistoryGetResponseSchema = z
   .object({

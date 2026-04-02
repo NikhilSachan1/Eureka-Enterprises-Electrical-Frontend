@@ -27,7 +27,13 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto>
           dropdownName: CONFIGURATION_KEYS.EXPENSE.CATEGORIES,
         },
         filterOptions: {
-          exclude: [EExpenseCategory.SETTLEMENT],
+          exclude: [
+            EExpenseCategory.SETTLEMENT,
+            'LEAVE_ENCASHMENT',
+            'FNF_SETTLEMENT',
+            'FNF_GRATUITY',
+            'PERFORMANCE_BONUS',
+          ],
         },
       },
       validators: [Validators.required],
@@ -41,6 +47,9 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto>
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EXPENSE,
           dropdownName: CONFIGURATION_KEYS.EXPENSE.PAYMENT_METHODS,
+        },
+        filterOptions: {
+          exclude: ['cheque ', 'neft/imps', 'system', 'rtgs'],
         },
       },
       validators: [Validators.required],

@@ -1,3 +1,4 @@
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
@@ -14,6 +15,7 @@ const SEARCH_FILTER_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
   {
     employeeName: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
+      permission: [APP_PERMISSION.UI.EXPENSE.SEARCH_FILTER_EMPLOYEE_NAME],
     },
     expenseDate: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,

@@ -57,6 +57,13 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'latestEvent.eventType',
+    header: 'Latest Event',
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'latestEvent.fromUserName' },
+    showSort: false,
+  },
+  {
     field: 'calibrationFrom',
     header: 'Calibration From',
     showSort: false,
@@ -102,8 +109,7 @@ export const ASSET_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
   {
     id: EButtonActionType.HANDOVER_INITIATE,
-    tooltip: 'Allocate Asset',
-    // disableWhen: row => row.status === 'AVAILABLE',
+    tooltip: 'Handover Asset',
     permission: [APP_PERMISSION.ASSET.HANDOVER_INITIATE],
   },
   {

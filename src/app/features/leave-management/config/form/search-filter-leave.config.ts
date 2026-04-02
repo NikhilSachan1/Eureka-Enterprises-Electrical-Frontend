@@ -6,12 +6,14 @@ import {
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
 import { ILeaveGetFormDto } from '@features/leave-management/types/leave.dto';
+import { APP_PERMISSION } from '@core/constants';
 
 const SEARCH_FILTER_LEAVE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   ILeaveGetFormDto & { globalSearch?: string }
 > = {
   employeeName: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
+    permission: [APP_PERMISSION.UI.LEAVE.SEARCH_FILTER_EMPLOYEE_NAME],
   },
   leaveDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,

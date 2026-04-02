@@ -17,6 +17,7 @@ export const LeaveForceRequestSchema = LeaveUpsertShapeSchema.extend({
       leaveType: ELeaveDayType.FULL_DAY,
       leaveCategory: ELeaveCategory.EARNED,
       reason: leaveReason,
+      approvalReason: leaveReason,
     };
   });
 

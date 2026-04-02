@@ -176,6 +176,7 @@ export class GetVehicleComponent implements OnInit {
         ),
         petroCardNumber: record.associatedCard?.cardNumber ?? null,
         petroCardName: record.associatedCard?.cardName ?? null,
+        latestEvent: record.latestEvent,
         originalRawData: record,
       } satisfies IVehicle;
     });

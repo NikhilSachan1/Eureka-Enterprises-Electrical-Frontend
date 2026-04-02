@@ -80,7 +80,9 @@ export const VehicleReadingGetBaseResponseSchema =
       name: true,
       city: true,
       state: true,
-    }).loose(),
+    })
+      .loose()
+      .nullable(),
     files: z.array(
       z.looseObject({
         id: z.string(),

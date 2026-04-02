@@ -64,7 +64,7 @@ export const AssetEventHistoryGetStatsResponseSchema = z
   })
   .strict();
 
-export const AssetEventHistoryGetBaseResponseSchema = z
+export const AssetEventHistoryGetBaseResponseObjectSchema = z
   .object({
     id: uuidField,
     assetMasterId: uuidField,
@@ -89,11 +89,15 @@ export const AssetEventHistoryGetBaseResponseSchema = z
       status,
     }),
   })
-  .strict()
-  .transform(({ assetFiles, ...rest }) => ({
-    ...rest,
-    documentKeys: assetFiles.map(file => file.fileKey),
-  }));
+  .loose();
+
+export const AssetEventHistoryGetBaseResponseSchema =
+  AssetEventHistoryGetBaseResponseObjectSchema.transform(
+    ({ assetFiles, ...rest }) => ({
+      ...rest,
+      documentKeys: assetFiles.map(file => file.fileKey),
+    })
+  );
 
 export const AssetEventHistoryGetResponseSchema = z
   .object({

@@ -196,6 +196,20 @@ export const APP_PERMISSION = {
     },
     ATTENDANCE: {
       TABLE_EMPLOYEE_NAME: 'ui_attendance_table_employee_name',
+      SEARCH_FILTER_EMPLOYEE_NAME: 'ui_attendance_search_filter_employee_name',
+    },
+    EXPENSE: {
+      TABLE_EMPLOYEE_NAME: 'ui_expense_table_employee_name',
+      SEARCH_FILTER_EMPLOYEE_NAME: 'ui_expense_search_filter_employee_name',
+    },
+    LEAVE: {
+      TABLE_EMPLOYEE_NAME: 'ui_leave_table_employee_name',
+      SEARCH_FILTER_EMPLOYEE_NAME: 'ui_leave_search_filter_employee_name',
+    },
+    FUEL_EXPENSE: {
+      TABLE_EMPLOYEE_NAME: 'ui_fuel_expense_table_employee_name',
+      SEARCH_FILTER_EMPLOYEE_NAME:
+        'ui_fuel_expense_search_filter_employee_name',
     },
   },
 } as const;
@@ -220,6 +234,54 @@ export const UI_PERMISSIONS_ROLE_MAP = {
   },
   ATTENDANCE: {
     TABLE_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+    SEARCH_FILTER_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+  },
+  EXPENSE: {
+    TABLE_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+    SEARCH_FILTER_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+  },
+  FUEL_EXPENSE: {
+    TABLE_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+    SEARCH_FILTER_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+  },
+  LEAVE: {
+    TABLE_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+    SEARCH_FILTER_EMPLOYEE_NAME: {
       ADMIN: true,
       DRIVER: false,
       SUPER_ADMIN: true,

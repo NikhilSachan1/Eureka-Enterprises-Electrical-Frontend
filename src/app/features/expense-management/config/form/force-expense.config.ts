@@ -10,6 +10,7 @@ import { Validators } from '@angular/forms';
 import { FinancialYearService } from '@core/services/financial-year.service';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IExpenseForceFormDto } from '@features/expense-management/types/expense.dto';
+import { EExpenseCategory } from '@features/expense-management/types/expense.enum';
 
 const {
   fields: {
@@ -40,8 +41,24 @@ const FORCE_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseForceForm
       },
       validators: [Validators.required],
     },
-    expenseCategory,
-    paymentMode,
+    expenseCategory: {
+      ...expenseCategory,
+      selectConfig: {
+        ...expenseCategory.selectConfig,
+        filterOptions: {
+          exclude: [EExpenseCategory.SETTLEMENT],
+        },
+      },
+    },
+    paymentMode: {
+      ...paymentMode,
+      selectConfig: {
+        ...paymentMode.selectConfig,
+        filterOptions: {
+          exclude: ['system'],
+        },
+      },
+    },
     expenseDate: {
       ...expenseDate,
       dateConfig: {

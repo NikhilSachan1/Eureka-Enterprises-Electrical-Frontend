@@ -7,12 +7,14 @@ import {
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
 import { IFuelExpenseGetFormDto } from '../../types/fuel-expense.dto';
+import { APP_PERMISSION } from '@core/constants';
 
 const SEARCH_FILTER_FUEL_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   IFuelExpenseGetFormDto & { globalSearch?: string }
 > = {
   employeeName: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
+    permission: [APP_PERMISSION.UI.FUEL_EXPENSE.TABLE_EMPLOYEE_NAME],
   },
   fuelExpenseDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,

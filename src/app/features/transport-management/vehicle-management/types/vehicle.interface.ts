@@ -7,7 +7,7 @@ import {
 export interface IVehicle
   extends Pick<
     IVehicleGetBaseResponseDto,
-    'id' | 'status' | 'insuranceStatus' | 'pucStatus'
+    'id' | 'status' | 'insuranceStatus' | 'pucStatus' | 'latestEvent'
   > {
   vehicleNumber: string;
   vehicleName: string;

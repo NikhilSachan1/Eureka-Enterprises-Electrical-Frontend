@@ -1,8 +1,13 @@
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
-import { IExpenseGetResponseDto } from '@features/expense-management/types/expense.dto';
+import {
+  IExpenseGetBaseResponseDto,
+  IExpenseGetResponseDto,
+} from '@features/expense-management/types/expense.dto';
+import { disableExpenseWhenNotPendingApproval } from '@features/expense-management/utils';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import {
+  EApprovalStatus,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -23,6 +28,7 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showImage: true,
     dummyImageField: 'employeeName',
     primaryFieldHighlight: true,
+    permission: [APP_PERMISSION.UI.EXPENSE.TABLE_EMPLOYEE_NAME],
     serverSideFilterAndSortConfig: {
       sortField: 'userName',
       filterField: 'employeeName',
@@ -90,42 +96,54 @@ export const EXPENSE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Expense',
     permission: [APP_PERMISSION.EXPENSE.EDIT],
+    disableWhen: disableExpenseWhenNotPendingApproval,
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Expense',
     permission: [APP_PERMISSION.EXPENSE.DELETE],
+    disableWhen: disableExpenseWhenNotPendingApproval,
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve Expense',
     permission: [APP_PERMISSION.EXPENSE.APPROVE],
+    disableWhen: (row: IExpenseGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED,
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Expense',
     permission: [APP_PERMISSION.EXPENSE.REJECT],
+    disableWhen: (row: IExpenseGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED,
   },
 ];
 
-export const EXPENSE_TABLE_BULK_ACTIONS_CONFIG: Partial<ITableActionConfig>[] =
-  [
-    {
-      ...COMMON_BULK_ACTIONS.DELETE,
-      tooltip: 'Delete Selected Expense',
-      permission: [APP_PERMISSION.EXPENSE.DELETE],
-    },
-    {
-      ...COMMON_BULK_ACTIONS.APPROVE,
-      tooltip: 'Approve Selected Expense',
-      permission: [APP_PERMISSION.EXPENSE.APPROVE],
-    },
-    {
-      ...COMMON_BULK_ACTIONS.REJECT,
-      tooltip: 'Reject Selected Expense',
-      permission: [APP_PERMISSION.EXPENSE.REJECT],
-    },
-  ];
+export const EXPENSE_TABLE_BULK_ACTIONS_CONFIG: Partial<
+  ITableActionConfig<IExpenseGetResponseDto['records'][number]>
+>[] = [
+  {
+    ...COMMON_BULK_ACTIONS.DELETE,
+    tooltip: 'Delete Selected Expense',
+    permission: [APP_PERMISSION.EXPENSE.DELETE],
+    disableWhen: disableExpenseWhenNotPendingApproval,
+  },
+  {
+    ...COMMON_BULK_ACTIONS.APPROVE,
+    tooltip: 'Approve Selected Expense',
+    permission: [APP_PERMISSION.EXPENSE.APPROVE],
+    disableWhen: (row: IExpenseGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED,
+  },
+  {
+    ...COMMON_BULK_ACTIONS.REJECT,
+    tooltip: 'Reject Selected Expense',
+    permission: [APP_PERMISSION.EXPENSE.REJECT],
+    disableWhen: (row: IExpenseGetBaseResponseDto) =>
+      row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED,
+  },
+];
 
 export const EXPENSE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
   IExpenseGetResponseDto['records'][number]

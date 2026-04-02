@@ -4,7 +4,11 @@ export const shouldShowAttendanceStatusField = (
   actionType: EButtonActionType,
   fromDate: Date
 ): boolean => {
-  if (actionType !== EButtonActionType.REJECT || !fromDate) {
+  if (
+    (actionType !== EButtonActionType.REJECT &&
+      actionType !== EButtonActionType.APPROVE) ||
+    !fromDate
+  ) {
     return false;
   }
 

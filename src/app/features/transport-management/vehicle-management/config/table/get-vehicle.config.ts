@@ -60,6 +60,13 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'latestEventAction',
+    header: 'Latest Event',
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    subtitle: { field: 'latestEventDetail' },
+    showSort: false,
+  },
+  {
     field: 'vehicleDocuments',
     header: 'Attachments',
     bodyTemplate: EDataType.ATTACHMENTS,
@@ -120,7 +127,7 @@ export const VEHICLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
   {
     id: EButtonActionType.HANDOVER_INITIATE,
-    tooltip: 'Allocate Vehicle',
+    tooltip: 'Handover Vehicle',
     permission: [APP_PERMISSION.VEHICLE.HANDOVER_INITIATE],
   },
   {
