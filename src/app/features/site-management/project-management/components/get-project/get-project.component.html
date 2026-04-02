@@ -12,6 +12,237 @@
   />
 </div>
 
+<ng-template
+  #projectBudget
+  let-row
+>
+  @let r = $any(row);
+  @let n = r.profitPercentage;
+  @let missing = n === null || n === undefined;
+  <div
+    class="project-budget-cell__card"
+    [ngClass]="{
+      'project-budget-cell__card--tone-unknown': missing,
+      'project-budget-cell__card--tone-loss': !missing && n < 0,
+      'project-budget-cell__card--tone-profit': !missing && n > 0,
+      'project-budget-cell__card--tone-flat': !missing && n === 0,
+    }"
+  >
+    <div class="project-budget-cell__head">
+      <div class="project-budget-cell__head-left">
+        <i
+          [class]="budgetTrendIconBase"
+          [ngClass]="{
+            'project-budget-cell__trend--unknown': missing,
+            'project-budget-cell__trend--down': !missing && n < 0,
+            'project-budget-cell__trend--up': !missing && n > 0,
+            'project-budget-cell__trend--flat': !missing && n === 0,
+          }"
+        ></i>
+        <span class="project-budget-cell__head-title">Profit %</span>
+      </div>
+      <span
+        [ngClass]="{
+          'project-budget-cell__head-value': true,
+          'project-budget-cell__head-value--profit': !missing && n > 0,
+          'project-budget-cell__head-value--loss': !missing && n < 0,
+          'project-budget-cell__head-value--muted': missing || n === 0,
+          'font-medium': missing || n === 0,
+          'font-semibold': !missing && n !== 0,
+        }"
+      >
+        @if (missing) {
+          —
+        } @else {
+          {{ n }} %
+        }
+      </span>
+    </div>
+
+    <div class="project-budget-cell__divider"></div>
+
+    <dl class="project-budget-cell__stats">
+      <dt>Budget</dt>
+      <dd>
+        {{ r.estimatedBudget | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
+      </dd>
+      <dt>Spend</dt>
+      <dd>
+        @if (r.totalSpent !== null && r.totalSpent !== undefined) {
+          {{ r.totalSpent | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
+        } @else {
+          <span class="project-budget-cell__empty">—</span>
+        }
+      </dd>
+    </dl>
+  </div>
+</ng-template>
+
+<ng-template
+  #projectWorkTypes
+  let-row
+>
+  @let labels = $any(row).workTypes;
+  <div
+    class="project-work-types-chips flex flex-wrap gap-1 max-w-[16rem] min-w-0"
+    title="Kinds of work covered on this project (from site work types)"
+  >
+    @if (labels.length === 0) {
+      <span class="text-content-secondary text-sm font-medium">—</span>
+    } @else {
+      @for (label of labels; track $index) {
+        <app-chip [label]="label" />
+      }
+    }
+  </div>
+</ng-template>
+
+<ng-template
+  #projectStakeholders
+  let-row
+>
+  @let r = $any(row);
+  @let s = r.stakeholders;
+  @let contractors = s?.siteContractors ?? [];
+  @let teamCount = s?.allocatedEmployees?.length ?? 0;
+  <div class="project-stakeholders-cell">
+    <div class="project-stakeholders-cell__block">
+      <span class="project-stakeholders-cell__label">Company</span>
+      @if (s?.company?.name) {
+        <button
+          type="button"
+          class="project-stakeholders-cell__link-btn project-stakeholders-cell__link-btn--clamp"
+          (click)="companyPopover.toggle($event)"
+          [title]="s.company.name"
+          [attr.aria-label]="'Company details: ' + s.company.name"
+        >
+          {{ s.company.name }}
+        </button>
+      } @else {
+        <span class="project-stakeholders-cell__dash">—</span>
+      }
+    </div>
+
+    <div class="project-stakeholders-cell__block">
+      <span class="project-stakeholders-cell__label">Contractors</span>
+      @if (contractors.length > 0) {
+        <button
+          type="button"
+          class="project-stakeholders-cell__link-btn"
+          (click)="contractorsPopover.toggle($event)"
+          [attr.aria-label]="'View ' + contractors.length + ' contractors'"
+        >
+          {{ contractors.length }}
+          {{ contractors.length === 1 ? 'contractor' : 'contractors' }}
+        </button>
+      } @else {
+        <span class="project-stakeholders-cell__dash">—</span>
+      }
+    </div>
+
+    <div class="project-stakeholders-cell__block">
+      <span class="project-stakeholders-cell__label">Team</span>
+      @if (teamCount > 0) {
+        <button
+          type="button"
+          class="project-stakeholders-cell__link-btn"
+          (click)="allocatedTeamPopover.toggle($event)"
+          [attr.aria-label]="'View ' + teamCount + ' allocated team members'"
+        >
+          {{ teamCount }}
+          {{ teamCount === 1 ? 'employee' : 'employees' }}
+        </button>
+      } @else {
+        <span class="project-stakeholders-cell__dash">—</span>
+      }
+    </div>
+  </div>
+
+  <p-popover
+    #companyPopover
+    styleClass="project-stakeholders-popover-panel"
+    [dismissable]="true"
+    [appendTo]="'body'"
+  >
+    @if (s?.company; as co) {
+      <div class="project-stakeholders-popover">
+        <div class="project-stakeholders-popover__head">
+          <div class="project-stakeholders-popover__head-title">Company</div>
+          <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
+        </div>
+        <div class="project-stakeholders-popover__company">
+          @if (co.logo) {
+            <img
+              class="project-stakeholders-popover__logo"
+              [src]="co.logo"
+              [alt]="co.name"
+              loading="lazy"
+            />
+          }
+          <div class="project-stakeholders-popover__company-text">
+            <div class="project-stakeholders-popover__primary">{{ co.name }}</div>
+            @if (co.fullAddress) {
+              <div class="project-stakeholders-popover__address">{{ co.fullAddress }}</div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </p-popover>
+
+  <p-popover
+    #contractorsPopover
+    styleClass="project-stakeholders-popover-panel"
+    [dismissable]="true"
+    [appendTo]="'body'"
+  >
+    <div class="project-stakeholders-popover">
+      <div class="project-stakeholders-popover__head">
+        <div class="project-stakeholders-popover__head-title">Contractors</div>
+        <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
+        <div class="project-stakeholders-popover__head-count">
+          {{ contractors.length }}
+          {{ contractors.length === 1 ? 'contractor' : 'contractors' }}
+        </div>
+      </div>
+      <div class="project-stakeholders-popover__list">
+        @for (c of contractors; track c.id) {
+          <div class="project-stakeholders-popover__row">
+            <div class="project-stakeholders-popover__name">{{ c.contractor.name }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  </p-popover>
+
+  <p-popover
+    #allocatedTeamPopover
+    styleClass="project-stakeholders-popover-panel"
+    [dismissable]="true"
+    [appendTo]="'body'"
+  >
+    @let employees = s?.allocatedEmployees ?? [];
+    <div class="project-stakeholders-popover">
+      <div class="project-stakeholders-popover__head">
+        <div class="project-stakeholders-popover__head-title">Allocated team</div>
+        <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
+        <div class="project-stakeholders-popover__head-count">
+          {{ employees.length }}
+          {{ employees.length === 1 ? 'person' : 'people' }}
+        </div>
+      </div>
+      <div class="project-stakeholders-popover__list">
+        @for (employee of employees; track employee.id) {
+          <div class="project-stakeholders-popover__row">
+            <div class="project-stakeholders-popover__name">{{ employee.firstName }} {{ employee.lastName }}</div>
+            <div class="project-stakeholders-popover__meta">{{ employee.employeeId }} · {{ employee.role }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  </p-popover>
+</ng-template>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -20,6 +251,11 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    projectBudget: projectBudget,
+    projectWorkTypes: projectWorkTypes,
+    projectStakeholders: projectStakeholders,
+  }"
   (rowActionClick)="handleProjectTableActionClick($any($event), false)"
   (bulkActionClick)="handleProjectTableActionClick($any($event), true)"
   (filterData)="onTableStateChange($event)"

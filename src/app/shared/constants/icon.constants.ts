@@ -11,6 +11,7 @@ export const ICONS = {
     SYNC: 'pi pi-sync',
     BOOK: 'pi pi-book',
     CHART: 'pi pi-chart-bar',
+    CHART_LINE: 'pi pi-chart-line',
     CHART_PIE: 'pi pi-chart-pie',
     FILE: 'pi pi-file',
     ARROW_UP: 'pi pi-arrow-up',

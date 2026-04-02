@@ -40,16 +40,19 @@ import {
   PROJECT_ACTION_CONFIG_MAP,
   PROJECT_TABLE_ENHANCED_CONFIG,
 } from '../../config';
+import { CurrencyPipe, NgClass } from '@angular/common';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GetProjectDetailComponent } from '../get-project-detail/get-project-detail.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { IProject } from '../../types/project.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
+import { ChipComponent } from '@shared/components/chip/chip.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { PopoverModule } from 'primeng/popover';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
 import { APP_CONFIG } from '@core/config';
@@ -61,7 +64,11 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     PageHeaderComponent,
     MetricsCardComponent,
     SearchFilterComponent,
+    ChipComponent,
     DataTableComponent,
+    CurrencyPipe,
+    NgClass,
+    PopoverModule,
   ],
   templateUrl: './get-project.component.html',
   styleUrl: './get-project.component.scss',
@@ -82,6 +89,9 @@ export class GetProjectComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+
+  protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly budgetTrendIconBase = `${ICONS.COMMON.CHART_LINE} project-budget-cell__trend`;
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -162,9 +172,26 @@ export class GetProjectComponent implements OnInit {
           record.status
         ),
         timeLine: [new Date(record.startDate), new Date(record.endDate)],
+        workTypes: record.workTypes.map(wt =>
+          String(
+            getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.projectWorkTypes(),
+              wt
+            )
+          )
+        ),
         estimatedBudget: record.estimatedBudget,
+        profitPercentage: record.profitPercentage,
+        totalSpent: record.totalSpent,
+        projectManager: record.managerName,
+        projectManagerContact: record.managerContact,
+        stakeholders: {
+          company: record.company,
+          siteContractors: record.siteContractors,
+          allocatedEmployees: record.allocatedEmployees,
+        },
         originalRawData: record,
-      };
+      } satisfies IProject;
     });
   }
 

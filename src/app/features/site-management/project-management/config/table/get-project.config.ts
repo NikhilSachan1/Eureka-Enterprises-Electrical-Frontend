@@ -10,6 +10,7 @@ import {
 import { IProjectGetResponseDto } from '../../types/project.dto';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { ICONS } from '@shared/constants/icon.constants';
 
 const PROJECT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No project record found.',
@@ -20,10 +21,26 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'projectName',
     header: 'Project Name',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    showImage: true,
+    icon: ICONS.SITE.BUILDING,
     dummyImageField: 'projectName',
     primaryFieldHighlight: true,
     subtitle: { field: 'projectLocation' },
+  },
+  {
+    field: 'projectManager',
+    header: 'Project Manager',
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    showImage: true,
+    dummyImageField: 'projectManager',
+    primaryFieldHighlight: true,
+    subtitle: { field: 'projectManagerContact' },
+    showSort: false,
+  },
+  {
+    field: 'stakeholders',
+    header: 'Stakeholders',
+    customTemplateKey: 'projectStakeholders',
+    showSort: false,
   },
   {
     field: 'projectStatus',
@@ -43,10 +60,15 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'workTypes',
+    header: 'Work types',
+    customTemplateKey: 'projectWorkTypes',
+    showSort: false,
+  },
+  {
     field: 'estimatedBudget',
     header: 'Budget',
-    bodyTemplate: EDataType.CURRENCY,
-    dataType: EDataType.NUMBER,
+    customTemplateKey: 'projectBudget',
     showSort: false,
   },
 ];

@@ -11,7 +11,7 @@ export const ProjectBaseSchema = z
     startDate: onlyDateStringField,
     endDate: onlyDateStringField,
     baseDistanceKm: z.string(),
-    expectedVehicleDailyKm: z.string().nullable(),
+    expectedVehicleDailyKm: z.number().nullable(),
     estimatedBudget: z.string(),
     status: z.string(),
     blockNumber: z.string(),

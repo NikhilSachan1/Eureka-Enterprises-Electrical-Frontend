@@ -59,10 +59,17 @@ export const ProjectGetBaseResponseSchema = ProjectBaseSchema.extend({
         id: uuidField,
         siteId: uuidField,
         contractorId: uuidField,
+        contractor: z.looseObject({
+          id: uuidField,
+          name: z.string(),
+          fullAddress: z.string().nullable(),
+        }),
       })
     )
     .nullable(),
   fullAddress: z.string().nullable(),
+  totalSpent: z.number().int().nonnegative().optional().nullable(),
+  profitPercentage: z.number().optional().nullable(),
   allocatedEmployees: z
     .array(
       EmployeeBaseSchema.pick({
@@ -79,7 +86,7 @@ export const ProjectGetBaseResponseSchema = ProjectBaseSchema.extend({
     )
     .nullable(),
   allocatedEmployeeCount: z.number().int().nonnegative().nullable(),
-}).strict();
+}).loose();
 
 export const ProjectGetStatsResponseSchema = z
   .object({
@@ -91,7 +98,7 @@ export const ProjectGetStatsResponseSchema = z
     inactiveSites: z.number().int().nonnegative(),
     activeSites: z.number().int().nonnegative(),
   })
-  .strict();
+  .loose();
 
 export const ProjectGetResponseSchema = z
   .object({
@@ -101,7 +108,7 @@ export const ProjectGetResponseSchema = z
         healthGrade: z.string(),
       })
     ),
-    stats: ProjectGetStatsResponseSchema.strict(),
+    stats: ProjectGetStatsResponseSchema.loose(),
     totalRecords: z.number().int().nonnegative(),
   })
   .strict();
