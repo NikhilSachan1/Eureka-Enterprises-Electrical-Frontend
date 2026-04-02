@@ -20,7 +20,6 @@ import { GetProjectDocComponent } from '../project-doc/get-project-doc/get-proje
 import { GetDsrComponent } from '../project-dsr/get-dsr/get-dsr.component';
 import { GetProjectTimelineComponent } from '../get-project-timeline/get-project-timeline.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { LoggerService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
@@ -35,7 +34,6 @@ import { RouterNavigationService } from '@shared/services';
     GetDsrComponent,
     GetProjectTimelineComponent,
     PageHeaderComponent,
-    MetricsCardComponent,
   ],
   templateUrl: './get-project-analysis.component.html',
   styleUrl: './get-project-analysis.component.scss',

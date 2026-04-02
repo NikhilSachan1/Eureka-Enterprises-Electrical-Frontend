@@ -40,7 +40,6 @@ import {
   PROJECT_ACTION_CONFIG_MAP,
   PROJECT_TABLE_ENHANCED_CONFIG,
 } from '../../config';
-import { CurrencyPipe, NgClass } from '@angular/common';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GetProjectDetailComponent } from '../get-project-detail/get-project-detail.component';
@@ -66,8 +65,6 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     SearchFilterComponent,
     ChipComponent,
     DataTableComponent,
-    CurrencyPipe,
-    NgClass,
     PopoverModule,
   ],
   templateUrl: './get-project.component.html',
