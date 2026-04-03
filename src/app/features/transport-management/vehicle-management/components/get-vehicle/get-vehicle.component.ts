@@ -20,6 +20,7 @@ import {
 import { VehicleService } from '../../services/vehicle.service';
 import {
   EButtonActionType,
+  ETableActionTypeValue,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
@@ -54,6 +55,7 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { APP_CONFIG } from '@core/config';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 
 @Component({
   selector: 'app-get-vehicle',
@@ -64,12 +66,22 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     DataTableComponent,
     DatePipe,
     DecimalPipe,
+    StatusTagComponent,
   ],
   templateUrl: './get-vehicle.component.html',
   styleUrl: './get-vehicle.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetVehicleComponent implements OnInit {
+  private readonly allowedLatestEventTypes = new Set<string>([
+    ETableActionTypeValue.HANDOVER_ACCEPTED,
+    ETableActionTypeValue.HANDOVER_CANCELLED,
+    ETableActionTypeValue.HANDOVER_INITIATED,
+    ETableActionTypeValue.HANDOVER_REJECTED,
+  ]);
+
+  protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
+
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -149,6 +161,27 @@ export class GetVehicleComponent implements OnInit {
 
   private mapTableData(response: IVehicleGetBaseResponseDto[]): IVehicle[] {
     return response.map((record: IVehicleGetBaseResponseDto) => {
+      const latestEvent = record.latestEvent
+        ? {
+            ...record.latestEvent,
+            eventTypeCode: record.latestEvent.eventType,
+            eventType: this.allowedLatestEventTypes.has(
+              record.latestEvent.eventType
+            )
+              ? getMappedValueFromArrayOfObjects(
+                  this.appConfigurationService.vehicleEventStatuses(),
+                  record.latestEvent.eventType
+                )
+              : '',
+            fromUserName: record.latestEvent.fromUserUser
+              ? `${record.latestEvent.fromUserUser.firstName} ${record.latestEvent.fromUserUser.lastName}`
+              : '-',
+            toUserName: record.latestEvent.toUserUser
+              ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
+              : '-',
+          }
+        : null;
+
       return {
         id: record.id,
         vehicleNumber: record.registrationNo,
@@ -176,7 +209,7 @@ export class GetVehicleComponent implements OnInit {
         ),
         petroCardNumber: record.associatedCard?.cardNumber ?? null,
         petroCardName: record.associatedCard?.cardName ?? null,
-        latestEvent: record.latestEvent,
+        latestEvent,
         originalRawData: record,
       } satisfies IVehicle;
     });

@@ -60,10 +60,9 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
-    field: 'latestEventAction',
-    header: 'Latest Event',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    subtitle: { field: 'latestEventDetail' },
+    field: 'latestEvent.eventType',
+    header: 'Handover Status',
+    customTemplateKey: 'latestEventFlow',
     showSort: false,
   },
   {

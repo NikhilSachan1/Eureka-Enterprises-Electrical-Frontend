@@ -58,9 +58,8 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
   {
     field: 'latestEvent.eventType',
-    header: 'Latest Event',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    subtitle: { field: 'latestEvent.fromUserName' },
+    header: 'Handover Status',
+    customTemplateKey: 'latestEventFlow',
     showSort: false,
   },
   {

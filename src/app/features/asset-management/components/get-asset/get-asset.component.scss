@@ -1,0 +1,21 @@
+.handover-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.handover-cell__info {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.handover-cell__sep {
+  display: inline-block;
+  margin: 0 0.15rem;
+  opacity: 0.6;
+}

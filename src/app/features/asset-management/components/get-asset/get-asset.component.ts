@@ -38,6 +38,7 @@ import {
   IEnhancedTable,
   IMetricGroup,
   IPageHeaderConfig,
+  ETableActionTypeValue,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
@@ -49,6 +50,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -60,12 +62,20 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     MetricsCardComponent,
     SearchFilterComponent,
     DataTableComponent,
+    StatusTagComponent,
   ],
   templateUrl: './get-asset.component.html',
   styleUrl: './get-asset.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetAssetComponent implements OnInit {
+  private readonly allowedLatestEventTypes = new Set<string>([
+    ETableActionTypeValue.HANDOVER_ACCEPTED,
+    ETableActionTypeValue.HANDOVER_CANCELLED,
+    ETableActionTypeValue.HANDOVER_INITIATED,
+    ETableActionTypeValue.HANDOVER_REJECTED,
+  ]);
+
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -82,6 +92,7 @@ export class GetAssetComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected table!: IEnhancedTable;
+  protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
   private readonly assetStats = signal<IAssetGetStatsResponseDto | null>(null);
@@ -139,6 +150,27 @@ export class GetAssetComponent implements OnInit {
 
   private mapTableData(response: IAssetGetBaseResponseDto[]): IAsset[] {
     return response.map((record: IAssetGetBaseResponseDto) => {
+      const latestEvent = record.latestEvent
+        ? {
+            ...record.latestEvent,
+            eventTypeCode: record.latestEvent.eventType,
+            eventType: this.allowedLatestEventTypes.has(
+              record.latestEvent.eventType
+            )
+              ? getMappedValueFromArrayOfObjects(
+                  this.appConfigurationService.assetEventStatuses(),
+                  record.latestEvent.eventType
+                )
+              : '',
+            fromUserName: record.latestEvent.fromUserUser
+              ? `${record.latestEvent.fromUserUser.firstName} ${record.latestEvent.fromUserUser.lastName}`
+              : '-',
+            toUserName: record.latestEvent.toUserUser
+              ? `${record.latestEvent.toUserUser.firstName} ${record.latestEvent.toUserUser.lastName}`
+              : '-',
+          }
+        : null;
+
       return {
         id: record.id,
         assetId: record.assetId,
@@ -170,7 +202,7 @@ export class GetAssetComponent implements OnInit {
           record.status
         ),
         assetDocuments: record.documentKeys,
-        latestEvent: record.latestEvent,
+        latestEvent,
         originalRawData: record,
       };
     });

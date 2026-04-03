@@ -12,6 +12,44 @@
   />
 </div>
 
+<ng-template
+  #latestEventFlow
+  let-row
+>
+  @let eventType = $any(row).latestEvent?.eventType;
+  @let eventTypeCode = $any(row).latestEvent?.eventTypeCode;
+  @let fromUser = $any(row).latestEvent?.fromUserName ?? '-';
+  @let toUser = $any(row).latestEvent?.toUserName ?? '-';
+
+  @if (eventType) {
+    <div class="handover-cell">
+      <app-status-tag [value]="eventType" />
+      @if (eventTypeCode === HANDOVER_EVENT_TYPES.HANDOVER_INITIATED) {
+        <p
+          class="handover-cell__info"
+          [title]="fromUser + ' → ' + toUser"
+        >
+          {{ fromUser }}
+          <span class="handover-cell__sep">→</span>
+          {{ toUser }}
+        </p>
+      } @else if (
+        eventTypeCode === HANDOVER_EVENT_TYPES.HANDOVER_REJECTED ||
+        eventTypeCode === HANDOVER_EVENT_TYPES.HANDOVER_CANCELLED
+      ) {
+        <p
+          class="handover-cell__info"
+          [title]="toUser"
+        >
+          {{ toUser }}
+        </p>
+      }
+    </div>
+  } @else {
+    <span class="text-content-secondary">-</span>
+  }
+</ng-template>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -20,7 +58,10 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
-  [customBodyTemplates]="{ serviceInfo: serviceInfoTemplate }"
+  [customBodyTemplates]="{
+    serviceInfo: serviceInfoTemplate,
+    latestEventFlow: latestEventFlow,
+  }"
   (rowActionClick)="handleVehicleTableActionClick($any($event), false)"
   (bulkActionClick)="handleVehicleTableActionClick($any($event), true)"
   (filterData)="onTableStateChange($event)"
