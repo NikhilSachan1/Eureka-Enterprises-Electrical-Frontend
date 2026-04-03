@@ -128,6 +128,12 @@ export const appMenu: ApplicationMenu = {
               routerLink: ROUTES.ASSET.ADD,
               permission: [APP_PERMISSION.ASSET.ADD],
             },
+            {
+              label: 'Event History',
+              icon: ICONS.COMMON.HISTORY,
+              routerLink: ROUTES.ASSET.EVENT_HISTORY,
+              permission: [APP_PERMISSION.ASSET.EVENT_HISTORY],
+            },
           ],
         },
         {
@@ -151,6 +157,12 @@ export const appMenu: ApplicationMenu = {
                   icon: ICONS.COMMON.PLUS,
                   routerLink: ROUTES.VEHICLE.ADD,
                   permission: [APP_PERMISSION.VEHICLE.ADD],
+                },
+                {
+                  label: 'Event History',
+                  icon: ICONS.COMMON.HISTORY,
+                  routerLink: ROUTES.VEHICLE.EVENT_HISTORY,
+                  permission: [APP_PERMISSION.VEHICLE.EVENT_HISTORY],
                 },
               ],
             },

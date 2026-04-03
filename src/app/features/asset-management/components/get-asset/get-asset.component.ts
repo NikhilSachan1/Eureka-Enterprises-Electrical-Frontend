@@ -388,10 +388,11 @@ export class GetAssetComponent implements OnInit {
       const routeSegments = [
         ROUTE_BASE_PATHS.ASSET,
         ROUTES.ASSET.EVENT_HISTORY,
-        assetId,
       ];
 
-      void this.routerNavigationService.navigateToRoute(routeSegments);
+      void this.routerNavigationService.navigateWithState(routeSegments, {
+        assetId,
+      });
     } catch (error) {
       this.logger.logUserAction(
         'Navigation error while viewing event history',

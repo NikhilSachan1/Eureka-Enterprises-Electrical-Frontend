@@ -47,7 +47,7 @@ export const ASSET_MANAGEMENT_ROUTES: Routes = [
     },
   },
   {
-    path: `${ROUTES.ASSET.EVENT_HISTORY}/:assetId`,
+    path: ROUTES.ASSET.EVENT_HISTORY,
     loadComponent: () =>
       import(
         './components/get-asset-event-history/get-asset-event-history.component'

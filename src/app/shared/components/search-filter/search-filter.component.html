@@ -39,12 +39,12 @@
         <div class="flex items-center justify-end gap-3 mt-6 pt-5 border-t">
           <app-button
             [buttonConfig]="form.buttonConfigs['reset']"
-            [showDisabledButton]="!form.formGroup.dirty && !hasSearched"
+            [showDisabledButton]="!form.formGroup.dirty && !hasSearched && !hasPrefillValues"
             (onButtonClick)="onReset()"
           />
           <app-button
             [buttonConfig]="form.buttonConfigs['submit']"
-            [showDisabledButton]="!form.formGroup.dirty"
+            [showDisabledButton]="!form.formGroup.dirty && !hasPrefillValues"
           />
         </div>
       </form>

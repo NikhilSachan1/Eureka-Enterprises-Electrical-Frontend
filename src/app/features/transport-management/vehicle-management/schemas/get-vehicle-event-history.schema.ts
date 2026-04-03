@@ -17,6 +17,7 @@ const { id, registrationNo, model, brand, status } =
 export const VehicleEventHistoryGetRequestSchema = z
   .object({
     ...FilterSchema.shape,
+    vehicleName: z.string().optional(),
     vehicleEventTypes: z.array(z.string()).min(1).optional(),
     vehicleFromEmployeeName: z.string().optional(),
     vehicleToEmployeeName: z.string().optional(),
@@ -25,6 +26,7 @@ export const VehicleEventHistoryGetRequestSchema = z
   .strict()
   .transform(
     ({
+      vehicleName: _vehicleName,
       vehicleEventDate: dateRange,
       vehicleFromEmployeeName,
       vehicleToEmployeeName,

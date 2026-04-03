@@ -9,6 +9,9 @@
   <app-search-filter
     [tableRef]="dataTable.dt()"
     [searchFilterConfig]="searchFilterConfig"
+    [prefillValues]="prefillValues()"
+    (onFilterSubmit)="onFilterSubmit($event)"
+    (onFilterReset)="onFilterReset()"
   />
 </div>
 

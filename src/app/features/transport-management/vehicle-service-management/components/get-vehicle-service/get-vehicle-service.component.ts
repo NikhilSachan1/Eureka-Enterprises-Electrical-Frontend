@@ -88,11 +88,24 @@ export class GetVehicleServiceComponent implements OnInit {
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
   private readonly vehicleServiceStats =
     signal<IVehicleServiceGetStatsResponseDto | null>(null);
+  private readonly vehicleId = signal<string>('');
+  protected readonly hasVehicleSelected = computed(() => !!this.vehicleId());
+  protected prefillValues = signal<Record<string, unknown> | undefined>(
+    undefined
+  );
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
+    const vehicleIdFromState =
+      this.routerNavigationService.getRouterStateData<string>('vehicleId');
+
+    if (vehicleIdFromState) {
+      this.vehicleId.set(vehicleIdFromState);
+      this.prefillValues.set({ vehicleName: vehicleIdFromState });
+    }
+
     this.table = this.dataTableService.createTable(
       VEHICLE_SERVICE_TABLE_ENHANCED_CONFIG
     );
@@ -141,10 +154,17 @@ export class GetVehicleServiceComponent implements OnInit {
   }
 
   private prepareParamData(): IVehicleServiceGetFormDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IVehicleServiceGetFormDto>(
-      this.tableFilterData,
-      this.table.getHeaders()
-    );
+    const params =
+      this.tableServerSideFilterAndSortService.buildQueryParams<IVehicleServiceGetFormDto>(
+        this.tableFilterData,
+        this.table.getHeaders()
+      );
+
+    if (this.vehicleId() && !params.vehicleName) {
+      params.vehicleName = this.vehicleId();
+    }
+
+    return params;
   }
 
   private mapTableData(
@@ -172,6 +192,15 @@ export class GetVehicleServiceComponent implements OnInit {
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
     this.tableFilterData = tableFilterData;
     this.loadVehicleServiceList();
+  }
+
+  protected onFilterSubmit(filterData: Record<string, unknown>): void {
+    const selectedVehicleId = filterData['vehicleName'] as string | undefined;
+    this.vehicleId.set(selectedVehicleId ?? '');
+  }
+
+  protected onFilterReset(): void {
+    this.vehicleId.set('');
   }
 
   private getMetricGroups(): IMetricGroup[] {

@@ -1,16 +1,22 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
-<app-metrics-card [metricGroups]="metricGroups()" />
+@if (hasVehicleSelected()) {
+  <app-metrics-card [metricGroups]="metricGroups()" />
+}
 
 <div class="search-filter-wrapper">
   <app-search-filter
     [tableRef]="dataTable.dt()"
     [searchFilterConfig]="searchFilterConfig"
+    [prefillValues]="prefillValues()"
+    (onFilterSubmit)="onFilterSubmit($event)"
+    (onFilterReset)="onFilterReset()"
   />
 </div>
 
 <app-data-table
   #dataTable
+  [class.hidden]="!hasVehicleSelected()"
   [tableConfig]="table.tableConfig()"
   [tableHeader]="table.headers()"
   [tableData]="table.data()"
@@ -19,3 +25,11 @@
   [rowActions]="table.rowActions()"
   (filterData)="onTableStateChange($event)"
 />
+
+@if (!hasVehicleSelected()) {
+  <app-empty-messages
+    icon="pi pi-car"
+    title="No Vehicle Selected"
+    description="Please select a vehicle from the dropdown above to view its event history."
+  />
+}

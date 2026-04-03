@@ -41,21 +41,32 @@ export class SearchFilterComponent implements OnInit {
 
   searchFilterConfig = input.required<ITableSearchFilterFormConfig>();
   tableRef = input.required<Table>();
+  prefillValues = input<Record<string, unknown>>();
 
   onSearchFilterChange = output<Record<string, unknown>>();
+  onFilterSubmit = output<Record<string, unknown>>();
+  onFilterReset = output<void>();
 
   protected form!: IEnhancedForm<Record<string, unknown>>;
   protected hasSearched = false;
+  protected hasPrefillValues = false;
 
   ngOnInit(): void {
     const filteredConfig = this.getPermissionFilteredConfig();
+    const prefillData = this.prefillValues();
 
     this.form = this.formService.createForm(
       filteredConfig as unknown as IFormConfig<Record<string, unknown>>,
       {
         destroyRef: this.destroyRef,
+        defaultValues: prefillData,
       }
     );
+
+    if (prefillData && Object.keys(prefillData).length > 0) {
+      this.hasPrefillValues = true;
+      this.form.formGroup.markAsDirty();
+    }
   }
 
   private getPermissionFilteredConfig(): ITableSearchFilterFormConfig {
@@ -73,6 +84,7 @@ export class SearchFilterComponent implements OnInit {
     this.setFilterInTable();
     this.form.formGroup.markAsPristine();
     this.hasSearched = true;
+    this.onFilterSubmit.emit(this.form.getData());
   }
 
   protected setFilterInTable(): void {
@@ -96,12 +108,14 @@ export class SearchFilterComponent implements OnInit {
 
   protected onReset(): void {
     this.form.formGroup.reset();
-    if (this.hasSearched) {
+    this.onFilterReset.emit();
+    if (this.hasSearched || this.hasPrefillValues) {
       const table = this.tableRef();
       table.filters = {};
       table.reset();
     }
     this.hasSearched = false;
+    this.hasPrefillValues = false;
   }
 
   protected customSort(): number {

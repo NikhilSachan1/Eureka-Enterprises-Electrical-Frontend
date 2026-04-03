@@ -47,7 +47,7 @@ export const VEHICLE_MANAGEMENT_ROUTES: Routes = [
     },
   },
   {
-    path: `${ROUTES.VEHICLE.EVENT_HISTORY}/:vehicleId`,
+    path: ROUTES.VEHICLE.EVENT_HISTORY,
     loadComponent: () =>
       import(
         './components/get-vehicle-event-history/get-vehicle-event-history.component'

@@ -11,12 +11,11 @@ import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   LoadingService,
-  NotificationService,
+  RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
 import { VehicleService } from '../../services/vehicle.service';
-import { ActivatedRoute } from '@angular/router';
 import {
   IEnhancedTable,
   IEnhancedTableConfig,
@@ -31,7 +30,6 @@ import {
   IVehicleEventHistoryGetResponseDto,
   IVehicleEventHistoryGetStatsResponseDto,
 } from '../../types/vehicle.dto';
-import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import {
   SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_CONFIG,
   VEHICLE_EVENT_HISTORY_TABLE_ENHANCED_CONFIG,
@@ -44,6 +42,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 
 @Component({
   selector: 'app-get-vehicle-event-history',
@@ -52,6 +51,7 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
     MetricsCardComponent,
     SearchFilterComponent,
     DataTableComponent,
+    EmptyMessagesComponent,
   ],
   templateUrl: './get-vehicle-event-history.component.html',
   styleUrl: './get-vehicle-event-history.component.scss',
@@ -67,8 +67,7 @@ export class GetVehicleEventHistoryComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
-  private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly notificationService = inject(NotificationService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -76,23 +75,21 @@ export class GetVehicleEventHistoryComponent implements OnInit {
   private readonly vehicleEventHistoryStats =
     signal<IVehicleEventHistoryGetStatsResponseDto | null>(null);
   private readonly vehicleId = signal<string>('');
+  protected readonly hasVehicleSelected = computed(() => !!this.vehicleId());
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
-  protected vehicleDetails = signal<
-    IVehicleEventHistoryGetResponseDto['records'][number]['vehicle'] | null
-  >(null);
+  protected prefillValues = signal<Record<string, unknown> | undefined>(
+    undefined
+  );
+
   ngOnInit(): void {
-    const vehicleId = this.activatedRoute.snapshot.params[
-      'vehicleId'
-    ] as string;
-    if (!vehicleId) {
-      this.logger.logUserAction('No vehicle id found in route');
-      this.notificationService.error(
-        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
-      );
-      return;
+    const vehicleIdFromState =
+      this.routerNavigationService.getRouterStateData<string>('vehicleId');
+
+    if (vehicleIdFromState) {
+      this.vehicleId.set(vehicleIdFromState);
+      this.prefillValues.set({ vehicleName: vehicleIdFromState });
     }
-    this.vehicleId.set(vehicleId);
 
     this.table = this.dataTableService.createTable(
       VEHICLE_EVENT_HISTORY_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
@@ -101,6 +98,10 @@ export class GetVehicleEventHistoryComponent implements OnInit {
   }
 
   private loadVehicleEventHistory(): void {
+    if (!this.vehicleId()) {
+      return;
+    }
+
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Vehicle Event History',
@@ -124,7 +125,6 @@ export class GetVehicleEventHistoryComponent implements OnInit {
 
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
-          this.vehicleDetails.set(records[0]?.vehicle);
           this.table.updateTableConfig({ totalRecords });
           this.vehicleEventHistoryStats.set(stats);
           this.logger.logUserAction(
@@ -183,6 +183,24 @@ export class GetVehicleEventHistoryComponent implements OnInit {
     this.loadVehicleEventHistory();
   }
 
+  protected onFilterSubmit(filterData: Record<string, unknown>): void {
+    const selectedVehicleId = filterData['vehicleName'] as string | undefined;
+
+    if (selectedVehicleId) {
+      this.vehicleId.set(selectedVehicleId);
+    } else {
+      this.vehicleId.set('');
+      this.vehicleEventHistoryStats.set(null);
+      this.table.setData([]);
+    }
+  }
+
+  protected onFilterReset(): void {
+    this.vehicleId.set('');
+    this.vehicleEventHistoryStats.set(null);
+    this.table.setData([]);
+  }
+
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.vehicleEventHistoryStats();
     if (!stats) {
@@ -223,7 +241,7 @@ export class GetVehicleEventHistoryComponent implements OnInit {
 
   private getPageHeaderConfig(): IPageHeaderConfig {
     return {
-      title: `Vehicle Event History - ${this.vehicleDetails()?.registrationNo}`,
+      title: 'Vehicle Event History',
       subtitle: 'Manage vehicle event history records',
     };
   }

@@ -415,10 +415,11 @@ export class GetVehicleComponent implements OnInit {
         ROUTE_BASE_PATHS.TRANSPORT,
         ROUTE_BASE_PATHS.VEHICLE,
         ROUTES.VEHICLE.EVENT_HISTORY,
-        vehicleId,
       ];
 
-      void this.routerNavigationService.navigateToRoute(routeSegments);
+      void this.routerNavigationService.navigateWithState(routeSegments, {
+        vehicleId,
+      });
     } catch (error) {
       this.logger.logUserAction(
         'Navigation error while viewing event history',
@@ -433,10 +434,11 @@ export class GetVehicleComponent implements OnInit {
         ROUTE_BASE_PATHS.TRANSPORT,
         ROUTE_BASE_PATHS.VEHICLE_SERVICE,
         ROUTES.VEHICLE_SERVICE.LIST,
-        vehicleId,
       ];
 
-      void this.routerNavigationService.navigateToRoute(routeSegments);
+      void this.routerNavigationService.navigateWithState(routeSegments, {
+        vehicleId,
+      });
     } catch (error) {
       this.logger.logUserAction(
         'Navigation error while viewing service info',

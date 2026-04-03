@@ -10,54 +10,68 @@ import {
 } from '@shared/types';
 import { IVehicleEventHistoryGetFormDto } from '../../types/vehicle.dto';
 
-const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<IVehicleEventHistoryGetFormDto> =
-  {
-    vehicleEventTypes: {
-      fieldType: EDataType.MULTI_SELECT,
-      id: 'vehicleEventTypes',
-      fieldName: 'vehicleEventTypes',
-      label: 'Event Types',
-      multiSelectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.VEHICLE,
-          dropdownName: CONFIGURATION_KEYS.VEHICLE.EVENT_STATUS_LIST,
-        },
+const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
+  IVehicleEventHistoryGetFormDto & { vehicleName?: string }
+> = {
+  vehicleName: {
+    fieldType: EDataType.SELECT,
+    id: 'vehicleName',
+    fieldName: 'vehicleName',
+    label: 'Vehicle',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.VEHICLE,
+        dropdownName: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
       },
-      matchmode: ETableFilterMatchMode.IN,
     },
-    vehicleFromEmployeeName: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
-      fieldName: 'vehicleFromEmployeeName',
-      fieldType: EDataType.SELECT,
-      label: 'From User',
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.EMPLOYEE,
-          dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-        },
+    matchmode: ETableFilterMatchMode.IN,
+  },
+  vehicleEventTypes: {
+    fieldType: EDataType.MULTI_SELECT,
+    id: 'vehicleEventTypes',
+    fieldName: 'vehicleEventTypes',
+    label: 'Event Types',
+    multiSelectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.VEHICLE,
+        dropdownName: CONFIGURATION_KEYS.VEHICLE.EVENT_STATUS_LIST,
       },
-      matchmode: ETableFilterMatchMode.IN,
     },
-    vehicleToEmployeeName: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
-      fieldName: 'vehicleToEmployeeName',
-      label: 'To User',
-      fieldType: EDataType.SELECT,
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.EMPLOYEE,
-          dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-        },
+    matchmode: ETableFilterMatchMode.IN,
+  },
+  vehicleFromEmployeeName: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
+    fieldName: 'vehicleFromEmployeeName',
+    fieldType: EDataType.SELECT,
+    label: 'From User',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
       },
-      matchmode: ETableFilterMatchMode.IN,
     },
-    vehicleEventDate: {
-      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
-      fieldName: 'vehicleEventDate',
-      label: 'Event Date',
-      matchmode: ETableFilterMatchMode.BETWEEN,
+    matchmode: ETableFilterMatchMode.IN,
+  },
+  vehicleToEmployeeName: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
+    fieldName: 'vehicleToEmployeeName',
+    label: 'To User',
+    fieldType: EDataType.SELECT,
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+      },
     },
-  };
+    matchmode: ETableFilterMatchMode.IN,
+  },
+  vehicleEventDate: {
+    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
+    fieldName: 'vehicleEventDate',
+    label: 'Event Date',
+    matchmode: ETableFilterMatchMode.BETWEEN,
+  },
+};
 
 const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_BUTTONS_CONFIG: IFormButtonConfig =
   {

@@ -11,8 +11,21 @@ import {
 } from '@shared/types';
 
 const SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
-  IAssetEventHistoryGetFormDto & { globalSearch?: string }
+  IAssetEventHistoryGetFormDto & { assetName?: string; globalSearch?: string }
 > = {
+  assetName: {
+    fieldType: EDataType.SELECT,
+    id: 'assetName',
+    fieldName: 'assetName',
+    label: 'Asset Name',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.ASSET,
+        dropdownName: CONFIGURATION_KEYS.ASSET.ASSET_LIST,
+      },
+    },
+    matchmode: ETableFilterMatchMode.IN,
+  },
   assetEventTypes: {
     fieldType: EDataType.MULTI_SELECT,
     id: 'assetEventTypes',

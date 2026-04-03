@@ -17,6 +17,7 @@ const { id, name, assetId, model, serialNumber, category, status } =
 export const AssetEventHistoryGetRequestSchema = z
   .object({
     ...FilterSchema.shape,
+    assetName: z.string().optional(),
     assetEventTypes: z.array(z.string()).min(1).optional(),
     assetFromEmployeeName: z.string().optional(),
     assetToEmployeeName: z.string().optional(),
@@ -25,6 +26,7 @@ export const AssetEventHistoryGetRequestSchema = z
   .strict()
   .transform(
     ({
+      assetName: _assetName,
       assetEventDate: dateRange,
       assetFromEmployeeName,
       assetToEmployeeName,

@@ -24,7 +24,7 @@ import { IAssetEventHistory } from '@features/asset-management/types/asset.inter
 import {
   AppConfigurationService,
   LoadingService,
-  NotificationService,
+  RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
@@ -41,8 +41,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { ActivatedRoute } from '@angular/router';
-import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
@@ -52,6 +51,7 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
     MetricsCardComponent,
     SearchFilterComponent,
     DataTableComponent,
+    EmptyMessagesComponent,
   ],
   templateUrl: './get-asset-event-history.component.html',
   styleUrl: './get-asset-event-history.component.scss',
@@ -67,8 +67,7 @@ export class GetAssetEventHistoryComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
-  private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly notificationService = inject(NotificationService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -76,22 +75,21 @@ export class GetAssetEventHistoryComponent implements OnInit {
   private readonly assetEventHistoryStats =
     signal<IAssetEventHistoryGetStatsResponseDto | null>(null);
   private readonly assetId = signal<string>('');
+  protected readonly hasAssetSelected = computed(() => !!this.assetId());
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
-  protected assetDetails = signal<
-    IAssetEventHistoryGetResponseDto['records'][number]['asset'] | null
-  >(null);
+  protected prefillValues = signal<Record<string, unknown> | undefined>(
+    undefined
+  );
 
   ngOnInit(): void {
-    const assetId = this.activatedRoute.snapshot.params['assetId'] as string;
-    if (!assetId) {
-      this.logger.logUserAction('No asset id found in route');
-      this.notificationService.error(
-        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
-      );
-      return;
+    const assetIdFromState =
+      this.routerNavigationService.getRouterStateData<string>('assetId');
+
+    if (assetIdFromState) {
+      this.assetId.set(assetIdFromState);
+      this.prefillValues.set({ assetName: assetIdFromState });
     }
-    this.assetId.set(assetId);
 
     this.table = this.dataTableService.createTable(
       ASSET_EVENT_HISTORY_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
@@ -100,6 +98,10 @@ export class GetAssetEventHistoryComponent implements OnInit {
   }
 
   private loadAssetList(): void {
+    if (!this.assetId()) {
+      return;
+    }
+
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Asset Event History',
@@ -123,7 +125,6 @@ export class GetAssetEventHistoryComponent implements OnInit {
 
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
-          this.assetDetails.set(records[0].asset);
           this.table.updateTableConfig({ totalRecords });
           this.assetEventHistoryStats.set(stats);
           this.logger.logUserAction(
@@ -182,6 +183,24 @@ export class GetAssetEventHistoryComponent implements OnInit {
     this.loadAssetList();
   }
 
+  protected onFilterSubmit(filterData: Record<string, unknown>): void {
+    const selectedAssetId = filterData['assetName'] as string | undefined;
+
+    if (selectedAssetId) {
+      this.assetId.set(selectedAssetId);
+    } else {
+      this.assetId.set('');
+      this.assetEventHistoryStats.set(null);
+      this.table.setData([]);
+    }
+  }
+
+  protected onFilterReset(): void {
+    this.assetId.set('');
+    this.assetEventHistoryStats.set(null);
+    this.table.setData([]);
+  }
+
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.assetEventHistoryStats();
     if (!stats) {
@@ -222,7 +241,7 @@ export class GetAssetEventHistoryComponent implements OnInit {
 
   private getPageHeaderConfig(): IPageHeaderConfig {
     return {
-      title: `Asset Event History - ${this.assetDetails()?.name}`,
+      title: `Asset Event History`,
       subtitle: 'Manage asset event history records',
     };
   }
