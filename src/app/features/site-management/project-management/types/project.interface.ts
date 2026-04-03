@@ -21,7 +21,18 @@ export interface IProject
   originalRawData: IProjectGetBaseResponseDto;
 }
 
-export interface IDsr {
-  id: string;
+export interface IDsr
+  extends Pick<
+    IDsrGetBaseResponseDto,
+    | 'id'
+    | 'reportDate'
+    | 'workTypes'
+    | 'reportingEngineerName'
+    | 'reportingEngineerContact'
+    | 'remarks'
+  > {
+  createdByUser: IDsrGetBaseResponseDto['createdByUser'] & {
+    fullName: string;
+  };
   originalRawData: IDsrGetBaseResponseDto;
 }

@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { AuditSchema, dateField, FilterSchema } from '@shared/schemas';
+import {
+  AuditSchema,
+  dateField,
+  FilterSchema,
+  UserSchema,
+} from '@shared/schemas';
 import { transformDateFormat } from '@shared/utility';
 import { DsrBaseSchema } from './base-dsr.schema';
 
@@ -31,6 +36,7 @@ export const DsrGetBaseResponseSchema = DsrBaseSchema.extend({
   ...AuditSchema.shape,
   user: z.null().nullable(),
   files: z.array(z.string()),
+  createdByUser: UserSchema,
   editHistory: z.array(z.any()).nullable(),
 }).loose();
 

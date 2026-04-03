@@ -5,6 +5,25 @@
   />
 </div>
 
+<ng-template
+  #projectWorkTypes
+  let-row
+>
+  @let labels = $any(row).workTypes;
+  <div
+    class="project-work-types-chips flex flex-wrap gap-1 max-w-[16rem] min-w-0"
+    title="Kinds of work covered on this DSR (from site work types)"
+  >
+    @if (labels.length === 0) {
+      <span class="text-content-secondary text-sm font-medium">—</span>
+    } @else {
+      @for (label of labels; track $index) {
+        <app-chip [label]="label" />
+      }
+    }
+  </div>
+</ng-template>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -13,6 +32,9 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    projectWorkTypes: projectWorkTypes,
+  }"
   (rowActionClick)="handleDsrTableActionClick($any($event), false)"
   (filterData)="onTableStateChange($event)"
 />

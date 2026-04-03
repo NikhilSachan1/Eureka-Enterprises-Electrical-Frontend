@@ -42,10 +42,16 @@ import {
   SEARCH_FILTER_DSR_FORM_CONFIG,
 } from '@features/site-management/project-management/config';
 import { IDsr } from '@features/site-management/project-management/types/project.interface';
+import { ChipComponent } from '@shared/components/chip/chip.component';
 
 @Component({
   selector: 'app-get-dsr',
-  imports: [CommonModule, SearchFilterComponent, DataTableComponent],
+  imports: [
+    CommonModule,
+    SearchFilterComponent,
+    DataTableComponent,
+    ChipComponent,
+  ],
   templateUrl: './get-dsr.component.html',
   styleUrl: './get-dsr.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -122,8 +128,17 @@ export class GetDsrComponent implements OnInit {
     return response.map((record: IDsrGetBaseResponseDto) => {
       return {
         id: record.id,
+        reportDate: record.reportDate,
+        createdByUser: {
+          ...record.createdByUser,
+          fullName: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
+        },
+        workTypes: record.workTypes,
+        reportingEngineerName: record.reportingEngineerName,
+        reportingEngineerContact: record.reportingEngineerContact,
+        remarks: record.remarks,
         originalRawData: record,
-      };
+      } satisfies IDsr;
     });
   }
 

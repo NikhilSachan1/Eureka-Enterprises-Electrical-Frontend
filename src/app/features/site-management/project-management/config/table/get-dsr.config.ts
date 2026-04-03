@@ -15,12 +15,12 @@ export const DSR_TABLE_CONFIG: Partial<IDataTableConfig> = {
 
 export const DSR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
-    field: 'employeeName',
+    field: 'createdByUser.fullName',
     header: 'Employee Name',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    subtitle: { field: 'employeeCode' },
+    subtitle: { field: 'createdByUser.employeeId' },
     showImage: true,
-    dummyImageField: 'employeeName',
+    dummyImageField: 'createdByUser.fullName',
     primaryFieldHighlight: true,
     // permission: [APP_PERMISSION.UI.EXPENSE.TABLE_EMPLOYEE_NAME],
     serverSideFilterAndSortConfig: {
@@ -29,7 +29,7 @@ export const DSR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     },
   },
   {
-    field: 'statusDate',
+    field: 'reportDate',
     header: 'Status Date',
     bodyTemplate: EDataType.DATE,
     dataType: EDataType.DATE,
@@ -45,17 +45,17 @@ export const DSR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
-    field: 'projectManager',
-    header: 'Project Manager',
+    field: 'reportingEngineerName',
+    header: 'Reporting Engineer',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
     showImage: true,
-    dummyImageField: 'projectManager',
+    dummyImageField: 'reportingEngineerName',
     primaryFieldHighlight: true,
-    subtitle: { field: 'projectManagerContact' },
+    subtitle: { field: 'reportingEngineerContact' },
     showSort: false,
   },
   {
-    field: 'description',
+    field: 'remarks',
     header: 'Notes',
     bodyTemplate: EDataType.TEXT_WITH_READ_MORE,
     showSort: false,

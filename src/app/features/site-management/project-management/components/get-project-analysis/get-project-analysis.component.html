@@ -7,24 +7,27 @@
   <app-metrics-card [metricCardConfig]="metricsCards()" />
 </div> -->
 
-<div class="grid grid-cols-1md:grid-cols-[minmax(280px,25%)_1fr] lg:grid-cols-[minmax(320px,25%)_1fr] gap-4">
-  <p-card class="pb-4">
+<div
+  class="grid grid-cols-1 md:grid-cols-[minmax(280px,25%)_minmax(0,1fr)] lg:grid-cols-[minmax(320px,25%)_minmax(0,1fr)] gap-4"
+>
+  <p-card class="pb-4 min-w-0">
     <app-get-project-timeline />
   </p-card>
 
-  <!-- <p-card> -->
-  <app-nav-tabs
-    [tabs]="tabs()"
-    [tabMode]="tabModeType"
-    (tabChanged)="onTabChanged($event)"
-  >
-    @if (activeTabIndex() === 0) {
-      <app-get-project-profitability />
-    } @else if (activeTabIndex() === 1) {
-      <app-get-project-doc />
-    } @else if (activeTabIndex() === 2) {
-      <app-get-dsr />
-    }
-  </app-nav-tabs>
-  <!-- </p-card> -->
+  <div class="min-w-0 max-w-full">
+    <app-nav-tabs
+      class="block min-w-0 max-w-full"
+      [tabs]="tabs()"
+      [tabMode]="tabModeType"
+      (tabChanged)="onTabChanged($event)"
+    >
+      @if (activeTabIndex() === 0) {
+        <app-get-project-profitability />
+      } @else if (activeTabIndex() === 1) {
+        <app-get-project-doc />
+      } @else if (activeTabIndex() === 2) {
+        <app-get-dsr />
+      }
+    </app-nav-tabs>
+  </div>
 </div>
