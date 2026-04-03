@@ -59,8 +59,9 @@ export const ExpenseGetBaseResponseSchema = z
     approvalStatus: approvalStatus.transform(toTitleCase),
     createdAt,
     updatedAt,
+    canEdit: z.boolean(),
   })
-  .strict();
+  .loose();
 
 export const ExpenseGetStatsResponseSchema = z
   .object({

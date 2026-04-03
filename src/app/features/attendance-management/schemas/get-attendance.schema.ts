@@ -73,36 +73,7 @@ export const AttendanceGetBaseResponseSchema = z
     approvalBy: makeFieldsNullable(UserSchema).nullable(),
     assignmentSnapshot: assignmentSnapshot.optional().nullable(),
   })
-  .loose()
-  .transform(data => {
-    return {
-      ...data,
-      assignmentSnapshot: {
-        company: {
-          id: '123',
-          name: 'Company 1',
-        },
-        contractors: [
-          {
-            id: '123',
-            name: 'Contractor 1',
-          },
-          {
-            id: '456',
-            name: 'Contractor 2',
-          },
-        ],
-        vehicle: {
-          id: '789',
-          registrationNo: 'Vehicle 1',
-        },
-        assignedEngineer: {
-          id: '101',
-          name: 'Engineer 1',
-        },
-      },
-    };
-  });
+  .loose();
 
 export const AttendanceGetStatsResponseSchema = z
   .object({

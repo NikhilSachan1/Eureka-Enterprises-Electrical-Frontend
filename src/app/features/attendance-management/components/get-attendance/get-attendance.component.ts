@@ -169,7 +169,26 @@ export class GetAttendanceComponent implements OnInit {
         employeeName: `${record.user.firstName} ${record.user.lastName}`,
         employeeCode: record.user.employeeId,
         attendanceType: record.attendanceType,
-        assignmentSnapshot: record.assignmentSnapshot,
+        assignmentSnapshot: {
+          ...record.assignmentSnapshot,
+          contractorsDisplay:
+            record.assignmentSnapshot?.contractors
+              ?.map(c => c?.name)
+              .filter(Boolean)
+              .join(', ') ?? null,
+          vehicleDisplay:
+            record.assignmentSnapshot?.vehicle?.registrationNo ?? null,
+          assignedEngineerDisplay: ((): string | null => {
+            const firstName =
+              record.assignmentSnapshot?.assignedEngineer?.firstName;
+            const lastName =
+              record.assignmentSnapshot?.assignedEngineer?.lastName;
+            if (!firstName && !lastName) {
+              return null;
+            }
+            return `${firstName ?? ''} ${lastName ?? ''}`.trim() || null;
+          })(),
+        },
         originalRawData: record,
       } satisfies IAttendance;
     });
@@ -271,22 +290,31 @@ export class GetAttendanceComponent implements OnInit {
       },
       {
         label: 'Company',
-        value: selectedRow.assignmentSnapshot?.company?.name || '',
+        value: selectedRow.assignmentSnapshot?.company?.name ?? 'N/A',
       },
       {
         label: 'Contractors',
         value:
           selectedRow.assignmentSnapshot?.contractors
-            ?.map(c => c.name)
-            .join(', ') || '',
+            ?.map(c => c?.name)
+            .join(', ') ?? 'N/A',
       },
       {
         label: 'Assigned Engineer',
-        value: selectedRow.assignmentSnapshot?.assignedEngineer?.name || '',
+        value: ((): string => {
+          const firstName =
+            selectedRow.assignmentSnapshot?.assignedEngineer?.firstName;
+          const lastName =
+            selectedRow.assignmentSnapshot?.assignedEngineer?.lastName;
+          if (!firstName && !lastName) {
+            return 'N/A';
+          }
+          return `${firstName ?? ''} ${lastName ?? ''}`.trim() || 'N/A';
+        })(),
       },
       {
         label: 'Associated Vehicle',
-        value: selectedRow.assignmentSnapshot?.vehicle?.registrationNo || '',
+        value: selectedRow.assignmentSnapshot?.vehicle?.registrationNo ?? 'N/A',
       },
     ];
 

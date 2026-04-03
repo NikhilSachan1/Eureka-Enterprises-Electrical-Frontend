@@ -26,7 +26,12 @@
       </span>
       <div class="attendance-assignment-details__text">
         <span class="attendance-assignment-details__label">Company</span>
-        <span class="attendance-assignment-details__value">{{ row.assignmentSnapshot?.company?.name || '—' }}</span>
+        <span
+          class="attendance-assignment-details__value"
+          [title]="row.assignmentSnapshot?.company?.name || '—'"
+        >
+          {{ row.assignmentSnapshot?.company?.name || '—' }}
+        </span>
       </div>
     </div>
 
@@ -39,7 +44,12 @@
       </span>
       <div class="attendance-assignment-details__text">
         <span class="attendance-assignment-details__label">Contractors</span>
-        <span class="attendance-assignment-details__value">{{ row.assignmentSnapshot?.company?.name || '—' }}</span>
+        <span
+          class="attendance-assignment-details__value"
+          [title]="row.assignmentSnapshot?.contractorsDisplay || '—'"
+        >
+          {{ row.assignmentSnapshot?.contractorsDisplay || '—' }}
+        </span>
       </div>
     </div>
 
@@ -52,8 +62,11 @@
       </span>
       <div class="attendance-assignment-details__text">
         <span class="attendance-assignment-details__label">Assigned Engineer</span>
-        <span class="attendance-assignment-details__value">
-          {{ row.assignmentSnapshot?.assignedEngineer?.name || '—' }}
+        <span
+          class="attendance-assignment-details__value"
+          [title]="row.assignmentSnapshot?.assignedEngineerDisplay || '—'"
+        >
+          {{ row.assignmentSnapshot?.assignedEngineerDisplay || '—' }}
         </span>
       </div>
     </div>
@@ -67,8 +80,11 @@
       </span>
       <div class="attendance-assignment-details__text">
         <span class="attendance-assignment-details__label">Associated Vehicle</span>
-        <span class="attendance-assignment-details__value">
-          {{ row.assignmentSnapshot?.vehicle?.registrationNo || '—' }}
+        <span
+          class="attendance-assignment-details__value"
+          [title]="row.assignmentSnapshot?.vehicleDisplay || '—'"
+        >
+          {{ row.assignmentSnapshot?.vehicleDisplay || '—' }}
         </span>
       </div>
     </div>

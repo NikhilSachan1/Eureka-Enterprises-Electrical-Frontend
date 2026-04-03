@@ -44,6 +44,7 @@ export const AttendanceBaseSchema = z
             fullAddress: z.string(),
           })
           .loose()
+          .optional()
           .nullable(),
         contractors: z.array(
           z
@@ -52,6 +53,7 @@ export const AttendanceBaseSchema = z
               name: z.string(),
             })
             .loose()
+            .optional()
             .nullable()
         ),
         vehicle: z
@@ -60,6 +62,7 @@ export const AttendanceBaseSchema = z
             registrationNo: z.string(),
           })
           .loose()
+          .optional()
           .nullable(),
         assignedEngineer: z
           .object({
@@ -69,6 +72,7 @@ export const AttendanceBaseSchema = z
             employeeId: z.string(),
           })
           .loose()
+          .optional()
           .nullable(),
       })
       .nullable(),

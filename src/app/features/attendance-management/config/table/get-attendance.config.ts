@@ -98,11 +98,11 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve Attendance',
     permission: [APP_PERMISSION.ATTENDANCE.APPROVE],
-    disableWhen: (row: IAttendanceGetBaseResponseDto) =>
-      isNoAttendanceNotCheckedInWithNA(row) ||
-      row.approvalStatus === EApprovalStatus.APPROVED ||
-      row.approvalStatus === EApprovalStatus.NOT_APPLICABLE ||
-      isPayrollLocked(row.attendanceDate),
+    // disableWhen: (row: IAttendanceGetBaseResponseDto) =>
+    //   isNoAttendanceNotCheckedInWithNA(row) ||
+    //   row.approvalStatus === EApprovalStatus.APPROVED ||
+    //   row.approvalStatus === EApprovalStatus.NOT_APPLICABLE ||
+    //   isPayrollLocked(row.attendanceDate),
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,

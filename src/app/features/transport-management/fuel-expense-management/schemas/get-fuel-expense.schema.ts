@@ -85,6 +85,7 @@ export const FuelExpenseGetBaseResponseSchema = z
     approvalStatus: approvalStatus.transform(toTitleCase),
     createdAt,
     updatedAt,
+    canEdit: z.boolean(),
   })
   .loose();
 

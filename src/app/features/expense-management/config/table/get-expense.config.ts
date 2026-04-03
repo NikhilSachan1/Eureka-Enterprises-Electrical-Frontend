@@ -96,13 +96,15 @@ export const EXPENSE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Expense',
     permission: [APP_PERMISSION.EXPENSE.EDIT],
-    disableWhen: disableExpenseWhenNotPendingApproval,
+    disableWhen: (row: IExpenseGetBaseResponseDto) =>
+      !row.canEdit || disableExpenseWhenNotPendingApproval(row),
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Expense',
     permission: [APP_PERMISSION.EXPENSE.DELETE],
-    disableWhen: disableExpenseWhenNotPendingApproval,
+    disableWhen: (row: IExpenseGetBaseResponseDto) =>
+      !row.canEdit || disableExpenseWhenNotPendingApproval(row),
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
@@ -127,7 +129,8 @@ export const EXPENSE_TABLE_BULK_ACTIONS_CONFIG: Partial<
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Expense',
     permission: [APP_PERMISSION.EXPENSE.DELETE],
-    disableWhen: disableExpenseWhenNotPendingApproval,
+    disableWhen: (row: IExpenseGetBaseResponseDto) =>
+      !row.canEdit || disableExpenseWhenNotPendingApproval(row),
   },
   {
     ...COMMON_BULK_ACTIONS.APPROVE,

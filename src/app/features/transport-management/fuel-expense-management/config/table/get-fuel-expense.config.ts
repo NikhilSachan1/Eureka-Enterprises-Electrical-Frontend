@@ -106,13 +106,15 @@ export const FUEL_EXPENSE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Fuel Expense',
     permission: [APP_PERMISSION.FUEL_EXPENSE.EDIT],
-    disableWhen: disableFuelExpenseWhenNotPendingApproval,
+    disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
+      !row.canEdit || disableFuelExpenseWhenNotPendingApproval(row),
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Fuel Expense',
     permission: [APP_PERMISSION.FUEL_EXPENSE.DELETE],
-    disableWhen: disableFuelExpenseWhenNotPendingApproval,
+    disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
+      !row.canEdit || disableFuelExpenseWhenNotPendingApproval(row),
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
@@ -137,7 +139,8 @@ export const FUEL_EXPENSE_TABLE_BULK_ACTIONS_CONFIG: Partial<
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Fuel Expense',
     permission: [APP_PERMISSION.FUEL_EXPENSE.DELETE],
-    disableWhen: disableFuelExpenseWhenNotPendingApproval,
+    disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
+      !row.canEdit || disableFuelExpenseWhenNotPendingApproval(row),
   },
   {
     ...COMMON_BULK_ACTIONS.APPROVE,
