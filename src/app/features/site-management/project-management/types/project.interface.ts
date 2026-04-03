@@ -1,4 +1,5 @@
 import {
+  IDsrDetailGetResponseDto,
   IDsrGetBaseResponseDto,
   IProjectGetBaseResponseDto,
 } from './project.dto';
@@ -34,5 +35,10 @@ export interface IDsr
   createdByUser: IDsrGetBaseResponseDto['createdByUser'] & {
     fullName: string;
   };
+  dsrDocuments: string[];
   originalRawData: IDsrGetBaseResponseDto;
+}
+
+export interface IDsrDetailResolverResponse extends IDsrDetailGetResponseDto {
+  preloadedFiles?: File[];
 }

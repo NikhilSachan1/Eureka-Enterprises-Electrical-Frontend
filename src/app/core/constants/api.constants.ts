@@ -181,6 +181,8 @@ export const API_ROUTES = {
       EDIT: (dsrId: string) => `daily-status-reports/${dsrId}`,
       DELETE: (dsrId: string) => `daily-status-reports/${dsrId}`,
       LIST: 'daily-status-reports',
+      GET_DSR_BY_ID: (dsrId: string) =>
+        `daily-status-reports/${dsrId}/versions`,
     },
   },
   ANNOUNCEMENT: {

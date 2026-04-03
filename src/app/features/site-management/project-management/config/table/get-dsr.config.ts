@@ -61,7 +61,7 @@ export const DSR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
-    field: 'fileKeys',
+    field: 'dsrDocuments',
     header: 'Attachments',
     bodyTemplate: EDataType.ATTACHMENTS,
     showSort: false,

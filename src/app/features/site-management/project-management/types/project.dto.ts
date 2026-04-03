@@ -23,6 +23,10 @@ import {
   ProjectGetResponseSchema,
   ProjectGetStatsResponseSchema,
 } from '../schemas';
+import {
+  DsrDetailGetRequestSchema,
+  DsrDetailGetResponseSchema,
+} from '../schemas/dsr/get-dsr-detail.schema';
 
 /*
   Project Add
@@ -95,6 +99,15 @@ export type IDsrGetRequestDto = z.infer<typeof DsrGetRequestSchema>;
 export type IDsrGetFormDto = z.input<typeof DsrGetRequestSchema>;
 export type IDsrGetResponseDto = z.infer<typeof DsrGetResponseSchema>;
 export type IDsrGetBaseResponseDto = z.infer<typeof DsrGetBaseResponseSchema>;
+/*
+  Dsr Detail Get
+*/
+export type IDsrDetailGetRequestDto = z.infer<typeof DsrDetailGetRequestSchema>;
+export type IDsrDetailGetFormDto = z.input<typeof DsrDetailGetRequestSchema>;
+export type IDsrDetailGetResponseDto = z.infer<
+  typeof DsrDetailGetResponseSchema
+>;
+
 /*
   Dsr Add
 */

@@ -138,6 +138,7 @@ export class GetDsrComponent implements OnInit {
         reportingEngineerContact: record.reportingEngineerContact,
         remarks: record.remarks,
         originalRawData: record,
+        dsrDocuments: record.documentKeys,
       } satisfies IDsr;
     });
   }
@@ -197,8 +198,9 @@ export class GetDsrComponent implements OnInit {
   private navigateToEditDsr(dsrId: string): void {
     try {
       const routeSegments = [
-        ROUTE_BASE_PATHS.SITE.DSR,
-        ROUTES.SITE.DSR.EDIT,
+        ROUTE_BASE_PATHS.SITE.BASE,
+        ROUTE_BASE_PATHS.SITE.PROJECT,
+        ROUTES.SITE.PROJECT.EDIT_DAILY_STATUS,
         dsrId,
       ];
 
