@@ -16,7 +16,7 @@ import {
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
-import { DsrService } from '@features/site-management/project-management/services/dsr.service';
+import { DsrService } from '@features/site-management/dsr-management/services/dsr.service';
 import {
   EButtonActionType,
   IEnhancedTable,
@@ -31,7 +31,7 @@ import {
   IDsrGetBaseResponseDto,
   IDsrGetFormDto,
   IDsrGetResponseDto,
-} from '@features/site-management/project-management/types/project.dto';
+} from '@features/site-management/dsr-management/types/dsr.dto';
 import { GetDsrDetailComponent } from '../get-dsr-detail/get-dsr-detail.component';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
@@ -40,8 +40,8 @@ import {
   DSR_ACTION_CONFIG_MAP,
   DSR_TABLE_ENHANCED_CONFIG,
   SEARCH_FILTER_DSR_FORM_CONFIG,
-} from '@features/site-management/project-management/config';
-import { IDsr } from '@features/site-management/project-management/types/project.interface';
+} from '@features/site-management/dsr-management/config';
+import { IDsr } from '@features/site-management/dsr-management/types/dsr.interface';
 import { ChipComponent } from '@shared/components/chip/chip.component';
 
 @Component({
@@ -199,8 +199,8 @@ export class GetDsrComponent implements OnInit {
     try {
       const routeSegments = [
         ROUTE_BASE_PATHS.SITE.BASE,
-        ROUTE_BASE_PATHS.SITE.PROJECT,
-        ROUTES.SITE.PROJECT.EDIT_DAILY_STATUS,
+        ROUTE_BASE_PATHS.SITE.DSR,
+        ROUTES.SITE.DSR.EDIT,
         dsrId,
       ];
 

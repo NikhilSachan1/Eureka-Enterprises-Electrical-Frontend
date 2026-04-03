@@ -21,8 +21,8 @@ import {
   IDsrEditResponseDto,
   IDsrGetFormDto,
   IDsrGetResponseDto,
-} from '../types/project.dto';
-import { DsrDetailGetResponseSchema } from '../schemas/dsr/get-dsr-detail.schema';
+} from '../types/dsr.dto';
+import { DsrDetailGetResponseSchema } from '../schemas/get-dsr-detail.schema';
 
 @Injectable({
   providedIn: 'root',

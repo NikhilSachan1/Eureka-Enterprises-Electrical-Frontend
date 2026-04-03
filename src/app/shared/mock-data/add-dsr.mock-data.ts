@@ -5,7 +5,7 @@ import {
   TEST_EMPLOYEE_NAMES,
   TEST_PROJECT_WORK_TYPES,
 } from './mock-data.constants';
-import { IDsrAddUIFormDto } from '@features/site-management/project-management/types/project.dto';
+import { IDsrAddUIFormDto } from '@features/site-management/dsr-management/types/dsr.dto';
 
 export const ADD_DSR_PREFILLED_DATA: IDsrAddUIFormDto = {
   statusDate: new Date(),

@@ -28,4 +28,9 @@ export const SITE_MANAGEMENT_ROUTES: Routes = [
         m => m.PROJECT_MANAGEMENT_ROUTES
       ),
   },
+  {
+    path: ROUTE_BASE_PATHS.SITE.DSR,
+    loadChildren: () =>
+      import('./dsr-management/dsr.routes').then(m => m.DSR_MANAGEMENT_ROUTES),
+  },
 ];

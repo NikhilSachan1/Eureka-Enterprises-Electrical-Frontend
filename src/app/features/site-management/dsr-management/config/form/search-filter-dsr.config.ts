@@ -8,7 +8,7 @@ import {
   ITableSearchFilterFormConfig,
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
-import { IDsrGetFormDto } from '../../types/project.dto';
+import { IDsrGetFormDto } from '@features/site-management/dsr-management/types/dsr.dto';
 
 const SEARCH_FILTER_DSR_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   IDsrGetFormDto & { globalSearch?: string }

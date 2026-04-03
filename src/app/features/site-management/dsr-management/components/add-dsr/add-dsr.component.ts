@@ -5,12 +5,12 @@ import {
   inject,
   OnInit,
 } from '@angular/core';
-import { ADD_DSR_FORM_CONFIG } from '@features/site-management/project-management/config';
-import { DsrService } from '@features/site-management/project-management/services/dsr.service';
+import { ADD_DSR_FORM_CONFIG } from '@features/site-management/dsr-management/config';
+import { DsrService } from '@features/site-management/dsr-management/services/dsr.service';
 import {
   IDsrAddFormDto,
   IDsrAddUIFormDto,
-} from '@features/site-management/project-management/types/project.dto';
+} from '@features/site-management/dsr-management/types/dsr.dto';
 import { FormBase } from '@shared/base/form.base';
 import { RouterNavigationService } from '@shared/services';
 import { finalize } from 'rxjs';
@@ -97,10 +97,14 @@ export class AddDsrComponent
       .subscribe({
         next: () => {
           this.notificationService.success('DSR added successfully');
+          const projectId = this.activatedRoute.snapshot.params[
+            'projectId'
+          ] as string;
           const routeSegments = [
             ROUTE_BASE_PATHS.SITE.BASE,
             ROUTE_BASE_PATHS.SITE.PROJECT,
-            ROUTES.SITE.PROJECT.LIST,
+            ROUTES.SITE.PROJECT.ANALYSIS,
+            projectId,
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },

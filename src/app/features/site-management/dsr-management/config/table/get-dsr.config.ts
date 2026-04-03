@@ -7,7 +7,7 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IDsrGetResponseDto } from '../../types/project.dto';
+import { IDsrGetResponseDto } from '@features/site-management/dsr-management/types/dsr.dto';
 
 export const DSR_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No DSR record found.',

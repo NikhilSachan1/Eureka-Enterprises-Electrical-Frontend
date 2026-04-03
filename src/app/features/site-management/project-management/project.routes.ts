@@ -3,7 +3,6 @@ import { ROUTES } from '@shared/constants';
 import { GetProjectDetailResolver } from './resolvers/get-project-detail.resolver';
 import { permissionGuard } from '@core/guards';
 import { APP_PERMISSION } from '@core/constants';
-import { GetDsrDetailResolver } from './resolvers/get-dsr-detail.resolver';
 
 export const PROJECT_MANAGEMENT_ROUTES: Routes = [
   {
@@ -56,23 +55,6 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
     canActivate: [permissionGuard],
     data: {
       permissions: [APP_PERMISSION.PROJECT.ANALYSIS],
-    },
-  },
-  {
-    path: `${ROUTES.SITE.PROJECT.DAILY_STATUS}/:projectId`,
-    loadComponent: () =>
-      import('./components/project-dsr/add-dsr/add-dsr.component').then(
-        m => m.AddDsrComponent
-      ),
-  },
-  {
-    path: `${ROUTES.SITE.PROJECT.EDIT_DAILY_STATUS}/:dsrId`,
-    loadComponent: () =>
-      import('./components/project-dsr/edit-dsr/edit-dsr.component').then(
-        m => m.EditDsrComponent
-      ),
-    resolve: {
-      dsrDetail: GetDsrDetailResolver,
     },
   },
 ];

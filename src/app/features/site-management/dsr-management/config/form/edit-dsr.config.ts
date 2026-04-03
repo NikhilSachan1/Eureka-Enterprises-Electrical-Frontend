@@ -4,7 +4,7 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { IDsrEditUIFormDto } from '../../types/project.dto';
+import { IDsrEditUIFormDto } from '@features/site-management/dsr-management/types/dsr.dto';
 import { ADD_DSR_FORM_CONFIG } from './add-dsr.config';
 
 const EDIT_DSR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDsrEditUIFormDto> = {

@@ -1,8 +1,4 @@
-import {
-  IDsrDetailGetResponseDto,
-  IDsrGetBaseResponseDto,
-  IProjectGetBaseResponseDto,
-} from './project.dto';
+import { IProjectGetBaseResponseDto } from './project.dto';
 
 export interface IProjectStakeholders {
   company: IProjectGetBaseResponseDto['company'];
@@ -20,25 +16,4 @@ export interface IProject
   projectManagerContact: string | null;
   stakeholders: IProjectStakeholders;
   originalRawData: IProjectGetBaseResponseDto;
-}
-
-export interface IDsr
-  extends Pick<
-    IDsrGetBaseResponseDto,
-    | 'id'
-    | 'reportDate'
-    | 'workTypes'
-    | 'reportingEngineerName'
-    | 'reportingEngineerContact'
-    | 'remarks'
-  > {
-  createdByUser: IDsrGetBaseResponseDto['createdByUser'] & {
-    fullName: string;
-  };
-  dsrDocuments: string[];
-  originalRawData: IDsrGetBaseResponseDto;
-}
-
-export interface IDsrDetailResolverResponse extends IDsrDetailGetResponseDto {
-  preloadedFiles?: File[];
 }

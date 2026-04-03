@@ -1,6 +1,6 @@
 import { EButtonActionType, IDialogActionConfig } from '@shared/types';
 import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
-import { DeleteDsrComponent } from '../../components/project-dsr/delete-dsr/delete-dsr.component';
+import { DeleteDsrComponent } from '@features/site-management/dsr-management/components/delete-dsr/delete-dsr.component';
 
 export const DSR_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.DELETE]: {

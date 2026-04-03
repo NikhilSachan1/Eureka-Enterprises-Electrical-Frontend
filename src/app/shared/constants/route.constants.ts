@@ -100,8 +100,6 @@ export const ROUTES = {
       ADD: `add`,
       EDIT: `edit`,
       ANALYSIS: `analysis`,
-      DAILY_STATUS: `add-daily-status`,
-      EDIT_DAILY_STATUS: `edit-daily-status`,
     },
     DSR: {
       LIST: `list`,

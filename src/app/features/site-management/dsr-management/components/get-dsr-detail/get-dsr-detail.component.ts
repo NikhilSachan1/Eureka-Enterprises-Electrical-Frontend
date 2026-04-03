@@ -5,12 +5,12 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DsrService } from '@features/site-management/project-management/services/dsr.service';
+import { DsrService } from '@features/site-management/dsr-management/services/dsr.service';
 import {
   IDsrDetailGetFormDto,
   IDsrDetailGetResponseDto,
   IDsrGetBaseResponseDto,
-} from '@features/site-management/project-management/types/project.dto';
+} from '@features/site-management/dsr-management/types/dsr.dto';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { AppConfigurationService, LoadingService } from '@shared/services';

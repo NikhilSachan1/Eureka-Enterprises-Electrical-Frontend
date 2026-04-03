@@ -17,7 +17,7 @@ import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { GetProjectProfitabilityComponent } from '../get-project-profitability/get-project-profitability.component';
 import { GetProjectDocComponent } from '../project-doc/get-project-doc/get-project-doc.component';
-import { GetDsrComponent } from '../project-dsr/get-dsr/get-dsr.component';
+import { GetDsrComponent } from '../../../dsr-management/components/get-dsr/get-dsr.component';
 import { GetProjectTimelineComponent } from '../get-project-timeline/get-project-timeline.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
@@ -90,8 +90,8 @@ export class GetProjectAnalysisComponent {
 
       navigationRoute = [
         ROUTE_BASE_PATHS.SITE.BASE,
-        ROUTE_BASE_PATHS.SITE.PROJECT,
-        ROUTES.SITE.PROJECT.DAILY_STATUS,
+        ROUTE_BASE_PATHS.SITE.DSR,
+        ROUTES.SITE.DSR.ADD,
         projectId,
       ];
     }

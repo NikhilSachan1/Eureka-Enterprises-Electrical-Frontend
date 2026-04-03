@@ -8,13 +8,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { EDIT_DSR_FORM_CONFIG } from '@features/site-management/project-management/config';
-import { DsrService } from '@features/site-management/project-management/services/dsr.service';
+import { EDIT_DSR_FORM_CONFIG } from '@features/site-management/dsr-management/config';
+import { DsrService } from '@features/site-management/dsr-management/services/dsr.service';
 import {
   IDsrEditFormDto,
   IDsrEditUIFormDto,
-} from '@features/site-management/project-management/types/project.dto';
-import { IDsrDetailResolverResponse } from '@features/site-management/project-management/types/project.interface';
+} from '@features/site-management/dsr-management/types/dsr.dto';
+import { IDsrDetailResolverResponse } from '@features/site-management/dsr-management/types/dsr.interface';
 import { FormBase } from '@shared/base/form.base';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { RouterNavigationService } from '@shared/services';
@@ -47,6 +47,7 @@ export class EditDsrComponent
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly initialDsrData = signal<IDsrEditUIFormDto | null>(null);
+  private projectId: string | null = null;
 
   ngOnInit(): void {
     this.loadDsrDataFromRoute();
@@ -61,8 +62,9 @@ export class EditDsrComponent
   }
 
   private loadDsrDataFromRoute(): void {
-    const dsrDetailFromResolver =
-      this.activatedRoute.snapshot.data['dsrDetail'];
+    const dsrDetailFromResolver = this.activatedRoute.snapshot.data[
+      'dsrDetail'
+    ] as IDsrDetailResolverResponse | null;
 
     if (!dsrDetailFromResolver) {
       this.logger.logUserAction('No dsr data found in route');
@@ -74,6 +76,8 @@ export class EditDsrComponent
       void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
     }
+
+    this.projectId = dsrDetailFromResolver.siteId;
 
     const prefilledDsrData = this.preparePrefilledFormData(
       dsrDetailFromResolver
@@ -137,11 +141,18 @@ export class EditDsrComponent
       .subscribe({
         next: () => {
           this.notificationService.success('DSR updated successfully');
-          const routeSegments = [
-            ROUTE_BASE_PATHS.SITE.BASE,
-            ROUTE_BASE_PATHS.SITE.PROJECT,
-            ROUTES.SITE.PROJECT.LIST,
-          ];
+          const routeSegments = this.projectId
+            ? [
+                ROUTE_BASE_PATHS.SITE.BASE,
+                ROUTE_BASE_PATHS.SITE.PROJECT,
+                ROUTES.SITE.PROJECT.ANALYSIS,
+                this.projectId,
+              ]
+            : [
+                ROUTE_BASE_PATHS.SITE.BASE,
+                ROUTE_BASE_PATHS.SITE.PROJECT,
+                ROUTES.SITE.PROJECT.LIST,
+              ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {

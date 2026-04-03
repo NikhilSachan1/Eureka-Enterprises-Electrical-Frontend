@@ -11,9 +11,9 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   IDsrDetailGetFormDto,
   IDsrDetailGetResponseDto,
-} from '../types/project.dto';
-import { DsrService } from '../services/dsr.service';
-import { IDsrDetailResolverResponse } from '../types/project.interface';
+} from '../types/dsr.dto';
+import { DsrService } from '@features/site-management/dsr-management/services/dsr.service';
+import { IDsrDetailResolverResponse } from '../types/dsr.interface';
 
 @Injectable({
   providedIn: 'root',
