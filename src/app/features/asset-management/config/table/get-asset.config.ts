@@ -5,6 +5,7 @@ import { ICONS } from '@shared/constants';
 import {
   EButtonActionType,
   EDataType,
+  ETableActionTypeValue,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
@@ -110,30 +111,35 @@ export const ASSET_TABLE_ROW_ACTIONS_CONFIG: Partial<
     id: EButtonActionType.HANDOVER_INITIATE,
     tooltip: 'Handover Asset',
     permission: [APP_PERMISSION.ASSET.HANDOVER_INITIATE],
+    disableWhen: row =>
+      row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED,
   },
   {
     id: EButtonActionType.HANDOVER_ACCEPTED,
     tooltip: 'Accept Allocation',
-    // hideWhen: row => row.status !== 'pending_handover',
     permission: [APP_PERMISSION.ASSET.HANDOVER_ACCEPTED],
+    disableWhen: row =>
+      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
   },
   {
     id: EButtonActionType.HANDOVER_REJECTED,
     tooltip: 'Reject Allocation',
-    // hideWhen: row => row.status !== 'pending_handover',
     permission: [APP_PERMISSION.ASSET.HANDOVER_REJECTED],
+    disableWhen: row =>
+      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
   },
   {
     id: EButtonActionType.HANDOVER_CANCELLED,
     tooltip: 'Cancel Allocation',
-    // hideWhen: row => row.status !== 'pending_handover',
     permission: [APP_PERMISSION.ASSET.HANDOVER_CANCELLED],
+    disableWhen: row =>
+      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
   },
   {
     id: EButtonActionType.DEALLOCATE,
     tooltip: 'Deallocate Asset',
-    // hideWhen: row => !row.assignedTo,
     permission: [APP_PERMISSION.ASSET.DEALLOCATE],
+    disableWhen: row => row.status !== 'ASSIGNED',
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,

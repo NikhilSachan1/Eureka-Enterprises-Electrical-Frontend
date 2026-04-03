@@ -28,6 +28,7 @@ export const PAYSLIP_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
       sortField: 'userName',
       filterField: 'employeeName',
     },
+    permission: [APP_PERMISSION.UI.PAYROLL.TABLE_EMPLOYEE_NAME],
   },
   {
     field: 'period',

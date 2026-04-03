@@ -12,6 +12,7 @@ import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { APP_CONFIG } from '@core/config';
 import { FinancialYearService } from '@core/services/financial-year.service';
 import { getPayslipCutoffMaxDate } from '@shared/utility';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 const SEARCH_FILTER_PAYSLIP_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<IPayslipGetFormDto> =
   {
@@ -21,6 +22,7 @@ const SEARCH_FILTER_PAYSLIP_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
       selectConfig: {
         ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig,
       },
+      permission: [APP_PERMISSION.UI.PAYROLL.SEARCH_FILTER_EMPLOYEE_NAME],
     },
     monthYear: {
       fieldType: EDataType.DATE,

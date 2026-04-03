@@ -84,11 +84,13 @@ export const PETRO_CARD_TABLE_ROW_ACTIONS_CONFIG: Partial<
     id: EButtonActionType.LINK,
     tooltip: 'Link to Vehicle',
     permission: [APP_PERMISSION.PETRO_CARD.LINK_VEHICLE],
+    disableWhen: row => !!row.isAllocated,
   },
   {
     id: EButtonActionType.UNLINK,
     tooltip: 'Unlink from Vehicle',
     permission: [APP_PERMISSION.PETRO_CARD.UNLINK_VEHICLE],
+    disableWhen: row => !row.isAllocated,
   },
 ];
 

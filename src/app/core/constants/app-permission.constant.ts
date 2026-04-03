@@ -211,6 +211,10 @@ export const APP_PERMISSION = {
       SEARCH_FILTER_EMPLOYEE_NAME:
         'ui_fuel_expense_search_filter_employee_name',
     },
+    PAYROLL: {
+      TABLE_EMPLOYEE_NAME: 'ui_payroll_table_employee_name',
+      SEARCH_FILTER_EMPLOYEE_NAME: 'ui_payroll_search_filter_employee_name',
+    },
   },
 } as const;
 
@@ -219,6 +223,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
     TABLE: {
       ADMIN: true,
       DRIVER: false,
+      SUPER_ADMIN: true,
     },
     CONTACT_ANNEXURE: {
       ADMIN: false,
@@ -275,6 +280,20 @@ export const UI_PERMISSIONS_ROLE_MAP = {
     },
   },
   LEAVE: {
+    TABLE_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+    SEARCH_FILTER_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+  },
+  PAYROLL: {
     TABLE_EMPLOYEE_NAME: {
       ADMIN: true,
       DRIVER: false,

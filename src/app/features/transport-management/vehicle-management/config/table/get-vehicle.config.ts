@@ -2,6 +2,7 @@ import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import {
   EButtonActionType,
   EDataType,
+  ETableActionTypeValue,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
@@ -128,26 +129,35 @@ export const VEHICLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     id: EButtonActionType.HANDOVER_INITIATE,
     tooltip: 'Handover Vehicle',
     permission: [APP_PERMISSION.VEHICLE.HANDOVER_INITIATE],
+    disableWhen: row =>
+      row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED,
   },
   {
     id: EButtonActionType.HANDOVER_ACCEPTED,
     tooltip: 'Accept Allocation',
     permission: [APP_PERMISSION.VEHICLE.HANDOVER_ACCEPTED],
+    disableWhen: row =>
+      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
   },
   {
     id: EButtonActionType.HANDOVER_REJECTED,
     tooltip: 'Reject Allocation',
     permission: [APP_PERMISSION.VEHICLE.HANDOVER_REJECTED],
+    disableWhen: row =>
+      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
   },
   {
     id: EButtonActionType.HANDOVER_CANCELLED,
     tooltip: 'Cancel Allocation',
     permission: [APP_PERMISSION.VEHICLE.HANDOVER_CANCELLED],
+    disableWhen: row =>
+      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
   },
   {
     id: EButtonActionType.DEALLOCATE,
     tooltip: 'Deallocate Vehicle',
     permission: [APP_PERMISSION.VEHICLE.DEALLOCATE],
+    disableWhen: row => row.status !== 'ASSIGNED',
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
@@ -163,11 +173,13 @@ export const VEHICLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     id: EButtonActionType.LINK,
     tooltip: 'Link Petro Card',
     permission: [APP_PERMISSION.VEHICLE.LINK_PETRO_CARD],
+    disableWhen: row => !!row.associatedCard,
   },
   {
     id: EButtonActionType.UNLINK,
     tooltip: 'Unlink Petro Card',
     permission: [APP_PERMISSION.VEHICLE.UNLINK_PETRO_CARD],
+    disableWhen: row => !row.associatedCard,
   },
 ];
 
