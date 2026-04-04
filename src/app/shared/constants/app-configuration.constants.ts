@@ -92,6 +92,7 @@ export const CONFIGURATION_KEYS = {
   PROJECT: {
     PROJECT_STATUS: 'site_statuses',
     PROJECT_WORK_TYPES: 'site_work_types',
+    PROJECT_DOCUMENT_TYPES: 'site_document_types',
   },
   PERMISSION: {
     MODULE_CONFIG_DROPDOWN: 'modules_config_dropdown',

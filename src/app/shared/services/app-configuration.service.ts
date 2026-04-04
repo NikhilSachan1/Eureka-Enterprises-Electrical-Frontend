@@ -109,6 +109,7 @@ export class AppConfigurationService {
   private readonly _contractorStatus = signal<IOptionDropdown[]>([]);
   private readonly _projectStatus = signal<IOptionDropdown[]>([]);
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
+  private readonly _projectDocumentTypes = signal<IOptionDropdown[]>([]);
   private readonly _moduleNames = signal<IOptionDropdown[]>([]);
   private readonly _modulesConfig = signal<
     Record<string, { label: string; actions: IOptionDropdown[] }>
@@ -169,6 +170,7 @@ export class AppConfigurationService {
   readonly contractorStatus = this._contractorStatus.asReadonly();
   readonly projectStatus = this._projectStatus.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
+  readonly projectDocumentTypes = this._projectDocumentTypes.asReadonly();
   readonly moduleNames = this._moduleNames.asReadonly();
   readonly modulesConfig = this._modulesConfig.asReadonly();
   readonly announcementStatuses = this._announcementStatuses.asReadonly();
@@ -392,6 +394,10 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PROJECT.PROJECT_WORK_TYPES,
         signal: this._projectWorkTypes,
+      },
+      {
+        key: CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_TYPES,
+        signal: this._projectDocumentTypes,
       },
     ],
     [MODULE_NAMES.PERMISSION]: [

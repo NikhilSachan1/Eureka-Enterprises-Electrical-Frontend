@@ -46,7 +46,18 @@ export class AddDsrComponent
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
+  private projectId = '';
+
   ngOnInit(): void {
+    const projectId = this.activatedRoute.snapshot.params[
+      'projectId'
+    ] as string;
+    if (!projectId) {
+      throw new Error('Project ID is required');
+    }
+
+    this.projectId = projectId;
+
     this.form = this.formService.createForm<IDsrAddUIFormDto>(
       ADD_DSR_FORM_CONFIG,
       {
@@ -58,14 +69,7 @@ export class AddDsrComponent
   }
 
   protected override handleSubmit(): void {
-    const projectId = this.activatedRoute.snapshot.params[
-      'projectId'
-    ] as string;
-    if (!projectId) {
-      return;
-    }
-
-    const formData = this.prepareFormData(projectId);
+    const formData = this.prepareFormData(this.projectId);
     this.executeAddDsr(formData);
   }
 
@@ -97,14 +101,11 @@ export class AddDsrComponent
       .subscribe({
         next: () => {
           this.notificationService.success('DSR added successfully');
-          const projectId = this.activatedRoute.snapshot.params[
-            'projectId'
-          ] as string;
           const routeSegments = [
             ROUTE_BASE_PATHS.SITE.BASE,
             ROUTE_BASE_PATHS.SITE.PROJECT,
             ROUTES.SITE.PROJECT.ANALYSIS,
-            projectId,
+            this.projectId,
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },

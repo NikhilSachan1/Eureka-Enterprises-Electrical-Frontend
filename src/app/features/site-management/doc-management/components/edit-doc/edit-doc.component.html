@@ -1,1 +1,52 @@
-<p>edit-doc works!</p>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.documentType"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.documentNumber"
+    />
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.documentDate"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.amount"
+    />
+  </div>
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.documentAttachments"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.remarks"
+  />
+
+  <div class="button-container">
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    />
+
+    <app-button
+      [buttonConfig]="form.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+    />
+  </div>
+</form>

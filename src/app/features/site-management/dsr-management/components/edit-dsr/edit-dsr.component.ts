@@ -71,7 +71,8 @@ export class EditDsrComponent
       const routeSegments = [
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.PROJECT,
-        ROUTES.SITE.PROJECT.LIST,
+        ROUTES.SITE.PROJECT.ANALYSIS,
+        this.projectId,
       ];
       void this.routerNavigationService.navigateToRoute(routeSegments);
       return;
