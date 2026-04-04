@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -19,10 +20,17 @@ import { GetDsrComponent } from '../../../dsr-management/components/get-dsr/get-
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { LoggerService } from '@core/services';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { GetDocComponent } from '@features/site-management/doc-management/components/get-doc/get-doc.component';
 import { GetProfitabilityComponent } from '@features/site-management/project-profitability/components/get-profitability/get-profitability.component';
 import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
+import { IProjectGetBaseResponseDto } from '../../types/project.dto';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { APP_CONFIG } from '@core/config';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-get-project-analysis',
@@ -34,24 +42,111 @@ import { GetProjectTimelineComponent } from '@features/site-management/project-t
     PageHeaderComponent,
     GetDocComponent,
     GetProfitabilityComponent,
+    DatePipe,
+    CurrencyPipe,
   ],
   templateUrl: './get-project-analysis.component.html',
   styleUrl: './get-project-analysis.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GetProjectAnalysisComponent {
+export class GetProjectAnalysisComponent implements OnInit {
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly logger = inject(LoggerService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   tabModeType = ETabMode.CONTENT;
   icons = ICONS;
+  protected readonly dateFormat = APP_CONFIG.DATE_FORMATS.DEFAULT;
+  protected readonly currencyCode = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
 
   protected readonly activeTabIndex = signal(0);
+  protected readonly projectData = signal<IProjectGetBaseResponseDto | null>(
+    null
+  );
 
   protected tabs = computed(() => this.getTabs());
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  // protected metricsCards = computed(() => this.getMetricCardsData());
+
+  protected projectLocation = computed(() => {
+    const data = this.projectData();
+    if (!data) {
+      return '';
+    }
+    const city = getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.cities(),
+      data.city
+    );
+    const state = getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.states(),
+      data.state
+    );
+    return `${city}, ${state}`;
+  });
+
+  protected projectStatus = computed(() => {
+    const data = this.projectData();
+    if (!data) {
+      return '';
+    }
+    return String(
+      getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.projectStatus(),
+        data.status
+      )
+    );
+  });
+
+  protected contractors = computed(() => {
+    const data = this.projectData();
+    return (
+      data?.siteContractors
+        ?.map(sc => sc.contractor?.name)
+        .filter((name): name is string => !!name) ?? []
+    );
+  });
+
+  ngOnInit(): void {
+    this.loadProjectDataFromState();
+  }
+
+  private readonly PROJECT_STORAGE_KEY = 'project_analysis_data';
+
+  private loadProjectDataFromState(): void {
+    const projectId = this.activatedRoute.snapshot.params[
+      'projectId'
+    ] as string;
+
+    let projectData =
+      this.routerNavigationService.getRouterStateData<IProjectGetBaseResponseDto>(
+        'projectData'
+      );
+
+    if (!projectData) {
+      const historyState = window.history.state as Record<string, unknown>;
+      if (historyState && 'projectData' in historyState) {
+        projectData = historyState['projectData'] as IProjectGetBaseResponseDto;
+      }
+    }
+
+    if (!projectData && projectId) {
+      projectData = this.getProjectFromStorage(projectId);
+    }
+
+    if (projectData) {
+      this.saveProjectToStorage(projectId, projectData);
+      this.projectData.set(projectData);
+
+      this.logger.logUserAction('Project data loaded from router state', {
+        projectId: projectData.id,
+        projectName: projectData.name,
+      });
+    } else {
+      this.logger.logUserAction(
+        'No project data found in router state, only projectId available'
+      );
+    }
+  }
 
   private getTabs(): ITabItem[] {
     return [
@@ -130,5 +225,36 @@ export class GetProjectAnalysisComponent {
         },
       ],
     };
+  }
+
+  private saveProjectToStorage(
+    projectId: string,
+    data: IProjectGetBaseResponseDto
+  ): void {
+    try {
+      const storageKey = `${this.PROJECT_STORAGE_KEY}_${projectId}`;
+      sessionStorage.setItem(storageKey, JSON.stringify(data));
+    } catch {
+      this.logger.logUserAction(
+        'Failed to save project data to sessionStorage'
+      );
+    }
+  }
+
+  private getProjectFromStorage(
+    projectId: string
+  ): IProjectGetBaseResponseDto | null {
+    try {
+      const storageKey = `${this.PROJECT_STORAGE_KEY}_${projectId}`;
+      const stored = sessionStorage.getItem(storageKey);
+      if (stored) {
+        return JSON.parse(stored) as IProjectGetBaseResponseDto;
+      }
+    } catch {
+      this.logger.logUserAction(
+        'Failed to read project data from sessionStorage'
+      );
+    }
+    return null;
   }
 }

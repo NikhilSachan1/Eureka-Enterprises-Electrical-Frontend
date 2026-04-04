@@ -240,7 +240,7 @@ export class GetProjectComponent implements OnInit {
     }
 
     if (actionType === EButtonActionType.ANALYZE) {
-      this.navigateToProjectAnalysis(selectedFirstRow.id);
+      this.navigateToProjectAnalysis(selectedFirstRow);
       return;
     }
 
@@ -336,15 +336,19 @@ export class GetProjectComponent implements OnInit {
     }
   }
 
-  private navigateToProjectAnalysis(projectId: string): void {
+  private navigateToProjectAnalysis(
+    selectedRow: IProjectGetBaseResponseDto
+  ): void {
     try {
       const routeSegments = [
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.PROJECT,
         ROUTES.SITE.PROJECT.ANALYSIS,
-        projectId,
+        selectedRow.id,
       ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
+      void this.routerNavigationService.navigateWithState(routeSegments, {
+        projectData: selectedRow,
+      });
     } catch (error) {
       this.logger.logUserAction(
         'Navigation error while analyzing project',

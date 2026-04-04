@@ -3,9 +3,100 @@
   (headerButtonClick)="onHeaderButtonClick($event)"
 />
 
-<!-- <div class="metrics-card-wrapper">
-  <app-metrics-card [metricCardConfig]="metricsCards()" />
-</div> -->
+<!-- Project Info Banner -->
+@if (projectData()) {
+  <div class="project-info-banner">
+    <!-- Header Section -->
+    <div class="project-info-banner__header">
+      <div class="project-info-banner__title-section">
+        <div class="project-info-banner__icon-wrapper">
+          <i [class]="icons.SITE.BUILDING + ' project-info-banner__icon'"></i>
+        </div>
+        <div class="project-info-banner__title-content">
+          <h2 class="project-info-banner__name">{{ projectData()?.name }}</h2>
+          <div class="project-info-banner__location">
+            <i [class]="icons.COMMON.MAP_MARKER"></i>
+            <span>{{ projectLocation() }}</span>
+          </div>
+        </div>
+      </div>
+      <div
+        class="project-info-banner__status"
+        [attr.data-status]="projectData()?.status"
+      >
+        {{ projectStatus() }}
+      </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="project-info-banner__details-grid">
+      <!-- Left Column - Key Info -->
+      <div class="project-info-banner__details-column">
+        <div class="project-info-banner__detail-item">
+          <i [class]="icons.COMMON.CALENDAR"></i>
+          <div class="project-info-banner__detail-content">
+            <span class="project-info-banner__detail-label">Timeline</span>
+            <span class="project-info-banner__detail-value">
+              {{ projectData()?.startDate | date: dateFormat }} -
+              {{ projectData()?.endDate | date: dateFormat }}
+            </span>
+          </div>
+        </div>
+        <div class="project-info-banner__detail-item">
+          <i [class]="icons.PAYROLL.WALLET"></i>
+          <div class="project-info-banner__detail-content">
+            <span class="project-info-banner__detail-label">Estimated Budget</span>
+            <span class="project-info-banner__detail-value">
+              {{ projectData()?.estimatedBudget | currency: currencyCode : 'symbol' : '1.0-0' }}
+            </span>
+          </div>
+        </div>
+        <div class="project-info-banner__detail-item">
+          <i [class]="icons.COMMON.USER"></i>
+          <div class="project-info-banner__detail-content">
+            <span class="project-info-banner__detail-label">Project Manager</span>
+            <span class="project-info-banner__detail-value">
+              {{ projectData()?.managerName }}
+              @if (projectData()?.managerContact) {
+                <span class="project-info-banner__contact">({{ projectData()?.managerContact }})</span>
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Company & Contractors -->
+      <div class="project-info-banner__details-column">
+        @if (projectData()?.company?.name) {
+          <div class="project-info-banner__detail-item">
+            <i [class]="icons.COMMON.BRIEFCASE"></i>
+            <div class="project-info-banner__detail-content">
+              <span class="project-info-banner__detail-label">Company</span>
+              <span class="project-info-banner__detail-value project-info-banner__detail-value--highlight">
+                {{ projectData()?.company?.name }}
+              </span>
+            </div>
+          </div>
+        }
+        @if (contractors().length) {
+          <div class="project-info-banner__detail-item">
+            <i [class]="icons.COMMON.USERS"></i>
+            <div class="project-info-banner__detail-content">
+              <span class="project-info-banner__detail-label">Contractors</span>
+              <div class="project-info-banner__contractors">
+                @for (contractor of contractors(); track contractor) {
+                  <span class="project-info-banner__contractor-chip">
+                    {{ contractor }}
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
 
 <div
   class="grid grid-cols-1 md:grid-cols-[minmax(280px,25%)_minmax(0,1fr)] lg:grid-cols-[minmax(320px,25%)_minmax(0,1fr)] gap-4"
