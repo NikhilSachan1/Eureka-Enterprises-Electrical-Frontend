@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
-import { GetDsrDetailResolver } from './resolvers/get-dsr-detail.resolver';
 
 export const DSR_MANAGEMENT_ROUTES: Routes = [
   {
@@ -16,8 +15,5 @@ export const DSR_MANAGEMENT_ROUTES: Routes = [
       import('./components/edit-dsr/edit-dsr.component').then(
         m => m.EditDsrComponent
       ),
-    resolve: {
-      dsrDetail: GetDsrDetailResolver,
-    },
   },
 ];

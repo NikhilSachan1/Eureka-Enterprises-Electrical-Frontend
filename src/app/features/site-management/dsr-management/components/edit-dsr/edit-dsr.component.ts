@@ -47,10 +47,10 @@ export class EditDsrComponent
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly initialDsrData = signal<IDsrEditUIFormDto | null>(null);
-  private projectId: string | null = null;
+  private projectId = '';
 
   ngOnInit(): void {
-    this.loadDsrDataFromRoute();
+    // this.loadDsrDataFromRoute();
 
     this.form = this.formService.createForm<IDsrEditUIFormDto>(
       EDIT_DSR_FORM_CONFIG,
@@ -101,7 +101,9 @@ export class EditDsrComponent
       note: workDescription ?? '',
       workDone: workTypes,
       reportedEngineerName: reportingEngineerName,
-      reportedEngineerContact: reportingEngineerContact,
+      reportedEngineerContact: reportingEngineerContact
+        ? Number(reportingEngineerContact)
+        : null,
       dsrAttachments: preloadedFiles,
     };
   }
@@ -141,18 +143,12 @@ export class EditDsrComponent
       .subscribe({
         next: () => {
           this.notificationService.success('DSR updated successfully');
-          const routeSegments = this.projectId
-            ? [
-                ROUTE_BASE_PATHS.SITE.BASE,
-                ROUTE_BASE_PATHS.SITE.PROJECT,
-                ROUTES.SITE.PROJECT.ANALYSIS,
-                this.projectId,
-              ]
-            : [
-                ROUTE_BASE_PATHS.SITE.BASE,
-                ROUTE_BASE_PATHS.SITE.PROJECT,
-                ROUTES.SITE.PROJECT.LIST,
-              ];
+          const routeSegments = [
+            ROUTE_BASE_PATHS.SITE.BASE,
+            ROUTE_BASE_PATHS.SITE.PROJECT,
+            ROUTES.SITE.PROJECT.ANALYSIS,
+            this.projectId,
+          ];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
         error: () => {

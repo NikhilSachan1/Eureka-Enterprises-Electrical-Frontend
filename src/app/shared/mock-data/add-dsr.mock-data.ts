@@ -11,7 +11,7 @@ export const ADD_DSR_PREFILLED_DATA: IDsrAddUIFormDto = {
   statusDate: new Date(),
   workDone: [getRandomItem(TEST_PROJECT_WORK_TYPES)],
   reportedEngineerName: getRandomItem(TEST_EMPLOYEE_NAMES),
-  reportedEngineerContact: `${getRandomNumber(10, 'exact')}`,
+  reportedEngineerContact: Number(getRandomNumber(10, 'exact')),
   dsrAttachments: [
     createFileFromAsset(
       `/mock-docs/dsr/dsr_attachment_${Math.floor(Math.random() * 4) + 1}.pdf`

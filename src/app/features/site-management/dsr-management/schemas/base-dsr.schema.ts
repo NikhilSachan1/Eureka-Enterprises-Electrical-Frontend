@@ -29,13 +29,8 @@ export const DsrBaseSchema = z
   })
   .strict();
 
-const {
-  siteId,
-  workTypes,
-  remarks,
-  reportingEngineerName,
-  reportingEngineerContact,
-} = DsrBaseSchema.shape;
+const { siteId, workTypes, remarks, reportingEngineerName } =
+  DsrBaseSchema.shape;
 
 export const DsrUpsertShapeSchema = z
   .object({
@@ -44,7 +39,7 @@ export const DsrUpsertShapeSchema = z
     note: remarks,
     workDone: workTypes,
     reportedEngineerName: reportingEngineerName,
-    reportedEngineerContact: reportingEngineerContact,
+    reportedEngineerContact: z.number().nullable(),
     dsrAttachments: z.array(fileField),
   })
   .strict();
