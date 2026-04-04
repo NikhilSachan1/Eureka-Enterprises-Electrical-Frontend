@@ -22,6 +22,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { LoggerService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
+import { GetDocComponent } from '@features/site-management/doc-management/components/get-doc/get-doc.component';
 
 @Component({
   selector: 'app-get-project-analysis',
@@ -32,6 +33,7 @@ import { RouterNavigationService } from '@shared/services';
     GetDsrComponent,
     GetProjectTimelineComponent,
     PageHeaderComponent,
+    GetDocComponent,
   ],
   templateUrl: './get-project-analysis.component.html',
   styleUrl: './get-project-analysis.component.scss',
@@ -77,19 +79,25 @@ export class GetProjectAnalysisComponent {
 
   protected onHeaderButtonClick(actionName: string): void {
     let navigationRoute: string[] = [];
+    const projectId = this.activatedRoute.snapshot.params[
+      'projectId'
+    ] as string;
+    if (!projectId) {
+      return;
+    }
 
     if (actionName === 'addDailyStatus') {
-      const projectId = this.activatedRoute.snapshot.params[
-        'projectId'
-      ] as string;
-      if (!projectId) {
-        return;
-      }
-
       navigationRoute = [
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.DSR,
         ROUTES.SITE.DSR.ADD,
+        projectId,
+      ];
+    } else if (actionName === 'addDocument') {
+      navigationRoute = [
+        ROUTE_BASE_PATHS.SITE.BASE,
+        ROUTE_BASE_PATHS.SITE.DOC,
+        ROUTES.SITE.DOC.ADD,
         projectId,
       ];
     }
@@ -114,6 +122,11 @@ export class GetProjectAnalysisComponent {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Daily Status',
           actionName: 'addDailyStatus',
+        },
+        {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
+          label: 'Add Document',
+          actionName: 'addDocument',
         },
       ],
     };

@@ -25,6 +25,7 @@ export const ROUTE_BASE_PATHS = {
     CONTRACTOR: 'contractor',
     PROJECT: 'project',
     DSR: 'dsr',
+    DOC: 'doc',
   },
   SETTINGS: {
     BASE: 'settings',
@@ -85,6 +86,11 @@ export const ROUTES = {
   },
 
   SITE: {
+    DOC: {
+      LIST: `list`,
+      ADD: `add`,
+      EDIT: `edit`,
+    },
     CONTRACTOR: {
       LIST: `list`,
       ADD: `add`,
