@@ -153,6 +153,9 @@ export const API_ROUTES = {
     },
   },
   SITE: {
+    PROFITABILITY: {
+      GET: (siteId: string) => `analytics/sites/${siteId}/profitability`,
+    },
     DOC: {
       ADD: 'site-documents',
       EDIT: (docId: string) => `site-documents/${docId}`,

@@ -1,3 +1,4 @@
+import { uuidField } from '@shared/schemas';
 import { z } from 'zod';
 
 export const LoginRequestSchema = z
@@ -25,5 +26,6 @@ export const LoginResponseSchema = z
     roles: z.array(z.string()).min(1),
     activeRole: z.string().min(1),
     expiresIn: z.string().min(1),
+    userId: uuidField,
   })
-  .strict();
+  .loose();

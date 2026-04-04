@@ -67,6 +67,14 @@
     font-size: 1.05rem;
     font-weight: 700;
     color: #ffffff;
+
+    &--positive {
+      color: #86efac;
+    }
+
+    &--negative {
+      color: #fca5a5;
+    }
   }
 
   .kpi-grid {
@@ -106,11 +114,13 @@
   }
 
   .positive {
-    color: #16a34a !important;
+    color: #15803d !important;
+    font-weight: 700;
   }
 
   .negative {
-    color: #dc2626 !important;
+    color: #b91c1c !important;
+    font-weight: 700;
   }
 
   .report-grid {
@@ -156,8 +166,7 @@
     }
   }
 
-  .total-chip,
-  .margin-pill {
+  .total-chip {
     border-radius: 999px;
     padding: 0.25rem 0.7rem;
     font-size: 0.75rem;
@@ -165,9 +174,21 @@
     color: #1d4ed8;
   }
 
-  .margin-pill.loss {
-    background: rgba(239, 68, 68, 0.18);
-    color: #b91c1c;
+  .margin-pill {
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+
+    &--gain {
+      background: rgba(34, 197, 94, 0.18);
+      color: #15803d;
+    }
+
+    &--loss {
+      background: rgba(239, 68, 68, 0.2);
+      color: #b91c1c;
+    }
   }
 
   .category-grid {
@@ -256,6 +277,21 @@
     }
   }
 
+  .ledger-amount {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
+    text-align: right;
+  }
+
+  .ledger-percent {
+    display: block;
+    color: var(--text-secondary-color);
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
   .profit-panel {
     .pl-grid {
       display: grid;
@@ -274,93 +310,6 @@
         color: var(--text-primary-color);
         font-size: 0.96rem;
       }
-    }
-  }
-
-  .financial-pulse {
-    border: 1px solid var(--surface-border);
-    border-radius: 0.7rem;
-    padding: 0.7rem;
-    margin-bottom: 0.85rem;
-    background: linear-gradient(180deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.02));
-  }
-
-  .pulse-row + .pulse-row {
-    margin-top: 0.55rem;
-  }
-
-  .pulse-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.28rem;
-
-    span {
-      color: var(--text-secondary-color);
-      font-size: 0.73rem;
-    }
-
-    strong {
-      color: var(--text-primary-color);
-      font-size: 0.78rem;
-      font-weight: 600;
-    }
-  }
-
-  .pulse-track {
-    height: 0.42rem;
-    border-radius: 999px;
-    background: #e2e8f0;
-    overflow: hidden;
-  }
-
-  .pulse-fill {
-    height: 100%;
-    transition: width 0.35s ease;
-    border-radius: inherit;
-
-    &.billed {
-      background: #0ea5e9;
-    }
-
-    &.expense {
-      background: #f97316;
-    }
-
-    &.margin-positive {
-      background: #22c55e;
-    }
-
-    &.margin-negative {
-      background: #ef4444;
-    }
-  }
-
-  .ratio-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.55rem;
-    margin-bottom: 0.85rem;
-  }
-
-  .ratio-item {
-    border: 1px solid var(--surface-border);
-    border-radius: 0.6rem;
-    padding: 0.55rem 0.65rem;
-    background: var(--surface-50);
-
-    span {
-      display: block;
-      color: var(--text-secondary-color);
-      font-size: 0.72rem;
-    }
-
-    strong {
-      display: block;
-      color: var(--text-primary-color);
-      font-size: 0.84rem;
-      margin-top: 0.2rem;
     }
   }
 
@@ -386,6 +335,11 @@
     strong {
       color: var(--text-primary-color);
       font-size: 0.85rem;
+
+      &.positive,
+      &.negative {
+        font-weight: 700;
+      }
     }
   }
 
@@ -433,8 +387,7 @@
 
   @media (max-width: 768px) {
     .category-grid,
-    .profit-panel .pl-grid,
-    .ratio-grid {
+    .profit-panel .pl-grid {
       grid-template-columns: 1fr;
     }
   }
