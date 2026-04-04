@@ -1,221 +1,215 @@
-<!-- <div class="profitability-report">
-  <section class="hero-card">
-    <div class="hero-content">
-      <div>
-        <p class="eyebrow">Project Finance Snapshot</p>
-        <h2>Profit & Loss Report</h2>
-        <p class="subtle-text">Total purchase order, invoices raised and expense utilisation at one place.</p>
-      </div>
-      <div
-        class="net-pill"
-        [class.loss]="netProfitOrLoss < 0"
-      >
-        <span class="pill-label">Net P/L</span>
-        <span class="pill-value">{{
-          netProfitOrLoss | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-        }}</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="kpi-grid">
-    <article class="kpi-card">
-      <p class="kpi-label">Total Purchase Order</p>
-      <h3>{{
-        revenueData.totalPOValue | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-      }}</h3>
-      <small>Approved project order value</small>
-    </article>
-    <article class="kpi-card">
-      <p class="kpi-label">Invoices Raised</p>
-      <h3>{{
-        revenueData.totalInvoicesRaised | number : countNumberFormat : numberLocale
-      }}</h3>
-      <small>Invoices cut till date</small>
-    </article>
-    <article class="kpi-card">
-      <p class="kpi-label">Invoiced Value</p>
-      <h3 class="positive">{{
-        revenueData.invoicedTillDate | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-      }}</h3>
-      <small>Revenue billed to client</small>
-    </article>
-    <article class="kpi-card">
-      <p class="kpi-label">Unbilled PO Value</p>
-      <h3>{{
-        revenueData.pendingToInvoice | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-      }}</h3>
-      <small>Available billing headroom in PO</small>
-    </article>
-  </section>
-
-  <section class="report-grid">
-    <article class="panel">
-      <div class="panel-head">
-        <h3>Expense Breakdown</h3>
-        <span class="total-chip">Total: {{ totalExpenses | currency : currencyCode : 'symbol' : currencyFormat : numberLocale }}</span>
-      </div>
-
-      <div class="category-grid">
-        <div class="category-card salary">
-          <p>Salary Expense</p>
-          <h4>{{
-            salaryExpenseTotal | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-          }}</h4>
-          <small>{{ getExpenseShare(salaryExpenseTotal) }} of total expense</small>
+<div class="profitability-report">
+  @if (report(); as vm) {
+    <section class="hero-card">
+      <div class="hero-content">
+        <div>
+          <p class="eyebrow">Project Finance Snapshot</p>
+          <h2>Profit & Loss Report</h2>
+          <p class="subtle-text">Total purchase order, invoices raised and expense utilisation at one place.</p>
         </div>
-        <div class="category-card fuel">
-          <p>Fuel Expense</p>
-          <h4>{{
-            fuelExpenseTotal | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-          }}</h4>
-          <small>{{ getExpenseShare(fuelExpenseTotal) }} of total expense</small>
-        </div>
-        <div class="category-card regular">
-          <p>Regular Expense</p>
-          <h4>{{
-            regularExpenseTotal | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-          }}</h4>
-          <small>{{ getExpenseShare(regularExpenseTotal) }} of total expense</small>
-        </div>
-      </div>
-
-      <div class="expense-ledger">
-        <div class="ledger-head">
-          <span>Expense Head</span>
-          <span>Amount</span>
-        </div>
-        @for (expense of expenses; track $index) {
-          <div class="ledger-row">
-            <span>{{ expense.label }}</span>
-            <strong>{{
-              expense.amount | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-            }}</strong>
-          </div>
-        }
-      </div>
-    </article>
-
-    <article class="panel profit-panel">
-      <div class="panel-head">
-        <h3>Profitability</h3>
-        <span
-          class="margin-pill"
-          [class.loss]="netMargin < 0"
+        <div
+          class="net-pill"
+          [class.loss]="vm.profitPanel.netProfit < 0"
         >
-          Margin {{ netMargin.toFixed(1) }}%
-        </span>
-      </div>
-
-      <div class="pl-grid">
-        <div>
-          <p>Net Profit</p>
-          <h4 class="positive">{{
-            profitability.grossProfit | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-          }}</h4>
-        </div>
-        <div>
-          <p>Invoice Realization</p>
-          <h4>{{ invoiceRealizationPercent.toFixed(1) }}%</h4>
-        </div>
-        <div>
-          <p>Expense Load</p>
-          <h4>{{ expenseToRevenuePercent.toFixed(1) }}%</h4>
-        </div>
-      </div>
-
-      <div class="financial-pulse">
-        <div class="pulse-row">
-          <div class="pulse-label">
-            <span>PO Billed</span>
-            <strong>{{ invoiceRealizationPercent.toFixed(1) }}%</strong>
-          </div>
-          <div class="pulse-track">
-            <div
-              class="pulse-fill billed"
-              [style.width.%]="invoicedProgressWidth"
-            ></div>
-          </div>
-        </div>
-        <div class="pulse-row">
-          <div class="pulse-label">
-            <span>Expense Against Billing</span>
-            <strong>{{ expenseToRevenuePercent.toFixed(1) }}%</strong>
-          </div>
-          <div class="pulse-track">
-            <div
-              class="pulse-fill expense"
-              [style.width.%]="expenseLoadWidth"
-            ></div>
-          </div>
-        </div>
-        <div class="pulse-row">
-          <div class="pulse-label">
-            <span>Net Margin</span>
-            <strong
-              [class.positive]="netMargin >= 0"
-              [class.negative]="netMargin < 0"
-            >
-              {{ netMargin.toFixed(1) }}%
-            </strong>
-          </div>
-          <div class="pulse-track">
-            <div
-              class="pulse-fill"
-              [class.margin-positive]="netMargin >= 0"
-              [class.margin-negative]="netMargin < 0"
-              [style.width.%]="netMarginWidth"
-            ></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ratio-grid">
-        <div class="ratio-item">
-          <span>Average Bill Size</span>
-          <strong>{{
-            averageInvoiceValue | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-          }}</strong>
-        </div>
-        <div class="ratio-item">
-          <span>Pending Billing</span>
-          <strong>{{ pendingBillingPercent.toFixed(1) }}% of PO</strong>
-        </div>
-      </div>
-
-      <div class="mini-summary">
-        <div>
-          <span>Revenue (Invoiced)</span>
-          <strong>{{
-            revenueData.invoicedTillDate | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-          }}</strong>
-        </div>
-        <div>
-          <span>Total Expense</span>
-          <strong class="negative">{{
-            totalExpenses | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
-          }}</strong>
-        </div>
-        <div>
-          <span>Net Result</span>
-          <strong
-            [class.positive]="netProfitOrLoss >= 0"
-            [class.negative]="netProfitOrLoss < 0"
+          <span class="pill-label">Net P/L</span>
+          <span
+            class="pill-value"
+            [class.pill-value--negative]="vm.profitPanel.netProfit < 0"
+            [class.pill-value--positive]="vm.profitPanel.netProfit >= 0"
           >
             {{
-              netProfitOrLoss | currency : currencyCode : 'symbol' : currencyFormat : numberLocale
+              vm.profitPanel.netProfit
+                | currency
+                  : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                  : 'symbol'
+                  : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                  : APP_CONFIG.NUMBER_FORMATS.LOCALE
             }}
-          </strong>
+          </span>
         </div>
       </div>
+    </section>
 
-      <div class="insight-box">
-        <span>Insight</span>
-        <p>
-          {{ invoiceRealizationPercent.toFixed(1) }}% PO billed and {{ netMargin.toFixed(1) }}% net margin with current
-          invoicing.
-        </p>
-      </div>
-    </article>
-  </section>
-</div> -->
+    <section class="kpi-grid">
+      @for (kpi of vm.kpiCards; track kpi.label) {
+        <article class="kpi-card">
+          <p class="kpi-label">{{ kpi.label }}</p>
+          @switch (kpi.display) {
+            @case ('currency') {
+              <h3 [class.positive]="kpi.label === 'Invoiced Value'">
+                {{
+                  kpi.value
+                    | currency
+                      : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                      : 'symbol'
+                      : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                      : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                }}
+              </h3>
+            }
+            @case ('number') {
+              <h3>{{ kpi.value | number: APP_CONFIG.NUMBER_FORMATS.DEFAULT : APP_CONFIG.NUMBER_FORMATS.LOCALE }}</h3>
+            }
+          }
+          <small>{{ kpi.hint }}</small>
+        </article>
+      }
+    </section>
+
+    <section class="report-grid">
+      <article class="panel">
+        <div class="panel-head">
+          <h3>Expense Breakdown</h3>
+          <span class="total-chip">
+            Total:
+            {{
+              vm.expenseBreakdown.totalExpenseAmount
+                | currency
+                  : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                  : 'symbol'
+                  : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                  : APP_CONFIG.NUMBER_FORMATS.LOCALE
+            }}
+          </span>
+        </div>
+
+        <div class="category-grid">
+          @for (item of vm.expenseBreakdown.expenseSummary; track item.label; let idx = $index) {
+            <div
+              class="category-card"
+              [class.salary]="idx === 0"
+              [class.fuel]="idx === 1"
+              [class.regular]="idx === 2"
+            >
+              <p>{{ item.label }}</p>
+              <h4>
+                {{
+                  item.amount
+                    | currency
+                      : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                      : 'symbol'
+                      : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                      : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                }}
+              </h4>
+              <small>{{ item.percentLabel }} of total expense</small>
+            </div>
+          }
+        </div>
+
+        <div class="expense-ledger">
+          <div class="ledger-head">
+            <span>Expense Head</span>
+            <span>Amount</span>
+          </div>
+          @for (row of vm.expenseBreakdown.expenseDetail; track $index) {
+            <div class="ledger-row">
+              <span>{{ row.label }}</span>
+              <div class="ledger-amount">
+                <strong>
+                  {{
+                    row.amount
+                      | currency
+                        : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                        : 'symbol'
+                        : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                        : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                  }}
+                </strong>
+                <small class="ledger-percent">
+                  {{ row.percentage | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}% of total
+                </small>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel profit-panel">
+        <div class="panel-head">
+          <h3>Profitability</h3>
+          <span
+            class="margin-pill"
+            [class.margin-pill--loss]="vm.profitPanel.marginPercent < 0"
+            [class.margin-pill--gain]="vm.profitPanel.marginPercent >= 0"
+          >
+            Margin {{ vm.profitPanel.marginPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%
+          </span>
+        </div>
+
+        <div class="pl-grid">
+          <div>
+            <p>Pending</p>
+            <h4>{{ vm.profitPanel.billingPendingPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%</h4>
+          </div>
+          <div>
+            <p>Invoiced</p>
+            <h4>{{ vm.profitPanel.invoiceBillingPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%</h4>
+          </div>
+          <div>
+            <p>Expenses / invoiced</p>
+            <h4>{{ vm.profitPanel.expenseToRevenuePercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%</h4>
+          </div>
+        </div>
+
+        <div class="mini-summary">
+          <div>
+            <span>Invoiced</span>
+            <strong>
+              {{
+                vm.profitPanel.invoicedAmount
+                  | currency
+                    : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                    : 'symbol'
+                    : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                    : APP_CONFIG.NUMBER_FORMATS.LOCALE
+              }}
+            </strong>
+          </div>
+          <div>
+            <span>Expenses</span>
+            <strong class="negative">
+              {{
+                vm.profitPanel.totalExpenseAmount
+                  | currency
+                    : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                    : 'symbol'
+                    : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                    : APP_CONFIG.NUMBER_FORMATS.LOCALE
+              }}
+            </strong>
+          </div>
+          <div>
+            <span>Net</span>
+            <strong
+              [class.positive]="vm.profitPanel.netProfit >= 0"
+              [class.negative]="vm.profitPanel.netProfit < 0"
+            >
+              {{
+                vm.profitPanel.netProfit
+                  | currency
+                    : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                    : 'symbol'
+                    : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                    : APP_CONFIG.NUMBER_FORMATS.LOCALE
+              }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <span>Insight</span>
+          <p>
+            {{ vm.profitPanel.invoiceBillingPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}% of the
+            order is invoiced. Profit margin is
+            {{ vm.profitPanel.marginPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%.
+          </p>
+        </div>
+      </article>
+    </section>
+  } @else {
+    <section class="hero-card">
+      <p class="subtle-text">Profitability data will appear here once loaded.</p>
+    </section>
+  }
+</div>
