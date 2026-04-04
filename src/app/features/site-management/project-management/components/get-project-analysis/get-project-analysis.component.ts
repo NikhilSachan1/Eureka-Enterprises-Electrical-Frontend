@@ -15,25 +15,25 @@ import {
 } from '@shared/types';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
-import { GetProjectProfitabilityComponent } from '../get-project-profitability/get-project-profitability.component';
 import { GetDsrComponent } from '../../../dsr-management/components/get-dsr/get-dsr.component';
-import { GetProjectTimelineComponent } from '../get-project-timeline/get-project-timeline.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { LoggerService } from '@core/services';
 import { RouterNavigationService } from '@shared/services';
 import { GetDocComponent } from '@features/site-management/doc-management/components/get-doc/get-doc.component';
+import { GetProfitabilityComponent } from '@features/site-management/project-profitability/components/get-profitability/get-profitability.component';
+import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
 
 @Component({
   selector: 'app-get-project-analysis',
   imports: [
     CardModule,
     NavTabsComponent,
-    GetProjectProfitabilityComponent,
     GetDsrComponent,
     GetProjectTimelineComponent,
     PageHeaderComponent,
     GetDocComponent,
+    GetProfitabilityComponent,
   ],
   templateUrl: './get-project-analysis.component.html',
   styleUrl: './get-project-analysis.component.scss',

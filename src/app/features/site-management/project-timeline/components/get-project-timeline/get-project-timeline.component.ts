@@ -20,7 +20,6 @@ interface ISiteTimelineEvent {
   status: 'completed' | 'pending' | 'in-progress';
   icon?: string;
 }
-
 @Component({
   selector: 'app-get-project-timeline',
   imports: [TimelineComponent],

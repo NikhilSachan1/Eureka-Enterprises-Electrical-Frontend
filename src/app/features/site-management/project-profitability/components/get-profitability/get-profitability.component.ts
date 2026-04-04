@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ChartsComponent } from '@shared/components/charts/charts.component';
 import { EChartType, IChartsConfig } from '@shared/types';
+import { ChartsComponent } from '@shared/components/charts/charts.component';
 
 interface RevenueData {
   totalPOValue: number;
@@ -22,13 +21,13 @@ interface ProfitabilityData {
 }
 
 @Component({
-  selector: 'app-get-project-profitability',
-  imports: [CommonModule, ChartsComponent],
-  templateUrl: './get-project-profitability.component.html',
-  styleUrl: './get-project-profitability.component.scss',
+  selector: 'app-get-profitability',
+  imports: [ChartsComponent],
+  templateUrl: './get-profitability.component.html',
+  styleUrl: './get-profitability.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GetProjectProfitabilityComponent implements OnInit {
+export class GetProfitabilityComponent implements OnInit {
   revenueData: RevenueData = {
     totalPOValue: 12000000, // ₹1.20 Cr
     invoicedTillDate: 5000000, // ₹50.00 L
