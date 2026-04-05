@@ -1,0 +1,23 @@
+<p-card class="status-dashboard__card status-dashboard__card--wide">
+  <div class="card-block">
+    <div class="card-block__head card-block__head--wrap">
+      <div class="card-block__titles">
+        <div
+          class="card-block__icon-wrap"
+          aria-hidden="true"
+        >
+          <span class="card-block__icon pi pi-wallet"></span>
+        </div>
+        <div>
+          <h2 class="card-block__title">Expense &amp; fuel</h2>
+          <p class="card-block__hint">Approvals first, then balance snapshot</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ledger-split">
+      <app-expense-dashboard />
+      <app-fuel-expense-dashboard />
+    </div>
+  </div>
+</p-card>

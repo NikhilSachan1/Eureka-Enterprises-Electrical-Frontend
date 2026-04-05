@@ -1,0 +1,102 @@
+@if (metrics(); as pm) {
+  @let config = APP_CONFIG.NUMBER_FORMATS;
+  <p-card class="status-dashboard__card">
+    <div class="card-block">
+      <div class="card-block__head">
+        <div class="card-block__titles">
+          <div
+            class="card-block__icon-wrap"
+            aria-hidden="true"
+          >
+            <span class="card-block__icon pi pi-list"></span>
+          </div>
+          <div>
+            <h2 class="card-block__title">Active projects — detail</h2>
+            <p class="card-block__hint">Contract, spend, net, and progress</p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="dash-project-table-wrap"
+        role="region"
+        aria-label="Active project financials"
+      >
+        <table class="dash-project-table">
+          <thead>
+            <tr>
+              <th scope="col">Project</th>
+              <th
+                scope="col"
+                class="dash-project-table__num"
+              >
+                Contract
+              </th>
+              <th
+                scope="col"
+                class="dash-project-table__num"
+              >
+                Spend
+              </th>
+              <th
+                scope="col"
+                class="dash-project-table__num"
+              >
+                Net
+              </th>
+              <th
+                scope="col"
+                class="dash-project-table__pct"
+              >
+                %
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of pm.activeProjects; track row.code ?? row.name) {
+              <tr
+                class="dash-project-table__row"
+                [class.dash-project-table__row--loss]="row.netPosition < 0"
+              >
+                <td class="dash-project-table__name">
+                  <span class="dash-project-table__title">{{ row.name }}</span>
+                  @if (row.code) {
+                    <span class="dash-project-table__code">{{ row.code }}</span>
+                  }
+                </td>
+                <td class="dash-project-table__num">
+                  {{
+                    row.contractValue
+                      | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT : 'symbol' : config.DEFAULT : config.LOCALE
+                  }}
+                </td>
+                <td class="dash-project-table__num">
+                  {{
+                    row.expenseToDate
+                      | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT : 'symbol' : config.DEFAULT : config.LOCALE
+                  }}
+                </td>
+                <td
+                  class="dash-project-table__num"
+                  [class.dash-project-table__num--neg]="row.netPosition < 0"
+                >
+                  {{
+                    row.netPosition
+                      | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT : 'symbol' : config.DEFAULT : config.LOCALE
+                  }}
+                </td>
+                <td class="dash-project-table__pct">{{ row.progressPercent }}%</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </p-card>
+} @else {
+  <p-card class="status-dashboard__card">
+    <div class="card-block">
+      <p class="card-block__muted">No project metrics loaded.</p>
+    </div>
+  </p-card>
+}

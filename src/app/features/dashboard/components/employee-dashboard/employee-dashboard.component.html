@@ -1,0 +1,52 @@
+@let config = APP_CONFIG.NUMBER_FORMATS;
+<p-card class="status-dashboard__card">
+  <div class="card-block">
+    <div class="card-block__head">
+      <div class="card-block__titles">
+        <div
+          class="card-block__icon-wrap"
+          aria-hidden="true"
+        >
+          <span class="card-block__icon pi pi-users"></span>
+        </div>
+        <div>
+          <h2 class="card-block__title">Employees</h2>
+          <p class="card-block__hint">Headcount and new joiners</p>
+        </div>
+      </div>
+      <app-button
+        [buttonConfig]="directoryButton"
+        (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.EMPLOYEE, ROUTES.EMPLOYEE.LIST])"
+      />
+    </div>
+
+    @if (metrics(); as em) {
+      <div class="card-stack">
+        <div class="emp-hero">
+          <div class="emp-hero__total">
+            <span class="emp-hero__value">{{ em.total | number: config.DEFAULT : config.LOCALE }}</span>
+            <span class="emp-hero__label">Total headcount</span>
+          </div>
+          <div class="emp-hero__side">
+            <div class="emp-chip emp-chip--accent">
+              <span class="emp-chip__label">New (30 days)</span>
+              <span class="emp-chip__value">
+                {{ em.newJoinersLast30Days | number: config.DEFAULT : config.LOCALE }}
+              </span>
+            </div>
+            <div class="emp-chip">
+              <span class="emp-chip__label">Active</span>
+              <span class="emp-chip__value">{{ em.active | number: config.DEFAULT : config.LOCALE }}</span>
+            </div>
+            <div class="emp-chip">
+              <span class="emp-chip__label">Inactive</span>
+              <span class="emp-chip__value">{{ em.inactive | number: config.DEFAULT : config.LOCALE }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <p class="card-block__muted">No employee metrics loaded.</p>
+    }
+  </div>
+</p-card>

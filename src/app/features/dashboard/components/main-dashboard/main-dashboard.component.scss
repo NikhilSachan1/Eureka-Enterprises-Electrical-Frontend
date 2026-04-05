@@ -1,0 +1,471 @@
+.main-dashboard {
+  width: 100%;
+}
+
+/* Dashboard shell — distinct from list pages: hero, pulse KPIs, sectioned grids. */
+
+.status-dashboard {
+  width: 100%;
+  max-width: none;
+}
+
+/* Full-width shell (no max-width cap). */
+.status-dashboard__shell {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+/* —— Sections —— */
+.dash-section {
+  margin-bottom: 2rem;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.dash-section__head {
+  margin-bottom: 1rem;
+  padding-left: 0.85rem;
+  border-left: 3px solid var(--primary-color);
+}
+
+.dash-section__title {
+  margin: 0 0 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-primary-color);
+}
+
+.dash-section__desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-secondary-color);
+  max-width: 42rem;
+}
+
+.dash-section__grid {
+  display: grid;
+  gap: 1.15rem;
+  align-items: stretch;
+}
+
+/* Left: Employees + Leave stacked; right: Attendance | Leave balance side by side */
+.dash-section__grid--people {
+  grid-template-columns: 1fr;
+  align-items: start;
+
+  @media (min-width: 900px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    align-items: stretch;
+  }
+}
+
+.dash-people-col--stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  min-width: 0;
+
+  app-leave-dashboard {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.dash-people-col--pair {
+  display: grid;
+  gap: 1.15rem;
+  grid-template-columns: 1fr;
+  min-width: 0;
+  align-items: stretch;
+
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  > app-attendance-dashboard,
+  > app-leave-balance-dashboard {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > app-attendance-dashboard ::ng-deep .status-dashboard__card,
+  > app-leave-balance-dashboard ::ng-deep .status-dashboard__card {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > app-attendance-dashboard ::ng-deep .status-dashboard__card > .p-card-body,
+  > app-leave-balance-dashboard ::ng-deep .status-dashboard__card > .p-card-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > app-attendance-dashboard ::ng-deep .status-dashboard__card > .p-card-body > .p-card-content,
+  > app-leave-balance-dashboard ::ng-deep .status-dashboard__card > .p-card-body > .p-card-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > app-attendance-dashboard ::ng-deep .card-block,
+  > app-leave-balance-dashboard ::ng-deep .card-block {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > app-attendance-dashboard ::ng-deep .card-stack {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Left: Assets; right: Vehicle fleet | Vehicle service (same rhythm as People & time) */
+.dash-section__grid--ops {
+  grid-template-columns: 1fr;
+  align-items: start;
+
+  @media (min-width: 900px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    align-items: stretch;
+  }
+}
+
+.dash-section__grid--ops + app-vehicle-reading-dashboard {
+  display: block;
+  margin-top: 1.15rem;
+}
+
+.dash-ops-col--stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+.dash-ops-col--pair {
+  display: grid;
+  gap: 1.15rem;
+  grid-template-columns: 1fr;
+  min-width: 0;
+  align-items: stretch;
+
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  > app-vehicle-dashboard,
+  > app-vehicle-service-dashboard {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > app-vehicle-dashboard ::ng-deep .status-dashboard__card,
+  > app-vehicle-service-dashboard ::ng-deep .status-dashboard__card {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > app-vehicle-dashboard ::ng-deep .status-dashboard__card > .p-card-body,
+  > app-vehicle-service-dashboard ::ng-deep .status-dashboard__card > .p-card-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > app-vehicle-dashboard ::ng-deep .status-dashboard__card > .p-card-body > .p-card-content,
+  > app-vehicle-service-dashboard ::ng-deep .status-dashboard__card > .p-card-body > .p-card-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > app-vehicle-dashboard ::ng-deep .card-block,
+  > app-vehicle-service-dashboard ::ng-deep .card-block {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.dash-section__grid--finance {
+  grid-template-columns: 1fr;
+}
+
+/* Projects: pipeline + table (stack) | bar chart (side) */
+.dash-section__grid--projects {
+  grid-template-columns: 1fr;
+  align-items: start;
+
+  @media (min-width: 900px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    align-items: stretch;
+  }
+}
+
+.dash-projects-col--stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+.dash-projects-col--chart {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 280px;
+
+  app-project-chart-dashboard {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  @media (min-width: 900px) {
+    min-height: 0;
+    align-self: stretch;
+    height: auto;
+  }
+}
+
+::ng-deep .status-dashboard__card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--border-light-color);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 8px 28px -12px rgb(0 0 0 / 0.12);
+  background: var(--background-default-color);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--primary-color) 22%, var(--border-light-color));
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.05),
+      0 16px 40px -16px color-mix(in srgb, var(--primary-color) 22%, transparent);
+  }
+
+  .p-card-body {
+    padding: 0;
+  }
+}
+
+::ng-deep .status-dashboard__card--wide {
+  grid-column: 1 / -1;
+}
+
+/* Match row height next to Attendance; list grows and scrolls */
+::ng-deep .status-dashboard__card--leave-balance-fill {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  > .p-card-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > .p-card-body > .p-card-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .card-block {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-block__head {
+    flex-shrink: 0;
+  }
+
+  .leave-employee-balance__list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+  }
+}
+
+.card-block {
+  position: relative;
+  padding: 1.1rem 1.2rem 1.2rem;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 1rem 1rem 0 0;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--primary-color) 55%, transparent),
+      color-mix(in srgb, var(--primary-color) 12%, transparent)
+    );
+    opacity: 0.85;
+    pointer-events: none;
+  }
+}
+
+.card-block__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+
+  &--wrap {
+    flex-wrap: wrap;
+  }
+}
+
+.card-block__titles {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.card-block__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 0.85rem;
+  flex-shrink: 0;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--primary-color) 12%, var(--background-paper-color)),
+    var(--background-paper-color)
+  );
+  border: 1px solid color-mix(in srgb, var(--primary-color) 15%, var(--border-light-color));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+.card-block__icon {
+  font-size: 1.125rem;
+  color: var(--primary-color);
+}
+
+.card-block__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary-color);
+}
+
+.card-block__hint {
+  margin: 0.15rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary-color);
+}
+
+.card-block__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-block__loading {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.card-block__error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-primary-color);
+
+  &--soft {
+    color: var(--text-secondary-color);
+    margin-bottom: 0.75rem;
+  }
+}
+
+.card-block__muted {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary-color);
+}
+
+.card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Birthdays, anniversaries & holidays — same scroll cap as ledger employee lists */
+.people-celebrations-split {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .people-celebrations-panel:nth-child(3) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    .people-celebrations-panel:nth-child(3) {
+      grid-column: auto;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::ng-deep .status-dashboard__card {
+    transition: none;
+  }
+
+  .people-celebrations__row {
+    transition: none;
+  }
+}

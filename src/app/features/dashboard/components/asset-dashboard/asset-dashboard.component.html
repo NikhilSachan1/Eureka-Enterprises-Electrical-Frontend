@@ -1,0 +1,156 @@
+@let config = APP_CONFIG.NUMBER_FORMATS;
+<p-card class="status-dashboard__card">
+  <div class="card-block">
+    <div class="card-block__head card-block__head--wrap">
+      <div class="card-block__titles">
+        <div
+          class="card-block__icon-wrap"
+          aria-hidden="true"
+        >
+          <span class="card-block__icon pi pi-box"></span>
+        </div>
+        <div>
+          <h2 class="card-block__title">Assets</h2>
+          <p class="card-block__hint">Stock, calibration, and warranty status</p>
+        </div>
+      </div>
+      <app-button
+        [buttonConfig]="openAssetsButton"
+        (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.LIST])"
+      />
+    </div>
+
+    @if (metrics(); as ast) {
+      <div class="dash-ops">
+        <div class="dash-ops__hero">
+          <div class="dash-ops__hero-main">
+            <span class="dash-ops__hero-value">{{ ast.total | number: config.DEFAULT : config.LOCALE }}</span>
+            <span class="dash-ops__hero-label">Total assets</span>
+          </div>
+          <div class="dash-ops__hero-free">
+            <span class="dash-ops__free-value">{{ ast.free | number: config.DEFAULT : config.LOCALE }}</span>
+            <span class="dash-ops__free-label">Free / available</span>
+          </div>
+        </div>
+
+        <p class="dash-ops__section-label">Calibration</p>
+        <div class="stat-grid stat-grid--ops-pair">
+          <div class="stat-tile stat-tile--leave">
+            <span class="stat-tile__label">Expiring soon</span>
+            <span
+              class="stat-tile__value"
+              [class.stat-tile__value--warn]="ast.calibrationExpiringSoon > 0"
+            >
+              {{ ast.calibrationExpiringSoon | number: config.DEFAULT : config.LOCALE }}
+            </span>
+          </div>
+          <div class="stat-tile stat-tile--absent">
+            <span class="stat-tile__label">Expired</span>
+            <span
+              class="stat-tile__value"
+              [class.stat-tile__value--alert]="ast.calibrationExpired > 0"
+            >
+              {{ ast.calibrationExpired | number: config.DEFAULT : config.LOCALE }}
+            </span>
+          </div>
+        </div>
+        @if (ast.calibrationExpiringSoonItems.length > 0) {
+          <p class="dash-ops__item-list-caption">Expiring soon</p>
+          <ul
+            class="dash-ops-item-list"
+            aria-label="Assets with calibration expiring soon"
+          >
+            @for (row of ast.calibrationExpiringSoonItems; track row.assetId) {
+              <li class="dash-ops-item-list__row dash-ops-item-list__row--asset">
+                <span
+                  class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--asset pi pi-box"
+                  aria-hidden="true"
+                ></span>
+                <span class="dash-ops-item-list__name">{{ row.name }}</span>
+                <span class="dash-ops-item-list__id">{{ row.assetId }}</span>
+              </li>
+            }
+          </ul>
+        }
+        @if (ast.calibrationExpiredItems.length > 0) {
+          <p class="dash-ops__item-list-caption">Expired</p>
+          <ul
+            class="dash-ops-item-list"
+            aria-label="Assets with calibration expired"
+          >
+            @for (row of ast.calibrationExpiredItems; track row.assetId) {
+              <li class="dash-ops-item-list__row dash-ops-item-list__row--asset">
+                <span
+                  class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--asset pi pi-box"
+                  aria-hidden="true"
+                ></span>
+                <span class="dash-ops-item-list__name">{{ row.name }}</span>
+                <span class="dash-ops-item-list__id">{{ row.assetId }}</span>
+              </li>
+            }
+          </ul>
+        }
+
+        <p class="dash-ops__section-label">Warranty</p>
+        <div class="stat-grid stat-grid--ops-pair">
+          <div class="stat-tile stat-tile--leave">
+            <span class="stat-tile__label">Expiring soon</span>
+            <span
+              class="stat-tile__value"
+              [class.stat-tile__value--warn]="ast.warrantyExpiringSoon > 0"
+            >
+              {{ ast.warrantyExpiringSoon | number: config.DEFAULT : config.LOCALE }}
+            </span>
+          </div>
+          <div class="stat-tile stat-tile--absent">
+            <span class="stat-tile__label">Expired</span>
+            <span
+              class="stat-tile__value"
+              [class.stat-tile__value--alert]="ast.warrantyExpired > 0"
+            >
+              {{ ast.warrantyExpired | number: config.DEFAULT : config.LOCALE }}
+            </span>
+          </div>
+        </div>
+        @if (ast.warrantyExpiringSoonItems.length > 0) {
+          <p class="dash-ops__item-list-caption">Expiring soon</p>
+          <ul
+            class="dash-ops-item-list"
+            aria-label="Assets with warranty expiring soon"
+          >
+            @for (row of ast.warrantyExpiringSoonItems; track row.assetId) {
+              <li class="dash-ops-item-list__row dash-ops-item-list__row--asset">
+                <span
+                  class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--asset pi pi-box"
+                  aria-hidden="true"
+                ></span>
+                <span class="dash-ops-item-list__name">{{ row.name }}</span>
+                <span class="dash-ops-item-list__id">{{ row.assetId }}</span>
+              </li>
+            }
+          </ul>
+        }
+        @if (ast.warrantyExpiredItems.length > 0) {
+          <p class="dash-ops__item-list-caption">Expired</p>
+          <ul
+            class="dash-ops-item-list"
+            aria-label="Assets with warranty expired"
+          >
+            @for (row of ast.warrantyExpiredItems; track row.assetId) {
+              <li class="dash-ops-item-list__row dash-ops-item-list__row--asset">
+                <span
+                  class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--asset pi pi-box"
+                  aria-hidden="true"
+                ></span>
+                <span class="dash-ops-item-list__name">{{ row.name }}</span>
+                <span class="dash-ops-item-list__id">{{ row.assetId }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    } @else {
+      <p class="card-block__muted">No asset metrics loaded.</p>
+    }
+  </div>
+</p-card>

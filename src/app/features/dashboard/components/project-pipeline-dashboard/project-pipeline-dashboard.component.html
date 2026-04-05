@@ -1,0 +1,81 @@
+@let config = APP_CONFIG.NUMBER_FORMATS;
+@if (metrics(); as pm) {
+  <p-card class="status-dashboard__card">
+    <div class="card-block">
+      <div class="card-block__head card-block__head--wrap">
+        <div class="card-block__titles">
+          <div
+            class="card-block__icon-wrap"
+            aria-hidden="true"
+          >
+            <span class="card-block__icon pi pi-th-large"></span>
+          </div>
+          <div>
+            <h2 class="card-block__title">Project pipeline</h2>
+            <p class="card-block__hint">Lifecycle snapshot across the portfolio</p>
+          </div>
+        </div>
+        <app-button
+          [buttonConfig]="openProjectsButton"
+          (onButtonClick)="
+            navigateTo(['/', ROUTE_BASE_PATHS.SITE.BASE, ROUTE_BASE_PATHS.SITE.PROJECT, ROUTES.SITE.PROJECT.LIST])
+          "
+        />
+      </div>
+
+      <div class="dash-project-pipeline">
+        <div class="stat-grid stat-grid--project-counts">
+          <div class="stat-tile stat-tile--present">
+            <span class="stat-tile__label">Active</span>
+            <span class="stat-tile__value">{{ pm.active | number: config.DEFAULT : config.LOCALE }}</span>
+          </div>
+          <div class="stat-tile stat-tile--leave">
+            <span class="stat-tile__label">Upcoming</span>
+            <span class="stat-tile__value">{{ pm.upcoming | number: config.DEFAULT : config.LOCALE }}</span>
+          </div>
+          <div class="stat-tile stat-tile--neutral">
+            <span class="stat-tile__label">On hold</span>
+            <span class="stat-tile__value">{{ pm.onHold | number: config.DEFAULT : config.LOCALE }}</span>
+          </div>
+          <div class="stat-tile stat-tile--neutral">
+            <span class="stat-tile__label">Completed</span>
+            <span class="stat-tile__value">{{ pm.completed | number: config.DEFAULT : config.LOCALE }}</span>
+          </div>
+        </div>
+        <p class="dash-project-pipeline__total">
+          <span class="dash-project-pipeline__total-label">Total in system</span>
+          <span class="dash-project-pipeline__total-value">
+            {{ pm.total | number: config.DEFAULT : config.LOCALE }}
+          </span>
+        </p>
+        <div class="dash-project-pipeline__rollup">
+          <div class="dash-project-pipeline__rollup-item">
+            <span class="dash-project-pipeline__rollup-label">Active — contract total</span>
+            <span class="dash-project-pipeline__rollup-value">
+              {{ pm.activeContractTotal | indianCurrency: 'full' }}
+            </span>
+          </div>
+          <div class="dash-project-pipeline__rollup-item">
+            <span class="dash-project-pipeline__rollup-label">Active — spend to date</span>
+            <span class="dash-project-pipeline__rollup-value">
+              {{ pm.activeExpenseTotal | indianCurrency: 'full' }}
+            </span>
+          </div>
+          <div
+            class="dash-project-pipeline__rollup-item"
+            [class.dash-project-pipeline__rollup-item--loss]="pm.activeNetTotal < 0"
+          >
+            <span class="dash-project-pipeline__rollup-label">Active — net P&amp;L</span>
+            <span class="dash-project-pipeline__rollup-value">{{ pm.activeNetTotal | indianCurrency: 'full' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-card>
+} @else {
+  <p-card class="status-dashboard__card">
+    <div class="card-block">
+      <p class="card-block__muted">No project metrics loaded.</p>
+    </div>
+  </p-card>
+}

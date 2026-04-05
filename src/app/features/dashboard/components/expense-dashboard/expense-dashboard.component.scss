@@ -1,0 +1,7 @@
+@use "../../styles/dashboard-ledger.shared" as *;
+
+.card-block__muted {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary-color);
+}

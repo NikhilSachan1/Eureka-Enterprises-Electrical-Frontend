@@ -1,0 +1,29 @@
+@if (barChartConfig(); as barCfg) {
+  <p-card class="status-dashboard__card status-dashboard__card--project-bar-fill">
+    <div class="card-block card-block--chart">
+      <div class="card-block__head card-block__head--wrap">
+        <div class="card-block__titles">
+          <div
+            class="card-block__icon-wrap"
+            aria-hidden="true"
+          >
+            <span class="card-block__icon pi pi-chart-bar"></span>
+          </div>
+          <div>
+            <h2 class="card-block__title">Contract vs spend vs net</h2>
+            <p class="card-block__hint">Active projects — ₹ lakh; green / red for net P&amp;L</p>
+          </div>
+        </div>
+      </div>
+      <div class="dash-project-chart dash-project-chart--bar-fill">
+        <app-charts [chartConfig]="barCfg" />
+      </div>
+    </div>
+  </p-card>
+} @else {
+  <p-card class="status-dashboard__card">
+    <div class="card-block">
+      <p class="card-block__muted">No active projects to chart.</p>
+    </div>
+  </p-card>
+}

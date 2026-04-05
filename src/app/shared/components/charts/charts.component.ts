@@ -101,6 +101,22 @@ export class ChartsComponent {
           mode: finalOptions.tooltipMode,
         },
       },
+      scales: {
+        x: {
+          grid: {
+            display: finalOptions.showXGrid,
+          },
+        },
+        y: {
+          beginAtZero: finalOptions.beginAtZero,
+          grid: {
+            display: finalOptions.showYGrid,
+          },
+          ticks: {
+            maxTicksLimit: finalOptions.YAxisTicksLimit,
+          },
+        },
+      },
     };
   }
 

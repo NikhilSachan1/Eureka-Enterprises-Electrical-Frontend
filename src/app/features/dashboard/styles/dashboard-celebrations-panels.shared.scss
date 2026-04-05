@@ -1,0 +1,145 @@
+.people-celebrations-panel__title {
+  margin: 0 0 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-primary-color);
+}
+
+.people-celebrations-panel__hint {
+  margin: 0 0 0.65rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--text-secondary-color);
+}
+
+.people-celebrations__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border-light-color);
+  border-radius: 0.65rem;
+  background: var(--background-default-color);
+  max-height: 12rem;
+  overflow: auto;
+}
+
+.people-celebrations__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border-light-color);
+  transition: background-color 0.12s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--primary-color) 5%, var(--background-default-color));
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.people-celebrations__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  flex-shrink: 0;
+  border-radius: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, var(--background-paper-color));
+  border: 1px solid color-mix(in srgb, var(--primary-color) 20%, var(--border-light-color));
+
+  &--holiday {
+    color: var(--wf-warning-ink, #d97706);
+    background: color-mix(in srgb, var(--wf-warning, #f59e0b) 14%, var(--background-paper-color));
+    border-color: color-mix(in srgb, var(--wf-warning, #f59e0b) 30%, var(--border-light-color));
+  }
+}
+
+.people-celebrations__main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.people-celebrations__name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.people-celebrations__code {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary-color);
+}
+
+.people-celebrations__aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.people-celebrations__timing {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--border-light-color);
+  color: var(--text-secondary-color);
+  background: var(--background-paper-color);
+
+  &--today {
+    color: var(--wf-success-ink, #059669);
+    border-color: color-mix(in srgb, var(--wf-success, #10b981) 35%, var(--border-light-color));
+    background: color-mix(in srgb, var(--wf-success, #10b981) 10%, var(--background-paper-color));
+  }
+
+  &--upcoming {
+    color: var(--text-secondary-color);
+    border-color: color-mix(in srgb, var(--primary-color) 22%, var(--border-light-color));
+    background: color-mix(in srgb, var(--primary-color) 8%, var(--background-paper-color));
+  }
+}
+
+.people-celebrations__when {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary-color);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.people-celebrations__years {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--wf-warning, #f59e0b) 35%, var(--border-light-color));
+  color: var(--wf-warning-ink, #d97706);
+  background: color-mix(in srgb, var(--wf-warning, #f59e0b) 10%, var(--background-paper-color));
+}
+
+.people-celebrations__empty {
+  margin: 0;
+}

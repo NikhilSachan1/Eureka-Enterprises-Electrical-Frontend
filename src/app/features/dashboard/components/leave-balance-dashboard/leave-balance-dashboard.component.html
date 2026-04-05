@@ -1,0 +1,57 @@
+@let config = APP_CONFIG.NUMBER_FORMATS;
+<p-card class="status-dashboard__card status-dashboard__card--leave-balance-fill">
+  <div class="card-block">
+    <div class="card-block__head card-block__head--wrap">
+      <div class="card-block__titles">
+        <div
+          class="card-block__icon-wrap"
+          aria-hidden="true"
+        >
+          <span class="card-block__icon pi pi-chart-line"></span>
+        </div>
+        <div>
+          <h2 class="card-block__title">Leave balance</h2>
+          <p class="card-block__hint">Employee-wise remaining balance (unit per your policy)</p>
+        </div>
+      </div>
+      <app-button
+        [buttonConfig]="openLeaveButton"
+        (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.LIST])"
+      />
+    </div>
+
+    @if (metrics(); as lvBal) {
+      @if (lvBal.employeeWiseLeaveBalance.length > 0) {
+        <ul
+          class="leave-employee-balance__list"
+          role="list"
+          aria-label="Employee leave balances"
+        >
+          @for (row of lvBal.employeeWiseLeaveBalance; track row.employeeCode ?? row.employeeName) {
+            <li
+              class="leave-employee-balance__row"
+              [class.leave-employee-balance__row--zero]="row.balance === 0"
+            >
+              <div class="leave-employee-balance__who">
+                <span class="leave-employee-balance__name">{{ row.employeeName }}</span>
+                @if (row.employeeCode) {
+                  <span class="leave-employee-balance__code">{{ row.employeeCode }}</span>
+                }
+              </div>
+              <span class="leave-employee-balance__balance">
+                <span class="leave-employee-balance__amount">
+                  {{ row.balance | number: config.WITH_DECIMALS : config.LOCALE }}
+                </span>
+                <span class="leave-employee-balance__unit">{{ row.unit ?? 'days' }}</span>
+              </span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="card-block__muted leave-employee-balance__empty">No employee leave balances.</p>
+      }
+    } @else {
+      <p class="card-block__muted">No leave metrics loaded.</p>
+    }
+  </div>
+</p-card>

@@ -1,0 +1,186 @@
+@let snap = kpm();
+@let config = APP_CONFIG.NUMBER_FORMATS;
+<div
+  class="dash-pulse"
+  role="region"
+  aria-label="Key metrics at a glance"
+>
+  @if (snap.attendance; as st) {
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--warn]="st.approval.pending > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-clock"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">{{ st.approval.pending | number: config.DEFAULT : config.LOCALE }}</span>
+        <span class="dash-pulse__label">Attendance pending</span>
+      </div>
+    </div>
+  }
+  @if (snap.leave; as lv) {
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--warn]="lv.approval.pending > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-calendar-plus"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">{{ lv.approval.pending | number: config.DEFAULT : config.LOCALE }}</span>
+        <span class="dash-pulse__label">Leave pending</span>
+      </div>
+    </div>
+  }
+  @if (snap.expense; as exPay) {
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--warn]="exPay.employeePayableTotal > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-wallet"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">
+          {{ exPay.employeePayableTotal | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
+        </span>
+        <span class="dash-pulse__label">Pay to employees — expense (देना है)</span>
+      </div>
+    </div>
+  }
+  @if (snap.fuel; as fuPay) {
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--warn]="fuPay.employeePayableTotal > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-bolt"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">
+          {{ fuPay.employeePayableTotal | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
+        </span>
+        <span class="dash-pulse__label">Pay to employees — fuel (देना है)</span>
+      </div>
+    </div>
+  }
+  @if (snap.asset; as ast) {
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--warn]="ast.calibrationExpiringSoon > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-sliders-h"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">
+          {{ ast.calibrationExpiringSoon | number: config.DEFAULT : config.LOCALE }}
+        </span>
+        <span class="dash-pulse__label">Asset calibration renewal</span>
+      </div>
+    </div>
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--warn]="ast.warrantyExpiringSoon > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-shield"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">{{ ast.warrantyExpiringSoon | number: config.DEFAULT : config.LOCALE }}</span>
+        <span class="dash-pulse__label">Asset warranty renewal</span>
+      </div>
+    </div>
+  }
+  @if (snap.vehicleFleet; as vf) {
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--warn]="vf.complianceExpiringSoon > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-id-card"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">{{ vf.complianceExpiringSoon | number: config.DEFAULT : config.LOCALE }}</span>
+        <span class="dash-pulse__label">Vehicle compliance renewal</span>
+      </div>
+    </div>
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--warn]="vf.warrantyExpiringSoon > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-car"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">{{ vf.warrantyExpiringSoon | number: config.DEFAULT : config.LOCALE }}</span>
+        <span class="dash-pulse__label">Vehicle warranty renewal</span>
+      </div>
+    </div>
+  }
+  @if (snap.vehicleService; as vs) {
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--warn]="vs.dueSoon > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-calendar-clock"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">{{ vs.dueSoon | number: config.DEFAULT : config.LOCALE }}</span>
+        <span class="dash-pulse__label">Service due soon</span>
+      </div>
+    </div>
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--alert]="vs.overdue > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-wrench"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">{{ vs.overdue | number: config.DEFAULT : config.LOCALE }}</span>
+        <span class="dash-pulse__label">Service overdue</span>
+      </div>
+    </div>
+  }
+  @if (snap.vehicleReading; as vr) {
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--alert]="vr.readingAnomalyCount > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-shield"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">{{ vr.readingAnomalyCount | number: config.DEFAULT : config.LOCALE }}</span>
+        <span class="dash-pulse__label">Reading anomalies</span>
+      </div>
+    </div>
+    <div
+      class="dash-pulse__item"
+      [class.dash-pulse__item--warn]="vr.noReadingStaleCount > 0"
+    >
+      <span
+        class="dash-pulse__icon pi pi-clock"
+        aria-hidden="true"
+      ></span>
+      <div class="dash-pulse__text">
+        <span class="dash-pulse__value">{{ vr.noReadingStaleCount | number: config.DEFAULT : config.LOCALE }}</span>
+        <span class="dash-pulse__label">No reading 2+ days</span>
+      </div>
+    </div>
+  }
+</div>

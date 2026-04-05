@@ -1,0 +1,122 @@
+<p-card class="status-dashboard__card status-dashboard__card--wide">
+  <div class="card-block">
+    <div class="card-block__head card-block__head--wrap">
+      <div class="card-block__titles">
+        <div
+          class="card-block__icon-wrap"
+          aria-hidden="true"
+        >
+          <span class="card-block__icon pi pi-chart-line"></span>
+        </div>
+        <div>
+          <h2 class="card-block__title">Vehicle readings</h2>
+          <p class="card-block__hint">Flagged readings and vehicles without recent data</p>
+        </div>
+      </div>
+      <app-button
+        [buttonConfig]="openReadingsButton"
+        (onButtonClick)="
+          navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE_READING, ROUTES.VEHICLE_READING.LIST])
+        "
+      />
+    </div>
+
+    @if (metrics(); as vr) {
+      <div class="dash-vr-split">
+        <div class="dash-vr-split__col dash-vr-split__col--anomaly">
+          <p class="dash-ops__section-label dash-vr-split__section-title">Anomalies</p>
+          <p class="dash-ops__section-hint dash-vr-split__section-hint">Vehicles failing reading / odometer checks.</p>
+          <div
+            class="dash-vr-anomaly"
+            [class.dash-vr-anomaly--yes]="vr.anomalyDetected"
+            [class.dash-vr-anomaly--no]="!vr.anomalyDetected"
+            role="region"
+            [attr.aria-label]="
+              vr.anomalyVehicles.length > 0
+                ? 'Vehicles with reading anomalies'
+                : vr.anomalyDetected
+                  ? 'Reading anomaly alert'
+                  : 'No reading anomalies'
+            "
+          >
+            @if (vr.anomalyDetected && vr.anomalyVehicles.length > 0) {
+              <ul
+                class="dash-vr-anomaly-list"
+                role="list"
+                aria-label="Vehicles with reading anomalies"
+              >
+                @for (a of vr.anomalyVehicles; track a.vehicleNumber) {
+                  <li class="dash-vr-anomaly-list__item">
+                    <div class="dash-vr-anomaly-list__head">
+                      <span
+                        class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                        aria-hidden="true"
+                      ></span>
+                      <div class="dash-ops-item-list__vehicle-meta">
+                        <span class="dash-ops-item-list__veh-name">{{ a.vehicleName }}</span>
+                        <span class="dash-ops-item-list__veh-number">{{ a.vehicleNumber }}</span>
+                      </div>
+                    </div>
+                    <p class="dash-vr-anomaly-list__reason">
+                      <span class="dash-vr-anomaly-list__reason-lbl">Reason</span>
+                      {{ a.reason }}
+                    </p>
+                  </li>
+                }
+              </ul>
+            } @else if (vr.anomalyDetected && vr.anomalyDetail) {
+              <p class="dash-vr-anomaly__detail">{{ vr.anomalyDetail }}</p>
+            }
+            @if (!vr.anomalyDetected) {
+              <p class="dash-vr-anomaly__detail dash-vr-anomaly__detail--ok">
+                No anomaly flagged in the current check window.
+              </p>
+            }
+          </div>
+        </div>
+
+        <div class="dash-vr-split__col dash-vr-split__col--gap">
+          <p class="dash-ops__section-label dash-vr-gap-heading dash-vr-split__section-title">No reading 2+ days</p>
+          <p class="dash-ops__section-hint dash-vr-split__section-hint">
+            Last successful reading is older than two full days (per your policy).
+          </p>
+          @if (vr.vehiclesNoReadingTwoPlusDays.length > 0) {
+            <ul
+              class="dash-ops-item-list dash-ops-item-list--vehicles"
+              role="list"
+              aria-label="Vehicles with no reading for two or more days"
+            >
+              @for (row of vr.vehiclesNoReadingTwoPlusDays; track row.vehicleNumber) {
+                <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
+                  <span
+                    class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                    aria-hidden="true"
+                  ></span>
+                  <div class="dash-ops-item-list__vehicle-meta">
+                    <span class="dash-ops-item-list__veh-name">{{ row.vehicleName }}</span>
+                    <span class="dash-ops-item-list__veh-number">{{ row.vehicleNumber }}</span>
+                  </div>
+                  @if (row.lastReceivedDate) {
+                    <div class="dash-vr-gap-aside">
+                      <span class="dash-vr-gap-aside__lbl">Last reading</span>
+                      <time
+                        class="dash-vr-gap-aside__date"
+                        [attr.datetime]="row.lastReceivedDate"
+                      >
+                        {{ row.lastReceivedDate | date: 'd MMM y' : undefined : 'en-IN' }}
+                      </time>
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="card-block__muted">None — every vehicle has a reading within the last 2 days.</p>
+          }
+        </div>
+      </div>
+    } @else {
+      <p class="card-block__muted">No vehicle reading metrics loaded.</p>
+    }
+  </div>
+</p-card>

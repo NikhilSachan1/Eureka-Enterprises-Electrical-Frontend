@@ -1,0 +1,128 @@
+@let config = APP_CONFIG.NUMBER_FORMATS;
+<p-card class="status-dashboard__card">
+  <div class="card-block">
+    <div class="card-block__head card-block__head--wrap">
+      <div class="card-block__titles">
+        <div
+          class="card-block__icon-wrap"
+          aria-hidden="true"
+        >
+          <span class="card-block__icon pi pi-calendar"></span>
+        </div>
+        <div>
+          <h2 class="card-block__title">Attendance</h2>
+          <p class="card-block__hint">Presence, leave, and check-in status</p>
+        </div>
+      </div>
+      <div class="card-block__controls">
+        <app-button
+          [buttonConfig]="openAttendanceButton"
+          (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.ATTENDANCE, ROUTES.ATTENDANCE.LIST])"
+        />
+      </div>
+    </div>
+
+    @if (metrics(); as st) {
+      <div class="card-stack">
+        <div class="stat-grid stat-grid--attendance">
+          <div class="stat-tile stat-tile--present">
+            <span class="stat-tile__label">Present</span>
+            <span class="stat-tile__value">{{ st.attendance.present | number: config.DEFAULT : config.LOCALE }}</span>
+          </div>
+          <div class="stat-tile stat-tile--absent">
+            <span class="stat-tile__label">Absent</span>
+            <span class="stat-tile__value">{{ st.attendance.absent | number: config.DEFAULT : config.LOCALE }}</span>
+          </div>
+          <div class="stat-tile stat-tile--leave">
+            <span class="stat-tile__label">Leave</span>
+            <span class="stat-tile__value">{{ st.attendance.leave | number: config.DEFAULT : config.LOCALE }}</span>
+          </div>
+          <div class="stat-tile stat-tile--neutral">
+            <span class="stat-tile__label">Records</span>
+            <span class="stat-tile__value">{{ st.attendance.total | number: config.DEFAULT : config.LOCALE }}</span>
+          </div>
+        </div>
+
+        <div class="stat-grid stat-grid--attendance-secondary">
+          <div class="stat-tile stat-tile--neutral stat-tile--compact">
+            <span class="stat-tile__label">Checked in</span>
+            <span class="stat-tile__value">{{ st.attendance.checkedIn | number: config.DEFAULT : config.LOCALE }}</span>
+          </div>
+          <div class="stat-tile stat-tile--neutral stat-tile--compact">
+            <span class="stat-tile__label">Not checked in</span>
+            <span class="stat-tile__value">
+              {{ st.attendance.notCheckedInYet | number: config.DEFAULT : config.LOCALE }}
+            </span>
+          </div>
+          <div class="stat-tile stat-tile--neutral stat-tile--compact">
+            <span class="stat-tile__label">Holiday</span>
+            <span class="stat-tile__value">{{ st.attendance.holiday | number: config.DEFAULT : config.LOCALE }}</span>
+          </div>
+        </div>
+
+        <section
+          class="approval-summary"
+          aria-label="Attendance approvals"
+        >
+          <div class="approval-summary__head">
+            <span
+              class="approval-summary__head-icon pi pi-inbox"
+              aria-hidden="true"
+            ></span>
+            <h3 class="approval-summary__heading">Approvals</h3>
+          </div>
+          <div class="approval-summary__pending-row">
+            <span
+              class="approval-summary__pending-num"
+              [class.approval-summary__pending-num--clear]="st.approval.pending === 0"
+            >
+              {{ st.approval.pending | number: config.DEFAULT : config.LOCALE }}
+            </span>
+            <span class="approval-summary__pending-caption">pending review</span>
+          </div>
+          @if (st.approval.total > 0) {
+            <div
+              class="approval-summary__bar"
+              role="img"
+            >
+              <span
+                class="approval-summary__bar-seg approval-summary__bar-seg--approved"
+                [style.width.%]="(100 * st.approval.approved) / st.approval.total"
+              ></span>
+              <span
+                class="approval-summary__bar-seg approval-summary__bar-seg--rejected"
+                [style.width.%]="(100 * st.approval.rejected) / st.approval.total"
+              ></span>
+              <span
+                class="approval-summary__bar-seg approval-summary__bar-seg--pending"
+                [style.width.%]="(100 * st.approval.pending) / st.approval.total"
+              ></span>
+            </div>
+          }
+          <div class="approval-summary__figures">
+            <div class="approval-summary__figure">
+              <span class="approval-summary__figure-label">Approved</span>
+              <span class="approval-summary__figure-value approval-summary__figure-value--ok">
+                {{ st.approval.approved | number: config.DEFAULT : config.LOCALE }}
+              </span>
+            </div>
+            <div class="approval-summary__figure">
+              <span class="approval-summary__figure-label">Rejected</span>
+              <span class="approval-summary__figure-value approval-summary__figure-value--no">
+                {{ st.approval.rejected | number: config.DEFAULT : config.LOCALE }}
+              </span>
+            </div>
+            <div class="approval-summary__figure">
+              <span class="approval-summary__figure-label">Total</span>
+              <span class="approval-summary__figure-value">
+                {{ st.approval.total | number: config.DEFAULT : config.LOCALE }}
+              </span>
+            </div>
+          </div>
+        </section>
+      </div>
+    } @else {
+      <p class="card-block__muted">No attendance metrics loaded.</p>
+    }
+  </div>
+</p-card>

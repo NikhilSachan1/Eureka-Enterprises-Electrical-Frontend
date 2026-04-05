@@ -1,1 +1,166 @@
-<app-status-summary />
+<div class="main-dashboard">
+  <div
+    class="status-dashboard"
+    [ngStyle]="workflowColorVars"
+  >
+    <div class="status-dashboard__shell">
+      <app-page-header [pageHeaderConfig]="dashboardPageHeader" />
+
+      <app-kpm-dashboard />
+
+      <section
+        class="dash-section"
+        aria-labelledby="dash-people-title"
+      >
+        <div class="dash-section__head">
+          <h2
+            id="dash-people-title"
+            class="dash-section__title"
+          >
+            People &amp; time
+          </h2>
+          <p class="dash-section__desc">Headcount, attendance, and leave workflow.</p>
+        </div>
+        <div
+          class="dash-section__grid dash-section__grid--people"
+          role="region"
+          aria-label="People metrics"
+        >
+          <div class="dash-people-col dash-people-col--stack">
+            <app-employee-dashboard />
+
+            <app-leave-dashboard />
+          </div>
+
+          <div class="dash-people-col dash-people-col--pair">
+            <app-attendance-dashboard />
+
+            <app-leave-balance-dashboard />
+          </div>
+
+          <p-card class="status-dashboard__card status-dashboard__card--wide">
+            <div class="card-block">
+              <div class="card-block__head card-block__head--wrap">
+                <div class="card-block__titles">
+                  <div
+                    class="card-block__icon-wrap"
+                    aria-hidden="true"
+                  >
+                    <span class="card-block__icon pi pi-gift"></span>
+                  </div>
+                  <div>
+                    <h2 class="card-block__title">Birthdays, anniversaries &amp; holidays</h2>
+                    <p class="card-block__hint">People milestones and upcoming public / company holidays</p>
+                  </div>
+                </div>
+                <div class="card-block__controls">
+                  <app-button
+                    [buttonConfig]="celebrationsCalendarButton"
+                    (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.CALENDAR, ROUTES.CALENDAR.LIST])"
+                  />
+                  <app-button
+                    [buttonConfig]="celebrationsDirectoryButton"
+                    (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.EMPLOYEE, ROUTES.EMPLOYEE.LIST])"
+                  />
+                </div>
+              </div>
+
+              <div class="people-celebrations-split">
+                <app-birthdays-dashboard />
+                <app-anniversary-dashboard />
+                <app-holiday-dashboard />
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </section>
+
+      <section
+        class="dash-section"
+        aria-labelledby="dash-ops-title"
+      >
+        <div class="dash-section__head">
+          <h2
+            id="dash-ops-title"
+            class="dash-section__title"
+          >
+            Assets &amp; transport
+          </h2>
+          <p class="dash-section__desc">
+            Equipment, fleet compliance, scheduled service, and odometer / reading hygiene.
+          </p>
+        </div>
+        <div
+          class="dash-section__grid dash-section__grid--ops"
+          role="region"
+          aria-label="Operations metrics"
+        >
+          <div class="dash-ops-col dash-ops-col--stack">
+            <app-asset-dashboard />
+          </div>
+
+          <div class="dash-ops-col dash-ops-col--pair">
+            <app-vehicle-dashboard />
+            <app-vehicle-service-dashboard />
+          </div>
+        </div>
+
+        <app-vehicle-reading-dashboard />
+      </section>
+
+      <section
+        class="dash-section"
+        aria-labelledby="dash-projects-title"
+      >
+        <div class="dash-section__head">
+          <h2
+            id="dash-projects-title"
+            class="dash-section__title"
+          >
+            Projects &amp; portfolio
+          </h2>
+          <p class="dash-section__desc">
+            How many are live or coming up, and how active work is performing — contract, spend, and net position (demo
+            data until API is wired).
+          </p>
+        </div>
+        <div
+          class="dash-section__grid dash-section__grid--projects"
+          role="region"
+          aria-label="Project metrics"
+        >
+          <div class="dash-projects-col dash-projects-col--stack">
+            <app-project-pipeline-dashboard />
+            <app-active-project-dashboard />
+          </div>
+
+          <div class="dash-projects-col dash-projects-col--chart">
+            <app-project-chart-dashboard />
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="dash-section"
+        aria-labelledby="dash-finance-title"
+      >
+        <div class="dash-section__head">
+          <h2
+            id="dash-finance-title"
+            class="dash-section__title"
+          >
+            Ledger &amp; spend
+          </h2>
+          <p class="dash-section__desc">Expense and fuel — approvals and balances.</p>
+        </div>
+        <div
+          class="dash-section__grid dash-section__grid--finance"
+          role="region"
+          aria-label="Ledger metrics"
+        >
+          <app-ledger-dashboard />
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

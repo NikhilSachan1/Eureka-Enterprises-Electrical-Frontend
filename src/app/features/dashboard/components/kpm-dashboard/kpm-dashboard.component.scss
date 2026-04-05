@@ -1,0 +1,116 @@
+:host {
+  display: block;
+}
+
+/* Pulse strip: fixed column counts so tiles form even rows */
+.dash-pulse {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  @media (min-width: 480px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 720px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (min-width: 960px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.dash-pulse__item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.75rem;
+  min-height: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border-light-color);
+  background: linear-gradient(
+    165deg,
+    var(--background-default-color) 0%,
+    color-mix(in srgb, var(--background-paper-color) 88%, var(--background-default-color)) 100%
+  );
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--primary-color) 28%, var(--border-light-color));
+    box-shadow:
+      var(--shadow-sm),
+      0 8px 24px -12px color-mix(in srgb, var(--primary-color) 30%, transparent);
+    transform: translateY(-1px);
+  }
+
+  &--warn .dash-pulse__value {
+    color: var(--wf-warning, #f59e0b);
+  }
+
+  &--alert .dash-pulse__value {
+    color: var(--wf-danger, #ef4444);
+  }
+}
+
+.dash-pulse__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 11%, var(--background-paper-color));
+  border: 1px solid color-mix(in srgb, var(--primary-color) 18%, var(--border-light-color));
+}
+
+.dash-pulse__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.dash-pulse__value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text-primary-color);
+}
+
+.dash-pulse__label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary-color);
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-pulse__item {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}

@@ -1,0 +1,9 @@
+@use "../../styles/dashboard-card-block.shared" as *;
+@use "../../styles/dashboard-dash-ops.shared" as *;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}

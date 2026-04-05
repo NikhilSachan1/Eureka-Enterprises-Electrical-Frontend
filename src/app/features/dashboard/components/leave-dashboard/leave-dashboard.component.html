@@ -1,0 +1,100 @@
+@let config = APP_CONFIG.NUMBER_FORMATS;
+<p-card class="status-dashboard__card">
+  <div class="card-block">
+    <div class="card-block__head card-block__head--wrap">
+      <div class="card-block__titles">
+        <div
+          class="card-block__icon-wrap"
+          aria-hidden="true"
+        >
+          <span class="card-block__icon pi pi-calendar-plus"></span>
+        </div>
+        <div>
+          <h2 class="card-block__title">Leave</h2>
+          <p class="card-block__hint">Requests pending approval and outcomes</p>
+        </div>
+      </div>
+      <div class="card-block__controls">
+        <app-button
+          [buttonConfig]="openLeaveButton"
+          (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.LIST])"
+        />
+      </div>
+    </div>
+
+    @if (metrics(); as lv) {
+      <section
+        class="approval-summary"
+        aria-label="Leave approvals"
+      >
+        <div class="approval-summary__head">
+          <span
+            class="approval-summary__head-icon pi pi-inbox"
+            aria-hidden="true"
+          ></span>
+          <h3 class="approval-summary__heading">Leave approvals</h3>
+        </div>
+        <div class="approval-summary__pending-row">
+          <span
+            class="approval-summary__pending-num"
+            [class.approval-summary__pending-num--clear]="lv.approval.pending === 0"
+          >
+            {{ lv.approval.pending | number: config.DEFAULT : config.LOCALE }}
+          </span>
+          <span class="approval-summary__pending-caption">awaiting action</span>
+        </div>
+        @if (lv.approval.total > 0) {
+          <div
+            class="approval-summary__bar"
+            role="img"
+          >
+            <span
+              class="approval-summary__bar-seg approval-summary__bar-seg--approved"
+              [style.width.%]="(100 * lv.approval.approved) / lv.approval.total"
+            ></span>
+            <span
+              class="approval-summary__bar-seg approval-summary__bar-seg--rejected"
+              [style.width.%]="(100 * lv.approval.rejected) / lv.approval.total"
+            ></span>
+            <span
+              class="approval-summary__bar-seg approval-summary__bar-seg--cancelled"
+              [style.width.%]="(100 * lv.approval.cancelled) / lv.approval.total"
+            ></span>
+            <span
+              class="approval-summary__bar-seg approval-summary__bar-seg--pending"
+              [style.width.%]="(100 * lv.approval.pending) / lv.approval.total"
+            ></span>
+          </div>
+        }
+        <div class="approval-summary__figures approval-summary__figures--cols-4">
+          <div class="approval-summary__figure">
+            <span class="approval-summary__figure-label">Approved</span>
+            <span class="approval-summary__figure-value approval-summary__figure-value--ok">
+              {{ lv.approval.approved | number: config.DEFAULT : config.LOCALE }}
+            </span>
+          </div>
+          <div class="approval-summary__figure">
+            <span class="approval-summary__figure-label">Rejected</span>
+            <span class="approval-summary__figure-value approval-summary__figure-value--no">
+              {{ lv.approval.rejected | number: config.DEFAULT : config.LOCALE }}
+            </span>
+          </div>
+          <div class="approval-summary__figure">
+            <span class="approval-summary__figure-label">Cancelled</span>
+            <span class="approval-summary__figure-value approval-summary__figure-value--muted">
+              {{ lv.approval.cancelled | number: config.DEFAULT : config.LOCALE }}
+            </span>
+          </div>
+          <div class="approval-summary__figure">
+            <span class="approval-summary__figure-label">Total</span>
+            <span class="approval-summary__figure-value">
+              {{ lv.approval.total | number: config.DEFAULT : config.LOCALE }}
+            </span>
+          </div>
+        </div>
+      </section>
+    } @else {
+      <p class="card-block__muted">No leave metrics loaded.</p>
+    }
+  </div>
+</p-card>

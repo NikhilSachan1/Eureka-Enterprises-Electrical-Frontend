@@ -1,0 +1,116 @@
+@let config = APP_CONFIG.NUMBER_FORMATS;
+<p-card class="status-dashboard__card">
+  <div class="card-block">
+    <div class="card-block__head card-block__head--wrap">
+      <div class="card-block__titles">
+        <div
+          class="card-block__icon-wrap"
+          aria-hidden="true"
+        >
+          <span class="card-block__icon pi pi-wrench"></span>
+        </div>
+        <div>
+          <h2 class="card-block__title">Vehicle service</h2>
+          <p class="card-block__hint">Upcoming, due soon, and overdue visits</p>
+        </div>
+      </div>
+      <app-button
+        [buttonConfig]="openServicesButton"
+        (onButtonClick)="
+          navigateTo(['/', ROUTE_BASE_PATHS.TRANSPORT, ROUTE_BASE_PATHS.VEHICLE_SERVICE, ROUTES.VEHICLE_SERVICE.LIST])
+        "
+      />
+    </div>
+    @if (metrics(); as vs) {
+      <p class="dash-ops__section-label dash-ops__section-label--flush">Service schedule</p>
+      <p class="dash-ops__section-hint">Upcoming visit vs due soon vs overdue</p>
+      <div class="stat-grid stat-grid--service-windows">
+        <div class="stat-tile stat-tile--neutral">
+          <span class="stat-tile__label">Upcoming</span>
+          <span class="stat-tile__value">{{ vs.upcoming | number: config.DEFAULT : config.LOCALE }}</span>
+        </div>
+        <div class="stat-tile stat-tile--leave">
+          <span class="stat-tile__label">Due soon</span>
+          <span
+            class="stat-tile__value"
+            [class.stat-tile__value--warn]="vs.dueSoon > 0"
+          >
+            {{ vs.dueSoon | number: config.DEFAULT : config.LOCALE }}
+          </span>
+        </div>
+        <div class="stat-tile stat-tile--absent">
+          <span class="stat-tile__label">Overdue</span>
+          <span
+            class="stat-tile__value"
+            [class.stat-tile__value--alert]="vs.overdue > 0"
+          >
+            {{ vs.overdue | number: config.DEFAULT : config.LOCALE }}
+          </span>
+        </div>
+      </div>
+
+      @if (vs.upcomingItems.length > 0) {
+        <p class="dash-ops__item-list-caption">Upcoming — name &amp; number</p>
+        <ul
+          class="dash-ops-item-list dash-ops-item-list--vehicles"
+          aria-label="Upcoming services"
+        >
+          @for (row of vs.upcomingItems; track $index) {
+            <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
+              <span
+                class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                aria-hidden="true"
+              ></span>
+              <div class="dash-ops-item-list__vehicle-meta">
+                <span class="dash-ops-item-list__veh-name">{{ row.vehicleName }}</span>
+                <span class="dash-ops-item-list__veh-number">{{ row.vehicleNumber }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+      @if (vs.dueSoonItems.length > 0) {
+        <p class="dash-ops__item-list-caption">Due soon — name &amp; number</p>
+        <ul
+          class="dash-ops-item-list dash-ops-item-list--vehicles"
+          aria-label="Services due soon"
+        >
+          @for (row of vs.dueSoonItems; track $index) {
+            <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
+              <span
+                class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                aria-hidden="true"
+              ></span>
+              <div class="dash-ops-item-list__vehicle-meta">
+                <span class="dash-ops-item-list__veh-name">{{ row.vehicleName }}</span>
+                <span class="dash-ops-item-list__veh-number">{{ row.vehicleNumber }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+      @if (vs.overdueItems.length > 0) {
+        <p class="dash-ops__item-list-caption">Overdue — name &amp; number</p>
+        <ul
+          class="dash-ops-item-list dash-ops-item-list--vehicles"
+          aria-label="Overdue services"
+        >
+          @for (row of vs.overdueItems; track $index) {
+            <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
+              <span
+                class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                aria-hidden="true"
+              ></span>
+              <div class="dash-ops-item-list__vehicle-meta">
+                <span class="dash-ops-item-list__veh-name">{{ row.vehicleName }}</span>
+                <span class="dash-ops-item-list__veh-number">{{ row.vehicleNumber }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    } @else {
+      <p class="card-block__muted">No service metrics loaded.</p>
+    }
+  </div>
+</p-card>

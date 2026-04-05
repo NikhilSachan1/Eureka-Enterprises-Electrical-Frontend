@@ -1,0 +1,149 @@
+@let config = APP_CONFIG.NUMBER_FORMATS;
+<div class="ledger-panel">
+  <div class="ledger-panel__head">
+    <h3 class="ledger-panel__title">Expense ledger</h3>
+    <app-button
+      [buttonConfig]="openLedgerButton"
+      (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.LEDGER])"
+    />
+  </div>
+  @if (metrics(); as ex) {
+    <section
+      class="approval-summary approval-summary--ledger"
+      aria-label="Expense record approvals"
+    >
+      <div class="approval-summary__head">
+        <span
+          class="approval-summary__head-icon pi pi-inbox"
+          aria-hidden="true"
+        ></span>
+        <h4 class="approval-summary__heading">Record approvals</h4>
+      </div>
+      <div class="approval-summary__pending-row">
+        <span
+          class="approval-summary__pending-num"
+          [class.approval-summary__pending-num--clear]="ex.approval.pending === 0"
+        >
+          {{ ex.approval.pending | number: config.DEFAULT : config.LOCALE }}
+        </span>
+        <span class="approval-summary__pending-caption">pending</span>
+      </div>
+      @if (ex.approval.total > 0) {
+        <div
+          class="approval-summary__bar"
+          role="img"
+        >
+          <span
+            class="approval-summary__bar-seg approval-summary__bar-seg--approved"
+            [style.width.%]="(100 * ex.approval.approved) / ex.approval.total"
+          ></span>
+          <span
+            class="approval-summary__bar-seg approval-summary__bar-seg--rejected"
+            [style.width.%]="(100 * ex.approval.rejected) / ex.approval.total"
+          ></span>
+          <span
+            class="approval-summary__bar-seg approval-summary__bar-seg--pending"
+            [style.width.%]="(100 * ex.approval.pending) / ex.approval.total"
+          ></span>
+        </div>
+      }
+      <div class="approval-summary__figures">
+        <div class="approval-summary__figure">
+          <span class="approval-summary__figure-label">Approved</span>
+          <span class="approval-summary__figure-value approval-summary__figure-value--ok">
+            {{ ex.approval.approved | number: config.DEFAULT : config.LOCALE }}
+          </span>
+        </div>
+        <div class="approval-summary__figure">
+          <span class="approval-summary__figure-label">Rejected</span>
+          <span class="approval-summary__figure-value approval-summary__figure-value--no">
+            {{ ex.approval.rejected | number: config.DEFAULT : config.LOCALE }}
+          </span>
+        </div>
+        <div class="approval-summary__figure">
+          <span class="approval-summary__figure-label">Total</span>
+          <span class="approval-summary__figure-value">
+            {{ ex.approval.total | number: config.DEFAULT : config.LOCALE }}
+          </span>
+        </div>
+      </div>
+    </section>
+    <div class="ledger-balances-compact">
+      <p class="ledger-balances-compact__title">Balances</p>
+      <div class="ledger-balances-compact__grid">
+        <div class="ledger-balances-compact__cell">
+          <span class="ledger-balances-compact__label">Opening</span>
+          <span class="ledger-balances-compact__value">{{ ex.balances.openingBalance | indianCurrency: 'full' }}</span>
+        </div>
+        <div class="ledger-balances-compact__cell">
+          <span class="ledger-balances-compact__label">Closing</span>
+          <span class="ledger-balances-compact__value">{{ ex.balances.closingBalance | indianCurrency: 'full' }}</span>
+        </div>
+        <div class="ledger-balances-compact__cell">
+          <span class="ledger-balances-compact__label">Eureka opening</span>
+          <span class="ledger-balances-compact__value">
+            {{ ex.balances.eurekaOpeningBalance | indianCurrency: 'full' }}
+          </span>
+        </div>
+        <div class="ledger-balances-compact__cell">
+          <span class="ledger-balances-compact__label">Eureka closing</span>
+          <span class="ledger-balances-compact__value">
+            {{ ex.balances.eurekaClosingBalance | indianCurrency: 'full' }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div
+      class="ledger-employee-net ledger-employee-net--panel"
+      aria-labelledby="ledger-expense-employee-title"
+    >
+      <div class="ledger-employee-net__head">
+        <h4
+          id="ledger-expense-employee-title"
+          class="ledger-employee-net__title"
+        >
+          Expense — employee-wise
+        </h4>
+        <p class="ledger-employee-net__hint">Positive — pay (देना है). Negative — collect (लेना है).</p>
+      </div>
+      @if (ex.employeeWiseNet.length > 0) {
+        <ul
+          class="ledger-employee-net__list"
+          role="list"
+        >
+          @for (row of ex.employeeWiseNet; track row.employeeCode ?? row.employeeName) {
+            <li class="ledger-employee-net__row">
+              <div class="ledger-employee-net__who">
+                <span class="ledger-employee-net__name">{{ row.employeeName }}</span>
+                @if (row.employeeCode) {
+                  <span class="ledger-employee-net__code">{{ row.employeeCode }}</span>
+                }
+              </div>
+              <div class="ledger-employee-net__amount-wrap">
+                @if (row.netAmount > 0) {
+                  <span class="ledger-employee-net__tag ledger-employee-net__tag--pay">Pay</span>
+                } @else if (row.netAmount < 0) {
+                  <span class="ledger-employee-net__tag ledger-employee-net__tag--recv">Collect</span>
+                } @else {
+                  <span class="ledger-employee-net__tag ledger-employee-net__tag--zero">Settled</span>
+                }
+                <span
+                  class="ledger-employee-net__amount"
+                  [class.ledger-employee-net__amount--pos]="row.netAmount > 0"
+                  [class.ledger-employee-net__amount--neg]="row.netAmount < 0"
+                  [class.ledger-employee-net__amount--zero]="row.netAmount === 0"
+                >
+                  {{ row.netAmount | indianCurrency: 'full' }}
+                </span>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="card-block__muted ledger-employee-net__empty">No employee-wise balances.</p>
+      }
+    </div>
+  } @else {
+    <p class="card-block__muted">No expense metrics loaded.</p>
+  }
+</div>
