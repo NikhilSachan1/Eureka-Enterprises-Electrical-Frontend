@@ -188,6 +188,7 @@ export const API_ROUTES = {
       EDIT: (projectId: string) => `sites/${projectId}`,
       GET_PROJECT_BY_ID: (projectId: string) => `sites/${projectId}`,
       CHANGE_STATUS: (projectId: string) => `sites/${projectId}/status`,
+      ALLOCATE_DEALLOCATE_EMPLOYEES: 'site-allocations/manage',
     },
     DSR: {
       ADD: 'daily-status-reports',

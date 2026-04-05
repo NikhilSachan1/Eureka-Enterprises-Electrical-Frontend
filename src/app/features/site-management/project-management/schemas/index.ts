@@ -28,3 +28,7 @@ export {
   ProjectChangeStatusRequestSchema,
   ProjectChangeStatusResponseSchema,
 } from './change-status-project.schema';
+export {
+  AllocateDeallocateEmployeeRequestSchema,
+  AllocateDeallocateEmployeeResponseSchema,
+} from './allocate-deallocate-employee.schema';

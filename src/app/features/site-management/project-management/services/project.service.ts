@@ -14,6 +14,8 @@ import {
   ProjectEditResponseSchema,
   ProjectGetRequestSchema,
   ProjectGetResponseSchema,
+  AllocateDeallocateEmployeeRequestSchema,
+  AllocateDeallocateEmployeeResponseSchema,
 } from '../schemas';
 import {
   IProjectAddFormDto,
@@ -28,6 +30,8 @@ import {
   IProjectEditResponseDto,
   IProjectGetFormDto,
   IProjectGetResponseDto,
+  IProjectAllocateDeallocateEmployeeRequestFormDto,
+  IProjectAllocateDeallocateEmployeeResponseDto,
 } from '../types/project.dto';
 
 @Injectable({
@@ -88,6 +92,44 @@ export class ProjectService {
             this.logger.logDtoValidationErrors('Edit Project Error', error);
           } else {
             this.logger.logUserAction('Edit Project Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  allocateDeallocateEmployees(
+    formData: IProjectAllocateDeallocateEmployeeRequestFormDto
+  ): Observable<IProjectAllocateDeallocateEmployeeResponseDto> {
+    this.logger.logUserAction('Allocate/Deallocate project employees request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEES,
+        {
+          response: AllocateDeallocateEmployeeResponseSchema,
+          request: AllocateDeallocateEmployeeRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IProjectAllocateDeallocateEmployeeResponseDto) => {
+          this.logger.logUserAction(
+            'Allocate/Deallocate project employees response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Allocate/Deallocate project employees error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Allocate/Deallocate project employees error',
+              error
+            );
           }
           return throwError(() => error);
         })

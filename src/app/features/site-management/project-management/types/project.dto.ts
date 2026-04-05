@@ -14,6 +14,8 @@ import {
   ProjectGetRequestSchema,
   ProjectGetResponseSchema,
   ProjectGetStatsResponseSchema,
+  AllocateDeallocateEmployeeRequestSchema,
+  AllocateDeallocateEmployeeResponseSchema,
 } from '../schemas';
 /*
   Project Add
@@ -77,4 +79,24 @@ export type IProjectChangeStatusFormDto = z.input<
 >;
 export type IProjectChangeStatusResponseDto = z.infer<
   typeof ProjectChangeStatusResponseSchema
+>;
+
+/*
+  Project Allocate Deallocate Employee
+*/
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type IAllocateDeallocateUIFormDto = {
+  employeeNames: string[];
+};
+
+/** Body sent on the wire after `AllocateDeallocateEmployeeRequestSchema.parse()` (transform output). */
+export type IProjectAllocateDeallocateEmployeeRequestDto = z.infer<
+  typeof AllocateDeallocateEmployeeRequestSchema
+>;
+/** Payload passed into `parse()` / `patchValidated` — uses `date`; transform maps to `allocatedAt` / `deallocatedAt`. */
+export type IProjectAllocateDeallocateEmployeeRequestFormDto = z.input<
+  typeof AllocateDeallocateEmployeeRequestSchema
+>;
+export type IProjectAllocateDeallocateEmployeeResponseDto = z.infer<
+  typeof AllocateDeallocateEmployeeResponseSchema
 >;

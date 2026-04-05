@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { AuditSchema, FilterSchema, uuidField } from '@shared/schemas';
+import {
+  AuditSchema,
+  FilterSchema,
+  isoDateTimeField,
+  uuidField,
+} from '@shared/schemas';
 import { ProjectBaseSchema } from './base-project.schema';
 import { CompanyGetBaseResponseSchema } from '@features/site-management/company-management/schemas';
 import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
@@ -82,6 +87,8 @@ export const ProjectGetBaseResponseSchema = ProjectBaseSchema.extend({
       }).extend({
         role: z.string(),
         allocationType: z.string(),
+        allocationId: uuidField.optional(),
+        allocatedAt: isoDateTimeField,
       })
     )
     .nullable(),

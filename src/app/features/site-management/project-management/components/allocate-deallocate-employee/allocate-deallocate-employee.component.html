@@ -1,0 +1,174 @@
+<div class="allocate-deallocate">
+  <p class="allocate-deallocate__hint">
+    Use the list below to add or remove team members. Each change gets its own row—pick an
+    <strong>effective date</strong>
+    for every allocate or deallocate.
+  </p>
+
+  <form
+    [formGroup]="form.formGroup"
+    class="form allocate-deallocate__multiselect"
+  >
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.employeeNames"
+    />
+  </form>
+
+  @if (currentTeamArray.length > 0 || allocationsArray.length > 0 || deallocationsArray.length > 0) {
+    <form
+      [formGroup]="actionsForm"
+      class="allocate-deallocate__actions-form"
+    >
+      @if (currentTeamArray.length > 0) {
+        <section
+          class="allocate-deallocate__panel allocate-deallocate__panel--current"
+          aria-labelledby="current-team-heading"
+        >
+          <div class="allocate-deallocate__panel-head">
+            <h3
+              id="current-team-heading"
+              class="allocate-deallocate__panel-title"
+            >
+              Current team
+            </h3>
+            <span class="allocate-deallocate__count">{{ currentTeamArray.length }}</span>
+          </div>
+          <div class="allocate-deallocate__grid allocate-deallocate__grid--head">
+            <span>Employee</span>
+            <span>Allocated on</span>
+          </div>
+          <div
+            formArrayName="currentTeam"
+            class="allocate-deallocate__rows"
+          >
+            @for (group of currentTeamArray.controls; track $any(group).value['userId']; let i = $index) {
+              <div
+                class="allocate-deallocate__row"
+                role="group"
+              >
+                <div class="allocate-deallocate__name">
+                  {{ group.get('displayLabel')?.value }}
+                </div>
+                <ng-container
+                  *ngTemplateOutlet="
+                    effectiveDateCell;
+                    context: {
+                      group: group,
+                      rowIndex: i,
+                      panelKey: 'team',
+                      showDateErrors: false,
+                      labelText: 'Allocated on',
+                    }
+                  "
+                />
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @for (panel of actionPanels; track panel.key) {
+        @if (panel.array.length > 0) {
+          <section
+            [class]="panel.panelClass"
+            [attr.aria-labelledby]="panel.headingId"
+          >
+            <div class="allocate-deallocate__panel-head">
+              <h3
+                [id]="panel.headingId"
+                class="allocate-deallocate__panel-title"
+              >
+                {{ panel.title }}
+              </h3>
+              <span class="allocate-deallocate__count">{{ panel.array.length }}</span>
+            </div>
+            <div class="allocate-deallocate__grid allocate-deallocate__grid--head">
+              <span>Employee</span>
+              <span>Effective date</span>
+            </div>
+            <div
+              [formArrayName]="panel.formArrayName"
+              class="allocate-deallocate__rows"
+            >
+              @for (group of panel.array.controls; track trackAllocateDeallocateRow(group); let i = $index) {
+                <div
+                  class="allocate-deallocate__row"
+                  role="group"
+                >
+                  <div class="allocate-deallocate__name">
+                    {{ group.get('displayLabel')?.value }}
+                  </div>
+                  <ng-container
+                    *ngTemplateOutlet="
+                      effectiveDateCell;
+                      context: {
+                        group: group,
+                        rowIndex: i,
+                        panelKey: panel.key,
+                      }
+                    "
+                  />
+                </div>
+              }
+            </div>
+          </section>
+        }
+      }
+    </form>
+  }
+</div>
+
+<ng-template
+  #effectiveDateCell
+  let-group="group"
+  let-rowIndex="rowIndex"
+  let-panelKey="panelKey"
+  let-showDateErrors="showDateErrors"
+  let-labelText="labelText"
+>
+  <div
+    class="allocate-deallocate__date"
+    [formGroup]="$any(group)"
+  >
+    <p-floatlabel [variant]="rowEffectiveDateFieldConfig.floatLabelVariant">
+      <p-datepicker
+        [id]="rowEffectiveDateFieldConfig.id + '-' + panelKey + '-' + rowIndex"
+        formControlName="date"
+        [fluid]="rowEffectiveDateFieldConfig.haveFullWidth"
+        [size]="rowEffectiveDateFieldConfig.fieldSize"
+        [dateFormat]="rowEffectiveDateFieldConfig.dateConfig?.dateFormat"
+        [showIcon]="rowEffectiveDateFieldConfig.dateConfig?.showCalendarIcon"
+        [iconDisplay]="rowEffectiveDateFieldConfig.dateConfig?.iconDisplay || ALL_DATE_ICON_DISPLAY_TYPES.Input"
+        [timeOnly]="rowEffectiveDateFieldConfig.dateConfig?.timeOnly"
+        [minDate]="rowEffectiveDateFieldConfig.dateConfig?.minDate"
+        [maxDate]="rowEffectiveDateFieldConfig.dateConfig?.maxDate"
+        [showButtonBar]="rowEffectiveDateFieldConfig.dateConfig?.showButtonBar"
+        [selectionMode]="rowEffectiveDateFieldConfig.dateConfig?.selectionMode || ALL_DATE_SELECTION_MODES.Single"
+        [showTime]="rowEffectiveDateFieldConfig.dateConfig?.showTime || false"
+        [hourFormat]="rowEffectiveDateFieldConfig.dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve"
+        [view]="rowEffectiveDateFieldConfig.dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date"
+        [numberOfMonths]="rowEffectiveDateFieldConfig.dateConfig?.numberOfMonths || 1"
+        [touchUI]="rowEffectiveDateFieldConfig.dateConfig?.touchUI"
+        [appendTo]="rowEffectiveDateFieldConfig.dateConfig?.touchUI ? undefined : 'body'"
+        [readonlyInput]="rowEffectiveDateFieldConfig.readonlyInput"
+        [ngClass]="{
+          'ng-invalid ng-dirty': showDateErrors !== false && showEffectiveDateError(group),
+        }"
+      />
+      @if (!rowEffectiveDateFieldConfig.showStandardLabel) {
+        <label [for]="rowEffectiveDateFieldConfig.id + '-' + panelKey + '-' + rowIndex">
+          {{ labelText || rowEffectiveDateFieldConfig.label }}
+        </label>
+      }
+    </p-floatlabel>
+    @if (showDateErrors !== false && showEffectiveDateError(group)) {
+      <small
+        class="allocate-deallocate__field-error"
+        role="alert"
+      >
+        Effective date is required.
+      </small>
+    }
+  </div>
+</ng-template>

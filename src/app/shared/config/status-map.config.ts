@@ -244,4 +244,12 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // ═══════════════════════════════════════════════════════════════════════════
   link: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   unlink: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PROJECT ALLOCATION STATUS
+  // ═══════════════════════════════════════════════════════════════════════════
+  allocateDeallocateEmployee: {
+    icon: ICONS.ACTIONS.CHECK_CIRCLE,
+    severity: 'success',
+  },
 };
