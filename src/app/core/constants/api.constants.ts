@@ -153,6 +153,9 @@ export const API_ROUTES = {
     },
   },
   SITE: {
+    TIMELINE: {
+      GET: (siteId: string) => `analytics/sites/${siteId}/timeline`,
+    },
     PROFITABILITY: {
       GET: (siteId: string) => `analytics/sites/${siteId}/profitability`,
     },

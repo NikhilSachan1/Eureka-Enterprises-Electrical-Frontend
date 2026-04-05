@@ -221,12 +221,20 @@
   }
 }
 
+/* Timeline column: don’t stretch to match taller right column (p-card gap fix). */
+.analysis-timeline-card {
+  align-self: start;
+  width: 100%;
+}
+
 ::ng-deep {
-  .p-card-body {
+  .analysis-timeline-card .p-card-body {
     padding: 0;
   }
 
-  .p-card {
-    height: fit-content;
+  .analysis-timeline-card.p-card,
+  .analysis-timeline-card .p-card {
+    height: auto;
+    max-height: none;
   }
 }

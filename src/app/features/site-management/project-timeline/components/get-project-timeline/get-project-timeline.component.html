@@ -1,49 +1,70 @@
-<!-- Timeline Header -->
-<div class="timeline-header">
-  <div class="timeline-header__icon">
-    <i [class]="icons.COMMON.HISTORY"></i>
-  </div>
-  <div class="timeline-header__content">
-    <h3 class="timeline-header__title">Site Timeline</h3>
-    <p class="timeline-header__subtitle">Track progress like Amazon tracking</p>
-  </div>
-</div>
-
-<div class="pl-4">
-  <!-- Timeline Component -->
-  <app-timeline [config]="timelineConfig()">
-    <!-- Custom Marker Template -->
-    <ng-template
-      #marker
-      let-event
-    >
-      <div class="timeline-marker">
-        @if (event.icon) {
-          <i [class]="event.icon"></i>
-        }
-      </div>
-    </ng-template>
-
-    <!-- Custom Content Template -->
-    <ng-template
-      #content
-      let-event
-    >
-      <div class="timeline-event">
-        <div class="timeline-event__header">
-          @if (event.icon) {
-            <i [class]="`${event.icon} timeline-event__check`"></i>
-          }
-          <h4 class="timeline-event__title">{{ event.title }}</h4>
+<div class="project-timeline">
+  @if (timelinePage(); as vm) {
+    <section class="hero-card">
+      <div class="hero-content">
+        <div class="hero-main">
+          <div class="hero-icon-wrap">
+            <i [class]="icons.COMMON.HISTORY"></i>
+          </div>
+          <div>
+            <p class="eyebrow">Project activity</p>
+            <h2>Site timeline</h2>
+            <p class="subtle-text">Scroll the list below.</p>
+          </div>
         </div>
-
-        <p class="timeline-event__description">{{ event.description }}</p>
-
-        <div class="timeline-event__footer">
-          <i [class]="icons.COMMON.CALENDAR"></i>
-          <span class="timeline-event__date">{{ event.date }}, {{ event.time }}</span>
+        <div class="hero-stat">
+          <span class="hero-stat__label">Events</span>
+          <span class="hero-stat__value">{{ vm.eventCount }}</span>
         </div>
       </div>
-    </ng-template>
-  </app-timeline>
+    </section>
+
+    @if (vm.eventCount === 0) {
+      <section class="empty-panel">
+        <i [class]="icons.COMMON.INFO_CIRCLE"></i>
+        <p>No timeline events recorded for this project yet.</p>
+      </section>
+    } @else {
+      <div class="timeline-scroll">
+        <div class="timeline-shell">
+          <app-timeline [config]="timelineConfig()">
+            <ng-template
+              #marker
+              let-event
+            >
+              <div class="timeline-marker">
+                <i [class]="event.icon"></i>
+              </div>
+            </ng-template>
+
+            <ng-template
+              #content
+              let-event
+            >
+              <article class="timeline-card">
+                <time class="timeline-card__when">
+                  {{
+                    event.occurredAt
+                      | date: APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME : undefined : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                  }}
+                </time>
+                <h4 class="timeline-card__title">{{ event.title }}</h4>
+                <p class="timeline-card__desc">{{ event.description }}</p>
+                @if (event.actor?.trim(); as actorName) {
+                  <div class="timeline-card__actor">
+                    <i [class]="icons.COMMON.USER"></i>
+                    <span>{{ actorName }}</span>
+                  </div>
+                }
+              </article>
+            </ng-template>
+          </app-timeline>
+        </div>
+      </div>
+    }
+  } @else {
+    <section class="hero-card hero-card--muted">
+      <p class="subtle-text subtle-text--solo">Timeline will appear here once loaded.</p>
+    </section>
+  }
 </div>
