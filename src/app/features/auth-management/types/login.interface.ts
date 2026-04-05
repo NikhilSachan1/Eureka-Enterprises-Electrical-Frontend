@@ -1,6 +1,7 @@
 import { IAppPermission } from '@features/settings-management/permission-management/sub-features/user-permission-management/types/user-permission.interface';
 
 export interface ILoggedInUserDetails {
+  userId: string;
   firstName: string;
   lastName: string;
   email: string;

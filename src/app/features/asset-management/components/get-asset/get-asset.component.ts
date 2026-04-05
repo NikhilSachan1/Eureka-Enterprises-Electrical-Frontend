@@ -11,9 +11,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services';
 import {
   ASSET_ACTION_CONFIG_MAP,
-  ASSET_TABLE_ENHANCED_CONFIG,
+  createAssetTableEnhancedConfig,
   SEARCH_FILTER_ASSET_FORM_CONFIG,
 } from '@features/asset-management/config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { AssetService } from '@features/asset-management/services/asset.service';
 import {
   IAssetGetBaseResponseDto,
@@ -90,6 +91,7 @@ export class GetAssetComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly authService = inject(AuthService);
 
   protected table!: IEnhancedTable;
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
@@ -101,7 +103,10 @@ export class GetAssetComponent implements OnInit {
   protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
-    this.table = this.dataTableService.createTable(ASSET_TABLE_ENHANCED_CONFIG);
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
+    this.table = this.dataTableService.createTable(
+      createAssetTableEnhancedConfig(loggedInUserId)
+    );
     this.searchFilterConfig = SEARCH_FILTER_ASSET_FORM_CONFIG;
   }
 
@@ -290,7 +295,6 @@ export class GetAssetComponent implements OnInit {
       this.navigateToEventHistory(selectedFirstRow.id);
       return;
     }
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,

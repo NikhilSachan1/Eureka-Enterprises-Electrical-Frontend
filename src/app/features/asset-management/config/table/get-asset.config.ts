@@ -94,68 +94,75 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-export const ASSET_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IAssetGetResponseDto['records'][number]>
->[] = [
-  {
-    ...COMMON_ROW_ACTIONS.VIEW,
-    tooltip: 'View Asset Details',
-    permission: [APP_PERMISSION.ASSET.VIEW_DETAIL],
-  },
-  {
-    id: EButtonActionType.EVENT_HISTORY,
-    tooltip: 'View Event History',
-    permission: [APP_PERMISSION.ASSET.EVENT_HISTORY],
-  },
-  {
-    id: EButtonActionType.HANDOVER_INITIATE,
-    tooltip: 'Handover Asset',
-    permission: [APP_PERMISSION.ASSET.HANDOVER_INITIATE],
-    disableWhen: row =>
-      row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED,
-  },
-  {
-    id: EButtonActionType.HANDOVER_ACCEPTED,
-    tooltip: 'Accept Allocation',
-    permission: [APP_PERMISSION.ASSET.HANDOVER_ACCEPTED],
-    disableWhen: row =>
-      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
-  },
-  {
-    id: EButtonActionType.HANDOVER_REJECTED,
-    tooltip: 'Reject Allocation',
-    permission: [APP_PERMISSION.ASSET.HANDOVER_REJECTED],
-    disableWhen: row =>
-      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
-  },
-  {
-    id: EButtonActionType.HANDOVER_CANCELLED,
-    tooltip: 'Cancel Allocation',
-    permission: [APP_PERMISSION.ASSET.HANDOVER_CANCELLED],
-    disableWhen: row =>
-      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
-  },
-  {
-    id: EButtonActionType.DEALLOCATE,
-    tooltip: 'Deallocate Asset',
-    permission: [APP_PERMISSION.ASSET.DEALLOCATE],
-    disableWhen: row => row.status !== 'ASSIGNED',
-  },
-  {
-    ...COMMON_ROW_ACTIONS.EDIT,
-    tooltip: 'Edit Asset',
-    // permission: 'asset.edit',
-    // disableWhen: row => row.status === 'disposed',
-    permission: [APP_PERMISSION.ASSET.EDIT],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.DELETE,
-    tooltip: 'Delete Asset',
-    // permission: 'asset.delete',
-    //disableWhen: row => !!row.assignedTo,
-    permission: [APP_PERMISSION.ASSET.DELETE],
-  },
-];
+export function buildAssetTableRowActionsConfig(
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IAssetGetResponseDto['records'][number]>>[] {
+  return [
+    {
+      ...COMMON_ROW_ACTIONS.VIEW,
+      tooltip: 'View Asset Details',
+      permission: [APP_PERMISSION.ASSET.VIEW_DETAIL],
+    },
+    {
+      id: EButtonActionType.EVENT_HISTORY,
+      tooltip: 'View Event History',
+      permission: [APP_PERMISSION.ASSET.EVENT_HISTORY],
+    },
+    {
+      id: EButtonActionType.HANDOVER_INITIATE,
+      tooltip: 'Handover Asset',
+      permission: [APP_PERMISSION.ASSET.HANDOVER_INITIATE],
+      disableWhen: row =>
+        row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED,
+    },
+    {
+      id: EButtonActionType.HANDOVER_ACCEPTED,
+      tooltip: 'Accept Allocation',
+      permission: [APP_PERMISSION.ASSET.HANDOVER_ACCEPTED],
+      disableWhen: row =>
+        row.latestEvent?.eventType !==
+          ETableActionTypeValue.HANDOVER_INITIATED ||
+        !loggedInUserId ||
+        row.latestEvent.toUser !== loggedInUserId,
+    },
+    {
+      id: EButtonActionType.HANDOVER_REJECTED,
+      tooltip: 'Reject Allocation',
+      permission: [APP_PERMISSION.ASSET.HANDOVER_REJECTED],
+      disableWhen: row =>
+        row.latestEvent?.eventType !==
+          ETableActionTypeValue.HANDOVER_INITIATED ||
+        !loggedInUserId ||
+        row.latestEvent.toUser !== loggedInUserId,
+    },
+    {
+      id: EButtonActionType.HANDOVER_CANCELLED,
+      tooltip: 'Cancel Allocation',
+      permission: [APP_PERMISSION.ASSET.HANDOVER_CANCELLED],
+      disableWhen: row =>
+        row.latestEvent?.eventType !==
+          ETableActionTypeValue.HANDOVER_INITIATED ||
+        !loggedInUserId ||
+        row.latestEvent.fromUser !== loggedInUserId,
+    },
+    {
+      id: EButtonActionType.DEALLOCATE,
+      tooltip: 'Deallocate Asset',
+      permission: [APP_PERMISSION.ASSET.DEALLOCATE],
+      disableWhen: row => row.status !== 'ASSIGNED',
+    },
+    {
+      ...COMMON_ROW_ACTIONS.EDIT,
+      tooltip: 'Edit Asset',
+      permission: [APP_PERMISSION.ASSET.EDIT],
+    },
+    {
+      ...COMMON_ROW_ACTIONS.DELETE,
+      tooltip: 'Delete Asset',
+      permission: [APP_PERMISSION.ASSET.DELETE],
+    },
+  ];
+}
 
 export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IAssetGetResponseDto['records'][number]>
@@ -163,16 +170,17 @@ export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Asset',
-    // permission: 'asset.delete',
     permission: [APP_PERMISSION.ASSET.DELETE],
   },
 ];
 
-export const ASSET_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
-  IAssetGetResponseDto['records'][number]
-> = {
-  tableConfig: ASSET_TABLE_CONFIG,
-  headers: ASSET_TABLE_HEADER_CONFIG,
-  rowActions: ASSET_TABLE_ROW_ACTIONS_CONFIG,
-  bulkActions: ASSET_TABLE_BULK_ACTIONS_CONFIG,
-};
+export function createAssetTableEnhancedConfig(
+  loggedInUserId: string | undefined | null
+): IEnhancedTableConfig<IAssetGetResponseDto['records'][number]> {
+  return {
+    tableConfig: ASSET_TABLE_CONFIG,
+    headers: ASSET_TABLE_HEADER_CONFIG,
+    rowActions: buildAssetTableRowActionsConfig(loggedInUserId),
+    bulkActions: ASSET_TABLE_BULK_ACTIONS_CONFIG,
+  };
+}

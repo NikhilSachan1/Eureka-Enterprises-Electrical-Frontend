@@ -37,10 +37,11 @@ import {
   IVehicleGetStatsResponseDto,
 } from '../../types/vehicle.dto';
 import {
+  createVehicleTableEnhancedConfig,
   SEARCH_FILTER_VEHICLE_FORM_CONFIG,
   VEHICLE_ACTION_CONFIG_MAP,
-  VEHICLE_TABLE_ENHANCED_CONFIG,
 } from '../../config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IVehicle } from '../../types/vehicle.interface';
@@ -96,6 +97,7 @@ export class GetVehicleComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly authService = inject(AuthService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -110,8 +112,9 @@ export class GetVehicleComponent implements OnInit {
   protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      VEHICLE_TABLE_ENHANCED_CONFIG
+      createVehicleTableEnhancedConfig(loggedInUserId)
     );
     this.searchFilterConfig = SEARCH_FILTER_VEHICLE_FORM_CONFIG;
   }
@@ -303,7 +306,6 @@ export class GetVehicleComponent implements OnInit {
       this.navigateToServiceInfo(selectedFirstRow.id);
       return;
     }
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,

@@ -372,6 +372,7 @@ export class AuthService {
       const {
         accessToken,
         refreshToken,
+        userId,
         firstName,
         lastName,
         email,
@@ -383,6 +384,7 @@ export class AuthService {
       } = loginResponse;
 
       const user: ILoggedInUserDetails = {
+        userId,
         firstName,
         lastName,
         email,
@@ -527,9 +529,11 @@ export class AuthService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user_data');
+    localStorage.removeItem('user_id');
     sessionStorage.removeItem('access_token');
     sessionStorage.removeItem('refresh_token');
     sessionStorage.removeItem('user_data');
+    sessionStorage.removeItem('user_id');
   }
 
   private getLoggedInUserInitials(): string {

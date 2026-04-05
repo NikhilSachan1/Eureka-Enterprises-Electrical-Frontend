@@ -1,4 +1,4 @@
-export { VEHICLE_TABLE_ENHANCED_CONFIG } from './table/get-vehicle.config';
+export { createVehicleTableEnhancedConfig } from './table/get-vehicle.config';
 export { VEHICLE_EVENT_HISTORY_TABLE_ENHANCED_CONFIG } from './table/get-vehicle-event-history.config';
 export { VEHICLE_ACTION_CONFIG_MAP } from './dialog/get-vehicle.config';
 export { ADD_VEHICLE_FORM_CONFIG } from './form/add-vehicle.config';

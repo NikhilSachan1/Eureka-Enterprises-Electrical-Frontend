@@ -107,81 +107,92 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-export const VEHICLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IVehicleGetResponseDto['records'][number]>
->[] = [
-  {
-    ...COMMON_ROW_ACTIONS.VIEW,
-    tooltip: 'View Vehicle Details',
-    permission: [APP_PERMISSION.VEHICLE.VIEW_DETAIL],
-  },
-  {
-    id: EButtonActionType.EVENT_HISTORY,
-    tooltip: 'View Event History',
-    permission: [APP_PERMISSION.VEHICLE.EVENT_HISTORY],
-  },
-  {
-    id: EButtonActionType.SERVICE_INFO,
-    tooltip: 'View Service History',
-    permission: [APP_PERMISSION.VEHICLE.SERVICE_HISTORY],
-  },
-  {
-    id: EButtonActionType.HANDOVER_INITIATE,
-    tooltip: 'Handover Vehicle',
-    permission: [APP_PERMISSION.VEHICLE.HANDOVER_INITIATE],
-    disableWhen: row =>
-      row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED,
-  },
-  {
-    id: EButtonActionType.HANDOVER_ACCEPTED,
-    tooltip: 'Accept Allocation',
-    permission: [APP_PERMISSION.VEHICLE.HANDOVER_ACCEPTED],
-    disableWhen: row =>
-      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
-  },
-  {
-    id: EButtonActionType.HANDOVER_REJECTED,
-    tooltip: 'Reject Allocation',
-    permission: [APP_PERMISSION.VEHICLE.HANDOVER_REJECTED],
-    disableWhen: row =>
-      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
-  },
-  {
-    id: EButtonActionType.HANDOVER_CANCELLED,
-    tooltip: 'Cancel Allocation',
-    permission: [APP_PERMISSION.VEHICLE.HANDOVER_CANCELLED],
-    disableWhen: row =>
-      row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED,
-  },
-  {
-    id: EButtonActionType.DEALLOCATE,
-    tooltip: 'Deallocate Vehicle',
-    permission: [APP_PERMISSION.VEHICLE.DEALLOCATE],
-    disableWhen: row => row.status !== 'ASSIGNED',
-  },
-  {
-    ...COMMON_ROW_ACTIONS.EDIT,
-    tooltip: 'Edit Vehicle',
-    permission: [APP_PERMISSION.VEHICLE.EDIT],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.DELETE,
-    tooltip: 'Delete Vehicle',
-    permission: [APP_PERMISSION.VEHICLE.DELETE],
-  },
-  {
-    id: EButtonActionType.LINK,
-    tooltip: 'Link Petro Card',
-    permission: [APP_PERMISSION.VEHICLE.LINK_PETRO_CARD],
-    disableWhen: row => !!row.associatedCard,
-  },
-  {
-    id: EButtonActionType.UNLINK,
-    tooltip: 'Unlink Petro Card',
-    permission: [APP_PERMISSION.VEHICLE.UNLINK_PETRO_CARD],
-    disableWhen: row => !row.associatedCard,
-  },
-];
+export function buildVehicleTableRowActionsConfig(
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IVehicleGetResponseDto['records'][number]>>[] {
+  return [
+    {
+      ...COMMON_ROW_ACTIONS.VIEW,
+      tooltip: 'View Vehicle Details',
+      permission: [APP_PERMISSION.VEHICLE.VIEW_DETAIL],
+    },
+    {
+      id: EButtonActionType.EVENT_HISTORY,
+      tooltip: 'View Event History',
+      permission: [APP_PERMISSION.VEHICLE.EVENT_HISTORY],
+    },
+    {
+      id: EButtonActionType.SERVICE_INFO,
+      tooltip: 'View Service History',
+      permission: [APP_PERMISSION.VEHICLE.SERVICE_HISTORY],
+    },
+    {
+      id: EButtonActionType.HANDOVER_INITIATE,
+      tooltip: 'Handover Vehicle',
+      permission: [APP_PERMISSION.VEHICLE.HANDOVER_INITIATE],
+      disableWhen: row =>
+        row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED,
+    },
+    {
+      id: EButtonActionType.HANDOVER_ACCEPTED,
+      tooltip: 'Accept Allocation',
+      permission: [APP_PERMISSION.VEHICLE.HANDOVER_ACCEPTED],
+      disableWhen: row =>
+        row.latestEvent?.eventType !==
+          ETableActionTypeValue.HANDOVER_INITIATED ||
+        !loggedInUserId ||
+        row.latestEvent.toUser !== loggedInUserId,
+    },
+    {
+      id: EButtonActionType.HANDOVER_REJECTED,
+      tooltip: 'Reject Allocation',
+      permission: [APP_PERMISSION.VEHICLE.HANDOVER_REJECTED],
+      disableWhen: row =>
+        row.latestEvent?.eventType !==
+          ETableActionTypeValue.HANDOVER_INITIATED ||
+        !loggedInUserId ||
+        row.latestEvent.toUser !== loggedInUserId,
+    },
+    {
+      id: EButtonActionType.HANDOVER_CANCELLED,
+      tooltip: 'Cancel Allocation',
+      permission: [APP_PERMISSION.VEHICLE.HANDOVER_CANCELLED],
+      disableWhen: row =>
+        row.latestEvent?.eventType !==
+          ETableActionTypeValue.HANDOVER_INITIATED ||
+        !loggedInUserId ||
+        row.latestEvent.fromUser !== loggedInUserId,
+    },
+    {
+      id: EButtonActionType.DEALLOCATE,
+      tooltip: 'Deallocate Vehicle',
+      permission: [APP_PERMISSION.VEHICLE.DEALLOCATE],
+      disableWhen: row => row.status !== 'ASSIGNED',
+    },
+    {
+      ...COMMON_ROW_ACTIONS.EDIT,
+      tooltip: 'Edit Vehicle',
+      permission: [APP_PERMISSION.VEHICLE.EDIT],
+    },
+    {
+      ...COMMON_ROW_ACTIONS.DELETE,
+      tooltip: 'Delete Vehicle',
+      permission: [APP_PERMISSION.VEHICLE.DELETE],
+    },
+    {
+      id: EButtonActionType.LINK,
+      tooltip: 'Link Petro Card',
+      permission: [APP_PERMISSION.VEHICLE.LINK_PETRO_CARD],
+      disableWhen: row => !!row.associatedCard,
+    },
+    {
+      id: EButtonActionType.UNLINK,
+      tooltip: 'Unlink Petro Card',
+      permission: [APP_PERMISSION.VEHICLE.UNLINK_PETRO_CARD],
+      disableWhen: row => !row.associatedCard,
+    },
+  ];
+}
 
 export const VEHICLE_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IVehicleGetResponseDto['records'][number]>
@@ -193,11 +204,13 @@ export const VEHICLE_TABLE_BULK_ACTIONS_CONFIG: Partial<
   },
 ];
 
-export const VEHICLE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
-  IVehicleGetResponseDto['records'][number]
-> = {
-  tableConfig: VEHICLE_TABLE_CONFIG,
-  headers: VEHICLE_TABLE_HEADER_CONFIG,
-  rowActions: VEHICLE_TABLE_ROW_ACTIONS_CONFIG,
-  bulkActions: VEHICLE_TABLE_BULK_ACTIONS_CONFIG,
-};
+export function createVehicleTableEnhancedConfig(
+  loggedInUserId: string | undefined | null
+): IEnhancedTableConfig<IVehicleGetResponseDto['records'][number]> {
+  return {
+    tableConfig: VEHICLE_TABLE_CONFIG,
+    headers: VEHICLE_TABLE_HEADER_CONFIG,
+    rowActions: buildVehicleTableRowActionsConfig(loggedInUserId),
+    bulkActions: VEHICLE_TABLE_BULK_ACTIONS_CONFIG,
+  };
+}
