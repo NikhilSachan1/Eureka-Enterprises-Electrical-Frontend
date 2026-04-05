@@ -6,12 +6,14 @@ import {
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
 import { IDsrGetFormDto } from '@features/site-management/dsr-management/types/dsr.dto';
+import { APP_PERMISSION } from '@core/constants';
 
 const SEARCH_FILTER_DSR_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   IDsrGetFormDto & { globalSearch?: string }
 > = {
   employeeName: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
+    permission: [APP_PERMISSION.UI.DSR.SEARCH_FILTER_EMPLOYEE_NAME],
   },
   statusDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,

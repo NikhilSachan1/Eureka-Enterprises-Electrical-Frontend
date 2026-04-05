@@ -123,6 +123,7 @@ export const APP_PERMISSION = {
     DELETE: 'delete_project',
     CHANGE_STATUS: 'change_status_project',
     ANALYSIS: 'analysis_project',
+    ALLOCATE_DEALLOCATE_EMPLOYEE: 'allocate_deallocate_employee_project',
   },
   ROLE_PERMISSION: {
     TABLE_VIEW: 'table_view_role_permission',
@@ -215,6 +216,20 @@ export const APP_PERMISSION = {
       TABLE_EMPLOYEE_NAME: 'ui_payroll_table_employee_name',
       SEARCH_FILTER_EMPLOYEE_NAME: 'ui_payroll_search_filter_employee_name',
     },
+    PROJECT: {
+      SEARCH_FILTER_COMPANY_NAME: 'ui_project_search_filter_company_name',
+      SEARCH_FILTER_CONTRACTOR_NAME: 'ui_project_search_filter_contractor_name',
+    },
+    PROJECT_ANALYSIS: {
+      TIMELINE: 'ui_project_analysis_timeline',
+      PROFITABILITY: 'ui_project_analysis_profitability',
+      DOC: 'ui_project_analysis_doc',
+      DSR: 'ui_project_analysis_dsr',
+    },
+    DSR: {
+      TABLE_EMPLOYEE_NAME: 'ui_dsr_table_employee_name',
+      SEARCH_FILTER_EMPLOYEE_NAME: 'ui_dsr_search_filter_employee_name',
+    },
   },
 } as const;
 
@@ -294,6 +309,58 @@ export const UI_PERMISSIONS_ROLE_MAP = {
     },
   },
   PAYROLL: {
+    TABLE_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+    SEARCH_FILTER_EMPLOYEE_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+  },
+  PROJECT: {
+    SEARCH_FILTER_COMPANY_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+    },
+    SEARCH_FILTER_CONTRACTOR_NAME: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+    },
+  },
+  PROJECT_ANALYSIS: {
+    TIMELINE: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+    PROFITABILITY: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+    DOC: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: false,
+    },
+    DSR: {
+      ADMIN: true,
+      DRIVER: false,
+      SUPER_ADMIN: true,
+      EMPLOYEE: true,
+    },
+  },
+  DSR: {
     TABLE_EMPLOYEE_NAME: {
       ADMIN: true,
       DRIVER: false,

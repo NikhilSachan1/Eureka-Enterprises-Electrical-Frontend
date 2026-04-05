@@ -22,7 +22,7 @@ export const DSR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showImage: true,
     dummyImageField: 'createdByUser.fullName',
     primaryFieldHighlight: true,
-    // permission: [APP_PERMISSION.UI.EXPENSE.TABLE_EMPLOYEE_NAME],
+    permission: [APP_PERMISSION.UI.DSR.TABLE_EMPLOYEE_NAME],
     serverSideFilterAndSortConfig: {
       sortField: 'userName',
       filterField: 'employeeName',

@@ -94,7 +94,7 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     id: EButtonActionType.ALLOCATE_DEALLOCATE_EMPLOYEE,
     tooltip: 'Allocate/Deallocate Employee',
-    // permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
+    permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
   },
   {
     id: EButtonActionType.CHANGE_STATUS,

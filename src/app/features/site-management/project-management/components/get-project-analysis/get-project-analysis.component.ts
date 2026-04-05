@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   OnInit,
   signal,
@@ -19,7 +20,8 @@ import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component
 import { GetDsrComponent } from '../../../dsr-management/components/get-dsr/get-dsr.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
-import { LoggerService } from '@core/services';
+import { LoggerService, AppPermissionService } from '@core/services';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   AppConfigurationService,
   RouterNavigationService,
@@ -30,7 +32,9 @@ import { GetProjectTimelineComponent } from '@features/site-management/project-t
 import { IProjectGetBaseResponseDto } from '../../types/project.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
+
+type ProjectAnalysisTabRoute = 'profitability' | 'documents' | 'daily-progress';
 
 @Component({
   selector: 'app-get-project-analysis',
@@ -43,7 +47,6 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
     GetDocComponent,
     GetProfitabilityComponent,
     DatePipe,
-    CurrencyPipe,
   ],
   templateUrl: './get-project-analysis.component.html',
   styleUrl: './get-project-analysis.component.scss',
@@ -54,18 +57,31 @@ export class GetProjectAnalysisComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly appPermissionService = inject(AppPermissionService);
+
+  private readonly uiProjectAnalysis = APP_PERMISSION.UI.PROJECT_ANALYSIS;
 
   tabModeType = ETabMode.CONTENT;
   icons = ICONS;
   protected readonly dateFormat = APP_CONFIG.DATE_FORMATS.DEFAULT;
-  protected readonly currencyCode = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
 
-  protected readonly activeTabIndex = signal(0);
+  protected readonly activeAnalysisRoute =
+    signal<ProjectAnalysisTabRoute | null>(null);
   protected readonly projectData = signal<IProjectGetBaseResponseDto | null>(
     null
   );
 
-  protected tabs = computed(() => this.getTabs());
+  protected readonly showTimeline = computed(() => this.getShowTimeline());
+
+  protected readonly visibleAnalysisTabs = computed(() => this.getTabs());
+
+  protected readonly activeTabIndexForNav = computed(() => {
+    const tabs = this.visibleAnalysisTabs();
+    const route = this.activeAnalysisRoute();
+    const i = tabs.findIndex(t => t.route === route);
+    return i >= 0 ? i : 0;
+  });
+
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
   protected projectLocation = computed(() => {
@@ -106,11 +122,33 @@ export class GetProjectAnalysisComponent implements OnInit {
     );
   });
 
+  constructor() {
+    effect(() => {
+      const tabs = this.visibleAnalysisTabs();
+      const route = this.activeAnalysisRoute();
+      if (tabs.length === 0) {
+        if (route !== null) {
+          this.activeAnalysisRoute.set(null);
+        }
+        return;
+      }
+      if (route === null || !tabs.some(t => t.route === route)) {
+        this.activeAnalysisRoute.set(tabs[0].route as ProjectAnalysisTabRoute);
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.loadProjectDataFromState();
   }
 
   private readonly PROJECT_STORAGE_KEY = 'project_analysis_data';
+
+  private getShowTimeline(): boolean {
+    return this.appPermissionService.hasPermission(
+      this.uiProjectAnalysis.TIMELINE
+    );
+  }
 
   private loadProjectDataFromState(): void {
     const projectId = this.activatedRoute.snapshot.params[
@@ -149,27 +187,32 @@ export class GetProjectAnalysisComponent implements OnInit {
   }
 
   private getTabs(): ITabItem[] {
-    return [
+    type TabDef = ITabItem & { permission?: string[] };
+    const definitions: TabDef[] = [
       {
         route: 'profitability',
         label: 'Profitability',
         icon: this.icons.COMMON.CHART,
+        permission: [this.uiProjectAnalysis.PROFITABILITY],
       },
       {
         route: 'documents',
         label: 'Documents',
         icon: this.icons.COMMON.FILE,
+        permission: [this.uiProjectAnalysis.DOC],
       },
       {
         route: 'daily-progress',
         label: 'Daily Progress',
         icon: this.icons.COMMON.CALENDAR,
+        permission: [this.uiProjectAnalysis.DSR],
       },
     ];
+    return this.appPermissionService.filterByPermission(definitions);
   }
 
   protected onTabChanged(event: ITabChange): void {
-    this.activeTabIndex.set(event.index);
+    this.activeAnalysisRoute.set(event.tab.route as ProjectAnalysisTabRoute);
   }
 
   protected onHeaderButtonClick(actionName: string): void {
@@ -217,11 +260,13 @@ export class GetProjectAnalysisComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Daily Status',
           actionName: 'addDailyStatus',
+          permission: [this.uiProjectAnalysis.DSR],
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
           label: 'Add Document',
           actionName: 'addDocument',
+          permission: [this.uiProjectAnalysis.DOC],
         },
       ],
     };

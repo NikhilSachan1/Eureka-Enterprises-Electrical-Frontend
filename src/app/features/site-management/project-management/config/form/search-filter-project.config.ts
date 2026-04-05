@@ -9,6 +9,7 @@ import {
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
 import { IProjectGetFormDto } from '../../types/project.dto';
+import { APP_PERMISSION } from '@core/constants';
 
 const SEARCH_FILTER_PROJECT_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   IProjectGetFormDto & { globalSearch?: string }
@@ -24,6 +25,7 @@ const SEARCH_FILTER_PROJECT_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
         dropdownName: CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
       },
     },
+    permission: [APP_PERMISSION.UI.PROJECT.SEARCH_FILTER_COMPANY_NAME],
     matchmode: ETableFilterMatchMode.IN,
   },
   contractorNames: {
@@ -37,6 +39,7 @@ const SEARCH_FILTER_PROJECT_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
         dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
       },
     },
+    permission: [APP_PERMISSION.UI.PROJECT.SEARCH_FILTER_CONTRACTOR_NAME],
     matchmode: ETableFilterMatchMode.IN,
   },
   projectCity: {

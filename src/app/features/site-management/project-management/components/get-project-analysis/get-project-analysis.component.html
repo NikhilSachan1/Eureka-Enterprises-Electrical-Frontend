@@ -43,15 +43,6 @@
           </div>
         </div>
         <div class="project-info-banner__detail-item">
-          <i [class]="icons.PAYROLL.WALLET"></i>
-          <div class="project-info-banner__detail-content">
-            <span class="project-info-banner__detail-label">Estimated Budget</span>
-            <span class="project-info-banner__detail-value">
-              {{ projectData()?.estimatedBudget | currency: currencyCode : 'symbol' : '1.0-0' }}
-            </span>
-          </div>
-        </div>
-        <div class="project-info-banner__detail-item">
           <i [class]="icons.COMMON.USER"></i>
           <div class="project-info-banner__detail-content">
             <span class="project-info-banner__detail-label">Project Manager</span>
@@ -99,26 +90,42 @@
 }
 
 <div
-  class="grid grid-cols-1 md:grid-cols-[minmax(280px,25%)_minmax(0,1fr)] lg:grid-cols-[minmax(320px,25%)_minmax(0,1fr)] gap-4"
+  class="project-analysis-main-grid"
+  [class.project-analysis-main-grid--with-timeline]="showTimeline()"
 >
-  <p-card class="analysis-timeline-card min-w-0">
-    <app-get-project-timeline />
-  </p-card>
+  @if (showTimeline()) {
+    <p-card class="analysis-timeline-card min-w-0">
+      <app-get-project-timeline />
+    </p-card>
+  }
 
   <div class="min-w-0 max-w-full">
-    <app-nav-tabs
-      class="block min-w-0 max-w-full"
-      [tabs]="tabs()"
-      [tabMode]="tabModeType"
-      (tabChanged)="onTabChanged($event)"
-    >
-      @if (activeTabIndex() === 0) {
-        <app-get-profitability />
-      } @else if (activeTabIndex() === 1) {
-        <app-get-doc />
-      } @else if (activeTabIndex() === 2) {
-        <app-get-dsr />
-      }
-    </app-nav-tabs>
+    @if (visibleAnalysisTabs().length) {
+      <app-nav-tabs
+        class="block min-w-0 max-w-full"
+        [tabs]="visibleAnalysisTabs()"
+        [activeTabIndex]="activeTabIndexForNav()"
+        [tabMode]="tabModeType"
+        (tabChanged)="onTabChanged($event)"
+      >
+        @switch (activeAnalysisRoute()) {
+          @case ('profitability') {
+            <app-get-profitability />
+          }
+          @case ('documents') {
+            <app-get-doc />
+          }
+          @case ('daily-progress') {
+            <app-get-dsr />
+          }
+        }
+      </app-nav-tabs>
+    } @else {
+      <div
+        class="rounded-[var(--border-radius)] border border-[var(--surface-border)] bg-[var(--surface-card)] p-6 text-center text-[var(--text-color-secondary)]"
+      >
+        You do not have access to any project analysis sections for your role.
+      </div>
+    }
   </div>
 </div>
