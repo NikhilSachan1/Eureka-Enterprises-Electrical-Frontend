@@ -38,6 +38,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
+        path: ROUTE_BASE_PATHS.DASHBOARD,
+        loadChildren: () =>
+          import('./features/dashboard/dashboard.routes').then(
+            m => m.DASHBOARD_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: ROUTE_BASE_PATHS.SETTINGS.BASE,
         loadChildren: () =>
           import(
