@@ -18,8 +18,6 @@ export const FuelExpenseAddRequestSchema =
     };
   });
 
-export const FuelExpenseAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const FuelExpenseAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

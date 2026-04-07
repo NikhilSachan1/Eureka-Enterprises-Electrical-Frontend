@@ -12,23 +12,17 @@ export const PetroCardDeleteRequestSchema = z
     };
   });
 
-export const PetroCardDeleteResultSchema = z
-  .object({
-    id: uuidField,
-  })
-  .strict();
+export const PetroCardDeleteResultSchema = z.looseObject({
+  id: uuidField,
+});
 
-export const PetroCardDeleteErrorSchema = z
-  .object({
-    cardId: uuidField,
-    error: z.string().min(1),
-  })
-  .strict();
+export const PetroCardDeleteErrorSchema = z.looseObject({
+  cardId: uuidField,
+  error: z.string().min(1),
+});
 
-export const PetroCardDeleteResponseSchema = z
-  .object({
-    message: z.string(),
-    result: z.array(PetroCardDeleteResultSchema),
-    errors: z.array(PetroCardDeleteErrorSchema),
-  })
-  .strict();
+export const PetroCardDeleteResponseSchema = z.looseObject({
+  message: z.string(),
+  result: z.array(PetroCardDeleteResultSchema),
+  errors: z.array(PetroCardDeleteErrorSchema),
+});

@@ -24,8 +24,6 @@ export const VehicleReadingForceRequestSchema =
         vehicleLogEndOdometer: data.endOdometerReadingAttachments,
       };
     });
-export const VehicleReadingForceResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const VehicleReadingForceResponseSchema = z.looseObject({
+  message: z.string(),
+});

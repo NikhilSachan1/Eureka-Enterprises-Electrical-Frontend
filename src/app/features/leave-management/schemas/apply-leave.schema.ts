@@ -15,8 +15,6 @@ export const LeaveApplyRequestSchema =
     };
   });
 
-export const LeaveApplyResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const LeaveApplyResponseSchema = z.looseObject({
+  message: z.string(),
+});

@@ -1,33 +1,31 @@
 import { dateField, onlyDateStringField, uuidField } from '@shared/schemas';
 import { z } from 'zod';
 
-export const ProjectBaseSchema = z
-  .object({
-    id: uuidField,
-    name: z.string(),
-    companyId: uuidField,
-    managerName: z.string(),
-    managerContact: z.string().nullable(),
-    startDate: onlyDateStringField,
-    endDate: onlyDateStringField,
-    baseDistanceKm: z.string(),
-    expectedVehicleDailyKm: z.number().nullable(),
-    estimatedBudget: z.string(),
-    status: z.string(),
-    blockNumber: z.string(),
-    buildingName: z.string().nullable(),
-    streetName: z.string(),
-    landmark: z.string(),
-    area: z.string().nullable(),
-    city: z.string(),
-    state: z.string(),
-    pincode: z.string(),
-    country: z.string(),
-    notes: z.string().nullable(),
-    workTypes: z.array(z.string()),
-    isActive: z.boolean(),
-  })
-  .strict();
+export const ProjectBaseSchema = z.looseObject({
+  id: uuidField,
+  name: z.string(),
+  companyId: uuidField,
+  managerName: z.string(),
+  managerContact: z.string().nullable(),
+  startDate: onlyDateStringField,
+  endDate: onlyDateStringField,
+  baseDistanceKm: z.string(),
+  expectedVehicleDailyKm: z.number().nullable(),
+  estimatedBudget: z.string(),
+  status: z.string(),
+  blockNumber: z.string(),
+  buildingName: z.string().nullable(),
+  streetName: z.string(),
+  landmark: z.string(),
+  area: z.string().nullable(),
+  city: z.string(),
+  state: z.string(),
+  pincode: z.string(),
+  country: z.string(),
+  notes: z.string().nullable(),
+  workTypes: z.array(z.string()),
+  isActive: z.boolean(),
+});
 
 const {
   name,

@@ -27,8 +27,6 @@ export const ProjectEditRequestSchema =
     };
   });
 
-export const ProjectEditResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const ProjectEditResponseSchema = z.looseObject({
+  message: z.string(),
+});

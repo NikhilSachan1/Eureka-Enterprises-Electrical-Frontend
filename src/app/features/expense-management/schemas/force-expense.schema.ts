@@ -20,4 +20,4 @@ export const ExpenseForceRequestSchema = ExpenseUpsertShapeSchema.extend({
     };
   });
 
-export const ExpenseForceResponseSchema = ExpenseAddResponseSchema.strict();
+export const ExpenseForceResponseSchema = ExpenseAddResponseSchema;

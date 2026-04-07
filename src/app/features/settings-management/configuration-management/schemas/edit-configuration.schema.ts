@@ -14,8 +14,6 @@ export const ConfigurationEditRequestSchema =
     };
   });
 
-export const ConfigurationEditResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const ConfigurationEditResponseSchema = z.looseObject({
+  message: z.string(),
+});

@@ -14,14 +14,12 @@ export const RoleDeleteRequestSchema = z
     };
   });
 
-export const RoleDeleteResponseSchema = z
-  .object({
-    failed: z.array(
-      z.object({
-        error: z.string(),
-        id,
-      })
-    ),
-    success: z.array(z.string()),
-  })
-  .strict();
+export const RoleDeleteResponseSchema = z.looseObject({
+  failed: z.array(
+    z.object({
+      error: z.string(),
+      id,
+    })
+  ),
+  success: z.array(z.string()),
+});

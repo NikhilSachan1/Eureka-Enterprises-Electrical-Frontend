@@ -10,4 +10,4 @@ export const PayslipDetailGetRequestSchema = z.object({
 export const PayslipDetailGetResponseSchema =
   PayslipGetBaseResponseSchema.extend({
     approver: makeFieldsNullable(UserSchema).nullable(),
-  }).strict();
+  }).loose();

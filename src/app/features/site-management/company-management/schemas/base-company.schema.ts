@@ -1,29 +1,27 @@
 import { uuidField } from '@shared/schemas';
 import { z } from 'zod';
 
-export const CompanyBaseSchema = z
-  .object({
-    id: uuidField,
-    name: z.string(),
-    website: z.string().nullable(),
-    logo: z.string().nullable(),
-    contactNumber: z.string().nullable(),
-    email: z.string().nullable(),
-    gstNumber: z.string().nullable(),
-    blockNumber: z.string(),
-    buildingName: z.string().nullable(),
-    streetName: z.string(),
-    landmark: z.string(),
-    area: z.string().nullable(),
-    city: z.string(),
-    state: z.string(),
-    pincode: z.string(),
-    country: z.string(),
-    parentCompanyId: uuidField.nullable(),
-    remarks: z.string().nullable(),
-    isActive: z.boolean(),
-  })
-  .strict();
+export const CompanyBaseSchema = z.looseObject({
+  id: uuidField,
+  name: z.string(),
+  website: z.string().nullable(),
+  logo: z.string().nullable(),
+  contactNumber: z.string().nullable(),
+  email: z.string().nullable(),
+  gstNumber: z.string().nullable(),
+  blockNumber: z.string(),
+  buildingName: z.string().nullable(),
+  streetName: z.string(),
+  landmark: z.string(),
+  area: z.string().nullable(),
+  city: z.string(),
+  state: z.string(),
+  pincode: z.string(),
+  country: z.string(),
+  parentCompanyId: uuidField.nullable(),
+  remarks: z.string().nullable(),
+  isActive: z.boolean(),
+});
 
 const {
   name,

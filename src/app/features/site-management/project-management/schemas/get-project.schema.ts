@@ -95,27 +95,23 @@ export const ProjectGetBaseResponseSchema = ProjectBaseSchema.extend({
   allocatedEmployeeCount: z.number().int().nonnegative().nullable(),
 }).loose();
 
-export const ProjectGetStatsResponseSchema = z
-  .object({
-    totalSites: z.number().int().nonnegative(),
-    upcomingSites: z.number().int().nonnegative(),
-    ongoingSites: z.number().int().nonnegative(),
-    holdSites: z.number().int().nonnegative(),
-    completedSites: z.number().int().nonnegative(),
-    inactiveSites: z.number().int().nonnegative(),
-    activeSites: z.number().int().nonnegative(),
-  })
-  .loose();
+export const ProjectGetStatsResponseSchema = z.looseObject({
+  totalSites: z.number().int().nonnegative(),
+  upcomingSites: z.number().int().nonnegative(),
+  ongoingSites: z.number().int().nonnegative(),
+  holdSites: z.number().int().nonnegative(),
+  completedSites: z.number().int().nonnegative(),
+  inactiveSites: z.number().int().nonnegative(),
+  activeSites: z.number().int().nonnegative(),
+});
 
-export const ProjectGetResponseSchema = z
-  .object({
-    records: z.array(
-      ProjectGetBaseResponseSchema.extend({
-        healthScore: z.number().int().nonnegative(),
-        healthGrade: z.string(),
-      })
-    ),
-    stats: ProjectGetStatsResponseSchema.loose(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const ProjectGetResponseSchema = z.looseObject({
+  records: z.array(
+    ProjectGetBaseResponseSchema.extend({
+      healthScore: z.number().int().nonnegative(),
+      healthGrade: z.string(),
+    })
+  ),
+  stats: ProjectGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

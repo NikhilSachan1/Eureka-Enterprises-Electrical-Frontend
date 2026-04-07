@@ -48,7 +48,7 @@ export const AssetGetRequestSchema = z
   );
 
 export const AssetGetBaseResponseSchema = z
-  .object({
+  .looseObject({
     ...AssetBaseSchema.shape,
     assignedTo: uuidField.nullable().optional(),
     assignedToUser: makeFieldsNullable(UserSchema).nullable(),
@@ -72,44 +72,39 @@ export const AssetGetBaseResponseSchema = z
     createdAt,
     updatedAt,
   })
-  .loose()
   .transform(({ files, ...rest }) => ({
     ...rest,
     documentKeys: files.map(file => file.fileKey),
   }));
 
-export const AssetGetStatsResponseSchema = z
-  .object({
-    total: z.number().int().nonnegative(),
-    byStatus: z.object({
-      available: z.number().int().nonnegative(),
-      assigned: z.number().int().nonnegative(),
-      underMaintenance: z.number().int().nonnegative(),
-      damaged: z.number().int().nonnegative(),
-      retired: z.number().int().nonnegative(),
-    }),
-    byAssetType: z.object({
-      calibrated: z.number().int().nonnegative(),
-      nonCalibrated: z.number().int().nonnegative(),
-    }),
-    calibration: z.object({
-      valid: z.number().int().nonnegative(),
-      expiringSoon: z.number().int().nonnegative(),
-      expired: z.number().int().nonnegative(),
-    }),
-    warranty: z.object({
-      valid: z.number().int().nonnegative(),
-      expiringSoon: z.number().int().nonnegative(),
-      expired: z.number().int().nonnegative(),
-      notApplicable: z.number().int().nonnegative(),
-    }),
-  })
-  .strict();
+export const AssetGetStatsResponseSchema = z.looseObject({
+  total: z.number().int().nonnegative(),
+  byStatus: z.object({
+    available: z.number().int().nonnegative(),
+    assigned: z.number().int().nonnegative(),
+    underMaintenance: z.number().int().nonnegative(),
+    damaged: z.number().int().nonnegative(),
+    retired: z.number().int().nonnegative(),
+  }),
+  byAssetType: z.object({
+    calibrated: z.number().int().nonnegative(),
+    nonCalibrated: z.number().int().nonnegative(),
+  }),
+  calibration: z.object({
+    valid: z.number().int().nonnegative(),
+    expiringSoon: z.number().int().nonnegative(),
+    expired: z.number().int().nonnegative(),
+  }),
+  warranty: z.object({
+    valid: z.number().int().nonnegative(),
+    expiringSoon: z.number().int().nonnegative(),
+    expired: z.number().int().nonnegative(),
+    notApplicable: z.number().int().nonnegative(),
+  }),
+});
 
-export const AssetGetResponseSchema = z
-  .object({
-    records: z.array(AssetGetBaseResponseSchema),
-    stats: AssetGetStatsResponseSchema.strict(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const AssetGetResponseSchema = z.looseObject({
+  records: z.array(AssetGetBaseResponseSchema),
+  stats: AssetGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

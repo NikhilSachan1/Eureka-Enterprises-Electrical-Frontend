@@ -7,20 +7,16 @@ export const ContractorDeleteRequestSchema = z
   })
   .strict();
 
-export const ContractorDeleteResultSchema = z
-  .object({
-    id: uuidField,
-    message: z.string(),
-    success: z.boolean(),
-  })
-  .strict();
+export const ContractorDeleteResultSchema = z.looseObject({
+  id: uuidField,
+  message: z.string(),
+  success: z.boolean(),
+});
 
-export const ContractorDeleteResponseSchema = z
-  .object({
-    message: z.string(),
-    failureCount: z.number().int().nonnegative(),
-    successCount: z.number().int().nonnegative(),
-    totalRequested: z.number().int().nonnegative(),
-    results: z.array(ContractorDeleteResultSchema),
-  })
-  .strict();
+export const ContractorDeleteResponseSchema = z.looseObject({
+  message: z.string(),
+  failureCount: z.number().int().nonnegative(),
+  successCount: z.number().int().nonnegative(),
+  totalRequested: z.number().int().nonnegative(),
+  results: z.array(ContractorDeleteResultSchema),
+});

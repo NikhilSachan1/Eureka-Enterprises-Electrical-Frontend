@@ -25,8 +25,6 @@ export const ActionAssetRequestSchema = z
     };
   });
 
-export const ActionAssetResponseSchema = z
-  .object({
-    message: z.string().min(1),
-  })
-  .strict();
+export const ActionAssetResponseSchema = z.looseObject({
+  message: z.string().min(1),
+});

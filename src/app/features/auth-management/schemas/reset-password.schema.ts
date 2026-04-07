@@ -7,8 +7,6 @@ export const ResetPasswordRequestSchema = z
   })
   .strict();
 
-export const ResetPasswordResponseSchema = z
-  .object({
-    message: z.string().min(1),
-  })
-  .strict();
+export const ResetPasswordResponseSchema = z.looseObject({
+  message: z.string().min(1),
+});

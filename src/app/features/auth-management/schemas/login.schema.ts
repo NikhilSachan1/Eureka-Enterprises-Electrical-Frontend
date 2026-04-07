@@ -13,19 +13,17 @@ export const LoginRequestSchema = z
     password: data.password,
   }));
 
-export const LoginResponseSchema = z
-  .object({
-    accessToken: z.string().min(1),
-    refreshToken: z.string().min(1),
-    name: z.string().min(1),
-    firstName: z.string().min(1),
-    lastName: z.string().min(1).max(100),
-    email: z.email().toLowerCase(),
-    designation: z.string().min(1),
-    profilePicture: z.string().min(1).nullable(),
-    roles: z.array(z.string()).min(1),
-    activeRole: z.string().min(1),
-    expiresIn: z.string().min(1),
-    userId: uuidField,
-  })
-  .loose();
+export const LoginResponseSchema = z.looseObject({
+  accessToken: z.string().min(1),
+  refreshToken: z.string().min(1),
+  name: z.string().min(1),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1).max(100),
+  email: z.email().toLowerCase(),
+  designation: z.string().min(1),
+  profilePicture: z.string().min(1).nullable(),
+  roles: z.array(z.string()).min(1),
+  activeRole: z.string().min(1),
+  expiresIn: z.string().min(1),
+  userId: uuidField,
+});

@@ -24,9 +24,7 @@ export const DocGetBaseResponseSchema = DocBaseSchema.extend({
   ...AuditSchema.shape,
 }).loose();
 
-export const DocGetResponseSchema = z
-  .object({
-    records: z.array(DocGetBaseResponseSchema),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const DocGetResponseSchema = z.looseObject({
+  records: z.array(DocGetBaseResponseSchema),
+  totalRecords: z.number().int().nonnegative(),
+});

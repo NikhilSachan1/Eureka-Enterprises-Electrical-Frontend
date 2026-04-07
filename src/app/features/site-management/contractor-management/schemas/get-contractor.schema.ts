@@ -31,41 +31,35 @@ export const ContractorGetBaseResponseSchema = ContractorBaseSchema.extend({
   ...AuditSchema.shape,
   fullAddress: z.string().nullable(),
   isSelfContractor: z.boolean(),
-}).strict();
+}).loose();
 
-export const ContractorGetStatsResponseSchema = z
-  .object({
-    totalContractors: z.number().int().nonnegative(),
-    activeContractors: z.number().int().nonnegative(),
-    archivedContractors: z.number().int().nonnegative(),
-    inactiveContractors: z.number().int().nonnegative(),
-    selfContractors: z.number().int().nonnegative(),
-  })
-  .strict();
+export const ContractorGetStatsResponseSchema = z.looseObject({
+  totalContractors: z.number().int().nonnegative(),
+  activeContractors: z.number().int().nonnegative(),
+  archivedContractors: z.number().int().nonnegative(),
+  inactiveContractors: z.number().int().nonnegative(),
+  selfContractors: z.number().int().nonnegative(),
+});
 
-export const ContractorLevelGetStatsResponseSchema = z
-  .object({
-    activeSites: z.number().int().nonnegative(),
-    completedSites: z.number().int().nonnegative(),
-    holdSites: z.number().int().nonnegative(),
-    totalSites: z.number().int().nonnegative(),
-    upcomingSites: z.number().int().nonnegative(),
-    totalDocuments: z.number().int().nonnegative(),
-    totalInvoices: z.number().int().nonnegative(),
-    totalQuotations: z.number().int().nonnegative(),
-    totalAmountBilled: z.number().int().nonnegative(),
-    pendingPayments: z.number().int().nonnegative(),
-  })
-  .strict();
+export const ContractorLevelGetStatsResponseSchema = z.looseObject({
+  activeSites: z.number().int().nonnegative(),
+  completedSites: z.number().int().nonnegative(),
+  holdSites: z.number().int().nonnegative(),
+  totalSites: z.number().int().nonnegative(),
+  upcomingSites: z.number().int().nonnegative(),
+  totalDocuments: z.number().int().nonnegative(),
+  totalInvoices: z.number().int().nonnegative(),
+  totalQuotations: z.number().int().nonnegative(),
+  totalAmountBilled: z.number().int().nonnegative(),
+  pendingPayments: z.number().int().nonnegative(),
+});
 
-export const ContractorGetResponseSchema = z
-  .object({
-    records: z.array(
-      ContractorGetBaseResponseSchema.extend({
-        stats: ContractorLevelGetStatsResponseSchema.strict().nullable(),
-      }).strict()
-    ),
-    overallStats: ContractorGetStatsResponseSchema.strict(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const ContractorGetResponseSchema = z.looseObject({
+  records: z.array(
+    ContractorGetBaseResponseSchema.extend({
+      stats: ContractorLevelGetStatsResponseSchema.nullable(),
+    }).loose()
+  ),
+  overallStats: ContractorGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

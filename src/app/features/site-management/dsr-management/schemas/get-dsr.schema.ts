@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import {
-  AuditSchema,
   dateField,
   FilterSchema,
   UserSchema,
@@ -35,7 +34,6 @@ export const DsrGetRequestSchema = z
   });
 
 export const DsrGetBaseResponseSchema = DsrBaseSchema.extend({
-  ...AuditSchema.shape,
   files: z.array(
     z.looseObject({
       id: uuidField,
@@ -53,9 +51,7 @@ export const DsrGetBaseResponseSchema = DsrBaseSchema.extend({
     documentKeys: files.map(file => file.fileKey),
   }));
 
-export const DsrGetResponseSchema = z
-  .object({
-    records: z.array(DsrGetBaseResponseSchema),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const DsrGetResponseSchema = z.looseObject({
+  records: z.array(DsrGetBaseResponseSchema),
+  totalRecords: z.number().int().nonnegative(),
+});

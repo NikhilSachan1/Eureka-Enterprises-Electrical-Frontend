@@ -16,8 +16,6 @@ export const SystemPermissionAddRequestSchema =
     };
   });
 
-export const SystemPermissionAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const SystemPermissionAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

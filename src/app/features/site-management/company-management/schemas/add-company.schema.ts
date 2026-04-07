@@ -19,8 +19,6 @@ export const CompanyAddRequestSchema =
     };
   });
 
-export const CompanyAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const CompanyAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

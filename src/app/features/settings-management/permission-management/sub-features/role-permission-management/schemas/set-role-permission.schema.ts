@@ -25,20 +25,16 @@ export const RolePermissionsSetRequestSchema = z
     };
   });
 
-export const RolePermissionSetResultSchema = z
-  .object({
-    id: uuidField,
-    message: z.string(),
-    success: z.boolean(),
-  })
-  .strict();
+export const RolePermissionSetResultSchema = z.looseObject({
+  id: uuidField,
+  message: z.string(),
+  success: z.boolean(),
+});
 
-export const RolePermissionsSetResponseSchema = z
-  .object({
-    message: z.string(),
-    failureCount: z.number().int().nonnegative(),
-    successCount: z.number().int().nonnegative(),
-    totalRequested: z.number().int().nonnegative(),
-    results: z.array(RolePermissionSetResultSchema),
-  })
-  .strict();
+export const RolePermissionsSetResponseSchema = z.looseObject({
+  message: z.string(),
+  failureCount: z.number().int().nonnegative(),
+  successCount: z.number().int().nonnegative(),
+  totalRequested: z.number().int().nonnegative(),
+  results: z.array(RolePermissionSetResultSchema),
+});

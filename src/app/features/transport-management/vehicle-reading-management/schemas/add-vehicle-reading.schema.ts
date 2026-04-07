@@ -20,8 +20,6 @@ export const VehicleReadingAddRequestSchema =
     };
   });
 
-export const VehicleReadingAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .loose();
+export const VehicleReadingAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

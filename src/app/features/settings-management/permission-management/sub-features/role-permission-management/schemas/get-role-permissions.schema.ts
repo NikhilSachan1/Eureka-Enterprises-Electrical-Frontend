@@ -13,11 +13,9 @@ export const RolePermissionsGetRequestSchema = z
   }));
 
 export const RolePermissionsGetBaseResponseSchema =
-  RolePermissionsBaseSchema.extend(AuditSchema.shape).strict();
+  RolePermissionsBaseSchema.extend(AuditSchema.shape).loose();
 
-export const RolePermissionsGetResponseSchema = z
-  .object({
-    records: z.array(RolePermissionsGetBaseResponseSchema),
-    totalRecords: z.number(),
-  })
-  .strict();
+export const RolePermissionsGetResponseSchema = z.looseObject({
+  records: z.array(RolePermissionsGetBaseResponseSchema),
+  totalRecords: z.number(),
+});

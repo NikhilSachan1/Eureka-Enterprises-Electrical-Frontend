@@ -14,8 +14,6 @@ export const RoleAddRequestSchema = RoleUpsertShapeSchema.strict().transform(
   }
 );
 
-export const RoleAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const RoleAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

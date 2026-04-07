@@ -7,7 +7,7 @@ import {
 } from '@shared/schemas';
 import z from 'zod';
 
-export const EmployeeBaseSchema = z.object({
+export const EmployeeBaseSchema = z.looseObject({
   id: uuidField,
   firstName: z.string(),
   lastName: z.string(),

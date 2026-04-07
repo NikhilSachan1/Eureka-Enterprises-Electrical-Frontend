@@ -14,14 +14,12 @@ export const SystemPermissionDeleteRequestSchema = z
     };
   });
 
-export const SystemPermissionDeleteResponseSchema = z
-  .object({
-    failed: z.array(
-      z.object({
-        error: z.string(),
-        id,
-      })
-    ),
-    success: z.array(z.string()),
-  })
-  .strict();
+export const SystemPermissionDeleteResponseSchema = z.looseObject({
+  failed: z.array(
+    z.object({
+      error: z.string(),
+      id,
+    })
+  ),
+  success: z.array(z.string()),
+});

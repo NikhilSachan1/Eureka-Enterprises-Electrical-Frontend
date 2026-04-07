@@ -9,25 +9,19 @@ export const ExpenseDeleteRequestSchema = z
   })
   .strict();
 
-export const ExpenseDeleteResultSchema = z
-  .object({
-    expenseId: id,
-    message: z.string(),
-    previousStatus: approvalStatus,
-  })
-  .strict();
+export const ExpenseDeleteResultSchema = z.looseObject({
+  expenseId: id,
+  message: z.string(),
+  previousStatus: approvalStatus,
+});
 
-export const ExpenseDeleteErrorSchema = z
-  .object({
-    expenseId: id,
-    error: z.string().min(1),
-  })
-  .strict();
+export const ExpenseDeleteErrorSchema = z.looseObject({
+  expenseId: id,
+  error: z.string().min(1),
+});
 
-export const ExpenseDeleteResponseSchema = z
-  .object({
-    message: z.string().min(1),
-    result: z.array(ExpenseDeleteResultSchema),
-    errors: z.array(ExpenseDeleteErrorSchema),
-  })
-  .strict();
+export const ExpenseDeleteResponseSchema = z.looseObject({
+  message: z.string().min(1),
+  result: z.array(ExpenseDeleteResultSchema),
+  errors: z.array(ExpenseDeleteErrorSchema),
+});

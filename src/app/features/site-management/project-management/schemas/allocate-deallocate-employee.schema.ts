@@ -38,8 +38,6 @@ export const AllocateDeallocateEmployeeRequestSchema = z
     })),
   }));
 
-export const AllocateDeallocateEmployeeResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const AllocateDeallocateEmployeeResponseSchema = z.looseObject({
+  message: z.string(),
+});

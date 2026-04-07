@@ -17,9 +17,7 @@ export const AttendanceRegularizedRequestSchema = z
     userId: data.employeeName,
   }));
 
-export const AttendanceRegularizedResponseSchema = z
-  .object({
-    message: z.string().min(1),
-    attendanceId: id,
-  })
-  .strict();
+export const AttendanceRegularizedResponseSchema = z.looseObject({
+  message: z.string().min(1),
+  attendanceId: id,
+});

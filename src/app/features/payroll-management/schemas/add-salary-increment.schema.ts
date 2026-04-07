@@ -24,15 +24,8 @@ export const SalaryIncrementAddRequestSchema = z
     incrementType: ESalaryIncrementType.ANNUAL,
     effectiveFrom: transformDateFormat(data.incrementStartDate),
     remarks: data.comments,
-
-    // To be removed after testing
-    conveyanceAllowance: 0,
-    medicalAllowance: 0,
-    specialAllowance: 0,
-    professionalTax: 0,
   }));
 
-export const SalaryIncrementAddResponseSchema = z.object({
-  message: z.string().optional(), // optional To be removed after testing
+export const SalaryIncrementAddResponseSchema = z.looseObject({
+  message: z.string().optional(),
 });
-// .strict(); // To be addd after backend is updated

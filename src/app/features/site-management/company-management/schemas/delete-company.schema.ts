@@ -7,20 +7,16 @@ export const CompanyDeleteRequestSchema = z
   })
   .strict();
 
-export const CompanyDeleteResultSchema = z
-  .object({
-    id: uuidField,
-    message: z.string(),
-    success: z.boolean(),
-  })
-  .strict();
+export const CompanyDeleteResultSchema = z.looseObject({
+  id: uuidField,
+  message: z.string(),
+  success: z.boolean(),
+});
 
-export const CompanyDeleteResponseSchema = z
-  .object({
-    message: z.string(),
-    failureCount: z.number().int().nonnegative(),
-    successCount: z.number().int().nonnegative(),
-    totalRequested: z.number().int().nonnegative(),
-    results: z.array(CompanyDeleteResultSchema),
-  })
-  .strict();
+export const CompanyDeleteResponseSchema = z.looseObject({
+  message: z.string(),
+  failureCount: z.number().int().nonnegative(),
+  successCount: z.number().int().nonnegative(),
+  totalRequested: z.number().int().nonnegative(),
+  results: z.array(CompanyDeleteResultSchema),
+});

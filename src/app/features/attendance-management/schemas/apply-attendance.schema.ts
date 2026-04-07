@@ -34,7 +34,7 @@ export const AttendanceApplyRequestSchema =
     },
   }));
 
-export const AttendanceApplyResponseSchema = z.object({
+export const AttendanceApplyResponseSchema = z.looseObject({
   checkInTime,
   message: z.string(),
 });

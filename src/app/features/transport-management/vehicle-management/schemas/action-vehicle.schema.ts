@@ -24,8 +24,6 @@ export const ActionVehicleRequestSchema = z
       },
     };
   });
-export const ActionVehicleResponseSchema = z
-  .object({
-    message: z.string().min(1),
-  })
-  .strict();
+export const ActionVehicleResponseSchema = z.looseObject({
+  message: z.string().min(1),
+});

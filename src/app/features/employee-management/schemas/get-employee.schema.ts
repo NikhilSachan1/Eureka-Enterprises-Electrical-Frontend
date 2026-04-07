@@ -41,7 +41,7 @@ export const EmployeeGetBaseResponseSchema = EmployeeBaseSchema.pick({
     createdAt,
     updatedAt,
   })
-  .strict()
+  .loose()
   .transform(({ roles: employeeRoles, ...rest }) => {
     return {
       ...rest,
@@ -49,28 +49,24 @@ export const EmployeeGetBaseResponseSchema = EmployeeBaseSchema.pick({
     };
   });
 
-export const EmployeeGetStatsResponseSchema = z
-  .object({
-    total: z.number().int().nonnegative(),
-    active: z.number().int().nonnegative(),
-    inactive: z.number().int().nonnegative(),
-    newJoinersLast30Days: z.number().int().nonnegative(),
-    byEmployeeType: z.record(
-      z.string(),
-      z.number().int().nonnegative().optional()
-    ),
-    byDesignation: z.record(
-      z.string(),
-      z.number().int().nonnegative().optional()
-    ),
-    byGender: z.record(z.string(), z.number().int().nonnegative().optional()),
-  })
-  .strict();
+export const EmployeeGetStatsResponseSchema = z.looseObject({
+  total: z.number().int().nonnegative(),
+  active: z.number().int().nonnegative(),
+  inactive: z.number().int().nonnegative(),
+  newJoinersLast30Days: z.number().int().nonnegative(),
+  byEmployeeType: z.record(
+    z.string(),
+    z.number().int().nonnegative().optional()
+  ),
+  byDesignation: z.record(
+    z.string(),
+    z.number().int().nonnegative().optional()
+  ),
+  byGender: z.record(z.string(), z.number().int().nonnegative().optional()),
+});
 
-export const EmployeeGetResponseSchema = z
-  .object({
-    records: z.array(EmployeeGetBaseResponseSchema),
-    metrics: EmployeeGetStatsResponseSchema.strict(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const EmployeeGetResponseSchema = z.looseObject({
+  records: z.array(EmployeeGetBaseResponseSchema),
+  metrics: EmployeeGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

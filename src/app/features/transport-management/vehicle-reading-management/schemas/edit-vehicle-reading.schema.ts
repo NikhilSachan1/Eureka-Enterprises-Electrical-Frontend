@@ -18,8 +18,6 @@ export const VehicleReadingEditRequestSchema =
         vehicleLogEndOdometer: data.endOdometerReadingAttachments,
       };
     });
-export const VehicleReadingEditResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const VehicleReadingEditResponseSchema = z.looseObject({
+  message: z.string(),
+});

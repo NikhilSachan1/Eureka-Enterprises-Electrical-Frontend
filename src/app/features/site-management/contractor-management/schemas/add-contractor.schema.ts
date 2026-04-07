@@ -18,8 +18,6 @@ export const ContractorAddRequestSchema =
     };
   });
 
-export const ContractorAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const ContractorAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

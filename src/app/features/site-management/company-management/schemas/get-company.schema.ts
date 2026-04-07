@@ -46,40 +46,34 @@ export const CompanyGetBaseResponseSchema = CompanyBaseSchema.extend({
     .extend({
       fullAddress: z.string().nullable(),
     })
-    .strict()
+    .loose()
     .nullable(),
-}).strict();
+}).loose();
 
-export const CompanyGetStatsResponseSchema = z
-  .object({
-    totalCompanies: z.number().int().nonnegative(),
-    activeCompanies: z.number().int().nonnegative(),
-    archivedCompanies: z.number().int().nonnegative(),
-    inactiveCompanies: z.number().int().nonnegative(),
-  })
-  .strict();
+export const CompanyGetStatsResponseSchema = z.looseObject({
+  totalCompanies: z.number().int().nonnegative(),
+  activeCompanies: z.number().int().nonnegative(),
+  archivedCompanies: z.number().int().nonnegative(),
+  inactiveCompanies: z.number().int().nonnegative(),
+});
 
-export const CompanyLevelGetStatsResponseSchema = z
-  .object({
-    activeChildCompanies: z.number().int().nonnegative(),
-    activeSites: z.number().int().nonnegative(),
-    archivedChildCompanies: z.number().int().nonnegative(),
-    completedSites: z.number().int().nonnegative(),
-    holdSites: z.number().int().nonnegative(),
-    inactiveChildCompanies: z.number().int().nonnegative(),
-    totalSites: z.number().int().nonnegative(),
-    upcomingSites: z.number().int().nonnegative(),
-  })
-  .strict();
+export const CompanyLevelGetStatsResponseSchema = z.looseObject({
+  activeChildCompanies: z.number().int().nonnegative(),
+  activeSites: z.number().int().nonnegative(),
+  archivedChildCompanies: z.number().int().nonnegative(),
+  completedSites: z.number().int().nonnegative(),
+  holdSites: z.number().int().nonnegative(),
+  inactiveChildCompanies: z.number().int().nonnegative(),
+  totalSites: z.number().int().nonnegative(),
+  upcomingSites: z.number().int().nonnegative(),
+});
 
-export const CompanyGetResponseSchema = z
-  .object({
-    records: z.array(
-      CompanyGetBaseResponseSchema.extend({
-        stats: CompanyLevelGetStatsResponseSchema.strict().nullable(),
-      }).strict()
-    ),
-    overallStats: CompanyGetStatsResponseSchema.strict(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const CompanyGetResponseSchema = z.looseObject({
+  records: z.array(
+    CompanyGetBaseResponseSchema.extend({
+      stats: CompanyLevelGetStatsResponseSchema.nullable(),
+    }).loose()
+  ),
+  overallStats: CompanyGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

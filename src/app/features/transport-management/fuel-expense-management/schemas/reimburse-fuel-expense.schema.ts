@@ -29,8 +29,6 @@ export const FuelExpenseReimburseRequestSchema =
       };
     });
 
-export const FuelExpenseReimburseResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const FuelExpenseReimburseResponseSchema = z.looseObject({
+  message: z.string(),
+});

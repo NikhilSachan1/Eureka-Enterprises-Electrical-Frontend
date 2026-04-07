@@ -16,8 +16,6 @@ export const PetroCardLinkRequestSchema = z
     };
   });
 
-export const PetroCardLinkResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const PetroCardLinkResponseSchema = z.looseObject({
+  message: z.string(),
+});

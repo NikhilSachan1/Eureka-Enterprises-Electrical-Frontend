@@ -20,26 +20,20 @@ export const FuelExpenseActionRequestSchema = z
     };
   });
 
-export const FuelExpenseActionResultSchema = z
-  .object({
-    approvalStatus,
-    message: z.string(),
-    previousStatus: approvalStatus,
-    fuelExpenseId: id,
-  })
-  .strict();
+export const FuelExpenseActionResultSchema = z.looseObject({
+  approvalStatus,
+  message: z.string(),
+  previousStatus: approvalStatus,
+  fuelExpenseId: id,
+});
 
-export const FuelExpenseActionErrorSchema = z
-  .object({
-    fuelExpenseId: id,
-    error: z.string().min(1),
-  })
-  .strict();
+export const FuelExpenseActionErrorSchema = z.looseObject({
+  fuelExpenseId: id,
+  error: z.string().min(1),
+});
 
-export const FuelExpenseActionResponseSchema = z
-  .object({
-    message: z.string(),
-    result: z.array(FuelExpenseActionResultSchema),
-    errors: z.array(FuelExpenseActionErrorSchema),
-  })
-  .strict();
+export const FuelExpenseActionResponseSchema = z.looseObject({
+  message: z.string(),
+  result: z.array(FuelExpenseActionResultSchema),
+  errors: z.array(FuelExpenseActionErrorSchema),
+});

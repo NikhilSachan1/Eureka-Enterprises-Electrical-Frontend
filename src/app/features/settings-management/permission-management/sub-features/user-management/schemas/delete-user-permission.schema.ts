@@ -10,10 +10,8 @@ export const UserPermissionDeleteRequestSchema = z
     userIds: data.employeeNames,
   }));
 
-export const UserPermissionDeleteResponseSchema = z
-  .object({
-    message: z.string(),
-    totalDeleted: z.number(),
-    deletedCounts: z.record(uuidField, z.number()),
-  })
-  .strict();
+export const UserPermissionDeleteResponseSchema = z.looseObject({
+  message: z.string(),
+  totalDeleted: z.number(),
+  deletedCounts: z.record(uuidField, z.number()),
+});

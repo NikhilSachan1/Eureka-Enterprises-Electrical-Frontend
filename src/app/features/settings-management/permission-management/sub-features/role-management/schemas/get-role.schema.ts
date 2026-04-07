@@ -26,12 +26,10 @@ export const RoleGetBaseResponseSchema = RoleBaseSchema.extend({
   createdAt,
   updatedAt,
   deletedAt,
-}).strict();
+}).loose();
 
-export const RoleGetResponseSchema = z
-  .object({
-    records: z.array(RoleGetBaseResponseSchema),
-    totalRecords: z.number(),
-    totalPermissions: z.number(),
-  })
-  .strict();
+export const RoleGetResponseSchema = z.looseObject({
+  records: z.array(RoleGetBaseResponseSchema),
+  totalRecords: z.number(),
+  totalPermissions: z.number(),
+});

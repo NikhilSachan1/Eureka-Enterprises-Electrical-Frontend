@@ -60,18 +60,16 @@ export const EmployeeAddRequestSchema =
     })
   );
 
-export const EmployeeAddResponseSchema = z
-  .object({
-    id: uuidField,
-    employeeId,
-    message: z.string(),
-    salaryCreated: z.boolean(),
-    leavesCredited: z.array(
-      z.object({
-        category: z.string(),
-        allocated: z.number(),
-        note: z.string(),
-      })
-    ),
-  })
-  .strict();
+export const EmployeeAddResponseSchema = z.looseObject({
+  id: uuidField,
+  employeeId,
+  message: z.string(),
+  salaryCreated: z.boolean(),
+  leavesCredited: z.array(
+    z.object({
+      category: z.string(),
+      allocated: z.number(),
+      note: z.string(),
+    })
+  ),
+});

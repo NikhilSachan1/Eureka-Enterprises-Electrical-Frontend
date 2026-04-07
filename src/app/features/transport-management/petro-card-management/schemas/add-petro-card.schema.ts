@@ -11,8 +11,6 @@ export const PetroCardAddRequestSchema =
     };
   });
 
-export const PetroCardAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const PetroCardAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

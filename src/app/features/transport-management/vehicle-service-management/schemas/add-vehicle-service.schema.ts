@@ -18,8 +18,6 @@ export const VehicleServiceAddRequestSchema =
     };
   });
 
-export const VehicleServiceAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const VehicleServiceAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

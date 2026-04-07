@@ -61,21 +61,19 @@ export const VehicleDetailGetVersionHistorySchema =
       documentKeys: files.map(file => file.fileKey),
     }));
 
-export const VehicleDetailGetResponseSchema = z
-  .object({
-    ...VehicleDetailGetBaseResponseSchema.omit({
-      fitnessStartDate: true,
-      fitnessEndDate: true,
-    }).shape,
-    createdBy,
-    updatedBy: updatedBy.nullable(),
-    deletedBy: deletedBy.nullable(),
-    deletedAt: deletedAt.nullable().optional(),
-    purchaseDate: onlyDateStringField,
-    insuranceStartDate: onlyDateStringField,
-    insuranceEndDate: onlyDateStringField,
-    pucStartDate: onlyDateStringField,
-    pucEndDate: onlyDateStringField,
-    versionHistory: z.array(VehicleDetailGetVersionHistorySchema),
-  })
-  .loose();
+export const VehicleDetailGetResponseSchema = z.looseObject({
+  ...VehicleDetailGetBaseResponseSchema.omit({
+    fitnessStartDate: true,
+    fitnessEndDate: true,
+  }).shape,
+  createdBy,
+  updatedBy: updatedBy.nullable(),
+  deletedBy: deletedBy.nullable(),
+  deletedAt: deletedAt.nullable().optional(),
+  purchaseDate: onlyDateStringField,
+  insuranceStartDate: onlyDateStringField,
+  insuranceEndDate: onlyDateStringField,
+  pucStartDate: onlyDateStringField,
+  pucEndDate: onlyDateStringField,
+  versionHistory: z.array(VehicleDetailGetVersionHistorySchema),
+});

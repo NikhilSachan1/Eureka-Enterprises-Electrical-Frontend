@@ -30,8 +30,6 @@ export const ConfigurationAddRequestSchema =
     };
   });
 
-export const ConfigurationAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const ConfigurationAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

@@ -25,20 +25,16 @@ export const UserPermissionsSetRequestSchema = z
     };
   });
 
-export const UserPermissionsSetResultSchema = z
-  .object({
-    id: uuidField,
-    message: z.string(),
-    success: z.boolean(),
-  })
-  .strict();
+export const UserPermissionsSetResultSchema = z.looseObject({
+  id: uuidField,
+  message: z.string(),
+  success: z.boolean(),
+});
 
-export const UserPermissionsSetResponseSchema = z
-  .object({
-    message: z.string(),
-    failureCount: z.number().int().nonnegative(),
-    successCount: z.number().int().nonnegative(),
-    totalRequested: z.number().int().nonnegative(),
-    results: z.array(UserPermissionsSetResultSchema),
-  })
-  .strict();
+export const UserPermissionsSetResponseSchema = z.looseObject({
+  message: z.string(),
+  failureCount: z.number().int().nonnegative(),
+  successCount: z.number().int().nonnegative(),
+  totalRequested: z.number().int().nonnegative(),
+  results: z.array(UserPermissionsSetResultSchema),
+});

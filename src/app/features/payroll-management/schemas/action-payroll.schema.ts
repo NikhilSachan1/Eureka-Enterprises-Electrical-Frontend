@@ -17,16 +17,14 @@ export const ActionPayrollRequestSchema = z
     };
   });
 
-export const ActionPayrollResponseSchema = z
-  .object({
-    message: z.string().min(1),
-    success: z.number(),
-    failed: z.number(),
-    errors: z.array(
-      z.object({
-        id: uuidField,
-        error: z.string().min(1),
-      })
-    ),
-  })
-  .strict();
+export const ActionPayrollResponseSchema = z.looseObject({
+  message: z.string().min(1),
+  success: z.number(),
+  failed: z.number(),
+  errors: z.array(
+    z.object({
+      id: uuidField,
+      error: z.string().min(1),
+    })
+  ),
+});

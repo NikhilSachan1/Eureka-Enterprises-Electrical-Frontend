@@ -16,8 +16,6 @@ export const DocAddRequestSchema = DocUpsertShapeSchema.strict().transform(
   }
 );
 
-export const DocAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .loose();
+export const DocAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

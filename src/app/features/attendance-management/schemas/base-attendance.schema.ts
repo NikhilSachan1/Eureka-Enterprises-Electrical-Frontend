@@ -16,81 +16,77 @@ export const attendanceTypeSchema = z.enum(EEntryType);
 
 const auditSchema = AuditSchema.shape;
 
-export const AttendanceBaseSchema = z
-  .object({
-    id: uuidField,
-    userId: uuidField,
-    shiftConfigId: uuidField.nullable(),
-    attendanceDate: onlyDateStringField,
-    checkInTime: isoDateTimeField.nullable(),
-    checkOutTime: isoDateTimeField.nullable(),
-    status: z.string(),
-    approvalStatus: z.string(),
-    entrySourceType: entrySourceTypeSchema,
-    attendanceType: attendanceTypeSchema,
-    regularizedBy: uuidField.nullable(),
-    approvalBy: uuidField.nullable(),
-    approvalAt: isoDateTimeField.nullable(),
-    approvalComment: z.string().trim().nullable(),
-    notes: notesField,
-    isActive: z.boolean(),
-    workDuration: z.number().int().nonnegative(),
-    assignmentSnapshot: z
-      .looseObject({
-        company: z
-          .object({
+export const AttendanceBaseSchema = z.looseObject({
+  id: uuidField,
+  userId: uuidField,
+  shiftConfigId: uuidField.nullable(),
+  attendanceDate: onlyDateStringField,
+  checkInTime: isoDateTimeField.nullable(),
+  checkOutTime: isoDateTimeField.nullable(),
+  status: z.string(),
+  approvalStatus: z.string(),
+  entrySourceType: entrySourceTypeSchema,
+  attendanceType: attendanceTypeSchema,
+  regularizedBy: uuidField.nullable(),
+  approvalBy: uuidField.nullable(),
+  approvalAt: isoDateTimeField.nullable(),
+  approvalComment: z.string().trim().nullable(),
+  notes: notesField,
+  isActive: z.boolean(),
+  workDuration: z.number().int().nonnegative(),
+  assignmentSnapshot: z
+    .looseObject({
+      company: z
+        .looseObject({
+          id: uuidField,
+          name: z.string(),
+          fullAddress: z.string(),
+        })
+        .optional()
+        .nullable(),
+      contractors: z.array(
+        z
+          .looseObject({
             id: uuidField,
             name: z.string(),
-            fullAddress: z.string(),
           })
-          .loose()
           .optional()
-          .nullable(),
-        contractors: z.array(
-          z
-            .object({
-              id: uuidField,
-              name: z.string(),
-            })
-            .loose()
-            .optional()
-            .nullable()
-        ),
-        vehicle: z
-          .object({
-            id: uuidField,
-            registrationNo: z.string(),
-          })
-          .loose()
-          .optional()
-          .nullable(),
-        assignedEngineer: z
-          .object({
-            id: uuidField,
-            firstName: z.string(),
-            lastName: z.string(),
-            employeeId: z.string(),
-          })
-          .loose()
-          .optional()
-          .nullable(),
-      })
-      .nullable(),
-    ...auditSchema,
-  })
-  .strict();
-
-export const AttendanceUpsertShapeSchema = z.object({
-  company: CompanyGetBaseResponseSchema.loose().nullable(),
-  contractors: z.array(ContractorGetBaseResponseSchema.loose().nullable()),
-  vehicle: VehicleBaseSchema.loose().nullable(),
-  assignedEngineer: z
-    .looseObject({
-      id: z.string(),
-      firstName: z.string(),
-      lastName: z.string(),
-      employeeId: z.string(),
+          .nullable()
+      ),
+      vehicle: z
+        .looseObject({
+          id: uuidField,
+          registrationNo: z.string(),
+        })
+        .optional()
+        .nullable(),
+      assignedEngineer: z
+        .looseObject({
+          id: uuidField,
+          firstName: z.string(),
+          lastName: z.string(),
+          employeeId: z.string(),
+        })
+        .optional()
+        .nullable(),
     })
     .nullable(),
-  remark: z.string().nullable(),
+  ...auditSchema,
 });
+
+export const AttendanceUpsertShapeSchema = z
+  .object({
+    company: CompanyGetBaseResponseSchema.nullable(),
+    contractors: z.array(ContractorGetBaseResponseSchema.nullable()),
+    vehicle: VehicleBaseSchema.nullable(),
+    assignedEngineer: z
+      .looseObject({
+        id: z.string(),
+        firstName: z.string(),
+        lastName: z.string(),
+        employeeId: z.string(),
+      })
+      .nullable(),
+    remark: z.string().nullable(),
+  })
+  .strict();

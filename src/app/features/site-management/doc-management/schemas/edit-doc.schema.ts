@@ -16,8 +16,6 @@ export const DocEditRequestSchema = DocUpsertShapeSchema.omit({
     };
   });
 
-export const DocEditResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const DocEditResponseSchema = z.looseObject({
+  message: z.string(),
+});

@@ -17,8 +17,6 @@ export const DsrEditRequestSchema = DsrUpsertShapeSchema.omit({
     };
   });
 
-export const DsrEditResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const DsrEditResponseSchema = z.looseObject({
+  message: z.string(),
+});

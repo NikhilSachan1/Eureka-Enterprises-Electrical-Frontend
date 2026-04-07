@@ -12,8 +12,6 @@ export const RoleEditRequestSchema = RoleUpsertShapeSchema.pick({
     };
   });
 
-export const RoleEditResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const RoleEditResponseSchema = z.looseObject({
+  message: z.string(),
+});

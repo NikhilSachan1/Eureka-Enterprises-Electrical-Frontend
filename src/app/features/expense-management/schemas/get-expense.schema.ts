@@ -51,41 +51,35 @@ export const ExpenseGetRequestSchema = z
     }
   );
 
-export const ExpenseGetBaseResponseSchema = z
-  .object({
-    ...ExpenseBaseSchema.shape,
-    user: UserSchema,
-    approvalByUser: makeFieldsNullable(UserSchema).nullable(),
-    approvalStatus: approvalStatus.transform(toTitleCase),
-    createdAt,
-    updatedAt,
-    canEdit: z.boolean(),
-  })
-  .loose();
+export const ExpenseGetBaseResponseSchema = z.looseObject({
+  ...ExpenseBaseSchema.shape,
+  user: UserSchema,
+  approvalByUser: makeFieldsNullable(UserSchema).nullable(),
+  approvalStatus: approvalStatus.transform(toTitleCase),
+  createdAt,
+  updatedAt,
+  canEdit: z.boolean(),
+});
 
-export const ExpenseGetStatsResponseSchema = z
-  .object({
-    balances: z.object({
-      openingBalance: z.number(),
-      closingBalance: z.number(),
-      totalCredit: z.number().nonnegative(),
-      totalDebit: z.number().nonnegative(),
-      periodCredit: z.number().nonnegative(),
-      periodDebit: z.number().nonnegative(),
-    }),
-    approval: z.object({
-      pending: z.number().int().nonnegative(),
-      approved: z.number().int().nonnegative(),
-      rejected: z.number().int().nonnegative(),
-      total: z.number().int().nonnegative(),
-    }),
-  })
-  .strict();
+export const ExpenseGetStatsResponseSchema = z.looseObject({
+  balances: z.object({
+    openingBalance: z.number(),
+    closingBalance: z.number(),
+    totalCredit: z.number().nonnegative(),
+    totalDebit: z.number().nonnegative(),
+    periodCredit: z.number().nonnegative(),
+    periodDebit: z.number().nonnegative(),
+  }),
+  approval: z.object({
+    pending: z.number().int().nonnegative(),
+    approved: z.number().int().nonnegative(),
+    rejected: z.number().int().nonnegative(),
+    total: z.number().int().nonnegative(),
+  }),
+});
 
-export const ExpenseGetResponseSchema = z
-  .object({
-    records: z.array(ExpenseGetBaseResponseSchema),
-    stats: ExpenseGetStatsResponseSchema.strict(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const ExpenseGetResponseSchema = z.looseObject({
+  records: z.array(ExpenseGetBaseResponseSchema),
+  stats: ExpenseGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

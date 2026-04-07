@@ -12,24 +12,18 @@ export const EmployeeDeleteRequestSchema = z
     userIds: data.employeeIds,
   }));
 
-export const EmployeeDeleteResultSchema = z
-  .object({
-    userId: id,
-    message: z.string(),
-  })
-  .strict();
+export const EmployeeDeleteResultSchema = z.looseObject({
+  userId: id,
+  message: z.string(),
+});
 
-export const EmployeeDeleteErrorSchema = z
-  .object({
-    userId: id,
-    error: z.string().min(1),
-  })
-  .strict();
+export const EmployeeDeleteErrorSchema = z.looseObject({
+  userId: id,
+  error: z.string().min(1),
+});
 
-export const EmployeeDeleteResponseSchema = z
-  .object({
-    message: z.string().min(1),
-    result: z.array(EmployeeDeleteResultSchema),
-    errors: z.array(EmployeeDeleteErrorSchema),
-  })
-  .strict();
+export const EmployeeDeleteResponseSchema = z.looseObject({
+  message: z.string().min(1),
+  result: z.array(EmployeeDeleteResultSchema),
+  errors: z.array(EmployeeDeleteErrorSchema),
+});

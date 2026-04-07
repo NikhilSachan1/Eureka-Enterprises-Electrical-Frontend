@@ -28,8 +28,6 @@ export const AssetAddRequestSchema = AssetUpsertShapeSchema.strict().transform(
   }
 );
 
-export const AssetAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const AssetAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

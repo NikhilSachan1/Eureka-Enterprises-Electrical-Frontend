@@ -13,8 +13,6 @@ export const FuelExpenseForceRequestSchema =
       };
     });
 
-export const FuelExpenseForceResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const FuelExpenseForceResponseSchema = z.looseObject({
+  message: z.string(),
+});

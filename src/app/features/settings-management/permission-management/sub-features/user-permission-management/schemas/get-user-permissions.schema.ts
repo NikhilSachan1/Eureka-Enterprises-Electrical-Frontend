@@ -8,16 +8,14 @@ export const UserPermissionsGetRequestSchema = z
   })
   .strict();
 
-export const UserPermissionsGetResponseSchema = z
-  .object({
-    userId: z.uuid(),
-    role: z
-      .object({
-        id: z.uuid(),
-        name: z.string(),
-        label: z.string(),
-      })
-      .optional(),
-    permissions: z.array(ModulePermissionsBaseSchema),
-  })
-  .strict();
+export const UserPermissionsGetResponseSchema = z.looseObject({
+  userId: z.uuid(),
+  role: z
+    .object({
+      id: z.uuid(),
+      name: z.string(),
+      label: z.string(),
+    })
+    .optional(),
+  permissions: z.array(ModulePermissionsBaseSchema),
+});

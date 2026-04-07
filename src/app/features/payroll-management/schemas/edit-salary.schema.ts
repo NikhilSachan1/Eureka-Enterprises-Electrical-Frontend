@@ -24,8 +24,6 @@ export const SalaryEditRequestSchema = z
     professionalTax: 0,
   }));
 
-export const SalaryEditResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const SalaryEditResponseSchema = z.looseObject({
+  message: z.string(),
+});

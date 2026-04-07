@@ -6,8 +6,6 @@ export const LogoutRequestSchema = z
   })
   .strict();
 
-export const LogoutResponseSchema = z
-  .object({
-    message: z.string().min(1),
-  })
-  .strict();
+export const LogoutResponseSchema = z.looseObject({
+  message: z.string().min(1),
+});

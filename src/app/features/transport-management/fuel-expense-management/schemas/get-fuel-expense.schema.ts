@@ -48,70 +48,64 @@ export const FuelExpenseGetRequestSchema = z
     }
   );
 
-export const FuelExpenseGetBaseResponseSchema = z
-  .object({
-    ...FuelExpenseBaseSchema.shape,
-    user: UserSchema,
-    approvalByUser: makeFieldsNullable(UserSchema).nullable(),
-    vehicle: z
-      .object({
-        id: uuidField,
-        registrationNo: z.string().min(1),
-        brand: z.string().min(1),
-        model: z.string().min(1),
-        fuelType: z.string().min(1),
-        mileage: z.string().min(1),
-        status: z.string().min(1),
-      })
-      .nullable(),
-    card: z
-      .object({
-        id: uuidField,
-        cardNumber: z.string().min(1),
-        cardType: z.string().min(1),
-      })
-      .nullable(),
-    fuelEfficiency: z
-      .object({
-        distanceTraveled: z.number(),
-        kmPerLiter: z.number(),
-        previousOdometerKm: z.number(),
-        previousKmPerLiter: z.number().nullable(),
-        efficiencyChange: z.number().nullable(),
-        efficiencyChangePercent: z.number().nullable(),
-      })
-      .nullable()
-      .optional(),
-    approvalStatus: approvalStatus.transform(toTitleCase),
-    createdAt,
-    updatedAt,
-    canEdit: z.boolean(),
-  })
-  .loose();
+export const FuelExpenseGetBaseResponseSchema = z.looseObject({
+  ...FuelExpenseBaseSchema.shape,
+  user: UserSchema,
+  approvalByUser: makeFieldsNullable(UserSchema).nullable(),
+  vehicle: z
+    .object({
+      id: uuidField,
+      registrationNo: z.string().min(1),
+      brand: z.string().min(1),
+      model: z.string().min(1),
+      fuelType: z.string().min(1),
+      mileage: z.string().min(1),
+      status: z.string().min(1),
+    })
+    .nullable(),
+  card: z
+    .object({
+      id: uuidField,
+      cardNumber: z.string().min(1),
+      cardType: z.string().min(1),
+    })
+    .nullable(),
+  fuelEfficiency: z
+    .object({
+      distanceTraveled: z.number(),
+      kmPerLiter: z.number(),
+      previousOdometerKm: z.number(),
+      previousKmPerLiter: z.number().nullable(),
+      efficiencyChange: z.number().nullable(),
+      efficiencyChangePercent: z.number().nullable(),
+    })
+    .nullable()
+    .optional(),
+  approvalStatus: approvalStatus.transform(toTitleCase),
+  createdAt,
+  updatedAt,
+  canEdit: z.boolean(),
+});
 
-export const FuelExpenseGetStatsResponseSchema = z
-  .object({
-    balances: z.object({
-      openingBalance: z.number(),
-      closingBalance: z.number(),
-      totalCredit: z.number().nonnegative(),
-      totalDebit: z.number().nonnegative(),
-      periodCredit: z.number().nonnegative(),
-      periodDebit: z.number().nonnegative(),
-    }),
-    approval: z.object({
-      pending: z.number().int().nonnegative(),
-      approved: z.number().int().nonnegative(),
-      rejected: z.number().int().nonnegative(),
-      total: z.number().int().nonnegative(),
-    }),
-  })
-  .strict();
+export const FuelExpenseGetStatsResponseSchema = z.looseObject({
+  balances: z.object({
+    openingBalance: z.number(),
+    closingBalance: z.number(),
+    totalCredit: z.number().nonnegative(),
+    totalDebit: z.number().nonnegative(),
+    periodCredit: z.number().nonnegative(),
+    periodDebit: z.number().nonnegative(),
+  }),
+  approval: z.object({
+    pending: z.number().int().nonnegative(),
+    approved: z.number().int().nonnegative(),
+    rejected: z.number().int().nonnegative(),
+    total: z.number().int().nonnegative(),
+  }),
+});
 
-export const FuelExpenseGetResponseSchema = z
-  .object({
-    records: z.array(FuelExpenseGetBaseResponseSchema),
-    stats: FuelExpenseGetStatsResponseSchema.strict(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const FuelExpenseGetResponseSchema = z.looseObject({
+  records: z.array(FuelExpenseGetBaseResponseSchema),
+  stats: FuelExpenseGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

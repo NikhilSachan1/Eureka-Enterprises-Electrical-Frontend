@@ -51,38 +51,34 @@ export const VehicleServiceGetBaseResponseSchema =
     createdByUser: UserSchema,
     // updatedByUser: makeFieldsNullable(UserSchema).nullable(),
   })
-    .strict()
+    .loose()
     .transform(({ serviceFiles, ...rest }) => ({
       ...rest,
       documentKeys: serviceFiles.map(file => file.fileKey),
     }));
 
-export const VehicleServiceGetStatsResponseSchema = z
-  .object({
-    totalServices: z.number().int().nonnegative(),
-    totalCost: z.number().nonnegative(),
-    averageCost: z.number().nonnegative(),
-    byStatus: z.object({
-      pending: z.number().int().nonnegative(),
-      completed: z.number().int().nonnegative(),
-      cancelled: z.number().int().nonnegative(),
-    }),
-    byServiceType: z.object({
-      REGULAR_SERVICE: z.number().int().nonnegative(),
-      EMERGENCY_SERVICE: z.number().int().nonnegative(),
-      BREAKDOWN_REPAIR: z.number().int().nonnegative(),
-      ACCIDENT_REPAIR: z.number().int().nonnegative(),
-      TYRE_CHANGE: z.number().int().nonnegative(),
-      BATTERY_REPLACEMENT: z.number().int().nonnegative(),
-      OTHER: z.number().int().nonnegative(),
-    }),
-  })
-  .strict();
+export const VehicleServiceGetStatsResponseSchema = z.looseObject({
+  totalServices: z.number().int().nonnegative(),
+  totalCost: z.number().nonnegative(),
+  averageCost: z.number().nonnegative(),
+  byStatus: z.object({
+    pending: z.number().int().nonnegative(),
+    completed: z.number().int().nonnegative(),
+    cancelled: z.number().int().nonnegative(),
+  }),
+  byServiceType: z.object({
+    REGULAR_SERVICE: z.number().int().nonnegative(),
+    EMERGENCY_SERVICE: z.number().int().nonnegative(),
+    BREAKDOWN_REPAIR: z.number().int().nonnegative(),
+    ACCIDENT_REPAIR: z.number().int().nonnegative(),
+    TYRE_CHANGE: z.number().int().nonnegative(),
+    BATTERY_REPLACEMENT: z.number().int().nonnegative(),
+    OTHER: z.number().int().nonnegative(),
+  }),
+});
 
-export const VehicleServiceGetResponseSchema = z
-  .object({
-    records: z.array(VehicleServiceGetBaseResponseSchema),
-    stats: VehicleServiceGetStatsResponseSchema.strict(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const VehicleServiceGetResponseSchema = z.looseObject({
+  records: z.array(VehicleServiceGetBaseResponseSchema),
+  stats: VehicleServiceGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

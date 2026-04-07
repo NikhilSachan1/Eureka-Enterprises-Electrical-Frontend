@@ -14,26 +14,20 @@ export const VehicleServiceDeleteRequestSchema = z
     };
   });
 
-export const VehicleServiceDeleteResultSchema = z
-  .object({
-    serviceId: id,
-    message: z.string(),
-    serviceType: z.string(),
-    serviceStatus: z.string(),
-  })
-  .strict();
+export const VehicleServiceDeleteResultSchema = z.looseObject({
+  serviceId: id,
+  message: z.string(),
+  serviceType: z.string(),
+  serviceStatus: z.string(),
+});
 
-export const VehicleServiceDeleteErrorSchema = z
-  .object({
-    serviceId: id,
-    error: z.string().min(1),
-  })
-  .strict();
+export const VehicleServiceDeleteErrorSchema = z.looseObject({
+  serviceId: id,
+  error: z.string().min(1),
+});
 
-export const VehicleServiceDeleteResponseSchema = z
-  .object({
-    message: z.string().min(1),
-    result: z.array(VehicleServiceDeleteResultSchema),
-    errors: z.array(VehicleServiceDeleteErrorSchema),
-  })
-  .strict();
+export const VehicleServiceDeleteResponseSchema = z.looseObject({
+  message: z.string().min(1),
+  result: z.array(VehicleServiceDeleteResultSchema),
+  errors: z.array(VehicleServiceDeleteErrorSchema),
+});

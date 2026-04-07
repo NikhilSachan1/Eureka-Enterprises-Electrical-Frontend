@@ -27,8 +27,6 @@ export const ExpenseReimburseRequestSchema = ExpenseUpsertShapeSchema.omit({
     };
   });
 
-export const ExpenseReimburseResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const ExpenseReimburseResponseSchema = z.looseObject({
+  message: z.string(),
+});

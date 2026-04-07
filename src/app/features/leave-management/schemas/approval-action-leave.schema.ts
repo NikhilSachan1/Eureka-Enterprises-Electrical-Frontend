@@ -22,25 +22,19 @@ export const LeaveActionRequestSchema = z
     };
   });
 
-export const LeaveActionResultSchema = z
-  .object({
-    approvalStatus,
-    message: z.string(),
-    leaveApplicationId: id,
-  })
-  .strict();
+export const LeaveActionResultSchema = z.looseObject({
+  approvalStatus,
+  message: z.string(),
+  leaveApplicationId: id,
+});
 
-export const LeaveActionErrorSchema = z
-  .object({
-    leaveApplicationId: id,
-    error: z.string().min(1),
-  })
-  .strict();
+export const LeaveActionErrorSchema = z.looseObject({
+  leaveApplicationId: id,
+  error: z.string().min(1),
+});
 
-export const LeaveActionResponseSchema = z
-  .object({
-    message: z.string().min(1),
-    result: z.array(LeaveActionResultSchema),
-    errors: z.array(LeaveActionErrorSchema),
-  })
-  .strict();
+export const LeaveActionResponseSchema = z.looseObject({
+  message: z.string().min(1),
+  result: z.array(LeaveActionResultSchema),
+  errors: z.array(LeaveActionErrorSchema),
+});

@@ -20,26 +20,20 @@ export const ExpenseActionRequestSchema = z
     };
   });
 
-export const ExpenseActionResultSchema = z
-  .object({
-    approvalStatus,
-    message: z.string(),
-    previousStatus: approvalStatus,
-    expenseId: id,
-  })
-  .strict();
+export const ExpenseActionResultSchema = z.looseObject({
+  approvalStatus,
+  message: z.string(),
+  previousStatus: approvalStatus,
+  expenseId: id,
+});
 
-export const ExpenseActionErrorSchema = z
-  .object({
-    expenseId: id,
-    error: z.string().min(1),
-  })
-  .strict();
+export const ExpenseActionErrorSchema = z.looseObject({
+  expenseId: id,
+  error: z.string().min(1),
+});
 
-export const ExpenseActionResponseSchema = z
-  .object({
-    message: z.string().min(1),
-    result: z.array(ExpenseActionResultSchema),
-    errors: z.array(ExpenseActionErrorSchema),
-  })
-  .strict();
+export const ExpenseActionResponseSchema = z.looseObject({
+  message: z.string().min(1),
+  result: z.array(ExpenseActionResultSchema),
+  errors: z.array(ExpenseActionErrorSchema),
+});

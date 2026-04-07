@@ -5,8 +5,6 @@ export const AnnouncementAcknowledgeRequestSchema = z.object({
   announcementId: uuidField,
 });
 
-export const AnnouncementAcknowledgeResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const AnnouncementAcknowledgeResponseSchema = z.looseObject({
+  message: z.string(),
+});

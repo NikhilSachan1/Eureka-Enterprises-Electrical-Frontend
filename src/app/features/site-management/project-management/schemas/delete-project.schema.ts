@@ -12,20 +12,16 @@ export const ProjectDeleteRequestSchema = z
     };
   });
 
-export const ProjectDeleteResultSchema = z
-  .object({
-    id: uuidField,
-    message: z.string(),
-    success: z.boolean(),
-  })
-  .strict();
+export const ProjectDeleteResultSchema = z.looseObject({
+  id: uuidField,
+  message: z.string(),
+  success: z.boolean(),
+});
 
-export const ProjectDeleteResponseSchema = z
-  .object({
-    message: z.string(),
-    failureCount: z.number().int().nonnegative(),
-    successCount: z.number().int().nonnegative(),
-    totalRequested: z.number().int().nonnegative(),
-    results: z.array(ProjectDeleteResultSchema),
-  })
-  .strict();
+export const ProjectDeleteResponseSchema = z.looseObject({
+  message: z.string(),
+  failureCount: z.number().int().nonnegative(),
+  successCount: z.number().int().nonnegative(),
+  totalRequested: z.number().int().nonnegative(),
+  results: z.array(ProjectDeleteResultSchema),
+});

@@ -23,8 +23,6 @@ export const VehicleAddRequestSchema =
       vehicleFiles: data.vehicleFiles,
     };
   });
-export const VehicleAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const VehicleAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

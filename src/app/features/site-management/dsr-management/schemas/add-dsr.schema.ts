@@ -16,8 +16,6 @@ export const DsrAddRequestSchema = DsrUpsertShapeSchema.strict().transform(
   }
 );
 
-export const DsrAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const DsrAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

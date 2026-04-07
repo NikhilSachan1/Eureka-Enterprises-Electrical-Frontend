@@ -18,26 +18,20 @@ export const AttendanceActionRequestSchema = z
     })),
   }));
 
-export const AttendanceActionResultSchema = z
-  .object({
-    approvalStatus,
-    message: z.string(),
-    attendanceId: id,
-    newStatus: z.string(),
-  })
-  .strict();
+export const AttendanceActionResultSchema = z.looseObject({
+  approvalStatus,
+  message: z.string(),
+  attendanceId: id,
+  newStatus: z.string(),
+});
 
-export const AttendanceActionErrorSchema = z
-  .object({
-    attendanceId: id,
-    error: z.string().min(1),
-  })
-  .strict();
+export const AttendanceActionErrorSchema = z.looseObject({
+  attendanceId: id,
+  error: z.string().min(1),
+});
 
-export const AttendanceActionResponseSchema = z
-  .object({
-    message: z.string().min(1),
-    result: z.array(AttendanceActionResultSchema),
-    errors: z.array(AttendanceActionErrorSchema),
-  })
-  .strict();
+export const AttendanceActionResponseSchema = z.looseObject({
+  message: z.string().min(1),
+  result: z.array(AttendanceActionResultSchema),
+  errors: z.array(AttendanceActionErrorSchema),
+});

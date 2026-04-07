@@ -45,53 +45,49 @@ export const AssetEventHistoryGetRequestSchema = z
     }
   );
 
-export const AssetEventHistoryGetStatsResponseSchema = z
-  .object({
-    total: z.number().int().nonnegative(),
-    byEventType: z.object({
-      ASSET_ADDED: z.number().int().nonnegative(),
-      AVAILABLE: z.number().int().nonnegative(),
-      ASSIGNED: z.number().int().nonnegative(),
-      DEALLOCATED: z.number().int().nonnegative(),
-      UNDER_MAINTENANCE: z.number().int().nonnegative(),
-      CALIBRATED: z.number().int().nonnegative(),
-      DAMAGED: z.number().int().nonnegative(),
-      RETIRED: z.number().int().nonnegative(),
-      UPDATED: z.number().int().nonnegative(),
-      HANDOVER_INITIATED: z.number().int().nonnegative(),
-      HANDOVER_ACCEPTED: z.number().int().nonnegative(),
-      HANDOVER_REJECTED: z.number().int().nonnegative(),
-      HANDOVER_CANCELLED: z.number().int().nonnegative(),
-    }),
-  })
-  .strict();
+export const AssetEventHistoryGetStatsResponseSchema = z.looseObject({
+  total: z.number().int().nonnegative(),
+  byEventType: z.object({
+    ASSET_ADDED: z.number().int().nonnegative(),
+    AVAILABLE: z.number().int().nonnegative(),
+    ASSIGNED: z.number().int().nonnegative(),
+    DEALLOCATED: z.number().int().nonnegative(),
+    UNDER_MAINTENANCE: z.number().int().nonnegative(),
+    CALIBRATED: z.number().int().nonnegative(),
+    DAMAGED: z.number().int().nonnegative(),
+    RETIRED: z.number().int().nonnegative(),
+    UPDATED: z.number().int().nonnegative(),
+    HANDOVER_INITIATED: z.number().int().nonnegative(),
+    HANDOVER_ACCEPTED: z.number().int().nonnegative(),
+    HANDOVER_REJECTED: z.number().int().nonnegative(),
+    HANDOVER_CANCELLED: z.number().int().nonnegative(),
+  }),
+});
 
-export const AssetEventHistoryGetBaseResponseObjectSchema = z
-  .object({
-    id: uuidField,
-    assetMasterId: uuidField,
-    eventType: z.string().min(1),
-    fromUserId: uuidField.nullable(),
-    toUserId: uuidField.nullable(),
-    createdAt,
-    updatedAt,
-    createdById: createdBy,
-    createdByUser: UserSchema,
-    fromUserDetails: makeFieldsNullable(UserSchema).nullable(),
-    toUserDetails: makeFieldsNullable(UserSchema).nullable(),
-    metadata: z.record(z.string(), z.string()).nullable(),
-    assetFiles: z.array(makeFieldsNullable(AssetBaseDocumentsSchema)),
-    asset: z.object({
-      id,
-      assetId,
-      name,
-      model,
-      serialNumber,
-      category,
-      status,
-    }),
-  })
-  .loose();
+export const AssetEventHistoryGetBaseResponseObjectSchema = z.looseObject({
+  id: uuidField,
+  assetMasterId: uuidField,
+  eventType: z.string().min(1),
+  fromUserId: uuidField.nullable(),
+  toUserId: uuidField.nullable(),
+  createdAt,
+  updatedAt,
+  createdById: createdBy,
+  createdByUser: UserSchema,
+  fromUserDetails: makeFieldsNullable(UserSchema).nullable(),
+  toUserDetails: makeFieldsNullable(UserSchema).nullable(),
+  metadata: z.record(z.string(), z.string()).nullable(),
+  assetFiles: z.array(makeFieldsNullable(AssetBaseDocumentsSchema)),
+  asset: z.object({
+    id,
+    assetId,
+    name,
+    model,
+    serialNumber,
+    category,
+    status,
+  }),
+});
 
 export const AssetEventHistoryGetBaseResponseSchema =
   AssetEventHistoryGetBaseResponseObjectSchema.transform(
@@ -101,10 +97,8 @@ export const AssetEventHistoryGetBaseResponseSchema =
     })
   );
 
-export const AssetEventHistoryGetResponseSchema = z
-  .object({
-    records: z.array(AssetEventHistoryGetBaseResponseSchema),
-    stats: AssetEventHistoryGetStatsResponseSchema.strict(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const AssetEventHistoryGetResponseSchema = z.looseObject({
+  records: z.array(AssetEventHistoryGetBaseResponseSchema),
+  stats: AssetEventHistoryGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

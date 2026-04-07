@@ -3,11 +3,9 @@ import { EmployeeBaseSchema } from './base-employee.schema';
 
 const { employeeId } = EmployeeBaseSchema.shape;
 
-export const EmployeeGetNextEmployeeIdResponseSchema = z
-  .object({
-    success: z.boolean(),
-    data: z.object({
-      employeeId,
-    }),
-  })
-  .strict();
+export const EmployeeGetNextEmployeeIdResponseSchema = z.looseObject({
+  success: z.boolean(),
+  data: z.object({
+    employeeId,
+  }),
+});

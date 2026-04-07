@@ -28,6 +28,6 @@ export const AssetEditRequestSchema = AssetUpsertShapeSchema.extend({
       assetFiles: data.assetFiles,
     };
   });
-export const AssetEditResponseSchema = z.object({
+export const AssetEditResponseSchema = z.looseObject({
   message: z.string(),
 });

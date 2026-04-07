@@ -19,8 +19,6 @@ export const CompanyEditRequestSchema =
     };
   });
 
-export const CompanyEditResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const CompanyEditResponseSchema = z.looseObject({
+  message: z.string(),
+});

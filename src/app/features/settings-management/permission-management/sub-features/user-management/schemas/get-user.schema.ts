@@ -23,33 +23,29 @@ export const UserGetRequestSchema = z
     };
   });
 
-export const UserGetBaseResponseSchema = z
-  .object({
-    id: uuidField,
-    firstName: z.string(),
-    lastName: z.string(),
-    email: z.string(),
-    employeeId: z.string(),
-    status: z.string(),
-    roles: z.array(
-      z.object({
-        name: z.string(),
-        label: z.string(),
-      })
-    ),
-    rolePermissionsCount: z.number(),
-    userPermissionsRevokedCount: z.number(),
-    userPermissionsGrantedCount: z.number(),
-    effectivePermissionsCount: z.number(),
-    createdAt,
-    updatedAt,
-  })
-  .strict();
+export const UserGetBaseResponseSchema = z.looseObject({
+  id: uuidField,
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string(),
+  employeeId: z.string(),
+  status: z.string(),
+  roles: z.array(
+    z.object({
+      name: z.string(),
+      label: z.string(),
+    })
+  ),
+  rolePermissionsCount: z.number(),
+  userPermissionsRevokedCount: z.number(),
+  userPermissionsGrantedCount: z.number(),
+  effectivePermissionsCount: z.number(),
+  createdAt,
+  updatedAt,
+});
 
-export const UserGetResponseSchema = z
-  .object({
-    records: z.array(UserGetBaseResponseSchema),
-    totalRecords: z.number(),
-    systemTotalPermissions: z.number(),
-  })
-  .strict();
+export const UserGetResponseSchema = z.looseObject({
+  records: z.array(UserGetBaseResponseSchema),
+  totalRecords: z.number(),
+  systemTotalPermissions: z.number(),
+});

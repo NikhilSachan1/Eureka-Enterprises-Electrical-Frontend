@@ -15,8 +15,6 @@ export const ExpenseEditRequestSchema =
     };
   });
 
-export const ExpenseEditResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const ExpenseEditResponseSchema = z.looseObject({
+  message: z.string(),
+});

@@ -17,8 +17,6 @@ export const AnnouncementAddRequestSchema =
     };
   });
 
-export const AnnouncementAddResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const AnnouncementAddResponseSchema = z.looseObject({
+  message: z.string(),
+});

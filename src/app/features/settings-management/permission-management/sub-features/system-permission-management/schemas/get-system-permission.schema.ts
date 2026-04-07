@@ -22,11 +22,9 @@ export const SystemPermissionGetRequestSchema = z
   });
 
 export const SystemPermissionGetBaseResponseSchema =
-  SystemPermissionBaseSchema.extend(AuditSchema.shape).strict();
+  SystemPermissionBaseSchema.extend(AuditSchema.shape).loose();
 
-export const SystemPermissionGetResponseSchema = z
-  .object({
-    records: z.array(SystemPermissionGetBaseResponseSchema),
-    totalRecords: z.number().min(0),
-  })
-  .strict();
+export const SystemPermissionGetResponseSchema = z.looseObject({
+  records: z.array(SystemPermissionGetBaseResponseSchema),
+  totalRecords: z.number().min(0),
+});

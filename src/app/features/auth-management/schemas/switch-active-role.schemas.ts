@@ -14,4 +14,4 @@ export const SwitchActiveRoleResponseSchema = z
     activeRole: z.string().min(1),
     message: z.string().min(1),
   })
-  .strict();
+  .loose();

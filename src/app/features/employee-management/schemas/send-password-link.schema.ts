@@ -12,18 +12,16 @@ export const EmployeeSendPasswordLinkRequestSchema = z
     userIds: data.employeeIds,
   }));
 
-export const EmployeeSendPasswordLinkResponseSchema = z
-  .object({
-    message: z.string().min(1),
-    results: z.array(
-      z.object({
-        userId: id,
-        email,
-        firstName,
-        lastName,
-        resetLink: z.string(),
-        status: z.string(),
-      })
-    ),
-  })
-  .strict();
+export const EmployeeSendPasswordLinkResponseSchema = z.looseObject({
+  message: z.string().min(1),
+  results: z.array(
+    z.object({
+      userId: id,
+      email,
+      firstName,
+      lastName,
+      resetLink: z.string(),
+      status: z.string(),
+    })
+  ),
+});

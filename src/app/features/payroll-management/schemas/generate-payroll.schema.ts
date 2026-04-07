@@ -15,17 +15,15 @@ export const GeneratePayrollRequestSchema = z
     };
   });
 
-export const GeneratePayrollResponseSchema = z
-  .object({
-    message: z.string().min(1),
-    success: z.number(),
-    failed: z.number(),
-    skipped: z.number(),
-    errors: z.array(
-      z.object({
-        userId: uuidField,
-        error: z.string().min(1),
-      })
-    ),
-  })
-  .strict();
+export const GeneratePayrollResponseSchema = z.looseObject({
+  message: z.string().min(1),
+  success: z.number(),
+  failed: z.number(),
+  skipped: z.number(),
+  errors: z.array(
+    z.object({
+      userId: uuidField,
+      error: z.string().min(1),
+    })
+  ),
+});

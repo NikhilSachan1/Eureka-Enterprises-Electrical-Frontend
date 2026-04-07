@@ -9,8 +9,6 @@ export const ForgetPasswordRequestSchema = z
     email: data.email.toLowerCase().trim(),
   }));
 
-export const ForgetPasswordResponseSchema = z
-  .object({
-    message: z.string().min(1),
-  })
-  .strict();
+export const ForgetPasswordResponseSchema = z.looseObject({
+  message: z.string().min(1),
+});

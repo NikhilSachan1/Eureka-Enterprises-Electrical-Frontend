@@ -13,8 +13,6 @@ export const ProjectChangeStatusRequestSchema = z
     };
   });
 
-export const ProjectChangeStatusResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const ProjectChangeStatusResponseSchema = z.looseObject({
+  message: z.string(),
+});

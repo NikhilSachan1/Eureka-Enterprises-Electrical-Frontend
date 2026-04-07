@@ -19,26 +19,24 @@ export const ExpenseDetailGetRequestSchema = z
     };
   });
 
-export const ExpenseDetailGetResponseSchema = z
-  .object({
-    originalExpenseId: id,
-    currentVersion: z.number().int().nonnegative(),
-    totalVersions: z.number().int().nonnegative(),
-    history: z.array(
-      ExpenseBaseSchema.extend({
-        amount: z.string(),
-        createdBy: uuidField,
-        updatedBy: uuidField.nullable(),
-        user: UserSchema,
-        createdByUser: UserSchema,
-        updatedByUser: makeFieldsNullable(UserSchema).nullable(),
-        approvalByUser,
-        updatedAt,
-        createdAt,
-      }).omit({
-        approvalBy: true,
-        userId: true,
-      })
-    ),
-  })
-  .strict();
+export const ExpenseDetailGetResponseSchema = z.looseObject({
+  originalExpenseId: id,
+  currentVersion: z.number().int().nonnegative(),
+  totalVersions: z.number().int().nonnegative(),
+  history: z.array(
+    ExpenseBaseSchema.extend({
+      amount: z.string(),
+      createdBy: uuidField,
+      updatedBy: uuidField.nullable(),
+      user: UserSchema,
+      createdByUser: UserSchema,
+      updatedByUser: makeFieldsNullable(UserSchema).nullable(),
+      approvalByUser,
+      updatedAt,
+      createdAt,
+    }).omit({
+      approvalBy: true,
+      userId: true,
+    })
+  ),
+});

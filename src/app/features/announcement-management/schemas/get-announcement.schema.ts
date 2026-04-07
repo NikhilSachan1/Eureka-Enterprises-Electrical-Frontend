@@ -28,39 +28,31 @@ const AnnouncementStatsSchema = z
     acknowledged: z.number(),
     pending: z.number(),
   })
-  .strict();
+  .loose();
 
-export const AnnouncementGetBaseResponseSchema = z
-  .object({
-    ...AnnouncementBaseSchema.shape,
-    stats: AnnouncementStatsSchema,
-    targets: z.array(
-      z
-        .object({
-          id: uuidField,
-          targetType: z.string().min(1),
-          targetId: uuidField,
-        })
-        .strict()
-    ),
-    createdAt,
-    updatedAt,
-    createdBy,
-  })
-  .strict();
+export const AnnouncementGetBaseResponseSchema = z.looseObject({
+  ...AnnouncementBaseSchema.shape,
+  stats: AnnouncementStatsSchema,
+  targets: z.array(
+    z.looseObject({
+      id: uuidField,
+      targetType: z.string().min(1),
+      targetId: uuidField,
+    })
+  ),
+  createdAt,
+  updatedAt,
+  createdBy,
+});
 
-export const AnnouncementGetStatsResponseSchema = z
-  .object({
-    total: z.number(),
-    acknowledged: z.number(),
-    pending: z.number(),
-  })
-  .strict();
+export const AnnouncementGetStatsResponseSchema = z.looseObject({
+  total: z.number(),
+  acknowledged: z.number(),
+  pending: z.number(),
+});
 
-export const AnnouncementGetResponseSchema = z
-  .object({
-    records: z.array(AnnouncementGetBaseResponseSchema),
-    stats: AnnouncementGetStatsResponseSchema.optional(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const AnnouncementGetResponseSchema = z.looseObject({
+  records: z.array(AnnouncementGetBaseResponseSchema),
+  stats: AnnouncementGetStatsResponseSchema.optional(),
+  totalRecords: z.number().int().nonnegative(),
+});

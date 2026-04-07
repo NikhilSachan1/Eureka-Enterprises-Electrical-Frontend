@@ -24,16 +24,14 @@ export const AttendanceCurrentStatusGetFormSchema = z
     userId: data.employeeName,
   }));
 
-export const AttendanceCurrentStatusGetResponseSchema = z
-  .object({
-    id,
-    attendanceDate,
-    checkInTime,
-    checkOutTime,
-    status,
-    approvalStatus,
-    workDuration,
-    user: UserSchema,
-    ...assignmentSnapshotShape,
-  })
-  .loose();
+export const AttendanceCurrentStatusGetResponseSchema = z.looseObject({
+  id,
+  attendanceDate,
+  checkInTime,
+  checkOutTime,
+  status,
+  approvalStatus,
+  workDuration,
+  user: UserSchema,
+  ...assignmentSnapshotShape,
+});

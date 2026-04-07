@@ -21,4 +21,4 @@ export const LeaveForceRequestSchema = LeaveUpsertShapeSchema.extend({
     };
   });
 
-export const LeaveForceResponseSchema = LeaveApplyResponseSchema.strict();
+export const LeaveForceResponseSchema = LeaveApplyResponseSchema;

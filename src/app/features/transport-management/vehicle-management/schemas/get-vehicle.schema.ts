@@ -54,7 +54,7 @@ export const VehicleGetRequestSchema = z
   );
 
 export const VehicleGetBaseResponseSchema = z
-  .object({
+  .looseObject({
     ...VehicleBaseSchema.shape,
     assignedTo: uuidField.nullable().optional(),
     assignedToUser: makeFieldsNullable(UserSchema).nullable(),
@@ -70,7 +70,7 @@ export const VehicleGetBaseResponseSchema = z
     kmSinceLastService: z.number().nullable(), // TODO: Can be negative
     files: z.array(VehicleBaseDocumentsSchema),
     associatedCard: z
-      .object({
+      .looseObject({
         id: uuidField,
         cardNumber: z.string().min(1),
         cardType: z.string().min(1),
@@ -79,7 +79,6 @@ export const VehicleGetBaseResponseSchema = z
         expiryDate: z.string().min(1).nullable(),
         expiryStatus: z.string().min(1).nullable(),
       })
-      .strict()
       .nullable(),
     latestEvent: VehicleEventHistoryGetBaseResponseObjectSchema.pick({
       id: true,
@@ -99,53 +98,48 @@ export const VehicleGetBaseResponseSchema = z
     updatedAt,
     deletedAt,
   })
-  .loose()
   .transform(({ files, ...rest }) => ({
     ...rest,
     documentKeys: files.map(file => file.fileKey),
   }));
 
-export const VehicleGetStatsResponseSchema = z
-  .object({
-    total: z.number().int().nonnegative(),
-    byStatus: z.object({
-      available: z.number().int().nonnegative(),
-      assigned: z.number().int().nonnegative(),
-      underMaintenance: z.number().int().nonnegative(),
-      damaged: z.number().int().nonnegative(),
-      retired: z.number().int().nonnegative(),
-    }),
-    byFuelType: z.object({
-      petrol: z.number().int().nonnegative(),
-      diesel: z.number().int().nonnegative(),
-      electric: z.number().int().nonnegative(),
-      hybrid: z.number().int().nonnegative(),
-      cng: z.number().int().nonnegative(),
-    }),
-    insuranceStatus: z.object({
-      active: z.number().int().nonnegative(),
-      expiringSoon: z.number().int().nonnegative(),
-      expired: z.number().int().nonnegative(),
-      notApplicable: z.number().int().nonnegative(),
-    }),
-    pucStatus: z.object({
-      active: z.number().int().nonnegative(),
-      expiringSoon: z.number().int().nonnegative(),
-      expired: z.number().int().nonnegative(),
-      notApplicable: z.number().int().nonnegative(),
-    }),
-    serviceDueStatus: z.object({
-      ok: z.number().int().nonnegative(),
-      dueSoon: z.number().int().nonnegative(),
-      overdue: z.number().int().nonnegative(),
-    }),
-  })
-  .loose();
+export const VehicleGetStatsResponseSchema = z.looseObject({
+  total: z.number().int().nonnegative(),
+  byStatus: z.object({
+    available: z.number().int().nonnegative(),
+    assigned: z.number().int().nonnegative(),
+    underMaintenance: z.number().int().nonnegative(),
+    damaged: z.number().int().nonnegative(),
+    retired: z.number().int().nonnegative(),
+  }),
+  byFuelType: z.object({
+    petrol: z.number().int().nonnegative(),
+    diesel: z.number().int().nonnegative(),
+    electric: z.number().int().nonnegative(),
+    hybrid: z.number().int().nonnegative(),
+    cng: z.number().int().nonnegative(),
+  }),
+  insuranceStatus: z.object({
+    active: z.number().int().nonnegative(),
+    expiringSoon: z.number().int().nonnegative(),
+    expired: z.number().int().nonnegative(),
+    notApplicable: z.number().int().nonnegative(),
+  }),
+  pucStatus: z.object({
+    active: z.number().int().nonnegative(),
+    expiringSoon: z.number().int().nonnegative(),
+    expired: z.number().int().nonnegative(),
+    notApplicable: z.number().int().nonnegative(),
+  }),
+  serviceDueStatus: z.object({
+    ok: z.number().int().nonnegative(),
+    dueSoon: z.number().int().nonnegative(),
+    overdue: z.number().int().nonnegative(),
+  }),
+});
 
-export const VehicleGetResponseSchema = z
-  .object({
-    records: z.array(VehicleGetBaseResponseSchema),
-    stats: VehicleGetStatsResponseSchema.loose(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const VehicleGetResponseSchema = z.looseObject({
+  records: z.array(VehicleGetBaseResponseSchema),
+  stats: VehicleGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

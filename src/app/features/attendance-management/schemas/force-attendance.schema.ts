@@ -46,8 +46,6 @@ export const AttendanceForceRequestSchema = AttendanceUpsertShapeSchema.extend({
     },
   }));
 
-export const AttendanceForceResponseSchema = z
-  .object({
-    message: z.string().min(1),
-  })
-  .strict();
+export const AttendanceForceResponseSchema = z.looseObject({
+  message: z.string().min(1),
+});

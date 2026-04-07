@@ -1,7 +1,7 @@
 import z from 'zod';
 import { dateField, onlyDateStringField, uuidField } from '@shared/schemas';
 
-export const ConfigurationBaseSchema = z.object({
+export const ConfigurationBaseSchema = z.looseObject({
   id: uuidField,
   module: z.string(),
   key: z.string(),
@@ -10,7 +10,7 @@ export const ConfigurationBaseSchema = z.object({
   isEditable: z.boolean(),
   description: z.string().nullable(),
   configSettings: z.array(
-    z.object({
+    z.looseObject({
       id: uuidField,
       contextKey: z.string().nullable(),
       value: z.unknown(),

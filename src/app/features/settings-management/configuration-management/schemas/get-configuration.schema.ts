@@ -23,9 +23,7 @@ export const ConfigurationGetRequestSchema = z
 
 export const ConfigurationGetBaseResponseSchema = ConfigurationBaseSchema;
 
-export const ConfigurationGetResponseSchema = z
-  .object({
-    records: z.array(ConfigurationBaseSchema),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const ConfigurationGetResponseSchema = z.looseObject({
+  records: z.array(ConfigurationBaseSchema),
+  totalRecords: z.number().int().nonnegative(),
+});

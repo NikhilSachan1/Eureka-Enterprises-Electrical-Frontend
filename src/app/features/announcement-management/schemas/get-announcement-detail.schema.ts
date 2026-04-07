@@ -28,14 +28,12 @@ export const AnnouncementDetailGetResponseSchema =
       createdByUser: UserSchema.nullable(),
       updatedByUser: makeFieldsNullable(UserSchema).optional(),
       targets: z.array(
-        z
-          .object({
-            targetId: uuidField,
-            targetType: z.string().min(1),
-            employeeId: z.string().min(1),
-            employeeName: z.string().min(1),
-          })
-          .strict()
+        z.looseObject({
+          targetId: uuidField,
+          targetType: z.string().min(1),
+          employeeId: z.string().min(1),
+          employeeName: z.string().min(1),
+        })
       ),
     })
-    .strict();
+    .loose();

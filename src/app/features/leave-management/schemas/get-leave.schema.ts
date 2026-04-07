@@ -39,34 +39,28 @@ export const LeaveGetRequestSchema = z
     }
   );
 
-export const LeaveGetBaseResponseSchema = z
-  .object({
-    ...LeaveBaseSchema.shape,
-    approvalStatus: approvalStatus.transform(toTitleCase),
-  })
-  .strict();
+export const LeaveGetBaseResponseSchema = z.looseObject({
+  ...LeaveBaseSchema.shape,
+  approvalStatus: approvalStatus.transform(toTitleCase),
+});
 
-export const LeaveGetStatsResponseSchema = z
-  .object({
-    leaveBalance: z.object({
-      totalCredited: z.number().nonnegative(),
-      totalConsumed: z.number().nonnegative(),
-      totalBalance: z.number().nonnegative(),
-    }),
-    approval: z.object({
-      pending: z.number().int().nonnegative(),
-      approved: z.number().int().nonnegative(),
-      rejected: z.number().int().nonnegative(),
-      cancelled: z.number().int().nonnegative(),
-      total: z.number().int().nonnegative(),
-    }),
-  })
-  .strict();
+export const LeaveGetStatsResponseSchema = z.looseObject({
+  leaveBalance: z.object({
+    totalCredited: z.number().nonnegative(),
+    totalConsumed: z.number().nonnegative(),
+    totalBalance: z.number().nonnegative(),
+  }),
+  approval: z.object({
+    pending: z.number().int().nonnegative(),
+    approved: z.number().int().nonnegative(),
+    rejected: z.number().int().nonnegative(),
+    cancelled: z.number().int().nonnegative(),
+    total: z.number().int().nonnegative(),
+  }),
+});
 
-export const LeaveGetResponseSchema = z
-  .object({
-    records: z.array(LeaveGetBaseResponseSchema),
-    stats: LeaveGetStatsResponseSchema.strict(),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const LeaveGetResponseSchema = z.looseObject({
+  records: z.array(LeaveGetBaseResponseSchema),
+  stats: LeaveGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

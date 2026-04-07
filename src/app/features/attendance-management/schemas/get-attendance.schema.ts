@@ -57,49 +57,43 @@ export const AttendanceGetRequestSchema = z
     }
   );
 
-export const AttendanceGetBaseResponseSchema = z
-  .object({
-    id,
-    attendanceDate,
-    checkInTime,
-    checkOutTime,
-    notes: notes.nullable(), // ToDo: remove this nullable after backend is updated
-    workDuration,
-    attendanceType,
-    status,
-    approvalStatus,
-    user: UserSchema,
-    createdBy: makeFieldsNullable(UserSchema).nullable(),
-    approvalBy: makeFieldsNullable(UserSchema).nullable(),
-    assignmentSnapshot: assignmentSnapshot.optional().nullable(),
-  })
-  .loose();
+export const AttendanceGetBaseResponseSchema = z.looseObject({
+  id,
+  attendanceDate,
+  checkInTime,
+  checkOutTime,
+  notes: notes.nullable(), // ToDo: remove this nullable after backend is updated
+  workDuration,
+  attendanceType,
+  status,
+  approvalStatus,
+  user: UserSchema,
+  createdBy: makeFieldsNullable(UserSchema).nullable(),
+  approvalBy: makeFieldsNullable(UserSchema).nullable(),
+  assignmentSnapshot: assignmentSnapshot.optional().nullable(),
+});
 
-export const AttendanceGetStatsResponseSchema = z
-  .object({
-    attendance: z.object({
-      present: z.number().int().nonnegative(),
-      absent: z.number().int().nonnegative(),
-      leave: z.number().int().nonnegative(),
-      checkedIn: z.number().int().nonnegative(),
-      checkedOut: z.number().int().nonnegative(),
-      notCheckedInYet: z.number().int().nonnegative(),
-      holiday: z.number().int().nonnegative(),
-      total: z.number().int().nonnegative(),
-    }),
-    approval: z.object({
-      pending: z.number().int().nonnegative(),
-      approved: z.number().int().nonnegative(),
-      rejected: z.number().int().nonnegative(),
-      total: z.number().int().nonnegative(),
-    }),
-  })
-  .strict();
+export const AttendanceGetStatsResponseSchema = z.looseObject({
+  attendance: z.object({
+    present: z.number().int().nonnegative(),
+    absent: z.number().int().nonnegative(),
+    leave: z.number().int().nonnegative(),
+    checkedIn: z.number().int().nonnegative(),
+    checkedOut: z.number().int().nonnegative(),
+    notCheckedInYet: z.number().int().nonnegative(),
+    holiday: z.number().int().nonnegative(),
+    total: z.number().int().nonnegative(),
+  }),
+  approval: z.object({
+    pending: z.number().int().nonnegative(),
+    approved: z.number().int().nonnegative(),
+    rejected: z.number().int().nonnegative(),
+    total: z.number().int().nonnegative(),
+  }),
+});
 
-export const AttendanceGetResponseSchema = z
-  .object({
-    records: z.array(AttendanceGetBaseResponseSchema),
-    stats: AttendanceGetStatsResponseSchema,
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const AttendanceGetResponseSchema = z.looseObject({
+  records: z.array(AttendanceGetBaseResponseSchema),
+  stats: AttendanceGetStatsResponseSchema,
+  totalRecords: z.number().int().nonnegative(),
+});

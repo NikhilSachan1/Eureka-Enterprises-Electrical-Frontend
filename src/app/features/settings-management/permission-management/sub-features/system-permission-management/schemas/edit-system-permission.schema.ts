@@ -13,8 +13,6 @@ export const SystemPermissionEditRequestSchema =
       };
     });
 
-export const SystemPermissionEditResponseSchema = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
+export const SystemPermissionEditResponseSchema = z.looseObject({
+  message: z.string(),
+});

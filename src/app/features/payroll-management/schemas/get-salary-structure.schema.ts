@@ -26,48 +26,42 @@ export const SalaryStructureGetRequestSchema = z
     };
   });
 
-export const salaryStructureSchema = z
-  .object({
-    basic: z.string(),
-    hra: z.string(),
-    foodAllowance: z.string(),
-    conveyanceAllowance: z.string().nullable(),
-    medicalAllowance: z.string().nullable(),
-    specialAllowance: z.string().nullable(),
-    employeePf: z.string().nullable(),
-    employerPf: z.string().nullable(),
-    esic: z.string().nullable(),
-    tds: z.string().nullable(),
-    professionalTax: z.string().nullable(),
-    grossSalary: z.string(),
-    totalDeductions: z.string(),
-    netSalary: z.string(),
-    ctc: z.string(),
-    effectiveFrom: onlyDateStringField,
-  })
-  .strict();
+export const salaryStructureSchema = z.looseObject({
+  basic: z.string(),
+  hra: z.string(),
+  foodAllowance: z.string(),
+  conveyanceAllowance: z.string().nullable(),
+  medicalAllowance: z.string().nullable(),
+  specialAllowance: z.string().nullable(),
+  employeePf: z.string().nullable(),
+  employerPf: z.string().nullable(),
+  esic: z.string().nullable(),
+  tds: z.string().nullable(),
+  professionalTax: z.string().nullable(),
+  grossSalary: z.string(),
+  totalDeductions: z.string(),
+  netSalary: z.string(),
+  ctc: z.string(),
+  effectiveFrom: onlyDateStringField,
+});
 
-export const SalaryStructureGetBaseResponseSchema = z
-  .object({
-    id: uuidField,
-    userId: uuidField,
-    ...salaryStructureSchema.shape,
-    effectiveTo: onlyDateStringField.nullable(),
-    isActive: z.boolean(),
-    incrementPercentage: z.string().nullable(),
-    incrementType: z.string(),
-    previousStructureId: uuidField.nullable(),
-    remarks: z.string().nullable(),
-    user: makeFieldsNullable(UserSchema).nullable(),
-    createdByUser: UserSchema,
-    updatedByUser: makeFieldsNullable(UserSchema).nullable(),
-    ...AuditSchema.shape,
-  })
-  .strict();
+export const SalaryStructureGetBaseResponseSchema = z.looseObject({
+  id: uuidField,
+  userId: uuidField,
+  ...salaryStructureSchema.shape,
+  effectiveTo: onlyDateStringField.nullable(),
+  isActive: z.boolean(),
+  incrementPercentage: z.string().nullable(),
+  incrementType: z.string(),
+  previousStructureId: uuidField.nullable(),
+  remarks: z.string().nullable(),
+  user: makeFieldsNullable(UserSchema).nullable(),
+  createdByUser: UserSchema,
+  updatedByUser: makeFieldsNullable(UserSchema).nullable(),
+  ...AuditSchema.shape,
+});
 
-export const SalaryStructureGetResponseSchema = z
-  .object({
-    records: z.array(SalaryStructureGetBaseResponseSchema),
-    totalRecords: z.number().int().nonnegative(),
-  })
-  .strict();
+export const SalaryStructureGetResponseSchema = z.looseObject({
+  records: z.array(SalaryStructureGetBaseResponseSchema),
+  totalRecords: z.number().int().nonnegative(),
+});

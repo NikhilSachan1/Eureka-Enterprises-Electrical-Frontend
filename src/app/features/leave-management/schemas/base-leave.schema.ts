@@ -14,31 +14,31 @@ export const entrySourceTypeSchema = z.enum(EEntrySourceType);
 export const leaveEntryTypeSchema = z.enum(EEntryType);
 const { createdAt, updatedAt, createdBy } = AuditSchema.shape;
 
-export const LeaveBaseSchema = z
+export const LeaveBaseSchema = z.looseObject({
+  id: uuidField,
+  userId: uuidField,
+  leaveType: z.string().min(1),
+  leaveCategory: z.string().min(1),
+  leaveApplicationType: leaveEntryTypeSchema,
+  fromDate: isoDateTimeField,
+  toDate: isoDateTimeField,
+  reason: z.string().trim(),
+  approvalStatus: approvalStatusSchema,
+  approvalAt: isoDateTimeField.nullable(),
+  approvalBy: uuidField.nullable(),
+  approvalReason: z.string().trim().nullable(),
+  entrySourceType: entrySourceTypeSchema,
+  approvalByUser: makeFieldsNullable(UserSchema).nullable(),
+  user: UserSchema,
+  createdByUser: UserSchema,
+  createdAt,
+  updatedAt,
+  createdBy,
+});
+
+export const LeaveUpsertShapeSchema = z
   .object({
-    id: uuidField,
-    userId: uuidField,
-    leaveType: z.string().min(1),
-    leaveCategory: z.string().min(1),
-    leaveApplicationType: leaveEntryTypeSchema,
-    fromDate: isoDateTimeField,
-    toDate: isoDateTimeField,
-    reason: z.string().trim(),
-    approvalStatus: approvalStatusSchema,
-    approvalAt: isoDateTimeField.nullable(),
-    approvalBy: uuidField.nullable(),
-    approvalReason: z.string().trim().nullable(),
-    entrySourceType: entrySourceTypeSchema,
-    approvalByUser: makeFieldsNullable(UserSchema).nullable(),
-    user: UserSchema,
-    createdByUser: UserSchema,
-    createdAt,
-    updatedAt,
-    createdBy,
+    leaveDate: z.array(dateField),
+    leaveReason: z.string().trim(),
   })
   .strict();
-
-export const LeaveUpsertShapeSchema = z.object({
-  leaveDate: z.array(dateField),
-  leaveReason: z.string().trim(),
-});

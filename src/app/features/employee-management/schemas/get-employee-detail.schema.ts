@@ -16,13 +16,11 @@ export const EmployeeDetailGetRequestSchema = z
   })
   .strict();
 
-export const EmployeeDetailGetDocumentsBaseSchema = z
-  .object({
-    id: uuidField,
-    fileKey: z.string(),
-    fileName: z.string().nullable().optional(),
-  })
-  .strict();
+export const EmployeeDetailGetDocumentsBaseSchema = z.looseObject({
+  id: uuidField,
+  fileKey: z.string(),
+  fileName: z.string().nullable().optional(),
+});
 
 export const EmployeeDetailGetDocumentsSchema = z
   .object({
@@ -93,7 +91,7 @@ export const EmployeeDetailGetResponseSchema = EmployeeBaseSchema.extend({
   lastWorkingDate: isoDateTimeField.nullable(),
   timezone: z.string().nullable(),
 })
-  .strict()
+  .loose()
   .transform(({ roles: employeeRoles, ...rest }) => {
     return {
       ...rest,

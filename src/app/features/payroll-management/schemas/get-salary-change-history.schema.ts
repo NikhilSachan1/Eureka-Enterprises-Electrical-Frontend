@@ -35,7 +35,7 @@ export const SalaryStructureHistoryGetBaseResponseSchema = AuditSchema.pick({
     changedByUser: UserSchema,
     isActive: z.boolean(),
   })
-  .strict();
+  .loose();
 
 export const SalaryStructureHistoryGetResponseSchema = z.array(
   SalaryStructureHistoryGetBaseResponseSchema
