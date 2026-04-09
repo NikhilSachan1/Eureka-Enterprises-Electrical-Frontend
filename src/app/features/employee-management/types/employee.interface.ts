@@ -10,7 +10,6 @@ export interface IEmployee
     | 'firstName'
     | 'lastName'
     | 'profilePicture'
-    | 'status'
     | 'employeeId'
     | 'roles'
     | 'fatherName'

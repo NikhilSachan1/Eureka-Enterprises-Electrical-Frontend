@@ -11,6 +11,13 @@ export const DEFAULT_NOTIFICATION_OPTIONS_CONFIG: INotificationOptions = {
 export const DEFAULT_NOTIFICATION_MESSAGES = {
   VALIDATION_FAILED: 'Please fill all fields correctly.',
   SOMETHING_WENT_WRONG: 'Something went wrong',
+  /** Mixed bulk outcome: total processed, success count, failure count */
+  bulkMixedHeadline: (
+    total: number,
+    succeeded: number,
+    failed: number
+  ): string =>
+    `Bulk operation completed: ${total} item(s) processed — ${succeeded} succeeded, ${failed} failed.`,
 } as const;
 
 // Notification titles

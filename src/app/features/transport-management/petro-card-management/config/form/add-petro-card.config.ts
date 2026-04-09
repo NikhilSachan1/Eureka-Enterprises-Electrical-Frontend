@@ -1,6 +1,5 @@
 import { Validators } from '@angular/forms';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { REGEX } from '@shared/constants';
 import {
   EDataType,
   ETextCase,
@@ -20,10 +19,7 @@ const ADD_PETRO_CARD_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPetroCardAddFor
       textConfig: {
         textCase: ETextCase.TITLECASE,
       },
-      validators: [
-        Validators.required,
-        Validators.pattern(REGEX.ALPHABETS_WITH_SPACES),
-      ],
+      validators: [Validators.required],
     },
     petroCardNumber: {
       id: 'petroCardNumber',
@@ -34,9 +30,7 @@ const ADD_PETRO_CARD_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPetroCardAddFor
         Validators.required,
         Validators.minLength(16),
         Validators.maxLength(16),
-        Validators.pattern(REGEX.NUMBER_ONLY),
       ],
-      applyPatternFilter: true,
     },
   };
 

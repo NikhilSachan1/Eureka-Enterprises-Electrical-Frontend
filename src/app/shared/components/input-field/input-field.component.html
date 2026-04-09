@@ -16,27 +16,36 @@
 }
 @switch (config.fieldType) {
   @case (ALL_DATA_TYPES.TEXT) {
-    <p-floatlabel [variant]="config.floatLabelVariant">
-      <input
-        pInputText
-        [id]="config.id"
-        [autocomplete]="config.autocomplete"
-        [fluid]="config.haveFullWidth"
-        [pSize]="config.fieldSize"
-        [attr.placeholder]="effectivePlaceholder || null"
-        [attr.maxlength]="getMaxLengthAttribute()"
-        [disabled]="config.disabledInput || false"
-        [readonly]="config.readonlyInput || false"
-        [ngModel]="effectiveValue()"
-        [ngModelOptions]="{ standalone: true }"
-        [class]="invalidClass"
-        (input)="onValueChange($event)"
-        (blur)="onBlur()"
-      />
-      @if (!showStandardLabel) {
-        <label [for]="config.id">{{ config.label }}</label>
+    <div class="flex flex-col gap-1 w-full">
+      <p-floatlabel [variant]="config.floatLabelVariant">
+        @let textConfig = config.textConfig || {};
+        <input
+          pInputText
+          [id]="config.id"
+          [autocomplete]="config.autocomplete"
+          [fluid]="config.haveFullWidth"
+          [pSize]="config.fieldSize"
+          [attr.placeholder]="effectivePlaceholder || null"
+          [attr.minlength]="textConfig.minimumInputLength ?? null"
+          [attr.maxlength]="textConfig.maximumInputLength ?? null"
+          [disabled]="config.disabledInput || false"
+          [readonly]="config.readonlyInput || false"
+          [ngModel]="effectiveValue()"
+          [ngModelOptions]="{ standalone: true }"
+          [class]="invalidClass"
+          (keydown)="onTextKeyDown($event)"
+          (beforeinput)="onTextBeforeInput($event)"
+          (input)="onValueChange($event)"
+          (blur)="onBlur()"
+        />
+        @if (!showStandardLabel) {
+          <label [for]="config.id">{{ config.label }}</label>
+        }
+      </p-floatlabel>
+      @if (config.hint) {
+        <p class="text-xs text-text-secondary leading-snug m-0">{{ config.hint }}</p>
       }
-    </p-floatlabel>
+    </div>
   }
   @case (ALL_DATA_TYPES.NUMBER) {
     <p-floatlabel [variant]="config.floatLabelVariant">
@@ -48,6 +57,8 @@
         [mode]="numberConfig?.mode"
         [min]="numberConfig?.minimumBoundaryValue"
         [max]="numberConfig?.maximumBoundaryValue"
+        [minlength]="numberConfig?.minimumInputLength ?? null"
+        [maxlength]="numberConfig?.maximumInputLength ?? null"
         [minFractionDigits]="numberConfig?.minimumFractionDigits"
         [maxFractionDigits]="numberConfig?.maximumFractionDigits"
         [useGrouping]="numberConfig?.allowNumberFormatting"
@@ -466,21 +477,25 @@
   @case (ALL_DATA_TYPES.TEXT_AREA) {
     <p-floatlabel [variant]="config.floatLabelVariant">
       @let textAreaConfig = config.textAreaConfig;
+      @let textConfig = config.textConfig || {};
       <textarea
         pTextarea
         [id]="config.id"
         [fluid]="config.haveFullWidth"
         [pSize]="config.fieldSize"
         [placeholder]="effectivePlaceholder"
-        [attr.maxlength]="getMaxLengthAttribute()"
         [rows]="textAreaConfig?.rows"
         [cols]="textAreaConfig?.cols"
         [autoResize]="textAreaConfig?.autoResize"
+        [attr.minlength]="textConfig.minimumInputLength ?? null"
+        [attr.maxlength]="textConfig.maximumInputLength ?? null"
         [readonly]="config.readonlyInput || false"
         [disabled]="config.disabledInput || false"
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
         [class]="invalidClass"
+        (keydown)="onTextKeyDown($event)"
+        (beforeinput)="onTextBeforeInput($event)"
         (input)="onValueChange($event)"
         (blur)="onBlur()"
       ></textarea>

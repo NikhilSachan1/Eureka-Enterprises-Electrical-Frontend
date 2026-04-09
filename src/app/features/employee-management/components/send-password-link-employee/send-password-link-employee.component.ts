@@ -52,7 +52,7 @@ export class SendPasswordLinkEmployeeComponent
   }
 
   onDialogAccept(): void {
-    super.onSubmit();
+    this.handleSubmit();
   }
 
   protected override handleSubmit(): void {
@@ -88,13 +88,19 @@ export class SendPasswordLinkEmployeeComponent
       )
       .subscribe({
         next: (response: IEmployeeSendPasswordLinkResponseDto) => {
-          const { results } = response;
-
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'employee',
-            actionLabel: 'Send Password Link',
-            errors: [],
-            result: results,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? EMPLOYEE_MESSAGES.SUCCESS.SEND_PASSWORD_LINK
+                  : `Password link sent successfully for ${count} employees.`,
+              error: () => EMPLOYEE_MESSAGES.ERROR.SEND_PASSWORD_LINK,
+              empty: EMPLOYEE_MESSAGES.ERROR.SEND_PASSWORD_LINK,
+            },
           });
 
           const successCallback = this.onSuccess();

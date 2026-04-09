@@ -3,12 +3,12 @@ import z from 'zod';
 import { EmployeeBaseSchema } from './base-employee.schema';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
-const { roles } = EmployeeBaseSchema.shape;
 const { createdAt, updatedAt } = AuditSchema.shape;
 
 export const EmployeeGetRequestSchema = z
   .object({
-    employeeRole: z.array(roles.element.shape.name).optional(),
+    employeeRole: z.array(z.string()).optional(),
+    employeeStatus: z.string().optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -16,9 +16,10 @@ export const EmployeeGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ employeeRole: roleName, ...rest }) => {
+  .transform(({ employeeRole: roleName, employeeStatus, ...rest }) => {
     return {
       ...rest,
+      status: employeeStatus,
       role: roleName,
     };
   });

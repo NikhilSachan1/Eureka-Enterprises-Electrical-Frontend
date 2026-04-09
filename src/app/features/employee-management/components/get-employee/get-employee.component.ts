@@ -54,7 +54,7 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { getMappedValueFromArrayOfObjects, toTitleCase } from '@shared/utility';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { GetEmployeeDetailComponent } from '../get-employee-detail/get-employee-detail.component';
@@ -153,7 +153,7 @@ export class GetEmployeeComponent implements OnInit {
     return response.map((record: IEmployeeGetBaseResponseDto) => {
       return {
         id: record.id,
-        employeeName: `${record.firstName} ${record.lastName}`,
+        employeeName: `${toTitleCase(record.firstName)} ${toTitleCase(record.lastName)}`,
         employeeCode: record.employeeId,
         email: record.email,
         contactNumber: record.contactNumber,
@@ -166,8 +166,12 @@ export class GetEmployeeComponent implements OnInit {
           record.designation
         ),
         dateOfJoining: record.dateOfJoining,
+        status: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.employeeStatus(),
+          record.status
+        ),
         originalRawData: record,
-      };
+      } satisfies IEmployee;
     });
   }
 
@@ -209,6 +213,7 @@ export class GetEmployeeComponent implements OnInit {
         metrics: [
           { label: 'Male', value: stats.byGender['male'] ?? 0 },
           { label: 'Female', value: stats.byGender['female'] ?? 0 },
+          { label: 'Other', value: stats.byGender['other'] ?? 0 },
         ],
       },
     ];

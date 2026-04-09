@@ -15,7 +15,6 @@ import {
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { EMPLOYEE_MESSAGES } from '../../constants';
 import { ConfirmationDialogService } from '@shared/services';
-import { EButtonActionType } from '@shared/types';
 import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
 
@@ -50,7 +49,7 @@ export class DeleteEmployeeComponent extends FormBase implements OnInit {
   }
 
   onDialogAccept(): void {
-    super.onSubmit();
+    this.handleSubmit();
   }
 
   protected override handleSubmit(): void {
@@ -84,13 +83,19 @@ export class DeleteEmployeeComponent extends FormBase implements OnInit {
       )
       .subscribe({
         next: (response: IEmployeeDeleteResponseDto) => {
-          const { errors, result } = response;
-
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'employee',
-            actionLabel: EButtonActionType.DELETE,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? EMPLOYEE_MESSAGES.SUCCESS.DELETE
+                  : `Successfully deleted ${count} employees.`,
+              error: () => EMPLOYEE_MESSAGES.ERROR.DELETE,
+              empty: EMPLOYEE_MESSAGES.ERROR.DELETE,
+            },
           });
 
           const successCallback = this.onSuccess();

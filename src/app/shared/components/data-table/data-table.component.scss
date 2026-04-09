@@ -133,6 +133,12 @@
   pointer-events: none;
 }
 
+// PrimeNG disabled menu items skip hover; pTooltip on <li> needs pointer events.
+::ng-deep .row-overflow-actions-menu .p-menu-item.p-disabled {
+  pointer-events: auto;
+  cursor: not-allowed;
+}
+
 // SelectButton styling for view mode toggle
 ::ng-deep .view-mode-toggle {
   .p-selectbutton {

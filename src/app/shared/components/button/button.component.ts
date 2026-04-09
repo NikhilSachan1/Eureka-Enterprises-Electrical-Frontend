@@ -6,6 +6,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import {
   IButtonConfig,
   EButtonIconPosition,
@@ -17,7 +18,7 @@ import { StatusUtil } from '@shared/utility';
 
 @Component({
   selector: 'app-button',
-  imports: [ButtonModule],
+  imports: [ButtonModule, TooltipModule],
   templateUrl: './button.component.html',
   styleUrl: './button.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,6 +61,17 @@ export class ButtonComponent {
   hasConfig = computed(() => {
     const config = this.finalButtonConfig();
     return config && Object.keys(config).length > 0;
+  });
+
+  /** Prefer disabled reason when disabled; otherwise normal tooltip. */
+  protected resolvedTooltip = computed((): string | undefined => {
+    const cfg = this.finalButtonConfig();
+    const disabled = this.showDisabledButton();
+    const dt = cfg.disabledTooltip?.trim();
+    if (disabled && dt) {
+      return dt;
+    }
+    return cfg.tooltip?.trim() ?? undefined;
   });
 
   onClick(event: MouseEvent): void {

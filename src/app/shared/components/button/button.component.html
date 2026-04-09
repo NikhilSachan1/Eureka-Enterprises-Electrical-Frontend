@@ -1,24 +1,32 @@
 @if (hasConfig()) {
   @let buttonConfig = finalButtonConfig();
   @let isDisabled = showDisabledButton();
+  @let tip = resolvedTooltip();
 
-  <p-button
-    [type]="buttonConfig.type || ALL_BUTTON_TYPES.BUTTON"
-    [label]="buttonConfig.label"
-    [icon]="buttonConfig.icon"
-    [iconPos]="buttonConfig.iconPosition || ALL_BUTTON_ICON_POSITIONS.LEFT"
-    [loading]="showButtonLoader()"
-    [severity]="buttonConfig.severity"
-    [disabled]="isDisabled"
-    [raised]="buttonConfig.shadow"
-    [rounded]="buttonConfig.rounded"
-    [variant]="buttonConfig.variant"
-    [badge]="buttonConfig.badge"
-    [badgeSeverity]="buttonConfig.badgeSeverity"
-    [size]="buttonConfig.size"
-    [link]="buttonConfig.link"
-    [fluid]="buttonConfig.fluid"
-    [class.disabled-button]="isDisabled"
-    (onClick)="onClick($event)"
-  />
+  <span
+    class="inline-flex max-w-full"
+    [class.btn-tip-pass]="isDisabled"
+    [pTooltip]="tip"
+    [tooltipDisabled]="!tip"
+  >
+    <p-button
+      [type]="buttonConfig.type || ALL_BUTTON_TYPES.BUTTON"
+      [label]="buttonConfig.label"
+      [icon]="buttonConfig.icon"
+      [iconPos]="buttonConfig.iconPosition || ALL_BUTTON_ICON_POSITIONS.LEFT"
+      [loading]="showButtonLoader()"
+      [severity]="buttonConfig.severity"
+      [disabled]="isDisabled"
+      [raised]="buttonConfig.shadow"
+      [rounded]="buttonConfig.rounded"
+      [variant]="buttonConfig.variant"
+      [badge]="buttonConfig.badge"
+      [badgeSeverity]="buttonConfig.badgeSeverity"
+      [size]="buttonConfig.size"
+      [link]="buttonConfig.link"
+      [fluid]="buttonConfig.fluid"
+      [class.disabled-button]="isDisabled"
+      (onClick)="onClick($event)"
+    />
+  </span>
 }

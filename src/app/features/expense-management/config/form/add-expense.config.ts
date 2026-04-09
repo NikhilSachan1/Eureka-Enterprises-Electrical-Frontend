@@ -2,7 +2,7 @@ import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import { EExpenseCategory } from '@features/expense-management/types/expense.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { CONFIGURATION_KEYS, MODULE_NAMES, REGEX } from '@shared/constants';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
   EInputNumberMode,
@@ -11,7 +11,7 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { getDateBeforeXDays, withCustomMessage } from '@shared/utility';
+import { getDateBeforeXDays } from '@shared/utility';
 import { IExpenseAddFormDto } from '@features/expense-management/types/expense.dto';
 
 const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto> =
@@ -84,14 +84,7 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto>
       textConfig: {
         textCase: ETextCase.UPPERCASE,
       },
-      validators: [
-        Validators.minLength(6),
-        Validators.maxLength(32),
-        withCustomMessage(
-          Validators.pattern(REGEX.ALPHANUMERIC),
-          'Invalid transaction ID / Receipt Number / UTR Number'
-        ),
-      ],
+      validators: [Validators.minLength(6), Validators.maxLength(32)],
     },
     remark: {
       fieldType: EDataType.TEXT_AREA,

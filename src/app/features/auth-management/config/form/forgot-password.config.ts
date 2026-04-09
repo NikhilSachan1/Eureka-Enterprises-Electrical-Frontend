@@ -9,8 +9,6 @@ import {
 } from '@shared/types';
 import { IForgetPasswordFormDto } from '../../types/auth.dto';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { REGEX } from '@shared/constants';
-import { withCustomMessage } from '@shared/utility';
 
 const FORGOT_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig<IForgetPasswordFormDto> =
   {
@@ -19,13 +17,7 @@ const FORGOT_PASSWORD_FIELDS_CONFIG: IFormInputFieldsConfig<IForgetPasswordFormD
       id: 'email',
       fieldName: 'email',
       label: 'Email Address',
-      validators: [
-        Validators.required,
-        withCustomMessage(
-          Validators.pattern(REGEX.EMAIL),
-          'Invalid email address'
-        ),
-      ],
+      validators: [Validators.required],
     },
   };
 

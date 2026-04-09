@@ -2,11 +2,13 @@ import { Validators } from '@angular/forms';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
   EDataType,
+  EInputNumberMode,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
 import { ISalaryEditFormDto } from '@features/payroll-management/types/payroll.dto';
+import { APP_CONFIG } from '@core/config';
 
 const EDIT_SALARY_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISalaryEditFormDto> =
   {
@@ -15,6 +17,10 @@ const EDIT_SALARY_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISalaryEditFormDto>
       fieldName: 'basicSalary',
       label: 'Basic Salary',
       fieldType: EDataType.NUMBER,
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
       validators: [Validators.required],
     },
     hra: {
@@ -22,6 +28,10 @@ const EDIT_SALARY_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISalaryEditFormDto>
       fieldName: 'hra',
       label: 'HRA',
       fieldType: EDataType.NUMBER,
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
       validators: [Validators.required],
     },
     foodAllowance: {
@@ -29,6 +39,10 @@ const EDIT_SALARY_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISalaryEditFormDto>
       fieldName: 'foodAllowance',
       label: 'Food Allowance',
       fieldType: EDataType.NUMBER,
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
       validators: [Validators.required],
     },
     tds: {
@@ -36,6 +50,10 @@ const EDIT_SALARY_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISalaryEditFormDto>
       fieldName: 'tds',
       label: 'TDS',
       fieldType: EDataType.NUMBER,
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
       validators: [Validators.required],
     },
     employerEsicContribution: {
@@ -43,6 +61,10 @@ const EDIT_SALARY_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISalaryEditFormDto>
       fieldName: 'employerEsicContribution',
       label: 'Employer ESIC Contribution',
       fieldType: EDataType.NUMBER,
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
       validators: [Validators.required],
     },
     employeePfContribution: {
@@ -50,6 +72,10 @@ const EDIT_SALARY_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISalaryEditFormDto>
       fieldName: 'employeePfContribution',
       label: 'Employee PF Contribution',
       fieldType: EDataType.NUMBER,
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
       validators: [Validators.required],
     },
     comments: {

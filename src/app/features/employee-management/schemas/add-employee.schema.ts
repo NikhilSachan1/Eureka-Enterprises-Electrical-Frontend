@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { EmployeeUpsertShapeSchema } from './base-employee.schema';
 import { uuidField } from '@shared/schemas';
-import { transformDateFormat } from '@shared/utility';
+import { toLowerCase, transformDateFormat } from '@shared/utility';
 import { EUserRole } from '@shared/constants';
 
 const { employeeId } = EmployeeUpsertShapeSchema.shape;
@@ -56,7 +56,10 @@ export const EmployeeAddRequestSchema =
         employeePf: employeePfContribution,
         foodAllowance,
       },
-      roles: designation === EUserRole.DRIVER ? ['DRIVER'] : ['ADMIN'],
+      roles:
+        toLowerCase(designation) === toLowerCase(EUserRole.DRIVER)
+          ? [EUserRole.DRIVER]
+          : [EUserRole.EMPLOYEE],
     })
   );
 

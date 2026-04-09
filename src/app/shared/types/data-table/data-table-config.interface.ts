@@ -105,6 +105,7 @@ export interface ITableActionConfig<T = Record<string, unknown>>
   permission?: string[];
   hideWhen?: (rowData: T) => boolean;
   disableWhen?: (rowData: T) => boolean;
+  disableReason?: (rowData: T) => string | undefined;
 }
 
 export interface ITableActionClickEvent<T = Record<string, unknown>> {

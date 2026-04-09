@@ -31,6 +31,8 @@ export interface IInputFieldsConfig {
   fieldName: string;
   floatLabelVariant: EFloatLabelVariant;
   label: string;
+  /** Optional helper line below the control (e.g. which fields a search applies to). */
+  hint?: string;
   placeholder?: string;
   defaultValue?: unknown;
   numberConfig?: Partial<IInputNumberFieldConfig>;
@@ -48,8 +50,6 @@ export interface IInputFieldsConfig {
   individualNumberConfig?: Partial<IIndividualNumberFieldConfig>;
   validators?: ValidatorFn[];
   conditionalValidators?: IConditionalValidator[];
-  preventMaxLength?: boolean;
-  applyPatternFilter?: boolean; // Default: true - filters characters based on pattern validator
 }
 
 export interface IInputNumberFieldConfig {
@@ -68,6 +68,8 @@ export interface IInputNumberFieldConfig {
   upAndDownButtonLayout: EUpAndDownButtonLayout;
   spinnerMode: ESpinnerMode;
   step: number;
+  minimumInputLength?: number;
+  maximumInputLength?: number;
 }
 
 export interface ISelectFieldConfig {
@@ -91,6 +93,8 @@ export interface ISelectFieldConfig {
   dependentDropdown?: {
     /** The field name this dropdown depends on (e.g., 'state') */
     dependsOnField: string;
+    /** Optional: parent field label for empty-state hint (e.g. "State"). Falls back from `dependsOnField` if omitted. */
+    dependsOnFieldLabel?: string;
     /** The method name in AppConfigurationService to get options (e.g., 'getCitiesByState') */
     optionsProviderMethod: string;
     /** Whether to reset this field when parent field changes (default: true) */
@@ -146,6 +150,8 @@ export interface IMultiSelectFieldConfig {
   dependentDropdown?: {
     /** The field name this dropdown depends on (e.g., 'state') */
     dependsOnField: string;
+    /** Optional: parent field label for empty-state hint (e.g. "State"). Falls back from `dependsOnField` if omitted. */
+    dependsOnFieldLabel?: string;
     /** The method name in AppConfigurationService to get options (e.g., 'getCitiesByState') */
     optionsProviderMethod: string;
     /** Whether to reset this field when parent field changes (default: true) */
@@ -230,6 +236,13 @@ export interface IEditorFieldConfig {
 
 export interface ITextFieldConfig {
   textCase: ETextCase;
+  minimumInputLength?: number;
+  maximumInputLength?: number;
+  /**
+   * Global regex: each match is removed while typing (`String#replace`).
+   * Example: `/\\D/g` keeps digits only. Presets: `TEXT_INPUT_ACCEPT_STRIP` in `@shared/constants`.
+   */
+  regex?: RegExp;
 }
 
 export interface IOptionDropdown<T = unknown> {

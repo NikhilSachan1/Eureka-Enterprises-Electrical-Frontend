@@ -22,7 +22,7 @@ export const APP_CONFIG = {
 
   // Notification Configuration
   NOTIFICATION_CONFIG: {
-    life: 3000,
+    life: 6000,
     sticky: false,
     closable: true,
   },

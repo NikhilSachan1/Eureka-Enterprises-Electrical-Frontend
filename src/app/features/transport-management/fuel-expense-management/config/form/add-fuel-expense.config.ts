@@ -1,6 +1,6 @@
 import { Validators } from '@angular/forms';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { CONFIGURATION_KEYS, MODULE_NAMES, REGEX } from '@shared/constants';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
   EInputNumberMode,
@@ -9,7 +9,7 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { getDateBeforeXDays, withCustomMessage } from '@shared/utility';
+import { getDateBeforeXDays } from '@shared/utility';
 import { IFuelExpenseAddUIFormDto } from '../../types/fuel-expense.dto';
 import { APP_CONFIG } from '@core/config';
 
@@ -101,14 +101,7 @@ const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAd
       textConfig: {
         textCase: ETextCase.UPPERCASE,
       },
-      validators: [
-        Validators.minLength(6),
-        Validators.maxLength(32),
-        withCustomMessage(
-          Validators.pattern(REGEX.ALPHANUMERIC),
-          'Invalid transaction ID / Receipt Number / UTR Number'
-        ),
-      ],
+      validators: [Validators.minLength(6), Validators.maxLength(32)],
     },
   };
 

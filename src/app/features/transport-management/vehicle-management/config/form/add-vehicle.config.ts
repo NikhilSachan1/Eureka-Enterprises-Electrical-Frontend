@@ -1,7 +1,7 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { CONFIGURATION_KEYS, MODULE_NAMES, REGEX } from '@shared/constants';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
   EDateSelectionMode,
@@ -24,7 +24,6 @@ const ADD_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleAddFormDto>
       },
       validators: [
         Validators.required,
-        Validators.pattern(REGEX.ALPHANUMERIC),
         Validators.maxLength(10),
         Validators.minLength(10),
       ],

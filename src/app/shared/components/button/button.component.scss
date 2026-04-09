@@ -4,3 +4,8 @@
     opacity: 0.5;
   }
 }
+
+/* Hover hits the span when the inner control is disabled (tooltip on span). */
+:host ::ng-deep .btn-tip-pass .p-button[disabled] {
+  pointer-events: none;
+}

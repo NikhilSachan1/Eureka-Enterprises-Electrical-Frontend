@@ -203,6 +203,44 @@ export class DataTableComponent {
         this.selectedTableRows.set([]);
       }
     });
+
+    /**
+     * After bulk delete (or any refresh), selected row objects can still be in the
+     * selection signal even though they no longer exist in {@link tableData}. Remove
+     * stale selections so the bulk-action bar and header checkbox stay in sync.
+     */
+    effect(() => {
+      if (!this.showBulkSelectionCheckbox()) {
+        return;
+      }
+      const rows = this.tableData();
+      const idPath = this.tableConfig().tableUniqueId;
+      const idSet = new Set(
+        rows.map(row => this.normalizeRowIdForSelection(row, idPath))
+      );
+
+      const selected = this.selectedTableRows();
+      const pruned = selected.filter(row => {
+        const id = this.normalizeRowIdForSelection(row, idPath);
+        return id !== null && idSet.has(id);
+      });
+
+      if (pruned.length !== selected.length) {
+        this.selectedTableRows.set(pruned);
+      }
+    });
+  }
+
+  /** Stable string key for row identity (matches {@link tableConfig}.tableUniqueId). */
+  private normalizeRowIdForSelection(
+    row: Record<string, unknown>,
+    idPath: string
+  ): string | null {
+    const id = this.resolveNestedProperty<unknown>(row, idPath);
+    if (id === null || id === undefined) {
+      return null;
+    }
+    return String(id);
   }
 
   protected toggleViewMode(): void {
@@ -366,6 +404,34 @@ export class DataTableComponent {
     return selectedRows.some(row => action.disableWhen?.(row) ?? false);
   }
 
+  /** Adds `disabledTooltip` for row/bulk buttons when `disableReason` applies. */
+  protected resolveActionButtonConfig(
+    action: ITableActionConfig,
+    rowData?: Record<string, unknown>
+  ): Partial<IButtonConfig> {
+    return {
+      ...action,
+      disabledTooltip: this.resolveDisableReasonTooltip(action, rowData),
+    };
+  }
+
+  private resolveDisableReasonTooltip(
+    action: ITableActionConfig,
+    rowData?: Record<string, unknown>
+  ): string | undefined {
+    if (!action.disableReason || !this.isActionDisabled(action, rowData)) {
+      return undefined;
+    }
+    if (rowData) {
+      return action.disableReason(this.extractOriginalData(rowData));
+    }
+    const selected = this.selectedTableRows().map(row =>
+      this.extractOriginalData(row)
+    );
+    const blocking = selected.find(r => action.disableWhen?.(r));
+    return blocking ? action.disableReason(blocking) : undefined;
+  }
+
   /**
    * Checks if action should be VISIBLE for given row.
    */
@@ -460,14 +526,20 @@ export class DataTableComponent {
   ): void {
     const visible = this.getVisibleRowActions(rowData);
     this.overflowMenuModel.set(
-      visible.map(action => ({
-        label: this.resolveRowActionMenuLabel(action),
-        icon: this.resolveRowActionMenuIcon(action),
-        disabled: this.isActionDisabled(action, rowData),
-        command: (): void => {
-          this.onRowActionClick(action.id, rowData);
-        },
-      }))
+      visible.map(action => {
+        const tip =
+          this.resolveDisableReasonTooltip(action, rowData) ??
+          action.tooltip?.trim();
+        return {
+          label: this.resolveRowActionMenuLabel(action),
+          icon: this.resolveRowActionMenuIcon(action),
+          disabled: this.isActionDisabled(action, rowData),
+          ...(tip ? { tooltipOptions: { tooltipLabel: tip } } : {}),
+          command: (): void => {
+            this.onRowActionClick(action.id, rowData);
+          },
+        };
+      })
     );
     const pseudoEvent = { currentTarget: anchor } as unknown as Event;
     queueMicrotask(() => this.rowOverflowMenu()?.toggle(pseudoEvent));

@@ -24,6 +24,8 @@ export interface IButtonConfig {
   fluid: boolean;
   visible?: boolean;
   tooltip?: string;
+  /** Shown when the button is disabled (e.g. why the action is unavailable). */
+  disabledTooltip?: string;
   actionName?: string;
   permission?: string[];
 }

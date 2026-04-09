@@ -18,10 +18,7 @@ import {
 import { LoggerService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
-import {
-  CONFIGURATION_TYPE_DATA,
-  PASSING_YEAR_DATA,
-} from '@shared/config/static-data.config';
+import { CONFIGURATION_TYPE_DATA } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IOptionDropdown } from '@shared/types';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
@@ -75,7 +72,9 @@ export class AppConfigurationService {
   private readonly _branches = signal<IOptionDropdown[]>([]);
   private readonly _designations = signal<IOptionDropdown[]>([]);
   private readonly _bloodGroups = signal<IOptionDropdown[]>([]);
-  private readonly _passingYears = signal<IOptionDropdown[]>([]);
+  private readonly _passingYears = signal<IOptionDropdown[]>(
+    this.buildPassingYearDropdownOptions()
+  );
   private readonly _bankNames = signal<IOptionDropdown[]>([]);
   private readonly _states = signal<IOptionDropdown[]>([]);
   private readonly _cities = signal<IOptionDropdown[]>([]);
@@ -189,9 +188,6 @@ export class AppConfigurationService {
     string,
     Record<string, IOptionDropdown[]>
   > = {
-    [MODULE_NAMES.EMPLOYEE]: {
-      [CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS]: PASSING_YEAR_DATA,
-    },
     [MODULE_NAMES.CONFIGURATION]: {
       [CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN]:
         CONFIGURATION_TYPE_DATA,
@@ -599,7 +595,8 @@ export class AppConfigurationService {
             dropdown.key === CONFIGURATION_KEYS.ASSET.ASSET_LIST ||
             dropdown.key === CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST ||
             dropdown.key === CONFIGURATION_KEYS.COMPANY.COMPANY_LIST ||
-            dropdown.key === CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST
+            dropdown.key === CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST ||
+            dropdown.key === CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS
           ) {
             return;
           }
@@ -857,6 +854,17 @@ export class AppConfigurationService {
       },
       {} as Record<string, Record<string, unknown>>
     );
+  }
+
+  buildPassingYearDropdownOptions(): IOptionDropdown[] {
+    const PASSING_YEAR_START = 2016;
+    const endYear = new Date().getFullYear();
+    const options: IOptionDropdown[] = [];
+    for (let year = PASSING_YEAR_START; year <= endYear; year++) {
+      const y = String(year);
+      options.push({ label: y, value: y });
+    }
+    return options;
   }
 
   loadAllAppData(): Observable<{

@@ -26,8 +26,6 @@ export const DEFAULT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
   readonlyInput: false,
   showStandardLabel: false,
   placeholder: 'Search',
-  preventMaxLength: true,
-  applyPatternFilter: false,
 };
 
 export const DEFAULT_NUMBER_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {

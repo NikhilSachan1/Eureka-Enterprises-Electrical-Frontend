@@ -13,13 +13,7 @@ import {
   effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  AbstractControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidatorFn,
-  FormsModule,
-} from '@angular/forms';
+import { FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -56,6 +50,7 @@ import {
   ETextCase,
   IEditorFieldConfig,
   IInputFieldsConfig,
+  ITextFieldConfig,
   IGalleryInputData,
   IButtonConfig,
   IOptionDropdown,
@@ -63,7 +58,7 @@ import {
   CheckboxEventLike,
 } from '@shared/types';
 import { APP_CONFIG } from '@core/config';
-import { ICONS } from '@shared/constants';
+import { ICONS, invalidCharsPatternFromStrip } from '@shared/constants';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import { AppConfigurationService, GalleryService } from '@shared/services';
 import {
@@ -80,6 +75,12 @@ import {
 } from '@shared/utility';
 import { ImageModule } from 'primeng/image';
 import { NgClass } from '@angular/common';
+
+/**
+ * Value for disabled-only dropdown rows (hints / "No data found").
+ * Must not equal a cleared control (`''` or `null`) or PrimeNG shows the hint as the selected label.
+ */
+const DROPDOWN_DISABLED_ROW_VALUE = '__ee_dropdown_hint__';
 
 @Component({
   selector: 'app-input-field',
@@ -174,11 +175,10 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   /** Config with resolved dropdown options (dynamic/dependent) for SELECT/MULTI_SELECT */
   resolvedInputFieldConfig = computed(() => {
     const config = this.inputFieldConfig();
+    this.dependentDropdownParentValue(); // ensure recomputation when parent control changes
     const opts = this.getDropdownOptions();
     const displayOptions =
-      opts.length > 0
-        ? opts
-        : [{ label: 'No data found', value: '', disabled: true }];
+      opts.length > 0 ? opts : [this.getEmptyDropdownPlaceholderOption()];
     if (config.fieldType === EDataType.SELECT && config.selectConfig) {
       return {
         ...config,
@@ -209,10 +209,8 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   // Signal for dependent dropdown options (e.g., cities based on state)
   private dependentDropdownOptions = signal<IOptionDropdown[]>([]);
 
-  // Cached validator values to avoid recalculation on every input
-  private cachedMaxLength: number | null = null;
-  private cachedPattern: RegExp | null = null;
-  private validatorsInitialized = false;
+  /** Tracks parent field value for dependent SELECT/MULTI_SELECT so empty-state label updates (not a signal on the form control). */
+  private dependentDropdownParentValue = signal<unknown>(undefined);
 
   constructor() {
     // Standalone mode: sync file upload when fieldValue (effectiveValue) changes for ATTACHMENTS
@@ -243,13 +241,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     if (config.disabledInput && control) {
       control.disable();
-    }
-
-    // Initialize cached validator values once (used in form mode for text/textarea)
-    if (!this.validatorsInitialized) {
-      this.cachedMaxLength = this.extractMaxLength();
-      this.cachedPattern = this.extractPattern();
-      this.validatorsInitialized = true;
     }
 
     if (fg && control) {
@@ -332,6 +323,8 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    this.dependentDropdownParentValue.set(parentControl.value);
+
     // Check if the method exists on AppConfigurationService
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const serviceMethod = (this.appConfigurationService as any)[
@@ -355,28 +348,33 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     // Subscribe to parent field changes - only reset child when parent value actually changed
     // (form.disable() / enable() also emit valueChanges; we must not clear city on that)
-    let previousParentValue: string | null = initialParentValue ?? null;
+    let previousParentValue: unknown = initialParentValue ?? null;
 
     parentControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((parentValue: string) => {
+      .subscribe((parentValue: unknown) => {
+        this.dependentDropdownParentValue.set(parentValue);
+
         // Get new options based on parent value
         const newOptions = parentValue
           ? (serviceMethod as (value: string) => IOptionDropdown[]).call(
               this.appConfigurationService,
-              parentValue
+              parentValue as string
             )
           : [];
 
         this.dependentDropdownOptions.set(newOptions);
 
         // Reset current field only when parent value actually changed (not on disable/enable etc.)
-        const parentValueChanged =
-          previousParentValue !== (parentValue ?? null);
-        previousParentValue = parentValue ?? null;
+        const parentValueChanged = previousParentValue !== parentValue;
+        previousParentValue = parentValue;
 
         if (resetOnParentChange && parentValueChanged && currentControl) {
-          currentControl.setValue('');
+          if (config.fieldType === EDataType.MULTI_SELECT) {
+            currentControl.setValue([]);
+          } else {
+            currentControl.setValue(null);
+          }
         }
       });
   }
@@ -455,6 +453,63 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       dropdownConfig,
       this.dependentDropdownOptions()
     );
+  }
+
+  private isDependentParentValueEmpty(value: unknown): boolean {
+    if (value === null || value === undefined || value === '') {
+      return true;
+    }
+    if (Array.isArray(value)) {
+      return value.length === 0;
+    }
+    return false;
+  }
+
+  private dependsOnFieldDisplayLabel(
+    dependsOnField: string,
+    explicitLabel?: string
+  ): string {
+    const trimmed = explicitLabel?.trim();
+    if (trimmed) {
+      return trimmed;
+    }
+    return toTitleCase(dependsOnField.replace(/_/g, ' '));
+  }
+
+  /** When options are empty: dependent + parent not selected → hint; otherwise "No data found". */
+  private getEmptyDropdownPlaceholderOption(): IOptionDropdown {
+    const config = this.inputFieldConfig();
+    const dropdownConfig =
+      config.fieldType === EDataType.SELECT
+        ? config.selectConfig
+        : config.fieldType === EDataType.MULTI_SELECT
+          ? config.multiSelectConfig
+          : undefined;
+    const dd = dropdownConfig?.dependentDropdown;
+    if (!dd || !this.formGroup()) {
+      return {
+        label: 'No data found',
+        value: DROPDOWN_DISABLED_ROW_VALUE,
+        disabled: true,
+      };
+    }
+    const parentVal = this.dependentDropdownParentValue();
+    if (this.isDependentParentValueEmpty(parentVal)) {
+      const parentName = this.dependsOnFieldDisplayLabel(
+        dd.dependsOnField,
+        dd.dependsOnFieldLabel
+      );
+      return {
+        label: `Please select ${parentName} first`,
+        value: DROPDOWN_DISABLED_ROW_VALUE,
+        disabled: true,
+      };
+    }
+    return {
+      label: 'No data found',
+      value: DROPDOWN_DISABLED_ROW_VALUE,
+      disabled: true,
+    };
   }
 
   getAutocompleteOptions(): IOptionDropdown[] {
@@ -749,6 +804,66 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     this.onFieldChange.emit(true);
   }
 
+  /**
+   * Blocks disallowed keystrokes for TEXT / TEXT_AREA when `textConfig.regex` is set.
+   */
+  onTextKeyDown(event: KeyboardEvent): void {
+    const strip = this.getTextRegex();
+    if (!strip) {
+      return;
+    }
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+    if (event.isComposing) {
+      return;
+    }
+    const { key } = event;
+    if (key.length !== 1) {
+      return;
+    }
+    const invalid = invalidCharsPatternFromStrip(strip);
+    if (invalid.test(key)) {
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * Catches insertion paths that keydown can miss (e.g. some mobile keyboards).
+   * Paste / drop still goes through; `(input)` + `normalizeTextFieldValue` sanitizes the full string.
+   */
+  onTextBeforeInput(event: Event): void {
+    const strip = this.getTextRegex();
+    if (!strip) {
+      return;
+    }
+    const e = event as InputEvent;
+    if (e.isComposing) {
+      return;
+    }
+    if (e.inputType === 'insertFromPaste' || e.inputType === 'insertFromDrop') {
+      return;
+    }
+    if (e.data === null || e.data === '') {
+      return;
+    }
+    const invalid = invalidCharsPatternFromStrip(strip);
+    if (invalid.test(e.data)) {
+      e.preventDefault();
+    }
+  }
+
+  private getTextRegex(): RegExp | null {
+    const config = this.inputFieldConfig();
+    if (
+      config.fieldType !== EDataType.TEXT &&
+      config.fieldType !== EDataType.TEXT_AREA
+    ) {
+      return null;
+    }
+    return config.textConfig?.regex ?? null;
+  }
+
   /** Mark form control as touched on blur so validation errors can show (invalid + touched). */
   onBlur(): void {
     if (!this.isFormMode()) {
@@ -807,19 +922,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
           config.fieldType === EDataType.TEXT_AREA) &&
         typeof valueToSet === 'string'
       ) {
-        if (config.applyPatternFilter !== false && this.cachedPattern) {
-          const pattern = this.cachedPattern;
-          valueToSet = valueToSet
-            .split('')
-            .filter(char => pattern.test(char))
-            .join('');
-        }
-        if (config.textConfig?.textCase) {
-          valueToSet = this.applyTextCase(
-            valueToSet as string,
-            config.textConfig.textCase
-          );
-        }
+        valueToSet = this.normalizeTextFieldValue(valueToSet, config);
       }
       if (
         config.fieldType === EDataType.ATTACHMENTS &&
@@ -844,7 +947,16 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       this.validationTrigger.update(v => v + 1);
       this.onFieldChange.emit(true);
     } else {
-      this.onFieldChange.emit(value);
+      const config = this.inputFieldConfig();
+      let out = value;
+      if (
+        (config.fieldType === EDataType.TEXT ||
+          config.fieldType === EDataType.TEXT_AREA) &&
+        typeof out === 'string'
+      ) {
+        out = this.normalizeTextFieldValue(out, config);
+      }
+      this.onFieldChange.emit(out);
     }
   }
 
@@ -955,11 +1067,26 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     if (errors['required']) {
       return 'This field is required';
     }
+    if (errors['email']) {
+      return 'Please enter a valid email address';
+    }
     if (errors['minlength']) {
       return `Minimum length is ${errors['minlength'].requiredLength} characters`;
     }
     if (errors['maxlength']) {
       return `Maximum length is ${errors['maxlength'].requiredLength} characters`;
+    }
+    if (errors['exactDigitLength']) {
+      const e = errors['exactDigitLength'];
+      return typeof e === 'string' ? e : 'Invalid number length';
+    }
+    if (errors['minDigitLength']) {
+      const e = errors['minDigitLength'];
+      return typeof e === 'string' ? e : 'Minimum digit length not met';
+    }
+    if (errors['maxDigitLength']) {
+      const e = errors['maxDigitLength'];
+      return typeof e === 'string' ? e : 'Maximum digit length exceeded';
     }
     if (errors['min']) {
       return `Minimum value is ${errors['min'].min}`;
@@ -980,212 +1107,32 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       return `Only allowed file types are ${arrayToString(errors['fileFormatValue'], ', ')}`;
     }
     if (errors['pattern']) {
-      return errors['pattern'];
+      return 'Please enter a valid email address';
     }
 
     return 'Invalid value';
   }
 
-  /**
-   * Max length for native maxlength attribute when preventMaxLength is true (prevents typing beyond limit).
-   * Returns null when preventMaxLength is false/undefined so no attribute is set and validation error shows instead.
-   */
-  getMaxLengthAttribute(): number | null {
-    const config = this.inputFieldConfig();
-    if (config.preventMaxLength !== true || this.cachedMaxLength === null) {
-      return null;
+  private normalizeTextFieldValue(
+    value: string,
+    config: IInputFieldsConfig
+  ): string {
+    let v = this.applyTextInputAccept(value, config.textConfig);
+    if (config.textConfig?.textCase) {
+      v = this.applyTextCase(v, config.textConfig.textCase);
     }
-    return this.cachedMaxLength;
+    return v;
   }
 
-  /**
-   * Extracts maxlength requiredLength from validators (cached on init).
-   */
-  private extractMaxLength(): number | null {
-    const { validators } = this.inputFieldConfig();
-    if (!validators?.length) {
-      return null;
+  private applyTextInputAccept(
+    value: string,
+    textConfig?: Partial<ITextFieldConfig>
+  ): string {
+    const strip = textConfig?.regex;
+    if (!strip) {
+      return value;
     }
-    const testControl = { value: 'x'.repeat(1000) } as AbstractControl;
-    for (const validator of validators) {
-      const wrappedValidator = validator as ValidatorFn & {
-        __originalValidator?: ValidatorFn;
-      };
-      const originalValidator =
-        wrappedValidator.__originalValidator ?? validator;
-      const result = originalValidator(testControl) as Record<
-        string,
-        unknown
-      > | null;
-      const maxlengthError = result?.['maxlength'];
-      if (
-        maxlengthError &&
-        typeof maxlengthError === 'object' &&
-        'requiredLength' in maxlengthError
-      ) {
-        return maxlengthError.requiredLength as number;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Extracts pattern from validators (cached on init)
-   * Extracts all allowed characters from regex pattern including character classes and literal characters
-   */
-  private extractPattern(): RegExp | null {
-    const { validators } = this.inputFieldConfig();
-    if (!validators?.length) {
-      return null;
-    }
-
-    const testControl = { value: '!@#$%' } as AbstractControl;
-    for (const validator of validators) {
-      // Check if validator is wrapped with withCustomMessage
-      const wrappedValidator = validator as ValidatorFn & {
-        __originalValidator?: ValidatorFn;
-      };
-      const originalValidator =
-        wrappedValidator.__originalValidator ?? validator;
-
-      const result = originalValidator(testControl);
-      const patternError = result?.['pattern'];
-      if (
-        patternError &&
-        typeof patternError === 'object' &&
-        'requiredPattern' in patternError
-      ) {
-        const patternStr = patternError.requiredPattern as string;
-        const allowedChars = this.extractAllowedCharacters(patternStr);
-        if (allowedChars) {
-          return new RegExp(`^[${allowedChars}]$`);
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Extracts all allowed characters from regex pattern
-   * Handles character classes [a-z], literal characters, and special characters
-   */
-  private extractAllowedCharacters(patternStr: string): string | null {
-    if (!patternStr) {
-      return null;
-    }
-
-    const allowedCharsSet = new Set<string>();
-
-    // Extract all character classes [content]
-    const charClassRegex = /\[([^\]]+)\]/g;
-    let match;
-    while ((match = charClassRegex.exec(patternStr)) !== null) {
-      const charClass = match[1];
-      // Parse character class content
-      this.parseCharacterClass(charClass, allowedCharsSet);
-    }
-
-    // Extract literal characters that are not inside character classes
-    // Remove character classes from pattern to find literals
-    const patternWithoutClasses = patternStr.replace(/\[[^\]]+\]/g, '');
-
-    // Extract literal space characters (not inside character classes and not escaped)
-    // Check for spaces that are not preceded by backslash
-    for (let i = 0; i < patternWithoutClasses.length; i++) {
-      if (
-        patternWithoutClasses[i] === ' ' &&
-        (i === 0 || patternWithoutClasses[i - 1] !== '\\')
-      ) {
-        allowedCharsSet.add(' ');
-      }
-    }
-
-    // Extract literal characters (excluding regex special characters like ^, $, +, *, ?, etc.)
-    const literalChars = patternWithoutClasses.match(/[a-zA-Z0-9@._%+-]/g);
-    if (literalChars) {
-      literalChars.forEach(char => allowedCharsSet.add(char));
-    }
-
-    // Also check for escaped special characters
-    const escapedChars = patternWithoutClasses.match(/\\([@._%+-])/g);
-    if (escapedChars) {
-      escapedChars.forEach(escaped => {
-        const char = escaped[1]; // Get the character after backslash
-        allowedCharsSet.add(char);
-      });
-    }
-
-    if (allowedCharsSet.size === 0) {
-      return null;
-    }
-
-    // Convert set to sorted string, escaping special regex characters
-    const sortedChars = Array.from(allowedCharsSet).sort();
-    return sortedChars
-      .map(char => {
-        // Escape special regex characters in character class
-        if ('-]\\^'.includes(char)) {
-          return `\\${char}`;
-        }
-        return char;
-      })
-      .join('');
-  }
-
-  /**
-   * Parses a character class content and adds allowed characters to the set
-   * Handles ranges like a-z, A-Z, 0-9, \s (whitespace), and individual characters
-   */
-  private parseCharacterClass(
-    charClass: string,
-    allowedCharsSet: Set<string>
-  ): void {
-    let i = 0;
-    while (i < charClass.length) {
-      // Handle \s (whitespace) escape sequence
-      if (
-        charClass[i] === '\\' &&
-        i + 1 < charClass.length &&
-        charClass[i + 1] === 's'
-      ) {
-        // \s represents whitespace characters (space, tab, newline, etc.)
-        // For input filtering, we'll allow space character
-        allowedCharsSet.add(' ');
-        i += 2;
-      }
-      // Check for character range like a-z, A-Z, 0-9
-      else if (
-        i + 2 < charClass.length &&
-        charClass[i + 1] === '-' &&
-        charClass[i] <= charClass[i + 2]
-      ) {
-        const start = charClass[i].charCodeAt(0);
-        const end = charClass[i + 2].charCodeAt(0);
-        for (let code = start; code <= end; code++) {
-          allowedCharsSet.add(String.fromCharCode(code));
-        }
-        i += 3;
-      } else {
-        // Individual character
-        const char = charClass[i];
-        // Handle escaped characters (except \s which is handled above)
-        if (char === '\\' && i + 1 < charClass.length) {
-          const nextChar = charClass[i + 1];
-          // Handle other escape sequences
-          if (nextChar === 'n') {
-            allowedCharsSet.add('\n');
-          } else if (nextChar === 't') {
-            allowedCharsSet.add('\t');
-          } else {
-            allowedCharsSet.add(nextChar);
-          }
-          i += 2;
-        } else {
-          allowedCharsSet.add(char);
-          i++;
-        }
-      }
-    }
+    return value.replace(strip, '');
   }
 
   private applyTextCase(value: string, textCase: ETextCase): string {

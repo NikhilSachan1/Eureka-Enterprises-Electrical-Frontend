@@ -23,11 +23,11 @@ export const EmployeeDetailGetDocumentsBaseSchema = z.looseObject({
 });
 
 export const EmployeeDetailGetDocumentsSchema = z
-  .object({
+  .looseObject({
     AADHAR: z.array(EmployeeDetailGetDocumentsBaseSchema),
-    DRIVING_LICENSE: z.array(EmployeeDetailGetDocumentsBaseSchema),
-    ESIC: z.array(EmployeeDetailGetDocumentsBaseSchema),
-    PAN: z.array(EmployeeDetailGetDocumentsBaseSchema),
+    DRIVING_LICENSE: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
+    ESIC: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
+    PAN: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
     PASSPORT: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
     UAN: z.array(EmployeeDetailGetDocumentsBaseSchema).optional(),
     EDUCATION_CERTIFICATE: z
@@ -38,9 +38,9 @@ export const EmployeeDetailGetDocumentsSchema = z
   })
   .transform(data => {
     const aadhar = data.AADHAR.map(doc => doc.fileKey);
-    const drivingLicense = data.DRIVING_LICENSE.map(doc => doc.fileKey);
-    const esic = data.ESIC.map(doc => doc.fileKey);
-    const pan = data.PAN.map(doc => doc.fileKey);
+    const drivingLicense = data.DRIVING_LICENSE?.map(doc => doc.fileKey) ?? [];
+    const esic = data.ESIC?.map(doc => doc.fileKey) ?? [];
+    const pan = data.PAN?.map(doc => doc.fileKey) ?? [];
     const passport = data.PASSPORT?.map(doc => doc.fileKey) ?? [];
     const uan = data.UAN?.map(doc => doc.fileKey) ?? [];
     const degree = data.EDUCATION_CERTIFICATE?.map(doc => doc.fileKey) ?? [];

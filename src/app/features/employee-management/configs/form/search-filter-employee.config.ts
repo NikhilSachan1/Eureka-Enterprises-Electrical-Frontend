@@ -13,6 +13,19 @@ import {
 const SEARCH_FILTER_EMPLOYEE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   IEmployeeGetFormDto & { globalSearch?: string }
 > = {
+  employeeStatus: {
+    fieldType: EDataType.SELECT,
+    id: 'employeeStatus',
+    fieldName: 'employeeStatus',
+    label: 'Employee Status',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.EMPLOYEE,
+        dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_STATUS,
+      },
+    },
+    matchmode: ETableFilterMatchMode.IN,
+  },
   employeeRole: {
     fieldType: EDataType.MULTI_SELECT,
     id: 'employeeRole',
@@ -28,6 +41,7 @@ const SEARCH_FILTER_EMPLOYEE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCo
   },
   globalSearch: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+    hint: 'Search by employee name, employee code, email',
   },
 };
 

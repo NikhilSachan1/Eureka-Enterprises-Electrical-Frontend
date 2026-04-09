@@ -1,5 +1,6 @@
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
+import { EEmployeeStatus } from '@features/employee-management/types/employee.types';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import {
   EButtonActionType,
@@ -16,6 +17,13 @@ const EMPLOYEE_TABLE_CONFIG: Partial<IDataTableConfig> = {
     "You don't have any employee record yet. Please add a employee record first.",
 };
 
+const EMPLOYEE_DISABLED_TOOLTIP = {
+  sendPasswordLink:
+    'Password link can only be sent to employees with Active status.',
+  deleteWhileActive:
+    'Cannot delete an employee while their status is Active. Change status first.',
+} as const;
+
 const EMPLOYEE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'employeeName',
@@ -26,7 +34,7 @@ const EMPLOYEE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     dummyImageField: 'employeeName',
     primaryFieldHighlight: true,
     serverSideFilterAndSortConfig: {
-      sortField: 'userName',
+      sortField: 'firstName',
     },
   },
   {
@@ -60,6 +68,12 @@ const EMPLOYEE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     dataType: EDataType.DATE,
     showSort: false,
   },
+  {
+    field: 'status',
+    header: 'Status',
+    bodyTemplate: EDataType.STATUS,
+    showSort: false,
+  },
 ];
 
 const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
@@ -74,6 +88,9 @@ const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     id: EButtonActionType.SEND_PASSWORD_LINK,
     tooltip: 'Send Password Link',
     permission: [APP_PERMISSION.EMPLOYEE.SEND_PASSWORD_LINK],
+    disableWhen: (record: IEmployeeGetResponseDto['records'][number]) =>
+      record.status !== EEmployeeStatus.ACTIVE,
+    disableReason: () => EMPLOYEE_DISABLED_TOOLTIP.sendPasswordLink,
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
@@ -89,6 +106,9 @@ const EMPLOYEE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Employee',
     permission: [APP_PERMISSION.EMPLOYEE.DELETE],
+    disableWhen: (record: IEmployeeGetResponseDto['records'][number]) =>
+      record.status === EEmployeeStatus.ACTIVE,
+    disableReason: () => EMPLOYEE_DISABLED_TOOLTIP.deleteWhileActive,
   },
 ];
 
@@ -99,12 +119,18 @@ const EMPLOYEE_TABLE_BULK_ACTIONS_CONFIG: Partial<
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Employee',
     permission: [APP_PERMISSION.EMPLOYEE.DELETE],
+    disableWhen: (record: IEmployeeGetResponseDto['records'][number]) =>
+      record.status === EEmployeeStatus.ACTIVE,
+    disableReason: () => EMPLOYEE_DISABLED_TOOLTIP.deleteWhileActive,
   },
   {
     id: EButtonActionType.SEND_PASSWORD_LINK,
     tooltip: 'Send Password Link to Selected',
     label: 'Send Password Link',
     permission: [APP_PERMISSION.EMPLOYEE.SEND_PASSWORD_LINK],
+    disableWhen: (record: IEmployeeGetResponseDto['records'][number]) =>
+      record.status !== EEmployeeStatus.ACTIVE,
+    disableReason: () => EMPLOYEE_DISABLED_TOOLTIP.sendPasswordLink,
   },
 ];
 
