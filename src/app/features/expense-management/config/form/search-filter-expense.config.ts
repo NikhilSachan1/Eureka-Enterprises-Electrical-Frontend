@@ -50,6 +50,7 @@ const SEARCH_FILTER_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
     },
     globalSearch: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+      hint: 'Search by employee name, note, amount',
     },
   };
 
