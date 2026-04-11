@@ -3,8 +3,9 @@ import {
   Component,
   computed,
   inject,
-  signal,
   OnInit,
+  Signal,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -12,6 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 import { EDIT_ASSET_FORM_CONFIG } from '@features/asset-management/config';
 import { AssetService } from '@features/asset-management/services/asset.service';
 import { IAssetEditFormDto } from '@features/asset-management/types/asset.dto';
+import { EAssetType } from '@features/asset-management/types/asset.enum';
 import { IAssetDetailResolverResponse } from '@features/asset-management/types/asset.interface';
 import { FormBase } from '@shared/base/form.base';
 import { ButtonComponent } from '@shared/components/button/button.component';
@@ -45,6 +47,13 @@ export class EditAssetComponent
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly initialAssetData = signal<IAssetEditFormDto | null>(null);
 
+  private assetTypeTracked!: Signal<string | null | undefined>;
+
+  /** Hidden only for non-calibrated; shown when unset (default) or calibrated. */
+  protected readonly showCalibrationDetails = computed(
+    () => this.assetTypeTracked() !== EAssetType.NON_CALIBRATED
+  );
+
   ngOnInit(): void {
     this.loadAssetDataFromRoute();
 
@@ -54,6 +63,12 @@ export class EditAssetComponent
         destroyRef: this.destroyRef,
         defaultValues: this.initialAssetData(),
       }
+    );
+
+    this.assetTypeTracked = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'assetType',
+      this.destroyRef
     );
   }
 
@@ -107,16 +122,16 @@ export class EditAssetComponent
       assetCategory: category,
       assetCalibrationFrom: calibrationFrom,
       assetCalibrationFrequency: calibrationFrequency,
-      assetCalibrationDate: [
-        new Date(calibrationStartDate),
-        new Date(calibrationEndDate),
-      ],
+      assetCalibrationDate:
+        calibrationStartDate && calibrationEndDate
+          ? [new Date(calibrationStartDate), new Date(calibrationEndDate)]
+          : null,
       assetPurchaseDate: new Date(purchaseDate),
       assetVendorName: vendorName,
-      assetWarrantyDate: [
-        new Date(warrantyStartDate),
-        new Date(warrantyEndDate),
-      ],
+      assetWarrantyDate:
+        warrantyStartDate && warrantyEndDate
+          ? [new Date(warrantyStartDate), new Date(warrantyEndDate)]
+          : null,
       remarks,
       assetFiles: preloadedFiles,
     };

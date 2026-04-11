@@ -58,6 +58,7 @@ import {
   CheckboxEventLike,
 } from '@shared/types';
 import { APP_CONFIG } from '@core/config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { ICONS, invalidCharsPatternFromStrip } from '@shared/constants';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import { AppConfigurationService, GalleryService } from '@shared/services';
@@ -113,6 +114,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   private readonly galleryService = inject(GalleryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly authService = inject(AuthService);
 
   ALL_DATA_TYPES = EDataType;
   ALL_UP_AND_DOWN_BUTTON_LAYOUTS = EUpAndDownButtonLayout;
@@ -396,6 +398,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         moduleName: string;
         dropdownName: string;
         filterByRole?: string[];
+        includeLoggedInUser?: boolean;
       };
       optionsDropdown?: IOptionDropdown[];
       filterOptions?: { include?: string[]; exclude?: string[] };
@@ -435,6 +438,14 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         dropdownConfig.filterOptions.exclude ?? []
       );
     }
+
+    if (dropdownConfig.dynamicDropdown?.includeLoggedInUser === false) {
+      const selfId = this.authService.getCurrentUser()?.userId?.trim();
+      if (selfId) {
+        options = filterOptionsByIncludeExclude(options, [], [selfId]);
+      }
+    }
+
     return options;
   }
 

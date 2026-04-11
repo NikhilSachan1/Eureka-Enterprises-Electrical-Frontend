@@ -94,6 +94,84 @@ export const ASSET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
+type AssetTableRow = IAssetGetResponseDto['records'][number];
+
+/** Handover is no longer in a pending “initiated” state (accepted / rejected / cancelled). */
+const TERMINAL_HANDOVER_EVENT_TYPES = new Set<string>([
+  ETableActionTypeValue.HANDOVER_ACCEPTED,
+  ETableActionTypeValue.HANDOVER_REJECTED,
+  ETableActionTypeValue.HANDOVER_CANCELLED,
+]);
+
+function isHandoverAcceptRejectDisabled(
+  row: AssetTableRow,
+  loggedInUserId: string | null | undefined
+): boolean {
+  return (
+    row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED ||
+    !loggedInUserId ||
+    row.latestEvent.toUser !== loggedInUserId
+  );
+}
+
+/**
+ * 1) Terminal status — allocation already completed.
+ * 2) No pending initiated request.
+ * 3) Current user is not the assignee (cannot accept/reject).
+ */
+function getHandoverAcceptRejectDisableReason(
+  row: AssetTableRow,
+  loggedInUserId: string | null | undefined
+): string | undefined {
+  if (!isHandoverAcceptRejectDisabled(row, loggedInUserId)) {
+    return undefined;
+  }
+  const eventType = row.latestEvent?.eventType;
+  if (eventType !== ETableActionTypeValue.HANDOVER_INITIATED) {
+    return 'No allocation request is pending. The handover must be initiated first.';
+  }
+  if (!loggedInUserId || row.latestEvent?.toUser !== loggedInUserId) {
+    return 'You are not authorized to accept or reject this allocation. Only the assigned user can respond.';
+  }
+  return undefined;
+}
+
+function isHandoverCancelDisabled(
+  row: AssetTableRow,
+  loggedInUserId: string | null | undefined
+): boolean {
+  return (
+    row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED ||
+    !loggedInUserId ||
+    row.latestEvent.fromUser !== loggedInUserId
+  );
+}
+
+/**
+ * 1) Terminal status — allocation already completed.
+ * 2) No pending initiated request.
+ * 3) Current user is not the initiator (cannot cancel).
+ */
+function getHandoverCancelDisableReason(
+  row: AssetTableRow,
+  loggedInUserId: string | null | undefined
+): string | undefined {
+  if (!isHandoverCancelDisabled(row, loggedInUserId)) {
+    return undefined;
+  }
+  const eventType = row.latestEvent?.eventType;
+  if (eventType && TERMINAL_HANDOVER_EVENT_TYPES.has(eventType)) {
+    return 'This allocation request has already been completed.';
+  }
+  if (eventType !== ETableActionTypeValue.HANDOVER_INITIATED) {
+    return 'No allocation request is pending. The handover must be initiated first.';
+  }
+  if (!loggedInUserId || row.latestEvent?.fromUser !== loggedInUserId) {
+    return 'You are not authorized to cancel this allocation. Only the user who initiated the request can cancel.';
+  }
+  return undefined;
+}
+
 export function buildAssetTableRowActionsConfig(
   loggedInUserId: string | undefined | null
 ): Partial<ITableActionConfig<IAssetGetResponseDto['records'][number]>>[] {
@@ -114,42 +192,41 @@ export function buildAssetTableRowActionsConfig(
       permission: [APP_PERMISSION.ASSET.HANDOVER_INITIATE],
       disableWhen: row =>
         row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED,
+      disableReason: row =>
+        row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED
+          ? 'Request is already initiated.'
+          : undefined,
     },
     {
       id: EButtonActionType.HANDOVER_ACCEPTED,
       tooltip: 'Accept Allocation',
       permission: [APP_PERMISSION.ASSET.HANDOVER_ACCEPTED],
-      disableWhen: row =>
-        row.latestEvent?.eventType !==
-          ETableActionTypeValue.HANDOVER_INITIATED ||
-        !loggedInUserId ||
-        row.latestEvent.toUser !== loggedInUserId,
+      disableWhen: row => isHandoverAcceptRejectDisabled(row, loggedInUserId),
+      disableReason: row =>
+        getHandoverAcceptRejectDisableReason(row, loggedInUserId),
     },
     {
       id: EButtonActionType.HANDOVER_REJECTED,
       tooltip: 'Reject Allocation',
       permission: [APP_PERMISSION.ASSET.HANDOVER_REJECTED],
-      disableWhen: row =>
-        row.latestEvent?.eventType !==
-          ETableActionTypeValue.HANDOVER_INITIATED ||
-        !loggedInUserId ||
-        row.latestEvent.toUser !== loggedInUserId,
+      disableWhen: row => isHandoverAcceptRejectDisabled(row, loggedInUserId),
+      disableReason: row =>
+        getHandoverAcceptRejectDisableReason(row, loggedInUserId),
     },
     {
       id: EButtonActionType.HANDOVER_CANCELLED,
       tooltip: 'Cancel Allocation',
       permission: [APP_PERMISSION.ASSET.HANDOVER_CANCELLED],
-      disableWhen: row =>
-        row.latestEvent?.eventType !==
-          ETableActionTypeValue.HANDOVER_INITIATED ||
-        !loggedInUserId ||
-        row.latestEvent.fromUser !== loggedInUserId,
+      disableWhen: row => isHandoverCancelDisabled(row, loggedInUserId),
+      disableReason: row => getHandoverCancelDisableReason(row, loggedInUserId),
     },
     {
       id: EButtonActionType.DEALLOCATE,
       tooltip: 'Deallocate Asset',
       permission: [APP_PERMISSION.ASSET.DEALLOCATE],
       disableWhen: row => row.status !== 'ASSIGNED',
+      disableReason: row =>
+        row.status !== 'ASSIGNED' ? 'Asset is not allocated.' : undefined,
     },
     {
       ...COMMON_ROW_ACTIONS.EDIT,

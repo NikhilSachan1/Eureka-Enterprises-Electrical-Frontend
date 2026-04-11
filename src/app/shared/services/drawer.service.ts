@@ -5,6 +5,7 @@ import {
   IDrawerState,
   IEnhancedDrawer,
   IDrawerEvent,
+  EDrawerSize,
 } from '@shared/types';
 import { DEFAULT_DRAWER_CONFIG } from '@shared/config/drawer.config';
 
@@ -96,6 +97,7 @@ export class DrawerService {
     const drawer = this.createDrawer();
     drawer.show({
       component,
+      size: EDrawerSize.MEDIUM,
       ...config,
     } as IDrawerConfig);
     return drawer;

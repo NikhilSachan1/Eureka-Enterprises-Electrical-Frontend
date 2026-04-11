@@ -102,6 +102,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   'expiring soon': { icon: ICONS.STATUS.EXPIRING_SOON, severity: 'warning' },
 
   // Calibration
+  retired: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   'calibrated assets': { icon: ICONS.ASSET.BOX, severity: 'success' },
   'non calibrated assets': { icon: ICONS.ASSET.BOX, severity: 'info' },
   'calibration expired': { icon: ICONS.STATUS.EXPIRED, severity: 'danger' },
@@ -109,6 +110,16 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
     icon: ICONS.STATUS.EXPIRING_SOON,
     severity: 'warning',
   },
+  'handover initiated': { icon: ICONS.ACTIONS.SEND, severity: 'warning' },
+  'handover accepted': {
+    icon: ICONS.ACTIONS.CHECK_CIRCLE,
+    severity: 'success',
+  },
+  'handover rejected': { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
+  'handover cancelled': { icon: ICONS.ACTIONS.BAN, severity: 'warning' },
+  deallocated: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
+  'asset added': { icon: ICONS.ASSET.BOX, severity: 'info' },
+  updated: { icon: ICONS.ACTIONS.EDIT, severity: 'info' },
 
   // Warranty
   'warranty expired': { icon: ICONS.STATUS.EXPIRED, severity: 'danger' },

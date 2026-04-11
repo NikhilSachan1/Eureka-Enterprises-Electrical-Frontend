@@ -43,7 +43,14 @@
         }
       </p-floatlabel>
       @if (config.hint) {
-        <p class="text-xs text-text-secondary leading-snug m-0">{{ config.hint }}</p>
+        <p class="text-xs text-text-secondary leading-snug m-0 flex items-start gap-1.5">
+          <i
+            [ngClass]="ALL_MEDIA_ICONS.COMMON.INFO_CIRCLE"
+            class="shrink-0 mt-0.5 text-xs"
+            aria-hidden="true"
+          ></i>
+          <span>{{ config.hint }}</span>
+        </p>
       }
     </div>
   }

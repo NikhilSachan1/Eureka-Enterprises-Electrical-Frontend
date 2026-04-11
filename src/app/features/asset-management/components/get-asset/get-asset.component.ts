@@ -228,12 +228,8 @@ export class GetAssetComponent implements OnInit {
       {
         id: 'overview',
         title: 'Overview',
-        metrics: [{ label: 'Total', value: stats.total }],
-      },
-      {
-        id: 'status',
-        title: 'Status',
         metrics: [
+          { label: 'Total', value: stats.total },
           { label: 'Available', value: stats.byStatus.available },
           { label: 'Assigned', value: stats.byStatus.assigned },
         ],

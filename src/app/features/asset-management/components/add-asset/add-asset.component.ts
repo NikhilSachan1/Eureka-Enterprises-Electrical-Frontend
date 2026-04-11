@@ -4,10 +4,12 @@ import {
   computed,
   inject,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ADD_ASSET_FORM_CONFIG } from '@features/asset-management/config';
 import { AssetService } from '@features/asset-management/services/asset.service';
+import { EAssetType } from '@features/asset-management/types/asset.enum';
 import { IAssetAddFormDto } from '@features/asset-management/types/asset.dto';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { ADD_ASSET_PREFILLED_DATA } from '@shared/mock-data/add-asset.mock-data';
@@ -39,6 +41,13 @@ export class AddAssetComponent
   private readonly assetService = inject(AssetService);
   private readonly routerNavigationService = inject(RouterNavigationService);
 
+  private assetTypeTracked!: Signal<string | null | undefined>;
+
+  /** Hidden only for non-calibrated; shown when unset (default) or calibrated. */
+  protected readonly showCalibrationDetails = computed(
+    () => this.assetTypeTracked() !== EAssetType.NON_CALIBRATED
+  );
+
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
   ngOnInit(): void {
@@ -47,6 +56,12 @@ export class AddAssetComponent
       {
         destroyRef: this.destroyRef,
       }
+    );
+
+    this.assetTypeTracked = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'assetType',
+      this.destroyRef
     );
 
     this.loadMockData(ADD_ASSET_PREFILLED_DATA);

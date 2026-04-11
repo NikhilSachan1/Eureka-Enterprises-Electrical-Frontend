@@ -89,6 +89,11 @@ export interface ISelectFieldConfig {
     moduleName: string;
     dropdownName: string;
     filterByRole?: string[]; // Filter employees by roles (e.g., ['TECHNICIAN', 'ADMIN'])
+    /**
+     * When `false`, the logged-in user is removed from options (`value` must match user id).
+     * Default / omitted: no removal.
+     */
+    includeLoggedInUser?: boolean;
   };
   dependentDropdown?: {
     /** The field name this dropdown depends on (e.g., 'state') */
@@ -117,6 +122,7 @@ export interface IAutocompleteFieldConfig {
     moduleName: string;
     dropdownName: string;
     filterByRole?: string[];
+    includeLoggedInUser?: boolean;
   };
   filterOptions?: {
     include?: string[];
@@ -142,6 +148,7 @@ export interface IMultiSelectFieldConfig {
     moduleName: string;
     dropdownName: string;
     filterByRole?: string[]; // Filter employees by roles (e.g., ['TECHNICIAN', 'ADMIN'])
+    includeLoggedInUser?: boolean;
   };
   /**
    * Dependent dropdown configuration - options depend on another field's value

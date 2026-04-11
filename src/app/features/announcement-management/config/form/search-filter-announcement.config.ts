@@ -28,6 +28,7 @@ const SEARCH_FILTER_ANNOUNCEMENT_FORM_FIELDS_CONFIG: ITableSearchFilterInputFiel
   },
   globalSearch: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+    hint: 'Search by announcement title',
   },
 };
 

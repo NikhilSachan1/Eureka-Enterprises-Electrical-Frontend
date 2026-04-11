@@ -3,7 +3,11 @@ import { APP_CONFIG } from '@core/config';
 import { IAssetAddFormDto } from '@features/asset-management/types/asset.dto';
 import { EAssetType } from '@features/asset-management/types/asset.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import {
+  CONFIGURATION_KEYS,
+  MODULE_NAMES,
+  TEXT_INPUT_ACCEPT_STRIP,
+} from '@shared/constants';
 import {
   EDataType,
   EDateSelectionMode,
@@ -21,8 +25,9 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     label: 'Asset ID',
     textConfig: {
       textCase: ETextCase.UPPERCASE,
+      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPECIAL_CHARS,
     },
-    validators: [Validators.required, Validators.maxLength(10)],
+    validators: [Validators.required],
   },
   assetName: {
     fieldType: EDataType.TEXT,
@@ -31,6 +36,7 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     label: 'Asset Name',
     textConfig: {
       textCase: ETextCase.TITLECASE,
+      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
     },
     validators: [Validators.required],
   },
@@ -41,6 +47,7 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     label: 'Asset Model',
     textConfig: {
       textCase: ETextCase.TITLECASE,
+      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHABETS_WITH_SPACES,
     },
   },
   assetSerialNumber: {
@@ -50,6 +57,7 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     label: 'Asset Serial Number',
     textConfig: {
       textCase: ETextCase.UPPERCASE,
+      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
     },
   },
   assetCategory: {
@@ -94,6 +102,7 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
         dependsOn: 'assetType',
         shouldApply: value => value === EAssetType.CALIBRATED,
         validators: [Validators.required],
+        resetOnFalse: true,
       },
     ],
   },
@@ -113,6 +122,7 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
         dependsOn: 'assetType',
         shouldApply: value => value === EAssetType.CALIBRATED,
         validators: [Validators.required],
+        resetOnFalse: true,
       },
     ],
   },
@@ -129,6 +139,7 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
         dependsOn: 'assetType',
         shouldApply: value => value === EAssetType.CALIBRATED,
         validators: [Validators.required],
+        resetOnFalse: true,
       },
     ],
   },
@@ -149,6 +160,7 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     label: 'Vendor Name',
     textConfig: {
       textCase: ETextCase.TITLECASE,
+      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHABETS_WITH_SPACES,
     },
   },
   assetWarrantyDate: {

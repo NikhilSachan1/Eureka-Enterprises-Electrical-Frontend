@@ -7,6 +7,8 @@ export const TEXT_INPUT_ACCEPT_STRIP = {
   ALPHANUMERIC_WITH_SPACES: /[^a-zA-Z0-9\s]/g,
   ALPHABETS_WITH_SPACES: /[^a-zA-Z\s]/g,
   ALPHANUMERIC: /[^a-zA-Z0-9]/g,
+  ALPHANUMERIC_WITH_SPECIAL_CHARS:
+    /[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};:'",.<>/?]/g,
 } as const;
 
 /** Regex for `Validators.pattern` and other validation (not input strip). */

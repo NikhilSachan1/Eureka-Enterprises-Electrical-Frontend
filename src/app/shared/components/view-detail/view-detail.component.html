@@ -1,23 +1,42 @@
 @let drawerDetail = drawerDetails()?.details;
 
-<ng-container *appHasPermission="APP_PERMISSION.UI.COMMON.SIDEBAR_INITIALS">
-  @let entityDetails = drawerDetails()?.entity;
-  @if (entityDetails) {
+@if (showEntityHeader()) {
+  @let entityDetailsForced = drawerDetails()?.entity;
+  @if (entityDetailsForced) {
     <div class="flex items-center gap-3 mb-4">
       <img
         [src]="_avtarImageUrl()"
-        [alt]="entityDetails.name"
+        [alt]="entityDetailsForced.name"
         class="w-8 h-8 rounded-full"
         loading="lazy"
       />
 
       <div>
-        <h3 class="text-sm font-semibold">{{ entityDetails.name }}</h3>
-        <p class="text-xs">{{ entityDetails.subtitle }}</p>
+        <h3 class="text-sm font-semibold">{{ entityDetailsForced.name }}</h3>
+        <p class="text-xs">{{ entityDetailsForced.subtitle }}</p>
       </div>
     </div>
   }
-</ng-container>
+} @else {
+  <ng-container *appHasPermission="APP_PERMISSION.UI.COMMON.SIDEBAR_INITIALS">
+    @let entityDetails = drawerDetails()?.entity;
+    @if (entityDetails) {
+      <div class="flex items-center gap-3 mb-4">
+        <img
+          [src]="_avtarImageUrl()"
+          [alt]="entityDetails.name"
+          class="w-8 h-8 rounded-full"
+          loading="lazy"
+        />
+
+        <div>
+          <h3 class="text-sm font-semibold">{{ entityDetails.name }}</h3>
+          <p class="text-xs">{{ entityDetails.subtitle }}</p>
+        </div>
+      </div>
+    }
+  </ng-container>
+}
 
 @if (drawerDetail && drawerDetail.length > 0) {
   @for (detail of drawerDetail; track $index) {
@@ -70,7 +89,7 @@
                     @if (entry.type === ALL_DATA_TYPES.DATE) {
                       {{ entry.value.toString() | date: entry.format }}
                     } @else if (entry.type === ALL_DATA_TYPES.RANGE) {
-                      @let rangeValues = $any(entry.value);
+                      @let rangeValues = getRangeValuesForDisplay($any(entry.value));
                       @let rangeDataType = entry.dataType;
                       @if (rangeValues && rangeValues.length > 0) {
                         @for (item of rangeValues; track $index; let isLast = $last) {
@@ -79,10 +98,10 @@
                               {{ item | date: entry.format }}
                             }
                             @case (ALL_DATA_TYPES.NUMBER) {
-                              {{ item | number: entry.format }}
+                              {{ $any(item) | number: entry.format }}
                             }
                             @case (ALL_DATA_TYPES.CURRENCY) {
-                              {{ item | currency: entry.format }}
+                              {{ $any(item) | currency: entry.format }}
                             }
                             @default {
                               {{ item }}

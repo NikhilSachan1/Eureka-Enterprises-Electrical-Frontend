@@ -88,7 +88,7 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
   private mapDetailData(
     response: IAssetDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
-    const mappedDetails = response.versionHistory.map(record => {
+    const mappedDetails = response.versionHistory.reverse().map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Asset Name',

@@ -74,6 +74,8 @@ export class ViewDetailComponent {
 
   drawerDetails = input<IDataViewDetailsWithEntity>();
   customTemplates = input<Record<string, TemplateRef<unknown>>>({});
+  /** `true`: show entity header without permission check. `false`: gated by `SIDEBAR_INITIALS`. */
+  showEntityHeader = input<boolean>(false);
 
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly icons = ICONS;
@@ -147,5 +149,19 @@ export class ViewDetailComponent {
       return 'N/A';
     }
     return `${user.firstName} ${user.lastName}`.trim();
+  }
+
+  /**
+   * RANGE display: omit null/undefined so the arrow is not shown next to empty slots.
+   */
+  protected getRangeValuesForDisplay(
+    rangeValues: unknown[] | null | undefined
+  ): (string | number | Date)[] {
+    if (!rangeValues?.length) {
+      return [];
+    }
+    return rangeValues.filter(
+      (v): v is string | number | Date => v !== null && v !== undefined
+    );
   }
 }

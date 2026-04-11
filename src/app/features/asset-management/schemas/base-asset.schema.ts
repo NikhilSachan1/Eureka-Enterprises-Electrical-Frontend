@@ -23,11 +23,11 @@ export const AssetBaseSchema = z.looseObject({
   calibrationStartDate: isoDateTimeField.nullable(),
   calibrationEndDate: isoDateTimeField.nullable(),
   purchaseDate: isoDateTimeField,
-  vendorName: z.string().min(1),
+  vendorName: z.string().nullable(),
   warrantyStartDate: isoDateTimeField.nullable(),
   warrantyEndDate: isoDateTimeField.nullable(),
   status: z.string().min(1),
-  remarks: z.string().trim(),
+  remarks: z.string().trim().nullable(),
   additionalData: z.record(z.string(), z.string()).nullable(),
 });
 
@@ -69,10 +69,10 @@ export const AssetUpsertShapeSchema = z
     assetType,
     assetCalibrationFrom: calibrationFrom,
     assetCalibrationFrequency: calibrationFrequency,
-    assetCalibrationDate: z.array(dateField),
+    assetCalibrationDate: z.array(dateField).nullable(),
     assetPurchaseDate: dateField,
-    assetVendorName: vendorName,
-    assetWarrantyDate: z.array(dateField),
+    assetVendorName: vendorName.nullable(),
+    assetWarrantyDate: z.array(dateField).nullable(),
     assetFiles: z.array(fileField),
     remarks,
   })

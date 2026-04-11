@@ -209,12 +209,6 @@ export class GetAssetEventHistoryComponent implements OnInit {
 
     return [
       {
-        id: 'overview',
-        title: 'Overview',
-        icon: 'pi pi-chart-bar',
-        metrics: [{ label: 'Total Events', value: stats.total }],
-      },
-      {
         id: 'status',
         title: 'Status Events',
         icon: 'pi pi-box',
@@ -222,7 +216,6 @@ export class GetAssetEventHistoryComponent implements OnInit {
           { label: 'Available', value: stats.byEventType.AVAILABLE },
           { label: 'Assigned', value: stats.byEventType.ASSIGNED },
           { label: 'Deallocated', value: stats.byEventType.DEALLOCATED },
-          { label: 'Updated', value: stats.byEventType.UPDATED },
         ],
       },
       {
@@ -230,10 +223,22 @@ export class GetAssetEventHistoryComponent implements OnInit {
         title: 'Handover Events',
         icon: 'pi pi-sync',
         metrics: [
-          { label: 'Initiated', value: stats.byEventType.HANDOVER_INITIATED },
-          { label: 'Accepted', value: stats.byEventType.HANDOVER_ACCEPTED },
-          { label: 'Rejected', value: stats.byEventType.HANDOVER_REJECTED },
-          { label: 'Cancelled', value: stats.byEventType.HANDOVER_CANCELLED },
+          {
+            label: 'Handover Initiated',
+            value: stats.byEventType.HANDOVER_INITIATED,
+          },
+          {
+            label: 'Handover Accepted',
+            value: stats.byEventType.HANDOVER_ACCEPTED,
+          },
+          {
+            label: 'Handover Rejected',
+            value: stats.byEventType.HANDOVER_REJECTED,
+          },
+          {
+            label: 'Handover Cancelled',
+            value: stats.byEventType.HANDOVER_CANCELLED,
+          },
         ],
       },
     ];

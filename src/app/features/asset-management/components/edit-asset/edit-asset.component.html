@@ -49,30 +49,32 @@
     </div>
   </div>
 
-  <!-- Calibration Details Section -->
-  <div class="form-section">
-    <div class="form-section__header form-section__header--bordered">
-      <h3 class="form-section__title">Calibration Details</h3>
-    </div>
-    <div class="form-section__content">
-      <div class="grid grid-cols-1 md:grid-cols-3">
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs.assetCalibrationFrom"
-        />
+  <!-- Calibration Details Section (hidden when asset type is non-calibrated) -->
+  @if (showCalibrationDetails()) {
+    <div class="form-section">
+      <div class="form-section__header form-section__header--bordered">
+        <h3 class="form-section__title">Calibration Details</h3>
+      </div>
+      <div class="form-section__content">
+        <div class="grid grid-cols-1 md:grid-cols-3">
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs.assetCalibrationFrom"
+          />
 
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs.assetCalibrationFrequency"
-        />
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs.assetCalibrationFrequency"
+          />
 
-        <app-input-field
-          [formGroup]="form.formGroup"
-          [inputFieldConfig]="form.fieldConfigs.assetCalibrationDate"
-        />
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs.assetCalibrationDate"
+          />
+        </div>
       </div>
     </div>
-  </div>
+  }
 
   <!-- Vendor & Purchase Details Section -->
   <div class="form-section">

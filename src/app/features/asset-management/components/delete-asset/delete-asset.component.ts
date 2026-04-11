@@ -52,7 +52,7 @@ export class DeleteAssetComponent
   }
 
   onDialogAccept(): void {
-    super.onSubmit();
+    this.handleSubmit();
   }
 
   protected override handleSubmit(): void {
