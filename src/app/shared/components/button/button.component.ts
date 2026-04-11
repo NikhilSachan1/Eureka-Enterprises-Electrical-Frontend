@@ -28,6 +28,7 @@ export class ButtonComponent {
   ALL_BUTTON_TYPES = EButtonType;
 
   buttonConfig = input<Partial<IButtonConfig>>();
+  styleClass = input<string | undefined>(undefined);
   showButtonLoader = input<boolean>(false);
   showDisabledButton = input<boolean>(false);
   stopClickPropagation = input<boolean>(false);

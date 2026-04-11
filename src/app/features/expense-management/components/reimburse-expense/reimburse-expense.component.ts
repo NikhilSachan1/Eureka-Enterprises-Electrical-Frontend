@@ -20,6 +20,7 @@ import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
 import { REIMBURSE_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/reimburse-expense.mock-data';
 import { FormBase } from '@shared/base/form.base';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-reimburse-expense',
@@ -40,6 +41,7 @@ export class ReimburseExpenseComponent
 {
   private readonly expenseService = inject(ExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly route = inject(ActivatedRoute);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
@@ -52,6 +54,21 @@ export class ReimburseExpenseComponent
     );
 
     this.loadMockData(REIMBURSE_EXPENSE_PREFILLED_DATA);
+    this.applyPrefillFromQueryParams();
+  }
+
+  private applyPrefillFromQueryParams(): void {
+    const map = this.route.snapshot.queryParamMap;
+    const employeeName = map.get('employeeName');
+    const expenseAmountRaw = map.get('expenseAmount');
+    const expenseDate = new Date();
+
+    const formData: Partial<IExpenseReimburseFormDto> = {
+      employeeName: employeeName ?? '',
+      expenseAmount: expenseAmountRaw ? Number(expenseAmountRaw) : 0,
+      expenseDate,
+    };
+    this.form.patch(formData);
   }
 
   protected override handleSubmit(): void {

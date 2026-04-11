@@ -1,8 +1,13 @@
 import { Validators } from '@angular/forms';
+import { FinancialYearService } from '@core/services/financial-year.service';
 import { APP_CONFIG } from '@core/config';
 import { EExpenseCategory } from '@features/expense-management/types/expense.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import {
+  CONFIGURATION_KEYS,
+  MODULE_NAMES,
+  TEXT_INPUT_ACCEPT_STRIP,
+} from '@shared/constants';
 import {
   EDataType,
   EInputNumberMode,
@@ -13,6 +18,8 @@ import {
 } from '@shared/types';
 import { getDateBeforeXDays } from '@shared/utility';
 import { IExpenseAddFormDto } from '@features/expense-management/types/expense.dto';
+
+const financialYearService = new FinancialYearService();
 
 const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto> =
   {
@@ -60,7 +67,12 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto>
       fieldName: 'expenseDate',
       label: 'Date of Expense',
       dateConfig: {
-        minDate: getDateBeforeXDays(6),
+        minDate: new Date(
+          Math.max(
+            getDateBeforeXDays(6).getTime(),
+            financialYearService.getFinancialYearStartDate().getTime()
+          )
+        ),
         maxDate: new Date(),
       },
       validators: [Validators.required],
@@ -83,6 +95,8 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto>
       label: 'Transaction ID / Receipt Number / UTR Number',
       textConfig: {
         textCase: ETextCase.UPPERCASE,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
+        maximumInputLength: 32,
       },
       validators: [Validators.minLength(6), Validators.maxLength(32)],
     },

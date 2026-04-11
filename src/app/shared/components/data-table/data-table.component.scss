@@ -62,12 +62,13 @@
       white-space: nowrap;
     }
 
-    // Read-more column only: allow wrap; others stay nowrap
+    // Read-more & lead-visual columns: wrap; max width caps expanded read-more text
     .p-datatable-tbody > tr > td.cell-allow-wrap {
       white-space: normal;
       max-width: 18rem;
       min-width: 8rem;
-      overflow-wrap: break-word;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .p-datatable-tbody > tr:hover {

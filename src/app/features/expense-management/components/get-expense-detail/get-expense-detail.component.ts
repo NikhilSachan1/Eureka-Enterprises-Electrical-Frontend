@@ -88,7 +88,7 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
   private mapDetailData(
     response: IExpenseDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
-    const mappedDetails = response.history.map(record => {
+    const mappedDetails = [...response.history].reverse().map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Date',

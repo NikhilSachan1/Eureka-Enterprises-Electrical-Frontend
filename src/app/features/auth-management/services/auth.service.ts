@@ -43,6 +43,7 @@ import {
   SwitchActiveRoleResponseSchema,
 } from '../schemas';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { EUserRole } from '@shared/constants/role.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -435,6 +436,33 @@ export class AuthService {
    */
   getCurrentUser(): ILoggedInUserDetails | null {
     return this._user();
+  }
+
+  /**
+   * Whether the **active** role is a company / managerial role (org-wide ledger, approvals, payouts).
+   * False does not always mean “employee”; see {@link isActiveRoleEmployeeLike}.
+   */
+  isActiveRoleManagerial(): boolean {
+    const role = this.getCurrentUser()?.activeRole;
+    if (!role) {
+      return false;
+    }
+    return (
+      role === EUserRole.ADMIN ||
+      role === EUserRole.SUPER_ADMIN ||
+      role === EUserRole.MANAGER
+    );
+  }
+
+  /**
+   * Whether the **active** role is self-service staff (own records: employee or field roles).
+   */
+  isActiveRoleEmployeeLike(): boolean {
+    const role = this.getCurrentUser()?.activeRole;
+    if (!role) {
+      return false;
+    }
+    return role === EUserRole.EMPLOYEE || role === EUserRole.DRIVER;
   }
 
   /**

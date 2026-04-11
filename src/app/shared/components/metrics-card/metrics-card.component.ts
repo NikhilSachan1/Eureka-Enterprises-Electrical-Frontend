@@ -10,12 +10,12 @@ import { EDataType, IMetric, IMetricGroup } from '@shared/types';
 import { StatusUtil } from '@shared/utility';
 import { AppPermissionService } from '@core/services';
 import { KnobComponent } from '@shared/components/knob/knob.component';
-import { ProgressBarComponent } from '@shared/components/progress-bar/progress-bar.component';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-metrics-card',
   standalone: true,
-  imports: [CommonModule, KnobComponent, ProgressBarComponent],
+  imports: [CommonModule, KnobComponent, TooltipModule],
   templateUrl: './metrics-card.component.html',
   styleUrls: ['./metrics-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -81,5 +81,10 @@ export class MetricsCardComponent {
   // Get icon for a metric
   getIcon(metric: IMetric): string | null {
     return metric.icon ?? StatusUtil.getIcon(metric.label);
+  }
+
+  /** Tooltip copy when `metric.description` is set (optional per screen). */
+  getMetricTooltip(metric: IMetric): string {
+    return metric.description?.trim() ?? '';
   }
 }

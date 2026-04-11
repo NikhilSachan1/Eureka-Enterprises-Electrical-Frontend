@@ -26,7 +26,10 @@ const REIMBURSE_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseReimb
     paymentMode,
     expenseDate,
     expenseAmount,
-    remark,
+    remark: {
+      ...remark,
+      validators: [],
+    },
     expenseAttachments,
     transactionId: {
       ...transactionId,

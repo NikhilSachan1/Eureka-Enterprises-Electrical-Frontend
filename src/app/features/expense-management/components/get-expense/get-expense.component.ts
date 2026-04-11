@@ -11,7 +11,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -28,7 +28,6 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IEnhancedTableConfig,
   IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
@@ -43,7 +42,7 @@ import {
 } from '@features/expense-management/types/expense.dto';
 import {
   EXPENSE_ACTION_CONFIG_MAP,
-  EXPENSE_TABLE_ENHANCED_CONFIG,
+  createExpenseTableEnhancedConfig,
   SEARCH_FILTER_EXPENSE_FORM_CONFIG,
 } from '@features/expense-management/config';
 import { finalize } from 'rxjs';
@@ -55,6 +54,8 @@ import { GetExpenseDetailComponent } from '../get-expense-detail/get-expense-det
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { CurrencyPipe } from '@angular/common';
+import { AuthService } from '@features/auth-management/services/auth.service';
 
 @Component({
   selector: 'app-get-expense',
@@ -63,6 +64,7 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     SearchFilterComponent,
     MetricsCardComponent,
     DataTableComponent,
+    CurrencyPipe,
   ],
   templateUrl: './get-expense.component.html',
   styleUrl: './get-expense.component.scss',
@@ -70,6 +72,9 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   providers: [],
 })
 export class GetExpenseComponent implements OnInit {
+  protected readonly ICONS = ICONS;
+  protected readonly APP_CONFIG = APP_CONFIG;
+
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -84,6 +89,8 @@ export class GetExpenseComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly appPermissionService = inject(AppPermissionService);
+  private readonly authService = inject(AuthService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -91,18 +98,35 @@ export class GetExpenseComponent implements OnInit {
   private readonly expenseStats = signal<IExpenseGetStatsResponseDto | null>(
     null
   );
+  protected readonly payNowClosingBalance = signal<number | null>(null);
+  protected readonly payNowClosingBalanceAbs = computed(() =>
+    Math.abs(this.payNowClosingBalance() ?? 0)
+  );
+  protected readonly payNowEmployeeId = signal<string | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
+  protected showPayNowButton = computed(
+    () =>
+      this.appPermissionService.hasPermission(
+        APP_PERMISSION.EXPENSE.REIMBURSE
+      ) &&
+      this.payNowEmployeeId() !== null &&
+      (this.payNowClosingBalance() ?? 0) < 0
+  );
 
   ngOnInit(): void {
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      EXPENSE_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
+      createExpenseTableEnhancedConfig(loggedInUserId)
     );
     this.searchFilterConfig = SEARCH_FILTER_EXPENSE_FORM_CONFIG;
   }
 
   private loadExpenseList(): void {
+    this.payNowClosingBalance.set(null);
+    this.payNowEmployeeId.set(null);
+
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Expense',
@@ -128,11 +152,23 @@ export class GetExpenseComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.expenseStats.set(stats);
+
+          const employeeId = paramData.employeeName;
+
+          if (employeeId?.length === 1) {
+            this.payNowClosingBalance.set(stats.balances.closingBalance);
+            this.payNowEmployeeId.set(employeeId[0]);
+          } else {
+            this.payNowClosingBalance.set(null);
+            this.payNowEmployeeId.set(null);
+          }
           this.logger.logUserAction('Expense records loaded successfully');
         },
         error: error => {
           this.table.setData([]);
           this.expenseStats.set(null);
+          this.payNowClosingBalance.set(null);
+          this.payNowEmployeeId.set(null);
           this.logger.logUserAction('Failed to load expense records', error);
         },
       });
@@ -174,6 +210,35 @@ export class GetExpenseComponent implements OnInit {
     this.loadExpenseList();
   }
 
+  protected onPayNowClick(): void {
+    const amount = this.payNowClosingBalance();
+    const employeeId = this.payNowEmployeeId();
+    if (amount === null || employeeId === null || amount >= 0) {
+      return;
+    }
+    void this.routerNavigationService.navigateWithQueryParams(
+      [ROUTE_BASE_PATHS.EXPENSE, ROUTES.EXPENSE.REIMBURSE],
+      {
+        employeeName: employeeId,
+        expenseAmount: Math.abs(amount),
+      }
+    );
+  }
+
+  private balanceAmountSubtitle(amount: number): string {
+    const n = Number(amount);
+    if (!Number.isFinite(n) || n === 0) {
+      return 'No net advance or amount due';
+    }
+    if (n > 0) {
+      return 'Paid extra';
+    }
+    if (this.authService.isActiveRoleManagerial()) {
+      return 'Payable to employee';
+    }
+    return 'Receivable from company';
+  }
+
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.expenseStats();
     if (!stats) {
@@ -199,13 +264,33 @@ export class GetExpenseComponent implements OnInit {
         metrics: [
           {
             label: 'Opening Balance',
-            value: stats.balances.openingBalance,
+            value: Math.abs(stats.projectedBalances.openingBalance),
+            subtitle: this.balanceAmountSubtitle(
+              stats.projectedBalances.openingBalance
+            ),
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Closing Balance',
-            value: stats.balances.closingBalance,
+            value: Math.abs(stats.projectedBalances.closingBalance),
+            subtitle: this.balanceAmountSubtitle(
+              stats.projectedBalances.closingBalance
+            ),
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+          {
+            label: 'Approved Opening Balance',
+            value: Math.abs(stats.balances.openingBalance),
+            subtitle: this.balanceAmountSubtitle(stats.balances.openingBalance),
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+          {
+            label: 'Approved Closing Balance',
+            value: Math.abs(stats.balances.closingBalance),
+            subtitle: this.balanceAmountSubtitle(stats.balances.closingBalance),
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
@@ -218,25 +303,19 @@ export class GetExpenseComponent implements OnInit {
         metrics: [
           {
             label: 'Total Debit',
-            value: stats.balances.totalDebit,
+            value: stats.projectedBalances.periodDebit,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Total Credit',
-            value: stats.balances.totalCredit,
+            value: stats.projectedBalances.periodCredit,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
-            label: 'Period Debit',
+            label: 'Approved Debit',
             value: stats.balances.periodDebit,
-            type: EDataType.CURRENCY,
-            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-          },
-          {
-            label: 'Period Credit',
-            value: stats.balances.periodCredit,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },

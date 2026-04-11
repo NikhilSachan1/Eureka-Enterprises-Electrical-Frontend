@@ -14,4 +14,7 @@ export const environment: Environment = {
 
   // Test Data Flags (environment-specific)
   ENABLE_TEST_DATA: true,
+
+  /** e.g. `'2026-04-02'` (noon local) or `'2026-04-02T14:30:00'`; `null` = real clock. */
+  MOCK_SYSTEM_DATE: null,
 };

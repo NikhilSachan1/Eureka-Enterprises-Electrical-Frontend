@@ -12,6 +12,32 @@
   />
 </div>
 
+@if (showPayNowButton()) {
+  <div class="get-expense__pay-now">
+    <div
+      class="get-expense__pay-now-fab"
+      tabindex="0"
+      (click)="onPayNowClick()"
+    >
+      <span class="get-expense__pay-now-fab__icon">
+        <i [class]="ICONS.PAYROLL.WALLET"></i>
+      </span>
+      <span class="get-expense__pay-now-fab__label">Pay now</span>
+      <span class="get-expense__pay-now-fab__sep"></span>
+      <span class="get-expense__pay-now-fab__amount">
+        {{
+          payNowClosingBalanceAbs()
+            | currency
+              : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+              : 'symbol'
+              : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+              : APP_CONFIG.NUMBER_FORMATS.LOCALE
+        }}
+      </span>
+    </div>
+  </div>
+}
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"

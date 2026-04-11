@@ -1,75 +1,129 @@
 @if (hasData()) {
-  <!-- GROUPED LAYOUT -->
   @if (isGrouped()) {
-    <div class="metrics-grouped-layout">
+    <div
+      class="metrics-layout"
+      role="region"
+      aria-label="Summary metrics"
+    >
       @for (group of visibleGroups(); track group.id) {
-        <div class="metric-group">
-          <!-- Group Header -->
-          <div class="group-header">
+        <section class="metric-panel">
+          <header class="metric-panel__header">
             @if (group.icon) {
-              <i [ngClass]="['group-icon', group.icon]"></i>
+              <span
+                class="metric-panel__header-badge"
+                aria-hidden="true"
+              >
+                <i
+                  [ngClass]="group.icon"
+                  class="metric-panel__header-icon"
+                ></i>
+              </span>
             }
-            <span class="group-title">{{ group.title }}</span>
-          </div>
-
-          <!-- Group Cards -->
-          <div class="group-cards">
+            <h2 class="metric-panel__title">{{ group.title }}</h2>
+          </header>
+          <ul
+            class="metric-panel__list"
+            role="list"
+          >
             @for (metric of group.metrics; track metric.label) {
-              <ng-container *ngTemplateOutlet="cardTpl; context: { $implicit: metric }" />
+              <li
+                class="metric-panel__item"
+                role="listitem"
+              >
+                <ng-container *ngTemplateOutlet="metricRowTpl; context: { $implicit: metric }" />
+              </li>
             }
-          </div>
-        </div>
+          </ul>
+        </section>
       }
     </div>
   }
 
-  <!-- FLAT LAYOUT -->
   @if (!isGrouped()) {
-    <div class="metrics-flat-layout">
-      @for (metric of visibleMetrics(); track metric.label) {
-        <ng-container *ngTemplateOutlet="cardTpl; context: { $implicit: metric }" />
-      }
-    </div>
+    @if (visibleMetrics(); as flatMetrics) {
+      <section
+        class="metric-panel metric-panel--flat"
+        aria-label="Summary metrics"
+      >
+        <ul
+          class="metric-panel__list"
+          role="list"
+        >
+          @for (metric of flatMetrics; track metric.label) {
+            <li
+              class="metric-panel__item"
+              role="listitem"
+            >
+              <ng-container *ngTemplateOutlet="metricRowTpl; context: { $implicit: metric }" />
+            </li>
+          }
+        </ul>
+      </section>
+    }
   }
 }
 
-<!-- REUSABLE CARD TEMPLATE -->
 <ng-template
-  #cardTpl
+  #metricRowTpl
   let-metric
 >
   @let colors = getColorScheme(metric.label);
 
-  <div
-    class="metric-pill"
-    [style.--m-color]="colors.primary"
-    [style.--m-light]="colors.light"
-  >
-    <!-- Icon (optional) -->
-    @let icon = getIcon(metric);
-    @if (icon) {
-      <i [ngClass]="['pill-icon', icon]"></i>
-    }
-
-    <!-- Value -->
-    @if (metric.metricType === ALL_DATA_TYPES.KNOB && metric.knobConfig) {
+  @if (metric.metricType === ALL_DATA_TYPES.KNOB && metric.knobConfig) {
+    <div
+      class="metric-knob"
+      [style.--row-accent]="colors.primary"
+    >
+      @if (getIcon(metric); as kIcon) {
+        <i
+          [ngClass]="kIcon"
+          class="metric-knob__icon"
+          aria-hidden="true"
+        ></i>
+      }
       <app-knob [config]="metric.knobConfig" />
-    } @else {
-      <span class="pill-value">
+      <span class="metric-knob__caption">{{ metric.label }}</span>
+    </div>
+  } @else {
+    @let metricTip = getMetricTooltip(metric);
+    <div
+      class="metric-row"
+      [style.--row-accent]="colors.primary"
+      [pTooltip]="metricTip"
+      [tooltipDisabled]="!metricTip"
+      tooltipPosition="top"
+    >
+      <span
+        class="metric-row__accent"
+        aria-hidden="true"
+      ></span>
+      @if (getIcon(metric); as rowIcon) {
+        <span
+          class="metric-row__icon-wrap"
+          aria-hidden="true"
+        >
+          <i
+            [ngClass]="rowIcon"
+            class="metric-row__icon"
+          ></i>
+        </span>
+      }
+      <div class="metric-row__text">
+        <span class="metric-row__label">{{ metric.label }}</span>
+        @if (metric.subtitle) {
+          <span class="metric-row__sub">{{ metric.subtitle }}</span>
+        }
+      </div>
+      <span
+        class="metric-row__value"
+        [class.metric-row__value--currency]="metric.type === ALL_DATA_TYPES.CURRENCY && metric.format"
+      >
         @if (metric.type === ALL_DATA_TYPES.CURRENCY && metric.format) {
           {{ metric.value | currency: metric.format }}
         } @else {
           {{ metric.value }}
         }
       </span>
-    }
-
-    <!-- Label -->
-    <span class="pill-label">{{ metric.label }}</span>
-
-    <!-- Progress Bar -->
-    @if (metric.metricType === ALL_DATA_TYPES.PROGRESS && metric.progressBarConfig) {
-      <app-progress-bar [config]="metric.progressBarConfig" />
-    }
-  </div>
+    </div>
+  }
 </ng-template>

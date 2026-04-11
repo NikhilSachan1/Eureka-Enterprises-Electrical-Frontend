@@ -69,6 +69,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   },
   male: { icon: ICONS.COMMON.USER, severity: 'info' },
   female: { icon: ICONS.COMMON.USER, severity: 'info' },
+  other: { icon: ICONS.COMMON.USERS, severity: 'purple' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // APPROVAL WORKFLOW
@@ -166,12 +167,15 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // EXPENSE / FINANCIAL
   // ═══════════════════════════════════════════════════════════════════════════
   'opening balance': { icon: ICONS.EXPENSE.MONEY, severity: 'info' },
+  'approved opening balance': { icon: ICONS.EXPENSE.MONEY, severity: 'info' },
   'closing balance': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
+  'approved closing balance': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'total balance': { icon: ICONS.EXPENSE.MONEY, severity: 'purple' },
   'total credit': { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
   'period credit': { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
   'total credited': { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
   'total debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
+  'approved debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'period debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'total consumed': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
 

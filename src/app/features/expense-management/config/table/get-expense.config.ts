@@ -84,75 +84,133 @@ export const EXPENSE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-export const EXPENSE_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IExpenseGetResponseDto['records'][number]>
->[] = [
-  {
-    ...COMMON_ROW_ACTIONS.VIEW,
-    tooltip: 'View Expense Details',
-    permission: [APP_PERMISSION.EXPENSE.VIEW_DETAIL],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.EDIT,
-    tooltip: 'Edit Expense',
-    permission: [APP_PERMISSION.EXPENSE.EDIT],
-    disableWhen: (row: IExpenseGetBaseResponseDto) =>
-      !row.canEdit || disableExpenseWhenNotPendingApproval(row),
-  },
-  {
-    ...COMMON_ROW_ACTIONS.DELETE,
-    tooltip: 'Delete Expense',
-    permission: [APP_PERMISSION.EXPENSE.DELETE],
-    disableWhen: (row: IExpenseGetBaseResponseDto) =>
-      !row.canEdit || disableExpenseWhenNotPendingApproval(row),
-  },
-  {
-    ...COMMON_ROW_ACTIONS.APPROVE,
-    tooltip: 'Approve Expense',
-    permission: [APP_PERMISSION.EXPENSE.APPROVE],
-    disableWhen: (row: IExpenseGetBaseResponseDto) =>
-      row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED,
-  },
-  {
-    ...COMMON_ROW_ACTIONS.REJECT,
-    tooltip: 'Reject Expense',
-    permission: [APP_PERMISSION.EXPENSE.REJECT],
-    disableWhen: (row: IExpenseGetBaseResponseDto) =>
-      row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED,
-  },
-];
+export function buildExpenseTableRowActionsConfig(
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IExpenseGetResponseDto['records'][number]>>[] {
+  return [
+    {
+      ...COMMON_ROW_ACTIONS.VIEW,
+      tooltip: 'View Expense Details',
+      permission: [APP_PERMISSION.EXPENSE.VIEW_DETAIL],
+    },
+    {
+      ...COMMON_ROW_ACTIONS.EDIT,
+      tooltip: 'Edit Expense',
+      permission: [APP_PERMISSION.EXPENSE.EDIT],
+      disableWhen: (row: IExpenseGetBaseResponseDto) =>
+        !loggedInUserId ||
+        row.createdBy !== loggedInUserId ||
+        disableExpenseWhenNotPendingApproval(row),
+      disableReason: (row: IExpenseGetBaseResponseDto) =>
+        !loggedInUserId || row.createdBy !== loggedInUserId
+          ? 'You are not the owner of this expense.'
+          : disableExpenseWhenNotPendingApproval(row)
+            ? 'Expense is not in pending approval.'
+            : undefined,
+    },
+    {
+      ...COMMON_ROW_ACTIONS.DELETE,
+      tooltip: 'Delete Expense',
+      permission: [APP_PERMISSION.EXPENSE.DELETE],
+      disableWhen: (row: IExpenseGetBaseResponseDto) =>
+        !loggedInUserId ||
+        row.createdBy !== loggedInUserId ||
+        disableExpenseWhenNotPendingApproval(row),
+      disableReason: (row: IExpenseGetBaseResponseDto) =>
+        !loggedInUserId || row.createdBy !== loggedInUserId
+          ? 'You are not the owner of this expense.'
+          : disableExpenseWhenNotPendingApproval(row)
+            ? 'Expense is not in pending approval.'
+            : undefined,
+    },
+    {
+      ...COMMON_ROW_ACTIONS.APPROVE,
+      tooltip: 'Approve Expense',
+      permission: [APP_PERMISSION.EXPENSE.APPROVE],
+      disableWhen: (row: IExpenseGetBaseResponseDto) =>
+        row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED ||
+        row.createdBy === loggedInUserId,
+      disableReason: (row: IExpenseGetBaseResponseDto) =>
+        row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED
+          ? 'Expense is already approved.'
+          : row.createdBy === loggedInUserId
+            ? 'You cannot approve your own added expense.'
+            : undefined,
+    },
+    {
+      ...COMMON_ROW_ACTIONS.REJECT,
+      tooltip: 'Reject Expense',
+      permission: [APP_PERMISSION.EXPENSE.REJECT],
+      disableWhen: (row: IExpenseGetBaseResponseDto) =>
+        row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED ||
+        row.createdBy === loggedInUserId,
+      disableReason: (row: IExpenseGetBaseResponseDto) =>
+        row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED
+          ? 'Expense is already rejected.'
+          : row.createdBy === loggedInUserId
+            ? 'You cannot reject your own added expense.'
+            : undefined,
+    },
+  ];
+}
 
-export const EXPENSE_TABLE_BULK_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IExpenseGetResponseDto['records'][number]>
->[] = [
-  {
-    ...COMMON_BULK_ACTIONS.DELETE,
-    tooltip: 'Delete Selected Expense',
-    permission: [APP_PERMISSION.EXPENSE.DELETE],
-    disableWhen: (row: IExpenseGetBaseResponseDto) =>
-      !row.canEdit || disableExpenseWhenNotPendingApproval(row),
-  },
-  {
-    ...COMMON_BULK_ACTIONS.APPROVE,
-    tooltip: 'Approve Selected Expense',
-    permission: [APP_PERMISSION.EXPENSE.APPROVE],
-    disableWhen: (row: IExpenseGetBaseResponseDto) =>
-      row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED,
-  },
-  {
-    ...COMMON_BULK_ACTIONS.REJECT,
-    tooltip: 'Reject Selected Expense',
-    permission: [APP_PERMISSION.EXPENSE.REJECT],
-    disableWhen: (row: IExpenseGetBaseResponseDto) =>
-      row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED,
-  },
-];
+export function buildExpenseTableBulkActionsConfig(
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IExpenseGetResponseDto['records'][number]>>[] {
+  return [
+    {
+      ...COMMON_BULK_ACTIONS.DELETE,
+      tooltip: 'Delete Selected Expense',
+      permission: [APP_PERMISSION.EXPENSE.DELETE],
+      disableWhen: (row: IExpenseGetBaseResponseDto) =>
+        !loggedInUserId ||
+        row.createdBy !== loggedInUserId ||
+        disableExpenseWhenNotPendingApproval(row),
+      disableReason: (row: IExpenseGetBaseResponseDto) =>
+        !loggedInUserId || row.createdBy !== loggedInUserId
+          ? 'You are not the owner of the some of the selected expenses.'
+          : disableExpenseWhenNotPendingApproval(row)
+            ? 'Some of the selected expenses are not in pending approval.'
+            : undefined,
+    },
+    {
+      ...COMMON_BULK_ACTIONS.APPROVE,
+      tooltip: 'Approve Selected Expense',
+      permission: [APP_PERMISSION.EXPENSE.APPROVE],
+      disableWhen: (row: IExpenseGetBaseResponseDto) =>
+        row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED ||
+        row.createdBy === loggedInUserId,
+      disableReason: (row: IExpenseGetBaseResponseDto) =>
+        row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED
+          ? 'Some of the selected expenses are already approved.'
+          : row.createdBy === loggedInUserId
+            ? 'You cannot approve your own added expenses.'
+            : undefined,
+    },
+    {
+      ...COMMON_BULK_ACTIONS.REJECT,
+      tooltip: 'Reject Selected Expense',
+      permission: [APP_PERMISSION.EXPENSE.REJECT],
+      disableWhen: (row: IExpenseGetBaseResponseDto) =>
+        row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED ||
+        row.createdBy === loggedInUserId,
+      disableReason: (row: IExpenseGetBaseResponseDto) =>
+        row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED
+          ? 'Some of the selected expenses are already rejected.'
+          : row.createdBy === loggedInUserId
+            ? 'You cannot reject your own added expenses.'
+            : undefined,
+    },
+  ];
+}
 
-export const EXPENSE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
-  IExpenseGetResponseDto['records'][number]
-> = {
-  tableConfig: EXPENSE_TABLE_CONFIG,
-  headers: EXPENSE_TABLE_HEADER_CONFIG,
-  rowActions: EXPENSE_TABLE_ROW_ACTIONS_CONFIG,
-  bulkActions: EXPENSE_TABLE_BULK_ACTIONS_CONFIG,
-};
+export function createExpenseTableEnhancedConfig(
+  loggedInUserId: string | undefined | null
+): IEnhancedTableConfig<IExpenseGetResponseDto['records'][number]> {
+  return {
+    tableConfig: EXPENSE_TABLE_CONFIG,
+    headers: EXPENSE_TABLE_HEADER_CONFIG,
+    rowActions: buildExpenseTableRowActionsConfig(loggedInUserId),
+    bulkActions: buildExpenseTableBulkActionsConfig(loggedInUserId),
+  };
+}

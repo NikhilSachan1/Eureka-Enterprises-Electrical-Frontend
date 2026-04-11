@@ -12,13 +12,14 @@ export const ExpenseReimburseRequestSchema = ExpenseUpsertShapeSchema.omit({
   .extend({
     employeeName: uuidField,
     transactionId: transactionId.unwrap(),
+    remark: z.string().nullable(),
   })
   .strict()
   .transform(data => {
     return {
       userId: data.employeeName,
       category: EExpenseCategory.SETTLEMENT,
-      description: data.remark,
+      description: data.remark ?? 'Expense reimbursement successfully.',
       amount: data.expenseAmount,
       expenseDate: transformDateFormat(data.expenseDate),
       paymentMode: data.paymentMode,

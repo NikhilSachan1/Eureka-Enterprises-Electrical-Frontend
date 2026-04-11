@@ -191,8 +191,9 @@
 
           @if (shouldShowColumn) {
             @let hasLead = column.icon || (column.showImage && column.dummyImageField);
+            @let isReadMoreCol = column.bodyTemplate === ALL_DATA_TYPES.TEXT_WITH_READ_MORE;
             @let t = customBodyTemplates();
-            <td [class.cell-allow-wrap]="hasLead">
+            <td [class.cell-allow-wrap]="hasLead || isReadMoreCol">
               <div
                 [class.flex]="hasLead"
                 [class.items-center]="hasLead"
@@ -206,7 +207,7 @@
                 }
                 <div
                   [class.flex-1]="hasLead"
-                  [class.min-w-0]="hasLead"
+                  [class.min-w-0]="hasLead || isReadMoreCol"
                 >
                   @if (column.customTemplateKey && t?.[column.customTemplateKey]) {
                     <ng-container
@@ -330,6 +331,7 @@
 
               @if (shouldShowColumn) {
                 @let hasLead = column.icon || (column.showImage && column.dummyImageField);
+                @let isReadMoreCol = column.bodyTemplate === ALL_DATA_TYPES.TEXT_WITH_READ_MORE;
                 <div class="mb-4 last:mb-0">
                   <div class="text-xs font-semibold mb-2 uppercase tracking-wider">{{ column.header }}</div>
                   <div
@@ -346,7 +348,7 @@
                     }
                     <div
                       [class.flex-1]="hasLead"
-                      [class.min-w-0]="hasLead"
+                      [class.min-w-0]="hasLead || isReadMoreCol"
                     >
                       @let t = customBodyTemplates();
                       @if (column.customTemplateKey && t?.[column.customTemplateKey]) {

@@ -25,6 +25,7 @@
       [size]="buttonConfig.size"
       [link]="buttonConfig.link"
       [fluid]="buttonConfig.fluid"
+      [styleClass]="styleClass() ?? ''"
       [class.disabled-button]="isDisabled"
       (onClick)="onClick($event)"
     />

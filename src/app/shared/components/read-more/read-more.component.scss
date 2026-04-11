@@ -1,17 +1,41 @@
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .read-more-text {
+  display: block;
   font-size: 0.875rem;
   line-height: 1.5;
+  overflow-wrap: anywhere;
   word-wrap: break-word;
   white-space: normal;
+  max-width: 100%;
 }
 
 ::ng-deep {
+  .p-inplace {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .p-inplace-display {
     padding: 0;
+    display: block;
+    min-width: 0;
+    max-width: 100%;
 
     &:not(.p-disabled):hover {
       background: unset;
       color: unset;
     }
+  }
+
+  .p-inplace-content {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
   }
 }

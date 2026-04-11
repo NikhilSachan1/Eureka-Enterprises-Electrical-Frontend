@@ -14,4 +14,6 @@ export const environment: Environment = {
 
   // Test Data Flags (environment-specific)
   ENABLE_TEST_DATA: false,
+
+  MOCK_SYSTEM_DATE: null,
 };
