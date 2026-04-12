@@ -32,6 +32,7 @@ const SEARCH_FILTER_PETRO_CARD_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
   },
   globalSearch: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+    hint: 'Search by petro card name, number',
   },
 };
 

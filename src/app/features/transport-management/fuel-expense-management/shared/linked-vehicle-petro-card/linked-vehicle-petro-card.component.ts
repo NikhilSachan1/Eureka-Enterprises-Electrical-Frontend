@@ -14,6 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { ICONS } from '@shared/constants';
 import {
+  AppConfigurationService,
   LoadingService,
   NotificationService,
   RouterNavigationService,
@@ -38,6 +39,7 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -49,9 +51,7 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
 
   // Input: Employee name to trigger API fetch (for force fuel expense)
   employeeName = input<string | null>(null);
-
-  // Input: Route resolver data key to load from (for add fuel expense)
-  routeDataKey = input<string | null>(null);
+  prefillFromAppConfiguration = input(true);
 
   // Input: Route segments to redirect when no valid vehicle found
   redirectRoute = input<string[] | null>(null);
@@ -77,11 +77,21 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Load from route resolver if routeDataKey is provided
-    const dataKey = this.routeDataKey();
-    if (dataKey) {
-      this.loadLinkedUserVehicleDetailFromRoute(dataKey);
+    if (this.employeeName()) {
+      return;
     }
+    const current = this.linkedUserVehicleDetail();
+    if (current && this.hasValidVehicle(current)) {
+      return;
+    }
+    if (this.prefillFromAppConfiguration()) {
+      this.loadLinkedUserVehicleDetailFromAppConfiguration();
+    }
+  }
+
+  private loadLinkedUserVehicleDetailFromAppConfiguration(): void {
+    const resolverData = this.appConfigurationService.linkedUserVehicleDetail();
+    this.applyResolverLikeLinkedData(resolverData);
   }
 
   /**
@@ -91,8 +101,13 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
     const resolverData = this.activatedRoute.snapshot.data[
       dataKey
     ] as ILinkedUserVehicleDetailGetResponseDto;
+    this.applyResolverLikeLinkedData(resolverData);
+  }
 
-    const hasValidVehicle = this.hasValidVehicle(resolverData);
+  private applyResolverLikeLinkedData(
+    resolverData: ILinkedUserVehicleDetailGetResponseDto | null | undefined
+  ): void {
+    const hasValidVehicle = this.hasValidVehicle(resolverData ?? null);
 
     if (!resolverData || !hasValidVehicle) {
       this.logger.logUserAction(

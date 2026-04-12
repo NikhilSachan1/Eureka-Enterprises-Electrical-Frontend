@@ -20,6 +20,7 @@ const ACTION_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleActionUI
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+          includeLoggedInUser: false,
         },
       },
       conditionalValidators: [

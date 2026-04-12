@@ -21,6 +21,8 @@ export const VehicleAddRequestSchema =
       pucEndDate: transformDateFormat(pucEndDate),
       remarks: data.remarks,
       vehicleFiles: data.vehicleFiles,
+      lastServiceDate: transformDateFormat(data.lastServiceDate ?? ''),
+      lastServiceKm: data.lastServiceKm,
     };
   });
 export const VehicleAddResponseSchema = z.looseObject({

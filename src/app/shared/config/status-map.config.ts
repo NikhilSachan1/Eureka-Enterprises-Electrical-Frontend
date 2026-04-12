@@ -53,6 +53,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   total: { icon: ICONS.STATUS.TOTAL, severity: 'info' },
   available: { icon: ICONS.STATUS.AVAILABLE, severity: 'success' },
   assigned: { icon: ICONS.STATUS.ASSIGNED, severity: 'info' },
+  allocated: { icon: ICONS.STATUS.ASSIGNED, severity: 'info' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EMPLOYEE STATUS
@@ -119,6 +120,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   'handover cancelled': { icon: ICONS.ACTIONS.BAN, severity: 'warning' },
   deallocated: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   'asset added': { icon: ICONS.ASSET.BOX, severity: 'info' },
+  'vehicle added': { icon: ICONS.EXPENSE.CAR, severity: 'info' },
   updated: { icon: ICONS.ACTIONS.EDIT, severity: 'info' },
 
   // Warranty
@@ -154,6 +156,8 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   overdue: { icon: ICONS.STATUS.EXPIRED, severity: 'danger' },
   'service due overdue': { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   'under maintenance': { icon: ICONS.STATUS.EXPIRING_SOON, severity: 'info' },
+  'total services': { icon: ICONS.COMMON.LIST, severity: 'info' },
+  'total cost': { icon: ICONS.EXPENSE.MONEY, severity: 'purple' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // HANDOVER WORKFLOW
@@ -186,6 +190,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   'period credit': { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
   'total credited': { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
   'total debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
+  'total petro card debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'approved debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'period debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'total consumed': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },

@@ -22,8 +22,6 @@ export const FuelExpenseActionRequestSchema = z
 
 export const FuelExpenseActionResultSchema = z.looseObject({
   approvalStatus,
-  message: z.string(),
-  previousStatus: approvalStatus,
   fuelExpenseId: id,
 });
 

@@ -56,6 +56,15 @@ export class ForceFuelExpenseComponent
     return empName && typeof empName === 'string' ? empName : null;
   });
 
+  protected readonly showRemainingForceFuelFields = computed(() => {
+    const emp = this.selectedEmployeeName();
+    if (!emp) {
+      return true;
+    }
+    const detail = this.linkedUserVehicleDetail();
+    return !!(detail?.vehicle && Object.keys(detail.vehicle).length > 0);
+  });
+
   ngOnInit(): void {
     this.form = this.formService.createForm<IFuelExpenseForceUIFormDto>(
       FORCE_FUEL_EXPENSE_FORM_CONFIG,

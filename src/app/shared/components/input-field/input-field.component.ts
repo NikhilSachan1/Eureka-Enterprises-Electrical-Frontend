@@ -64,9 +64,6 @@ import { COMMON_ROW_ACTIONS } from '@shared/config';
 import { AppConfigurationService, GalleryService } from '@shared/services';
 import {
   arrayToString,
-  fileFormatValidator,
-  fileLimitValidator,
-  fileSizeValidator,
   filterOptionsByIncludeExclude,
   stringToArray,
   toLowerCase,
@@ -696,18 +693,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       if (!control) {
         return;
       }
-      const { fileConfig } = this.inputFieldConfig();
-      const existingValidator = control.validator;
-      const fileValidators = [
-        fileLimitValidator(fileConfig?.fileLimit ?? 0),
-        fileSizeValidator(fileConfig?.maxFileSize ?? 0),
-        fileFormatValidator(fileConfig?.acceptFileTypes ?? []),
-      ];
-      control.setValidators(
-        existingValidator
-          ? [existingValidator, ...fileValidators]
-          : fileValidators
-      );
       control.setValue(files);
       control.markAsDirty();
       control.updateValueAndValidity();
@@ -935,22 +920,6 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       ) {
         valueToSet = this.normalizeTextFieldValue(valueToSet, config);
       }
-      if (
-        config.fieldType === EDataType.ATTACHMENTS &&
-        Array.isArray(valueToSet)
-      ) {
-        const existingValidator = control.validator;
-        const fileValidators = [
-          fileLimitValidator(config.fileConfig?.fileLimit ?? 0),
-          fileSizeValidator(config.fileConfig?.maxFileSize ?? 0),
-          fileFormatValidator(config.fileConfig?.acceptFileTypes ?? []),
-        ];
-        control.setValidators(
-          existingValidator
-            ? [existingValidator, ...fileValidators]
-            : fileValidators
-        );
-      }
       control.setValue(valueToSet);
       control.markAsDirty();
       control.updateValueAndValidity();
@@ -1107,6 +1076,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     }
     if (errors['hasSpecialChars']) {
       return 'Text should not contain any special characters';
+    }
+    if (errors['minFileLimit']) {
+      return `Please upload at least ${errors['minFileLimitValue']} file(s).`;
     }
     if (errors['fileLimit']) {
       return `You can upload a maximum ${errors['fileLimitValue']} files.`;

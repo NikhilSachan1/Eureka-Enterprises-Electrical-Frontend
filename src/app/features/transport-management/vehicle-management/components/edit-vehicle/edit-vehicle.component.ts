@@ -98,6 +98,8 @@ export class EditVehicleComponent
       pucStartDate,
       pucEndDate,
       remarks,
+      lastServiceDate,
+      lastServiceKm,
     } = vehicleDetailFromResolver;
 
     return {
@@ -108,13 +110,18 @@ export class EditVehicleComponent
       vehicleFuelType: fuelType,
       vehiclePurchaseDate: new Date(purchaseDate),
       vehicleDealerName: dealerName,
-      vehicleInsuranceDate: [
-        new Date(insuranceStartDate),
-        new Date(insuranceEndDate),
-      ],
-      vehiclePUCDate: [new Date(pucStartDate), new Date(pucEndDate)],
+      vehicleInsuranceDate:
+        insuranceStartDate && insuranceEndDate
+          ? [new Date(insuranceStartDate), new Date(insuranceEndDate)]
+          : null,
+      vehiclePUCDate:
+        pucStartDate && pucEndDate
+          ? [new Date(pucStartDate), new Date(pucEndDate)]
+          : null,
       remarks,
       vehicleFiles: preloadedFiles,
+      lastServiceDate: lastServiceDate ? new Date(lastServiceDate) : null,
+      lastServiceKm: Number(lastServiceKm),
     };
   }
 

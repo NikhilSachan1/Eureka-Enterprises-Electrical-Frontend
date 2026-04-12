@@ -29,6 +29,21 @@ export const fileLimitValidator = (fileLimit: number): ValidatorFn => {
   };
 };
 
+export const minFileLimitValidator = (minFileLimit: number): ValidatorFn => {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!minFileLimit || minFileLimit < 1) {
+      return null;
+    }
+
+    const { value } = control;
+    const count = Array.isArray(value) ? value.length : 0;
+
+    return count < minFileLimit
+      ? { minFileLimit: true, minFileLimitValue: minFileLimit }
+      : null;
+  };
+};
+
 export const fileSizeValidator = (maxFileSize: number): ValidatorFn => {
   return (control: AbstractControl): ValidationErrors | null => {
     const { value } = control;

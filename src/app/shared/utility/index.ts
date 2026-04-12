@@ -17,6 +17,7 @@ export {
   noSpecialCharactersValidator,
   editorRequiredValidator,
   fileLimitValidator,
+  minFileLimitValidator,
   fileSizeValidator,
   fileFormatValidator,
   withCustomMessage,

@@ -183,21 +183,23 @@
           </div>
         }
 
-        @if (detail.status?.approvalStatus !== 'pending' && detail.approvalBy) {
+        @if (detail.approvalBy && !isPendingApprovalStatus(detail.status?.approvalStatus)) {
           @let approvalByName = getUserName(detail.approvalBy.user);
           <p-divider />
           <div class="space-y-1 view-detail-meta">
             <p class="text-xs">
               {{ detail.status?.approvalStatus ?? '' | textCase: 'title' }} by
               <span class="font-semibold">{{ approvalByName }}</span>
-              at
-              <span class="font-semibold">
-                {{ detail.approvalBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
-              </span>
-              on
-              <span class="font-semibold">
-                {{ detail.approvalBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-              </span>
+              @if (detail.approvalBy.date) {
+                at
+                <span class="font-semibold">
+                  {{ detail.approvalBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
+                </span>
+                on
+                <span class="font-semibold">
+                  {{ detail.approvalBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+                </span>
+              }
             </p>
             @if (detail.approvalBy.notes && detail.approvalBy.notes !== '') {
               <p class="text-xs italic">"{{ detail.approvalBy.notes }}"</p>

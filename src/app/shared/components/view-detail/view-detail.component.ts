@@ -99,6 +99,16 @@ export class ViewDetailComponent {
     return toTitleCase(value);
   }
 
+  /** Matches mapped labels like "Pending", "PENDING" — avoids showing a bogus "Pending by N/A at on" line. */
+  protected isPendingApprovalStatus(
+    status: string | null | undefined
+  ): boolean {
+    if (!status?.trim()) {
+      return false;
+    }
+    return status.trim().toLowerCase() === 'pending';
+  }
+
   protected getColor(status: string): {
     bg: string;
     border: string;

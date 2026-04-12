@@ -9,9 +9,13 @@ import { Validators } from '@angular/forms';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IFuelExpenseForceUIFormDto } from '../../types/fuel-expense.dto';
 import { ADD_FUEL_EXPENSE_FORM_CONFIG } from './add-fuel-expense.config';
+import { FinancialYearService } from '@core/services/financial-year.service';
+
+const financialYearService = new FinancialYearService();
 
 const FORCE_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseForceUIFormDto> =
   {
+    ...ADD_FUEL_EXPENSE_FORM_CONFIG.fields,
     employeeName: {
       fieldType: EDataType.SELECT,
       id: 'employeeName',
@@ -25,7 +29,22 @@ const FORCE_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpense
       },
       validators: [Validators.required],
     },
-    ...ADD_FUEL_EXPENSE_FORM_CONFIG.fields,
+    fuelFillDate: {
+      ...ADD_FUEL_EXPENSE_FORM_CONFIG.fields.fuelFillDate,
+      dateConfig: {
+        ...ADD_FUEL_EXPENSE_FORM_CONFIG.fields.fuelFillDate.dateConfig,
+        minDate: financialYearService.getFinancialYearStartDate(),
+      },
+    },
+    paymentMode: {
+      ...ADD_FUEL_EXPENSE_FORM_CONFIG.fields.paymentMode,
+      selectConfig: {
+        ...ADD_FUEL_EXPENSE_FORM_CONFIG.fields.paymentMode.selectConfig,
+        filterOptions: {
+          exclude: ['system'],
+        },
+      },
+    },
   };
 
 const FORCE_FUEL_EXPENSE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

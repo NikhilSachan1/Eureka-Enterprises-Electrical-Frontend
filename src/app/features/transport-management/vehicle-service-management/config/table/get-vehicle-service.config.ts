@@ -41,6 +41,7 @@ export const VEHICLE_SERVICE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig
       bodyTemplate: EDataType.NUMBER,
       dataType: EDataType.NUMBER,
       showSort: false,
+      suffix: 'km',
     },
     {
       field: 'serviceType',

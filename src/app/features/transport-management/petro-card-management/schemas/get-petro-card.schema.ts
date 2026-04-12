@@ -32,7 +32,12 @@ export const PetroCardGetBaseResponseSchema = z.looseObject({
   ...AuditSchema.shape,
   isAllocated: z.boolean(),
   allocatedVehicle: makeFieldsNullable(
-    VehicleBaseSchema.pick({ id: true, registrationNo: true })
+    VehicleBaseSchema.pick({
+      id: true,
+      registrationNo: true,
+      brand: true,
+      model: true,
+    })
   ).nullable(),
   createdByUser: UserSchema.omit({
     employeeId: true,
@@ -43,13 +48,6 @@ export const PetroCardGetStatsResponseSchema = z.looseObject({
   total: z.number().int().nonnegative(),
   allocated: z.number().int().nonnegative(),
   available: z.number().int().nonnegative(),
-  byExpiryStatus: z.object({
-    VALID: z.number().int().nonnegative(),
-    EXPIRING_SOON: z.number().int().nonnegative(),
-    EXPIRED: z.number().int().nonnegative(),
-  }),
-  byCardType: z.record(z.string(), z.number().int().nonnegative()),
-  byCardName: z.record(z.string(), z.number().int().nonnegative()),
 });
 
 export const PetroCardGetResponseSchema = z.looseObject({

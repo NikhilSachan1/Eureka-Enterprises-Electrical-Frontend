@@ -52,7 +52,7 @@ export class DeleteVehicleComponent
   }
 
   onDialogAccept(): void {
-    super.onSubmit();
+    this.handleSubmit();
   }
 
   protected override handleSubmit(): void {

@@ -1,11 +1,5 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
-<app-linked-vehicle-petro-card
-  class="block mb-8"
-  [employeeName]="selectedEmployeeName()"
-  (linkedUserVehicleDetailChange)="linkedUserVehicleDetail.set($event)"
-/>
-
 <form
   (ngSubmit)="onSubmit()"
   [formGroup]="form.formGroup"
@@ -16,61 +10,69 @@
     [inputFieldConfig]="form.fieldConfigs.employeeName"
   />
 
-  <div class="grid grid-cols-1 md:grid-cols-4">
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.fuelFillDate"
-    />
+  <app-linked-vehicle-petro-card
+    [employeeName]="selectedEmployeeName()"
+    [prefillFromAppConfiguration]="false"
+    (linkedUserVehicleDetailChange)="linkedUserVehicleDetail.set($event)"
+  />
 
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.paymentMode"
-    />
-
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.fuelAmount"
-    />
-
-    @if (form.fieldConfigs.transactionId) {
+  @if (showRemainingForceFuelFields()) {
+    <div class="grid grid-cols-1 md:grid-cols-4">
       <app-input-field
         [formGroup]="form.formGroup"
-        [inputFieldConfig]="form.fieldConfigs.transactionId"
+        [inputFieldConfig]="form.fieldConfigs.fuelFillDate"
       />
-    }
-  </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.paymentMode"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.fuelAmount"
+      />
+
+      @if (form.fieldConfigs.transactionId) {
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.transactionId"
+        />
+      }
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.fuelLiters"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.odometerReading"
+      />
+    </div>
+
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.fuelLiters"
+      [inputFieldConfig]="form.fieldConfigs.remark"
     />
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.odometerReading"
-    />
-  </div>
-
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.remark"
-  />
-
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.fuelExpenseAttachments"
-  />
-
-  <div class="button-container">
-    <app-button
-      [buttonConfig]="form.buttonConfigs['reset']"
-      (onButtonClick)="onReset()"
+      [inputFieldConfig]="form.fieldConfigs.fuelExpenseAttachments"
     />
 
-    <app-button
-      [buttonConfig]="form.buttonConfigs['submit']"
-      [showButtonLoader]="isSubmitting()"
-    />
-  </div>
+    <div class="button-container">
+      <app-button
+        [buttonConfig]="form.buttonConfigs['reset']"
+        (onButtonClick)="onReset()"
+      />
+
+      <app-button
+        [buttonConfig]="form.buttonConfigs['submit']"
+        [showButtonLoader]="isSubmitting()"
+      />
+    </div>
+  }
 </form>

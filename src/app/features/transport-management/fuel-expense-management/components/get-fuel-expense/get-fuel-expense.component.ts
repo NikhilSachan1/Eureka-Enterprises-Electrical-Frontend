@@ -7,7 +7,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -25,7 +25,6 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IMetric,
   IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
@@ -39,7 +38,7 @@ import {
 } from '../../types/fuel-expense.dto';
 import {
   FUEL_EXPENSE_ACTION_CONFIG_MAP,
-  FUEL_EXPENSE_TABLE_ENHANCED_CONFIG,
+  createFuelExpenseTableEnhancedConfig,
   SEARCH_FILTER_FUEL_EXPENSE_FORM_CONFIG,
 } from '../../config';
 import { finalize } from 'rxjs';
@@ -54,8 +53,9 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { DecimalPipe } from '@angular/common';
+import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { AuthService } from '@features/auth-management/services/auth.service';
 
 @Component({
   selector: 'app-get-fuel-expense',
@@ -65,6 +65,7 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     SearchFilterComponent,
     DataTableComponent,
     DecimalPipe,
+    CurrencyPipe,
   ],
   templateUrl: './get-fuel-expense.component.html',
   styleUrl: './get-fuel-expense.component.scss',
@@ -85,8 +86,13 @@ export class GetFuelExpenseComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly appPermissionService = inject(AppPermissionService);
+  private readonly authService = inject(AuthService);
+
+  private readonly hasAssignedVehicle = signal<boolean | null>(null);
 
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly ICONS = ICONS;
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
@@ -94,17 +100,46 @@ export class GetFuelExpenseComponent implements OnInit {
     signal<IFuelExpenseGetStatsResponseDto | null>(null);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected metricsCards = computed(() => this.getMetricCardsData());
   protected metricGroups = computed(() => this.getMetricGroups());
+  protected readonly payNowClosingBalance = signal<number | null>(null);
+  protected readonly payNowClosingBalanceAbs = computed(() =>
+    Math.abs(this.payNowClosingBalance() ?? 0)
+  );
+  protected readonly payNowEmployeeId = signal<string | null>(null);
+  protected showPayNowButton = computed(
+    () =>
+      this.appPermissionService.hasPermission(
+        APP_PERMISSION.EXPENSE.REIMBURSE
+      ) &&
+      this.payNowEmployeeId() !== null &&
+      (this.payNowClosingBalance() ?? 0) < 0
+  );
 
   ngOnInit(): void {
+    this.applyLinkedVehicleFromAppConfiguration();
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      FUEL_EXPENSE_TABLE_ENHANCED_CONFIG
+      createFuelExpenseTableEnhancedConfig(loggedInUserId)
     );
     this.searchFilterConfig = SEARCH_FILTER_FUEL_EXPENSE_FORM_CONFIG;
   }
 
+  private applyLinkedVehicleFromAppConfiguration(): void {
+    const linked = this.appConfigurationService.linkedUserVehicleDetail();
+    if (linked === null) {
+      this.hasAssignedVehicle.set(false);
+      return;
+    }
+
+    const hasLinkedVehicle =
+      !!linked.vehicle && Object.keys(linked.vehicle).length > 0;
+
+    this.hasAssignedVehicle.set(hasLinkedVehicle);
+  }
+
   private loadFuelExpenseList(): void {
+    this.payNowClosingBalance.set(null);
+    this.payNowEmployeeId.set(null);
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Fuel Expense',
@@ -130,11 +165,22 @@ export class GetFuelExpenseComponent implements OnInit {
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.fuelExpenseStats.set(stats);
+          const employeeId = paramData.employeeName;
+
+          if (employeeId?.length === 1) {
+            this.payNowClosingBalance.set(stats.balances.closingBalance);
+            this.payNowEmployeeId.set(employeeId[0]);
+          } else {
+            this.payNowClosingBalance.set(null);
+            this.payNowEmployeeId.set(null);
+          }
           this.logger.logUserAction('Fuel expense records loaded successfully');
         },
         error: error => {
           this.table.setData([]);
           this.fuelExpenseStats.set(null);
+          this.payNowClosingBalance.set(null);
+          this.payNowEmployeeId.set(null);
           this.logger.logUserAction(
             'Failed to load fuel expense records',
             error
@@ -181,9 +227,37 @@ export class GetFuelExpenseComponent implements OnInit {
     this.loadFuelExpenseList();
   }
 
-  // Flat metrics - not used when using grouped layout
-  private getMetricCardsData(): IMetric[] {
-    return [];
+  protected onPayNowClick(): void {
+    const amount = this.payNowClosingBalance();
+    const employeeId = this.payNowEmployeeId();
+    if (amount === null || employeeId === null || amount >= 0) {
+      return;
+    }
+    void this.routerNavigationService.navigateWithQueryParams(
+      [
+        ROUTE_BASE_PATHS.TRANSPORT,
+        ROUTE_BASE_PATHS.FUEL,
+        ROUTES.FUEL.REIMBURSEMENT,
+      ],
+      {
+        employeeName: employeeId,
+        expenseAmount: Math.abs(amount),
+      }
+    );
+  }
+
+  private balanceAmountSubtitle(amount: number): string {
+    const n = Number(amount);
+    if (!Number.isFinite(n) || n === 0) {
+      return 'No net advance or amount due';
+    }
+    if (n > 0) {
+      return 'Paid extra';
+    }
+    if (this.authService.isActiveRoleManagerial()) {
+      return 'Payable to employee';
+    }
+    return 'Receivable from company';
   }
 
   // Grouped metrics layout
@@ -212,13 +286,33 @@ export class GetFuelExpenseComponent implements OnInit {
         metrics: [
           {
             label: 'Opening Balance',
-            value: stats.balances.openingBalance,
+            value: Math.abs(stats.projectedBalances.openingBalance),
+            subtitle: this.balanceAmountSubtitle(
+              stats.projectedBalances.openingBalance
+            ),
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Closing Balance',
-            value: stats.balances.closingBalance,
+            value: Math.abs(stats.projectedBalances.closingBalance),
+            subtitle: this.balanceAmountSubtitle(
+              stats.projectedBalances.closingBalance
+            ),
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+          {
+            label: 'Approved Opening Balance',
+            value: Math.abs(stats.balances.openingBalance),
+            subtitle: this.balanceAmountSubtitle(stats.balances.openingBalance),
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+          {
+            label: 'Approved Closing Balance',
+            value: Math.abs(stats.balances.closingBalance),
+            subtitle: this.balanceAmountSubtitle(stats.balances.closingBalance),
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
@@ -231,25 +325,25 @@ export class GetFuelExpenseComponent implements OnInit {
         metrics: [
           {
             label: 'Total Debit',
-            value: stats.balances.totalDebit,
+            value: stats.projectedBalances.periodDebit,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Total Credit',
-            value: stats.balances.totalCredit,
+            value: stats.projectedBalances.periodCredit,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
-            label: 'Period Debit',
+            label: 'Approved Debit',
             value: stats.balances.periodDebit,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
-            label: 'Period Credit',
-            value: stats.balances.periodCredit,
+            label: 'Total Petro Card Debit',
+            value: stats.balances.totalCreditCardExpense,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
@@ -433,6 +527,8 @@ export class GetFuelExpenseComponent implements OnInit {
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
+    const noAssignedVehicle = this.hasAssignedVehicle() === false;
+
     return {
       title: 'Fuel Expense Management',
       subtitle: 'Manage fuel expense records',
@@ -458,6 +554,10 @@ export class GetFuelExpenseComponent implements OnInit {
           icon: ICONS.COMMON.PLUS,
           actionName: 'addFuelExpense',
           permission: [APP_PERMISSION.FUEL_EXPENSE.ADD],
+          disabled: noAssignedVehicle,
+          disabledTooltip: noAssignedVehicle
+            ? 'You have no vehicle assigned. Fuel expense can only be added when at least one vehicle is assigned to you.'
+            : undefined,
         },
       ],
     };

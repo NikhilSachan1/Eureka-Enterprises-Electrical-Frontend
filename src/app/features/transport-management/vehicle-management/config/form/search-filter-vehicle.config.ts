@@ -27,14 +27,17 @@ const SEARCH_FILTER_VEHICLE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
     matchmode: ETableFilterMatchMode.IN,
   },
   vehicleStatus: {
-    fieldType: EDataType.MULTI_SELECT,
+    fieldType: EDataType.SELECT,
     id: 'vehicleStatus',
     fieldName: 'vehicleStatus',
     label: 'Status',
-    multiSelectConfig: {
+    selectConfig: {
       dynamicDropdown: {
         moduleName: MODULE_NAMES.VEHICLE,
         dropdownName: CONFIGURATION_KEYS.VEHICLE.STATUS_LIST,
+      },
+      filterOptions: {
+        include: ['ASSIGNED', 'AVAILABLE'],
       },
     },
     matchmode: ETableFilterMatchMode.IN,
@@ -93,6 +96,7 @@ const SEARCH_FILTER_VEHICLE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
   },
   globalSearch: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+    hint: 'Search by vehicle registration number, brand, model',
   },
 };
 

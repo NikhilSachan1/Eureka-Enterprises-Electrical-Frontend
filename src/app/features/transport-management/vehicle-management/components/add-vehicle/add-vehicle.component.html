@@ -74,6 +74,25 @@
     </div>
   </div>
 
+  <!-- Last Service Details Section -->
+  <div class="form-section">
+    <div class="form-section__header form-section__header--bordered">
+      <h3 class="form-section__title">Last Service Details</h3>
+    </div>
+    <div class="form-section__content">
+      <div class="grid grid-cols-1 md:grid-cols-2">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.lastServiceDate"
+        />
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.lastServiceKm"
+        />
+      </div>
+    </div>
+  </div>
+
   <!-- Attachments & Remarks Section -->
   <div class="form-section">
     <div class="form-section__header form-section__header--bordered">

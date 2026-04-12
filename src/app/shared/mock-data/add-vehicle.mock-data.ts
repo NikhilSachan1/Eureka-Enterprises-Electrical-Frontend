@@ -24,5 +24,7 @@ export const ADD_VEHICLE_PREFILLED_DATA: IvehicleAddFormDto = {
     createFileFromAsset('/mock-docs/vehicle/VEHICLE_DOCUMENT_1.pdf'),
     createFileFromAsset('/mock-docs/vehicle/VEHICLE_DOCUMENT_2.pdf'),
   ],
+  lastServiceDate: getRandomDate(365 * 2, 365),
+  lastServiceKm: getRandomNumber(10000, 'upto'),
   remarks: 'Business vehicle for official work',
 };

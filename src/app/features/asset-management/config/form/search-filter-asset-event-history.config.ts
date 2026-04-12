@@ -36,6 +36,16 @@ const SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterIn
         moduleName: MODULE_NAMES.ASSET,
         dropdownName: CONFIGURATION_KEYS.ASSET.EVENT_STATUS_LIST,
       },
+      filterOptions: {
+        include: [
+          'ASSET_ADDED',
+          'AVAILABLE',
+          'HANDOVER_INITIATED',
+          'HANDOVER_ACCEPTED',
+          'HANDOVER_REJECTED',
+          'HANDOVER_CANCELLED',
+        ],
+      },
     },
     matchmode: ETableFilterMatchMode.IN,
   },

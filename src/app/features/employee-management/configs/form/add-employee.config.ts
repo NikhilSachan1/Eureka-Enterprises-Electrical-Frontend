@@ -74,6 +74,7 @@ export const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfi
     id: 'contactNumber',
     fieldName: 'contactNumber',
     label: 'Contact Number',
+    hint: 'WhatsApp notifications will also be sent to this number.',
     fieldType: EDataType.TEXT,
     textConfig: {
       minimumInputLength: 10,

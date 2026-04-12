@@ -1,0 +1,82 @@
+/* Floating FAB — bottom-right; interactive div (icon + label + amount) */
+.get-expense__pay-now {
+  position: fixed;
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  z-index: 1100;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.get-expense__pay-now-fab {
+  /* Single source for primary tint (theme token + fallback) */
+  --fab-p: var(--p-primary-color, #3b82f6);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 11.5rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--fab-p) 35%, white);
+  border-radius: 9999px;
+  cursor: pointer;
+  font: inherit;
+  color: #fff;
+  user-select: none;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--fab-p) 88%, #fff), var(--fab-p));
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.22) inset,
+    0 4px 14px color-mix(in srgb, var(--fab-p) 45%, transparent);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+
+  &:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--fab-p) 65%, #fff);
+    outline-offset: 2px;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.28) inset,
+      0 8px 22px color-mix(in srgb, var(--fab-p) 55%, transparent);
+  }
+
+  &__icon {
+    display: inline-flex;
+    font-size: 1.125rem;
+    line-height: 1;
+    opacity: 0.95;
+  }
+
+  &__label,
+  &__amount {
+    font-size: 0.9375rem;
+    white-space: nowrap;
+  }
+
+  &__label {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  &__sep {
+    width: 1px;
+    align-self: stretch;
+    min-height: 1.25rem;
+    margin-inline: 0.125rem;
+    flex-shrink: 0;
+    background: rgb(255 255 255 / 0.38);
+  }
+
+  &__amount {
+    margin-left: auto;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+}

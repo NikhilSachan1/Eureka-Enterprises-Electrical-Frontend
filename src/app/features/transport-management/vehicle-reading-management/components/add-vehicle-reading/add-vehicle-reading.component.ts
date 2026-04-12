@@ -49,8 +49,6 @@ export class AddVehicleReadingComponent
   protected readonly linkedUserVehicleDetail =
     signal<ILinkedUserVehicleDetailGetResponseDto | null>(null);
 
-  protected readonly routeDataKey = 'linkedUserVehicleDetail';
-
   protected readonly redirectRoute = [
     ROUTE_BASE_PATHS.TRANSPORT,
     ROUTE_BASE_PATHS.VEHICLE_READING,

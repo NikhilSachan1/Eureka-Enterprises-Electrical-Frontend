@@ -18,6 +18,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-reimburse-fuel-expense',
@@ -37,6 +38,7 @@ export class ReimburseFuelExpenseComponent
 {
   private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly route = inject(ActivatedRoute);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
@@ -49,6 +51,21 @@ export class ReimburseFuelExpenseComponent
     );
 
     // this.loadMockData(REIMBURSE_EXPENSE_PREFILLED_DATA);
+    this.applyPrefillFromQueryParams();
+  }
+
+  private applyPrefillFromQueryParams(): void {
+    const map = this.route.snapshot.queryParamMap;
+    const employeeName = map.get('employeeName');
+    const expenseAmountRaw = map.get('expenseAmount');
+    const expenseDate = new Date();
+
+    const formData: Partial<IFuelExpenseReimburseFormDto> = {
+      employeeName: employeeName ?? '',
+      fuelAmount: expenseAmountRaw ? Number(expenseAmountRaw) : 0,
+      fuelFillDate: expenseDate,
+    };
+    this.form.patch(formData);
   }
 
   protected override handleSubmit(): void {

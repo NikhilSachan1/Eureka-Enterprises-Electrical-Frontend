@@ -79,18 +79,25 @@ export const PETRO_CARD_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Petro Card',
     permission: [APP_PERMISSION.PETRO_CARD.DELETE],
+    disableWhen: row => row.isAllocated,
+    disableReason: row =>
+      row.isAllocated
+        ? 'First unlink the petro card from the vehicle before deleting.'
+        : undefined,
   },
   {
     id: EButtonActionType.LINK,
     tooltip: 'Link to Vehicle',
     permission: [APP_PERMISSION.PETRO_CARD.LINK_VEHICLE],
     disableWhen: row => !!row.isAllocated,
+    disableReason: () => 'Petro card is already linked to a vehicle',
   },
   {
     id: EButtonActionType.UNLINK,
     tooltip: 'Unlink from Vehicle',
     permission: [APP_PERMISSION.PETRO_CARD.UNLINK_VEHICLE],
     disableWhen: row => !row.isAllocated,
+    disableReason: () => 'Petro card is not linked to a vehicle',
   },
 ];
 
@@ -101,6 +108,11 @@ export const PETRO_CARD_TABLE_BULK_ACTIONS_CONFIG: Partial<
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Petro Card',
     permission: [APP_PERMISSION.PETRO_CARD.DELETE],
+    disableWhen: row => row.isAllocated,
+    disableReason: row =>
+      row.isAllocated
+        ? 'First unlink the petro card from the vehicle before deleting.'
+        : undefined,
   },
 ];
 

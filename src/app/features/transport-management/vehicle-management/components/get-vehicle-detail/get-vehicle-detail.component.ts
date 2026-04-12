@@ -87,7 +87,7 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
   private mapDetailData(
     response: IVehicleDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
-    const mappedDetails = response.versionHistory.map(record => {
+    const mappedDetails = response.versionHistory.reverse().map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
           label: 'Vehicle Number',
@@ -135,6 +135,18 @@ export class GetVehicleDetailComponent extends DrawerDetailBase {
           type: EDataType.RANGE,
           dataType: EDataType.DATE,
           format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        },
+        {
+          label: 'Last Service Date',
+          value: record.lastServiceDate,
+          type: EDataType.DATE,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        },
+        {
+          label: 'Last Service KM',
+          value: record.lastServiceKm,
+          type: EDataType.NUMBER,
+          format: APP_CONFIG.NUMBER_FORMATS.DEFAULT,
         },
         {
           label: 'Attachment(s)',

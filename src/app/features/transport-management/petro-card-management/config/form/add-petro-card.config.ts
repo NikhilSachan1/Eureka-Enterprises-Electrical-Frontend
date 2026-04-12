@@ -8,6 +8,7 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 import { IPetroCardAddFormDto } from '../../types/petro-card.dto';
+import { TEXT_INPUT_ACCEPT_STRIP } from '@shared/constants';
 
 const ADD_PETRO_CARD_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPetroCardAddFormDto> =
   {
@@ -18,6 +19,7 @@ const ADD_PETRO_CARD_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPetroCardAddFor
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.TITLECASE,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHABETS_WITH_SPACES,
       },
       validators: [Validators.required],
     },
@@ -26,6 +28,10 @@ const ADD_PETRO_CARD_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPetroCardAddFor
       fieldName: 'petroCardNumber',
       label: 'Petro Card Number',
       fieldType: EDataType.TEXT,
+      textConfig: {
+        regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
+        maximumInputLength: 16,
+      },
       validators: [
         Validators.required,
         Validators.minLength(16),

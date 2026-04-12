@@ -215,7 +215,6 @@ export class GetAssetEventHistoryComponent implements OnInit {
         metrics: [
           { label: 'Available', value: stats.byEventType.AVAILABLE },
           { label: 'Assigned', value: stats.byEventType.ASSIGNED },
-          { label: 'Deallocated', value: stats.byEventType.DEALLOCATED },
         ],
       },
       {

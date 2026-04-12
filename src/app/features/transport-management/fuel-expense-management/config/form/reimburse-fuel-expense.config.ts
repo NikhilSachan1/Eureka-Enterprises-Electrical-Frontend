@@ -26,8 +26,18 @@ const REIMBURSE_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExp
     paymentMode,
     fuelAmount,
     fuelFillDate,
-    remark,
-    fuelExpenseAttachments,
+    remark: {
+      ...remark,
+      validators: [],
+    },
+    fuelExpenseAttachments: {
+      ...fuelExpenseAttachments,
+      fileConfig: {
+        ...fuelExpenseAttachments.fileConfig,
+        minFileLimit: 0,
+        fileLimit: 2,
+      },
+    },
     transactionId: {
       ...transactionId,
       validators: [Validators.required, ...(transactionId?.validators ?? [])],

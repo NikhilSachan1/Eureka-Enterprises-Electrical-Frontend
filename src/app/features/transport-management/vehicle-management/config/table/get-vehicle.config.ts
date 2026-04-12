@@ -107,6 +107,84 @@ export const VEHICLE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
+type VehicleTableRow = IVehicleGetResponseDto['records'][number];
+
+/** Handover is no longer in a pending “initiated” state (accepted / rejected / cancelled). */
+const TERMINAL_HANDOVER_EVENT_TYPES = new Set<string>([
+  ETableActionTypeValue.HANDOVER_ACCEPTED,
+  ETableActionTypeValue.HANDOVER_REJECTED,
+  ETableActionTypeValue.HANDOVER_CANCELLED,
+]);
+
+function isHandoverAcceptRejectDisabled(
+  row: VehicleTableRow,
+  loggedInUserId: string | null | undefined
+): boolean {
+  return (
+    row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED ||
+    !loggedInUserId ||
+    row.latestEvent.toUser !== loggedInUserId
+  );
+}
+
+/**
+ * 1) Terminal status — allocation already completed.
+ * 2) No pending initiated request.
+ * 3) Current user is not the assignee (cannot accept/reject).
+ */
+function getHandoverAcceptRejectDisableReason(
+  row: VehicleTableRow,
+  loggedInUserId: string | null | undefined
+): string | undefined {
+  if (!isHandoverAcceptRejectDisabled(row, loggedInUserId)) {
+    return undefined;
+  }
+  const eventType = row.latestEvent?.eventType;
+  if (eventType !== ETableActionTypeValue.HANDOVER_INITIATED) {
+    return 'No allocation request is pending. The handover must be initiated first.';
+  }
+  if (!loggedInUserId || row.latestEvent?.toUser !== loggedInUserId) {
+    return 'You are not authorized to accept or reject this allocation. Only the assigned user can respond.';
+  }
+  return undefined;
+}
+
+function isHandoverCancelDisabled(
+  row: VehicleTableRow,
+  loggedInUserId: string | null | undefined
+): boolean {
+  return (
+    row.latestEvent?.eventType !== ETableActionTypeValue.HANDOVER_INITIATED ||
+    !loggedInUserId ||
+    row.latestEvent.fromUser !== loggedInUserId
+  );
+}
+
+/**
+ * 1) Terminal status — allocation already completed.
+ * 2) No pending initiated request.
+ * 3) Current user is not the initiator (cannot cancel).
+ */
+function getHandoverCancelDisableReason(
+  row: VehicleTableRow,
+  loggedInUserId: string | null | undefined
+): string | undefined {
+  if (!isHandoverCancelDisabled(row, loggedInUserId)) {
+    return undefined;
+  }
+  const eventType = row.latestEvent?.eventType;
+  if (eventType && TERMINAL_HANDOVER_EVENT_TYPES.has(eventType)) {
+    return 'This allocation request has already been completed.';
+  }
+  if (eventType !== ETableActionTypeValue.HANDOVER_INITIATED) {
+    return 'No allocation request is pending. The handover must be initiated first.';
+  }
+  if (!loggedInUserId || row.latestEvent?.fromUser !== loggedInUserId) {
+    return 'You are not authorized to cancel this allocation. Only the user who initiated the request can cancel.';
+  }
+  return undefined;
+}
+
 export function buildVehicleTableRowActionsConfig(
   loggedInUserId: string | undefined | null
 ): Partial<ITableActionConfig<IVehicleGetResponseDto['records'][number]>>[] {
@@ -132,6 +210,10 @@ export function buildVehicleTableRowActionsConfig(
       permission: [APP_PERMISSION.VEHICLE.HANDOVER_INITIATE],
       disableWhen: row =>
         row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED,
+      disableReason: row =>
+        row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED
+          ? 'Request is already initiated.'
+          : undefined,
     },
     {
       id: EButtonActionType.HANDOVER_ACCEPTED,
@@ -142,6 +224,8 @@ export function buildVehicleTableRowActionsConfig(
           ETableActionTypeValue.HANDOVER_INITIATED ||
         !loggedInUserId ||
         row.latestEvent.toUser !== loggedInUserId,
+      disableReason: row =>
+        getHandoverAcceptRejectDisableReason(row, loggedInUserId),
     },
     {
       id: EButtonActionType.HANDOVER_REJECTED,
@@ -152,6 +236,8 @@ export function buildVehicleTableRowActionsConfig(
           ETableActionTypeValue.HANDOVER_INITIATED ||
         !loggedInUserId ||
         row.latestEvent.toUser !== loggedInUserId,
+      disableReason: row =>
+        getHandoverAcceptRejectDisableReason(row, loggedInUserId),
     },
     {
       id: EButtonActionType.HANDOVER_CANCELLED,
@@ -162,12 +248,15 @@ export function buildVehicleTableRowActionsConfig(
           ETableActionTypeValue.HANDOVER_INITIATED ||
         !loggedInUserId ||
         row.latestEvent.fromUser !== loggedInUserId,
+      disableReason: row => getHandoverCancelDisableReason(row, loggedInUserId),
     },
     {
       id: EButtonActionType.DEALLOCATE,
       tooltip: 'Deallocate Vehicle',
       permission: [APP_PERMISSION.VEHICLE.DEALLOCATE],
       disableWhen: row => row.status !== 'ASSIGNED',
+      disableReason: row =>
+        row.status !== 'ASSIGNED' ? 'Vehicle is not allocated.' : undefined,
     },
     {
       ...COMMON_ROW_ACTIONS.EDIT,
@@ -178,18 +267,25 @@ export function buildVehicleTableRowActionsConfig(
       ...COMMON_ROW_ACTIONS.DELETE,
       tooltip: 'Delete Vehicle',
       permission: [APP_PERMISSION.VEHICLE.DELETE],
+      disableWhen: row => row.status === 'ASSIGNED',
+      disableReason: row =>
+        row.status === 'ASSIGNED'
+          ? 'First deallocate the vehicle from the assignee before deleting.'
+          : undefined,
     },
     {
       id: EButtonActionType.LINK,
       tooltip: 'Link Petro Card',
       permission: [APP_PERMISSION.VEHICLE.LINK_PETRO_CARD],
       disableWhen: row => !!row.associatedCard,
+      disableReason: () => 'Vehicle is already linked to a petro card',
     },
     {
       id: EButtonActionType.UNLINK,
       tooltip: 'Unlink Petro Card',
       permission: [APP_PERMISSION.VEHICLE.UNLINK_PETRO_CARD],
       disableWhen: row => !row.associatedCard,
+      disableReason: () => 'Vehicle is not linked to a petro card',
     },
   ];
 }
@@ -201,6 +297,11 @@ export const VEHICLE_TABLE_BULK_ACTIONS_CONFIG: Partial<
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Vehicle',
     permission: [APP_PERMISSION.VEHICLE.DELETE],
+    disableWhen: row => row.status === 'ASSIGNED',
+    disableReason: row =>
+      row.status === 'ASSIGNED'
+        ? 'First deallocate the vehicle from the assignee before deleting.'
+        : undefined,
   },
 ];
 

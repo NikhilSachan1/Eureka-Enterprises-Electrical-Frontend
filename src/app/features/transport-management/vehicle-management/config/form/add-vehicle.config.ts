@@ -1,10 +1,15 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import {
+  CONFIGURATION_KEYS,
+  MODULE_NAMES,
+  TEXT_INPUT_ACCEPT_STRIP,
+} from '@shared/constants';
 import {
   EDataType,
   EDateSelectionMode,
+  EInputNumberMode,
   ETextCase,
   IFormButtonConfig,
   IFormConfig,
@@ -21,6 +26,8 @@ const ADD_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleAddFormDto>
       label: 'Registration Number',
       textConfig: {
         textCase: ETextCase.UPPERCASE,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
+        maximumInputLength: 10,
       },
       validators: [
         Validators.required,
@@ -35,6 +42,7 @@ const ADD_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleAddFormDto>
       label: 'Brand',
       textConfig: {
         textCase: ETextCase.TITLECASE,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHABETS_WITH_SPACES,
       },
       validators: [Validators.required],
     },
@@ -45,13 +53,18 @@ const ADD_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleAddFormDto>
       label: 'Model',
       textConfig: {
         textCase: ETextCase.TITLECASE,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHABETS_WITH_SPACES,
       },
+      validators: [Validators.required],
     },
     vehicleMileage: {
       fieldType: EDataType.TEXT,
       id: 'vehicleMileage',
       fieldName: 'vehicleMileage',
       label: 'Mileage',
+      textConfig: {
+        regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
+      },
       validators: [Validators.required],
     },
     vehicleFuelType: {
@@ -84,6 +97,7 @@ const ADD_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleAddFormDto>
       label: 'Dealer Name',
       textConfig: {
         textCase: ETextCase.TITLECASE,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHABETS_WITH_SPACES,
       },
     },
     vehicleInsuranceDate: {
@@ -117,6 +131,25 @@ const ADD_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleAddFormDto>
         ],
       },
       validators: [Validators.required],
+    },
+    lastServiceDate: {
+      fieldType: EDataType.DATE,
+      id: 'lastServiceDate',
+      fieldName: 'lastServiceDate',
+      label: 'Last Service Date',
+      dateConfig: {
+        maxDate: new Date(),
+      },
+    },
+    lastServiceKm: {
+      fieldType: EDataType.NUMBER,
+      id: 'lastServiceKm',
+      fieldName: 'lastServiceKm',
+      label: 'Last Service KM',
+      numberConfig: {
+        mode: EInputNumberMode.Decimal,
+        allowNumberFormatting: true,
+      },
     },
     remarks: {
       fieldType: EDataType.TEXT_AREA,

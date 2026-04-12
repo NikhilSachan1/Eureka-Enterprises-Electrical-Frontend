@@ -22,7 +22,7 @@ export const FuelExpenseBaseSchema = z.object({
   pumpMeterReading: z.number().nullable(),
   paymentMode: z.string().min(1),
   transactionId: z.string().nullable(),
-  description: z.string(),
+  description: z.string().nullable(),
   transactionType: z.enum(EFuelExpenseTransactionType),
   expenseEntryType: expenseEntryTypeSchema,
   entrySourceType: entrySourceTypeSchema,
@@ -41,7 +41,7 @@ export const FuelExpenseUpsertShapeSchema = z.object({
   fuelLiters: z.number(),
   fuelAmount: z.number(),
   paymentMode: z.string(),
-  remark: z.string(),
+  remark: z.string().nullable(),
   fuelExpenseAttachments: z.array(fileField),
   transactionId: z.string().nullable().default(null),
 });

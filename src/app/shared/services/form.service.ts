@@ -15,8 +15,15 @@ import {
   FormDataConstraint,
   MultiStepFormsRecord,
   FormWithRequiredFieldConfigs,
+  EDataType,
 } from '@shared/types';
 import { IConditionalValidator } from '@shared/types/form/input-fields-config.interface';
+import {
+  fileFormatValidator,
+  fileLimitValidator,
+  minFileLimitValidator,
+  fileSizeValidator,
+} from '@shared/utility';
 
 export interface ICreateFormOptions<T extends FormDataConstraint> {
   destroyRef: DestroyRef;
@@ -368,10 +375,33 @@ export class FormService {
       const config = fieldConfigs[key];
       const fieldName = config.fieldName ?? key;
       const defaultValue = defaultValues?.[key] ?? config.defaultValue ?? null;
-      formControls[fieldName] = [defaultValue, config.validators ?? []];
+      const validators: ValidatorFn[] = [
+        ...(config.validators ?? []),
+        ...this.getAttachmentFileValidators(config),
+      ];
+
+      formControls[fieldName] = [defaultValue, validators];
     });
 
     return this.fb.group(formControls);
+  }
+
+  /** File count/size/format validators for attachment fields (kept in sync when conditional validators run). */
+  private getAttachmentFileValidators(
+    config: IInputFieldsConfig
+  ): ValidatorFn[] {
+    if (config.fieldType !== EDataType.ATTACHMENTS || !config.fileConfig) {
+      return [];
+    }
+    const fc = config.fileConfig;
+    const validators: ValidatorFn[] = [];
+    if (fc.minFileLimit !== undefined && fc.minFileLimit > 0) {
+      validators.push(minFileLimitValidator(fc.minFileLimit));
+    }
+    validators.push(fileLimitValidator(fc.fileLimit ?? 0));
+    validators.push(fileSizeValidator(fc.maxFileSize ?? 0));
+    validators.push(fileFormatValidator(fc.acceptFileTypes ?? []));
+    return validators;
   }
 
   private applyConditionalValidators(
@@ -396,7 +426,10 @@ export class FormService {
       }
 
       const runConditionalLogic = (): void => {
-        const baseValidators: ValidatorFn[] = config.validators ?? [];
+        const baseValidators: ValidatorFn[] = [
+          ...(config.validators ?? []),
+          ...this.getAttachmentFileValidators(config),
+        ];
         const extraValidators: ValidatorFn[] = [];
         let shouldResetValue = false;
 
@@ -534,7 +567,10 @@ export class FormService {
           }
 
           const runConditionalLogic = (): void => {
-            const baseValidators: ValidatorFn[] = config.validators ?? [];
+            const baseValidators: ValidatorFn[] = [
+              ...(config.validators ?? []),
+              ...this.getAttachmentFileValidators(config as IInputFieldsConfig),
+            ];
             const extraValidators: ValidatorFn[] = [];
             let shouldResetValue = false;
 

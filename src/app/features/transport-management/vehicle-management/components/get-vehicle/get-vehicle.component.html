@@ -22,27 +22,60 @@
   @let toUser = $any(row).latestEvent?.toUserName ?? '-';
 
   @if (eventType) {
-    <div class="handover-cell">
+    <div class="handover-min">
       <app-status-tag [value]="eventType" />
+
       @if (eventTypeCode === HANDOVER_EVENT_TYPES.HANDOVER_INITIATED) {
         <p
-          class="handover-cell__info"
+          class="handover-min__transfer"
           [title]="fromUser + ' → ' + toUser"
         >
-          {{ fromUser }}
-          <span class="handover-cell__sep">→</span>
-          {{ toUser }}
+          <span class="handover-min__name">{{ fromUser }}</span>
+          <span
+            class="handover-min__sep"
+            aria-hidden="true"
+          >
+            →
+          </span>
+          <span class="handover-min__name">{{ toUser }}</span>
+        </p>
+      } @else if (eventTypeCode === HANDOVER_EVENT_TYPES.HANDOVER_ACCEPTED) {
+        <p
+          class="handover-min__meta"
+          [title]="toUser"
+        >
+          <i
+            class="pi pi-check handover-min__meta-icon"
+            aria-hidden="true"
+          ></i>
+          <span class="handover-min__meta-text">{{ toUser }}</span>
         </p>
       } @else if (
         eventTypeCode === HANDOVER_EVENT_TYPES.HANDOVER_REJECTED ||
         eventTypeCode === HANDOVER_EVENT_TYPES.HANDOVER_CANCELLED
       ) {
         <p
-          class="handover-cell__info"
+          class="handover-min__meta"
           [title]="toUser"
         >
-          {{ toUser }}
+          <span class="handover-min__meta-text">{{ toUser }}</span>
         </p>
+      }
+
+      @let handoverKeys = getLatestEventFileKeysForRow(row);
+      @if (handoverKeys.length > 0) {
+        <button
+          type="button"
+          class="handover-min__files"
+          [attr.aria-label]="'View ' + handoverKeys.length + ' handover file(s)'"
+          (click)="openLatestEventAttachmentsGallery($event, row)"
+        >
+          <i
+            class="pi pi-paperclip handover-min__files-icon"
+            aria-hidden="true"
+          ></i>
+          <span>{{ handoverKeys.length }} {{ handoverKeys.length === 1 ? 'file' : 'files' }}</span>
+        </button>
       }
     </div>
   } @else {
@@ -75,27 +108,20 @@
   @let numFormat = ALL_APP_CONFIG.NUMBER_FORMATS.DEFAULT;
   @let numLocale = ALL_APP_CONFIG.NUMBER_FORMATS.LOCALE;
   @let dateFormat = ALL_APP_CONFIG.DATE_FORMATS.DEFAULT;
-  @let hasUpcoming =
-    data.nextServiceDueKm > 0 ||
-    (data.kmToNextService !== null && data.kmToNextService !== 0) ||
-    +data.currentOdometerKm > 0;
-  @let hasLast = data.lastServiceDate || data.lastServiceKm > 0 || data.kmSinceLastService > 0;
-  @let hasData = hasUpcoming || hasLast;
+  @let hasNextServiceInfo = data.nextServiceDueKm > 0 || (data.kmToNextService !== null && data.kmToNextService !== 0);
+  @let hasLastServiceInfo = data.lastServiceDate || data.lastServiceKm > 0;
+  @let hasCurrentOdometerRow = data.currentOdometerKm != null && data.currentOdometerKm !== '';
+  @let hasLastMeta = data.lastServiceDate || data.lastServiceKm > 0 || data.kmSinceLastService > 0;
+  @let hasData = hasNextServiceInfo || hasLastServiceInfo || hasCurrentOdometerRow || hasLastMeta;
 
   @if (hasData) {
     <div class="flex flex-col gap-2">
-      <!-- UPCOMING SERVICE ROW -->
-      @if (
-        data.nextServiceDueKm > 0 ||
-        +data.currentOdometerKm > 0 ||
-        (data.kmToNextService !== null && data.kmToNextService !== 0)
-      ) {
+      <!-- Next service (only when API has next due / km figures). -->
+      @if (hasNextServiceInfo) {
         <div class="flex items-center gap-3">
-          <!-- Icon -->
           <div class="w-7 h-7 rounded-md bg-blue-50 flex items-center justify-center flex-shrink-0">
             <i class="pi pi-forward text-xs text-blue-500"></i>
           </div>
-          <!-- Content -->
           <div class="flex flex-col">
             <span class="text-xs text-content-secondary uppercase tracking-wide">Next Service</span>
             <div class="flex items-center gap-2">
@@ -124,14 +150,12 @@
         </div>
       }
 
-      <!-- LAST SERVICE ROW -->
-      @if (data.lastServiceDate || data.lastServiceKm > 0) {
+      <!-- Last service -->
+      @if (hasLastServiceInfo) {
         <div class="flex items-center gap-3">
-          <!-- Icon -->
           <div class="w-7 h-7 rounded-md bg-surface-100 flex items-center justify-center flex-shrink-0">
             <i class="pi pi-history text-xs text-content-secondary"></i>
           </div>
-          <!-- Content -->
           <div class="flex flex-col">
             <span class="text-xs text-content-secondary uppercase tracking-wide">Last Service</span>
             <div class="flex items-center gap-2 text-sm">
@@ -148,14 +172,27 @@
         </div>
       }
 
-      <!-- CURRENT ODOMETER (small footer) -->
-      @if (+data.currentOdometerKm > 0) {
-        <div class="flex items-center gap-1.5 text-xs text-content-secondary pl-10">
-          <i class="pi pi-gauge text-[10px]"></i>
-          <span>Current: {{ +data.currentOdometerKm | number: numFormat : numLocale }} km</span>
-          @if (data.kmSinceLastService > 0) {
-            <span>· Driven {{ data.kmSinceLastService | number: numFormat : numLocale }} km since last</span>
-          }
+      <!-- Current odometer (same row pattern as Next / Last; includes 0 km). -->
+      @if (hasCurrentOdometerRow) {
+        <div class="flex items-center gap-3">
+          <div
+            class="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 border border-border-medium bg-surface-50"
+          >
+            <i class="pi pi-gauge text-xs text-primary-600"></i>
+          </div>
+          <div class="flex min-w-0 flex-col gap-0.5">
+            <span class="text-xs uppercase tracking-wide text-content-secondary">Current odometer</span>
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm">
+              <span class="font-medium text-content">
+                {{ +data.currentOdometerKm | number: numFormat : numLocale }} km
+              </span>
+              @if (data.kmSinceLastService > 0) {
+                <span class="text-xs text-content-secondary">
+                  · Driven {{ data.kmSinceLastService | number: numFormat : numLocale }} km since last
+                </span>
+              }
+            </div>
+          </div>
         </div>
       }
     </div>

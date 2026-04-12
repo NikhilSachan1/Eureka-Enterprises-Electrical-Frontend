@@ -15,7 +15,6 @@ export const VehicleServiceGetRequestSchema = z
   .object({
     vehicleName: uuidField.optional(),
     serviceType: z.string().optional(),
-    serviceStatus: z.string().optional(),
     serviceDate: z.array(dateField).optional(),
     ...FilterSchema.shape,
   })

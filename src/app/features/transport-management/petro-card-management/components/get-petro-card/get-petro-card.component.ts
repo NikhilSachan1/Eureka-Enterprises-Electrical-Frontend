@@ -150,7 +150,7 @@ export class GetPetroCardComponent implements OnInit {
           ? record.allocatedVehicle.registrationNo
           : null,
         vehicleName: record.allocatedVehicle
-          ? record.allocatedVehicle.registrationNo
+          ? `${record.allocatedVehicle.brand} ${record.allocatedVehicle.model}`
           : null,
         addedBy:
           `${record.createdByUser.firstName} ${record.createdByUser.lastName}`.trim(),
@@ -182,16 +182,6 @@ export class GetPetroCardComponent implements OnInit {
           { label: 'Total', value: stats.total },
           { label: 'Available', value: stats.available },
           { label: 'Assigned', value: stats.allocated },
-        ],
-      },
-      {
-        id: 'expiry',
-        title: 'Expiry Status',
-        icon: 'pi pi-calendar',
-        metrics: [
-          { label: 'Valid', value: stats.byExpiryStatus.VALID },
-          { label: 'Expiring Soon', value: stats.byExpiryStatus.EXPIRING_SOON },
-          { label: 'Expired', value: stats.byExpiryStatus.EXPIRED },
         ],
       },
     ];

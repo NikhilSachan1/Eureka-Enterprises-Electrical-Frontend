@@ -223,6 +223,8 @@ export interface IFileFieldConfig {
   showUploadButton: boolean;
   showCancelButton: boolean;
   fileLimit: number;
+  /** Minimum number of files (inclusive). Omit or 0 for no minimum. */
+  minFileLimit?: number;
 }
 
 export interface ITextAreaFieldConfig {

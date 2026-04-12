@@ -27,6 +27,7 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
+  GalleryService,
   LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
@@ -34,9 +35,11 @@ import {
 } from '@shared/services';
 import {
   EButtonActionType,
+  EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
+  IGalleryInputData,
   IMetricGroup,
   IPageHeaderConfig,
   ETableActionTypeValue,
@@ -92,9 +95,18 @@ export class GetAssetComponent implements OnInit {
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
+  private readonly galleryService = inject(GalleryService);
 
   protected table!: IEnhancedTable;
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
+
+  private static readonly HANDOVER_DIALOG_ACTIONS = new Set<EButtonActionType>([
+    EButtonActionType.HANDOVER_INITIATE,
+    EButtonActionType.HANDOVER_ACCEPTED,
+    EButtonActionType.HANDOVER_REJECTED,
+    EButtonActionType.HANDOVER_CANCELLED,
+    EButtonActionType.DEALLOCATE,
+  ]);
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
   private readonly assetStats = signal<IAssetGetStatsResponseDto | null>(null);
@@ -309,7 +321,10 @@ export class GetAssetComponent implements OnInit {
       dynamicComponentInputs.dialogActionType = actionType;
     }
 
-    const recordDetail = this.prepareAssetRecordDetail(selectedFirstRow);
+    const recordDetail = this.prepareAssetRecordDetail(
+      selectedFirstRow,
+      actionType
+    );
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
@@ -322,7 +337,8 @@ export class GetAssetComponent implements OnInit {
   }
 
   private prepareAssetRecordDetail(
-    selectedRow: IAssetGetBaseResponseDto
+    selectedRow: IAssetGetBaseResponseDto,
+    actionType: EButtonActionType
   ): IDataViewDetailsWithEntity {
     const entryData: IDataViewDetails['entryData'] = [
       {
@@ -341,6 +357,18 @@ export class GetAssetComponent implements OnInit {
         ),
       },
     ];
+
+    if (GetAssetComponent.HANDOVER_DIALOG_ACTIONS.has(actionType)) {
+      const eventFileKeys = this.getLatestEventFileKeys(selectedRow);
+      if (eventFileKeys.length > 0) {
+        entryData.push({
+          label: 'Handover attachments',
+          value: eventFileKeys,
+          type: EDataType.ATTACHMENTS,
+        });
+      }
+    }
+
     return {
       details: [
         {
@@ -355,6 +383,40 @@ export class GetAssetComponent implements OnInit {
         subtitle: selectedRow.assetId,
       },
     };
+  }
+
+  private getLatestEventFileKeys(row: IAssetGetBaseResponseDto): string[] {
+    const files = row.latestEvent?.assetFiles;
+    if (!files?.length) {
+      return [];
+    }
+    return files
+      .map(f => f.fileKey)
+      .filter((k): k is string => typeof k === 'string' && k.length > 0);
+  }
+
+  protected getLatestEventFileKeysForRow(row: unknown): string[] {
+    const r = row as IAsset & { originalRawData?: IAssetGetBaseResponseDto };
+    if (r?.originalRawData) {
+      return this.getLatestEventFileKeys(r.originalRawData);
+    }
+    return this.getLatestEventFileKeys(row as IAssetGetBaseResponseDto);
+  }
+
+  protected openLatestEventAttachmentsGallery(
+    event: Event,
+    row: unknown
+  ): void {
+    event.stopPropagation();
+    const keys = this.getLatestEventFileKeysForRow(row);
+    if (keys.length === 0) {
+      return;
+    }
+    const media: IGalleryInputData[] = keys.map(key => ({
+      mediaKey: key,
+      actualMediaUrl: '',
+    }));
+    this.galleryService.show(media);
   }
 
   private showAssetDetailsDrawer(rowData: IAssetGetBaseResponseDto): void {

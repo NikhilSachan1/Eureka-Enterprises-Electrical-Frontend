@@ -12,6 +12,7 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
+  GalleryService,
   LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
@@ -20,10 +21,12 @@ import {
 import { VehicleService } from '../../services/vehicle.service';
 import {
   EButtonActionType,
+  EDataType,
   ETableActionTypeValue,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
+  IGalleryInputData,
   IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
@@ -83,6 +86,14 @@ export class GetVehicleComponent implements OnInit {
 
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
 
+  private static readonly HANDOVER_DIALOG_ACTIONS = new Set<EButtonActionType>([
+    EButtonActionType.HANDOVER_INITIATE,
+    EButtonActionType.HANDOVER_ACCEPTED,
+    EButtonActionType.HANDOVER_REJECTED,
+    EButtonActionType.HANDOVER_CANCELLED,
+    EButtonActionType.DEALLOCATE,
+  ]);
+
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -98,6 +109,7 @@ export class GetVehicleComponent implements OnInit {
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
+  private readonly galleryService = inject(GalleryService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -238,10 +250,6 @@ export class GetVehicleComponent implements OnInit {
           { label: 'Total', value: stats.total },
           { label: 'Available', value: stats.byStatus.available },
           { label: 'Assigned', value: stats.byStatus.assigned },
-          {
-            label: 'Under Maintenance',
-            value: stats.byStatus.underMaintenance,
-          },
         ],
       },
       {
@@ -333,7 +341,10 @@ export class GetVehicleComponent implements OnInit {
       dynamicComponentInputs.sourceComponent = 'vehicle';
     }
 
-    const recordDetail = this.prepareVehicleRecordDetail(selectedFirstRow);
+    const recordDetail = this.prepareVehicleRecordDetail(
+      selectedFirstRow,
+      actionType
+    );
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
@@ -346,7 +357,8 @@ export class GetVehicleComponent implements OnInit {
   }
 
   private prepareVehicleRecordDetail(
-    selectedRow: IVehicleGetBaseResponseDto
+    selectedRow: IVehicleGetBaseResponseDto,
+    actionType: EButtonActionType
   ): IDataViewDetailsWithEntity {
     const entryData: IDataViewDetails['entryData'] = [
       {
@@ -362,9 +374,25 @@ export class GetVehicleComponent implements OnInit {
       },
       {
         label: 'Petro Card',
-        value: `${selectedRow.associatedCard?.cardName} (${selectedRow.associatedCard?.cardNumber})`,
+        value:
+          selectedRow.associatedCard?.cardName &&
+          selectedRow.associatedCard?.cardNumber
+            ? `${selectedRow.associatedCard?.cardName} (${selectedRow.associatedCard?.cardNumber})`
+            : 'N/A',
       },
     ];
+
+    if (GetVehicleComponent.HANDOVER_DIALOG_ACTIONS.has(actionType)) {
+      const eventFileKeys = this.getLatestEventFileKeys(selectedRow);
+      if (eventFileKeys.length > 0) {
+        entryData.push({
+          label: 'Handover attachments',
+          value: eventFileKeys,
+          type: EDataType.ATTACHMENTS,
+        });
+      }
+    }
+
     return {
       details: [
         {
@@ -379,6 +407,42 @@ export class GetVehicleComponent implements OnInit {
         subtitle: `${selectedRow.brand} ${selectedRow.model}`,
       },
     };
+  }
+
+  private getLatestEventFileKeys(row: IVehicleGetBaseResponseDto): string[] {
+    const files = row.latestEvent?.vehicleFiles;
+    if (!files?.length) {
+      return [];
+    }
+    return files
+      .map(f => f.fileKey)
+      .filter((k): k is string => typeof k === 'string' && k.length > 0);
+  }
+
+  protected getLatestEventFileKeysForRow(row: unknown): string[] {
+    const r = row as IVehicle & {
+      originalRawData?: IVehicleGetBaseResponseDto;
+    };
+    if (r?.originalRawData) {
+      return this.getLatestEventFileKeys(r.originalRawData);
+    }
+    return this.getLatestEventFileKeys(row as IVehicleGetBaseResponseDto);
+  }
+
+  protected openLatestEventAttachmentsGallery(
+    event: Event,
+    row: unknown
+  ): void {
+    event.stopPropagation();
+    const keys = this.getLatestEventFileKeysForRow(row);
+    if (keys.length === 0) {
+      return;
+    }
+    const media: IGalleryInputData[] = keys.map(key => ({
+      mediaKey: key,
+      actualMediaUrl: '',
+    }));
+    this.galleryService.show(media);
   }
 
   private showVehicleDetailsDrawer(rowData: IVehicleGetBaseResponseDto): void {

@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTES } from '@shared/constants';
 import { GetFuelExpenseDetailResolver } from './resolvers/get-fuel-expense-detail.resolver';
-import { GetLinkedUserVehicleDetailResolver } from './resolvers/get-linked-user-vehicle-detail.resolver';
 import { permissionGuard } from '@core/guards';
 import { APP_PERMISSION } from '@core/constants';
 
@@ -31,9 +30,6 @@ export const FUEL_EXPENSE_MANAGEMENT_ROUTES: Routes = [
     canActivate: [permissionGuard],
     data: {
       permissions: [APP_PERMISSION.FUEL_EXPENSE.ADD],
-    },
-    resolve: {
-      linkedUserVehicleDetail: GetLinkedUserVehicleDetailResolver,
     },
   },
   {

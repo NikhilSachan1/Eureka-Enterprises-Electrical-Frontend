@@ -36,6 +36,16 @@ const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilter
         moduleName: MODULE_NAMES.VEHICLE,
         dropdownName: CONFIGURATION_KEYS.VEHICLE.EVENT_STATUS_LIST,
       },
+      filterOptions: {
+        include: [
+          'VEHICLE_ADDED',
+          'AVAILABLE',
+          'HANDOVER_INITIATED',
+          'HANDOVER_ACCEPTED',
+          'HANDOVER_REJECTED',
+          'HANDOVER_CANCELLED',
+        ],
+      },
     },
     matchmode: ETableFilterMatchMode.IN,
   },

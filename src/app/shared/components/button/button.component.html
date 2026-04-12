@@ -1,6 +1,6 @@
 @if (hasConfig()) {
   @let buttonConfig = finalButtonConfig();
-  @let isDisabled = showDisabledButton();
+  @let isDisabled = isButtonDisabled();
   @let tip = resolvedTooltip();
 
   <span

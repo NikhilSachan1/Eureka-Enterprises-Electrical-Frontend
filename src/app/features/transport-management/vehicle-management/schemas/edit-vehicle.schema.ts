@@ -23,6 +23,8 @@ export const VehicleEditRequestSchema = VehicleUpsertShapeSchema.extend({
       pucEndDate: transformDateFormat(pucEndDate),
       remarks: data.remarks,
       vehicleFiles: data.vehicleFiles,
+      lastServiceDate: transformDateFormat(data.lastServiceDate ?? ''),
+      lastServiceKm: data.lastServiceKm,
     };
   });
 export const VehicleEditResponseSchema = z.object({

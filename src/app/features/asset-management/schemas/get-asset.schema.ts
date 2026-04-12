@@ -17,7 +17,7 @@ export const AssetGetRequestSchema = z
     assetAssignee: z.string().optional(),
     assetWarrantyStatus: z.array(z.string()).optional(),
     assetCalibrationStatus: z.array(z.string()).optional(),
-    assetStatus: z.array(z.string()).optional(),
+    assetStatus: z.string().optional(),
     assetType: z.string().optional(),
     assetCategory: z.array(z.string()).optional(),
     sortOrder,
@@ -43,6 +43,7 @@ export const AssetGetRequestSchema = z
         category: assetCategory,
         calibrationStatus: assetCalibrationStatus,
         warrantyStatus: assetWarrantyStatus,
+        includeLatestEventFiles: true,
       };
     }
   );
@@ -67,6 +68,7 @@ export const AssetGetBaseResponseSchema = z
         fromUserUser: makeFieldsNullable(UserSchema).nullable(),
         toUserUser: makeFieldsNullable(UserSchema).nullable(),
         createdBy: uuidField,
+        assetFiles: z.array(AssetBaseDocumentsSchema).optional().nullable(),
       })
       .nullable(),
     createdAt,

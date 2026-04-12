@@ -18,7 +18,7 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const VehicleGetRequestSchema = z
   .object({
-    vehicleStatus: z.array(z.string()).optional(),
+    vehicleStatus: z.string().optional(),
     vehicleAssignee: z.string().optional(),
     vehicleInsuranceStatus: z.array(z.string()).optional(),
     vehiclePUCStatus: z.array(z.string()).optional(),
@@ -49,6 +49,7 @@ export const VehicleGetRequestSchema = z
         pucStatuses: vehiclePUCStatus,
         serviceDueStatuses: vehicleServiceDueStatus,
         fuelTypes: vehicleFuelType,
+        // includeLatestEventFiles: true,
       };
     }
   );
@@ -92,6 +93,7 @@ export const VehicleGetBaseResponseSchema = z
         fromUserUser: makeFieldsNullable(UserSchema).nullable(),
         toUserUser: makeFieldsNullable(UserSchema).nullable(),
         createdBy: uuidField,
+        vehicleFiles: z.array(VehicleBaseDocumentsSchema).optional().nullable(),
       })
       .nullable(),
     createdAt,

@@ -15,7 +15,7 @@ import {
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 const { approvalStatus } = FuelExpenseBaseSchema.shape;
-const { createdAt, updatedAt } = AuditSchema.shape;
+const { createdAt, updatedAt, createdBy } = AuditSchema.shape;
 
 export const FuelExpenseGetRequestSchema = z
   .object({
@@ -84,19 +84,27 @@ export const FuelExpenseGetBaseResponseSchema = z.looseObject({
   approvalStatus: approvalStatus.transform(toTitleCase),
   createdAt,
   updatedAt,
+  createdBy,
   canEdit: z.boolean(),
 });
 
 export const FuelExpenseGetStatsResponseSchema = z.looseObject({
-  balances: z.object({
+  balances: z.looseObject({
     openingBalance: z.number(),
     closingBalance: z.number(),
     totalCredit: z.number().nonnegative(),
     totalDebit: z.number().nonnegative(),
     periodCredit: z.number().nonnegative(),
     periodDebit: z.number().nonnegative(),
+    totalCreditCardExpense: z.number(),
   }),
-  approval: z.object({
+  projectedBalances: z.looseObject({
+    openingBalance: z.number(),
+    closingBalance: z.number(),
+    periodCredit: z.number().nonnegative(),
+    periodDebit: z.number().nonnegative(),
+  }),
+  approval: z.looseObject({
     pending: z.number().int().nonnegative(),
     approved: z.number().int().nonnegative(),
     rejected: z.number().int().nonnegative(),

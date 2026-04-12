@@ -64,10 +64,15 @@ export class ButtonComponent {
     return config && Object.keys(config).length > 0;
   });
 
+  protected isButtonDisabled = computed(() => {
+    const cfg = this.finalButtonConfig();
+    return this.showDisabledButton() || cfg.disabled === true;
+  });
+
   /** Prefer disabled reason when disabled; otherwise normal tooltip. */
   protected resolvedTooltip = computed((): string | undefined => {
     const cfg = this.finalButtonConfig();
-    const disabled = this.showDisabledButton();
+    const disabled = this.isButtonDisabled();
     const dt = cfg.disabledTooltip?.trim();
     if (disabled && dt) {
       return dt;
@@ -76,6 +81,9 @@ export class ButtonComponent {
   });
 
   onClick(event: MouseEvent): void {
+    if (this.isButtonDisabled()) {
+      return;
+    }
     if (this.stopClickPropagation()) {
       event.stopPropagation();
     }

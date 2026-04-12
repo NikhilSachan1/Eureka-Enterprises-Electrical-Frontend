@@ -22,6 +22,8 @@ export interface IButtonConfig {
   size: EButtonSize | undefined;
   link: boolean;
   fluid: boolean;
+  /** Disables the button; use with `disabledTooltip` for the reason. */
+  disabled?: boolean;
   visible?: boolean;
   tooltip?: string;
   /** Shown when the button is disabled (e.g. why the action is unavailable). */

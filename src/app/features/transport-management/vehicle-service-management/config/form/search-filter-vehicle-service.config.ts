@@ -39,19 +39,6 @@ const SEARCH_FILTER_VEHICLE_SERVICE_FORM_FIELDS_CONFIG: ITableSearchFilterInputF
     },
     matchmode: ETableFilterMatchMode.IN,
   },
-  serviceStatus: {
-    fieldType: EDataType.MULTI_SELECT,
-    id: 'serviceStatus',
-    fieldName: 'serviceStatus',
-    label: 'Service Status',
-    multiSelectConfig: {
-      dynamicDropdown: {
-        moduleName: MODULE_NAMES.VEHICLE,
-        dropdownName: CONFIGURATION_KEYS.VEHICLE.SERVICE_STATUS,
-      },
-    },
-    matchmode: ETableFilterMatchMode.IN,
-  },
   serviceDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
     fieldName: 'serviceDate',

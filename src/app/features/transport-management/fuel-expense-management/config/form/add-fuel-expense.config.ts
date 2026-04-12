@@ -1,6 +1,10 @@
 import { Validators } from '@angular/forms';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import {
+  CONFIGURATION_KEYS,
+  MODULE_NAMES,
+  TEXT_INPUT_ACCEPT_STRIP,
+} from '@shared/constants';
 import {
   EDataType,
   EInputNumberMode,
@@ -12,6 +16,9 @@ import {
 import { getDateBeforeXDays } from '@shared/utility';
 import { IFuelExpenseAddUIFormDto } from '../../types/fuel-expense.dto';
 import { APP_CONFIG } from '@core/config';
+import { FinancialYearService } from '@core/services/financial-year.service';
+
+const financialYearService = new FinancialYearService();
 
 const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAddUIFormDto> =
   {
@@ -21,7 +28,12 @@ const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAd
       fieldName: 'fuelFillDate',
       label: 'Fuel Fill Date',
       dateConfig: {
-        minDate: getDateBeforeXDays(6),
+        minDate: new Date(
+          Math.max(
+            getDateBeforeXDays(6).getTime(),
+            financialYearService.getFinancialYearStartDate().getTime()
+          )
+        ),
         maxDate: new Date(),
       },
       validators: [Validators.required],
@@ -69,6 +81,9 @@ const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAd
           moduleName: MODULE_NAMES.FUEL_EXPENSE,
           dropdownName: CONFIGURATION_KEYS.FUEL_EXPENSE.PAYMENT_METHODS,
         },
+        filterOptions: {
+          exclude: ['cheque', 'neft/imps', 'system', 'rtgs'],
+        },
       },
       validators: [Validators.required],
     },
@@ -85,7 +100,8 @@ const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAd
       fieldName: 'fuelExpenseAttachments',
       label: 'Fuel Expense Attachments',
       fileConfig: {
-        fileLimit: 2,
+        fileLimit: 5,
+        minFileLimit: 3,
         acceptFileTypes: [
           ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
           ...APP_CONFIG.MEDIA_CONFIG.PDF,
@@ -100,6 +116,8 @@ const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAd
       label: 'Transaction ID / Receipt Number / UTR Number',
       textConfig: {
         textCase: ETextCase.UPPERCASE,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
+        maximumInputLength: 32,
       },
       validators: [Validators.minLength(6), Validators.maxLength(32)],
     },

@@ -391,7 +391,12 @@
                 <span>
                   @let fileCount = files?.length || 0;
                   @if (fileConfig?.fileLimit) {
-                    <span>{{ fileCount }} of {{ fileConfig?.fileLimit }} files</span>
+                    <span>
+                      {{ fileCount }} of {{ fileConfig?.fileLimit }} files
+                      @if (fileConfig?.minFileLimit) {
+                        <span class="text-muted-color">(min {{ fileConfig?.minFileLimit }})</span>
+                      }
+                    </span>
                   } @else {
                     <span>{{ fileCount }} file{{ fileCount === 1 || fileCount === 0 ? '' : 's' }}</span>
                   }

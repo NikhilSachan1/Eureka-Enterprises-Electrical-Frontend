@@ -222,22 +222,6 @@ export class GetVehicleServiceComponent implements OnInit {
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
-          {
-            label: 'Average Cost',
-            value: stats.averageCost,
-            type: EDataType.CURRENCY,
-            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-          },
-        ],
-      },
-      {
-        id: 'status',
-        title: 'Status',
-        icon: 'pi pi-info-circle',
-        metrics: [
-          { label: 'Pending', value: stats.byStatus.pending },
-          { label: 'Completed', value: stats.byStatus.completed },
-          { label: 'Cancelled', value: stats.byStatus.cancelled },
         ],
       },
     ];

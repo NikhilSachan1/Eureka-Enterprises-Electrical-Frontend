@@ -41,6 +41,8 @@ import { IContractorGetResponseDto } from '@features/site-management/contractor-
 import { ContractorService } from '@features/site-management/contractor-management/services/contractor.service';
 import { PetroCardService } from '@features/transport-management/petro-card-management/services/petro-card.service';
 import { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
+import { FuelExpenseService } from '@features/transport-management/fuel-expense-management/services/fuel-expense.service';
+import { ILinkedUserVehicleDetailGetResponseDto } from '@features/transport-management/fuel-expense-management/types/fuel-expense.dto';
 import { toTitleCase } from '@shared/utility';
 import { ConfigurationService } from '@features/settings-management/configuration-management/services/configuration.service';
 import {
@@ -62,6 +64,7 @@ export class AppConfigurationService {
   private readonly companyService = inject(CompanyService);
   private readonly contractorService = inject(ContractorService);
   private readonly petroCardService = inject(PetroCardService);
+  private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly configurationService = inject(ConfigurationService);
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
@@ -126,6 +129,8 @@ export class AppConfigurationService {
   private readonly _assetList = signal<IOptionDropdown[]>([]);
   private readonly _vehicleList = signal<IOptionDropdown[]>([]);
   private readonly _petroCardList = signal<IOptionDropdown[]>([]);
+  private readonly _linkedUserVehicleDetail =
+    signal<ILinkedUserVehicleDetailGetResponseDto | null>(null);
   // Public readonly signals for common use
   readonly genders = this._genders.asReadonly();
   readonly employmentTypes = this._employmentTypes.asReadonly();
@@ -183,6 +188,7 @@ export class AppConfigurationService {
   readonly assetList = this._assetList.asReadonly();
   readonly vehicleList = this._vehicleList.asReadonly();
   readonly petroCardList = this._petroCardList.asReadonly();
+  readonly linkedUserVehicleDetail = this._linkedUserVehicleDetail.asReadonly();
 
   private readonly STATIC_FALLBACK_DATA: Record<
     string,
@@ -811,6 +817,30 @@ export class AppConfigurationService {
     );
   }
 
+  loadLinkedUserVehicleDetailForCurrentUser(): Observable<ILinkedUserVehicleDetailGetResponseDto | null> {
+    this.logger.logUserAction('Loading app data - Linked User Vehicle Detail');
+
+    return this.fuelExpenseService
+      .getLinkedUserVehicleDetail({ employeeName: null })
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction(
+            'Linked User Vehicle Detail loaded successfully',
+            response
+          );
+          this._linkedUserVehicleDetail.set(response);
+        }),
+        catchError(error => {
+          this.logger.logUserAction(
+            'Failed to load Linked User Vehicle Detail',
+            error
+          );
+          this._linkedUserVehicleDetail.set(null);
+          return of(null);
+        })
+      );
+  }
+
   private normalizeDropdownData(data: unknown[]): IOptionDropdown[] {
     return data
       .map(item => {
@@ -877,6 +907,7 @@ export class AppConfigurationService {
     petroCardList: IPetroCardGetResponseDto;
     companyList: ICompanyGetResponseDto;
     contractorList: IContractorGetResponseDto;
+    linkedUserVehicleForCurrentUser: ILinkedUserVehicleDetailGetResponseDto | null;
   }> {
     this.logger.info('Loading all app data...');
 
@@ -900,6 +931,8 @@ export class AppConfigurationService {
           petroCardList: this.loadPetroCardList(),
           companyList: this.loadCompanyList(),
           contractorList: this.loadContractorList(),
+          linkedUserVehicleForCurrentUser:
+            this.loadLinkedUserVehicleDetailForCurrentUser(),
         }).pipe(
           // Combine roles response with the rest
           switchMap(parallelResults =>

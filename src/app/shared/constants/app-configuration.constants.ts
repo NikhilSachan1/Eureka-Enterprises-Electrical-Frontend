@@ -6,7 +6,7 @@ export const MODULE_NAMES = {
   COMMON: 'common',
   VEHICLE: 'vehicle',
   ASSET: 'asset',
-  PETRO_CARD: 'petro_card',
+  PETRO_CARD: 'card',
   PAYROLL: 'payroll',
   COMPANY: 'company',
   CONTRACTOR: 'contractor',

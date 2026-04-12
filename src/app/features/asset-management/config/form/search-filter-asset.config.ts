@@ -40,14 +40,17 @@ const SEARCH_FILTER_ASSET_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfi
     matchmode: ETableFilterMatchMode.IN,
   },
   assetStatus: {
-    fieldType: EDataType.MULTI_SELECT,
+    fieldType: EDataType.SELECT,
     id: 'assetStatus',
     fieldName: 'assetStatus',
     label: 'Status',
-    multiSelectConfig: {
+    selectConfig: {
       dynamicDropdown: {
         moduleName: MODULE_NAMES.ASSET,
         dropdownName: CONFIGURATION_KEYS.ASSET.STATUS_LIST,
+      },
+      filterOptions: {
+        include: ['ASSIGNED', 'AVAILABLE'],
       },
     },
     matchmode: ETableFilterMatchMode.IN,

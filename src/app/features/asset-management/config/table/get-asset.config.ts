@@ -237,6 +237,11 @@ export function buildAssetTableRowActionsConfig(
       ...COMMON_ROW_ACTIONS.DELETE,
       tooltip: 'Delete Asset',
       permission: [APP_PERMISSION.ASSET.DELETE],
+      disableWhen: row => row.status === 'ASSIGNED',
+      disableReason: row =>
+        row.status === 'ASSIGNED'
+          ? 'First deallocate the asset from the assignee before deleting.'
+          : undefined,
     },
   ];
 }
@@ -248,6 +253,11 @@ export const ASSET_TABLE_BULK_ACTIONS_CONFIG: Partial<
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Asset',
     permission: [APP_PERMISSION.ASSET.DELETE],
+    disableWhen: row => row.status === 'ASSIGNED',
+    disableReason: row =>
+      row.status === 'ASSIGNED'
+        ? 'First deallocate the asset from the assignee before deleting.'
+        : undefined,
   },
 ];
 
