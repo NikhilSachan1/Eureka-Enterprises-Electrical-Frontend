@@ -5,6 +5,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { LoggerService } from '@core/services';
 import {
@@ -44,10 +45,17 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { APP_CONFIG } from '@core/config';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-get-vehicle-reading',
-  imports: [PageHeaderComponent, SearchFilterComponent, DataTableComponent],
+  imports: [
+    PageHeaderComponent,
+    SearchFilterComponent,
+    DataTableComponent,
+    DecimalPipe,
+  ],
   templateUrl: './get-vehicle-reading.component.html',
   styleUrl: './get-vehicle-reading.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,17 +73,34 @@ export class GetVehicleReadingComponent implements OnInit {
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
 
+  private readonly hasAssignedVehicle = signal<boolean | null>(null);
+
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly APP_CONFIG = APP_CONFIG;
 
   ngOnInit(): void {
+    this.applyLinkedVehicleFromAppConfiguration();
     this.table = this.dataTableService.createTable(
       VEHICLE_READING_TABLE_ENHANCED_CONFIG
     );
     this.searchFilterConfig = SEARCH_FILTER_VEHICLE_READING_FORM_CONFIG;
+  }
+
+  private applyLinkedVehicleFromAppConfiguration(): void {
+    const linked = this.appConfigurationService.linkedUserVehicleDetail();
+    if (linked === null) {
+      this.hasAssignedVehicle.set(false);
+      return;
+    }
+
+    const hasLinkedVehicle =
+      !!linked.vehicle && Object.keys(linked.vehicle).length > 0;
+
+    this.hasAssignedVehicle.set(hasLinkedVehicle);
   }
 
   private loadVehicleReadingList(): void {
@@ -156,8 +181,8 @@ export class GetVehicleReadingComponent implements OnInit {
           location: `${city}, ${state}`,
         },
         meterReading: [
-          record.startOdometerReading ?? 0,
-          record.endOdometerReading ?? 0,
+          record.startOdometerReading ?? null,
+          record.endOdometerReading ?? null,
         ],
         totalKmTraveled: record.totalKmTraveled,
         anomalyStatus: record.anomalyDetected ? 'Anomaly Detected' : 'Normal',
@@ -254,6 +279,8 @@ export class GetVehicleReadingComponent implements OnInit {
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
+    const noAssignedVehicle = this.hasAssignedVehicle() === false;
+
     return {
       title: 'Vehicle Reading Management',
       subtitle: 'Manage vehicle reading records',
@@ -265,6 +292,10 @@ export class GetVehicleReadingComponent implements OnInit {
           icon: ICONS.COMMON.PLUS,
           actionName: 'addVehicleReading',
           permission: [APP_PERMISSION.VEHICLE_READING.ADD],
+          disabled: noAssignedVehicle,
+          disabledTooltip: noAssignedVehicle
+            ? 'You have no vehicle assigned. Vehicle readings can only be added when at least one vehicle is assigned to you.'
+            : undefined,
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,

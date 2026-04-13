@@ -10,10 +10,7 @@ import { FormBase } from '@shared/base/form.base';
 import { VehicleReadingService } from '../../services/vehicle-reading.service';
 import { RouterNavigationService } from '@shared/services';
 import { ActivatedRoute } from '@angular/router';
-import {
-  IvehicleReadingEditFormDto,
-  IVehicleReadingEditUIFormDto,
-} from '../../types/vehicle-reading.dto';
+import { IVehicleReadingEditUIFormDto } from '../../types/vehicle-reading.dto';
 import { EDIT_VEHICLE_READING_FORM_CONFIG } from '../../config/form/edit-vehicle-reading.config';
 import { IVehicleReadingDetailResolverResponse } from '../../types/vehicle-reading.interface';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
@@ -150,13 +147,13 @@ export class EditVehicleReadingComponent
     this.executeEditVehicleReading(formData, vehicleReadingId);
   }
 
-  private prepareFormData(): IvehicleReadingEditFormDto {
+  private prepareFormData(): IVehicleReadingEditUIFormDto {
     const formData = this.form.getData();
     return formData;
   }
 
   private executeEditVehicleReading(
-    formData: IvehicleReadingEditFormDto,
+    formData: IVehicleReadingEditUIFormDto,
     vehicleReadingId: string
   ): void {
     this.loadingService.show({

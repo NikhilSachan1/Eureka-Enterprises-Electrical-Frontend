@@ -217,6 +217,10 @@ export const APP_PERMISSION = {
       SEARCH_FILTER_EMPLOYEE_NAME:
         'ui_fuel_expense_search_filter_employee_name',
     },
+    VEHICLE_READING: {
+      SEARCH_FILTER_EMPLOYEE_NAME:
+        'ui_vehicle_reading_search_filter_employee_name',
+    },
     PAYROLL: {
       TABLE_EMPLOYEE_NAME: 'ui_payroll_table_employee_name',
       SEARCH_FILTER_EMPLOYEE_NAME: 'ui_payroll_search_filter_employee_name',
@@ -398,6 +402,15 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
     },
+    SEARCH_FILTER_EMPLOYEE_NAME: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: false,
+      [EUserRole.EMPLOYEE]: false,
+      [EUserRole.MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+    },
+  },
+  VEHICLE_READING: {
     SEARCH_FILTER_EMPLOYEE_NAME: {
       [EUserRole.ADMIN]: true,
       [EUserRole.DRIVER]: false,

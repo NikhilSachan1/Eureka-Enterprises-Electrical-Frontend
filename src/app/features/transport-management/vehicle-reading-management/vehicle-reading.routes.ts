@@ -25,11 +25,11 @@ export const VEHICLE_READING_MANAGEMENT_ROUTES: Routes = [
     path: ROUTES.VEHICLE_READING.FORCE,
     loadComponent: () =>
       import(
-        './components/add-vehicle-reading/add-vehicle-reading.component'
-      ).then(m => m.AddVehicleReadingComponent),
+        './components/force-vehicle-reading/force-vehicle-reading.component'
+      ).then(m => m.ForceVehicleReadingComponent),
     canActivate: [permissionGuard],
     data: {
-      permissions: [APP_PERMISSION.VEHICLE_READING.ADD],
+      permissions: [APP_PERMISSION.VEHICLE_READING.FORCE],
     },
   },
   {
@@ -40,7 +40,7 @@ export const VEHICLE_READING_MANAGEMENT_ROUTES: Routes = [
       ).then(m => m.AddVehicleReadingComponent),
     canActivate: [permissionGuard],
     data: {
-      permissions: [APP_PERMISSION.VEHICLE_READING.EDIT],
+      permissions: [APP_PERMISSION.VEHICLE_READING.ADD],
     },
   },
   {

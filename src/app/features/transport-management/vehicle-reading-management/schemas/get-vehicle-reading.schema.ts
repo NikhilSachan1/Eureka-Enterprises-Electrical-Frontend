@@ -16,7 +16,7 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 export const VehicleReadingGetRequestSchema = z
   .object({
     vehicleName: uuidField.optional(),
-    employeeName: z.array(uuidField).optional(),
+    employeeName: uuidField.optional(),
     projectName: uuidField.optional(),
     readingDate: z.array(dateField).min(1).optional(),
     sortOrder,
@@ -47,7 +47,7 @@ export const VehicleReadingGetRequestSchema = z
 export const VehicleReadingGetBaseResponseSchema =
   VehicleReadingBaseSchema.extend({
     ...AuditSchema.shape,
-    totalKmTraveled: z.number(),
+    totalKmTraveled: z.number().nullable(),
     anomalyDetected: z.boolean(),
     anomalyReason: z.string().nullable(),
     vehicle: VehicleBaseSchema.pick({

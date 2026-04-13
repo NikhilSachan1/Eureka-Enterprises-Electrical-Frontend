@@ -10,6 +10,43 @@
   />
 </div>
 
+<ng-template
+  #kmTraveledMeterReading
+  let-row
+>
+  @let numFormat = APP_CONFIG.NUMBER_FORMATS.FLEXIBLE_DECIMALS;
+  @let numLocale = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+  @let raw = row.originalRawData;
+  <div class="vehicle-reading-km flex flex-col gap-1.5 text-sm">
+    <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+      <span class="shrink-0 text-content-secondary">Total KM</span>
+      @if (row.totalKmTraveled !== null && row.totalKmTraveled !== undefined) {
+        <span class="font-medium tabular-nums text-content">
+          {{ row.totalKmTraveled | number: numFormat : numLocale }} KM
+        </span>
+      } @else {
+        <span class="text-content-secondary">N/A</span>
+      }
+    </div>
+    <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs">
+      <span class="shrink-0 text-content-secondary">Start → End</span>
+      <span class="min-w-0 tabular-nums text-content">
+        @if (raw.startOdometerReading !== null && raw.startOdometerReading !== undefined) {
+          {{ raw.startOdometerReading | number: numFormat : numLocale }}
+        } @else {
+          <span class="text-content-secondary">N/A</span>
+        }
+        <span class="text-content-secondary mx-0.5">→</span>
+        @if (raw.endOdometerReading !== null && raw.endOdometerReading !== undefined) {
+          {{ raw.endOdometerReading | number: numFormat : numLocale }}
+        } @else {
+          <span class="text-content-secondary">N/A</span>
+        }
+      </span>
+    </div>
+  </div>
+</ng-template>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -17,6 +54,7 @@
   [tableData]="table.data()"
   [loading]="table.loading()"
   [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{ kmTraveledMeterReading: kmTraveledMeterReading }"
   (rowActionClick)="handleVehicleReadingTableActionClick($any($event))"
   (filterData)="onTableStateChange($event)"
 />

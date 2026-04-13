@@ -60,16 +60,10 @@ export const VEHICLE_READING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig
     },
     {
       field: 'totalKmTraveled',
-      header: 'KM Traveled',
-      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-      subtitle: {
-        field: 'meterReading',
-        bodyTemplate: EDataType.RANGE,
-        dataType: EDataType.NUMBER,
-      },
+      header: 'KM & meter',
+      customTemplateKey: 'kmTraveledMeterReading',
       primaryFieldHighlight: true,
       showSort: false,
-      suffix: 'KM',
     },
     {
       field: 'driverRemarks',

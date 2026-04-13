@@ -7,10 +7,12 @@ import {
   IVehicleReadingAddResponseDto,
   IvehicleReadingDetailGetFormDto,
   IVehicleReadingDetailGetResponseDto,
-  IvehicleReadingEditFormDto,
   IVehicleReadingEditResponseDto,
+  IvehicleReadingForceFormDto,
   IvehicleReadingGetFormDto,
   IVehicleReadingGetResponseDto,
+  IVehicleReadingForceResponseDto,
+  IVehicleReadingEditUIFormDto,
 } from '../types/vehicle-reading.dto';
 import {
   VehicleReadingAddRequestSchema,
@@ -18,6 +20,8 @@ import {
   VehicleReadingDetailGetResponseSchema,
   VehicleReadingEditRequestSchema,
   VehicleReadingEditResponseSchema,
+  VehicleReadingForceRequestSchema,
+  VehicleReadingForceResponseSchema,
   VehicleReadingGetRequestSchema,
   VehicleReadingGetResponseSchema,
 } from '../schemas';
@@ -62,8 +66,41 @@ export class VehicleReadingService {
       );
   }
 
+  forceVehicleReading(
+    formData: IvehicleReadingForceFormDto
+  ): Observable<IVehicleReadingForceResponseDto> {
+    this.logger.logUserAction('Force Vehicle Reading Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.VEHICLE_READING.FORCE,
+        {
+          response: VehicleReadingForceResponseSchema,
+          request: VehicleReadingForceRequestSchema,
+        },
+        formData,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: IVehicleReadingForceResponseDto) => {
+          this.logger.logUserAction('Force Vehicle Reading Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Force Vehicle Reading Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Force Vehicle Reading Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   editVehicleReading(
-    formData: IvehicleReadingEditFormDto,
+    formData: IVehicleReadingEditUIFormDto,
     vehicleReadingId: string
   ): Observable<IVehicleReadingEditResponseDto> {
     this.logger.logUserAction('Edit Vehicle Reading Request');

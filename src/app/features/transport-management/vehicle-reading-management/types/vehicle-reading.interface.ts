@@ -23,7 +23,8 @@ export interface IVehicleReading
     name: string;
     location: string;
   };
-  meterReading: [number, number];
+  /** [start, end] odometer; null when not filled. */
+  meterReading: [number | null, number | null];
   anomalyStatus: string;
   originalRawData: IVehicleReadingGetBaseResponseDto;
 }

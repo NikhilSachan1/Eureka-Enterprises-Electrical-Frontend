@@ -90,6 +90,7 @@ export const API_ROUTES = {
   },
   VEHICLE_READING: {
     ADD: 'vehicle-logs',
+    FORCE: 'vehicle-logs',
     LIST: 'vehicle-logs',
     GET_VEHICLE_READING_BY_ID: (vehicleReadingId: string) =>
       `vehicle-logs/${vehicleReadingId}`,

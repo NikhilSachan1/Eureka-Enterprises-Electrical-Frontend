@@ -45,6 +45,7 @@ const ADD_VEHICLE_READING_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVehicleRea
       id: 'startOdometerReading',
       fieldName: 'startOdometerReading',
       label: 'Start Odometer Reading',
+      validators: [Validators.required],
     },
     endTime: {
       fieldType: EDataType.DATE,
@@ -75,7 +76,6 @@ const ADD_VEHICLE_READING_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVehicleRea
       id: 'remarks',
       fieldName: 'remarks',
       label: 'Remarks',
-      validators: [Validators.required],
     },
     startOdometerReadingAttachments: {
       fieldType: EDataType.ATTACHMENTS,
@@ -97,7 +97,7 @@ const ADD_VEHICLE_READING_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVehicleRea
         fileLimit: 1,
         acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.IMAGE,
       },
-      validators: [Validators.required],
+      // validators: [Validators.required],
     },
   };
 

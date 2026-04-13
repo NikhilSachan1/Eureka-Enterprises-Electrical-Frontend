@@ -20,7 +20,7 @@ export const VehicleReadingBaseSchema = z.looseObject({
   endTime: z.string().nullable(),
   endLocation: z.string().nullable(),
   purpose: z.string().nullable(),
-  driverRemarks: z.string(),
+  driverRemarks: z.string().nullable(),
   odometerResetFlag: z.boolean(),
 });
 
@@ -31,11 +31,11 @@ export const VehicleReadingUpsertShapeSchema = z
     startOdometerReading: z.number(),
     startTime: dateField.nullable(),
     startLocation: z.string().nullable(),
-    endOdometerReading: z.number(),
+    endOdometerReading: z.number().nullable(),
     endTime: dateField.nullable(),
     endLocation: z.string().nullable(),
-    remarks: z.string(),
+    remarks: z.string().nullable(),
     startOdometerReadingAttachments: z.array(fileField),
-    endOdometerReadingAttachments: z.array(fileField),
+    endOdometerReadingAttachments: z.array(fileField).nullable(),
   })
   .strict();
