@@ -13,7 +13,7 @@ export const FuelExpenseAddRequestSchema =
       fuelAmount: data.fuelAmount,
       paymentMode: data.paymentMode,
       transactionId: data.transactionId,
-      description: data.remark,
+      description: data.remark?.trim() ?? '',
       files: data.fuelExpenseAttachments,
     };
   });

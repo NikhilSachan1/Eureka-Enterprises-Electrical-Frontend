@@ -27,7 +27,10 @@ export interface IDetailEntryData {
   format?: string;
   customTemplateKey?: string;
   metadata?: {
-    transactionType?: EExpenseTransactionType | EFuelExpenseTransactionType;
+    transactionType?:
+      | EExpenseTransactionType
+      | EFuelExpenseTransactionType
+      | string;
   };
   permission?: string[];
 }

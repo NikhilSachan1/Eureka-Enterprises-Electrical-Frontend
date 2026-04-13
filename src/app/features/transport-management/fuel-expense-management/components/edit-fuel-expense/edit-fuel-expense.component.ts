@@ -25,7 +25,6 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { LinkedVehiclePetroCardComponent } from '../../shared/linked-vehicle-petro-card/linked-vehicle-petro-card.component';
 
 @Component({
   selector: 'app-edit-fuel-expense',
@@ -34,7 +33,6 @@ import { LinkedVehiclePetroCardComponent } from '../../shared/linked-vehicle-pet
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
-    LinkedVehiclePetroCardComponent,
   ],
   templateUrl: './edit-fuel-expense.component.html',
   styleUrl: './edit-fuel-expense.component.scss',

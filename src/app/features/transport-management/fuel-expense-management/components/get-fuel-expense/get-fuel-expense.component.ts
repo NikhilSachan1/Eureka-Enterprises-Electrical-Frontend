@@ -93,6 +93,19 @@ export class GetFuelExpenseComponent implements OnInit {
 
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
+
+  protected isExtremeEfficiencyDelta(
+    percent: number | null | undefined,
+    deltaKmPerL: number | null | undefined
+  ): boolean {
+    if (percent !== null && Math.abs(percent ?? 0) > 500) {
+      return true;
+    }
+    if (deltaKmPerL !== null && Math.abs(deltaKmPerL ?? 0) > 200) {
+      return true;
+    }
+    return false;
+  }
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;

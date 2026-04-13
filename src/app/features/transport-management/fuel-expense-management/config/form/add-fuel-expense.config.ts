@@ -92,7 +92,6 @@ const ADD_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExpenseAd
       id: 'remark',
       fieldName: 'remark',
       label: 'Note',
-      validators: [Validators.required],
     },
     fuelExpenseAttachments: {
       fieldType: EDataType.ATTACHMENTS,

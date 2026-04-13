@@ -1,12 +1,5 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
-@if (linkedUserVehicleDetail(); as detail) {
-  <app-linked-vehicle-petro-card
-    class="block mb-8"
-    [linkedUserVehicleDetail]="detail"
-  />
-}
-
 <form
   (ngSubmit)="onSubmit()"
   [formGroup]="form.formGroup"

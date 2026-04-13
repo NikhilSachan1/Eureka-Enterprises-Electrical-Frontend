@@ -169,7 +169,7 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
 
     if (redirectRoute && redirectRoute.length > 0) {
       this.notificationService.warning(
-        'No vehicle linked for this route. Redirecting...'
+        'No vehicle linked with you. Redirecting...'
       );
       this.redirected.emit();
       void this.routerNavigationService.navigateToRoute(redirectRoute);

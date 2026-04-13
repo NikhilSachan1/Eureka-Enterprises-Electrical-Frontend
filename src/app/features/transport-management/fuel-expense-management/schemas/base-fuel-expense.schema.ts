@@ -6,7 +6,6 @@ import {
 } from '@shared/schemas';
 import { EApprovalStatus, EEntrySourceType, EEntryType } from '@shared/types';
 import z from 'zod';
-import { EFuelExpenseTransactionType } from '../types/fuel-expense.enum';
 
 export const approvalStatusSchema = z.enum(EApprovalStatus);
 export const expenseEntryTypeSchema = z.enum(EEntryType);
@@ -23,7 +22,7 @@ export const FuelExpenseBaseSchema = z.object({
   paymentMode: z.string().min(1),
   transactionId: z.string().nullable(),
   description: z.string().nullable(),
-  transactionType: z.enum(EFuelExpenseTransactionType),
+  transactionType: z.string(),
   expenseEntryType: expenseEntryTypeSchema,
   entrySourceType: entrySourceTypeSchema,
   approvalStatus: approvalStatusSchema,

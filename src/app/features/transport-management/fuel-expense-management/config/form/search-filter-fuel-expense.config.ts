@@ -2,12 +2,15 @@ import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import {
   EApprovalStatus,
+  EDataType,
+  ETableFilterMatchMode,
   IFormButtonConfig,
   ITableSearchFilterFormConfig,
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
 import { IFuelExpenseGetFormDto } from '../../types/fuel-expense.dto';
 import { APP_PERMISSION } from '@core/constants';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 
 const SEARCH_FILTER_FUEL_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   IFuelExpenseGetFormDto & { globalSearch?: string }
@@ -15,6 +18,19 @@ const SEARCH_FILTER_FUEL_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFiel
   employeeName: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
     permission: [APP_PERMISSION.UI.FUEL_EXPENSE.TABLE_EMPLOYEE_NAME],
+  },
+  vehicleName: {
+    fieldType: EDataType.SELECT,
+    id: 'vehicleName',
+    fieldName: 'vehicleName',
+    label: 'Select Vehicle',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.VEHICLE,
+        dropdownName: CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
+      },
+    },
+    matchmode: ETableFilterMatchMode.IN,
   },
   fuelExpenseDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,

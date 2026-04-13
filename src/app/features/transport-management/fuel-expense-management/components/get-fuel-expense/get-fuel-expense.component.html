@@ -21,15 +21,108 @@
   } @else {
     @let numFormat = APP_CONFIG.NUMBER_FORMATS.FLEXIBLE_DECIMALS;
     @let numLocale = APP_CONFIG.NUMBER_FORMATS.LOCALE;
-    <div class="flex flex-col gap-1.5 text-sm whitespace-nowrap">
-      <div class="flex items-center gap-1.5">
+    @let fe = row.originalRawData.fuelEfficiency;
+    <div class="fuel-detail-stack flex flex-col gap-1.5 text-sm">
+      <div class="flex items-center gap-1.5 whitespace-nowrap">
         <span class="text-content-secondary">Odometer:</span>
         <span class="text-content">{{ row.originalRawData.odometerKm | number: numFormat : numLocale }} km</span>
       </div>
-      <div class="flex items-center gap-1.5">
+      <div class="flex items-center gap-1.5 whitespace-nowrap">
         <span class="text-content-secondary">Fuel:</span>
         <span class="text-content">{{ row.originalRawData.fuelLiters | number: numFormat : numLocale }} L</span>
       </div>
+      @if (fe) {
+        @let extreme = isExtremeEfficiencyDelta(fe.efficiencyChangePercent, fe.efficiencyChange);
+        <div class="fuel-detail-stack__efficiency flex flex-col gap-2">
+          <div class="fuel-eff__flags flex flex-wrap gap-1.5 items-center">
+            @if (fe.efficiencyChange !== null) {
+              <span
+                class="fuel-eff__chip inline-flex items-center gap-1 tabular-nums"
+                [class.fuel-eff__chip--warn]="extreme"
+                [class.fuel-eff__chip--up]="!extreme && fe.efficiencyChange > 0"
+                [class.fuel-eff__chip--down]="!extreme && fe.efficiencyChange < 0"
+                [class.fuel-eff__chip--flat]="!extreme && fe.efficiencyChange === 0"
+                [attr.title]="extreme ? 'Very large change vs baseline — verify odometer / fuel entries' : null"
+              >
+                @if (!extreme && fe.efficiencyChange > 0) {
+                  <i
+                    class="pi pi-arrow-up fuel-eff__chip-icon"
+                    aria-hidden="true"
+                  ></i>
+                } @else if (!extreme && fe.efficiencyChange < 0) {
+                  <i
+                    class="pi pi-arrow-down fuel-eff__chip-icon"
+                    aria-hidden="true"
+                  ></i>
+                } @else if (extreme) {
+                  <i
+                    class="pi pi-exclamation-triangle fuel-eff__chip-icon"
+                    aria-hidden="true"
+                  ></i>
+                }
+                <span class="fuel-eff__chip-label">Δ km/L</span>
+                <span>
+                  {{ fe.efficiencyChange > 0 ? '+' : '' }}{{ fe.efficiencyChange | number: numFormat : numLocale }}
+                </span>
+              </span>
+            }
+            @if (fe.efficiencyChangePercent !== null) {
+              <span
+                class="fuel-eff__chip inline-flex items-center gap-1 tabular-nums"
+                [class.fuel-eff__chip--warn]="extreme"
+                [class.fuel-eff__chip--up]="!extreme && fe.efficiencyChangePercent > 0"
+                [class.fuel-eff__chip--down]="!extreme && fe.efficiencyChangePercent < 0"
+                [class.fuel-eff__chip--flat]="!extreme && fe.efficiencyChangePercent === 0"
+                [attr.title]="extreme ? 'Very large % change vs baseline — verify previous reading' : null"
+              >
+                @if (!extreme && fe.efficiencyChangePercent > 0) {
+                  <i
+                    class="pi pi-arrow-up fuel-eff__chip-icon"
+                    aria-hidden="true"
+                  ></i>
+                } @else if (!extreme && fe.efficiencyChangePercent < 0) {
+                  <i
+                    class="pi pi-arrow-down fuel-eff__chip-icon"
+                    aria-hidden="true"
+                  ></i>
+                } @else if (extreme) {
+                  <i
+                    class="pi pi-exclamation-triangle fuel-eff__chip-icon"
+                    aria-hidden="true"
+                  ></i>
+                }
+                <span class="fuel-eff__chip-label">Δ %</span>
+                <span>
+                  {{ fe.efficiencyChangePercent > 0 ? '+' : ''
+                  }}{{ fe.efficiencyChangePercent | number: numFormat : numLocale }}%
+                </span>
+              </span>
+            }
+          </div>
+          <div class="fuel-eff__meta flex flex-col gap-1 text-xs">
+            <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+              <span class="text-content-secondary shrink-0">Distance traveled:</span>
+              <span class="text-content tabular-nums">
+                {{ fe.distanceTraveled | number: numFormat : numLocale }} km
+              </span>
+            </div>
+            <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+              <span class="text-content-secondary shrink-0">km/L:</span>
+              <span class="text-content tabular-nums">{{ fe.kmPerLiter | number: numFormat : numLocale }}</span>
+            </div>
+            <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+              <span class="text-content-secondary shrink-0">Previous km/L:</span>
+              @if (fe.previousKmPerLiter !== null) {
+                <span class="text-content tabular-nums">
+                  {{ fe.previousKmPerLiter | number: numFormat : numLocale }}
+                </span>
+              } @else {
+                <span class="text-content-secondary">—</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
     </div>
   }
 </ng-template>

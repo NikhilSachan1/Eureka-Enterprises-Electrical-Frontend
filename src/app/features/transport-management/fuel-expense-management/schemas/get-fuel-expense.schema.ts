@@ -21,6 +21,7 @@ export const FuelExpenseGetRequestSchema = z
   .object({
     fuelExpenseDate: z.array(dateField).min(1).optional(),
     employeeName: z.array(uuidField).min(1).optional(),
+    vehicleName: uuidField.optional(),
     approvalStatus: z.array(approvalStatus).min(1).optional(),
     sortOrder,
     sortField,
@@ -33,6 +34,7 @@ export const FuelExpenseGetRequestSchema = z
     ({
       fuelExpenseDate: dateRange,
       employeeName,
+      vehicleName,
       approvalStatus: fuelExpenseApprovalStatus,
       ...rest
     }) => {
@@ -41,6 +43,7 @@ export const FuelExpenseGetRequestSchema = z
       return {
         ...rest,
         userIds: employeeName,
+        vehicleId: vehicleName,
         approvalStatuses: fuelExpenseApprovalStatus,
         startDate: transformDateFormat(start),
         endDate: transformDateFormat(end),
