@@ -342,8 +342,14 @@ export class GetFuelExpenseComponent implements OnInit {
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
+            label: 'Total Petro Card Debit Approved',
+            value: stats.balances.totalPetroCardDebitApproved,
+            type: EDataType.CURRENCY,
+            format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+          },
+          {
             label: 'Total Petro Card Debit',
-            value: stats.balances.totalCreditCardExpense,
+            value: stats.balances.totalPetroCardExpense,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },

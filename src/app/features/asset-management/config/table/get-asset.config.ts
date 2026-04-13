@@ -103,6 +103,34 @@ const TERMINAL_HANDOVER_EVENT_TYPES = new Set<string>([
   ETableActionTypeValue.HANDOVER_CANCELLED,
 ]);
 
+function isHandoverInitiateDisabled(
+  row: AssetTableRow,
+  loggedInUserId: string | null | undefined
+): boolean {
+  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
+    return true;
+  }
+  if (row.status === 'ASSIGNED') {
+    return !loggedInUserId || row.assignedTo !== loggedInUserId;
+  }
+  return false;
+}
+
+function getHandoverInitiateDisableReason(
+  row: AssetTableRow,
+  loggedInUserId: string | null | undefined
+): string | undefined {
+  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
+    return 'Request is already initiated.';
+  }
+  if (row.status === 'ASSIGNED') {
+    if (!loggedInUserId || row.assignedTo !== loggedInUserId) {
+      return 'Only the assigned user can initiate handover for this asset.';
+    }
+  }
+  return undefined;
+}
+
 function isHandoverAcceptRejectDisabled(
   row: AssetTableRow,
   loggedInUserId: string | null | undefined
@@ -190,12 +218,9 @@ export function buildAssetTableRowActionsConfig(
       id: EButtonActionType.HANDOVER_INITIATE,
       tooltip: 'Handover Asset',
       permission: [APP_PERMISSION.ASSET.HANDOVER_INITIATE],
-      disableWhen: row =>
-        row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED,
+      disableWhen: row => isHandoverInitiateDisabled(row, loggedInUserId),
       disableReason: row =>
-        row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED
-          ? 'Request is already initiated.'
-          : undefined,
+        getHandoverInitiateDisableReason(row, loggedInUserId),
     },
     {
       id: EButtonActionType.HANDOVER_ACCEPTED,

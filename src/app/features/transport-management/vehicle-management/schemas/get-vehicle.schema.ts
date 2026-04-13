@@ -49,7 +49,7 @@ export const VehicleGetRequestSchema = z
         pucStatuses: vehiclePUCStatus,
         serviceDueStatuses: vehicleServiceDueStatus,
         fuelTypes: vehicleFuelType,
-        // includeLatestEventFiles: true,
+        includeLatestEventFiles: true,
       };
     }
   );

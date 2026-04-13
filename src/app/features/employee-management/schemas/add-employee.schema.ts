@@ -48,6 +48,8 @@ export const EmployeeAddRequestSchema =
       passportDoc: passportDocument,
       degreeDoc: degreeDocument,
       designation,
+      whatsappNumber: rest.contactNumber,
+      whatsappOptIn: true,
       salary: {
         basic: basicSalary,
         hra,

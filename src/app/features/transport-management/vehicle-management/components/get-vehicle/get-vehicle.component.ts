@@ -382,7 +382,10 @@ export class GetVehicleComponent implements OnInit {
       },
     ];
 
-    if (GetVehicleComponent.HANDOVER_DIALOG_ACTIONS.has(actionType)) {
+    if (
+      GetVehicleComponent.HANDOVER_DIALOG_ACTIONS.has(actionType) &&
+      actionType !== EButtonActionType.HANDOVER_INITIATE
+    ) {
       const eventFileKeys = this.getLatestEventFileKeys(selectedRow);
       if (eventFileKeys.length > 0) {
         entryData.push({

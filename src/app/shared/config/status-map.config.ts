@@ -191,6 +191,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   'total credited': { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
   'total debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'total petro card debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
+  'total petro card debit approved': {
+    icon: ICONS.EXPENSE.MONEY,
+    severity: 'danger',
+  },
   'approved debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'period debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'total consumed': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },

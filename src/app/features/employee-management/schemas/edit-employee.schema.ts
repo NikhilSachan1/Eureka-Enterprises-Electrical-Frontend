@@ -48,6 +48,7 @@ export const EmployeeEditRequestSchema = EmployeeUpsertShapeSchema.omit({
       uanDoc: uanDocument,
       passportDoc: passportDocument,
       degreeDoc: degreeDocument,
+      whatsappNumber: rest.contactNumber,
     })
   );
 

@@ -96,7 +96,8 @@ export const FuelExpenseGetStatsResponseSchema = z.looseObject({
     totalDebit: z.number().nonnegative(),
     periodCredit: z.number().nonnegative(),
     periodDebit: z.number().nonnegative(),
-    totalCreditCardExpense: z.number(),
+    totalPetroCardDebitApproved: z.number(),
+    totalPetroCardExpense: z.number(),
   }),
   projectedBalances: z.looseObject({
     openingBalance: z.number(),

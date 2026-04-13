@@ -253,7 +253,7 @@ export const EMPLOYMENT_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsCon
       maximumInputLength: 2,
       regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
     },
-    defaultValue: 0,
+    defaultValue: '0',
     validators: [Validators.required, Validators.maxLength(2)],
   },
   dateOfJoining: {

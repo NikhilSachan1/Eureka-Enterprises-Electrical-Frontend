@@ -116,6 +116,34 @@ const TERMINAL_HANDOVER_EVENT_TYPES = new Set<string>([
   ETableActionTypeValue.HANDOVER_CANCELLED,
 ]);
 
+function isHandoverInitiateDisabled(
+  row: VehicleTableRow,
+  loggedInUserId: string | null | undefined
+): boolean {
+  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
+    return true;
+  }
+  if (row.status === 'ASSIGNED') {
+    return !loggedInUserId || row.assignedTo !== loggedInUserId;
+  }
+  return false;
+}
+
+function getHandoverInitiateDisableReason(
+  row: VehicleTableRow,
+  loggedInUserId: string | null | undefined
+): string | undefined {
+  if (row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED) {
+    return 'Request is already initiated.';
+  }
+  if (row.status === 'ASSIGNED') {
+    if (!loggedInUserId || row.assignedTo !== loggedInUserId) {
+      return 'Only the assigned user can initiate handover for this vehicle.';
+    }
+  }
+  return undefined;
+}
+
 function isHandoverAcceptRejectDisabled(
   row: VehicleTableRow,
   loggedInUserId: string | null | undefined
@@ -208,12 +236,9 @@ export function buildVehicleTableRowActionsConfig(
       id: EButtonActionType.HANDOVER_INITIATE,
       tooltip: 'Handover Vehicle',
       permission: [APP_PERMISSION.VEHICLE.HANDOVER_INITIATE],
-      disableWhen: row =>
-        row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED,
+      disableWhen: row => isHandoverInitiateDisabled(row, loggedInUserId),
       disableReason: row =>
-        row.latestEvent?.eventType === ETableActionTypeValue.HANDOVER_INITIATED
-          ? 'Request is already initiated.'
-          : undefined,
+        getHandoverInitiateDisableReason(row, loggedInUserId),
     },
     {
       id: EButtonActionType.HANDOVER_ACCEPTED,

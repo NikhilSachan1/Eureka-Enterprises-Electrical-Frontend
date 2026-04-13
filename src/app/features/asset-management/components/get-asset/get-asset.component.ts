@@ -358,7 +358,10 @@ export class GetAssetComponent implements OnInit {
       },
     ];
 
-    if (GetAssetComponent.HANDOVER_DIALOG_ACTIONS.has(actionType)) {
+    if (
+      GetAssetComponent.HANDOVER_DIALOG_ACTIONS.has(actionType) &&
+      actionType !== EButtonActionType.HANDOVER_INITIATE
+    ) {
       const eventFileKeys = this.getLatestEventFileKeys(selectedRow);
       if (eventFileKeys.length > 0) {
         entryData.push({
