@@ -4,6 +4,7 @@ import {
   computed,
   DestroyRef,
   effect,
+  HostBinding,
   inject,
   input,
   signal,
@@ -92,6 +93,13 @@ export class RoleSwitcherComponent {
 
   /** Check if user has multiple roles */
   readonly hasMultipleRoles = computed(() => this.roles().length > 1);
+
+  /** Hide host when there is no role switcher UI — avoids empty strip between menu and footer. */
+  @HostBinding('class.role-switcher--hidden')
+  protected get roleSwitcherHidden(): boolean {
+    return !this.hasMultipleRoles();
+  }
+
   ALL_ICONS = ICONS;
 
   togglePopover(event: Event): void {

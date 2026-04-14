@@ -11,18 +11,6 @@ export const primaryUserOptions: UserOption[] = [
     icon: ICONS.EMPLOYEE.USER,
     path: `${ROUTE_BASE_PATHS.EMPLOYEE}/${ROUTES.EMPLOYEE.MY_PROFILE}`,
   },
-  {
-    id: 'settings',
-    label: 'Settings',
-    icon: ICONS.SETTINGS.COG,
-    path: '/settings',
-  },
-  {
-    id: 'reset-password',
-    label: 'Reset Password',
-    icon: ICONS.SECURITY.LOCK,
-    path: '/reset-password',
-  },
 ];
 
 /**

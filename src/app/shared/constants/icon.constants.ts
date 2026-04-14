@@ -103,6 +103,14 @@ export const ICONS = {
     MONEY: 'pi pi-money-bill',
     CAR: 'pi pi-car',
   },
+  /**
+   * Fuel / petro (transport menu).
+   * Note: `pi-tint` is not in PrimeIcons — icon would not render. Use supported glyphs from
+   * https://primeng.org/icons — e.g. `pi-bolt` (energy), `pi-gauge` (gauge), `pi-car` (vehicle fuel).
+   */
+  FUEL: {
+    MENU: 'pi pi-bolt',
+  },
   LEAVE: {
     GET: 'pi pi-calendar-minus',
     CALENDAR_PLUS: 'pi pi-calendar-plus',

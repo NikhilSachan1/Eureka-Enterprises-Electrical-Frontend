@@ -556,7 +556,7 @@ export class GetFuelExpenseComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
           label: 'Reimburse Fuel Expense',
-          icon: ICONS.ACTIONS.PENCIL,
+          icon: ICONS.PAYROLL.WALLET,
           actionName: 'reimburseFuelExpense',
           permission: [APP_PERMISSION.FUEL_EXPENSE.REIMBURSE],
         },

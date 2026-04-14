@@ -485,7 +485,7 @@ export class GetExpenseComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
           label: 'Reimburse Expense',
-          icon: ICONS.ACTIONS.PENCIL,
+          icon: ICONS.PAYROLL.WALLET,
           actionName: 'reimburseExpense',
           permission: [APP_PERMISSION.EXPENSE.REIMBURSE],
         },

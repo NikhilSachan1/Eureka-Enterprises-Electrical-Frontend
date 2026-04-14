@@ -5,6 +5,11 @@
   border-top: 1px solid var(--sidebar-border-color);
 }
 
+// Single role: no switcher UI — remove host from layout so menu area (primary-lightest) extends flush to footer
+:host.role-switcher--hidden {
+  display: none !important;
+}
+
 // Collapsed state styling - using host-context
 :host-context(.sidebar-collapsed) {
   @media (min-width: 769px) {

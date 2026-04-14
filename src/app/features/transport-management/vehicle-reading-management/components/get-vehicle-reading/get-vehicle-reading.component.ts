@@ -300,7 +300,7 @@ export class GetVehicleReadingComponent implements OnInit {
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
           label: 'Force Vehicle Reading',
-          icon: ICONS.ACTIONS.PENCIL,
+          icon: ICONS.COMMON.FORCE,
           actionName: 'manualVehicleReading',
           permission: [APP_PERMISSION.VEHICLE_READING.FORCE],
         },
