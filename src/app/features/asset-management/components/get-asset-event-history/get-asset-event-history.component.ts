@@ -240,6 +240,10 @@ export class GetAssetEventHistoryComponent implements OnInit {
             label: 'Handover Cancelled',
             value: stats.byEventType.HANDOVER_CANCELLED,
           },
+          {
+            label: 'Deallocated',
+            value: stats.byEventType.DEALLOCATED,
+          },
         ],
       },
     ];
