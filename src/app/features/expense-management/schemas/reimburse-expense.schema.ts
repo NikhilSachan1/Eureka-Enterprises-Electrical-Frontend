@@ -19,7 +19,7 @@ export const ExpenseReimburseRequestSchema = ExpenseUpsertShapeSchema.omit({
     return {
       userId: data.employeeName,
       category: EExpenseCategory.SETTLEMENT,
-      description: data.remark ?? 'Expense reimbursement successfully.',
+      description: data.remark ?? 'N/A',
       amount: data.expenseAmount,
       expenseDate: transformDateFormat(data.expenseDate),
       paymentMode: data.paymentMode,

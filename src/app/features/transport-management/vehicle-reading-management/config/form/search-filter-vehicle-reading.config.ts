@@ -45,9 +45,6 @@ const SEARCH_FILTER_VEHICLE_READING_FORM_FIELDS_CONFIG: ITableSearchFilterInputF
     label: 'Reading Date',
     fieldName: 'readingDate',
   },
-  globalSearch: {
-    ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
-  },
 };
 
 const SEARCH_FILTER_VEHICLE_READING_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

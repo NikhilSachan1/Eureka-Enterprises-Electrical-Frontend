@@ -69,6 +69,14 @@ const ADD_VEHICLE_READING_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVehicleRea
       id: 'endOdometerReading',
       fieldName: 'endOdometerReading',
       label: 'End Odometer Reading',
+      conditionalValidators: [
+        {
+          dependsOn: 'endOdometerReadingAttachments',
+          shouldApply: (files: unknown) =>
+            Array.isArray(files) && files.length > 0,
+          validators: [Validators.required],
+        },
+      ],
     },
 
     remarks: {
@@ -97,7 +105,16 @@ const ADD_VEHICLE_READING_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVehicleRea
         fileLimit: 1,
         acceptFileTypes: APP_CONFIG.MEDIA_CONFIG.IMAGE,
       },
-      // validators: [Validators.required],
+      conditionalValidators: [
+        {
+          dependsOn: 'endOdometerReading',
+          shouldApply: (endReading: unknown) =>
+            endReading !== null &&
+            endReading !== undefined &&
+            endReading !== '',
+          validators: [Validators.required],
+        },
+      ],
     },
   };
 

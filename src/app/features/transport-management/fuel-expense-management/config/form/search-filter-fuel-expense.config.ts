@@ -52,6 +52,7 @@ const SEARCH_FILTER_FUEL_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFiel
   },
   globalSearch: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,
+    hint: 'Search by employee name, transaction id, amount, vehicle name, note',
   },
 };
 

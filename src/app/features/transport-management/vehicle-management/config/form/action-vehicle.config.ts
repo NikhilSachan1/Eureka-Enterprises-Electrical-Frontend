@@ -48,7 +48,8 @@ const ACTION_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleActionUI
             const { actionType } = context;
             return (
               actionType === EButtonActionType.HANDOVER_INITIATE ||
-              actionType === EButtonActionType.HANDOVER_ACCEPTED
+              actionType === EButtonActionType.HANDOVER_ACCEPTED ||
+              actionType === EButtonActionType.HANDOVER_REJECTED
             );
           },
           validators: [Validators.required],
@@ -60,7 +61,15 @@ const ACTION_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleActionUI
       id: 'remark',
       fieldName: 'remark',
       label: 'Remarks',
-      validators: [Validators.required],
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            const { actionType } = context;
+            return actionType !== EButtonActionType.HANDOVER_INITIATE;
+          },
+          validators: [Validators.required],
+        },
+      ],
     },
   };
 

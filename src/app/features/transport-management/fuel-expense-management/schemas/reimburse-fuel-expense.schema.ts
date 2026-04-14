@@ -23,7 +23,7 @@ export const FuelExpenseReimburseRequestSchema =
         fuelAmount: data.fuelAmount,
         paymentMode: data.paymentMode,
         transactionId: data.transactionId,
-        description: data.remark ?? 'Fuel expense reimbursement successfully.',
+        description: data.remark ?? 'N/A',
         fillDate: transformDateFormat(data.fuelFillDate),
         files: data.fuelExpenseAttachments,
       };

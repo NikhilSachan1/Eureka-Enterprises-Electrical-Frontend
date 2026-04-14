@@ -109,7 +109,9 @@ export class EditVehicleReadingComponent
       startTime: this.parseTimeString(logDate, startTime),
       startOdometerReading: Number(startOdometerReading),
       startLocation,
-      endOdometerReading: Number(endOdometerReading),
+      endOdometerReading: endOdometerReading
+        ? Number(endOdometerReading)
+        : null,
       endTime: this.parseTimeString(logDate, endTime),
       endLocation,
       remarks: driverRemarks,

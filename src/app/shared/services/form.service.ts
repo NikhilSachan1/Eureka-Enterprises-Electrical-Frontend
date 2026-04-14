@@ -251,6 +251,18 @@ export class FormService {
     );
   }
 
+  /** Re-disable fields with `disabledInput` after `formGroup.enable()` so they stay out of `getData()`. */
+  private reapplyDisabledInputFieldsFromConfig(
+    formGroup: FormGroup,
+    fieldConfigs: Record<string, IInputFieldsConfig>
+  ): void {
+    for (const config of Object.values(fieldConfigs)) {
+      if (config.disabledInput) {
+        formGroup.get(config.fieldName)?.disable({ emitEvent: false });
+      }
+    }
+  }
+
   validateAndMarkTouched(formGroup: FormGroup): boolean {
     if (formGroup.valid) {
       return true;
@@ -670,13 +682,16 @@ export class FormService {
       markTouched: () => formGroup.markAllAsTouched(), // Force the form to act like the user touched everything.
       reset: (value?: Partial<T> | null) => formGroup.reset(value ?? undefined),
       disable: () => formGroup.disable(),
-      enable: () => formGroup.enable(),
+      enable: (): void => {
+        formGroup.enable();
+        this.reapplyDisabledInputFieldsFromConfig(formGroup, fieldConfigs);
+      },
       patch: (value?: Partial<T>) => formGroup.patchValue(value ?? {}), // Update only some fields in the form.
       setValue: (value: T) => formGroup.setValue(value), // Update all fields in the form.
       updateValidation: () => formGroup.updateValueAndValidity(), // Force validation to run again.
       validateAndMarkTouched: () => this.validateAndMarkTouched(formGroup), // Validate and mark touched in one method
-      getData: () => formGroup.value as T, // Get form data (enabled controls only)
-      getRawData: () => formGroup.getRawValue() as T, // Get raw form data (includes disabled controls)
+      getData: () => formGroup.value as T, // Enabled controls only (excludes disabled)
+      getRawData: () => formGroup.getRawValue() as T, // Includes disabled controls
       getFieldData: <K extends keyof T>(fieldName: K) =>
         formGroup.get(fieldName as string)?.value as T[K], // Get data for a specific field
     };
@@ -704,8 +719,8 @@ export class FormService {
         this.setValueMultiStepForm(forms, value), // Update all fields in the forms (full update).
       validateAndMarkTouched: () =>
         this.validateAndMarkMultiStepFormTouched(forms), // Validate and mark touched in one method for all forms
-      getData: () => this.getMultiStepFormData<TFlattened>(forms), // Get combined flattened form data from all forms (enabled controls only)
-      getRawData: () => this.getMultiStepFormRawData<TFlattened>(forms), // Get combined flattened raw form data from all forms (includes disabled controls)
+      getData: () => this.getMultiStepFormData<TFlattened>(forms), // Enabled controls only
+      getRawData: () => this.getMultiStepFormRawData<TFlattened>(forms), // Includes disabled controls
     };
   }
 }
