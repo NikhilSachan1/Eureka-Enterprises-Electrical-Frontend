@@ -7,7 +7,7 @@
           class="card-block__icon-wrap"
           aria-hidden="true"
         >
-          <span class="card-block__icon pi pi-calendar"></span>
+          <span [class]="ICONS.ATTENDANCE.CALENDAR + ' card-block__icon'"></span>
         </div>
         <div>
           <h2 class="card-block__title">Attendance</h2>
@@ -66,7 +66,7 @@
         >
           <div class="approval-summary__head">
             <span
-              class="approval-summary__head-icon pi pi-inbox"
+              [class]="ICONS.COMMON.INBOX + ' approval-summary__head-icon'"
               aria-hidden="true"
             ></span>
             <h3 class="approval-summary__heading">Approvals</h3>

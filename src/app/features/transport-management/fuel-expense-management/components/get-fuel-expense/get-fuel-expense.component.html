@@ -46,17 +46,17 @@
               >
                 @if (!extreme && fe.efficiencyChange > 0) {
                   <i
-                    class="pi pi-arrow-up fuel-eff__chip-icon"
+                    [class]="ICONS.COMMON.ARROW_UP + ' fuel-eff__chip-icon'"
                     aria-hidden="true"
                   ></i>
                 } @else if (!extreme && fe.efficiencyChange < 0) {
                   <i
-                    class="pi pi-arrow-down fuel-eff__chip-icon"
+                    [class]="ICONS.COMMON.ARROW_DOWN + ' fuel-eff__chip-icon'"
                     aria-hidden="true"
                   ></i>
                 } @else if (extreme) {
                   <i
-                    class="pi pi-exclamation-triangle fuel-eff__chip-icon"
+                    [class]="ICONS.COMMON.EXCLAMATION_TRIANGLE + ' fuel-eff__chip-icon'"
                     aria-hidden="true"
                   ></i>
                 }
@@ -77,17 +77,17 @@
               >
                 @if (!extreme && fe.efficiencyChangePercent > 0) {
                   <i
-                    class="pi pi-arrow-up fuel-eff__chip-icon"
+                    [class]="ICONS.COMMON.ARROW_UP + ' fuel-eff__chip-icon'"
                     aria-hidden="true"
                   ></i>
                 } @else if (!extreme && fe.efficiencyChangePercent < 0) {
                   <i
-                    class="pi pi-arrow-down fuel-eff__chip-icon"
+                    [class]="ICONS.COMMON.ARROW_DOWN + ' fuel-eff__chip-icon'"
                     aria-hidden="true"
                   ></i>
                 } @else if (extreme) {
                   <i
-                    class="pi pi-exclamation-triangle fuel-eff__chip-icon"
+                    [class]="ICONS.COMMON.EXCLAMATION_TRIANGLE + ' fuel-eff__chip-icon'"
                     aria-hidden="true"
                   ></i>
                 }

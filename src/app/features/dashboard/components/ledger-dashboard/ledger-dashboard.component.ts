@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ICONS } from '@shared/constants';
 import { Card } from 'primeng/card';
 import { ExpenseDashboardComponent } from '@features/dashboard/components/expense-dashboard/expense-dashboard.component';
 import { FuelExpenseDashboardComponent } from '@features/dashboard/components/fuel-expense-dashboard/fuel-expense-dashboard.component';
@@ -10,4 +11,6 @@ import { FuelExpenseDashboardComponent } from '@features/dashboard/components/fu
   styleUrl: './ledger-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LedgerDashboardComponent {}
+export class LedgerDashboardComponent {
+  protected readonly ICONS = ICONS;
+}

@@ -284,7 +284,7 @@ export class GetFuelExpenseComponent implements OnInit {
       {
         id: 'approval',
         title: 'Approval Status',
-        icon: 'pi pi-check-circle',
+        icon: ICONS.ACTIONS.CHECK_CIRCLE,
         metrics: [
           { label: 'Total', value: stats.approval.total },
           { label: 'Approved', value: stats.approval.approved },
@@ -295,7 +295,7 @@ export class GetFuelExpenseComponent implements OnInit {
       {
         id: 'balance',
         title: 'Balance',
-        icon: 'pi pi-wallet',
+        icon: ICONS.PAYROLL.WALLET,
         metrics: [
           {
             label: 'Opening Balance',
@@ -334,7 +334,7 @@ export class GetFuelExpenseComponent implements OnInit {
       {
         id: 'transactions',
         title: 'Transactions',
-        icon: 'pi pi-arrow-right-arrow-left',
+        icon: ICONS.COMMON.ARROW_RIGHT_LEFT,
         metrics: [
           {
             label: 'Total Debit',

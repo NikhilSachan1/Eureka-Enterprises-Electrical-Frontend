@@ -6,7 +6,7 @@
           class="card-block__icon-wrap"
           aria-hidden="true"
         >
-          <span class="card-block__icon pi pi-chart-line"></span>
+          <span [class]="ICONS.COMMON.CHART_LINE + ' card-block__icon'"></span>
         </div>
         <div>
           <h2 class="card-block__title">Vehicle readings</h2>
@@ -49,7 +49,9 @@
                   <li class="dash-vr-anomaly-list__item">
                     <div class="dash-vr-anomaly-list__head">
                       <span
-                        class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                        [class]="
+                          ICONS.COMMON.CAR + ' dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle'
+                        "
                         aria-hidden="true"
                       ></span>
                       <div class="dash-ops-item-list__vehicle-meta">
@@ -89,7 +91,7 @@
               @for (row of vr.vehiclesNoReadingTwoPlusDays; track row.vehicleNumber) {
                 <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
                   <span
-                    class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                    [class]="ICONS.COMMON.CAR + ' dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle'"
                     aria-hidden="true"
                   ></span>
                   <div class="dash-ops-item-list__vehicle-meta">

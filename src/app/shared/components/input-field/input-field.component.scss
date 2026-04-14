@@ -53,6 +53,11 @@
       overflow-wrap: anywhere;
       line-height: 1.35;
     }
+
+    .ee-dropdown-option--selected {
+      width: 100%;
+      min-width: 0;
+    }
   }
 
   .p-select-fluid {
@@ -66,6 +71,11 @@
   }
 
   .p-multiselect {
+    .ee-dropdown-option--selected {
+      width: 100%;
+      min-width: 0;
+    }
+
     .p-multiselect-chip {
       border-radius: 1rem;
       font-size: 0.875rem;
@@ -105,4 +115,146 @@
       }
     }
   }
+}
+
+// Rich dropdown rows (employee / vehicle): appendTo="body" + closed trigger
+::ng-deep .ee-dropdown-option {
+  --ee-dd-avatar-size: 2.375rem;
+
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.125rem 0;
+  line-height: 1.35;
+
+  &--rich {
+    align-items: center;
+    padding: 0.35rem 0.15rem;
+  }
+
+  &--selected {
+    padding: 0.15rem 0;
+  }
+
+  &__avatar {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--ee-dd-avatar-size);
+    height: var(--ee-dd-avatar-size);
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--primary-color);
+    background: linear-gradient(
+      165deg,
+      var(--primary-lightest-color, color-mix(in srgb, var(--primary-color) 12%, #ffffff)) 0%,
+      color-mix(
+          in srgb,
+          var(--primary-color) 9%,
+          var(--primary-lightest-color, color-mix(in srgb, var(--primary-color) 12%, #ffffff))
+        )
+        100%
+    );
+    border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
+    box-shadow:
+      0 1px 2px color-mix(in srgb, var(--text-primary-color) 10%, transparent),
+      inset 0 1px 0 rgb(255 255 255 / 0.45);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 0.2rem;
+  }
+
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--text-primary-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__subtitle {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--text-secondary-color);
+    opacity: 0.9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__plain {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+  }
+
+  &--icon {
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45);
+  }
+
+  &__label-line {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--text-primary-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+}
+
+// List: a bit more vertical room for two-line rows or icon rows
+::ng-deep .p-select-overlay .p-select-option:has(.ee-dropdown-option--rich),
+::ng-deep .p-select-overlay .p-select-option:has(.ee-dropdown-option--icon) {
+  padding-top: 0.28rem;
+  padding-bottom: 0.28rem;
+}
+
+// Focused row: avatar / icon ring (keyboard / hover; attribute on option host)
+::ng-deep .p-select-overlay [data-p-focused="true"] .ee-dropdown-option--rich .ee-dropdown-option__avatar,
+::ng-deep .p-multiselect-overlay [data-p-focused="true"] .ee-dropdown-option--rich .ee-dropdown-option__avatar {
+  border-color: color-mix(in srgb, var(--primary-color) 45%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--primary-color) 18%, transparent),
+    0 2px 6px color-mix(in srgb, var(--primary-color) 15%, transparent);
+}
+
+::ng-deep .p-select-overlay [data-p-focused="true"] .ee-dropdown-option--icon .ee-dropdown-option__icon,
+::ng-deep .p-multiselect-overlay [data-p-focused="true"] .ee-dropdown-option--icon .ee-dropdown-option__icon {
+  border-color: color-mix(in srgb, var(--primary-color) 45%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--primary-color) 18%, transparent),
+    0 2px 6px color-mix(in srgb, var(--primary-color) 12%, transparent);
 }

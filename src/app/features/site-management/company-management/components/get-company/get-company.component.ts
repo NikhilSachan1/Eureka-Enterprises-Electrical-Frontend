@@ -40,11 +40,11 @@ import {
   COMPANY_TABLE_ENHANCED_CONFIG,
   SEARCH_FILTER_COMPANY_FORM_CONFIG,
 } from '../../config';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ICompany } from '../../types/company.interface';
 import { GetCompanyDetailComponent } from '../get-company-detail/get-company-detail.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
@@ -176,13 +176,13 @@ export class GetCompanyComponent implements OnInit {
       {
         id: 'overview',
         title: 'Overview',
-        icon: 'pi pi-building',
+        icon: ICONS.SITE.BUILDING,
         metrics: [{ label: 'Total', value: stats.totalCompanies }],
       },
       {
         id: 'status',
         title: 'Status',
-        icon: 'pi pi-chart-bar',
+        icon: ICONS.COMMON.CHART,
         metrics: [
           { label: 'Active', value: stats.activeCompanies },
           { label: 'Inactive', value: stats.inactiveCompanies },

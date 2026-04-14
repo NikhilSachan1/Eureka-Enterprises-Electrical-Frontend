@@ -10,7 +10,7 @@
       @let timing = celebrationDayState(row.date);
       <li class="people-celebrations__row">
         <span
-          class="people-celebrations__icon people-celebrations__icon--holiday pi pi-calendar"
+          [class]="ICONS.COMMON.CALENDAR + ' people-celebrations__icon people-celebrations__icon--holiday'"
           aria-hidden="true"
         ></span>
         <div class="people-celebrations__main">

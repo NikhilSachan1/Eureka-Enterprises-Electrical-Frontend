@@ -28,7 +28,7 @@
 
 @if (!hasVehicleSelected()) {
   <app-empty-messages
-    icon="pi pi-car"
+    [icon]="ICONS.COMMON.CAR"
     title="No Vehicle Selected"
     description="Please select a vehicle from the dropdown above to view its event history."
   />

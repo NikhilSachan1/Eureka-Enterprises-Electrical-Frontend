@@ -8,6 +8,7 @@ import { Card } from 'primeng/card';
 import type { IDashboardProjectMetrics } from '@features/dashboard/types/dashboard.interface';
 import { ChartsComponent } from '@shared/components/charts/charts.component';
 import { EChartType, IChartsConfig } from '@shared/types';
+import { ICONS } from '@shared/constants';
 
 @Component({
   selector: 'app-project-chart-dashboard',
@@ -17,6 +18,7 @@ import { EChartType, IChartsConfig } from '@shared/types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectChartDashboardComponent {
+  protected readonly ICONS = ICONS;
   protected readonly metrics = signal<IDashboardProjectMetrics | null>(null);
 
   protected readonly barChartConfig = computed<IChartsConfig | null>(() => {

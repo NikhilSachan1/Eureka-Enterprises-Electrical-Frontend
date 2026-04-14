@@ -106,7 +106,7 @@ export class DataTableComponent {
   /** Icon-only trigger when row actions collapse into the overflow menu (matches row action styling). */
   protected readonly rowOverflowTriggerButtonConfig: Partial<IButtonConfig> = {
     label: '',
-    icon: 'pi pi-ellipsis-v',
+    icon: ICONS.COMMON.ELLIPSIS_V,
     variant: EButtonVariant.OUTLINED,
     shadow: true,
     tooltip: 'Actions',

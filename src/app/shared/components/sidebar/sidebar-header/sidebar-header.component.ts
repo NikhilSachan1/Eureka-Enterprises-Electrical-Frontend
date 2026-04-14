@@ -7,6 +7,7 @@ import {
   output,
 } from '@angular/core';
 import { APP_CONFIG } from '@core/config';
+import { ICONS } from '@shared/constants';
 
 @Component({
   selector: 'app-sidebar-header',
@@ -25,7 +26,7 @@ export class SidebarHeaderComponent {
   toggleSidebar = output<void>();
 
   // Icon for collapse
-  readonly collapseIcon = 'pi pi-chevron-left';
+  readonly collapseIcon = ICONS.COMMON.CHEVRON_LEFT;
 
   // Using computed signals for reactive data - Angular v19 best practice
   readonly companyName = computed(() => APP_CONFIG.name);

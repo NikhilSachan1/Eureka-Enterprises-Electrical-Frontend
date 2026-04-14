@@ -184,7 +184,7 @@ export class GetAnnouncementComponent implements OnInit {
       {
         id: 'acknowledgment',
         title: 'Acknowledgment Status',
-        icon: 'pi pi-megaphone',
+        icon: ICONS.COMMON.MEGAPHONE,
         metrics: [
           { label: 'Total', value: stats.total },
           { label: 'Acknowledged', value: stats.acknowledged },

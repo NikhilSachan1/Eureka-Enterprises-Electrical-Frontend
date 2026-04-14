@@ -257,6 +257,12 @@ export interface ITextFieldConfig {
 export interface IOptionDropdown<T = unknown> {
   label: string;
   value: string;
+  /** Secondary line in rich dropdowns (e.g. employee id, vehicle brand & model). */
+  subtitle?: string;
+  /** Leading initial in a small avatar (e.g. employee / vehicle). */
+  initial?: string;
+  /** PrimeIcons class(es), e.g. `pi pi-check` (status / category dropdowns). */
+  icon?: string;
   disabled?: boolean;
   data?: T;
 }

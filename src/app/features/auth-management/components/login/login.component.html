@@ -104,7 +104,7 @@
             <div class="flex-shrink-0 w-[22px] h-[22px] flex items-center justify-center">
               @if (isRoleSelected(role)) {
                 <div class="w-[22px] h-[22px] bg-primary-500 rounded-full flex items-center justify-center">
-                  <i class="pi pi-check text-xs text-white font-bold"></i>
+                  <i [class]="ALL_ICONS.COMMON.CHECK_TICK + ' text-xs text-white font-bold'"></i>
                 </div>
               } @else {
                 <div class="unselected-circle w-5 h-5 border-2 border-border rounded-full transition-colors"></div>

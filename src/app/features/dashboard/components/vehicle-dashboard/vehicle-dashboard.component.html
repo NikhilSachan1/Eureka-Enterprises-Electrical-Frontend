@@ -7,7 +7,7 @@
           class="card-block__icon-wrap"
           aria-hidden="true"
         >
-          <span class="card-block__icon pi pi-car"></span>
+          <span [class]="ICONS.COMMON.CAR + ' card-block__icon'"></span>
         </div>
         <div>
           <h2 class="card-block__title">Vehicle fleet</h2>
@@ -65,7 +65,7 @@
             @for (row of vf.complianceExpiringSoonItems; track $index) {
               <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
                 <span
-                  class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                  [class]="ICONS.COMMON.CAR + ' dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle'"
                   aria-hidden="true"
                 ></span>
                 <div class="dash-ops-item-list__vehicle-meta">
@@ -85,7 +85,7 @@
             @for (row of vf.complianceExpiredItems; track $index) {
               <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
                 <span
-                  class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                  [class]="ICONS.COMMON.CAR + ' dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle'"
                   aria-hidden="true"
                 ></span>
                 <div class="dash-ops-item-list__vehicle-meta">
@@ -127,7 +127,7 @@
             @for (row of vf.warrantyExpiringSoonItems; track $index) {
               <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
                 <span
-                  class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                  [class]="ICONS.COMMON.CAR + ' dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle'"
                   aria-hidden="true"
                 ></span>
                 <div class="dash-ops-item-list__vehicle-meta">
@@ -147,7 +147,7 @@
             @for (row of vf.warrantyExpiredItems; track $index) {
               <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
                 <span
-                  class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                  [class]="ICONS.COMMON.CAR + ' dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle'"
                   aria-hidden="true"
                 ></span>
                 <div class="dash-ops-item-list__vehicle-meta">

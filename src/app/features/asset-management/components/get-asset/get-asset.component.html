@@ -45,7 +45,7 @@
           [title]="toUser"
         >
           <i
-            class="pi pi-check handover-min__meta-icon"
+            [class]="ICONS.COMMON.CHECK_TICK + ' handover-min__meta-icon'"
             aria-hidden="true"
           ></i>
           <span class="handover-min__meta-text">{{ toUser }}</span>
@@ -71,7 +71,7 @@
           (click)="openLatestEventAttachmentsGallery($event, row)"
         >
           <i
-            class="pi pi-paperclip handover-min__files-icon"
+            [class]="ICONS.COMMON.PAPERCLIP + ' handover-min__files-icon'"
             aria-hidden="true"
           ></i>
           <span>{{ handoverKeys.length }} {{ handoverKeys.length === 1 ? 'file' : 'files' }}</span>

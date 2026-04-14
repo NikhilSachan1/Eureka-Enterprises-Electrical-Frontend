@@ -45,6 +45,8 @@ export class SidebarUserProfileComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
+  protected readonly ICONS = ICONS;
+
   constructor() {
     effect(() => {
       if (this.isSidebarCollapsed() && this.userPopover) {

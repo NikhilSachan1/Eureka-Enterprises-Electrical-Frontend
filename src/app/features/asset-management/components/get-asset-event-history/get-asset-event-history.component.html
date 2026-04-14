@@ -28,7 +28,7 @@
 
 @if (!hasAssetSelected()) {
   <app-empty-messages
-    icon="pi pi-box"
+    [icon]="ICONS.ASSET.BOX"
     title="No Asset Selected"
     description="Please select an asset from the dropdown above to view its event history."
   />

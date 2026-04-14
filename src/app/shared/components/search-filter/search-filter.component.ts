@@ -20,6 +20,7 @@ import { ButtonComponent } from '../button/button.component';
 import { Table } from 'primeng/table';
 import { PanelModule } from 'primeng/panel';
 import { AppPermissionService } from '@core/services';
+import { ICONS } from '@shared/constants';
 
 @Component({
   selector: 'app-search-filter',
@@ -35,6 +36,7 @@ import { AppPermissionService } from '@core/services';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchFilterComponent implements OnInit {
+  protected readonly ICONS = ICONS;
   private readonly formService = inject(FormService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly permissionService = inject(AppPermissionService);

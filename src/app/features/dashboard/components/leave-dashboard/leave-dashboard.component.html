@@ -7,7 +7,7 @@
           class="card-block__icon-wrap"
           aria-hidden="true"
         >
-          <span class="card-block__icon pi pi-calendar-plus"></span>
+          <span [class]="ICONS.LEAVE.CALENDAR_PLUS + ' card-block__icon'"></span>
         </div>
         <div>
           <h2 class="card-block__title">Leave</h2>
@@ -29,7 +29,7 @@
       >
         <div class="approval-summary__head">
           <span
-            class="approval-summary__head-icon pi pi-inbox"
+            [class]="ICONS.COMMON.INBOX + ' approval-summary__head-icon'"
             aria-hidden="true"
           ></span>
           <h3 class="approval-summary__heading">Leave approvals</h3>

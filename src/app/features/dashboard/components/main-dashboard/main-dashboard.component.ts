@@ -3,7 +3,7 @@ import { NgStyle } from '@angular/common';
 import { SEVERITY_STYLES } from '@shared/config';
 import { Router } from '@angular/router';
 import { Card } from 'primeng/card';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { EButtonActionType, IPageHeaderConfig } from '@shared/types';
 import { dashOutlinedLinkButton } from '@features/dashboard/utils/dashboard-link-button.config';
@@ -56,18 +56,19 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 export class MainDashboardComponent {
   private readonly router = inject(Router);
 
+  protected readonly ICONS = ICONS;
   protected readonly ROUTE_BASE_PATHS = ROUTE_BASE_PATHS;
   protected readonly ROUTES = ROUTES;
 
   protected readonly celebrationsCalendarButton = dashOutlinedLinkButton({
     id: EButtonActionType.PAGE_HEADER_BUTTON_1,
     label: 'Calendar',
-    icon: 'pi pi-calendar',
+    icon: ICONS.COMMON.CALENDAR,
   });
   protected readonly celebrationsDirectoryButton = dashOutlinedLinkButton({
     id: EButtonActionType.PAGE_HEADER_BUTTON_2,
     label: 'Directory',
-    icon: 'pi pi-arrow-right',
+    icon: ICONS.COMMON.ARROW_RIGHT,
   });
 
   protected readonly dashboardPageHeader: Partial<IPageHeaderConfig> = {

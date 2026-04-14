@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ICONS } from '@shared/constants';
 import { DatePipe } from '@angular/common';
 import type { IDashboardHolidayRow } from '@features/dashboard/types/dashboard.interface';
 import {
@@ -16,6 +17,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HolidayDashboardComponent {
+  protected readonly ICONS = ICONS;
   protected readonly todayYmd = dashboardTodayYmd();
   protected readonly rows = signal<readonly IDashboardHolidayRow[]>(
     this.buildMock()

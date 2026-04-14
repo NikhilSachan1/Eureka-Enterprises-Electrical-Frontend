@@ -16,6 +16,7 @@ import {
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { PetroCardService } from '../../services/petro-card.service';
 import {
@@ -42,7 +43,6 @@ import {
 } from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { IPetroCard } from '../../types/petro-card.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -177,7 +177,7 @@ export class GetPetroCardComponent implements OnInit {
       {
         id: 'status',
         title: 'Card Status',
-        icon: 'pi pi-credit-card',
+        icon: ICONS.COMMON.CREDIT_CARD,
         metrics: [
           { label: 'Total', value: stats.total },
           { label: 'Available', value: stats.available },

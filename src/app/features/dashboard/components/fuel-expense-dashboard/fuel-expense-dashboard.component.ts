@@ -10,7 +10,7 @@ import { APP_CONFIG } from '@core/config';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { dashTextLinkButton } from '@features/dashboard/utils/dashboard-link-button.config';
 import type { IDashboardFuelMetrics } from '@features/dashboard/types/dashboard.interface';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
 
 @Component({
@@ -24,12 +24,13 @@ export class FuelExpenseDashboardComponent {
   private readonly router = inject(Router);
 
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly ICONS = ICONS;
   protected readonly ROUTE_BASE_PATHS = ROUTE_BASE_PATHS;
   protected readonly ROUTES = ROUTES;
 
   protected readonly openLedgerButton = dashTextLinkButton({
     label: 'Open ledger',
-    icon: 'pi pi-arrow-right',
+    icon: ICONS.COMMON.ARROW_RIGHT,
   });
 
   protected readonly metrics = signal<IDashboardFuelMetrics | null>(null);

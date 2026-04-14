@@ -93,34 +93,102 @@
   @case (ALL_DATA_TYPES.SELECT) {
     <p-floatlabel [variant]="config.floatLabelVariant">
       @let selectConfig = config.selectConfig;
-      @let optionsDropdownLength = selectConfig?.optionsDropdown?.length;
+      @let selectOpts = selectConfig?.optionsDropdown ?? [];
+      @let optionsDropdownLength = selectOpts.length;
       <p-select
         [id]="config.id"
         [fluid]="config.haveFullWidth"
         [size]="config.fieldSize"
         [placeholder]="effectivePlaceholder"
         [appendTo]="'body'"
-        [options]="selectConfig?.optionsDropdown ?? []"
+        [options]="selectOpts"
         [optionLabel]="selectConfig?.optionLabel ?? 'label'"
         [optionValue]="selectConfig?.optionValue ?? 'value'"
         [optionDisabled]="selectConfig?.optionDisabled"
         [checkmark]="selectConfig?.showCheckmark"
         [filter]="selectConfig?.haveFilter && (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH"
-        [filterBy]="selectConfig?.filterBy"
+        [filterBy]="effectiveDropdownFilterBy(selectConfig, selectOpts)"
         [loading]="selectConfig?.loading ?? false"
         [showClear]="selectConfig?.showClearButton"
         [editable]="selectConfig?.isEditable"
         [virtualScroll]="
           selectConfig?.virtualScroll ?? (optionsDropdownLength ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD
         "
-        [virtualScrollItemSize]="selectConfig?.virtualScrollItemSize ?? ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_ITEM_SIZE"
+        [virtualScrollItemSize]="effectiveDropdownVirtualScrollItemSize(selectConfig, selectOpts)"
         [disabled]="config.disabledInput || false"
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
         [class]="invalidClass"
         (onChange)="onValueChange($event.value)"
         (onBlur)="onBlur()"
-      />
+      >
+        <ng-template
+          pTemplate="item"
+          let-option
+        >
+          @if (isRichDropdownOption(option)) {
+            <div class="ee-dropdown-option ee-dropdown-option--rich">
+              @if (option.initial) {
+                <span class="ee-dropdown-option__avatar">{{ option.initial }}</span>
+              }
+              <div class="ee-dropdown-option__text">
+                <span class="ee-dropdown-option__title">
+                  {{ getDropdownOptionLabel(option, selectConfig?.optionLabel) }}
+                </span>
+                <span class="ee-dropdown-option__subtitle">{{ option.subtitle }}</span>
+              </div>
+            </div>
+          } @else if (hasDropdownOptionIcon(option)) {
+            <div class="ee-dropdown-option ee-dropdown-option--icon">
+              <i
+                [ngClass]="option.icon"
+                class="ee-dropdown-option__icon"
+                aria-hidden="true"
+              ></i>
+              <span class="ee-dropdown-option__label-line">
+                {{ getDropdownOptionLabel(option, selectConfig?.optionLabel) }}
+              </span>
+            </div>
+          } @else {
+            <span class="ee-dropdown-option__plain">
+              {{ getDropdownOptionLabel(option, selectConfig?.optionLabel) }}
+            </span>
+          }
+        </ng-template>
+        <ng-template
+          pTemplate="selectedItem"
+          let-selectedOption
+        >
+          @if (isRichDropdownOption(selectedOption)) {
+            <div class="ee-dropdown-option ee-dropdown-option--rich ee-dropdown-option--selected">
+              @if (selectedOption.initial) {
+                <span class="ee-dropdown-option__avatar">{{ selectedOption.initial }}</span>
+              }
+              <div class="ee-dropdown-option__text">
+                <span class="ee-dropdown-option__title">
+                  {{ getDropdownOptionLabel(selectedOption, selectConfig?.optionLabel) }}
+                </span>
+                <span class="ee-dropdown-option__subtitle">{{ selectedOption.subtitle }}</span>
+              </div>
+            </div>
+          } @else if (hasDropdownOptionIcon(selectedOption)) {
+            <div class="ee-dropdown-option ee-dropdown-option--icon ee-dropdown-option--selected">
+              <i
+                [ngClass]="selectedOption.icon"
+                class="ee-dropdown-option__icon"
+                aria-hidden="true"
+              ></i>
+              <span class="ee-dropdown-option__label-line">
+                {{ getDropdownOptionLabel(selectedOption, selectConfig?.optionLabel) }}
+              </span>
+            </div>
+          } @else {
+            <span class="ee-dropdown-option__plain">
+              {{ getDropdownOptionLabel(selectedOption, selectConfig?.optionLabel) }}
+            </span>
+          }
+        </ng-template>
+      </p-select>
       @if (!showStandardLabel) {
         <label [for]="config.id">{{ config.label }}</label>
       }
@@ -157,14 +225,15 @@
   @case (ALL_DATA_TYPES.MULTI_SELECT) {
     <p-floatlabel [variant]="config.floatLabelVariant">
       @let multiSelectConfig = config.multiSelectConfig;
-      @let optionsDropdownLengthMs = multiSelectConfig?.optionsDropdown?.length;
+      @let multiOpts = multiSelectConfig?.optionsDropdown ?? [];
+      @let optionsDropdownLengthMs = multiOpts.length;
       <p-multiselect
         [id]="config.id"
         [fluid]="config.haveFullWidth"
         [size]="config.fieldSize"
         [placeholder]="effectivePlaceholder"
         [appendTo]="'body'"
-        [options]="multiSelectConfig?.optionsDropdown ?? []"
+        [options]="multiOpts"
         [optionLabel]="multiSelectConfig?.optionLabel ?? 'label'"
         [optionValue]="multiSelectConfig?.optionValue ?? 'value'"
         [optionDisabled]="multiSelectConfig?.optionDisabled"
@@ -172,7 +241,7 @@
         [filter]="
           multiSelectConfig?.haveFilter && (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
         "
-        [filterBy]="multiSelectConfig?.filterBy"
+        [filterBy]="effectiveDropdownFilterBy(multiSelectConfig, multiOpts)"
         [loading]="multiSelectConfig?.loading ?? false"
         [showToggleAll]="multiSelectConfig?.showToggleAll"
         [display]="multiSelectConfig?.display || ALL_MULTI_SELECT_DISPLAY_TYPES.Chip"
@@ -181,16 +250,48 @@
           multiSelectConfig?.virtualScroll ??
           (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_THRESHOLD
         "
-        [virtualScrollItemSize]="
-          multiSelectConfig?.virtualScrollItemSize ?? ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_ITEM_SIZE
-        "
+        [virtualScrollItemSize]="effectiveDropdownVirtualScrollItemSize(multiSelectConfig, multiOpts)"
         [disabled]="config.disabledInput || false"
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
         [class]="invalidClass"
         (onChange)="onValueChange($event.value)"
         (onBlur)="onBlur()"
-      />
+      >
+        <ng-template
+          pTemplate="item"
+          let-option
+        >
+          @if (isRichDropdownOption(option)) {
+            <div class="ee-dropdown-option ee-dropdown-option--rich">
+              @if (option.initial) {
+                <span class="ee-dropdown-option__avatar">{{ option.initial }}</span>
+              }
+              <div class="ee-dropdown-option__text">
+                <span class="ee-dropdown-option__title">
+                  {{ getDropdownOptionLabel(option, multiSelectConfig?.optionLabel) }}
+                </span>
+                <span class="ee-dropdown-option__subtitle">{{ option.subtitle }}</span>
+              </div>
+            </div>
+          } @else if (hasDropdownOptionIcon(option)) {
+            <div class="ee-dropdown-option ee-dropdown-option--icon">
+              <i
+                [ngClass]="option.icon"
+                class="ee-dropdown-option__icon"
+                aria-hidden="true"
+              ></i>
+              <span class="ee-dropdown-option__label-line">
+                {{ getDropdownOptionLabel(option, multiSelectConfig?.optionLabel) }}
+              </span>
+            </div>
+          } @else {
+            <span class="ee-dropdown-option__plain">
+              {{ getDropdownOptionLabel(option, multiSelectConfig?.optionLabel) }}
+            </span>
+          }
+        </ng-template>
+      </p-multiselect>
       @if (!showStandardLabel) {
         <label [for]="config.id">{{ config.label }}</label>
       }

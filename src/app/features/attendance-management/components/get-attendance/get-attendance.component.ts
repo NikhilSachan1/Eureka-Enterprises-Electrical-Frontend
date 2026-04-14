@@ -209,7 +209,7 @@ export class GetAttendanceComponent implements OnInit {
       {
         id: 'attendance',
         title: 'Attendance Statistics',
-        icon: 'pi pi-calendar',
+        icon: ICONS.ATTENDANCE.CALENDAR,
         metrics: [
           { label: 'Present', value: stats.attendance.present },
           { label: 'Absent', value: stats.attendance.absent },
@@ -220,7 +220,7 @@ export class GetAttendanceComponent implements OnInit {
       {
         id: 'approval',
         title: 'Approval Status',
-        icon: 'pi pi-check-circle',
+        icon: ICONS.ACTIONS.CHECK_CIRCLE,
         metrics: [
           { label: 'Pending', value: stats.approval.pending },
           { label: 'Approved', value: stats.approval.approved },

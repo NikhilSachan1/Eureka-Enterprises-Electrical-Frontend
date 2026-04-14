@@ -178,7 +178,7 @@ export class GetLeaveComponent implements OnInit {
       {
         id: 'approval',
         title: 'Approval Status',
-        icon: 'pi pi-check-circle',
+        icon: ICONS.ACTIONS.CHECK_CIRCLE,
         metrics: [
           { label: 'Total', value: stats.approval.total },
           { label: 'Approved', value: stats.approval.approved },
@@ -197,7 +197,7 @@ export class GetLeaveComponent implements OnInit {
       groups.push({
         id: 'balance',
         title: 'Leave Balance',
-        icon: 'pi pi-calendar-plus',
+        icon: ICONS.LEAVE.CALENDAR_PLUS,
         metrics: [
           { label: 'Total Credited', value: stats.leaveBalance.totalCredited },
           { label: 'Total Consumed', value: stats.leaveBalance.totalConsumed },

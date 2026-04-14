@@ -49,7 +49,7 @@ import {
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { GetAssetDetailComponent } from '../get-asset-detail/get-asset-detail.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
@@ -73,6 +73,8 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetAssetComponent implements OnInit {
+  protected readonly ICONS = ICONS;
+
   private readonly allowedLatestEventTypes = new Set<string>([
     ETableActionTypeValue.HANDOVER_ACCEPTED,
     ETableActionTypeValue.HANDOVER_CANCELLED,

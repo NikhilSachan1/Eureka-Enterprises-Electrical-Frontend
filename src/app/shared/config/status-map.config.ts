@@ -171,7 +171,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // PAYROLL / SALARY
   // ═══════════════════════════════════════════════════════════════════════════
   earnings: { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
-  deductions: { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
+  deductions: { icon: ICONS.COMMON.ARROW_DOWN, severity: 'danger' },
   'food allowance': { icon: ICONS.EXPENSE.MONEY, severity: 'warning' },
   'gross salary': { icon: ICONS.EXPENSE.MONEY, severity: 'info' },
   'net salary': { icon: ICONS.EXPENSE.MONEY, severity: 'success' },
@@ -207,8 +207,8 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   delete: { icon: ICONS.ACTIONS.TRASH, severity: 'danger' },
   deallocate: { icon: ICONS.ACTIONS.TRASH, severity: 'danger' },
   sendpasswordlink: { icon: ICONS.ACTIONS.SEND, severity: 'warning' },
-  changestatus: { icon: ICONS.COMMON.TOGGLE, severity: 'warning' },
-  changeuserrole: { icon: ICONS.COMMON.TOGGLE, severity: 'warning' },
+  changestatus: { icon: ICONS.COMMON.SYNC, severity: 'warning' },
+  changeuserrole: { icon: ICONS.COMMON.SYNC, severity: 'warning' },
   eventhistory: { icon: ICONS.COMMON.LIST, severity: 'info' },
   vehicleserviceinfo: { icon: ICONS.COMMON.LIST, severity: 'info' },
   setpermissions: { icon: ICONS.SECURITY.SHIELD, severity: 'info' },

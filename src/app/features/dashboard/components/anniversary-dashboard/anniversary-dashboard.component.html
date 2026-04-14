@@ -10,7 +10,7 @@
       @let timing = celebrationDayState(row.date);
       <li class="people-celebrations__row">
         <span
-          class="people-celebrations__icon pi pi-briefcase"
+          [class]="ICONS.COMMON.BRIEFCASE + ' people-celebrations__icon'"
           aria-hidden="true"
         ></span>
         <div class="people-celebrations__main">

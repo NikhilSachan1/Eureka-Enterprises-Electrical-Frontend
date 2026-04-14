@@ -23,6 +23,7 @@ import {
   IPageHeaderConfig,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
+import { ICONS } from '@shared/constants';
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   IVehicleEventHistoryGetBaseResponseDto,
@@ -58,6 +59,7 @@ import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetVehicleEventHistoryComponent implements OnInit {
+  protected readonly ICONS = ICONS;
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -211,7 +213,7 @@ export class GetVehicleEventHistoryComponent implements OnInit {
       {
         id: 'status',
         title: 'Status Events',
-        icon: 'pi pi-car',
+        icon: ICONS.COMMON.CAR,
         metrics: [
           { label: 'Available', value: stats.byEventType.AVAILABLE },
           { label: 'Assigned', value: stats.byEventType.ASSIGNED },
@@ -220,7 +222,7 @@ export class GetVehicleEventHistoryComponent implements OnInit {
       {
         id: 'handover',
         title: 'Handover Events',
-        icon: 'pi pi-sync',
+        icon: ICONS.COMMON.SYNC,
         metrics: [
           {
             label: 'Handover Initiated',

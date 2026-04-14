@@ -28,6 +28,7 @@ import {
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   IVehicleServiceGetBaseResponseDto,
@@ -42,7 +43,6 @@ import {
 import { VehicleServiceService } from '../../services/vehicle-service.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { VEHICLE_SERVICE_ACTION_CONFIG_MAP } from '../../config/dialog/get-vehicle-service.config';
 import { IVehicleService } from '../../types/vehicle-service.interface';
@@ -213,7 +213,7 @@ export class GetVehicleServiceComponent implements OnInit {
       {
         id: 'overview',
         title: 'Overview',
-        icon: 'pi pi-chart-bar',
+        icon: ICONS.COMMON.CHART,
         metrics: [
           { label: 'Total Services', value: stats.totalServices },
           {

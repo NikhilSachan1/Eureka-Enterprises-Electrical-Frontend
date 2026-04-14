@@ -29,7 +29,7 @@
         <span class="role-name">{{ activeRole().name }}</span>
       </div>
       <i
-        class="pi pi-sync switch-icon"
+        [class]="ALL_ICONS.COMMON.SYNC + ' switch-icon'"
         [class.spinning]="isSubmitting()"
       ></i>
     </button>
@@ -44,7 +44,7 @@
     <div class="role-menu">
       <!-- Header -->
       <div class="role-menu-header">
-        <i class="pi pi-users"></i>
+        <i [class]="ALL_ICONS.COMMON.USERS"></i>
         <span>Switch Role</span>
       </div>
 
@@ -71,7 +71,7 @@
             <div class="selection-indicator">
               @if (isActive) {
                 <div class="selected-circle">
-                  <i class="pi pi-check"></i>
+                  <i [class]="ALL_ICONS.COMMON.CHECK_TICK"></i>
                 </div>
               } @else {
                 <div class="unselected-circle"></div>

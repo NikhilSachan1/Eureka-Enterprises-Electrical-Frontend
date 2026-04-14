@@ -18,6 +18,7 @@ import {
 import { LoggerService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
+import { applyIconsToDropdownOptions } from '@shared/config/dropdown-option-icons.config';
 import { CONFIGURATION_TYPE_DATA } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IOptionDropdown } from '@shared/types';
@@ -463,10 +464,16 @@ export class AppConfigurationService {
 
         const employeeList: IOptionDropdown[] = response.records
           .map(employee => {
+            const first = employee.firstName?.trim() ?? '';
+            const last = employee.lastName?.trim() ?? '';
+            const initialChar =
+              first.charAt(0) ||
+              last.charAt(0) ||
+              (employee.employeeId?.trim()?.charAt(0) ?? '');
             const dropdownItem: IOptionDropdown = {
-              label: toTitleCase(
-                `${employee.firstName} ${employee.lastName}`.trim()
-              ),
+              label: toTitleCase(`${first} ${last}`.trim()),
+              subtitle: employee.employeeId?.trim() || undefined,
+              initial: initialChar ? initialChar.toUpperCase() : undefined,
               value: employee.id,
               data: employee,
             };
@@ -512,13 +519,16 @@ export class AppConfigurationService {
           count: response.totalRecords,
         });
 
-        const roleList = response.records
-          .map(role => ({
-            label: toTitleCase(role.label),
-            value: role.name,
-            data: role,
-          }))
-          .sort(this.sortByLabel);
+        const roleList = applyIconsToDropdownOptions(
+          CONFIGURATION_KEYS.COMMON.ROLE_LIST,
+          response.records
+            .map(role => ({
+              label: toTitleCase(role.label),
+              value: role.name,
+              data: role,
+            }))
+            .sort(this.sortByLabel)
+        );
 
         this._roleList.set(roleList);
       }),
@@ -619,6 +629,8 @@ export class AppConfigurationService {
             nextValue = staticFallback;
           }
 
+          nextValue = applyIconsToDropdownOptions(dropdown.key, nextValue);
+
           if (dropdown.signal() !== nextValue) {
             dropdown.signal.set(nextValue);
           }
@@ -695,10 +707,17 @@ export class AppConfigurationService {
         });
 
         const assetList: IOptionDropdown[] = response.records
-          .map(asset => ({
-            label: toTitleCase(`${asset.name}`.trim()),
-            value: asset.id,
-          }))
+          .map(asset => {
+            const rawName = asset.name?.trim() ?? '';
+            const aid = asset.assetId?.trim();
+            return {
+              label: toTitleCase(rawName),
+              subtitle: aid || undefined,
+              initial: this.initialsForDropdownLabel(rawName),
+              value: asset.id,
+              data: asset,
+            };
+          })
           .sort(this.sortByLabel);
 
         this._assetList.set(assetList);
@@ -720,13 +739,21 @@ export class AppConfigurationService {
         });
 
         const vehicleList: IOptionDropdown[] = response.records
-          .map(vehicle => ({
-            label: toTitleCase(
-              `${vehicle.registrationNo} (${vehicle.brand} ${vehicle.model})`.trim()
-            ),
-            value: vehicle.id,
-            data: vehicle,
-          }))
+          .map(vehicle => {
+            const reg = vehicle.registrationNo?.trim() ?? '';
+            const brandModel = [vehicle.brand, vehicle.model]
+              .filter(Boolean)
+              .join(' ')
+              .trim();
+            const initialMatch = reg.match(/[A-Za-z0-9]/);
+            return {
+              label: reg,
+              subtitle: brandModel ? toTitleCase(brandModel) : undefined,
+              initial: initialMatch ? initialMatch[0].toUpperCase() : undefined,
+              value: vehicle.id,
+              data: vehicle,
+            };
+          })
           .sort(this.sortByLabel);
 
         this._vehicleList.set(vehicleList);
@@ -775,11 +802,22 @@ export class AppConfigurationService {
         });
 
         const companyList: IOptionDropdown[] = response.records
-          .map(company => ({
-            label: toTitleCase(company.name),
-            value: company.id,
-            data: company,
-          }))
+          .map(company => {
+            const rawName = company.name?.trim() ?? '';
+            const gst = company.gstNumber?.trim();
+            const subtitle = gst
+              ? `GST ${gst}`
+              : [company.city, company.state].filter(Boolean).join(', ') ||
+                (company.email?.trim() ?? '') ||
+                `ID ${company.id.slice(0, 8)}`;
+            return {
+              label: toTitleCase(rawName),
+              subtitle,
+              initial: this.initialsForDropdownLabel(rawName),
+              value: company.id,
+              data: company,
+            };
+          })
           .sort(this.sortByLabel);
 
         this._companyList.set(companyList);
@@ -801,11 +839,24 @@ export class AppConfigurationService {
         });
 
         const contractorList: IOptionDropdown[] = response.records
-          .map(contractor => ({
-            label: toTitleCase(contractor.name),
-            value: contractor.id,
-            data: contractor,
-          }))
+          .map(contractor => {
+            const rawName = contractor.name?.trim() ?? '';
+            const gst = contractor.gstNumber?.trim();
+            const subtitle = gst
+              ? `GST ${gst}`
+              : [contractor.city, contractor.state]
+                  .filter(Boolean)
+                  .join(', ') ||
+                (contractor.email?.trim() ?? '') ||
+                `ID ${contractor.id.slice(0, 8)}`;
+            return {
+              label: toTitleCase(rawName),
+              subtitle,
+              initial: this.initialsForDropdownLabel(rawName),
+              value: contractor.id,
+              data: contractor,
+            };
+          })
           .sort(this.sortByLabel);
 
         this._contractorList.set(contractorList);
@@ -815,6 +866,19 @@ export class AppConfigurationService {
         return throwError(() => error);
       })
     );
+  }
+
+  /** Initials for rich dropdown rows (company / contractor / asset). */
+  private initialsForDropdownLabel(rawLabel: string): string | undefined {
+    const t = rawLabel.trim();
+    if (!t) {
+      return undefined;
+    }
+    const parts = t.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+    }
+    return t.slice(0, 2).toUpperCase();
   }
 
   loadLinkedUserVehicleDetailForCurrentUser(): Observable<ILinkedUserVehicleDetailGetResponseDto | null> {

@@ -11,7 +11,7 @@
       [class.dash-pulse__item--warn]="st.approval.pending > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-clock"
+        [class]="ICONS.COMMON.CLOCK + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -26,7 +26,7 @@
       [class.dash-pulse__item--warn]="lv.approval.pending > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-calendar-plus"
+        [class]="ICONS.COMMON.CALENDAR_PLUS + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -41,7 +41,7 @@
       [class.dash-pulse__item--warn]="exPay.employeePayableTotal > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-wallet"
+        [class]="ICONS.PAYROLL.WALLET + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -58,7 +58,7 @@
       [class.dash-pulse__item--warn]="fuPay.employeePayableTotal > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-bolt"
+        [class]="ICONS.COMMON.BOLT + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -75,7 +75,7 @@
       [class.dash-pulse__item--warn]="ast.calibrationExpiringSoon > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-sliders-h"
+        [class]="ICONS.SETTINGS.SLIDERS + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -90,7 +90,7 @@
       [class.dash-pulse__item--warn]="ast.warrantyExpiringSoon > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-shield"
+        [class]="ICONS.SECURITY.SHIELD + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -105,7 +105,7 @@
       [class.dash-pulse__item--warn]="vf.complianceExpiringSoon > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-id-card"
+        [class]="ICONS.COMMON.ID_CARD + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -118,7 +118,7 @@
       [class.dash-pulse__item--warn]="vf.warrantyExpiringSoon > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-car"
+        [class]="ICONS.COMMON.CAR + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -133,7 +133,7 @@
       [class.dash-pulse__item--warn]="vs.dueSoon > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-calendar-clock"
+        [class]="ICONS.COMMON.CALENDAR_CLOCK + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -146,7 +146,7 @@
       [class.dash-pulse__item--alert]="vs.overdue > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-wrench"
+        [class]="ICONS.SETTINGS.WRENCH + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -161,7 +161,7 @@
       [class.dash-pulse__item--alert]="vr.readingAnomalyCount > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-shield"
+        [class]="ICONS.SECURITY.SHIELD + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">
@@ -174,7 +174,7 @@
       [class.dash-pulse__item--warn]="vr.noReadingStaleCount > 0"
     >
       <span
-        class="dash-pulse__icon pi pi-clock"
+        [class]="ICONS.COMMON.CLOCK + ' dash-pulse__icon'"
         aria-hidden="true"
       ></span>
       <div class="dash-pulse__text">

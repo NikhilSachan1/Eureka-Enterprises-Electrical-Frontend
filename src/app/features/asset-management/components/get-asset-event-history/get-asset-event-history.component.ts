@@ -35,6 +35,7 @@ import {
   IPageHeaderConfig,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
+import { ICONS } from '@shared/constants';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -58,6 +59,7 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetAssetEventHistoryComponent implements OnInit {
+  protected readonly ICONS = ICONS;
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -211,7 +213,7 @@ export class GetAssetEventHistoryComponent implements OnInit {
       {
         id: 'status',
         title: 'Status Events',
-        icon: 'pi pi-box',
+        icon: ICONS.ASSET.BOX,
         metrics: [
           { label: 'Available', value: stats.byEventType.AVAILABLE },
           { label: 'Assigned', value: stats.byEventType.ASSIGNED },
@@ -220,7 +222,7 @@ export class GetAssetEventHistoryComponent implements OnInit {
       {
         id: 'handover',
         title: 'Handover Events',
-        icon: 'pi pi-sync',
+        icon: ICONS.COMMON.SYNC,
         metrics: [
           {
             label: 'Handover Initiated',

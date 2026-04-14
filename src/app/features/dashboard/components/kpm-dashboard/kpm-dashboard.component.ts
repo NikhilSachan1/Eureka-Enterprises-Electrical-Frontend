@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { APP_CONFIG } from '@core/config';
+import { ICONS } from '@shared/constants';
 import type { IDashboardKpmSnapshot } from '@features/dashboard/types/dashboard.interface';
 
 @Component({
@@ -12,6 +13,7 @@ import type { IDashboardKpmSnapshot } from '@features/dashboard/types/dashboard.
 })
 export class KpmDashboardComponent {
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly ICONS = ICONS;
 
   protected readonly kpm = signal<IDashboardKpmSnapshot>(this.buildKpmMock());
 

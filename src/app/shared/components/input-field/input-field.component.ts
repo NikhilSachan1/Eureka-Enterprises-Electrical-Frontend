@@ -128,6 +128,64 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   ALL_BUTTON_VARIANTS = EButtonVariant;
   ALL_TEXT_CASES = ETextCase;
 
+  /** Employee / vehicle style rows use {@link IOptionDropdown.subtitle}. */
+  optionsHaveRichMetadata(options: IOptionDropdown[] | undefined): boolean {
+    return (options ?? []).some(
+      o => typeof o.subtitle === 'string' && o.subtitle.length > 0
+    );
+  }
+
+  isRichDropdownOption(option: IOptionDropdown | null | undefined): boolean {
+    return (
+      !!option &&
+      typeof option.subtitle === 'string' &&
+      option.subtitle.length > 0
+    );
+  }
+
+  getDropdownOptionLabel(
+    option: IOptionDropdown,
+    optionLabelKey: string | undefined
+  ): string {
+    const key = (optionLabelKey ?? 'label') as keyof IOptionDropdown;
+    const raw = option[key];
+    return typeof raw === 'string' ? raw : String(raw ?? '');
+  }
+
+  effectiveDropdownFilterBy(
+    dropdownConfig: Partial<{ filterBy?: string }> | undefined,
+    options: IOptionDropdown[] | undefined
+  ): string {
+    if (this.optionsHaveRichMetadata(options)) {
+      return 'label,subtitle,initial';
+    }
+    return dropdownConfig?.filterBy ?? 'label';
+  }
+
+  optionsHaveIconMetadata(options: IOptionDropdown[] | undefined): boolean {
+    return (options ?? []).some(o => !!o.icon);
+  }
+
+  effectiveDropdownVirtualScrollItemSize(
+    dropdownConfig: Partial<{ virtualScrollItemSize?: number }> | undefined,
+    options: IOptionDropdown[] | undefined
+  ): number {
+    const base =
+      dropdownConfig?.virtualScrollItemSize ??
+      this.ALL_DROPDOWN_CONFIG.VIRTUAL_SCROLL_ITEM_SIZE;
+    if (this.optionsHaveRichMetadata(options)) {
+      return Math.max(base, 56);
+    }
+    if (this.optionsHaveIconMetadata(options)) {
+      return Math.max(base, 44);
+    }
+    return base;
+  }
+
+  hasDropdownOptionIcon(option: IOptionDropdown | null | undefined): boolean {
+    return !!option?.icon;
+  }
+
   totalUploadedSize = 0;
 
   @ViewChild('fileUploadRef') fileUploadRef?: FileUpload;

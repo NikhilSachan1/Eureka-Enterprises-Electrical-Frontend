@@ -1,35 +1,38 @@
-/**
- * PrimeNG icon constants used throughout the application
- */
 export const ICONS = {
   COMMON: {
     HOME: 'pi pi-home',
     LIST: 'pi pi-list',
     ADD: 'pi pi-plus-circle',
     PLUS: 'pi pi-plus',
-    MANUAL: 'pi pi-exclamation-triangle',
     SYNC: 'pi pi-sync',
     BOOK: 'pi pi-book',
     CHART: 'pi pi-chart-bar',
     CHART_LINE: 'pi pi-chart-line',
-    CHART_PIE: 'pi pi-chart-pie',
     FILE: 'pi pi-file',
     ARROW_UP: 'pi pi-arrow-up',
     ARROW_DOWN: 'pi pi-arrow-down',
-    SITEMAP: 'pi pi-sitemap',
+    /** Link / unlink / transfer (e.g. petro card). */
+    ARROW_RIGHT_LEFT: 'pi pi-arrow-right-arrow-left',
     SEARCH: 'pi pi-search',
+    FILTER: 'pi pi-filter',
     INFO_CIRCLE: 'pi pi-info-circle',
     CHEVRON_DOWN: 'pi pi-chevron-down',
     CHEVRON_RIGHT: 'pi pi-chevron-right',
+    CHEVRON_LEFT: 'pi pi-chevron-left',
     TH_LARGE: 'pi pi-th-large',
-    VIEW: 'pi pi-info-circle',
-    WINDOW_MAXIMIZE: 'pi pi-window-maximize',
+    /** Open in new context / external navigation. */
+    EXTERNAL_LINK: 'pi pi-external-link',
+    /** Simple tick (not filled circle). */
+    CHECK_TICK: 'pi pi-check',
+    /** View / open detail (table actions, menu). */
+    VIEW: 'pi pi-eye',
     DOWNLOAD: 'pi pi-download',
     MAP_MARKER: 'pi pi-map-marker',
     USER: 'pi pi-user',
     USERS: 'pi pi-users',
     CAR: 'pi pi-car',
-    FORCE: 'pi pi-user-edit',
+    /** Force apply / override (e.g. force attendance, force fuel expense). */
+    FORCE: 'pi pi-flag',
     PAPERCLIP: 'pi pi-paperclip',
     CLOUD_UPLOAD: 'pi pi-cloud-upload',
     ARROW_RIGHT: 'pi pi-arrow-right',
@@ -41,7 +44,6 @@ export const ICONS = {
     ID_CARD: 'pi pi-id-card',
     EMAIL: 'pi pi-envelope',
     CALENDAR: 'pi pi-calendar',
-    TOGGLE: 'pi pi-android',
     WIFI: 'pi pi-wifi',
     WIFI_SLASH: 'pi pi-wifi-slash',
     SPINNER: 'pi pi-spinner',
@@ -49,19 +51,33 @@ export const ICONS = {
     EXCLAMATION_TRIANGLE: 'pi pi-exclamation-triangle',
     HISTORY: 'pi pi-history',
     MEGAPHONE: 'pi pi-megaphone',
+    INBOX: 'pi pi-inbox',
+    /** Train / direction (dropdowns). */
+    COMPASS: 'pi pi-compass',
+    TAG: 'pi pi-tag',
+    MOBILE: 'pi pi-mobile',
+    /** Row / overflow menu trigger. */
+    ELLIPSIS_V: 'pi pi-ellipsis-v',
+    FORWARD: 'pi pi-forward',
+    GAUGE: 'pi pi-gauge',
+    /** Time / duration pulse widgets. */
+    CLOCK: 'pi pi-clock',
+    CALENDAR_PLUS: 'pi pi-calendar-plus',
+    CALENDAR_CLOCK: 'pi pi-calendar-clock',
+    /** Quick action / energy (e.g. salary bolt). */
+    BOLT: 'pi pi-bolt',
   },
+  /** File-type icons (gallery, file lists). Keys match `getMediaTypeFromUrl` + UNSUPPORTED. */
   MEDIA: {
     PDF: 'pi pi-file-pdf',
     DOCUMENT: 'pi pi-file-word',
     SPREADSHEET: 'pi pi-file-excel',
     PRESENTATION: 'pi pi-file',
-    VIDEO: 'pi pi-video',
-    AUDIO: 'pi pi-volume-up',
-    ARCHIVE: 'pi pi-file',
-    UNSUPPORTED: 'pi pi-file',
     IMAGE: 'pi pi-image',
+    UNSUPPORTED: 'pi pi-file',
   },
   ACTIONS: {
+    /** Same visual as CHECK_CIRCLE; used where a compact “check” label is needed. */
     CHECK: 'pi pi-check-circle',
     CHECK_CIRCLE: 'pi pi-check-circle',
     TIMES: 'pi pi-times-circle',
@@ -76,13 +92,9 @@ export const ICONS = {
   EMPLOYEE: {
     GROUP: 'pi pi-users',
     USER: 'pi pi-user',
-    ADD_USER: 'pi pi-user-plus',
-    REMOVE_USER: 'pi pi-user-minus',
-    EDIT_USER: 'pi pi-user-edit',
   },
   ATTENDANCE: {
     CALENDAR: 'pi pi-calendar',
-    CHECK: 'pi pi-check-square',
     REGULARIZE: 'pi pi-clock',
     CHECK_IN: 'pi pi-sign-in',
     CHECK_OUT: 'pi pi-sign-out',
@@ -93,12 +105,10 @@ export const ICONS = {
   },
   LEAVE: {
     GET: 'pi pi-calendar-minus',
-    PLUS: 'pi pi-plus',
-    FORCE: 'pi pi-user-edit',
+    CALENDAR_PLUS: 'pi pi-calendar-plus',
   },
   ASSET: {
     BOX: 'pi pi-box',
-    CARD: 'pi pi-credit-card',
     CAR: 'pi pi-car',
   },
   PAYROLL: {
@@ -111,22 +121,20 @@ export const ICONS = {
   },
   SECURITY: {
     SHIELD: 'pi pi-shield',
-    KEY: 'pi pi-key',
     LOCK: 'pi pi-lock',
-    UNLOCK: 'pi pi-unlock',
   },
   SETTINGS: {
     COG: 'pi pi-cog',
-    SLIDERS: 'pi pi-sliders-h',
     WRENCH: 'pi pi-wrench',
+    SLIDERS: 'pi pi-sliders-h',
   },
   THEME: {
     MOON: 'pi pi-moon',
     SUN: 'pi pi-sun',
   },
-  // Common status icons for metrics/stats
   STATUS: {
-    TOTAL: 'pi pi-list',
+    /** Totals / aggregates on dashboards. */
+    TOTAL: 'pi pi-chart-bar',
     AVAILABLE: 'pi pi-check-circle',
     ASSIGNED: 'pi pi-user',
     EXPIRING_SOON: 'pi pi-exclamation-triangle',

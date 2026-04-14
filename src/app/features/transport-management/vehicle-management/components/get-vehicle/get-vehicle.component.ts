@@ -32,6 +32,7 @@ import {
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   IVehicleGetBaseResponseDto,
@@ -50,7 +51,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IVehicle } from '../../types/vehicle.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { GetVehicleDetailComponent } from '../get-vehicle-detail/get-vehicle-detail.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
@@ -85,6 +85,7 @@ export class GetVehicleComponent implements OnInit {
   ]);
 
   protected readonly HANDOVER_EVENT_TYPES = ETableActionTypeValue;
+  protected readonly ICONS = ICONS;
 
   private static readonly HANDOVER_DIALOG_ACTIONS = new Set<EButtonActionType>([
     EButtonActionType.HANDOVER_INITIATE,
@@ -245,7 +246,7 @@ export class GetVehicleComponent implements OnInit {
       {
         id: 'vehicle-overview',
         title: 'Vehicle Overview',
-        icon: 'pi pi-car',
+        icon: ICONS.COMMON.CAR,
         metrics: [
           { label: 'Total', value: stats.total },
           { label: 'Available', value: stats.byStatus.available },
@@ -255,7 +256,7 @@ export class GetVehicleComponent implements OnInit {
       {
         id: 'puc-status',
         title: 'PUC Status',
-        icon: 'pi pi-file',
+        icon: ICONS.COMMON.FILE,
         metrics: [
           { label: 'PUC Expiring Soon', value: stats.pucStatus.expiringSoon },
           { label: 'PUC Expired', value: stats.pucStatus.expired },
@@ -264,7 +265,7 @@ export class GetVehicleComponent implements OnInit {
       {
         id: 'insurance-status',
         title: 'Insurance Status',
-        icon: 'pi pi-shield',
+        icon: ICONS.SECURITY.SHIELD,
         metrics: [
           {
             label: 'Insurance Expiring Soon',
@@ -276,7 +277,7 @@ export class GetVehicleComponent implements OnInit {
       {
         id: 'service-status',
         title: 'Service Status',
-        icon: 'pi pi-wrench',
+        icon: ICONS.SETTINGS.WRENCH,
         metrics: [
           { label: 'Service Due Soon', value: stats.serviceDueStatus.dueSoon },
           {

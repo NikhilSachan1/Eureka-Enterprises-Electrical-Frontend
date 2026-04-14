@@ -7,7 +7,7 @@
           class="card-block__icon-wrap"
           aria-hidden="true"
         >
-          <span class="card-block__icon pi pi-wrench"></span>
+          <span [class]="ICONS.SETTINGS.WRENCH + ' card-block__icon'"></span>
         </div>
         <div>
           <h2 class="card-block__title">Vehicle service</h2>
@@ -58,7 +58,7 @@
           @for (row of vs.upcomingItems; track $index) {
             <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
               <span
-                class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                [class]="ICONS.COMMON.CAR + ' dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle'"
                 aria-hidden="true"
               ></span>
               <div class="dash-ops-item-list__vehicle-meta">
@@ -78,7 +78,7 @@
           @for (row of vs.dueSoonItems; track $index) {
             <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
               <span
-                class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                [class]="ICONS.COMMON.CAR + ' dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle'"
                 aria-hidden="true"
               ></span>
               <div class="dash-ops-item-list__vehicle-meta">
@@ -98,7 +98,7 @@
           @for (row of vs.overdueItems; track $index) {
             <li class="dash-ops-item-list__row dash-ops-item-list__row--vehicle">
               <span
-                class="dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle pi pi-car"
+                [class]="ICONS.COMMON.CAR + ' dash-ops-item-list__row-icon dash-ops-item-list__row-icon--vehicle'"
                 aria-hidden="true"
               ></span>
               <div class="dash-ops-item-list__vehicle-meta">
