@@ -6,7 +6,10 @@ import {
   OnInit,
 } from '@angular/core';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ConfirmationDialogService } from '@shared/services';
+import {
+  AppConfigurationService,
+  ConfirmationDialogService,
+} from '@shared/services';
 import {
   EButtonActionType,
   ETableActionTypeValue,
@@ -41,6 +44,7 @@ export class ActionVehicleComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly selectedRecord =
     input.required<IVehicleGetBaseResponseDto[]>();
@@ -165,6 +169,13 @@ export class ActionVehicleComponent
       .subscribe({
         next: (response: IVehicleActionResponseDto) => {
           this.notificationService.success(response.message);
+          const action = this.dialogActionType();
+          if (
+            action === EButtonActionType.HANDOVER_ACCEPTED ||
+            action === EButtonActionType.DEALLOCATE
+          ) {
+            this.appConfigurationService.refreshLinkedUserVehicleDropdowns();
+          }
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },

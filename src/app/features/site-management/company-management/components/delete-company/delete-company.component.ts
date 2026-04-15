@@ -12,7 +12,10 @@ import {
   ICompanyGetBaseResponseDto,
 } from '../../types/company.dto';
 import { CompanyService } from '../../services/company.service';
-import { ConfirmationDialogService } from '@shared/services';
+import {
+  AppConfigurationService,
+  ConfirmationDialogService,
+} from '@shared/services';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -33,6 +36,7 @@ export class DeleteCompanyComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly selectedRecord =
     input.required<ICompanyGetBaseResponseDto[]>();
@@ -91,6 +95,8 @@ export class DeleteCompanyComponent
             'company',
             EButtonActionType.DELETE
           );
+
+          this.appConfigurationService.refreshCompanyDropdowns();
 
           const successCallback = this.onSuccess();
           successCallback?.();

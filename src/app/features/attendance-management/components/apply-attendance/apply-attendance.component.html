@@ -206,10 +206,7 @@
             [inputFieldConfig]="form.fieldConfigs.remark"
           />
           @if (!currentStatusData()?.checkInTime || isEditingAssignment()) {
-            <div
-              class="action-button"
-              [class.action-button--split]="isEditingAssignment() && !currentStatusData()?.checkInTime"
-            >
+            <div class="action-button">
               @if (!currentStatusData()?.checkInTime) {
                 <app-button
                   [buttonConfig]="form.buttonConfigs['checkIn']"

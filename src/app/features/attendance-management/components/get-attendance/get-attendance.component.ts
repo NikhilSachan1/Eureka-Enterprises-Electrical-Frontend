@@ -211,10 +211,13 @@ export class GetAttendanceComponent implements OnInit {
         title: 'Attendance Statistics',
         icon: ICONS.ATTENDANCE.CALENDAR,
         metrics: [
+          { label: 'Total', value: stats.attendance.total || 0 },
           { label: 'Present', value: stats.attendance.present },
           { label: 'Absent', value: stats.attendance.absent },
           { label: 'Leave', value: stats.attendance.leave },
-          { label: 'Total', value: stats.attendance.total || 0 },
+          { label: 'Holiday', value: stats.attendance.holiday },
+          { label: 'Checked In', value: stats.attendance.checkedIn },
+          { label: 'Checked Out', value: stats.attendance.checkedOut },
         ],
       },
       {
@@ -225,7 +228,6 @@ export class GetAttendanceComponent implements OnInit {
           { label: 'Pending', value: stats.approval.pending },
           { label: 'Approved', value: stats.approval.approved },
           { label: 'Rejected', value: stats.approval.rejected },
-          { label: 'Total', value: stats.approval.total || 0 },
         ],
       },
     ];

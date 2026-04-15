@@ -14,7 +14,10 @@ import {
   ADD_EMPLOYEE_FORM_CONFIG,
   ADD_EMPLOYEE_STEPPER_CONFIG,
 } from '@features/employee-management/configs';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -52,6 +55,7 @@ export class AddEmployeeComponent
 {
   private readonly employeeService = inject(EmployeeService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private trackedSalaryFields!: ITrackedFields<IEmployeeAddFormDto>;
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
@@ -156,6 +160,7 @@ export class AddEmployeeComponent
       .subscribe({
         next: () => {
           this.notificationService.success(EMPLOYEE_MESSAGES.SUCCESS.ADD);
+          this.appConfigurationService.refreshEmployeeDropdowns();
           const routeSegments = [
             ROUTE_BASE_PATHS.EMPLOYEE,
             ROUTES.EMPLOYEE.LIST,

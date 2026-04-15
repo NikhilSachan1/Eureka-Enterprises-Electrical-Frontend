@@ -168,6 +168,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
     selectedRoleName?: string
   ): void {
     this.authService.setAuthState(loginResponse, rememberMe);
+    this.appConfigurationService.invalidateAppConfigurationCaches();
 
     this.loadingService.show({
       title: AUTH_MESSAGES.LOADING.SETUP_WORKSPACE,

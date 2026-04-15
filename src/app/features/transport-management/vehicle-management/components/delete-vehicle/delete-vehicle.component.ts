@@ -5,7 +5,10 @@ import {
   input,
   OnInit,
 } from '@angular/core';
-import { ConfirmationDialogService } from '@shared/services';
+import {
+  AppConfigurationService,
+  ConfirmationDialogService,
+} from '@shared/services';
 import { VehicleService } from '../../services/vehicle.service';
 import {
   IvehicleDeleteFormDto,
@@ -33,6 +36,7 @@ export class DeleteVehicleComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly selectedRecord =
     input.required<IVehicleGetBaseResponseDto[]>();
@@ -94,6 +98,8 @@ export class DeleteVehicleComponent
             errors,
             result,
           });
+
+          this.appConfigurationService.refreshVehicleDropdowns();
 
           const successCallback = this.onSuccess();
           successCallback?.();

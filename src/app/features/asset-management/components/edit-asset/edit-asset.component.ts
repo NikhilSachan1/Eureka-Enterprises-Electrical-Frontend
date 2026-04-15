@@ -20,7 +20,10 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
 
@@ -42,6 +45,7 @@ export class EditAssetComponent
 {
   private readonly assetService = inject(AssetService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
@@ -172,6 +176,7 @@ export class EditAssetComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Asset updated successfully');
+          this.appConfigurationService.refreshAssetDropdowns();
           const routeSegments = [ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.LIST];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },

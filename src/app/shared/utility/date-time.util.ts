@@ -138,16 +138,49 @@ export const isPayrollLocked = (date: Date | string): boolean => {
   }
 
   const payslipDay = PAYSLIP_DATE_DATA.EVERY_MONTH;
-  const payrollRunDate = getStartOfLocalDayInMonth(
-    calendar.getFullYear(),
-    calendar.getMonth(),
+  const sameMonthPayroll = PAYSLIP_DATE_DATA.CURRENT_MONTH === true;
+
+  const y = calendar.getFullYear();
+  const m = calendar.getMonth();
+  const d = calendar.getDate();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const todayY = today.getFullYear();
+  const todayM = today.getMonth();
+
+  const firstOfCurrentMonth = new Date(todayY, todayM, 1);
+  const attendanceMonthStart = new Date(y, m, 1);
+
+  if (sameMonthPayroll) {
+    if (attendanceMonthStart > firstOfCurrentMonth) {
+      return false;
+    }
+
+    const payrollRunInAttendanceMonth = getStartOfLocalDayInMonth(
+      y,
+      m,
+      payslipDay
+    );
+    if (today < payrollRunInAttendanceMonth) {
+      return false;
+    }
+
+    if (attendanceMonthStart < firstOfCurrentMonth) {
+      return true;
+    }
+
+    return d <= payslipDay;
+  }
+
+  const lockAfterPreviousMonthPayroll = getStartOfLocalDayInMonth(
+    m === 11 ? y + 1 : y,
+    m === 11 ? 0 : m + 1,
     payslipDay
   );
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-
-  return todayStart < payrollRunDate || calendar.getDate() < payslipDay;
+  return today >= lockAfterPreviousMonthPayroll;
 };
 
 export const transformDateFormat = (

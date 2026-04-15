@@ -5,7 +5,10 @@ import {
   input,
   OnInit,
 } from '@angular/core';
-import { ConfirmationDialogService } from '@shared/services';
+import {
+  AppConfigurationService,
+  ConfirmationDialogService,
+} from '@shared/services';
 import {
   IPetroCardDeleteFormDto,
   IPetroCardDeleteResponseDto,
@@ -33,7 +36,7 @@ export class DeletePetroCardComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-
+  private readonly appConfigurationService = inject(AppConfigurationService);
   protected readonly selectedRecord =
     input.required<IPetroCardGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
@@ -95,6 +98,8 @@ export class DeletePetroCardComponent
             errors,
             result,
           });
+
+          this.appConfigurationService.refreshPetroCardDropdowns();
 
           const successCallback = this.onSuccess();
           successCallback?.();

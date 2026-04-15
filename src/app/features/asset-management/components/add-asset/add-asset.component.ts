@@ -13,7 +13,10 @@ import { EAssetType } from '@features/asset-management/types/asset.enum';
 import { IAssetAddFormDto } from '@features/asset-management/types/asset.dto';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { ADD_ASSET_PREFILLED_DATA } from '@shared/mock-data/add-asset.mock-data';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs/operators';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -40,6 +43,7 @@ export class AddAssetComponent
 {
   private readonly assetService = inject(AssetService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   private assetTypeTracked!: Signal<string | null | undefined>;
 
@@ -97,6 +101,7 @@ export class AddAssetComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Asset added successfully');
+          this.appConfigurationService.refreshAssetDropdowns();
           const routeSegments = [ROUTE_BASE_PATHS.ASSET, ROUTES.ASSET.LIST];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },

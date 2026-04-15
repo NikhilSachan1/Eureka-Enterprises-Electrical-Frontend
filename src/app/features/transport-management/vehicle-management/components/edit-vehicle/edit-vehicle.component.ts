@@ -11,7 +11,10 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
 import { IvehicleEditFormDto } from '../../types/vehicle.dto';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { VehicleService } from '../../services/vehicle.service';
 import { ActivatedRoute } from '@angular/router';
 import { EDIT_VEHICLE_FORM_CONFIG } from '../../config';
@@ -40,6 +43,7 @@ export class EditVehicleComponent
 {
   private readonly vehicleService = inject(VehicleService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
@@ -165,6 +169,7 @@ export class EditVehicleComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Vehicle updated successfully');
+          this.appConfigurationService.refreshVehicleDropdowns();
           const routeSegments = [
             ROUTE_BASE_PATHS.TRANSPORT,
             ROUTE_BASE_PATHS.VEHICLE,

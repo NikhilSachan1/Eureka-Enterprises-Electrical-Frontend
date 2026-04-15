@@ -14,7 +14,10 @@ import {
 } from '@features/asset-management/types/asset.dto';
 import { FormBase } from '@shared/base/form.base';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { ConfirmationDialogService } from '@shared/services';
+import {
+  AppConfigurationService,
+  ConfirmationDialogService,
+} from '@shared/services';
 import { EButtonActionType } from '@shared/types';
 import { finalize } from 'rxjs';
 
@@ -33,6 +36,7 @@ export class DeleteAssetComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly selectedRecord =
     input.required<IAssetGetBaseResponseDto[]>();
@@ -94,6 +98,8 @@ export class DeleteAssetComponent
             errors,
             result,
           });
+
+          this.appConfigurationService.refreshAssetDropdowns();
 
           const successCallback = this.onSuccess();
           successCallback?.();

@@ -14,7 +14,10 @@ import {
 } from '@features/employee-management/types/employee.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { EMPLOYEE_MESSAGES } from '../../constants';
-import { ConfirmationDialogService } from '@shared/services';
+import {
+  ConfirmationDialogService,
+  AppConfigurationService,
+} from '@shared/services';
 import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
 
@@ -30,7 +33,7 @@ export class DeleteEmployeeComponent extends FormBase implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-
+  private readonly appConfigurationService = inject(AppConfigurationService);
   protected readonly selectedRecord =
     input.required<IEmployeeGetBaseResponseDto[]>();
   protected readonly onSuccess = input<() => void>();
@@ -97,6 +100,8 @@ export class DeleteEmployeeComponent extends FormBase implements OnInit {
               empty: EMPLOYEE_MESSAGES.ERROR.DELETE,
             },
           });
+
+          this.appConfigurationService.refreshEmployeeDropdowns();
 
           const successCallback = this.onSuccess();
           successCallback?.();

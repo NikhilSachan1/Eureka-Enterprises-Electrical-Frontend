@@ -12,7 +12,10 @@ import { finalize } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import {
   EDIT_EMPLOYEE_FORM_CONFIG,
   EDIT_EMPLOYEE_STEPPER_CONFIG,
@@ -54,6 +57,7 @@ export class EditEmployeeComponent
 {
   private readonly employeeService = inject(EmployeeService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
 
@@ -270,6 +274,7 @@ export class EditEmployeeComponent
   }
 
   private navigateToEmployeeList(): void {
+    this.appConfigurationService.refreshEmployeeDropdowns();
     const routeSegments = [ROUTE_BASE_PATHS.EMPLOYEE, ROUTES.EMPLOYEE.LIST];
     void this.routerNavigationService.navigateToRoute(routeSegments);
   }

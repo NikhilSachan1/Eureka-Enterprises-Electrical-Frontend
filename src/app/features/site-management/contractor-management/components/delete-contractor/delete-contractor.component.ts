@@ -11,7 +11,10 @@ import {
   IContractorDeleteResponseDto,
   IContractorGetBaseResponseDto,
 } from '../../types/contractor.dto';
-import { ConfirmationDialogService } from '@shared/services';
+import {
+  AppConfigurationService,
+  ConfirmationDialogService,
+} from '@shared/services';
 import { ContractorService } from '../../services/contractor.service';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -33,6 +36,7 @@ export class DeleteContractorComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly selectedRecord =
     input.required<IContractorGetBaseResponseDto[]>();
@@ -93,6 +97,8 @@ export class DeleteContractorComponent
             'contractor',
             EButtonActionType.DELETE
           );
+
+          this.appConfigurationService.refreshContractorDropdowns();
 
           const successCallback = this.onSuccess();
           successCallback?.();

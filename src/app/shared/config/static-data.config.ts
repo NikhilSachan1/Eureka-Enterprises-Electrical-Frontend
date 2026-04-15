@@ -2,11 +2,12 @@ import { IOptionDropdown } from '@shared/types';
 
 export const SHIFT_DATA = {
   START_TIME: '09:00',
-  END_TIME: '18:00',
+  END_TIME: '23:00',
 };
 
 export const PAYSLIP_DATE_DATA = {
-  EVERY_MONTH: 25,
+  EVERY_MONTH: 2,
+  CURRENT_MONTH: false,
 };
 
 export const CONFIGURATION_TYPE_DATA: IOptionDropdown[] = [

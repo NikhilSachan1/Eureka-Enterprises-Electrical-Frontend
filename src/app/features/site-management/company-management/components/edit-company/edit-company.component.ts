@@ -12,7 +12,10 @@ import {
   ICompanyEditFormDto,
 } from '../../types/company.dto';
 import { ActivatedRoute } from '@angular/router';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { CompanyService } from '../../services/company.service';
 import { EDIT_COMPANY_FORM_CONFIG } from '../../config';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
@@ -42,6 +45,7 @@ export class EditCompanyComponent
 {
   private readonly companyService = inject(CompanyService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
@@ -155,6 +159,7 @@ export class EditCompanyComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Company updated successfully');
+          this.appConfigurationService.refreshCompanyDropdowns();
           const routeSegments = [
             ROUTE_BASE_PATHS.SITE.BASE,
             ROUTE_BASE_PATHS.SITE.COMPANY,

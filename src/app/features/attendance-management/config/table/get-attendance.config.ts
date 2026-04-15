@@ -8,14 +8,194 @@ import {
   EApprovalStatus,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
-import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
-import { IAttendanceGetBaseResponseDto } from '../../types/attendance.dto';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
-  isNoAttendanceNotCheckedInWithNA,
-  isRegularizeDisabledForTodayBeforeShiftEnd,
-} from '../../utils';
-import { isPayrollLocked } from '@shared/utility';
+  COMMON_BULK_ACTIONS,
+  COMMON_ROW_ACTIONS,
+  SHIFT_DATA,
+} from '@shared/config';
+import { isPayrollLocked, toLocalCalendarDate } from '@shared/utility';
+import { IAttendanceGetBaseResponseDto } from '../../types/attendance.dto';
+import { EAttendanceStatus } from '../../types/attendance.enum';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+
+/** When status is not checked in yet, the employee has not marked attendance — row/bulk actions are disabled. */
+function isAttendanceNotMarkedYet(row: IAttendanceGetBaseResponseDto): boolean {
+  return row.status === EAttendanceStatus.NOT_CHECKED_IN_YET;
+}
+
+const NOT_MARKED_ATTENDANCE_ACTION_REASON =
+  'Attendance has not been marked yet. Actions are unavailable until the employee checks in.';
+
+const ALREADY_APPROVED_REASON = 'This attendance is already approved.';
+const ALREADY_REJECTED_REASON = 'This attendance is already rejected.';
+
+/** Bulk tooltips (match expense / fuel-expense table configs: “some of the selected…”). */
+const BULK_NOT_MARKED_ATTENDANCE_REASON =
+  'Some of the selected attendance records have not been marked yet.';
+const BULK_ALREADY_APPROVED_REASON =
+  'Some of the selected attendance records are already approved.';
+const BULK_ALREADY_REJECTED_REASON =
+  'Some of the selected attendance records are already rejected.';
+
+const PAYROLL_LOCKED_ROW_REASON =
+  'This period is locked because payroll has already been generated.';
+const PAYROLL_LOCKED_BULK_REASON =
+  'Some of the selected records are locked because payroll has already been generated.';
+
+function isApprovalAlreadyApproved(
+  row: IAttendanceGetBaseResponseDto
+): boolean {
+  const s = row.approvalStatus?.toLowerCase() ?? '';
+  return s === EApprovalStatus.APPROVED;
+}
+
+function isApprovalAlreadyRejected(
+  row: IAttendanceGetBaseResponseDto
+): boolean {
+  const s = row.approvalStatus?.toLowerCase() ?? '';
+  return s === EApprovalStatus.REJECTED;
+}
+
+function shouldDisableApprove(row: IAttendanceGetBaseResponseDto): boolean {
+  return (
+    isAttendanceNotMarkedYet(row) ||
+    isPayrollLocked(row.attendanceDate) ||
+    isApprovalAlreadyApproved(row)
+  );
+}
+
+function getApproveDisableReason(
+  row: IAttendanceGetBaseResponseDto
+): string | undefined {
+  if (isAttendanceNotMarkedYet(row)) {
+    return NOT_MARKED_ATTENDANCE_ACTION_REASON;
+  }
+  if (isPayrollLocked(row.attendanceDate)) {
+    return PAYROLL_LOCKED_ROW_REASON;
+  }
+  if (isApprovalAlreadyApproved(row)) {
+    return ALREADY_APPROVED_REASON;
+  }
+  return undefined;
+}
+
+function shouldDisableReject(row: IAttendanceGetBaseResponseDto): boolean {
+  return (
+    isAttendanceNotMarkedYet(row) ||
+    isPayrollLocked(row.attendanceDate) ||
+    isApprovalAlreadyRejected(row)
+  );
+}
+
+function getRejectDisableReason(
+  row: IAttendanceGetBaseResponseDto
+): string | undefined {
+  if (isAttendanceNotMarkedYet(row)) {
+    return NOT_MARKED_ATTENDANCE_ACTION_REASON;
+  }
+  if (isPayrollLocked(row.attendanceDate)) {
+    return PAYROLL_LOCKED_ROW_REASON;
+  }
+  if (isApprovalAlreadyRejected(row)) {
+    return ALREADY_REJECTED_REASON;
+  }
+  return undefined;
+}
+
+function getBulkApproveDisableReason(
+  row: IAttendanceGetBaseResponseDto
+): string | undefined {
+  if (isAttendanceNotMarkedYet(row)) {
+    return BULK_NOT_MARKED_ATTENDANCE_REASON;
+  }
+  if (isPayrollLocked(row.attendanceDate)) {
+    return PAYROLL_LOCKED_BULK_REASON;
+  }
+  if (isApprovalAlreadyApproved(row)) {
+    return BULK_ALREADY_APPROVED_REASON;
+  }
+  return undefined;
+}
+
+function getBulkRejectDisableReason(
+  row: IAttendanceGetBaseResponseDto
+): string | undefined {
+  if (isAttendanceNotMarkedYet(row)) {
+    return BULK_NOT_MARKED_ATTENDANCE_REASON;
+  }
+  if (isPayrollLocked(row.attendanceDate)) {
+    return PAYROLL_LOCKED_BULK_REASON;
+  }
+  if (isApprovalAlreadyRejected(row)) {
+    return BULK_ALREADY_REJECTED_REASON;
+  }
+  return undefined;
+}
+
+/** Same calendar day as today (local), for shift-end regularize rule. */
+function isSameLocalCalendarDayAsToday(
+  attendanceDate: IAttendanceGetBaseResponseDto['attendanceDate']
+): boolean {
+  const day = toLocalCalendarDate(attendanceDate);
+  if (!day) {
+    return false;
+  }
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return day.getTime() === todayStart.getTime();
+}
+
+/** Before configured shift end time on the given local day (uses {@link SHIFT_DATA.END_TIME}). */
+function isNowBeforeShiftEnd(): boolean {
+  const [hStr, mStr] = SHIFT_DATA.END_TIME.split(':');
+  const hours = Number(hStr);
+  const minutes = Number(mStr ?? 0);
+  if (Number.isNaN(hours)) {
+    return false;
+  }
+  const now = new Date();
+  const shiftEnd = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    hours,
+    minutes,
+    0,
+    0
+  );
+  return now < shiftEnd;
+}
+
+/** Regularize: not marked yet, payroll locked, or same-day row before shift end time from static config. */
+function shouldDisableRegularize(row: IAttendanceGetBaseResponseDto): boolean {
+  if (isAttendanceNotMarkedYet(row)) {
+    return true;
+  }
+  if (isPayrollLocked(row.attendanceDate)) {
+    return true;
+  }
+  return (
+    isSameLocalCalendarDayAsToday(row.attendanceDate) && isNowBeforeShiftEnd()
+  );
+}
+
+function getRegularizeDisableReason(
+  row: IAttendanceGetBaseResponseDto
+): string | undefined {
+  if (isAttendanceNotMarkedYet(row)) {
+    return NOT_MARKED_ATTENDANCE_ACTION_REASON;
+  }
+  if (isPayrollLocked(row.attendanceDate)) {
+    return PAYROLL_LOCKED_ROW_REASON;
+  }
+  if (
+    isSameLocalCalendarDayAsToday(row.attendanceDate) &&
+    isNowBeforeShiftEnd()
+  ) {
+    return `Regularize is available after shift ends (${SHIFT_DATA.END_TIME}).`;
+  }
+  return undefined;
+}
 
 export const ATTENDANCE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No attendance record found.',
@@ -64,6 +244,7 @@ export const ATTENDANCE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
         sortField: 'STATUS',
         filterField: 'attendanceStatus',
       },
+      showSort: false,
     },
     {
       field: 'approvalStatus',
@@ -83,36 +264,29 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Attendance Details',
     permission: [APP_PERMISSION.ATTENDANCE.VIEW_DETAIL],
-    disableWhen: isNoAttendanceNotCheckedInWithNA,
+    disableWhen: isAttendanceNotMarkedYet,
+    disableReason: () => NOT_MARKED_ATTENDANCE_ACTION_REASON,
   },
   {
     id: EButtonActionType.REGULARIZE,
     tooltip: 'Regularize Attendance',
     permission: [APP_PERMISSION.ATTENDANCE.REGULARIZE],
-    disableWhen: (row: IAttendanceGetBaseResponseDto) =>
-      isNoAttendanceNotCheckedInWithNA(row) ||
-      isRegularizeDisabledForTodayBeforeShiftEnd(row) ||
-      isPayrollLocked(row.attendanceDate),
+    disableWhen: shouldDisableRegularize,
+    disableReason: getRegularizeDisableReason,
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve Attendance',
     permission: [APP_PERMISSION.ATTENDANCE.APPROVE],
-    // disableWhen: (row: IAttendanceGetBaseResponseDto) =>
-    //   isNoAttendanceNotCheckedInWithNA(row) ||
-    //   row.approvalStatus === EApprovalStatus.APPROVED ||
-    //   row.approvalStatus === EApprovalStatus.NOT_APPLICABLE ||
-    //   isPayrollLocked(row.attendanceDate),
+    disableWhen: shouldDisableApprove,
+    disableReason: getApproveDisableReason,
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Attendance',
     permission: [APP_PERMISSION.ATTENDANCE.REJECT],
-    disableWhen: (row: IAttendanceGetBaseResponseDto) =>
-      isNoAttendanceNotCheckedInWithNA(row) ||
-      row.approvalStatus === EApprovalStatus.REJECTED ||
-      row.approvalStatus === EApprovalStatus.NOT_APPLICABLE ||
-      isPayrollLocked(row.attendanceDate),
+    disableWhen: shouldDisableReject,
+    disableReason: getRejectDisableReason,
   },
 ];
 
@@ -123,15 +297,15 @@ export const ATTENDANCE_TABLE_BULK_ACTIONS_CONFIG: Partial<
     ...COMMON_BULK_ACTIONS.APPROVE,
     tooltip: 'Approve Selected Attendance',
     permission: [APP_PERMISSION.ATTENDANCE.APPROVE],
-    disableWhen: (row: IAttendanceGetBaseResponseDto) =>
-      isPayrollLocked(row.attendanceDate),
+    disableWhen: shouldDisableApprove,
+    disableReason: getBulkApproveDisableReason,
   },
   {
     ...COMMON_BULK_ACTIONS.REJECT,
     tooltip: 'Reject Selected Attendance',
     permission: [APP_PERMISSION.ATTENDANCE.REJECT],
-    disableWhen: (row: IAttendanceGetBaseResponseDto) =>
-      isPayrollLocked(row.attendanceDate),
+    disableWhen: shouldDisableReject,
+    disableReason: getBulkRejectDisableReason,
   },
 ];
 

@@ -8,7 +8,10 @@ import {
 import { FormBase } from '@shared/base/form.base';
 import { ICompanyAddFormDto } from '../../types/company.dto';
 import { CompanyService } from '../../services/company.service';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { ADD_COMPANY_FORM_CONFIG } from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -38,6 +41,7 @@ export class AddCompanyComponent
 {
   private readonly companyService = inject(CompanyService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
@@ -82,6 +86,7 @@ export class AddCompanyComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Company added successfully');
+          this.appConfigurationService.refreshCompanyDropdowns();
           const routeSegments = [
             ROUTE_BASE_PATHS.SITE.BASE,
             ROUTE_BASE_PATHS.SITE.COMPANY,

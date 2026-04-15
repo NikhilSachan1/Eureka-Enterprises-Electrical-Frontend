@@ -1,6 +1,5 @@
 import { APP_PERMISSION } from '@core/constants';
 import { IAttendanceGetFormDto } from '@features/attendance-management/types/attendance.dto';
-import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
@@ -35,9 +34,6 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
       dynamicDropdown: {
         moduleName: MODULE_NAMES.ATTENDANCE,
         dropdownName: CONFIGURATION_KEYS.ATTENDANCE.STATUS,
-      },
-      filterOptions: {
-        exclude: [EAttendanceStatus.CHECKED_OUT],
       },
     },
     matchmode: ETableFilterMatchMode.IN,

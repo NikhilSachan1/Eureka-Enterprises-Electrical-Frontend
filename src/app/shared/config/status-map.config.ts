@@ -91,10 +91,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   present: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   absent: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   leave: { icon: ICONS.LEAVE.GET, severity: 'warning' },
-  holiday: { icon: ICONS.ATTENDANCE.CALENDAR, severity: 'info' },
+  holiday: { icon: ICONS.ATTENDANCE.CALENDAR, severity: 'purple' },
   regularize: { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
-  checkin: { icon: ICONS.ATTENDANCE.CHECK_IN, severity: 'success' },
-  checkout: { icon: ICONS.ATTENDANCE.CHECK_OUT, severity: 'danger' },
+  'checked in': { icon: ICONS.ATTENDANCE.CHECK_IN, severity: 'info' },
+  'checked out': { icon: ICONS.ATTENDANCE.CHECK_OUT, severity: 'info' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // DOCUMENT / EXPIRY STATUS

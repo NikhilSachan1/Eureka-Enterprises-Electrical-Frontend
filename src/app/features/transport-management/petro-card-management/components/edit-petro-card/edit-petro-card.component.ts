@@ -6,7 +6,10 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { PetroCardService } from '../../services/petro-card.service';
 import { ActivatedRoute } from '@angular/router';
 import { IPageHeaderConfig } from '@shared/types';
@@ -42,6 +45,7 @@ export class EditPetroCardComponent
 {
   private readonly petroCardService = inject(PetroCardService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
@@ -130,6 +134,7 @@ export class EditPetroCardComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Petro card updated successfully');
+          this.appConfigurationService.refreshPetroCardDropdowns();
           const routeSegments = [
             ROUTE_BASE_PATHS.TRANSPORT,
             ROUTE_BASE_PATHS.PETRO_CARD,

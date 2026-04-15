@@ -91,6 +91,92 @@
   }
 }
 
+// Same layout as apply-attendance `.action-button` (projected content: login / forgot / reset forms + role flow).
+:host ::ng-deep .auth-form-actions {
+  width: 100%;
+  box-sizing: border-box;
+
+  &:has(> app-button:only-of-type) {
+    display: block;
+  }
+
+  &:has(> app-button:nth-of-type(2)) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  app-button {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  ::ng-deep app-button > span {
+    display: flex !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  ::ng-deep p-button {
+    display: block;
+    width: 100%;
+  }
+
+  ::ng-deep .p-button {
+    width: 100% !important;
+    box-sizing: border-box;
+    justify-content: center;
+  }
+}
+
+:host ::ng-deep form.auth-form {
+  .auth-form-inline {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+
+    &__col {
+      min-width: 0;
+
+      &--btn {
+        display: flex;
+        justify-content: stretch;
+
+        app-button {
+          display: block;
+          width: 100%;
+          min-width: 0;
+        }
+
+        ::ng-deep app-button > span {
+          display: flex !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+        }
+
+        ::ng-deep p-button {
+          display: block;
+          width: 100%;
+        }
+
+        ::ng-deep .p-button {
+          width: 100% !important;
+          box-sizing: border-box;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
 // Dark theme – same sidebar-style bg (variables handle the look)
 .dark-theme {
   .auth-container {

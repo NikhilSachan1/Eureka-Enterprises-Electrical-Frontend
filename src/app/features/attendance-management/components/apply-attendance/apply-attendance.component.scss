@@ -364,17 +364,45 @@
   opacity: 0.85;
 }
 
-// Action button — full width Check In; in edit mode Check In + Reset 50/50
+// Action row: one app-button = full width; two app-buttons = equal halves (no reliance on extra class)
 .action-button {
   margin-top: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
 
-  &--split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+  /* Use *-of-type so Angular @if comment nodes don’t break :only-child / :nth-child */
+  &:has(> app-button:only-of-type) {
+    display: block;
   }
-}
 
-:host ::ng-deep .p-button {
-  @apply w-full;
+  &:has(> app-button:nth-of-type(2)) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  app-button {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  ::ng-deep app-button > span {
+    display: flex !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  ::ng-deep p-button {
+    display: block;
+    width: 100%;
+  }
+
+  ::ng-deep .p-button {
+    width: 100% !important;
+    box-sizing: border-box;
+    justify-content: center;
+  }
 }

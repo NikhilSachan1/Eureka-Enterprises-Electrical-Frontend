@@ -5,7 +5,10 @@ import {
   inject,
   OnInit,
 } from '@angular/core';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { VehicleService } from '../../services/vehicle.service';
 import { IPageHeaderConfig } from '@shared/types';
 import { ADD_VEHICLE_FORM_CONFIG } from '../../config';
@@ -38,6 +41,7 @@ export class AddVehicleComponent
 {
   private readonly vehicleService = inject(VehicleService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
@@ -82,6 +86,7 @@ export class AddVehicleComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Vehicle added successfully');
+          this.appConfigurationService.refreshVehicleDropdowns();
           const routeSegments = [
             ROUTE_BASE_PATHS.TRANSPORT,
             ROUTE_BASE_PATHS.VEHICLE,

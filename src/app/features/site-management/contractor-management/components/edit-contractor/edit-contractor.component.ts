@@ -8,7 +8,10 @@ import {
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import { ContractorService } from '../../services/contractor.service';
-import { RouterNavigationService } from '@shared/services';
+import {
+  AppConfigurationService,
+  RouterNavigationService,
+} from '@shared/services';
 import { ActivatedRoute } from '@angular/router';
 import {
   IContractorDetailGetResponseDto,
@@ -42,6 +45,7 @@ export class EditContractorComponent
 {
   private readonly contractorService = inject(ContractorService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
@@ -152,6 +156,7 @@ export class EditContractorComponent
       .subscribe({
         next: () => {
           this.notificationService.success('Contractor updated successfully');
+          this.appConfigurationService.refreshContractorDropdowns();
           const routeSegments = [
             ROUTE_BASE_PATHS.SITE.BASE,
             ROUTE_BASE_PATHS.SITE.CONTRACTOR,

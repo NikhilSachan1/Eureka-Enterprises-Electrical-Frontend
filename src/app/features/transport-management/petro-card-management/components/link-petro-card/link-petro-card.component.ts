@@ -19,7 +19,10 @@ import {
   IDialogActionHandler,
 } from '@shared/types';
 import { PetroCardService } from '../../services/petro-card.service';
-import { ConfirmationDialogService } from '@shared/services';
+import {
+  AppConfigurationService,
+  ConfirmationDialogService,
+} from '@shared/services';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { LINK_PETRO_CARD_FORM_CONFIG } from '../../config';
 import { finalize } from 'rxjs';
@@ -44,6 +47,7 @@ export class LinkPetroCardComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly selectedRecord =
     input.required<
@@ -191,6 +195,7 @@ export class LinkPetroCardComponent
           const { message } = response;
 
           this.notificationService.success(message);
+          this.appConfigurationService.refreshLinkedUserVehicleDropdowns();
 
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();

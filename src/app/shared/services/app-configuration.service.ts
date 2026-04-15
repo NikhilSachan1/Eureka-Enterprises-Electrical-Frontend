@@ -8,9 +8,14 @@ import {
 import {
   catchError,
   forkJoin,
+  map,
+  MonoTypeOperatorFunction,
   Observable,
   of,
+  ReplaySubject,
+  share,
   switchMap,
+  take,
   tap,
   throwError,
 } from 'rxjs';
@@ -67,6 +72,27 @@ export class AppConfigurationService {
   private readonly petroCardService = inject(PetroCardService);
   private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly configurationService = inject(ConfigurationService);
+
+  /**
+   * Multicast reference-data HTTP streams; {@link share} resetOnError avoids pinning failed requests.
+   */
+  private readonly shareAppDataCache = <T>(): MonoTypeOperatorFunction<T> =>
+    share<T>({
+      connector: () => new ReplaySubject<T>(1),
+      resetOnError: true,
+      resetOnComplete: false,
+      resetOnRefCountZero: false,
+    });
+
+  private roleListCache$?: Observable<IRoleGetResponseDto>;
+  private appConfigurationCache$?: Observable<IConfigurationGetResponseDto>;
+  private employeeListCache$?: Observable<IEmployeeGetResponseDto>;
+  private assetListCache$?: Observable<IAssetGetResponseDto>;
+  private vehicleListCache$?: Observable<IVehicleGetResponseDto>;
+  private petroCardListCache$?: Observable<IPetroCardGetResponseDto>;
+  private companyListCache$?: Observable<ICompanyGetResponseDto>;
+  private contractorListCache$?: Observable<IContractorGetResponseDto>;
+  private linkedUserVehicleDetailCache$?: Observable<ILinkedUserVehicleDetailGetResponseDto | null>;
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
 
@@ -423,7 +449,113 @@ export class AppConfigurationService {
     ],
   };
 
+  /**
+   * Drops cached HTTP streams so the next load hits the network (login, tests, manual refresh).
+   * Does not clear populated signals.
+   */
+  invalidateAppConfigurationCaches(): void {
+    this.roleListCache$ = undefined;
+    this.appConfigurationCache$ = undefined;
+    this.invalidateReferenceListCaches();
+  }
+
+  /**
+   * Clears only entity list caches (employees, assets, vehicles, …). Use after CRUD when roles/config unchanged.
+   */
+  invalidateReferenceListCaches(): void {
+    this.employeeListCache$ = undefined;
+    this.assetListCache$ = undefined;
+    this.vehicleListCache$ = undefined;
+    this.petroCardListCache$ = undefined;
+    this.companyListCache$ = undefined;
+    this.contractorListCache$ = undefined;
+    this.linkedUserVehicleDetailCache$ = undefined;
+  }
+
+  /** Refetch one list after CRUD so cached dropdown data matches the server. */
+  refreshEmployeeDropdowns(): void {
+    this.employeeListCache$ = undefined;
+    this.loadEmployeeList()
+      .pipe(take(1))
+      .subscribe({
+        error: err =>
+          this.logger.error('Employee dropdown refetch failed', err),
+      });
+  }
+
+  refreshAssetDropdowns(): void {
+    this.assetListCache$ = undefined;
+    this.loadAssetList()
+      .pipe(take(1))
+      .subscribe({
+        error: err => this.logger.error('Asset dropdown refetch failed', err),
+      });
+  }
+
+  refreshVehicleDropdowns(): void {
+    this.vehicleListCache$ = undefined;
+    this.loadVehicleList()
+      .pipe(take(1))
+      .subscribe({
+        error: err => this.logger.error('Vehicle dropdown refetch failed', err),
+      });
+  }
+
+  refreshCompanyDropdowns(): void {
+    this.companyListCache$ = undefined;
+    this.loadCompanyList()
+      .pipe(take(1))
+      .subscribe({
+        error: err => this.logger.error('Company dropdown refetch failed', err),
+      });
+  }
+
+  refreshContractorDropdowns(): void {
+    this.contractorListCache$ = undefined;
+    this.loadContractorList()
+      .pipe(take(1))
+      .subscribe({
+        error: err =>
+          this.logger.error('Contractor dropdown refetch failed', err),
+      });
+  }
+
+  refreshPetroCardDropdowns(): void {
+    this.petroCardListCache$ = undefined;
+    this.loadPetroCardList()
+      .pipe(take(1))
+      .subscribe({
+        error: err =>
+          this.logger.error('Petro card dropdown refetch failed', err),
+      });
+  }
+
+  refreshLinkedUserVehicleDropdowns(): void {
+    this.linkedUserVehicleDetailCache$ = undefined;
+    this.loadLinkedUserVehicleDetailForCurrentUser()
+      .pipe(take(1))
+      .subscribe({
+        error: err => this.logger.error('Linked vehicle refetch failed', err),
+      });
+  }
+
+  /** When many lists may have changed; heavier than a single {@link refreshAssetDropdowns} etc. */
+  refreshAllReferenceDropdowns(): void {
+    this.invalidateReferenceListCaches();
+    this.loadReferenceLists()
+      .pipe(take(1))
+      .subscribe({
+        error: err => this.logger.error('Reference lists refetch failed', err),
+      });
+  }
+
   loadAppConfiguration(): Observable<IConfigurationGetResponseDto> {
+    return (this.appConfigurationCache$ ??= this.fetchAppConfiguration().pipe(
+      this.shareAppDataCache()
+    ));
+  }
+
+  private fetchAppConfiguration(): Observable<IConfigurationGetResponseDto> {
     this.logger.logUserAction('Load App Configuration Request');
 
     const payload: IConfigurationGetFormDto = {
@@ -440,6 +572,7 @@ export class AppConfigurationService {
         this.populateAllModuleDropdowns(moduleConfigMap);
       }),
       catchError(error => {
+        this.appConfigurationCache$ = undefined;
         this.logger.logUserAction('Failed to load App Configuration', error);
         return throwError(() => error);
       })
@@ -447,6 +580,12 @@ export class AppConfigurationService {
   }
 
   loadEmployeeList(): Observable<IEmployeeGetResponseDto> {
+    return (this.employeeListCache$ ??= this.fetchEmployeeList().pipe(
+      this.shareAppDataCache()
+    ));
+  }
+
+  private fetchEmployeeList(): Observable<IEmployeeGetResponseDto> {
     this.logger.logUserAction('Loading app data - Employee List');
 
     const payload: IEmployeeGetFormDto = {
@@ -504,6 +643,7 @@ export class AppConfigurationService {
         this._employeeListByRole.set(employeeListByRole);
       }),
       catchError(error => {
+        this.employeeListCache$ = undefined;
         this.logger.logUserAction('Failed to load Employee List', error);
         return throwError(() => error);
       })
@@ -511,6 +651,12 @@ export class AppConfigurationService {
   }
 
   loadAllAppRoles(): Observable<IRoleGetResponseDto> {
+    return (this.roleListCache$ ??= this.fetchAllAppRoles().pipe(
+      this.shareAppDataCache()
+    ));
+  }
+
+  private fetchAllAppRoles(): Observable<IRoleGetResponseDto> {
     this.logger.logUserAction('Loading app data - All App Roles');
 
     return this.roleService.getRoleList().pipe(
@@ -533,6 +679,7 @@ export class AppConfigurationService {
         this._roleList.set(roleList);
       }),
       catchError(error => {
+        this.roleListCache$ = undefined;
         this.logger.logUserAction('Failed to load All App Roles', error);
         return throwError(() => error);
       })
@@ -698,6 +845,12 @@ export class AppConfigurationService {
   }
 
   loadAssetList(): Observable<IAssetGetResponseDto> {
+    return (this.assetListCache$ ??= this.fetchAssetList().pipe(
+      this.shareAppDataCache()
+    ));
+  }
+
+  private fetchAssetList(): Observable<IAssetGetResponseDto> {
     this.logger.logUserAction('Loading app data - Asset List');
 
     return this.assetService.getAssetList().pipe(
@@ -723,6 +876,7 @@ export class AppConfigurationService {
         this._assetList.set(assetList);
       }),
       catchError(error => {
+        this.assetListCache$ = undefined;
         this.logger.logUserAction('Failed to load Asset List', error);
         return throwError(() => error);
       })
@@ -730,6 +884,12 @@ export class AppConfigurationService {
   }
 
   loadVehicleList(): Observable<IVehicleGetResponseDto> {
+    return (this.vehicleListCache$ ??= this.fetchVehicleList().pipe(
+      this.shareAppDataCache()
+    ));
+  }
+
+  private fetchVehicleList(): Observable<IVehicleGetResponseDto> {
     this.logger.logUserAction('Loading app data - Vehicle List');
 
     return this.vehicleService.getVehicleList().pipe(
@@ -759,6 +919,7 @@ export class AppConfigurationService {
         this._vehicleList.set(vehicleList);
       }),
       catchError(error => {
+        this.vehicleListCache$ = undefined;
         this.logger.logUserAction('Failed to load Vehicle List', error);
         return throwError(() => error);
       })
@@ -766,6 +927,12 @@ export class AppConfigurationService {
   }
 
   loadPetroCardList(): Observable<IPetroCardGetResponseDto> {
+    return (this.petroCardListCache$ ??= this.fetchPetroCardList().pipe(
+      this.shareAppDataCache()
+    ));
+  }
+
+  private fetchPetroCardList(): Observable<IPetroCardGetResponseDto> {
     this.logger.logUserAction('Loading app data - Petro Card List');
 
     return this.petroCardService.getPetroCardList().pipe(
@@ -786,6 +953,7 @@ export class AppConfigurationService {
         this._petroCardList.set(petroCardList);
       }),
       catchError(error => {
+        this.petroCardListCache$ = undefined;
         this.logger.logUserAction('Failed to load Petro Card List', error);
         return throwError(() => error);
       })
@@ -793,6 +961,12 @@ export class AppConfigurationService {
   }
 
   loadCompanyList(): Observable<ICompanyGetResponseDto> {
+    return (this.companyListCache$ ??= this.fetchCompanyList().pipe(
+      this.shareAppDataCache()
+    ));
+  }
+
+  private fetchCompanyList(): Observable<ICompanyGetResponseDto> {
     this.logger.logUserAction('Loading app data - Company List');
 
     return this.companyService.getCompanyList().pipe(
@@ -823,6 +997,7 @@ export class AppConfigurationService {
         this._companyList.set(companyList);
       }),
       catchError(error => {
+        this.companyListCache$ = undefined;
         this.logger.logUserAction('Failed to load Company List', error);
         return throwError(() => error);
       })
@@ -830,6 +1005,12 @@ export class AppConfigurationService {
   }
 
   loadContractorList(): Observable<IContractorGetResponseDto> {
+    return (this.contractorListCache$ ??= this.fetchContractorList().pipe(
+      this.shareAppDataCache()
+    ));
+  }
+
+  private fetchContractorList(): Observable<IContractorGetResponseDto> {
     this.logger.logUserAction('Loading app data - Contractor List');
 
     return this.contractorService.getContractorList().pipe(
@@ -862,6 +1043,7 @@ export class AppConfigurationService {
         this._contractorList.set(contractorList);
       }),
       catchError(error => {
+        this.contractorListCache$ = undefined;
         this.logger.logUserAction('Failed to load Contractor List', error);
         return throwError(() => error);
       })
@@ -882,6 +1064,13 @@ export class AppConfigurationService {
   }
 
   loadLinkedUserVehicleDetailForCurrentUser(): Observable<ILinkedUserVehicleDetailGetResponseDto | null> {
+    return (this.linkedUserVehicleDetailCache$ ??=
+      this.fetchLinkedUserVehicleDetailForCurrentUser().pipe(
+        this.shareAppDataCache()
+      ));
+  }
+
+  private fetchLinkedUserVehicleDetailForCurrentUser(): Observable<ILinkedUserVehicleDetailGetResponseDto | null> {
     this.logger.logUserAction('Loading app data - Linked User Vehicle Detail');
 
     return this.fuelExpenseService
@@ -895,6 +1084,7 @@ export class AppConfigurationService {
           this._linkedUserVehicleDetail.set(response);
         }),
         catchError(error => {
+          this.linkedUserVehicleDetailCache$ = undefined;
           this.logger.logUserAction(
             'Failed to load Linked User Vehicle Detail',
             error
@@ -961,6 +1151,28 @@ export class AppConfigurationService {
     return options;
   }
 
+  /** All heavy dropdown lists in one round-trip (used by {@link refreshAllReferenceDropdowns}). */
+  loadReferenceLists(): Observable<{
+    employeeList: IEmployeeGetResponseDto;
+    assetList: IAssetGetResponseDto;
+    vehicleList: IVehicleGetResponseDto;
+    petroCardList: IPetroCardGetResponseDto;
+    companyList: ICompanyGetResponseDto;
+    contractorList: IContractorGetResponseDto;
+    linkedUserVehicleForCurrentUser: ILinkedUserVehicleDetailGetResponseDto | null;
+  }> {
+    return forkJoin({
+      employeeList: this.loadEmployeeList(),
+      assetList: this.loadAssetList(),
+      vehicleList: this.loadVehicleList(),
+      petroCardList: this.loadPetroCardList(),
+      companyList: this.loadCompanyList(),
+      contractorList: this.loadContractorList(),
+      linkedUserVehicleForCurrentUser:
+        this.loadLinkedUserVehicleDetailForCurrentUser(),
+    });
+  }
+
   loadAllAppData(): Observable<{
     roles: IRoleGetResponseDto;
     permissions: unknown;
@@ -998,18 +1210,13 @@ export class AppConfigurationService {
           linkedUserVehicleForCurrentUser:
             this.loadLinkedUserVehicleDetailForCurrentUser(),
         }).pipe(
-          // Combine roles response with the rest
-          switchMap(parallelResults =>
-            of({
-              roles: rolesResponse,
-              ...parallelResults,
-            })
-          )
+          map(parallelResults => ({
+            roles: rolesResponse,
+            ...parallelResults,
+          }))
         );
       }),
-      tap(() => {
-        this.logger.info('All app data loaded successfully');
-      }),
+      tap(() => this.logger.info('All app data loaded successfully')),
       catchError(error => {
         this.logger.error('Failed to load app data', error);
         return throwError(() => error);

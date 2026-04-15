@@ -24,16 +24,15 @@
         [inputFieldConfig]="form.fieldConfigs.password"
       />
 
-      <!-- Remember me and forgot password -->
-      <div class="flex items-center justify-between mb-6 gap-4">
-        <div class="flex-shrink-0">
+      <!-- Remember me + Forgot password (half / half) -->
+      <div class="auth-form-inline">
+        <div class="auth-form-inline__col">
           <app-input-field
             [formGroup]="form.formGroup"
             [inputFieldConfig]="form.fieldConfigs.rememberMe"
           />
         </div>
-
-        <div class="flex-shrink-0">
+        <div class="auth-form-inline__col auth-form-inline__col--btn">
           <app-button
             [buttonConfig]="form.buttonConfigs['forgotPassword']"
             (onButtonClick)="onForgotPassword()"
@@ -41,11 +40,12 @@
         </div>
       </div>
 
-      <!-- Sign in button -->
-      <app-button
-        [buttonConfig]="form.buttonConfigs['signIn']"
-        [showButtonLoader]="isSubmitting()"
-      />
+      <div class="auth-form-actions">
+        <app-button
+          [buttonConfig]="form.buttonConfigs['signIn']"
+          [showButtonLoader]="isSubmitting()"
+        />
+      </div>
     </form>
   </app-auth-layout>
 }
@@ -114,13 +114,14 @@
         }
       </div>
 
-      <!-- Continue button -->
-      <app-button
-        [buttonConfig]="ROLE_SELECTION_BUTTON_CONFIG['continue']"
-        [showButtonLoader]="isSubmitting()"
-        [showDisabledButton]="!selectedRole() || isSubmitting()"
-        (onButtonClick)="continueWithRole()"
-      />
+      <div class="auth-form-actions">
+        <app-button
+          [buttonConfig]="ROLE_SELECTION_BUTTON_CONFIG['continue']"
+          [showButtonLoader]="isSubmitting()"
+          [showDisabledButton]="!selectedRole() || isSubmitting()"
+          (onButtonClick)="continueWithRole()"
+        />
+      </div>
     </div>
   </app-auth-layout>
 }
