@@ -40,6 +40,9 @@ export const ROUTE_BASE_PATHS = {
     CONFIGURATION: {
       BASE: 'configuration',
     },
+    CRON: {
+      BASE: 'cron',
+    },
   },
 } as const;
 
@@ -200,6 +203,9 @@ export const ROUTES = {
       LIST: `list`,
       ADD: `add`,
       EDIT: `edit`,
+    },
+    CRON: {
+      LIST: `list`,
     },
   },
 } as const;

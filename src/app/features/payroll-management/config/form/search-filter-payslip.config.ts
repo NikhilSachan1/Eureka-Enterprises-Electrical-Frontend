@@ -30,7 +30,7 @@ const SEARCH_FILTER_PAYSLIP_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
       fieldName: 'monthYear',
       label: 'Month',
       dateConfig: {
-        dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT_CALENDAR_MONTH,
+        dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT_CALENDAR_MONTH_YEAR,
         minDate: new FinancialYearService().getFinancialYearStartDate(),
         maxDate: getPayslipCutoffMaxDate(), // Dynamic max date based on payslip generation date
         calendarView: ECalendarView.Month, // Month picker view

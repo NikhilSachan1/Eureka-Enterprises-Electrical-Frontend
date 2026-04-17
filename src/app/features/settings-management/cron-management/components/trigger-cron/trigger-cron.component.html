@@ -1,0 +1,35 @@
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  @if (isShowRunDate()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.runDate"
+    />
+  }
+  @if (isShowRunMonth()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.runMonth"
+    />
+  }
+  @if (isShowRunYearOnly()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.runYear"
+    />
+  }
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.isDryRun"
+  />
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.isSkipDependencyCheck"
+  />
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.isForceRun"
+  />
+</form>

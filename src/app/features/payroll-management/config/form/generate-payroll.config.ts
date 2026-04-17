@@ -19,7 +19,7 @@ const GENERATE_PAYROLL_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IGeneratePayro
       fieldName: 'monthYear',
       label: 'Month',
       dateConfig: {
-        dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT_CALENDAR_MONTH,
+        dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT_CALENDAR_MONTH_YEAR,
         minDate: new FinancialYearService().getFinancialYearStartDate(),
         maxDate: getPayslipCutoffMaxDate(),
         calendarView: ECalendarView.Month,

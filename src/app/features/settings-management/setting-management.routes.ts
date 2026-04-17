@@ -21,4 +21,11 @@ export const SETTING_MANAGEMENT_ROUTES: Routes = [
         m => m.CONFIGURATION_MANAGEMENT_ROUTES
       ),
   },
+  {
+    path: ROUTE_BASE_PATHS.SETTINGS.CRON.BASE,
+    loadChildren: () =>
+      import('./cron-management/cron-management.routes').then(
+        m => m.GET_CRON_ROUTES
+      ),
+  },
 ];

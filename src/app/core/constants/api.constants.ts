@@ -1,4 +1,8 @@
 export const API_ROUTES = {
+  CRON: {
+    GET_JOBS: 'admin/cron/jobs',
+    RUN_JOB: 'admin/cron/trigger',
+  },
   APP_CONFIGUATION: {
     GET: 'configurations',
   },

@@ -420,6 +420,18 @@ export const appMenu: ApplicationMenu = {
                 },
               ],
             },
+            {
+              label: 'Cron Management',
+              icon: ICONS.COMMON.CLOCK,
+              basePath: ROUTE_BASE_PATHS.SETTINGS.CRON.BASE,
+              children: [
+                {
+                  label: 'Cron List',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.SETTINGS.CRON.LIST,
+                },
+              ],
+            },
           ],
         },
       ],
