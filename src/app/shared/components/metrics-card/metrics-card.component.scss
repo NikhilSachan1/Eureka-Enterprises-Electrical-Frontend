@@ -8,6 +8,29 @@
   margin-bottom: 1rem;
 }
 
+// Attendance summary: four equal columns (KPI + 3 panels), one component — responsive stack on small screens.
+:host(.metrics-card--attendance-summary) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+:host(.metrics-card--attendance-summary) .metrics-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  align-content: stretch;
+}
+
+@media (max-width: 900px) {
+  :host(.metrics-card--attendance-summary) .metrics-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+  }
+}
+
 .metrics-layout {
   display: grid;
   gap: 1.25rem;
@@ -156,11 +179,48 @@
   padding-top: 0;
 }
 
+.metric-panel--kpi {
+  justify-content: center;
+}
+
+.metric-panel__kpi {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.25rem;
+  text-align: center;
+  min-height: 0;
+}
+
+.metric-panel__kpi-label {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.metric-panel__kpi-value {
+  margin: 0;
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text-primary-color);
+  font-variant-numeric: tabular-nums;
+}
+
 // ---- Row: capsule accent + value chip (static) ----
 .metric-row {
   --row-accent: var(--primary-color);
 
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.65rem;
   min-height: 3.4rem;
@@ -232,6 +292,7 @@
 
 .metric-row__value {
   flex: 0 0 auto;
+  margin-left: auto;
   padding: 0.3rem 0.55rem;
   font-size: 1.125rem;
   font-weight: 700;

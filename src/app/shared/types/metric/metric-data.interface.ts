@@ -14,6 +14,9 @@ export interface IMetric {
   knobConfig?: Partial<IKnobConfig>;
 }
 
+/** `kpi` = one centered figure, no panel header / list rows (same grid cell as other panels). */
+export type IMetricGroupLayout = 'default' | 'kpi';
+
 // Group of metrics with header
 export interface IMetricGroup {
   id: string;
@@ -21,4 +24,5 @@ export interface IMetricGroup {
   icon?: string;
   metrics: IMetric[];
   permission?: string[];
+  layout?: IMetricGroupLayout;
 }

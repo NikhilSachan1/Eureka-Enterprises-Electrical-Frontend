@@ -6,6 +6,7 @@ export enum EAttendanceStatus {
   CHECKED_IN = 'checkedIn',
   CHECKED_OUT = 'checkedOut',
   NOT_CHECKED_IN_YET = 'notCheckedInYet',
+  APPROVAL_PENDING = 'approvalPending',
 }
 
 export enum EApplyAttendanceAction {

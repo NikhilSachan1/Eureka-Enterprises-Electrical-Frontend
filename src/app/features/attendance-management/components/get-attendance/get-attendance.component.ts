@@ -47,6 +47,7 @@ import {
   IAttendanceGetStatsResponseDto,
 } from '../../types/attendance.dto';
 import { IAttendance } from '../../types/attendance.interface';
+import { EAttendanceStatus } from '../../types/attendance.enum';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
@@ -207,24 +208,46 @@ export class GetAttendanceComponent implements OnInit {
 
     return [
       {
-        id: 'attendance',
-        title: 'Attendance Statistics',
+        id: 'total-records',
+        title: 'Total attendance records',
+        layout: 'kpi',
+        metrics: [
+          { label: 'Total records', value: stats.attendance.total || 0 },
+        ],
+      },
+      {
+        id: 'attendance-overview',
+        title: 'Attendance overview',
         icon: ICONS.ATTENDANCE.CALENDAR,
         metrics: [
-          { label: 'Total', value: stats.attendance.total || 0 },
           { label: 'Present', value: stats.attendance.present },
           { label: 'Absent', value: stats.attendance.absent },
           { label: 'Leave', value: stats.attendance.leave },
           { label: 'Holiday', value: stats.attendance.holiday },
+        ],
+      },
+      {
+        id: 'check-in-status',
+        title: 'Check-in status',
+        icon: ICONS.ATTENDANCE.CHECK_IN,
+        metrics: [
           { label: 'Checked In', value: stats.attendance.checkedIn },
+          {
+            label: 'Not Checked In Yet',
+            value: stats.attendance.notCheckedInYet,
+          },
           { label: 'Checked Out', value: stats.attendance.checkedOut },
         ],
       },
       {
         id: 'approval',
-        title: 'Approval Status',
+        title: 'Approval',
         icon: ICONS.ACTIONS.CHECK_CIRCLE,
         metrics: [
+          {
+            label: 'Approval Pending',
+            value: stats.attendance.approvalPending,
+          },
           { label: 'Pending', value: stats.approval.pending },
           { label: 'Approved', value: stats.approval.approved },
           { label: 'Rejected', value: stats.approval.rejected },
@@ -284,10 +307,13 @@ export class GetAttendanceComponent implements OnInit {
       },
       {
         label: 'Status',
-        value: getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.attendanceStatus(),
-          selectedRow.status
-        ),
+        value:
+          selectedRow.status === EAttendanceStatus.APPROVAL_PENDING
+            ? 'Approval Pending'
+            : getMappedValueFromArrayOfObjects(
+                this.appConfigurationService.attendanceStatus(),
+                selectedRow.status
+              ),
         type: EDataType.STATUS,
       },
       {

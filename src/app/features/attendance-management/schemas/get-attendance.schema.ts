@@ -75,6 +75,7 @@ export const AttendanceGetBaseResponseSchema = z.looseObject({
 
 export const AttendanceGetStatsResponseSchema = z.looseObject({
   attendance: z.object({
+    approvalPending: z.number().int().nonnegative(),
     present: z.number().int().nonnegative(),
     absent: z.number().int().nonnegative(),
     leave: z.number().int().nonnegative(),

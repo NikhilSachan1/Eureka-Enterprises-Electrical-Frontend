@@ -109,7 +109,11 @@ export type {
   MenuSection,
   ApplicationMenu,
 } from './sidebar/menu.interface';
-export type { IMetric, IMetricGroup } from './metric/metric-data.interface';
+export type {
+  IMetric,
+  IMetricGroup,
+  IMetricGroupLayout,
+} from './metric/metric-data.interface';
 export type { INotificationOptions } from './notification/notification.interface';
 export type { IBulkOperationResponseNotificationConfig } from './notification/bulk-operation-response-notification.interface';
 export type { SidebarMenuItem } from './sidebar/sidebar.interface';
