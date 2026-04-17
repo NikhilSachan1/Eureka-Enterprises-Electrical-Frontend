@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { APP_PERMISSION } from '@core/constants';
+import { permissionGuard } from '@core/guards';
 import { ROUTES } from '@shared/constants';
 
 export const GET_CRON_ROUTES: Routes = [
@@ -13,5 +15,9 @@ export const GET_CRON_ROUTES: Routes = [
       import('./components/get-cron/get-cron.component').then(
         m => m.GetCronComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.CRON.TABLE_VIEW],
+    },
   },
 ];

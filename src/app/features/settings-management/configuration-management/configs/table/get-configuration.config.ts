@@ -8,6 +8,7 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { IConfigurationGetResponseDto } from '../../types/configuration.dto';
+import { APP_PERMISSION } from '@core/constants';
 
 const CONFIGURATION_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No configuration record found.',
@@ -50,17 +51,17 @@ const CONFIGURATION_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Configuration',
-    // permission: [APP_PERMISSION.CONFIGURATION.VIEW_DETAIL],
+    permission: [APP_PERMISSION.CONFIGURATION.TABLE_VIEW],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Configuration',
-    // permission: [APP_PERMISSION.CONFIGURATION.EDIT],
+    permission: [APP_PERMISSION.CONFIGURATION.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Configuration',
-    // permission: [APP_PERMISSION.CONFIGURATION.DELETE],
+    permission: [APP_PERMISSION.CONFIGURATION.DELETE],
   },
 ];
 
@@ -70,7 +71,7 @@ const CONFIGURATION_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Configuration',
-    // permission: [APP_PERMISSION.CONFIGURATION.DELETE],
+    permission: [APP_PERMISSION.CONFIGURATION.DELETE],
   },
 ];
 

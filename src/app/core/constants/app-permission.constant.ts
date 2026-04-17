@@ -192,6 +192,18 @@ export const APP_PERMISSION = {
     EDIT: 'edit_vehicle_service',
     DELETE: 'delete_vehicle_service',
   },
+  CRON: {
+    TABLE_VIEW: 'table_view_cron',
+    CARD_VIEW: 'card_view_cron',
+    RUN: 'run_cron',
+  },
+  CONFIGURATION: {
+    TABLE_VIEW: 'table_view_configuration',
+    CARD_VIEW: 'card_view_configuration',
+    ADD: 'add_configuration',
+    EDIT: 'edit_configuration',
+    DELETE: 'delete_configuration',
+  },
   UI: {
     SALARY_STRUCTURE: {
       TABLE: 'ui_table_salary_structure',

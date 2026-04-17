@@ -8,6 +8,7 @@ import {
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import { ICronGetJobDto } from '../../types/cron.dto';
+import { APP_PERMISSION } from '@core/constants';
 
 const CRON_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No cron job record found.',
@@ -59,6 +60,7 @@ const CRON_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     id: EButtonActionType.GENERATE,
     tooltip: 'Trigger cron job',
+    permission: [APP_PERMISSION.CRON.RUN],
   },
 ];
 

@@ -48,6 +48,7 @@ import { CONFIGURATION_ACTION_CONFIG_MAP } from '../../configs/dialog/get-config
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { APP_PERMISSION } from '@core/constants';
 
 @Component({
   selector: 'app-get-configuration',
@@ -282,7 +283,7 @@ export class GetConfigurationComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Configuration',
           actionName: 'addConfiguration',
-          // permission: [APP_PERMISSION.EMPLOYEE.ADD],
+          permission: [APP_PERMISSION.CONFIGURATION.ADD],
         },
       ],
     };
