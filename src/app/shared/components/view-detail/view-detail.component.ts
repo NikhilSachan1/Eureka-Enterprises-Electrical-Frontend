@@ -109,6 +109,35 @@ export class ViewDetailComponent {
     return status.trim().toLowerCase() === 'pending';
   }
 
+  /**
+   * Footer audit rows (approval by / added by / updated by): omit when the
+   * displayed actor or approval label is empty or N/A. Main grid still shows N/A where applicable.
+   */
+  protected shouldShowMetaAuditActor(displayName: string): boolean {
+    const n = (displayName ?? '').trim().toUpperCase().replace(/\s/g, '');
+    if (!n) {
+      return false;
+    }
+    return n !== 'N/A' && n !== 'NA';
+  }
+
+  protected shouldShowApprovalAuditBlock(detail: IDataViewDetails): boolean {
+    if (!detail.approvalBy) {
+      return false;
+    }
+    if (this.isPendingApprovalStatus(detail.status?.approvalStatus)) {
+      return false;
+    }
+    const statusLabel = this.getApprovalStatusDisplay(
+      detail.status?.approvalStatus ?? ''
+    );
+    const actor = this.getUserName(detail.approvalBy.user);
+    return (
+      this.shouldShowMetaAuditActor(statusLabel) &&
+      this.shouldShowMetaAuditActor(actor)
+    );
+  }
+
   protected getColor(status: string): {
     bg: string;
     border: string;

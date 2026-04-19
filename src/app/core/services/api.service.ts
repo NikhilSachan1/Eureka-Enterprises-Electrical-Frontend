@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { EnvironmentService } from '@core/services/environment.service';
 import { LoggerService } from '@core/services/logger.service';
 import { NotificationService } from '@shared/services';
+import { format24hClockTimesInTextTo12h } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 
 export interface ApiSchema<TRequest, TResponse> {
@@ -440,11 +441,13 @@ export class ApiService {
   }
 
   private handleHttpError(error: HttpErrorResponse): Observable<never> {
-    this.notificationService.error(
+    const raw =
       error.status === 0
         ? 'Network error'
-        : (error.error?.error?.message ?? 'Unexpected error')
-    );
+        : (error.error?.error?.message ?? 'Unexpected error');
+    const message =
+      typeof raw === 'string' ? format24hClockTimesInTextTo12h(raw) : raw;
+    this.notificationService.error(message);
     return throwError(() => error);
   }
 

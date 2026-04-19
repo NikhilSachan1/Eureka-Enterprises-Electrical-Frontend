@@ -6,6 +6,8 @@ import {
 import { dateField } from '@shared/schemas/common.schema';
 import { transformDateFormat } from '@shared/utility';
 import { SHIFT_DATA } from '@shared/config';
+import { EAttendanceStatus } from '../types/attendance.enum';
+import { ELeaveCategory } from '@features/leave-management/types/leave.type';
 
 const { status, id } = AttendanceBaseSchema.shape;
 
@@ -44,6 +46,10 @@ export const AttendanceForceRequestSchema = AttendanceUpsertShapeSchema.extend({
         employeeId: data.assignedEngineer?.employeeId,
       },
     },
+    leaveCategory:
+      data.attendanceStatus === EAttendanceStatus.LEAVE
+        ? ELeaveCategory.EARNED
+        : null,
   }));
 
 export const AttendanceForceResponseSchema = z.looseObject({

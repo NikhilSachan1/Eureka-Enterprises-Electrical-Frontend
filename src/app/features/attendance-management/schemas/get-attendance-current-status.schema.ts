@@ -3,7 +3,6 @@ import { AttendanceBaseSchema } from './base-attendance.schema';
 import { UserSchema, uuidField } from '@shared/schemas';
 
 const {
-  id,
   checkInTime,
   checkOutTime,
   status,
@@ -25,12 +24,12 @@ export const AttendanceCurrentStatusGetFormSchema = z
   }));
 
 export const AttendanceCurrentStatusGetResponseSchema = z.looseObject({
-  id,
+  id: uuidField.nullable(),
   attendanceDate,
   checkInTime,
   checkOutTime,
-  status,
-  approvalStatus,
+  status: status.nullable(),
+  approvalStatus: approvalStatus.nullable(),
   workDuration,
   user: UserSchema,
   ...assignmentSnapshotShape,

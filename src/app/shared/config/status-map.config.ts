@@ -39,10 +39,10 @@ export const SEVERITY_STYLES: Record<StatusSeverity, IStatusStyle> = {
   },
   purple: {
     severity: 'secondary', // PrimeNG fallback
-    bg: '!bg-purple-50',
-    border: 'border-purple-200',
-    text: 'text-purple-600',
-    hex: { primary: '#a855f7', light: '#f3e8ff', dark: '#7c3aed' },
+    bg: '!bg-purple-100',
+    border: 'border-purple-400',
+    text: '!text-[#5b21b6] font-semibold',
+    hex: { primary: '#a855f7', light: '#ede9fe', dark: '#5b21b6' },
   },
 };
 

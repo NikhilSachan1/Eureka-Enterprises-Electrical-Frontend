@@ -44,7 +44,7 @@ const TRIGGER_CRON_FORM_FIELDS: IFormInputFieldsConfig<ICronRunUIFormDto> = {
       {
         shouldApply: (context): boolean =>
           context.requiredParameters.includes('month') &&
-          !context.requiredParameters.includes('year'),
+          !context.requiredParameters.includes('date'),
         validators: [Validators.required],
         resetOnFalse: true,
       },

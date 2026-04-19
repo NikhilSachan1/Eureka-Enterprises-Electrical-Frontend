@@ -160,10 +160,10 @@ export class GetAttendanceComponent implements OnInit {
       return {
         id: record.id,
         attendanceDate: record.attendanceDate,
-        attendanceStatus: getMappedValueFromArrayOfObjects(
-          attendanceStatus,
-          record.status
-        ),
+        attendanceStatus:
+          record.status === EAttendanceStatus.APPROVAL_PENDING
+            ? 'Approval Pending'
+            : getMappedValueFromArrayOfObjects(attendanceStatus, record.status),
         approvalStatus: getMappedValueFromArrayOfObjects(
           approvalStatus,
           record.approvalStatus

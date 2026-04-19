@@ -230,3 +230,23 @@ export const formatMonthYear = (month: number, year: number): string => {
   const date = new Date(year, month - 1, 1);
   return datePipe.transform(date, APP_CONFIG.DATE_FORMATS.MONTH_YEAR) as string;
 };
+
+/**
+ * Turns standalone 24h clock tokens (HH:mm) in a string into 12h with AM/PM.
+ * Used for API error text such as "allowed only between 09:50 and 22:47".
+ */
+export const format24hClockTimesInTextTo12h = (text: string): string => {
+  if (!text) {
+    return text;
+  }
+  return text.replace(/\b(\d{1,2}):(\d{2})\b/g, (full, hStr, mStr) => {
+    const hour = parseInt(hStr, 10);
+    const minute = parseInt(mStr, 10);
+    if (hour > 23 || minute > 59) {
+      return full;
+    }
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const h12 = hour % 12 === 0 ? 12 : hour % 12;
+    return `${h12}:${mStr} ${period}`;
+  });
+};

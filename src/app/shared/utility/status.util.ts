@@ -70,6 +70,18 @@ export class StatusUtil {
   }
 
   /**
+   * Whether `p-tag` needs Tailwind classes via `styleClass`.
+   * Extended {@link StatusSeverity} entries use PrimeNG `secondary` only as a
+   * fallback while real colors live in {@link SEVERITY_STYLES}; those cases
+   * must not rely on Tag’s built-in secondary styling.
+   */
+  static needsTailwindTagOverride(status: string): boolean {
+    const severityType = this.getSeverityType(status);
+    const primeSlot = SEVERITY_STYLES[severityType].severity;
+    return severityType !== 'secondary' && primeSlot === 'secondary';
+  }
+
+  /**
    * Get color name (for Tailwind classes)
    * @returns Color name ('green', 'red', 'yellow', 'blue', 'gray')
    */

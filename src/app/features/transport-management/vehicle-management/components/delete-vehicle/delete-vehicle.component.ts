@@ -16,7 +16,6 @@ import {
   IVehicleGetBaseResponseDto,
 } from '../../types/vehicle.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { EButtonActionType } from '@shared/types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
@@ -90,13 +89,19 @@ export class DeleteVehicleComponent
       )
       .subscribe({
         next: (response: IVehicleDeleteResponseDto) => {
-          const { errors, result } = response;
-
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'vehicle',
-            actionLabel: EButtonActionType.DELETE,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? 'Vehicle deleted successfully.'
+                  : `Successfully deleted ${count} vehicles.`,
+              error: () => 'Failed to delete vehicle.',
+              empty: 'Failed to delete vehicle.',
+            },
           });
 
           this.appConfigurationService.refreshVehicleDropdowns();
@@ -104,6 +109,10 @@ export class DeleteVehicleComponent
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error('Failed to delete vehicle.', error);
+          this.notificationService.error('Failed to delete vehicle.');
         },
       });
   }

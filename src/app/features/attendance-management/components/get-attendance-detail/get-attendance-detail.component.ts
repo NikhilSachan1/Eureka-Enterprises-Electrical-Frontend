@@ -23,6 +23,7 @@ import {
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { AppConfigurationService } from '@shared/services';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { EAttendanceStatus } from '../../types/attendance.enum';
 import { APP_CONFIG } from '@core/config';
 import { ICONS } from '@shared/constants/icon.constants';
 import { TextCasePipe } from '@shared/pipes/text-case.pipe';
@@ -119,10 +120,13 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Status',
-          value: getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.attendanceStatus(),
-            record.status
-          ),
+          value:
+            record.status === EAttendanceStatus.APPROVAL_PENDING
+              ? 'Approval Pending'
+              : getMappedValueFromArrayOfObjects(
+                  this.appConfigurationService.attendanceStatus(),
+                  record.status
+                ),
           type: EDataType.STATUS,
         },
         {
@@ -149,10 +153,12 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
         createdBy: {
           user: record.user,
           date: record.createdAt,
+          notes: record.notes,
         },
         updatedBy: {
           user: record.updatedByUser,
           date: record.updatedAt,
+          notes: record.notes,
         },
       };
     });

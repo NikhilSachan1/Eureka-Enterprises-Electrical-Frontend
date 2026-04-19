@@ -20,7 +20,24 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 /** When status is not checked in yet, the employee has not marked attendance — row/bulk actions are disabled. */
 function isAttendanceNotMarkedYet(row: IAttendanceGetBaseResponseDto): boolean {
-  return row.status === EAttendanceStatus.NOT_CHECKED_IN_YET;
+  return (
+    row.status === EAttendanceStatus.NOT_CHECKED_IN_YET ||
+    row.approvalStatus === EApprovalStatus.NOT_APPLICABLE
+  );
+}
+
+function isAttendanceHoliday(row: IAttendanceGetBaseResponseDto): boolean {
+  return row.status === EAttendanceStatus.HOLIDAY;
+}
+
+/**
+ * View / regularize may run on holidays even when approval is N/A or day wasn’t “checked in”
+ * (holiday rows are not treated as “not marked yet” for those actions).
+ */
+function isAttendanceNotMarkedYetForViewRegularize(
+  row: IAttendanceGetBaseResponseDto
+): boolean {
+  return isAttendanceNotMarkedYet(row) && !isAttendanceHoliday(row);
 }
 
 const NOT_MARKED_ATTENDANCE_ACTION_REASON =
@@ -168,7 +185,7 @@ function isNowBeforeShiftEnd(): boolean {
 
 /** Regularize: not marked yet, payroll locked, or same-day row before shift end time from static config. */
 function shouldDisableRegularize(row: IAttendanceGetBaseResponseDto): boolean {
-  if (isAttendanceNotMarkedYet(row)) {
+  if (isAttendanceNotMarkedYetForViewRegularize(row)) {
     return true;
   }
   if (isPayrollLocked(row.attendanceDate)) {
@@ -182,7 +199,7 @@ function shouldDisableRegularize(row: IAttendanceGetBaseResponseDto): boolean {
 function getRegularizeDisableReason(
   row: IAttendanceGetBaseResponseDto
 ): string | undefined {
-  if (isAttendanceNotMarkedYet(row)) {
+  if (isAttendanceNotMarkedYetForViewRegularize(row)) {
     return NOT_MARKED_ATTENDANCE_ACTION_REASON;
   }
   if (isPayrollLocked(row.attendanceDate)) {
@@ -264,8 +281,11 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Attendance Details',
     permission: [APP_PERMISSION.ATTENDANCE.VIEW_DETAIL],
-    disableWhen: isAttendanceNotMarkedYet,
-    disableReason: () => NOT_MARKED_ATTENDANCE_ACTION_REASON,
+    disableWhen: isAttendanceNotMarkedYetForViewRegularize,
+    disableReason: row =>
+      isAttendanceNotMarkedYetForViewRegularize(row)
+        ? NOT_MARKED_ATTENDANCE_ACTION_REASON
+        : undefined,
   },
   {
     id: EButtonActionType.REGULARIZE,

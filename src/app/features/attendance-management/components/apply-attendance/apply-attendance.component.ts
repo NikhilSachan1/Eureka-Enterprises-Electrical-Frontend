@@ -368,11 +368,19 @@ export class ApplyAttendanceComponent
     this.onResetSingleForm(initial ?? undefined);
   }
 
-  protected getAttendanceStatusLabel(status: string | undefined): string {
-    return getMappedValueFromArrayOfObjects(
+  protected getAttendanceStatusLabel(
+    status: string | null | undefined
+  ): string {
+    const raw = status?.trim() ?? '';
+    if (!raw) {
+      return 'Not checked in yet';
+    }
+    const label = getMappedValueFromArrayOfObjects(
       this.appConfigurationService.attendanceStatus(),
-      status ?? ''
+      raw
     );
+    const display = String(label ?? '').trim();
+    return display || 'Not checked in yet';
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

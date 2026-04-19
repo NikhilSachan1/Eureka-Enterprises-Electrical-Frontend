@@ -58,6 +58,9 @@ export class RegularizeAttendanceComponent
       REGULARIZE_ATTENDANCE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        defaultValues: {
+          attendanceStatus: record[0].status,
+        },
       }
     );
   }

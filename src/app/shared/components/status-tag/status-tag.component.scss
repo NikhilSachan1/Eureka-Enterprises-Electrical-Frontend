@@ -1,0 +1,8 @@
+/* Text color comes from :host `--status-tag-extended-text` (set in component from StatusUtil.getHexColors). */
+:host ::ng-deep .status-tag--extended-palette {
+  .p-tag-label,
+  .p-tag-icon {
+    color: var(--status-tag-extended-text) !important;
+    font-weight: 600;
+  }
+}

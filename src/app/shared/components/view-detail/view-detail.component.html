@@ -183,58 +183,61 @@
           </div>
         }
 
-        @if (detail.approvalBy && !isPendingApprovalStatus(detail.status?.approvalStatus)) {
-          @let approvalByName = getUserName(detail.approvalBy.user);
+        @if (detail.approvalBy && shouldShowApprovalAuditBlock(detail)) {
+          @let approvalBy = detail.approvalBy;
+          @let approvalByName = getUserName(approvalBy.user);
           <p-divider />
           <div class="space-y-1 view-detail-meta">
             <p class="text-xs">
-              {{ detail.status?.approvalStatus ?? '' | textCase: 'title' }} by
+              {{ getApprovalStatusDisplay(detail.status?.approvalStatus ?? '') }} by
               <span class="font-semibold">{{ approvalByName }}</span>
-              @if (detail.approvalBy.date) {
+              @if (approvalBy.date) {
                 at
                 <span class="font-semibold">
-                  {{ detail.approvalBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
+                  {{ approvalBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
                 </span>
                 on
                 <span class="font-semibold">
-                  {{ detail.approvalBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+                  {{ approvalBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
                 </span>
               }
             </p>
-            @if (detail.approvalBy.notes && detail.approvalBy.notes !== '') {
-              <p class="text-xs italic">"{{ detail.approvalBy.notes }}"</p>
+            @if (approvalBy.notes && approvalBy.notes !== '') {
+              <p class="text-xs italic">"{{ approvalBy.notes }}"</p>
             }
           </div>
         }
 
         @if (detail.createdBy) {
           @let createdByName = getUserName(detail.createdBy.user);
-          <p-divider />
-          <div class="space-y-1 view-detail-meta">
-            <p class="text-xs">
-              Added by
-              <span class="font-semibold">{{ createdByName }}</span>
-              at
-              <span class="font-semibold">
-                {{ detail.createdBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
-              </span>
-              on
-              <span class="font-semibold">
-                {{ detail.createdBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
-              </span>
-            </p>
+          @if (shouldShowMetaAuditActor(createdByName)) {
+            <p-divider />
+            <div class="space-y-1 view-detail-meta">
+              <p class="text-xs">
+                Added by
+                <span class="font-semibold">{{ createdByName }}</span>
+                at
+                <span class="font-semibold">
+                  {{ detail.createdBy.date | date: APP_CONFIG.DATE_FORMATS.DEFAULT }}
+                </span>
+                on
+                <span class="font-semibold">
+                  {{ detail.createdBy.date | date: APP_CONFIG.TIME_FORMATS.DEFAULT }}
+                </span>
+              </p>
 
-            @if (detail.createdBy.notes && detail.createdBy.notes !== '') {
-              <p class="text-xs italic">"{{ detail.createdBy.notes }}"</p>
-            }
-          </div>
+              @if (detail.createdBy.notes && detail.createdBy.notes !== '') {
+                <p class="text-xs italic">"{{ detail.createdBy.notes }}"</p>
+              }
+            </div>
+          }
         }
 
         @if (detail.updatedBy) {
           @let updatedByName = getUserName(detail.updatedBy.user);
-          <p-divider />
-          <div class="space-y-1 view-detail-meta">
-            @if (updatedByName !== 'N/A') {
+          @if (shouldShowMetaAuditActor(updatedByName)) {
+            <p-divider />
+            <div class="space-y-1 view-detail-meta">
               <p class="text-xs">
                 Updated by
                 <span class="font-semibold">{{ updatedByName }}</span>
@@ -251,8 +254,8 @@
               @if (detail.updatedBy.notes && detail.updatedBy.notes !== '') {
                 <p class="text-xs italic">"{{ detail.updatedBy.notes }}"</p>
               }
-            }
-          </div>
+            </div>
+          }
         }
       </p-card>
     }

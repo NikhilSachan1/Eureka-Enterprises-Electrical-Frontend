@@ -119,10 +119,8 @@ export class TriggerCronComponent
 
   /** Month without date → month only; year hidden. */
   protected isShowRunMonth(): boolean {
-    return (
-      this.selectedRecord()[0].requiredParameters.includes('month') &&
-      !this.selectedRecord()[0].requiredParameters.includes('year')
-    );
+    const p = this.selectedRecord()[0].requiredParameters;
+    return p.includes('month') && !p.includes('date');
   }
 
   /** Year only when year required and neither month nor date. */
