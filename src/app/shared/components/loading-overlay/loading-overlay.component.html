@@ -2,20 +2,50 @@
   <div
     class="overlay-backdrop"
     @fadeInOut
+    role="alert"
+    aria-live="polite"
+    aria-busy="true"
   >
-    <div class="overlay-content">
-      <!-- Loading Spinner -->
-      <div class="spinner-container">
-        <div class="spinner"></div>
+    <div
+      class="overlay-backdrop__effects"
+      aria-hidden="true"
+    >
+      <div class="overlay-backdrop__grid"></div>
+      <div class="overlay-backdrop__glow overlay-backdrop__glow--1"></div>
+      <div class="overlay-backdrop__glow overlay-backdrop__glow--2"></div>
+    </div>
+
+    <div
+      class="overlay-content"
+      @fadeInOutScale
+    >
+      <div
+        class="overlay-content__accent"
+        aria-hidden="true"
+      ></div>
+
+      <div
+        class="spinner-wrap"
+        aria-hidden="true"
+      >
+        <div class="spinner-ring spinner-ring--track"></div>
+        <div class="spinner-ring spinner-ring--active"></div>
+        <div class="spinner-core"></div>
       </div>
 
-      <!-- Loading Message -->
       <h3 class="overlay-title">
         {{ title() }}
       </h3>
       <p class="overlay-message">
         {{ message() }}
       </p>
+
+      <div
+        class="progress-indeterminate"
+        aria-hidden="true"
+      >
+        <div class="progress-indeterminate__bar"></div>
+      </div>
     </div>
   </div>
 }
