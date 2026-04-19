@@ -8,9 +8,225 @@ import {
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
+import { isPayrollLocked } from '@shared/utility';
 import { ILeaveGetBaseResponseDto } from '../../types/leave.dto';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+
+const PAYROLL_LOCKED_ROW_REASON =
+  'This period is locked because payroll has already been generated.';
+const BULK_PAYROLL_LOCKED_REASON =
+  'Some of the selected records are locked because payroll has already been generated.';
+
+/** Row action tooltips (single record). */
+const ALREADY_CANCELLED_REASON = 'This leave is already cancelled.';
+const ALREADY_APPROVED_REASON = 'This leave is already approved.';
+const ALREADY_REJECTED_REASON = 'This leave is already rejected.';
+const CANCEL_NOT_FOR_REJECTED_REASON =
+  'Rejected leave cannot be cancelled. You can approve it instead.';
+const ACTION_NOT_ALLOWED_STATE_REASON =
+  'This action is not available for the current approval status.';
+
+/** Bulk action tooltips — match attendance / expense “some of the selected…” pattern. */
+const BULK_ALREADY_CANCELLED_REASON =
+  'Some of the selected leave records are already cancelled.';
+const BULK_ALREADY_APPROVED_REASON =
+  'Some of the selected leave records are already approved.';
+const BULK_ALREADY_REJECTED_REASON =
+  'Some of the selected leave records are already rejected.';
+const BULK_CANCEL_NOT_FOR_REJECTED_REASON =
+  'Some of the selected leave records are rejected and cannot be cancelled.';
+const BULK_ACTION_NOT_ALLOWED_STATE_REASON =
+  'Some of the selected leave records cannot receive this action in their current status.';
+
+/**
+ * Pending → Approve, Reject, Cancel.
+ * Approved → Reject, Cancel (not Approve).
+ * Rejected → Approve only.
+ * Cancelled → none.
+ * Payroll locked on from/to date → all actions off.
+ */
+function rowApprovalLower(row: ILeaveGetBaseResponseDto): string {
+  return row.approvalStatus?.toLowerCase() ?? '';
+}
+
+function isLeavePayrollLocked(row: ILeaveGetBaseResponseDto): boolean {
+  return isPayrollLocked(row.fromDate) || isPayrollLocked(row.toDate);
+}
+
+function shouldDisableLeaveApprove(row: ILeaveGetBaseResponseDto): boolean {
+  if (isLeavePayrollLocked(row)) {
+    return true;
+  }
+  const s = rowApprovalLower(row);
+  if (s === EApprovalStatus.CANCELLED || s === EApprovalStatus.APPROVED) {
+    return true;
+  }
+  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.REJECTED) {
+    return false;
+  }
+  return true;
+}
+
+function approveDisableReasonWithoutPayroll(
+  row: ILeaveGetBaseResponseDto
+): string | undefined {
+  const s = rowApprovalLower(row);
+  if (s === EApprovalStatus.CANCELLED) {
+    return ALREADY_CANCELLED_REASON;
+  }
+  if (s === EApprovalStatus.APPROVED) {
+    return ALREADY_APPROVED_REASON;
+  }
+  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.REJECTED) {
+    return undefined;
+  }
+  return ACTION_NOT_ALLOWED_STATE_REASON;
+}
+
+function getLeaveApproveDisableReason(
+  row: ILeaveGetBaseResponseDto
+): string | undefined {
+  if (isLeavePayrollLocked(row)) {
+    return PAYROLL_LOCKED_ROW_REASON;
+  }
+  return approveDisableReasonWithoutPayroll(row);
+}
+
+function shouldDisableLeaveReject(row: ILeaveGetBaseResponseDto): boolean {
+  if (isLeavePayrollLocked(row)) {
+    return true;
+  }
+  const s = rowApprovalLower(row);
+  if (s === EApprovalStatus.CANCELLED || s === EApprovalStatus.REJECTED) {
+    return true;
+  }
+  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.APPROVED) {
+    return false;
+  }
+  return true;
+}
+
+function rejectDisableReasonWithoutPayroll(
+  row: ILeaveGetBaseResponseDto
+): string | undefined {
+  const s = rowApprovalLower(row);
+  if (s === EApprovalStatus.CANCELLED) {
+    return ALREADY_CANCELLED_REASON;
+  }
+  if (s === EApprovalStatus.REJECTED) {
+    return ALREADY_REJECTED_REASON;
+  }
+  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.APPROVED) {
+    return undefined;
+  }
+  return ACTION_NOT_ALLOWED_STATE_REASON;
+}
+
+function getLeaveRejectDisableReason(
+  row: ILeaveGetBaseResponseDto
+): string | undefined {
+  if (isLeavePayrollLocked(row)) {
+    return PAYROLL_LOCKED_ROW_REASON;
+  }
+  return rejectDisableReasonWithoutPayroll(row);
+}
+
+function shouldDisableLeaveCancel(row: ILeaveGetBaseResponseDto): boolean {
+  if (isLeavePayrollLocked(row)) {
+    return true;
+  }
+  const s = rowApprovalLower(row);
+  if (s === EApprovalStatus.CANCELLED || s === EApprovalStatus.REJECTED) {
+    return true;
+  }
+  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.APPROVED) {
+    return false;
+  }
+  return true;
+}
+
+function cancelDisableReasonWithoutPayroll(
+  row: ILeaveGetBaseResponseDto
+): string | undefined {
+  const s = rowApprovalLower(row);
+  if (s === EApprovalStatus.CANCELLED) {
+    return ALREADY_CANCELLED_REASON;
+  }
+  if (s === EApprovalStatus.REJECTED) {
+    return CANCEL_NOT_FOR_REJECTED_REASON;
+  }
+  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.APPROVED) {
+    return undefined;
+  }
+  return ACTION_NOT_ALLOWED_STATE_REASON;
+}
+
+function getLeaveCancelDisableReason(
+  row: ILeaveGetBaseResponseDto
+): string | undefined {
+  if (isLeavePayrollLocked(row)) {
+    return PAYROLL_LOCKED_ROW_REASON;
+  }
+  return cancelDisableReasonWithoutPayroll(row);
+}
+
+function getBulkApproveDisableReason(
+  row: ILeaveGetBaseResponseDto
+): string | undefined {
+  if (isLeavePayrollLocked(row)) {
+    return BULK_PAYROLL_LOCKED_REASON;
+  }
+  const s = rowApprovalLower(row);
+  if (s === EApprovalStatus.CANCELLED) {
+    return BULK_ALREADY_CANCELLED_REASON;
+  }
+  if (s === EApprovalStatus.APPROVED) {
+    return BULK_ALREADY_APPROVED_REASON;
+  }
+  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.REJECTED) {
+    return undefined;
+  }
+  return BULK_ACTION_NOT_ALLOWED_STATE_REASON;
+}
+
+function getBulkRejectDisableReason(
+  row: ILeaveGetBaseResponseDto
+): string | undefined {
+  if (isLeavePayrollLocked(row)) {
+    return BULK_PAYROLL_LOCKED_REASON;
+  }
+  const s = rowApprovalLower(row);
+  if (s === EApprovalStatus.CANCELLED) {
+    return BULK_ALREADY_CANCELLED_REASON;
+  }
+  if (s === EApprovalStatus.REJECTED) {
+    return BULK_ALREADY_REJECTED_REASON;
+  }
+  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.APPROVED) {
+    return undefined;
+  }
+  return BULK_ACTION_NOT_ALLOWED_STATE_REASON;
+}
+
+function getBulkCancelDisableReason(
+  row: ILeaveGetBaseResponseDto
+): string | undefined {
+  if (isLeavePayrollLocked(row)) {
+    return BULK_PAYROLL_LOCKED_REASON;
+  }
+  const s = rowApprovalLower(row);
+  if (s === EApprovalStatus.CANCELLED) {
+    return BULK_ALREADY_CANCELLED_REASON;
+  }
+  if (s === EApprovalStatus.REJECTED) {
+    return BULK_CANCEL_NOT_FOR_REJECTED_REASON;
+  }
+  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.APPROVED) {
+    return undefined;
+  }
+  return BULK_ACTION_NOT_ALLOWED_STATE_REASON;
+}
 
 export const LEAVE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No leave record found.',
@@ -72,24 +288,24 @@ export const LEAVE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
-    tooltip: 'Approve Attendance',
+    tooltip: 'Approve Leave',
     permission: [APP_PERMISSION.LEAVE.APPROVE],
-    disableWhen: (row): boolean =>
-      (row.approvalStatus?.toLowerCase() ?? '') ===
-      EApprovalStatus.APPROVED.toLowerCase(),
+    disableWhen: shouldDisableLeaveApprove,
+    disableReason: getLeaveApproveDisableReason,
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
-    tooltip: 'Reject Attendance',
+    tooltip: 'Reject Leave',
     permission: [APP_PERMISSION.LEAVE.REJECT],
-    disableWhen: (row): boolean =>
-      (row.approvalStatus?.toLowerCase() ?? '') ===
-      EApprovalStatus.REJECTED.toLowerCase(),
+    disableWhen: shouldDisableLeaveReject,
+    disableReason: getLeaveRejectDisableReason,
   },
   {
     ...COMMON_ROW_ACTIONS.CANCEL,
     tooltip: 'Cancel Leave',
     permission: [APP_PERMISSION.LEAVE.CANCEL],
+    disableWhen: shouldDisableLeaveCancel,
+    disableReason: getLeaveCancelDisableReason,
   },
 ];
 
@@ -98,24 +314,24 @@ export const LEAVE_TABLE_BULK_ACTIONS_CONFIG: Partial<
 >[] = [
   {
     ...COMMON_BULK_ACTIONS.APPROVE,
-    tooltip: 'Approve Selected Attendance',
+    tooltip: 'Approve Selected Leave',
     permission: [APP_PERMISSION.LEAVE.APPROVE],
-    disableWhen: (row: ILeaveGetBaseResponseDto) =>
-      row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED,
+    disableWhen: shouldDisableLeaveApprove,
+    disableReason: getBulkApproveDisableReason,
   },
   {
     ...COMMON_BULK_ACTIONS.REJECT,
-    tooltip: 'Reject Selected Attendance',
+    tooltip: 'Reject Selected Leave',
     permission: [APP_PERMISSION.LEAVE.REJECT],
-    disableWhen: (row: ILeaveGetBaseResponseDto) =>
-      row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED,
+    disableWhen: shouldDisableLeaveReject,
+    disableReason: getBulkRejectDisableReason,
   },
   {
     ...COMMON_BULK_ACTIONS.CANCEL,
     tooltip: 'Cancel Selected Leave',
     permission: [APP_PERMISSION.LEAVE.CANCEL],
-    disableWhen: (row: ILeaveGetBaseResponseDto) =>
-      row.approvalStatus.toLowerCase() === EApprovalStatus.CANCELLED,
+    disableWhen: shouldDisableLeaveCancel,
+    disableReason: getBulkCancelDisableReason,
   },
 ];
 

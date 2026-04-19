@@ -11,7 +11,7 @@ import {
   ISystemPermissionDeleteResponseDto,
   ISystemPermissionGetBaseResponseDto,
 } from '../../types/system-permission.dto';
-import { EButtonActionType, IDialogActionHandler } from '@shared/types';
+import { IDialogActionHandler } from '@shared/types';
 import { SystemPermissionService } from '../../services/system-permission.service';
 import { ConfirmationDialogService } from '@shared/services';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
@@ -91,18 +91,28 @@ export class DeleteSystemPermissionComponent
       )
       .subscribe({
         next: (response: ISystemPermissionDeleteResponseDto) => {
-          const { failed, success } = response;
-
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'permission',
-            actionLabel: EButtonActionType.DELETE,
-            errors: failed,
-            result: success,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'success',
+            errorItemsPath: 'failed',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? 'System permission deleted successfully.'
+                  : `Successfully deleted ${count} system permissions.`,
+              error: 'Failed to delete system permission.',
+              empty: 'Failed to delete system permission.',
+            },
           });
 
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error('Failed to delete system permission.', error);
+          this.notificationService.error('Failed to delete system permission.');
         },
       });
   }

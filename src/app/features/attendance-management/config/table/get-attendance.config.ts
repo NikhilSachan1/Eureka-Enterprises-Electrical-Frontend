@@ -59,6 +59,22 @@ const PAYROLL_LOCKED_ROW_REASON =
 const PAYROLL_LOCKED_BULK_REASON =
   'Some of the selected records are locked because payroll has already been generated.';
 
+/** Attendance row is “leave” but attendance approval is still pending — resolve leave first. */
+const LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON =
+  'This day is on leave with approval still pending. Take action on the leave application first, then approve or reject attendance.';
+const BULK_LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON =
+  'Some of the selected records are on leave with leave approval still pending. Take action on leave first.';
+
+function isLeaveWithPendingAttendanceApproval(
+  row: IAttendanceGetBaseResponseDto
+): boolean {
+  const approval = row.approvalStatus?.toLowerCase() ?? '';
+  return (
+    row.status === EAttendanceStatus.LEAVE &&
+    approval === EApprovalStatus.PENDING
+  );
+}
+
 function isApprovalAlreadyApproved(
   row: IAttendanceGetBaseResponseDto
 ): boolean {
@@ -76,6 +92,7 @@ function isApprovalAlreadyRejected(
 function shouldDisableApprove(row: IAttendanceGetBaseResponseDto): boolean {
   return (
     isAttendanceNotMarkedYet(row) ||
+    isLeaveWithPendingAttendanceApproval(row) ||
     isPayrollLocked(row.attendanceDate) ||
     isApprovalAlreadyApproved(row)
   );
@@ -86,6 +103,9 @@ function getApproveDisableReason(
 ): string | undefined {
   if (isAttendanceNotMarkedYet(row)) {
     return NOT_MARKED_ATTENDANCE_ACTION_REASON;
+  }
+  if (isLeaveWithPendingAttendanceApproval(row)) {
+    return LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON;
   }
   if (isPayrollLocked(row.attendanceDate)) {
     return PAYROLL_LOCKED_ROW_REASON;
@@ -99,6 +119,7 @@ function getApproveDisableReason(
 function shouldDisableReject(row: IAttendanceGetBaseResponseDto): boolean {
   return (
     isAttendanceNotMarkedYet(row) ||
+    isLeaveWithPendingAttendanceApproval(row) ||
     isPayrollLocked(row.attendanceDate) ||
     isApprovalAlreadyRejected(row)
   );
@@ -109,6 +130,9 @@ function getRejectDisableReason(
 ): string | undefined {
   if (isAttendanceNotMarkedYet(row)) {
     return NOT_MARKED_ATTENDANCE_ACTION_REASON;
+  }
+  if (isLeaveWithPendingAttendanceApproval(row)) {
+    return LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON;
   }
   if (isPayrollLocked(row.attendanceDate)) {
     return PAYROLL_LOCKED_ROW_REASON;
@@ -125,6 +149,9 @@ function getBulkApproveDisableReason(
   if (isAttendanceNotMarkedYet(row)) {
     return BULK_NOT_MARKED_ATTENDANCE_REASON;
   }
+  if (isLeaveWithPendingAttendanceApproval(row)) {
+    return BULK_LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON;
+  }
   if (isPayrollLocked(row.attendanceDate)) {
     return PAYROLL_LOCKED_BULK_REASON;
   }
@@ -139,6 +166,9 @@ function getBulkRejectDisableReason(
 ): string | undefined {
   if (isAttendanceNotMarkedYet(row)) {
     return BULK_NOT_MARKED_ATTENDANCE_REASON;
+  }
+  if (isLeaveWithPendingAttendanceApproval(row)) {
+    return BULK_LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON;
   }
   if (isPayrollLocked(row.attendanceDate)) {
     return PAYROLL_LOCKED_BULK_REASON;

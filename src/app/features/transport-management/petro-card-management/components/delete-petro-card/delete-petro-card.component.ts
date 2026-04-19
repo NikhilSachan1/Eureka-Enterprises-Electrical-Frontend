@@ -16,7 +16,6 @@ import {
 } from '../../types/petro-card.dto';
 import { PetroCardService } from '../../services/petro-card.service';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { EButtonActionType } from '@shared/types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { FormBase } from '@shared/base/form.base';
@@ -90,13 +89,27 @@ export class DeletePetroCardComponent
       )
       .subscribe({
         next: (response: IPetroCardDeleteResponseDto) => {
-          const { errors, result } = response;
+          const enriched = {
+            ...response,
+            result: response.result.map(r => ({
+              ...r,
+              message: response.message,
+            })),
+          };
 
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'petro card',
-            actionLabel: EButtonActionType.DELETE,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(enriched, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? 'Petro card deleted successfully.'
+                  : `Successfully deleted ${count} petro cards.`,
+              error: 'Failed to delete petro card.',
+              empty: 'Failed to delete petro card.',
+            },
           });
 
           this.appConfigurationService.refreshPetroCardDropdowns();
@@ -104,6 +117,10 @@ export class DeletePetroCardComponent
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error('Failed to delete petro card.', error);
+          this.notificationService.error('Failed to delete petro card.');
         },
       });
   }

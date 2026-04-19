@@ -61,24 +61,34 @@ export class NotificationService {
 
   /**
    * Handles bulk operation API response directly (results array with success flag).
-   * Splits results into errors/result and shows appropriate notification.
+   * Maps into {@link bulkOperationFromResponse} shape and shows per-record messages when present.
    */
   bulkOperationFromApiResponse(
     response: { results: { id: string; success: boolean; message?: string }[] },
     entityLabel: string,
     actionLabel: string
   ): void {
-    const errors = response.results
-      .filter(item => !item.success)
-      .map(item => ({ id: item.id, message: item.message }));
-    const result = response.results
-      .filter(item => item.success)
-      .map(item => ({ id: item.id }));
-    this.bulkOperationResult({
-      entityLabel,
-      actionLabel,
-      errors,
-      result,
+    const mapped = {
+      result: response.results
+        .filter(item => item.success)
+        .map(item => ({ message: item.message })),
+      errors: response.results
+        .filter(item => !item.success)
+        .map(item => ({ error: item.message })),
+    };
+    this.bulkOperationFromResponse(mapped, {
+      successItemsPath: 'result',
+      errorItemsPath: 'errors',
+      successMessageKey: 'message',
+      errorMessageKey: 'error',
+      fallbacks: {
+        success: (count: number) =>
+          count === 1
+            ? `Successfully ${actionLabel} ${entityLabel}.`
+            : `Successfully ${actionLabel} ${entityLabel} for ${count} records.`,
+        error: `Failed to ${actionLabel} ${entityLabel}.`,
+        empty: `Failed to ${actionLabel} ${entityLabel}.`,
+      },
     });
   }
 
@@ -343,66 +353,6 @@ export class NotificationService {
       }
     }
     return out;
-  }
-
-  bulkOperationResult<TError = unknown, TResult = unknown>(config: {
-    entityLabel: string;
-    actionLabel: string;
-    errors: TError[];
-    result?: TResult[];
-    success?: number;
-    failed?: number;
-  }): void {
-    const { entityLabel, actionLabel, errors, result, success, failed } =
-      config;
-
-    const errorCount = errors?.length ?? 0;
-    const resultCount = result?.length ?? 0;
-    const recordsCount = errorCount + resultCount;
-
-    const hasErrors = errorCount > 0;
-    const hasResult = resultCount > 0;
-
-    // When both errors and results exist, we need to show a mixed summary.
-    if (hasErrors && hasResult) {
-      if (recordsCount === 1) {
-        // Single record failed.
-        this.error(`Failed to ${actionLabel} ${entityLabel}`);
-      } else {
-        // Some records failed and some succeeded.
-        this.error(
-          `Failed to ${actionLabel} ${entityLabel} for ${errorCount ?? failed} records and executed successfully for ${resultCount ?? success} records`
-        );
-      }
-      return;
-    }
-
-    // When only errors exist, we show a pure failure summary.
-    if (hasErrors) {
-      if (recordsCount === 1) {
-        // Single record failed.
-        this.error(`Failed to ${actionLabel} ${entityLabel}`);
-      } else {
-        // Multiple records failed.
-        this.error(
-          `Failed to ${actionLabel} ${entityLabel} for ${errorCount} records`
-        );
-      }
-      return;
-    }
-
-    // When only results exist, we show a success summary.
-    if (hasResult) {
-      if (recordsCount === 1) {
-        // Single record succeeded.
-        this.success(`Successfully ${actionLabel} ${entityLabel}`);
-      } else {
-        // Multiple records succeeded.
-        this.success(
-          `Successfully ${actionLabel} ${entityLabel} for ${resultCount} records`
-        );
-      }
-    }
   }
 
   private showNotification(

@@ -137,17 +137,56 @@ export class ApprovalFuelExpenseComponent
       )
       .subscribe({
         next: (response: IFuelExpenseActionResponseDto) => {
-          const { errors, result } = response;
+          const isApprove =
+            this.dialogActionType() === EButtonActionType.APPROVE;
+          const enriched = {
+            ...response,
+            result: response.result.map(r => ({
+              ...r,
+              message: response.message,
+            })),
+          };
 
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'fuel expense',
-            actionLabel: this.dialogActionType() as string,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(enriched, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? isApprove
+                    ? 'Fuel expense approved successfully.'
+                    : 'Fuel expense rejected successfully.'
+                  : isApprove
+                    ? `Successfully approved fuel expense for ${count} records.`
+                    : `Successfully rejected fuel expense for ${count} records.`,
+              error: isApprove
+                ? 'Failed to approve fuel expense.'
+                : 'Failed to reject fuel expense.',
+              empty: isApprove
+                ? 'Failed to approve fuel expense.'
+                : 'Failed to reject fuel expense.',
+            },
           });
 
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          const isApprove =
+            this.dialogActionType() === EButtonActionType.APPROVE;
+          this.logger.error(
+            isApprove
+              ? 'Failed to approve fuel expense'
+              : 'Failed to reject fuel expense',
+            error
+          );
+          this.notificationService.error(
+            isApprove
+              ? 'Failed to approve fuel expense.'
+              : 'Failed to reject fuel expense.'
+          );
         },
       });
   }

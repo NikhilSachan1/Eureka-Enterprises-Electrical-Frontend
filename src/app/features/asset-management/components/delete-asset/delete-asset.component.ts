@@ -18,7 +18,6 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
 } from '@shared/services';
-import { EButtonActionType } from '@shared/types';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -90,13 +89,19 @@ export class DeleteAssetComponent
       )
       .subscribe({
         next: (response: IAssetDeleteResponseDto) => {
-          const { errors, result } = response;
-
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'asset',
-            actionLabel: EButtonActionType.DELETE,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? 'Asset deleted successfully.'
+                  : `Successfully deleted ${count} assets.`,
+              error: 'Failed to delete asset.',
+              empty: 'Failed to delete asset.',
+            },
           });
 
           this.appConfigurationService.refreshAssetDropdowns();
@@ -104,6 +109,10 @@ export class DeleteAssetComponent
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error('Failed to delete asset.', error);
+          this.notificationService.error('Failed to delete asset.');
         },
       });
   }

@@ -151,17 +151,65 @@ export class ApprovalLeaveComponent
       )
       .subscribe({
         next: (response: ILeaveActionResponseDto) => {
-          const { errors, result } = response;
+          const dialogType = this.dialogActionType();
+          const isApprove = dialogType === EButtonActionType.APPROVE;
+          const isReject = dialogType === EButtonActionType.REJECT;
 
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'leave',
-            actionLabel: this.dialogActionType() as string,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) => {
+                if (isApprove) {
+                  return count === 1
+                    ? 'Leave approved successfully.'
+                    : `Successfully approved leave for ${count} records.`;
+                }
+                if (isReject) {
+                  return count === 1
+                    ? 'Leave rejected successfully.'
+                    : `Successfully rejected leave for ${count} records.`;
+                }
+                return count === 1
+                  ? 'Leave cancelled successfully.'
+                  : `Successfully cancelled leave for ${count} records.`;
+              },
+              error: isApprove
+                ? 'Failed to approve leave.'
+                : isReject
+                  ? 'Failed to reject leave.'
+                  : 'Failed to cancel leave.',
+              empty: isApprove
+                ? 'Failed to approve leave.'
+                : isReject
+                  ? 'Failed to reject leave.'
+                  : 'Failed to cancel leave.',
+            },
           });
 
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          const dialogType = this.dialogActionType();
+          const isApprove = dialogType === EButtonActionType.APPROVE;
+          const isReject = dialogType === EButtonActionType.REJECT;
+          const msg = isApprove
+            ? 'Failed to approve leave.'
+            : isReject
+              ? 'Failed to reject leave.'
+              : 'Failed to cancel leave.';
+          this.logger.error(
+            isApprove
+              ? 'Failed to approve leave'
+              : isReject
+                ? 'Failed to reject leave'
+                : 'Failed to cancel leave',
+            error
+          );
+          this.notificationService.error(msg);
         },
       });
   }

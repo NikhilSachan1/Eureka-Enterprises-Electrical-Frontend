@@ -11,7 +11,7 @@ import {
   IVehicleServiceDeleteResponseDto,
   IVehicleServiceGetBaseResponseDto,
 } from '../../types/vehicle-service.dto';
-import { EButtonActionType, IDialogActionHandler } from '@shared/types';
+import { IDialogActionHandler } from '@shared/types';
 import { ConfirmationDialogService } from '@shared/services';
 import { VehicleServiceService } from '../../services/vehicle-service.service';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
@@ -91,18 +91,28 @@ export class DeleteVehicleServiceComponent
       )
       .subscribe({
         next: (response: IVehicleServiceDeleteResponseDto) => {
-          const { errors, result } = response;
-
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'vehicle service',
-            actionLabel: EButtonActionType.DELETE,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? 'Vehicle service deleted successfully.'
+                  : `Successfully deleted ${count} vehicle services.`,
+              error: 'Failed to delete vehicle service.',
+              empty: 'Failed to delete vehicle service.',
+            },
           });
 
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error('Failed to delete vehicle service.', error);
+          this.notificationService.error('Failed to delete vehicle service.');
         },
       });
   }

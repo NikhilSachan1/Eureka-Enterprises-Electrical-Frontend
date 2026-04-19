@@ -15,7 +15,7 @@ import {
 import { FormBase } from '@shared/base/form.base';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { ConfirmationDialogService } from '@shared/services';
-import { EButtonActionType, IDialogActionHandler } from '@shared/types';
+import { IDialogActionHandler } from '@shared/types';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -86,18 +86,28 @@ export class DeleteExpenseComponent
       )
       .subscribe({
         next: (response: IExpenseDeleteResponseDto) => {
-          const { errors, result } = response;
-
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'expense',
-            actionLabel: EButtonActionType.DELETE,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? 'Expense deleted successfully.'
+                  : `Successfully deleted ${count} expenses.`,
+              error: 'Failed to delete expense.',
+              empty: 'Failed to delete expense.',
+            },
           });
 
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error('Failed to delete expense.', error);
+          this.notificationService.error('Failed to delete expense.');
         },
       });
   }

@@ -144,19 +144,68 @@ export class ActionPayrollComponent
       )
       .subscribe({
         next: (response: IActionPayrollResponseDto) => {
-          const { errors, success, failed } = response;
+          const dialogType = this.dialogActionType();
+          const isPaid = dialogType === EButtonActionType.PAID;
+          const isCancel = dialogType === EButtonActionType.CANCEL;
 
-          this.notificationService.bulkOperationResult({
-            entityLabel: PAYROLL_MESSAGES.ENTITY.LABEL_PAYROLL,
-            actionLabel: this.dialogActionType() as string,
-            errors,
-            result: [],
-            success,
-            failed,
-          });
+          const notificationPayload = {
+            ...response,
+            result: Array.from({ length: response.success }, () => ({
+              message: response.message,
+            })),
+          };
+
+          this.notificationService.bulkOperationFromResponse(
+            notificationPayload,
+            {
+              successItemsPath: 'result',
+              errorItemsPath: 'errors',
+              successMessageKey: 'message',
+              errorMessageKey: 'error',
+              fallbacks: {
+                success: (count: number) => {
+                  if (isPaid) {
+                    return count === 1
+                      ? 'Payslip marked as paid successfully.'
+                      : `Successfully marked ${count} payslips as paid.`;
+                  }
+                  if (isCancel) {
+                    return count === 1
+                      ? 'Payslip cancelled successfully.'
+                      : `Successfully cancelled ${count} payslips.`;
+                  }
+                  return count === 1
+                    ? 'Payslip approved successfully.'
+                    : `Successfully approved ${count} payslips.`;
+                },
+                error: isPaid
+                  ? 'Failed to mark payslip as paid.'
+                  : isCancel
+                    ? 'Failed to cancel payslip.'
+                    : 'Failed to approve payslip.',
+                empty: isPaid
+                  ? 'Failed to mark payslip as paid.'
+                  : isCancel
+                    ? 'Failed to cancel payslip.'
+                    : 'Failed to approve payslip.',
+              },
+            }
+          );
 
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          const dialogType = this.dialogActionType();
+          const isPaid = dialogType === EButtonActionType.PAID;
+          const isCancel = dialogType === EButtonActionType.CANCEL;
+          const msg = isPaid
+            ? 'Failed to mark payslip as paid.'
+            : isCancel
+              ? 'Failed to cancel payslip.'
+              : 'Failed to approve payslip.';
+          this.logger.error(msg, error);
+          this.notificationService.error(msg);
         },
       });
   }

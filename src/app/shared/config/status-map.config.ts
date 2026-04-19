@@ -190,7 +190,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   'approved opening balance': { icon: ICONS.EXPENSE.MONEY, severity: 'info' },
   'closing balance': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'approved closing balance': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
-  'total balance': { icon: ICONS.EXPENSE.MONEY, severity: 'purple' },
+  'total balance': { icon: ICONS.COMMON.CHART_LINE, severity: 'purple' },
   'total credit': { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
   'period credit': { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
   'total credited': { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
@@ -202,7 +202,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   },
   'approved debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'period debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
-  'total consumed': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
+  'total consumed': { icon: ICONS.COMMON.ARROW_DOWN, severity: 'danger' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ACTIONS (for buttons/dialogs)

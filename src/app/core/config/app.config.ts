@@ -8,8 +8,8 @@ export const APP_CONFIG = {
 
   // API Configuration
   API_CONFIG: {
-    timeout: 30000, // 30 seconds
-    retryAttempts: 3,
+    timeout: 60000, // 60 seconds
+    retryAttempts: 0,
     retryDelay: 3000,
   },
 

@@ -131,17 +131,49 @@ export class ApprovalExpenseComponent
       )
       .subscribe({
         next: (response: IExpenseActionResponseDto) => {
-          const { errors, result } = response;
+          const isApprove =
+            this.dialogActionType() === EButtonActionType.APPROVE;
 
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'expense',
-            actionLabel: this.dialogActionType() as string,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? isApprove
+                    ? 'Expense approved successfully.'
+                    : 'Expense rejected successfully.'
+                  : isApprove
+                    ? `Successfully approved expense for ${count} records.`
+                    : `Successfully rejected expense for ${count} records.`,
+              error: isApprove
+                ? 'Failed to approve expense.'
+                : 'Failed to reject expense.',
+              empty: isApprove
+                ? 'Failed to approve expense.'
+                : 'Failed to reject expense.',
+            },
           });
 
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          const isApprove =
+            this.dialogActionType() === EButtonActionType.APPROVE;
+          this.logger.error(
+            isApprove
+              ? 'Failed to approve expense'
+              : 'Failed to reject expense',
+            error
+          );
+          this.notificationService.error(
+            isApprove
+              ? 'Failed to approve expense.'
+              : 'Failed to reject expense.'
+          );
         },
       });
   }

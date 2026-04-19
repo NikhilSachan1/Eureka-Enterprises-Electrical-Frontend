@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import { ConfirmationDialogService } from '@shared/services';
-import { EButtonActionType, IDialogActionHandler } from '@shared/types';
+import { IDialogActionHandler } from '@shared/types';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
 import {
   IFuelExpenseDeleteFormDto,
@@ -90,18 +90,28 @@ export class DeleteFuelExpenseComponent
       )
       .subscribe({
         next: (response: IFuelExpenseDeleteResponseDto) => {
-          const { errors, result } = response;
-
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'fuel expense',
-            actionLabel: EButtonActionType.DELETE,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? 'Fuel expense deleted successfully.'
+                  : `Successfully deleted ${count} fuel expenses.`,
+              error: 'Failed to delete fuel expense.',
+              empty: 'Failed to delete fuel expense.',
+            },
           });
 
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error('Failed to delete fuel expense.', error);
+          this.notificationService.error('Failed to delete fuel expense.');
         },
       });
   }

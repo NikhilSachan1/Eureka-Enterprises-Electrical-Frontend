@@ -135,20 +135,49 @@ export class ApprovalAttendanceComponent
       )
       .subscribe({
         next: (response: IAttendanceActionResponseDto) => {
-          const { errors, result } = response;
+          const isApprove =
+            this.dialogActionType() === EButtonActionType.APPROVE;
 
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'attendance',
-            actionLabel: this.dialogActionType() as string,
-            errors,
-            result,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? isApprove
+                    ? 'Attendance approved successfully.'
+                    : 'Attendance rejected successfully.'
+                  : isApprove
+                    ? `Successfully approved attendance for ${count} records.`
+                    : `Successfully rejected attendance for ${count} records.`,
+              error: isApprove
+                ? 'Failed to approve attendance.'
+                : 'Failed to reject attendance.',
+              empty: isApprove
+                ? 'Failed to approve attendance.'
+                : 'Failed to reject attendance.',
+            },
           });
 
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
-        error: () => {
-          this.notificationService.error('Failed to approve/reject attendance');
+        error: error => {
+          const isApprove =
+            this.dialogActionType() === EButtonActionType.APPROVE;
+          this.logger.error(
+            isApprove
+              ? 'Failed to approve attendance'
+              : 'Failed to reject attendance',
+            error
+          );
+          this.notificationService.error(
+            isApprove
+              ? 'Failed to approve attendance.'
+              : 'Failed to reject attendance.'
+          );
         },
       });
   }

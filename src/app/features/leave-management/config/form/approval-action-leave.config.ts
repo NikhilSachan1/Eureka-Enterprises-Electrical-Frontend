@@ -16,12 +16,13 @@ const APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ILeaveAct
       fieldType: EDataType.TEXT_AREA,
       id: 'remark',
       fieldName: 'remark',
-      label: 'Note',
+      label: 'Reason',
       conditionalValidators: [
         {
           shouldApply: (context): boolean => {
             const { actionType } = context;
             return (
+              actionType === EButtonActionType.APPROVE ||
               actionType === EButtonActionType.REJECT ||
               actionType === EButtonActionType.CANCEL
             );

@@ -11,7 +11,7 @@ import {
   IRoleDeleteResponseDto,
   IRoleGetBaseResponseDto,
 } from '../../types/role.dto';
-import { EButtonActionType, IDialogActionHandler } from '@shared/types';
+import { IDialogActionHandler } from '@shared/types';
 import { RoleService } from '../../services/role.service';
 import { ConfirmationDialogService } from '@shared/services';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
@@ -86,18 +86,28 @@ export class DeleteRoleComponent
       )
       .subscribe({
         next: (response: IRoleDeleteResponseDto) => {
-          const { failed, success } = response;
-
-          this.notificationService.bulkOperationResult({
-            entityLabel: 'role',
-            actionLabel: EButtonActionType.DELETE,
-            errors: failed,
-            result: success,
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'success',
+            errorItemsPath: 'failed',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? 'Role deleted successfully.'
+                  : `Successfully deleted ${count} roles.`,
+              error: 'Failed to delete role.',
+              empty: 'Failed to delete role.',
+            },
           });
 
           const successCallback = this.onSuccess();
           successCallback?.();
           this.confirmationDialogService.closeDialog();
+        },
+        error: error => {
+          this.logger.error('Failed to delete role.', error);
+          this.notificationService.error('Failed to delete role.');
         },
       });
   }

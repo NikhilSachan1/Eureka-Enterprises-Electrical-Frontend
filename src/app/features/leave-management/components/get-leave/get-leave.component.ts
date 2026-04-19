@@ -198,11 +198,23 @@ export class GetLeaveComponent implements OnInit {
       groups.push({
         id: 'balance',
         title: 'Leave Balance',
-        icon: ICONS.LEAVE.CALENDAR_PLUS,
+        icon: ICONS.COMMON.CHART_LINE,
         metrics: [
-          { label: 'Total Credited', value: stats.leaveBalance.totalCredited },
-          { label: 'Total Consumed', value: stats.leaveBalance.totalConsumed },
-          { label: 'Total Balance', value: stats.leaveBalance.totalBalance },
+          {
+            label: 'Total Credited',
+            value: stats.leaveBalance.totalCredited,
+            icon: ICONS.COMMON.ARROW_UP,
+          },
+          {
+            label: 'Total Consumed',
+            value: stats.leaveBalance.totalConsumed,
+            icon: ICONS.COMMON.ARROW_DOWN,
+          },
+          {
+            label: 'Total Balance',
+            value: stats.leaveBalance.totalBalance,
+            icon: ICONS.COMMON.CHART_LINE,
+          },
         ],
       });
     }
