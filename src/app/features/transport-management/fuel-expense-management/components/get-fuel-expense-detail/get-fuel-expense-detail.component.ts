@@ -54,7 +54,8 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
   private loadFuelExpenseDetails(): void {
     this.loadingService.show({
       title: 'Loading Fuel Expense Details',
-      message: 'Please wait while we load the fuel expense details...',
+      message:
+        "We're loading the fuel expense details. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

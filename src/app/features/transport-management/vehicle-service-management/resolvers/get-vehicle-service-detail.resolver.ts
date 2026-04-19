@@ -47,7 +47,8 @@ export class GetVehicleServiceDetailResolver
 
     this.loadingService.show({
       title: 'Loading Vehicle Service Detail',
-      message: 'Please wait while we load the vehicle service detail...',
+      message:
+        "We're loading the vehicle service detail. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(vehicleServiceId);

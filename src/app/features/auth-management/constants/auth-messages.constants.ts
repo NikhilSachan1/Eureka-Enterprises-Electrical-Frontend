@@ -1,15 +1,18 @@
 export const AUTH_MESSAGES = {
   LOADING: {
-    LOGIN: 'Logging In',
-    SETUP_WORKSPACE: 'Setting Up Your Workspace',
-    FORGOT_PASSWORD: 'Forgot Password',
-    RESET_PASSWORD: 'Reset Password',
+    LOGIN: 'Signing you in',
+    SETUP_WORKSPACE: 'Setting up your workspace',
+    FORGOT_PASSWORD: 'Sending reset link',
+    RESET_PASSWORD: 'Resetting password',
   },
   LOADING_MESSAGES: {
-    LOGIN: 'Please wait while we verify your credentials...',
-    SETUP_WORKSPACE: 'Please wait while we set up your workspace...',
-    FORGOT_PASSWORD: 'Please wait while we send you a reset password link...',
-    RESET_PASSWORD: 'Please wait while we reset your password...',
+    LOGIN: "We're verifying your credentials. This will just take a moment.",
+    SETUP_WORKSPACE:
+      "We're setting up your workspace. This will just take a moment.",
+    FORGOT_PASSWORD:
+      "We're sending a password reset link. This will just take a moment.",
+    RESET_PASSWORD:
+      "We're resetting your password. This will just take a moment.",
   },
   SUCCESS: {
     LOGIN_WITH_ROLE: (roleName: string) =>

@@ -107,8 +107,8 @@ export class EditRoleComponent
 
   private executeEditRole(formData: IRoleEditFormDto, roleId: string): void {
     this.loadingService.show({
-      title: 'Updating Role',
-      message: 'Please wait while we update the role...',
+      title: 'Updating role',
+      message: "We're updating the role. This will just take a moment.",
     });
     this.form.disable();
 

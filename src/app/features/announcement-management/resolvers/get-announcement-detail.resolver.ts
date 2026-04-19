@@ -41,7 +41,8 @@ export class GetAnnouncementDetailResolver
 
     this.loadingService.show({
       title: 'Loading Announcement Detail',
-      message: 'Please wait while we load the announcement detail...',
+      message:
+        "We're loading the announcement detail. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(announcementId);

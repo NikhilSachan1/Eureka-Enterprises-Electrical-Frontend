@@ -75,7 +75,7 @@ export class DeletePetroCardComponent
   ): void {
     const loadingMessage = {
       title: 'Deleting Petro Card',
-      message: 'Please wait while we delete the petro card...',
+      message: "We're removing the petro card. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

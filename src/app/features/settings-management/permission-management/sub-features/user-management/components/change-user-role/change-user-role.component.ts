@@ -97,8 +97,8 @@ export class ChangeUserRoleComponent
     employeeId: string
   ): void {
     this.loadingService.show({
-      title: 'Changing User Role',
-      message: 'Please wait while we change the user role...',
+      title: 'Updating user role',
+      message: "We're updating the user role. This will just take a moment.",
     });
 
     this.userService

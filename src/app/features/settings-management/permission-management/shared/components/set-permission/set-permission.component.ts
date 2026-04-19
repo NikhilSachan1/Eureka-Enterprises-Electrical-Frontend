@@ -191,8 +191,9 @@ export class SetPermissionComponent implements OnInit {
 
   private loadModulePermissions(): void {
     this.loadingService.show({
-      title: 'Loading module permissions...',
-      message: 'Please wait while we load the module permissions...',
+      title: 'Loading module permissions',
+      message:
+        "We're loading module permissions. This will just take a moment.",
     });
 
     this.systemPermissionService

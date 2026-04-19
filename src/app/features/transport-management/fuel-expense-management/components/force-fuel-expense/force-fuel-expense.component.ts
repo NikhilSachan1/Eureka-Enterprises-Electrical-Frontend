@@ -111,8 +111,9 @@ export class ForceFuelExpenseComponent
     }
 
     this.loadingService.show({
-      title: 'Force Fuel Expense',
-      message: 'Please wait while we process the force fuel expense...',
+      title: 'Recording fuel expense',
+      message:
+        "We're recording the fuel expense. This will just take a moment.",
     });
     this.form.disable();
 

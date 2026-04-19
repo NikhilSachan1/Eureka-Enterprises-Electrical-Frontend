@@ -50,7 +50,8 @@ export class GetContractorDetailComponent extends DrawerDetailBase {
   private loadContractorDetails(): void {
     this.loadingService.show({
       title: 'Loading Contractor Details',
-      message: 'Please wait while we load the contractor details...',
+      message:
+        "We're loading the contractor details. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

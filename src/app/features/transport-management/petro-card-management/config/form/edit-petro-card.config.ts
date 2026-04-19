@@ -19,7 +19,7 @@ const EDIT_PETRO_CARD_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Update Petro Card',
-    tooltip: 'Edit petro card',
+    tooltip: 'Update petro card',
   },
 };
 

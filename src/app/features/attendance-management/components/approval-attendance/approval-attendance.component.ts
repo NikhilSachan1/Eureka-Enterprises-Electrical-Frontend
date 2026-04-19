@@ -110,12 +110,14 @@ export class ApprovalAttendanceComponent
     if (this.dialogActionType() === EButtonActionType.APPROVE) {
       loadingMessage = {
         title: 'Approving Attendance',
-        message: 'Please wait while we approve the attendance...',
+        message:
+          "We're approving the attendance. This will just take a moment.",
       };
     } else if (this.dialogActionType() === EButtonActionType.REJECT) {
       loadingMessage = {
         title: 'Rejecting Attendance',
-        message: 'Please wait while we reject the attendance...',
+        message:
+          "We're rejecting the attendance. This will just take a moment.",
       };
     }
     this.loadingService.show(loadingMessage);

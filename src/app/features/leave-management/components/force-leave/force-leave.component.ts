@@ -64,8 +64,8 @@ export class ForceLeaveComponent
 
   private executeForceLeave(formData: ILeaveForceFormDto): void {
     this.loadingService.show({
-      title: 'Force Leave',
-      message: 'Please wait while we process the force leave...',
+      title: 'Recording leave',
+      message: "We're recording the leave. This will just take a moment.",
     });
     this.form.disable();
 

@@ -122,8 +122,9 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
 
   private executeSetRolePermission(formData: IRolePermissionsSetFormDto): void {
     this.loadingService.show({
-      title: 'Updating Role Permission',
-      message: 'Please wait while we update the role permission...',
+      title: 'Updating role permissions',
+      message:
+        "We're updating the role permission. This will just take a moment.",
     });
 
     this.rolePermissionService

@@ -209,8 +209,8 @@ export class EditProjectComponent
     projectId: string
   ): void {
     this.loadingService.show({
-      title: 'Edit Project',
-      message: 'Please wait while we edit project...',
+      title: 'Updating project',
+      message: "We're updating project. This will just take a moment.",
     });
     this.form.disable();
 

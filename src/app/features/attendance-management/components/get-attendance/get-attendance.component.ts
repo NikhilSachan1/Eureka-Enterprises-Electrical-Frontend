@@ -106,8 +106,9 @@ export class GetAttendanceComponent implements OnInit {
   private loadAttendanceList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Attendance',
-      message: 'Please wait while we load the attendance...',
+      title: 'Loading attendance',
+      message:
+        "We're loading the attendance records. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

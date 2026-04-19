@@ -236,8 +236,8 @@ export class EditConfigurationComponent
     configurationId: string
   ): void {
     this.loadingService.show({
-      title: 'Edit Configuration',
-      message: 'Please wait while we edit configuration...',
+      title: 'Updating configuration',
+      message: "We're updating configuration. This will just take a moment.",
     });
     this.form.disable();
 

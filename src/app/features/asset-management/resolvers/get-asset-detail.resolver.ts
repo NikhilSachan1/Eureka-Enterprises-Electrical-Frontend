@@ -46,8 +46,8 @@ export class GetAssetDetailResolver
     }
 
     this.loadingService.show({
-      title: 'Loading Asset Detail',
-      message: 'Please wait while we load the asset detail...',
+      title: 'Loading asset details',
+      message: "We're loading this asset. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(assetId);

@@ -78,7 +78,8 @@ export class AcknowledgeAnnouncementComponent
   ): void {
     const loadingMessage = {
       title: 'Acknowledging Announcement',
-      message: 'Please wait while we acknowledge the announcement...',
+      message:
+        "We're acknowledging the announcement. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

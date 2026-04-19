@@ -71,7 +71,7 @@ export class DeleteRoleComponent
   private executeRoleDeleteAction(formData: IRoleDeleteFormDto): void {
     const loadingMessage = {
       title: 'Deleting Role',
-      message: 'Please wait while we delete the role...',
+      message: "We're removing the role. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

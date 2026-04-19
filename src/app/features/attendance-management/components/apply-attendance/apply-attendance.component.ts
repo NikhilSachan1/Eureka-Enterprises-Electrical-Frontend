@@ -314,7 +314,7 @@ export class ApplyAttendanceComponent
   protected executeApplyAttendance(formData: IAttendanceApplyFormDto): void {
     this.loadingService.show({
       title: 'Apply Attendance',
-      message: 'Please wait while we apply attendance...',
+      message: "We're submitting attendance. This will just take a moment.",
     });
 
     this.attendanceService

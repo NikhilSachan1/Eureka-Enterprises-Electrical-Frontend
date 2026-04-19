@@ -63,8 +63,9 @@ export class AddSystemPermissionComponent
     formData: ISystemPermissionAddFormDto
   ): void {
     this.loadingService.show({
-      title: 'Adding System Permission',
-      message: 'Please wait while we add the system permission...',
+      title: 'Adding system permission',
+      message:
+        "We're adding the system permission. This will just take a moment.",
     });
     this.form.disable();
 

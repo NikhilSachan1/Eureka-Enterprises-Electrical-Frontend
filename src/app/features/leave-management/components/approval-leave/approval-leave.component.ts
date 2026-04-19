@@ -123,17 +123,17 @@ export class ApprovalLeaveComponent
     if (this.dialogActionType() === EButtonActionType.APPROVE) {
       loadingMessage = {
         title: 'Approving Leave',
-        message: 'Please wait while we approve the leave...',
+        message: "We're approving the leave. This will just take a moment.",
       };
     } else if (this.dialogActionType() === EButtonActionType.REJECT) {
       loadingMessage = {
         title: 'Rejecting Leave',
-        message: 'Please wait while we reject the leave...',
+        message: "We're rejecting the leave. This will just take a moment.",
       };
     } else if (this.dialogActionType() === EButtonActionType.CANCEL) {
       loadingMessage = {
         title: 'Cancelling Leave',
-        message: 'Please wait while we cancel the leave...',
+        message: "We're cancelling the leave. This will just take a moment.",
       };
     }
     this.loadingService.show(loadingMessage);

@@ -18,7 +18,7 @@ const EDIT_DSR_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Update DSR',
-    tooltip: 'Edit DSR',
+    tooltip: 'Update DSR',
   },
 };
 

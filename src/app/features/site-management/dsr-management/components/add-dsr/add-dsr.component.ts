@@ -84,7 +84,7 @@ export class AddDsrComponent
   private executeAddDsr(formData: IDsrAddFormDto): void {
     this.loadingService.show({
       title: 'Add DSR',
-      message: 'Please wait while we adding DSR...',
+      message: "We're adding DSR. This will just take a moment.",
     });
     this.form.disable();
 

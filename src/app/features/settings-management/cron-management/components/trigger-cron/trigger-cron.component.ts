@@ -85,8 +85,8 @@ export class TriggerCronComponent
 
   private triggerCronJob(formData: ICronRunFormDto): void {
     this.loadingService.show({
-      title: 'Triggering Cron Job',
-      message: 'Please wait while we trigger the cron job...',
+      title: 'Running scheduled job',
+      message: "We're running the scheduled job. This will just take a moment.",
     });
     this.form.disable();
 

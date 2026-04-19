@@ -83,7 +83,8 @@ export class ChangeStatusProjectComponent
   ): void {
     const loadingMessage = {
       title: 'Changing Project Status',
-      message: 'Please wait while we change the project status...',
+      message:
+        "We're updating the project status. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

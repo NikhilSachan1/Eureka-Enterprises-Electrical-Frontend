@@ -19,7 +19,7 @@ const EDIT_COMPANY_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Update Company',
-    tooltip: 'Edit company',
+    tooltip: 'Update company',
   },
 };
 

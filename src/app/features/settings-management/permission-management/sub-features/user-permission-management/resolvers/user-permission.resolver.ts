@@ -38,7 +38,8 @@ export class UserPermissionResolver
 
     this.loadingService.show({
       title: 'Loading User Permission',
-      message: 'Please wait while we load the user permission...',
+      message:
+        "We're loading the user permission. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(userId);

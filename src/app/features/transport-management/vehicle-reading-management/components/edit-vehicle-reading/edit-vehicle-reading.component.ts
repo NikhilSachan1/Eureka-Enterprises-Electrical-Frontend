@@ -159,8 +159,8 @@ export class EditVehicleReadingComponent
     vehicleReadingId: string
   ): void {
     this.loadingService.show({
-      title: 'Edit Vehicle Reading',
-      message: 'Please wait while we edit vehicle reading...',
+      title: 'Updating vehicle reading',
+      message: "We're updating the reading. This will just take a moment.",
     });
     this.form.disable();
 

@@ -83,7 +83,8 @@ export class GetSystemPermissionComponent implements OnInit {
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading System Permissions',
-      message: 'Please wait while we load the system permissions...',
+      message:
+        "We're loading the system permissions. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

@@ -19,7 +19,7 @@ const EDIT_EXPENSE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Update Expense',
-    tooltip: 'Edit expense',
+    tooltip: 'Update expense',
   },
 };
 

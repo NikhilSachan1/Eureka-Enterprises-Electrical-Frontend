@@ -141,8 +141,8 @@ export class EditCompanyComponent
     companyId: string
   ): void {
     this.loadingService.show({
-      title: 'Edit Company',
-      message: 'Please wait while we edit company...',
+      title: 'Update Company',
+      message: "We're updating company. This will just take a moment.",
     });
     this.form.disable();
 

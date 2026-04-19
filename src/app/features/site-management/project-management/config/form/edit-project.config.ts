@@ -19,7 +19,7 @@ const EDIT_PROJECT_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Update Project',
-    tooltip: 'Edit project',
+    tooltip: 'Update project',
   },
 };
 

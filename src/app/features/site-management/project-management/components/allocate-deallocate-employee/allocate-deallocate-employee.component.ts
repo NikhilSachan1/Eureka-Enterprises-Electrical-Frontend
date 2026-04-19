@@ -295,8 +295,8 @@ export class AllocateDeallocateEmployeeComponent
     const payload = this.buildApiPayload();
 
     this.loadingService.show({
-      title: 'Updating allocations',
-      message: 'Please wait while we update project team members...',
+      title: 'Updating project team',
+      message: "We're updating the project team. This will just take a moment.",
     });
 
     this.projectService

@@ -7,8 +7,8 @@ import { ILoader } from '@shared/types';
 export class LoadingService {
   private readonly defaultConfig: ILoader = {
     isLoading: false,
-    title: 'Loading...',
-    message: 'Please wait...',
+    title: 'Loading',
+    message: "We're getting things ready. This will just take a moment.",
   };
 
   // Stack to track multiple concurrent loaders

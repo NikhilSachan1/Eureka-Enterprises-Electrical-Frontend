@@ -75,7 +75,7 @@ export class DeleteAnnouncementComponent
   ): void {
     const loadingMessage = {
       title: 'Deleting Announcement',
-      message: 'Please wait while we delete the announcement...',
+      message: "We're removing the announcement. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

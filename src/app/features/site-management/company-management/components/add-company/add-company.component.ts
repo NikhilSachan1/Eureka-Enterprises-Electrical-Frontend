@@ -69,7 +69,7 @@ export class AddCompanyComponent
   private executeAddCompany(formData: ICompanyAddFormDto): void {
     this.loadingService.show({
       title: 'Add Company',
-      message: 'Please wait while we add company...',
+      message: "We're adding company. This will just take a moment.",
     });
     this.form.disable();
 

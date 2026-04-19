@@ -38,7 +38,8 @@ export class RolePermissionResolver
 
     this.loadingService.show({
       title: 'Loading Role Permission',
-      message: 'Please wait while we load the role permission...',
+      message:
+        "We're loading the role permission. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(roleId);

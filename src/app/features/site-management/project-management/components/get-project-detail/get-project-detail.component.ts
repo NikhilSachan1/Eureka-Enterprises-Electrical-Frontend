@@ -51,7 +51,8 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
   private loadProjectDetails(): void {
     this.loadingService.show({
       title: 'Loading Project Details',
-      message: 'Please wait while we load the project details...',
+      message:
+        "We're loading the project details. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

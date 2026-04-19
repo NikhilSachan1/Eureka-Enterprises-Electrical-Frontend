@@ -86,8 +86,8 @@ export class GetDsrComponent implements OnInit {
   private loadDsrList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading DSR',
-      message: 'Please wait while we load the DSR...',
+      title: 'Loading DSR records',
+      message: "We're loading the DSR. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

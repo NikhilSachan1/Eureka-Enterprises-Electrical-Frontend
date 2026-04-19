@@ -126,8 +126,8 @@ export class EditAnnouncementComponent
     announcementId: string
   ): void {
     this.loadingService.show({
-      title: 'Edit Announcement',
-      message: 'Please wait while we edit announcement...',
+      title: 'Update Announcement',
+      message: "We're updating announcement. This will just take a moment.",
     });
     this.form.disable();
 
@@ -162,8 +162,8 @@ export class EditAnnouncementComponent
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
-      title: 'Edit Announcement',
-      subtitle: 'Edit a announcement',
+      title: 'Update Announcement',
+      subtitle: 'Update an announcement',
     };
   }
 }

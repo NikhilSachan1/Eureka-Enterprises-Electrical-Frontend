@@ -77,7 +77,7 @@ export class DeleteContractorComponent
   ): void {
     const loadingMessage = {
       title: 'Deleting Contractor',
-      message: 'Please wait while we delete the contractor...',
+      message: "We're removing the contractor. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

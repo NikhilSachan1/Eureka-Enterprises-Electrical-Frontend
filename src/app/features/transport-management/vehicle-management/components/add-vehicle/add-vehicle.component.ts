@@ -69,7 +69,7 @@ export class AddVehicleComponent
   private executeAddVehicle(formData: IvehicleAddFormDto): void {
     this.loadingService.show({
       title: 'Add Vehicle',
-      message: 'Please wait while we add vehicle...',
+      message: "We're adding vehicle. This will just take a moment.",
     });
     this.form.disable();
 

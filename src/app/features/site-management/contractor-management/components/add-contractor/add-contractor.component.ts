@@ -69,7 +69,7 @@ export class AddContractorComponent
   private executeAddContractor(formData: IContractorAddFormDto): void {
     this.loadingService.show({
       title: 'Add Contractor',
-      message: 'Please wait while we add contractor...',
+      message: "We're adding contractor. This will just take a moment.",
     });
     this.form.disable();
 

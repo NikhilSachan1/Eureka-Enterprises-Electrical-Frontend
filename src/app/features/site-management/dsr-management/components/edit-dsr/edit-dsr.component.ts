@@ -126,8 +126,8 @@ export class EditDsrComponent
 
   private executeEditDsr(formData: IDsrEditFormDto, dsrId: string): void {
     this.loadingService.show({
-      title: 'Edit DSR',
-      message: 'Please wait while we edit dsr...',
+      title: 'Updating DSR',
+      message: "We're updating the DSR. This will just take a moment.",
     });
     this.form.disable();
 

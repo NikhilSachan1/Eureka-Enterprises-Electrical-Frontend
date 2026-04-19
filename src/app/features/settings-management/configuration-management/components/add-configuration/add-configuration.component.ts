@@ -149,8 +149,8 @@ export class AddConfigurationComponent
 
   private executeAddConfiguration(formData: IConfigurationAddFormDto): void {
     this.loadingService.show({
-      title: 'Add Configuration',
-      message: 'Please wait while we add configuration...',
+      title: 'Adding configuration',
+      message: "We're adding configuration. This will just take a moment.",
     });
     this.form.disable();
 

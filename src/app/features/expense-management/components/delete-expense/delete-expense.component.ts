@@ -71,7 +71,7 @@ export class DeleteExpenseComponent
   private executeExpenseDeleteAction(formData: IExpenseDeleteFormDto): void {
     const loadingMessage = {
       title: 'Deleting Expense',
-      message: 'Please wait while we delete the expense...',
+      message: "We're removing the expense. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

@@ -39,8 +39,9 @@ export class GetConfigurationDetailResolver
     }
 
     this.loadingService.show({
-      title: 'Loading Configuration Detail',
-      message: 'Please wait while we load the configuration detail...',
+      title: 'Loading configuration details',
+      message:
+        "We're loading the configuration detail. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(configurationId);

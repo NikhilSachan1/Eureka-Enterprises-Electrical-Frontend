@@ -64,8 +64,9 @@ export class ApplyLeaveComponent
 
   private executeApplyLeave(formData: ILeaveApplyFormDto): void {
     this.loadingService.show({
-      title: 'Apply Leave',
-      message: 'Please wait while we apply leave...',
+      title: 'Submitting leave request',
+      message:
+        "We're submitting your leave request. This will just take a moment.",
     });
     this.form.disable();
 

@@ -87,8 +87,9 @@ export class GetUserComponent implements OnInit {
   private loadUserList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Users Permissions',
-      message: 'Please wait while we load the users permissions...',
+      title: 'Loading users and permissions',
+      message:
+        "We're loading users and permissions. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

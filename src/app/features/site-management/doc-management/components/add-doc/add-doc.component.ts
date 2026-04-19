@@ -79,8 +79,8 @@ export class AddDocComponent
 
   private executeAddDoc(formData: IDocAddFormDto): void {
     this.loadingService.show({
-      title: 'Add Doc',
-      message: 'Please wait while we add doc...',
+      title: 'Adding document',
+      message: "We're adding the document. This will just take a moment.",
     });
     this.form.disable();
 

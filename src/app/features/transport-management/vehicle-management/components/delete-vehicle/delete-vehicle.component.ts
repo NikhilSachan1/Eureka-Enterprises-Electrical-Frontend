@@ -75,7 +75,7 @@ export class DeleteVehicleComponent
   private executeVehicleDeleteAction(formData: IvehicleDeleteFormDto): void {
     const loadingMessage = {
       title: 'Deleting Vehicle',
-      message: 'Please wait while we delete the vehicle...',
+      message: "We're removing the vehicle. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

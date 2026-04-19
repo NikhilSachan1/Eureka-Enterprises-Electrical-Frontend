@@ -23,7 +23,7 @@ const EDIT_ASSET_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Update Asset',
-    tooltip: 'Edit asset',
+    tooltip: 'Update asset',
   },
 };
 

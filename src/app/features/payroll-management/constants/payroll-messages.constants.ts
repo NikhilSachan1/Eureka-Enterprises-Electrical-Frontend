@@ -4,47 +4,51 @@
 export const PAYROLL_MESSAGES = {
   LOADING: {
     // Action Payroll
-    PAID: 'Marking as Paid',
-    CANCEL: 'Cancelling Payslip',
-    APPROVE: 'Approving Payslip',
+    PAID: 'Marking payslip as paid',
+    CANCEL: 'Cancelling payslip',
+    APPROVE: 'Approving payslip',
     // Add Salary Increment
-    ADD_SALARY_INCREMENT: 'Add Salary Increment',
-    LOAD_EMPLOYEE_SALARY_DETAIL: 'Loading Employee Latest Salary Detail',
-    // Edit Salary
-    EDIT_SALARY: 'Edit Salary',
+    ADD_SALARY_INCREMENT: 'Adding salary increment',
+    LOAD_EMPLOYEE_SALARY_DETAIL: 'Loading latest salary details',
+    // Update salary
+    EDIT_SALARY: 'Updating salary',
     // Generate Payroll
-    GENERATE_PAYROLL: 'Generate Payroll',
+    GENERATE_PAYROLL: 'Generating payroll',
     // Get Payslip
-    PAYSLIP_LIST: 'Loading Payslip List',
-    PAYSLIP_DETAIL: 'Loading Payslip',
-    PAYSLIP_DETAILS: 'Loading Payslip Details',
+    PAYSLIP_LIST: 'Loading payslips',
+    PAYSLIP_DETAIL: 'Loading payslip',
+    PAYSLIP_DETAILS: 'Loading payslip details',
     // Get Salary Structure
-    SALARY_STRUCTURE_LIST: 'Loading Salary Structure',
+    SALARY_STRUCTURE_LIST: 'Loading salary structures',
     // Get Salary Structure History
-    SALARY_REVISION_HISTORY: 'Loading Salary Revision History',
+    SALARY_REVISION_HISTORY: 'Loading salary revision history',
   },
   LOADING_MESSAGES: {
     // Action Payroll
-    PAID: 'Please wait while we mark the payslip as paid...',
-    CANCEL: 'Please wait while we cancel the payslip...',
-    APPROVE: 'Please wait while we approve the payslip...',
+    PAID: "We're marking this payslip as paid. This will just take a moment.",
+    CANCEL: "We're cancelling this payslip. This will just take a moment.",
+    APPROVE: "We're approving this payslip. This will just take a moment.",
     // Add Salary Increment
-    ADD_SALARY_INCREMENT: 'Please wait while we add salary increment...',
+    ADD_SALARY_INCREMENT:
+      "We're adding this salary increment. This will just take a moment.",
     LOAD_EMPLOYEE_SALARY_DETAIL:
-      'Please wait while we load the employee latest salary detail...',
-    // Edit Salary
-    EDIT_SALARY: 'Please wait while we edit salary...',
+      "We're loading the latest salary details. This will just take a moment.",
+    // Update salary
+    EDIT_SALARY:
+      "We're updating your salary changes. This will just take a moment.",
     // Generate Payroll
-    GENERATE_PAYROLL: 'Please wait while we generate payroll...',
+    GENERATE_PAYROLL: "We're generating payroll. This will just take a moment.",
     // Get Payslip
-    PAYSLIP_LIST: 'Please wait while we load the payslip list...',
-    PAYSLIP_DETAIL: 'Please wait while we load the payslip...',
-    PAYSLIP_DETAILS: 'Please wait while we load the payslip details...',
+    PAYSLIP_LIST: "We're loading payslips. This will just take a moment.",
+    PAYSLIP_DETAIL: "We're loading this payslip. This will just take a moment.",
+    PAYSLIP_DETAILS:
+      "We're loading payslip details. This will just take a moment.",
     // Get Salary Structure
-    SALARY_STRUCTURE_LIST: 'Please wait while we load the salary structure...',
+    SALARY_STRUCTURE_LIST:
+      "We're loading salary structures. This will just take a moment.",
     // Get Salary Structure History
     SALARY_REVISION_HISTORY:
-      'Please wait while we load the salary revision history...',
+      "We're loading salary revision history. This will just take a moment.",
   },
   SUCCESS: {
     // Add Salary Increment

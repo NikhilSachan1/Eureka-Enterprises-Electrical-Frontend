@@ -62,7 +62,7 @@ const COMPANY_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
-    tooltip: 'Edit Company',
+    tooltip: 'Update Company',
     permission: [APP_PERMISSION.COMPANY.EDIT],
   },
   {

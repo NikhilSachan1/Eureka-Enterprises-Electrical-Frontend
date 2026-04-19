@@ -59,7 +59,8 @@ export class GetProfitabilityComponent implements OnInit {
   private loadProjectProfitability(): void {
     this.loadingService.show({
       title: 'Loading Project Profitability',
-      message: 'Please wait while we load the project profitability...',
+      message:
+        "We're loading the project profitability. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

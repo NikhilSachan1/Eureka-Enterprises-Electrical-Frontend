@@ -115,8 +115,8 @@ export class EditDocComponent
 
   private executeEditDoc(formData: IDocEditFormDto, docId: string): void {
     this.loadingService.show({
-      title: 'Edit Doc',
-      message: 'Please wait while we edit doc...',
+      title: 'Updating document',
+      message: "We're updating the document. This will just take a moment.",
     });
     this.form.disable();
 

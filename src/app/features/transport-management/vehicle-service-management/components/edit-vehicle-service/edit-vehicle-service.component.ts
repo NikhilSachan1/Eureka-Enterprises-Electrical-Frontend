@@ -128,8 +128,9 @@ export class EditVehicleServiceComponent
     vehicleServiceId: string
   ): void {
     this.loadingService.show({
-      title: 'Edit Vehicle Service',
-      message: 'Please wait while we edit vehicle service...',
+      title: 'Updating vehicle service',
+      message:
+        "We're updating the service record. This will just take a moment.",
     });
     this.form.disable();
 

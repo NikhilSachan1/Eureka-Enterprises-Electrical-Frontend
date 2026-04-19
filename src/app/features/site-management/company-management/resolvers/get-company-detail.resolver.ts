@@ -41,7 +41,8 @@ export class GetCompanyDetailResolver
 
     this.loadingService.show({
       title: 'Loading Company Detail',
-      message: 'Please wait while we load the company detail...',
+      message:
+        "We're loading the company detail. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(companyId);

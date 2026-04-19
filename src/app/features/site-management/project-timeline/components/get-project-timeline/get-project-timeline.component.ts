@@ -76,7 +76,8 @@ export class GetProjectTimelineComponent implements OnInit {
   private loadProjectTimeline(): void {
     this.loadingService.show({
       title: 'Loading Project Timeline',
-      message: 'Please wait while we load the project timeline...',
+      message:
+        "We're loading the project timeline. This will just take a moment.",
     });
     const paramData = this.prepareParamData();
     this.projectTimelineService

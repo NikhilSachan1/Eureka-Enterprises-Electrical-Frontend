@@ -112,12 +112,14 @@ export class ApprovalFuelExpenseComponent
     if (this.dialogActionType() === EButtonActionType.APPROVE) {
       loadingMessage = {
         title: 'Approving Fuel Expense',
-        message: 'Please wait while we approve the fuel expense...',
+        message:
+          "We're approving the fuel expense. This will just take a moment.",
       };
     } else if (this.dialogActionType() === EButtonActionType.REJECT) {
       loadingMessage = {
         title: 'Rejecting Fuel Expense',
-        message: 'Please wait while we reject the fuel expense...',
+        message:
+          "We're rejecting the fuel expense. This will just take a moment.",
       };
     }
     this.loadingService.show(loadingMessage);

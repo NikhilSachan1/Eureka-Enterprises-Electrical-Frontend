@@ -47,7 +47,8 @@ export class GetFuelExpenseDetailResolver
 
     this.loadingService.show({
       title: 'Loading Fuel Expense Detail',
-      message: 'Please wait while we load the expense detail...',
+      message:
+        "We're loading the expense detail. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(fuelExpenseId);

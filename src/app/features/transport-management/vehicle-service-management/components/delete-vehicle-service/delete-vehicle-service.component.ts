@@ -75,7 +75,8 @@ export class DeleteVehicleServiceComponent
   ): void {
     const loadingMessage = {
       title: 'Deleting Vehicle Service',
-      message: 'Please wait while we delete the vehicle service...',
+      message:
+        "We're removing the vehicle service. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

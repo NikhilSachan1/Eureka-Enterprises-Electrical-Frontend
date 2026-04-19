@@ -81,8 +81,8 @@ export class AddVehicleReadingComponent
 
   private executeAddVehicleReading(formData: IvehicleReadingAddFormDto): void {
     this.loadingService.show({
-      title: 'Add Vehicle Reading',
-      message: 'Please wait while we add vehicle reading...',
+      title: 'Adding vehicle reading',
+      message: "We're adding vehicle reading. This will just take a moment.",
     });
     this.form.disable();
 

@@ -282,8 +282,8 @@ export class EditEmployeeComponent
   private logoutAndNavigateToLogin(): void {
     setTimeout(() => {
       this.loadingService.show({
-        title: 'Logging Out',
-        message: 'Please wait while we log you out...',
+        title: 'Signing out',
+        message: "We're signing you out. This will just take a moment.",
       });
 
       this.authService

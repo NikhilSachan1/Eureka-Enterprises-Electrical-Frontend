@@ -96,7 +96,7 @@ export class GalleryComponent {
   private resolveMedia(mediaItems: IGalleryInputData[]): void {
     this.loadingService.show({
       title: 'Loading Media',
-      message: 'Please wait while we load the media...',
+      message: "We're loading the media. This will just take a moment.",
     });
 
     const requests = mediaItems.map(item => {

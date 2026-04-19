@@ -110,8 +110,8 @@ export class GetProjectComponent implements OnInit {
   private loadProjectList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Project',
-      message: 'Please wait while we load the project...',
+      title: 'Loading projects',
+      message: "We're loading projects. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

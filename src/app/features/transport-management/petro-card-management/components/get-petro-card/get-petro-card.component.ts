@@ -98,8 +98,8 @@ export class GetPetroCardComponent implements OnInit {
   private loadPetroCardList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Petro Card',
-      message: 'Please wait while we load the petro card...',
+      title: 'Loading petro cards',
+      message: "We're loading petro cards. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

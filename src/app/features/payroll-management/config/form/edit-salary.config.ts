@@ -93,8 +93,8 @@ const EDIT_SALARY_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
-    label: 'Edit Salary',
-    tooltip: 'Edit salary',
+    label: 'Update Salary',
+    tooltip: 'Update salary',
   },
 };
 

@@ -53,8 +53,8 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
 
   private loadAssetDetails(): void {
     this.loadingService.show({
-      title: 'Loading Asset Details',
-      message: 'Please wait while we load the asset details...',
+      title: 'Loading asset details',
+      message: "We're loading this asset. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

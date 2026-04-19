@@ -75,7 +75,7 @@ export class DeleteFuelExpenseComponent
   ): void {
     const loadingMessage = {
       title: 'Deleting Fuel Expense',
-      message: 'Please wait while we delete the fuel expense...',
+      message: "We're removing the fuel expense. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

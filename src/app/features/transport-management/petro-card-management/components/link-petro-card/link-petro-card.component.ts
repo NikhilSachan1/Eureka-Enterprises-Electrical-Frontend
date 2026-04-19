@@ -148,7 +148,8 @@ export class LinkPetroCardComponent
     ) {
       loadingMessage = {
         title: 'Linking Petro Card to Vehicle',
-        message: 'Please wait while we link the petro card to the vehicle...',
+        message:
+          "We're linking the petro card to the vehicle. This will just take a moment.",
       };
     } else if (
       this.sourceComponent() === 'petro-card' &&
@@ -156,7 +157,8 @@ export class LinkPetroCardComponent
     ) {
       loadingMessage = {
         title: 'Linking Vehicle to Petro Card',
-        message: 'Please wait while we link the vehicle to the petro card...',
+        message:
+          "We're linking the vehicle to the petro card. This will just take a moment.",
       };
     } else if (
       this.sourceComponent() === 'vehicle' &&
@@ -165,7 +167,7 @@ export class LinkPetroCardComponent
       loadingMessage = {
         title: 'Unlinking Petro Card from Vehicle',
         message:
-          'Please wait while we unlink the petro card from the vehicle...',
+          "We're unlinking the petro card from the vehicle. This will just take a moment.",
       };
     } else if (
       this.sourceComponent() === 'petro-card' &&
@@ -174,7 +176,7 @@ export class LinkPetroCardComponent
       loadingMessage = {
         title: 'Unlinking Vehicle from Petro Card',
         message:
-          'Please wait while we unlink the vehicle from the petro card...',
+          "We're unlinking the vehicle from the petro card. This will just take a moment.",
       };
     }
     this.loadingService.show(loadingMessage);

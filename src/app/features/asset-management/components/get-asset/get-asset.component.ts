@@ -127,8 +127,8 @@ export class GetAssetComponent implements OnInit {
   private loadAssetList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Asset',
-      message: 'Please wait while we load the asset...',
+      title: 'Loading assets',
+      message: "We're loading your asset list. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

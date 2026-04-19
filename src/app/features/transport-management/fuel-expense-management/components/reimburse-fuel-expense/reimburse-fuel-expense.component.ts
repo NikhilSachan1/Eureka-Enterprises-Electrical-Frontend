@@ -83,7 +83,8 @@ export class ReimburseFuelExpenseComponent
   ): void {
     this.loadingService.show({
       title: 'Reimburse Fuel Expense',
-      message: 'Please wait while we process the reimburse fuel expense...',
+      message:
+        "We're submitting this fuel expense reimbursement. This will just take a moment.",
     });
     this.form.disable();
 

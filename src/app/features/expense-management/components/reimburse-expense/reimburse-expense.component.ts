@@ -84,7 +84,8 @@ export class ReimburseExpenseComponent
   private executeReimburseExpense(formData: IExpenseReimburseFormDto): void {
     this.loadingService.show({
       title: 'Reimburse Expense',
-      message: 'Please wait while we process the reimburse expense...',
+      message:
+        "We're submitting this expense reimbursement. This will just take a moment.",
     });
     this.form.disable();
 

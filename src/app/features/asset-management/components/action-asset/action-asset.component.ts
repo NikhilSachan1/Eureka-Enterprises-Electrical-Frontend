@@ -119,34 +119,34 @@ export class ActionAssetComponent
 
     if (this.dialogActionType() === EButtonActionType.HANDOVER_INITIATE) {
       loadingMessage = {
-        title: 'Initiating Handover',
-        message: 'Please wait while we initiate the handover...',
+        title: 'Starting handover',
+        message: "We're starting the handover. This will just take a moment.",
       };
     } else if (
       this.dialogActionType() === EButtonActionType.HANDOVER_ACCEPTED
     ) {
       loadingMessage = {
         title: 'Accepting Handover',
-        message: 'Please wait while we accept the handover...',
+        message: "We're accepting the handover. This will just take a moment.",
       };
     } else if (
       this.dialogActionType() === EButtonActionType.HANDOVER_REJECTED
     ) {
       loadingMessage = {
-        title: 'Rejecting Handover',
-        message: 'Please wait while we reject the handover...',
+        title: 'Rejecting handover',
+        message: "We're rejecting the handover. This will just take a moment.",
       };
     } else if (
       this.dialogActionType() === EButtonActionType.HANDOVER_CANCELLED
     ) {
       loadingMessage = {
-        title: 'Cancelling Handover',
-        message: 'Please wait while we cancel the handover...',
+        title: 'Cancelling handover',
+        message: "We're cancelling the handover. This will just take a moment.",
       };
     } else if (this.dialogActionType() === EButtonActionType.DEALLOCATE) {
       loadingMessage = {
-        title: 'Deallocating Asset',
-        message: 'Please wait while we deallocate the asset...',
+        title: 'Deallocating asset',
+        message: "We're deallocating this asset. This will just take a moment.",
       };
     }
 

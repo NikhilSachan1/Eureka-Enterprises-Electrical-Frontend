@@ -46,7 +46,7 @@ export class GetDsrDetailResolver
 
     this.loadingService.show({
       title: 'Loading DSR Detail',
-      message: 'Please wait while we load the DSR detail...',
+      message: "We're loading the DSR detail. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(dsrId);

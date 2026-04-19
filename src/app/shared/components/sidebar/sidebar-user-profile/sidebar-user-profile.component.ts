@@ -97,8 +97,8 @@ export class SidebarUserProfileComponent {
     this.userPopover.hide();
 
     this.loadingService.show({
-      title: 'Logging Out',
-      message: 'Please wait while we log you out...',
+      title: 'Signing out',
+      message: "We're signing you out. This will just take a moment.",
     });
 
     this.authService

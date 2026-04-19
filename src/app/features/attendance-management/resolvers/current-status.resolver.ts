@@ -23,7 +23,8 @@ export class CurrentStatusResolver
 
     this.loadingService.show({
       title: 'Loading Current Status',
-      message: 'Please wait while we load the current status...',
+      message:
+        "We're loading the current status. This will just take a moment.",
     });
 
     return this.attendanceService.getAttendanceCurrentStatus().pipe(

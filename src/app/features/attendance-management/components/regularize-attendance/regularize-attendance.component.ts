@@ -89,8 +89,9 @@ export class RegularizeAttendanceComponent
     attendanceId: string
   ): void {
     this.loadingService.show({
-      title: 'Regularize Attendance',
-      message: 'Please wait while we regularize the attendance...',
+      title: 'Updating attendance',
+      message:
+        "We're updating attendance changes. This will just take a moment.",
     });
     this.form.disable();
 

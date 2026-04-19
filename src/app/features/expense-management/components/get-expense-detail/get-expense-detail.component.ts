@@ -54,7 +54,8 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
   private loadExpenseDetails(): void {
     this.loadingService.show({
       title: 'Loading Expense Details',
-      message: 'Please wait while we load the expense details...',
+      message:
+        "We're loading the expense details. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

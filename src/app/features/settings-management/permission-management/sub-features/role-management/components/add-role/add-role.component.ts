@@ -61,8 +61,8 @@ export class AddRoleComponent
 
   private executeAddRole(formData: IRoleAddFormDto): void {
     this.loadingService.show({
-      title: 'Adding Role',
-      message: 'Please wait while we add the role...',
+      title: 'Adding role',
+      message: "We're adding the role. This will just take a moment.",
     });
     this.form.disable();
 

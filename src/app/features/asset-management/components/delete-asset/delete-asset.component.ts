@@ -74,8 +74,8 @@ export class DeleteAssetComponent
 
   private executeAssetDeleteAction(formData: IAssetDeleteFormDto): void {
     const loadingMessage = {
-      title: 'Deleting Asset',
-      message: 'Please wait while we delete the asset...',
+      title: 'Removing asset',
+      message: "We're removing this asset. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

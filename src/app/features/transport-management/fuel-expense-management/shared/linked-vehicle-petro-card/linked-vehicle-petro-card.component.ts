@@ -125,8 +125,9 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
    */
   private loadLinkedUserVehicleDetailFromApi(employeeName: string): void {
     this.loadingService.show({
-      title: 'Loading Linked Vehicle Detail',
-      message: 'Please wait while we load the linked vehicle detail...',
+      title: 'Loading linked vehicle details',
+      message:
+        "We're loading linked vehicle details. This will just take a moment.",
     });
 
     const paramData: ILinkedUserVehicleDetailGetFormDto = { employeeName };

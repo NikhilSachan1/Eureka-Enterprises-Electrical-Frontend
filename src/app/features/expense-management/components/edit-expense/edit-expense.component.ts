@@ -127,8 +127,8 @@ export class EditExpenseComponent
     expenseId: string
   ): void {
     this.loadingService.show({
-      title: 'Edit Expense',
-      message: 'Please wait while we edit expense...',
+      title: 'Updating expense',
+      message: "We're updating the expense. This will just take a moment.",
     });
     this.form.disable();
 

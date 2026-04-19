@@ -51,7 +51,7 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
   private loadDsrDetails(): void {
     this.loadingService.show({
       title: 'Loading DSR Details',
-      message: 'Please wait while we load the DSR details...',
+      message: "We're loading the DSR details. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

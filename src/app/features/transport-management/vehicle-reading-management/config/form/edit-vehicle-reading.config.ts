@@ -23,7 +23,7 @@ const EDIT_VEHICLE_READING_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Update Vehicle Reading',
-    tooltip: 'Edit Vehicle Reading',
+    tooltip: 'Update Vehicle Reading',
   },
 };
 

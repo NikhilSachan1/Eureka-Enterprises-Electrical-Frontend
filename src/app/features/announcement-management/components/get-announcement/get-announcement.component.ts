@@ -105,7 +105,7 @@ export class GetAnnouncementComponent implements OnInit {
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Announcement',
-      message: 'Please wait while we load the announcement...',
+      message: "We're loading the announcement. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

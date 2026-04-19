@@ -71,7 +71,7 @@ export class DeleteProjectComponent
   private executeProjectDeleteAction(formData: IProjectDeleteFormDto): void {
     const loadingMessage = {
       title: 'Deleting Project',
-      message: 'Please wait while we delete the project...',
+      message: "We're removing the project. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

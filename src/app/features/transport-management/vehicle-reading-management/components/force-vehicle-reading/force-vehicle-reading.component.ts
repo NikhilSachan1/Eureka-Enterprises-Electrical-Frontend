@@ -110,8 +110,8 @@ export class ForceVehicleReadingComponent
     }
 
     this.loadingService.show({
-      title: 'Force Vehicle Reading',
-      message: 'Please wait while we process the force vehicle reading...',
+      title: 'Recording vehicle reading',
+      message: "We're recording the reading. This will just take a moment.",
     });
     this.form.disable();
 

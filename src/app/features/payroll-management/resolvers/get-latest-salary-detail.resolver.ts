@@ -42,7 +42,8 @@ export class GetLatestSalaryDetailResolver
 
     this.loadingService.show({
       title: 'Loading Latest Salary Detail',
-      message: 'Please wait while we load the latest salary detail...',
+      message:
+        "We're loading the latest salary detail. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(salaryStructureId);

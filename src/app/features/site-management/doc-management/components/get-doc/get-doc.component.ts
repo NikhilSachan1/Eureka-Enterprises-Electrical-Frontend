@@ -71,7 +71,7 @@ export class GetDocComponent implements OnInit {
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading DOC',
-      message: 'Please wait while we load the DOC...',
+      message: "We're loading the DOC. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

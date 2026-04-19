@@ -53,7 +53,8 @@ export class GetVehicleServiceDetailComponent extends DrawerDetailBase {
   private loadVehicleServiceDetails(): void {
     this.loadingService.show({
       title: 'Loading Vehicle Service Details',
-      message: 'Please wait while we load the vehicle service details...',
+      message:
+        "We're loading the vehicle service details. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

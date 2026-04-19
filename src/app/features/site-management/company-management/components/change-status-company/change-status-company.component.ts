@@ -95,7 +95,8 @@ export class ChangeStatusCompanyComponent extends FormBase implements OnInit {
   ): void {
     const loadingMessage = {
       title: 'Changing Company Status',
-      message: 'Please wait while we change the company status...',
+      message:
+        "We're updating the company status. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

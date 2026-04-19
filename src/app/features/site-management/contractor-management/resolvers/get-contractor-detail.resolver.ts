@@ -41,7 +41,8 @@ export class GetContractorDetailResolver
 
     this.loadingService.show({
       title: 'Loading Contractor Detail',
-      message: 'Please wait while we load the contractor detail...',
+      message:
+        "We're loading the contractor detail. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(contractorId);

@@ -116,8 +116,8 @@ export class EditPetroCardComponent
     petroCardId: string
   ): void {
     this.loadingService.show({
-      title: 'Edit Petro Card',
-      message: 'Please wait while we edit a petro card...',
+      title: 'Update Petro Card',
+      message: "We're updating a petro card. This will just take a moment.",
     });
     this.form.disable();
 

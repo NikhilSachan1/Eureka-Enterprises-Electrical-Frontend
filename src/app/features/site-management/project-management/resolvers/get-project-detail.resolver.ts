@@ -41,7 +41,8 @@ export class GetProjectDetailResolver
 
     this.loadingService.show({
       title: 'Loading Project Detail',
-      message: 'Please wait while we load the project detail...',
+      message:
+        "We're loading the project detail. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData(projectId);

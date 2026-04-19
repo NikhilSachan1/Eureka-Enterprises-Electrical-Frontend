@@ -60,8 +60,9 @@ export class GetConfigurationDetailComponent extends DrawerDetailBase {
 
   private loadConfigurationDetails(): void {
     this.loadingService.show({
-      title: 'Loading Configuration Details',
-      message: 'Please wait while we load the configuration details...',
+      title: 'Loading configuration details',
+      message:
+        "We're loading the configuration details. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

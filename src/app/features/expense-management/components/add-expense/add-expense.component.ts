@@ -64,8 +64,8 @@ export class AddExpenseComponent
 
   private executeAddExpense(formData: IExpenseAddFormDto): void {
     this.loadingService.show({
-      title: 'Add Expense',
-      message: 'Please wait while we add expense...',
+      title: 'Adding expense',
+      message: "We're adding expense. This will just take a moment.",
     });
     this.form.disable();
 

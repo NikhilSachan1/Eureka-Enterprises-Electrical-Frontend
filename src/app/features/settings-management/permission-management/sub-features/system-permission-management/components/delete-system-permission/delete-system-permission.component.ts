@@ -75,7 +75,8 @@ export class DeleteSystemPermissionComponent
   ): void {
     const loadingMessage = {
       title: 'Deleting System Permission',
-      message: 'Please wait while we delete the system permission...',
+      message:
+        "We're removing the system permission. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

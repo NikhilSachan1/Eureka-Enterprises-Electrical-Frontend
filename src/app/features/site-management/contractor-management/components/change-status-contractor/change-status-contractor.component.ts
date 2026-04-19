@@ -98,7 +98,8 @@ export class ChangeStatusContractorComponent
   ): void {
     const loadingMessage = {
       title: 'Changing Contractor Status',
-      message: 'Please wait while we change the contractor status...',
+      message:
+        "We're updating the contractor status. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

@@ -158,8 +158,8 @@ export class EditAssetComponent
 
   private executeEditAsset(formData: IAssetEditFormDto, assetId: string): void {
     this.loadingService.show({
-      title: 'Edit Asset',
-      message: 'Please wait while we edit asset...',
+      title: 'Updating asset',
+      message: "We're updating your changes. This will just take a moment.",
     });
     this.form.disable();
 
@@ -192,8 +192,8 @@ export class EditAssetComponent
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
-      title: 'Edit Asset',
-      subtitle: 'Edit an asset',
+      title: 'Update Asset',
+      subtitle: 'Update an asset',
     };
   }
 }

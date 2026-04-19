@@ -119,8 +119,8 @@ export class AddProjectComponent
 
   private executeAddProject(formData: IProjectAddFormDto): void {
     this.loadingService.show({
-      title: 'Add Project',
-      message: 'Please wait while we adding project...',
+      title: 'Adding project',
+      message: "We're adding the project. This will just take a moment.",
     });
     this.form.disable();
 

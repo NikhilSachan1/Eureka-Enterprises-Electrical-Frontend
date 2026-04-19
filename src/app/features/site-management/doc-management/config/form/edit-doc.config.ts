@@ -18,7 +18,7 @@ const EDIT_DOC_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Update Doc',
-    tooltip: 'Edit Doc',
+    tooltip: 'Update Doc',
   },
 };
 

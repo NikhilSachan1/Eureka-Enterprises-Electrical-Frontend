@@ -155,8 +155,8 @@ export class GetFuelExpenseComponent implements OnInit {
     this.payNowEmployeeId.set(null);
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Fuel Expense',
-      message: 'Please wait while we load the fuel expense...',
+      title: 'Loading fuel expenses',
+      message: "We're loading fuel expenses. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

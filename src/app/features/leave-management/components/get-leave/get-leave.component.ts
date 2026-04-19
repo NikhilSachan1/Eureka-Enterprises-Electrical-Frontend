@@ -104,7 +104,8 @@ export class GetLeaveComponent implements OnInit {
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Leave',
-      message: 'Please wait while we load the leave applications...',
+      message:
+        "We're loading the leave applications. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

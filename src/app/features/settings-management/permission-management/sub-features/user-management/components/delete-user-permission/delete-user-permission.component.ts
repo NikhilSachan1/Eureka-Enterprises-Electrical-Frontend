@@ -73,7 +73,8 @@ export class DeleteUserPermissionComponent
   ): void {
     const loadingMessage = {
       title: 'Deleting User Permission',
-      message: 'Please wait while we delete the user permission...',
+      message:
+        "We're removing the user permission. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

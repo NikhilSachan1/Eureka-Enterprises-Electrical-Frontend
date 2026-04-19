@@ -70,8 +70,8 @@ export class AddAnnouncementComponent
 
   private executeAddAnnouncement(formData: IAnnouncementAddFormDto): void {
     this.loadingService.show({
-      title: 'Add Announcement',
-      message: 'Please wait while we add announcement...',
+      title: 'Adding announcement',
+      message: "We're adding the announcement. This will just take a moment.",
     });
     this.form.disable();
 

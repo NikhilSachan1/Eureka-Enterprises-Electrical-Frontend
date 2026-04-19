@@ -67,8 +67,8 @@ export class GetCronComponent implements OnInit {
   private loadCronJobList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading cron jobs',
-      message: 'Please wait while we load scheduled jobs...',
+      title: 'Loading scheduled jobs',
+      message: "We're loading scheduled jobs. This will just take a moment.",
     });
 
     this.cronService

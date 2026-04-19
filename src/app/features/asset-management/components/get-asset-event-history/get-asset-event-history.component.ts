@@ -106,8 +106,9 @@ export class GetAssetEventHistoryComponent implements OnInit {
 
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Asset Event History',
-      message: 'Please wait while we load the asset event history...',
+      title: 'Loading event history',
+      message:
+        "We're loading the history for this asset. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

@@ -50,7 +50,8 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
   private loadCompanyDetails(): void {
     this.loadingService.show({
       title: 'Loading Company Details',
-      message: 'Please wait while we load the company details...',
+      message:
+        "We're loading the company details. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

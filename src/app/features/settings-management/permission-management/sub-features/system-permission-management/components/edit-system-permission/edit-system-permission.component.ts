@@ -127,8 +127,9 @@ export class EditSystemPermissionComponent
     systemPermissionId: string
   ): void {
     this.loadingService.show({
-      title: 'Updating System Permission',
-      message: 'Please wait while we update the system permission...',
+      title: 'Updating system permission',
+      message:
+        "We're updating the system permission. This will just take a moment.",
     });
     this.form.disable();
 

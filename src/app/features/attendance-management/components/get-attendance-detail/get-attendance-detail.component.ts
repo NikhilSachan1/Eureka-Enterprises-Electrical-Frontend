@@ -56,7 +56,8 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   private loadAttendanceDetails(): void {
     this.loadingService.show({
       title: 'Loading Attendance Details',
-      message: 'Please wait while we load the attendance details...',
+      message:
+        "We're loading this attendance record. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

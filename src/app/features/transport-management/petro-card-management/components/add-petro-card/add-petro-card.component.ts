@@ -68,8 +68,8 @@ export class AddPetroCardComponent
 
   private executeAddPetroCard(formData: IPetroCardAddFormDto): void {
     this.loadingService.show({
-      title: 'Adding Petro Card',
-      message: 'Please wait while we are adding the petro card...',
+      title: 'Adding petro card',
+      message: "We're adding the petro card. This will just take a moment.",
     });
     this.form.disable();
 

@@ -62,7 +62,8 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
   private loadAnnouncementDetails(): void {
     this.loadingService.show({
       title: 'Loading Announcement Details',
-      message: 'Please wait while we load the announcement details...',
+      message:
+        "We're loading the announcement details. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

@@ -102,8 +102,8 @@ export class GetCompanyComponent implements OnInit {
   private loadCompanyList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Company',
-      message: 'Please wait while we load the company...',
+      title: 'Loading companies',
+      message: "We're loading company records. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

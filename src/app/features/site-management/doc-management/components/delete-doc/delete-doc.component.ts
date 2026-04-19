@@ -70,7 +70,7 @@ export class DeleteDocComponent
   private executeDocDeleteAction(formData: { docIds: string[] }): void {
     const loadingMessage = {
       title: 'Deleting Doc',
-      message: 'Please wait while we delete the doc...',
+      message: "We're removing the doc. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

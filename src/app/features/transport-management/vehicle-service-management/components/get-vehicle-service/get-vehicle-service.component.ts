@@ -115,8 +115,8 @@ export class GetVehicleServiceComponent implements OnInit {
   private loadVehicleServiceList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Vehicle Service',
-      message: 'Please wait while we load the vehicle service...',
+      title: 'Loading vehicle services',
+      message: "We're loading vehicle services. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

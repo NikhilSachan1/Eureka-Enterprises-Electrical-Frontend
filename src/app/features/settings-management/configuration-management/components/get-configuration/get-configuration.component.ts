@@ -88,8 +88,9 @@ export class GetConfigurationComponent implements OnInit {
   private loadConfigurationList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Configuration List',
-      message: 'Please wait while we load the configuration list...',
+      title: 'Loading configuration',
+      message:
+        "We're loading configuration entries. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

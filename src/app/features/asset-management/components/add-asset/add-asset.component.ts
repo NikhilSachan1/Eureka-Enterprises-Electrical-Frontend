@@ -83,8 +83,8 @@ export class AddAssetComponent
 
   private executeAddAsset(formData: IAssetAddFormDto): void {
     this.loadingService.show({
-      title: 'Add Asset',
-      message: 'Please wait while we add asset...',
+      title: 'Adding new asset',
+      message: "We're adding your new asset. This will just take a moment.",
     });
     this.form.disable();
 

@@ -102,7 +102,7 @@ export class GetContractorComponent implements OnInit {
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Contractor',
-      message: 'Please wait while we load the contractor...',
+      message: "We're loading the contractor. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

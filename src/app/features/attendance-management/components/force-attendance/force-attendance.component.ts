@@ -97,9 +97,9 @@ export class ForceAttendanceComponent
 
   private loadEmployeeCurrentStatusDetail(employeeName: string): void {
     this.loadingService.show({
-      title: 'Loading Employee Current Status Detail',
+      title: 'Loading employee assignment',
       message:
-        'Please wait while we load the employee current status detail...',
+        "We're loading the employee assignment. This will just take a moment.",
     });
 
     const paramData = this.prepareParamDataForCurrentStatusDetail(employeeName);
@@ -204,8 +204,8 @@ export class ForceAttendanceComponent
 
   private executeForceAttendance(formData: IAttendanceForceFormDto): void {
     this.loadingService.show({
-      title: 'Force Attendance',
-      message: 'Please wait while we force attendance...',
+      title: 'Recording attendance',
+      message: "We're recording attendance. This will just take a moment.",
     });
     this.form.disable();
 

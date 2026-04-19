@@ -130,7 +130,7 @@ export class RoleSwitcherComponent {
     this.isSubmitting.set(true);
     this.loadingService.show({
       title: 'Switching Role',
-      message: 'Please wait while we configure your new role...',
+      message: "We're configuring your new role. This will just take a moment.",
     });
 
     // Step 1: Call switch role API (gets new token)

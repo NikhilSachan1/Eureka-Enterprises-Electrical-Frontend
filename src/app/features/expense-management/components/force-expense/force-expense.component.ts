@@ -66,8 +66,9 @@ export class ForceExpenseComponent
 
   private executeForceExpense(formData: IExpenseForceFormDto): void {
     this.loadingService.show({
-      title: 'Force Expense',
-      message: 'Please wait while we process the force expense...',
+      title: 'Recording expense',
+      message:
+        "We're processing the force expense. This will just take a moment.",
     });
     this.form.disable();
 

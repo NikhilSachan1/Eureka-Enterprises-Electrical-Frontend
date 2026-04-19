@@ -75,7 +75,7 @@ export class DeleteCompanyComponent
   private executeCompanyDeleteAction(formData: ICompanyDeleteFormDto): void {
     const loadingMessage = {
       title: 'Deleting Company',
-      message: 'Please wait while we delete the company...',
+      message: "We're removing the company. This will just take a moment.",
     };
     this.loadingService.show(loadingMessage);
 

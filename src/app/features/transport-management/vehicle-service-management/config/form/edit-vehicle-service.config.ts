@@ -19,7 +19,7 @@ const EDIT_VEHICLE_SERVICE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   submit: {
     ...COMMON_FORM_ACTIONS.SUBMIT,
     label: 'Update Vehicle Service',
-    tooltip: 'Edit vehicle service',
+    tooltip: 'Update vehicle service',
   },
 };
 

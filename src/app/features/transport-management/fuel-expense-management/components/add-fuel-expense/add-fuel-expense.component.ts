@@ -83,8 +83,9 @@ export class AddFuelExpenseComponent
 
   private executeAddExpense(formData: IFuelExpenseAddFormDto): void {
     this.loadingService.show({
-      title: 'Add Fuel Expense',
-      message: 'Please wait while we add fuel expense...',
+      title: 'Adding Fuel Expense',
+      message:
+        "We're adding your new fuel expense. This will just take a moment.",
     });
     this.form.disable();
 

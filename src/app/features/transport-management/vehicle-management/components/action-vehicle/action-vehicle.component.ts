@@ -123,33 +123,34 @@ export class ActionVehicleComponent
     if (this.dialogActionType() === EButtonActionType.HANDOVER_INITIATE) {
       loadingMessage = {
         title: 'Initiating Handover',
-        message: 'Please wait while we initiate the handover...',
+        message: "We're starting the handover. This will just take a moment.",
       };
     } else if (
       this.dialogActionType() === EButtonActionType.HANDOVER_ACCEPTED
     ) {
       loadingMessage = {
         title: 'Accepting Handover',
-        message: 'Please wait while we accept the handover...',
+        message: "We're accepting the handover. This will just take a moment.",
       };
     } else if (
       this.dialogActionType() === EButtonActionType.HANDOVER_REJECTED
     ) {
       loadingMessage = {
         title: 'Rejecting Handover',
-        message: 'Please wait while we reject the handover...',
+        message: "We're rejecting the handover. This will just take a moment.",
       };
     } else if (
       this.dialogActionType() === EButtonActionType.HANDOVER_CANCELLED
     ) {
       loadingMessage = {
         title: 'Cancelling Handover',
-        message: 'Please wait while we cancel the handover...',
+        message: "We're cancelling the handover. This will just take a moment.",
       };
     } else if (this.dialogActionType() === EButtonActionType.DEALLOCATE) {
       loadingMessage = {
         title: 'Deallocating Vehicle',
-        message: 'Please wait while we deallocate the vehicle...',
+        message:
+          "We're deallocating the vehicle. This will just take a moment.",
       };
     }
 

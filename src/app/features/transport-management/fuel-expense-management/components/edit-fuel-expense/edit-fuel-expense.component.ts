@@ -149,8 +149,9 @@ export class EditFuelExpenseComponent
     fuelExpenseId: string
   ): void {
     this.loadingService.show({
-      title: 'Edit Fuel Expense',
-      message: 'Please wait while we edit fuel  expense...',
+      title: 'Updating fuel expense',
+      message:
+        "We're updating this fuel expense. This will just take a moment.",
     });
     this.form.disable();
 

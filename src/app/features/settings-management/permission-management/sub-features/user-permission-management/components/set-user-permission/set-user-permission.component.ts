@@ -125,8 +125,9 @@ export class SetUserPermissionComponent extends FormBase implements OnInit {
 
   private executeSetUserPermission(formData: IUserPermissionsSetFormDto): void {
     this.loadingService.show({
-      title: 'Updating User Permission',
-      message: 'Please wait while we update the user permission...',
+      title: 'Updating user permissions',
+      message:
+        "We're updating the user permission. This will just take a moment.",
     });
 
     this.userPermissionService

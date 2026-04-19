@@ -138,8 +138,9 @@ export class EditContractorComponent
     contractorId: string
   ): void {
     this.loadingService.show({
-      title: 'Edit Contractor',
-      message: 'Please wait while we edit contractor...',
+      title: 'Updating contractor',
+      message:
+        "We're updating contractor details. This will just take a moment.",
     });
     this.form.disable();
 

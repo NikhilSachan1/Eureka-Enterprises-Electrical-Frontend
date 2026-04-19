@@ -130,7 +130,7 @@ export class GetExpenseComponent implements OnInit {
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Expense',
-      message: 'Please wait while we load the expense...',
+      message: "We're loading the expense. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();

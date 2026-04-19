@@ -107,7 +107,8 @@ export class GetVehicleEventHistoryComponent implements OnInit {
     this.table.setLoading(true);
     this.loadingService.show({
       title: 'Loading Vehicle Event History',
-      message: 'Please wait while we load the vehicle event history...',
+      message:
+        "We're loading the vehicle event history. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();
