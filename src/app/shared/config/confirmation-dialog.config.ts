@@ -28,9 +28,9 @@ export const CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
 
 export const DELETE_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
   ...CONFIRMATION_DIALOG_CONFIG,
-  header: 'Delete Confirmation',
+  header: 'Delete this item?',
   message:
-    'Are you sure you want to delete this item? This action cannot be undone.',
+    'This will permanently remove the selected record. You cannot undo this.',
   labels: {
     actionWord: 'delete',
     singleLabel: 'Delete',
@@ -40,8 +40,8 @@ export const DELETE_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
 
 export const APPROVE_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
   ...CONFIRMATION_DIALOG_CONFIG,
-  header: 'Approve Confirmation',
-  message: 'Are you sure you want to approve this item?',
+  header: 'Approve?',
+  message: 'Proceed with approval for this item?',
   labels: {
     actionWord: 'approve',
     singleLabel: 'Approve',
@@ -51,8 +51,8 @@ export const APPROVE_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
 
 export const REJECT_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
   ...CONFIRMATION_DIALOG_CONFIG,
-  header: 'Reject Confirmation',
-  message: 'Are you sure you want to reject this item?',
+  header: 'Reject?',
+  message: 'Proceed with rejection for this item?',
   labels: {
     actionWord: 'reject',
     singleLabel: 'Reject',
@@ -62,8 +62,8 @@ export const REJECT_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
 
 export const CANCEL_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
   ...CONFIRMATION_DIALOG_CONFIG,
-  header: 'Cancel Confirmation',
-  message: 'Are you sure you want to cancel this item?',
+  header: 'Cancel this request?',
+  message: 'The selected request will be cancelled. Continue?',
   labels: {
     actionWord: 'cancel',
     singleLabel: 'Cancel',

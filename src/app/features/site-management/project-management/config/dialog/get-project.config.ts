@@ -11,17 +11,16 @@ export const PROJECT_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   },
   [EButtonActionType.CHANGE_STATUS]: {
     dialogConfig: {
-      header: 'Change Project Status',
-      message:
-        'Are you sure you want to change project status to this project?',
+      header: 'Change project status',
+      message: "Update this project's status? Choose the new status below.",
     },
     dynamicComponent: ChangeStatusProjectComponent,
   },
   [EButtonActionType.ALLOCATE_DEALLOCATE_EMPLOYEE]: {
     dialogConfig: {
-      header: 'Allocate/Deallocate Employee',
+      header: 'Update project team',
       message:
-        'Are you sure you want to allocate/deallocate employee to this project?',
+        'Add or remove team members on this project? Adjust allocations below.',
     },
     dynamicComponent: AllocateDeallocateEmployeeComponent,
   },

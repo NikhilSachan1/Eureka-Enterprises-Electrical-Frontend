@@ -11,16 +11,16 @@ export const EMPLOYEE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   },
   [EButtonActionType.SEND_PASSWORD_LINK]: {
     dialogConfig: {
-      header: 'Send Password Link',
-      message: 'Are you sure you want to send password link to this employee?',
+      header: 'Send password setup link',
+      message:
+        'Send a password setup link to this employee? They will get instructions by email.',
     },
     dynamicComponent: SendPasswordLinkEmployeeComponent,
   },
   [EButtonActionType.CHANGE_STATUS]: {
     dialogConfig: {
-      header: 'Change Employee Status',
-      message:
-        'Are you sure you want to change employee status to this employee?',
+      header: 'Change employee status',
+      message: "Update this employee's status? Choose the new status below.",
     },
     dynamicComponent: ChangeStatusEmployeeComponent,
   },

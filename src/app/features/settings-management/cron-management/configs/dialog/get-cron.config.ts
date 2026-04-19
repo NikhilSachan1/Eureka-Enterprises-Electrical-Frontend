@@ -4,8 +4,9 @@ import { TriggerCronComponent } from '../../components/trigger-cron/trigger-cron
 export const CRON_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.GENERATE]: {
     dialogConfig: {
-      header: 'Trigger Cron Job',
-      message: 'Are you sure you want to trigger this cron job?',
+      header: 'Run scheduled job',
+      message:
+        'Run this job now with the settings below? Only continue if you intend to execute it.',
     },
     dynamicComponent: TriggerCronComponent,
   },

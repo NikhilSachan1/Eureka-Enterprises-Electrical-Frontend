@@ -10,8 +10,8 @@ export const USER_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   },
   [EButtonActionType.CHANGE_USER_ROLE]: {
     dialogConfig: {
-      header: 'Change User Role',
-      message: 'Are you sure you want to change user role to this user?',
+      header: 'Change user role',
+      message: 'Assign a different role to this user? Choose the role below.',
     },
     dynamicComponent: ChangeUserRoleComponent,
   },

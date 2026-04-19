@@ -21,8 +21,9 @@ export const ATTENDANCE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
     [EButtonActionType.REGULARIZE]: {
       dynamicComponent: RegularizeAttendanceComponent,
       dialogConfig: {
-        header: 'Regularize Attendance',
-        message: 'Are you sure you want to regularize this attendance?',
+        header: 'Regularize attendance',
+        message:
+          'Submit a regularization for this attendance record? Add details below.',
       },
     },
   };

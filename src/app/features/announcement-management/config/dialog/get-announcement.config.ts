@@ -24,7 +24,7 @@ export const SHOW_ANNOUNCEMENT_DIALOG_ACTION_CONFIG: IDialogActionConfig = {
     ...CONFIRMATION_DIALOG_CONFIG,
     header: 'Announcement',
     icon: ICONS.COMMON.MEGAPHONE,
-    message: '',
+    message: 'Review the details below, then acknowledge or dismiss.',
     iconContainerClass: `${infoStyle.bg} ${infoStyle.border} ${infoStyle.text}`,
     acceptButtonProps: {
       ...CONFIRMATION_DIALOG_CONFIG.acceptButtonProps,

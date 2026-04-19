@@ -11,17 +11,16 @@ export const PETRO_CARD_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
     },
     [EButtonActionType.LINK]: {
       dialogConfig: {
-        header: 'Link to Vehicle',
+        header: 'Link to vehicle',
         message:
-          'Are you sure you want to link this vehicle to this petro card?',
+          'Connect this petro card to the selected vehicle? Confirm the details below.',
       },
       dynamicComponent: LinkPetroCardComponent,
     },
     [EButtonActionType.UNLINK]: {
       dialogConfig: {
-        header: 'Unlink from Vehicle',
-        message:
-          'Are you sure you want to unlink this vehicle from this petro card?',
+        header: 'Unlink from vehicle',
+        message: 'Remove the link between this petro card and this vehicle?',
       },
       dynamicComponent: LinkPetroCardComponent,
     },

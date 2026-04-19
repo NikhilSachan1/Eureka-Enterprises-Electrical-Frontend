@@ -10,9 +10,8 @@ export const COMPANY_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   },
   [EButtonActionType.CHANGE_STATUS]: {
     dialogConfig: {
-      header: 'Change Company Status',
-      message:
-        'Are you sure you want to change company status to this company?',
+      header: 'Change company status',
+      message: "Update this company's status? Choose the new status below.",
     },
     dynamicComponent: ChangeStatusCompanyComponent,
   },

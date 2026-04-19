@@ -11,9 +11,9 @@ export const CONTRACTOR_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> =
     },
     [EButtonActionType.CHANGE_STATUS]: {
       dialogConfig: {
-        header: 'Change Contractor Status',
+        header: 'Change contractor status',
         message:
-          'Are you sure you want to change contractor status to this contractor?',
+          "Update this contractor's status? Choose the new status below.",
       },
       dynamicComponent: ChangeStatusContractorComponent,
     },

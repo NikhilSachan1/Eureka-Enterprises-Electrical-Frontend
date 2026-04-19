@@ -12,65 +12,69 @@ export const VEHICLE_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.HANDOVER_INITIATE]: {
     dynamicComponent: ActionVehicleComponent,
     dialogConfig: {
-      header: 'Handover Vehicle',
-      message: 'Are you sure you want to handover this vehicle?',
+      header: 'Start vehicle handover',
+      message:
+        'Begin the handover process for this vehicle? Add any notes below.',
     },
   },
   [EButtonActionType.HANDOVER_ACCEPTED]: {
     dynamicComponent: ActionVehicleComponent,
     dialogConfig: {
-      header: 'Accept Allocation',
-      message: 'Are you sure you want to accept this allocation?',
+      header: 'Accept handover',
+      message: 'Accept this handover and take responsibility for this vehicle?',
     },
   },
   [EButtonActionType.HANDOVER_REJECTED]: {
     dynamicComponent: ActionVehicleComponent,
     dialogConfig: {
-      header: 'Reject Allocation',
-      message: 'Are you sure you want to reject this allocation?',
+      header: 'Reject handover',
+      message: 'Reject this handover request?',
     },
   },
   [EButtonActionType.HANDOVER_CANCELLED]: {
     dynamicComponent: ActionVehicleComponent,
     dialogConfig: {
-      header: 'Cancel Allocation',
-      message: 'Are you sure you want to cancel this allocation?',
+      header: 'Cancel handover',
+      message:
+        'Cancel this handover? The vehicle will stay with the current holder.',
     },
   },
   [EButtonActionType.DEALLOCATE]: {
     dynamicComponent: ActionVehicleComponent,
     dialogConfig: {
-      header: 'Deallocate Vehicle',
-      message: 'Are you sure you want to deallocate this vehicle?',
+      header: 'Deallocate vehicle',
+      message: 'Remove this vehicle from the current assignee and free it up?',
     },
   },
   [EButtonActionType.UNDER_MAINTENANCE]: {
     dynamicComponent: ActionVehicleComponent,
     dialogConfig: {
-      header: 'Under Maintenance',
-      message: 'Are you sure you want to put this vehicle under maintenance?',
+      header: 'Mark under maintenance',
+      message:
+        'Set this vehicle to under maintenance? It should not be assigned until cleared.',
     },
   },
   [EButtonActionType.RETIRED]: {
     dynamicComponent: ActionVehicleComponent,
     dialogConfig: {
-      header: 'Retired',
-      message: 'Are you sure you want to retire this vehicle?',
+      header: 'Retire vehicle',
+      message:
+        'Mark this vehicle as retired? This usually means it is permanently out of service.',
     },
   },
   [EButtonActionType.LINK]: {
     dynamicComponent: LinkPetroCardComponent,
     dialogConfig: {
-      header: 'Link Petro Card',
-      message: 'Are you sure you want to link this petro card to this vehicle?',
+      header: 'Link petro card',
+      message:
+        'Link this petro card to the selected vehicle? Confirm the pairing below.',
     },
   },
   [EButtonActionType.UNLINK]: {
     dynamicComponent: LinkPetroCardComponent,
     dialogConfig: {
-      header: 'Unlink Petro Card',
-      message:
-        'Are you sure you want to unlink this petro card from this vehicle?',
+      header: 'Unlink petro card',
+      message: 'Remove the link between this petro card and this vehicle?',
     },
   },
 };
