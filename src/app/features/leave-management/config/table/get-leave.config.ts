@@ -8,7 +8,7 @@ import {
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
-import { isPayrollLocked } from '@shared/utility';
+import { isPayrollLocked, toLocalCalendarDate } from '@shared/utility';
 import { ILeaveGetBaseResponseDto } from '../../types/leave.dto';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -22,8 +22,11 @@ const BULK_PAYROLL_LOCKED_REASON =
 const ALREADY_CANCELLED_REASON = 'This leave is already cancelled.';
 const ALREADY_APPROVED_REASON = 'This leave is already approved.';
 const ALREADY_REJECTED_REASON = 'This leave is already rejected.';
-const CANCEL_NOT_FOR_REJECTED_REASON =
-  'Rejected leave cannot be cancelled. You can approve it instead.';
+const REJECTED_LEAVE_CANNOT_BE_APPROVED_REASON =
+  'Rejected leave cannot be approved. Submit a new leave application to reapply.';
+const CANCEL_NOT_FOR_REJECTED_REASON = 'Rejected leave cannot be cancelled.';
+const CANCEL_NOT_ALLOWED_LEAVE_DATE_PAST_ROW_REASON =
+  'Cancellation is not allowed because the leave period has already started or ended. Please contact HR if you need changes.';
 const ACTION_NOT_ALLOWED_STATE_REASON =
   'This action is not available for the current approval status.';
 
@@ -34,16 +37,21 @@ const BULK_ALREADY_APPROVED_REASON =
   'Some of the selected leave records are already approved.';
 const BULK_ALREADY_REJECTED_REASON =
   'Some of the selected leave records are already rejected.';
+const BULK_REJECTED_LEAVE_CANNOT_BE_APPROVED_REASON =
+  'Some selected records are rejected leave; they cannot be approved. Submit new leave applications to reapply.';
 const BULK_CANCEL_NOT_FOR_REJECTED_REASON =
   'Some of the selected leave records are rejected and cannot be cancelled.';
+const BULK_CANCEL_LEAVE_DATE_PAST_REASON =
+  'Some selected records cannot be cancelled because the leave period has already started or ended. Contact HR if needed.';
 const BULK_ACTION_NOT_ALLOWED_STATE_REASON =
   'Some of the selected leave records cannot receive this action in their current status.';
 
 /**
  * Pending → Approve, Reject, Cancel.
  * Approved → Reject, Cancel (not Approve).
- * Rejected → Approve only.
+ * Rejected → none (reapply with a new leave application).
  * Cancelled → none.
+ * Cancel → not allowed if the leave start date is before today (local) — contact HR.
  * Payroll locked on from/to date → all actions off.
  */
 function rowApprovalLower(row: ILeaveGetBaseResponseDto): string {
@@ -54,15 +62,34 @@ function isLeavePayrollLocked(row: ILeaveGetBaseResponseDto): boolean {
   return isPayrollLocked(row.fromDate) || isPayrollLocked(row.toDate);
 }
 
+/** True when the leave’s first day is strictly before today (local calendar) — cancellation blocked (HR policy). */
+function isLeaveStartDateBeforeToday(row: ILeaveGetBaseResponseDto): boolean {
+  const from = toLocalCalendarDate(row.fromDate);
+  if (!from) {
+    return false;
+  }
+  const now = new Date();
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+  return from.getTime() <= startOfToday.getTime();
+}
+
 function shouldDisableLeaveApprove(row: ILeaveGetBaseResponseDto): boolean {
   if (isLeavePayrollLocked(row)) {
     return true;
   }
   const s = rowApprovalLower(row);
-  if (s === EApprovalStatus.CANCELLED || s === EApprovalStatus.APPROVED) {
+  if (
+    s === EApprovalStatus.CANCELLED ||
+    s === EApprovalStatus.APPROVED ||
+    s === EApprovalStatus.REJECTED
+  ) {
     return true;
   }
-  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.REJECTED) {
+  if (s === EApprovalStatus.PENDING) {
     return false;
   }
   return true;
@@ -78,7 +105,10 @@ function approveDisableReasonWithoutPayroll(
   if (s === EApprovalStatus.APPROVED) {
     return ALREADY_APPROVED_REASON;
   }
-  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.REJECTED) {
+  if (s === EApprovalStatus.REJECTED) {
+    return REJECTED_LEAVE_CANNOT_BE_APPROVED_REASON;
+  }
+  if (s === EApprovalStatus.PENDING) {
     return undefined;
   }
   return ACTION_NOT_ALLOWED_STATE_REASON;
@@ -141,7 +171,7 @@ function shouldDisableLeaveCancel(row: ILeaveGetBaseResponseDto): boolean {
     return true;
   }
   if (s === EApprovalStatus.PENDING || s === EApprovalStatus.APPROVED) {
-    return false;
+    return isLeaveStartDateBeforeToday(row);
   }
   return true;
 }
@@ -157,6 +187,9 @@ function cancelDisableReasonWithoutPayroll(
     return CANCEL_NOT_FOR_REJECTED_REASON;
   }
   if (s === EApprovalStatus.PENDING || s === EApprovalStatus.APPROVED) {
+    if (isLeaveStartDateBeforeToday(row)) {
+      return CANCEL_NOT_ALLOWED_LEAVE_DATE_PAST_ROW_REASON;
+    }
     return undefined;
   }
   return ACTION_NOT_ALLOWED_STATE_REASON;
@@ -184,7 +217,10 @@ function getBulkApproveDisableReason(
   if (s === EApprovalStatus.APPROVED) {
     return BULK_ALREADY_APPROVED_REASON;
   }
-  if (s === EApprovalStatus.PENDING || s === EApprovalStatus.REJECTED) {
+  if (s === EApprovalStatus.REJECTED) {
+    return BULK_REJECTED_LEAVE_CANNOT_BE_APPROVED_REASON;
+  }
+  if (s === EApprovalStatus.PENDING) {
     return undefined;
   }
   return BULK_ACTION_NOT_ALLOWED_STATE_REASON;
@@ -223,6 +259,9 @@ function getBulkCancelDisableReason(
     return BULK_CANCEL_NOT_FOR_REJECTED_REASON;
   }
   if (s === EApprovalStatus.PENDING || s === EApprovalStatus.APPROVED) {
+    if (isLeaveStartDateBeforeToday(row)) {
+      return BULK_CANCEL_LEAVE_DATE_PAST_REASON;
+    }
     return undefined;
   }
   return BULK_ACTION_NOT_ALLOWED_STATE_REASON;

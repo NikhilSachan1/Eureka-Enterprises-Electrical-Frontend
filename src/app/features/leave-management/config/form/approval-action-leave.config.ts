@@ -22,7 +22,6 @@ const APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ILeaveAct
           shouldApply: (context): boolean => {
             const { actionType } = context;
             return (
-              actionType === EButtonActionType.APPROVE ||
               actionType === EButtonActionType.REJECT ||
               actionType === EButtonActionType.CANCEL
             );
@@ -58,6 +57,7 @@ const APPROVAL_ACTION_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ILeaveAct
           validators: [Validators.required],
         },
       ],
+      hint: 'Choose how attendance should be recorded for the related period when you submit this.',
     },
   };
 

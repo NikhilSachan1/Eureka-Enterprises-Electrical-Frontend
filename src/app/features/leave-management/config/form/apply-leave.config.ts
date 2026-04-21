@@ -3,6 +3,7 @@ import { FinancialYearService } from '@core/services/financial-year.service';
 import { ILeaveApplyFormDto } from '@features/leave-management/types/leave.dto';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
+  EButtonActionType,
   EDataType,
   EDateSelectionMode,
   IFormButtonConfig,
@@ -30,7 +31,18 @@ const APPLY_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ILeaveApplyFormDto>
       id: 'leaveReason',
       fieldName: 'leaveReason',
       label: 'Reason for Leave',
-      validators: [Validators.required],
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            const { actionType } = context;
+            return (
+              actionType.toLowerCase() !==
+              EButtonActionType.APPROVE.toLowerCase()
+            );
+          },
+          validators: [Validators.required],
+        },
+      ],
     },
   };
 

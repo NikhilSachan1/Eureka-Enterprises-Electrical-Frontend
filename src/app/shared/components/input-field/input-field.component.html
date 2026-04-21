@@ -16,43 +16,31 @@
 }
 @switch (config.fieldType) {
   @case (ALL_DATA_TYPES.TEXT) {
-    <div class="flex flex-col gap-1 w-full">
-      <p-floatlabel [variant]="config.floatLabelVariant">
-        @let textConfig = config.textConfig || {};
-        <input
-          pInputText
-          [id]="config.id"
-          [autocomplete]="config.autocomplete"
-          [fluid]="config.haveFullWidth"
-          [pSize]="config.fieldSize"
-          [attr.placeholder]="effectivePlaceholder || null"
-          [attr.minlength]="textConfig.minimumInputLength ?? null"
-          [attr.maxlength]="textConfig.maximumInputLength ?? null"
-          [disabled]="config.disabledInput || false"
-          [readonly]="config.readonlyInput || false"
-          [ngModel]="effectiveValue()"
-          [ngModelOptions]="{ standalone: true }"
-          [class]="invalidClass"
-          (keydown)="onTextKeyDown($event)"
-          (beforeinput)="onTextBeforeInput($event)"
-          (input)="onValueChange($event)"
-          (blur)="onBlur()"
-        />
-        @if (!showStandardLabel) {
-          <label [for]="config.id">{{ config.label }}</label>
-        }
-      </p-floatlabel>
-      @if (config.hint) {
-        <p class="text-xs text-text-secondary leading-snug m-0 flex items-start gap-1.5">
-          <i
-            [ngClass]="ALL_MEDIA_ICONS.COMMON.INFO_CIRCLE"
-            class="shrink-0 mt-0.5 text-xs"
-            aria-hidden="true"
-          ></i>
-          <span>{{ config.hint }}</span>
-        </p>
+    <p-floatlabel [variant]="config.floatLabelVariant">
+      @let textConfig = config.textConfig || {};
+      <input
+        pInputText
+        [id]="config.id"
+        [autocomplete]="config.autocomplete"
+        [fluid]="config.haveFullWidth"
+        [pSize]="config.fieldSize"
+        [attr.placeholder]="effectivePlaceholder || null"
+        [attr.minlength]="textConfig.minimumInputLength ?? null"
+        [attr.maxlength]="textConfig.maximumInputLength ?? null"
+        [disabled]="config.disabledInput || false"
+        [readonly]="config.readonlyInput || false"
+        [ngModel]="effectiveValue()"
+        [ngModelOptions]="{ standalone: true }"
+        [class]="invalidClass"
+        (keydown)="onTextKeyDown($event)"
+        (beforeinput)="onTextBeforeInput($event)"
+        (input)="onValueChange($event)"
+        (blur)="onBlur()"
+      />
+      @if (!showStandardLabel) {
+        <label [for]="config.id">{{ config.label }}</label>
       }
-    </div>
+    </p-floatlabel>
   }
   @case (ALL_DATA_TYPES.NUMBER) {
     <p-floatlabel [variant]="config.floatLabelVariant">
@@ -679,6 +667,16 @@
       <label [for]="config.id">{{ config.label }}</label>
     }
   }
+}
+@if (config.hint) {
+  <p class="text-xs text-text-secondary leading-snug m-0 mt-1 flex w-full items-start gap-1.5">
+    <i
+      [ngClass]="ALL_MEDIA_ICONS.COMMON.INFO_CIRCLE"
+      class="shrink-0 mt-0.5 text-xs"
+      aria-hidden="true"
+    ></i>
+    <span>{{ config.hint }}</span>
+  </p>
 }
 @if (isFieldInvalid) {
   @if (isFormMode()) {

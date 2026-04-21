@@ -21,6 +21,7 @@ import { AttendanceService } from '@features/attendance-management/services/atte
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBase } from '@shared/base/form.base';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 
 @Component({
   selector: 'app-regularize-attendance',
@@ -54,12 +55,23 @@ export class RegularizeAttendanceComponent
       return;
     }
 
+    const allowedStatuses = [
+      EAttendanceStatus.PRESENT,
+      EAttendanceStatus.ABSENT,
+      EAttendanceStatus.LEAVE,
+      EAttendanceStatus.HOLIDAY,
+    ];
+
     this.form = this.formService.createForm<IAttendanceRegularizedUIFormDto>(
       REGULARIZE_ATTENDANCE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
         defaultValues: {
-          attendanceStatus: record[0].status,
+          attendanceStatus: allowedStatuses.includes(
+            record[0].status as EAttendanceStatus
+          )
+            ? record[0].status
+            : undefined,
         },
       }
     );

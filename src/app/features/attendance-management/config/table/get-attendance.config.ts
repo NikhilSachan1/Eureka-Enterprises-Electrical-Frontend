@@ -6,6 +6,7 @@ import {
   EDataType,
   EButtonActionType,
   EApprovalStatus,
+  EEntryType,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
 import {
@@ -18,7 +19,9 @@ import { IAttendanceGetBaseResponseDto } from '../../types/attendance.dto';
 import { EAttendanceStatus } from '../../types/attendance.enum';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
-/** When status is not checked in yet, the employee has not marked attendance — row/bulk actions are disabled. */
+// ─── Predicates (shared) ─────────────────────────────────────────────────────
+
+/** Not checked in yet, or approval does not apply — blocks approve/reject (and view/regularize except on holiday/leave). */
 function isAttendanceNotMarkedYet(row: IAttendanceGetBaseResponseDto): boolean {
   return (
     row.status === EAttendanceStatus.NOT_CHECKED_IN_YET ||
@@ -30,49 +33,23 @@ function isAttendanceHoliday(row: IAttendanceGetBaseResponseDto): boolean {
   return row.status === EAttendanceStatus.HOLIDAY;
 }
 
+function isAttendanceLeave(row: IAttendanceGetBaseResponseDto): boolean {
+  return row.status === EAttendanceStatus.LEAVE;
+}
+
+/** Holiday or leave: approve/reject disabled; view/regularize use separate “not marked” rules. */
+function isHolidayOrLeave(row: IAttendanceGetBaseResponseDto): boolean {
+  return isAttendanceHoliday(row) || isAttendanceLeave(row);
+}
+
 /**
- * View / regularize may run on holidays even when approval is N/A or day wasn’t “checked in”
- * (holiday rows are not treated as “not marked yet” for those actions).
+ * View / regularize on holidays and leave days: do not treat as “not marked yet”
+ * (so those actions can still run when applicable).
  */
 function isAttendanceNotMarkedYetForViewRegularize(
   row: IAttendanceGetBaseResponseDto
 ): boolean {
-  return isAttendanceNotMarkedYet(row) && !isAttendanceHoliday(row);
-}
-
-const NOT_MARKED_ATTENDANCE_ACTION_REASON =
-  'Attendance has not been marked yet. Actions are unavailable until the employee checks in.';
-
-const ALREADY_APPROVED_REASON = 'This attendance is already approved.';
-const ALREADY_REJECTED_REASON = 'This attendance is already rejected.';
-
-/** Bulk tooltips (match expense / fuel-expense table configs: “some of the selected…”). */
-const BULK_NOT_MARKED_ATTENDANCE_REASON =
-  'Some of the selected attendance records have not been marked yet.';
-const BULK_ALREADY_APPROVED_REASON =
-  'Some of the selected attendance records are already approved.';
-const BULK_ALREADY_REJECTED_REASON =
-  'Some of the selected attendance records are already rejected.';
-
-const PAYROLL_LOCKED_ROW_REASON =
-  'This period is locked because payroll has already been generated.';
-const PAYROLL_LOCKED_BULK_REASON =
-  'Some of the selected records are locked because payroll has already been generated.';
-
-/** Attendance row is “leave” but attendance approval is still pending — resolve leave first. */
-const LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON =
-  'This day is on leave with approval still pending. Take action on the leave application first, then approve or reject attendance.';
-const BULK_LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON =
-  'Some of the selected records are on leave with leave approval still pending. Take action on leave first.';
-
-function isLeaveWithPendingAttendanceApproval(
-  row: IAttendanceGetBaseResponseDto
-): boolean {
-  const approval = row.approvalStatus?.toLowerCase() ?? '';
-  return (
-    row.status === EAttendanceStatus.LEAVE &&
-    approval === EApprovalStatus.PENDING
-  );
+  return isAttendanceNotMarkedYet(row) && !isHolidayOrLeave(row);
 }
 
 function isApprovalAlreadyApproved(
@@ -89,11 +66,164 @@ function isApprovalAlreadyRejected(
   return s === EApprovalStatus.REJECTED;
 }
 
+// ─── Row tooltips: View ──────────────────────────────────────────────────────
+
+const VIEW_DISABLED_NOT_MARKED_REASON =
+  'View is available only after the employee checks in and attendance is recorded for the day.';
+
+// ─── Row tooltips: Regularize ────────────────────────────────────────────────
+
+const REGULARIZE_DISABLED_NOT_MARKED_REASON =
+  'Regularization is available only after the employee checks in and attendance is recorded.';
+const REGULARIZE_DISABLED_PAYROLL_LOCKED_REASON =
+  'Regularization is not available because payroll has already been processed for this period.';
+const REGULARIZE_DISABLED_BEFORE_SHIFT_END_REASON = (endTime: string): string =>
+  `Regularization will be available after the shift ends (${endTime}).`;
+
+// ─── Row tooltips: Approve ───────────────────────────────────────────────────
+
+const APPROVE_DISABLED_ON_HOLIDAY_REASON =
+  'Approval is not allowed on scheduled holidays.';
+const APPROVE_DISABLED_ON_LEAVE_REASON =
+  'Approval is not allowed for leave days.';
+const APPROVE_DISABLED_NOT_MARKED_REASON =
+  'Approval is available only after the employee checks in.';
+const APPROVE_DISABLED_REGULARIZED_REASON =
+  'Approval is not allowed for attendance recorded through regularization.';
+const APPROVE_DISABLED_FORCED_REASON =
+  'Approval is not allowed for forced attendance entries.';
+const APPROVE_DISABLED_PAYROLL_LOCKED_REASON =
+  'Approval is not available because payroll has already been processed for this period.';
+const APPROVE_DISABLED_ALREADY_APPROVED_REASON =
+  'This attendance has already been approved.';
+
+// ─── Row tooltips: Reject ───────────────────────────────────────────────────
+
+const REJECT_DISABLED_ON_HOLIDAY_REASON =
+  'Rejection is not allowed on scheduled holidays.';
+const REJECT_DISABLED_ON_LEAVE_REASON =
+  'Rejection is not allowed for leave days.';
+const REJECT_DISABLED_NOT_MARKED_REASON =
+  'Rejection is available only after the employee checks in.';
+const REJECT_DISABLED_REGULARIZED_REASON =
+  'Rejection is not allowed for attendance recorded through regularization.';
+const REJECT_DISABLED_FORCED_REASON =
+  'Rejection is not allowed for forced attendance entries.';
+const REJECT_DISABLED_PAYROLL_LOCKED_REASON =
+  'Rejection is not available because payroll has already been processed for this period.';
+const REJECT_DISABLED_ALREADY_REJECTED_REASON =
+  'This attendance has already been rejected.';
+
+// ─── Bulk tooltips: Approve ──────────────────────────────────────────────────
+
+const BULK_APPROVE_DISABLED_ON_HOLIDAY_REASON =
+  'Some selected records are holidays and cannot be approved.';
+const BULK_APPROVE_DISABLED_ON_LEAVE_REASON =
+  'Some selected records are leave days and cannot be approved.';
+const BULK_APPROVE_DISABLED_NOT_MARKED_REASON =
+  'Some selected records do not have a check-in and cannot be approved.';
+const BULK_APPROVE_DISABLED_REGULARIZED_REASON =
+  'Some selected records are regularized and cannot be approved.';
+const BULK_APPROVE_DISABLED_FORCED_REASON =
+  'Some selected records are forced attendance and cannot be approved.';
+const BULK_APPROVE_DISABLED_PAYROLL_LOCKED_REASON =
+  'Some selected records fall in a payroll-locked period and cannot be approved.';
+const BULK_APPROVE_DISABLED_ALREADY_APPROVED_REASON =
+  'Some selected records are already approved.';
+
+// ─── Bulk tooltips: Reject ───────────────────────────────────────────────────
+
+const BULK_REJECT_DISABLED_ON_HOLIDAY_REASON =
+  'Some selected records are holidays and cannot be rejected.';
+const BULK_REJECT_DISABLED_ON_LEAVE_REASON =
+  'Some selected records are leave days and cannot be rejected.';
+const BULK_REJECT_DISABLED_NOT_MARKED_REASON =
+  'Some selected records do not have a check-in and cannot be rejected.';
+const BULK_REJECT_DISABLED_REGULARIZED_REASON =
+  'Some selected records are regularized and cannot be rejected.';
+const BULK_REJECT_DISABLED_FORCED_REASON =
+  'Some selected records are forced attendance and cannot be rejected.';
+const BULK_REJECT_DISABLED_PAYROLL_LOCKED_REASON =
+  'Some selected records fall in a payroll-locked period and cannot be rejected.';
+const BULK_REJECT_DISABLED_ALREADY_REJECTED_REASON =
+  'Some selected records are already rejected.';
+
+/** Shared priority for approve/reject disable (first match wins). */
+type ApproveRejectSharedBlock =
+  | 'holiday'
+  | 'leave'
+  | 'notMarked'
+  | 'regularized'
+  | 'forced'
+  | 'payrollLocked';
+
+const ROW_APPROVE_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
+  holiday: APPROVE_DISABLED_ON_HOLIDAY_REASON,
+  leave: APPROVE_DISABLED_ON_LEAVE_REASON,
+  notMarked: APPROVE_DISABLED_NOT_MARKED_REASON,
+  regularized: APPROVE_DISABLED_REGULARIZED_REASON,
+  forced: APPROVE_DISABLED_FORCED_REASON,
+  payrollLocked: APPROVE_DISABLED_PAYROLL_LOCKED_REASON,
+};
+
+const ROW_REJECT_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
+  holiday: REJECT_DISABLED_ON_HOLIDAY_REASON,
+  leave: REJECT_DISABLED_ON_LEAVE_REASON,
+  notMarked: REJECT_DISABLED_NOT_MARKED_REASON,
+  regularized: REJECT_DISABLED_REGULARIZED_REASON,
+  forced: REJECT_DISABLED_FORCED_REASON,
+  payrollLocked: REJECT_DISABLED_PAYROLL_LOCKED_REASON,
+};
+
+const BULK_APPROVE_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
+  holiday: BULK_APPROVE_DISABLED_ON_HOLIDAY_REASON,
+  leave: BULK_APPROVE_DISABLED_ON_LEAVE_REASON,
+  notMarked: BULK_APPROVE_DISABLED_NOT_MARKED_REASON,
+  regularized: BULK_APPROVE_DISABLED_REGULARIZED_REASON,
+  forced: BULK_APPROVE_DISABLED_FORCED_REASON,
+  payrollLocked: BULK_APPROVE_DISABLED_PAYROLL_LOCKED_REASON,
+};
+
+const BULK_REJECT_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
+  holiday: BULK_REJECT_DISABLED_ON_HOLIDAY_REASON,
+  leave: BULK_REJECT_DISABLED_ON_LEAVE_REASON,
+  notMarked: BULK_REJECT_DISABLED_NOT_MARKED_REASON,
+  regularized: BULK_REJECT_DISABLED_REGULARIZED_REASON,
+  forced: BULK_REJECT_DISABLED_FORCED_REASON,
+  payrollLocked: BULK_REJECT_DISABLED_PAYROLL_LOCKED_REASON,
+};
+
+/**
+ * Single ordered pass for the conditions that apply identically to approve and reject
+ * (holiday → leave → not marked → regularized / forced → payroll locked).
+ */
+function getSharedApproveRejectDisableBlock(
+  row: IAttendanceGetBaseResponseDto
+): ApproveRejectSharedBlock | undefined {
+  if (isAttendanceHoliday(row)) {
+    return 'holiday';
+  }
+  if (isAttendanceLeave(row)) {
+    return 'leave';
+  }
+  if (isAttendanceNotMarkedYet(row)) {
+    return 'notMarked';
+  }
+  if (row.attendanceType === EEntryType.REGULARIZED) {
+    return 'regularized';
+  }
+  if (row.attendanceType === EEntryType.FORCED) {
+    return 'forced';
+  }
+  if (isPayrollLocked(row.attendanceDate)) {
+    return 'payrollLocked';
+  }
+  return undefined;
+}
+
 function shouldDisableApprove(row: IAttendanceGetBaseResponseDto): boolean {
   return (
-    isAttendanceNotMarkedYet(row) ||
-    isLeaveWithPendingAttendanceApproval(row) ||
-    isPayrollLocked(row.attendanceDate) ||
+    getSharedApproveRejectDisableBlock(row) !== undefined ||
     isApprovalAlreadyApproved(row)
   );
 }
@@ -101,26 +231,19 @@ function shouldDisableApprove(row: IAttendanceGetBaseResponseDto): boolean {
 function getApproveDisableReason(
   row: IAttendanceGetBaseResponseDto
 ): string | undefined {
-  if (isAttendanceNotMarkedYet(row)) {
-    return NOT_MARKED_ATTENDANCE_ACTION_REASON;
-  }
-  if (isLeaveWithPendingAttendanceApproval(row)) {
-    return LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON;
-  }
-  if (isPayrollLocked(row.attendanceDate)) {
-    return PAYROLL_LOCKED_ROW_REASON;
+  const block = getSharedApproveRejectDisableBlock(row);
+  if (block !== undefined) {
+    return ROW_APPROVE_REASON_BY_BLOCK[block];
   }
   if (isApprovalAlreadyApproved(row)) {
-    return ALREADY_APPROVED_REASON;
+    return APPROVE_DISABLED_ALREADY_APPROVED_REASON;
   }
   return undefined;
 }
 
 function shouldDisableReject(row: IAttendanceGetBaseResponseDto): boolean {
   return (
-    isAttendanceNotMarkedYet(row) ||
-    isLeaveWithPendingAttendanceApproval(row) ||
-    isPayrollLocked(row.attendanceDate) ||
+    getSharedApproveRejectDisableBlock(row) !== undefined ||
     isApprovalAlreadyRejected(row)
   );
 }
@@ -128,17 +251,12 @@ function shouldDisableReject(row: IAttendanceGetBaseResponseDto): boolean {
 function getRejectDisableReason(
   row: IAttendanceGetBaseResponseDto
 ): string | undefined {
-  if (isAttendanceNotMarkedYet(row)) {
-    return NOT_MARKED_ATTENDANCE_ACTION_REASON;
-  }
-  if (isLeaveWithPendingAttendanceApproval(row)) {
-    return LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON;
-  }
-  if (isPayrollLocked(row.attendanceDate)) {
-    return PAYROLL_LOCKED_ROW_REASON;
+  const block = getSharedApproveRejectDisableBlock(row);
+  if (block !== undefined) {
+    return ROW_REJECT_REASON_BY_BLOCK[block];
   }
   if (isApprovalAlreadyRejected(row)) {
-    return ALREADY_REJECTED_REASON;
+    return REJECT_DISABLED_ALREADY_REJECTED_REASON;
   }
   return undefined;
 }
@@ -146,17 +264,12 @@ function getRejectDisableReason(
 function getBulkApproveDisableReason(
   row: IAttendanceGetBaseResponseDto
 ): string | undefined {
-  if (isAttendanceNotMarkedYet(row)) {
-    return BULK_NOT_MARKED_ATTENDANCE_REASON;
-  }
-  if (isLeaveWithPendingAttendanceApproval(row)) {
-    return BULK_LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON;
-  }
-  if (isPayrollLocked(row.attendanceDate)) {
-    return PAYROLL_LOCKED_BULK_REASON;
+  const block = getSharedApproveRejectDisableBlock(row);
+  if (block !== undefined) {
+    return BULK_APPROVE_REASON_BY_BLOCK[block];
   }
   if (isApprovalAlreadyApproved(row)) {
-    return BULK_ALREADY_APPROVED_REASON;
+    return BULK_APPROVE_DISABLED_ALREADY_APPROVED_REASON;
   }
   return undefined;
 }
@@ -164,17 +277,12 @@ function getBulkApproveDisableReason(
 function getBulkRejectDisableReason(
   row: IAttendanceGetBaseResponseDto
 ): string | undefined {
-  if (isAttendanceNotMarkedYet(row)) {
-    return BULK_NOT_MARKED_ATTENDANCE_REASON;
-  }
-  if (isLeaveWithPendingAttendanceApproval(row)) {
-    return BULK_LEAVE_PENDING_TAKE_ACTION_ON_LEAVE_FIRST_REASON;
-  }
-  if (isPayrollLocked(row.attendanceDate)) {
-    return PAYROLL_LOCKED_BULK_REASON;
+  const block = getSharedApproveRejectDisableBlock(row);
+  if (block !== undefined) {
+    return BULK_REJECT_REASON_BY_BLOCK[block];
   }
   if (isApprovalAlreadyRejected(row)) {
-    return BULK_ALREADY_REJECTED_REASON;
+    return BULK_REJECT_DISABLED_ALREADY_REJECTED_REASON;
   }
   return undefined;
 }
@@ -213,33 +321,50 @@ function isNowBeforeShiftEnd(): boolean {
   return now < shiftEnd;
 }
 
-/** Regularize: not marked yet, payroll locked, or same-day row before shift end time from static config. */
-function shouldDisableRegularize(row: IAttendanceGetBaseResponseDto): boolean {
-  if (isAttendanceNotMarkedYetForViewRegularize(row)) {
-    return true;
-  }
-  if (isPayrollLocked(row.attendanceDate)) {
-    return true;
-  }
-  return (
-    isSameLocalCalendarDayAsToday(row.attendanceDate) && isNowBeforeShiftEnd()
-  );
-}
+type RegularizeDisableBlock = 'notMarked' | 'payrollLocked' | 'beforeShiftEnd';
 
-function getRegularizeDisableReason(
+function getRegularizeDisableBlock(
   row: IAttendanceGetBaseResponseDto
-): string | undefined {
+): RegularizeDisableBlock | undefined {
   if (isAttendanceNotMarkedYetForViewRegularize(row)) {
-    return NOT_MARKED_ATTENDANCE_ACTION_REASON;
+    return 'notMarked';
   }
   if (isPayrollLocked(row.attendanceDate)) {
-    return PAYROLL_LOCKED_ROW_REASON;
+    return 'payrollLocked';
   }
   if (
     isSameLocalCalendarDayAsToday(row.attendanceDate) &&
     isNowBeforeShiftEnd()
   ) {
-    return `Regularize is available after shift ends (${SHIFT_DATA.END_TIME}).`;
+    return 'beforeShiftEnd';
+  }
+  return undefined;
+}
+
+function shouldDisableRegularize(row: IAttendanceGetBaseResponseDto): boolean {
+  return getRegularizeDisableBlock(row) !== undefined;
+}
+
+function getRegularizeDisableReason(
+  row: IAttendanceGetBaseResponseDto
+): string | undefined {
+  switch (getRegularizeDisableBlock(row)) {
+    case 'notMarked':
+      return REGULARIZE_DISABLED_NOT_MARKED_REASON;
+    case 'payrollLocked':
+      return REGULARIZE_DISABLED_PAYROLL_LOCKED_REASON;
+    case 'beforeShiftEnd':
+      return REGULARIZE_DISABLED_BEFORE_SHIFT_END_REASON(SHIFT_DATA.END_TIME);
+    default:
+      return undefined;
+  }
+}
+
+function getViewDisableReason(
+  row: IAttendanceGetBaseResponseDto
+): string | undefined {
+  if (isAttendanceNotMarkedYetForViewRegularize(row)) {
+    return VIEW_DISABLED_NOT_MARKED_REASON;
   }
   return undefined;
 }
@@ -312,10 +437,7 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'View Attendance Details',
     permission: [APP_PERMISSION.ATTENDANCE.VIEW_DETAIL],
     disableWhen: isAttendanceNotMarkedYetForViewRegularize,
-    disableReason: row =>
-      isAttendanceNotMarkedYetForViewRegularize(row)
-        ? NOT_MARKED_ATTENDANCE_ACTION_REASON
-        : undefined,
+    disableReason: getViewDisableReason,
   },
   {
     id: EButtonActionType.REGULARIZE,

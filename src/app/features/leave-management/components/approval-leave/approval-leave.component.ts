@@ -8,9 +8,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { APPROVAL_ACTION_LEAVE_FORM_CONFIG } from '@features/leave-management/config';
 import { LeaveService } from '@features/leave-management/services/leave.service';
-import { shouldShowAttendanceStatusField } from '@features/leave-management/utils/leave.util';
+import {
+  isTodayOnOrBeforeLeaveFromDate,
+  shouldShowAttendanceStatusField,
+} from '@features/leave-management/utils/leave.util';
 import {
   ILeaveActionFormDto,
   ILeaveActionResponseDto,
@@ -99,6 +103,8 @@ export class ApprovalLeaveComponent
   private prepareFormData(): ILeaveActionFormDto {
     const record = this.selectedRecord();
     const formData = this.form.getData();
+    const [{ fromDate: fromDateRaw }] = record;
+    const fromDate = new Date(fromDateRaw);
 
     let actionTypeValue!: ETableActionTypeValue;
 
@@ -110,8 +116,15 @@ export class ApprovalLeaveComponent
       actionTypeValue = ETableActionTypeValue.CANCELLED;
     }
 
+    const isApprove = this.dialogActionType() === EButtonActionType.APPROVE;
+    const attendanceStatus =
+      isApprove && isTodayOnOrBeforeLeaveFromDate(fromDate)
+        ? EAttendanceStatus.LEAVE
+        : formData.attendanceStatus;
+
     return {
       ...formData,
+      attendanceStatus,
       leaveIds: record.map((row: ILeaveGetBaseResponseDto) => row.id),
       approvalStatus: actionTypeValue as unknown as EApprovalStatus,
     };
