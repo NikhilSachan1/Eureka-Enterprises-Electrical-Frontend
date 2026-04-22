@@ -10,6 +10,8 @@ import {
   LeaveGetResponseSchema,
   LeaveGetStatsResponseSchema,
   LeaveGetRequestSchema,
+  LeaveBalanceGetResponseSchema,
+  LeaveBalanceGetRequestSchema,
 } from '../schemas';
 
 /**
@@ -50,3 +52,16 @@ export type ILeaveActionUIFormDto = Omit<
   'approvalStatus' | 'leaveIds'
 >;
 export type ILeaveActionResponseDto = z.infer<typeof LeaveActionResponseSchema>;
+
+/**
+ * Get Leave Balance
+ */
+export type ILeaveBalanceGetRequestDto = z.infer<
+  typeof LeaveBalanceGetRequestSchema
+>;
+export type ILeaveBalanceGetFormDto = z.input<
+  typeof LeaveBalanceGetRequestSchema
+>;
+export type ILeaveBalanceGetResponseDto = z.infer<
+  typeof LeaveBalanceGetResponseSchema
+>;

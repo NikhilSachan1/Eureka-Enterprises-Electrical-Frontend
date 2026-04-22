@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { APP_PERMISSION } from '@core/constants';
 import { permissionGuard } from '@core/guards';
 import { ROUTES } from '@shared/constants';
+import { GetLeaveBalanceResolver } from './resolvers/get-leave-balance.resolver';
 
 export const LEAVE_MANAGEMENT_ROUTES: Routes = [
   {
@@ -26,6 +27,9 @@ export const LEAVE_MANAGEMENT_ROUTES: Routes = [
       import('./components/apply-leave/apply-leave.component').then(
         m => m.ApplyLeaveComponent
       ),
+    resolve: {
+      leaveBalance: GetLeaveBalanceResolver,
+    },
     canActivate: [permissionGuard],
     data: {
       permissions: [APP_PERMISSION.LEAVE.APPLY],

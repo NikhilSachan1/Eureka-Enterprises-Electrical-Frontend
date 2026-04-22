@@ -5,6 +5,8 @@ import {
   ILeaveActionResponseDto,
   ILeaveApplyFormDto,
   ILeaveApplyResponseDto,
+  ILeaveBalanceGetFormDto,
+  ILeaveBalanceGetResponseDto,
   ILeaveForceFormDto,
   ILeaveForceResponseDto,
   ILeaveGetFormDto,
@@ -17,6 +19,8 @@ import {
   LeaveActionResponseSchema,
   LeaveApplyRequestSchema,
   LeaveApplyResponseSchema,
+  LeaveBalanceGetRequestSchema,
+  LeaveBalanceGetResponseSchema,
   LeaveForceRequestSchema,
   LeaveForceResponseSchema,
   LeaveGetRequestSchema,
@@ -134,6 +138,38 @@ export class LeaveService {
             this.logger.logDtoValidationErrors('Get Leave List Error', error);
           } else {
             this.logger.logUserAction('Get Leave List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getLeaveBalance(
+    params?: ILeaveBalanceGetFormDto
+  ): Observable<ILeaveBalanceGetResponseDto> {
+    this.logger.logUserAction('Get Leave Balance Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.LEAVE.BALANCE,
+        {
+          response: LeaveBalanceGetResponseSchema,
+          request: LeaveBalanceGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: ILeaveBalanceGetResponseDto) => {
+          this.logger.logUserAction('Get Leave Balance Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Leave Balance Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Leave Balance Error', error);
           }
           return throwError(() => error);
         })

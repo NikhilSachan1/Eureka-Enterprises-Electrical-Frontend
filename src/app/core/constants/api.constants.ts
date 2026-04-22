@@ -63,6 +63,7 @@ export const API_ROUTES = {
     APPLY: 'leave/apply',
     FORCE: 'leave/force',
     APPROVAL_ACTION: 'leave/approval',
+    BALANCE: 'leave-balances',
   },
   ASSET: {
     LIST: 'assets',
