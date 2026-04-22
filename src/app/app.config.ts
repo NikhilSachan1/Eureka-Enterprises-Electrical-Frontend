@@ -4,6 +4,7 @@ import {
   inject,
   provideAppInitializer,
   provideZoneChangeDetection,
+  isDevMode,
 } from '@angular/core';
 import {
   provideRouter,
@@ -36,6 +37,7 @@ import { AnnouncementService } from '@features/announcement-management/services/
 import { AppConfigurationService } from '@shared/services';
 import { lastValueFrom, take } from 'rxjs';
 import { FinancialYearService } from '@core/services/financial-year.service';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -110,6 +112,10 @@ export const appConfig: ApplicationConfig = {
       }
 
       announcementService.startPeriodicUnacknowledgedCheck();
+    }),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
     }),
   ],
 };

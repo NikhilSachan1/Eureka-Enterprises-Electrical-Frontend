@@ -1,0 +1,23 @@
+{
+  "name": "Eureka Enterprises – Electrical",
+  "short_name": "Eureka Electrical",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "theme_color": "#0c1222",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
