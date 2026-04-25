@@ -1,1 +1,35 @@
-<p>leave-balance-cards works!</p>
+@if (leaveBalance(); as balance) {
+  <div class="leave-balance-section">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="leave-balance-card leave-balance-card--allocated">
+        <div class="leave-balance-card__icon">
+          <i class="pi pi-chart-line"></i>
+        </div>
+        <div class="leave-balance-card__content">
+          <span class="leave-balance-card__label">Allocated</span>
+          <span class="leave-balance-card__value">{{ balance.totalAllocated }}</span>
+        </div>
+      </div>
+
+      <div class="leave-balance-card leave-balance-card--consumed">
+        <div class="leave-balance-card__icon">
+          <i class="pi pi-arrow-up"></i>
+        </div>
+        <div class="leave-balance-card__content">
+          <span class="leave-balance-card__label">Consumed</span>
+          <span class="leave-balance-card__value">{{ balance.consumed }}</span>
+        </div>
+      </div>
+
+      <div class="leave-balance-card leave-balance-card--available">
+        <div class="leave-balance-card__icon">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <div class="leave-balance-card__content">
+          <span class="leave-balance-card__label">Available Balance</span>
+          <span class="leave-balance-card__value">{{ balance.availableBalance }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -12,6 +12,7 @@ import {
   LeaveGetRequestSchema,
   LeaveBalanceGetResponseSchema,
   LeaveBalanceGetRequestSchema,
+  LeaveBalanceGetBaseResponseSchema,
 } from '../schemas';
 
 /**
@@ -61,6 +62,9 @@ export type ILeaveBalanceGetRequestDto = z.infer<
 >;
 export type ILeaveBalanceGetFormDto = z.input<
   typeof LeaveBalanceGetRequestSchema
+>;
+export type ILeaveBalanceGetBaseResponseDto = z.infer<
+  typeof LeaveBalanceGetBaseResponseSchema
 >;
 export type ILeaveBalanceGetResponseDto = z.infer<
   typeof LeaveBalanceGetResponseSchema

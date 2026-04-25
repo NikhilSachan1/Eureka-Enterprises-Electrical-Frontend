@@ -4,21 +4,26 @@ import {
   computed,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FORCE_LEAVE_FORM_CONFIG } from '@features/leave-management/config';
 import { LeaveService } from '@features/leave-management/services/leave.service';
-import { ILeaveForceFormDto } from '@features/leave-management/types/leave.dto';
+import {
+  ILeaveForceFormDto,
+  ILeaveBalanceGetResponseDto,
+} from '@features/leave-management/types/leave.dto';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { RouterNavigationService } from '@shared/services';
-import { IPageHeaderConfig } from '@shared/types';
+import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { finalize } from 'rxjs';
 import { FORCE_LEAVE_PREFILLED_DATA } from '@shared/mock-data/force-leave.mock-data';
 import { FormBase } from '@shared/base/form.base';
+import { LeaveBalanceCardsComponent } from '../../shared/components/leave-balance-cards/leave-balance-cards.component';
 
 @Component({
   selector: 'app-force-leave',
@@ -27,6 +32,7 @@ import { FormBase } from '@shared/base/form.base';
     InputFieldComponent,
     ButtonComponent,
     ReactiveFormsModule,
+    LeaveBalanceCardsComponent,
   ],
   templateUrl: './force-leave.component.html',
   styleUrl: './force-leave.component.scss',
@@ -38,8 +44,30 @@ export class ForceLeaveComponent
 {
   private readonly leaveService = inject(LeaveService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private trackedLeaveFields!: ITrackedFields<ILeaveForceFormDto>;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly leaveBalance = signal<
+    ILeaveBalanceGetResponseDto['records'][number] | null
+  >(null);
+
+  protected readonly selectedEmployeeName = computed(() => {
+    const employeeName = this.trackedLeaveFields?.employeeName?.();
+    return employeeName && typeof employeeName === 'string'
+      ? employeeName
+      : null;
+  });
+
+  protected readonly showRemainingForceLeaveFields = computed(() => {
+    const employeeName = this.selectedEmployeeName();
+    const balance = this.leaveBalance();
+
+    if (!employeeName && !balance) {
+      return true;
+    }
+
+    return !!balance && Number.parseFloat(balance.availableBalance) > 0;
+  });
 
   ngOnInit(): void {
     this.form = this.formService.createForm<ILeaveForceFormDto>(
@@ -48,6 +76,14 @@ export class ForceLeaveComponent
         destroyRef: this.destroyRef,
       }
     );
+
+    const trackedFields: (keyof ILeaveForceFormDto)[] = ['employeeName'];
+    this.trackedLeaveFields =
+      this.formService.trackMultipleFieldChanges<ILeaveForceFormDto>(
+        this.form.formGroup,
+        trackedFields,
+        this.destroyRef
+      );
 
     this.loadMockData(FORCE_LEAVE_PREFILLED_DATA);
   }

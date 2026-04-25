@@ -4,12 +4,16 @@ import {
   computed,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { APPLY_LEAVE_FORM_CONFIG } from '@features/leave-management/config';
 import { LeaveService } from '@features/leave-management/services/leave.service';
-import { ILeaveApplyFormDto } from '@features/leave-management/types/leave.dto';
+import {
+  ILeaveApplyFormDto,
+  ILeaveBalanceGetResponseDto,
+} from '@features/leave-management/types/leave.dto';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -19,6 +23,7 @@ import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
 import { APPLY_LEAVE_PREFILLED_DATA } from '@shared/mock-data/apply-leave.mock-data';
 import { FormBase } from '@shared/base/form.base';
+import { LeaveBalanceCardsComponent } from '../../shared/components/leave-balance-cards/leave-balance-cards.component';
 
 @Component({
   selector: 'app-apply-leave',
@@ -27,6 +32,7 @@ import { FormBase } from '@shared/base/form.base';
     ReactiveFormsModule,
     ButtonComponent,
     PageHeaderComponent,
+    LeaveBalanceCardsComponent,
   ],
   templateUrl: './apply-leave.component.html',
   styleUrl: './apply-leave.component.scss',
@@ -40,6 +46,18 @@ export class ApplyLeaveComponent
   private readonly routerNavigationService = inject(RouterNavigationService);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly leaveBalance = signal<
+    ILeaveBalanceGetResponseDto['records'][number] | null
+  >(null);
+  protected readonly showApplyLeaveFields = computed(() => {
+    const balance = this.leaveBalance();
+    if (!balance) {
+      return true;
+    }
+
+    const availableBalance = Number.parseFloat(balance.availableBalance ?? '0');
+    return Number.isFinite(availableBalance) && availableBalance > 0;
+  });
 
   ngOnInit(): void {
     this.form = this.formService.createForm<ILeaveApplyFormDto>(

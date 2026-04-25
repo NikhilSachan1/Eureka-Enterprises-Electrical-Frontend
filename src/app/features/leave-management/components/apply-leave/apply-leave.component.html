@@ -1,29 +1,36 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
-<form
-  (ngSubmit)="onSubmit()"
-  [formGroup]="form.formGroup"
-  class="form"
->
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.leaveDate"
-  />
+<app-leave-balance-cards
+  class="apply-leave-balance-cards"
+  [(leaveBalance)]="leaveBalance"
+/>
 
-  <app-input-field
+@if (showApplyLeaveFields()) {
+  <form
+    (ngSubmit)="onSubmit()"
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.leaveReason"
-  />
-
-  <div class="button-container">
-    <app-button
-      [buttonConfig]="form.buttonConfigs['reset']"
-      (onButtonClick)="onReset()"
+    class="form"
+  >
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.leaveDate"
     />
 
-    <app-button
-      [buttonConfig]="form.buttonConfigs['submit']"
-      [showButtonLoader]="isSubmitting()"
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.leaveReason"
     />
-  </div>
-</form>
+
+    <div class="button-container">
+      <app-button
+        [buttonConfig]="form.buttonConfigs['reset']"
+        (onButtonClick)="onReset()"
+      />
+
+      <app-button
+        [buttonConfig]="form.buttonConfigs['submit']"
+        [showButtonLoader]="isSubmitting()"
+      />
+    </div>
+  </form>
+}

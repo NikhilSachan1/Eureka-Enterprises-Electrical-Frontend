@@ -5,32 +5,39 @@
   [formGroup]="form.formGroup"
   class="form"
 >
-  <div class="grid grid-cols-1 md:grid-cols-2">
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.employeeName"
-    />
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.employeeName"
+  />
 
+  @if (selectedEmployeeName()) {
+    <app-leave-balance-cards
+      [(leaveBalance)]="leaveBalance"
+      [employeeName]="selectedEmployeeName()"
+    />
+  }
+
+  @if (showRemainingForceLeaveFields()) {
     <app-input-field
       [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs.leaveDate"
     />
-  </div>
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.leaveReason"
-  />
-
-  <div class="button-container">
-    <app-button
-      [buttonConfig]="form.buttonConfigs['reset']"
-      (onButtonClick)="onReset()"
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.leaveReason"
     />
 
-    <app-button
-      [buttonConfig]="form.buttonConfigs['submit']"
-      [showButtonLoader]="isSubmitting()"
-    />
-  </div>
+    <div class="button-container">
+      <app-button
+        [buttonConfig]="form.buttonConfigs['reset']"
+        (onButtonClick)="onReset()"
+      />
+
+      <app-button
+        [buttonConfig]="form.buttonConfigs['submit']"
+        [showButtonLoader]="isSubmitting()"
+      />
+    </div>
+  }
 </form>

@@ -19,5 +19,6 @@ export {
 } from './approval-action-leave.schema';
 export {
   LeaveBalanceGetRequestSchema,
+  LeaveBalanceGetBaseResponseSchema,
   LeaveBalanceGetResponseSchema,
 } from './get-leave-balance.schema';

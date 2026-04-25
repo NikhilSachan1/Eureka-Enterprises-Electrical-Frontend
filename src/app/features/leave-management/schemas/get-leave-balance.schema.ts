@@ -9,7 +9,7 @@ export const LeaveBalanceGetRequestSchema = z
   .strict()
   .transform(({ employeeName }) => {
     return {
-      employeeName,
+      userIds: [employeeName],
       financialYear: new FinancialYearService().getFinancialYear(),
     };
   });
@@ -17,7 +17,7 @@ export const LeaveBalanceGetRequestSchema = z
 export const LeaveBalanceGetBaseResponseSchema = z.looseObject({
   totalAllocated: z.string(),
   consumed: z.string(),
-  balance: z.string(),
+  availableBalance: z.string(),
 });
 
 export const LeaveBalanceGetResponseSchema = z.looseObject({
