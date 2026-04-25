@@ -104,7 +104,7 @@ const ADD_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleAddFormDto>
       fieldType: EDataType.DATE,
       id: 'vehicleInsuranceDate',
       fieldName: 'vehicleInsuranceDate',
-      label: 'Insurance Period',
+      label: 'Insurance start date – end date',
       dateConfig: {
         selectionMode: EDateSelectionMode.Range,
       },
@@ -113,7 +113,7 @@ const ADD_VEHICLE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IvehicleAddFormDto>
       fieldType: EDataType.DATE,
       id: 'vehiclePUCDate',
       fieldName: 'vehiclePUCDate',
-      label: 'PUC Period',
+      label: 'PUC start date – end date',
       dateConfig: {
         selectionMode: EDateSelectionMode.Range,
       },

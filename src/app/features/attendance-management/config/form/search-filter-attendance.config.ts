@@ -29,7 +29,7 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
   },
   attendanceDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
-    label: 'Attendance Date',
+    label: 'Attendance start date – end date',
     fieldName: 'attendanceDate',
   },
   attendanceStatus: {

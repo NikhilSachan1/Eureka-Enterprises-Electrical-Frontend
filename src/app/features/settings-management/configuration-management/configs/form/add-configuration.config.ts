@@ -71,7 +71,7 @@ const ADD_CONFIGURATION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IConfiguratio
       fieldType: EDataType.DATE,
       id: 'configEffectiveDate',
       fieldName: 'configEffectiveDate',
-      label: 'Configuration Effective Date',
+      label: 'Configuration effective start date – end date',
       dateConfig: {
         selectionMode: EDateSelectionMode.Range,
         minDate: new FinancialYearService().getFinancialYearStartDate(),

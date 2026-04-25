@@ -192,6 +192,12 @@ export interface IDateFieldConfig {
   numberOfMonths: number;
   calendarView: ECalendarView;
   touchUI: boolean;
+  /**
+   * Range only: when the user picks only the start date, set the end date to the same day
+   * (a one-day range). Useful for list/search filters. Omit or `false` when start and end
+   * must be chosen separately (e.g. multi-day leave).
+   */
+  rangeAutoCompleteEndWithStart?: boolean;
 }
 
 export interface IPasswordFieldConfig {

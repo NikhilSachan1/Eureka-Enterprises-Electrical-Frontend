@@ -19,10 +19,7 @@ export const ADD_ASSET_PREFILLED_DATA: IAssetAddFormDto = {
   assetType: getRandomItem(TEST_ASSET_TYPES),
   assetCalibrationFrom: getRandomItem(TEST_CALIBRATION_SOURCES),
   assetCalibrationFrequency: getRandomItem(TEST_CALIBRATION_FREQUENCIES),
-  assetCalibrationDate: [
-    getRandomDate(365 * 2, 365),
-    getRandomDate(365 * 1, 365),
-  ],
+  assetCalibrationDate: getRandomDate(365 * 2, 365),
   assetPurchaseDate: getRandomDate(365 * 2, 365),
   assetVendorName: `Vendor Name ${getRandomNumber(2, 'upto')}`,
   assetWarrantyDate: [getRandomDate(365 * 2, 365), getRandomDate(365 * 1, 365)],

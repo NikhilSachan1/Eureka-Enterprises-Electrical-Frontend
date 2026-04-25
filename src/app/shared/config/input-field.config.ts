@@ -99,6 +99,7 @@ export const DEFAULT_DATE_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
     numberOfMonths: 1,
     calendarView: ECalendarView.Date,
     touchUI: true,
+    rangeAutoCompleteEndWithStart: true,
   },
 };
 

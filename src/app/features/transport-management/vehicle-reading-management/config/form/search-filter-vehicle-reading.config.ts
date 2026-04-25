@@ -43,7 +43,7 @@ const SEARCH_FILTER_VEHICLE_READING_FORM_FIELDS_CONFIG: ITableSearchFilterInputF
   },
   readingDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
-    label: 'Reading Date',
+    label: 'Reading start date – end date',
     fieldName: 'readingDate',
   },
 };

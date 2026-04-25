@@ -17,7 +17,7 @@ const APPLY_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ILeaveApplyFormDto>
       fieldType: EDataType.DATE,
       id: 'leaveDate',
       fieldName: 'leaveDate',
-      label: 'Leave Period',
+      label: 'Leave start date – end date',
       dateConfig: {
         selectionMode: EDateSelectionMode.Range,
         minDate: new Date(),

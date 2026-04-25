@@ -25,7 +25,7 @@ const SEARCH_FILTER_DSR_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   },
   statusDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
-    label: 'Status Date',
+    label: 'DSR start date – end date',
     fieldName: 'statusDate',
   },
   globalSearch: {

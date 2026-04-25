@@ -83,7 +83,7 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
     timeline: {
       id: 'timeline',
       fieldName: 'timeline',
-      label: 'Timeline',
+      label: 'Project timeline start date – end date',
       fieldType: EDataType.DATE,
       dateConfig: {
         selectionMode: EDateSelectionMode.Range,

@@ -42,7 +42,7 @@ const SEARCH_FILTER_FUEL_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFiel
   },
   fuelExpenseDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
-    label: 'Fuel Expense Date',
+    label: 'Fuel expense start date – end date',
     fieldName: 'fuelExpenseDate',
   },
   approvalStatus: {

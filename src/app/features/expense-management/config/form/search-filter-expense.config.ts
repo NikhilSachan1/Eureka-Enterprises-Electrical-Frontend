@@ -27,7 +27,7 @@ const SEARCH_FILTER_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
     },
     expenseDate: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
-      label: 'Expense Date',
+      label: 'Expense start date – end date',
       fieldName: 'expenseDate',
     },
     expenseType: {

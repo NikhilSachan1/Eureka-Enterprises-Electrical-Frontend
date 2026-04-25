@@ -314,6 +314,7 @@
         [class]="invalidClass"
         (ngModelChange)="onValueChange($event)"
         (onBlur)="onBlur()"
+        (onClose)="onDateRangePanelClose()"
       />
       @if (!showStandardLabel) {
         <label [for]="config.id">{{ config.label }}</label>

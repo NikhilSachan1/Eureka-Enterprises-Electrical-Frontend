@@ -69,7 +69,7 @@ export const AssetUpsertShapeSchema = z
     assetType,
     assetCalibrationFrom: calibrationFrom,
     assetCalibrationFrequency: calibrationFrequency,
-    assetCalibrationDate: z.array(dateField).nullable(),
+    assetCalibrationDate: dateField.nullable(),
     assetPurchaseDate: dateField,
     assetVendorName: vendorName.nullable(),
     assetWarrantyDate: z.array(dateField).nullable(),

@@ -55,7 +55,7 @@ const ADD_ANNOUNCEMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAnnouncementA
       fieldType: EDataType.DATE,
       id: 'announcementDate',
       fieldName: 'announcementDate',
-      label: 'Announcement Period',
+      label: 'Announcement start date – end date',
       dateConfig: {
         selectionMode: EDateSelectionMode.Range,
         minDate: new Date(),

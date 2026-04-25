@@ -109,7 +109,6 @@ export class EditAssetComponent
       calibrationFrom,
       calibrationFrequency,
       calibrationStartDate,
-      calibrationEndDate,
       purchaseDate,
       vendorName,
       warrantyStartDate,
@@ -126,10 +125,9 @@ export class EditAssetComponent
       assetCategory: category,
       assetCalibrationFrom: calibrationFrom,
       assetCalibrationFrequency: calibrationFrequency,
-      assetCalibrationDate:
-        calibrationStartDate && calibrationEndDate
-          ? [new Date(calibrationStartDate), new Date(calibrationEndDate)]
-          : null,
+      assetCalibrationDate: calibrationStartDate
+        ? new Date(calibrationStartDate)
+        : null,
       assetPurchaseDate: new Date(purchaseDate),
       assetVendorName: vendorName,
       assetWarrantyDate:

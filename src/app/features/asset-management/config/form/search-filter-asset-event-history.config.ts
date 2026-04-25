@@ -80,7 +80,7 @@ const SEARCH_FILTER_ASSET_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilterIn
   assetEventDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
     fieldName: 'assetEventDate',
-    label: 'Event Date',
+    label: 'Asset event start date – end date',
   },
 };
 

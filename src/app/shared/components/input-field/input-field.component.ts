@@ -1007,6 +1007,63 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Range + `rangeAutoCompleteEndWithStart`: if the panel closes with only a start date,
+   * set end = start (single-day range). Must run on close — doing this on every value
+   * change breaks selecting a true start/end range in the calendar.
+   */
+  onDateRangePanelClose(): void {
+    const config = this.inputFieldConfig();
+    if (
+      config.fieldType !== EDataType.DATE ||
+      config.dateConfig?.selectionMode !== EDateSelectionMode.Range ||
+      !config.dateConfig?.rangeAutoCompleteEndWithStart
+    ) {
+      return;
+    }
+    setTimeout(() => {
+      if (this.isFormMode()) {
+        const control = this.formGroup()?.get(config.fieldName);
+        if (!control) {
+          return;
+        }
+        const v = control.value;
+        if (!this.isIncompleteDateRangeValue(v)) {
+          return;
+        }
+        const start = v[0];
+        const next: [Date, Date] = [start, new Date(start.getTime())];
+        control.setValue(next);
+        control.markAsDirty();
+        control.updateValueAndValidity();
+        this.formControlValue.set(next);
+        this.validationTrigger.update(x => x + 1);
+        this.onFieldChange.emit(true);
+      } else {
+        const v = this.effectiveValue();
+        if (!this.isIncompleteDateRangeValue(v)) {
+          return;
+        }
+        const start = v[0];
+        const next: [Date, Date] = [start, new Date(start.getTime())];
+        this.onFieldChange.emit(next);
+      }
+    }, 0);
+  }
+
+  private isIncompleteDateRangeValue(
+    v: unknown
+  ): v is [Date, null | undefined] {
+    if (
+      !Array.isArray(v) ||
+      !(v[0] instanceof Date) ||
+      (v[1] !== null && v[1] !== undefined)
+    ) {
+      return false;
+    }
+    return !Number.isNaN(v[0].getTime());
+  }
+
+  /**
    * Single handler for value changes: form mode = update control; standalone = emit value.
    * Event can be input event, checkbox event, or raw value.
    */

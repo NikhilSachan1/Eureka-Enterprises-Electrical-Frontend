@@ -80,7 +80,7 @@ const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilter
   vehicleEventDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
     fieldName: 'vehicleEventDate',
-    label: 'Event Date',
+    label: 'Vehicle event start date – end date',
     matchmode: ETableFilterMatchMode.BETWEEN,
   },
 };

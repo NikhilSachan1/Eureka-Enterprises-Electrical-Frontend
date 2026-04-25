@@ -130,9 +130,10 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     fieldType: EDataType.DATE,
     id: 'assetCalibrationDate',
     fieldName: 'assetCalibrationDate',
-    label: 'Calibration Date',
+    label: 'Calibration date',
     dateConfig: {
-      selectionMode: EDateSelectionMode.Range,
+      selectionMode: EDateSelectionMode.Single,
+      maxDate: new Date(),
     },
     conditionalValidators: [
       {
@@ -167,7 +168,7 @@ const ADD_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAssetAddFormDto> = {
     fieldType: EDataType.DATE,
     id: 'assetWarrantyDate',
     fieldName: 'assetWarrantyDate',
-    label: 'Warranty Date',
+    label: 'Warranty start date – end date',
     dateConfig: {
       selectionMode: EDateSelectionMode.Range,
     },

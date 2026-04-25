@@ -24,7 +24,7 @@ export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
     fieldType: EDataType.DATE,
     id: 'dateRange',
     fieldName: 'dateRange',
-    label: 'Date Range',
+    label: 'Start date – end date',
     dateConfig: {
       selectionMode: EDateSelectionMode.Range,
       maxDate: new Date(),

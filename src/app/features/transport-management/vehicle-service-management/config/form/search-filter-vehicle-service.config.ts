@@ -42,7 +42,7 @@ const SEARCH_FILTER_VEHICLE_SERVICE_FORM_FIELDS_CONFIG: ITableSearchFilterInputF
   serviceDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
     fieldName: 'serviceDate',
-    label: 'Service Date',
+    label: 'Service start date – end date',
   },
   globalSearch: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,

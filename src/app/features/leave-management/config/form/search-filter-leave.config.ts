@@ -25,8 +25,12 @@ const SEARCH_FILTER_LEAVE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfi
   },
   leaveDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
-    label: 'Leave Date',
+    label: 'Leave start date – end date',
     fieldName: 'leaveDate',
+    dateConfig: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange.dateConfig,
+      maxDate: undefined,
+    },
   },
   approvalStatus: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
