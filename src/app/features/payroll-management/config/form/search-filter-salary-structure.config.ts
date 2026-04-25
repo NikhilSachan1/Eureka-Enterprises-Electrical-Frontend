@@ -15,6 +15,11 @@ const SEARCH_FILTER_SALARY_STRUCTURE_FORM_FIELDS_CONFIG: ITableSearchFilterInput
       fieldType: EDataType.SELECT,
       selectConfig: {
         ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig,
+        dynamicDropdown: {
+          ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig
+            .dynamicDropdown,
+          archivedHandling: 'enabled',
+        },
       },
     },
   };

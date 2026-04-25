@@ -16,6 +16,14 @@ const SEARCH_FILTER_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
     employeeName: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
       permission: [APP_PERMISSION.UI.EXPENSE.SEARCH_FILTER_EMPLOYEE_NAME],
+      multiSelectConfig: {
+        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig,
+        dynamicDropdown: {
+          ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig
+            .dynamicDropdown,
+          archivedHandling: 'enabled',
+        },
+      },
     },
     expenseDate: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,

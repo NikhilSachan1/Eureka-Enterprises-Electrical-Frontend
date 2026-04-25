@@ -22,6 +22,7 @@ const SEARCH_FILTER_USER_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig
       dynamicDropdown: {
         moduleName: MODULE_NAMES.EMPLOYEE,
         dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+        archivedHandling: 'enabled',
       },
     },
     matchmode: ETableFilterMatchMode.IN,

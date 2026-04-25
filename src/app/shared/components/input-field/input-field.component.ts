@@ -59,7 +59,12 @@ import {
 } from '@shared/types';
 import { APP_CONFIG } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { ICONS, invalidCharsPatternFromStrip } from '@shared/constants';
+import {
+  CONFIGURATION_KEYS,
+  ICONS,
+  invalidCharsPatternFromStrip,
+  MODULE_NAMES,
+} from '@shared/constants';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import { AppConfigurationService, GalleryService } from '@shared/services';
 import {
@@ -453,6 +458,8 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         moduleName: string;
         dropdownName: string;
         filterByRole?: string[];
+        employeeStatusFilter?: string[];
+        archivedHandling?: 'disabled' | 'enabled' | 'hidden';
         includeLoggedInUser?: boolean;
       };
       optionsDropdown?: IOptionDropdown[];
@@ -501,7 +508,76 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       }
     }
 
+    options = this.applyEmployeeDropdownOptionRules(
+      options,
+      dropdownConfig.dynamicDropdown
+    );
+
     return options;
+  }
+
+  private applyEmployeeDropdownOptionRules(
+    options: IOptionDropdown[],
+    dynamicDropdown?: {
+      moduleName: string;
+      dropdownName: string;
+      employeeStatusFilter?: string[];
+      archivedHandling?: 'disabled' | 'enabled' | 'hidden';
+    }
+  ): IOptionDropdown[] {
+    if (!dynamicDropdown || !this.isEmployeeListDropdown(dynamicDropdown)) {
+      return options;
+    }
+
+    let nextOptions = options;
+    const statusFilter = (dynamicDropdown.employeeStatusFilter ?? [])
+      .map(status => status.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (statusFilter.length > 0) {
+      const allowedStatuses = new Set(statusFilter);
+      nextOptions = nextOptions.filter(option =>
+        allowedStatuses.has(this.getEmployeeStatusFromDropdownOption(option))
+      );
+    }
+
+    const archivedHandling = dynamicDropdown.archivedHandling ?? 'disabled';
+
+    if (archivedHandling === 'hidden') {
+      return nextOptions.filter(
+        option =>
+          this.getEmployeeStatusFromDropdownOption(option) !== 'archived'
+      );
+    }
+
+    if (archivedHandling === 'enabled') {
+      return nextOptions.map(option =>
+        this.getEmployeeStatusFromDropdownOption(option) === 'archived'
+          ? { ...option, disabled: false }
+          : option
+      );
+    }
+
+    return nextOptions.map(option =>
+      this.getEmployeeStatusFromDropdownOption(option) === 'archived'
+        ? { ...option, disabled: true }
+        : option
+    );
+  }
+
+  private isEmployeeListDropdown(dynamicDropdown: {
+    moduleName: string;
+    dropdownName: string;
+  }): boolean {
+    return (
+      dynamicDropdown.moduleName === MODULE_NAMES.EMPLOYEE &&
+      dynamicDropdown.dropdownName === CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST
+    );
+  }
+
+  private getEmployeeStatusFromDropdownOption(option: IOptionDropdown): string {
+    const optionData = option.data as { status?: string } | undefined;
+    return optionData?.status?.trim().toLowerCase() ?? '';
   }
 
   private getDropdownOptions(): IOptionDropdown[] {

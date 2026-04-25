@@ -89,6 +89,10 @@ export interface ISelectFieldConfig {
     moduleName: string;
     dropdownName: string;
     filterByRole?: string[]; // Filter employees by roles (e.g., ['TECHNICIAN', 'ADMIN'])
+    /** Employee-list only: include only these statuses (case-insensitive). */
+    employeeStatusFilter?: string[];
+    /** Employee-list only: how archived employees are presented. Default: `disabled`. */
+    archivedHandling?: 'disabled' | 'enabled' | 'hidden';
     /**
      * When `false`, the logged-in user is removed from options (`value` must match user id).
      * Default / omitted: no removal.
@@ -122,6 +126,8 @@ export interface IAutocompleteFieldConfig {
     moduleName: string;
     dropdownName: string;
     filterByRole?: string[];
+    employeeStatusFilter?: string[];
+    archivedHandling?: 'disabled' | 'enabled' | 'hidden';
     includeLoggedInUser?: boolean;
   };
   filterOptions?: {
@@ -148,6 +154,8 @@ export interface IMultiSelectFieldConfig {
     moduleName: string;
     dropdownName: string;
     filterByRole?: string[]; // Filter employees by roles (e.g., ['TECHNICIAN', 'ADMIN'])
+    employeeStatusFilter?: string[];
+    archivedHandling?: 'disabled' | 'enabled' | 'hidden';
     includeLoggedInUser?: boolean;
   };
   /**

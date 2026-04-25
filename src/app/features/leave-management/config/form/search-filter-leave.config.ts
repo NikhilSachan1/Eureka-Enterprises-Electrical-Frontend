@@ -13,6 +13,14 @@ const SEARCH_FILTER_LEAVE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfi
 > = {
   employeeName: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
+    multiSelectConfig: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig,
+      dynamicDropdown: {
+        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig
+          .dynamicDropdown,
+        archivedHandling: 'enabled',
+      },
+    },
     permission: [APP_PERMISSION.UI.LEAVE.SEARCH_FILTER_EMPLOYEE_NAME],
   },
   leaveDate: {

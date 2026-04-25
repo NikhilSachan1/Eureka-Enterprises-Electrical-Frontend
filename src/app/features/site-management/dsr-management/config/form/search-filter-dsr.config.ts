@@ -14,6 +14,14 @@ const SEARCH_FILTER_DSR_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   employeeName: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
     permission: [APP_PERMISSION.UI.DSR.SEARCH_FILTER_EMPLOYEE_NAME],
+    multiSelectConfig: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig,
+      dynamicDropdown: {
+        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig
+          .dynamicDropdown,
+        archivedHandling: 'enabled',
+      },
+    },
   },
   statusDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,

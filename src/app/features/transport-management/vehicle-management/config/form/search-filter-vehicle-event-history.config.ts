@@ -58,6 +58,7 @@ const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilter
       dynamicDropdown: {
         moduleName: MODULE_NAMES.EMPLOYEE,
         dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+        archivedHandling: 'enabled',
       },
     },
     matchmode: ETableFilterMatchMode.IN,
@@ -71,6 +72,7 @@ const SEARCH_FILTER_VEHICLE_EVENT_HISTORY_FORM_FIELDS_CONFIG: ITableSearchFilter
       dynamicDropdown: {
         moduleName: MODULE_NAMES.EMPLOYEE,
         dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+        archivedHandling: 'enabled',
       },
     },
     matchmode: ETableFilterMatchMode.IN,

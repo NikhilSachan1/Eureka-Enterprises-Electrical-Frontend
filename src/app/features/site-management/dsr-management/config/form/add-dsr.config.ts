@@ -45,6 +45,7 @@ const ADD_DSR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDsrAddUIFormDto> = {
       dynamicDropdown: {
         moduleName: MODULE_NAMES.EMPLOYEE,
         dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+        employeeStatusFilter: ['ACTIVE'],
       },
       optionValue: 'label',
     },

@@ -26,6 +26,7 @@ const FORCE_LEAVE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ILeaveForceFormDto>
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+          employeeStatusFilter: ['ACTIVE'],
         },
       },
       validators: [Validators.required],

@@ -18,6 +18,14 @@ const SEARCH_FILTER_ATTENDANCE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFields
   employeeName: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
     permission: [APP_PERMISSION.UI.ATTENDANCE.SEARCH_FILTER_EMPLOYEE_NAME],
+    multiSelectConfig: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig,
+      dynamicDropdown: {
+        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig
+          .dynamicDropdown,
+        archivedHandling: 'enabled',
+      },
+    },
   },
   attendanceDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,

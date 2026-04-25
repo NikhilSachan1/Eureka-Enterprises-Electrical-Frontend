@@ -90,6 +90,7 @@ const SEARCH_FILTER_VEHICLE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
       dynamicDropdown: {
         moduleName: MODULE_NAMES.EMPLOYEE,
         dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+        archivedHandling: 'enabled',
       },
     },
     matchmode: ETableFilterMatchMode.IN,

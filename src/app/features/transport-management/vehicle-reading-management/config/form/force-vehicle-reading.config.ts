@@ -21,6 +21,7 @@ const FORCE_VEHICLE_READING_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVehicleR
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+          employeeStatusFilter: ['ACTIVE'],
         },
       },
       validators: [Validators.required],

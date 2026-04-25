@@ -605,15 +605,28 @@ export class AppConfigurationService {
           .map(employee => {
             const first = employee.firstName?.trim() ?? '';
             const last = employee.lastName?.trim() ?? '';
+            const employeeStatus = employee.status?.trim() ?? '';
+            const formattedEmployeeStatus = employeeStatus
+              ? toTitleCase(employeeStatus)
+              : '';
+            const employeeCode = employee.employeeId?.trim() ?? '';
+            const subtitleParts = [
+              employeeCode,
+              formattedEmployeeStatus,
+            ].filter(Boolean);
             const initialChar =
               first.charAt(0) ||
               last.charAt(0) ||
               (employee.employeeId?.trim()?.charAt(0) ?? '');
             const dropdownItem: IOptionDropdown = {
               label: toTitleCase(`${first} ${last}`.trim()),
-              subtitle: employee.employeeId?.trim() || undefined,
+              subtitle:
+                subtitleParts.length > 0
+                  ? subtitleParts.join(' • ')
+                  : undefined,
               initial: initialChar ? initialChar.toUpperCase() : undefined,
               value: employee.id,
+              disabled: employeeStatus.toLowerCase() === 'archived',
               data: employee,
             };
 

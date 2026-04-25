@@ -18,6 +18,14 @@ const SEARCH_FILTER_FUEL_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFiel
   employeeName: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName,
     permission: [APP_PERMISSION.UI.FUEL_EXPENSE.TABLE_EMPLOYEE_NAME],
+    multiSelectConfig: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig,
+      dynamicDropdown: {
+        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig
+          .dynamicDropdown,
+        archivedHandling: 'enabled',
+      },
+    },
   },
   vehicleName: {
     fieldType: EDataType.SELECT,

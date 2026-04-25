@@ -72,6 +72,7 @@ const ADD_ANNOUNCEMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAnnouncementA
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+          employeeStatusFilter: ['ACTIVE'],
         },
       },
       validators: [Validators.required],

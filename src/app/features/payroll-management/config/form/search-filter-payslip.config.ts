@@ -21,6 +21,11 @@ const SEARCH_FILTER_PAYSLIP_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
       fieldType: EDataType.SELECT,
       selectConfig: {
         ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig,
+        dynamicDropdown: {
+          ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.employeeName.multiSelectConfig
+            .dynamicDropdown,
+          archivedHandling: 'enabled',
+        },
       },
       permission: [APP_PERMISSION.UI.PAYROLL.SEARCH_FILTER_EMPLOYEE_NAME],
     },

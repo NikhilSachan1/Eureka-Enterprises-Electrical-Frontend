@@ -27,6 +27,7 @@ export const COMMON_SEARCH_FILTER_FIELDS_CONFIG = {
     label: 'Date Range',
     dateConfig: {
       selectionMode: EDateSelectionMode.Range,
+      maxDate: new Date(),
     },
     matchmode: ETableFilterMatchMode.BETWEEN,
   },

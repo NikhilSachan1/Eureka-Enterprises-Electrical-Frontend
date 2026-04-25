@@ -21,6 +21,7 @@ const ACTION_ASSET_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IActionAssetUIForm
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
           includeLoggedInUser: false,
+          employeeStatusFilter: ['ACTIVE'],
         },
       },
       conditionalValidators: [
