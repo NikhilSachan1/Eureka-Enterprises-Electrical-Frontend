@@ -29,6 +29,19 @@ function isAttendanceNotMarkedYet(row: IAttendanceGetBaseResponseDto): boolean {
   );
 }
 
+/**
+ * When both check-in and check-out are missing but status is already set to
+ * something other than "not checked in yet", approval actions should be blocked
+ * and only regularization should be allowed.
+ */
+function isRegularizationOnlyCase(row: IAttendanceGetBaseResponseDto): boolean {
+  return (
+    !row.checkInTime &&
+    !row.checkOutTime &&
+    row.status !== EAttendanceStatus.NOT_CHECKED_IN_YET
+  );
+}
+
 function isAttendanceHoliday(row: IAttendanceGetBaseResponseDto): boolean {
   return row.status === EAttendanceStatus.HOLIDAY;
 }
@@ -88,6 +101,8 @@ const APPROVE_DISABLED_ON_LEAVE_REASON =
   'Approval is not allowed for leave days.';
 const APPROVE_DISABLED_NOT_MARKED_REASON =
   'Approval is available only after the employee checks in.';
+const APPROVE_DISABLED_REGULARIZATION_ONLY_REASON =
+  'Employee did not check in for this day, so only regularization is allowed.';
 const APPROVE_DISABLED_REGULARIZED_REASON =
   'Approval is not allowed for attendance recorded through regularization.';
 const APPROVE_DISABLED_FORCED_REASON =
@@ -105,6 +120,8 @@ const REJECT_DISABLED_ON_LEAVE_REASON =
   'Rejection is not allowed for leave days.';
 const REJECT_DISABLED_NOT_MARKED_REASON =
   'Rejection is available only after the employee checks in.';
+const REJECT_DISABLED_REGULARIZATION_ONLY_REASON =
+  'Employee did not check in for this day, so only regularization is allowed.';
 const REJECT_DISABLED_REGULARIZED_REASON =
   'Rejection is not allowed for attendance recorded through regularization.';
 const REJECT_DISABLED_FORCED_REASON =
@@ -122,6 +139,8 @@ const BULK_APPROVE_DISABLED_ON_LEAVE_REASON =
   'Some selected records are leave days and cannot be approved.';
 const BULK_APPROVE_DISABLED_NOT_MARKED_REASON =
   'Some selected records do not have a check-in and cannot be approved.';
+const BULK_APPROVE_DISABLED_REGULARIZATION_ONLY_REASON =
+  'Some selected records were not checked in for the day and can only be regularized.';
 const BULK_APPROVE_DISABLED_REGULARIZED_REASON =
   'Some selected records are regularized and cannot be approved.';
 const BULK_APPROVE_DISABLED_FORCED_REASON =
@@ -139,6 +158,8 @@ const BULK_REJECT_DISABLED_ON_LEAVE_REASON =
   'Some selected records are leave days and cannot be rejected.';
 const BULK_REJECT_DISABLED_NOT_MARKED_REASON =
   'Some selected records do not have a check-in and cannot be rejected.';
+const BULK_REJECT_DISABLED_REGULARIZATION_ONLY_REASON =
+  'Some selected records were not checked in for the day and can only be regularized.';
 const BULK_REJECT_DISABLED_REGULARIZED_REASON =
   'Some selected records are regularized and cannot be rejected.';
 const BULK_REJECT_DISABLED_FORCED_REASON =
@@ -152,6 +173,7 @@ const BULK_REJECT_DISABLED_ALREADY_REJECTED_REASON =
 type ApproveRejectSharedBlock =
   | 'holiday'
   | 'leave'
+  | 'regularizationOnly'
   | 'notMarked'
   | 'regularized'
   | 'forced'
@@ -160,6 +182,7 @@ type ApproveRejectSharedBlock =
 const ROW_APPROVE_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
   holiday: APPROVE_DISABLED_ON_HOLIDAY_REASON,
   leave: APPROVE_DISABLED_ON_LEAVE_REASON,
+  regularizationOnly: APPROVE_DISABLED_REGULARIZATION_ONLY_REASON,
   notMarked: APPROVE_DISABLED_NOT_MARKED_REASON,
   regularized: APPROVE_DISABLED_REGULARIZED_REASON,
   forced: APPROVE_DISABLED_FORCED_REASON,
@@ -169,6 +192,7 @@ const ROW_APPROVE_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
 const ROW_REJECT_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
   holiday: REJECT_DISABLED_ON_HOLIDAY_REASON,
   leave: REJECT_DISABLED_ON_LEAVE_REASON,
+  regularizationOnly: REJECT_DISABLED_REGULARIZATION_ONLY_REASON,
   notMarked: REJECT_DISABLED_NOT_MARKED_REASON,
   regularized: REJECT_DISABLED_REGULARIZED_REASON,
   forced: REJECT_DISABLED_FORCED_REASON,
@@ -178,6 +202,7 @@ const ROW_REJECT_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
 const BULK_APPROVE_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
   holiday: BULK_APPROVE_DISABLED_ON_HOLIDAY_REASON,
   leave: BULK_APPROVE_DISABLED_ON_LEAVE_REASON,
+  regularizationOnly: BULK_APPROVE_DISABLED_REGULARIZATION_ONLY_REASON,
   notMarked: BULK_APPROVE_DISABLED_NOT_MARKED_REASON,
   regularized: BULK_APPROVE_DISABLED_REGULARIZED_REASON,
   forced: BULK_APPROVE_DISABLED_FORCED_REASON,
@@ -187,6 +212,7 @@ const BULK_APPROVE_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
 const BULK_REJECT_REASON_BY_BLOCK: Record<ApproveRejectSharedBlock, string> = {
   holiday: BULK_REJECT_DISABLED_ON_HOLIDAY_REASON,
   leave: BULK_REJECT_DISABLED_ON_LEAVE_REASON,
+  regularizationOnly: BULK_REJECT_DISABLED_REGULARIZATION_ONLY_REASON,
   notMarked: BULK_REJECT_DISABLED_NOT_MARKED_REASON,
   regularized: BULK_REJECT_DISABLED_REGULARIZED_REASON,
   forced: BULK_REJECT_DISABLED_FORCED_REASON,
@@ -205,6 +231,9 @@ function getSharedApproveRejectDisableBlock(
   }
   if (isAttendanceLeave(row)) {
     return 'leave';
+  }
+  if (isRegularizationOnlyCase(row)) {
+    return 'regularizationOnly';
   }
   if (isAttendanceNotMarkedYet(row)) {
     return 'notMarked';
