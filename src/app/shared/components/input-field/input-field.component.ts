@@ -239,13 +239,18 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     const config = this.inputFieldConfig();
     this.dependentDropdownParentValue(); // ensure recomputation when parent control changes
     const opts = this.getDropdownOptions();
+    const isDynamicLoading = this.isDynamicDropdownLoading();
     const displayOptions =
       opts.length > 0 ? opts : [this.getEmptyDropdownPlaceholderOption()];
     if (config.fieldType === EDataType.SELECT && config.selectConfig) {
+      const isDynamicSelect = !!config.selectConfig.dynamicDropdown;
       return {
         ...config,
         selectConfig: {
           ...config.selectConfig,
+          loading: isDynamicSelect
+            ? isDynamicLoading
+            : (config.selectConfig.loading ?? false),
           optionsDropdown: displayOptions,
         },
       };
@@ -254,10 +259,14 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       config.fieldType === EDataType.MULTI_SELECT &&
       config.multiSelectConfig
     ) {
+      const isDynamicMultiSelect = !!config.multiSelectConfig.dynamicDropdown;
       return {
         ...config,
         multiSelectConfig: {
           ...config.multiSelectConfig,
+          loading: isDynamicMultiSelect
+            ? isDynamicLoading
+            : (config.multiSelectConfig.loading ?? false),
           optionsDropdown: displayOptions,
         },
       };
@@ -597,6 +606,111 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     );
   }
 
+  private isDynamicDropdownLoading(): boolean {
+    const config = this.inputFieldConfig();
+    const dropdownConfig =
+      config.fieldType === EDataType.SELECT
+        ? config.selectConfig
+        : config.fieldType === EDataType.MULTI_SELECT
+          ? config.multiSelectConfig
+          : undefined;
+
+    const dynamicDropdown = dropdownConfig?.dynamicDropdown;
+    if (!dynamicDropdown?.dropdownName) {
+      return false;
+    }
+
+    return (
+      this.appConfigurationService.isDropdownLoading(
+        dynamicDropdown.dropdownName
+      ) ||
+      this.isConfigurationBackedDynamicDropdown(dynamicDropdown.dropdownName)
+    );
+  }
+
+  private isConfigurationBackedDynamicDropdown(dropdownName: string): boolean {
+    const nonConfigurationDynamicKeys = new Set<string>([
+      CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+      CONFIGURATION_KEYS.ASSET.ASSET_LIST,
+      CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
+      CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
+      CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
+      CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+      CONFIGURATION_KEYS.COMMON.ROLE_LIST,
+      CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
+    ]);
+
+    if (nonConfigurationDynamicKeys.has(dropdownName)) {
+      return false;
+    }
+
+    return (
+      !this.appConfigurationService.isAppConfigurationDataReady() &&
+      this.appConfigurationService.isAppConfigurationLoading()
+    );
+  }
+
+  private getDynamicDropdownLoadingLabel(): string {
+    const config = this.inputFieldConfig();
+    const dropdownConfig =
+      config.fieldType === EDataType.SELECT
+        ? config.selectConfig
+        : config.fieldType === EDataType.MULTI_SELECT
+          ? config.multiSelectConfig
+          : undefined;
+
+    const dropdownName = dropdownConfig?.dynamicDropdown?.dropdownName;
+    if (!dropdownName) {
+      return 'Loading options...';
+    }
+
+    const loadingLabelByDropdownName: Partial<Record<string, string>> = {
+      [CONFIGURATION_KEYS.COMPANY.COMPANY_LIST]: 'Loading companies...',
+      [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST]: 'Loading contractors...',
+      [CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST]: 'Loading employees...',
+      [CONFIGURATION_KEYS.ASSET.ASSET_LIST]: 'Loading assets...',
+      [CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST]: 'Loading vehicles...',
+      [CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST]: 'Loading petro cards...',
+    };
+
+    return loadingLabelByDropdownName[dropdownName] ?? 'Loading options...';
+  }
+
+  getMultiSelectEmptyMessage(
+    multiSelectConfig:
+      | Partial<{
+          dynamicDropdown?: { dropdownName: string };
+          loading?: boolean;
+        }>
+      | undefined
+  ): string {
+    if (!multiSelectConfig?.dynamicDropdown) {
+      return 'No data found';
+    }
+
+    return multiSelectConfig.loading
+      ? this.getDynamicDropdownLoadingLabel()
+      : 'No data found';
+  }
+
+  shouldShowMultiSelectToggleAll(
+    multiSelectConfig:
+      | Partial<{
+          showToggleAll?: boolean;
+        }>
+      | undefined,
+    options: IOptionDropdown[] | undefined
+  ): boolean {
+    if (!multiSelectConfig?.showToggleAll) {
+      return false;
+    }
+
+    const hasSelectableOptions = (options ?? []).some(
+      option => !option.disabled
+    );
+    return hasSelectableOptions;
+  }
+
   private isDependentParentValueEmpty(value: unknown): boolean {
     if (value === null || value === undefined || value === '') {
       return true;
@@ -620,6 +734,14 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
   /** When options are empty: dependent + parent not selected → hint; otherwise "No data found". */
   private getEmptyDropdownPlaceholderOption(): IOptionDropdown {
+    if (this.isDynamicDropdownLoading()) {
+      return {
+        label: this.getDynamicDropdownLoadingLabel(),
+        value: DROPDOWN_DISABLED_ROW_VALUE,
+        disabled: true,
+      };
+    }
+
     const config = this.inputFieldConfig();
     const dropdownConfig =
       config.fieldType === EDataType.SELECT

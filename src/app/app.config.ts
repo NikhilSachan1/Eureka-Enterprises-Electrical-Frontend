@@ -105,11 +105,13 @@ export const appConfig: ApplicationConfig = {
 
       try {
         await lastValueFrom(
-          appConfigurationService.loadAllAppData().pipe(take(1))
+          appConfigurationService.loadCriticalAppData().pipe(take(1))
         );
       } catch (error) {
         console.error('Failed to load app data during initialization:', error);
       }
+
+      appConfigurationService.prefetchReferenceListsInBackground();
 
       announcementService.startPeriodicUnacknowledgedCheck();
     }),

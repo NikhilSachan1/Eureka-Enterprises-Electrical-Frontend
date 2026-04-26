@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import {
   catchError,
+  finalize,
   forkJoin,
   map,
   MonoTypeOperatorFunction,
@@ -17,6 +18,7 @@ import {
   switchMap,
   take,
   tap,
+  timer,
   throwError,
 } from 'rxjs';
 
@@ -60,6 +62,9 @@ import {
   providedIn: 'root',
 })
 export class AppConfigurationService {
+  private static readonly APP_CONFIGURATION_LOADING_KEY =
+    '__app_configuration__';
+  private readonly REFERENCE_PREFETCH_START_DELAY_MS = 3000;
   private readonly logger = inject(LoggerService);
   private readonly authService = inject(AuthService);
   private readonly employeeService = inject(EmployeeService);
@@ -93,6 +98,10 @@ export class AppConfigurationService {
   private companyListCache$?: Observable<ICompanyGetResponseDto>;
   private contractorListCache$?: Observable<IContractorGetResponseDto>;
   private linkedUserVehicleDetailCache$?: Observable<ILinkedUserVehicleDetailGetResponseDto | null>;
+  private readonly _dropdownLoadingState = signal<Record<string, boolean>>({});
+  private readonly _isAppConfigurationDataReady = signal<boolean>(false);
+  private readonly pendingLazyLoads = new Set<string>();
+  private isReferencePrefetchScheduled = false;
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
 
@@ -456,6 +465,7 @@ export class AppConfigurationService {
   invalidateAppConfigurationCaches(): void {
     this.roleListCache$ = undefined;
     this.appConfigurationCache$ = undefined;
+    this._isAppConfigurationDataReady.set(false);
     this.invalidateReferenceListCaches();
   }
 
@@ -565,17 +575,25 @@ export class AppConfigurationService {
       sortOrder: 'DESC',
     };
 
-    return this.configurationService.getConfigurationList(payload).pipe(
-      tap(response => {
-        this.logger.logUserAction('Load App Configuration Response', response);
-        const moduleConfigMap = this.buildModuleConfigMap(response);
-        this.populateAllModuleDropdowns(moduleConfigMap);
-      }),
-      catchError(error => {
-        this.appConfigurationCache$ = undefined;
-        this.logger.logUserAction('Failed to load App Configuration', error);
-        return throwError(() => error);
-      })
+    return this.withDropdownLoading(
+      AppConfigurationService.APP_CONFIGURATION_LOADING_KEY,
+      this.configurationService.getConfigurationList(payload).pipe(
+        tap(response => {
+          this.logger.logUserAction(
+            'Load App Configuration Response',
+            response
+          );
+          const moduleConfigMap = this.buildModuleConfigMap(response);
+          this.populateAllModuleDropdowns(moduleConfigMap);
+          this._isAppConfigurationDataReady.set(true);
+        }),
+        catchError(error => {
+          this.appConfigurationCache$ = undefined;
+          this._isAppConfigurationDataReady.set(false);
+          this.logger.logUserAction('Failed to load App Configuration', error);
+          return throwError(() => error);
+        })
+      )
     );
   }
 
@@ -593,73 +611,76 @@ export class AppConfigurationService {
       pageSize: 100,
     };
 
-    return this.employeeService.getEmployeeList(payload).pipe(
-      tap(response => {
-        this.logger.logUserAction('Employee List loaded successfully', {
-          count: response.totalRecords,
-        });
+    return this.withDropdownLoading(
+      CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+      this.employeeService.getEmployeeList(payload).pipe(
+        tap(response => {
+          this.logger.logUserAction('Employee List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-        const employeeListByRole: Record<string, IOptionDropdown[]> = {};
+          const employeeListByRole: Record<string, IOptionDropdown[]> = {};
 
-        const employeeList: IOptionDropdown[] = response.records
-          .map(employee => {
-            const first = employee.firstName?.trim() ?? '';
-            const last = employee.lastName?.trim() ?? '';
-            const employeeStatus = employee.status?.trim() ?? '';
-            const formattedEmployeeStatus = employeeStatus
-              ? toTitleCase(employeeStatus)
-              : '';
-            const employeeCode = employee.employeeId?.trim() ?? '';
-            const subtitleParts = [
-              employeeCode,
-              formattedEmployeeStatus,
-            ].filter(Boolean);
-            const initialChar =
-              first.charAt(0) ||
-              last.charAt(0) ||
-              (employee.employeeId?.trim()?.charAt(0) ?? '');
-            const dropdownItem: IOptionDropdown = {
-              label: toTitleCase(`${first} ${last}`.trim()),
-              subtitle:
-                subtitleParts.length > 0
-                  ? subtitleParts.join(' • ')
-                  : undefined,
-              initial: initialChar ? initialChar.toUpperCase() : undefined,
-              value: employee.id,
-              disabled: employeeStatus.toLowerCase() === 'archived',
-              data: employee,
-            };
+          const employeeList: IOptionDropdown[] = response.records
+            .map(employee => {
+              const first = employee.firstName?.trim() ?? '';
+              const last = employee.lastName?.trim() ?? '';
+              const employeeStatus = employee.status?.trim() ?? '';
+              const formattedEmployeeStatus = employeeStatus
+                ? toTitleCase(employeeStatus)
+                : '';
+              const employeeCode = employee.employeeId?.trim() ?? '';
+              const subtitleParts = [
+                employeeCode,
+                formattedEmployeeStatus,
+              ].filter(Boolean);
+              const initialChar =
+                first.charAt(0) ||
+                last.charAt(0) ||
+                (employee.employeeId?.trim()?.charAt(0) ?? '');
+              const dropdownItem: IOptionDropdown = {
+                label: toTitleCase(`${first} ${last}`.trim()),
+                subtitle:
+                  subtitleParts.length > 0
+                    ? subtitleParts.join(' • ')
+                    : undefined,
+                initial: initialChar ? initialChar.toUpperCase() : undefined,
+                value: employee.id,
+                disabled: employeeStatus.toLowerCase() === 'archived',
+                data: employee,
+              };
 
-            // Parse roles and add to role-based lists
-            const roles = employee.roles
-              .split(',')
-              .map(role => role.trim())
-              .filter(role => role.length > 0);
+              // Parse roles and add to role-based lists
+              const roles = employee.roles
+                .split(',')
+                .map(role => role.trim())
+                .filter(role => role.length > 0);
 
-            roles.forEach(role => {
-              if (!employeeListByRole[role]) {
-                employeeListByRole[role] = [];
-              }
-              employeeListByRole[role].push(dropdownItem);
-            });
+              roles.forEach(role => {
+                if (!employeeListByRole[role]) {
+                  employeeListByRole[role] = [];
+                }
+                employeeListByRole[role].push(dropdownItem);
+              });
 
-            return dropdownItem;
-          })
-          .sort(this.sortByLabel);
+              return dropdownItem;
+            })
+            .sort(this.sortByLabel);
 
-        // Sort role-based lists as well
-        Object.keys(employeeListByRole).forEach(role => {
-          employeeListByRole[role].sort(this.sortByLabel);
-        });
+          // Sort role-based lists as well
+          Object.keys(employeeListByRole).forEach(role => {
+            employeeListByRole[role].sort(this.sortByLabel);
+          });
 
-        this._employeeList.set(employeeList);
-        this._employeeListByRole.set(employeeListByRole);
-      }),
-      catchError(error => {
-        this.employeeListCache$ = undefined;
-        this.logger.logUserAction('Failed to load Employee List', error);
-        return throwError(() => error);
-      })
+          this._employeeList.set(employeeList);
+          this._employeeListByRole.set(employeeListByRole);
+        }),
+        catchError(error => {
+          this.employeeListCache$ = undefined;
+          this.logger.logUserAction('Failed to load Employee List', error);
+          return throwError(() => error);
+        })
+      )
     );
   }
 
@@ -700,11 +721,89 @@ export class AppConfigurationService {
   }
 
   getDropdown(module: string, key: string): Signal<IOptionDropdown[]> {
+    this.triggerLazyAppConfigurationLoadForDropdownKey(key);
+    this.triggerLazyReferenceLoadForDropdownKey(key);
     return (
       this.MODULE_DROPDOWN_REGISTRY[module]
         ?.find(dropdown => dropdown.key === key)
         ?.signal.asReadonly() ?? this.EMPTY_DROPDOWN
     );
+  }
+
+  private triggerLazyAppConfigurationLoadForDropdownKey(key: string): void {
+    const excludedKeys = new Set<string>([
+      CONFIGURATION_KEYS.COMMON.ROLE_LIST,
+      CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
+      CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
+      CONFIGURATION_KEYS.ASSET.ASSET_LIST,
+      CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
+      CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
+      CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
+      CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+    ]);
+
+    if (
+      excludedKeys.has(key) ||
+      this.appConfigurationCache$ ||
+      this.pendingLazyLoads.has(`config:${key}`)
+    ) {
+      return;
+    }
+
+    const taskKey = `config:${key}`;
+    this.pendingLazyLoads.add(taskKey);
+
+    queueMicrotask(() => {
+      this.loadAppConfiguration()
+        .pipe(take(1))
+        .subscribe({
+          error: error =>
+            this.logger.warn(
+              `Lazy app configuration load failed for key: ${key}`,
+              error
+            ),
+          complete: () => {
+            this.pendingLazyLoads.delete(taskKey);
+          },
+        });
+    });
+  }
+
+  private triggerLazyReferenceLoadForDropdownKey(key: string): void {
+    const loadByKey: Partial<Record<string, () => Observable<unknown>>> = {
+      [CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST]: () =>
+        this.loadEmployeeList(),
+      [CONFIGURATION_KEYS.ASSET.ASSET_LIST]: () => this.loadAssetList(),
+      [CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST]: () => this.loadVehicleList(),
+      [CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST]: () =>
+        this.loadPetroCardList(),
+      [CONFIGURATION_KEYS.COMPANY.COMPANY_LIST]: () => this.loadCompanyList(),
+      [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST]: () =>
+        this.loadContractorList(),
+    };
+
+    const loader = loadByKey[key];
+    const taskKey = `ref:${key}`;
+    if (!loader || this.pendingLazyLoads.has(taskKey)) {
+      return;
+    }
+
+    this.pendingLazyLoads.add(taskKey);
+
+    queueMicrotask(() => {
+      loader()
+        .pipe(take(1))
+        .subscribe({
+          error: error =>
+            this.logger.warn(
+              `Lazy reference load failed for key: ${key}`,
+              error
+            ),
+          complete: () => {
+            this.pendingLazyLoads.delete(taskKey);
+          },
+        });
+    });
   }
 
   getEmployeesByRole(roleName: string): IOptionDropdown[] {
@@ -866,33 +965,36 @@ export class AppConfigurationService {
   private fetchAssetList(): Observable<IAssetGetResponseDto> {
     this.logger.logUserAction('Loading app data - Asset List');
 
-    return this.assetService.getAssetList().pipe(
-      tap(response => {
-        this.logger.logUserAction('Asset List loaded successfully', {
-          count: response.totalRecords,
-        });
+    return this.withDropdownLoading(
+      CONFIGURATION_KEYS.ASSET.ASSET_LIST,
+      this.assetService.getAssetList().pipe(
+        tap(response => {
+          this.logger.logUserAction('Asset List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-        const assetList: IOptionDropdown[] = response.records
-          .map(asset => {
-            const rawName = asset.name?.trim() ?? '';
-            const aid = asset.assetId?.trim();
-            return {
-              label: toTitleCase(rawName),
-              subtitle: aid || undefined,
-              initial: this.initialsForDropdownLabel(rawName),
-              value: asset.id,
-              data: asset,
-            };
-          })
-          .sort(this.sortByLabel);
+          const assetList: IOptionDropdown[] = response.records
+            .map(asset => {
+              const rawName = asset.name?.trim() ?? '';
+              const aid = asset.assetId?.trim();
+              return {
+                label: toTitleCase(rawName),
+                subtitle: aid || undefined,
+                initial: this.initialsForDropdownLabel(rawName),
+                value: asset.id,
+                data: asset,
+              };
+            })
+            .sort(this.sortByLabel);
 
-        this._assetList.set(assetList);
-      }),
-      catchError(error => {
-        this.assetListCache$ = undefined;
-        this.logger.logUserAction('Failed to load Asset List', error);
-        return throwError(() => error);
-      })
+          this._assetList.set(assetList);
+        }),
+        catchError(error => {
+          this.assetListCache$ = undefined;
+          this.logger.logUserAction('Failed to load Asset List', error);
+          return throwError(() => error);
+        })
+      )
     );
   }
 
@@ -905,37 +1007,42 @@ export class AppConfigurationService {
   private fetchVehicleList(): Observable<IVehicleGetResponseDto> {
     this.logger.logUserAction('Loading app data - Vehicle List');
 
-    return this.vehicleService.getVehicleList().pipe(
-      tap(response => {
-        this.logger.logUserAction('Vehicle List loaded successfully', {
-          count: response.totalRecords,
-        });
+    return this.withDropdownLoading(
+      CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
+      this.vehicleService.getVehicleList().pipe(
+        tap(response => {
+          this.logger.logUserAction('Vehicle List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-        const vehicleList: IOptionDropdown[] = response.records
-          .map(vehicle => {
-            const reg = vehicle.registrationNo?.trim() ?? '';
-            const brandModel = [vehicle.brand, vehicle.model]
-              .filter(Boolean)
-              .join(' ')
-              .trim();
-            const initialMatch = reg.match(/[A-Za-z0-9]/);
-            return {
-              label: reg,
-              subtitle: brandModel ? toTitleCase(brandModel) : undefined,
-              initial: initialMatch ? initialMatch[0].toUpperCase() : undefined,
-              value: vehicle.id,
-              data: vehicle,
-            };
-          })
-          .sort(this.sortByLabel);
+          const vehicleList: IOptionDropdown[] = response.records
+            .map(vehicle => {
+              const reg = vehicle.registrationNo?.trim() ?? '';
+              const brandModel = [vehicle.brand, vehicle.model]
+                .filter(Boolean)
+                .join(' ')
+                .trim();
+              const initialMatch = reg.match(/[A-Za-z0-9]/);
+              return {
+                label: reg,
+                subtitle: brandModel ? toTitleCase(brandModel) : undefined,
+                initial: initialMatch
+                  ? initialMatch[0].toUpperCase()
+                  : undefined,
+                value: vehicle.id,
+                data: vehicle,
+              };
+            })
+            .sort(this.sortByLabel);
 
-        this._vehicleList.set(vehicleList);
-      }),
-      catchError(error => {
-        this.vehicleListCache$ = undefined;
-        this.logger.logUserAction('Failed to load Vehicle List', error);
-        return throwError(() => error);
-      })
+          this._vehicleList.set(vehicleList);
+        }),
+        catchError(error => {
+          this.vehicleListCache$ = undefined;
+          this.logger.logUserAction('Failed to load Vehicle List', error);
+          return throwError(() => error);
+        })
+      )
     );
   }
 
@@ -948,28 +1055,31 @@ export class AppConfigurationService {
   private fetchPetroCardList(): Observable<IPetroCardGetResponseDto> {
     this.logger.logUserAction('Loading app data - Petro Card List');
 
-    return this.petroCardService.getPetroCardList().pipe(
-      tap(response => {
-        this.logger.logUserAction('Petro Card List loaded successfully', {
-          count: response.totalRecords,
-        });
+    return this.withDropdownLoading(
+      CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
+      this.petroCardService.getPetroCardList().pipe(
+        tap(response => {
+          this.logger.logUserAction('Petro Card List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-        const petroCardList: IOptionDropdown[] = response.records
-          .map(petroCard => ({
-            label: toTitleCase(
-              `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
-            ),
-            value: petroCard.id,
-          }))
-          .sort(this.sortByLabel);
+          const petroCardList: IOptionDropdown[] = response.records
+            .map(petroCard => ({
+              label: toTitleCase(
+                `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
+              ),
+              value: petroCard.id,
+            }))
+            .sort(this.sortByLabel);
 
-        this._petroCardList.set(petroCardList);
-      }),
-      catchError(error => {
-        this.petroCardListCache$ = undefined;
-        this.logger.logUserAction('Failed to load Petro Card List', error);
-        return throwError(() => error);
-      })
+          this._petroCardList.set(petroCardList);
+        }),
+        catchError(error => {
+          this.petroCardListCache$ = undefined;
+          this.logger.logUserAction('Failed to load Petro Card List', error);
+          return throwError(() => error);
+        })
+      )
     );
   }
 
@@ -982,38 +1092,41 @@ export class AppConfigurationService {
   private fetchCompanyList(): Observable<ICompanyGetResponseDto> {
     this.logger.logUserAction('Loading app data - Company List');
 
-    return this.companyService.getCompanyList().pipe(
-      tap(response => {
-        this.logger.logUserAction('Company List loaded successfully', {
-          count: response.totalRecords,
-        });
+    return this.withDropdownLoading(
+      CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
+      this.companyService.getCompanyList().pipe(
+        tap(response => {
+          this.logger.logUserAction('Company List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-        const companyList: IOptionDropdown[] = response.records
-          .map(company => {
-            const rawName = company.name?.trim() ?? '';
-            const gst = company.gstNumber?.trim();
-            const subtitle = gst
-              ? `GST ${gst}`
-              : [company.city, company.state].filter(Boolean).join(', ') ||
-                (company.email?.trim() ?? '') ||
-                `ID ${company.id.slice(0, 8)}`;
-            return {
-              label: toTitleCase(rawName),
-              subtitle,
-              initial: this.initialsForDropdownLabel(rawName),
-              value: company.id,
-              data: company,
-            };
-          })
-          .sort(this.sortByLabel);
+          const companyList: IOptionDropdown[] = response.records
+            .map(company => {
+              const rawName = company.name?.trim() ?? '';
+              const gst = company.gstNumber?.trim();
+              const subtitle = gst
+                ? `GST ${gst}`
+                : [company.city, company.state].filter(Boolean).join(', ') ||
+                  (company.email?.trim() ?? '') ||
+                  `ID ${company.id.slice(0, 8)}`;
+              return {
+                label: toTitleCase(rawName),
+                subtitle,
+                initial: this.initialsForDropdownLabel(rawName),
+                value: company.id,
+                data: company,
+              };
+            })
+            .sort(this.sortByLabel);
 
-        this._companyList.set(companyList);
-      }),
-      catchError(error => {
-        this.companyListCache$ = undefined;
-        this.logger.logUserAction('Failed to load Company List', error);
-        return throwError(() => error);
-      })
+          this._companyList.set(companyList);
+        }),
+        catchError(error => {
+          this.companyListCache$ = undefined;
+          this.logger.logUserAction('Failed to load Company List', error);
+          return throwError(() => error);
+        })
+      )
     );
   }
 
@@ -1026,40 +1139,43 @@ export class AppConfigurationService {
   private fetchContractorList(): Observable<IContractorGetResponseDto> {
     this.logger.logUserAction('Loading app data - Contractor List');
 
-    return this.contractorService.getContractorList().pipe(
-      tap(response => {
-        this.logger.logUserAction('Contractor List loaded successfully', {
-          count: response.totalRecords,
-        });
+    return this.withDropdownLoading(
+      CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+      this.contractorService.getContractorList().pipe(
+        tap(response => {
+          this.logger.logUserAction('Contractor List loaded successfully', {
+            count: response.totalRecords,
+          });
 
-        const contractorList: IOptionDropdown[] = response.records
-          .map(contractor => {
-            const rawName = contractor.name?.trim() ?? '';
-            const gst = contractor.gstNumber?.trim();
-            const subtitle = gst
-              ? `GST ${gst}`
-              : [contractor.city, contractor.state]
-                  .filter(Boolean)
-                  .join(', ') ||
-                (contractor.email?.trim() ?? '') ||
-                `ID ${contractor.id.slice(0, 8)}`;
-            return {
-              label: toTitleCase(rawName),
-              subtitle,
-              initial: this.initialsForDropdownLabel(rawName),
-              value: contractor.id,
-              data: contractor,
-            };
-          })
-          .sort(this.sortByLabel);
+          const contractorList: IOptionDropdown[] = response.records
+            .map(contractor => {
+              const rawName = contractor.name?.trim() ?? '';
+              const gst = contractor.gstNumber?.trim();
+              const subtitle = gst
+                ? `GST ${gst}`
+                : [contractor.city, contractor.state]
+                    .filter(Boolean)
+                    .join(', ') ||
+                  (contractor.email?.trim() ?? '') ||
+                  `ID ${contractor.id.slice(0, 8)}`;
+              return {
+                label: toTitleCase(rawName),
+                subtitle,
+                initial: this.initialsForDropdownLabel(rawName),
+                value: contractor.id,
+                data: contractor,
+              };
+            })
+            .sort(this.sortByLabel);
 
-        this._contractorList.set(contractorList);
-      }),
-      catchError(error => {
-        this.contractorListCache$ = undefined;
-        this.logger.logUserAction('Failed to load Contractor List', error);
-        return throwError(() => error);
-      })
+          this._contractorList.set(contractorList);
+        }),
+        catchError(error => {
+          this.contractorListCache$ = undefined;
+          this.logger.logUserAction('Failed to load Contractor List', error);
+          return throwError(() => error);
+        })
+      )
     );
   }
 
@@ -1086,26 +1202,60 @@ export class AppConfigurationService {
   private fetchLinkedUserVehicleDetailForCurrentUser(): Observable<ILinkedUserVehicleDetailGetResponseDto | null> {
     this.logger.logUserAction('Loading app data - Linked User Vehicle Detail');
 
-    return this.fuelExpenseService
-      .getLinkedUserVehicleDetail({ employeeName: null })
-      .pipe(
-        tap(response => {
-          this.logger.logUserAction(
-            'Linked User Vehicle Detail loaded successfully',
-            response
-          );
-          this._linkedUserVehicleDetail.set(response);
-        }),
-        catchError(error => {
-          this.linkedUserVehicleDetailCache$ = undefined;
-          this.logger.logUserAction(
-            'Failed to load Linked User Vehicle Detail',
-            error
-          );
-          this._linkedUserVehicleDetail.set(null);
-          return of(null);
-        })
-      );
+    return this.withDropdownLoading(
+      'linked_user_vehicle_detail',
+      this.fuelExpenseService
+        .getLinkedUserVehicleDetail({ employeeName: null })
+        .pipe(
+          tap(response => {
+            this.logger.logUserAction(
+              'Linked User Vehicle Detail loaded successfully',
+              response
+            );
+            this._linkedUserVehicleDetail.set(response);
+          }),
+          catchError(error => {
+            this.linkedUserVehicleDetailCache$ = undefined;
+            this.logger.logUserAction(
+              'Failed to load Linked User Vehicle Detail',
+              error
+            );
+            this._linkedUserVehicleDetail.set(null);
+            return of(null);
+          })
+        )
+    );
+  }
+
+  isDropdownLoading(dropdownKey: string): boolean {
+    return !!this._dropdownLoadingState()[dropdownKey];
+  }
+
+  isAppConfigurationLoading(): boolean {
+    return this.isDropdownLoading(
+      AppConfigurationService.APP_CONFIGURATION_LOADING_KEY
+    );
+  }
+
+  isAppConfigurationDataReady(): boolean {
+    return this._isAppConfigurationDataReady();
+  }
+
+  private withDropdownLoading<T>(
+    dropdownKey: string,
+    source$: Observable<T>
+  ): Observable<T> {
+    this.setDropdownLoading(dropdownKey, true);
+    return source$.pipe(
+      finalize(() => this.setDropdownLoading(dropdownKey, false))
+    );
+  }
+
+  private setDropdownLoading(dropdownKey: string, loading: boolean): void {
+    this._dropdownLoadingState.update(prev => ({
+      ...prev,
+      [dropdownKey]: loading,
+    }));
   }
 
   private normalizeDropdownData(data: unknown[]): IOptionDropdown[] {
@@ -1235,5 +1385,72 @@ export class AppConfigurationService {
         return throwError(() => error);
       })
     );
+  }
+
+  /**
+   * Startup-safe loader: fetches only data required globally at app bootstrap/login.
+   * Heavy entity lists are loaded lazily when their dropdown is first requested.
+   */
+  loadCriticalAppData(): Observable<{
+    roles: IRoleGetResponseDto;
+    permissions: unknown;
+  }> {
+    this.logger.info('Loading critical app data...');
+
+    return this.loadAllAppRoles().pipe(
+      switchMap(rolesResponse => {
+        const currentRole = this._roleList().find(
+          role => role.value === this.authService.getCurrentUser()?.activeRole
+        );
+        const currentRoleId = (currentRole?.data as IRoleGetBaseResponseDto)
+          ?.id;
+
+        return forkJoin({
+          permissions:
+            this.userPermissionService.fetchAndStoreLoggedInUserPermissions({
+              roleId: currentRoleId,
+            }),
+        }).pipe(
+          map(parallelResults => ({
+            roles: rolesResponse,
+            ...parallelResults,
+          }))
+        );
+      }),
+      tap(() => this.logger.info('Critical app data loaded successfully')),
+      catchError(error => {
+        this.logger.error('Failed to load critical app data', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Fire-and-forget prefetch for non-critical entity lists.
+   * Keeps navigation fast while warming caches in background.
+   */
+  prefetchReferenceListsInBackground(): void {
+    if (this.isReferencePrefetchScheduled) {
+      return;
+    }
+
+    this.isReferencePrefetchScheduled = true;
+
+    timer(this.REFERENCE_PREFETCH_START_DELAY_MS)
+      .pipe(
+        switchMap(() => this.loadReferenceLists().pipe(take(1))),
+        finalize(() => {
+          this.isReferencePrefetchScheduled = false;
+        })
+      )
+      .subscribe({
+        complete: () =>
+          this.logger.info('Reference lists prefetched in background'),
+        error: error =>
+          this.logger.warn(
+            'Background prefetch of reference lists failed',
+            error
+          ),
+      });
   }
 }

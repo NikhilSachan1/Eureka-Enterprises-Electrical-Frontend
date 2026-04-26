@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, delay, tap } from 'rxjs/operators';
 import {
@@ -82,6 +82,7 @@ export class AuthService {
 
   private isRefreshing = false;
   private lastLoadedProfilePicture: string | null = null;
+  private isLoadingProfilePicture = false;
 
   public readonly isAuthenticated = this._isAuthenticated.asReadonly();
   public readonly user = this._user.asReadonly();
@@ -90,20 +91,6 @@ export class AuthService {
 
   constructor() {
     this.initializeAuthState();
-
-    effect(() => {
-      const user = this._user();
-      const currentProfilePicture = user?.profilePicture ?? null;
-
-      if (currentProfilePicture !== this.lastLoadedProfilePicture) {
-        if (currentProfilePicture) {
-          this.loadUserProfilePicture(currentProfilePicture);
-        } else {
-          this._userAvatarUrl.set('');
-        }
-        this.lastLoadedProfilePicture = currentProfilePicture;
-      }
-    });
   }
 
   private initializeAuthState(): void {
@@ -584,21 +571,51 @@ export class AuthService {
     return this.avatarService.getAvatarFromName(user?.fullName ?? '');
   }
 
+  /**
+   * Lazy-load profile picture URL only when a visible UI needs it.
+   * Falls back to generated avatar while media URL is loading.
+   */
+  ensureLoggedInUserProfilePictureLoaded(): void {
+    const profilePicture = this._user()?.profilePicture?.trim() ?? '';
+
+    if (!profilePicture) {
+      this._userAvatarUrl.set('');
+      this.lastLoadedProfilePicture = null;
+      return;
+    }
+
+    if (
+      this.isLoadingProfilePicture ||
+      this.lastLoadedProfilePicture === profilePicture
+    ) {
+      return;
+    }
+
+    this.isLoadingProfilePicture = true;
+    this.loadUserProfilePicture(profilePicture);
+  }
+
   private loadUserProfilePicture(profilePicture: string): void {
     this.attachmentsService
       .getFullMediaUrl(profilePicture)
       .pipe(
         tap(response => {
           this._userAvatarUrl.set(response.url);
+          this.lastLoadedProfilePicture = profilePicture;
           this.logger.info('User profile picture loaded', response.url);
         }),
         catchError(error => {
           this.logger.error('Failed to load profile picture', error);
           this._userAvatarUrl.set('');
+          this.lastLoadedProfilePicture = null;
           return of(null);
         })
       )
-      .subscribe();
+      .subscribe({
+        complete: () => {
+          this.isLoadingProfilePicture = false;
+        },
+      });
   }
 
   updateUserDetails(updates: {

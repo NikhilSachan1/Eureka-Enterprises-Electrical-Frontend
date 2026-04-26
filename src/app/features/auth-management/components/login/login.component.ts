@@ -176,7 +176,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
     });
 
     this.appConfigurationService
-      .loadAllAppData()
+      .loadCriticalAppData()
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -186,6 +186,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
       )
       .subscribe({
         next: () => {
+          this.appConfigurationService.prefetchReferenceListsInBackground();
           if (selectedRoleName) {
             this.notificationService.success(
               AUTH_MESSAGES.SUCCESS.LOGIN_WITH_ROLE(

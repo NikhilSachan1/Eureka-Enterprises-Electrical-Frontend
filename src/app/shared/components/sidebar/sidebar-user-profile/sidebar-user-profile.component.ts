@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   input,
+  OnInit,
   ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -28,7 +29,7 @@ import { PopoverModule, Popover } from 'primeng/popover';
   styleUrls: ['./sidebar-user-profile.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SidebarUserProfileComponent {
+export class SidebarUserProfileComponent implements OnInit {
   @ViewChild('userPopover') userPopover!: Popover;
 
   // Input to control layout style - centered (top) or compact (bottom)
@@ -53,6 +54,10 @@ export class SidebarUserProfileComponent {
         this.userPopover.hide();
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.authService.ensureLoggedInUserProfilePictureLoaded();
   }
 
   readonly user = computed(() => this.authService.user());
