@@ -48,13 +48,13 @@ import { finalize } from 'rxjs';
 import { GetLeaveDetailComponent } from '../get-leave-detail/get-leave-detail.component';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { LeaveService } from '@features/leave-management/services/leave.service';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { FilterMetadata } from 'primeng/api';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
@@ -84,11 +84,14 @@ export class GetLeaveComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly authService = inject(AuthService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
   private readonly leaveStats = signal<ILeaveGetStatsResponseDto | null>(null);
+  /** Derived from the last list request params — not from raw table UI state (avoids false positives). */
+  private readonly showLeaveBalanceMetrics = signal(false);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
@@ -126,12 +129,16 @@ export class GetLeaveComponent implements OnInit {
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
+          this.showLeaveBalanceMetrics.set(
+            this.shouldShowLeaveBalanceMetricsForRole(paramData)
+          );
           this.leaveStats.set(stats);
           this.logger.logUserAction('Leave applications loaded successfully');
         },
         error: error => {
           this.table.setData([]);
           this.leaveStats.set(null);
+          this.showLeaveBalanceMetrics.set(false);
           this.logger.logUserAction('Failed to load leave applications', error);
         },
       });
@@ -190,11 +197,7 @@ export class GetLeaveComponent implements OnInit {
       },
     ];
 
-    const isEmployeeFilterActive = (
-      this.tableFilterData.filters?.['employeeName'] as FilterMetadata
-    )?.value as string[];
-
-    if (isEmployeeFilterActive && isEmployeeFilterActive.length > 0) {
+    if (this.showLeaveBalanceMetrics()) {
       groups.push({
         id: 'balance',
         title: 'Leave Balance',
@@ -220,6 +223,42 @@ export class GetLeaveComponent implements OnInit {
     }
 
     return groups;
+  }
+
+  /**
+   * Managerial roles see leave balance only when exactly one employee is filtered (scoped stats).
+   * Other roles always see their own / default balance block when stats exist.
+   */
+  private shouldShowLeaveBalanceMetricsForRole(
+    params: ILeaveGetFormDto
+  ): boolean {
+    if (!this.authService.isActiveRoleManagerial()) {
+      return true;
+    }
+    return this.hasExactlyOneValidEmployeeFilter(params);
+  }
+
+  /** Must match what {@link prepareParamData} sends as `employeeName` (UUID strings). */
+  private hasExactlyOneValidEmployeeFilter(params: ILeaveGetFormDto): boolean {
+    const raw = params?.employeeName;
+    if (!Array.isArray(raw) || raw.length !== 1) {
+      return false;
+    }
+    return this.extractEmployeeFilterId(raw[0]).length > 0;
+  }
+
+  private extractEmployeeFilterId(value: unknown): string {
+    if (value === undefined || value === null) {
+      return '';
+    }
+    if (typeof value === 'string') {
+      return value.trim();
+    }
+    if (typeof value === 'object' && value !== null && 'value' in value) {
+      const v = (value as { value: unknown }).value;
+      return v === undefined || v === null ? '' : String(v).trim();
+    }
+    return String(value).trim();
   }
 
   protected handleLeaveTableActionClick(

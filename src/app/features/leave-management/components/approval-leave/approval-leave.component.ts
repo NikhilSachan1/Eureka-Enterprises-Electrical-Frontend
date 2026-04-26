@@ -12,7 +12,7 @@ import { EAttendanceStatus } from '@features/attendance-management/types/attenda
 import { APPROVAL_ACTION_LEAVE_FORM_CONFIG } from '@features/leave-management/config';
 import { LeaveService } from '@features/leave-management/services/leave.service';
 import {
-  isTodayOnOrBeforeLeaveFromDate,
+  isLeaveStartOnOrBeforeToday,
   shouldShowAttendanceStatusField,
 } from '@features/leave-management/utils/leave.util';
 import {
@@ -117,10 +117,12 @@ export class ApprovalLeaveComponent
     }
 
     const isApprove = this.dialogActionType() === EButtonActionType.APPROVE;
-    const attendanceStatus =
-      isApprove && isTodayOnOrBeforeLeaveFromDate(fromDate)
+    // Future leave: do not send attendance — API rejects attendance when the period has not started.
+    const attendanceStatus = isApprove
+      ? isLeaveStartOnOrBeforeToday(fromDate)
         ? EAttendanceStatus.LEAVE
-        : formData.attendanceStatus;
+        : undefined
+      : formData.attendanceStatus;
 
     return {
       ...formData,

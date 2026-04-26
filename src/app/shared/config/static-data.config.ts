@@ -2,7 +2,7 @@ import { IOptionDropdown } from '@shared/types';
 
 export const SHIFT_DATA = {
   START_TIME: '10:01',
-  END_TIME: '13:05',
+  END_TIME: '18:20',
 };
 
 export const PAYSLIP_DATE_DATA = {
