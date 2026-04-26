@@ -12,6 +12,7 @@ import { FORCE_LEAVE_FORM_CONFIG } from '@features/leave-management/config';
 import { LeaveService } from '@features/leave-management/services/leave.service';
 import {
   ILeaveForceFormDto,
+  ILeaveForceResponseDto,
   ILeaveBalanceGetResponseDto,
 } from '@features/leave-management/types/leave.dto';
 import { ButtonComponent } from '@shared/components/button/button.component';
@@ -116,12 +117,27 @@ export class ForceLeaveComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: () => {
-          this.notificationService.success('Force leave applied successfully');
+        next: (response: ILeaveForceResponseDto) => {
+          this.notificationService.bulkOperationFromResponse(response, {
+            successItemsPath: 'result',
+            errorItemsPath: 'errors',
+            successMessageKey: 'message',
+            errorMessageKey: 'error',
+            fallbacks: {
+              success: (count: number) =>
+                count === 1
+                  ? 'Force leave applied successfully.'
+                  : `Force leave applied for ${count} day(s).`,
+              error: () =>
+                'Force leave could not be applied for one or more selected day(s).',
+              empty: 'No leave days were processed.',
+            },
+          });
           const routeSegments = [ROUTE_BASE_PATHS.LEAVE, ROUTES.LEAVE.LIST];
           void this.routerNavigationService.navigateToRoute(routeSegments);
         },
-        error: () => {
+        error: error => {
+          this.logger.error('Failed to apply force leave', error);
           this.notificationService.error('Failed to apply force leave');
         },
       });
