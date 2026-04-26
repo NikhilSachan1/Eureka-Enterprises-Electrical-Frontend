@@ -1,0 +1,213 @@
+.critical-startup-page {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 2.6vw, 2rem);
+  background: linear-gradient(145deg, #020617 0%, #0f172a 55%, #172554 100%);
+  color: #e5e7eb;
+}
+
+.glow {
+  position: absolute;
+  width: 28rem;
+  height: 28rem;
+  border-radius: 999px;
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.glow-top {
+  top: -12rem;
+  left: -8rem;
+  background: rgb(37 99 235 / 0.4);
+}
+
+.glow-bottom {
+  right: -10rem;
+  bottom: -12rem;
+  background: rgb(168 85 247 / 0.28);
+}
+
+.critical-startup-shell {
+  position: relative;
+  z-index: 1;
+  width: min(1100px, 100%);
+  border-radius: 1.25rem;
+  border: 1px solid rgb(148 163 184 / 0.2);
+  background: rgb(15 23 42 / 0.55);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 24px 60px rgb(2 6 23 / 0.5);
+  display: grid;
+  grid-template-columns: 1.25fr minmax(280px, 0.75fr);
+  overflow: hidden;
+}
+
+.left-pane {
+  padding: clamp(1.5rem, 3vw, 3rem);
+  border-right: 1px solid rgb(148 163 184 / 0.2);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #93c5fd;
+}
+
+.left-pane h1 {
+  margin: 0.8rem 0 0.85rem;
+  color: #fff;
+  line-height: 1.1;
+  font-size: clamp(1.9rem, 4vw, 2.75rem);
+}
+
+.lead-text {
+  margin: 0;
+  max-width: 62ch;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.feature-list {
+  margin-top: 1.4rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border: 1px solid rgb(148 163 184 / 0.2);
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  background: rgb(15 23 42 / 0.55);
+}
+
+.feature-item p {
+  margin: 0;
+  color: #dbeafe;
+  font-size: 0.91rem;
+  line-height: 1.45;
+}
+
+.dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: 0.38rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+}
+
+.right-pane {
+  padding: clamp(1.25rem, 2.3vw, 2rem);
+  text-align: center;
+  background: linear-gradient(180deg, rgb(30 41 59 / 0.45) 0%, rgb(30 41 59 / 0.2) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.status-chip {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.24rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgb(248 113 113 / 0.45);
+  background: rgb(127 29 29 / 0.35);
+  color: #fca5a5;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.icon-wrap {
+  width: 3.4rem;
+  height: 3.4rem;
+  margin: 0.9rem auto 0.95rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #fecaca;
+  border: 1px solid rgb(248 113 113 / 0.6);
+  background: radial-gradient(circle at 30% 30%, #ef4444, #7f1d1d);
+}
+
+.right-pane h2 {
+  margin: 0;
+  font-size: 1.32rem;
+  color: #fff;
+}
+
+.right-pane p {
+  margin: 0.6rem 0 1.2rem;
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.right-pane button {
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.72rem 1.15rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.right-pane button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgb(37 99 235 / 0.36);
+}
+
+.right-pane button:active {
+  transform: translateY(0);
+}
+
+.support-note {
+  margin: 0.8rem 0 0;
+  font-size: 0.79rem;
+  color: #94a3b8;
+}
+
+@media (max-width: 980px) {
+  .critical-startup-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .left-pane {
+    border-right: none;
+    border-bottom: 1px solid rgb(148 163 184 / 0.2);
+  }
+}
+
+@media (max-width: 576px) {
+  .left-pane {
+    padding: 1.25rem 1rem;
+  }
+
+  .right-pane {
+    padding: 1.2rem 1rem;
+  }
+
+  .left-pane h1 {
+    font-size: 1.65rem;
+  }
+}

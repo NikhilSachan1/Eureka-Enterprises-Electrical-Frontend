@@ -26,11 +26,16 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { AppPreset, APP_CONFIG } from '@core/config';
 import { routes } from './app.routes';
 import {
+  CriticalStartupBlockInterceptor,
   AuthInterceptor,
   ErrorInterceptor,
   RolePayloadSanitizerInterceptor,
 } from '@core/interceptors';
-import { ThemeService, TimezoneService } from '@core/services';
+import {
+  CriticalStartupStateService,
+  ThemeService,
+  TimezoneService,
+} from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { UserPermissionService } from '@features/settings-management/permission-management/sub-features/user-permission-management/services/user-permission.service';
 import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
@@ -62,6 +67,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withFetch(),
       withInterceptors([
+        CriticalStartupBlockInterceptor,
         AuthInterceptor,
         RolePayloadSanitizerInterceptor,
         ErrorInterceptor,
@@ -89,6 +95,19 @@ export const appConfig: ApplicationConfig = {
       const financialYearService = inject(FinancialYearService);
       const appConfigurationService = inject(AppConfigurationService);
       const announcementService = inject(AnnouncementService);
+      const criticalStartupState = inject(CriticalStartupStateService);
+      const isStartupErrorPath = criticalStartupState.isStartupErrorPath();
+      const requestedUrl = criticalStartupState.getCurrentUrl();
+
+      if (criticalStartupState.criticalLoadFailed()) {
+        criticalStartupState.setRedirectUrl(requestedUrl);
+        if (!isStartupErrorPath) {
+          window.location.replace(
+            criticalStartupState.buildStartupErrorUrl(requestedUrl)
+          );
+        }
+        return;
+      }
 
       timezoneService.getTimezone();
 
@@ -96,6 +115,11 @@ export const appConfig: ApplicationConfig = {
       financialYearService.setFinancialYear(financialYear);
 
       if (!authService.isAuthenticated()) {
+        criticalStartupState.clearCriticalLoadFailure();
+        return;
+      }
+
+      if (isStartupErrorPath) {
         return;
       }
 
@@ -104,11 +128,16 @@ export const appConfig: ApplicationConfig = {
       }
 
       try {
+        criticalStartupState.clearCriticalLoadFailure();
         await lastValueFrom(
           appConfigurationService.loadCriticalAppData().pipe(take(1))
         );
       } catch (error) {
         console.error('Failed to load app data during initialization:', error);
+        window.location.replace(
+          criticalStartupState.markFailedAndBuildRedirectUrl(requestedUrl)
+        );
+        return;
       }
 
       appConfigurationService.prefetchReferenceListsInBackground();

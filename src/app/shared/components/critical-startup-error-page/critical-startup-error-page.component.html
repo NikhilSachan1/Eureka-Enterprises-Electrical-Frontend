@@ -1,0 +1,66 @@
+<div class="critical-startup-page">
+  <div
+    class="glow glow-top"
+    aria-hidden="true"
+  ></div>
+  <div
+    class="glow glow-bottom"
+    aria-hidden="true"
+  ></div>
+
+  <main class="critical-startup-shell">
+    <section class="left-pane">
+      <p class="eyebrow">System Status</p>
+      <h1>Startup is temporarily blocked</h1>
+      <p class="lead-text">
+        We are unable to load required startup data right now. To protect your workspace from partial or inconsistent
+        state, the app is paused.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <span
+            class="dot"
+            aria-hidden="true"
+          ></span>
+          <p>Critical services are unavailable at this moment.</p>
+        </div>
+        <div class="feature-item">
+          <span
+            class="dot"
+            aria-hidden="true"
+          ></span>
+          <p>Requests are intentionally blocked until recovery succeeds.</p>
+        </div>
+        <div class="feature-item">
+          <span
+            class="dot"
+            aria-hidden="true"
+          ></span>
+          <p>Your previous route is preserved and will be restored.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="right-pane">
+      <div class="status-chip">Startup Error</div>
+      <div
+        class="icon-wrap"
+        aria-hidden="true"
+      >
+        !
+      </div>
+      <h2>Unable to continue</h2>
+      <p>Please reload the application to retry startup checks.</p>
+
+      <button
+        type="button"
+        (click)="reloadApp()"
+      >
+        Reload Application
+      </button>
+
+      <p class="support-note">If this keeps happening, please contact your administrator.</p>
+    </section>
+  </main>
+</div>

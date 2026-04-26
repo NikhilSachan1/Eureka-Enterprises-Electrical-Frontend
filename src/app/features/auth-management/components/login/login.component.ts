@@ -21,6 +21,7 @@ import {
 } from '@shared/services';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../services/auth.service';
+import { CriticalStartupStateService } from '@core/services';
 import { ROLE_SELECTION_BUTTON_CONFIG, AUTH_MESSAGES } from '../../constants';
 import { finalize } from 'rxjs/operators';
 import { ILoginFormDto, ILoginResponseDto } from '../../types/auth.dto';
@@ -48,6 +49,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly criticalStartupState = inject(CriticalStartupStateService);
 
   // Role selection state
   protected readonly showRoleSelection = signal(false);
@@ -186,6 +188,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
       )
       .subscribe({
         next: () => {
+          this.criticalStartupState.clearCriticalLoadFailure();
           this.appConfigurationService.prefetchReferenceListsInBackground();
           if (selectedRoleName) {
             this.notificationService.success(
@@ -197,7 +200,13 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
           this.navigateAfterLogin();
         },
         error: error => {
+          const requestedUrl = this.criticalStartupState.getCurrentUrl();
           this.logger.error(AUTH_MESSAGES.ERROR.LOAD_APP_DATA, error);
+          void this.routerNavigationService.navigateByUrl(
+            this.criticalStartupState.markFailedAndBuildRedirectUrl(
+              requestedUrl
+            )
+          );
         },
       });
   }

@@ -3,6 +3,7 @@
  */
 
 export const ROUTE_BASE_PATHS = {
+  STARTUP_ERROR: 'startup-error',
   AUTH: 'auth',
   EMPLOYEE: 'employee',
   ATTENDANCE: 'attendance',
