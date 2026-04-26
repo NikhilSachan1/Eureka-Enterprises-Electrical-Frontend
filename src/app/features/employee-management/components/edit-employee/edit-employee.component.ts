@@ -286,25 +286,27 @@ export class EditEmployeeComponent
         message: "We're signing you out. This will just take a moment.",
       });
 
+      const goToLogin = (): void => {
+        const routeSegments = [ROUTE_BASE_PATHS.AUTH, ROUTES.AUTH.LOGIN];
+        void this.routerNavigationService
+          .navigateToRoute(routeSegments)
+          .finally(() => this.loadingService.hide());
+      };
+
       this.authService
         .logout()
-        .pipe(
-          finalize(() => {
-            this.loadingService.hide();
-          }),
-          takeUntilDestroyed(this.destroyRef)
-        )
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
             this.notificationService.success(
               EMPLOYEE_MESSAGES.SUCCESS.EMAIL_UPDATED_LOGOUT
             );
-            const routeSegments = [ROUTE_BASE_PATHS.AUTH, ROUTES.AUTH.LOGIN];
-            void this.routerNavigationService.navigateToRoute(routeSegments);
+            goToLogin();
           },
           error: error => {
             this.logger.error('Error during logout', error);
             this.notificationService.error('Error during logout');
+            goToLogin();
           },
         });
     }, 100);

@@ -1,24 +1,28 @@
-<router-outlet />
+@if (criticalStartupState.criticalLoadFailed()) {
+  <app-critical-startup-error-page />
+} @else {
+  <router-outlet />
 
-<!-- General Loading Overlay -->
-<app-loading-overlay
-  [show]="loadingService.isLoading()"
-  [title]="loadingService.title()"
-  [message]="loadingService.message()"
-/>
+  <!-- General Loading Overlay -->
+  <app-loading-overlay
+    [show]="loadingService.isLoading()"
+    [title]="loadingService.title()"
+    [message]="loadingService.message()"
+  />
 
-<!-- Global Toast Notifications -->
-<p-toast />
+  <!-- Global Toast Notifications -->
+  <p-toast />
 
-<!-- Global Confirmation Dialog -->
-<app-confirmation-dialog />
+  <!-- Global Confirmation Dialog -->
+  <app-confirmation-dialog />
 
-<!-- Global Drawer -->
-<app-drawer />
+  <!-- Global Drawer -->
+  <app-drawer />
 
-<!-- Global Gallery -->
-<app-gallery [media]="galleryService.media()" />
+  <!-- Global Gallery -->
+  <app-gallery [media]="galleryService.media()" />
 
-@if (networkMonitor.showOfflineOverlay()) {
-  <app-offline />
+  @if (networkMonitor.showOfflineOverlay()) {
+    <app-offline />
+  }
 }

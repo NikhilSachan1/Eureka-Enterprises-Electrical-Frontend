@@ -11,10 +11,15 @@
   <main class="critical-startup-shell">
     <section class="left-pane">
       <p class="eyebrow">System Status</p>
-      <h1>Startup is temporarily blocked</h1>
+      <h1>
+        {{ isHealthFailure ? 'Service is temporarily unavailable' : 'Startup is temporarily blocked' }}
+      </h1>
       <p class="lead-text">
-        We are unable to load required startup data right now. To protect your workspace from partial or inconsistent
-        state, the app is paused.
+        {{
+          isHealthFailure
+            ? 'The backend service health check is failing right now. The app is paused until service availability is restored.'
+            : 'We are unable to load required startup data right now. To protect your workspace from partial or inconsistent state, the app is paused.'
+        }}
       </p>
 
       <div class="feature-list">
@@ -23,35 +28,53 @@
             class="dot"
             aria-hidden="true"
           ></span>
-          <p>Critical services are unavailable at this moment.</p>
+          <p>
+            {{
+              isHealthFailure
+                ? 'Health check endpoint is currently not responding successfully.'
+                : 'Critical startup configuration could not be loaded.'
+            }}
+          </p>
         </div>
         <div class="feature-item">
           <span
             class="dot"
             aria-hidden="true"
           ></span>
-          <p>Requests are intentionally blocked until recovery succeeds.</p>
+          <p>
+            {{
+              isHealthFailure
+                ? 'Automatic recovery will resume once backend services are healthy.'
+                : 'Requests are intentionally blocked until critical configuration is recovered.'
+            }}
+          </p>
         </div>
         <div class="feature-item">
           <span
             class="dot"
             aria-hidden="true"
           ></span>
-          <p>Your previous route is preserved and will be restored.</p>
+          <p>Your previous route is preserved and will be restored after recovery.</p>
         </div>
       </div>
     </section>
 
     <section class="right-pane">
-      <div class="status-chip">Startup Error</div>
+      <div class="status-chip">{{ isHealthFailure ? 'Service Health Error' : 'Startup Error' }}</div>
       <div
         class="icon-wrap"
         aria-hidden="true"
       >
         !
       </div>
-      <h2>Unable to continue</h2>
-      <p>Please reload the application to retry startup checks.</p>
+      <h2>{{ isHealthFailure ? 'Waiting for service recovery' : 'Unable to continue' }}</h2>
+      <p>
+        {{
+          isHealthFailure
+            ? 'Please retry once backend health is restored.'
+            : 'Please reload the application to retry startup checks.'
+        }}
+      </p>
 
       <button
         type="button"

@@ -4,7 +4,7 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, throwError, OperatorFunction } from 'rxjs';
+import { MonoTypeOperatorFunction, Observable, throwError, timer } from 'rxjs';
 import { retry, timeout, map, tap, catchError } from 'rxjs/operators';
 import { z } from 'zod';
 import { EnvironmentService } from '@core/services/environment.service';
@@ -12,10 +12,22 @@ import { LoggerService } from '@core/services/logger.service';
 import { NotificationService } from '@shared/services';
 import { format24hClockTimesInTextTo12h } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
+import { GET_ENDPOINT_PATHS_WITHOUT_ERROR_TOAST } from '@core/constants';
 
 export interface ApiSchema<TRequest, TResponse> {
   request?: z.ZodType<TRequest>;
   response: z.ZodSchema<TResponse>;
+}
+
+/** Optional flags for API calls. */
+export interface ApiRequestOptions {
+  /**
+   * Override auto toast suppression for GETs listed in {@link GET_ENDPOINT_PATHS_WITHOUT_ERROR_TOAST}.
+   * - `true`: never toast
+   * - `false`: always toast on error
+   * - omit: default — silent for those GET endpoints only
+   */
+  silent?: boolean;
 }
 
 @Injectable({
@@ -43,7 +55,12 @@ export class ApiService {
   // BASIC HTTP (no validation / transform)
   // =====================================================
 
-  get<T>(endpoint: string, params?: unknown): Observable<T> {
+  get<T>(
+    endpoint: string,
+    params?: unknown,
+    options?: ApiRequestOptions
+  ): Observable<T> {
+    const silent = this.resolveSilentForGet(endpoint, options);
     const url = `${this.baseUrl}/${endpoint}`;
     const httpParams = this.buildHttpParams(params);
 
@@ -53,11 +70,16 @@ export class ApiService {
       timeout(this.timeout),
       tap(res => this.logger.logApiResponse('GET', url, res)),
       this.createRetryConfig<T>('GET', url),
-      catchError(err => this.handleHttpError(err))
+      catchError(err => this.handleHttpError(err, silent))
     );
   }
 
-  getBlob(endpoint: string, params?: unknown): Observable<Blob> {
+  getBlob(
+    endpoint: string,
+    params?: unknown,
+    options?: ApiRequestOptions
+  ): Observable<Blob> {
+    const silent = this.resolveSilentForGet(endpoint, options);
     const url = `${this.baseUrl}/${endpoint}`;
     const httpParams = this.buildHttpParams(params);
 
@@ -72,11 +94,16 @@ export class ApiService {
         timeout(this.timeout),
         tap(() => this.logger.logApiResponse('GET BLOB', url, 'Blob received')),
         this.createRetryConfig<Blob>('GET', url),
-        catchError(err => this.handleHttpError(err))
+        catchError(err => this.handleHttpError(err, silent))
       );
   }
 
-  post<T>(endpoint: string, body: unknown): Observable<T> {
+  post<T>(
+    endpoint: string,
+    body: unknown,
+    options?: ApiRequestOptions
+  ): Observable<T> {
+    const silent = options?.silent ?? false;
     const url = `${this.baseUrl}/${endpoint}`;
     const finalBody = this.cleanParams(body);
 
@@ -86,11 +113,16 @@ export class ApiService {
       timeout(this.timeout),
       tap(res => this.logger.logApiResponse('POST', url, res)),
       this.createRetryConfig<T>('POST', url),
-      catchError(err => this.handleHttpError(err))
+      catchError(err => this.handleHttpError(err, silent))
     );
   }
 
-  put<T>(endpoint: string, body: unknown): Observable<T> {
+  put<T>(
+    endpoint: string,
+    body: unknown,
+    options?: ApiRequestOptions
+  ): Observable<T> {
+    const silent = options?.silent ?? false;
     const url = `${this.baseUrl}/${endpoint}`;
     const finalBody = this.cleanParams(body);
 
@@ -100,11 +132,16 @@ export class ApiService {
       timeout(this.timeout),
       tap(res => this.logger.logApiResponse('PUT', url, res)),
       this.createRetryConfig<T>('PUT', url),
-      catchError(err => this.handleHttpError(err))
+      catchError(err => this.handleHttpError(err, silent))
     );
   }
 
-  patch<T>(endpoint: string, body: unknown): Observable<T> {
+  patch<T>(
+    endpoint: string,
+    body: unknown,
+    options?: ApiRequestOptions
+  ): Observable<T> {
+    const silent = options?.silent ?? false;
     const url = `${this.baseUrl}/${endpoint}`;
     const finalBody = this.cleanParams(body);
 
@@ -114,11 +151,16 @@ export class ApiService {
       timeout(this.timeout),
       tap(res => this.logger.logApiResponse('PATCH', url, res)),
       this.createRetryConfig<T>('PATCH', url),
-      catchError(err => this.handleHttpError(err))
+      catchError(err => this.handleHttpError(err, silent))
     );
   }
 
-  delete<T>(endpoint: string, body?: unknown): Observable<T> {
+  delete<T>(
+    endpoint: string,
+    body?: unknown,
+    options?: ApiRequestOptions
+  ): Observable<T> {
+    const silent = options?.silent ?? false;
     const url = `${this.baseUrl}/${endpoint}`;
     const cleanedBody = this.cleanParams(body);
 
@@ -128,7 +170,7 @@ export class ApiService {
       timeout(this.timeout),
       tap(res => this.logger.logApiResponse('DELETE', url, res)),
       this.createRetryConfig<T>('DELETE', url),
-      catchError(err => this.handleHttpError(err))
+      catchError(err => this.handleHttpError(err, silent))
     );
   }
 
@@ -140,8 +182,9 @@ export class ApiService {
     endpoint: string,
     schema: ApiSchema<TRequest, TResponse>,
     input: TInput,
-    options: { multipart?: boolean } = {}
+    options: { multipart?: boolean; silent?: boolean } = {}
   ): Observable<TResponse> {
+    const silent = options.silent ?? false;
     try {
       const payload = schema.request ? schema.request.parse(input) : input;
       const body = this.resolveRequestBody(payload, options);
@@ -154,10 +197,10 @@ export class ApiService {
         tap(res => this.logger.logApiResponse('POST', url, res)),
         this.createRetryConfig<unknown>('POST', url),
         map(res => schema.response.parse(res)),
-        catchError(err => this.handleHttpError(err))
+        catchError(err => this.catchValidatedPipelineError(err, silent))
       );
     } catch (err) {
-      return this.handleZodError(err);
+      return this.handleZodError(err, silent);
     }
   }
 
@@ -165,8 +208,9 @@ export class ApiService {
     endpoint: string,
     schema: ApiSchema<TRequest, TResponse>,
     input: TInput,
-    options: { multipart?: boolean } = {}
+    options: { multipart?: boolean; silent?: boolean } = {}
   ): Observable<TResponse> {
+    const silent = options.silent ?? false;
     try {
       const payload = schema.request ? schema.request.parse(input) : input;
 
@@ -180,10 +224,10 @@ export class ApiService {
         tap(res => this.logger.logApiResponse('PUT', url, res)),
         this.createRetryConfig<unknown>('PUT', url),
         map(res => schema.response.parse(res)),
-        catchError(err => this.handleHttpError(err))
+        catchError(err => this.catchValidatedPipelineError(err, silent))
       );
     } catch (err) {
-      return this.handleZodError(err);
+      return this.handleZodError(err, silent);
     }
   }
 
@@ -191,8 +235,9 @@ export class ApiService {
     endpoint: string,
     schema: ApiSchema<TRequest, TResponse>,
     input: TInput,
-    options: { multipart?: boolean } = {}
+    options: { multipart?: boolean; silent?: boolean } = {}
   ): Observable<TResponse> {
+    const silent = options.silent ?? false;
     try {
       const payload = schema.request ? schema.request.parse(input) : input;
 
@@ -206,52 +251,89 @@ export class ApiService {
         tap(res => this.logger.logApiResponse('PATCH', url, res)),
         this.createRetryConfig<unknown>('PATCH', url),
         map(res => schema.response.parse(res)),
-        catchError(err => this.handleHttpError(err))
+        catchError(err => this.catchValidatedPipelineError(err, silent))
       );
     } catch (err) {
-      return this.handleZodError(err);
+      return this.handleZodError(err, silent);
     }
   }
 
   getValidated<TInput, TParams, TResponse>(
     endpoint: string,
     schema: ApiSchema<TParams, TResponse>,
-    input?: TInput
+    input?: TInput,
+    options?: ApiRequestOptions
   ): Observable<TResponse> {
+    const silent = this.resolveSilentForGet(endpoint, options);
     try {
       const params =
         input && schema.request ? schema.request.parse(input) : input;
 
-      return this.get<unknown>(endpoint, params).pipe(
+      return this.get<unknown>(endpoint, params, { silent }).pipe(
         map(res => schema.response.parse(res)),
-        catchError(err => this.handleHttpError(err))
+        catchError(err => {
+          if (err instanceof z.ZodError) {
+            return this.handleZodError(err, silent);
+          }
+          return throwError(() => err);
+        })
       );
     } catch (err) {
-      return this.handleZodError(err);
+      return this.handleZodError(err, silent);
     }
   }
 
   deleteValidated<TInput, TRequest, TResponse>(
     endpoint: string,
     schema: ApiSchema<TRequest, TResponse>,
-    input?: TInput
+    input?: TInput,
+    options?: ApiRequestOptions
   ): Observable<TResponse> {
+    const silent = options?.silent ?? false;
     try {
       const body =
         input && schema.request ? schema.request.parse(input) : input;
 
-      return this.delete<unknown>(endpoint, body).pipe(
+      return this.delete<unknown>(endpoint, body, { silent }).pipe(
         map(res => schema.response.parse(res)),
-        catchError(err => this.handleHttpError(err))
+        catchError(err => {
+          if (err instanceof z.ZodError) {
+            return this.handleZodError(err, silent);
+          }
+          return throwError(() => err);
+        })
       );
     } catch (err) {
-      return this.handleZodError(err);
+      return this.handleZodError(err, silent);
     }
   }
 
   // =====================================================
   // HELPERS
   // =====================================================
+
+  private resolveSilentForGet(
+    endpoint: string,
+    options?: ApiRequestOptions
+  ): boolean {
+    if (options?.silent === true) {
+      return true;
+    }
+    if (options?.silent === false) {
+      return false;
+    }
+    return GET_ENDPOINT_PATHS_WITHOUT_ERROR_TOAST.has(endpoint);
+  }
+
+  private catchValidatedPipelineError(
+    err: unknown,
+    silent: boolean
+  ): Observable<never> {
+    if (err instanceof z.ZodError) {
+      return this.handleZodError(err, silent);
+    }
+    return this.handleHttpError(err as HttpErrorResponse, silent);
+  }
 
   private resolveRequestBody(
     body: unknown,
@@ -416,7 +498,7 @@ export class ApiService {
   private createRetryConfig<T>(
     method: string,
     url: string
-  ): OperatorFunction<T, T> {
+  ): MonoTypeOperatorFunction<T> {
     return retry<T>({
       count: this.retryAttempts,
       delay: (error: HttpErrorResponse, retryCount: number) => {
@@ -424,39 +506,37 @@ export class ApiService {
           this.logger.info(
             `Retry ${retryCount}/${this.retryAttempts} - ${method} ${url}`
           );
-          return this.calculateRetryDelay();
+          return timer(APP_CONFIG.API_CONFIG.retryDelay);
         }
         throw error;
       },
     });
   }
 
-  private calculateRetryDelay(): Observable<number> {
-    return new Observable(sub => {
-      setTimeout(() => {
-        sub.next(APP_CONFIG.API_CONFIG.retryDelay);
-        sub.complete();
-      }, APP_CONFIG.API_CONFIG.retryDelay);
-    });
-  }
-
-  private handleHttpError(error: HttpErrorResponse): Observable<never> {
+  private handleHttpError(
+    error: HttpErrorResponse,
+    silent = false
+  ): Observable<never> {
     const raw =
       error.status === 0
         ? 'Network error'
         : (error.error?.error?.message ?? 'Unexpected error');
     const message =
       typeof raw === 'string' ? format24hClockTimesInTextTo12h(raw) : raw;
-    this.notificationService.error(message);
+    if (!silent) {
+      this.notificationService.error(message);
+    }
     return throwError(() => error);
   }
 
-  private handleZodError(error: unknown): Observable<never> {
+  private handleZodError(error: unknown, silent = false): Observable<never> {
     if (error instanceof z.ZodError) {
       const message = error.issues
         .map(i => `${i.path.join('.')}: ${i.message}`)
         .join(', ');
-      this.notificationService.error(`Validation failed: ${message}`);
+      if (!silent) {
+        this.notificationService.error(`Validation failed: ${message}`);
+      }
     }
     return throwError(() => error);
   }

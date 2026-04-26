@@ -33,6 +33,7 @@ import {
 } from '@core/interceptors';
 import {
   CriticalStartupStateService,
+  HealthCheckService,
   ThemeService,
   TimezoneService,
 } from '@core/services';
@@ -96,17 +97,20 @@ export const appConfig: ApplicationConfig = {
       const appConfigurationService = inject(AppConfigurationService);
       const announcementService = inject(AnnouncementService);
       const criticalStartupState = inject(CriticalStartupStateService);
-      const isStartupErrorPath = criticalStartupState.isStartupErrorPath();
-      const requestedUrl = criticalStartupState.getCurrentUrl();
+      const healthCheckService = inject(HealthCheckService);
 
-      if (criticalStartupState.criticalLoadFailed()) {
-        criticalStartupState.setRedirectUrl(requestedUrl);
-        if (!isStartupErrorPath) {
-          window.location.replace(
-            criticalStartupState.buildStartupErrorUrl(requestedUrl)
-          );
-        }
+      const isHealthy = await lastValueFrom(
+        healthCheckService.check().pipe(take(1))
+      );
+
+      if (!isHealthy) {
+        criticalStartupState.markCriticalLoadFailed('health');
         return;
+      }
+
+      // Health is now good; clear stale failure to allow a fresh startup attempt.
+      if (criticalStartupState.criticalLoadFailed()) {
+        criticalStartupState.clearCriticalLoadFailure();
       }
 
       timezoneService.getTimezone();
@@ -116,10 +120,6 @@ export const appConfig: ApplicationConfig = {
 
       if (!authService.isAuthenticated()) {
         criticalStartupState.clearCriticalLoadFailure();
-        return;
-      }
-
-      if (isStartupErrorPath) {
         return;
       }
 
@@ -134,9 +134,7 @@ export const appConfig: ApplicationConfig = {
         );
       } catch (error) {
         console.error('Failed to load app data during initialization:', error);
-        window.location.replace(
-          criticalStartupState.markFailedAndBuildRedirectUrl(requestedUrl)
-        );
+        criticalStartupState.markCriticalLoadFailed('configuration');
         return;
       }
 

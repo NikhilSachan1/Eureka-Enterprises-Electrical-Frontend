@@ -55,6 +55,7 @@ export const EmployeeGetStatsResponseSchema = z.looseObject({
   active: z.number().int().nonnegative(),
   inactive: z.number().int().nonnegative(),
   newJoinersLast30Days: z.number().int().nonnegative(),
+  totalPermissions: z.number().int().nonnegative(),
   byEmployeeType: z.record(
     z.string(),
     z.number().int().nonnegative().optional()

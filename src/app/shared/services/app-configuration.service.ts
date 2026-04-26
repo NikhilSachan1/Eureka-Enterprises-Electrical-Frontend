@@ -101,6 +101,11 @@ export class AppConfigurationService {
   private readonly _dropdownLoadingState = signal<Record<string, boolean>>({});
   private readonly _isAppConfigurationDataReady = signal<boolean>(false);
   private readonly pendingLazyLoads = new Set<string>();
+  /**
+   * Lazy loads from {@link getDropdown} run once per key until caches are invalidated or a refresh* method runs.
+   * Without this, every UI recomputation re-queued fetches when the list stayed empty or HTTP failed (storm of `user` calls).
+   */
+  private readonly lazyReferenceDropdownLoadScheduledKeys = new Set<string>();
   private isReferencePrefetchScheduled = false;
 
   private readonly EMPTY_DROPDOWN = signal<IOptionDropdown[]>([]).asReadonly();
@@ -480,11 +485,15 @@ export class AppConfigurationService {
     this.companyListCache$ = undefined;
     this.contractorListCache$ = undefined;
     this.linkedUserVehicleDetailCache$ = undefined;
+    this.lazyReferenceDropdownLoadScheduledKeys.clear();
   }
 
   /** Refetch one list after CRUD so cached dropdown data matches the server. */
   refreshEmployeeDropdowns(): void {
     this.employeeListCache$ = undefined;
+    this.lazyReferenceDropdownLoadScheduledKeys.delete(
+      CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST
+    );
     this.loadEmployeeList()
       .pipe(take(1))
       .subscribe({
@@ -495,6 +504,9 @@ export class AppConfigurationService {
 
   refreshAssetDropdowns(): void {
     this.assetListCache$ = undefined;
+    this.lazyReferenceDropdownLoadScheduledKeys.delete(
+      CONFIGURATION_KEYS.ASSET.ASSET_LIST
+    );
     this.loadAssetList()
       .pipe(take(1))
       .subscribe({
@@ -504,6 +516,9 @@ export class AppConfigurationService {
 
   refreshVehicleDropdowns(): void {
     this.vehicleListCache$ = undefined;
+    this.lazyReferenceDropdownLoadScheduledKeys.delete(
+      CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST
+    );
     this.loadVehicleList()
       .pipe(take(1))
       .subscribe({
@@ -513,6 +528,9 @@ export class AppConfigurationService {
 
   refreshCompanyDropdowns(): void {
     this.companyListCache$ = undefined;
+    this.lazyReferenceDropdownLoadScheduledKeys.delete(
+      CONFIGURATION_KEYS.COMPANY.COMPANY_LIST
+    );
     this.loadCompanyList()
       .pipe(take(1))
       .subscribe({
@@ -522,6 +540,9 @@ export class AppConfigurationService {
 
   refreshContractorDropdowns(): void {
     this.contractorListCache$ = undefined;
+    this.lazyReferenceDropdownLoadScheduledKeys.delete(
+      CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST
+    );
     this.loadContractorList()
       .pipe(take(1))
       .subscribe({
@@ -532,6 +553,9 @@ export class AppConfigurationService {
 
   refreshPetroCardDropdowns(): void {
     this.petroCardListCache$ = undefined;
+    this.lazyReferenceDropdownLoadScheduledKeys.delete(
+      CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST
+    );
     this.loadPetroCardList()
       .pipe(take(1))
       .subscribe({
@@ -755,16 +779,18 @@ export class AppConfigurationService {
 
     queueMicrotask(() => {
       this.loadAppConfiguration()
-        .pipe(take(1))
+        .pipe(
+          take(1),
+          finalize(() => {
+            this.pendingLazyLoads.delete(taskKey);
+          })
+        )
         .subscribe({
           error: error =>
             this.logger.warn(
               `Lazy app configuration load failed for key: ${key}`,
               error
             ),
-          complete: () => {
-            this.pendingLazyLoads.delete(taskKey);
-          },
         });
     });
   }
@@ -784,24 +810,31 @@ export class AppConfigurationService {
 
     const loader = loadByKey[key];
     const taskKey = `ref:${key}`;
-    if (!loader || this.pendingLazyLoads.has(taskKey)) {
+    if (
+      !loader ||
+      this.pendingLazyLoads.has(taskKey) ||
+      this.lazyReferenceDropdownLoadScheduledKeys.has(key)
+    ) {
       return;
     }
 
+    this.lazyReferenceDropdownLoadScheduledKeys.add(key);
     this.pendingLazyLoads.add(taskKey);
 
     queueMicrotask(() => {
       loader()
-        .pipe(take(1))
+        .pipe(
+          take(1),
+          finalize(() => {
+            this.pendingLazyLoads.delete(taskKey);
+          })
+        )
         .subscribe({
           error: error =>
             this.logger.warn(
               `Lazy reference load failed for key: ${key}`,
               error
             ),
-          complete: () => {
-            this.pendingLazyLoads.delete(taskKey);
-          },
         });
     });
   }
@@ -1394,6 +1427,7 @@ export class AppConfigurationService {
   loadCriticalAppData(): Observable<{
     roles: IRoleGetResponseDto;
     permissions: unknown;
+    appConfiguration: IConfigurationGetResponseDto;
   }> {
     this.logger.info('Loading critical app data...');
 
@@ -1410,6 +1444,7 @@ export class AppConfigurationService {
             this.userPermissionService.fetchAndStoreLoggedInUserPermissions({
               roleId: currentRoleId,
             }),
+          appConfiguration: this.loadAppConfiguration(),
         }).pipe(
           map(parallelResults => ({
             roles: rolesResponse,

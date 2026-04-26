@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, delay, tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import {
   ApiService,
   LoggerService,
@@ -232,7 +232,6 @@ export class AuthService {
         formData
       )
       .pipe(
-        delay(2000),
         tap((response: ILogoutResponseDto) => {
           this.logger.logUserAction('Logout Response', response);
           this.clearAuthState();

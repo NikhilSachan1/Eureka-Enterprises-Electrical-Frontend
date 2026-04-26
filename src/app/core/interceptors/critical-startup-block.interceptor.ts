@@ -8,14 +8,16 @@ import {
 import { inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { CriticalStartupStateService } from '@core/services';
+import { API_ROUTES } from '@core/constants';
 
 export const CriticalStartupBlockInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
   const criticalStartupState = inject(CriticalStartupStateService);
+  const isHealthCheckRequest = req.url.includes(API_ROUTES.HEALTH.CHECK);
 
-  if (!criticalStartupState.criticalLoadFailed()) {
+  if (!criticalStartupState.criticalLoadFailed() || isHealthCheckRequest) {
     return next(req);
   }
 

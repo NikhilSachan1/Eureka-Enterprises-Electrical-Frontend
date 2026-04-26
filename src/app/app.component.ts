@@ -7,7 +7,11 @@ import { ConfirmationDialogComponent } from '@shared/components/confirmation-dia
 import { DrawerComponent } from '@shared/components/drawer/drawer.component';
 import { GalleryComponent } from '@shared/components/gallery/gallery.component';
 import { OfflineComponent } from '@shared/components/offline/offline.component';
-import { NetworkMonitorService } from '@core/services';
+import {
+  CriticalStartupStateService,
+  NetworkMonitorService,
+} from '@core/services';
+import { CriticalStartupErrorPageComponent } from '@shared/components/critical-startup-error-page/critical-startup-error-page.component';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +24,7 @@ import { NetworkMonitorService } from '@core/services';
     DrawerComponent,
     GalleryComponent,
     OfflineComponent,
+    CriticalStartupErrorPageComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -29,4 +34,5 @@ export class AppComponent {
   protected readonly loadingService = inject(LoadingService);
   protected readonly galleryService = inject(GalleryService);
   protected readonly networkMonitor = inject(NetworkMonitorService); // Make public for template
+  protected readonly criticalStartupState = inject(CriticalStartupStateService);
 }

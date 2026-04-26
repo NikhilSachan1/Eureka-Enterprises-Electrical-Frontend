@@ -1,4 +1,7 @@
 export const API_ROUTES = {
+  HEALTH: {
+    CHECK: 'health-check',
+  },
   CRON: {
     GET_JOBS: 'admin/cron/jobs',
     RUN_JOB: 'admin/cron/trigger',
@@ -216,6 +219,27 @@ export const API_ROUTES = {
     ACKNOWLEDGE: 'announcement/acknowledge',
   },
 } as const;
+
+/**
+ * Relative paths passed to {@link ApiService} `get` / `getValidated` / `getBlob` for which
+ * global HTTP error toasts are suppressed (bootstrap, permissions, configuration details,
+ * reference lists / lazy dropdown data). Exact match on the `endpoint` argument.
+ * POST/PUT/PATCH/DELETE are unaffected unless they pass explicit `silent` in options.
+ */
+export const GET_ENDPOINT_PATHS_WITHOUT_ERROR_TOAST = new Set<string>([
+  API_ROUTES.HEALTH.CHECK,
+  API_ROUTES.SETTINGS.CONFIGURATION.LIST,
+  API_ROUTES.SETTINGS.PERMISSION.ROLE.LIST,
+  API_ROUTES.SETTINGS.PERMISSION.USER.LIST,
+  API_ROUTES.SETTINGS.PERMISSION.USER_PERMISSION.LIST,
+  API_ROUTES.EMPLOYEE.LIST,
+  API_ROUTES.ASSET.LIST,
+  API_ROUTES.VEHICLE.LIST,
+  API_ROUTES.VEHICLE.GET_LINKED_USER_VEHICLE_DETAIL,
+  API_ROUTES.PETRO_CARD.LIST,
+  API_ROUTES.SITE.COMPANY.LIST,
+  API_ROUTES.SITE.CONTRACTOR.LIST,
+]);
 
 export const SKIP_AUTH_ENDPOINTS = [
   API_ROUTES.AUTH.LOGIN,

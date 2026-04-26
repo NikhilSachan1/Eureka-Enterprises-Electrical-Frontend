@@ -9,14 +9,16 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { LoggerService, ThemeService } from '@core/services';
 import { UserOption } from '@shared/types';
 import { NgClass } from '@angular/common';
 import { primaryUserOptions, secondaryUserOptions } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { AppConfigurationService, LoadingService } from '@shared/services';
-import { finalize } from 'rxjs/operators';
+import {
+  AppConfigurationService,
+  LoadingService,
+  RouterNavigationService,
+} from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
@@ -38,7 +40,7 @@ export class SidebarUserProfileComponent implements OnInit {
   // Input to know if sidebar is collapsed
   isSidebarCollapsed = input<boolean>(false);
 
-  private router = inject(Router);
+  private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
   private readonly loadingService = inject(LoadingService);
@@ -94,7 +96,7 @@ export class SidebarUserProfileComponent implements OnInit {
   }
 
   navigateTo(path: string): void {
-    void this.router.navigate([path]);
+    void this.routerNavigationService.navigateByUrl(path);
     this.userPopover.hide();
   }
 
@@ -106,23 +108,23 @@ export class SidebarUserProfileComponent implements OnInit {
       message: "We're signing you out. This will just take a moment.",
     });
 
+    const hideAfterLoginRoute = (): void => {
+      void this.routerNavigationService
+        .navigateToRoute([ROUTE_BASE_PATHS.AUTH, ROUTES.AUTH.LOGIN])
+        .finally(() => this.loadingService.hide());
+    };
+
     this.authService
       .logout()
-      .pipe(
-        finalize(() => {
-          this.loadingService.hide();
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.logger.info('Logging out user');
-          void this.router.navigate([
-            `/${ROUTE_BASE_PATHS.AUTH}/${ROUTES.AUTH.LOGIN}`,
-          ]);
+          hideAfterLoginRoute();
         },
         error: error => {
           this.logger.error('Error during logout', error);
+          hideAfterLoginRoute();
         },
       });
   }

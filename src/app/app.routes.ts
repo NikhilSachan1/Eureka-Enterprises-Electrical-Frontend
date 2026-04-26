@@ -4,13 +4,6 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { authGuard, GuestGuard } from '@core/guards';
 
 export const routes: Routes = [
-  {
-    path: ROUTE_BASE_PATHS.STARTUP_ERROR,
-    loadComponent: () =>
-      import(
-        '@shared/components/critical-startup-error-page/critical-startup-error-page.component'
-      ).then(m => m.CriticalStartupErrorPageComponent),
-  },
   // Public routes (no sidebar)
   {
     path: '',

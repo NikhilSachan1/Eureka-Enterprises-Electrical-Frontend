@@ -1,4 +1,5 @@
 export { ApiService } from './api.service';
+export type { ApiRequestOptions } from './api.service';
 export { EnvironmentService } from './environment.service';
 export { LoggerService } from './logger.service';
 export { MenuService } from './menu.service';
@@ -8,3 +9,4 @@ export { TimezoneService } from './timezone.service';
 export { AppPermissionService } from './app-permission.service';
 export { NetworkMonitorService } from './network-monitor.service';
 export { CriticalStartupStateService } from './critical-startup-state.service';
+export { HealthCheckService } from './health-check.service';

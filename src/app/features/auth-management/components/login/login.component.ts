@@ -23,7 +23,8 @@ import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../services/auth.service';
 import { CriticalStartupStateService } from '@core/services';
 import { ROLE_SELECTION_BUTTON_CONFIG, AUTH_MESSAGES } from '../../constants';
-import { finalize } from 'rxjs/operators';
+import { finalize, switchMap } from 'rxjs/operators';
+import { from } from 'rxjs';
 import { ILoginFormDto, ILoginResponseDto } from '../../types/auth.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { FormBase } from '@shared/base/form.base';
@@ -180,14 +181,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
     this.appConfigurationService
       .loadCriticalAppData()
       .pipe(
-        finalize(() => {
-          this.loadingService.hide();
-          this.clearPendingLoginData();
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: () => {
+        switchMap(() => {
           this.criticalStartupState.clearCriticalLoadFailure();
           this.appConfigurationService.prefetchReferenceListsInBackground();
           if (selectedRoleName) {
@@ -197,16 +191,19 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
               )
             );
           }
-          this.navigateAfterLogin();
-        },
+          return from(this.navigateAfterLoginAsync());
+        }),
+        finalize(() => {
+          this.loadingService.hide();
+          this.clearPendingLoginData();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
         error: error => {
-          const requestedUrl = this.criticalStartupState.getCurrentUrl();
+          this.criticalStartupState.markCriticalLoadFailed('configuration');
+          this.loadingService.forceHideAll();
           this.logger.error(AUTH_MESSAGES.ERROR.LOAD_APP_DATA, error);
-          void this.routerNavigationService.navigateByUrl(
-            this.criticalStartupState.markFailedAndBuildRedirectUrl(
-              requestedUrl
-            )
-          );
         },
       });
   }
@@ -216,18 +213,19 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
     sessionStorage.removeItem('pending_remember_me');
   }
 
-  private navigateAfterLogin(): void {
+  private navigateAfterLoginAsync(): Promise<boolean> {
     const redirectUrl = sessionStorage.getItem('auth_redirect_url');
 
     if (redirectUrl) {
       this.logger.info(`Redirecting to stored URL: ${redirectUrl}`);
       sessionStorage.removeItem('auth_redirect_url');
-      void this.routerNavigationService.navigateByUrl(redirectUrl);
-    } else {
-      this.logger.info('Navigating to dashboard');
-      const routeSegments = [ROUTE_BASE_PATHS.DASHBOARD];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
+      return this.routerNavigationService.navigateByUrl(redirectUrl);
     }
+
+    this.logger.info('Navigating to dashboard');
+    return this.routerNavigationService.navigateToRoute([
+      ROUTE_BASE_PATHS.DASHBOARD,
+    ]);
   }
 
   protected onForgotPassword(): void {
