@@ -10,6 +10,8 @@ const path = require('path');
  *   --folders    Check for empty folders (default: true)
  *   --exclude    Comma-separated directories to exclude
  *   --output     Output file path (optional)
+ *
+ * Empty .scss (and .sass) files are ignored — they are not reported or deleted.
  */
 
 class EmptyItemsFinder {
@@ -49,6 +51,14 @@ class EmptyItemsFinder {
         relativePath.includes(excluded) ||
         path.basename(dirPath).startsWith(excluded)
     );
+  }
+
+  /**
+   * Skip empty-file checks for stylesheets that are often intentionally minimal.
+   */
+  shouldIgnoreEmptyFileCheck(filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+    return ext === '.scss' || ext === '.sass' || ext === '.html';
   }
 
   /**
@@ -149,8 +159,12 @@ class EmptyItemsFinder {
               }
             }
           } else if (stats.isFile()) {
-            // Check if file is empty
-            if (this.checkFiles && this.isFileEmpty(itemPath)) {
+            // Check if file is empty (SCSS/Sass excluded)
+            if (
+              this.checkFiles &&
+              !this.shouldIgnoreEmptyFileCheck(itemPath) &&
+              this.isFileEmpty(itemPath)
+            ) {
               const relativePath = path.relative(this.rootPath, itemPath);
               this.emptyFiles.push(relativePath);
 
@@ -332,6 +346,8 @@ Options:
                        (default: node_modules,dist,.git,.angular,coverage,.vscode,.idea,tools)
   --output <file>      Save report to file (optional)
   --help, -h           Show this help message
+
+Note: .scss and .sass files are never treated as empty for listing/deletion.
 
 Examples:
   # List empty files and folders
