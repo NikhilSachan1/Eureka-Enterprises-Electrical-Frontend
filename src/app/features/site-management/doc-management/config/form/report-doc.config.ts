@@ -36,6 +36,7 @@ export const REPORT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocReportUIF
       label: 'Report Date',
       dateConfig: {
         maxDate: new Date(),
+        touchUI: false,
       },
       validators: [Validators.required],
     },

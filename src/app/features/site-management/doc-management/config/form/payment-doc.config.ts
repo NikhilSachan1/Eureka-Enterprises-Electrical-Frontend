@@ -37,6 +37,7 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocPaymentU
       label: 'Payment Date',
       dateConfig: {
         maxDate: new Date(),
+        touchUI: false,
       },
       validators: [Validators.required],
     },

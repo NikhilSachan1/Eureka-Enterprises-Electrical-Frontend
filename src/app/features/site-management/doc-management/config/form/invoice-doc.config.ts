@@ -37,6 +37,7 @@ export const INVOICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocInvoiceU
       label: 'Invoice Date',
       dateConfig: {
         maxDate: new Date(),
+        touchUI: false,
       },
       validators: [Validators.required],
     },

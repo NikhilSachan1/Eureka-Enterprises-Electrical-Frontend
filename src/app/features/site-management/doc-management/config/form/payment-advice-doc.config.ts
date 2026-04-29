@@ -36,6 +36,7 @@ export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocP
       label: 'Payment Advice Date',
       dateConfig: {
         maxDate: new Date(),
+        touchUI: false,
       },
       validators: [Validators.required],
     },
