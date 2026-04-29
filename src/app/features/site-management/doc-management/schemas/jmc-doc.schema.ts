@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { dateField, fileField } from '@shared/schemas';
+import { EDocType } from '../types/doc.enum';
+import { transformDateFormat } from '@shared/utility';
 
 export const JmcDocAddRequestSchema = z
   .object({
@@ -9,7 +11,17 @@ export const JmcDocAddRequestSchema = z
     jmcAttachments: z.array(fileField),
     jmcRemark: z.string(),
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      documentNumber: data.jmcNumber,
+      docReferenceNumber: data.poNumber,
+      documentDate: transformDateFormat(data.jmcDate),
+      attachments: data.jmcAttachments,
+      note: data.jmcRemark,
+      documentType: EDocType.JMC,
+    };
+  });
 
 export const JmcDocAddResponseSchema = z.looseObject({
   message: z.string(),

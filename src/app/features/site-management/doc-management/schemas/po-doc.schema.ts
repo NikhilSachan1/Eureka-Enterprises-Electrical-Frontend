@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { dateField, fileField } from '@shared/schemas';
+import { EDocType } from '../types/doc.enum';
+import { transformDateFormat } from '@shared/utility';
 
 export const PoDocAddRequestSchema = z
   .object({
@@ -12,7 +14,20 @@ export const PoDocAddRequestSchema = z
     poAttachments: z.array(fileField),
     poRemark: z.string(),
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      contractorName: data.contractorName,
+      documentNumber: data.poNumber,
+      documentDate: transformDateFormat(data.poDate),
+      taxableAmount: data.poTaxableAmount,
+      gstAmount: data.poGstAmount,
+      netAmount: data.poTotalAmount,
+      attachments: data.poAttachments,
+      note: data.poRemark,
+      documentType: EDocType.PO,
+    };
+  });
 
 export const PoDocAddResponseSchema = z.looseObject({
   message: z.string(),

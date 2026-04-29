@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { dateField, fileField } from '@shared/schemas';
+import { EDocType } from '../types/doc.enum';
+import { transformDateFormat } from '@shared/utility';
 
 export const PaymentAdviceDocAddRequestSchema = z
   .object({
@@ -9,7 +11,17 @@ export const PaymentAdviceDocAddRequestSchema = z
     paymentAdviceAttachments: z.array(fileField),
     paymentAdviceRemark: z.string(),
   })
-  .strict();
+  .strict()
+  .transform(data => {
+    return {
+      documentNumber: data.paymentAdviceNumber,
+      docReferenceNumber: data.transactionNumber,
+      documentDate: transformDateFormat(data.paymentAdviceDate),
+      attachments: data.paymentAdviceAttachments,
+      note: data.paymentAdviceRemark,
+      documentType: EDocType.PAYMENT_ADVICE,
+    };
+  });
 
 export const PaymentAdviceDocAddResponseSchema = z.looseObject({
   message: z.string(),
