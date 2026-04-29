@@ -7,6 +7,7 @@ import { PaymentDocComponent } from '../../components/payment-doc/payment-doc.co
 import { InvoiceDocComponent } from '../../components/invoice-doc/invoice-doc.component';
 import { ReportDocComponent } from '../../components/report-doc/report-doc.component';
 import { PaymentAdviceDocComponent } from '../../components/payment-advice-doc/payment-advice-doc.component';
+import { EDocType } from '../../types/doc.enum';
 
 export const DOC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.DELETE]: {
@@ -15,47 +16,48 @@ export const DOC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   },
 };
 
-export const DOC_ADD_BUTTON_CONFIG_MAP: Record<string, IDialogActionConfig> = {
-  po: {
-    dialogConfig: {
-      header: 'Add PO',
-      message: 'Fill and submit the PO details.',
+export const DOC_ADD_BUTTON_CONFIG_MAP: Record<EDocType, IDialogActionConfig> =
+  {
+    [EDocType.PO]: {
+      dialogConfig: {
+        header: 'Add PO',
+        message: 'Fill and submit the PO details.',
+      },
+      dynamicComponent: PoDocComponent,
     },
-    dynamicComponent: PoDocComponent,
-  },
-  jmc: {
-    dialogConfig: {
-      header: 'Add JMC',
-      message: 'Fill and submit the JMC details.',
+    [EDocType.JMC]: {
+      dialogConfig: {
+        header: 'Add JMC',
+        message: 'Fill and submit the JMC details.',
+      },
+      dynamicComponent: JmcDocComponent,
     },
-    dynamicComponent: JmcDocComponent,
-  },
-  report: {
-    dialogConfig: {
-      header: 'Add Report',
-      message: 'Fill and submit the report details.',
+    [EDocType.REPORT]: {
+      dialogConfig: {
+        header: 'Add Report',
+        message: 'Fill and submit the report details.',
+      },
+      dynamicComponent: ReportDocComponent,
     },
-    dynamicComponent: ReportDocComponent,
-  },
-  invoice: {
-    dialogConfig: {
-      header: 'Add Invoice',
-      message: 'Fill and submit the invoice details.',
+    [EDocType.INVOICE]: {
+      dialogConfig: {
+        header: 'Add Invoice',
+        message: 'Fill and submit the invoice details.',
+      },
+      dynamicComponent: InvoiceDocComponent,
     },
-    dynamicComponent: InvoiceDocComponent,
-  },
-  payment: {
-    dialogConfig: {
-      header: 'Add Payment',
-      message: 'Fill and submit the payment details.',
+    [EDocType.PAYMENT]: {
+      dialogConfig: {
+        header: 'Add Payment',
+        message: 'Fill and submit the payment details.',
+      },
+      dynamicComponent: PaymentDocComponent,
     },
-    dynamicComponent: PaymentDocComponent,
-  },
-  'payment-advice': {
-    dialogConfig: {
-      header: 'Add Payment Advice',
-      message: 'Fill and submit the payment advice details.',
+    [EDocType.PAYMENT_ADVICE]: {
+      dialogConfig: {
+        header: 'Add Payment Advice',
+        message: 'Fill and submit the payment advice details.',
+      },
+      dynamicComponent: PaymentAdviceDocComponent,
     },
-    dynamicComponent: PaymentAdviceDocComponent,
-  },
-};
+  };

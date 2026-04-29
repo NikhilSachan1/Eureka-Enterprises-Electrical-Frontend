@@ -1,0 +1,8 @@
+export enum EDocType {
+  PO = 'PO',
+  JMC = 'JMC',
+  REPORT = 'REPORT',
+  INVOICE = 'INVOICE',
+  PAYMENT = 'PAYMENT',
+  PAYMENT_ADVICE = 'PAYMENT_ADVICE',
+}
