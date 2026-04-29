@@ -26,7 +26,7 @@ import {
   AppConfigurationService,
   RouterNavigationService,
 } from '@shared/services';
-import { GetDocComponent } from '@features/site-management/doc-management/components/get-doc/get-doc.component';
+import { GetDocComponent } from '../../../doc-management/components/get-doc/get-doc.component';
 import { GetProfitabilityComponent } from '@features/site-management/project-profitability/components/get-profitability/get-profitability.component';
 import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
 import { IProjectGetBaseResponseDto } from '../../types/project.dto';
@@ -34,7 +34,12 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 import { DatePipe } from '@angular/common';
 
-type ProjectAnalysisTabRoute = 'profitability' | 'documents' | 'daily-progress';
+type ProjectAnalysisTabRoute =
+  | 'profitability'
+  | 'sales-documents'
+  | 'purchase-documents'
+  | 'gst-compliance'
+  | 'daily-progress';
 
 @Component({
   selector: 'app-get-project-analysis',
@@ -196,8 +201,20 @@ export class GetProjectAnalysisComponent implements OnInit {
         permission: [this.uiProjectAnalysis.PROFITABILITY],
       },
       {
-        route: 'documents',
-        label: 'Documents',
+        route: 'sales-documents',
+        label: 'Contractor (Sales)',
+        icon: this.icons.COMMON.FILE,
+        permission: [this.uiProjectAnalysis.DOC],
+      },
+      {
+        route: 'purchase-documents',
+        label: 'Vendor (Purchase)',
+        icon: this.icons.COMMON.FILE,
+        permission: [this.uiProjectAnalysis.DOC],
+      },
+      {
+        route: 'gst-compliance',
+        label: 'GST Compliance',
         icon: this.icons.COMMON.FILE,
         permission: [this.uiProjectAnalysis.DOC],
       },

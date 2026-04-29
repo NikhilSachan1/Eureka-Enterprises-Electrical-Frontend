@@ -112,8 +112,14 @@
           @case ('profitability') {
             <app-get-profitability />
           }
-          @case ('documents') {
-            <app-get-doc />
+          @case ('sales-documents') {
+            <app-get-doc docContext="sales" />
+          }
+          @case ('purchase-documents') {
+            <app-get-doc docContext="purchase" />
+          }
+          @case ('gst-compliance') {
+            <app-get-doc docContext="gst" />
           }
           @case ('daily-progress') {
             <app-get-dsr />
