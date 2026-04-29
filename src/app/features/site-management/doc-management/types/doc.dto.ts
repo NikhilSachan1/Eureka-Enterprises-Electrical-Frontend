@@ -38,3 +38,68 @@ export type IDocEditResponseDto = z.infer<typeof DocEditResponseSchema>;
   Doc Delete
 */
 export type IDocDeleteResponseDto = z.infer<typeof DocDeleteResponseSchema>;
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type IDocPOUIFormDto = {
+  contractorName: string;
+  poNumber: string;
+  poDate: Date;
+  poTaxableAmount: number;
+  poGstAmount: number;
+  poTotalAmount: number;
+  poAttachments: File[];
+  poRemark: string;
+};
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type IDocJMCUIFormDto = {
+  poId: string;
+  jmcNumber: string;
+  jmcDate: Date;
+  jmcAttachments: File[];
+  jmcRemark: string;
+};
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type IDocReportUIFormDto = {
+  jmcId: string;
+  reportNumber: string;
+  reportDate: Date;
+  reportAttachments: File[];
+  reportRemark: string;
+};
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type IDocInvoiceUIFormDto = {
+  jmcId: string;
+  invoiceNumber: string;
+  invoiceDate: Date;
+  invoiceTaxableAmount: number;
+  invoiceGstAmount: number;
+  invoiceTotalAmount: number;
+  invoiceAttachments: File[];
+  invoiceRemark: string;
+};
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type IDocPaymentUIFormDto = {
+  invoiceId: string;
+  transactionId: string;
+  paymentDate: Date;
+  paymentTaxableAmount: number;
+  paymentGstAmount: number;
+  paymentTdsDeductionAmount: number;
+  paymentTotalAmount: number;
+  transactionReceipt: File;
+  transactionRemark: string;
+  paymentHoldReason: string;
+};
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type IDocPaymentAdviceUIFormDto = {
+  paymentId: string;
+  paymentAdviceNumber: string;
+  paymentAdviceDate: Date;
+  paymentAdviceAttachments: File[];
+  paymentAdviceRemark: string;
+};

@@ -1,0 +1,66 @@
+import { Validators } from '@angular/forms';
+import { APP_CONFIG } from '@core/config';
+import { TEXT_INPUT_ACCEPT_STRIP } from '@shared/constants';
+import {
+  IFormInputFieldsConfig,
+  EDataType,
+  ETextCase,
+  IFormConfig,
+} from '@shared/types';
+import { IDocReportUIFormDto } from '../../types/doc.dto';
+
+export const REPORT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocReportUIFormDto> =
+  {
+    jmcId: {
+      fieldType: EDataType.SELECT,
+      id: 'jmcId',
+      fieldName: 'jmcId',
+      label: 'JMC ID',
+      validators: [Validators.required],
+    },
+    reportNumber: {
+      fieldType: EDataType.TEXT,
+      id: 'reportNumber',
+      fieldName: 'reportNumber',
+      label: 'Report Number',
+      textConfig: {
+        textCase: ETextCase.UPPERCASE,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
+      },
+      validators: [Validators.required],
+    },
+    reportDate: {
+      fieldType: EDataType.DATE,
+      id: 'reportDate',
+      fieldName: 'reportDate',
+      label: 'Report Date',
+      dateConfig: {
+        maxDate: new Date(),
+      },
+      validators: [Validators.required],
+    },
+    reportAttachments: {
+      fieldType: EDataType.ATTACHMENTS,
+      id: 'reportAttachments',
+      fieldName: 'reportAttachments',
+      label: 'Report Attachments',
+      fileConfig: {
+        fileLimit: 2,
+        acceptFileTypes: [
+          ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
+          ...APP_CONFIG.MEDIA_CONFIG.PDF,
+        ],
+      },
+      validators: [Validators.required],
+    },
+    reportRemark: {
+      fieldType: EDataType.TEXT_AREA,
+      id: 'reportRemark',
+      fieldName: 'reportRemark',
+      label: 'Report Remark',
+    },
+  };
+
+export const REPORT_DOC_FORM_CONFIG: IFormConfig<IDocReportUIFormDto> = {
+  fields: REPORT_DOC_FORM_FIELDS_CONFIG,
+};

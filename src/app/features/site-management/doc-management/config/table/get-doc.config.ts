@@ -16,6 +16,15 @@ export const DOC_TABLE_CONFIG: Partial<IDataTableConfig> = {
 
 export const DOC_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
+    field: 'contractorName',
+    header: 'Contractor Name',
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    showImage: true,
+    dummyImageField: 'contractorName',
+    primaryFieldHighlight: true,
+    showSort: false,
+  },
+  {
     field: 'documentType',
     header: 'Document Type',
     bodyTemplate: EDataType.TEXT,
@@ -25,6 +34,15 @@ export const DOC_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'documentNumber',
     header: 'Document Number',
     bodyTemplate: EDataType.TEXT,
+    showSort: false,
+  },
+  {
+    field: 'referenceDocument',
+    header: 'Reference Document',
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    dummyImageField: 'referenceDocumentName',
+    primaryFieldHighlight: true,
+    subtitle: { field: 'referenceDocumentNumber' },
     showSort: false,
   },
   {
@@ -54,6 +72,12 @@ export const DOC_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     bodyTemplate: EDataType.ATTACHMENTS,
     showSort: false,
   },
+  {
+    field: 'status',
+    header: 'Approval Status',
+    bodyTemplate: EDataType.STATUS,
+    showSort: false,
+  },
 ];
 
 export const DOC_TABLE_ROW_ACTIONS_CONFIG: Partial<
@@ -73,6 +97,18 @@ export const DOC_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Doc',
     permission: [APP_PERMISSION.PROJECT.DELETE],
+  },
+  {
+    ...COMMON_ROW_ACTIONS.APPROVE,
+    tooltip: 'Approve Doc',
+  },
+  {
+    ...COMMON_ROW_ACTIONS.REJECT,
+    tooltip: 'Reject Doc',
+  },
+  {
+    ...COMMON_ROW_ACTIONS.CANCEL,
+    tooltip: 'Cancel Doc',
   },
 ];
 

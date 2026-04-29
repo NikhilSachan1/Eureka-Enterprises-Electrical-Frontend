@@ -70,3 +70,21 @@ export const CANCEL_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
     bulkLabel: 'Cancel Selected',
   },
 };
+
+export const PLAIN_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
+  ...CONFIRMATION_DIALOG_CONFIG,
+  header: '',
+  message: '',
+  icon: '',
+  acceptButtonProps: {
+    label: 'Save',
+    id: EButtonActionType.SUBMIT,
+    icon: ICONS.ACTIONS.CHECK,
+    severity: EButtonSeverity.PRIMARY,
+  },
+  rejectButtonProps: {
+    label: 'Cancel',
+    icon: ICONS.ACTIONS.TIMES,
+    severity: EButtonSeverity.SECONDARY,
+  },
+};

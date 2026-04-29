@@ -33,9 +33,4 @@ export const SITE_MANAGEMENT_ROUTES: Routes = [
     loadChildren: () =>
       import('./dsr-management/dsr.routes').then(m => m.DSR_MANAGEMENT_ROUTES),
   },
-  {
-    path: ROUTE_BASE_PATHS.SITE.DOC,
-    loadChildren: () =>
-      import('./doc-management/doc.routes').then(m => m.DOC_MANAGEMENT_ROUTES),
-  },
 ];
