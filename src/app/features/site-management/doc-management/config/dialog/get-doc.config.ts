@@ -1,5 +1,8 @@
 import { EButtonActionType, IDialogActionConfig } from '@shared/types';
-import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
+import {
+  DELETE_CONFIRMATION_DIALOG_CONFIG,
+  PLAIN_CONFIRMATION_DIALOG_CONFIG,
+} from '@shared/config';
 import { DeleteDocComponent } from '../../components/delete-doc/delete-doc.component';
 import { PoDocComponent } from '../../components/po-doc/po-doc.component';
 import { JmcDocComponent } from '../../components/jmc-doc/jmc-doc.component';
@@ -20,6 +23,7 @@ export const DOC_ADD_BUTTON_CONFIG_MAP: Record<EDocType, IDialogActionConfig> =
   {
     [EDocType.PO]: {
       dialogConfig: {
+        ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
         header: 'Add PO',
         message: 'Fill and submit the PO details.',
       },
@@ -27,6 +31,7 @@ export const DOC_ADD_BUTTON_CONFIG_MAP: Record<EDocType, IDialogActionConfig> =
     },
     [EDocType.JMC]: {
       dialogConfig: {
+        ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
         header: 'Add JMC',
         message: 'Fill and submit the JMC details.',
       },
@@ -34,6 +39,7 @@ export const DOC_ADD_BUTTON_CONFIG_MAP: Record<EDocType, IDialogActionConfig> =
     },
     [EDocType.REPORT]: {
       dialogConfig: {
+        ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
         header: 'Add Report',
         message: 'Fill and submit the report details.',
       },
@@ -41,6 +47,7 @@ export const DOC_ADD_BUTTON_CONFIG_MAP: Record<EDocType, IDialogActionConfig> =
     },
     [EDocType.INVOICE]: {
       dialogConfig: {
+        ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
         header: 'Add Invoice',
         message: 'Fill and submit the invoice details.',
       },
@@ -48,6 +55,7 @@ export const DOC_ADD_BUTTON_CONFIG_MAP: Record<EDocType, IDialogActionConfig> =
     },
     [EDocType.PAYMENT]: {
       dialogConfig: {
+        ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
         header: 'Add Payment',
         message: 'Fill and submit the payment details.',
       },
@@ -55,6 +63,7 @@ export const DOC_ADD_BUTTON_CONFIG_MAP: Record<EDocType, IDialogActionConfig> =
     },
     [EDocType.PAYMENT_ADVICE]: {
       dialogConfig: {
+        ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
         header: 'Add Payment Advice',
         message: 'Fill and submit the payment advice details.',
       },

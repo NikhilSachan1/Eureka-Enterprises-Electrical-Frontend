@@ -7,9 +7,8 @@ import {
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import {
-  IDocAddFormDto,
-  IDocAddResponseDto,
-  IDocPaymentUIFormDto,
+  IPaymentDocAddFormDto,
+  IPaymentDocAddResponseDto,
 } from '../../types/doc.dto';
 import { IDialogActionHandler } from '@shared/types';
 import { DocService } from '../../services/doc.service';
@@ -30,7 +29,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaymentDocComponent
-  extends FormBase<IDocPaymentUIFormDto>
+  extends FormBase<IPaymentDocAddFormDto>
   implements OnInit, IDialogActionHandler
 {
   private readonly docService = inject(DocService);
@@ -54,7 +53,7 @@ export class PaymentDocComponent
       return;
     }
 
-    this.form = this.formService.createForm<IDocPaymentUIFormDto>(
+    this.form = this.formService.createForm<IPaymentDocAddFormDto>(
       PAYMENT_DOC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
@@ -71,12 +70,12 @@ export class PaymentDocComponent
     this.executeDocAction(formData);
   }
 
-  private prepareFormData(): IDocPaymentUIFormDto {
+  private prepareFormData(): IPaymentDocAddFormDto {
     const formData = this.form.getData();
     return formData;
   }
 
-  private executeDocAction(formData: IDocPaymentUIFormDto): void {
+  private executeDocAction(formData: IPaymentDocAddFormDto): void {
     this.loadingService.show({
       title: 'Adding Payment Document',
       message:
@@ -85,7 +84,7 @@ export class PaymentDocComponent
     this.form.disable();
 
     this.docService
-      .addDoc(formData as unknown as IDocAddFormDto)
+      .addPaymentDoc(formData)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -95,7 +94,7 @@ export class PaymentDocComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IDocAddResponseDto) => {
+        next: (response: IPaymentDocAddResponseDto) => {
           this.notificationService.success(response.message);
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();

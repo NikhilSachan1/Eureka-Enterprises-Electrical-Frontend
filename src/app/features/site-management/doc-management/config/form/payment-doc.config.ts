@@ -8,22 +8,22 @@ import {
   EInputNumberMode,
   IFormConfig,
 } from '@shared/types';
-import { IDocPaymentUIFormDto } from '../../types/doc.dto';
+import { IPaymentDocAddFormDto } from '../../types/doc.dto';
 
-export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocPaymentUIFormDto> =
+export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocAddFormDto> =
   {
-    invoiceId: {
+    invoiceNumber: {
       fieldType: EDataType.SELECT,
-      id: 'invoiceId',
-      fieldName: 'invoiceId',
-      label: 'Invoice ID',
+      id: 'invoiceNumber',
+      fieldName: 'invoiceNumber',
+      label: 'Invoice Number',
       validators: [Validators.required],
     },
-    transactionId: {
+    transactionNumber: {
       fieldType: EDataType.TEXT,
-      id: 'transactionId',
-      fieldName: 'transactionId',
-      label: 'Transaction ID',
+      id: 'transactionNumber',
+      fieldName: 'transactionNumber',
+      label: 'Transaction Number',
       textConfig: {
         textCase: ETextCase.UPPERCASE,
         regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
@@ -85,11 +85,11 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocPaymentU
       },
       validators: [Validators.required, Validators.min(1)],
     },
-    transactionReceipt: {
+    paymentAttachments: {
       fieldType: EDataType.ATTACHMENTS,
-      id: 'transactionReceipt',
-      fieldName: 'transactionReceipt',
-      label: 'Transaction Receipt',
+      id: 'paymentAttachments',
+      fieldName: 'paymentAttachments',
+      label: 'Payment Attachments',
       fileConfig: {
         fileLimit: 1,
         acceptFileTypes: [
@@ -99,14 +99,14 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocPaymentU
       },
       validators: [Validators.required],
     },
-    paymentHoldReason: {
+    paymentRemark: {
       fieldType: EDataType.TEXT_AREA,
-      id: 'paymentHoldReason',
-      fieldName: 'paymentHoldReason',
+      id: 'paymentRemark',
+      fieldName: 'paymentRemark',
       label: 'Payment Hold Reason',
     },
   };
 
-export const PAYMENT_DOC_FORM_CONFIG: IFormConfig<IDocPaymentUIFormDto> = {
+export const PAYMENT_DOC_FORM_CONFIG: IFormConfig<IPaymentDocAddFormDto> = {
   fields: PAYMENT_DOC_FORM_FIELDS_CONFIG,
 };

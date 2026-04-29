@@ -1,12 +1,20 @@
 import {
-  DocAddRequestSchema,
-  DocAddResponseSchema,
   DocDeleteResponseSchema,
-  DocEditRequestSchema,
-  DocEditResponseSchema,
   DocGetBaseResponseSchema,
   DocGetRequestSchema,
   DocGetResponseSchema,
+  InvoiceDocAddRequestSchema,
+  InvoiceDocAddResponseSchema,
+  JmcDocAddRequestSchema,
+  JmcDocAddResponseSchema,
+  PaymentAdviceDocAddRequestSchema,
+  PaymentAdviceDocAddResponseSchema,
+  PaymentDocAddRequestSchema,
+  PaymentDocAddResponseSchema,
+  PoDocAddRequestSchema,
+  PoDocAddResponseSchema,
+  ReportDocAddRequestSchema,
+  ReportDocAddResponseSchema,
 } from '../schemas';
 import { z } from 'zod';
 
@@ -19,86 +27,64 @@ export type IDocGetResponseDto = z.infer<typeof DocGetResponseSchema>;
 export type IDocGetBaseResponseDto = z.infer<typeof DocGetBaseResponseSchema>;
 
 /*
-  Doc Add
+  PO Doc Add
 */
-export type IDocAddRequestDto = z.infer<typeof DocAddRequestSchema>;
-export type IDocAddFormDto = z.input<typeof DocAddRequestSchema>;
-export type IDocAddUIFormDto = Omit<IDocAddFormDto, 'projectName'>;
-export type IDocAddResponseDto = z.infer<typeof DocAddResponseSchema>;
+export type IPoDocAddRequestDto = z.infer<typeof PoDocAddRequestSchema>;
+export type IPoDocAddFormDto = z.input<typeof PoDocAddRequestSchema>;
+export type IPoDocAddResponseDto = z.infer<typeof PoDocAddResponseSchema>;
 
 /*
-  Doc Edit
+  Invoice Doc Add
 */
-export type IDocEditRequestDto = z.infer<typeof DocEditRequestSchema>;
-export type IDocEditFormDto = z.input<typeof DocEditRequestSchema>;
-export type IDocEditUIFormDto = Omit<IDocEditFormDto, 'projectName'>;
-export type IDocEditResponseDto = z.infer<typeof DocEditResponseSchema>;
+export type IInvoiceDocAddRequestDto = z.infer<
+  typeof InvoiceDocAddRequestSchema
+>;
+export type IInvoiceDocAddFormDto = z.input<typeof InvoiceDocAddRequestSchema>;
+export type IInvoiceDocAddResponseDto = z.infer<
+  typeof InvoiceDocAddResponseSchema
+>;
+
+/*
+  JMC Doc Add
+*/
+export type IJmcDocAddRequestDto = z.infer<typeof JmcDocAddRequestSchema>;
+export type IJmcDocAddFormDto = z.input<typeof JmcDocAddRequestSchema>;
+export type IJmcDocAddResponseDto = z.infer<typeof JmcDocAddResponseSchema>;
+
+/*
+  Payment Advice Doc Add
+*/
+export type IPaymentAdviceDocAddRequestDto = z.infer<
+  typeof PaymentAdviceDocAddRequestSchema
+>;
+export type IPaymentAdviceDocAddFormDto = z.input<
+  typeof PaymentAdviceDocAddRequestSchema
+>;
+export type IPaymentAdviceDocAddResponseDto = z.infer<
+  typeof PaymentAdviceDocAddResponseSchema
+>;
+
+/*
+  Payment Doc Add
+*/
+export type IPaymentDocAddRequestDto = z.infer<
+  typeof PaymentDocAddRequestSchema
+>;
+export type IPaymentDocAddFormDto = z.input<typeof PaymentDocAddRequestSchema>;
+export type IPaymentDocAddResponseDto = z.infer<
+  typeof PaymentDocAddResponseSchema
+>;
+
+/*
+  Report Doc Add
+*/
+export type IReportDocAddRequestDto = z.infer<typeof ReportDocAddRequestSchema>;
+export type IReportDocAddFormDto = z.input<typeof ReportDocAddRequestSchema>;
+export type IReportDocAddResponseDto = z.infer<
+  typeof ReportDocAddResponseSchema
+>;
 
 /*
   Doc Delete
 */
 export type IDocDeleteResponseDto = z.infer<typeof DocDeleteResponseSchema>;
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type IDocPOUIFormDto = {
-  contractorName: string;
-  poNumber: string;
-  poDate: Date;
-  poTaxableAmount: number;
-  poGstAmount: number;
-  poTotalAmount: number;
-  poAttachments: File[];
-  poRemark: string;
-};
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type IDocJMCUIFormDto = {
-  poId: string;
-  jmcNumber: string;
-  jmcDate: Date;
-  jmcAttachments: File[];
-  jmcRemark: string;
-};
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type IDocReportUIFormDto = {
-  jmcId: string;
-  reportNumber: string;
-  reportDate: Date;
-  reportAttachments: File[];
-  reportRemark: string;
-};
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type IDocInvoiceUIFormDto = {
-  jmcId: string;
-  invoiceNumber: string;
-  invoiceDate: Date;
-  invoiceTaxableAmount: number;
-  invoiceGstAmount: number;
-  invoiceTotalAmount: number;
-  invoiceAttachments: File[];
-  invoiceRemark: string;
-};
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type IDocPaymentUIFormDto = {
-  invoiceId: string;
-  transactionId: string;
-  paymentDate: Date;
-  paymentTaxableAmount: number;
-  paymentGstAmount: number;
-  paymentTdsDeductionAmount: number;
-  paymentTotalAmount: number;
-  transactionReceipt: File;
-  paymentHoldReason: string;
-};
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type IDocPaymentAdviceUIFormDto = {
-  paymentId: string;
-  paymentAdviceNumber: string;
-  paymentAdviceDate: Date;
-  paymentAdviceAttachments: File[];
-  paymentAdviceRemark: string;
-};

@@ -8,15 +8,15 @@ import {
   EInputNumberMode,
   IFormConfig,
 } from '@shared/types';
-import { IDocInvoiceUIFormDto } from '../../types/doc.dto';
+import { IInvoiceDocAddFormDto } from '../../types/doc.dto';
 
-export const INVOICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocInvoiceUIFormDto> =
+export const INVOICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IInvoiceDocAddFormDto> =
   {
-    jmcId: {
+    jmcNumber: {
       fieldType: EDataType.SELECT,
-      id: 'jmcId',
-      fieldName: 'jmcId',
-      label: 'JMC ID',
+      id: 'jmcNumber',
+      fieldName: 'jmcNumber',
+      label: 'JMC Number',
       validators: [Validators.required],
     },
     invoiceNumber: {
@@ -96,6 +96,6 @@ export const INVOICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocInvoiceU
     },
   };
 
-export const INVOICE_DOC_FORM_CONFIG: IFormConfig<IDocInvoiceUIFormDto> = {
+export const INVOICE_DOC_FORM_CONFIG: IFormConfig<IInvoiceDocAddFormDto> = {
   fields: INVOICE_DOC_FORM_FIELDS_CONFIG,
 };

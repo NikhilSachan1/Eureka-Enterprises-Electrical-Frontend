@@ -4,12 +4,12 @@
 >
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.invoiceId"
+    [inputFieldConfig]="form.fieldConfigs.invoiceNumber"
   />
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.transactionId"
+    [inputFieldConfig]="form.fieldConfigs.transactionNumber"
   />
 
   <app-input-field
@@ -39,11 +39,11 @@
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.transactionReceipt"
+    [inputFieldConfig]="form.fieldConfigs.paymentAttachments"
   />
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.paymentHoldReason"
+    [inputFieldConfig]="form.fieldConfigs.paymentRemark"
   />
 </form>

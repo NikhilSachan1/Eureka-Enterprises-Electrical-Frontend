@@ -7,15 +7,15 @@ import {
   ETextCase,
   IFormConfig,
 } from '@shared/types';
-import { IDocPaymentAdviceUIFormDto } from '../../types/doc.dto';
+import { IPaymentAdviceDocAddFormDto } from '../../types/doc.dto';
 
-export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocPaymentAdviceUIFormDto> =
+export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentAdviceDocAddFormDto> =
   {
-    paymentId: {
+    transactionNumber: {
       fieldType: EDataType.SELECT,
-      id: 'paymentId',
-      fieldName: 'paymentId',
-      label: 'Payment ID',
+      id: 'transactionNumber',
+      fieldName: 'transactionNumber',
+      label: 'Transaction Number',
       validators: [Validators.required],
     },
     paymentAdviceNumber: {
@@ -62,7 +62,7 @@ export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocP
     },
   };
 
-export const PAYMENT_ADVICE_DOC_FORM_CONFIG: IFormConfig<IDocPaymentAdviceUIFormDto> =
+export const PAYMENT_ADVICE_DOC_FORM_CONFIG: IFormConfig<IPaymentAdviceDocAddFormDto> =
   {
     fields: PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG,
   };

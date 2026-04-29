@@ -7,9 +7,8 @@ import {
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import {
-  IDocAddFormDto,
-  IDocAddResponseDto,
-  IDocReportUIFormDto,
+  IReportDocAddFormDto,
+  IReportDocAddResponseDto,
 } from '../../types/doc.dto';
 import { IDialogActionHandler } from '@shared/types';
 import { DocService } from '../../services/doc.service';
@@ -30,7 +29,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportDocComponent
-  extends FormBase<IDocReportUIFormDto>
+  extends FormBase<IReportDocAddFormDto>
   implements OnInit, IDialogActionHandler
 {
   private readonly docService = inject(DocService);
@@ -54,7 +53,7 @@ export class ReportDocComponent
       return;
     }
 
-    this.form = this.formService.createForm<IDocReportUIFormDto>(
+    this.form = this.formService.createForm<IReportDocAddFormDto>(
       REPORT_DOC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
@@ -71,12 +70,12 @@ export class ReportDocComponent
     this.executeDocAction(formData);
   }
 
-  private prepareFormData(): IDocReportUIFormDto {
+  private prepareFormData(): IReportDocAddFormDto {
     const formData = this.form.getData();
     return formData;
   }
 
-  private executeDocAction(formData: IDocReportUIFormDto): void {
+  private executeDocAction(formData: IReportDocAddFormDto): void {
     this.loadingService.show({
       title: 'Adding Report Document',
       message:
@@ -85,7 +84,7 @@ export class ReportDocComponent
     this.form.disable();
 
     this.docService
-      .addDoc(formData as unknown as IDocAddFormDto)
+      .addReportDoc(formData)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -95,7 +94,7 @@ export class ReportDocComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IDocAddResponseDto) => {
+        next: (response: IReportDocAddResponseDto) => {
           this.notificationService.success(response.message);
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();

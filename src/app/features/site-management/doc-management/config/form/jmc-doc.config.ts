@@ -7,10 +7,10 @@ import {
   ETextCase,
   IFormConfig,
 } from '@shared/types';
-import { IDocJMCUIFormDto } from '../../types/doc.dto';
+import { IJmcDocAddFormDto } from '../../types/doc.dto';
 
-const JMC_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocJMCUIFormDto> = {
-  poId: {
+const JMC_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IJmcDocAddFormDto> = {
+  poNumber: {
     fieldType: EDataType.SELECT,
     id: 'poId',
     fieldName: 'poId',
@@ -61,6 +61,6 @@ const JMC_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocJMCUIFormDto> = {
   },
 };
 
-export const JMC_DOC_FORM_CONFIG: IFormConfig<IDocJMCUIFormDto> = {
+export const JMC_DOC_FORM_CONFIG: IFormConfig<IJmcDocAddFormDto> = {
   fields: JMC_DOC_FORM_FIELDS_CONFIG,
 };

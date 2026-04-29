@@ -6,11 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
-import {
-  IDocAddFormDto,
-  IDocAddResponseDto,
-  IDocJMCUIFormDto,
-} from '../../types/doc.dto';
+import { IJmcDocAddFormDto, IJmcDocAddResponseDto } from '../../types/doc.dto';
 import { IDialogActionHandler } from '@shared/types';
 import { DocService } from '../../services/doc.service';
 import { ConfirmationDialogService } from '@shared/services';
@@ -30,7 +26,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JmcDocComponent
-  extends FormBase<IDocJMCUIFormDto>
+  extends FormBase<IJmcDocAddFormDto>
   implements OnInit, IDialogActionHandler
 {
   private readonly docService = inject(DocService);
@@ -54,7 +50,7 @@ export class JmcDocComponent
       return;
     }
 
-    this.form = this.formService.createForm<IDocJMCUIFormDto>(
+    this.form = this.formService.createForm<IJmcDocAddFormDto>(
       JMC_DOC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
@@ -71,12 +67,12 @@ export class JmcDocComponent
     this.executeDocAction(formData);
   }
 
-  private prepareFormData(): IDocJMCUIFormDto {
+  private prepareFormData(): IJmcDocAddFormDto {
     const formData = this.form.getData();
     return formData;
   }
 
-  private executeDocAction(formData: IDocJMCUIFormDto): void {
+  private executeDocAction(formData: IJmcDocAddFormDto): void {
     this.loadingService.show({
       title: 'Adding JMC Document',
       message: "We're adding the JMC document. This will just take a moment.",
@@ -84,7 +80,7 @@ export class JmcDocComponent
     this.form.disable();
 
     this.docService
-      .addDoc(formData as unknown as IDocAddFormDto)
+      .addJmcDoc(formData)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -94,7 +90,7 @@ export class JmcDocComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IDocAddResponseDto) => {
+        next: (response: IJmcDocAddResponseDto) => {
           this.notificationService.success(response.message);
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();

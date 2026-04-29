@@ -6,11 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
-import {
-  IDocAddFormDto,
-  IDocAddResponseDto,
-  IDocPOUIFormDto,
-} from '../../types/doc.dto';
+import { IPoDocAddFormDto, IPoDocAddResponseDto } from '../../types/doc.dto';
 import { IDialogActionHandler } from '@shared/types';
 import { DocService } from '../../services/doc.service';
 import { ConfirmationDialogService } from '@shared/services';
@@ -30,7 +26,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoDocComponent
-  extends FormBase<IDocPOUIFormDto>
+  extends FormBase<IPoDocAddFormDto>
   implements OnInit, IDialogActionHandler
 {
   private readonly docService = inject(DocService);
@@ -54,7 +50,7 @@ export class PoDocComponent
       return;
     }
 
-    this.form = this.formService.createForm<IDocPOUIFormDto>(
+    this.form = this.formService.createForm<IPoDocAddFormDto>(
       PO_DOC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
@@ -71,12 +67,12 @@ export class PoDocComponent
     this.executeDocAction(formData);
   }
 
-  private prepareFormData(): IDocPOUIFormDto {
+  private prepareFormData(): IPoDocAddFormDto {
     const formData = this.form.getData();
     return formData;
   }
 
-  private executeDocAction(formData: IDocPOUIFormDto): void {
+  private executeDocAction(formData: IPoDocAddFormDto): void {
     this.loadingService.show({
       title: 'Adding PO Document',
       message: "We're adding the PO document. This will just take a moment.",
@@ -84,7 +80,7 @@ export class PoDocComponent
     this.form.disable();
 
     this.docService
-      .addDoc(formData as unknown as IDocAddFormDto)
+      .addPoDoc(formData)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -94,7 +90,7 @@ export class PoDocComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IDocAddResponseDto) => {
+        next: (response: IPoDocAddResponseDto) => {
           this.notificationService.success(response.message);
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();

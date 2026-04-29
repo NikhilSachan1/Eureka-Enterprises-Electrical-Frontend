@@ -7,9 +7,8 @@ import {
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import {
-  IDocAddFormDto,
-  IDocAddResponseDto,
-  IDocPaymentAdviceUIFormDto,
+  IPaymentAdviceDocAddFormDto,
+  IPaymentAdviceDocAddResponseDto,
 } from '../../types/doc.dto';
 import { IDialogActionHandler } from '@shared/types';
 import { DocService } from '../../services/doc.service';
@@ -30,7 +29,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaymentAdviceDocComponent
-  extends FormBase<IDocPaymentAdviceUIFormDto>
+  extends FormBase<IPaymentAdviceDocAddFormDto>
   implements OnInit, IDialogActionHandler
 {
   private readonly docService = inject(DocService);
@@ -54,7 +53,7 @@ export class PaymentAdviceDocComponent
       return;
     }
 
-    this.form = this.formService.createForm<IDocPaymentAdviceUIFormDto>(
+    this.form = this.formService.createForm<IPaymentAdviceDocAddFormDto>(
       PAYMENT_ADVICE_DOC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
@@ -71,12 +70,12 @@ export class PaymentAdviceDocComponent
     this.executeDocAction(formData);
   }
 
-  private prepareFormData(): IDocPaymentAdviceUIFormDto {
+  private prepareFormData(): IPaymentAdviceDocAddFormDto {
     const formData = this.form.getData();
     return formData;
   }
 
-  private executeDocAction(formData: IDocPaymentAdviceUIFormDto): void {
+  private executeDocAction(formData: IPaymentAdviceDocAddFormDto): void {
     this.loadingService.show({
       title: 'Adding Payment Advice Document',
       message:
@@ -85,7 +84,7 @@ export class PaymentAdviceDocComponent
     this.form.disable();
 
     this.docService
-      .addDoc(formData as unknown as IDocAddFormDto)
+      .addPaymentAdviceDoc(formData)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -95,7 +94,7 @@ export class PaymentAdviceDocComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IDocAddResponseDto) => {
+        next: (response: IPaymentAdviceDocAddResponseDto) => {
           this.notificationService.success(response.message);
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
