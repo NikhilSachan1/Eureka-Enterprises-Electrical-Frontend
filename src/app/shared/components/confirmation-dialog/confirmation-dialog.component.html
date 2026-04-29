@@ -8,15 +8,20 @@
   >
     @let settings = currentDialogConfig().dialogConfig;
     <!-- Compact outer container: scrolls as a whole and uses tighter padding so dialog looks lighter. -->
-    <div class="flex flex-col items-center px-6 pt-20 pb-6 rounded-lg max-h-[90vh] overflow-y-auto">
+    <div
+      class="flex flex-col items-center px-6 pt-5 pb-6 rounded-lg max-h-[90vh] overflow-y-auto"
+      [class.pt-20]="settings?.icon"
+    >
       <!-- Icon Section -->
-      <div
-        [class]="
-          `rounded-full inline-flex shrink-0 justify-center items-center h-20 w-20 -mt-16 shadow-lg ${settings?.iconContainerClass || 'confirmation-dialog-icon-container'}`
-        "
-      >
-        <i [class]="`${settings?.icon} !text-4xl`"></i>
-      </div>
+      @if (settings?.icon) {
+        <div
+          [class]="
+            `rounded-full inline-flex shrink-0 justify-center items-center h-20 w-20 -mt-16 shadow-lg ${settings?.iconContainerClass || 'confirmation-dialog-icon-container'}`
+          "
+        >
+          <i [class]="`${settings?.icon} !text-4xl`"></i>
+        </div>
+      }
 
       <!-- Header Section -->
       <div class="text-center mt-4">
