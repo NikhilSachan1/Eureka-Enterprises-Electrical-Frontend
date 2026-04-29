@@ -108,7 +108,7 @@ export const DOC_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
   {
     ...COMMON_ROW_ACTIONS.CANCEL,
-    tooltip: 'Cancel Doc',
+    tooltip: 'Unlock Doc',
   },
 ];
 

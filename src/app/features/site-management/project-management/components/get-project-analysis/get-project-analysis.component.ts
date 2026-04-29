@@ -213,12 +213,6 @@ export class GetProjectAnalysisComponent implements OnInit {
         permission: [this.uiProjectAnalysis.DOC],
       },
       {
-        route: 'gst-compliance',
-        label: 'GST Compliance',
-        icon: this.icons.COMMON.FILE,
-        permission: [this.uiProjectAnalysis.DOC],
-      },
-      {
         route: 'daily-progress',
         label: 'Daily Progress',
         icon: this.icons.COMMON.CALENDAR,
@@ -278,12 +272,6 @@ export class GetProjectAnalysisComponent implements OnInit {
           label: 'Add Daily Status',
           actionName: 'addDailyStatus',
           permission: [this.uiProjectAnalysis.DSR],
-        },
-        {
-          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
-          label: 'Add Document',
-          actionName: 'addDocument',
-          permission: [this.uiProjectAnalysis.DOC],
         },
       ],
     };

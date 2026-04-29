@@ -7,20 +7,24 @@
     [inputFieldConfig]="form.fieldConfigs.transactionNumber"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.paymentAdviceNumber"
-  />
+  @if (form.fieldConfigs.paymentAdviceNumber && docContext() !== 'purchase') {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.paymentAdviceNumber"
+    />
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.paymentAdviceDate"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.paymentAdviceAttachments"
-  />
+  @if (form.fieldConfigs.paymentAdviceAttachments && docContext() !== 'purchase') {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.paymentAdviceAttachments"
+    />
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"

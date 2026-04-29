@@ -6,11 +6,14 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
-import { IPoDocAddFormDto, IPoDocAddResponseDto } from '../../types/doc.dto';
-import { IDialogActionHandler } from '@shared/types';
+import {
+  IDocGetBaseResponseDto,
+  IPoDocAddFormDto,
+  IPoDocAddResponseDto,
+} from '../../types/doc.dto';
+import { IDialogActionHandler, IFormConfig } from '@shared/types';
 import { DocService } from '../../services/doc.service';
 import { ConfirmationDialogService } from '@shared/services';
-import { IProjectGetBaseResponseDto } from '@features/site-management/project-management/types/project.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { PO_DOC_FORM_CONFIG } from '../../config';
 import { finalize } from 'rxjs';
@@ -35,8 +38,9 @@ export class PoDocComponent
   );
 
   protected readonly selectedRecord =
-    input.required<IProjectGetBaseResponseDto[]>();
+    input.required<IDocGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
+  protected readonly docContext = input<'sales' | 'purchase'>('sales');
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -51,7 +55,7 @@ export class PoDocComponent
     }
 
     this.form = this.formService.createForm<IPoDocAddFormDto>(
-      PO_DOC_FORM_CONFIG,
+      this.getPoFormConfig(),
       {
         destroyRef: this.destroyRef,
       }
@@ -70,6 +74,23 @@ export class PoDocComponent
   private prepareFormData(): IPoDocAddFormDto {
     const formData = this.form.getData();
     return formData;
+  }
+
+  private getPoFormConfig(): IFormConfig<IPoDocAddFormDto> {
+    if (this.docContext() !== 'purchase') {
+      return PO_DOC_FORM_CONFIG;
+    }
+
+    return {
+      ...PO_DOC_FORM_CONFIG,
+      fields: {
+        ...PO_DOC_FORM_CONFIG.fields,
+        contractorName: {
+          ...PO_DOC_FORM_CONFIG.fields.contractorName,
+          label: 'Vendor Name',
+        },
+      },
+    };
   }
 
   private executeDocAction(formData: IPoDocAddFormDto): void {

@@ -7,13 +7,13 @@ import {
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import {
+  IDocGetBaseResponseDto,
   IPaymentAdviceDocAddFormDto,
   IPaymentAdviceDocAddResponseDto,
 } from '../../types/doc.dto';
 import { IDialogActionHandler } from '@shared/types';
 import { DocService } from '../../services/doc.service';
 import { ConfirmationDialogService } from '@shared/services';
-import { IProjectGetBaseResponseDto } from '@features/site-management/project-management/types/project.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { PAYMENT_ADVICE_DOC_FORM_CONFIG } from '../../config';
 import { finalize } from 'rxjs';
@@ -38,8 +38,9 @@ export class PaymentAdviceDocComponent
   );
 
   protected readonly selectedRecord =
-    input.required<IProjectGetBaseResponseDto[]>();
+    input.required<IDocGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
+  protected readonly docContext = input<'sales' | 'purchase'>('sales');
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -57,6 +58,9 @@ export class PaymentAdviceDocComponent
       PAYMENT_ADVICE_DOC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        context: {
+          docContext: this.docContext(),
+        },
       }
     );
   }
@@ -76,10 +80,16 @@ export class PaymentAdviceDocComponent
   }
 
   private executeDocAction(formData: IPaymentAdviceDocAddFormDto): void {
+    const actionWord =
+      this.docContext() === 'purchase' ? 'Generating' : 'Adding';
+    const progressMessage =
+      this.docContext() === 'purchase'
+        ? "We're generating the Payment Advice document. This will just take a moment."
+        : "We're adding the Payment Advice document. This will just take a moment.";
+
     this.loadingService.show({
-      title: 'Adding Payment Advice Document',
-      message:
-        "We're adding the Payment Advice document. This will just take a moment.",
+      title: `${actionWord} Payment Advice Document`,
+      message: progressMessage,
     });
     this.form.disable();
 

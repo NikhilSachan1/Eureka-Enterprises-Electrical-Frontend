@@ -46,7 +46,7 @@ export const REPORT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IReportDocAdd
       fieldName: 'reportAttachments',
       label: 'Report Attachments',
       fileConfig: {
-        fileLimit: 2,
+        fileLimit: 1,
         acceptFileTypes: [
           ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
           ...APP_CONFIG.MEDIA_CONFIG.PDF,

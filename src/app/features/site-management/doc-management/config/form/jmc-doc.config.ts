@@ -45,7 +45,7 @@ const JMC_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IJmcDocAddFormDto> = {
     fieldName: 'jmcAttachments',
     label: 'JMC Attachments',
     fileConfig: {
-      fileLimit: 2,
+      fileLimit: 1,
       acceptFileTypes: [
         ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
         ...APP_CONFIG.MEDIA_CONFIG.PDF,

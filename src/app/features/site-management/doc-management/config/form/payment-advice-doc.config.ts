@@ -27,7 +27,15 @@ export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaym
         textCase: ETextCase.UPPERCASE,
         regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
       },
-      validators: [Validators.required],
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            const { docContext } = context;
+            return docContext !== 'purchase';
+          },
+          validators: [Validators.required],
+        },
+      ],
     },
     paymentAdviceDate: {
       fieldType: EDataType.DATE,
@@ -46,13 +54,21 @@ export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaym
       fieldName: 'paymentAdviceAttachments',
       label: 'Payment Advice Attachments',
       fileConfig: {
-        fileLimit: 2,
+        fileLimit: 1,
         acceptFileTypes: [
           ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
           ...APP_CONFIG.MEDIA_CONFIG.PDF,
         ],
       },
-      validators: [Validators.required],
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            const { docContext } = context;
+            return docContext !== 'purchase';
+          },
+          validators: [Validators.required],
+        },
+      ],
     },
     paymentAdviceRemark: {
       fieldType: EDataType.TEXT_AREA,

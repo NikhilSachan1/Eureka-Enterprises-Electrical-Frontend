@@ -80,7 +80,7 @@ export const INVOICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IInvoiceDocA
       fieldName: 'invoiceAttachments',
       label: 'Invoice Attachments',
       fileConfig: {
-        fileLimit: 2,
+        fileLimit: 1,
         acceptFileTypes: [
           ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
           ...APP_CONFIG.MEDIA_CONFIG.PDF,

@@ -89,7 +89,7 @@ const PO_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPoDocAddFormDto> = {
     fieldName: 'poAttachments',
     label: 'PO Attachments',
     fileConfig: {
-      fileLimit: 2,
+      fileLimit: 1,
       acceptFileTypes: [
         ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
         ...APP_CONFIG.MEDIA_CONFIG.PDF,

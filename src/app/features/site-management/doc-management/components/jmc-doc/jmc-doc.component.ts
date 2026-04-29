@@ -6,11 +6,14 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
-import { IJmcDocAddFormDto, IJmcDocAddResponseDto } from '../../types/doc.dto';
+import {
+  IDocGetBaseResponseDto,
+  IJmcDocAddFormDto,
+  IJmcDocAddResponseDto,
+} from '../../types/doc.dto';
 import { IDialogActionHandler } from '@shared/types';
 import { DocService } from '../../services/doc.service';
 import { ConfirmationDialogService } from '@shared/services';
-import { IProjectGetBaseResponseDto } from '@features/site-management/project-management/types/project.dto';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { JMC_DOC_FORM_CONFIG } from '../../config';
 import { finalize } from 'rxjs';
@@ -35,7 +38,7 @@ export class JmcDocComponent
   );
 
   protected readonly selectedRecord =
-    input.required<IProjectGetBaseResponseDto[]>();
+    input.required<IDocGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
 
   ngOnInit(): void {
