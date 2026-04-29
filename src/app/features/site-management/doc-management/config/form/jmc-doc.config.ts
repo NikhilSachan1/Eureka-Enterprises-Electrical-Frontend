@@ -12,9 +12,9 @@ import { IJmcDocAddFormDto } from '../../types/doc.dto';
 const JMC_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IJmcDocAddFormDto> = {
   poNumber: {
     fieldType: EDataType.SELECT,
-    id: 'poId',
-    fieldName: 'poId',
-    label: 'PO ID',
+    id: 'poNumber',
+    fieldName: 'poNumber',
+    label: 'PO Number',
     validators: [Validators.required],
   },
   jmcNumber: {
