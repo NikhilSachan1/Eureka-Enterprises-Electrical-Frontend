@@ -98,12 +98,6 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDocPaymentU
       },
       validators: [Validators.required],
     },
-    transactionRemark: {
-      fieldType: EDataType.TEXT_AREA,
-      id: 'transactionRemark',
-      fieldName: 'transactionRemark',
-      label: 'Transaction Remark',
-    },
     paymentHoldReason: {
       fieldType: EDataType.TEXT_AREA,
       id: 'paymentHoldReason',

@@ -91,7 +91,6 @@ export type IDocPaymentUIFormDto = {
   paymentTdsDeductionAmount: number;
   paymentTotalAmount: number;
   transactionReceipt: File;
-  transactionRemark: string;
   paymentHoldReason: string;
 };
 
