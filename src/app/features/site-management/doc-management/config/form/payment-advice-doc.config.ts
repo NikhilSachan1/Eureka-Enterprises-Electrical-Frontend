@@ -25,7 +25,7 @@ export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaym
       label: 'Payment Advice Number',
       textConfig: {
         textCase: ETextCase.UPPERCASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPECIAL_CHARS,
       },
       conditionalValidators: [
         {

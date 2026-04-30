@@ -35,7 +35,7 @@ const PO_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPoDocAddUIFormDto> = {
     label: 'PO Number',
     textConfig: {
       textCase: ETextCase.UPPERCASE,
-      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
+      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPECIAL_CHARS,
     },
     validators: [Validators.required],
   },
