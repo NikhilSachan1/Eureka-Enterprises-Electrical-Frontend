@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   inject,
   input,
@@ -12,11 +13,20 @@ import {
   IPaymentAdviceDocAddResponseDto,
   IPaymentAdviceDocAddUIFormDto,
 } from '../../types/doc.dto';
-import { IDialogActionHandler } from '@shared/types';
+import {
+  IDialogActionHandler,
+  IFormConfig,
+  IOptionDropdown,
+} from '@shared/types';
 import { DocService } from '../../services/doc.service';
+import {
+  DocIndexedDbService,
+  IDocIndexedDbRow,
+} from '../../services/doc-indexed-db.service';
 import { ConfirmationDialogService } from '@shared/services';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { PAYMENT_ADVICE_DOC_FORM_CONFIG } from '../../config';
+import { EDocType } from '../../types/doc.enum';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -34,36 +44,40 @@ export class PaymentAdviceDocComponent
   implements OnInit, IDialogActionHandler
 {
   private readonly docService = inject(DocService);
+  private readonly docIndexedDbService = inject(DocIndexedDbService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly selectedRecord =
     input.required<IDocGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<'sales' | 'purchase'>();
+  protected readonly editRecord = input<IDocIndexedDbRow | null>(null);
+
+  protected get isEditMode(): boolean {
+    return !!this.editRecord();
+  }
 
   ngOnInit(): void {
-    const record = this.selectedRecord();
-    if (!record) {
-      this.notificationService.error(
-        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
-      );
-      this.logger.error(
-        'Selected record is required to perform action on Payment Advice document but was not provided'
-      );
-      return;
-    }
-
-    this.form = this.formService.createForm<IPaymentAdviceDocAddUIFormDto>(
-      PAYMENT_ADVICE_DOC_FORM_CONFIG,
-      {
-        destroyRef: this.destroyRef,
-        context: {
-          docContext: this.docContext(),
-        },
-      }
-    );
+    void this.docIndexedDbService
+      .getDocNumberOptions(
+        EDocType.PAYMENT,
+        this.docContext(),
+        EDocType.PAYMENT_ADVICE
+      )
+      .then(paymentOptions => {
+        this.form = this.formService.createForm<IPaymentAdviceDocAddUIFormDto>(
+          this.buildFormConfig(paymentOptions),
+          {
+            destroyRef: this.destroyRef,
+            context: { docContext: this.docContext() },
+          }
+        );
+        this.prefillIfEditing();
+        this.cdr.markForCheck();
+      });
   }
 
   onDialogAccept(): void {
@@ -72,31 +86,52 @@ export class PaymentAdviceDocComponent
 
   protected override handleSubmit(): void {
     const formData = this.prepareFormData();
-    this.executeDocAction(formData);
+    // this.executeDocAction(formData);
+    this.executeDocActionIndexedDb(formData);
+  }
+
+  private prefillIfEditing(): void {
+    const rec = this.editRecord();
+    if (!rec) {
+      return;
+    }
+    this.form.patch({
+      transactionNumber: rec.docReference ?? undefined,
+      paymentAdviceNumber: rec.documentNumber,
+      paymentAdviceDate: rec.documentDate
+        ? new Date(rec.documentDate)
+        : undefined,
+      paymentAdviceRemark: rec.remark ?? undefined,
+    } as Partial<IPaymentAdviceDocAddUIFormDto>);
   }
 
   private prepareFormData(): IPaymentAdviceDocAddFormDto {
-    const formData = this.form.getData();
+    return { ...this.form.getData(), docContext: this.docContext() };
+  }
+
+  private buildFormConfig(
+    paymentOptions: IOptionDropdown[]
+  ): IFormConfig<IPaymentAdviceDocAddUIFormDto> {
     return {
-      ...formData,
-      docContext: this.docContext(),
+      ...PAYMENT_ADVICE_DOC_FORM_CONFIG,
+      fields: {
+        ...PAYMENT_ADVICE_DOC_FORM_CONFIG.fields,
+        transactionNumber: {
+          ...PAYMENT_ADVICE_DOC_FORM_CONFIG.fields.transactionNumber,
+          selectConfig: { optionsDropdown: paymentOptions },
+        },
+      },
     };
   }
 
   private executeDocAction(formData: IPaymentAdviceDocAddFormDto): void {
     const actionWord =
       this.docContext() === 'purchase' ? 'Generating' : 'Adding';
-    const progressMessage =
-      this.docContext() === 'purchase'
-        ? "We're generating the Payment Advice document. This will just take a moment."
-        : "We're adding the Payment Advice document. This will just take a moment.";
-
     this.loadingService.show({
       title: `${actionWord} Payment Advice Document`,
-      message: progressMessage,
+      message: 'Please wait...',
     });
     this.form.disable();
-
     this.docService
       .addPaymentAdviceDoc(formData)
       .pipe(
@@ -113,6 +148,70 @@ export class PaymentAdviceDocComponent
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
+      });
+  }
+
+  private generatePurchaseDefaults(
+    formData: IPaymentAdviceDocAddFormDto
+  ): IPaymentAdviceDocAddFormDto {
+    if (formData.docContext !== 'purchase') {
+      return formData;
+    }
+    const randomSuffix = Math.random()
+      .toString(36)
+      .substring(2, 10)
+      .toUpperCase();
+    const dummyFile = new File(
+      ['[Auto-generated payment advice for purchase]'],
+      `PA-${randomSuffix}.pdf`,
+      { type: 'application/pdf' }
+    );
+    return {
+      ...formData,
+      paymentAdviceNumber: formData.paymentAdviceNumber || `PA-${randomSuffix}`,
+      paymentAdviceAttachments: formData.paymentAdviceAttachments?.length
+        ? formData.paymentAdviceAttachments
+        : [dummyFile],
+    };
+  }
+
+  private executeDocActionIndexedDb(
+    formData: IPaymentAdviceDocAddFormDto
+  ): void {
+    const resolved = this.generatePurchaseDefaults(formData);
+    const existing = this.editRecord();
+    const action = existing
+      ? this.docIndexedDbService.updatePaymentAdviceDoc(existing, resolved)
+      : this.docIndexedDbService.addPaymentAdviceDoc(resolved);
+
+    this.loadingService.show({
+      title: existing ? 'Updating Payment Advice' : 'Adding Payment Advice',
+      message: 'Please wait...',
+    });
+    this.form.disable();
+    void action
+      .then(() => {
+        this.notificationService.success(
+          existing
+            ? 'Payment advice updated successfully'
+            : 'Payment advice saved successfully'
+        );
+        this.onSuccess()();
+        this.confirmationDialogService.closeDialog();
+      })
+      .catch(error => {
+        this.logger.error(
+          'Payment advice doc IndexedDB operation failed',
+          error
+        );
+        this.notificationService.error(
+          FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+        );
+      })
+      .finally(() => {
+        this.loadingService.hide();
+        this.isSubmitting.set(false);
+        this.form.enable();
       });
   }
 }

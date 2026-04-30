@@ -1,3 +1,169 @@
+<!-- PO-wise Summary -->
+@if (poSummaryRows().length > 0) {
+  <p-card styleClass="mb-4">
+    <ng-template #header>
+      <div class="flex items-center justify-between px-5 pt-4">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-chart-bar text-primary"></i>
+          <span class="font-semibold">PO-wise Summary</span>
+          <span class="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+            {{ poSummaryRows().length }} PO{{ poSummaryRows().length > 1 ? 's' : '' }}
+          </span>
+        </div>
+        <button
+          type="button"
+          class="flex items-center gap-1 text-xs text-gray-500 transition-colors hover:text-primary"
+          (click)="showPoSummary.set(!showPoSummary())"
+        >
+          <i
+            class="pi"
+            [class.pi-chevron-up]="showPoSummary()"
+            [class.pi-chevron-down]="!showPoSummary()"
+          ></i>
+          {{ showPoSummary() ? 'Collapse' : 'Expand' }}
+        </button>
+      </div>
+
+      <!-- Top-level totals -->
+      <div class="grid grid-cols-2 gap-3 px-5 py-3 sm:grid-cols-4">
+        <div class="rounded-lg bg-gray-50 p-3 text-center">
+          <div class="text-xs font-medium text-gray-500">Total PO Value</div>
+          <div class="mt-0.5 text-sm font-bold text-gray-800">
+            {{ summaryTotals.poValue | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </div>
+        </div>
+        <div class="rounded-lg bg-blue-50 p-3 text-center">
+          <div class="text-xs font-medium text-blue-500">Invoiced</div>
+          <div class="mt-0.5 text-sm font-bold text-blue-700">
+            {{ summaryTotals.invoicedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </div>
+        </div>
+        <div class="rounded-lg bg-green-50 p-3 text-center">
+          <div class="text-xs font-medium text-green-500">Received</div>
+          <div class="mt-0.5 text-sm font-bold text-green-700">
+            {{ summaryTotals.receivedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </div>
+        </div>
+        <div
+          class="rounded-lg p-3 text-center"
+          [class.bg-amber-50]="summaryTotals.balance > 0"
+          [class.bg-green-50]="summaryTotals.balance <= 0"
+        >
+          <div
+            class="text-xs font-medium"
+            [class.text-amber-500]="summaryTotals.balance > 0"
+            [class.text-green-500]="summaryTotals.balance <= 0"
+          >
+            Pending Billing
+          </div>
+          <div
+            class="mt-0.5 text-sm font-bold"
+            [class.text-amber-700]="summaryTotals.balance > 0"
+            [class.text-green-700]="summaryTotals.balance <= 0"
+          >
+            {{ summaryTotals.balance | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    @if (showPoSummary()) {
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b-2 border-gray-200 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <th class="py-2 pl-1 pr-3 text-left">#</th>
+              <th class="px-3 py-2 text-left">PO No.</th>
+              <th class="px-3 py-2 text-left">Party</th>
+              <th class="px-3 py-2 text-right">PO Value (₹)</th>
+              <th class="px-3 py-2 text-center">JMCs</th>
+              <th class="px-3 py-2 text-center">Reports</th>
+              <th class="px-3 py-2 text-center">Invoices</th>
+              <th class="px-3 py-2 text-right">Invoiced (₹)</th>
+              <th class="px-3 py-2 text-right">Received (₹)</th>
+              <th class="px-3 py-2 text-center">Advices</th>
+              <th class="px-3 py-2 text-right">Balance (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of poSummaryRows(); track row.poNumber; let i = $index) {
+              <tr class="border-b border-gray-100 transition-colors hover:bg-gray-50">
+                <td class="py-2.5 pl-1 pr-3 text-gray-400">{{ i + 1 }}</td>
+                <td class="px-3 py-2.5 font-medium text-gray-800">{{ row.poNumber }}</td>
+                <td class="px-3 py-2.5 text-gray-600">{{ row.partyName }}</td>
+                <td class="px-3 py-2.5 text-right font-semibold text-gray-800">
+                  {{ row.poValue | currency: 'INR' : 'symbol' : '1.0-0' }}
+                </td>
+                <td class="px-3 py-2.5 text-center">
+                  <span class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+                    {{ row.jmcCount }}
+                  </span>
+                </td>
+                <td class="px-3 py-2.5 text-center">
+                  <span class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">
+                    {{ row.reportCount }}
+                  </span>
+                </td>
+                <td class="px-3 py-2.5 text-center">
+                  <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                    {{ row.invoiceCount }}
+                  </span>
+                </td>
+                <td class="px-3 py-2.5 text-right text-blue-700">
+                  {{ row.invoicedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+                </td>
+                <td class="px-3 py-2.5 text-right text-green-700">
+                  {{ row.receivedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+                </td>
+                <td class="px-3 py-2.5 text-center">
+                  <span class="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-semibold text-teal-700">
+                    {{ row.paymentAdviceCount }}
+                  </span>
+                </td>
+                <td
+                  class="px-3 py-2.5 text-right font-semibold"
+                  [class.text-amber-600]="row.balance > 0"
+                  [class.text-green-600]="row.balance <= 0"
+                >
+                  {{ row.balance | currency: 'INR' : 'symbol' : '1.0-0' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="border-t-2 border-gray-300 bg-gray-50 text-sm font-semibold">
+              <td
+                colspan="3"
+                class="py-2.5 px-3 text-right text-gray-600"
+              >
+                Total
+              </td>
+              <td class="px-3 py-2.5 text-right text-gray-900">
+                {{ summaryTotals.poValue | currency: 'INR' : 'symbol' : '1.0-0' }}
+              </td>
+              <td colspan="3"></td>
+              <td class="px-3 py-2.5 text-right text-blue-700">
+                {{ summaryTotals.invoicedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+              </td>
+              <td class="px-3 py-2.5 text-right text-green-700">
+                {{ summaryTotals.receivedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+              </td>
+              <td></td>
+              <td
+                class="px-3 py-2.5 text-right"
+                [class.text-amber-600]="summaryTotals.balance > 0"
+                [class.text-green-600]="summaryTotals.balance <= 0"
+              >
+                {{ summaryTotals.balance | currency: 'INR' : 'symbol' : '1.0-0' }}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    }
+  </p-card>
+}
+
 <div class="mb-3 flex justify-end">
   <p-splitbutton
     [label]="addDocumentButtonLabel() ?? undefined"
@@ -13,5 +179,44 @@
   [loading]="table.loading()"
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
+  [customBodyTemplates]="customBodyTemplates"
   (rowActionClick)="handleDocTableActionClick($any($event))"
 />
+
+<ng-template
+  #amountTmpl
+  let-row
+>
+  @let r = $any(row);
+  <div class="flex flex-col gap-1 text-sm">
+    @if (r.taxableAmount != null) {
+      <div class="flex items-center justify-between gap-4">
+        <span class="text-xs text-gray-500">Gross</span>
+        <span class="font-medium">{{ r.taxableAmount | currency: 'INR' : 'symbol' : '1.2-2' }}</span>
+      </div>
+    }
+    @if (r.gstAmount != null) {
+      <div class="flex items-center justify-between gap-4">
+        <span class="text-xs text-gray-500">GST</span>
+        <span class="font-medium text-blue-600">{{ r.gstAmount | currency: 'INR' : 'symbol' : '1.2-2' }}</span>
+      </div>
+    }
+    @if (r.tdsDeductionAmount != null) {
+      <div class="flex items-center justify-between gap-4">
+        <span class="text-xs text-gray-500">TDS</span>
+        <span class="font-medium text-red-500">
+          - {{ r.tdsDeductionAmount | currency: 'INR' : 'symbol' : '1.2-2' }}
+        </span>
+      </div>
+    }
+    @if (r.amount != null) {
+      <div class="flex items-center justify-between gap-4 border-t border-gray-200 pt-1">
+        <span class="text-xs font-semibold text-gray-700">Net</span>
+        <span class="font-semibold text-gray-900">{{ r.amount | currency: 'INR' : 'symbol' : '1.2-2' }}</span>
+      </div>
+    }
+    @if (r.taxableAmount == null && r.gstAmount == null && r.tdsDeductionAmount == null && r.amount == null) {
+      <span class="text-gray-400">—</span>
+    }
+  </div>
+</ng-template>

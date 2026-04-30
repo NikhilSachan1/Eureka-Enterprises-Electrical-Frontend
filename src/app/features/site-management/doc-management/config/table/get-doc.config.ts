@@ -58,6 +58,7 @@ export const DOC_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     bodyTemplate: EDataType.CURRENCY,
     dataType: EDataType.NUMBER,
     currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+    customTemplateKey: 'amountBreakdown',
     showSort: false,
   },
   {
@@ -80,6 +81,13 @@ export const DOC_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
+type DocRow = Record<string, unknown>;
+type DocStatus = 'pending' | 'approved' | 'rejected' | 'unlock_requested';
+
+const status = (row: DocRow): DocStatus => row['status'] as DocStatus;
+const isLocked = (row: DocRow): boolean =>
+  status(row) === 'approved' || status(row) === 'unlock_requested';
+
 export const DOC_TABLE_ROW_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IDocGetResponseDto['records'][number]>
 >[] = [
@@ -92,23 +100,42 @@ export const DOC_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Doc',
     permission: [APP_PERMISSION.PROJECT.EDIT],
+    disableWhen: row => isLocked(row as DocRow),
+    disableReason: row =>
+      isLocked(row as DocRow) ? 'Locked documents cannot be edited' : undefined,
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Doc',
     permission: [APP_PERMISSION.PROJECT.DELETE],
+    disableWhen: row => isLocked(row as DocRow),
+    disableReason: row =>
+      isLocked(row as DocRow)
+        ? 'Locked documents cannot be deleted'
+        : undefined,
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
-    tooltip: 'Approve Doc',
+    tooltip: 'Approve / Confirm Unlock',
+    disableWhen: row => status(row as DocRow) === 'approved',
+    disableReason: row =>
+      status(row as DocRow) === 'approved' ? 'Already approved' : undefined,
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Doc',
+    disableWhen: row => status(row as DocRow) === 'rejected',
+    disableReason: row =>
+      status(row as DocRow) === 'rejected' ? 'Already rejected' : undefined,
   },
   {
     ...COMMON_ROW_ACTIONS.CANCEL,
-    tooltip: 'Unlock Doc',
+    tooltip: 'Request Unlock',
+    disableWhen: row => status(row as DocRow) !== 'approved',
+    disableReason: row =>
+      status(row as DocRow) !== 'approved'
+        ? 'Only approved documents can request unlock'
+        : undefined,
   },
 ];
 

@@ -29,6 +29,7 @@ import {
 import { GetDocComponent } from '../../../doc-management/components/get-doc/get-doc.component';
 import { GetProfitabilityComponent } from '@features/site-management/project-profitability/components/get-profitability/get-profitability.component';
 import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
+import { GetGstComponent } from '@features/site-management/gst-compliance/components/get-gst/get-gst.component';
 import { IProjectGetBaseResponseDto } from '../../types/project.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
@@ -51,6 +52,7 @@ type ProjectAnalysisTabRoute =
     PageHeaderComponent,
     GetDocComponent,
     GetProfitabilityComponent,
+    GetGstComponent,
     DatePipe,
   ],
   templateUrl: './get-project-analysis.component.html',
@@ -210,6 +212,12 @@ export class GetProjectAnalysisComponent implements OnInit {
         route: 'purchase-documents',
         label: 'Vendor (Purchase)',
         icon: this.icons.COMMON.FILE,
+        permission: [this.uiProjectAnalysis.DOC],
+      },
+      {
+        route: 'gst-compliance',
+        label: 'GST 1 & 3B',
+        icon: this.icons.COMMON.CHART,
         permission: [this.uiProjectAnalysis.DOC],
       },
       {
