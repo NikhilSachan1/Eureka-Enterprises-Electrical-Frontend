@@ -61,7 +61,7 @@ export const INVOICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IInvoiceDocA
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
-      validators: [Validators.required, Validators.min(1)],
+      validators: [Validators.required, Validators.min(0)],
     },
     invoiceTotalAmount: {
       fieldType: EDataType.NUMBER,

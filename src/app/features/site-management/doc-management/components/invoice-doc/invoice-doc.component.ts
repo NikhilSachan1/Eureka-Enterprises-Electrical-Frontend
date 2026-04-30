@@ -5,6 +5,7 @@ import {
   inject,
   input,
   OnInit,
+  signal,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -29,12 +30,19 @@ import { INVOICE_DOC_FORM_CONFIG } from '../../config';
 import { EDocType } from '../../types/doc.enum';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CurrencyPipe } from '@angular/common';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { DocRefChainComponent } from '../doc-ref-chain/doc-ref-chain.component';
 
 @Component({
   selector: 'app-invoice-doc',
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [
+    CurrencyPipe,
+    InputFieldComponent,
+    ReactiveFormsModule,
+    DocRefChainComponent,
+  ],
   templateUrl: './invoice-doc.component.html',
   styleUrl: './invoice-doc.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,6 +67,14 @@ export class InvoiceDocComponent
   protected get isEditMode(): boolean {
     return !!this.editRecord();
   }
+  protected readonly selectedRefDocId = signal<string | null>(null);
+  protected readonly gstPercent = signal<number | null>(18);
+
+  protected readonly poBillingSummary = signal<{
+    poTotal: number;
+    alreadyInvoiced: number;
+    remaining: number;
+  } | null>(null);
 
   ngOnInit(): void {
     void this.docIndexedDbService
@@ -69,6 +85,30 @@ export class InvoiceDocComponent
           { destroyRef: this.destroyRef }
         );
         this.prefillIfEditing();
+        // Auto-recalculate GST when taxable amount changes
+        this.form.formGroup
+          .get('invoiceTaxableAmount')
+          ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.applyGstPercent();
+            this.applyTotal();
+          });
+        this.form.formGroup
+          .get('invoiceGstAmount')
+          ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => this.applyTotal());
+        this.form.formGroup
+          .get('jmcNumber')
+          ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(val => {
+            this.selectedRefDocId.set(val as string | null);
+            void this.loadPoBillingSummary(val as string | null);
+          });
+        const editRef = this.editRecord()?.docReference;
+        if (editRef) {
+          this.selectedRefDocId.set(editRef);
+          void this.loadPoBillingSummary(editRef);
+        }
         this.cdr.markForCheck();
       });
   }
@@ -79,8 +119,87 @@ export class InvoiceDocComponent
 
   protected override handleSubmit(): void {
     const formData = this.prepareFormData();
+    const summary = this.poBillingSummary();
+    if (summary) {
+      const enteredAmount = formData.invoiceTotalAmount ?? 0;
+      if (enteredAmount > summary.remaining) {
+        this.notificationService.error(
+          `Invoice amount ₹${enteredAmount.toLocaleString('en-IN')} exceeds PO billing balance ₹${summary.remaining.toLocaleString('en-IN')}.`
+        );
+        this.isSubmitting.set(false);
+        return;
+      }
+    }
     // this.executeDocAction(formData);
     this.executeDocActionIndexedDb(formData);
+  }
+
+  protected updateGstPercent(pct: number | null): void {
+    this.gstPercent.set(pct);
+    this.applyGstPercent();
+  }
+
+  private applyGstPercent(): void {
+    const pct = this.gstPercent();
+    if (pct === null) {
+      return;
+    }
+    const taxable = this.form.formGroup.get('invoiceTaxableAmount')?.value as
+      | number
+      | null;
+    if (taxable === null || taxable === undefined) {
+      return;
+    }
+    const gst = Math.round(taxable * pct) / 100;
+    this.form.formGroup.get('invoiceGstAmount')?.setValue(gst);
+  }
+
+  private applyTotal(): void {
+    const taxable =
+      (this.form.formGroup.get('invoiceTaxableAmount')?.value as number) ?? 0;
+    const gst =
+      (this.form.formGroup.get('invoiceGstAmount')?.value as number) ?? 0;
+    this.form.formGroup.get('invoiceTotalAmount')?.setValue(taxable + gst);
+  }
+
+  private async loadPoBillingSummary(jmcId: string | null): Promise<void> {
+    if (!jmcId) {
+      this.poBillingSummary.set(null);
+      return;
+    }
+    const allDocs = await this.docIndexedDbService.getAllDocs();
+    // Walk up to find PO
+    const jmc = allDocs.find(d => d.id === jmcId);
+    const po = jmc?.docReference
+      ? allDocs.find(d => d.id === jmc.docReference)
+      : null;
+    if (!po) {
+      this.poBillingSummary.set(null);
+      return;
+    }
+    // All JMCs under this PO
+    const jmcIds = allDocs
+      .filter(d => d.documentType === EDocType.JMC && d.docReference === po.id)
+      .map(d => d.id);
+    // All invoices under those JMCs, excluding the record being edited
+    const editingId = this.editRecord()?.id;
+    const existingInvoices = allDocs.filter(
+      d =>
+        d.documentType === EDocType.INVOICE &&
+        jmcIds.includes(d.docReference ?? '') &&
+        d.id !== editingId
+    );
+    const poTotal = po.totalAmount ?? 0;
+    const alreadyInvoiced = existingInvoices.reduce(
+      (s, i) => s + (i.totalAmount ?? 0),
+      0
+    );
+    this.poBillingSummary.set({
+      poTotal,
+      alreadyInvoiced,
+      remaining: poTotal - alreadyInvoiced,
+    });
+    this.cdr.markForCheck();
   }
 
   private prefillIfEditing(): void {

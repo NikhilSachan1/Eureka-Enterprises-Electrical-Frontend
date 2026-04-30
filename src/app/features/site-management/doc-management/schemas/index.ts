@@ -20,6 +20,10 @@ export {
   ReportDocAddRequestSchema,
   ReportDocAddResponseSchema,
 } from './report-doc.schema';
+export {
+  BankTransferDocAddRequestSchema,
+  BankTransferDocAddResponseSchema,
+} from './bank-transfer-doc.schema';
 export { DocDeleteResponseSchema } from './delete-doc.schema';
 export {
   DocGetRequestSchema,

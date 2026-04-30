@@ -110,9 +110,18 @@ export class GetDocComponent implements OnInit {
   });
 
   protected readonly amountTmpl = viewChild<TemplateRef<unknown>>('amountTmpl');
+  protected readonly refDocTmpl = viewChild<TemplateRef<unknown>>('refDocTmpl');
   protected get customBodyTemplates(): Record<string, TemplateRef<unknown>> {
-    const tmpl = this.amountTmpl();
-    return tmpl ? { amountBreakdown: tmpl } : {};
+    const result: Record<string, TemplateRef<unknown>> = {};
+    const amount = this.amountTmpl();
+    const refDoc = this.refDocTmpl();
+    if (amount) {
+      result['amountBreakdown'] = amount;
+    }
+    if (refDoc) {
+      result['refDocCell'] = refDoc;
+    }
+    return result;
   }
 
   ngOnInit(): void {
@@ -271,6 +280,22 @@ export class GetDocComponent implements OnInit {
     this.openAddDocDialog(EDocType.PO);
   }
 
+  protected clearAllDocs(): void {
+    this.table.setLoading(true);
+    void this.docIndexedDbService
+      .clearAll()
+      .then(() => {
+        this.notificationService.success(
+          'All documents deleted from IndexedDB.'
+        );
+        this.loadIndexedDbDocs();
+      })
+      .catch(() => {
+        this.notificationService.error('Failed to clear IndexedDB.');
+        this.table.setLoading(false);
+      });
+  }
+
   private loadIndexedDbDocs(): void {
     this.table.setLoading(true);
     void this.docIndexedDbService
@@ -388,6 +413,16 @@ export class GetDocComponent implements OnInit {
 
     const refDoc = row.docReference ? idToDoc.get(row.docReference) : null;
 
+    // Traverse up the chain to find the root PO
+    let rootPo: IDocIndexedDbRow | null = null;
+    if (refDoc && refDoc.documentType !== EDocType.PO) {
+      let cur: IDocIndexedDbRow | undefined = refDoc;
+      while (cur && cur.documentType !== EDocType.PO) {
+        cur = cur.docReference ? idToDoc.get(cur.docReference) : undefined;
+      }
+      rootPo = cur && cur.documentType === EDocType.PO ? cur : null;
+    }
+
     return {
       id: row.id,
       contractorName: partyName,
@@ -396,6 +431,7 @@ export class GetDocComponent implements OnInit {
       referenceDocument: refDoc ? refDoc.documentType : null,
       referenceDocumentName: refDoc ? refDoc.documentType : null,
       referenceDocumentNumber: refDoc ? refDoc.documentNumber : null,
+      rootPoNumber: rootPo ? rootPo.documentNumber : null,
       documentDate: row.documentDate,
       amount: row.totalAmount,
       taxableAmount: row.taxableAmount,
@@ -438,6 +474,11 @@ export class GetDocComponent implements OnInit {
     items.push({
       label: paymentAdviceLabel,
       command: (): void => this.openAddDocDialog(EDocType.PAYMENT_ADVICE),
+    });
+
+    items.push({
+      label: 'Add Bank Transfer (UTR)',
+      command: (): void => this.openAddDocDialog(EDocType.BANK_TRANSFER),
     });
 
     this.addDocumentSplitItems = items;

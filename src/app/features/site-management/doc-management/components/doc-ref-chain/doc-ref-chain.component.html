@@ -1,0 +1,62 @@
+@if (loading()) {
+  <div class="mt-1.5 flex items-center gap-1.5 px-1 text-[11px] text-gray-400">
+    <i
+      class="pi pi-spin pi-spinner"
+      style="font-size: 10px"
+    ></i>
+    Loading…
+  </div>
+} @else if (chain().length > 0) {
+  <div class="mt-1.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5">
+    @for (doc of chain(); track doc.id; let i = $index; let last = $last) {
+      <div
+        class="flex items-center gap-1.5 text-[11px]"
+        [style.padding-left.px]="i * 14"
+      >
+        <!-- Connector -->
+        @if (i > 0) {
+          <span class="text-slate-400 select-none">└</span>
+        }
+
+        <!-- Type pill -->
+        <span
+          class="rounded px-1 py-px font-bold tracking-wide text-primary"
+          style="background: color-mix(in srgb, currentColor 10%, transparent); font-size: 10px"
+        >
+          {{ doc.documentType }}
+        </span>
+
+        <!-- Number -->
+        <span class="font-medium text-slate-700">{{ doc.documentNumber }}</span>
+
+        <!-- Date -->
+        @if (doc.documentDate) {
+          <span class="text-slate-400">{{ doc.documentDate | date: 'dd MMM yy' }}</span>
+        }
+
+        <!-- Party — root only -->
+        @if (i === 0) {
+          @if (resolveParty(doc); as party) {
+            <span class="text-slate-500">· {{ party }}</span>
+          }
+        }
+
+        <!-- Amount — right-aligned -->
+        @if (doc.totalAmount !== null && doc.totalAmount !== undefined) {
+          <span class="ml-auto font-semibold text-slate-600">
+            {{ doc.totalAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </span>
+        }
+      </div>
+
+      @if (!last) {
+        <div
+          class="text-slate-300 select-none leading-none"
+          [style.padding-left.px]="(i + 1) * 14"
+        >
+          │
+        </div>
+      }
+    }
+  </div>
+}

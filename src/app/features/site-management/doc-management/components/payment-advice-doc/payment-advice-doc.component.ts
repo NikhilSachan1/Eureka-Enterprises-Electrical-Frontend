@@ -5,6 +5,7 @@ import {
   inject,
   input,
   OnInit,
+  signal,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -31,10 +32,11 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { DocRefChainComponent } from '../doc-ref-chain/doc-ref-chain.component';
 
 @Component({
   selector: 'app-payment-advice-doc',
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [InputFieldComponent, ReactiveFormsModule, DocRefChainComponent],
   templateUrl: './payment-advice-doc.component.html',
   styleUrl: './payment-advice-doc.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,6 +61,7 @@ export class PaymentAdviceDocComponent
   protected get isEditMode(): boolean {
     return !!this.editRecord();
   }
+  protected readonly selectedRefDocId = signal<string | null>(null);
 
   ngOnInit(): void {
     void this.docIndexedDbService
@@ -76,6 +79,14 @@ export class PaymentAdviceDocComponent
           }
         );
         this.prefillIfEditing();
+        this.form.formGroup
+          .get('transactionNumber')
+          ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(val => this.selectedRefDocId.set(val as string | null));
+        const editRef = this.editRecord()?.docReference;
+        if (editRef) {
+          this.selectedRefDocId.set(editRef);
+        }
         this.cdr.markForCheck();
       });
   }

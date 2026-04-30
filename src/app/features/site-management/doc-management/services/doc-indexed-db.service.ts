@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
+  IBankTransferDocAddFormDto,
   IInvoiceDocAddFormDto,
   IJmcDocAddFormDto,
   IPaymentAdviceDocAddFormDto,
@@ -117,17 +118,18 @@ export class DocIndexedDbService {
 
   async addPaymentDoc(formData: IPaymentDocAddFormDto): Promise<void> {
     const { docContext } = formData;
+    const draftRef = `PMT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
     const row = await this.buildBaseReferencedRow(
       formData.paymentDate,
       formData.paymentTaxableAmount ?? null,
       formData.paymentGstAmount ?? null,
       formData.paymentTdsDeductionAmount ?? null,
       formData.paymentTotalAmount ?? null,
-      formData.paymentAttachments ?? null,
+      null,
       formData.paymentRemark ?? null,
       formData.invoiceNumber,
       EDocType.PAYMENT,
-      formData.transactionNumber,
+      draftRef,
       docContext
     );
     await this.putRow(row);
@@ -153,8 +155,67 @@ export class DocIndexedDbService {
     await this.putRow(row);
   }
 
+  async addBankTransferDoc(
+    formData: IBankTransferDocAddFormDto
+  ): Promise<void> {
+    const { docContext } = formData;
+    const row = await this.buildBaseReferencedRow(
+      formData.transferDate,
+      null,
+      null,
+      null,
+      formData.transferTotalAmount ?? null,
+      formData.transferAttachments ?? null,
+      formData.transferRemark ?? null,
+      formData.paymentAdviceRef,
+      EDocType.BANK_TRANSFER,
+      formData.utrNumber,
+      docContext
+    );
+    await this.putRow(row);
+  }
+
+  async updateBankTransferDoc(
+    existing: IDocIndexedDbRow,
+    formData: IBankTransferDocAddFormDto
+  ): Promise<void> {
+    const { docContext } = formData;
+    const row = await this.buildBaseReferencedRow(
+      formData.transferDate,
+      null,
+      null,
+      null,
+      formData.transferTotalAmount ?? null,
+      formData.transferAttachments ?? null,
+      formData.transferRemark ?? null,
+      formData.paymentAdviceRef,
+      EDocType.BANK_TRANSFER,
+      formData.utrNumber,
+      docContext
+    );
+    await this.putRow({
+      ...row,
+      id: existing.id,
+      approvalStatus: existing.approvalStatus,
+    });
+  }
+
   getDocById(id: string): Promise<IDocIndexedDbRow | null> {
     return this.getRowById(id);
+  }
+
+  async getDocChain(startId: string): Promise<IDocIndexedDbRow[]> {
+    const chain: IDocIndexedDbRow[] = [];
+    let currentId: string | null = startId;
+    while (currentId) {
+      const doc = await this.getRowById(currentId);
+      if (!doc) {
+        break;
+      }
+      chain.push(doc);
+      currentId = doc.docReference;
+    }
+    return chain;
   }
 
   async updatePoDoc(
@@ -268,11 +329,11 @@ export class DocIndexedDbService {
       formData.paymentGstAmount ?? null,
       formData.paymentTdsDeductionAmount ?? null,
       formData.paymentTotalAmount ?? null,
-      formData.paymentAttachments ?? null,
+      null,
       formData.paymentRemark ?? null,
       formData.invoiceNumber,
       EDocType.PAYMENT,
-      formData.transactionNumber,
+      existing.documentNumber,
       docContext
     );
     await this.putRow({
@@ -346,14 +407,20 @@ export class DocIndexedDbService {
     return parentDocs.map(parent => ({
       label: `${parent.documentType} — ${parent.documentNumber}`,
       value: parent.id,
-      disabled: this.shouldDisableOption(parent, childDocs, childDocType),
+      disabled: this.shouldDisableOption(
+        parent,
+        childDocs,
+        childDocType,
+        allDocs
+      ),
     }));
   }
 
   private shouldDisableOption(
     parent: IDocIndexedDbRow,
     childDocs: IDocIndexedDbRow[],
-    childDocType: EDocType
+    childDocType: EDocType,
+    allDocs: IDocIndexedDbRow[]
   ): boolean {
     const childrenOfParent = childDocs.filter(
       c => c.docReference === parent.id
@@ -363,6 +430,7 @@ export class DocIndexedDbService {
       case EDocType.REPORT:
       case EDocType.INVOICE:
       case EDocType.PAYMENT_ADVICE:
+      case EDocType.BANK_TRANSFER:
         return childrenOfParent.length >= 1;
 
       case EDocType.PAYMENT: {
@@ -374,6 +442,28 @@ export class DocIndexedDbService {
           (parent.totalAmount ?? 0) > 0 &&
           totalPaid >= (parent.totalAmount ?? 0)
         );
+      }
+
+      case EDocType.JMC: {
+        // Disable PO if its billing capacity is exhausted:
+        // sum of all invoices under all JMCs of this PO >= PO total amount
+        const poTotal = parent.totalAmount ?? 0;
+        if (poTotal <= 0) {
+          return false;
+        }
+        const jmcIds = allDocs
+          .filter(
+            d => d.documentType === EDocType.JMC && d.docReference === parent.id
+          )
+          .map(d => d.id);
+        const totalInvoiced = allDocs
+          .filter(
+            d =>
+              d.documentType === EDocType.INVOICE &&
+              jmcIds.includes(d.docReference ?? '')
+          )
+          .reduce((sum, d) => sum + (d.totalAmount ?? 0), 0);
+        return totalInvoiced >= poTotal;
       }
 
       default:
@@ -458,6 +548,17 @@ export class DocIndexedDbService {
     }
 
     return null;
+  }
+
+  async clearAll(): Promise<void> {
+    const db = await this.openDb();
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(this.storeName, 'readwrite');
+      const store = transaction.objectStore(this.storeName);
+      const request = store.clear();
+      request.onsuccess = (): void => resolve();
+      request.onerror = (): void => reject(request.error);
+    });
   }
 
   private async putRow(row: IDocIndexedDbRow): Promise<void> {

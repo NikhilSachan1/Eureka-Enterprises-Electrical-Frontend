@@ -6,6 +6,10 @@
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.jmcNumber"
   />
+  <app-doc-ref-chain
+    [refDocId]="selectedRefDocId()"
+    [docContext]="docContext()"
+  />
 
   <app-input-field
     [formGroup]="form.formGroup"

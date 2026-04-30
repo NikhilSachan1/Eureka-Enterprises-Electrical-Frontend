@@ -6,6 +6,10 @@
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.transactionNumber"
   />
+  <app-doc-ref-chain
+    [refDocId]="selectedRefDocId()"
+    [docContext]="docContext()"
+  />
 
   @if (form.fieldConfigs.paymentAdviceNumber && docContext() !== 'purchase') {
     <app-input-field

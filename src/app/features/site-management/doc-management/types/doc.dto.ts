@@ -1,4 +1,6 @@
 import {
+  BankTransferDocAddRequestSchema,
+  BankTransferDocAddResponseSchema,
   DocDeleteResponseSchema,
   DocGetBaseResponseSchema,
   DocGetRequestSchema,
@@ -91,6 +93,23 @@ export type IReportDocAddFormDto = z.input<typeof ReportDocAddRequestSchema>;
 export type IReportDocAddUIFormDto = Omit<IReportDocAddFormDto, 'docContext'>;
 export type IReportDocAddResponseDto = z.infer<
   typeof ReportDocAddResponseSchema
+>;
+
+/*
+  Bank Transfer Doc Add
+*/
+export type IBankTransferDocAddRequestDto = z.infer<
+  typeof BankTransferDocAddRequestSchema
+>;
+export type IBankTransferDocAddFormDto = z.input<
+  typeof BankTransferDocAddRequestSchema
+>;
+export type IBankTransferDocAddUIFormDto = Omit<
+  IBankTransferDocAddFormDto,
+  'docContext'
+>;
+export type IBankTransferDocAddResponseDto = z.infer<
+  typeof BankTransferDocAddResponseSchema
 >;
 
 /*

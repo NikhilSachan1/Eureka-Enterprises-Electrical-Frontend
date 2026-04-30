@@ -6,6 +6,10 @@
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.poNumber"
   />
+  <app-doc-ref-chain
+    [refDocId]="selectedRefDocId()"
+    [docContext]="docContext()"
+  />
 
   <app-input-field
     [formGroup]="form.formGroup"

@@ -39,10 +39,8 @@ export const DOC_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'referenceDocument',
     header: 'Reference Document',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    dummyImageField: 'referenceDocumentName',
-    primaryFieldHighlight: true,
-    subtitle: { field: 'referenceDocumentNumber' },
+    bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'refDocCell',
     showSort: false,
   },
   {

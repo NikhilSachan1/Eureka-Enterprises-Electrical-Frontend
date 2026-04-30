@@ -1,10 +1,8 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
-import { TEXT_INPUT_ACCEPT_STRIP } from '@shared/constants';
 import {
   IFormInputFieldsConfig,
   EDataType,
-  ETextCase,
   EInputNumberMode,
   IFormConfig,
 } from '@shared/types';
@@ -17,17 +15,6 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocA
       id: 'invoiceNumber',
       fieldName: 'invoiceNumber',
       label: 'Invoice Number',
-      validators: [Validators.required],
-    },
-    transactionNumber: {
-      fieldType: EDataType.TEXT,
-      id: 'transactionNumber',
-      fieldName: 'transactionNumber',
-      label: 'Transaction Number',
-      textConfig: {
-        textCase: ETextCase.UPPERCASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
-      },
       validators: [Validators.required],
     },
     paymentDate: {
@@ -61,7 +48,7 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocA
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
-      validators: [Validators.required, Validators.min(1)],
+      validators: [Validators.required, Validators.min(0)],
     },
     paymentTdsDeductionAmount: {
       fieldType: EDataType.NUMBER,
@@ -72,7 +59,7 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocA
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
-      validators: [Validators.required, Validators.min(1)],
+      validators: [Validators.required, Validators.min(0)],
     },
     paymentTotalAmount: {
       fieldType: EDataType.NUMBER,
@@ -84,20 +71,6 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocA
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
       validators: [Validators.required, Validators.min(1)],
-    },
-    paymentAttachments: {
-      fieldType: EDataType.ATTACHMENTS,
-      id: 'paymentAttachments',
-      fieldName: 'paymentAttachments',
-      label: 'Payment Attachments',
-      fileConfig: {
-        fileLimit: 1,
-        acceptFileTypes: [
-          ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
-          ...APP_CONFIG.MEDIA_CONFIG.PDF,
-        ],
-      },
-      validators: [Validators.required],
     },
     paymentRemark: {
       fieldType: EDataType.TEXT_AREA,

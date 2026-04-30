@@ -7,3 +7,4 @@ export { REPORT_DOC_FORM_CONFIG } from './form/report-doc.config';
 export { INVOICE_DOC_FORM_CONFIG } from './form/invoice-doc.config';
 export { PAYMENT_DOC_FORM_CONFIG } from './form/payment-doc.config';
 export { PAYMENT_ADVICE_DOC_FORM_CONFIG } from './form/payment-advice-doc.config';
+export { BANK_TRANSFER_DOC_FORM_CONFIG } from './form/bank-transfer-doc.config';

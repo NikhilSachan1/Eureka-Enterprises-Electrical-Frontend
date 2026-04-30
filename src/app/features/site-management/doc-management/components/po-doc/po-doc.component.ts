@@ -4,6 +4,7 @@ import {
   inject,
   input,
   OnInit,
+  signal,
 } from '@angular/core';
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -53,12 +54,25 @@ export class PoDocComponent
     return !!this.editRecord();
   }
 
+  protected readonly gstPercent = signal<number | null>(18);
+
   ngOnInit(): void {
     this.form = this.formService.createForm<IPoDocAddUIFormDto>(
       this.getPoFormConfig(),
       { destroyRef: this.destroyRef }
     );
     this.prefillIfEditing();
+    this.form.formGroup
+      .get('poTaxableAmount')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.applyGstPercent();
+        this.applyTotal();
+      });
+    this.form.formGroup
+      .get('poGstAmount')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.applyTotal());
   }
 
   onDialogAccept(): void {
@@ -69,6 +83,33 @@ export class PoDocComponent
     const formData = this.prepareFormData();
     // this.executeDocAction(formData);
     this.executeDocActionIndexedDb(formData);
+  }
+
+  protected updateGstPercent(pct: number | null): void {
+    this.gstPercent.set(pct);
+    this.applyGstPercent();
+  }
+
+  private applyGstPercent(): void {
+    const pct = this.gstPercent();
+    if (pct === null) {
+      return;
+    }
+    const taxable = this.form.formGroup.get('poTaxableAmount')?.value as
+      | number
+      | null;
+    if (taxable === null || taxable === undefined) {
+      return;
+    }
+    const gst = Math.round(taxable * pct) / 100;
+    this.form.formGroup.get('poGstAmount')?.setValue(gst);
+  }
+
+  private applyTotal(): void {
+    const taxable =
+      (this.form.formGroup.get('poTaxableAmount')?.value as number) ?? 0;
+    const gst = (this.form.formGroup.get('poGstAmount')?.value as number) ?? 0;
+    this.form.formGroup.get('poTotalAmount')?.setValue(taxable + gst);
   }
 
   private prefillIfEditing(): void {

@@ -1,0 +1,55 @@
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.paymentAdviceRef"
+  />
+  <app-doc-ref-chain
+    [refDocId]="selectedRefDocId()"
+    [docContext]="docContext()"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.utrNumber"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.transferDate"
+  />
+
+  @if (lockedAmount() !== null) {
+    <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+      <div class="mb-0.5 text-[11px] text-slate-400">Transfer Amount</div>
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-slate-800">
+          {{ lockedAmount() | currency: 'INR' : 'symbol' : '1.0-0' }}
+        </span>
+        <span class="flex items-center gap-1 text-[11px] text-slate-400">
+          <i class="pi pi-lock text-[10px]"></i>
+          Locked from Payment Advice
+        </span>
+      </div>
+    </div>
+  } @else {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.transferTotalAmount"
+    />
+  }
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.transferAttachments"
+  />
+
+  @if (form.fieldConfigs.transferRemark) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.transferRemark"
+    />
+  }
+</form>

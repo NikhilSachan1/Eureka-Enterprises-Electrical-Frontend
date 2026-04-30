@@ -164,7 +164,15 @@
   </p-card>
 }
 
-<div class="mb-3 flex justify-end">
+<div class="mb-3 flex items-center justify-between">
+  <button
+    type="button"
+    class="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100"
+    (click)="clearAllDocs()"
+  >
+    <i class="pi pi-trash text-xs"></i>
+    Clear All (Dev)
+  </button>
   <p-splitbutton
     [label]="addDocumentButtonLabel() ?? undefined"
     [model]="addDocumentSplitItems"
@@ -357,6 +365,33 @@
     </div>
   </ng-template>
 </p-dialog>
+
+<ng-template
+  #refDocTmpl
+  let-row
+>
+  @let r = $any(row);
+  @if (r.referenceDocument) {
+    <div class="flex flex-col gap-0.5">
+      <div class="flex items-center gap-1.5">
+        <span
+          class="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500"
+        >
+          {{ r.referenceDocument }}
+        </span>
+        <span class="text-sm font-medium text-slate-800">{{ r.referenceDocumentNumber }}</span>
+      </div>
+      @if (r.rootPoNumber) {
+        <div class="flex items-center gap-1.5 pl-0.5">
+          <span class="text-[10px] text-slate-400">└ PO</span>
+          <span class="text-[11px] text-slate-500">{{ r.rootPoNumber }}</span>
+        </div>
+      }
+    </div>
+  } @else {
+    <span class="text-gray-400">—</span>
+  }
+</ng-template>
 
 <ng-template
   #amountTmpl

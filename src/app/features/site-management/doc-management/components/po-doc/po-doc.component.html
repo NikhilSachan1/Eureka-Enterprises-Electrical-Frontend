@@ -22,10 +22,26 @@
     [inputFieldConfig]="form.fieldConfigs.poTaxableAmount"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.poGstAmount"
-  />
+  <div>
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.poGstAmount"
+    />
+    <div class="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500">
+      <span>Auto-calc:</span>
+      <input
+        type="number"
+        min="0"
+        max="100"
+        step="0.5"
+        [value]="gstPercent() ?? ''"
+        (input)="updateGstPercent(+$any($event.target).value || null)"
+        class="w-14 rounded border border-slate-300 bg-white px-2 py-0.5 text-xs focus:border-primary focus:outline-none"
+        placeholder="0"
+      />
+      <span>% of taxable</span>
+    </div>
+  </div>
 
   <app-input-field
     [formGroup]="form.formGroup"

@@ -10,6 +10,7 @@ import { PaymentDocComponent } from '../../components/payment-doc/payment-doc.co
 import { InvoiceDocComponent } from '../../components/invoice-doc/invoice-doc.component';
 import { ReportDocComponent } from '../../components/report-doc/report-doc.component';
 import { PaymentAdviceDocComponent } from '../../components/payment-advice-doc/payment-advice-doc.component';
+import { BankTransferDocComponent } from '../../components/bank-transfer-doc/bank-transfer-doc.component';
 import { EDocType } from '../../types/doc.enum';
 
 export const DOC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
@@ -68,5 +69,13 @@ export const DOC_ADD_BUTTON_CONFIG_MAP: Record<EDocType, IDialogActionConfig> =
         message: 'Fill and submit the payment advice details.',
       },
       dynamicComponent: PaymentAdviceDocComponent,
+    },
+    [EDocType.BANK_TRANSFER]: {
+      dialogConfig: {
+        ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
+        header: 'Add Bank Transfer',
+        message: 'Enter the UTR and bank transfer details.',
+      },
+      dynamicComponent: BankTransferDocComponent,
     },
   };
