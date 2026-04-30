@@ -174,6 +174,7 @@ export const API_ROUTES = {
       DELETE: (docId: string) => `site-documents/${docId}`,
       LIST: 'site-documents',
       GET_DOC_BY_ID: (docId: string) => `site-documents/${docId}`,
+      SEND_MAIL: 'site-documents/send-mail',
     },
     COMPANY: {
       LIST: 'companies',

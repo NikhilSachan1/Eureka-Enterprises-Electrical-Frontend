@@ -8,10 +8,13 @@ import {
   signal,
   TemplateRef,
   viewChild,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
+  NotificationService,
   TableService,
 } from '@shared/services';
 import {
@@ -23,10 +26,19 @@ import {
 } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { CurrencyPipe } from '@angular/common';
+import {
+  ReactiveFormsModule,
+  FormGroup,
+  FormControl,
+  Validators,
+} from '@angular/forms';
+import { MailService } from '../../services/mail.service';
+import { finalize } from 'rxjs';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { DialogModule } from 'primeng/dialog';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
 import { MenuItem } from 'primeng/api';
 import { DOC_ADD_BUTTON_CONFIG_MAP } from '../../config/dialog/get-doc.config';
 import { EDocType } from '../../types/doc.enum';
@@ -58,6 +70,8 @@ interface IPoSummaryRow {
     SplitButtonModule,
     CurrencyPipe,
     CardModule,
+    ReactiveFormsModule,
+    InputTextModule,
   ],
   templateUrl: './get-doc.component.html',
   styleUrl: './get-doc.component.scss',
@@ -70,7 +84,10 @@ export class GetDocComponent implements OnInit {
   );
   private readonly docIndexedDbService = inject(DocIndexedDbService);
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly mailService = inject(MailService);
+  private readonly notificationService = inject(NotificationService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly docContext = input<'sales' | 'purchase'>('sales');
 
@@ -78,6 +95,19 @@ export class GetDocComponent implements OnInit {
   protected addDocumentSplitItems: MenuItem[] = [];
   protected readonly poSummaryRows = signal<IPoSummaryRow[]>([]);
   protected readonly showPoSummary = signal(true);
+
+  // Mail compose state
+  protected readonly composeOpen = signal(false);
+  protected readonly toEmails = signal<string[]>([]);
+  protected readonly ccEmails = signal<string[]>([]);
+  protected readonly composeFiles = signal<{ file: File; url: string }[]>([]);
+  protected readonly mailSending = signal(false);
+  protected toInput = '';
+  protected ccInput = '';
+  protected readonly composeForm = new FormGroup({
+    subject: new FormControl('', Validators.required),
+    body: new FormControl('', Validators.required),
+  });
 
   protected readonly amountTmpl = viewChild<TemplateRef<unknown>>('amountTmpl');
   protected get customBodyTemplates(): Record<string, TemplateRef<unknown>> {
@@ -155,6 +185,15 @@ export class GetDocComponent implements OnInit {
         .updateApprovalStatus(id, 'unlock_requested')
         .then(() => this.loadIndexedDbDocs())
         .catch(() => this.table.setLoading(false));
+    }
+
+    if (event.actionType === EButtonActionType.SEND_MAIL) {
+      void this.docIndexedDbService.getDocById(id).then(async doc => {
+        if (!doc) {
+          return;
+        }
+        await this.openMailCompose(doc);
+      });
     }
 
     if (event.actionType === EButtonActionType.EDIT) {
@@ -414,5 +453,162 @@ export class GetDocComponent implements OnInit {
     }
 
     return 'Add Document';
+  }
+
+  private async openMailCompose(doc: IDocIndexedDbRow): Promise<void> {
+    const contractorList = this.appConfigurationService.contractorList();
+    const partyId =
+      this.docContext() === 'sales' ? doc.contractorName : doc.vendorName;
+    const partyName =
+      partyId && contractorList.length
+        ? String(
+            getMappedValueFromArrayOfObjects(contractorList, partyId as never)
+          )
+        : (partyId ?? '—');
+
+    let refLabel = '';
+    if (doc.docReference) {
+      const refDoc = await this.docIndexedDbService.getDocById(
+        doc.docReference
+      );
+      refLabel = refDoc
+        ? `${refDoc.documentType} — ${refDoc.documentNumber}`
+        : doc.docReference;
+    }
+
+    const amountLines: string[] = [];
+    if (doc.taxableAmount !== null && doc.taxableAmount !== undefined) {
+      amountLines.push(`  Taxable (Gross) : ₹${doc.taxableAmount.toFixed(2)}`);
+    }
+    if (doc.gstAmount !== null && doc.gstAmount !== undefined) {
+      amountLines.push(`  GST             : ₹${doc.gstAmount.toFixed(2)}`);
+    }
+    if (
+      doc.tdsDeductionAmount !== null &&
+      doc.tdsDeductionAmount !== undefined
+    ) {
+      amountLines.push(
+        `  TDS Deduction   : ₹${doc.tdsDeductionAmount.toFixed(2)}`
+      );
+    }
+    if (doc.totalAmount !== null && doc.totalAmount !== undefined) {
+      amountLines.push(`  Net Total       : ₹${doc.totalAmount.toFixed(2)}`);
+    }
+
+    const contextLabel =
+      this.docContext() === 'sales' ? 'Contractor' : 'Vendor';
+
+    const body = [
+      `Dear Sir / Madam,`,
+      ``,
+      `Please find the details for the following document:`,
+      ``,
+      `  Document Type   : ${doc.documentType}`,
+      `  Document Number : ${doc.documentNumber}`,
+      `  Document Date   : ${doc.documentDate ?? '—'}`,
+      `  ${contextLabel.padEnd(15)}: ${partyName}`,
+      refLabel ? `  Reference Doc   : ${refLabel}` : '',
+      ``,
+      `Amount Details:`,
+      ...amountLines,
+      ``,
+      doc.remark ? `Remarks: ${doc.remark}` : '',
+      ``,
+      doc.attachments?.length
+        ? `${doc.attachments.length} attachment(s) are enclosed with this email.`
+        : `No attachments for this document.`,
+      ``,
+      `Regards,`,
+      `Eureka Enterprises`,
+    ]
+      .filter(l => l !== '')
+      .join('\n');
+
+    const files = doc.attachments ?? [];
+    this.composeFiles.set(
+      files.map(f => ({ file: f, url: URL.createObjectURL(f) }))
+    );
+    this.toEmails.set([]);
+    this.ccEmails.set([]);
+    this.toInput = '';
+    this.ccInput = '';
+    this.composeForm.reset({
+      subject: `${doc.documentType} — ${doc.documentNumber}`,
+      body,
+    });
+    this.composeOpen.set(true);
+    this.cdr.markForCheck();
+  }
+
+  protected closeMailCompose(): void {
+    this.composeFiles().forEach(f => URL.revokeObjectURL(f.url));
+    this.composeFiles.set([]);
+    this.composeOpen.set(false);
+    this.composeForm.reset();
+    this.toEmails.set([]);
+    this.ccEmails.set([]);
+  }
+
+  protected addEmail(field: 'to' | 'cc', el: HTMLInputElement): void {
+    const val = el.value.trim();
+    if (!val) {
+      return;
+    }
+    if (field === 'to') {
+      this.toEmails.update(arr => [...arr, val]);
+      this.toInput = '';
+    } else {
+      this.ccEmails.update(arr => [...arr, val]);
+      this.ccInput = '';
+    }
+    el.value = '';
+  }
+
+  protected removeEmail(field: 'to' | 'cc', index: number): void {
+    if (field === 'to') {
+      this.toEmails.update(arr => arr.filter((_, i) => i !== index));
+    } else {
+      this.ccEmails.update(arr => arr.filter((_, i) => i !== index));
+    }
+  }
+
+  protected removeComposeFile(index: number): void {
+    const f = this.composeFiles()[index];
+    if (f) {
+      URL.revokeObjectURL(f.url);
+    }
+    this.composeFiles.update(arr => arr.filter((_, i) => i !== index));
+  }
+
+  protected sendMail(): void {
+    if (this.toEmails().length === 0 || this.composeForm.invalid) {
+      this.composeForm.markAllAsTouched();
+      return;
+    }
+    const { subject, body } = this.composeForm.getRawValue();
+    this.mailSending.set(true);
+    this.mailService
+      .sendMail({
+        to: this.toEmails(),
+        cc: this.ccEmails(),
+        subject: subject ?? '',
+        body: body ?? '',
+        attachments: this.composeFiles().map(f => f.file),
+      })
+      .pipe(
+        finalize(() => {
+          this.mailSending.set(false);
+          this.cdr.markForCheck();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: res => {
+          this.notificationService.success(
+            res.message ?? 'Email sent successfully'
+          );
+          this.closeMailCompose();
+        },
+      });
   }
 }

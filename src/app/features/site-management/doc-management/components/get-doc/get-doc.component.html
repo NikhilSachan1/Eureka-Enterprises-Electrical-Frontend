@@ -183,6 +183,181 @@
   (rowActionClick)="handleDocTableActionClick($any($event))"
 />
 
+<!-- Mail Compose Dialog -->
+<p-dialog
+  [visible]="composeOpen()"
+  [modal]="true"
+  [closable]="!mailSending()"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '700px', maxWidth: '96vw' }"
+  header="Compose Email"
+  (onHide)="closeMailCompose()"
+>
+  <form
+    [formGroup]="composeForm"
+    class="space-y-4 text-sm"
+    (ngSubmit)="sendMail()"
+  >
+    <!-- To -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        To
+        <span class="text-red-500">*</span>
+      </label>
+      <div
+        class="min-h-[42px] flex flex-wrap gap-1.5 rounded-lg border border-gray-300 px-3 py-2 focus-within:ring-2 focus-within:ring-primary/30"
+      >
+        @for (email of toEmails(); track email; let i = $index) {
+          <span
+            class="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+          >
+            {{ email }}
+            <button
+              type="button"
+              class="ml-0.5 hover:text-red-500"
+              (click)="removeEmail('to', i)"
+            >
+              <i class="pi pi-times text-[10px]"></i>
+            </button>
+          </span>
+        }
+        <input
+          type="email"
+          placeholder="{{ toEmails().length === 0 ? 'Type email and press Enter' : '' }}"
+          class="min-w-32 flex-1 border-none bg-transparent text-sm outline-none"
+          #toEl
+          (keydown.enter)="$event.preventDefault(); addEmail('to', toEl)"
+          (keydown.comma)="$event.preventDefault(); addEmail('to', toEl)"
+          (blur)="addEmail('to', toEl)"
+        />
+      </div>
+      @if (toEmails().length === 0) {
+        <span class="text-xs text-gray-400">Press Enter or comma after each email address</span>
+      }
+    </div>
+
+    <!-- CC -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">CC</label>
+      <div
+        class="min-h-[42px] flex flex-wrap gap-1.5 rounded-lg border border-gray-300 px-3 py-2 focus-within:ring-2 focus-within:ring-primary/30"
+      >
+        @for (email of ccEmails(); track email; let i = $index) {
+          <span
+            class="flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700"
+          >
+            {{ email }}
+            <button
+              type="button"
+              class="ml-0.5 hover:text-red-500"
+              (click)="removeEmail('cc', i)"
+            >
+              <i class="pi pi-times text-[10px]"></i>
+            </button>
+          </span>
+        }
+        <input
+          type="email"
+          placeholder="{{ ccEmails().length === 0 ? 'Optional — press Enter after each email' : '' }}"
+          class="min-w-32 flex-1 border-none bg-transparent text-sm outline-none"
+          #ccEl
+          (keydown.enter)="$event.preventDefault(); addEmail('cc', ccEl)"
+          (keydown.comma)="$event.preventDefault(); addEmail('cc', ccEl)"
+          (blur)="addEmail('cc', ccEl)"
+        />
+      </div>
+    </div>
+
+    <!-- Subject -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        Subject
+        <span class="text-red-500">*</span>
+      </label>
+      <input
+        type="text"
+        formControlName="subject"
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+        [class.border-red-400]="composeForm.get('subject')?.invalid && composeForm.get('subject')?.touched"
+      />
+    </div>
+
+    <!-- Body -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        Body
+        <span class="text-red-500">*</span>
+      </label>
+      <textarea
+        formControlName="body"
+        rows="10"
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs leading-relaxed outline-none focus:ring-2 focus:ring-primary/30"
+        [class.border-red-400]="composeForm.get('body')?.invalid && composeForm.get('body')?.touched"
+      ></textarea>
+    </div>
+
+    <!-- Attachments -->
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        Attachments ({{ composeFiles().length }})
+      </label>
+      @if (composeFiles().length === 0) {
+        <div class="text-xs text-gray-400">No attachments for this document.</div>
+      } @else {
+        <div class="flex flex-wrap gap-2">
+          @for (f of composeFiles(); track f.url; let i = $index) {
+            <div class="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs">
+              <i class="pi pi-file text-gray-500"></i>
+              <a
+                [href]="f.url"
+                [download]="f.file.name"
+                class="font-medium text-blue-700 hover:underline"
+              >
+                {{ f.file.name }}
+              </a>
+              <button
+                type="button"
+                class="ml-1 text-gray-400 hover:text-red-500"
+                (click)="removeComposeFile(i)"
+              >
+                <i class="pi pi-times text-[10px]"></i>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <div class="flex items-center justify-between">
+      <button
+        type="button"
+        class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+        [disabled]="mailSending()"
+        (click)="closeMailCompose()"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 disabled:opacity-60"
+        [disabled]="mailSending()"
+        (click)="sendMail()"
+      >
+        @if (mailSending()) {
+          <i class="pi pi-spin pi-spinner text-sm"></i>
+          Sending…
+        } @else {
+          <i class="pi pi-send text-sm"></i>
+          Send
+        }
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
 <ng-template
   #amountTmpl
   let-row

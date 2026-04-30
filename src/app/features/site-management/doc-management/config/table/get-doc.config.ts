@@ -137,6 +137,10 @@ export const DOC_TABLE_ROW_ACTIONS_CONFIG: Partial<
         ? 'Only approved documents can request unlock'
         : undefined,
   },
+  {
+    ...COMMON_ROW_ACTIONS.SEND_MAIL,
+    tooltip: 'Send to Mail',
+  },
 ];
 
 export const DOC_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
