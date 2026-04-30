@@ -10,6 +10,7 @@ import {
   IDocGetBaseResponseDto,
   IPoDocAddFormDto,
   IPoDocAddResponseDto,
+  IPoDocAddUIFormDto,
 } from '../../types/doc.dto';
 import { IDialogActionHandler, IFormConfig } from '@shared/types';
 import { DocService } from '../../services/doc.service';
@@ -29,7 +30,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoDocComponent
-  extends FormBase<IPoDocAddFormDto>
+  extends FormBase<IPoDocAddUIFormDto>
   implements OnInit, IDialogActionHandler
 {
   private readonly docService = inject(DocService);
@@ -54,7 +55,7 @@ export class PoDocComponent
       return;
     }
 
-    this.form = this.formService.createForm<IPoDocAddFormDto>(
+    this.form = this.formService.createForm<IPoDocAddUIFormDto>(
       this.getPoFormConfig(),
       {
         destroyRef: this.destroyRef,
@@ -73,10 +74,13 @@ export class PoDocComponent
 
   private prepareFormData(): IPoDocAddFormDto {
     const formData = this.form.getData();
-    return formData;
+    return {
+      ...formData,
+      docContext: this.docContext(),
+    };
   }
 
-  private getPoFormConfig(): IFormConfig<IPoDocAddFormDto> {
+  private getPoFormConfig(): IFormConfig<IPoDocAddUIFormDto> {
     if (this.docContext() !== 'purchase') {
       return PO_DOC_FORM_CONFIG;
     }

@@ -7,9 +7,9 @@ import {
   ETextCase,
   IFormConfig,
 } from '@shared/types';
-import { IPaymentAdviceDocAddFormDto } from '../../types/doc.dto';
+import { IPaymentAdviceDocAddUIFormDto } from '../../types/doc.dto';
 
-export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentAdviceDocAddFormDto> =
+export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentAdviceDocAddUIFormDto> =
   {
     transactionNumber: {
       fieldType: EDataType.SELECT,
@@ -78,7 +78,7 @@ export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaym
     },
   };
 
-export const PAYMENT_ADVICE_DOC_FORM_CONFIG: IFormConfig<IPaymentAdviceDocAddFormDto> =
+export const PAYMENT_ADVICE_DOC_FORM_CONFIG: IFormConfig<IPaymentAdviceDocAddUIFormDto> =
   {
     fields: PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG,
   };

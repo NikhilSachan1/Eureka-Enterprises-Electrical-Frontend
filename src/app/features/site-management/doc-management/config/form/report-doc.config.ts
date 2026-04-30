@@ -7,9 +7,9 @@ import {
   ETextCase,
   IFormConfig,
 } from '@shared/types';
-import { IReportDocAddFormDto } from '../../types/doc.dto';
+import { IReportDocAddUIFormDto } from '../../types/doc.dto';
 
-export const REPORT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IReportDocAddFormDto> =
+export const REPORT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IReportDocAddUIFormDto> =
   {
     jmcNumber: {
       fieldType: EDataType.SELECT,
@@ -62,6 +62,6 @@ export const REPORT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IReportDocAdd
     },
   };
 
-export const REPORT_DOC_FORM_CONFIG: IFormConfig<IReportDocAddFormDto> = {
+export const REPORT_DOC_FORM_CONFIG: IFormConfig<IReportDocAddUIFormDto> = {
   fields: REPORT_DOC_FORM_FIELDS_CONFIG,
 };

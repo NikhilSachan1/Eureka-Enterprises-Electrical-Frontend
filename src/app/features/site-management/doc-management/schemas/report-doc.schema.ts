@@ -5,6 +5,7 @@ import { transformDateFormat } from '@shared/utility';
 
 export const ReportDocAddRequestSchema = z
   .object({
+    docContext: z.enum(['sales', 'purchase']),
     jmcNumber: z.string(),
     reportNumber: z.string(),
     reportDate: dateField,
@@ -20,6 +21,7 @@ export const ReportDocAddRequestSchema = z
       attachments: data.reportAttachments,
       note: data.reportRemark,
       documentType: EDocType.REPORT,
+      docContext: data.docContext,
     };
   });
 

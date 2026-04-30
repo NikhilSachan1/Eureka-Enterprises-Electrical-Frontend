@@ -5,6 +5,7 @@ import { transformDateFormat } from '@shared/utility';
 
 export const PoDocAddRequestSchema = z
   .object({
+    docContext: z.enum(['sales', 'purchase']),
     contractorName: z.string(),
     poNumber: z.string(),
     poDate: dateField,
@@ -26,6 +27,7 @@ export const PoDocAddRequestSchema = z
       attachments: data.poAttachments,
       note: data.poRemark,
       documentType: EDocType.PO,
+      docContext: data.docContext,
     };
   });
 

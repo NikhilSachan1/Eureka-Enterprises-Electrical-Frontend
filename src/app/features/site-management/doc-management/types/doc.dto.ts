@@ -31,6 +31,7 @@ export type IDocGetBaseResponseDto = z.infer<typeof DocGetBaseResponseSchema>;
 */
 export type IPoDocAddRequestDto = z.infer<typeof PoDocAddRequestSchema>;
 export type IPoDocAddFormDto = z.input<typeof PoDocAddRequestSchema>;
+export type IPoDocAddUIFormDto = Omit<IPoDocAddFormDto, 'docContext'>;
 export type IPoDocAddResponseDto = z.infer<typeof PoDocAddResponseSchema>;
 
 /*
@@ -40,6 +41,7 @@ export type IInvoiceDocAddRequestDto = z.infer<
   typeof InvoiceDocAddRequestSchema
 >;
 export type IInvoiceDocAddFormDto = z.input<typeof InvoiceDocAddRequestSchema>;
+export type IInvoiceDocAddUIFormDto = Omit<IInvoiceDocAddFormDto, 'docContext'>;
 export type IInvoiceDocAddResponseDto = z.infer<
   typeof InvoiceDocAddResponseSchema
 >;
@@ -49,6 +51,7 @@ export type IInvoiceDocAddResponseDto = z.infer<
 */
 export type IJmcDocAddRequestDto = z.infer<typeof JmcDocAddRequestSchema>;
 export type IJmcDocAddFormDto = z.input<typeof JmcDocAddRequestSchema>;
+export type IJmcDocAddUIFormDto = Omit<IJmcDocAddFormDto, 'docContext'>;
 export type IJmcDocAddResponseDto = z.infer<typeof JmcDocAddResponseSchema>;
 
 /*
@@ -59,6 +62,10 @@ export type IPaymentAdviceDocAddRequestDto = z.infer<
 >;
 export type IPaymentAdviceDocAddFormDto = z.input<
   typeof PaymentAdviceDocAddRequestSchema
+>;
+export type IPaymentAdviceDocAddUIFormDto = Omit<
+  IPaymentAdviceDocAddFormDto,
+  'docContext'
 >;
 export type IPaymentAdviceDocAddResponseDto = z.infer<
   typeof PaymentAdviceDocAddResponseSchema
@@ -71,6 +78,7 @@ export type IPaymentDocAddRequestDto = z.infer<
   typeof PaymentDocAddRequestSchema
 >;
 export type IPaymentDocAddFormDto = z.input<typeof PaymentDocAddRequestSchema>;
+export type IPaymentDocAddUIFormDto = Omit<IPaymentDocAddFormDto, 'docContext'>;
 export type IPaymentDocAddResponseDto = z.infer<
   typeof PaymentDocAddResponseSchema
 >;
@@ -80,6 +88,7 @@ export type IPaymentDocAddResponseDto = z.infer<
 */
 export type IReportDocAddRequestDto = z.infer<typeof ReportDocAddRequestSchema>;
 export type IReportDocAddFormDto = z.input<typeof ReportDocAddRequestSchema>;
+export type IReportDocAddUIFormDto = Omit<IReportDocAddFormDto, 'docContext'>;
 export type IReportDocAddResponseDto = z.infer<
   typeof ReportDocAddResponseSchema
 >;

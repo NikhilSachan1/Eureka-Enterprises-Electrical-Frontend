@@ -10,6 +10,7 @@ import {
   IDocGetBaseResponseDto,
   IPaymentAdviceDocAddFormDto,
   IPaymentAdviceDocAddResponseDto,
+  IPaymentAdviceDocAddUIFormDto,
 } from '../../types/doc.dto';
 import { IDialogActionHandler } from '@shared/types';
 import { DocService } from '../../services/doc.service';
@@ -29,7 +30,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaymentAdviceDocComponent
-  extends FormBase<IPaymentAdviceDocAddFormDto>
+  extends FormBase<IPaymentAdviceDocAddUIFormDto>
   implements OnInit, IDialogActionHandler
 {
   private readonly docService = inject(DocService);
@@ -40,7 +41,7 @@ export class PaymentAdviceDocComponent
   protected readonly selectedRecord =
     input.required<IDocGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
-  protected readonly docContext = input<'sales' | 'purchase'>('sales');
+  protected readonly docContext = input.required<'sales' | 'purchase'>();
 
   ngOnInit(): void {
     const record = this.selectedRecord();
@@ -54,7 +55,7 @@ export class PaymentAdviceDocComponent
       return;
     }
 
-    this.form = this.formService.createForm<IPaymentAdviceDocAddFormDto>(
+    this.form = this.formService.createForm<IPaymentAdviceDocAddUIFormDto>(
       PAYMENT_ADVICE_DOC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
@@ -76,7 +77,10 @@ export class PaymentAdviceDocComponent
 
   private prepareFormData(): IPaymentAdviceDocAddFormDto {
     const formData = this.form.getData();
-    return formData;
+    return {
+      ...formData,
+      docContext: this.docContext(),
+    };
   }
 
   private executeDocAction(formData: IPaymentAdviceDocAddFormDto): void {

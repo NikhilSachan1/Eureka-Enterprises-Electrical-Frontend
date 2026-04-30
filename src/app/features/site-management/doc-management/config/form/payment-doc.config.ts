@@ -8,9 +8,9 @@ import {
   EInputNumberMode,
   IFormConfig,
 } from '@shared/types';
-import { IPaymentDocAddFormDto } from '../../types/doc.dto';
+import { IPaymentDocAddUIFormDto } from '../../types/doc.dto';
 
-export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocAddFormDto> =
+export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocAddUIFormDto> =
   {
     invoiceNumber: {
       fieldType: EDataType.SELECT,
@@ -107,6 +107,6 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocA
     },
   };
 
-export const PAYMENT_DOC_FORM_CONFIG: IFormConfig<IPaymentDocAddFormDto> = {
+export const PAYMENT_DOC_FORM_CONFIG: IFormConfig<IPaymentDocAddUIFormDto> = {
   fields: PAYMENT_DOC_FORM_FIELDS_CONFIG,
 };

@@ -12,9 +12,9 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { IPoDocAddFormDto } from '../../types/doc.dto';
+import { IPoDocAddUIFormDto } from '../../types/doc.dto';
 
-const PO_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPoDocAddFormDto> = {
+const PO_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPoDocAddUIFormDto> = {
   contractorName: {
     fieldType: EDataType.SELECT,
     id: 'contractorName',
@@ -105,6 +105,6 @@ const PO_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPoDocAddFormDto> = {
   },
 };
 
-export const PO_DOC_FORM_CONFIG: IFormConfig<IPoDocAddFormDto> = {
+export const PO_DOC_FORM_CONFIG: IFormConfig<IPoDocAddUIFormDto> = {
   fields: PO_DOC_FORM_FIELDS_CONFIG,
 };

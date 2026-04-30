@@ -5,6 +5,7 @@ import { transformDateFormat } from '@shared/utility';
 
 export const InvoiceDocAddRequestSchema = z
   .object({
+    docContext: z.enum(['sales', 'purchase']),
     jmcNumber: z.string(),
     invoiceNumber: z.string(),
     invoiceDate: dateField,
@@ -26,6 +27,7 @@ export const InvoiceDocAddRequestSchema = z
       attachments: data.invoiceAttachments,
       note: data.invoiceRemark,
       documentType: EDocType.INVOICE,
+      docContext: data.docContext,
     };
   });
 

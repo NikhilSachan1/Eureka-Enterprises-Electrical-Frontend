@@ -10,6 +10,7 @@ import {
   IDocGetBaseResponseDto,
   IInvoiceDocAddFormDto,
   IInvoiceDocAddResponseDto,
+  IInvoiceDocAddUIFormDto,
 } from '../../types/doc.dto';
 import { IDialogActionHandler } from '@shared/types';
 import { DocService } from '../../services/doc.service';
@@ -28,7 +29,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvoiceDocComponent
-  extends FormBase<IInvoiceDocAddFormDto>
+  extends FormBase<IInvoiceDocAddUIFormDto>
   implements OnInit, IDialogActionHandler
 {
   private readonly docService = inject(DocService);
@@ -38,6 +39,7 @@ export class InvoiceDocComponent
 
   protected readonly selectedRecord =
     input.required<IDocGetBaseResponseDto[]>();
+  protected readonly docContext = input.required<'sales' | 'purchase'>();
   protected readonly onSuccess = input.required<() => void>();
 
   ngOnInit(): void {
@@ -52,7 +54,7 @@ export class InvoiceDocComponent
       return;
     }
 
-    this.form = this.formService.createForm<IInvoiceDocAddFormDto>(
+    this.form = this.formService.createForm<IInvoiceDocAddUIFormDto>(
       INVOICE_DOC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
@@ -71,7 +73,10 @@ export class InvoiceDocComponent
 
   private prepareFormData(): IInvoiceDocAddFormDto {
     const formData = this.form.getData();
-    return formData;
+    return {
+      ...formData,
+      docContext: this.docContext(),
+    };
   }
 
   private executeDocAction(formData: IInvoiceDocAddFormDto): void {

@@ -5,6 +5,7 @@ import { transformDateFormat } from '@shared/utility';
 
 export const JmcDocAddRequestSchema = z
   .object({
+    docContext: z.enum(['sales', 'purchase']),
     poNumber: z.string(),
     jmcNumber: z.string(),
     jmcDate: dateField,
@@ -20,6 +21,7 @@ export const JmcDocAddRequestSchema = z
       attachments: data.jmcAttachments,
       note: data.jmcRemark,
       documentType: EDocType.JMC,
+      docContext: data.docContext,
     };
   });
 

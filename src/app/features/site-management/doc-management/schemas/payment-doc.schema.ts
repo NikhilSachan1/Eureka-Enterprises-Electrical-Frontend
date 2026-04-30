@@ -5,6 +5,7 @@ import { transformDateFormat } from '@shared/utility';
 
 export const PaymentDocAddRequestSchema = z
   .object({
+    docContext: z.enum(['sales', 'purchase']),
     invoiceNumber: z.string(),
     transactionNumber: z.string(),
     paymentDate: dateField,
@@ -28,6 +29,7 @@ export const PaymentDocAddRequestSchema = z
       attachments: data.paymentAttachments,
       note: data.paymentRemark,
       documentType: EDocType.PAYMENT,
+      docContext: data.docContext,
     };
   });
 
