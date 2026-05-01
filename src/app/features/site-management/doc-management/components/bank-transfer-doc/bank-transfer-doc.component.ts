@@ -68,7 +68,7 @@ export class BankTransferDocComponent
   ngOnInit(): void {
     void this.docIndexedDbService
       .getDocNumberOptions(
-        EDocType.PAYMENT_ADVICE,
+        EDocType.PAYMENT,
         this.docContext(),
         EDocType.BANK_TRANSFER
       )
@@ -98,30 +98,23 @@ export class BankTransferDocComponent
       });
   }
 
-  private async applyPaAmount(paId: string | null): Promise<void> {
+  private async applyPaAmount(paymentId: string | null): Promise<void> {
     const amountCtrl = this.form.formGroup.get('transferTotalAmount');
     if (!amountCtrl) {
       return;
     }
-    if (!paId) {
+    if (!paymentId) {
       this.lockedAmount.set(null);
       amountCtrl.enable();
       amountCtrl.reset();
       this.cdr.markForCheck();
       return;
     }
-    // PA itself stores no amount — walk up to the parent Payment draft to get the amount
-    const pa = await this.docIndexedDbService.getDocById(paId);
-    const sourceDoc =
-      pa?.totalAmount !== null
-        ? pa
-        : pa?.docReference
-          ? await this.docIndexedDbService.getDocById(pa.docReference)
-          : null;
-
-    if (sourceDoc?.totalAmount !== null && sourceDoc) {
-      this.lockedAmount.set(sourceDoc.totalAmount);
-      amountCtrl.setValue(sourceDoc.totalAmount);
+    // Bank Transfer references Payment directly — amount is on the Payment doc
+    const paymentDoc = await this.docIndexedDbService.getDocById(paymentId);
+    if (paymentDoc && paymentDoc.totalAmount !== null) {
+      this.lockedAmount.set(paymentDoc.totalAmount);
+      amountCtrl.setValue(paymentDoc.totalAmount);
       amountCtrl.disable();
     }
     this.cdr.markForCheck();

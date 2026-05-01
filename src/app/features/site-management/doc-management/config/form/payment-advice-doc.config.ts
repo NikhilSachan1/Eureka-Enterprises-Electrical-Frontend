@@ -15,7 +15,7 @@ export const PAYMENT_ADVICE_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaym
       fieldType: EDataType.SELECT,
       id: 'transactionNumber',
       fieldName: 'transactionNumber',
-      label: 'Transaction Number',
+      label: 'Bank Transfer Reference',
       validators: [Validators.required],
     },
     paymentAdviceNumber: {

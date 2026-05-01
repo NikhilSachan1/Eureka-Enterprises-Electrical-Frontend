@@ -16,7 +16,7 @@ export const BANK_TRANSFER_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IBankT
       fieldType: EDataType.SELECT,
       id: 'paymentAdviceRef',
       fieldName: 'paymentAdviceRef',
-      label: 'Payment Advice',
+      label: 'Payment (Draft)',
       validators: [Validators.required],
     },
     utrNumber: {

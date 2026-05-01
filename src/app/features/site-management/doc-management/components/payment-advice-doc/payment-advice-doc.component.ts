@@ -66,7 +66,7 @@ export class PaymentAdviceDocComponent
   ngOnInit(): void {
     void this.docIndexedDbService
       .getDocNumberOptions(
-        EDocType.PAYMENT,
+        EDocType.BANK_TRANSFER,
         this.docContext(),
         EDocType.PAYMENT_ADVICE
       )

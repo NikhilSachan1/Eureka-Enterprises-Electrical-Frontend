@@ -21,7 +21,7 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocA
       fieldType: EDataType.DATE,
       id: 'paymentDate',
       fieldName: 'paymentDate',
-      label: 'Payment Date',
+      label: 'Booking Date',
       dateConfig: {
         maxDate: new Date(),
         touchUI: false,

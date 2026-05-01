@@ -505,6 +505,10 @@ export class GetDocComponent implements OnInit {
         label: 'Add Payment',
         command: (): void => this.openAddDocDialog(EDocType.PAYMENT),
       },
+      {
+        label: 'Add Bank Transfer (UTR)',
+        command: (): void => this.openAddDocDialog(EDocType.BANK_TRANSFER),
+      },
     ];
 
     const paymentAdviceLabel =
@@ -514,11 +518,6 @@ export class GetDocComponent implements OnInit {
     items.push({
       label: paymentAdviceLabel,
       command: (): void => this.openAddDocDialog(EDocType.PAYMENT_ADVICE),
-    });
-
-    items.push({
-      label: 'Add Bank Transfer (UTR)',
-      command: (): void => this.openAddDocDialog(EDocType.BANK_TRANSFER),
     });
 
     this.addDocumentSplitItems = items;
