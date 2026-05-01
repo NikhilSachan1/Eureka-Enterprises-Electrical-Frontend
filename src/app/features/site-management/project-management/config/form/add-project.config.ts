@@ -9,7 +9,11 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 import { Validators } from '@angular/forms';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import {
+  CONFIGURATION_KEYS,
+  MODULE_NAMES,
+  TEXT_INPUT_ACCEPT_STRIP,
+} from '@shared/constants';
 import { IProjectAddFormDto } from '../../types/project.dto';
 import { APP_CONFIG } from '@core/config';
 
@@ -70,7 +74,12 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
       id: 'managerContact',
       fieldName: 'siteManagerContact',
       label: 'Site Manager Contact',
-      fieldType: EDataType.NUMBER,
+      fieldType: EDataType.TEXT,
+      textConfig: {
+        minimumInputLength: 10,
+        maximumInputLength: 10,
+        regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
+      },
       numberConfig: {
         allowNumberFormatting: false,
       },
