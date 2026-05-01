@@ -245,6 +245,46 @@ export class GetDocComponent implements OnInit {
   }
 
   protected openAddDocDialog(dialogType: EDocType): void {
+    // Purchase context hierarchy gate: Report needs a JMC, Invoice needs a Report
+    if (this.docContext() === 'purchase') {
+      if (dialogType === EDocType.REPORT || dialogType === EDocType.INVOICE) {
+        void this.checkHierarchyAndOpen(dialogType);
+        return;
+      }
+    }
+    this.doOpenAddDocDialog(dialogType);
+  }
+
+  private async checkHierarchyAndOpen(dialogType: EDocType): Promise<void> {
+    const allDocs = await this.docIndexedDbService.getAllDocs();
+    const contextDocs = allDocs.filter(d => d.docContext === this.docContext());
+
+    if (dialogType === EDocType.REPORT) {
+      const hasJmc = contextDocs.some(d => d.documentType === EDocType.JMC);
+      if (!hasJmc) {
+        this.notificationService.error(
+          'Report add karne se pehle kam se kam ek JMC add karein.'
+        );
+        return;
+      }
+    }
+
+    if (dialogType === EDocType.INVOICE) {
+      const hasReport = contextDocs.some(
+        d => d.documentType === EDocType.REPORT
+      );
+      if (!hasReport) {
+        this.notificationService.error(
+          'Invoice add karne se pehle kam se kam ek Report add karein.'
+        );
+        return;
+      }
+    }
+
+    this.doOpenAddDocDialog(dialogType);
+  }
+
+  private doOpenAddDocDialog(dialogType: EDocType): void {
     const dialogConfig: IDialogActionConfig = {
       ...DOC_ADD_BUTTON_CONFIG_MAP[dialogType],
     };
