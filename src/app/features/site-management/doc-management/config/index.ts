@@ -8,3 +8,7 @@ export { INVOICE_DOC_FORM_CONFIG } from './form/invoice-doc.config';
 export { PAYMENT_DOC_FORM_CONFIG } from './form/payment-doc.config';
 export { PAYMENT_ADVICE_DOC_FORM_CONFIG } from './form/payment-advice-doc.config';
 export { BANK_TRANSFER_DOC_FORM_CONFIG } from './form/bank-transfer-doc.config';
+export {
+  GST_PAYMENT_RELEASE_DOC_FORM_CONFIG,
+  GST_PAYMENT_RELEASE_DOC_FORM_FIELDS_CONFIG,
+} from './form/gst-payment-release-doc.config';

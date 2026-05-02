@@ -12,6 +12,8 @@ import { APP_CONFIG } from '@core/config';
 
 export const DOC_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No Doc record found.',
+  /** Full dataset loaded from IndexedDB — client-side pagination & filters */
+  enableServerSide: false,
 };
 
 export const DOC_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
@@ -28,6 +30,7 @@ export const DOC_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     field: 'documentType',
     header: 'Document Type',
     bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'docTypeCell',
     showSort: false,
   },
   {

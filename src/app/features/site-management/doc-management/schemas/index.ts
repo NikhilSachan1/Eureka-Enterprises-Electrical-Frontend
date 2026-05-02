@@ -24,6 +24,11 @@ export {
   BankTransferDocAddRequestSchema,
   BankTransferDocAddResponseSchema,
 } from './bank-transfer-doc.schema';
+export {
+  GstPaymentReleaseDocAddRequestSchema,
+  GstPaymentReleaseDocAddResponseSchema,
+  GstPaymentReleaseDocUpdateRequestSchema,
+} from './gst-payment-release-doc.schema';
 export { DocDeleteResponseSchema } from './delete-doc.schema';
 export {
   DocGetRequestSchema,

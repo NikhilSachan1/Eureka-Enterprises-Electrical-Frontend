@@ -11,6 +11,8 @@ import {
   JmcDocAddResponseSchema,
   PaymentAdviceDocAddRequestSchema,
   PaymentAdviceDocAddResponseSchema,
+  GstPaymentReleaseDocAddRequestSchema,
+  GstPaymentReleaseDocAddResponseSchema,
   PaymentDocAddRequestSchema,
   PaymentDocAddResponseSchema,
   PoDocAddRequestSchema,
@@ -96,6 +98,29 @@ export type IReportDocAddResponseDto = z.infer<
 >;
 
 /*
+  GST payment release (held GST — plain amount, date, remark, files)
+*/
+export type IGstPaymentReleaseDocAddRequestDto = z.infer<
+  typeof GstPaymentReleaseDocAddRequestSchema
+>;
+/** Parsed / validated payload (use `z.infer` so preprocess output is `number`, `Date`, `File[]`, not `unknown`). */
+export type IGstPaymentReleaseDocAddFormDto = z.infer<
+  typeof GstPaymentReleaseDocAddRequestSchema
+>;
+/** Only fields rendered in the dialog — `gstReleasePartyKey` / `gstReleaseMonthKey` are merged at submit. */
+export type IGstPaymentReleaseDocAddUIFormDto = Pick<
+  IGstPaymentReleaseDocAddFormDto,
+  | 'gstReleaseUtr'
+  | 'gstReleaseDate'
+  | 'gstReleaseAmount'
+  | 'gstReleaseAttachments'
+  | 'gstReleaseRemark'
+>;
+export type IGstPaymentReleaseDocAddResponseDto = z.infer<
+  typeof GstPaymentReleaseDocAddResponseSchema
+>;
+
+/*
   Bank Transfer Doc Add
 */
 export type IBankTransferDocAddRequestDto = z.infer<
@@ -104,10 +129,13 @@ export type IBankTransferDocAddRequestDto = z.infer<
 export type IBankTransferDocAddFormDto = z.input<
   typeof BankTransferDocAddRequestSchema
 >;
+/** `transferAttachments` is a required key (value may be empty) so form `fieldConfigs` stays non-optional. */
 export type IBankTransferDocAddUIFormDto = Omit<
   IBankTransferDocAddFormDto,
-  'docContext'
->;
+  'docContext' | 'transferAttachments'
+> & {
+  transferAttachments: File[] | undefined;
+};
 export type IBankTransferDocAddResponseDto = z.infer<
   typeof BankTransferDocAddResponseSchema
 >;

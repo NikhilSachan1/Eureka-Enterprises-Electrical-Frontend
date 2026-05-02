@@ -6,53 +6,87 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CurrencyPipe, DatePipe } from '@angular/common';
-import {
-  ReactiveFormsModule,
-  FormGroup,
-  FormControl,
-  Validators,
-} from '@angular/forms';
+import { CurrencyPipe, DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { CardModule } from 'primeng/card';
-import { DocIndexedDbService } from '../../../doc-management/services/doc-indexed-db.service';
+import {
+  DocIndexedDbService,
+  IDocIndexedDbRow,
+} from '../../../doc-management/services/doc-indexed-db.service';
 import { EDocType } from '../../../doc-management/types/doc.enum';
-import { AppConfigurationService } from '@shared/services';
+import { DOC_ADD_BUTTON_CONFIG_MAP } from '../../../doc-management/config/dialog/get-doc.config';
+import {
+  AppConfigurationService,
+  ConfirmationDialogService,
+} from '@shared/services';
+import { EButtonActionType, IDialogActionConfig } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { PLAIN_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
+import {
+  GstPortalPaymentStorageService,
+  IGstInvoicePaymentRecord,
+  IGstPartyFlow,
+} from '../../services/gst-portal-payment-storage.service';
+import { GstInvoicePortalPaymentDialogComponent } from '../gst-invoice-portal-payment-dialog/gst-invoice-portal-payment-dialog.component';
 
-interface IGstr1Row {
-  invoiceNo: string;
-  invoiceDate: string | null;
-  partyName: string;
+/** Single invoice / bill line for monthly GST grid */
+export interface IBillingGstRow {
+  invoiceId: string;
+  billNo: string;
+  billDate: string | null;
   taxableAmount: number;
   gstAmount: number;
   totalAmount: number;
+  effectiveGstRatePct: number;
+  /** Only populated for sales outward rows — GST portal payment tracking */
+  gstPayment: IGstInvoicePaymentRecord | null;
 }
 
-interface IGstPaymentRecord {
-  utrNumber: string;
-  paymentDate: string;
-  proofFileName: string;
-  savedAt: string;
+/** Party-wise bucket within a month */
+export interface IPartyGstBucket {
+  partyKey: string;
+  partyName: string;
+  bills: IBillingGstRow[];
+  taxableTotal: number;
+  gstTotal: number;
+  /** Set when a purchase GST_PAYMENT_RELEASE exists for this party + month bucket. */
+  gstReleaseDocumentNumber?: string | null;
+  /** Auto Payment Advice linked to that release (IndexedDB). */
+  gstReleaseAdviceNumber?: string | null;
 }
 
-interface IMonthGstData {
+export interface IMonthGstData {
   monthKey: string;
   monthLabel: string;
-  salesInvoices: IGstr1Row[];
+  salesByParty: IPartyGstBucket[];
+  purchaseByParty: IPartyGstBucket[];
   outwardTaxable: number;
   outwardGst: number;
   inwardTaxable: number;
   itcGst: number;
   netPayable: number;
-  payment: IGstPaymentRecord | null;
-  showInvoices: boolean;
+  /** Count of sales invoices in this month */
+  salesInvoiceCount: number;
+  /** Sales invoices with GST payment recorded */
+  salesGstPaidCount: number;
+  /** Purchase invoices this month (counterparty outward / your ITC bill) */
+  purchaseInvoiceCount: number;
+  /** Purchase invoices with GST-to-govt payment recorded */
+  purchaseGstPaidCount: number;
+  showMonthlyBilling: boolean;
 }
 
-const STORAGE_KEY = 'gst_payment_records_v2';
+const GST_INVOICE_PORTAL_PAYMENT_DIALOG_CONFIG: IDialogActionConfig = {
+  dialogConfig: {
+    ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
+    header: 'Record GST portal payment',
+    message: 'Enter UTR, payment date, and proof — then click Save below.',
+  },
+  dynamicComponent: GstInvoicePortalPaymentDialogComponent,
+};
 
 @Component({
   selector: 'app-get-gst',
-  imports: [CurrencyPipe, DatePipe, CardModule, ReactiveFormsModule],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, NgClass, CardModule],
   templateUrl: './get-gst.component.html',
   styleUrl: './get-gst.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,36 +94,176 @@ const STORAGE_KEY = 'gst_payment_records_v2';
 export class GetGstComponent implements OnInit {
   private readonly docIndexedDbService = inject(DocIndexedDbService);
   private readonly appConfigService = inject(AppConfigurationService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
+  private readonly gstPortalPaymentStorage = inject(
+    GstPortalPaymentStorageService
+  );
   private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly monthlyData = signal<IMonthGstData[]>([]);
   protected readonly loading = signal(true);
-  protected readonly activeFormMonth = signal<string | null>(null);
-  protected proofFile: File | null = null;
-
-  protected readonly paymentForm = new FormGroup({
-    utrNumber: new FormControl('', [
-      Validators.required,
-      Validators.minLength(12),
-    ]),
-    paymentDate: new FormControl('', [Validators.required]),
-  });
 
   ngOnInit(): void {
     void this.loadGstData();
   }
 
-  private savedPayments(): Record<string, IGstPaymentRecord> {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? (JSON.parse(raw) as Record<string, IGstPaymentRecord>) : {};
-    } catch {
-      return {};
+  /**
+   * GST payment release — only from GST screen, **per month + contractor (party)** row.
+   * `flow` maps to IndexedDB `docContext` (sales outward vs purchase / vendor).
+   */
+  protected openGstPaymentReleaseForParty(
+    monthKey: string,
+    monthLabel: string,
+    partyName: string,
+    partyGstTotal: number,
+    partyKey: string,
+    flow: IGstPartyFlow
+  ): void {
+    if (flow === 'sales') {
+      return;
     }
+    const dialogConfig: IDialogActionConfig = {
+      ...DOC_ADD_BUTTON_CONFIG_MAP[EDocType.GST_PAYMENT_RELEASE],
+    };
+    const prefill =
+      partyGstTotal > 0 ? Math.round(partyGstTotal * 100) / 100 : null;
+    const contextLabel = `${monthLabel} — ${partyName}`;
+    const dynamicComponentInputs: Record<string, unknown> = {
+      selectedRecord: [],
+      docContext: flow,
+      onSuccess: (): void => {
+        void this.loadGstData();
+      },
+      gstReleaseContextLabel: contextLabel,
+      prefilledPartyKey: partyKey,
+      prefilledMonthKey: monthKey,
+    };
+    if (prefill !== null && prefill !== undefined && prefill > 0) {
+      dynamicComponentInputs['prefilledGstAmount'] = prefill;
+    }
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.SUBMIT,
+      dialogConfig,
+      null,
+      false,
+      false,
+      dynamicComponentInputs
+    );
   }
 
-  private savePayments(map: Record<string, IGstPaymentRecord>): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+  /** Bills in this party with GST portal payment recorded (UTR + date + proof path). */
+  protected partyGstRecordedCount(party: IPartyGstBucket): number {
+    return party.bills.filter(b => !!b.gstPayment).length;
+  }
+
+  /** All bills under this party/month bucket have payment recorded — unlocks party advice + GST release. */
+  protected partyGstFullyVerified(party: IPartyGstBucket): boolean {
+    return this.gstPortalPaymentStorage.partyGstFullyVerified(party);
+  }
+
+  /** GST payment release only after every bill in this party is verified; needs a resolvable party. (Purchase only — sales is view-only.) */
+  protected canOpenGstPaymentReleaseForParty(
+    party: IPartyGstBucket,
+    flow: IGstPartyFlow
+  ): boolean {
+    if (flow === 'sales') {
+      return false;
+    }
+    if (party.partyKey === '__none__' || !this.partyGstFullyVerified(party)) {
+      return false;
+    }
+    return !party.gstReleaseDocumentNumber;
+  }
+
+  /** IndexedDB: release row matches GST screen month (remark `GST bucket:` or legacy payment-date month). */
+  private purchaseGstReleaseMatchesPartyMonth(
+    r: IDocIndexedDbRow,
+    rowMonthKey: string,
+    partyKey: string
+  ): boolean {
+    if (
+      r.documentType !== EDocType.GST_PAYMENT_RELEASE ||
+      r.docContext !== 'purchase' ||
+      r.vendorName !== partyKey
+    ) {
+      return false;
+    }
+    const m = r.remark?.match(/GST bucket:\s*(\d{4}-\d{2})/i);
+    if (m?.[1]) {
+      return m[1] === rowMonthKey;
+    }
+    return this.monthKey(r.documentDate) === rowMonthKey;
+  }
+
+  private findLatestPurchaseGstReleaseForPartyMonth(
+    releases: IDocIndexedDbRow[],
+    monthKey: string,
+    partyKey: string
+  ): IDocIndexedDbRow | null {
+    const matches = releases.filter(r =>
+      this.purchaseGstReleaseMatchesPartyMonth(r, monthKey, partyKey)
+    );
+    if (!matches.length) {
+      return null;
+    }
+    matches.sort((a, b) => {
+      const ca = Date.parse(a.createdAt ?? '') || 0;
+      const cb = Date.parse(b.createdAt ?? '') || 0;
+      if (cb !== ca) {
+        return cb - ca;
+      }
+      return (b.id ?? '').localeCompare(a.id ?? '');
+    });
+    return matches[0];
+  }
+
+  private enrichPurchasePartyGstRelease(
+    rows: IMonthGstData[],
+    allDocs: IDocIndexedDbRow[]
+  ): IMonthGstData[] {
+    const releases = allDocs.filter(
+      d =>
+        d.documentType === EDocType.GST_PAYMENT_RELEASE &&
+        d.docContext === 'purchase'
+    );
+    const adviceByReleaseId = new Map<string, IDocIndexedDbRow>();
+    for (const d of allDocs) {
+      if (
+        d.documentType === EDocType.PAYMENT_ADVICE &&
+        d.docContext === 'purchase' &&
+        d.docReference
+      ) {
+        adviceByReleaseId.set(d.docReference, d);
+      }
+    }
+    return rows.map(row => ({
+      ...row,
+      purchaseByParty: row.purchaseByParty.map(party => {
+        const rel = this.findLatestPurchaseGstReleaseForPartyMonth(
+          releases,
+          row.monthKey,
+          party.partyKey
+        );
+        const pa = rel ? adviceByReleaseId.get(rel.id) : undefined;
+        return {
+          ...party,
+          gstReleaseDocumentNumber: rel?.documentNumber ?? null,
+          gstReleaseAdviceNumber: pa?.documentNumber ?? null,
+        };
+      }),
+    }));
+  }
+
+  protected partyGstVerificationLabel(party: IPartyGstBucket): string {
+    const n = party.bills.length;
+    const done = this.partyGstRecordedCount(party);
+    return `${done} / ${n} bill${n === 1 ? '' : 's'}`;
+  }
+
+  protected partyInvoiceIds(party: IPartyGstBucket): string[] {
+    return party.bills.map(b => b.invoiceId);
   }
 
   private monthKey(dateStr: string | null): string {
@@ -111,10 +285,86 @@ export class GetGstComponent implements OnInit {
     );
   }
 
+  private resolvePartyName(
+    partyId: string | null,
+    contractorList: ReturnType<AppConfigurationService['contractorList']>
+  ): string {
+    if (!partyId) {
+      return '—';
+    }
+    if (contractorList.length) {
+      return String(
+        getMappedValueFromArrayOfObjects(contractorList, partyId as never)
+      );
+    }
+    return partyId;
+  }
+
+  private buildBillingRow(
+    inv: IDocIndexedDbRow,
+    payments: Record<string, IGstInvoicePaymentRecord>,
+    attachGstPayment: boolean
+  ): IBillingGstRow {
+    const taxable = inv.taxableAmount ?? 0;
+    const gst = inv.gstAmount ?? 0;
+    const total = inv.totalAmount ?? taxable + gst;
+    const effectiveGstRatePct =
+      taxable > 0 ? Math.round((gst / taxable) * 10000) / 100 : 0;
+    return {
+      invoiceId: inv.id,
+      billNo: inv.documentNumber,
+      billDate: inv.documentDate,
+      taxableAmount: taxable,
+      gstAmount: gst,
+      totalAmount: total,
+      effectiveGstRatePct,
+      gstPayment: attachGstPayment ? (payments[inv.id] ?? null) : null,
+    };
+  }
+
+  private partyBucketsForMonth(
+    invoices: IDocIndexedDbRow[],
+    mode: 'sales' | 'purchase',
+    contractorList: ReturnType<AppConfigurationService['contractorList']>,
+    payments: Record<string, IGstInvoicePaymentRecord>,
+    attachGstPayment: boolean
+  ): IPartyGstBucket[] {
+    const byParty = new Map<string, IDocIndexedDbRow[]>();
+    for (const inv of invoices) {
+      const rawId = mode === 'sales' ? inv.contractorName : inv.vendorName;
+      const key = rawId ?? '__none__';
+      const list = byParty.get(key) ?? [];
+      list.push(inv);
+      byParty.set(key, list);
+    }
+
+    const buckets: IPartyGstBucket[] = [];
+
+    for (const [partyKey, list] of byParty) {
+      const bills = list.map(i =>
+        this.buildBillingRow(i, payments, attachGstPayment)
+      );
+      const taxableTotal = bills.reduce((s, b) => s + b.taxableAmount, 0);
+      const gstTotal = bills.reduce((s, b) => s + b.gstAmount, 0);
+      const partyName =
+        partyKey === '__none__'
+          ? '—'
+          : this.resolvePartyName(partyKey, contractorList);
+      buckets.push({
+        partyKey,
+        partyName,
+        bills,
+        taxableTotal,
+        gstTotal,
+      });
+    }
+    return buckets.sort((a, b) => a.partyName.localeCompare(b.partyName, 'en'));
+  }
+
   private async loadGstData(): Promise<void> {
     const allDocs = await this.docIndexedDbService.getAllDocs();
     const contractorList = this.appConfigService.contractorList();
-    const payments = this.savedPayments();
+    const payments = this.gstPortalPaymentStorage.getInvoicePayments();
 
     const salesInvoices = allDocs.filter(
       d => d.documentType === EDocType.INVOICE && d.docContext === 'sales'
@@ -123,165 +373,233 @@ export class GetGstComponent implements OnInit {
       d => d.documentType === EDocType.INVOICE && d.docContext === 'purchase'
     );
 
-    // Build per-month maps
-    const monthOutward = new Map<
-      string,
-      { taxable: number; gst: number; rows: IGstr1Row[] }
-    >();
-    const monthInward = new Map<string, { taxable: number; gst: number }>();
+    const monthSalesMap = new Map<string, IDocIndexedDbRow[]>();
+    const monthPurchaseMap = new Map<string, IDocIndexedDbRow[]>();
 
     for (const inv of salesInvoices) {
       const key = this.monthKey(inv.documentDate);
-      const entry = monthOutward.get(key) ?? { taxable: 0, gst: 0, rows: [] };
-      const partyId = inv.contractorName;
-      const partyName =
-        partyId && contractorList.length
-          ? String(
-              getMappedValueFromArrayOfObjects(contractorList, partyId as never)
-            )
-          : (partyId ?? '—');
-      entry.taxable += inv.taxableAmount ?? 0;
-      entry.gst += inv.gstAmount ?? 0;
-      entry.rows.push({
-        invoiceNo: inv.documentNumber,
-        invoiceDate: inv.documentDate,
-        partyName,
-        taxableAmount: inv.taxableAmount ?? 0,
-        gstAmount: inv.gstAmount ?? 0,
-        totalAmount: inv.totalAmount ?? 0,
-      });
-      monthOutward.set(key, entry);
+      const arr = monthSalesMap.get(key) ?? [];
+      arr.push(inv);
+      monthSalesMap.set(key, arr);
     }
-
     for (const inv of purchaseInvoices) {
       const key = this.monthKey(inv.documentDate);
-      const entry = monthInward.get(key) ?? { taxable: 0, gst: 0 };
-      entry.taxable += inv.taxableAmount ?? 0;
-      entry.gst += inv.gstAmount ?? 0;
-      monthInward.set(key, entry);
+      const arr = monthPurchaseMap.get(key) ?? [];
+      arr.push(inv);
+      monthPurchaseMap.set(key, arr);
     }
 
-    // Union of all months present
-    const allKeys = new Set([...monthOutward.keys(), ...monthInward.keys()]);
+    const allKeys = new Set([
+      ...monthSalesMap.keys(),
+      ...monthPurchaseMap.keys(),
+    ]);
     const sorted = [...allKeys]
       .filter(k => k !== 'unknown')
       .sort()
-      .reverse(); // newest first
+      .reverse();
     if (allKeys.has('unknown')) {
       sorted.push('unknown');
     }
 
     const rows: IMonthGstData[] = sorted.map(key => {
-      const out = monthOutward.get(key) ?? { taxable: 0, gst: 0, rows: [] };
-      const inn = monthInward.get(key) ?? { taxable: 0, gst: 0 };
-      const netPayable = Math.max(0, out.gst - inn.gst);
+      const salesList = monthSalesMap.get(key) ?? [];
+      const purchaseList = monthPurchaseMap.get(key) ?? [];
+
+      const salesByParty = this.partyBucketsForMonth(
+        salesList,
+        'sales',
+        contractorList,
+        payments,
+        true
+      );
+      const purchaseByParty = this.partyBucketsForMonth(
+        purchaseList,
+        'purchase',
+        contractorList,
+        payments,
+        true
+      );
+
+      const outwardTaxable = salesList.reduce(
+        (s, i) => s + (i.taxableAmount ?? 0),
+        0
+      );
+      const outwardGst = salesList.reduce((s, i) => s + (i.gstAmount ?? 0), 0);
+      const inwardTaxable = purchaseList.reduce(
+        (s, i) => s + (i.taxableAmount ?? 0),
+        0
+      );
+      const itcGst = purchaseList.reduce((s, i) => s + (i.gstAmount ?? 0), 0);
+      const netPayable = Math.max(0, outwardGst - itcGst);
+
+      const salesInvoiceCount = salesList.length;
+      const salesGstPaidCount = salesList.filter(
+        inv => !!payments[inv.id]
+      ).length;
+      const purchaseInvoiceCount = purchaseList.length;
+      const purchaseGstPaidCount = purchaseList.filter(
+        inv => !!payments[inv.id]
+      ).length;
+
       return {
         monthKey: key,
         monthLabel: this.monthLabel(key),
-        salesInvoices: out.rows,
-        outwardTaxable: out.taxable,
-        outwardGst: out.gst,
-        inwardTaxable: inn.taxable,
-        itcGst: inn.gst,
+        salesByParty,
+        purchaseByParty,
+        outwardTaxable,
+        outwardGst,
+        inwardTaxable,
+        itcGst,
         netPayable,
-        payment: payments[key] ?? null,
-        showInvoices: false,
+        salesInvoiceCount,
+        salesGstPaidCount,
+        purchaseInvoiceCount,
+        purchaseGstPaidCount,
+        /** Open by default so per-invoice GST payment actions stay visible */
+        showMonthlyBilling: salesList.length > 0 || purchaseList.length > 0,
       };
     });
 
-    this.monthlyData.set(rows);
+    this.gstPortalPaymentStorage.hydratePartyGstAdviceFromVerifiedBuckets(rows);
+    this.monthlyData.set(this.enrichPurchasePartyGstRelease(rows, allDocs));
     this.loading.set(false);
     this.cdr.markForCheck();
   }
 
-  protected toggleInvoices(monthKey: string): void {
-    this.monthlyData.update(rows =>
-      rows.map(r =>
-        r.monthKey === monthKey ? { ...r, showInvoices: !r.showInvoices } : r
+  protected monthlyBillCount(row: IMonthGstData): number {
+    return (
+      row.salesByParty.reduce((s, p) => s + p.bills.length, 0) +
+      row.purchaseByParty.reduce((s, p) => s + p.bills.length, 0)
+    );
+  }
+
+  /** Purchase bills: GST portal UTR tracking; sales outward is view-only (no UTR workflow). */
+  protected monthGstPortalTrackingComplete(row: IMonthGstData): boolean {
+    return (
+      row.purchaseInvoiceCount === 0 ||
+      row.purchaseGstPaidCount === row.purchaseInvoiceCount
+    );
+  }
+
+  protected toggleMonthlyBilling(monthKey: string): void {
+    this.monthlyData.update(list =>
+      list.map(r =>
+        r.monthKey === monthKey
+          ? { ...r, showMonthlyBilling: !r.showMonthlyBilling }
+          : r
       )
     );
   }
 
-  protected openForm(row: IMonthGstData): void {
-    this.activeFormMonth.set(row.monthKey);
-    this.proofFile = null;
-    this.paymentForm.reset({
-      utrNumber: row.payment?.utrNumber ?? '',
-      paymentDate: row.payment?.paymentDate ?? '',
-    });
-    this.cdr.markForCheck();
-  }
-
-  protected closeForm(): void {
-    this.activeFormMonth.set(null);
-    this.paymentForm.reset();
-    this.proofFile = null;
-  }
-
-  protected onProofSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.proofFile = input.files?.[0] ?? null;
-  }
-
-  protected savePayment(monthKey: string): void {
-    if (this.paymentForm.invalid) {
-      this.paymentForm.markAllAsTouched();
+  /** Opens popup to record / edit GST portal payment (UTR, date, proof) for one bill. */
+  protected openGstPaymentForm(
+    monthKey: string,
+    monthLabel: string,
+    partyName: string,
+    bill: IBillingGstRow,
+    partyKey: string,
+    flow: IGstPartyFlow
+  ): void {
+    if (flow === 'sales') {
       return;
     }
-    const { utrNumber, paymentDate } = this.paymentForm.getRawValue();
-    const existingProof =
-      this.monthlyData().find(r => r.monthKey === monthKey)?.payment
-        ?.proofFileName ?? '';
-    const record: IGstPaymentRecord = {
-      utrNumber: utrNumber ?? '',
-      paymentDate: paymentDate ?? '',
-      proofFileName: this.proofFile?.name ?? existingProof,
-      savedAt: new Date().toISOString(),
-    };
-    const map = this.savedPayments();
-    map[monthKey] = record;
-    this.savePayments(map);
-
-    this.monthlyData.update(rows =>
-      rows.map(r => (r.monthKey === monthKey ? { ...r, payment: record } : r))
+    this.monthlyData.update(list =>
+      list.map(r =>
+        r.monthKey === monthKey ? { ...r, showMonthlyBilling: true } : r
+      )
     );
-    this.activeFormMonth.set(null);
-    this.paymentForm.reset();
-    this.proofFile = null;
-    this.cdr.markForCheck();
-  }
-
-  protected clearPayment(monthKey: string): void {
-    const map = this.savedPayments();
-    delete map[monthKey];
-    this.savePayments(map);
-    this.monthlyData.update(rows =>
-      rows.map(r => (r.monthKey === monthKey ? { ...r, payment: null } : r))
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.SUBMIT,
+      GST_INVOICE_PORTAL_PAYMENT_DIALOG_CONFIG,
+      null,
+      false,
+      false,
+      {
+        monthLabel,
+        partyName,
+        monthKey,
+        invoiceId: bill.invoiceId,
+        billNo: bill.billNo,
+        gstAmount: bill.gstAmount,
+        partyKey,
+        flow,
+        existingRecord: bill.gstPayment,
+        onSuccess: (): void => {
+          void this.loadGstData();
+        },
+      }
     );
     this.cdr.markForCheck();
   }
 
-  protected isInvalid(field: 'utrNumber' | 'paymentDate'): boolean {
-    const ctrl = this.paymentForm.get(field);
-    return !!(ctrl?.invalid && ctrl.touched);
+  protected clearInvoiceGstPayment(
+    invoiceId: string,
+    monthKey: string,
+    partyKey: string,
+    flow: IGstPartyFlow,
+    partyInvoiceIds: string[]
+  ): void {
+    if (flow === 'sales') {
+      return;
+    }
+    this.gstPortalPaymentStorage.clearInvoicePortalPayment(
+      invoiceId,
+      monthKey,
+      partyKey,
+      flow,
+      partyInvoiceIds
+    );
+    void this.loadGstData();
   }
 
   protected get grandTotals(): {
     outwardGst: number;
     itcGst: number;
     netPayable: number;
-    paidCount: number;
-    pendingCount: number;
+    salesInvoicePaid: number;
+    salesInvoicePending: number;
+    salesInvoiceTotal: number;
+    purchaseInvoicePaid: number;
+    purchaseInvoicePending: number;
+    purchaseInvoiceTotal: number;
+    /** Bills (sales + purchase) with GST payment recorded */
+    allGstPaymentsRecorded: number;
+    /** Bills pending GST payment record */
+    allGstPaymentsPending: number;
   } {
     return this.monthlyData().reduce(
       (acc, r) => ({
         outwardGst: acc.outwardGst + r.outwardGst,
         itcGst: acc.itcGst + r.itcGst,
         netPayable: acc.netPayable + r.netPayable,
-        paidCount: acc.paidCount + (r.payment ? 1 : 0),
-        pendingCount: acc.pendingCount + (r.payment ? 0 : 1),
+        salesInvoicePaid: acc.salesInvoicePaid + r.salesGstPaidCount,
+        salesInvoicePending:
+          acc.salesInvoicePending + (r.salesInvoiceCount - r.salesGstPaidCount),
+        salesInvoiceTotal: acc.salesInvoiceTotal + r.salesInvoiceCount,
+        purchaseInvoicePaid: acc.purchaseInvoicePaid + r.purchaseGstPaidCount,
+        purchaseInvoicePending:
+          acc.purchaseInvoicePending +
+          (r.purchaseInvoiceCount - r.purchaseGstPaidCount),
+        purchaseInvoiceTotal: acc.purchaseInvoiceTotal + r.purchaseInvoiceCount,
+        allGstPaymentsRecorded:
+          acc.allGstPaymentsRecorded + r.purchaseGstPaidCount,
+        allGstPaymentsPending:
+          acc.allGstPaymentsPending +
+          (r.purchaseInvoiceCount - r.purchaseGstPaidCount),
       }),
-      { outwardGst: 0, itcGst: 0, netPayable: 0, paidCount: 0, pendingCount: 0 }
+      {
+        outwardGst: 0,
+        itcGst: 0,
+        netPayable: 0,
+        salesInvoicePaid: 0,
+        salesInvoicePending: 0,
+        salesInvoiceTotal: 0,
+        purchaseInvoicePaid: 0,
+        purchaseInvoicePending: 0,
+        purchaseInvoiceTotal: 0,
+        allGstPaymentsRecorded: 0,
+        allGstPaymentsPending: 0,
+      }
     );
   }
 }

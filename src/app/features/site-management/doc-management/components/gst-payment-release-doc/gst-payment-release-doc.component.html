@@ -1,0 +1,41 @@
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  @if (docContext() === 'purchase') {
+    @if (form.fieldConfigs.gstReleaseUtr; as c) {
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="c"
+      />
+    }
+  }
+
+  @if (form.fieldConfigs.gstReleaseDate; as c) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="c"
+    />
+  }
+
+  @if (form.fieldConfigs.gstReleaseAmount; as c) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="c"
+    />
+  }
+
+  @if (form.fieldConfigs.gstReleaseAttachments; as c) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="c"
+    />
+  }
+
+  @if (form.fieldConfigs.gstReleaseRemark; as c) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="c"
+    />
+  }
+</form>

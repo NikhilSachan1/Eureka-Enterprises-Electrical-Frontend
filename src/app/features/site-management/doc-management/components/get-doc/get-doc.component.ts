@@ -25,7 +25,7 @@ import {
   ITableActionClickEvent,
 } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, NgClass } from '@angular/common';
 import {
   ReactiveFormsModule,
   FormGroup,
@@ -42,6 +42,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MenuItem } from 'primeng/api';
 import { DOC_ADD_BUTTON_CONFIG_MAP } from '../../config/dialog/get-doc.config';
 import { EDocType } from '../../types/doc.enum';
+import { getDocTypeClass } from '../../utils/doc-type-colors.util';
 import { DOC_TABLE_ENHANCED_CONFIG } from '../../config/table/get-doc.config';
 import { IDocGetBaseResponseDto } from '../../types/doc.dto';
 import {
@@ -56,8 +57,16 @@ interface IPoSummaryRow {
   jmcCount: number;
   reportCount: number;
   invoiceCount: number;
+  /** Payment drafts linked to this PO’s invoices */
+  paymentDraftCount: number;
   invoicedAmount: number;
-  receivedAmount: number;
+  /** Invoiced total (incl. GST) − Booked (tax + GST on drafts) */
+  invoicedMinusBooked: number;
+  totalGstDeducted: number;
+  totalTdsDeducted: number;
+  /** Sum of taxable + GST on payment drafts */
+  bookedAmount: number;
+  actualReceivedAmount: number;
   paymentAdviceCount: number;
   balance: number;
 }
@@ -69,6 +78,7 @@ interface IPoSummaryRow {
     DialogModule,
     SplitButtonModule,
     CurrencyPipe,
+    NgClass,
     CardModule,
     ReactiveFormsModule,
     InputTextModule,
@@ -111,18 +121,26 @@ export class GetDocComponent implements OnInit {
 
   protected readonly amountTmpl = viewChild<TemplateRef<unknown>>('amountTmpl');
   protected readonly refDocTmpl = viewChild<TemplateRef<unknown>>('refDocTmpl');
+  protected readonly docTypeTmpl =
+    viewChild<TemplateRef<unknown>>('docTypeTmpl');
   protected get customBodyTemplates(): Record<string, TemplateRef<unknown>> {
     const result: Record<string, TemplateRef<unknown>> = {};
     const amount = this.amountTmpl();
     const refDoc = this.refDocTmpl();
+    const docType = this.docTypeTmpl();
     if (amount) {
       result['amountBreakdown'] = amount;
     }
     if (refDoc) {
       result['refDocCell'] = refDoc;
     }
+    if (docType) {
+      result['docTypeCell'] = docType;
+    }
     return result;
   }
+
+  protected readonly getDocTypeClass = getDocTypeClass;
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -139,7 +157,7 @@ export class GetDocComponent implements OnInit {
     }
 
     this.initializeSplitButtonItems();
-    this.loadIndexedDbDocs();
+    void this.loadIndexedDbDocs();
   }
 
   protected handleDocTableActionClick(
@@ -222,6 +240,13 @@ export class GetDocComponent implements OnInit {
             this.loadIndexedDbDocs();
           },
         };
+        if (docType === EDocType.PAYMENT) {
+          dialogConfig.dialogConfig = {
+            ...dialogConfig.dialogConfig,
+            header: 'Edit Payment',
+            message: 'Update the booked payment details.',
+          };
+        }
         if (
           docType === EDocType.PAYMENT_ADVICE &&
           this.docContext() === 'purchase'
@@ -230,6 +255,13 @@ export class GetDocComponent implements OnInit {
             ...dialogConfig.dialogConfig,
             header: 'Edit Payment Advice',
             message: 'Update the payment advice details.',
+          };
+        }
+        if (docType === EDocType.GST_PAYMENT_RELEASE) {
+          dialogConfig.dialogConfig = {
+            ...dialogConfig.dialogConfig,
+            header: 'Edit GST payment release',
+            message: 'Update amount, date, remark, or attachments.',
           };
         }
         this.confirmationDialogService.showConfirmationDialog(
@@ -245,42 +277,6 @@ export class GetDocComponent implements OnInit {
   }
 
   protected openAddDocDialog(dialogType: EDocType): void {
-    // Purchase context hierarchy gate: Report needs a JMC, Invoice needs a Report
-    if (this.docContext() === 'purchase') {
-      if (dialogType === EDocType.REPORT || dialogType === EDocType.INVOICE) {
-        void this.checkHierarchyAndOpen(dialogType);
-        return;
-      }
-    }
-    this.doOpenAddDocDialog(dialogType);
-  }
-
-  private async checkHierarchyAndOpen(dialogType: EDocType): Promise<void> {
-    const allDocs = await this.docIndexedDbService.getAllDocs();
-    const contextDocs = allDocs.filter(d => d.docContext === this.docContext());
-
-    if (dialogType === EDocType.REPORT) {
-      const hasJmc = contextDocs.some(d => d.documentType === EDocType.JMC);
-      if (!hasJmc) {
-        this.notificationService.error(
-          'Report add karne se pehle kam se kam ek JMC add karein.'
-        );
-        return;
-      }
-    }
-
-    if (dialogType === EDocType.INVOICE) {
-      const hasReport = contextDocs.some(
-        d => d.documentType === EDocType.REPORT
-      );
-      if (!hasReport) {
-        this.notificationService.error(
-          'Invoice add karne se pehle kam se kam ek Report add karein.'
-        );
-        return;
-      }
-    }
-
     this.doOpenAddDocDialog(dialogType);
   }
 
@@ -295,16 +291,6 @@ export class GetDocComponent implements OnInit {
         this.loadIndexedDbDocs();
       },
     };
-
-    if (dialogType === EDocType.PAYMENT_ADVICE) {
-      if (this.docContext() === 'purchase') {
-        dialogConfig.dialogConfig = {
-          ...dialogConfig.dialogConfig,
-          header: 'Generate Payment Advice',
-          message: 'Fill and generate the payment advice details.',
-        };
-      }
-    }
 
     this.confirmationDialogService.showConfirmationDialog(
       EButtonActionType.SUBMIT,
@@ -367,6 +353,7 @@ export class GetDocComponent implements OnInit {
     const reports = byType(EDocType.REPORT);
     const invoices = byType(EDocType.INVOICE);
     const payments = byType(EDocType.PAYMENT);
+    const bankTransfers = byType(EDocType.BANK_TRANSFER);
     const advices = byType(EDocType.PAYMENT_ADVICE);
 
     const rows: IPoSummaryRow[] = pos.map(po => {
@@ -377,21 +364,42 @@ export class GetDocComponent implements OnInit {
       const poInvoices = invoices.filter(i => jmcIds.has(i.docReference ?? ''));
       const invoiceIds = new Set(poInvoices.map(i => i.id));
 
+      // Payment (draft) → Bank Transfer (UTR) → Payment Advice (auto on purchase after UTR).
       const poPayments = payments.filter(p =>
         invoiceIds.has(p.docReference ?? '')
       );
       const paymentIds = new Set(poPayments.map(p => p.id));
 
+      const poBankTransfers = bankTransfers.filter(bt =>
+        paymentIds.has(bt.docReference ?? '')
+      );
+      const bankTransferIds = new Set(poBankTransfers.map(bt => bt.id));
+
       const poAdvices = advices.filter(a =>
-        paymentIds.has(a.docReference ?? '')
+        bankTransferIds.has(a.docReference ?? '')
       );
 
       const invoicedAmount = poInvoices.reduce(
         (s, i) => s + (i.totalAmount ?? 0),
         0
       );
-      const receivedAmount = poPayments.reduce(
-        (s, p) => s + (p.totalAmount ?? 0),
+      const bookedAmount = poPayments.reduce(
+        (s, p) => s + (p.taxableAmount ?? 0) + (p.gstAmount ?? 0),
+        0
+      );
+      const invoicedMinusBooked = invoicedAmount - bookedAmount;
+      // Actual received = Bank Transfer total (UTR confirmed)
+      const actualReceivedAmount = poBankTransfers.reduce(
+        (s, bt) => s + (bt.totalAmount ?? 0),
+        0
+      );
+      // GST & TDS deducted — summed from Payment drafts
+      const totalGstDeducted = poPayments.reduce(
+        (s, p) => s + (p.gstAmount ?? 0),
+        0
+      );
+      const totalTdsDeducted = poPayments.reduce(
+        (s, p) => s + (p.tdsDeductionAmount ?? 0),
         0
       );
 
@@ -410,8 +418,13 @@ export class GetDocComponent implements OnInit {
         jmcCount: poJmcs.length,
         reportCount: poReports.length,
         invoiceCount: poInvoices.length,
+        paymentDraftCount: poPayments.length,
         invoicedAmount,
-        receivedAmount,
+        invoicedMinusBooked,
+        totalGstDeducted,
+        totalTdsDeducted,
+        bookedAmount,
+        actualReceivedAmount,
         paymentAdviceCount: poAdvices.length,
         balance: (po.totalAmount ?? 0) - invoicedAmount,
       };
@@ -422,18 +435,41 @@ export class GetDocComponent implements OnInit {
 
   protected get summaryTotals(): {
     poValue: number;
+    invoiceDocCount: number;
+    paymentDraftCount: number;
     invoicedAmount: number;
-    receivedAmount: number;
+    invoicedMinusBooked: number;
+    totalGstDeducted: number;
+    totalTdsDeducted: number;
+    bookedAmount: number;
+    actualReceivedAmount: number;
     balance: number;
   } {
     return this.poSummaryRows().reduce(
       (acc, r) => ({
         poValue: acc.poValue + r.poValue,
+        invoiceDocCount: acc.invoiceDocCount + r.invoiceCount,
+        paymentDraftCount: acc.paymentDraftCount + r.paymentDraftCount,
         invoicedAmount: acc.invoicedAmount + r.invoicedAmount,
-        receivedAmount: acc.receivedAmount + r.receivedAmount,
+        invoicedMinusBooked: acc.invoicedMinusBooked + r.invoicedMinusBooked,
+        totalGstDeducted: acc.totalGstDeducted + r.totalGstDeducted,
+        totalTdsDeducted: acc.totalTdsDeducted + r.totalTdsDeducted,
+        bookedAmount: acc.bookedAmount + r.bookedAmount,
+        actualReceivedAmount: acc.actualReceivedAmount + r.actualReceivedAmount,
         balance: acc.balance + r.balance,
       }),
-      { poValue: 0, invoicedAmount: 0, receivedAmount: 0, balance: 0 }
+      {
+        poValue: 0,
+        invoiceDocCount: 0,
+        paymentDraftCount: 0,
+        invoicedAmount: 0,
+        invoicedMinusBooked: 0,
+        totalGstDeducted: 0,
+        totalTdsDeducted: 0,
+        bookedAmount: 0,
+        actualReceivedAmount: 0,
+        balance: 0,
+      }
     );
   }
 
@@ -463,6 +499,15 @@ export class GetDocComponent implements OnInit {
       rootPo = cur && cur.documentType === EDocType.PO ? cur : null;
     }
 
+    let gstReferenceContext: string | null = null;
+    if (
+      row.documentType === EDocType.GST_PAYMENT_RELEASE &&
+      row.remark?.trim()
+    ) {
+      const m = row.remark.trim().match(/^Month\s*\/\s*party:\s*(.+)$/i);
+      gstReferenceContext = m ? m[1].trim() : row.remark.trim();
+    }
+
     return {
       id: row.id,
       contractorName: partyName,
@@ -472,6 +517,7 @@ export class GetDocComponent implements OnInit {
       referenceDocumentName: refDoc ? refDoc.documentType : null,
       referenceDocumentNumber: refDoc ? refDoc.documentNumber : null,
       rootPoNumber: rootPo ? rootPo.documentNumber : null,
+      gstReferenceContext,
       documentDate: row.documentDate,
       amount: row.totalAmount,
       taxableAmount: row.taxableAmount,
@@ -481,6 +527,30 @@ export class GetDocComponent implements OnInit {
       documentAttachments: row.attachments ?? [],
       status: row.approvalStatus,
     };
+  }
+
+  /** Table chip text — avoids raw enum / confusion with vendor Payment Advice. */
+  protected docTypeLabel(docType: string): string {
+    switch (docType) {
+      case EDocType.PO:
+        return 'PO';
+      case EDocType.JMC:
+        return 'JMC';
+      case EDocType.REPORT:
+        return 'Report';
+      case EDocType.INVOICE:
+        return 'Invoice';
+      case EDocType.PAYMENT:
+        return 'Payment';
+      case EDocType.PAYMENT_ADVICE:
+        return 'Payment advice';
+      case EDocType.BANK_TRANSFER:
+        return 'Bank transfer';
+      case EDocType.GST_PAYMENT_RELEASE:
+        return 'GST payment release';
+      default:
+        return docType;
+    }
   }
 
   private initializeSplitButtonItems(): void {
@@ -502,7 +572,7 @@ export class GetDocComponent implements OnInit {
         command: (): void => this.openAddDocDialog(EDocType.INVOICE),
       },
       {
-        label: 'Add Payment',
+        label: 'Book Payment',
         command: (): void => this.openAddDocDialog(EDocType.PAYMENT),
       },
       {
@@ -511,14 +581,12 @@ export class GetDocComponent implements OnInit {
       },
     ];
 
-    const paymentAdviceLabel =
-      this.docContext() === 'purchase'
-        ? 'Generate Payment Advice'
-        : 'Add Payment Advice';
-    items.push({
-      label: paymentAdviceLabel,
-      command: (): void => this.openAddDocDialog(EDocType.PAYMENT_ADVICE),
-    });
+    if (this.docContext() !== 'purchase') {
+      items.push({
+        label: 'Add Payment Advice',
+        command: (): void => this.openAddDocDialog(EDocType.PAYMENT_ADVICE),
+      });
+    }
 
     this.addDocumentSplitItems = items;
   }

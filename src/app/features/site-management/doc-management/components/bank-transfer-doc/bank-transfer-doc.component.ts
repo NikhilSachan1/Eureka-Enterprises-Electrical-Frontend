@@ -16,6 +16,7 @@ import {
 import {
   IDialogActionHandler,
   IFormConfig,
+  IInputFieldsConfig,
   IOptionDropdown,
 } from '@shared/types';
 import {
@@ -24,13 +25,19 @@ import {
 } from '../../services/doc-indexed-db.service';
 import { ConfirmationDialogService } from '@shared/services';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { BANK_TRANSFER_DOC_FORM_CONFIG } from '../../config';
+import {
+  BANK_TRANSFER_DOC_FORM_CONFIG,
+  BANK_TRANSFER_DOC_FORM_FIELDS_CONFIG,
+} from '../../config/form/bank-transfer-doc.config';
 import { EDocType } from '../../types/doc.enum';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DocRefChainComponent } from '../doc-ref-chain/doc-ref-chain.component';
+
+const BANK_TRANSFER_ATTACHMENT_LABEL_OPTIONAL =
+  'Bank Statement / Proof (optional)';
 
 @Component({
   selector: 'app-bank-transfer-doc',
@@ -64,6 +71,11 @@ export class BankTransferDocComponent
   }
   protected readonly selectedRefDocId = signal<string | null>(null);
   protected readonly lockedAmount = signal<number | null>(null);
+
+  /** Narrowed for template: `fieldConfigs.transferAttachments` is optional when the DTO key is optional. */
+  protected get transferAttachmentsInputConfig(): IInputFieldsConfig {
+    return this.form.fieldConfigs.transferAttachments;
+  }
 
   ngOnInit(): void {
     void this.docIndexedDbService
@@ -145,15 +157,27 @@ export class BankTransferDocComponent
 
   private prepareFormData(): IBankTransferDocAddFormDto {
     // getRawValue() includes disabled controls (transferTotalAmount is disabled after PA selection)
+    const raw =
+      this.form.formGroup.getRawValue() as IBankTransferDocAddUIFormDto;
+    const docContext = this.docContext();
+    const files = raw.transferAttachments;
+    const noFiles = !files || files.length === 0;
+
     return {
-      ...(this.form.formGroup.getRawValue() as IBankTransferDocAddUIFormDto),
-      docContext: this.docContext(),
+      ...raw,
+      docContext,
+      transferAttachments:
+        docContext === 'purchase' && noFiles ? undefined : files,
     };
   }
 
   private buildFormConfig(
     paOptions: IOptionDropdown[]
   ): IFormConfig<IBankTransferDocAddUIFormDto> {
+    const purchase = this.docContext() === 'purchase';
+    const baseAttachments =
+      BANK_TRANSFER_DOC_FORM_FIELDS_CONFIG.transferAttachments;
+
     return {
       ...BANK_TRANSFER_DOC_FORM_CONFIG,
       fields: {
@@ -161,6 +185,13 @@ export class BankTransferDocComponent
         paymentAdviceRef: {
           ...BANK_TRANSFER_DOC_FORM_CONFIG.fields.paymentAdviceRef,
           selectConfig: { optionsDropdown: paOptions },
+        },
+        transferAttachments: {
+          ...baseAttachments,
+          label: purchase
+            ? BANK_TRANSFER_ATTACHMENT_LABEL_OPTIONAL
+            : baseAttachments.label,
+          validators: purchase ? [] : baseAttachments.validators,
         },
       },
     };
@@ -181,10 +212,13 @@ export class BankTransferDocComponent
     this.form.disable();
     void action
       .then(() => {
+        const purchaseNew = !existing && this.docContext() === 'purchase';
         this.notificationService.success(
           existing
             ? 'Bank Transfer updated successfully'
-            : 'Bank Transfer saved successfully'
+            : purchaseNew
+              ? 'Bank transfer saved — payment advice generated.'
+              : 'Bank Transfer saved successfully'
         );
         this.onSuccess()();
         this.confirmationDialogService.closeDialog();

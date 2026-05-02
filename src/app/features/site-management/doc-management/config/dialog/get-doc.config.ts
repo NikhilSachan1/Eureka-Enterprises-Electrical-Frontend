@@ -11,6 +11,7 @@ import { InvoiceDocComponent } from '../../components/invoice-doc/invoice-doc.co
 import { ReportDocComponent } from '../../components/report-doc/report-doc.component';
 import { PaymentAdviceDocComponent } from '../../components/payment-advice-doc/payment-advice-doc.component';
 import { BankTransferDocComponent } from '../../components/bank-transfer-doc/bank-transfer-doc.component';
+import { GstPaymentReleaseDocComponent } from '@features/site-management/doc-management/components/gst-payment-release-doc/gst-payment-release-doc.component';
 import { EDocType } from '../../types/doc.enum';
 
 export const DOC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
@@ -57,8 +58,9 @@ export const DOC_ADD_BUTTON_CONFIG_MAP: Record<EDocType, IDialogActionConfig> =
     [EDocType.PAYMENT]: {
       dialogConfig: {
         ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
-        header: 'Add Payment',
-        message: 'Fill and submit the payment details.',
+        header: 'Book Payment',
+        message:
+          'Book this payment against the invoice (bank transfer and payment advice come next).',
       },
       dynamicComponent: PaymentDocComponent,
     },
@@ -77,5 +79,14 @@ export const DOC_ADD_BUTTON_CONFIG_MAP: Record<EDocType, IDialogActionConfig> =
         message: 'Enter the UTR and bank transfer details.',
       },
       dynamicComponent: BankTransferDocComponent,
+    },
+    [EDocType.GST_PAYMENT_RELEASE]: {
+      dialogConfig: {
+        ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
+        header: 'GST payment release',
+        message:
+          'Record held GST to release: amount is a plain figure (no extra GST on it). Add date, remark, and attachments.',
+      },
+      dynamicComponent: GstPaymentReleaseDocComponent,
     },
   };

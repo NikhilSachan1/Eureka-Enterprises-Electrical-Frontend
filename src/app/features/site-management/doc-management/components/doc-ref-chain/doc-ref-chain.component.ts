@@ -7,19 +7,20 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import {
   DocIndexedDbService,
   IDocIndexedDbRow,
 } from '../../services/doc-indexed-db.service';
 import { AppConfigurationService } from '@shared/services';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { getDocTypeClass } from '../../utils/doc-type-colors.util';
 
 export type DocContext = 'sales' | 'purchase';
 
 @Component({
   selector: 'app-doc-ref-chain',
-  imports: [CurrencyPipe, DatePipe],
+  imports: [CurrencyPipe, DatePipe, NgClass],
   templateUrl: './doc-ref-chain.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -59,6 +60,8 @@ export class DocRefChainComponent {
         });
     });
   }
+
+  protected readonly getDocTypeClass = getDocTypeClass;
 
   protected resolveParty(doc: IDocIndexedDbRow): string | null {
     const id =

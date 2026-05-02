@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
   IBankTransferDocAddFormDto,
+  IGstPaymentReleaseDocAddFormDto,
   IInvoiceDocAddFormDto,
   IJmcDocAddFormDto,
   IPaymentAdviceDocAddFormDto,
@@ -29,6 +30,8 @@ export interface IDocIndexedDbRow {
   documentNumber: string;
   docContext: DocContext;
   approvalStatus: 'pending' | 'approved' | 'rejected' | 'unlock_requested';
+  /** ISO time — set on first save so lists can sort newest-first (IndexedDB key order is random). */
+  createdAt?: string | null;
 }
 
 @Injectable({
@@ -116,8 +119,14 @@ export class DocIndexedDbService {
     await this.putRow(row);
   }
 
-  async addPaymentDoc(formData: IPaymentDocAddFormDto): Promise<void> {
+  async addPaymentDoc(formData: IPaymentDocAddFormDto): Promise<string> {
     const { docContext } = formData;
+    await this.validatePaymentAmountLimit(
+      formData.invoiceNumber,
+      formData.paymentTaxableAmount ?? 0,
+      formData.paymentGstAmount ?? 0,
+      null
+    );
     const draftRef = `PMT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
     const row = await this.buildBaseReferencedRow(
       formData.paymentDate,
@@ -133,6 +142,65 @@ export class DocIndexedDbService {
       docContext
     );
     await this.putRow(row);
+    return row.id;
+  }
+
+  /**
+   * Purchase: after a bank transfer (UTR) is saved, one Payment Advice is auto-created
+   * linked to that bank transfer (same dummy attachment pattern as manual purchase advice).
+   */
+  /**
+   * Purchase: after GST payment release is saved, one Payment Advice is auto-created
+   * linked to that release row (`transactionNumber` = release id — vendor comes from release row).
+   */
+  private async addAutoPurchasePaymentAdviceForGstRelease(
+    gstReleaseRow: IDocIndexedDbRow
+  ): Promise<void> {
+    const rnd = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const dummyFile = new File(
+      ['[Auto-generated payment advice for GST payment release]'],
+      `PA-GSTREL-${rnd}.pdf`,
+      { type: 'application/pdf' }
+    );
+    const dateStr = gstReleaseRow.documentDate;
+    const paymentAdviceDate = dateStr
+      ? new Date(`${dateStr}T12:00:00`)
+      : new Date();
+    const utrMatch = gstReleaseRow.remark?.match(/UTR:\s*(\S+)/i);
+    const utrNote = utrMatch?.[1] ? ` UTR ${utrMatch[1]}.` : '';
+    const formData: IPaymentAdviceDocAddFormDto = {
+      docContext: 'purchase',
+      transactionNumber: gstReleaseRow.id,
+      paymentAdviceNumber: `PA-${rnd}`,
+      paymentAdviceDate,
+      paymentAdviceAttachments: [dummyFile],
+      paymentAdviceRemark: `Auto-generated for GST payment release ${gstReleaseRow.documentNumber}.${utrNote}`,
+    };
+    await this.addPaymentAdviceDoc(formData);
+  }
+
+  private async addAutoPurchasePaymentAdviceForBankTransfer(
+    bankTransferRow: IDocIndexedDbRow
+  ): Promise<void> {
+    const rnd = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const dummyFile = new File(
+      ['[Auto-generated payment advice for purchase]'],
+      `PA-${rnd}.pdf`,
+      { type: 'application/pdf' }
+    );
+    const dateStr = bankTransferRow.documentDate;
+    const paymentAdviceDate = dateStr
+      ? new Date(`${dateStr}T12:00:00`)
+      : new Date();
+    const formData: IPaymentAdviceDocAddFormDto = {
+      docContext: 'purchase',
+      transactionNumber: bankTransferRow.id,
+      paymentAdviceNumber: `PA-${rnd}`,
+      paymentAdviceDate,
+      paymentAdviceAttachments: [dummyFile],
+      paymentAdviceRemark: `Auto-generated after bank transfer UTR ${bankTransferRow.documentNumber}.`,
+    };
+    await this.addPaymentAdviceDoc(formData);
   }
 
   async addPaymentAdviceDoc(
@@ -173,6 +241,135 @@ export class DocIndexedDbService {
       docContext
     );
     await this.putRow(row);
+
+    if (docContext === 'purchase') {
+      try {
+        await this.addAutoPurchasePaymentAdviceForBankTransfer(row);
+      } catch (e) {
+        await this.deleteDoc(row.id);
+        throw e;
+      }
+    }
+  }
+
+  async addGstPaymentReleaseDoc(
+    formData: IGstPaymentReleaseDocAddFormDto
+  ): Promise<void> {
+    const { docContext } = formData;
+    const draftRef = `GSTREL-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+    const remark = this.mergeGstReleaseRemark(
+      docContext,
+      formData.gstReleaseRemark ?? null,
+      formData.gstReleaseUtr,
+      formData.gstReleaseMonthKey ?? null
+    );
+    const row = await this.buildBaseReferencedRow(
+      formData.gstReleaseDate,
+      0,
+      0,
+      null,
+      formData.gstReleaseAmount,
+      formData.gstReleaseAttachments ?? null,
+      remark,
+      '',
+      EDocType.GST_PAYMENT_RELEASE,
+      draftRef,
+      docContext
+    );
+    const partyKey = formData.gstReleasePartyKey?.trim();
+    const finalRow: IDocIndexedDbRow = partyKey
+      ? {
+          ...row,
+          contractorName: docContext === 'sales' ? partyKey : null,
+          vendorName: docContext === 'purchase' ? partyKey : null,
+        }
+      : row;
+
+    await this.putRow(finalRow);
+
+    if (docContext === 'purchase') {
+      try {
+        await this.addAutoPurchasePaymentAdviceForGstRelease(finalRow);
+      } catch (e) {
+        await this.deleteDoc(finalRow.id);
+        throw e;
+      }
+    }
+  }
+
+  /**
+   * Purchase: optional UTR, optional GST screen month bucket (`YYYY-MM`) for UI matching.
+   */
+  private mergeGstReleaseRemark(
+    docContext: DocContext,
+    remark: string | null,
+    utr: string | null | undefined,
+    monthBucket: string | null | undefined
+  ): string | null {
+    if (docContext !== 'purchase') {
+      return remark;
+    }
+    const parts: string[] = [];
+    const base = remark?.trim();
+    if (base) {
+      parts.push(base);
+    }
+    const u = utr?.trim();
+    if (u) {
+      parts.push(`UTR: ${u}`);
+    }
+    const mb = monthBucket?.trim();
+    if (mb) {
+      parts.push(`GST bucket: ${mb}`);
+    }
+    return parts.length ? parts.join(' | ') : null;
+  }
+
+  async updateGstPaymentReleaseDoc(
+    existing: IDocIndexedDbRow,
+    formData: IGstPaymentReleaseDocAddFormDto
+  ): Promise<void> {
+    const { docContext } = formData;
+    const existingBucket =
+      existing.remark?.match(/GST bucket:\s*(\d{4}-\d{2})/i)?.[1] ?? null;
+    const monthKeyTrimmed = formData.gstReleaseMonthKey?.trim();
+    const monthKeyOrBucket =
+      monthKeyTrimmed !== null && monthKeyTrimmed !== ''
+        ? monthKeyTrimmed
+        : existingBucket;
+    const remark = this.mergeGstReleaseRemark(
+      docContext,
+      formData.gstReleaseRemark ?? null,
+      formData.gstReleaseUtr,
+      monthKeyOrBucket
+    );
+    const row = await this.buildBaseReferencedRow(
+      formData.gstReleaseDate,
+      0,
+      0,
+      null,
+      formData.gstReleaseAmount,
+      formData.gstReleaseAttachments?.length
+        ? formData.gstReleaseAttachments
+        : (existing.attachments ?? null),
+      remark,
+      '',
+      EDocType.GST_PAYMENT_RELEASE,
+      existing.documentNumber,
+      docContext
+    );
+    const partyKey = formData.gstReleasePartyKey?.trim();
+    const contractorName =
+      docContext === 'sales' ? (partyKey ?? existing.contractorName) : null;
+    const vendorName =
+      docContext === 'purchase' ? (partyKey ?? existing.vendorName) : null;
+    await this.putRow({
+      ...row,
+      id: existing.id,
+      approvalStatus: existing.approvalStatus,
+      contractorName,
+      vendorName,
+    });
   }
 
   async updateBankTransferDoc(
@@ -323,6 +520,12 @@ export class DocIndexedDbService {
     formData: IPaymentDocAddFormDto
   ): Promise<void> {
     const { docContext } = formData;
+    await this.validatePaymentAmountLimit(
+      formData.invoiceNumber,
+      formData.paymentTaxableAmount ?? 0,
+      formData.paymentGstAmount ?? 0,
+      existing.id
+    );
     const row = await this.buildBaseReferencedRow(
       formData.paymentDate,
       formData.paymentTaxableAmount ?? null,
@@ -404,16 +607,87 @@ export class DocIndexedDbService {
       doc => doc.documentType === childDocType && doc.docContext === docContext
     );
 
-    return parentDocs.map(parent => ({
-      label: `${parent.documentType} — ${parent.documentNumber}`,
-      value: parent.id,
-      disabled: this.shouldDisableOption(
+    return parentDocs.map(parent => {
+      const disabledReason = this.shouldDisableOption(
         parent,
         childDocs,
         childDocType,
         allDocs
-      ),
-    }));
+      );
+      const label = `${parent.documentType} — ${parent.documentNumber}`;
+
+      return {
+        label,
+        value: parent.id,
+        disabled: disabledReason !== false,
+        disabledReason: disabledReason !== false ? disabledReason : undefined,
+      };
+    });
+  }
+
+  /**
+   * (1) Sum of payment **taxable** ≤ invoice taxable (pre-GST).
+   * (2) Sum of payment **taxable + GST** ≤ invoice total (incl. GST) — TDS is not part of invoice amount.
+   */
+  private async validatePaymentAmountLimit(
+    invoiceId: string,
+    newPaymentTaxable: number,
+    newPaymentGst: number,
+    excludeId: string | null
+  ): Promise<void> {
+    const allDocs = await this.getAllDocs();
+    const invoice = allDocs.find(d => d.id === invoiceId);
+    if (!invoice) {
+      return;
+    }
+    const invoiceTaxableCap = invoice.taxableAmount ?? 0;
+    if (invoiceTaxableCap <= 0 && (invoice.totalAmount ?? 0) <= 0) {
+      return;
+    }
+    const cap =
+      invoiceTaxableCap > 0 ? invoiceTaxableCap : (invoice.totalAmount ?? 0);
+
+    const sameInvoicePayments = allDocs.filter(
+      d =>
+        d.documentType === EDocType.PAYMENT &&
+        d.docReference === invoiceId &&
+        d.id !== excludeId
+    );
+
+    const alreadyTaxable = sameInvoicePayments.reduce(
+      (sum, d) => sum + (d.taxableAmount ?? 0),
+      0
+    );
+
+    const wouldTaxable = alreadyTaxable + newPaymentTaxable;
+
+    if (wouldTaxable > cap) {
+      const remaining = cap - alreadyTaxable;
+      const capLabel =
+        invoiceTaxableCap > 0 ? 'invoice taxable (pre-GST)' : 'invoice total';
+      throw new Error(
+        `Taxable / work ₹${newPaymentTaxable.toLocaleString('en-IN')} is too much — only ₹${remaining.toLocaleString('en-IN')} left against ${capLabel} ₹${cap.toLocaleString('en-IN')}. ` +
+          `(Already booked taxable: ₹${alreadyTaxable.toLocaleString('en-IN')}.)`
+      );
+    }
+
+    const invoiceTotalCap = invoice.totalAmount ?? 0;
+    if (invoiceTotalCap > 0) {
+      const alreadyTaxableGst = sameInvoicePayments.reduce(
+        (sum, d) => sum + (d.taxableAmount ?? 0) + (d.gstAmount ?? 0),
+        0
+      );
+      const newTaxableGst = newPaymentTaxable + newPaymentGst;
+      const wouldTaxableGst = alreadyTaxableGst + newTaxableGst;
+      const tol = 0.5;
+      if (wouldTaxableGst > invoiceTotalCap + tol) {
+        const remainingValue = invoiceTotalCap - alreadyTaxableGst;
+        throw new Error(
+          `Taxable + GST ₹${newTaxableGst.toLocaleString('en-IN')} is too much — only ₹${Math.max(0, remainingValue).toLocaleString('en-IN')} left against invoice total ₹${invoiceTotalCap.toLocaleString('en-IN')} (incl. GST). ` +
+            `(Already booked taxable+GST: ₹${alreadyTaxableGst.toLocaleString('en-IN')}.)`
+        );
+      }
+    }
   }
 
   private shouldDisableOption(
@@ -421,32 +695,65 @@ export class DocIndexedDbService {
     childDocs: IDocIndexedDbRow[],
     childDocType: EDocType,
     allDocs: IDocIndexedDbRow[]
-  ): boolean {
+  ): string | false {
     const childrenOfParent = childDocs.filter(
       c => c.docReference === parent.id
     );
 
     switch (childDocType) {
       case EDocType.REPORT:
-      case EDocType.INVOICE:
+        return childrenOfParent.length >= 1
+          ? 'Is JMC ke liye pehle se ek Report ban chuki hai'
+          : false;
+
       case EDocType.PAYMENT_ADVICE:
+        if (parent.documentType === EDocType.PAYMENT) {
+          return childrenOfParent.length >= 1
+            ? 'Is payment draft par pehle se Payment Advice (legacy link) maujood hai'
+            : false;
+        }
+        return childrenOfParent.length >= 1
+          ? 'Is Bank Transfer ke liye pehle se ek Payment Advice ban chuki hai'
+          : false;
+
       case EDocType.BANK_TRANSFER:
-        return childrenOfParent.length >= 1;
+        return childrenOfParent.length >= 1
+          ? 'Is Payment ke liye pehle se ek Bank Transfer ho chuka hai'
+          : false;
+
+      case EDocType.INVOICE: {
+        // A JMC must have a Report before an Invoice can be created
+        const hasReport = allDocs.some(
+          d =>
+            d.documentType === EDocType.REPORT && d.docReference === parent.id
+        );
+        if (!hasReport) {
+          return 'Is JMC ke liye pehle ek Report add karein';
+        }
+        // A JMC can have only 1 Invoice
+        if (childrenOfParent.length >= 1) {
+          return 'Is JMC ke liye pehle se ek Invoice ban chuka hai';
+        }
+        return false;
+      }
 
       case EDocType.PAYMENT: {
-        const totalPaid = childrenOfParent.reduce(
-          (sum, c) => sum + (c.totalAmount ?? 0),
+        const invoiceTaxable = parent.taxableAmount ?? 0;
+        const cap =
+          invoiceTaxable > 0 ? invoiceTaxable : (parent.totalAmount ?? 0);
+        const workBooked = childrenOfParent.reduce(
+          (sum, c) => sum + (c.taxableAmount ?? 0),
           0
         );
-        return (
-          (parent.totalAmount ?? 0) > 0 &&
-          totalPaid >= (parent.totalAmount ?? 0)
-        );
+        if (cap > 0 && workBooked >= cap) {
+          const capLabel =
+            invoiceTaxable > 0 ? 'invoice taxable' : 'invoice total';
+          return `Invoice par taxable ₹${workBooked.toLocaleString('en-IN')} book ho chuka hai — ${capLabel} ₹${cap.toLocaleString('en-IN')} ke barabar`;
+        }
+        return false;
       }
 
       case EDocType.JMC: {
-        // Disable PO if its billing capacity is exhausted:
-        // sum of all invoices under all JMCs of this PO >= PO total amount
         const poTotal = parent.totalAmount ?? 0;
         if (poTotal <= 0) {
           return false;
@@ -463,7 +770,9 @@ export class DocIndexedDbService {
               jmcIds.includes(d.docReference ?? '')
           )
           .reduce((sum, d) => sum + (d.totalAmount ?? 0), 0);
-        return totalInvoiced >= poTotal;
+        return totalInvoiced >= poTotal
+          ? `PO ki poori billing ho chuki hai (₹${totalInvoiced.toLocaleString('en-IN')} / ₹${poTotal.toLocaleString('en-IN')})`
+          : false;
       }
 
       default:
@@ -478,10 +787,38 @@ export class DocIndexedDbService {
       const store = transaction.objectStore(this.storeName);
       const request = store.getAll();
 
-      request.onsuccess = (): void =>
-        resolve((request.result as IDocIndexedDbRow[]) ?? []);
+      request.onsuccess = (): void => {
+        const list = [...((request.result as IDocIndexedDbRow[]) ?? [])];
+        list.sort((a, b) => this.compareDocsNewestFirst(a, b));
+        resolve(list);
+      };
       request.onerror = (): void => reject(request.error);
     });
+  }
+
+  /** Newest insert first; legacy rows without `createdAt` fall back to document date then id. */
+  private compareDocsNewestFirst(
+    a: IDocIndexedDbRow,
+    b: IDocIndexedDbRow
+  ): number {
+    const ts = (iso: string | null | undefined): number => {
+      if (!iso) {
+        return 0;
+      }
+      const n = Date.parse(iso);
+      return Number.isNaN(n) ? 0 : n;
+    };
+    const ca = ts(a.createdAt);
+    const cb = ts(b.createdAt);
+    if (ca !== cb) {
+      return cb - ca;
+    }
+    const da = ts(a.documentDate ?? undefined);
+    const db = ts(b.documentDate ?? undefined);
+    if (da !== db) {
+      return db - da;
+    }
+    return (b.id ?? '').localeCompare(a.id ?? '');
   }
 
   private async buildBaseReferencedRow(
@@ -562,11 +899,18 @@ export class DocIndexedDbService {
   }
 
   private async putRow(row: IDocIndexedDbRow): Promise<void> {
+    const existing = await this.getRowById(row.id);
+    const rowToSave: IDocIndexedDbRow = {
+      ...row,
+      createdAt:
+        existing?.createdAt ?? row.createdAt ?? new Date().toISOString(),
+    };
+
     const db = await this.openDb();
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(this.storeName, 'readwrite');
       const store = transaction.objectStore(this.storeName);
-      const request = store.put(row);
+      const request = store.put(rowToSave);
 
       request.onsuccess = (): void => resolve();
       request.onerror = (): void => reject(request.error);

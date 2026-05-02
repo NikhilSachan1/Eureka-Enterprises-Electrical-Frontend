@@ -30,7 +30,7 @@
         </span>
         <span class="flex items-center gap-1 text-[11px] text-slate-400">
           <i class="pi pi-lock text-[10px]"></i>
-          Locked from Payment Advice
+          Locked from booked payment
         </span>
       </div>
     </div>
@@ -43,7 +43,7 @@
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.transferAttachments"
+    [inputFieldConfig]="transferAttachmentsInputConfig"
   />
 
   @if (form.fieldConfigs.transferRemark) {

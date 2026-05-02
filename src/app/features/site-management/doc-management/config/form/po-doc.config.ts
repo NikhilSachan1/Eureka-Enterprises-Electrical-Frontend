@@ -70,6 +70,7 @@ const PO_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPoDocAddUIFormDto> = {
       mode: EInputNumberMode.Currency,
       currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
     },
+    readonlyInput: true,
     validators: [Validators.required, Validators.min(0)],
   },
   poTotalAmount: {
@@ -81,6 +82,7 @@ const PO_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPoDocAddUIFormDto> = {
       mode: EInputNumberMode.Currency,
       currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
     },
+    readonlyInput: true,
     validators: [Validators.required, Validators.min(1)],
   },
   poAttachments: {

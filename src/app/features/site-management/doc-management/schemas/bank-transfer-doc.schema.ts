@@ -10,10 +10,23 @@ export const BankTransferDocAddRequestSchema = z
     utrNumber: z.string(),
     transferDate: dateField,
     transferTotalAmount: z.number(),
-    transferAttachments: z.array(fileField),
+    /** Purchase: optional; sales: at least one file (see superRefine). */
+    transferAttachments: z.array(fileField).optional(),
     transferRemark: z.string().optional(),
   })
   .strict()
+  .superRefine((data, ctx) => {
+    if (
+      data.docContext === 'sales' &&
+      (!data.transferAttachments || data.transferAttachments.length === 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Bank statement / proof is required',
+        path: ['transferAttachments'],
+      });
+    }
+  })
   .transform(data => ({
     documentNumber: data.utrNumber,
     docReferenceNumber: data.paymentAdviceRef,
@@ -22,7 +35,10 @@ export const BankTransferDocAddRequestSchema = z
     gstAmount: null,
     tdsDeductionAmount: null,
     netAmount: data.transferTotalAmount,
-    attachments: data.transferAttachments,
+    attachments:
+      data.transferAttachments && data.transferAttachments.length > 0
+        ? data.transferAttachments
+        : null,
     note: data.transferRemark ?? null,
     documentType: EDocType.BANK_TRANSFER,
     docContext: data.docContext,

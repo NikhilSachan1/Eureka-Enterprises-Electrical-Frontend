@@ -1,0 +1,81 @@
+<div class="gst-portal-pay-dialog max-h-[70vh] overflow-y-auto pr-1">
+  <div class="mb-4 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs text-slate-700">
+    <div class="font-semibold text-slate-900">{{ monthLabel() }}</div>
+    <div class="mt-0.5 text-slate-600">
+      Party:
+      <span class="font-medium text-slate-800">{{ partyName() }}</span>
+      · Invoice
+      <span class="font-mono text-slate-800">{{ billNo() }}</span>
+    </div>
+    <div class="mt-1">
+      GST on bill:
+      <strong>{{ gstAmount() | currency: 'INR' : 'symbol' : '1.2-2' }}</strong>
+    </div>
+  </div>
+
+  <form
+    class="space-y-4"
+    [formGroup]="paymentForm"
+  >
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          UTR number
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          formControlName="utrNumber"
+          placeholder="e.g. HDFC0012345678901"
+          class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-primary/30"
+          [class.border-red-400]="isInvalid('utrNumber')"
+        />
+        @if (isInvalid('utrNumber')) {
+          <span class="text-xs text-red-500">UTR must be at least 12 characters</span>
+        }
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Payment date
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="date"
+          formControlName="paymentDate"
+          class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-primary/30"
+          [class.border-red-400]="isInvalid('paymentDate')"
+        />
+        @if (isInvalid('paymentDate')) {
+          <span class="text-xs text-red-500">Date is required</span>
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        Proof of payment
+        @if (existingProofLabel() && !proofFile) {
+          <span class="ml-1 font-normal text-blue-600">(current: {{ existingProofLabel() }})</span>
+        }
+      </label>
+      <label
+        class="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 transition-colors hover:border-primary hover:bg-primary/5"
+      >
+        <i class="pi pi-upload text-gray-400"></i>
+        <span class="text-sm text-gray-500">
+          @if (proofFile) {
+            <span class="font-medium text-primary">{{ proofFile.name }}</span>
+          } @else {
+            Attach challan / receipt (PDF, image)
+          }
+        </span>
+        <input
+          type="file"
+          class="hidden"
+          accept=".pdf,image/*"
+          (change)="onProofSelected($event)"
+        />
+      </label>
+    </div>
+  </form>
+</div>

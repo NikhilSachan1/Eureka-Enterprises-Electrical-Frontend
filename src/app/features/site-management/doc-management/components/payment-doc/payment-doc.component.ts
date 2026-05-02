@@ -71,10 +71,22 @@ export class PaymentDocComponent
   protected readonly gstPercent = signal<number | null>(18);
   protected readonly tdsPercent = signal<number | null>(2);
 
+  /** Two headline numbers + one short note for this invoice */
   protected readonly invoicePaymentSummary = signal<{
-    invoiceTotal: number;
-    alreadyPaid: number;
-    remaining: number;
+    /** Invoice total incl. GST (reference) */
+    invoiceNet: number;
+    /** Invoice taxable (pre-GST) — cap for sum of payment taxables */
+    invoiceTaxable: number;
+    /** Taxable still bookable on this invoice */
+    leftOnInvoice: number;
+    /** Invoice total incl. GST minus (taxable+GST) already on other drafts */
+    leftOnInvoiceValue: number;
+    earlierDraftCount: number;
+    /** Sum of taxable from earlier payment drafts */
+    bookedTowardInvoice: number;
+    netPaidEarlier: number;
+    gstEarlier: number;
+    tdsEarlier: number;
   } | null>(null);
 
   ngOnInit(): void {
@@ -131,10 +143,23 @@ export class PaymentDocComponent
     const formData = this.prepareFormData();
     const summary = this.invoicePaymentSummary();
     if (summary) {
-      const enteredAmount = formData.paymentTotalAmount ?? 0;
-      if (enteredAmount > summary.remaining) {
+      const thisWork = formData.paymentTaxableAmount ?? 0;
+      if (thisWork > summary.leftOnInvoice) {
         this.notificationService.error(
-          `Payment amount ₹${enteredAmount.toLocaleString('en-IN')} exceeds invoice balance ₹${summary.remaining.toLocaleString('en-IN')}.`
+          `Taxable amount ₹${thisWork.toLocaleString('en-IN')} is too much — only ₹${summary.leftOnInvoice.toLocaleString('en-IN')} left (invoice taxable ₹${summary.invoiceTaxable.toLocaleString('en-IN')} − already booked).`
+        );
+        this.isSubmitting.set(false);
+        return;
+      }
+      const thisTaxableGst =
+        (formData.paymentTaxableAmount ?? 0) + (formData.paymentGstAmount ?? 0);
+      const tol = 0.5;
+      if (
+        summary.invoiceNet > 0 &&
+        thisTaxableGst > summary.leftOnInvoiceValue + tol
+      ) {
+        this.notificationService.error(
+          `Taxable + GST ₹${thisTaxableGst.toLocaleString('en-IN')} exceeds what is left on invoice total — only ₹${summary.leftOnInvoiceValue.toLocaleString('en-IN')} left (invoice ₹${summary.invoiceNet.toLocaleString('en-IN')} − earlier drafts taxable+GST).`
         );
         this.isSubmitting.set(false);
         return;
@@ -194,7 +219,7 @@ export class PaymentDocComponent
       0;
     this.form.formGroup
       .get('paymentTotalAmount')
-      ?.setValue(taxable + gst - tds);
+      ?.setValue(taxable - gst - tds);
   }
 
   private async loadInvoicePaymentSummary(
@@ -213,12 +238,39 @@ export class PaymentDocComponent
         d.docReference === invoiceId &&
         d.id !== editingId
     );
-    const invoiceTotal = invoice?.totalAmount ?? 0;
-    const alreadyPaid = payments.reduce((s, p) => s + (p.totalAmount ?? 0), 0);
+    const invoiceNet = invoice?.totalAmount ?? 0;
+    const invoiceTaxable = invoice?.taxableAmount ?? 0;
+    const sumTaxableEarlier = payments.reduce(
+      (s, p) => s + (p.taxableAmount ?? 0),
+      0
+    );
+    const sumGstEarlier = payments.reduce((s, p) => s + (p.gstAmount ?? 0), 0);
+    const valueBookedEarlier = sumTaxableEarlier + sumGstEarlier;
+    const sumTdsEarlier = payments.reduce(
+      (s, p) => s + (p.tdsDeductionAmount ?? 0),
+      0
+    );
+    const netPaidEarlier = payments.reduce(
+      (s, p) => s + (p.totalAmount ?? 0),
+      0
+    );
+    const taxableCap = invoiceTaxable > 0 ? invoiceTaxable : invoiceNet;
+    const leftOnTaxable = Math.max(0, taxableCap - sumTaxableEarlier);
+    /** Match invoice effective GST % on taxable so partial lines don’t over-shoot invoice GST. */
+    if (invoiceTaxable > 0 && (invoice?.gstAmount ?? 0) >= 0) {
+      const pct = ((invoice?.gstAmount ?? 0) / invoiceTaxable) * 100;
+      this.gstPercent.set(Math.round(pct * 100) / 100);
+    }
     this.invoicePaymentSummary.set({
-      invoiceTotal,
-      alreadyPaid,
-      remaining: invoiceTotal - alreadyPaid,
+      invoiceNet,
+      invoiceTaxable: taxableCap,
+      leftOnInvoice: leftOnTaxable,
+      leftOnInvoiceValue: Math.max(0, invoiceNet - valueBookedEarlier),
+      earlierDraftCount: payments.length,
+      bookedTowardInvoice: sumTaxableEarlier,
+      netPaidEarlier,
+      gstEarlier: sumGstEarlier,
+      tdsEarlier: sumTdsEarlier,
     });
     this.cdr.markForCheck();
   }
@@ -260,9 +312,8 @@ export class PaymentDocComponent
 
   private executeDocAction(formData: IPaymentDocAddFormDto): void {
     this.loadingService.show({
-      title: 'Adding Payment Document',
-      message:
-        "We're adding the Payment document. This will just take a moment.",
+      title: 'Booking Payment',
+      message: 'Recording this payment against the invoice.',
     });
     this.form.disable();
     this.docService
@@ -291,7 +342,7 @@ export class PaymentDocComponent
       : this.docIndexedDbService.addPaymentDoc(formData);
 
     this.loadingService.show({
-      title: existing ? 'Updating Payment Document' : 'Adding Payment Document',
+      title: existing ? 'Updating Payment' : 'Booking Payment',
       message: 'Please wait...',
     });
     this.form.disable();
@@ -299,17 +350,19 @@ export class PaymentDocComponent
       .then(() => {
         this.notificationService.success(
           existing
-            ? 'Payment document updated successfully'
-            : 'Payment document saved successfully'
+            ? 'Payment updated successfully'
+            : 'Payment booked successfully'
         );
         this.onSuccess()();
         this.confirmationDialogService.closeDialog();
       })
-      .catch(error => {
+      .catch((error: unknown) => {
         this.logger.error('Payment doc IndexedDB operation failed', error);
-        this.notificationService.error(
-          FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
-        );
+        const msg =
+          error instanceof Error
+            ? error.message
+            : FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG;
+        this.notificationService.error(msg);
       })
       .finally(() => {
         this.loadingService.hide();

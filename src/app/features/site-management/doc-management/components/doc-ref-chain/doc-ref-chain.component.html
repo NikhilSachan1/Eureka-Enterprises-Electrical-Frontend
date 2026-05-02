@@ -20,8 +20,8 @@
 
         <!-- Type pill -->
         <span
-          class="rounded px-1 py-px font-bold tracking-wide text-primary"
-          style="background: color-mix(in srgb, currentColor 10%, transparent); font-size: 10px"
+          class="rounded px-1.5 py-px text-[10px] font-bold tracking-wide"
+          [ngClass]="getDocTypeClass(doc.documentType)"
         >
           {{ doc.documentType }}
         </span>

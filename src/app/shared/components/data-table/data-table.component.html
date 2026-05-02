@@ -83,7 +83,7 @@
     [lazy]="tableConfig().enableServerSide"
     [first]="paginationFirst()"
     (onLazyLoad)="onLazyLoad($event)"
-    [totalRecords]="tableConfig().totalRecords ?? 0"
+    [totalRecords]="tableConfig().enableServerSide ? (tableConfig().totalRecords ?? 0) : tableData().length"
   >
     <ng-template
       #header

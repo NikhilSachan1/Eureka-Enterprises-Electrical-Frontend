@@ -32,7 +32,7 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocA
       fieldType: EDataType.NUMBER,
       id: 'paymentTaxableAmount',
       fieldName: 'paymentTaxableAmount',
-      label: 'Payment Taxable Amount',
+      label: 'Taxable / work (pre-GST share)',
       numberConfig: {
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
@@ -48,6 +48,7 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocA
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
+      readonlyInput: true,
       validators: [Validators.required, Validators.min(0)],
     },
     paymentTdsDeductionAmount: {
@@ -59,6 +60,7 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocA
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
+      readonlyInput: true,
       validators: [Validators.required, Validators.min(0)],
     },
     paymentTotalAmount: {
@@ -70,6 +72,7 @@ export const PAYMENT_DOC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPaymentDocA
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
+      readonlyInput: true,
       validators: [Validators.required, Validators.min(1)],
     },
     paymentRemark: {
