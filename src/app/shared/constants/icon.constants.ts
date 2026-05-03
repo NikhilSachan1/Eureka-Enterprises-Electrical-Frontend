@@ -119,6 +119,17 @@ export const ICONS = {
     BOX: 'pi pi-box',
     CAR: 'pi pi-car',
   },
+  /** Fleet compliance (documents, readings) — glyphs are PrimeIcons class suffixes. */
+  FLEET: {
+    /** PUC, insurance, fitness, registration, etc. */
+    DOCUMENT: 'pi pi-id-card',
+    /** Pollution Under Control (PUC) certificate. */
+    PUC: 'pi pi-verified',
+    /** Motor / vehicle insurance. */
+    INSURANCE: 'pi pi-shield',
+    /** Odometer / fuel reading gap, telematics health. */
+    READING: 'pi pi-gauge',
+  },
   PAYROLL: {
     WALLET: 'pi pi-wallet',
     PAID: 'pi pi-check-circle',

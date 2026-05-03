@@ -1,186 +1,122 @@
-@let snap = kpm();
 @let config = APP_CONFIG.NUMBER_FORMATS;
+
 <div
-  class="dash-pulse"
+  class="kpm-grid"
   role="region"
   aria-label="Key metrics at a glance"
 >
-  @if (snap.attendance; as st) {
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--warn]="st.approval.pending > 0"
-    >
-      <span
-        [class]="ICONS.COMMON.CLOCK + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">{{ st.approval.pending | number: config.DEFAULT : config.LOCALE }}</span>
-        <span class="dash-pulse__label">Attendance pending</span>
+  <!-- ── Pending Approvals ───────────────────────────── -->
+  <div class="kpm-card kpm-card--pending-people">
+    <div class="kpm-card__header">
+      <div class="kpm-card__header-lead">
+        <span
+          [class]="ICONS.COMMON.INBOX + ' kpm-card__hicon'"
+          aria-hidden="true"
+        ></span>
+        <span class="kpm-card__htitle">Pending Approvals</span>
       </div>
     </div>
-  }
-  @if (snap.leave; as lv) {
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--warn]="lv.approval.pending > 0"
-    >
-      <span
-        [class]="ICONS.COMMON.CALENDAR_PLUS + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">{{ lv.approval.pending | number: config.DEFAULT : config.LOCALE }}</span>
-        <span class="dash-pulse__label">Leave pending</span>
+    <div class="kpm-card__body">
+      @for (row of approvalPendingRows(); track row.label) {
+        <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+      }
+    </div>
+  </div>
+
+  <!-- ── Dues & Balances ─────────────────────────────── -->
+  <div class="kpm-card kpm-card--payments">
+    <div class="kpm-card__header">
+      <div class="kpm-card__header-lead">
+        <span
+          [class]="ICONS.PAYROLL.WALLET + ' kpm-card__hicon'"
+          aria-hidden="true"
+        ></span>
+        <span class="kpm-card__htitle">Dues & Balances</span>
       </div>
     </div>
-  }
-  @if (snap.expense; as exPay) {
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--warn]="exPay.employeePayableTotal > 0"
-    >
-      <span
-        [class]="ICONS.PAYROLL.WALLET + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">
-          {{ exPay.employeePayableTotal | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
-        </span>
-        <span class="dash-pulse__label">Pay to employees — expense (देना है)</span>
+    <div class="kpm-card__body">
+      @for (row of ledgerBalanceRows(); track row.label) {
+        <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+      }
+    </div>
+  </div>
+
+  <!-- ── Document & warranty renewals (assets + fleet) ─ -->
+  <div class="kpm-card kpm-card--renewals">
+    <div class="kpm-card__header">
+      <div class="kpm-card__header-lead">
+        <span
+          [class]="ICONS.COMMON.CALENDAR_CLOCK + ' kpm-card__hicon'"
+          aria-hidden="true"
+        ></span>
+        <span class="kpm-card__htitle">Asset Compliance & Renewals</span>
       </div>
     </div>
-  }
-  @if (snap.fuel; as fuPay) {
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--warn]="fuPay.employeePayableTotal > 0"
-    >
-      <span
-        [class]="ICONS.COMMON.BOLT + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">
-          {{ fuPay.employeePayableTotal | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
-        </span>
-        <span class="dash-pulse__label">Pay to employees — fuel (देना है)</span>
+    <div class="kpm-card__body">
+      @for (row of assetAlertsRows(); track row.label) {
+        <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+      }
+    </div>
+  </div>
+
+  <!-- ── Fleet — service & readings ─────────────────── -->
+  <div class="kpm-card kpm-card--fleet-service">
+    <div class="kpm-card__header">
+      <div class="kpm-card__header-lead">
+        <span
+          [class]="ICONS.COMMON.CAR + ' kpm-card__hicon'"
+          aria-hidden="true"
+        ></span>
+        <span class="kpm-card__htitle">Vehicle Compliance & Renewals</span>
       </div>
     </div>
-  }
-  @if (snap.asset; as ast) {
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--warn]="ast.calibrationExpiringSoon > 0"
-    >
-      <span
-        [class]="ICONS.SETTINGS.SLIDERS + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">
-          {{ ast.calibrationExpiringSoon | number: config.DEFAULT : config.LOCALE }}
-        </span>
-        <span class="dash-pulse__label">Asset calibration renewal</span>
-      </div>
+    <div class="kpm-card__body">
+      @for (row of vehicleAlertsRows(); track row.label) {
+        <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }"></ng-container>
+      }
     </div>
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--warn]="ast.warrantyExpiringSoon > 0"
-    >
-      <span
-        [class]="ICONS.SECURITY.SHIELD + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">{{ ast.warrantyExpiringSoon | number: config.DEFAULT : config.LOCALE }}</span>
-        <span class="dash-pulse__label">Asset warranty renewal</span>
-      </div>
-    </div>
-  }
-  @if (snap.vehicleFleet; as vf) {
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--warn]="vf.complianceExpiringSoon > 0"
-    >
-      <span
-        [class]="ICONS.COMMON.ID_CARD + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">{{ vf.complianceExpiringSoon | number: config.DEFAULT : config.LOCALE }}</span>
-        <span class="dash-pulse__label">Vehicle compliance renewal</span>
-      </div>
-    </div>
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--warn]="vf.warrantyExpiringSoon > 0"
-    >
-      <span
-        [class]="ICONS.COMMON.CAR + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">{{ vf.warrantyExpiringSoon | number: config.DEFAULT : config.LOCALE }}</span>
-        <span class="dash-pulse__label">Vehicle warranty renewal</span>
-      </div>
-    </div>
-  }
-  @if (snap.vehicleService; as vs) {
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--warn]="vs.dueSoon > 0"
-    >
-      <span
-        [class]="ICONS.COMMON.CALENDAR_CLOCK + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">{{ vs.dueSoon | number: config.DEFAULT : config.LOCALE }}</span>
-        <span class="dash-pulse__label">Service due soon</span>
-      </div>
-    </div>
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--alert]="vs.overdue > 0"
-    >
-      <span
-        [class]="ICONS.SETTINGS.WRENCH + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">{{ vs.overdue | number: config.DEFAULT : config.LOCALE }}</span>
-        <span class="dash-pulse__label">Service overdue</span>
-      </div>
-    </div>
-  }
-  @if (snap.vehicleReading; as vr) {
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--alert]="vr.readingAnomalyCount > 0"
-    >
-      <span
-        [class]="ICONS.SECURITY.SHIELD + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">{{ vr.readingAnomalyCount | number: config.DEFAULT : config.LOCALE }}</span>
-        <span class="dash-pulse__label">Reading anomalies</span>
-      </div>
-    </div>
-    <div
-      class="dash-pulse__item"
-      [class.dash-pulse__item--warn]="vr.noReadingStaleCount > 0"
-    >
-      <span
-        [class]="ICONS.COMMON.CLOCK + ' dash-pulse__icon'"
-        aria-hidden="true"
-      ></span>
-      <div class="dash-pulse__text">
-        <span class="dash-pulse__value">{{ vr.noReadingStaleCount | number: config.DEFAULT : config.LOCALE }}</span>
-        <span class="dash-pulse__label">No reading 2+ days</span>
-      </div>
-    </div>
-  }
+  </div>
 </div>
+
+<!-- ── Shared row template ──────────────────────────── -->
+<ng-template
+  #rowTpl
+  let-row
+>
+  <div
+    class="kpm-card__row"
+    [class.kpm-card__row--info]="row.state === KpmRowState.INFO"
+    [class.kpm-card__row--warn]="row.state === KpmRowState.WARN"
+    [class.kpm-card__row--alert]="row.state === KpmRowState.ALERT"
+    [class.kpm-card__row--success]="row.state === KpmRowState.SUCCESS"
+  >
+    <span
+      [class]="row.icon + ' kpm-card__ricon'"
+      aria-hidden="true"
+    ></span>
+
+    <span class="kpm-card__rlabel-stack">
+      <span class="kpm-card__rlabel-main">{{ row.label }}</span>
+      @if (row.hint) {
+        <span class="kpm-card__rhint">{{ row.hint }}</span>
+      }
+    </span>
+
+    <span
+      class="kpm-card__rvalue"
+      [attr.aria-busy]="row.valueLoading === true"
+    >
+      @if (row.valueLoading) {
+        <span
+          [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' kpm-card__rvalue-loader'"
+          aria-hidden="true"
+        ></span>
+        <span class="kpm-card__sr-only">Loading value</span>
+      } @else if (row.format === 'currency') {
+        {{ row.value | currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
+      } @else {
+        {{ row.value | number: config.DEFAULT : config.LOCALE }}
+      }
+    </span>
+  </div>
+</ng-template>

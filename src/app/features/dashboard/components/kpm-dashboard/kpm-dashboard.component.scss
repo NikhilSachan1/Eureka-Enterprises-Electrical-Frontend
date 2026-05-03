@@ -2,115 +2,237 @@
   display: block;
 }
 
-/* Pulse strip: fixed column counts so tiles form even rows */
-.dash-pulse {
+// ── Grid ───────────────────────────────────────────────────────────────────────
+.kpm-grid {
   display: grid;
-  gap: 0.75rem;
+  gap: 1rem;
   margin-bottom: 1.75rem;
   grid-template-columns: minmax(0, 1fr);
 
-  @media (min-width: 480px) {
+  @media (min-width: 600px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  @media (min-width: 720px) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  @media (min-width: 960px) {
+  @media (min-width: 1100px) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  @media (min-width: 1200px) {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
-.dash-pulse__item {
+// ── Card shell ─────────────────────────────────────────────────────────────────
+.kpm-card {
+  --kpm-accent: #006d5b;
+  --kpm-accent-dark: #004d41;
+
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--background-paper-color);
+  box-shadow:
+    0 2px 8px -2px rgb(0 0 0 / 0.1),
+    0 1px 3px -1px rgb(0 0 0 / 0.06);
+  border: 1px solid var(--border-light-color);
+  display: flex;
+  flex-direction: column;
+
+  // ── Colour variants ────────────────────────────────────────────────────────
+  /* Pending counts queue — attention needed (distinct from dues red / renewals indigo) */
+  &--pending-people {
+    --kpm-accent: #d97706;
+    --kpm-accent-dark: #92400e;
+  }
+
+  &--payments {
+    --kpm-accent: #ef4444;
+    --kpm-accent-dark: #b91c1c;
+  }
+
+  /* Documents, compliance & warranties (tools + vehicles) */
+  &--renewals {
+    --kpm-accent: #6366f1;
+    --kpm-accent-dark: #4338ca;
+  }
+
+  /* Maintenance & telematics — not renewals */
+  &--fleet-service {
+    --kpm-accent: #006d5b;
+    --kpm-accent-dark: #004d41;
+  }
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────────
+.kpm-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.65rem;
+  min-height: 3.35rem;
+  padding: 1rem 1.15rem;
+  background: linear-gradient(135deg, var(--kpm-accent) 0%, var(--kpm-accent-dark) 100%);
+}
+
+.kpm-card__header-lead {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.kpm-card__hicon {
+  font-size: 1.125rem;
+  color: rgba(255 255 255 / 0.92);
+  flex-shrink: 0;
+}
+
+.kpm-card__htitle {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── Body ───────────────────────────────────────────────────────────────────────
+// Soft tray; each row is its own rounded surface (gap only — no divider lines).
+.kpm-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+  padding: 0.5rem 0.65rem;
+  background: color-mix(in srgb, var(--border-light-color) 12%, var(--background-paper-color));
+  max-height: calc(5 * 3.45rem + 4 * 0.4rem + 0.25rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--kpm-accent) 30%, transparent);
+    border-radius: 999px;
+  }
+}
+
+// ── Row (filled strip — full width inside body padding; no lines) ─────────────
+.kpm-card__row {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.75rem 0.85rem;
-  border-radius: 0.75rem;
-  min-height: 100%;
-  box-sizing: border-box;
-  border: 1px solid var(--border-light-color);
-  background: linear-gradient(
-    165deg,
-    var(--background-default-color) 0%,
-    color-mix(in srgb, var(--background-paper-color) 88%, var(--background-default-color)) 100%
-  );
-  box-shadow: var(--shadow-sm);
-  min-width: 0;
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  background: var(--background-default-color);
+  border: none;
+  border-radius: 0.55rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.045);
   transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.15s ease;
+    background 0.12s ease,
+    box-shadow 0.12s ease;
 
   &:hover {
-    border-color: color-mix(in srgb, var(--primary-color) 28%, var(--border-light-color));
-    box-shadow:
-      var(--shadow-sm),
-      0 8px 24px -12px color-mix(in srgb, var(--primary-color) 30%, transparent);
-    transform: translateY(-1px);
-  }
-
-  &--warn .dash-pulse__value {
-    color: var(--wf-warning, #f59e0b);
-  }
-
-  &--alert .dash-pulse__value {
-    color: var(--wf-danger, #ef4444);
+    background: color-mix(in srgb, var(--kpm-accent) 7%, var(--background-default-color));
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.07);
   }
 }
 
-.dash-pulse__icon {
-  display: flex;
+// ── Row icon (soft glyph, not a heavy tile) ────────────────────────────────────
+.kpm-card__ricon {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 0.5rem;
+  font-size: 0.82rem;
   flex-shrink: 0;
-  border-radius: 0.6rem;
-  font-size: 1rem;
-  color: var(--primary-color);
-  background: color-mix(in srgb, var(--primary-color) 11%, var(--background-paper-color));
-  border: 1px solid color-mix(in srgb, var(--primary-color) 18%, var(--border-light-color));
+  color: var(--kpm-accent);
+  background: color-mix(in srgb, var(--kpm-accent) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kpm-accent) 12%, var(--border-light-color));
 }
 
-.dash-pulse__text {
+// ── Row label stack (title + supporting hint) ─────────────────────────────────
+.kpm-card__rlabel-stack {
   display: flex;
   flex-direction: column;
-  gap: 0.05rem;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.15rem;
+  flex: 1;
   min-width: 0;
 }
 
-.dash-pulse__value {
-  font-size: 1.2rem;
+.kpm-card__rlabel-main {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary-color);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.kpm-card__rhint {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--text-secondary-color);
+}
+
+// ── Row value ──────────────────────────────────────────────────────────────────
+.kpm-card__rvalue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 2.5rem;
+  min-height: 1.25rem;
+  font-size: 0.9375rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1;
   color: var(--text-primary-color);
+  white-space: nowrap;
+
+  .kpm-card__row--info & {
+    color: #0284c7;
+  }
+
+  .kpm-card__row--warn & {
+    color: #f59e0b;
+  }
+
+  .kpm-card__row--alert & {
+    color: #ef4444;
+  }
+
+  .kpm-card__row--success & {
+    color: #16a34a;
+  }
 }
 
-.dash-pulse__label {
-  font-size: 0.625rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.kpm-card__rvalue-loader {
+  font-size: 1rem;
   color: var(--text-secondary-color);
-  line-height: 1.35;
-  white-space: normal;
-  word-break: break-word;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .dash-pulse__item {
-    transition: none;
+.kpm-card__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
-    &:hover {
-      transform: none;
-    }
+// ── Reduced motion ─────────────────────────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  .kpm-card__row {
+    transition: none;
   }
 }

@@ -1,3 +1,6 @@
+import { EDataType } from '@shared/types';
+import { EKpmDashboardSeverity } from './dashboard.enum';
+
 export interface IDashboardEmployeeMetrics {
   total: number;
   active: number;
@@ -241,30 +244,14 @@ export interface IDashboardProjectMetrics {
   readonly activeProjects: readonly IDashboardActiveProjectRow[];
 }
 
-/**
- * KPM pulse strip — सिर्फ जो टाइल्स दिखानी हैं वही फ़ील्ड भरें; बाकी optional छोड़ें।
- * Full dashboard cards अलग interfaces (`IDashboardAttendanceMetrics` वगैरह) से चलते रहेंगे।
- */
-export interface IDashboardKpmSnapshot {
-  readonly holidaysAhead?: number;
-  readonly attendance?: { readonly approval: { readonly pending: number } };
-  readonly leave?: { readonly approval: { readonly pending: number } };
-  readonly expense?: { readonly employeePayableTotal: number };
-  readonly fuel?: { readonly employeePayableTotal: number };
-  readonly asset?: {
-    readonly calibrationExpiringSoon: number;
-    readonly warrantyExpiringSoon: number;
-  };
-  readonly vehicleFleet?: {
-    readonly complianceExpiringSoon: number;
-    readonly warrantyExpiringSoon: number;
-  };
-  readonly vehicleService?: {
-    readonly dueSoon: number;
-    readonly overdue: number;
-  };
-  readonly vehicleReading?: {
-    readonly readingAnomalyCount: number;
-    readonly noReadingStaleCount: number;
-  };
+/** Row for a KPM dashboard metric. */
+export interface IDashboardKpmMetricRow {
+  readonly icon: string;
+  readonly label: string;
+  readonly hint?: string;
+  readonly value: number;
+  readonly format: EDataType;
+  readonly state: EKpmDashboardSeverity;
+  /** When true, the value column shows a spinner (e.g. while its backing API is in flight). */
+  readonly valueLoading?: boolean;
 }
