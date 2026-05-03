@@ -104,7 +104,7 @@
 
     <span
       class="kpm-card__rvalue"
-      [attr.aria-busy]="row.valueLoading === true"
+      [attr.aria-busy]="row.valueLoading ? 'true' : null"
     >
       @if (row.valueLoading) {
         <span
