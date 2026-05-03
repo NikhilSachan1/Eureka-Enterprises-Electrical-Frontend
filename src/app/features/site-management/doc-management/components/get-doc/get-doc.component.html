@@ -86,72 +86,58 @@
           >
             <span class="rounded bg-slate-200 px-1.5 py-0.5 text-slate-700">2</span>
             <span>On invoiced work</span>
-            <span class="font-normal normal-case text-slate-400">
-              — payment drafts, booked vs invoice, actual paid, GST / TDS
-            </span>
+            <span class="font-normal normal-case text-slate-400">— net on drafts, bank/UTR, GST/TDS (ek snapshot)</span>
           </div>
-          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            <div class="rounded-lg border border-slate-200 bg-white p-3 text-center shadow-sm">
-              <div class="text-xs font-medium text-slate-600">Payment drafts</div>
-              <div class="mt-0.5 text-2xl font-bold text-slate-800">{{ summaryTotals.paymentDraftCount }}</div>
+          <div
+            class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm"
+            title="Invoiced work: party net from payment drafts, actual bank flow, taxes"
+          >
+            <div class="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Invoiced work snapshot
             </div>
-            <div
-              class="rounded-lg border border-orange-100 bg-orange-50 p-3 text-center shadow-sm"
-              title="Sum of taxable + GST on payment drafts"
-            >
-              <div class="text-xs font-medium text-orange-600">Booked</div>
-              <div class="text-[10px] font-normal text-orange-600/90">tax + GST</div>
-              <div class="mt-0.5 text-sm font-bold text-orange-700">
-                {{ summaryTotals.bookedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div class="rounded-md border border-slate-100 bg-slate-50/80 px-3 py-2">
+                <div class="text-[11px] font-medium text-slate-500">Payment UTR / drafts</div>
+                <div class="mt-0.5 text-lg font-bold tabular-nums text-slate-800">
+                  {{ summaryTotals.bankTransferDocCount }}
+                  <span class="text-base font-semibold text-slate-400">/</span>
+                  {{ summaryTotals.paymentDraftCount }}
+                </div>
               </div>
-            </div>
-            <div
-              class="rounded-lg border p-3 text-center shadow-sm"
-              [class.border-sky-100]="summaryTotals.invoicedMinusBooked > 0"
-              [class.bg-sky-50]="summaryTotals.invoicedMinusBooked > 0"
-              [class.border-slate-100]="summaryTotals.invoicedMinusBooked === 0"
-              [class.bg-slate-50]="summaryTotals.invoicedMinusBooked === 0"
-              [class.border-rose-100]="summaryTotals.invoicedMinusBooked < 0"
-              [class.bg-rose-50]="summaryTotals.invoicedMinusBooked < 0"
-              [attr.title]="'Invoice total (incl. GST) − Booked (tax + GST); TDS = alag card'"
-            >
-              <div
-                class="text-xs font-medium leading-tight"
-                [class.text-sky-700]="summaryTotals.invoicedMinusBooked > 0"
-                [class.text-slate-500]="summaryTotals.invoicedMinusBooked === 0"
-                [class.text-rose-600]="summaryTotals.invoicedMinusBooked < 0"
-              >
-                Booking left
-                <br />
-                <span class="font-normal opacity-80">(on invoice)</span>
+              <div class="rounded-md border border-amber-100 bg-amber-50/60 px-3 py-2">
+                <div class="text-[11px] font-medium text-amber-800">Net on payment drafts</div>
+                <div class="text-[10px] text-amber-700/85">party ko (taxable − GST − TDS)</div>
+                <div class="mt-0.5 font-bold tabular-nums text-amber-900">
+                  {{ summaryTotals.netPaidOnDrafts | currency: 'INR' : 'symbol' : '1.0-0' }}
+                </div>
               </div>
-              <div
-                class="mt-0.5 text-sm font-bold"
-                [class.text-sky-800]="summaryTotals.invoicedMinusBooked > 0"
-                [class.text-slate-600]="summaryTotals.invoicedMinusBooked === 0"
-                [class.text-rose-700]="summaryTotals.invoicedMinusBooked < 0"
-              >
-                {{ summaryTotals.invoicedMinusBooked | currency: 'INR' : 'symbol' : '1.0-0' }}
+              <div class="rounded-md border border-emerald-100 bg-emerald-50/70 px-3 py-2">
+                <div class="text-[11px] font-medium text-emerald-800">
+                  {{ docContext() === 'purchase' ? 'Actual paid (bank + GST rel.)' : 'Actual received' }}
+                </div>
+                <div class="mt-0.5 font-bold tabular-nums text-emerald-900">
+                  {{ summaryTotals.actualPaidOrReceivedTotal | currency: 'INR' : 'symbol' : '1.0-0' }}
+                </div>
               </div>
-            </div>
-            <div class="rounded-lg border border-green-100 bg-green-50 p-3 text-center shadow-sm">
-              <div class="text-xs font-medium text-green-600">
-                {{ docContext() === 'purchase' ? 'Actual paid' : 'Actual received' }}
+              <div class="rounded-md border border-purple-100 bg-purple-50/60 px-3 py-2 sm:col-span-2 lg:col-span-1">
+                <div class="text-[11px] font-medium text-purple-800">GST cut / govt deposited</div>
+                <div class="mt-0.5 font-bold tabular-nums text-purple-900">
+                  {{ summaryTotals.totalGstDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+                  <span class="font-normal text-purple-400">/</span>
+                  @if (docContext() === 'purchase' && summaryTotals.gstGovtReleasedAmount > 0) {
+                    {{ summaryTotals.gstGovtReleasedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+                  } @else {
+                    <span class="text-sm font-semibold text-purple-600/70">—</span>
+                  }
+                </div>
               </div>
-              <div class="mt-0.5 text-sm font-bold text-green-700">
-                {{ summaryTotals.actualReceivedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
-              </div>
-            </div>
-            <div class="rounded-lg border border-purple-100 bg-purple-50 p-3 text-center shadow-sm">
-              <div class="text-xs font-medium text-purple-600">GST (on drafts)</div>
-              <div class="mt-0.5 text-sm font-bold text-purple-700">
-                {{ summaryTotals.totalGstDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
-              </div>
-            </div>
-            <div class="rounded-lg border border-rose-100 bg-rose-50 p-3 text-center shadow-sm">
-              <div class="text-xs font-medium text-rose-600">TDS (on drafts)</div>
-              <div class="mt-0.5 text-sm font-bold text-rose-700">
-                {{ summaryTotals.totalTdsDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+              <div class="rounded-md border border-rose-100 bg-rose-50/60 px-3 py-2 sm:col-span-2 lg:col-span-2">
+                <div class="text-[11px] font-medium text-rose-800">TDS cut / govt deposited</div>
+                <div class="mt-0.5 font-bold tabular-nums text-rose-900">
+                  {{ summaryTotals.totalTdsDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+                  <span class="font-normal text-rose-400">/</span>
+                  <span class="text-sm font-semibold text-rose-600/70">—</span>
+                </div>
               </div>
             </div>
           </div>
@@ -173,9 +159,9 @@
               <th class="px-3 py-2 text-center">Adv</th>
               <th
                 class="px-3 py-2 text-center"
-                title="Payment drafts linked to this PO’s invoices"
+                title="Bank UTR count / payment draft count for this PO’s invoices"
               >
-                PMTs
+                UTR / PMT
               </th>
               <th
                 class="border-l-2 border-slate-200 px-3 py-2 text-right"
@@ -196,31 +182,36 @@
                 Invoiced (₹)
               </th>
               <th
-                class="max-w-[6.5rem] px-3 py-2 text-right"
-                title="Invoiced (incl. GST) − Booked (tax + GST)"
+                class="px-3 py-2 text-right"
+                title="Sum of payment draft net (taxable − GST − TDS) for this PO’s invoices"
               >
-                Bkg left (₹)
+                Net drafts (₹)
               </th>
               <th
                 class="px-3 py-2 text-right"
-                title="Taxable + GST on payment drafts"
+                [attr.title]="
+                  docContext() === 'purchase'
+                    ? 'Per PO: bank UTR. Footer total = all PO UTRs + all GST payment releases.'
+                    : 'Bank transfer inflow'
+                "
               >
-                Booked (₹)
-              </th>
-              <th class="px-3 py-2 text-right">
                 {{ docContext() === 'purchase' ? 'Paid (₹)' : 'Recv. (₹)' }}
               </th>
               <th
-                class="px-3 py-2 text-right"
-                title="GST on payment drafts"
+                class="max-w-[5.5rem] px-3 py-2 text-right leading-tight"
+                title="GST on drafts / govt deposit (total govt GST is footer-level only)"
               >
-                GST (₹)
+                GST
+                <br />
+                <span class="text-[10px] font-normal normal-case text-gray-400">cut / dep.</span>
               </th>
               <th
-                class="px-3 py-2 text-right"
-                title="TDS on payment drafts"
+                class="max-w-[5.5rem] px-3 py-2 text-right leading-tight"
+                title="TDS on drafts / deposited (govt TDS not in documents yet)"
               >
-                TDS (₹)
+                TDS
+                <br />
+                <span class="text-[10px] font-normal normal-case text-gray-400">cut / dep.</span>
               </th>
             </tr>
           </thead>
@@ -252,10 +243,10 @@
                 </td>
                 <td class="px-3 py-2.5 text-center">
                   <span
-                    class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800"
-                    title="Payment drafts on this PO’s invoices"
+                    class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-amber-800"
+                    title="UTR (bank transfer) count / payment drafts on this PO’s invoices"
                   >
-                    {{ row.paymentDraftCount }}
+                    {{ row.bankTransferCount }}/{{ row.paymentDraftCount }}
                   </span>
                 </td>
                 <td class="border-l-2 border-slate-100 px-3 py-2.5 text-right font-semibold text-gray-800">
@@ -271,25 +262,25 @@
                 <td class="px-3 py-2.5 text-right text-blue-700">
                   {{ row.invoicedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
                 </td>
-                <td
-                  class="px-3 py-2.5 text-right text-sm font-semibold"
-                  [class.text-sky-700]="row.invoicedMinusBooked > 0"
-                  [class.text-slate-400]="row.invoicedMinusBooked === 0"
-                  [class.text-rose-700]="row.invoicedMinusBooked < 0"
-                >
-                  {{ row.invoicedMinusBooked | currency: 'INR' : 'symbol' : '1.0-0' }}
-                </td>
-                <td class="px-3 py-2.5 text-right text-orange-600">
-                  {{ row.bookedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+                <td class="px-3 py-2.5 text-right text-sm font-semibold text-amber-900">
+                  {{ row.netPaidOnDrafts | currency: 'INR' : 'symbol' : '1.0-0' }}
                 </td>
                 <td class="px-3 py-2.5 text-right text-green-700">
                   {{ row.actualReceivedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
                 </td>
-                <td class="px-3 py-2.5 text-right text-purple-700">
-                  {{ row.totalGstDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+                <td class="px-3 py-2.5 text-right text-xs font-semibold text-purple-800">
+                  <span class="tabular-nums">
+                    {{ row.totalGstDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+                  </span>
+                  <span class="font-normal text-purple-400">/</span>
+                  <span class="text-[10px] font-medium text-purple-600/70">—</span>
                 </td>
-                <td class="px-3 py-2.5 text-right text-rose-600">
-                  {{ row.totalTdsDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+                <td class="px-3 py-2.5 text-right text-xs font-semibold text-rose-800">
+                  <span class="tabular-nums">
+                    {{ row.totalTdsDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+                  </span>
+                  <span class="font-normal text-rose-400">/</span>
+                  <span class="text-[10px] font-medium text-rose-600/70">—</span>
                 </td>
               </tr>
             }
@@ -303,8 +294,11 @@
                 Total
               </td>
               <td class="px-3 py-2.5 text-center">
-                <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
-                  {{ summaryTotals.paymentDraftCount }}
+                <span
+                  class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-amber-800"
+                  title="Total UTR count / payment drafts"
+                >
+                  {{ summaryTotals.bankTransferDocCount }}/{{ summaryTotals.paymentDraftCount }}
                 </span>
               </td>
               <td class="border-l-2 border-slate-200 px-3 py-2.5 text-right text-gray-900">
@@ -320,25 +314,31 @@
               <td class="px-3 py-2.5 text-right text-blue-700">
                 {{ summaryTotals.invoicedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
               </td>
-              <td
-                class="px-3 py-2.5 text-right"
-                [class.text-sky-800]="summaryTotals.invoicedMinusBooked > 0"
-                [class.text-slate-500]="summaryTotals.invoicedMinusBooked === 0"
-                [class.text-rose-700]="summaryTotals.invoicedMinusBooked < 0"
-              >
-                {{ summaryTotals.invoicedMinusBooked | currency: 'INR' : 'symbol' : '1.0-0' }}
-              </td>
-              <td class="px-3 py-2.5 text-right text-orange-600">
-                {{ summaryTotals.bookedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+              <td class="px-3 py-2.5 text-right font-semibold text-amber-900">
+                {{ summaryTotals.netPaidOnDrafts | currency: 'INR' : 'symbol' : '1.0-0' }}
               </td>
               <td class="px-3 py-2.5 text-right text-green-700">
-                {{ summaryTotals.actualReceivedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+                {{ summaryTotals.actualPaidOrReceivedTotal | currency: 'INR' : 'symbol' : '1.0-0' }}
               </td>
-              <td class="px-3 py-2.5 text-right text-purple-700">
-                {{ summaryTotals.totalGstDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+              <td class="px-3 py-2.5 text-right text-xs font-bold text-purple-800">
+                <span class="tabular-nums">
+                  {{ summaryTotals.totalGstDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+                </span>
+                <span class="font-normal text-purple-400">/</span>
+                @if (docContext() === 'purchase' && summaryTotals.gstGovtReleasedAmount > 0) {
+                  <span class="tabular-nums">
+                    {{ summaryTotals.gstGovtReleasedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+                  </span>
+                } @else {
+                  <span class="text-[10px] font-semibold text-purple-600/70">—</span>
+                }
               </td>
-              <td class="px-3 py-2.5 text-right text-rose-600">
-                {{ summaryTotals.totalTdsDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+              <td class="px-3 py-2.5 text-right text-xs font-bold text-rose-800">
+                <span class="tabular-nums">
+                  {{ summaryTotals.totalTdsDeducted | currency: 'INR' : 'symbol' : '1.0-0' }}
+                </span>
+                <span class="font-normal text-rose-400">/</span>
+                <span class="text-[10px] font-semibold text-rose-600/70">—</span>
               </td>
             </tr>
           </tfoot>

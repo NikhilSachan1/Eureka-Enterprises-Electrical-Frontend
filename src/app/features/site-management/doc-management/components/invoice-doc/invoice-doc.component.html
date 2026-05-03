@@ -1,89 +1,132 @@
-<form
-  [formGroup]="form.formGroup"
-  class="form"
->
-  <app-input-field
+@if (form) {
+  <form
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.jmcNumber"
-  />
-  <app-doc-ref-chain
-    [refDocId]="selectedRefDocId()"
-    [docContext]="docContext()"
-  />
-
-  @if (poBillingSummary(); as summary) {
-    <div class="mt-1 flex divide-x divide-slate-200 rounded-md border border-slate-200 bg-slate-50 text-[11px]">
-      <div class="flex flex-1 items-center gap-1.5 px-3 py-1.5">
-        <span class="text-slate-400">PO Value</span>
-        <span class="font-semibold text-slate-700">{{ summary.poTotal | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
-      </div>
-      <div class="flex flex-1 items-center gap-1.5 px-3 py-1.5">
-        <span class="text-slate-400">Billed</span>
-        <span class="font-semibold text-orange-500">
-          {{ summary.alreadyInvoiced | currency: 'INR' : 'symbol' : '1.0-0' }}
-        </span>
-      </div>
-      <div class="flex flex-1 items-center gap-1.5 px-3 py-1.5">
-        <span class="text-slate-400">Balance</span>
-        <span
-          class="font-semibold"
-          [class.text-emerald-600]="summary.remaining > 0"
-          [class.text-red-500]="summary.remaining <= 0"
-        >
-          {{ summary.remaining | currency: 'INR' : 'symbol' : '1.0-0' }}
-        </span>
-      </div>
-    </div>
-  }
-
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.invoiceNumber"
-  />
-
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.invoiceDate"
-  />
-
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.invoiceTaxableAmount"
-  />
-
-  <div>
+    class="form"
+  >
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.invoiceGstAmount"
+      [inputFieldConfig]="form.fieldConfigs.jmcNumber"
     />
-    <div class="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500">
-      <span>Auto-calc:</span>
-      <input
-        type="number"
-        min="0"
-        max="100"
-        step="0.5"
-        [value]="gstPercent() ?? ''"
-        (input)="updateGstPercent(+$any($event.target).value || null)"
-        class="w-14 rounded border border-slate-300 bg-white px-2 py-0.5 text-xs focus:border-primary focus:outline-none"
-        placeholder="0"
+    <app-doc-ref-chain
+      [refDocId]="selectedRefDocId()"
+      [docContext]="docContext()"
+    />
+
+    @if (poBillingSummary(); as summary) {
+      <div class="mt-1 flex divide-x divide-slate-200 rounded-md border border-slate-200 bg-slate-50 text-[11px]">
+        <div class="flex flex-1 items-center gap-1.5 px-3 py-1.5">
+          <span class="text-slate-400">PO Value</span>
+          <span class="font-semibold text-slate-700">{{ summary.poTotal | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
+        </div>
+        <div class="flex flex-1 items-center gap-1.5 px-3 py-1.5">
+          <span class="text-slate-400">Billed</span>
+          <span class="font-semibold text-orange-500">
+            {{ summary.alreadyInvoiced | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+        <div class="flex flex-1 items-center gap-1.5 px-3 py-1.5">
+          <span class="text-slate-400">Balance</span>
+          <span
+            class="font-semibold"
+            [class.text-emerald-600]="summary.remaining > 0"
+            [class.text-red-500]="summary.remaining <= 0"
+          >
+            {{ summary.remaining | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+      </div>
+    }
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.invoiceNumber"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.invoiceDate"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.invoiceTaxableAmount"
+    />
+
+    <div>
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.invoiceGstAmount"
       />
-      <span>% of taxable</span>
+      <div class="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500">
+        <span>Auto-calc:</span>
+        <input
+          type="number"
+          min="0"
+          max="100"
+          step="0.5"
+          [value]="gstPercent() ?? ''"
+          (input)="updateGstPercent(+$any($event.target).value || null)"
+          class="w-14 rounded border border-slate-300 bg-white px-2 py-0.5 text-xs focus:border-primary focus:outline-none"
+          placeholder="0"
+        />
+        <span>% of taxable</span>
+      </div>
     </div>
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.invoiceTotalAmount"
+    />
+
+    @if (invoiceSettlementSummary(); as inv) {
+      <div
+        class="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-3 text-xs shadow-sm sm:text-sm"
+        [attr.title]="
+          inv.hasSavedInvoice
+            ? 'Bill (incl. GST), party net on drafts, bank UTR, GST/TDS cuts'
+            : 'Save ke baad payment & UTR yahan dikhenge'
+        "
+      >
+        <div class="mb-1.5 font-semibold uppercase tracking-wide text-slate-500">Is bill — ek snapshot</div>
+        <p class="leading-relaxed text-slate-800">
+          <span class="text-slate-500">Bill (incl. GST):</span>
+          <strong>{{ inv.invoiceNet | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
+          <span class="mx-1 text-slate-300">·</span>
+          <span class="text-slate-500">Party net (drafts):</span>
+          <strong class="text-amber-900">{{ inv.netPaidOnDrafts | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
+          @if (inv.draftCount > 0) {
+            <span class="text-slate-400">({{ inv.draftCount }} draft)</span>
+          }
+          <span class="mx-1 text-slate-300">·</span>
+          <span class="text-slate-500">{{ docContext() === 'purchase' ? 'Bank (UTR):' : 'Bank mila:' }}</span>
+          <strong class="text-emerald-900">{{ inv.bankReceived | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
+          <span class="mx-1 text-slate-300">·</span>
+          <span class="text-slate-500">GST / TDS kata:</span>
+          <strong class="text-purple-900">{{ inv.gstCut | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
+          /
+          <strong class="text-rose-900">{{ inv.tdsCut | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
+        </p>
+        @if (!inv.hasSavedInvoice) {
+          <p class="mt-2 border-t border-slate-100 pt-2 text-[11px] text-slate-500">
+            Invoice save karein — tab payment drafts &amp; UTR is snapshot mein aayenge.
+          </p>
+        }
+      </div>
+    }
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.invoiceAttachments"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.invoiceRemark"
+    />
+  </form>
+} @else {
+  <div class="flex justify-center py-10 text-sm text-slate-500">
+    <i class="pi pi-spin pi-spinner mr-2 text-lg text-primary"></i>
+    Loading…
   </div>
-
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.invoiceTotalAmount"
-  />
-
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.invoiceAttachments"
-  />
-
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.invoiceRemark"
-  />
-</form>
+}

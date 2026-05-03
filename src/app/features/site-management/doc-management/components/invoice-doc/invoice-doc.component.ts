@@ -76,6 +76,17 @@ export class InvoiceDocComponent
     remaining: number;
   } | null>(null);
 
+  /** Per-invoice: net on drafts, bank UTR, GST/TDS cuts — single snapshot. */
+  protected readonly invoiceSettlementSummary = signal<{
+    invoiceNet: number;
+    netPaidOnDrafts: number;
+    bankReceived: number;
+    gstCut: number;
+    tdsCut: number;
+    draftCount: number;
+    hasSavedInvoice: boolean;
+  } | null>(null);
+
   ngOnInit(): void {
     void this.docIndexedDbService
       .getDocNumberOptions(EDocType.JMC, this.docContext(), EDocType.INVOICE)
@@ -109,6 +120,13 @@ export class InvoiceDocComponent
           this.selectedRefDocId.set(editRef);
           void this.loadPoBillingSummary(editRef);
         }
+        void this.refreshInvoiceSettlement();
+        const totalCtl = this.form.formGroup.get('invoiceTotalAmount');
+        totalCtl?.valueChanges
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            void this.refreshInvoiceSettlement();
+          });
         this.cdr.markForCheck();
       });
   }
@@ -199,6 +217,75 @@ export class InvoiceDocComponent
       alreadyInvoiced,
       remaining: poTotal - alreadyInvoiced,
     });
+    void this.refreshInvoiceSettlement();
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Live invoice total from form vs payment drafts & bank UTRs linked to this invoice (IndexedDB).
+   * New invoice (not saved): shows draft total only; booking/UTR/GST/TDS stay 0 until an id exists.
+   */
+  private async refreshInvoiceSettlement(): Promise<void> {
+    if (!this.form) {
+      return;
+    }
+    const invoiceId = this.editRecord()?.id ?? null;
+    const rawTotal = this.form.formGroup.get('invoiceTotalAmount')?.value;
+    const formNet =
+      typeof rawTotal === 'number' && !Number.isNaN(rawTotal) ? rawTotal : 0;
+
+    if (!invoiceId) {
+      this.invoiceSettlementSummary.set({
+        invoiceNet: formNet,
+        netPaidOnDrafts: 0,
+        bankReceived: 0,
+        gstCut: 0,
+        tdsCut: 0,
+        draftCount: 0,
+        hasSavedInvoice: false,
+      });
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const allDocs = await this.docIndexedDbService.getAllDocs();
+    const payments = allDocs.filter(
+      d => d.documentType === EDocType.PAYMENT && d.docReference === invoiceId
+    );
+    const netPaidOnDrafts = payments.reduce(
+      (s, p) => s + (p.totalAmount ?? 0),
+      0
+    );
+    const gstCut = payments.reduce((s, p) => s + (p.gstAmount ?? 0), 0);
+    const tdsCut = payments.reduce(
+      (s, p) => s + (p.tdsDeductionAmount ?? 0),
+      0
+    );
+    const paymentIds = new Set(payments.map(p => p.id));
+    const bankTransfers = allDocs.filter(
+      d =>
+        d.documentType === EDocType.BANK_TRANSFER &&
+        paymentIds.has(d.docReference ?? '')
+    );
+    const bankReceived = bankTransfers.reduce(
+      (s, bt) => s + (bt.totalAmount ?? 0),
+      0
+    );
+    const storedNet = allDocs.find(d => d.id === invoiceId)?.totalAmount ?? 0;
+    const invoiceNet =
+      typeof rawTotal === 'number' && !Number.isNaN(rawTotal)
+        ? rawTotal
+        : storedNet;
+
+    this.invoiceSettlementSummary.set({
+      invoiceNet,
+      netPaidOnDrafts,
+      bankReceived,
+      gstCut,
+      tdsCut,
+      draftCount: payments.length,
+      hasSavedInvoice: true,
+    });
     this.cdr.markForCheck();
   }
 
@@ -216,6 +303,7 @@ export class InvoiceDocComponent
       invoiceTotalAmount: rec.totalAmount ?? undefined,
       invoiceRemark: rec.remark ?? undefined,
     } as Partial<IInvoiceDocAddUIFormDto>);
+    void this.refreshInvoiceSettlement();
   }
 
   private prepareFormData(): IInvoiceDocAddFormDto {

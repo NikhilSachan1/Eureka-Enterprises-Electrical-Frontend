@@ -22,6 +22,7 @@ import {
   IDocIndexedDbRow,
 } from '../../services/doc-indexed-db.service';
 import { ConfirmationDialogService } from '@shared/services';
+import { GstPortalPaymentStorageService } from '@features/site-management/gst-compliance/services/gst-portal-payment-storage.service';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { GST_PAYMENT_RELEASE_DOC_FORM_FIELDS_CONFIG } from '../../config';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -42,6 +43,9 @@ export class GstPaymentReleaseDocComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly gstPortalPaymentStorage = inject(
+    GstPortalPaymentStorageService
+  );
   private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly selectedRecord =
@@ -57,6 +61,12 @@ export class GstPaymentReleaseDocComponent
   protected readonly prefilledPartyKey = input<string | null>(null);
   /** `YYYY-MM` when opening from GST screen — used to pick invoice headroom for booking. */
   protected readonly prefilledMonthKey = input<string | null>(null);
+  /**
+   * Purchase GST screen: verified bills in table order — used to mark per-bill govt GST remitted after save.
+   */
+  protected readonly gstReleaseAllocationOrder = input<
+    { invoiceId: string; gstAmount: number }[] | null
+  >(null);
 
   protected get isEditMode(): boolean {
     return !!this.editRecord();
@@ -275,6 +285,23 @@ export class GstPaymentReleaseDocComponent
 
     void action
       .then(() => {
+        if (
+          !existing &&
+          formData.docContext === 'purchase' &&
+          formData.gstReleaseAmount > 0
+        ) {
+          const order = this.gstReleaseAllocationOrder();
+          const pk = formData.gstReleasePartyKey?.trim();
+          const mk = formData.gstReleaseMonthKey?.trim();
+          if (order?.length && pk && mk) {
+            this.gstPortalPaymentStorage.applyPurchaseGstReleaseAllocation(
+              mk,
+              pk,
+              formData.gstReleaseAmount,
+              order
+            );
+          }
+        }
         this.notificationService.success(
           existing
             ? 'GST payment release updated.'

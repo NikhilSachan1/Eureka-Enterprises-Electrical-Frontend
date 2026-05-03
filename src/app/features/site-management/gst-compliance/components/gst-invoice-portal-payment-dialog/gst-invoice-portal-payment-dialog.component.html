@@ -15,67 +15,29 @@
 
   <form
     class="space-y-4"
-    [formGroup]="paymentForm"
+    [formGroup]="verifyForm"
   >
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          UTR number
-          <span class="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          formControlName="utrNumber"
-          placeholder="e.g. HDFC0012345678901"
-          class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-primary/30"
-          [class.border-red-400]="isInvalid('utrNumber')"
-        />
-        @if (isInvalid('utrNumber')) {
-          <span class="text-xs text-red-500">UTR must be at least 12 characters</span>
-        }
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Payment date
-          <span class="text-red-500">*</span>
-        </label>
-        <input
-          type="date"
-          formControlName="paymentDate"
-          class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-primary/30"
-          [class.border-red-400]="isInvalid('paymentDate')"
-        />
-        @if (isInvalid('paymentDate')) {
-          <span class="text-xs text-red-500">Date is required</span>
-        }
-      </div>
-    </div>
-
     <div class="flex flex-col gap-1">
       <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Proof of payment
-        @if (existingProofLabel() && !proofFile) {
-          <span class="ml-1 font-normal text-blue-600">(current: {{ existingProofLabel() }})</span>
-        }
+        Verification date
+        <span class="text-red-500">*</span>
       </label>
-      <label
-        class="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 transition-colors hover:border-primary hover:bg-primary/5"
-      >
-        <i class="pi pi-upload text-gray-400"></i>
-        <span class="text-sm text-gray-500">
-          @if (proofFile) {
-            <span class="font-medium text-primary">{{ proofFile.name }}</span>
-          } @else {
-            Attach challan / receipt (PDF, image)
-          }
-        </span>
-        <input
-          type="file"
-          class="hidden"
-          accept=".pdf,image/*"
-          (change)="onProofSelected($event)"
-        />
-      </label>
+      <input
+        type="date"
+        formControlName="verifiedDate"
+        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-primary/30"
+        [class.border-red-400]="isInvalid()"
+      />
+      @if (isInvalid()) {
+        <span class="text-xs text-red-500">Choose the date you are verifying against</span>
+      }
     </div>
+    <p class="text-[11px] leading-relaxed text-slate-500">
+      Status will show
+      <strong>Verified</strong>
+      with this date, or
+      <strong>Pending</strong>
+      until you verify.
+    </p>
   </form>
 </div>

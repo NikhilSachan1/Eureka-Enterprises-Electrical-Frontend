@@ -2,16 +2,29 @@ import { Injectable } from '@angular/core';
 
 export type IGstPartyFlow = 'sales' | 'purchase';
 
-/** Saved when user records GST portal payment against an invoice row (local). */
+/**
+ * Local GST deposit row: **verified** with a chosen date, or pending.
+ * Legacy fields (`utrNumber`, `proofFileName`) kept for old localStorage rows; new saves leave them empty.
+ */
 export interface IGstInvoicePaymentRecord {
   invoiceId: string;
   billNo: string;
   monthKey: string;
-  utrNumber: string;
+  /** Purchase party bucket key — used when applying GST release allocation. */
+  partyKey?: string;
+  /** @deprecated Verify flow — unused; kept for older stored rows */
+  utrNumber?: string;
+  /** ISO date string — **verification date** shown in UI */
   paymentDate: string;
-  proofFileName: string;
+  /** @deprecated Verify flow — unused */
+  proofFileName?: string;
   savedAt: string;
+  /** Internal batch ref for party-wise GST release linking */
   paymentAdviceNo: string;
+  /**
+   * Cumulative GST from this bill already counted toward purchase **GST payment release** docs (govt remittance).
+   */
+  gstRemittedAmount?: number;
 }
 
 const STORAGE_KEY_INVOICE_GST = 'gst_invoice_payment_records_v3';
@@ -155,15 +168,14 @@ export class GstPortalPaymentStorageService {
     }
   }
 
-  saveInvoicePortalPayment(params: {
+  /** Mark bill GST deposit as verified for the given **verification date** (local only). */
+  saveInvoiceGstVerification(params: {
     invoiceId: string;
     billNo: string;
     monthKey: string;
     partyKey: string;
     flow: IGstPartyFlow;
-    utrNumber: string;
-    paymentDate: string;
-    proofFileName: string;
+    verifiedDate: string;
   }): void {
     const map = this.getInvoicePayments();
     const partyAdviceNo = this.getOrCreatePartyPaymentAdviceNo(
@@ -171,15 +183,18 @@ export class GstPortalPaymentStorageService {
       params.partyKey,
       params.flow
     );
+    const prev = map[params.invoiceId];
     const record: IGstInvoicePaymentRecord = {
       invoiceId: params.invoiceId,
       billNo: params.billNo,
       monthKey: params.monthKey,
-      utrNumber: params.utrNumber,
-      paymentDate: params.paymentDate,
-      proofFileName: params.proofFileName,
+      partyKey: params.partyKey,
+      utrNumber: '',
+      paymentDate: params.verifiedDate,
+      proofFileName: '',
       savedAt: new Date().toISOString(),
       paymentAdviceNo: partyAdviceNo,
+      gstRemittedAmount: prev?.gstRemittedAmount ?? 0,
     };
     map[params.invoiceId] = record;
     this.setInvoicePayments(map);
@@ -202,5 +217,54 @@ export class GstPortalPaymentStorageService {
       map,
       partyInvoiceIds
     );
+  }
+
+  /**
+   * After a **new** purchase GST payment release is saved, spread `releaseAmount` across verified bills
+   * (table order) without exceeding each bill’s remaining GST (`gstAmount` − `gstRemittedAmount`).
+   */
+  applyPurchaseGstReleaseAllocation(
+    monthKey: string,
+    partyKey: string,
+    releaseAmount: number,
+    orderedBillLines: { invoiceId: string; gstAmount: number }[]
+  ): void {
+    const mk = monthKey?.trim();
+    const pk = partyKey?.trim();
+    if (!mk || !pk || releaseAmount <= 0 || !orderedBillLines.length) {
+      return;
+    }
+    let left = Math.round(releaseAmount * 100) / 100;
+    if (left <= 0) {
+      return;
+    }
+    const map = this.getInvoicePayments();
+    let changed = false;
+    for (const { invoiceId, gstAmount } of orderedBillLines) {
+      if (left <= 0) {
+        break;
+      }
+      const rec = map[invoiceId];
+      if (
+        rec &&
+        rec.monthKey === mk &&
+        (rec.partyKey === undefined || rec.partyKey === pk)
+      ) {
+        const remitted = rec.gstRemittedAmount ?? 0;
+        const cap = Math.max(0, Math.round((gstAmount - remitted) * 100) / 100);
+        if (cap > 0) {
+          const add = Math.min(cap, left);
+          map[invoiceId] = {
+            ...rec,
+            gstRemittedAmount: Math.round((remitted + add) * 100) / 100,
+          };
+          left = Math.round((left - add) * 100) / 100;
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      this.setInvoicePayments(map);
+    }
   }
 }

@@ -124,7 +124,6 @@ export class DocIndexedDbService {
     await this.validatePaymentAmountLimit(
       formData.invoiceNumber,
       formData.paymentTaxableAmount ?? 0,
-      formData.paymentGstAmount ?? 0,
       null
     );
     const draftRef = `PMT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
@@ -523,7 +522,6 @@ export class DocIndexedDbService {
     await this.validatePaymentAmountLimit(
       formData.invoiceNumber,
       formData.paymentTaxableAmount ?? 0,
-      formData.paymentGstAmount ?? 0,
       existing.id
     );
     const row = await this.buildBaseReferencedRow(
@@ -626,13 +624,11 @@ export class DocIndexedDbService {
   }
 
   /**
-   * (1) Sum of payment **taxable** ≤ invoice taxable (pre-GST).
-   * (2) Sum of payment **taxable + GST** ≤ invoice total (incl. GST) — TDS is not part of invoice amount.
+   * Sum of payment **taxable** ≤ invoice taxable (pre-GST), or invoice total if taxable missing.
    */
   private async validatePaymentAmountLimit(
     invoiceId: string,
     newPaymentTaxable: number,
-    newPaymentGst: number,
     excludeId: string | null
   ): Promise<void> {
     const allDocs = await this.getAllDocs();
@@ -669,24 +665,6 @@ export class DocIndexedDbService {
         `Taxable / work ₹${newPaymentTaxable.toLocaleString('en-IN')} is too much — only ₹${remaining.toLocaleString('en-IN')} left against ${capLabel} ₹${cap.toLocaleString('en-IN')}. ` +
           `(Already booked taxable: ₹${alreadyTaxable.toLocaleString('en-IN')}.)`
       );
-    }
-
-    const invoiceTotalCap = invoice.totalAmount ?? 0;
-    if (invoiceTotalCap > 0) {
-      const alreadyTaxableGst = sameInvoicePayments.reduce(
-        (sum, d) => sum + (d.taxableAmount ?? 0) + (d.gstAmount ?? 0),
-        0
-      );
-      const newTaxableGst = newPaymentTaxable + newPaymentGst;
-      const wouldTaxableGst = alreadyTaxableGst + newTaxableGst;
-      const tol = 0.5;
-      if (wouldTaxableGst > invoiceTotalCap + tol) {
-        const remainingValue = invoiceTotalCap - alreadyTaxableGst;
-        throw new Error(
-          `Taxable + GST ₹${newTaxableGst.toLocaleString('en-IN')} is too much — only ₹${Math.max(0, remainingValue).toLocaleString('en-IN')} left against invoice total ₹${invoiceTotalCap.toLocaleString('en-IN')} (incl. GST). ` +
-            `(Already booked taxable+GST: ₹${alreadyTaxableGst.toLocaleString('en-IN')}.)`
-        );
-      }
     }
   }
 

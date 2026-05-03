@@ -71,19 +71,13 @@ export class PaymentDocComponent
   protected readonly gstPercent = signal<number | null>(18);
   protected readonly tdsPercent = signal<number | null>(2);
 
-  /** Two headline numbers + one short note for this invoice */
+  /** One snapshot for this invoice: bill, net paid on earlier drafts, deductions */
   protected readonly invoicePaymentSummary = signal<{
-    /** Invoice total incl. GST (reference) */
     invoiceNet: number;
-    /** Invoice taxable (pre-GST) — cap for sum of payment taxables */
     invoiceTaxable: number;
-    /** Taxable still bookable on this invoice */
-    leftOnInvoice: number;
-    /** Invoice total incl. GST minus (taxable+GST) already on other drafts */
-    leftOnInvoiceValue: number;
+    /** Taxable cap left for this draft line */
+    leftTaxableForDraft: number;
     earlierDraftCount: number;
-    /** Sum of taxable from earlier payment drafts */
-    bookedTowardInvoice: number;
     netPaidEarlier: number;
     gstEarlier: number;
     tdsEarlier: number;
@@ -144,22 +138,9 @@ export class PaymentDocComponent
     const summary = this.invoicePaymentSummary();
     if (summary) {
       const thisWork = formData.paymentTaxableAmount ?? 0;
-      if (thisWork > summary.leftOnInvoice) {
+      if (thisWork > summary.leftTaxableForDraft) {
         this.notificationService.error(
-          `Taxable amount ₹${thisWork.toLocaleString('en-IN')} is too much — only ₹${summary.leftOnInvoice.toLocaleString('en-IN')} left (invoice taxable ₹${summary.invoiceTaxable.toLocaleString('en-IN')} − already booked).`
-        );
-        this.isSubmitting.set(false);
-        return;
-      }
-      const thisTaxableGst =
-        (formData.paymentTaxableAmount ?? 0) + (formData.paymentGstAmount ?? 0);
-      const tol = 0.5;
-      if (
-        summary.invoiceNet > 0 &&
-        thisTaxableGst > summary.leftOnInvoiceValue + tol
-      ) {
-        this.notificationService.error(
-          `Taxable + GST ₹${thisTaxableGst.toLocaleString('en-IN')} exceeds what is left on invoice total — only ₹${summary.leftOnInvoiceValue.toLocaleString('en-IN')} left (invoice ₹${summary.invoiceNet.toLocaleString('en-IN')} − earlier drafts taxable+GST).`
+          `Taxable amount ₹${thisWork.toLocaleString('en-IN')} is too much — only ₹${summary.leftTaxableForDraft.toLocaleString('en-IN')} left (invoice taxable ₹${summary.invoiceTaxable.toLocaleString('en-IN')} − already on drafts).`
         );
         this.isSubmitting.set(false);
         return;
@@ -245,7 +226,6 @@ export class PaymentDocComponent
       0
     );
     const sumGstEarlier = payments.reduce((s, p) => s + (p.gstAmount ?? 0), 0);
-    const valueBookedEarlier = sumTaxableEarlier + sumGstEarlier;
     const sumTdsEarlier = payments.reduce(
       (s, p) => s + (p.tdsDeductionAmount ?? 0),
       0
@@ -255,8 +235,7 @@ export class PaymentDocComponent
       0
     );
     const taxableCap = invoiceTaxable > 0 ? invoiceTaxable : invoiceNet;
-    const leftOnTaxable = Math.max(0, taxableCap - sumTaxableEarlier);
-    /** Match invoice effective GST % on taxable so partial lines don’t over-shoot invoice GST. */
+    const leftTaxableForDraft = Math.max(0, taxableCap - sumTaxableEarlier);
     if (invoiceTaxable > 0 && (invoice?.gstAmount ?? 0) >= 0) {
       const pct = ((invoice?.gstAmount ?? 0) / invoiceTaxable) * 100;
       this.gstPercent.set(Math.round(pct * 100) / 100);
@@ -264,10 +243,8 @@ export class PaymentDocComponent
     this.invoicePaymentSummary.set({
       invoiceNet,
       invoiceTaxable: taxableCap,
-      leftOnInvoice: leftOnTaxable,
-      leftOnInvoiceValue: Math.max(0, invoiceNet - valueBookedEarlier),
+      leftTaxableForDraft,
       earlierDraftCount: payments.length,
-      bookedTowardInvoice: sumTaxableEarlier,
       netPaidEarlier,
       gstEarlier: sumGstEarlier,
       tdsEarlier: sumTdsEarlier,

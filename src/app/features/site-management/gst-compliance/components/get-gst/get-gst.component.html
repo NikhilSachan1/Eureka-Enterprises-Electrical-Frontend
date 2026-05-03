@@ -27,21 +27,37 @@
       </div>
     </div>
     <div class="rounded-xl border border-red-100 bg-red-50 p-4">
-      <div class="text-xs font-medium text-red-500">Net Payable</div>
+      <div class="text-xs font-medium text-red-500">Net payable (3B, before releases)</div>
       <div class="mt-1 text-lg font-bold text-red-700">
         {{ grandTotals.netPayable | currency: 'INR' : 'symbol' : '1.0-0' }}
       </div>
+      @if (grandTotals.gstReleasedToGovt > 0) {
+        <div class="mt-2 space-y-0.5 border-t border-red-200/70 pt-2 text-[10px] leading-snug text-red-900/85">
+          <div>
+            Paid to govt (GST releases):
+            <span class="font-semibold text-fuchsia-800">
+              {{ grandTotals.gstReleasedToGovt | currency: 'INR' : 'symbol' : '1.0-0' }}
+            </span>
+          </div>
+          <div>
+            Remaining after releases:
+            <span class="font-semibold text-red-800">
+              {{ grandTotals.gstNetRemaining | currency: 'INR' : 'symbol' : '1.0-0' }}
+            </span>
+          </div>
+        </div>
+      }
     </div>
     <div class="rounded-xl border border-amber-100 bg-amber-50 p-4">
-      <div class="text-xs font-medium text-amber-500">GST payment (UTR) · purchase bills</div>
+      <div class="text-xs font-medium text-amber-500">GST deposit verified · purchase</div>
       <div class="mt-1 flex items-baseline gap-1.5">
         <span class="text-2xl font-bold text-emerald-700">{{ grandTotals.allGstPaymentsRecorded }}</span>
-        <span class="text-xs text-amber-600">recorded ·</span>
+        <span class="text-xs text-amber-600">verified ·</span>
         <span class="text-lg font-semibold text-amber-700">{{ grandTotals.allGstPaymentsPending }}</span>
         <span class="text-xs text-amber-500">pending</span>
       </div>
       <div class="mt-1 text-[10px] text-gray-500">
-        Outward (sales) view-only · Purchase {{ grandTotals.purchaseInvoiceTotal }} invoices for UTR tracking
+        Outward (sales) view-only · Purchase {{ grandTotals.purchaseInvoiceTotal }} bills
       </div>
     </div>
   </div>
@@ -97,6 +113,24 @@
                   {{ row.netPayable | currency: 'INR' : 'symbol' : '1.2-2' }}
                 </span>
               </span>
+              @if (row.gstReleasedToGovt > 0) {
+                <span>
+                  GST paid (govt):
+                  <span class="font-semibold text-fuchsia-800">
+                    {{ row.gstReleasedToGovt | currency: 'INR' : 'symbol' : '1.2-2' }}
+                  </span>
+                </span>
+                <span>
+                  GST remaining:
+                  <span
+                    class="font-semibold"
+                    [class.text-red-600]="row.gstNetRemaining > 0"
+                    [class.text-green-600]="row.gstNetRemaining === 0"
+                  >
+                    {{ row.gstNetRemaining | currency: 'INR' : 'symbol' : '1.2-2' }}
+                  </span>
+                </span>
+              }
             </div>
           </div>
 
@@ -168,7 +202,7 @@
                         >
                           <span
                             class="inline-flex w-fit items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700"
-                            title="Sales outward GST is for reference only. Portal payment, UTR, and GST payment release apply to purchase (ITC) only."
+                            title="Sales outward GST is for reference only. Purchase: verify GST deposit and GST payment release (ITC)."
                           >
                             <i class="pi pi-eye text-[10px]"></i>
                             Outward · view-only
@@ -189,7 +223,7 @@
                             <th class="px-2 py-1 text-right">Invoice value (₹)</th>
                             <th
                               class="px-2 py-1 text-center"
-                              title="Sales outward: view-only; no portal UTR / release here"
+                              title="Sales outward: view-only"
                             >
                               Verification
                             </th>
@@ -269,42 +303,29 @@
                             GST bills verified:
                             {{ partyGstVerificationLabel(party) }}
                           </span>
-                          @if (partyGstFullyVerified(party) && party.gstReleaseDocumentNumber) {
-                            <div
-                              class="max-w-full rounded-md border border-fuchsia-200 bg-white px-2.5 py-1.5 text-[11px] leading-snug text-slate-700 shadow-sm"
-                            >
-                              <span class="font-semibold text-fuchsia-900">GST payment release</span>
-                              <span class="mx-1 text-slate-400">·</span>
-                              <code class="font-mono text-[11px] font-semibold text-slate-900">
-                                {{ party.gstReleaseDocumentNumber }}
-                              </code>
-                              <span class="mx-1 text-slate-400">·</span>
-                              <span class="text-slate-600">Advice</span>
-                              <code class="ml-1 font-mono text-[11px] font-semibold text-slate-900">
-                                {{ party.gstReleaseAdviceNumber || '—' }}
-                              </code>
-                            </div>
-                          }
                         </div>
                         <div class="flex shrink-0 flex-col items-stretch gap-1.5 sm:flex-row sm:items-center">
                           <button
                             type="button"
                             class="rounded-lg px-3 py-2 text-center text-[11px] font-semibold shadow-sm transition-all"
-                            [class.bg-fuchsia-700]="canOpenGstPaymentReleaseForParty(party, 'purchase')"
-                            [class.text-white]="canOpenGstPaymentReleaseForParty(party, 'purchase')"
-                            [class.hover:opacity-90]="canOpenGstPaymentReleaseForParty(party, 'purchase')"
-                            [class.cursor-not-allowed]="!canOpenGstPaymentReleaseForParty(party, 'purchase')"
-                            [class.bg-gray-200]="!canOpenGstPaymentReleaseForParty(party, 'purchase')"
-                            [class.text-gray-500]="!canOpenGstPaymentReleaseForParty(party, 'purchase')"
-                            [disabled]="!canOpenGstPaymentReleaseForParty(party, 'purchase')"
+                            [class.bg-fuchsia-700]="canOpenGstPaymentReleaseForParty(party, row.monthKey, 'purchase')"
+                            [class.text-white]="canOpenGstPaymentReleaseForParty(party, row.monthKey, 'purchase')"
+                            [class.hover:opacity-90]="canOpenGstPaymentReleaseForParty(party, row.monthKey, 'purchase')"
+                            [class.cursor-not-allowed]="
+                              !canOpenGstPaymentReleaseForParty(party, row.monthKey, 'purchase')
+                            "
+                            [class.bg-gray-200]="!canOpenGstPaymentReleaseForParty(party, row.monthKey, 'purchase')"
+                            [class.text-gray-500]="!canOpenGstPaymentReleaseForParty(party, row.monthKey, 'purchase')"
+                            [disabled]="!canOpenGstPaymentReleaseForParty(party, row.monthKey, 'purchase')"
                             (click)="
-                              canOpenGstPaymentReleaseForParty(party, 'purchase') &&
+                              canOpenGstPaymentReleaseForParty(party, row.monthKey, 'purchase') &&
                                 openGstPaymentReleaseForParty(
                                   row.monthKey,
                                   row.monthLabel,
                                   party.partyName,
-                                  party.gstTotal,
+                                  partySelectedUnremittedGstForGovtTotal(row.monthKey, party),
                                   party.partyKey,
+                                  party,
                                   'purchase'
                                 )
                             "
@@ -316,9 +337,22 @@
                       </div>
                     </div>
                     <div class="overflow-x-auto border-t border-gray-100 px-3 pb-3 pt-2">
-                      <table class="w-full min-w-[720px] text-[11px]">
+                      <p class="mb-2 text-[10px] leading-snug text-slate-500">
+                        Tick
+                        <strong>Rel.</strong>
+                        on verified bills (govt GST still pending) to include them in
+                        <strong>GST payment release</strong>
+                        .
+                      </p>
+                      <table class="w-full min-w-[920px] text-[11px]">
                         <thead>
                           <tr class="border-b border-gray-200 font-semibold text-gray-500">
+                            <th
+                              class="w-9 py-1 text-center"
+                              title="Release: verified + pending govt GST only"
+                            >
+                              Rel.
+                            </th>
                             <th class="py-1 pr-2 text-left">#</th>
                             <th class="px-2 py-1 text-left">Bill / Invoice</th>
                             <th class="px-2 py-1 text-left">Date</th>
@@ -326,7 +360,12 @@
                             <th class="px-2 py-1 text-right">Rate %</th>
                             <th class="px-2 py-1 text-right">GST / ITC (₹)</th>
                             <th class="px-2 py-1 text-right">Invoice value (₹)</th>
-                            <th class="px-2 py-1 text-center">GST deposit</th>
+                            <th
+                              class="min-w-[7.5rem] px-2 py-1 text-center"
+                              title="GST deposit verification"
+                            >
+                              Verified
+                            </th>
                             <th class="px-2 py-1 text-right">Action</th>
                           </tr>
                         </thead>
@@ -334,8 +373,37 @@
                           @for (b of party.bills; track b.invoiceId; let i = $index) {
                             <tr
                               class="border-b border-gray-50"
-                              [ngClass]="{ 'bg-green-50/60': !!b.gstPayment }"
+                              [ngClass]="{
+                                'bg-fuchsia-50/45': !!b.gstPayment && billGstUnremittedToGovt(b) <= 0,
+                                'bg-green-50/60': !!b.gstPayment && billGstUnremittedToGovt(b) > 0,
+                              }"
                             >
+                              <td class="py-1 align-middle text-center">
+                                @if (canSelectRowForGstRelease(b)) {
+                                  <input
+                                    type="checkbox"
+                                    class="h-3.5 w-3.5 cursor-pointer rounded border-gray-300 text-fuchsia-700 focus:ring-fuchsia-500/40"
+                                    [checked]="
+                                      isPurchaseRowSelectedForRelease(row.monthKey, party.partyKey, b.invoiceId)
+                                    "
+                                    (change)="
+                                      togglePurchaseGstReleaseRow(
+                                        row.monthKey,
+                                        party.partyKey,
+                                        b.invoiceId,
+                                        $any($event.target).checked
+                                      )
+                                    "
+                                  />
+                                } @else {
+                                  <span
+                                    class="text-gray-300"
+                                    title="Verify first; fully remitted rows excluded"
+                                  >
+                                    —
+                                  </span>
+                                }
+                              </td>
                               <td class="py-1 pr-2 text-gray-400">{{ i + 1 }}</td>
                               <td class="px-2 py-1 font-medium text-gray-800">{{ b.billNo }}</td>
                               <td class="px-2 py-1 text-gray-500">{{ b.billDate | date: 'dd MMM yyyy' }}</td>
@@ -351,42 +419,38 @@
                               <td class="px-2 py-1 text-right font-semibold text-gray-900">
                                 {{ b.totalAmount | currency: 'INR' : 'symbol' : '1.2-2' }}
                               </td>
-                              <td class="px-2 py-1 text-center">
-                                @if (b.gstPayment) {
-                                  <span
-                                    class="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-800"
-                                  >
-                                    Verified
-                                  </span>
+                              <td class="px-2 py-1 align-top text-center">
+                                @if (b.gstPayment; as pay) {
+                                  <div class="flex flex-col items-center gap-1">
+                                    <span
+                                      class="w-fit rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-800"
+                                    >
+                                      Verified
+                                    </span>
+                                    @if (pay.paymentDate) {
+                                      <div class="text-[10px] leading-tight text-slate-600">
+                                        <span class="block text-slate-400">On</span>
+                                        <span class="font-semibold text-slate-800">
+                                          {{ pay.paymentDate | date: 'dd MMM yyyy' }}
+                                        </span>
+                                      </div>
+                                    }
+                                  </div>
                                 } @else {
-                                  <span
-                                    class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800"
-                                  >
-                                    Pending
-                                  </span>
+                                  <div class="flex justify-center">
+                                    <span
+                                      class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800"
+                                    >
+                                      Pending
+                                    </span>
+                                  </div>
                                 }
                               </td>
                               <td class="px-2 py-1 text-right whitespace-nowrap">
                                 @if (b.gstPayment) {
                                   <button
                                     type="button"
-                                    class="mr-1 text-[10px] font-medium text-primary hover:underline"
-                                    (click)="
-                                      openGstPaymentForm(
-                                        row.monthKey,
-                                        row.monthLabel,
-                                        party.partyName,
-                                        b,
-                                        party.partyKey,
-                                        'purchase'
-                                      )
-                                    "
-                                  >
-                                    Edit
-                                  </button>
-                                  <button
-                                    type="button"
-                                    class="text-[10px] font-medium text-red-600 hover:underline"
+                                    class="text-[10px] font-medium text-slate-600 underline decoration-slate-300 decoration-dotted underline-offset-2 hover:text-amber-800"
                                     (click)="
                                       clearInvoiceGstPayment(
                                         b.invoiceId,
@@ -397,7 +461,7 @@
                                       )
                                     "
                                   >
-                                    Clear
+                                    Back to pending
                                   </button>
                                 } @else {
                                   <button
@@ -414,7 +478,7 @@
                                       )
                                     "
                                   >
-                                    Record payment
+                                    Verify
                                   </button>
                                 }
                               </td>

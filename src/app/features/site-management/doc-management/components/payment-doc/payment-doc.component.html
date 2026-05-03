@@ -12,56 +12,40 @@
   />
 
   @if (invoicePaymentSummary(); as s) {
-    <div class="mt-2 rounded-lg border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm">
-      <div class="flex flex-wrap gap-6">
-        <div>
-          <div class="text-xs font-medium text-slate-500">Invoice total (incl. GST)</div>
-          <div class="text-lg font-semibold tracking-tight text-slate-900">
-            {{ s.invoiceNet | currency: 'INR' : 'symbol' : '1.0-0' }}
-          </div>
-        </div>
-        <div>
-          <div class="text-xs font-medium text-slate-500">Invoice taxable (cap for splits)</div>
-          <div class="text-sm font-semibold text-slate-800">
-            {{ s.invoiceTaxable | currency: 'INR' : 'symbol' : '1.0-0' }}
-          </div>
-        </div>
-        <div>
-          <div class="text-xs font-medium text-slate-500">Taxable still bookable</div>
-          <div
-            class="text-lg font-semibold tracking-tight"
-            [class.text-emerald-700]="s.leftOnInvoice > 0"
-            [class.text-red-600]="s.leftOnInvoice <= 0"
-          >
-            {{ s.leftOnInvoice | currency: 'INR' : 'symbol' : '1.0-0' }}
-          </div>
-        </div>
-        <div>
-          <div class="text-xs font-medium text-slate-500">Tax + GST still bookable</div>
-          <div
-            class="text-lg font-semibold tracking-tight"
-            [class.text-emerald-700]="s.leftOnInvoiceValue > 0"
-            [class.text-red-600]="s.leftOnInvoiceValue <= 0"
-          >
-            {{ s.leftOnInvoiceValue | currency: 'INR' : 'symbol' : '1.0-0' }}
-          </div>
-          <div class="mt-0.5 text-[10px] text-slate-500">vs invoice total (incl. GST)</div>
-        </div>
-      </div>
+    <div
+      class="mt-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm"
+      title="Is bill par ab tak kitna net book hua, kitna GST/TDS kata"
+    >
+      <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Bill snapshot</div>
+      <p class="leading-relaxed text-slate-700">
+        <span class="text-slate-500">Invoice (incl. GST):</span>
+        <strong class="text-slate-900">{{ s.invoiceNet | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
+        <span class="mx-1 text-slate-400">·</span>
+        <span class="text-slate-500">Taxable cap:</span>
+        <strong>{{ s.invoiceTaxable | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
+        <span class="mx-1 text-slate-400">·</span>
+        <span class="text-slate-500">Is line ke liye taxable bachi:</span>
+        <strong
+          [class.text-emerald-700]="s.leftTaxableForDraft > 0"
+          [class.text-red-600]="s.leftTaxableForDraft <= 0"
+        >
+          {{ s.leftTaxableForDraft | currency: 'INR' : 'symbol' : '1.0-0' }}
+        </strong>
+      </p>
       @if (s.earlierDraftCount > 0) {
-        <p class="mt-3 border-t border-slate-200 pt-3 text-xs leading-relaxed text-slate-600">
-          Earlier
+        <p class="mt-2 border-t border-slate-100 pt-2 text-xs leading-relaxed text-slate-600">
+          Pehle
           <strong>{{ s.earlierDraftCount }}</strong>
-          draft(s): total taxable
-          <strong>{{ s.bookedTowardInvoice | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
-          booked toward this invoice taxable cap. GST/TDS on those lines:
-          <strong>{{ s.gstEarlier | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
-          /
-          <strong>{{ s.tdsEarlier | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
-          . Contractor net from those drafts:
+          draft(s) par party ko net
           <strong>{{ s.netPaidEarlier | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
-          .
+          ;
+          <span class="text-slate-500">GST / TDS kata:</span>
+          <strong class="text-purple-800">{{ s.gstEarlier | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
+          /
+          <strong class="text-rose-800">{{ s.tdsEarlier | currency: 'INR' : 'symbol' : '1.0-0' }}</strong>
         </p>
+      } @else {
+        <p class="mt-2 text-xs text-slate-500">Abhi tak is invoice par koi payment draft nahi.</p>
       }
     </div>
   }

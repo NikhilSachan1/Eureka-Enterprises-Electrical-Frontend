@@ -37,7 +37,7 @@ export interface IBillingGstRow {
   gstAmount: number;
   totalAmount: number;
   effectiveGstRatePct: number;
-  /** Only populated for sales outward rows — GST portal payment tracking */
+  /** Purchase: local GST deposit verify record (date + status); sales outward unused */
   gstPayment: IGstInvoicePaymentRecord | null;
 }
 
@@ -66,20 +66,24 @@ export interface IMonthGstData {
   netPayable: number;
   /** Count of sales invoices in this month */
   salesInvoiceCount: number;
-  /** Sales invoices with GST payment recorded */
+  /** Sales — unused for verify workflow */
   salesGstPaidCount: number;
   /** Purchase invoices this month (counterparty outward / your ITC bill) */
   purchaseInvoiceCount: number;
-  /** Purchase invoices with GST-to-govt payment recorded */
+  /** Purchase bills with GST deposit **Verified** (local) */
   purchaseGstPaidCount: number;
   showMonthlyBilling: boolean;
+  /** Sum of purchase GST payment release doc amounts for this month (paid to govt). */
+  gstReleasedToGovt: number;
+  /** Net 3B liability remaining after GST releases (≥ 0). */
+  gstNetRemaining: number;
 }
 
 const GST_INVOICE_PORTAL_PAYMENT_DIALOG_CONFIG: IDialogActionConfig = {
   dialogConfig: {
     ...PLAIN_CONFIRMATION_DIALOG_CONFIG,
-    header: 'Record GST portal payment',
-    message: 'Enter UTR, payment date, and proof — then click Save below.',
+    header: 'Verify GST deposit',
+    message: 'Pick the verification date — then click Save below.',
   },
   dynamicComponent: GstInvoicePortalPaymentDialogComponent,
 };
@@ -104,6 +108,12 @@ export class GetGstComponent implements OnInit {
 
   protected readonly monthlyData = signal<IMonthGstData[]>([]);
   protected readonly loading = signal(true);
+  /**
+   * Purchase GST payment release row picks: key `monthKey|partyKey` → invoice ids (verified + still unremitted to govt).
+   */
+  protected readonly purchaseGstReleaseSelection = signal<
+    Record<string, string[]>
+  >({});
 
   ngOnInit(): void {
     void this.loadGstData();
@@ -112,23 +122,36 @@ export class GetGstComponent implements OnInit {
   /**
    * GST payment release — only from GST screen, **per month + contractor (party)** row.
    * `flow` maps to IndexedDB `docContext` (sales outward vs purchase / vendor).
+   * For purchase, `verifiedBillsGstTotal` should be **govt GST still to remit** (verified bills minus already released).
    */
   protected openGstPaymentReleaseForParty(
     monthKey: string,
     monthLabel: string,
     partyName: string,
-    partyGstTotal: number,
+    selectedUnremittedGstTotal: number,
     partyKey: string,
+    party: IPartyGstBucket,
     flow: IGstPartyFlow
   ): void {
     if (flow === 'sales') {
+      return;
+    }
+    const sel = new Set(
+      this.getPurchaseGstReleaseSelectedIds(monthKey, partyKey)
+    );
+    const allocationOrder = party.bills
+      .filter(b => !!b.gstPayment && sel.has(b.invoiceId))
+      .map(b => ({ invoiceId: b.invoiceId, gstAmount: b.gstAmount }));
+    if (!allocationOrder.length) {
       return;
     }
     const dialogConfig: IDialogActionConfig = {
       ...DOC_ADD_BUTTON_CONFIG_MAP[EDocType.GST_PAYMENT_RELEASE],
     };
     const prefill =
-      partyGstTotal > 0 ? Math.round(partyGstTotal * 100) / 100 : null;
+      selectedUnremittedGstTotal > 0
+        ? Math.round(selectedUnremittedGstTotal * 100) / 100
+        : null;
     const contextLabel = `${monthLabel} — ${partyName}`;
     const dynamicComponentInputs: Record<string, unknown> = {
       selectedRecord: [],
@@ -139,6 +162,7 @@ export class GetGstComponent implements OnInit {
       gstReleaseContextLabel: contextLabel,
       prefilledPartyKey: partyKey,
       prefilledMonthKey: monthKey,
+      gstReleaseAllocationOrder: allocationOrder,
     };
     if (prefill !== null && prefill !== undefined && prefill > 0) {
       dynamicComponentInputs['prefilledGstAmount'] = prefill;
@@ -158,35 +182,153 @@ export class GetGstComponent implements OnInit {
     return party.bills.filter(b => !!b.gstPayment).length;
   }
 
-  /** All bills under this party/month bucket have payment recorded — unlocks party advice + GST release. */
+  /**
+   * Per bill: ITC GST not yet counted toward a GST payment release (still to pay to govt).
+   */
+  protected billGstUnremittedToGovt(b: IBillingGstRow): number {
+    const pay = b.gstPayment;
+    if (!pay) {
+      return 0;
+    }
+    const r = pay.gstRemittedAmount ?? 0;
+    return Math.max(0, Math.round((b.gstAmount - r) * 100) / 100);
+  }
+
+  /** Sum of `billGstUnremittedToGovt` for the party — prefill for GST payment release. */
+  protected partyUnremittedGstForGovtTotal(party: IPartyGstBucket): number {
+    const sum = party.bills.reduce(
+      (s, b) => s + this.billGstUnremittedToGovt(b),
+      0
+    );
+    return Math.round(sum * 100) / 100;
+  }
+
+  private gstReleaseSelectionKey(monthKey: string, partyKey: string): string {
+    return `${monthKey}|${partyKey}`;
+  }
+
+  private getPurchaseGstReleaseSelectedIds(
+    monthKey: string,
+    partyKey: string
+  ): string[] {
+    const key = this.gstReleaseSelectionKey(monthKey, partyKey);
+    return this.purchaseGstReleaseSelection()[key] ?? [];
+  }
+
+  /** Sum of unremitted govt GST for **checked** verified rows only. */
+  protected partySelectedUnremittedGstForGovtTotal(
+    monthKey: string,
+    party: IPartyGstBucket
+  ): number {
+    const sel = new Set(
+      this.getPurchaseGstReleaseSelectedIds(monthKey, party.partyKey)
+    );
+    const sum = party.bills.reduce((s, b) => {
+      if (!b.gstPayment || !sel.has(b.invoiceId)) {
+        return s;
+      }
+      return s + this.billGstUnremittedToGovt(b);
+    }, 0);
+    return Math.round(sum * 100) / 100;
+  }
+
+  protected isPurchaseRowSelectedForRelease(
+    monthKey: string,
+    partyKey: string,
+    invoiceId: string
+  ): boolean {
+    return this.getPurchaseGstReleaseSelectedIds(monthKey, partyKey).includes(
+      invoiceId
+    );
+  }
+
+  /** Verified + still has govt GST to remit — eligible for release checkbox. */
+  protected canSelectRowForGstRelease(b: IBillingGstRow): boolean {
+    return !!b.gstPayment && this.billGstUnremittedToGovt(b) > 0.0001;
+  }
+
+  protected togglePurchaseGstReleaseRow(
+    monthKey: string,
+    partyKey: string,
+    invoiceId: string,
+    checked: boolean
+  ): void {
+    const key = this.gstReleaseSelectionKey(monthKey, partyKey);
+    this.purchaseGstReleaseSelection.update(map => {
+      const prev = new Set(map[key] ?? []);
+      if (checked) {
+        prev.add(invoiceId);
+      } else {
+        prev.delete(invoiceId);
+      }
+      const next = { ...map, [key]: [...prev] };
+      if (next[key].length === 0) {
+        delete next[key];
+      }
+      return next;
+    });
+    this.cdr.markForCheck();
+  }
+
+  private prunePurchaseGstReleaseSelection(rows: IMonthGstData[]): void {
+    this.purchaseGstReleaseSelection.update(map => {
+      const next: Record<string, string[]> = {};
+      for (const row of rows) {
+        for (const party of row.purchaseByParty) {
+          const key = this.gstReleaseSelectionKey(row.monthKey, party.partyKey);
+          const allowed = new Set(
+            party.bills
+              .filter(
+                b => !!b.gstPayment && this.billGstUnremittedToGovt(b) > 0.0001
+              )
+              .map(b => b.invoiceId)
+          );
+          const prev = map[key] ?? [];
+          const kept = prev.filter(id => allowed.has(id));
+          if (kept.length > 0) {
+            next[key] = kept;
+          }
+        }
+      }
+      return next;
+    });
+  }
+
+  /** All bills in this party/month are **Verified**. */
   protected partyGstFullyVerified(party: IPartyGstBucket): boolean {
     return this.gstPortalPaymentStorage.partyGstFullyVerified(party);
   }
 
-  /** GST payment release only after every bill in this party is verified; needs a resolvable party. (Purchase only — sales is view-only.) */
+  /**
+   * GST payment release when at least one **selected** verified row still has govt GST to remit.
+   * Purchase only — sales is view-only.
+   */
   protected canOpenGstPaymentReleaseForParty(
     party: IPartyGstBucket,
+    monthKey: string,
     flow: IGstPartyFlow
   ): boolean {
     if (flow === 'sales') {
       return false;
     }
-    if (party.partyKey === '__none__' || !this.partyGstFullyVerified(party)) {
+    if (party.partyKey === '__none__') {
       return false;
     }
-    return !party.gstReleaseDocumentNumber;
+    return (
+      this.partySelectedUnremittedGstForGovtTotal(monthKey, party) > 0.0001
+    );
   }
 
-  /** IndexedDB: release row matches GST screen month (remark `GST bucket:` or legacy payment-date month). */
-  private purchaseGstReleaseMatchesPartyMonth(
+  /**
+   * Purchase GST payment release belongs to this GST screen month (`GST bucket:` in remark, else document date month).
+   */
+  private gstReleaseDocMatchesMonth(
     r: IDocIndexedDbRow,
-    rowMonthKey: string,
-    partyKey: string
+    rowMonthKey: string
   ): boolean {
     if (
       r.documentType !== EDocType.GST_PAYMENT_RELEASE ||
-      r.docContext !== 'purchase' ||
-      r.vendorName !== partyKey
+      r.docContext !== 'purchase'
     ) {
       return false;
     }
@@ -195,6 +337,27 @@ export class GetGstComponent implements OnInit {
       return m[1] === rowMonthKey;
     }
     return this.monthKey(r.documentDate) === rowMonthKey;
+  }
+
+  private purchaseGstReleasePaidTotalForMonth(
+    monthKey: string,
+    allDocs: IDocIndexedDbRow[]
+  ): number {
+    return allDocs
+      .filter(d => this.gstReleaseDocMatchesMonth(d, monthKey))
+      .reduce((s, d) => s + (d.totalAmount ?? 0), 0);
+  }
+
+  /** IndexedDB: release row matches party + month. */
+  private purchaseGstReleaseMatchesPartyMonth(
+    r: IDocIndexedDbRow,
+    rowMonthKey: string,
+    partyKey: string
+  ): boolean {
+    return (
+      this.gstReleaseDocMatchesMonth(r, rowMonthKey) &&
+      r.vendorName === partyKey
+    );
   }
 
   private findLatestPurchaseGstReleaseForPartyMonth(
@@ -441,6 +604,12 @@ export class GetGstComponent implements OnInit {
         inv => !!payments[inv.id]
       ).length;
 
+      const gstReleasedToGovt = this.purchaseGstReleasePaidTotalForMonth(
+        key,
+        allDocs
+      );
+      const gstNetRemaining = Math.max(0, netPayable - gstReleasedToGovt);
+
       return {
         monthKey: key,
         monthLabel: this.monthLabel(key),
@@ -455,13 +624,17 @@ export class GetGstComponent implements OnInit {
         salesGstPaidCount,
         purchaseInvoiceCount,
         purchaseGstPaidCount,
+        gstReleasedToGovt,
+        gstNetRemaining,
         /** Open by default so per-invoice GST payment actions stay visible */
         showMonthlyBilling: salesList.length > 0 || purchaseList.length > 0,
       };
     });
 
     this.gstPortalPaymentStorage.hydratePartyGstAdviceFromVerifiedBuckets(rows);
-    this.monthlyData.set(this.enrichPurchasePartyGstRelease(rows, allDocs));
+    const enriched = this.enrichPurchasePartyGstRelease(rows, allDocs);
+    this.monthlyData.set(enriched);
+    this.prunePurchaseGstReleaseSelection(enriched);
     this.loading.set(false);
     this.cdr.markForCheck();
   }
@@ -491,7 +664,7 @@ export class GetGstComponent implements OnInit {
     );
   }
 
-  /** Opens popup to record / edit GST portal payment (UTR, date, proof) for one bill. */
+  /** Opens verify / edit verification date for one bill’s GST deposit. */
   protected openGstPaymentForm(
     monthKey: string,
     monthLabel: string,
@@ -556,15 +729,17 @@ export class GetGstComponent implements OnInit {
     outwardGst: number;
     itcGst: number;
     netPayable: number;
+    gstReleasedToGovt: number;
+    gstNetRemaining: number;
     salesInvoicePaid: number;
     salesInvoicePending: number;
     salesInvoiceTotal: number;
     purchaseInvoicePaid: number;
     purchaseInvoicePending: number;
     purchaseInvoiceTotal: number;
-    /** Bills (sales + purchase) with GST payment recorded */
+    /** Purchase bills verified (local GST deposit) */
     allGstPaymentsRecorded: number;
-    /** Bills pending GST payment record */
+    /** Purchase bills still pending verify */
     allGstPaymentsPending: number;
   } {
     return this.monthlyData().reduce(
@@ -572,6 +747,8 @@ export class GetGstComponent implements OnInit {
         outwardGst: acc.outwardGst + r.outwardGst,
         itcGst: acc.itcGst + r.itcGst,
         netPayable: acc.netPayable + r.netPayable,
+        gstReleasedToGovt: acc.gstReleasedToGovt + r.gstReleasedToGovt,
+        gstNetRemaining: acc.gstNetRemaining + r.gstNetRemaining,
         salesInvoicePaid: acc.salesInvoicePaid + r.salesGstPaidCount,
         salesInvoicePending:
           acc.salesInvoicePending + (r.salesInvoiceCount - r.salesGstPaidCount),
@@ -591,6 +768,8 @@ export class GetGstComponent implements OnInit {
         outwardGst: 0,
         itcGst: 0,
         netPayable: 0,
+        gstReleasedToGovt: 0,
+        gstNetRemaining: 0,
         salesInvoicePaid: 0,
         salesInvoicePending: 0,
         salesInvoiceTotal: 0,

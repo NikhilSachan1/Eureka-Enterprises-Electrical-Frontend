@@ -49,60 +49,38 @@ export class GstInvoicePortalPaymentDialogComponent
   );
   protected readonly onSuccess = input.required<() => void>();
 
-  protected proofFile: File | null = null;
-
-  protected readonly paymentForm = new FormGroup({
-    utrNumber: new FormControl('', [
-      Validators.required,
-      Validators.minLength(12),
-    ]),
-    paymentDate: new FormControl('', [Validators.required]),
+  protected readonly verifyForm = new FormGroup({
+    verifiedDate: new FormControl('', [Validators.required]),
   });
 
   ngOnInit(): void {
     const existing = this.existingRecord();
-    this.paymentForm.reset({
-      utrNumber: existing?.utrNumber ?? '',
-      paymentDate: existing?.paymentDate ?? '',
+    this.verifyForm.reset({
+      verifiedDate: existing?.paymentDate ?? '',
     });
   }
 
   onDialogAccept(): void {
-    if (this.paymentForm.invalid) {
-      this.paymentForm.markAllAsTouched();
+    if (this.verifyForm.invalid) {
+      this.verifyForm.markAllAsTouched();
       return;
     }
-    const { utrNumber, paymentDate } = this.paymentForm.getRawValue();
-    const existing = this.existingRecord();
-    const existingProof = existing?.proofFileName ?? '';
-    const proofName = this.proofFile?.name ?? existingProof;
+    const verifiedDate = this.verifyForm.getRawValue().verifiedDate ?? '';
 
-    this.storage.saveInvoicePortalPayment({
+    this.storage.saveInvoiceGstVerification({
       invoiceId: this.invoiceId(),
       billNo: this.billNo(),
       monthKey: this.monthKey(),
       partyKey: this.partyKey(),
       flow: this.flow(),
-      utrNumber: utrNumber ?? '',
-      paymentDate: paymentDate ?? '',
-      proofFileName: proofName,
+      verifiedDate,
     });
     this.onSuccess()();
     this.confirmationDialogService.closeDialog();
   }
 
-  protected onProofSelected(event: Event): void {
-    const el = event.target as HTMLInputElement;
-    this.proofFile = el.files?.[0] ?? null;
-  }
-
-  protected isInvalid(field: 'utrNumber' | 'paymentDate'): boolean {
-    const ctrl = this.paymentForm.get(field);
+  protected isInvalid(): boolean {
+    const ctrl = this.verifyForm.get('verifiedDate');
     return !!(ctrl?.invalid && ctrl.touched);
-  }
-
-  protected existingProofLabel(): string | null {
-    const name = this.existingRecord()?.proofFileName?.trim();
-    return name !== undefined && name !== '' ? name : null;
   }
 }

@@ -59,13 +59,13 @@ interface IPoSummaryRow {
   invoiceCount: number;
   /** Payment drafts linked to this PO’s invoices */
   paymentDraftCount: number;
+  /** Bank transfer docs (UTR) under those payment drafts */
+  bankTransferCount: number;
   invoicedAmount: number;
-  /** Invoiced total (incl. GST) − Booked (tax + GST on drafts) */
-  invoicedMinusBooked: number;
   totalGstDeducted: number;
   totalTdsDeducted: number;
-  /** Sum of taxable + GST on payment drafts */
-  bookedAmount: number;
+  /** Sum of payment draft net (taxable − GST − TDS) to party */
+  netPaidOnDrafts: number;
   actualReceivedAmount: number;
   paymentAdviceCount: number;
   balance: number;
@@ -104,6 +104,8 @@ export class GetDocComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected addDocumentSplitItems: MenuItem[] = [];
   protected readonly poSummaryRows = signal<IPoSummaryRow[]>([]);
+  /** Purchase: sum of GST payment release amounts (govt remittance), not tied to a PO row. */
+  protected readonly purchaseGstReleasePaidTotal = signal(0);
   protected readonly showPoSummary = signal(true);
 
   // Mail compose state
@@ -356,6 +358,19 @@ export class GetDocComponent implements OnInit {
     const bankTransfers = byType(EDocType.BANK_TRANSFER);
     const advices = byType(EDocType.PAYMENT_ADVICE);
 
+    if (ctx === 'purchase') {
+      const gstRel = allDocs.filter(
+        d =>
+          d.documentType === EDocType.GST_PAYMENT_RELEASE &&
+          d.docContext === 'purchase'
+      );
+      this.purchaseGstReleasePaidTotal.set(
+        gstRel.reduce((s, d) => s + (d.totalAmount ?? 0), 0)
+      );
+    } else {
+      this.purchaseGstReleasePaidTotal.set(0);
+    }
+
     const rows: IPoSummaryRow[] = pos.map(po => {
       const poJmcs = jmcs.filter(j => j.docReference === po.id);
       const jmcIds = new Set(poJmcs.map(j => j.id));
@@ -383,11 +398,10 @@ export class GetDocComponent implements OnInit {
         (s, i) => s + (i.totalAmount ?? 0),
         0
       );
-      const bookedAmount = poPayments.reduce(
-        (s, p) => s + (p.taxableAmount ?? 0) + (p.gstAmount ?? 0),
+      const netPaidOnDrafts = poPayments.reduce(
+        (s, p) => s + (p.totalAmount ?? 0),
         0
       );
-      const invoicedMinusBooked = invoicedAmount - bookedAmount;
       // Actual received = Bank Transfer total (UTR confirmed)
       const actualReceivedAmount = poBankTransfers.reduce(
         (s, bt) => s + (bt.totalAmount ?? 0),
@@ -419,11 +433,11 @@ export class GetDocComponent implements OnInit {
         reportCount: poReports.length,
         invoiceCount: poInvoices.length,
         paymentDraftCount: poPayments.length,
+        bankTransferCount: poBankTransfers.length,
         invoicedAmount,
-        invoicedMinusBooked,
         totalGstDeducted,
         totalTdsDeducted,
-        bookedAmount,
+        netPaidOnDrafts,
         actualReceivedAmount,
         paymentAdviceCount: poAdvices.length,
         balance: (po.totalAmount ?? 0) - invoicedAmount,
@@ -437,24 +451,29 @@ export class GetDocComponent implements OnInit {
     poValue: number;
     invoiceDocCount: number;
     paymentDraftCount: number;
+    bankTransferDocCount: number;
     invoicedAmount: number;
-    invoicedMinusBooked: number;
     totalGstDeducted: number;
     totalTdsDeducted: number;
-    bookedAmount: number;
+    netPaidOnDrafts: number;
+    /** Bank transfer (UTR) totals from PO-linked chain only */
     actualReceivedAmount: number;
+    /** Purchase: GST payment release amounts paid to govt */
+    gstGovtReleasedAmount: number;
+    /** Purchase: UTR paid + GST releases; sales: bank inflow only */
+    actualPaidOrReceivedTotal: number;
     balance: number;
   } {
-    return this.poSummaryRows().reduce(
+    const base = this.poSummaryRows().reduce(
       (acc, r) => ({
         poValue: acc.poValue + r.poValue,
         invoiceDocCount: acc.invoiceDocCount + r.invoiceCount,
         paymentDraftCount: acc.paymentDraftCount + r.paymentDraftCount,
+        bankTransferDocCount: acc.bankTransferDocCount + r.bankTransferCount,
         invoicedAmount: acc.invoicedAmount + r.invoicedAmount,
-        invoicedMinusBooked: acc.invoicedMinusBooked + r.invoicedMinusBooked,
         totalGstDeducted: acc.totalGstDeducted + r.totalGstDeducted,
         totalTdsDeducted: acc.totalTdsDeducted + r.totalTdsDeducted,
-        bookedAmount: acc.bookedAmount + r.bookedAmount,
+        netPaidOnDrafts: acc.netPaidOnDrafts + r.netPaidOnDrafts,
         actualReceivedAmount: acc.actualReceivedAmount + r.actualReceivedAmount,
         balance: acc.balance + r.balance,
       }),
@@ -462,15 +481,22 @@ export class GetDocComponent implements OnInit {
         poValue: 0,
         invoiceDocCount: 0,
         paymentDraftCount: 0,
+        bankTransferDocCount: 0,
         invoicedAmount: 0,
-        invoicedMinusBooked: 0,
         totalGstDeducted: 0,
         totalTdsDeducted: 0,
-        bookedAmount: 0,
+        netPaidOnDrafts: 0,
         actualReceivedAmount: 0,
         balance: 0,
       }
     );
+    const gstGovt =
+      this.docContext() === 'purchase' ? this.purchaseGstReleasePaidTotal() : 0;
+    return {
+      ...base,
+      gstGovtReleasedAmount: gstGovt,
+      actualPaidOrReceivedTotal: base.actualReceivedAmount + gstGovt,
+    };
   }
 
   private mapRowToTableData(
