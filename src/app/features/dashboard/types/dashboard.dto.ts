@@ -1,7 +1,10 @@
 import { z } from 'zod';
 import {
+  AnniversariesDashboardGetResponseSchema,
   ApprovalPendingDashboardGetResponseSchema,
   AssetFleetAlertsDashboardGetResponseSchema,
+  BirthdaysDashboardGetResponseSchema,
+  HolidaysDashboardGetResponseSchema,
   LedgerBalanceDashboardGetResponseSchema,
   VehicleReadingsAlertsDashboardGetResponseSchema,
 } from '../schemas';
@@ -32,4 +35,25 @@ export type IAssetFleetAlertsDashboardGetResponseDto = z.infer<
 */
 export type IVehicleReadingsAlertsDashboardGetResponseDto = z.infer<
   typeof VehicleReadingsAlertsDashboardGetResponseSchema
+>;
+
+/*
+  Anniversaries Dashboard Get
+*/
+export type IAnniversariesDashboardGetResponseDto = z.infer<
+  typeof AnniversariesDashboardGetResponseSchema
+>;
+
+/*
+  Holidays Dashboard Get
+*/
+export type IHolidaysDashboardGetResponseDto = z.infer<
+  typeof HolidaysDashboardGetResponseSchema
+>;
+
+/*
+  Birthdays Dashboard Get
+*/
+export type IBirthdaysDashboardGetResponseDto = z.infer<
+  typeof BirthdaysDashboardGetResponseSchema
 >;

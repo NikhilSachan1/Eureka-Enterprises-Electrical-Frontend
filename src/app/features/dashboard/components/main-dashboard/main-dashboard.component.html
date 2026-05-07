@@ -10,16 +10,56 @@
 
       <section
         class="dash-section"
+        aria-labelledby="dash-celebrations-title"
+      >
+        <div class="dash-section__head">
+          <div class="dash-section__lead dash-section__lead--celebrations">
+            <span
+              class="dash-section__lead-icon dash-section__lead-icon--celebrations"
+              aria-hidden="true"
+            >
+              <span [class]="ICONS.COMMON.GIFT"></span>
+            </span>
+            <div>
+              <h2
+                id="dash-celebrations-title"
+                class="dash-section__title"
+              >
+                Birthdays, anniversaries &amp; holidays
+              </h2>
+              <p class="dash-section__desc">People milestones and upcoming public / company holidays.</p>
+            </div>
+          </div>
+        </div>
+        <div class="people-celebrations-grid">
+          <app-birthdays-dashboard />
+          <app-anniversary-dashboard />
+          <app-holiday-dashboard />
+        </div>
+      </section>
+
+      <section
+        class="dash-section"
         aria-labelledby="dash-people-title"
       >
         <div class="dash-section__head">
-          <h2
-            id="dash-people-title"
-            class="dash-section__title"
-          >
-            People &amp; time
-          </h2>
-          <p class="dash-section__desc">Headcount, attendance, and leave workflow.</p>
+          <div class="dash-section__lead dash-section__lead--people">
+            <span
+              class="dash-section__lead-icon dash-section__lead-icon--people"
+              aria-hidden="true"
+            >
+              <span [class]="ICONS.COMMON.USERS"></span>
+            </span>
+            <div>
+              <h2
+                id="dash-people-title"
+                class="dash-section__title"
+              >
+                People &amp; time
+              </h2>
+              <p class="dash-section__desc">Headcount, attendance, and leave workflow.</p>
+            </div>
+          </div>
         </div>
         <div
           class="dash-section__grid dash-section__grid--people"
@@ -37,41 +77,6 @@
 
             <app-leave-balance-dashboard />
           </div>
-
-          <p-card class="status-dashboard__card status-dashboard__card--wide">
-            <div class="card-block">
-              <div class="card-block__head card-block__head--wrap">
-                <div class="card-block__titles">
-                  <div
-                    class="card-block__icon-wrap"
-                    aria-hidden="true"
-                  >
-                    <span [class]="ICONS.COMMON.GIFT + ' card-block__icon'"></span>
-                  </div>
-                  <div>
-                    <h2 class="card-block__title">Birthdays, anniversaries &amp; holidays</h2>
-                    <p class="card-block__hint">People milestones and upcoming public / company holidays</p>
-                  </div>
-                </div>
-                <div class="card-block__controls">
-                  <app-button
-                    [buttonConfig]="celebrationsCalendarButton"
-                    (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.CALENDAR, ROUTES.CALENDAR.LIST])"
-                  />
-                  <app-button
-                    [buttonConfig]="celebrationsDirectoryButton"
-                    (onButtonClick)="navigateTo(['/', ROUTE_BASE_PATHS.EMPLOYEE, ROUTES.EMPLOYEE.LIST])"
-                  />
-                </div>
-              </div>
-
-              <div class="people-celebrations-split">
-                <app-birthdays-dashboard />
-                <app-anniversary-dashboard />
-                <app-holiday-dashboard />
-              </div>
-            </div>
-          </p-card>
         </div>
       </section>
 
@@ -80,15 +85,25 @@
         aria-labelledby="dash-ops-title"
       >
         <div class="dash-section__head">
-          <h2
-            id="dash-ops-title"
-            class="dash-section__title"
-          >
-            Assets &amp; transport
-          </h2>
-          <p class="dash-section__desc">
-            Equipment, fleet compliance, scheduled service, and odometer / reading hygiene.
-          </p>
+          <div class="dash-section__lead dash-section__lead--ops">
+            <span
+              class="dash-section__lead-icon dash-section__lead-icon--ops"
+              aria-hidden="true"
+            >
+              <span [class]="ICONS.COMMON.CAR"></span>
+            </span>
+            <div>
+              <h2
+                id="dash-ops-title"
+                class="dash-section__title"
+              >
+                Assets &amp; transport
+              </h2>
+              <p class="dash-section__desc">
+                Equipment, fleet compliance, scheduled service, and odometer / reading hygiene.
+              </p>
+            </div>
+          </div>
         </div>
         <div
           class="dash-section__grid dash-section__grid--ops"
@@ -113,16 +128,26 @@
         aria-labelledby="dash-projects-title"
       >
         <div class="dash-section__head">
-          <h2
-            id="dash-projects-title"
-            class="dash-section__title"
-          >
-            Projects &amp; portfolio
-          </h2>
-          <p class="dash-section__desc">
-            How many are live or coming up, and how active work is performing — contract, spend, and net position (demo
-            data until API is wired).
-          </p>
+          <div class="dash-section__lead dash-section__lead--projects">
+            <span
+              class="dash-section__lead-icon dash-section__lead-icon--projects"
+              aria-hidden="true"
+            >
+              <span [class]="ICONS.COMMON.CHART_LINE"></span>
+            </span>
+            <div>
+              <h2
+                id="dash-projects-title"
+                class="dash-section__title"
+              >
+                Projects &amp; portfolio
+              </h2>
+              <p class="dash-section__desc">
+                How many are live or coming up, and how active work is performing — contract, spend, and net position
+                (demo data until API is wired).
+              </p>
+            </div>
+          </div>
         </div>
         <div
           class="dash-section__grid dash-section__grid--projects"
@@ -145,13 +170,23 @@
         aria-labelledby="dash-finance-title"
       >
         <div class="dash-section__head">
-          <h2
-            id="dash-finance-title"
-            class="dash-section__title"
-          >
-            Ledger &amp; spend
-          </h2>
-          <p class="dash-section__desc">Expense and fuel — approvals and balances.</p>
+          <div class="dash-section__lead dash-section__lead--finance">
+            <span
+              class="dash-section__lead-icon dash-section__lead-icon--finance"
+              aria-hidden="true"
+            >
+              <span [class]="ICONS.COMMON.CREDIT_CARD"></span>
+            </span>
+            <div>
+              <h2
+                id="dash-finance-title"
+                class="dash-section__title"
+              >
+                Ledger &amp; spend
+              </h2>
+              <p class="dash-section__desc">Expense and fuel — approvals and balances.</p>
+            </div>
+          </div>
         </div>
         <div
           class="dash-section__grid dash-section__grid--finance"

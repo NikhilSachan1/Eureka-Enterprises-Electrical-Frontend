@@ -1,0 +1,183 @@
+:host {
+  display: block;
+}
+
+.dcs-card {
+  --dcs-scroll-accent: var(--primary-color);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-light-color);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--background-paper-color);
+}
+
+.dcs-card--birthdays {
+  --dcs-scroll-accent: #ea580c;
+}
+.dcs-card--anniversaries {
+  --dcs-scroll-accent: #7c3aed;
+}
+.dcs-card--holidays {
+  --dcs-scroll-accent: #2563eb;
+}
+
+.dcs-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem 0.9rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-light-color) 70%, transparent);
+}
+
+.dcs-card__icon-tile {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.dcs-card--birthdays .dcs-card__icon-tile {
+  background: linear-gradient(145deg, #fb923c, #ea580c);
+}
+.dcs-card--anniversaries .dcs-card__icon-tile {
+  background: linear-gradient(145deg, #a78bfa, #7c3aed);
+}
+.dcs-card--holidays .dcs-card__icon-tile {
+  background: linear-gradient(145deg, #60a5fa, #2563eb);
+}
+
+.dcs-card__title {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+.dcs-card__subtitle {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-secondary-color);
+}
+
+.dcs-card__loading {
+  min-height: 8.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dcs-card__tray {
+  max-height: 19rem;
+  overflow: auto;
+  padding: 0.45rem 0.6rem;
+}
+
+.dcs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.dcs-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: 0.6rem;
+  border: 1px solid transparent;
+  background: var(--background-default-color);
+}
+
+.dcs-row--today {
+  background: color-mix(in srgb, #22c55e 11%, var(--background-default-color));
+  border-color: color-mix(in srgb, #22c55e 38%, var(--border-light-color));
+}
+
+.dcs-avatar,
+.dcs-flag {
+  width: 2.3rem;
+  height: 2.3rem;
+  flex-shrink: 0;
+}
+
+.dcs-avatar {
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.dcs-flag {
+  border-radius: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f3f4;
+}
+
+.dcs-main {
+  min-width: 0;
+  flex: 1;
+}
+.dcs-primary {
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dcs-main__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+.dcs-date,
+.dcs-main__meta-sep,
+.dcs-years--inline,
+.dcs-when {
+  font-size: 0.6875rem;
+  color: var(--text-secondary-color);
+}
+.dcs-years--inline {
+  color: #6d28d9;
+  font-weight: 600;
+}
+
+.dcs-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+}
+
+.dcs-badge {
+  font-size: 0.56rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 0.35rem;
+  padding: 0.2rem 0.45rem;
+}
+
+.dcs-badge--today {
+  color: #fff;
+  background: #059669;
+}
+.dcs-badge--upcoming {
+  color: #3c4043;
+  background: #e8eaed;
+}
+
+.dcs-empty {
+  margin: 0;
+  text-align: center;
+  padding: 1.1rem 0.8rem;
+  color: var(--text-secondary-color);
+}

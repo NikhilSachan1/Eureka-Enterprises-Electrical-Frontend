@@ -40,7 +40,7 @@ export class KpmDashboardComponent implements OnInit {
   protected readonly ICONS = ICONS;
   protected readonly KpmRowState = EKpmDashboardSeverity;
 
-  private readonly kpmDashboard =
+  private readonly approvalPending =
     signal<IApprovalPendingDashboardGetResponseDto | null>(null);
   private readonly ledgerBalance =
     signal<ILedgerBalanceDashboardGetResponseDto | null>(null);
@@ -58,7 +58,7 @@ export class KpmDashboardComponent implements OnInit {
   protected readonly approvalPendingRows = computed<IDashboardKpmMetricRow[]>(
     () =>
       this.buildApprovalPending(
-        this.kpmDashboard(),
+        this.approvalPending(),
         this.approvalPendingLoading()
       )
   );
@@ -83,13 +83,13 @@ export class KpmDashboardComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    this.loadKpmDashboard();
+    this.loadApprovalPending();
     this.loadLedgerBalance();
     this.loadAssetFleetAlerts();
     this.loadVehicleReadingsAlerts();
   }
 
-  private loadKpmDashboard(): void {
+  private loadApprovalPending(): void {
     this.dashboardService
       .getApprovalPending()
       .pipe(
@@ -98,11 +98,11 @@ export class KpmDashboardComponent implements OnInit {
       )
       .subscribe({
         next: (response: IApprovalPendingDashboardGetResponseDto) => {
-          this.kpmDashboard.set(response);
-          this.logger.logUserAction('KPM dashboard loaded successfully');
+          this.approvalPending.set(response);
+          this.logger.logUserAction('Approval pending loaded successfully');
         },
         error: error => {
-          this.logger.logUserAction('Failed to load KPM dashboard', error);
+          this.logger.logUserAction('Failed to load approval pending', error);
         },
       });
   }

@@ -255,3 +255,12 @@ export interface IDashboardKpmMetricRow {
   /** When true, the value column shows a spinner (e.g. while its backing API is in flight). */
   readonly valueLoading?: boolean;
 }
+
+/** Row for a Birthday, Anniversary or Holiday in the dashboard. */
+export interface IDashboardCelebrationRow {
+  readonly label: string;
+  readonly value: string;
+  readonly imageUrl?: string;
+  readonly daysLeft: number;
+  readonly completedYears?: number | null;
+}

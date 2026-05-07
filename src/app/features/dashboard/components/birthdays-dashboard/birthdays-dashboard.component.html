@@ -1,42 +1,8 @@
-<h3 class="people-celebrations-panel__title">Birthdays</h3>
-<p class="people-celebrations-panel__hint">Celebrate with the team</p>
-@if (rows().length > 0) {
-  <ul
-    class="people-celebrations__list"
-    role="list"
-    aria-label="Upcoming birthdays"
-  >
-    @for (row of rows(); track row.employeeCode ?? row.employeeName) {
-      @let timing = celebrationDayState(row.date);
-      <li class="people-celebrations__row">
-        <span
-          [class]="ICONS.COMMON.GIFT + ' people-celebrations__icon'"
-          aria-hidden="true"
-        ></span>
-        <div class="people-celebrations__main">
-          <span class="people-celebrations__name">{{ row.employeeName }}</span>
-          @if (row.employeeCode) {
-            <span class="people-celebrations__code">{{ row.employeeCode }}</span>
-          }
-        </div>
-        <div class="people-celebrations__aside">
-          <span
-            class="people-celebrations__timing"
-            [class.people-celebrations__timing--today]="timing.variant === 'today'"
-            [class.people-celebrations__timing--upcoming]="timing.variant === 'upcoming'"
-          >
-            {{ timing.label }}
-          </span>
-          <time
-            class="people-celebrations__when"
-            [attr.datetime]="row.date"
-          >
-            {{ row.date | date: 'EEE, d MMM' : undefined : 'en-IN' }}
-          </time>
-        </div>
-      </li>
-    }
-  </ul>
-} @else {
-  <p class="card-block__muted people-celebrations__empty">No upcoming birthdays.</p>
-}
+<app-dashboard-celebrations-section
+  variant="birthdays"
+  title="Birthdays"
+  subtitle="Celebrate with the team"
+  [rows]="birthdaysRows()"
+  [loading]="birthdaysLoading()"
+  emptyText="No upcoming birthdays"
+/>

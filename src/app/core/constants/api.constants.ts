@@ -4,6 +4,9 @@ export const API_ROUTES = {
     LEDGER_BALANCES: 'dashboard/ledger-balances',
     ASSET_FLEET_ALERTS: 'dashboard/alerts',
     VEHICLE_READINGS_ALERTS: 'dashboard/vehicle-readings',
+    BIRTHDAYS: 'dashboard/birthdays',
+    ANNIVERSARIES: 'dashboard/anniversaries',
+    HOLIDAYS: 'dashboard/festivals',
   },
   HEALTH: {
     CHECK: 'health-check',

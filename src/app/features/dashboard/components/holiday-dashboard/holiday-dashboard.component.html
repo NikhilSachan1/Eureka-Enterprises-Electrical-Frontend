@@ -1,39 +1,8 @@
-<h3 class="people-celebrations-panel__title">Upcoming holidays</h3>
-<p class="people-celebrations-panel__hint">Plan leave and site coverage</p>
-@if (rows().length > 0) {
-  <ul
-    class="people-celebrations__list"
-    role="list"
-    aria-label="Upcoming holidays"
-  >
-    @for (row of rows(); track row.name + row.date) {
-      @let timing = celebrationDayState(row.date);
-      <li class="people-celebrations__row">
-        <span
-          [class]="ICONS.COMMON.CALENDAR + ' people-celebrations__icon people-celebrations__icon--holiday'"
-          aria-hidden="true"
-        ></span>
-        <div class="people-celebrations__main">
-          <span class="people-celebrations__name">{{ row.name }}</span>
-        </div>
-        <div class="people-celebrations__aside">
-          <span
-            class="people-celebrations__timing"
-            [class.people-celebrations__timing--today]="timing.variant === 'today'"
-            [class.people-celebrations__timing--upcoming]="timing.variant === 'upcoming'"
-          >
-            {{ timing.label }}
-          </span>
-          <time
-            class="people-celebrations__when"
-            [attr.datetime]="row.date"
-          >
-            {{ row.date | date: 'EEE, d MMM' : undefined : 'en-IN' }}
-          </time>
-        </div>
-      </li>
-    }
-  </ul>
-} @else {
-  <p class="card-block__muted people-celebrations__empty">No upcoming holidays.</p>
-}
+<app-dashboard-celebrations-section
+  variant="holidays"
+  title="Upcoming Holidays"
+  subtitle="Plan leave and site coverage"
+  [rows]="holidaysRows()"
+  [loading]="holidaysLoading()"
+  emptyText="No upcoming holidays"
+/>

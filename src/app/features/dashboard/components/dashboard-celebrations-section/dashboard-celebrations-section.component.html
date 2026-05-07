@@ -1,0 +1,83 @@
+<article
+  class="dcs-card"
+  [ngClass]="'dcs-card--' + variant()"
+>
+  <header class="dcs-card__head">
+    <span
+      class="dcs-card__icon-tile"
+      aria-hidden="true"
+    >
+      @if (variant() === 'birthdays') {
+        <span [class]="ICONS.COMMON.GIFT"></span>
+      } @else if (variant() === 'anniversaries') {
+        <span [class]="ICONS.COMMON.BRIEFCASE"></span>
+      } @else {
+        <span [class]="ICONS.COMMON.FORCE"></span>
+      }
+    </span>
+
+    <div class="dcs-card__head-text">
+      <h3 class="dcs-card__title">{{ title() }}</h3>
+      @if (subtitle()) {
+        <p class="dcs-card__subtitle">{{ subtitle() }}</p>
+      }
+    </div>
+  </header>
+
+  <div class="dcs-card__body">
+    @if (loading()) {
+      <div class="dcs-card__loading">
+        <span [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' dcs-card__spinner'"></span>
+      </div>
+    } @else if (rows().length) {
+      <div class="dcs-card__tray">
+        <ol class="dcs-list">
+          @for (row of rows(); track trackByIndex($index)) {
+            <li
+              class="dcs-row"
+              [ngClass]="{ 'dcs-row--today': row.daysLeft === 0 }"
+            >
+              @if (variant() === 'holidays') {
+                <span class="dcs-flag">
+                  <span [class]="ICONS.COMMON.FORCE"></span>
+                </span>
+              } @else {
+                <span
+                  class="dcs-avatar"
+                  [style.background-color]="avatarBgColor(row.label)"
+                >
+                  {{ getInitials(row.label) }}
+                </span>
+              }
+
+              <div class="dcs-main">
+                <span class="dcs-primary">{{ row.label }}</span>
+                <div class="dcs-main__meta">
+                  <span class="dcs-date">{{ row.value | date: 'EEE, d MMM' }}</span>
+                  @if (variant() === 'anniversaries' && row.completedYears) {
+                    <span class="dcs-main__meta-sep">|</span>
+                    <span class="dcs-years--inline">{{ anniversaryCopy(row.completedYears) }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="dcs-aside">
+                <span
+                  class="dcs-badge"
+                  [ngClass]="row.daysLeft === 0 ? 'dcs-badge--today' : 'dcs-badge--upcoming'"
+                >
+                  {{ rowBadge(row.daysLeft) }}
+                </span>
+                @if (row.daysLeft !== 0) {
+                  <span class="dcs-when">{{ rowWhen(row.daysLeft) }}</span>
+                }
+              </div>
+            </li>
+          }
+        </ol>
+      </div>
+    } @else {
+      <p class="dcs-empty">{{ emptyText() }}</p>
+    }
+  </div>
+</article>
