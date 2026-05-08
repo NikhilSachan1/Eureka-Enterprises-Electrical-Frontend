@@ -93,6 +93,7 @@
   display: grid;
   gap: 1rem;
   grid-template-columns: 1fr;
+  align-items: stretch;
 
   @media (min-width: 740px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -100,6 +101,16 @@
 
   @media (min-width: 1100px) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  > app-birthdays-dashboard,
+  > app-anniversary-dashboard,
+  > app-holiday-dashboard {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
   }
 }
 

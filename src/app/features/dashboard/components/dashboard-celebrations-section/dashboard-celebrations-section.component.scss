@@ -1,11 +1,22 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
 }
 
 .dcs-card {
   --dcs-scroll-accent: var(--primary-color);
+  /* One list row ≈ avatar block + padding + list gap (see .dcs-row + .dcs-list) */
+  --dcs-list-row-block: 3.65rem;
+  --dcs-list-visible-rows: 5;
+  --dcs-list-viewport-height: calc(var(--dcs-list-visible-rows) * var(--dcs-list-row-block));
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
   border: 1px solid var(--border-light-color);
   border-radius: 1rem;
   overflow: hidden;
@@ -23,6 +34,7 @@
 }
 
 .dcs-card__head {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -61,17 +73,29 @@
   color: var(--text-secondary-color);
 }
 
+.dcs-card__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .dcs-card__loading {
-  min-height: 8.5rem;
+  flex: 1 1 auto;
+  min-height: var(--dcs-list-viewport-height);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .dcs-card__tray {
-  max-height: 19rem;
-  overflow: auto;
+  flex: 1 1 auto;
+  min-height: var(--dcs-list-viewport-height);
+  max-height: var(--dcs-list-viewport-height);
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 0.45rem 0.6rem;
+  scrollbar-gutter: stable;
 }
 
 .dcs-list {
@@ -176,6 +200,11 @@
 }
 
 .dcs-empty {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--dcs-list-viewport-height);
   margin: 0;
   text-align: center;
   padding: 1.1rem 0.8rem;
