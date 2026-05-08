@@ -217,6 +217,9 @@ $-tx2: var(--text-secondary-color);
 .ledger-employee-net--panel {
   @include flex-col-fill;
   padding-top: 0.12rem;
+  --ledger-visible-rows: 6;
+  --ledger-row-height: 3rem;
+  --ledger-list-max-height: calc(var(--ledger-visible-rows) * var(--ledger-row-height) + 2px);
   .ledger-search {
     flex-shrink: 0;
   }
@@ -239,7 +242,9 @@ $-tx2: var(--text-secondary-color);
     list-style: none;
     margin: 0;
     padding: 0;
-    @include flex-col-fill;
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: var(--ledger-list-max-height);
     overflow: auto;
     border: 1px solid color-mix(in srgb, #{$-bd} 92%, #cbd5e1);
     border-radius: 0.65rem;
