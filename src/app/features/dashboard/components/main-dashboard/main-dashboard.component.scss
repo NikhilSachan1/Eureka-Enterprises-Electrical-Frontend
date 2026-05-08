@@ -262,6 +262,19 @@
 
 .dash-section__grid--finance {
   grid-template-columns: 1fr;
+  align-items: stretch;
+
+  @media (min-width: 900px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.dash-section__grid--finance > app-expense-dashboard,
+.dash-section__grid--finance > app-fuel-expense-dashboard {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Projects: pipeline + table (stack) | bar chart (side) */

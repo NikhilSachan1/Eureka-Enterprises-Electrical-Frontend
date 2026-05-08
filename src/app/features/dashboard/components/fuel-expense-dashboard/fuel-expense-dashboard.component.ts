@@ -1,80 +1,78 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
+  DestroyRef,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
-import { Router } from '@angular/router';
-import { APP_CONFIG } from '@core/config';
-import { ButtonComponent } from '@shared/components/button/button.component';
-import { dashTextLinkButton } from '@features/dashboard/utils/dashboard-link-button.config';
-import type { IDashboardFuelMetrics } from '@features/dashboard/types/dashboard.interface';
-import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { IndianCurrencyPipe } from '@shared/pipes/indian-currency.pipe';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
+import type { IDashboardExpenseMetricsLedger } from '@features/dashboard/types/dashboard.interface';
+import { DashboardLedgerSummarySectionComponent } from '@features/dashboard/components/dashboard-ledger-summary-section/dashboard-ledger-summary-section.component';
+import { DashboardService } from '@features/dashboard/services/dashboard.services';
+import type { ILedgerBalanceDashboardGetResponseDto } from '@features/dashboard/types/dashboard.dto';
 
 @Component({
   selector: 'app-fuel-expense-dashboard',
-  imports: [ButtonComponent, DecimalPipe, IndianCurrencyPipe],
+  imports: [DashboardLedgerSummarySectionComponent],
   templateUrl: './fuel-expense-dashboard.component.html',
   styleUrl: './fuel-expense-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FuelExpenseDashboardComponent {
-  private readonly router = inject(Router);
+export class FuelExpenseDashboardComponent implements OnInit {
+  private readonly dashboardService = inject(DashboardService);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly loading = signal(true);
+  private readonly ledgerBalance =
+    signal<ILedgerBalanceDashboardGetResponseDto | null>(null);
+  protected readonly ledgerBalanceRows =
+    computed<IDashboardExpenseMetricsLedger | null>(() =>
+      this.buildFuelMetricsLedger(this.ledgerBalance())
+    );
 
-  protected readonly APP_CONFIG = APP_CONFIG;
-  protected readonly ICONS = ICONS;
-  protected readonly ROUTE_BASE_PATHS = ROUTE_BASE_PATHS;
-  protected readonly ROUTES = ROUTES;
-
-  protected readonly openLedgerButton = dashTextLinkButton({
-    label: 'Open ledger',
-    icon: ICONS.COMMON.ARROW_RIGHT,
-  });
-
-  protected readonly metrics = signal<IDashboardFuelMetrics | null>(null);
-
-  constructor() {
-    this.metrics.set(this.buildFuelMock());
+  ngOnInit(): void {
+    this.loadFuelLedger();
   }
 
-  protected navigateTo(paths: string[]): void {
-    void this.router.navigate(paths);
+  private loadFuelLedger(): void {
+    this.dashboardService
+      .getLedgerBalanceShared()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe({
+        next: (response: ILedgerBalanceDashboardGetResponseDto) => {
+          this.ledgerBalance.set(response);
+        },
+      });
   }
 
-  private buildFuelMock(): IDashboardFuelMetrics {
-    const employeeWiseNet = [
-      {
-        employeeName: 'Rahul Verma',
-        employeeCode: 'EMP-1042',
-        netAmount: 4_200,
-      },
-      {
-        employeeName: 'Deepak Patil',
-        employeeCode: 'EMP-1203',
-        netAmount: -1_850,
-      },
-      { employeeName: 'Meera Joshi', netAmount: 0 },
-    ] as const;
+  private buildFuelMetricsLedger(
+    response: ILedgerBalanceDashboardGetResponseDto | null
+  ): IDashboardExpenseMetricsLedger | null {
+    if (!response) {
+      return null;
+    }
 
     return {
       balances: {
-        openingBalance: 0,
-        closingBalance: 10_122,
-        totalCredit: 13_432,
-        totalDebit: 202_838,
-        eurekaOpeningBalance: 13_432,
-        eurekaClosingBalance: 202_838,
+        openingBalance: response.fuel.balances.opening,
+        closingBalance: response.fuel.balances.closing,
+        eurekaOpeningBalance: response.fuel.balances.eurekaOpening,
+        eurekaClosingBalance: response.fuel.balances.eurekaClosing,
+        payableTotalAmount: response.fuel.payable.totalAmount,
+        overpaidTotalAmount: response.fuel.overpaid.totalAmount,
       },
-      approval: {
-        pending: 1,
-        approved: 2,
-        rejected: 1,
-        total: 4,
-      },
-      employeeWiseNet,
-      employeePayableTotal: 4_200,
+      employees: response.fuel.employees.map(employee => ({
+        name: `${employee.firstName} ${employee.lastName}`.trim(),
+        netAmount:
+          employee.status === 'overpaid'
+            ? -Math.abs(employee.net)
+            : Math.abs(employee.net),
+      })),
     };
   }
 }

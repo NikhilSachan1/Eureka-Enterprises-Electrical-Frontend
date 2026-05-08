@@ -15,7 +15,8 @@ import { VehicleReadingDashboardComponent } from '@features/dashboard/components
 import { ProjectPipelineDashboardComponent } from '@features/dashboard/components/project-pipeline-dashboard/project-pipeline-dashboard.component';
 import { ActiveProjectDashboardComponent } from '@features/dashboard/components/active-project-dashboard/active-project-dashboard.component';
 import { ProjectChartDashboardComponent } from '@features/dashboard/components/project-chart-dashboard/project-chart-dashboard.component';
-import { LedgerDashboardComponent } from '@features/dashboard/components/ledger-dashboard/ledger-dashboard.component';
+import { ExpenseDashboardComponent } from '@features/dashboard/components/expense-dashboard/expense-dashboard.component';
+import { FuelExpenseDashboardComponent } from '@features/dashboard/components/fuel-expense-dashboard/fuel-expense-dashboard.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { AnniversaryDashboardComponent } from '../anniversary-dashboard/anniversary-dashboard.component';
 import { BirthdaysDashboardComponent } from '../birthdays-dashboard/birthdays-dashboard.component';
@@ -38,7 +39,8 @@ import { HolidayDashboardComponent } from '../holiday-dashboard/holiday-dashboar
     ProjectPipelineDashboardComponent,
     ActiveProjectDashboardComponent,
     ProjectChartDashboardComponent,
-    LedgerDashboardComponent,
+    ExpenseDashboardComponent,
+    FuelExpenseDashboardComponent,
     AnniversaryDashboardComponent,
     BirthdaysDashboardComponent,
     HolidayDashboardComponent,

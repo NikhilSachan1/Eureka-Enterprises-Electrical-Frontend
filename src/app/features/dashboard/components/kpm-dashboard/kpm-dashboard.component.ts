@@ -109,7 +109,7 @@ export class KpmDashboardComponent implements OnInit {
 
   private loadLedgerBalance(): void {
     this.dashboardService
-      .getLedgerBalance()
+      .getLedgerBalanceShared()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.ledgerBalanceLoading.set(false))

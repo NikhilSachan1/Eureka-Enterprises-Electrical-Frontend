@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@core/services/api.service';
 import { LoggerService } from '@core/services/logger.service';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, Observable, shareReplay, tap, throwError } from 'rxjs';
 import { API_ROUTES } from '@core/constants';
 import {
   AnniversariesDashboardGetResponseSchema,
@@ -28,6 +28,7 @@ import {
 export class DashboardService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
+  private ledgerBalanceShared$?: Observable<ILedgerBalanceDashboardGetResponseDto>;
 
   getApprovalPending(): Observable<IApprovalPendingDashboardGetResponseDto> {
     this.logger.logUserAction('Get Approval Pending Request');
@@ -77,6 +78,13 @@ export class DashboardService {
           return throwError(() => error);
         })
       );
+  }
+
+  getLedgerBalanceShared(): Observable<ILedgerBalanceDashboardGetResponseDto> {
+    this.ledgerBalanceShared$ ??= this.getLedgerBalance().pipe(
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+    return this.ledgerBalanceShared$;
   }
 
   getAssetFleetAlerts(): Observable<IAssetFleetAlertsDashboardGetResponseDto> {

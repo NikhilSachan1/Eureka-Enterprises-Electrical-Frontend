@@ -264,3 +264,19 @@ export interface IDashboardCelebrationRow {
   readonly daysLeft: number;
   readonly completedYears?: number | null;
 }
+
+/** Expense metrics for the ledger balance. */
+export interface IDashboardExpenseMetricsLedger {
+  balances: {
+    openingBalance: number;
+    closingBalance: number;
+    eurekaOpeningBalance: number;
+    eurekaClosingBalance: number;
+    payableTotalAmount: number;
+    overpaidTotalAmount: number;
+  };
+  employees: {
+    name: string;
+    netAmount: number;
+  }[];
+}

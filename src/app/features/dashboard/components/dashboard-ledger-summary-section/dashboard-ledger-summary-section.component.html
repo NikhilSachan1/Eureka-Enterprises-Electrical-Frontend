@@ -1,0 +1,202 @@
+<p-card class="status-dashboard__card ledger-surface-card">
+  <div class="ledger-section">
+    <div class="ledger-panel__head">
+      <div class="ledger-panel__lead">
+        <span
+          class="ledger-panel__lead-icon"
+          [class.ledger-panel__lead-icon--fuel]="variant() === 'fuel'"
+          [class.ledger-panel__lead-icon--expense]="variant() === 'expense'"
+          aria-hidden="true"
+        >
+          <span [class]="variant() === 'fuel' ? ICONS.FUEL.MENU : ICONS.PAYROLL.WALLET"></span>
+        </span>
+        <div>
+          <h3 class="ledger-panel__title">{{ ledgerTitle() }}</h3>
+          <p class="ledger-panel__subtitle">{{ ledgerSubtitle() }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="ledger-balances-block">
+      <div class="ledger-balances-block__grid">
+        <article class="ledger-balance-card ledger-balance-pair-card">
+          <div class="ledger-balance-pair-card__row">
+            <p class="ledger-balance-card__label ledger-balance-card__label--sub">Opening</p>
+            <p class="ledger-balance-card__value">
+              @if (loading()) {
+                <span class="ledger-skeleton ledger-skeleton--metric"></span>
+              } @else {
+                {{
+                  ledgerData()?.balances?.openingBalance
+                    | currency
+                      : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                      : 'symbol'
+                      : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                      : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                }}
+              }
+            </p>
+          </div>
+          <div class="ledger-balance-pair-card__row">
+            <p class="ledger-balance-card__label ledger-balance-card__label--sub">Eureka opening</p>
+            <p class="ledger-balance-card__value">
+              @if (loading()) {
+                <span class="ledger-skeleton ledger-skeleton--metric"></span>
+              } @else {
+                {{
+                  ledgerData()?.balances?.eurekaOpeningBalance
+                    | currency
+                      : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                      : 'symbol'
+                      : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                      : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                }}
+              }
+            </p>
+          </div>
+        </article>
+
+        <article class="ledger-balance-card ledger-balance-pair-card">
+          <div class="ledger-balance-pair-card__row">
+            <p class="ledger-balance-card__label ledger-balance-card__label--sub">Closing</p>
+            <p class="ledger-balance-card__value">
+              @if (loading()) {
+                <span class="ledger-skeleton ledger-skeleton--metric"></span>
+              } @else {
+                {{
+                  ledgerData()?.balances?.closingBalance
+                    | currency
+                      : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                      : 'symbol'
+                      : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                      : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                }}
+              }
+            </p>
+          </div>
+          <div class="ledger-balance-pair-card__row">
+            <p class="ledger-balance-card__label ledger-balance-card__label--sub">Eureka closing</p>
+            <p class="ledger-balance-card__value">
+              @if (loading()) {
+                <span class="ledger-skeleton ledger-skeleton--metric"></span>
+              } @else {
+                {{
+                  ledgerData()?.balances?.eurekaClosingBalance
+                    | currency
+                      : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                      : 'symbol'
+                      : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                      : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                }}
+              }
+            </p>
+          </div>
+        </article>
+      </div>
+      <div
+        class="ledger-balances-block__totals"
+        aria-label="Total pay and collect"
+      >
+        <div class="ledger-balances-block__totals-inner">
+          <article class="ledger-balance-card ledger-total-card ledger-total-card--pay ledger-total-card--stack">
+            <p class="ledger-balance-card__label ledger-balance-card__label--sub">Total Pay</p>
+            <p class="ledger-balance-card__value">
+              @if (loading()) {
+                <span class="ledger-skeleton ledger-skeleton--metric"></span>
+              } @else {
+                {{
+                  ledgerData()?.balances?.payableTotalAmount
+                    | currency
+                      : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                      : 'symbol'
+                      : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                      : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                }}
+              }
+            </p>
+          </article>
+          <article class="ledger-balance-card ledger-total-card ledger-total-card--collect ledger-total-card--stack">
+            <p class="ledger-balance-card__label ledger-balance-card__label--sub">Total Overpaid</p>
+            <p class="ledger-balance-card__value">
+              @if (loading()) {
+                <span class="ledger-skeleton ledger-skeleton--metric"></span>
+              } @else {
+                {{
+                  ledgerData()?.balances?.overpaidTotalAmount
+                    | currency
+                      : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                      : 'symbol'
+                      : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                      : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                }}
+              }
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+    <div class="ledger-combined-divider"></div>
+    <div class="ledger-employee-net ledger-employee-net--panel">
+      <div class="ledger-search">
+        <app-input-field
+          [inputFieldConfig]="searchFieldConfig"
+          [fieldValue]="searchTerm()"
+          (onFieldChange)="onSearchFieldChange($event)"
+        ></app-input-field>
+      </div>
+
+      @if (loading()) {
+        <div
+          class="ledger-employee-net__list-loader"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <span [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"></span>
+          <span>Loading employee-wise summary...</span>
+        </div>
+      } @else if ((ledgerData()?.employees?.length ?? 0) > 0) {
+        @if (filteredRows().length > 0) {
+          <ul
+            class="ledger-employee-net__list"
+            role="list"
+          >
+            @for (row of filteredRows(); track row.name) {
+              <li class="ledger-employee-net__row">
+                <div class="ledger-employee-net__who">
+                  <span class="ledger-employee-net__name">{{ row.name }}</span>
+                </div>
+                <div class="ledger-employee-net__amount-wrap">
+                  @if (row.netAmount > 0) {
+                    <span class="ledger-employee-net__tag ledger-employee-net__tag--pay">Pay</span>
+                  } @else if (row.netAmount < 0) {
+                    <span class="ledger-employee-net__tag ledger-employee-net__tag--recv">Overpaid</span>
+                  } @else {
+                    <span class="ledger-employee-net__tag ledger-employee-net__tag--zero">Settled</span>
+                  }
+                  <span
+                    class="ledger-employee-net__amount"
+                    [class.ledger-employee-net__amount--pos]="row.netAmount > 0"
+                    [class.ledger-employee-net__amount--neg]="row.netAmount < 0"
+                    [class.ledger-employee-net__amount--zero]="row.netAmount === 0"
+                  >
+                    {{
+                      (row.netAmount < 0 ? -row.netAmount : row.netAmount)
+                        | currency
+                          : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                          : 'symbol'
+                          : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                          : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                    }}
+                  </span>
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="ledger-employee-net__empty">No matching employee found.</p>
+        }
+      } @else {
+        <p class="ledger-employee-net__empty">{{ LEDGER_EMPTY_TEXT }}</p>
+      }
+    </div>
+  </div>
+</p-card>
