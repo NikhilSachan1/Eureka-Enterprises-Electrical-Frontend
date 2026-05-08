@@ -223,13 +223,6 @@ export class GetProjectAnalysisComponent implements OnInit {
         ROUTES.SITE.DSR.ADD,
         projectId,
       ];
-    } else if (actionName === 'addDocument') {
-      navigationRoute = [
-        ROUTE_BASE_PATHS.SITE.BASE,
-        ROUTE_BASE_PATHS.SITE.DOC,
-        ROUTES.SITE.DOC.ADD,
-        projectId,
-      ];
     }
     const success =
       this.routerNavigationService.navigateToRoute(navigationRoute);
