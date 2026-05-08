@@ -30,11 +30,6 @@ export const COMMON_ROW_ACTIONS = {
     id: EButtonActionType.CANCEL,
     tooltip: 'Cancel',
   },
-
-  SEND_MAIL: {
-    id: EButtonActionType.SEND_MAIL,
-    tooltip: 'Send to Mail',
-  },
 } as const;
 
 export const COMMON_BULK_ACTIONS = {

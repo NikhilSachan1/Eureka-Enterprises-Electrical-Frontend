@@ -80,5 +80,4 @@ export enum EButtonActionType {
   ANALYZE = 'analyze',
   LINK = 'link',
   UNLINK = 'unlink',
-  SEND_MAIL = 'sendMail',
 }
