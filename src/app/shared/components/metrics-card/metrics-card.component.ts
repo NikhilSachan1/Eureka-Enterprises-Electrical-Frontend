@@ -7,6 +7,18 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EDataType, IMetric, IMetricGroup } from '@shared/types';
+
+const METRIC_GROUP_ACCENT_PALETTE = [
+  { light: '#059669', dark: '#047857' },
+  { light: '#2563eb', dark: '#1d4ed8' },
+  { light: '#d97706', dark: '#b45309' },
+  { light: '#7c3aed', dark: '#5b21b6' },
+  { light: '#db2777', dark: '#be185d' },
+  { light: '#0891b2', dark: '#0e7490' },
+  { light: '#ea580c', dark: '#c2410c' },
+  { light: '#4f46e5', dark: '#4338ca' },
+  { light: '#006d5b', dark: '#004d41' },
+] as const;
 import { StatusUtil } from '@shared/utility';
 import { AppPermissionService } from '@core/services';
 import { KnobComponent } from '@shared/components/knob/knob.component';
@@ -86,5 +98,17 @@ export class MetricsCardComponent {
   /** Tooltip copy when `metric.description` is set (optional per screen). */
   getMetricTooltip(metric: IMetric): string {
     return metric.description?.trim() ?? '';
+  }
+
+  /**
+   * Stable accent pair per group (dashboard KPM–style gradient header), from group id.
+   */
+  getGroupAccent(group: IMetricGroup): { light: string; dark: string } {
+    let h = 0;
+    for (let i = 0; i < group.id.length; i++) {
+      h = (h + group.id.charCodeAt(i) * (i + 1)) % 2147483647;
+    }
+    const idx = Math.abs(h) % METRIC_GROUP_ACCENT_PALETTE.length;
+    return METRIC_GROUP_ACCENT_PALETTE[idx];
   }
 }

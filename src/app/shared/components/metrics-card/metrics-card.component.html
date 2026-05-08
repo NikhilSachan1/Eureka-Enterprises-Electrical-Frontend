@@ -6,51 +6,75 @@
       aria-label="Summary metrics"
     >
       @for (group of visibleGroups(); track group.id) {
+        @let acc = getGroupAccent(group);
         @if (group.layout === 'kpi' && group.metrics[0]; as kpiMetric) {
           <section
             class="metric-panel metric-panel--kpi"
             [attr.aria-label]="group.title"
+            [style.--mc-accent]="acc.light"
+            [style.--mc-accent-dark]="acc.dark"
           >
-            <div class="metric-panel__kpi">
-              <p class="metric-panel__kpi-label">{{ kpiMetric.label }}</p>
-              <p class="metric-panel__kpi-value">
-                @if (kpiMetric.type === ALL_DATA_TYPES.CURRENCY && kpiMetric.format) {
-                  {{ kpiMetric.value | currency: kpiMetric.format }}
-                } @else {
-                  {{ kpiMetric.value }}
+            <header class="metric-panel__header">
+              <div class="metric-panel__header-lead">
+                @if (group.icon) {
+                  <span
+                    class="metric-panel__hicon"
+                    aria-hidden="true"
+                  >
+                    <i [ngClass]="group.icon"></i>
+                  </span>
                 }
-              </p>
+                <h2 class="metric-panel__title">{{ group.title }}</h2>
+              </div>
+            </header>
+            <div class="metric-panel__body">
+              <div class="metric-panel__kpi">
+                <p class="metric-panel__kpi-label">{{ kpiMetric.label }}</p>
+                <p class="metric-panel__kpi-value">
+                  @if (kpiMetric.type === ALL_DATA_TYPES.CURRENCY && kpiMetric.format) {
+                    {{ kpiMetric.value | currency: kpiMetric.format }}
+                  } @else {
+                    {{ kpiMetric.value }}
+                  }
+                </p>
+              </div>
             </div>
           </section>
         } @else {
-          <section class="metric-panel">
+          <section
+            class="metric-panel"
+            [attr.aria-label]="group.title"
+            [style.--mc-accent]="acc.light"
+            [style.--mc-accent-dark]="acc.dark"
+          >
             <header class="metric-panel__header">
-              @if (group.icon) {
-                <span
-                  class="metric-panel__header-badge"
-                  aria-hidden="true"
-                >
-                  <i
-                    [ngClass]="group.icon"
-                    class="metric-panel__header-icon"
-                  ></i>
-                </span>
-              }
-              <h2 class="metric-panel__title">{{ group.title }}</h2>
+              <div class="metric-panel__header-lead">
+                @if (group.icon) {
+                  <span
+                    class="metric-panel__hicon"
+                    aria-hidden="true"
+                  >
+                    <i [ngClass]="group.icon"></i>
+                  </span>
+                }
+                <h2 class="metric-panel__title">{{ group.title }}</h2>
+              </div>
             </header>
-            <ul
-              class="metric-panel__list"
-              role="list"
-            >
-              @for (metric of group.metrics; track metric.label) {
-                <li
-                  class="metric-panel__item"
-                  role="listitem"
-                >
-                  <ng-container *ngTemplateOutlet="metricRowTpl; context: { $implicit: metric }" />
-                </li>
-              }
-            </ul>
+            <div class="metric-panel__body">
+              <ul
+                class="metric-panel__list"
+                role="list"
+              >
+                @for (metric of group.metrics; track metric.label) {
+                  <li
+                    class="metric-panel__item"
+                    role="listitem"
+                  >
+                    <ng-container *ngTemplateOutlet="metricRowTpl; context: { $implicit: metric }" />
+                  </li>
+                }
+              </ul>
+            </div>
           </section>
         }
       }
@@ -63,19 +87,21 @@
         class="metric-panel metric-panel--flat"
         aria-label="Summary metrics"
       >
-        <ul
-          class="metric-panel__list"
-          role="list"
-        >
-          @for (metric of flatMetrics; track metric.label) {
-            <li
-              class="metric-panel__item"
-              role="listitem"
-            >
-              <ng-container *ngTemplateOutlet="metricRowTpl; context: { $implicit: metric }" />
-            </li>
-          }
-        </ul>
+        <div class="metric-panel__body">
+          <ul
+            class="metric-panel__list"
+            role="list"
+          >
+            @for (metric of flatMetrics; track metric.label) {
+              <li
+                class="metric-panel__item"
+                role="listitem"
+              >
+                <ng-container *ngTemplateOutlet="metricRowTpl; context: { $implicit: metric }" />
+              </li>
+            }
+          </ul>
+        </div>
       </section>
     }
   }
@@ -111,10 +137,6 @@
       [tooltipDisabled]="!metricTip"
       tooltipPosition="top"
     >
-      <span
-        class="metric-row__accent"
-        aria-hidden="true"
-      ></span>
       @if (getIcon(metric); as rowIcon) {
         <span
           class="metric-row__icon-wrap"
