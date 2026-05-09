@@ -9,7 +9,7 @@ const UNLOCK_REQUEST_ACTION_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IUnloc
       id: 'remarks',
       fieldName: 'remarks',
       label: 'Reason',
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.maxLength(50)],
     },
   };
 
