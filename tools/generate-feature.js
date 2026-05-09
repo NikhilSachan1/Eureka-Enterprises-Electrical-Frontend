@@ -10,7 +10,11 @@ if (!featureName) {
   process.exit(1);
 }
 
-const basePath = path.join(__dirname, '../src/app/features', featureName);
+const basePath = path.join(
+  __dirname,
+  '../src/app/features/site-management/doc-management',
+  featureName
+);
 
 // Utility helpers
 const createDir = dir => fs.mkdirSync(dir, { recursive: true });
