@@ -209,6 +209,19 @@ export const API_ROUTES = {
       GET_DSR_BY_ID: (dsrId: string) =>
         `daily-status-reports/${dsrId}/versions`,
     },
+    DOCUMENT: {
+      PO: {
+        LIST: 'purchase-orders',
+        GET_PO_BY_ID: (poId: string) => `purchase-orders/${poId}`,
+        APPROVE: (poId: string) => `purchase-orders/${poId}/approve`,
+        REJECT: (poId: string) => `purchase-orders/${poId}/reject`,
+        UNLOCK_REQUEST: (poId: string) =>
+          `purchase-orders/${poId}/unlock-request`,
+        UNLOCK_REQUEST_GRANT: (poId: string) =>
+          `purchase-orders/${poId}/unlock-grant`,
+        DELETE: (poId: string) => `purchase-orders/${poId}`,
+      },
+    },
   },
   ANNOUNCEMENT: {
     ADD: 'announcement',

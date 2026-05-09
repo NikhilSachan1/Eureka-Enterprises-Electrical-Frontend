@@ -80,4 +80,6 @@ export enum EButtonActionType {
   ANALYZE = 'analyze',
   LINK = 'link',
   UNLINK = 'unlink',
+  UNLOCK_REQUEST = 'unlockRequest',
+  UNLOCK_GRANT = 'unlockGrant',
 }

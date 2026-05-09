@@ -181,7 +181,7 @@ export class ApiService {
   postValidated<TInput, TRequest, TResponse>(
     endpoint: string,
     schema: ApiSchema<TRequest, TResponse>,
-    input: TInput,
+    input?: TInput,
     options: { multipart?: boolean; silent?: boolean } = {}
   ): Observable<TResponse> {
     const silent = options.silent ?? false;

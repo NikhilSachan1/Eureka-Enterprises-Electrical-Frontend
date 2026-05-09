@@ -54,6 +54,16 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   available: { icon: ICONS.STATUS.AVAILABLE, severity: 'success' },
   assigned: { icon: ICONS.STATUS.ASSIGNED, severity: 'info' },
   allocated: { icon: ICONS.STATUS.ASSIGNED, severity: 'info' },
+  /** Unlock request (warning). Matches action id `unlockRequest` → key `unlockrequest`. */
+  unlockrequest: {
+    icon: ICONS.SECURITY.LOCK_OPEN,
+    severity: 'warning',
+  },
+  /** Unlock grant / approve (success). Matches action id `unlockGrant` → key `unlockgrant`. */
+  unlockgrant: {
+    icon: ICONS.ACTIONS.CHECK_CIRCLE,
+    severity: 'success',
+  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EMPLOYEE STATUS

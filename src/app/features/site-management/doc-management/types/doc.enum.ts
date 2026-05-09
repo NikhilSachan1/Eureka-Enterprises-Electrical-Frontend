@@ -1,6 +1,6 @@
 export enum EDocContext {
-  SALES = 'sales',
-  PURCHASE = 'purchase',
+  SALES = 'SALE',
+  PURCHASE = 'PURCHASE',
 }
 
 export enum EDocType {

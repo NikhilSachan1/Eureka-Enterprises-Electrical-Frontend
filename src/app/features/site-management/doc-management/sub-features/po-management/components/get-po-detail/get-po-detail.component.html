@@ -1,1 +1,94 @@
-<p>get-po-detail works!</p>
+<ng-template
+  #poDetailPoAmounts
+  let-entry
+>
+  @let v = $any(entry.value);
+  @let cur = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
+  @let fmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
+  @let loc = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+  <div class="po-detail-amount-panel text-sm">
+    <div class="po-detail-amount-row">
+      <div class="po-detail-amount-item">
+        <span class="po-detail-amount-label text-sky-700">Taxable</span>
+        <span class="po-detail-amount-value text-sky-900 font-semibold">
+          {{ +v.taxableAmount | currency: cur : 'symbol' : fmt : loc }}
+        </span>
+      </div>
+      <div class="po-detail-amount-item">
+        <span class="po-detail-amount-label text-amber-700">GST</span>
+        <span class="po-detail-amount-value text-amber-900 font-semibold">
+          {{ +v.gstAmount | currency: cur : 'symbol' : fmt : loc }}
+        </span>
+      </div>
+      <div class="po-detail-amount-item">
+        <span class="po-detail-amount-label text-slate-700">Total</span>
+        <span class="po-detail-amount-value text-slate-900 font-bold">
+          {{ +v.totalAmount | currency: cur : 'symbol' : fmt : loc }}
+        </span>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template
+  #poDetailInvoiceTotals
+  let-entry
+>
+  @let v = $any(entry.value);
+  @let cur = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
+  @let fmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
+  @let loc = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+  @let df = APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
+  <div class="po-detail-amount-panel text-sm">
+    <div class="po-detail-amount-row">
+      <div class="po-detail-amount-item">
+        <span class="po-detail-amount-label text-indigo-700">Invoiced</span>
+        <span class="po-detail-amount-value text-indigo-950 font-semibold">
+          {{ +v.invoicedTotal | currency: cur : 'symbol' : fmt : loc }}
+        </span>
+      </div>
+      <div class="po-detail-amount-item">
+        <span class="po-detail-amount-label text-teal-700">Booked</span>
+        <span class="po-detail-amount-value text-teal-900 font-semibold">
+          {{ +v.bookedTotal | currency: cur : 'symbol' : fmt : loc }}
+        </span>
+      </div>
+      <div class="po-detail-amount-item">
+        <span class="po-detail-amount-label text-emerald-700">Paid</span>
+        <span class="po-detail-amount-value text-emerald-900 font-bold">
+          {{ +v.paidTotal | currency: cur : 'symbol' : fmt : loc }}
+        </span>
+      </div>
+    </div>
+    <div class="po-detail-amount-row po-detail-amount-row--dates">
+      <div class="po-detail-amount-item">
+        <span class="po-detail-amount-label text-content-secondary">Last invoice</span>
+        @if (v.lastInvoiceAt) {
+          <span class="po-detail-amount-value po-detail-amount-value--date text-content">
+            {{ v.lastInvoiceAt | date: df }}
+          </span>
+        } @else {
+          <span class="po-detail-amount-value po-detail-amount-value--muted">—</span>
+        }
+      </div>
+      <div class="po-detail-amount-item">
+        <span class="po-detail-amount-label text-content-secondary">Last payment</span>
+        @if (v.lastPaymentAt) {
+          <span class="po-detail-amount-value po-detail-amount-value--date text-content">
+            {{ v.lastPaymentAt | date: df }}
+          </span>
+        } @else {
+          <span class="po-detail-amount-value po-detail-amount-value--muted">—</span>
+        }
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_poDetails()"
+  [customTemplates]="{
+    poDetailPoAmounts: poDetailPoAmounts,
+    poDetailInvoiceTotals: poDetailInvoiceTotals,
+  }"
+/>

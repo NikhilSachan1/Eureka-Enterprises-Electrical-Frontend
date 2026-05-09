@@ -16,20 +16,20 @@ import { IDialogActionHandler } from '@shared/types';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { PoService } from '../../services/po.service';
 import {
-  IUnlockGrantPoResponseDto,
+  IDeletePoResponseDto,
   IPoGetBaseResponseDto,
 } from '../../types/po.dto';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-unlock-grant-po',
+  selector: 'app-delete-po',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
-  templateUrl: './unlock-grant-po.component.html',
-  styleUrl: './unlock-grant-po.component.scss',
+  templateUrl: './delete-po.component.html',
+  styleUrl: './delete-po.component.scss',
 })
-export class UnlockGrantPoComponent implements OnInit, IDialogActionHandler {
+export class DeletePoComponent implements OnInit, IDialogActionHandler {
   private readonly poService = inject(PoService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -51,7 +51,7 @@ export class UnlockGrantPoComponent implements OnInit, IDialogActionHandler {
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
       this.logger.error(
-        'Selected record is required to grant PO unlock but was not provided'
+        'Selected record is required to delete PO but was not provided'
       );
       return;
     }
@@ -62,18 +62,17 @@ export class UnlockGrantPoComponent implements OnInit, IDialogActionHandler {
     if (!this.poId) {
       return;
     }
-    this.executePoUnlockGrantAction(this.poId);
+    this.executePoDeleteAction(this.poId);
   }
 
-  private executePoUnlockGrantAction(poId: string): void {
+  private executePoDeleteAction(poId: string): void {
     this.loadingService.show({
-      title: 'Granting unlock',
-      message:
-        "We're granting unlock for this PO. This will just take a moment.",
+      title: 'Deleting PO',
+      message: "We're removing the PO. This will just take a moment.",
     });
 
     this.poService
-      .unlockGrantPo(poId)
+      .deletePo(poId)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -81,14 +80,14 @@ export class UnlockGrantPoComponent implements OnInit, IDialogActionHandler {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IUnlockGrantPoResponseDto) => {
+        next: (response: IDeletePoResponseDto) => {
           this.notificationService.success(response.message);
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
         error: error => {
-          this.logger.error('Failed to grant PO unlock', error);
-          this.notificationService.error('Failed to grant PO unlock.');
+          this.logger.error('Failed to delete PO', error);
+          this.notificationService.error('Failed to delete PO.');
         },
       });
   }

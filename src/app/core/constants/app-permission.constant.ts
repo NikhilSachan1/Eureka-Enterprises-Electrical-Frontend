@@ -204,6 +204,17 @@ export const APP_PERMISSION = {
     EDIT: 'edit_configuration',
     DELETE: 'delete_configuration',
   },
+  PO_DOC: {
+    TABLE_VIEW: 'table_view_po_doc',
+    CARD_VIEW: 'card_view_po_doc',
+    ADD: 'add_po_doc',
+    EDIT: 'edit_po_doc',
+    DELETE: 'delete_po_doc',
+    APPROVE: 'approve_po_doc',
+    REJECT: 'reject_po_doc',
+    UNLOCK: 'unlock_po_doc',
+    UNLOCK_GRANT: 'unlock_grant_po_doc',
+  },
   UI: {
     SALARY_STRUCTURE: {
       TABLE: 'ui_table_salary_structure',

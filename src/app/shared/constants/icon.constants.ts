@@ -141,6 +141,7 @@ export const ICONS = {
   SECURITY: {
     SHIELD: 'pi pi-shield',
     LOCK: 'pi pi-lock',
+    LOCK_OPEN: 'pi pi-lock-open',
   },
   SETTINGS: {
     COG: 'pi pi-cog',
