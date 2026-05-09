@@ -32,13 +32,11 @@ import { ITabChange, ITabItem, ETabMode } from '@shared/types';
   styleUrl: './nav-tabs.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
+    // Opacity only — translateY read as extra “jerk” with router swaps + scroll.
     trigger('routeOutletFade', [
       transition('* => *', [
-        style({ opacity: 0.88, transform: 'translateY(3px)' }),
-        animate(
-          '165ms cubic-bezier(0.33, 1, 0.68, 1)',
-          style({ opacity: 1, transform: 'translateY(0)' })
-        ),
+        style({ opacity: 0.92 }),
+        animate('140ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 1 })),
       ]),
     ]),
   ],

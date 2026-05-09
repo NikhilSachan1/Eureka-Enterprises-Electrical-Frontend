@@ -93,7 +93,7 @@
   class="project-analysis-main-grid"
   [class.project-analysis-main-grid--with-timeline]="showTimeline()"
 >
-  @if (showTimeline()) {
+  @defer (when showTimeline()) {
     <p-card class="analysis-timeline-card min-w-0">
       <app-get-project-timeline />
     </p-card>
