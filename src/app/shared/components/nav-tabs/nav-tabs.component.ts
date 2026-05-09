@@ -9,6 +9,7 @@ import {
   ChangeDetectionStrategy,
   DestroyRef,
 } from '@angular/core';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   RouterModule,
@@ -30,6 +31,17 @@ import { ITabChange, ITabItem, ETabMode } from '@shared/types';
   templateUrl: './nav-tabs.component.html',
   styleUrl: './nav-tabs.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('routeOutletFade', [
+      transition('* => *', [
+        style({ opacity: 0.88, transform: 'translateY(3px)' }),
+        animate(
+          '165ms cubic-bezier(0.33, 1, 0.68, 1)',
+          style({ opacity: 1, transform: 'translateY(0)' })
+        ),
+      ]),
+    ]),
+  ],
 })
 export class NavTabsComponent implements OnInit {
   tabs = input.required<ITabItem[]>();
@@ -39,18 +51,19 @@ export class NavTabsComponent implements OnInit {
 
   tabChanged = output<ITabChange>();
 
-  private currentRoute = signal<string>('');
+  /** URL used for outlet fade + active tab; protected for template binding. */
+  protected readonly currentRoute = signal<string>('');
   protected selectedTabIndex = signal<number>(0);
 
   private router = inject(Router);
-  private activatedRoute = inject(ActivatedRoute);
+  /** Host route for relative `routerLink` when using `ROUTER_OUTLET` mode. */
+  protected readonly route = inject(ActivatedRoute);
   private location = inject(Location);
   private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     if (this.tabMode() === this.allTabMode.CONTENT) {
-      // Check for tab in query params first (for deep linking)
-      const currentParams = this.activatedRoute.snapshot.queryParams;
+      const currentParams = this.route.snapshot.queryParams;
       const tabIndexParam = currentParams['tab'];
 
       if (tabIndexParam !== undefined) {
@@ -61,7 +74,6 @@ export class NavTabsComponent implements OnInit {
           tabIndex < this.tabs().length
         ) {
           this.selectedTabIndex.set(tabIndex);
-          // Emit event so parent component shows correct content
           this.setActiveTabByIndex(tabIndex);
         } else {
           this.selectedTabIndex.set(this.activeTabIndex());
@@ -71,7 +83,6 @@ export class NavTabsComponent implements OnInit {
         const initialIndex = this.activeTabIndex();
         this.selectedTabIndex.set(initialIndex);
         this.updateUrlWithoutNavigation(initialIndex);
-        // Emit event so parent component shows correct content
         this.setActiveTabByIndex(initialIndex);
       }
     } else {
@@ -94,39 +105,36 @@ export class NavTabsComponent implements OnInit {
     const tabs = this.tabs();
 
     if (this.tabMode() === this.allTabMode.ROUTER_OUTLET) {
-      const currentUrl = this.currentRoute();
-      const matchingTab = tabs.find(tab => currentUrl.includes(tab.route));
-      return matchingTab ? matchingTab.route : tabs[0]?.route || '';
+      const path = this.currentRoute().split('?')[0];
+      const segments = path.split('/').filter(s => s.length > 0);
+      let match: ITabItem | undefined;
+      for (const seg of segments) {
+        const tab = tabs.find(t => t.route === seg);
+        if (tab) {
+          match = tab;
+        }
+      }
+      return match?.route ?? tabs[0]?.route ?? '';
     }
 
-    // For CONTENT mode, use selectedTabIndex signal (no URL dependency)
     return tabs[this.selectedTabIndex()]?.route || tabs[0]?.route || '';
   });
 
   onTabClick(tab: ITabItem, index: number): void {
     if (this.tabMode() === this.allTabMode.CONTENT) {
-      // Update selected tab
       this.selectedTabIndex.set(index);
-
-      // Update URL without router navigation (no animation!)
       this.updateUrlWithoutNavigation(index);
-
-      // Emit tab change event
       this.tabChanged.emit({ tab, index });
     }
   }
 
   private updateUrlWithoutNavigation(tabIndex: number): void {
-    // Get current URL
     const tree = this.router.parseUrl(this.router.url);
-
-    // Update query params
     tree.queryParams = {
       ...tree.queryParams,
       tab: tabIndex.toString(),
     };
 
-    // Replace URL without navigation (no animation!)
     this.location.replaceState(tree.toString());
   }
 

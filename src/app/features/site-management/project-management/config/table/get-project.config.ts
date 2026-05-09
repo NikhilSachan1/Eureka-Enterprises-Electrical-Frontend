@@ -83,7 +83,7 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
   {
     id: EButtonActionType.ANALYZE,
-    tooltip: 'Analyze Project',
+    tooltip: 'Open project workspace',
     permission: [APP_PERMISSION.PROJECT.ANALYSIS],
   },
   {

@@ -104,25 +104,8 @@
       <app-nav-tabs
         class="block min-w-0 max-w-full"
         [tabs]="visibleAnalysisTabs()"
-        [activeTabIndex]="activeTabIndexForNav()"
         [tabMode]="tabModeType"
-        (tabChanged)="onTabChanged($event)"
-      >
-        @switch (activeAnalysisRoute()) {
-          @case ('profitability') {
-            <app-get-profitability />
-          }
-          @case ('daily-progress') {
-            <app-get-dsr />
-          }
-        }
-      </app-nav-tabs>
-    } @else {
-      <div
-        class="rounded-[var(--border-radius)] border border-[var(--surface-border)] bg-[var(--surface-card)] p-6 text-center text-[var(--text-color-secondary)]"
-      >
-        You do not have access to any project analysis sections for your role.
-      </div>
+      />
     }
   </div>
 </div>

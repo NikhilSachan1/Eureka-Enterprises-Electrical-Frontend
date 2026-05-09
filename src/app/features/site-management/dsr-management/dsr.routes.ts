@@ -17,3 +17,14 @@ export const DSR_MANAGEMENT_ROUTES: Routes = [
       ),
   },
 ];
+
+/** Project workspace child: daily progress (DSR list for project). */
+export const DSR_MANAGEMENT_DAILY_PROGRESS_ROUTES: Routes = [
+  {
+    path: ROUTES.SITE.PROJECT.DAILY_PROGRESS,
+    loadComponent: () =>
+      import('./components/get-dsr/get-dsr.component').then(
+        m => m.GetDsrComponent
+      ),
+  },
+];

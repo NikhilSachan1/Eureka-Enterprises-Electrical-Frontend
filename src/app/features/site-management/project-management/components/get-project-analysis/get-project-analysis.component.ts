@@ -2,22 +2,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CardModule } from 'primeng/card';
-import {
-  ETabMode,
-  ITabItem,
-  ITabChange,
-  IPageHeaderConfig,
-} from '@shared/types';
+import { ETabMode, IPageHeaderConfig, ITabItem } from '@shared/types';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
-import { GetDsrComponent } from '../../../dsr-management/components/get-dsr/get-dsr.component';
+import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { LoggerService, AppPermissionService } from '@core/services';
@@ -26,24 +20,18 @@ import {
   AppConfigurationService,
   RouterNavigationService,
 } from '@shared/services';
-import { GetProfitabilityComponent } from '@features/site-management/project-profitability/components/get-profitability/get-profitability.component';
-import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
 import { IProjectGetBaseResponseDto } from '../../types/project.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 import { DatePipe } from '@angular/common';
-
-type ProjectAnalysisTabRoute = 'profitability' | 'documents' | 'daily-progress';
 
 @Component({
   selector: 'app-get-project-analysis',
   imports: [
     CardModule,
     NavTabsComponent,
-    GetDsrComponent,
     GetProjectTimelineComponent,
     PageHeaderComponent,
-    GetProfitabilityComponent,
     DatePipe,
   ],
   templateUrl: './get-project-analysis.component.html',
@@ -59,29 +47,17 @@ export class GetProjectAnalysisComponent implements OnInit {
 
   private readonly uiProjectAnalysis = APP_PERMISSION.UI.PROJECT_ANALYSIS;
 
-  tabModeType = ETabMode.CONTENT;
+  readonly tabModeType = ETabMode.ROUTER_OUTLET;
   icons = ICONS;
   protected readonly dateFormat = APP_CONFIG.DATE_FORMATS.DEFAULT;
 
-  protected readonly activeAnalysisRoute =
-    signal<ProjectAnalysisTabRoute | null>(null);
   protected readonly projectData = signal<IProjectGetBaseResponseDto | null>(
     null
   );
 
   protected readonly showTimeline = computed(() => this.getShowTimeline());
-
   protected readonly visibleAnalysisTabs = computed(() => this.getTabs());
-
-  protected readonly activeTabIndexForNav = computed(() => {
-    const tabs = this.visibleAnalysisTabs();
-    const route = this.activeAnalysisRoute();
-    const i = tabs.findIndex(t => t.route === route);
-    return i >= 0 ? i : 0;
-  });
-
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-
   protected projectLocation = computed(() => {
     const data = this.projectData();
     if (!data) {
@@ -119,22 +95,6 @@ export class GetProjectAnalysisComponent implements OnInit {
         .filter((name): name is string => !!name) ?? []
     );
   });
-
-  constructor() {
-    effect(() => {
-      const tabs = this.visibleAnalysisTabs();
-      const route = this.activeAnalysisRoute();
-      if (tabs.length === 0) {
-        if (route !== null) {
-          this.activeAnalysisRoute.set(null);
-        }
-        return;
-      }
-      if (route === null || !tabs.some(t => t.route === route)) {
-        this.activeAnalysisRoute.set(tabs[0].route as ProjectAnalysisTabRoute);
-      }
-    });
-  }
 
   ngOnInit(): void {
     this.loadProjectDataFromState();
@@ -194,6 +154,18 @@ export class GetProjectAnalysisComponent implements OnInit {
         permission: [this.uiProjectAnalysis.PROFITABILITY],
       },
       {
+        route: 'contractor-doc',
+        label: 'Contractor (Sales)',
+        icon: this.icons.COMMON.FILE,
+        permission: [this.uiProjectAnalysis.DOC],
+      },
+      {
+        route: 'vendor-doc',
+        label: 'Vendor (Purchase)',
+        icon: this.icons.COMMON.FILE,
+        permission: [this.uiProjectAnalysis.DOC],
+      },
+      {
         route: 'daily-progress',
         label: 'Daily Progress',
         icon: this.icons.COMMON.CALENDAR,
@@ -202,11 +174,6 @@ export class GetProjectAnalysisComponent implements OnInit {
     ];
     return this.appPermissionService.filterByPermission(definitions);
   }
-
-  protected onTabChanged(event: ITabChange): void {
-    this.activeAnalysisRoute.set(event.tab.route as ProjectAnalysisTabRoute);
-  }
-
   protected onHeaderButtonClick(actionName: string): void {
     let navigationRoute: string[] = [];
     const projectId = this.activatedRoute.snapshot.params[
@@ -237,8 +204,8 @@ export class GetProjectAnalysisComponent implements OnInit {
 
   private getPageHeaderConfig(): IPageHeaderConfig {
     return {
-      title: 'Project Analysis',
-      subtitle: 'Manage project records',
+      title: 'Project workspace',
+      subtitle: 'Profitability, documents, and daily site progress',
       showHeaderButton: true,
       headerButtonConfig: [
         {

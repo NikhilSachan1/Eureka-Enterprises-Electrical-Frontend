@@ -7,7 +7,8 @@
       @if (tab.visible !== false) {
         <p-tab
           [value]="tab.route"
-          [routerLink]="tabMode() === allTabMode.ROUTER_OUTLET ? tab.route : null"
+          [routerLink]="tabMode() === allTabMode.ROUTER_OUTLET ? [tab.route] : null"
+          [relativeTo]="tabMode() === allTabMode.ROUTER_OUTLET ? route : undefined"
           [disabled]="tab.disabled"
           [pTooltip]="tab.tooltip"
           tooltipPosition="top"
@@ -31,7 +32,12 @@
 
 <div class="tab-content mt-4">
   @if (tabMode() === allTabMode.ROUTER_OUTLET) {
-    <router-outlet />
+    <div
+      class="tab-content__outlet"
+      [@routeOutletFade]="currentRoute()"
+    >
+      <router-outlet />
+    </div>
   } @else {
     <ng-content />
   }

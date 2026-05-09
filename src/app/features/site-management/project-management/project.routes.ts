@@ -3,6 +3,12 @@ import { ROUTES } from '@shared/constants';
 import { GetProjectDetailResolver } from './resolvers/get-project-detail.resolver';
 import { permissionGuard } from '@core/guards';
 import { APP_PERMISSION } from '@core/constants';
+import {
+  DOC_MANAGEMENT_CONTRACTOR_DOC_ROUTES,
+  DOC_MANAGEMENT_VENDOR_DOC_ROUTES,
+} from '@features/site-management/doc-management/doc.routes';
+import { DSR_MANAGEMENT_DAILY_PROGRESS_ROUTES } from '@features/site-management/dsr-management/dsr.routes';
+import { PROJECT_ANALYSIS_PROFITABILITY_ROUTES } from '@features/site-management/project-profitability/profitability.routes';
 
 export const PROJECT_MANAGEMENT_ROUTES: Routes = [
   {
@@ -56,5 +62,16 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
     data: {
       permissions: [APP_PERMISSION.PROJECT.ANALYSIS],
     },
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: ROUTES.SITE.PROJECT.PROFITABILITY,
+      },
+      ...PROJECT_ANALYSIS_PROFITABILITY_ROUTES,
+      ...DOC_MANAGEMENT_CONTRACTOR_DOC_ROUTES,
+      ...DOC_MANAGEMENT_VENDOR_DOC_ROUTES,
+      ...DSR_MANAGEMENT_DAILY_PROGRESS_ROUTES,
+    ],
   },
 ];
