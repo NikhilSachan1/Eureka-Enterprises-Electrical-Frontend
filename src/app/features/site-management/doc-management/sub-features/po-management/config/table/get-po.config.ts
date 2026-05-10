@@ -39,10 +39,10 @@ const PO_TABLE_PARTY_CONTRACTOR: Partial<IDataTableHeaderConfig> = {
 };
 
 const PO_TABLE_PARTY_VENDOR: Partial<IDataTableHeaderConfig> = {
+  ...PO_TABLE_PARTY_CONTRACTOR,
   field: 'vendor.name',
   header: 'Vendor Name',
   dummyImageField: 'vendor.name',
-  ...PO_TABLE_PARTY_CONTRACTOR,
 };
 
 export const PO_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
