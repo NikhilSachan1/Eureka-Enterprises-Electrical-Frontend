@@ -2,10 +2,12 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   effect,
   inject,
   OnInit,
+  signal,
   untracked,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -26,6 +28,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
+  IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -40,6 +43,8 @@ import { finalize } from 'rxjs';
 import { PoService } from '../../services/po.service';
 import { IPo } from '../../types/po.interface';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { ICONS } from '@shared/constants';
 import { GetPoDetailComponent } from '../get-po-detail/get-po-detail.component';
 import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
@@ -48,7 +53,7 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 @Component({
   selector: 'app-get-po',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DataTableComponent, CurrencyPipe, DatePipe],
+  imports: [PageHeaderComponent, DataTableComponent, CurrencyPipe, DatePipe],
   templateUrl: './get-po.component.html',
   styleUrl: './get-po.component.scss',
 })
@@ -73,6 +78,12 @@ export class GetPoComponent implements OnInit {
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
 
+  private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+
+  protected readonly pageHeaderConfig = computed(
+    (): IPageHeaderConfig => this.getPageHeaderConfig()
+  );
+
   constructor() {
     effect(() => {
       this.projectWorkspaceContext.docWorkspaceFilter();
@@ -85,17 +96,16 @@ export class GetPoComponent implements OnInit {
     });
   }
 
-  private docContext?: EDocContext | null;
-
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
 
   ngOnInit(): void {
-    this.docContext = this.route.parent?.snapshot.data[
+    const docContext = this.route.parent?.snapshot.data[
       'docContext'
     ] as EDocContext;
+    this.docRouteContext.set(docContext);
     this.table = this.dataTableService.createTable(
-      PO_TABLE_ENHANCED_CONFIG(this.docContext)
+      PO_TABLE_ENHANCED_CONFIG(this.docRouteContext())
     );
   }
 
@@ -136,7 +146,7 @@ export class GetPoComponent implements OnInit {
         this.table.getHeaders()
       );
 
-    const docType = this.docContext;
+    const docType = this.docRouteContext();
     const workspaceParams =
       this.projectWorkspaceContext.docWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
 
@@ -183,6 +193,28 @@ export class GetPoComponent implements OnInit {
     this.loadPoList();
   }
 
+  protected onHeaderButtonClick(actionName: string): void {
+    if (actionName === 'addPo') {
+      this.openAddPoDialog();
+    }
+  }
+
+  private openAddPoDialog(): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.ADD,
+      PO_ACTION_CONFIG_MAP[EButtonActionType.ADD],
+      null,
+      false,
+      false,
+      {
+        docContext: this.docRouteContext(),
+        onSuccess: () => {
+          this.loadPoList();
+        },
+      }
+    );
+  }
+
   protected handlePoTableActionClick(
     event: ITableActionClickEvent<IPoGetBaseResponseDto>
   ): void {
@@ -194,22 +226,25 @@ export class GetPoComponent implements OnInit {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const dynamicComponentInputs: any = {
+    const dynamicComponentInputs: Record<string, unknown> = {
       selectedRecord: selectedRows,
       onSuccess: () => {
         this.loadPoList();
       },
+      docContext: selectedFirstRow.partyType,
     };
 
-    const recordDetail = this.preparePoRecordDetail(selectedFirstRow);
+    const showRecordSummary = actionType !== EButtonActionType.EDIT;
+    const recordDetail = showRecordSummary
+      ? this.preparePoRecordDetail(selectedFirstRow)
+      : null;
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
       PO_ACTION_CONFIG_MAP[actionType],
       recordDetail,
       false,
-      true,
+      showRecordSummary,
       dynamicComponentInputs
     );
   }
@@ -275,5 +310,22 @@ export class GetPoComponent implements OnInit {
         po: rowData,
       },
     });
+  }
+
+  private getPageHeaderConfig(): IPageHeaderConfig {
+    return {
+      title: '',
+      subtitle: '',
+      showHeaderButton: true,
+      showGoBackButton: false,
+      headerButtonConfig: [
+        {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+          label: 'Add PO',
+          actionName: 'addPo',
+          // permission: [APP_PERMISSION.PO_DOC.ADD],
+        },
+      ],
+    };
   }
 }

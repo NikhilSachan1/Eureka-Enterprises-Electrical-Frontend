@@ -2,6 +2,7 @@ import { ICONS } from '@shared/constants';
 import {
   IDialogConfig,
   EDialogPosition,
+  EDialogSize,
   EButtonActionType,
   EButtonSeverity,
 } from '@shared/types';
@@ -76,6 +77,7 @@ export const PLAIN_CONFIRMATION_DIALOG_CONFIG: Partial<IDialogConfig> = {
   header: '',
   message: '',
   icon: '',
+  size: EDialogSize.LARGE,
   acceptButtonProps: {
     label: 'Save',
     id: EButtonActionType.SUBMIT,

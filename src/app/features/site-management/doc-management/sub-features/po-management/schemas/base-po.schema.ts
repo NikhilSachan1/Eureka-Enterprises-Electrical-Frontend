@@ -23,8 +23,8 @@ export const PoBaseSchema = z.looseObject({
 
 export const PoUpsertShapeSchema = z
   .object({
-    siteName: uuidField,
-    partyType: z.enum(EDocContext),
+    projectName: uuidField,
+    docType: z.enum(EDocContext),
     contractorName: uuidField.nullable(),
     vendorName: uuidField.nullable(),
     poNumber: z.string(),
@@ -32,7 +32,8 @@ export const PoUpsertShapeSchema = z
     taxableAmount: z.number(),
     gstAmount: z.number(),
     totalAmount: z.number(),
-    fileKey: z.string(),
+    poFileName: z.string(),
+    poFileKey: z.string(),
     remarks: z.string().nullable(),
   })
   .strict();

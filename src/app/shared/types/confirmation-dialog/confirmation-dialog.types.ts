@@ -1,3 +1,9 @@
+export enum EDialogSize {
+  SMALL = 'sm',
+  MEDIUM = 'md',
+  LARGE = 'lg',
+}
+
 export enum EDialogPosition {
   TOP = 'top',
   BOTTOM = 'bottom',

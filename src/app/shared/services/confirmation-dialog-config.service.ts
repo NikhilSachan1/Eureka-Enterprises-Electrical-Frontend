@@ -3,6 +3,7 @@ import { ConfirmationService } from 'primeng/api';
 
 import {
   EButtonActionType,
+  EDialogSize,
   IDialogActionConfig,
   IDialogConfig,
 } from '@shared/types';
@@ -36,7 +37,9 @@ export class ConfirmationDialogService {
     );
 
     this.dialogState.set(dialogConfig);
-    this.confirmationService.confirm(dialogConfig.dialogConfig);
+    this.confirmationService.confirm(
+      ConfirmationDialogService.toPrimeConfirmOptions(dialogConfig.dialogConfig)
+    );
   }
 
   closeDialog(): void {
@@ -98,11 +101,45 @@ export class ConfirmationDialogService {
       processedDialogConfig
     ) as IDialogConfig;
 
+    const { size: resolvedSize = EDialogSize.MEDIUM, ...dialogWithoutSize } =
+      fullDialogConfig;
+    const styleClass =
+      ConfirmationDialogService.mergeConfirmationPanelStyleClass(
+        dialogWithoutSize.styleClass,
+        resolvedSize
+      );
+
     return {
       ...config,
-      dialogConfig: fullDialogConfig,
+      dialogConfig: { ...dialogWithoutSize, styleClass },
       recordDetails: showRecords ? (recordDetail ?? undefined) : undefined,
       dynamicComponentInputs,
     };
+  }
+
+  /** PrimeNG `confirm()` must not receive our custom `size` field. */
+  private static toPrimeConfirmOptions(
+    config: Partial<IDialogConfig>
+  ): Record<string, unknown> {
+    const prime = { ...config } as Partial<IDialogConfig> & {
+      size?: EDialogSize;
+    };
+    delete prime.size;
+    return prime as Record<string, unknown>;
+  }
+
+  private static mergeConfirmationPanelStyleClass(
+    styleClass: string | undefined,
+    size: EDialogSize
+  ): string {
+    const tokens = (styleClass ?? '')
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter(t => !/^confirmation-dialog-panel--(sm|md|lg)$/.test(t));
+    if (!tokens.includes('confirmation-dialog-panel')) {
+      tokens.unshift('confirmation-dialog-panel');
+    }
+    tokens.push(`confirmation-dialog-panel--${size}`);
+    return tokens.join(' ');
   }
 }

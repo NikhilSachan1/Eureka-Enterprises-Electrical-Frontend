@@ -140,6 +140,11 @@
   </div>
 </ng-template>
 
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"

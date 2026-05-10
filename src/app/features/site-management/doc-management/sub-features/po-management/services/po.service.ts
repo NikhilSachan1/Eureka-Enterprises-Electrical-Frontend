@@ -15,6 +15,10 @@ import {
   UnlockRequestPoRequestSchema,
   UnlockGrantPoResponseSchema,
   UnlockRejectPoResponseSchema,
+  AddPoResponseSchema,
+  AddPoRequestSchema,
+  EditPoRequestSchema,
+  EditPoResponseSchema,
 } from '../schemas';
 import {
   IApprovePoFormDto,
@@ -29,6 +33,10 @@ import {
   IUnlockRejectPoResponseDto,
   IUnlockRequestPoFormDto,
   IUnlockRequestPoResponseDto,
+  IAddPoFormDto,
+  IAddPoResponseDto,
+  IEditPoFormDto,
+  IEditPoResponseDto,
 } from '../types/po.dto';
 
 @Injectable({
@@ -37,6 +45,63 @@ import {
 export class PoService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
+
+  addPo(formData: IAddPoFormDto): Observable<IAddPoResponseDto> {
+    this.logger.logUserAction('Add PO Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.PO.ADD,
+        {
+          response: AddPoResponseSchema,
+          request: AddPoRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IAddPoResponseDto) => {
+          this.logger.logUserAction('Add PO Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Add PO Error', error);
+          } else {
+            this.logger.logUserAction('Add PO Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  editPo(
+    formData: IEditPoFormDto,
+    poId: string
+  ): Observable<IEditPoResponseDto> {
+    this.logger.logUserAction('Edit PO Request', { poId });
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.SITE.DOCUMENT.PO.EDIT(poId),
+        {
+          response: EditPoResponseSchema,
+          request: EditPoRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IEditPoResponseDto) => {
+          this.logger.logUserAction('Edit PO Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Edit PO Error', error);
+          } else {
+            this.logger.logUserAction('Edit PO Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
 
   approvePo(
     formData: IApprovePoFormDto,

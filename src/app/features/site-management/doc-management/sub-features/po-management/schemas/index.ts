@@ -23,3 +23,5 @@ export {
 export { UnlockGrantPoResponseSchema } from './unlock-grant-po.schema';
 export { DeletePoResponseSchema } from './delete-po.schema';
 export { UnlockRejectPoResponseSchema } from './unlock-reject-po.schema';
+export { AddPoRequestSchema, AddPoResponseSchema } from './add-po.schema';
+export { EditPoRequestSchema, EditPoResponseSchema } from './edit-po.schema';

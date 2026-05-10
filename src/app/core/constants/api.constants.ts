@@ -30,6 +30,7 @@ export const API_ROUTES = {
   },
   ATTACHMENTS: {
     GET_FILE_URL: 'files',
+    FINANCIAL_UPLOAD: 'files/financial-upload',
   },
   AUTH: {
     LOGIN: 'auth/sign-in',
@@ -211,6 +212,8 @@ export const API_ROUTES = {
     },
     DOCUMENT: {
       PO: {
+        ADD: 'purchase-orders',
+        EDIT: (poId: string) => `purchase-orders/${poId}`,
         LIST: 'purchase-orders',
         GET_PO_BY_ID: (poId: string) => `purchase-orders/${poId}`,
         APPROVE: (poId: string) => `purchase-orders/${poId}/approve`,

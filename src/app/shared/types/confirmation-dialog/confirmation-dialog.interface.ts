@@ -1,5 +1,6 @@
-import { EDialogPosition, IDataViewDetailsWithEntity } from '@shared/types';
+import { IDataViewDetailsWithEntity } from '@shared/types';
 import { IButtonConfig } from '@shared/types/button/button.interface';
+import { EDialogPosition, EDialogSize } from './confirmation-dialog.types';
 import { Type } from '@angular/core';
 
 export interface IDialogConfig {
@@ -15,6 +16,7 @@ export interface IDialogConfig {
   position: EDialogPosition;
   blockScroll: boolean;
   styleClass: string;
+  size?: EDialogSize;
   acceptButtonProps: Partial<IButtonConfig>;
   rejectButtonProps: Partial<IButtonConfig>;
   labels?: {

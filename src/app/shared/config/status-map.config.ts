@@ -50,6 +50,8 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // ═══════════════════════════════════════════════════════════════════════════
   // GENERAL / AVAILABILITY
   // ═══════════════════════════════════════════════════════════════════════════
+  /** Toolbar / row “add” action (`EButtonActionType.ADD` → key `add`). */
+  add: { icon: ICONS.COMMON.PLUS, severity: 'success' },
   total: { icon: ICONS.STATUS.TOTAL, severity: 'info' },
   available: { icon: ICONS.STATUS.AVAILABLE, severity: 'success' },
   assigned: { icon: ICONS.STATUS.ASSIGNED, severity: 'info' },

@@ -12,4 +12,5 @@ export {
 export {
   AttachmentsGetRequestSchema,
   AttachmentsGetResponseSchema,
+  FinancialFileUploadResponseSchema,
 } from './attachments.schema';

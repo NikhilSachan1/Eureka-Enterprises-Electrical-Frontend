@@ -4,8 +4,12 @@ import { ApiService, LoggerService } from '@core/services';
 import {
   AttachmentsGetRequestSchema,
   AttachmentsGetResponseSchema,
+  FinancialFileUploadResponseSchema,
 } from '@shared/schemas';
-import { IAttachmentsGetResponseDto } from '@shared/types';
+import {
+  IAttachmentsGetResponseDto,
+  IFinancialFileUploadResponseDto,
+} from '@shared/types';
 import {
   catchError,
   forkJoin,
@@ -24,6 +28,42 @@ import {
 export class AttachmentsService {
   private readonly logger = inject(LoggerService);
   private readonly apiService = inject(ApiService);
+
+  uploadFinancialDocument(
+    file: File
+  ): Observable<IFinancialFileUploadResponseDto> {
+    this.logger.logUserAction('Financial file upload request', {
+      name: file.name,
+      size: file.size,
+    });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.ATTACHMENTS.FINANCIAL_UPLOAD,
+        {
+          response: FinancialFileUploadResponseSchema,
+        },
+        { financialFile: file },
+        { multipart: true }
+      )
+      .pipe(
+        map((res: IFinancialFileUploadResponseDto) => res),
+        tap((response: IFinancialFileUploadResponseDto) => {
+          this.logger.logUserAction('Financial file upload response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Financial file upload validation error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Financial file upload error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
 
   getFullMediaUrl(key: string): Observable<IAttachmentsGetResponseDto> {
     this.logger.logUserAction('Get Image URLs Request');

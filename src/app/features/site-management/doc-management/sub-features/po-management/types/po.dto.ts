@@ -1,5 +1,9 @@
 import { z } from 'zod';
 import {
+  AddPoRequestSchema,
+  AddPoResponseSchema,
+  EditPoRequestSchema,
+  EditPoResponseSchema,
   ApprovePoRequestSchema,
   ApprovePoResponseSchema,
   DeletePoResponseSchema,
@@ -76,3 +80,34 @@ export type IDeletePoResponseDto = z.infer<typeof DeletePoResponseSchema>;
 export type IUnlockRejectPoResponseDto = z.infer<
   typeof UnlockRejectPoResponseSchema
 >;
+
+/**
+ * PO Add
+ */
+export type IAddPoRequestDto = z.infer<typeof AddPoRequestSchema>;
+export type IAddPoFormDto = z.input<typeof AddPoRequestSchema>;
+export type IAddPoUIFormDto = Omit<
+  IAddPoFormDto,
+  'docType' | 'poFileKey' | 'poFileName'
+> & {
+  gstPercent: number;
+  poAttachment: File[];
+};
+export type IAddPoResponseDto = z.infer<typeof AddPoResponseSchema>;
+
+/**
+ * PO Edit
+ */
+export type IEditPoRequestDto = z.infer<typeof EditPoRequestSchema>;
+export type IEditPoFormDto = z.input<typeof EditPoRequestSchema>;
+export type IEditPoUIFormDto = Omit<
+  IEditPoFormDto,
+  'docType' | 'poFileKey' | 'poFileName'
+> & {
+  gstPercent: number;
+  poAttachment: File[];
+  projectName: string;
+  contractorName: string;
+  vendorName: string;
+};
+export type IEditPoResponseDto = z.infer<typeof EditPoResponseSchema>;

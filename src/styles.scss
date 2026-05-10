@@ -447,3 +447,21 @@ p-card:has(app-nav-tabs) .p-card {
     color: var(--primary-color);
   }
 }
+
+// ============================================
+// Confirmation dialog width presets (`EDialogSize` → `confirmation-dialog-panel--*`)
+// ============================================
+.p-dialog.confirmation-dialog-panel.confirmation-dialog-panel--sm {
+  width: min(94vw, 28rem);
+  max-width: min(94vw, 28rem);
+}
+
+.p-dialog.confirmation-dialog-panel.confirmation-dialog-panel--md {
+  width: min(94vw, 36rem);
+  max-width: min(94vw, 36rem);
+}
+
+.p-dialog.confirmation-dialog-panel.confirmation-dialog-panel--lg {
+  width: min(94vw, 48rem);
+  max-width: min(94vw, 48rem);
+}

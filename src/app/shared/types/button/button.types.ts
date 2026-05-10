@@ -52,6 +52,7 @@ export enum EButtonActionType {
   DOWNLOAD = 'download',
   CLEAR_SELECTION = 'clearSelection',
   VIEW = 'view',
+  ADD = 'add',
   EDIT = 'edit',
   SET_PERMISSIONS = 'setPermissions',
   DELETE_PERMISSIONS = 'deletePermissions',

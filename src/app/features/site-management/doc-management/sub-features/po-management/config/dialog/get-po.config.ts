@@ -10,8 +10,26 @@ import { DeletePoComponent } from '../../components/delete-po/delete-po.componen
 import { UnlockRequestPoComponent } from '../../components/unlock-request-po/unlock-request-po.component';
 import { UnlockGrantPoComponent } from '../../components/unlock-grant-po/unlock-grant-po.component';
 import { UnlockRequestRejectPoComponent } from '../../components/unlock-request-reject-po/unlock-request-reject-po.component';
+import { AddPoComponent } from '../../components/add-po/add-po.component';
+import { EditPoComponent } from '../../components/edit-po/edit-po.component';
 
 export const PO_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
+  [EButtonActionType.ADD]: {
+    dialogConfig: {
+      header: 'Add PO',
+      message: 'Add a new purchase order to the system.',
+    },
+    dynamicComponent: AddPoComponent,
+  },
+
+  [EButtonActionType.EDIT]: {
+    dialogConfig: {
+      header: 'Edit PO',
+      message: 'Update purchase order details.',
+    },
+    dynamicComponent: EditPoComponent,
+  },
+
   [EButtonActionType.APPROVE]: {
     dialogConfig: APPROVE_CONFIRMATION_DIALOG_CONFIG,
     dynamicComponent: ApprovePoComponent,

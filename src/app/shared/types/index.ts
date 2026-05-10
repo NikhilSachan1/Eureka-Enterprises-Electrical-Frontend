@@ -1,5 +1,8 @@
 export { EProgressBarMode } from './progress-bar/progress-bar.types';
-export { EDialogPosition } from './confirmation-dialog/confirmation-dialog.types';
+export {
+  EDialogPosition,
+  EDialogSize,
+} from './confirmation-dialog/confirmation-dialog.types';
 export {
   ETableActionTypeValue,
   ETableFilterDisplayType,
@@ -151,6 +154,7 @@ export {
 export type {
   IAttachmentsGetRequestDto,
   IAttachmentsGetResponseDto,
+  IFinancialFileUploadResponseDto,
 } from './gallery/attachments.dto';
 export type {
   IEntityViewDetails,
