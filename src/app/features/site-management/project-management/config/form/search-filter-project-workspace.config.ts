@@ -11,11 +11,11 @@ import { IProjectWorkspaceSearchFilterFormDto } from '../../types/project.interf
 const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<IProjectWorkspaceSearchFilterFormDto> =
   {
     projectName: {
-      fieldType: EDataType.MULTI_SELECT,
+      fieldType: EDataType.SELECT,
       id: 'projectName',
       fieldName: 'projectName',
       label: 'Project Name',
-      multiSelectConfig: {
+      selectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.PROJECT,
           dropdownName: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
