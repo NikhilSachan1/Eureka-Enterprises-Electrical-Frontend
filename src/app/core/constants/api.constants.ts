@@ -226,6 +226,18 @@ export const API_ROUTES = {
           `purchase-orders/${poId}/unlock-reject`,
         DELETE: (poId: string) => `purchase-orders/${poId}`,
       },
+      JMC: {
+        ADD: 'jmcs',
+        EDIT: (jmcId: string) => `jmcs/${jmcId}`,
+        LIST: 'jmcs',
+        GET_JMC_BY_ID: (jmcId: string) => `jmcs/${jmcId}`,
+        APPROVE: (jmcId: string) => `jmcs/${jmcId}/approve`,
+        REJECT: (jmcId: string) => `jmcs/${jmcId}/reject`,
+        UNLOCK_REQUEST: (jmcId: string) => `jmcs/${jmcId}/unlock-request`,
+        UNLOCK_REQUEST_GRANT: (jmcId: string) => `jmcs/${jmcId}/unlock-grant`,
+        UNLOCK_REQUEST_REJECT: (jmcId: string) => `jmcs/${jmcId}/unlock-reject`,
+        DELETE: (jmcId: string) => `jmcs/${jmcId}`,
+      },
     },
   },
   ANNOUNCEMENT: {
