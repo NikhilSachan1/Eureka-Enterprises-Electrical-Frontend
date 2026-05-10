@@ -159,11 +159,18 @@ export class GetPoComponent implements OnInit {
 
   private mapTableData(response: IPoGetBaseResponseDto[]): IPo[] {
     return response.map((record: IPoGetBaseResponseDto) => {
+      const { site } = record;
       return {
         id: record.id,
+        company: {
+          name: 'ABC Company',
+        },
+        site,
+        siteCityStateSubtitle: `${site?.city}, ${site?.state}`,
         poDate: record.poDate,
         poNumber: record.poNumber,
         taxableAmount: record.taxableAmount,
+        gstPercentage: `${record.gstPercentage}%`,
         gstAmount: record.gstAmount,
         totalAmount: record.totalAmount,
         fileKey: record.fileKey,
@@ -174,7 +181,7 @@ export class GetPoComponent implements OnInit {
         ),
         isLocked: record.isLocked,
         unlockRequestedAt: record.unlockRequestedAt,
-        unlockRequestedBy: record.unlockRequestedBy,
+        unlockRequestedBy: record.unlockRequestedByUser,
         unlockReason: record.unlockReason,
         invoicedTotal: record.invoicedTotal,
         bookedTotal: record.bookedTotal,
@@ -184,7 +191,7 @@ export class GetPoComponent implements OnInit {
         contractor: record.contractor,
         vendor: record.vendor,
         originalRawData: record,
-      };
+      } satisfies IPo;
     });
   }
 

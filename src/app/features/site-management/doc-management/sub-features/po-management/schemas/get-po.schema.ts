@@ -1,7 +1,13 @@
-import { FilterSchema, isoDateTimeField, uuidField } from '@shared/schemas';
+import {
+  FilterSchema,
+  isoDateTimeField,
+  UserSchema,
+  uuidField,
+} from '@shared/schemas';
 import z from 'zod';
 import { PoBaseSchema } from './base-po.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import { makeFieldsNullable } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
@@ -35,7 +41,7 @@ export const PoGetBaseResponseSchema = z.looseObject({
   ...PoBaseSchema.shape,
   isLocked: z.boolean(),
   unlockRequestedAt: isoDateTimeField.nullable(),
-  unlockRequestedBy: uuidField.nullable(),
+  unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),
   unlockReason: z.string().nullable(),
   invoicedTotal: z.string(),
   bookedTotal: z.string(),
@@ -44,6 +50,11 @@ export const PoGetBaseResponseSchema = z.looseObject({
   lastPaymentAt: isoDateTimeField.nullable(),
   remarks: z.string().nullable(),
   approvalStatus: z.string(),
+  site: z.looseObject({
+    name: z.string(),
+    city: z.string(),
+    state: z.string(),
+  }),
   contractor: z
     .looseObject({
       name: z.string(),

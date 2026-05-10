@@ -47,6 +47,30 @@ const PO_TABLE_PARTY_VENDOR: Partial<IDataTableHeaderConfig> = {
 
 export const PO_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
   {
+    field: 'company.name',
+    header: 'Company',
+    dummyImageField: 'company.name',
+    bodyTemplate: EDataType.TEXT,
+    showImage: true,
+    primaryFieldHighlight: true,
+    showSort: false,
+  },
+  {
+    field: 'site.name',
+    header: 'Site',
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    dataType: EDataType.TEXT,
+    showImage: true,
+    icon: 'pi pi-building',
+    dummyImageField: 'site.name',
+    primaryFieldHighlight: true,
+    subtitle: {
+      field: 'siteCityStateSubtitle',
+      bodyTemplate: EDataType.TEXT,
+    },
+    showSort: false,
+  },
+  {
     field: 'poNumber',
     header: 'PO Number',
     bodyTemplate: EDataType.TEXT,

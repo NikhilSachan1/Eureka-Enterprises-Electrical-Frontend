@@ -16,6 +16,7 @@ export const PoBaseSchema = z.looseObject({
   poNumber: z.string(),
   poDate: onlyDateStringField,
   taxableAmount: z.string(),
+  gstPercentage: z.string(),
   gstAmount: z.string(),
   totalAmount: z.string(),
   fileKey: z.string(),

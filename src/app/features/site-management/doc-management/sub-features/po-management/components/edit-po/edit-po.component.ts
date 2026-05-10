@@ -24,7 +24,7 @@ import {
   AttachmentsService,
   ConfirmationDialogService,
 } from '@shared/services';
-import { ADD_PO_DEFAULT_GST_PERCENT, EDIT_PO_FORM_CONFIG } from '../../config';
+import { EDIT_PO_FORM_CONFIG } from '../../config';
 import { finalize, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -109,7 +109,7 @@ export class EditPoComponent
           poNumber: record.poNumber,
           poDate: new Date(record.poDate),
           taxableAmount: Number(record.taxableAmount),
-          gstPercent: Number(ADD_PO_DEFAULT_GST_PERCENT),
+          gstPercent: Number(record.gstPercentage),
           gstAmount: Number(record.gstAmount),
           totalAmount: Number(record.totalAmount),
           poAttachment: [],

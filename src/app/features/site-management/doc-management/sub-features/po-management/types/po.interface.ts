@@ -7,6 +7,7 @@ export interface IPo
     | 'poNumber'
     | 'poDate'
     | 'taxableAmount'
+    | 'gstPercentage'
     | 'gstAmount'
     | 'totalAmount'
     | 'fileKey'
@@ -22,7 +23,12 @@ export interface IPo
     | 'lastPaymentAt'
     | 'contractor'
     | 'vendor'
+    | 'site'
   > {
+  company: {
+    name: string;
+  };
+  siteCityStateSubtitle: string;
   fileKeys: string[];
   originalRawData: IPoGetBaseResponseDto;
 }
