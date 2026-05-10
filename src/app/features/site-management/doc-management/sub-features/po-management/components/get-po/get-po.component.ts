@@ -3,18 +3,20 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  effect,
   inject,
   OnInit,
+  untracked,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import {
+  AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
-  LoadingService,
-  RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
@@ -40,10 +42,8 @@ import { IPo } from '../../types/po.interface';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { ICONS } from '@shared/constants';
 import { GetPoDetailComponent } from '../get-po-detail/get-po-detail.component';
-import {
-  getParamFromRouteAncestors,
-  getRouteDataFromAncestors,
-} from '@shared/utility';
+import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-get-po',
@@ -57,10 +57,8 @@ export class GetPoComponent implements OnInit {
   protected readonly icons = ICONS;
 
   private readonly logger = inject(LoggerService);
-  private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
-  private readonly loadingService = inject(LoadingService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -70,6 +68,22 @@ export class GetPoComponent implements OnInit {
   );
   private readonly poService = inject(PoService);
   private readonly route = inject(ActivatedRoute);
+  private readonly projectWorkspaceContext = inject(
+    ProjectWorkspaceContextService
+  );
+  private readonly appConfigurationService = inject(AppConfigurationService);
+
+  constructor() {
+    effect(() => {
+      this.projectWorkspaceContext.docWorkspaceFilter();
+      untracked(() => {
+        if (!this.table || this.tableFilterData === undefined) {
+          return;
+        }
+        this.loadPoList();
+      });
+    });
+  }
 
   private docContext?: EDocContext | null;
 
@@ -77,10 +91,9 @@ export class GetPoComponent implements OnInit {
   protected tableFilterData!: TableLazyLoadEvent;
 
   ngOnInit(): void {
-    this.docContext = getRouteDataFromAncestors<EDocContext>(
-      this.route,
+    this.docContext = this.route.parent?.snapshot.data[
       'docContext'
-    );
+    ] as EDocContext;
     this.table = this.dataTableService.createTable(
       PO_TABLE_ENHANCED_CONFIG(this.docContext)
     );
@@ -88,10 +101,6 @@ export class GetPoComponent implements OnInit {
 
   private loadPoList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading PO',
-      message: "We're loading the PO. This will just take a moment.",
-    });
 
     const paramData = this.prepareParamData();
 
@@ -100,7 +109,6 @@ export class GetPoComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.table.setLoading(false);
-          this.loadingService.hide();
         }),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -128,15 +136,14 @@ export class GetPoComponent implements OnInit {
         this.table.getHeaders()
       );
 
-    const siteName = getParamFromRouteAncestors(this.route, 'projectId');
-    const docType = getRouteDataFromAncestors<EDocContext>(
-      this.route,
-      'docContext'
-    );
+    const docType = this.docContext;
+    const workspaceParams =
+      this.projectWorkspaceContext.docWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
+
     return {
+      ...workspaceParams,
       ...base,
-      ...(siteName ? { siteName } : {}),
-      ...(docType !== undefined && docType !== null ? { docType } : {}),
+      ...(docType ? { docType } : {}),
     };
   }
 
@@ -151,7 +158,10 @@ export class GetPoComponent implements OnInit {
         totalAmount: record.totalAmount,
         fileKey: record.fileKey,
         fileKeys: record.fileKey ? [record.fileKey] : [],
-        approvalStatus: record.approvalStatus,
+        approvalStatus: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.projectDocumentApprovalStatuses(),
+          record.approvalStatus
+        ),
         isLocked: record.isLocked,
         unlockRequestedAt: record.unlockRequestedAt,
         unlockRequestedBy: record.unlockRequestedBy,

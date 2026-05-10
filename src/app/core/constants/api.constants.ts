@@ -219,6 +219,8 @@ export const API_ROUTES = {
           `purchase-orders/${poId}/unlock-request`,
         UNLOCK_REQUEST_GRANT: (poId: string) =>
           `purchase-orders/${poId}/unlock-grant`,
+        UNLOCK_REQUEST_REJECT: (poId: string) =>
+          `purchase-orders/${poId}/unlock-reject`,
         DELETE: (poId: string) => `purchase-orders/${poId}`,
       },
     },

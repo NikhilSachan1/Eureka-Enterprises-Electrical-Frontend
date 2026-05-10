@@ -9,6 +9,7 @@ import { RejectPoComponent } from '../../components/reject-po/reject-po.componen
 import { DeletePoComponent } from '../../components/delete-po/delete-po.component';
 import { UnlockRequestPoComponent } from '../../components/unlock-request-po/unlock-request-po.component';
 import { UnlockGrantPoComponent } from '../../components/unlock-grant-po/unlock-grant-po.component';
+import { UnlockRequestRejectPoComponent } from '../../components/unlock-request-reject-po/unlock-request-reject-po.component';
 
 export const PO_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.APPROVE]: {
@@ -40,5 +41,14 @@ export const PO_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
       message: 'Unlock this PO and grant access to the user?',
     },
     dynamicComponent: UnlockGrantPoComponent,
+  },
+
+  [EButtonActionType.UNLOCK_REQUEST_REJECT]: {
+    dialogConfig: {
+      header: 'Reject unlock request',
+      message:
+        'Reject this unlock request? The PO will stay locked for the requester.',
+    },
+    dynamicComponent: UnlockRequestRejectPoComponent,
   },
 };

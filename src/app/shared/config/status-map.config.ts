@@ -64,6 +64,11 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
     icon: ICONS.ACTIONS.CHECK_CIRCLE,
     severity: 'success',
   },
+  /** Reject pending unlock request. Matches action id `unlockRequestReject` → key `unlockrequestreject`. */
+  unlockrequestreject: {
+    icon: ICONS.ACTIONS.TIMES,
+    severity: 'danger',
+  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EMPLOYEE STATUS
@@ -88,6 +93,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   approved: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   approve: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   pending: { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
+  'pending approval': {
+    icon: ICONS.ATTENDANCE.REGULARIZE,
+    severity: 'warning',
+  },
   rejected: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   reject: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   cancelled: { icon: ICONS.ACTIONS.BAN, severity: 'warning' },
@@ -102,10 +111,6 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   absent: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   leave: { icon: ICONS.LEAVE.GET, severity: 'warning' },
   holiday: { icon: ICONS.ATTENDANCE.CALENDAR, severity: 'purple' },
-  'approval pending': {
-    icon: ICONS.ATTENDANCE.REGULARIZE,
-    severity: 'warning',
-  },
   regularize: { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
   'checked in': { icon: ICONS.ATTENDANCE.CHECK_IN, severity: 'info' },
   'checked out': { icon: ICONS.ATTENDANCE.CHECK_OUT, severity: 'info' },

@@ -11,13 +11,17 @@ import {
 import { IPoGetResponseDto } from '../../types/po.dto';
 import {
   PO_ROW_ACTION_DISABLE_REASON,
+  poApproveDisableReason,
+  poRejectDisableReason,
   poUnlockGrantDisableReason,
   poUnlockRequestDisableReason,
+  poUnlockRequestRejectDisableReason,
   shouldDisablePoApprove,
   shouldDisablePoEditOrDelete,
   shouldDisablePoReject,
   shouldDisablePoUnlockGrant,
   shouldDisablePoUnlockRequest,
+  shouldDisablePoUnlockRequestReject,
 } from '../../utils/po-table-row.util';
 
 export const PO_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -121,14 +125,14 @@ const PO_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve PO',
     disableWhen: shouldDisablePoApprove,
-    disableReason: () => PO_ROW_ACTION_DISABLE_REASON.approveAlreadyApproved,
+    disableReason: poApproveDisableReason,
     // permission: [APP_PERMISSION.PO_DOC.APPROVE],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject PO',
     disableWhen: shouldDisablePoReject,
-    disableReason: () => PO_ROW_ACTION_DISABLE_REASON.rejectAlreadyRejected,
+    disableReason: poRejectDisableReason,
     // permission: [APP_PERMISSION.PO_DOC.REJECT],
   },
   {
@@ -144,6 +148,13 @@ const PO_TABLE_ROW_ACTIONS_CONFIG: Partial<
     disableWhen: shouldDisablePoUnlockGrant,
     disableReason: poUnlockGrantDisableReason,
     // permission: [APP_PERMISSION.PO_DOC.UNLOCK_GRANT],
+  },
+  {
+    id: EButtonActionType.UNLOCK_REQUEST_REJECT,
+    tooltip: 'Reject unlock request',
+    disableWhen: shouldDisablePoUnlockRequestReject,
+    disableReason: poUnlockRequestRejectDisableReason,
+    // permission: [APP_PERMISSION.PO_DOC.UNLOCK_REQUEST_REJECT],
   },
 ];
 

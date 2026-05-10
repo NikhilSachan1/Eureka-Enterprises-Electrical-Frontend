@@ -14,6 +14,7 @@ import {
   UnlockRequestPoResponseSchema,
   UnlockRequestPoRequestSchema,
   UnlockGrantPoResponseSchema,
+  UnlockRejectPoResponseSchema,
 } from '../schemas';
 import {
   IApprovePoFormDto,
@@ -25,6 +26,7 @@ import {
   IRejectPoResponseDto,
   IDeletePoResponseDto,
   IUnlockGrantPoResponseDto,
+  IUnlockRejectPoResponseDto,
   IUnlockRequestPoFormDto,
   IUnlockRequestPoResponseDto,
 } from '../types/po.dto';
@@ -145,6 +147,34 @@ export class PoService {
             this.logger.logDtoValidationErrors('Unlock Grant PO Error', error);
           } else {
             this.logger.logUserAction('Unlock Grant PO Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  unlockRequestRejectPo(poId: string): Observable<IUnlockRejectPoResponseDto> {
+    this.logger.logUserAction('Unlock Request Reject PO Request');
+
+    return this.apiService
+      .postValidated(API_ROUTES.SITE.DOCUMENT.PO.UNLOCK_REQUEST_REJECT(poId), {
+        response: UnlockRejectPoResponseSchema,
+      })
+      .pipe(
+        tap((response: IUnlockRejectPoResponseDto) => {
+          this.logger.logUserAction(
+            'Unlock Request Reject PO Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Unlock Request Reject PO Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Unlock Request Reject PO Error', error);
           }
           return throwError(() => error);
         })

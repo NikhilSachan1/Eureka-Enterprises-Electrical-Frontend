@@ -344,9 +344,10 @@ export class GetProjectComponent implements OnInit {
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.PROJECT,
         ROUTES.SITE.PROJECT.WORKSPACE,
-        selectedRow.id,
       ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
+      void this.routerNavigationService.navigateWithState(routeSegments, {
+        projectId: selectedRow.id,
+      });
     } catch (error) {
       this.logger.logUserAction(
         'Navigation error while opening project workspace',

@@ -14,7 +14,7 @@ import {
 } from '../../types/po.dto';
 import { PoService } from '../../services/po.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { LoadingService } from '@shared/services';
+import { AppConfigurationService, LoadingService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -24,6 +24,7 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-get-po-detail',
@@ -38,6 +39,7 @@ export class GetPoDetailComponent extends DrawerDetailBase {
   };
   private readonly poService = inject(PoService);
   private readonly loadingService = inject(LoadingService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _poDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -132,11 +134,14 @@ export class GetPoDetailComponent extends DrawerDetailBase {
     const detail: IDataViewDetails = {
       status: {
         entryType: record.partyType,
-        approvalStatus: record.approvalStatus,
+        approvalStatus: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.projectDocumentApprovalStatuses(),
+          record.approvalStatus
+        ),
       },
       entryData,
       approvalBy: {
-        user: record.approvalBy,
+        user: record.approvalByUser,
         date: record.approvalAt,
         notes: record.approvalReason,
       },

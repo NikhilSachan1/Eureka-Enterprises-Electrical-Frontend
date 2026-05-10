@@ -7,11 +7,11 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const PoGetRequestSchema = z
   .object({
-    siteName: uuidField.optional(),
+    projectName: z.array(uuidField).nullable().optional(),
     docType: z.enum(EDocContext).optional(),
-    contractorName: uuidField.optional(),
-    vendorName: uuidField.optional(),
-    approvalStatus: z.string().optional(),
+    contractorName: z.array(uuidField).nullable().optional(),
+    vendorName: z.array(uuidField).nullable().optional(),
+    approvalStatus: z.array(z.string()).nullable().optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -19,15 +19,17 @@ export const PoGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ siteName, docType, contractorName, vendorName, ...rest }) => {
-    return {
-      ...rest,
-      siteId: siteName,
-      partyType: docType,
-      contractorId: contractorName,
-      vendorId: vendorName,
-    };
-  });
+  .transform(
+    ({ projectName, docType, contractorName, vendorName, ...rest }) => {
+      return {
+        ...rest,
+        siteId: projectName,
+        partyType: docType,
+        contractorId: contractorName,
+        vendorId: vendorName,
+      };
+    }
+  );
 
 export const PoGetBaseResponseSchema = z.looseObject({
   ...PoBaseSchema.shape,

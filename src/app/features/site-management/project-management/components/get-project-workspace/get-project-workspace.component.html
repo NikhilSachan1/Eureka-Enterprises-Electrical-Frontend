@@ -1,10 +1,12 @@
-<app-page-header
-  [pageHeaderConfig]="pageHeaderConfig()"
-  (headerButtonClick)="onHeaderButtonClick($event)"
-/>
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
 <div class="search-filter-wrapper">
-  <app-search-filter [searchFilterConfig]="searchFilterConfig" />
+  <app-search-filter
+    [searchFilterConfig]="searchFilterConfig"
+    [prefillValues]="searchFilterPrefill()"
+    (onFilterSubmit)="onWorkspaceFilterSubmit($event)"
+    (onFilterReset)="onWorkspaceFilterReset()"
+  />
 </div>
 
 <div

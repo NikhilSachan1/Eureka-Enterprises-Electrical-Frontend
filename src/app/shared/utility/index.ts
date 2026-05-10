@@ -41,7 +41,3 @@ export { filterOptionsByIncludeExclude } from './component.util';
 export { StatusUtil } from './status.util';
 export { makeFieldsNullable } from './zod.util';
 export { parseAmount } from './number.util';
-export {
-  getParamFromRouteAncestors,
-  getRouteDataFromAncestors,
-} from './router.util';

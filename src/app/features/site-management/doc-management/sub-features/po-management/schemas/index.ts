@@ -22,3 +22,4 @@ export {
 } from './unlock-request-po.schema';
 export { UnlockGrantPoResponseSchema } from './unlock-grant-po.schema';
 export { DeletePoResponseSchema } from './delete-po.schema';
+export { UnlockRejectPoResponseSchema } from './unlock-reject-po.schema';

@@ -10,6 +10,7 @@ import {
   RejectPoRequestSchema,
   RejectPoResponseSchema,
   UnlockGrantPoResponseSchema,
+  UnlockRejectPoResponseSchema,
   UnlockRequestPoRequestSchema,
   UnlockRequestPoResponseSchema,
 } from '../schemas';
@@ -68,3 +69,10 @@ export type IUnlockGrantPoResponseDto = z.infer<
   PO Delete
 */
 export type IDeletePoResponseDto = z.infer<typeof DeletePoResponseSchema>;
+
+/**
+ * PO Unlock Reject
+ */
+export type IUnlockRejectPoResponseDto = z.infer<
+  typeof UnlockRejectPoResponseSchema
+>;

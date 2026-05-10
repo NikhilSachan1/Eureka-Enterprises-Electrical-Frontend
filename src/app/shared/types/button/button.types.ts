@@ -82,4 +82,5 @@ export enum EButtonActionType {
   UNLINK = 'unlink',
   UNLOCK_REQUEST = 'unlockRequest',
   UNLOCK_GRANT = 'unlockGrant',
+  UNLOCK_REQUEST_REJECT = 'unlockRequestReject',
 }

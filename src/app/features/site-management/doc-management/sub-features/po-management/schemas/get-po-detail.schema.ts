@@ -18,7 +18,7 @@ export const PoDetailGetResponseSchema = z.looseObject({
   ...PoGetBaseResponseSchema.shape,
   ...AuditSchema.shape,
   remarks: z.string().nullable(),
-  approvalBy: makeFieldsNullable(UserSchema).nullable(),
+  approvalByUser: makeFieldsNullable(UserSchema).nullable(),
   approvalAt: isoDateTimeField.nullable(),
   approvalReason: z.string().nullable(),
   createdByUser: UserSchema,
