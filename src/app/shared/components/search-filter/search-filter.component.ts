@@ -42,7 +42,8 @@ export class SearchFilterComponent implements OnInit {
   private readonly permissionService = inject(AppPermissionService);
 
   searchFilterConfig = input.required<ITableSearchFilterFormConfig>();
-  tableRef = input.required<Table>();
+  /** When omitted, filter panel is UI-only (no PrimeNG table filters applied). */
+  tableRef = input<Table | undefined>(undefined);
   prefillValues = input<Record<string, unknown>>();
 
   onSearchFilterChange = output<Record<string, unknown>>();
@@ -83,23 +84,26 @@ export class SearchFilterComponent implements OnInit {
   }
 
   protected onSubmit(): void {
-    this.setFilterInTable();
+    const table = this.tableRef();
+    if (table) {
+      this.setFilterInTable(table);
+    }
     this.form.formGroup.markAsPristine();
     this.hasSearched = true;
     this.onFilterSubmit.emit(this.form.getData());
   }
 
-  protected setFilterInTable(): void {
+  protected setFilterInTable(table: Table): void {
     const formData = this.form.getData();
 
     Object.entries(formData).forEach(([key, value]) => {
       if (key === 'globalSearch') {
-        this.tableRef().filterGlobal(
+        table.filterGlobal(
           value as string,
           this.searchFilterConfig().fields[key].matchmode as string
         );
       } else {
-        this.tableRef().filter(
+        table.filter(
           value,
           key,
           this.searchFilterConfig().fields[key].matchmode as string
@@ -111,8 +115,8 @@ export class SearchFilterComponent implements OnInit {
   protected onReset(): void {
     this.form.formGroup.reset();
     this.onFilterReset.emit();
-    if (this.hasSearched || this.hasPrefillValues) {
-      const table = this.tableRef();
+    const table = this.tableRef();
+    if (table && (this.hasSearched || this.hasPrefillValues)) {
       table.filters = {};
       table.reset();
     }

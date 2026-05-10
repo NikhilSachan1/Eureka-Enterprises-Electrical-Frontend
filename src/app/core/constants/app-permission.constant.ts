@@ -127,7 +127,7 @@ export const APP_PERMISSION = {
     EDIT: 'edit_project',
     DELETE: 'delete_project',
     CHANGE_STATUS: 'change_status_project',
-    ANALYSIS: 'analysis_project',
+    WORKSPACE: 'analysis_project',
     ALLOCATE_DEALLOCATE_EMPLOYEE: 'allocate_deallocate_employee_project',
   },
   ROLE_PERMISSION: {
@@ -252,7 +252,7 @@ export const APP_PERMISSION = {
       SEARCH_FILTER_COMPANY_NAME: 'ui_project_search_filter_company_name',
       SEARCH_FILTER_CONTRACTOR_NAME: 'ui_project_search_filter_contractor_name',
     },
-    PROJECT_ANALYSIS: {
+    PROJECT_WORKSPACE: {
       TIMELINE: 'ui_project_analysis_timeline',
       PROFITABILITY: 'ui_project_analysis_profitability',
       DOC: 'ui_project_analysis_doc',
@@ -387,7 +387,7 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.SUPER_ADMIN]: true,
     },
   },
-  PROJECT_ANALYSIS: {
+  PROJECT_WORKSPACE: {
     TIMELINE: {
       [EUserRole.ADMIN]: true,
       [EUserRole.DRIVER]: false,

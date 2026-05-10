@@ -15,6 +15,7 @@ export const MODULE_NAMES = {
   ANNOUNCEMENT: 'announcement',
   CONFIGURATION: 'configuration',
   GEOGRAPHY: 'geography',
+  FINANCIAL: 'FINANCIALS',
 } as const;
 
 export const CONFIGURATION_KEYS = {
@@ -90,9 +91,11 @@ export const CONFIGURATION_KEYS = {
     CONTRACTOR_STATUS: 'contractor_status_dropdown',
   },
   PROJECT: {
+    PROJECT_LIST: 'project_list',
     PROJECT_STATUS: 'site_statuses',
     PROJECT_WORK_TYPES: 'site_work_types',
     PROJECT_DOCUMENT_TYPES: 'site_document_types',
+    PROJECT_DOCUMENT_APPROVAL_STATUSES: 'FINANCIAL_APPROVAL_STATUSES',
   },
   PERMISSION: {
     MODULE_CONFIG_DROPDOWN: 'modules_config_dropdown',

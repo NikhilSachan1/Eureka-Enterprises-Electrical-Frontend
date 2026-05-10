@@ -104,7 +104,7 @@ export class AddDsrComponent
           const routeSegments = [
             ROUTE_BASE_PATHS.SITE.BASE,
             ROUTE_BASE_PATHS.SITE.PROJECT,
-            ROUTES.SITE.PROJECT.ANALYSIS,
+            ROUTES.SITE.PROJECT.WORKSPACE,
             this.projectId,
           ];
           void this.routerNavigationService.navigateToRoute(routeSegments);

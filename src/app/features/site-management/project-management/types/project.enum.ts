@@ -1,4 +1,4 @@
-export enum EProjectAnalysisTabRoute {
+export enum EProjectWorkspaceTabRoute {
   PROFITABILITY = 'profitability',
   CONTRACTOR_DOC = 'contractor-doc',
   VENDOR_DOC = 'vendor-doc',

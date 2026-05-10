@@ -77,7 +77,7 @@ export enum EButtonActionType {
   RETIRED = 'retired',
   PAID = 'paid',
   GENERATE = 'generate',
-  ANALYZE = 'analyze',
+  WORKSPACE = 'workspace',
   LINK = 'link',
   UNLINK = 'unlink',
   UNLOCK_REQUEST = 'unlockRequest',

@@ -17,3 +17,11 @@ export interface IProject
   stakeholders: IProjectStakeholders;
   originalRawData: IProjectGetBaseResponseDto;
 }
+
+export interface IProjectWorkspaceSearchFilterFormDto {
+  projectName?: string[];
+  contractorName?: string[];
+  vendorName?: string[];
+  approvalStatus?: string[];
+  search?: string;
+}

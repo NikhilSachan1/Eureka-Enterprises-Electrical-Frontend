@@ -82,9 +82,9 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
     permission: [APP_PERMISSION.PROJECT.VIEW_DETAIL],
   },
   {
-    id: EButtonActionType.ANALYZE,
-    tooltip: 'Open project workspace',
-    permission: [APP_PERMISSION.PROJECT.ANALYSIS],
+    id: EButtonActionType.WORKSPACE,
+    tooltip: 'View Project Workspace',
+    permission: [APP_PERMISSION.PROJECT.WORKSPACE],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,

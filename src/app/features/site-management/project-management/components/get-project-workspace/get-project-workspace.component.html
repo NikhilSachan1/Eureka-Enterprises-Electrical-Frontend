@@ -1,0 +1,29 @@
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<div class="search-filter-wrapper">
+  <app-search-filter [searchFilterConfig]="searchFilterConfig" />
+</div>
+
+<div
+  class="project-workspace-main-grid"
+  [class.project-workspace-main-grid--with-timeline]="showTimeline()"
+>
+  @defer (when showTimeline()) {
+    <p-card class="workspace-timeline-card min-w-0">
+      <app-get-project-timeline />
+    </p-card>
+  }
+
+  <div class="min-w-0 max-w-full">
+    @if (visibleWorkspaceTabs().length) {
+      <app-nav-tabs
+        class="block min-w-0 max-w-full"
+        [tabs]="visibleWorkspaceTabs()"
+        [tabMode]="tabModeType"
+      />
+    }
+  </div>
+</div>

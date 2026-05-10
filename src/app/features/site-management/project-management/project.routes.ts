@@ -8,7 +8,7 @@ import {
   DOC_MANAGEMENT_VENDOR_DOC_ROUTES,
 } from '@features/site-management/doc-management/doc.routes';
 import { DSR_MANAGEMENT_DAILY_PROGRESS_ROUTES } from '@features/site-management/dsr-management/dsr.routes';
-import { PROJECT_ANALYSIS_PROFITABILITY_ROUTES } from '@features/site-management/project-profitability/profitability.routes';
+import { PROJECT_WORKSPACE_PROFITABILITY_ROUTES } from '@features/site-management/project-profitability/profitability.routes';
 
 export const PROJECT_MANAGEMENT_ROUTES: Routes = [
   {
@@ -53,14 +53,14 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
     },
   },
   {
-    path: `${ROUTES.SITE.PROJECT.ANALYSIS}/:projectId`,
+    path: ROUTES.SITE.PROJECT.WORKSPACE,
     loadComponent: () =>
       import(
-        './components/get-project-analysis/get-project-analysis.component'
-      ).then(m => m.GetProjectAnalysisComponent),
+        './components/get-project-workspace/get-project-workspace.component'
+      ).then(m => m.GetProjectWorkspaceComponent),
     canActivate: [permissionGuard],
     data: {
-      permissions: [APP_PERMISSION.PROJECT.ANALYSIS],
+      permissions: [APP_PERMISSION.PROJECT.WORKSPACE],
     },
     children: [
       {
@@ -68,7 +68,7 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
         pathMatch: 'full',
         redirectTo: ROUTES.SITE.PROJECT.PROFITABILITY,
       },
-      ...PROJECT_ANALYSIS_PROFITABILITY_ROUTES,
+      ...PROJECT_WORKSPACE_PROFITABILITY_ROUTES,
       ...DOC_MANAGEMENT_CONTRACTOR_DOC_ROUTES,
       ...DOC_MANAGEMENT_VENDOR_DOC_ROUTES,
       ...DSR_MANAGEMENT_DAILY_PROGRESS_ROUTES,

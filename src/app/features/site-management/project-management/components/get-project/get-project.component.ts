@@ -239,8 +239,8 @@ export class GetProjectComponent implements OnInit {
       return;
     }
 
-    if (actionType === EButtonActionType.ANALYZE) {
-      this.navigateToProjectAnalysis(selectedFirstRow);
+    if (actionType === EButtonActionType.WORKSPACE) {
+      this.navigateToProjectWorkspace(selectedFirstRow);
       return;
     }
 
@@ -336,22 +336,20 @@ export class GetProjectComponent implements OnInit {
     }
   }
 
-  private navigateToProjectAnalysis(
+  private navigateToProjectWorkspace(
     selectedRow: IProjectGetBaseResponseDto
   ): void {
     try {
       const routeSegments = [
         ROUTE_BASE_PATHS.SITE.BASE,
         ROUTE_BASE_PATHS.SITE.PROJECT,
-        ROUTES.SITE.PROJECT.ANALYSIS,
+        ROUTES.SITE.PROJECT.WORKSPACE,
         selectedRow.id,
       ];
-      void this.routerNavigationService.navigateWithState(routeSegments, {
-        projectData: selectedRow,
-      });
+      void this.routerNavigationService.navigateToRoute(routeSegments);
     } catch (error) {
       this.logger.logUserAction(
-        'Navigation error while analyzing project',
+        'Navigation error while opening project workspace',
         error
       );
     }

@@ -109,7 +109,7 @@ export const ROUTES = {
       LIST: `list`,
       ADD: `add`,
       EDIT: `edit`,
-      ANALYSIS: `workspace`,
+      WORKSPACE: `workspace`,
       PROFITABILITY: `profitability`,
       CONTRACTOR_DOC: `contractor-doc`,
       VENDOR_DOC: `vendor-doc`,

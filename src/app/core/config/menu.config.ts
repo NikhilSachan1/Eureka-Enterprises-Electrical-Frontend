@@ -322,6 +322,12 @@ export const appMenu: ApplicationMenu = {
                   routerLink: ROUTES.SITE.PROJECT.ADD,
                   permission: [APP_PERMISSION.PROJECT.ADD],
                 },
+                {
+                  label: 'Project workspace',
+                  icon: ICONS.COMMON.CHART,
+                  routerLink: ROUTES.SITE.PROJECT.WORKSPACE,
+                  permission: [APP_PERMISSION.PROJECT.WORKSPACE],
+                },
               ],
             },
           ],

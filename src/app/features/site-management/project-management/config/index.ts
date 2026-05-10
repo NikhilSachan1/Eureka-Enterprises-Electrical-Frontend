@@ -8,3 +8,4 @@ export {
   ALLOCATE_DEALLOCATE_EMPLOYEE_FORM_CONFIG,
   ALLOCATE_DEALLOCATE_ROW_EFFECTIVE_DATE_FIELD_OPTIONS,
 } from './form/allocate-deallocate-employee.config';
+export { SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG } from './form/search-filter-project-workspace.config';

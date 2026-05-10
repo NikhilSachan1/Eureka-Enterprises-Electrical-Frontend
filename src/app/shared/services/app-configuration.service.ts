@@ -47,6 +47,11 @@ import { ICompanyGetResponseDto } from '@features/site-management/company-manage
 import { CompanyService } from '@features/site-management/company-management/services/company.service';
 import { IContractorGetResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
 import { ContractorService } from '@features/site-management/contractor-management/services/contractor.service';
+import { ProjectService } from '@features/site-management/project-management/services/project.service';
+import {
+  IProjectGetFormDto,
+  IProjectGetResponseDto,
+} from '@features/site-management/project-management/types/project.dto';
 import { PetroCardService } from '@features/transport-management/petro-card-management/services/petro-card.service';
 import { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
 import { FuelExpenseService } from '@features/transport-management/fuel-expense-management/services/fuel-expense.service';
@@ -74,6 +79,7 @@ export class AppConfigurationService {
   private readonly vehicleService = inject(VehicleService);
   private readonly companyService = inject(CompanyService);
   private readonly contractorService = inject(ContractorService);
+  private readonly projectService = inject(ProjectService);
   private readonly petroCardService = inject(PetroCardService);
   private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly configurationService = inject(ConfigurationService);
@@ -97,6 +103,7 @@ export class AppConfigurationService {
   private petroCardListCache$?: Observable<IPetroCardGetResponseDto>;
   private companyListCache$?: Observable<ICompanyGetResponseDto>;
   private contractorListCache$?: Observable<IContractorGetResponseDto>;
+  private projectListCache$?: Observable<IProjectGetResponseDto>;
   private linkedUserVehicleDetailCache$?: Observable<ILinkedUserVehicleDetailGetResponseDto | null>;
   private readonly _dropdownLoadingState = signal<Record<string, boolean>>({});
   private readonly _isAppConfigurationDataReady = signal<boolean>(false);
@@ -129,6 +136,9 @@ export class AppConfigurationService {
   private readonly _fuelExpensePaymentMethods = signal<IOptionDropdown[]>([]);
   private readonly _attendanceStatus = signal<IOptionDropdown[]>([]);
   private readonly _approvalStatus = signal<IOptionDropdown[]>([]);
+  private readonly _projectDocumentApprovalStatuses = signal<IOptionDropdown[]>(
+    []
+  );
   private readonly _assetCategories = signal<IOptionDropdown[]>([]);
   private readonly _assetTypes = signal<IOptionDropdown[]>([]);
   private readonly _assetStatuses = signal<IOptionDropdown[]>([]);
@@ -153,6 +163,7 @@ export class AppConfigurationService {
   private readonly _projectStatus = signal<IOptionDropdown[]>([]);
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectDocumentTypes = signal<IOptionDropdown[]>([]);
+  private readonly _projectList = signal<IOptionDropdown[]>([]);
   private readonly _moduleNames = signal<IOptionDropdown[]>([]);
   private readonly _modulesConfig = signal<
     Record<string, { label: string; actions: IOptionDropdown[] }>
@@ -190,6 +201,8 @@ export class AppConfigurationService {
     this._fuelExpensePaymentMethods.asReadonly();
   readonly attendanceStatus = this._attendanceStatus.asReadonly();
   readonly approvalStatus = this._approvalStatus.asReadonly();
+  readonly projectDocumentApprovalStatuses =
+    this._projectDocumentApprovalStatuses.asReadonly();
   readonly assetCategories = this._assetCategories.asReadonly();
   readonly assetTypes = this._assetTypes.asReadonly();
   readonly assetStatuses = this._assetStatuses.asReadonly();
@@ -216,6 +229,7 @@ export class AppConfigurationService {
   readonly projectStatus = this._projectStatus.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
   readonly projectDocumentTypes = this._projectDocumentTypes.asReadonly();
+  readonly projectList = this._projectList.asReadonly();
   readonly moduleNames = this._moduleNames.asReadonly();
   readonly modulesConfig = this._modulesConfig.asReadonly();
   readonly announcementStatuses = this._announcementStatuses.asReadonly();
@@ -431,6 +445,10 @@ export class AppConfigurationService {
     ],
     [MODULE_NAMES.PROJECT]: [
       {
+        key: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
+        signal: this._projectList,
+      },
+      {
         key: CONFIGURATION_KEYS.PROJECT.PROJECT_STATUS,
         signal: this._projectStatus,
       },
@@ -441,6 +459,12 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_TYPES,
         signal: this._projectDocumentTypes,
+      },
+    ],
+    [MODULE_NAMES.FINANCIAL]: [
+      {
+        key: CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_APPROVAL_STATUSES,
+        signal: this._projectDocumentApprovalStatuses,
       },
     ],
     [MODULE_NAMES.PERMISSION]: [
@@ -484,6 +508,7 @@ export class AppConfigurationService {
     this.petroCardListCache$ = undefined;
     this.companyListCache$ = undefined;
     this.contractorListCache$ = undefined;
+    this.projectListCache$ = undefined;
     this.linkedUserVehicleDetailCache$ = undefined;
     this.lazyReferenceDropdownLoadScheduledKeys.clear();
   }
@@ -548,6 +573,19 @@ export class AppConfigurationService {
       .subscribe({
         error: err =>
           this.logger.error('Contractor dropdown refetch failed', err),
+      });
+  }
+
+  refreshProjectListDropdowns(): void {
+    this.projectListCache$ = undefined;
+    this.lazyReferenceDropdownLoadScheduledKeys.delete(
+      CONFIGURATION_KEYS.PROJECT.PROJECT_LIST
+    );
+    this.loadProjectList()
+      .pipe(take(1))
+      .subscribe({
+        error: err =>
+          this.logger.error('Project list dropdown refetch failed', err),
       });
   }
 
@@ -764,6 +802,7 @@ export class AppConfigurationService {
       CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
       CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
       CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+      CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
     ]);
 
     if (
@@ -806,6 +845,7 @@ export class AppConfigurationService {
       [CONFIGURATION_KEYS.COMPANY.COMPANY_LIST]: () => this.loadCompanyList(),
       [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST]: () =>
         this.loadContractorList(),
+      [CONFIGURATION_KEYS.PROJECT.PROJECT_LIST]: () => this.loadProjectList(),
     };
 
     const loader = loadByKey[key];
@@ -1206,6 +1246,55 @@ export class AppConfigurationService {
         catchError(error => {
           this.contractorListCache$ = undefined;
           this.logger.logUserAction('Failed to load Contractor List', error);
+          return throwError(() => error);
+        })
+      )
+    );
+  }
+
+  loadProjectList(): Observable<IProjectGetResponseDto> {
+    return (this.projectListCache$ ??= this.fetchProjectList().pipe(
+      this.shareAppDataCache()
+    ));
+  }
+
+  private fetchProjectList(): Observable<IProjectGetResponseDto> {
+    this.logger.logUserAction('Loading app data - Project List');
+
+    const params: IProjectGetFormDto = {
+      page: 1,
+      pageSize: 500,
+    };
+
+    return this.withDropdownLoading(
+      CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
+      this.projectService.getProjectList(params).pipe(
+        tap(response => {
+          this.logger.logUserAction('Project List loaded successfully', {
+            count: response.totalRecords,
+          });
+
+          const projectOptions: IOptionDropdown[] = response.records
+            .map(project => {
+              const rawName = project.name?.trim() ?? '';
+              const subtitle =
+                [project.city, project.state].filter(Boolean).join(', ') ||
+                undefined;
+              return {
+                label: toTitleCase(rawName),
+                subtitle,
+                initial: this.initialsForDropdownLabel(rawName),
+                value: project.id,
+                data: project,
+              };
+            })
+            .sort(this.sortByLabel);
+
+          this._projectList.set(projectOptions);
+        }),
+        catchError(error => {
+          this.projectListCache$ = undefined;
+          this.logger.logUserAction('Failed to load Project List', error);
           return throwError(() => error);
         })
       )
