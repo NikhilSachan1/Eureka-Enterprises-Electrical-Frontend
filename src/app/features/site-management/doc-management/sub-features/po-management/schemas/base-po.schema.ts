@@ -31,6 +31,7 @@ export const PoUpsertShapeSchema = z
     poNumber: z.string(),
     poDate: dateField,
     taxableAmount: z.number(),
+    gstPercent: z.number(),
     gstAmount: z.number(),
     totalAmount: z.number(),
     poFileName: z.string(),

@@ -93,6 +93,15 @@ export class GetPoDetailComponent extends DrawerDetailBase {
 
     const entryData: IDataViewDetails['entryData'] = [
       {
+        label: 'Company Name',
+        value: record.company?.name ?? 'N/A',
+      },
+      {
+        label: 'Site Name',
+        value: record.site?.name ?? 'N/A',
+        suffix: this.buildSiteLocationSuffix(record.site),
+      },
+      {
         label: 'PO Date',
         value: record.poDate,
         type: EDataType.DATE,
@@ -170,5 +179,17 @@ export class GetPoDetailComponent extends DrawerDetailBase {
       name: parts.length > 0 ? parts.join(' · ') : 'Purchase order',
       subtitle: poNumber,
     };
+  }
+
+  private buildSiteLocationSuffix(
+    site: IPoDetailGetResponseDto['site'] | null | undefined
+  ): string | undefined {
+    if (!site) {
+      return undefined;
+    }
+    const parts = [site.city, site.state].filter(
+      (part): part is string => !!part && part.trim().length > 0
+    );
+    return parts.length > 0 ? ` · ${parts.join(', ')}` : undefined;
   }
 }

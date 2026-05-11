@@ -14,6 +14,7 @@ export const EditPoRequestSchema = PoUpsertShapeSchema.omit({
       poNumber: data.poNumber,
       poDate: transformDateFormat(data.poDate),
       taxableAmount: data.taxableAmount,
+      gstPercentage: data.gstPercent,
       gstAmount: data.gstAmount,
       totalAmount: data.totalAmount,
       fileKey: data.poFileKey,

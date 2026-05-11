@@ -11,6 +11,7 @@ export const AddPoRequestSchema = PoUpsertShapeSchema.strict().transform(
       vendorId: data.vendorName,
       poNumber: data.poNumber,
       poDate: transformDateFormat(data.poDate),
+      gstPercentage: data.gstPercent,
       taxableAmount: data.taxableAmount,
       gstAmount: data.gstAmount,
       totalAmount: data.totalAmount,

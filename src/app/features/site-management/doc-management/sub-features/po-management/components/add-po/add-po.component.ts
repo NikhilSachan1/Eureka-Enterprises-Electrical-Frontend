@@ -161,7 +161,6 @@ export class AddPoComponent
   ): IAddPoFormDto {
     const formData = this.form.getData();
     const record = { ...formData };
-    delete (record as Record<string, unknown>)['gstPercent'];
     delete (record as Record<string, unknown>)['poAttachment'];
     return {
       ...record,

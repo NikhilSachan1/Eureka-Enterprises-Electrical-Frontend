@@ -250,7 +250,6 @@ export class EditPoComponent
   ): IEditPoFormDto {
     const formData = this.form.getData();
     const record = { ...formData };
-    delete (record as Record<string, unknown>)['gstPercent'];
     delete (record as Record<string, unknown>)['poAttachment'];
     delete (record as Record<string, unknown>)['projectName'];
     delete (record as Record<string, unknown>)['contractorName'];

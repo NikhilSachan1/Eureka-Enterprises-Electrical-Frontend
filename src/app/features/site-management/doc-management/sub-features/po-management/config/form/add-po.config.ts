@@ -15,7 +15,7 @@ import {
 import { IAddPoUIFormDto } from '../../types/po.dto';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 
-export const ADD_PO_DEFAULT_GST_PERCENT = 5;
+export const ADD_PO_DEFAULT_GST_PERCENT = 18;
 
 const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
   projectName: {
