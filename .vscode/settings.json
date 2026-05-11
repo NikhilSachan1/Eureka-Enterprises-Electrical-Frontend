@@ -20,7 +20,7 @@
   "prettier.useEditorConfig": false,
   "prettier.ignorePath": "./.prettierignore",
   "[html]": {
-    "editor.defaultFormatter": "sdteotonio.angular-formatter"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"

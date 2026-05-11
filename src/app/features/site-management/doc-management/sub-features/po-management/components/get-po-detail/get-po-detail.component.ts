@@ -109,6 +109,7 @@ export class GetPoDetailComponent extends DrawerDetailBase {
           taxableAmount: record.taxableAmount,
           gstAmount: record.gstAmount,
           totalAmount: record.totalAmount,
+          gstPercentage: `${record.gstPercentage}%`,
         },
         customTemplateKey: 'poDetailPoAmounts',
       },

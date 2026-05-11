@@ -19,6 +19,9 @@
         <span class="po-detail-amount-value text-amber-900 font-semibold">
           {{ +v.gstAmount | currency: cur : 'symbol' : fmt : loc }}
         </span>
+        @if (v.gstPercentage) {
+          <span class="text-xs font-semibold text-amber-800/90 tabular-nums shrink-0">({{ v.gstPercentage }})</span>
+        }
       </div>
       <div class="po-detail-amount-item">
         <span class="po-detail-amount-label text-slate-700">Total</span>
