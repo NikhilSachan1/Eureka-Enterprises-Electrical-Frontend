@@ -1,13 +1,19 @@
-import { FilterSchema, isoDateTimeField, uuidField } from '@shared/schemas';
+import {
+  FilterSchema,
+  isoDateTimeField,
+  UserSchema,
+  uuidField,
+} from '@shared/schemas';
 import z from 'zod';
 import { JmcBaseSchema } from './base-jmc.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import { makeFieldsNullable } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const JmcGetRequestSchema = z
   .object({
-    projectName: z.array(uuidField).nullable().optional(),
+    projectName: uuidField.nullable().optional(),
     docType: z.enum(EDocContext).optional(),
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
@@ -35,15 +41,27 @@ export const JmcGetBaseResponseSchema = z.looseObject({
   ...JmcBaseSchema.shape,
   isLocked: z.boolean(),
   unlockRequestedAt: isoDateTimeField.nullable(),
-  unlockRequestedBy: uuidField.nullable(),
+  unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),
   unlockReason: z.string().nullable(),
-  invoicedTotal: z.string(),
-  bookedTotal: z.string(),
-  paidTotal: z.string(),
-  lastInvoiceAt: isoDateTimeField.nullable(),
-  lastPaymentAt: isoDateTimeField.nullable(),
   remarks: z.string().nullable(),
   approvalStatus: z.string(),
+  po: z.looseObject({
+    poNumber: z.string(),
+  }),
+  site: z
+    .looseObject({
+      name: z.string(),
+      city: z.string(),
+      state: z.string(),
+    })
+    .nullable()
+    .optional(),
+  company: z
+    .looseObject({
+      name: z.string(),
+    })
+    .nullable()
+    .optional(),
   contractor: z
     .looseObject({
       name: z.string(),

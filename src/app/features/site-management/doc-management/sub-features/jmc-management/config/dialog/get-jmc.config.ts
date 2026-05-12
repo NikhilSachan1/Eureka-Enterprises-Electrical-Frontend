@@ -7,15 +7,15 @@ import { ApproveJmcComponent } from '../../components/approve-jmc/approve-jmc.co
 import { RejectJmcComponent } from '../../components/reject-jmc/reject-jmc.component';
 import { UnlockRequestJmcComponent } from '../../components/unlock-request-jmc/unlock-request-jmc.component';
 import { UnlockGrantJmcComponent } from '../../components/unlock-grant-jmc/unlock-grant-jmc.component';
+import { UnlockRequestRejectJmcComponent } from '../../components/unlock-request-reject-jmc/unlock-request-reject-jmc.component';
 import { AddJmcComponent } from '../../components/add-jmc/add-jmc.component';
 import { EditJmcComponent } from '../../components/edit-jmc/edit-jmc.component';
 
-/** Mirrors PO actions; add DELETE / UNLOCK_REQUEST_REJECT when those JMC components exist. */
 export const JMC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.ADD]: {
     dialogConfig: {
       header: 'Add JMC',
-      message: 'Add a new job material certificate to the system.',
+      message: 'Add a new JMC to the system.',
     },
     dynamicComponent: AddJmcComponent,
   },
@@ -23,7 +23,7 @@ export const JMC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.EDIT]: {
     dialogConfig: {
       header: 'Edit JMC',
-      message: 'Update job material certificate details.',
+      message: 'Update JMC details.',
     },
     dynamicComponent: EditJmcComponent,
   },
@@ -52,5 +52,14 @@ export const JMC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
       message: 'Unlock this JMC and grant access to the user?',
     },
     dynamicComponent: UnlockGrantJmcComponent,
+  },
+
+  [EButtonActionType.UNLOCK_REQUEST_REJECT]: {
+    dialogConfig: {
+      header: 'Reject unlock request',
+      message:
+        'Reject this unlock request? The JMC will stay locked for the requester.',
+    },
+    dynamicComponent: UnlockRequestRejectJmcComponent,
   },
 };

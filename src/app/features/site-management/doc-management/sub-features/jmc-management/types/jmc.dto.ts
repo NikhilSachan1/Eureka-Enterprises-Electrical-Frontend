@@ -90,9 +90,8 @@ export type IAddJmcRequestDto = z.infer<typeof AddJmcRequestSchema>;
 export type IAddJmcFormDto = z.input<typeof AddJmcRequestSchema>;
 export type IAddJmcUIFormDto = Omit<
   IAddJmcFormDto,
-  'docType' | 'jmcFileKey' | 'jmcFileName'
+  'jmcFileKey' | 'jmcFileName'
 > & {
-  gstPercent: number;
   jmcAttachment: File[];
 };
 export type IAddJmcResponseDto = z.infer<typeof AddJmcResponseSchema>;
@@ -104,12 +103,9 @@ export type IEditJmcRequestDto = z.infer<typeof EditJmcRequestSchema>;
 export type IEditJmcFormDto = z.input<typeof EditJmcRequestSchema>;
 export type IEditJmcUIFormDto = Omit<
   IEditJmcFormDto,
-  'docType' | 'jmcFileKey' | 'jmcFileName'
+  'jmcFileKey' | 'jmcFileName'
 > & {
-  gstPercent: number;
   jmcAttachment: File[];
-  projectName: string;
-  contractorName: string;
-  vendorName: string;
+  poNumber: string;
 };
 export type IEditJmcResponseDto = z.infer<typeof EditJmcResponseSchema>;

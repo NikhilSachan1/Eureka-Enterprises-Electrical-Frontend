@@ -45,21 +45,26 @@ import { IPo } from '../../types/po.interface';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
-import { ICONS } from '@shared/constants';
 import { GetPoDetailComponent } from '../get-po-detail/get-po-detail.component';
 import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 
 @Component({
   selector: 'app-get-po',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PageHeaderComponent, DataTableComponent, CurrencyPipe, DatePipe],
+  imports: [
+    PageHeaderComponent,
+    DataTableComponent,
+    CurrencyPipe,
+    DatePipe,
+    UnlockRequestComponent,
+  ],
   templateUrl: './get-po.component.html',
   styleUrl: './get-po.component.scss',
 })
 export class GetPoComponent implements OnInit {
   protected readonly APP_CONFIG = APP_CONFIG;
-  protected readonly icons = ICONS;
 
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
@@ -181,7 +186,7 @@ export class GetPoComponent implements OnInit {
         ),
         isLocked: record.isLocked,
         unlockRequestedAt: record.unlockRequestedAt,
-        unlockRequestedBy: record.unlockRequestedByUser,
+        unlockRequestedByUser: record.unlockRequestedByUser,
         unlockReason: record.unlockReason,
         invoicedTotal: record.invoicedTotal,
         bookedTotal: record.bookedTotal,

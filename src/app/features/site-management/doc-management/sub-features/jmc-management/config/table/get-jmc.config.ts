@@ -15,11 +15,13 @@ import {
   jmcRejectDisableReason,
   jmcUnlockGrantDisableReason,
   jmcUnlockRequestDisableReason,
+  jmcUnlockRequestRejectDisableReason,
   shouldDisableJmcApprove,
   shouldDisableJmcEditOrDelete,
   shouldDisableJmcReject,
   shouldDisableJmcUnlockGrant,
   shouldDisableJmcUnlockRequest,
+  shouldDisableJmcUnlockRequestReject,
 } from '../../utils/jmc-table-row.util';
 
 export const JMC_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -45,6 +47,30 @@ const JMC_TABLE_PARTY_VENDOR: Partial<IDataTableHeaderConfig> = {
 
 export const JMC_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
   {
+    field: 'company.name',
+    header: 'Company',
+    dummyImageField: 'company.name',
+    bodyTemplate: EDataType.TEXT,
+    showImage: true,
+    primaryFieldHighlight: true,
+    showSort: false,
+  },
+  {
+    field: 'site.name',
+    header: 'Site',
+    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+    dataType: EDataType.TEXT,
+    showImage: true,
+    icon: 'pi pi-building',
+    dummyImageField: 'site.name',
+    primaryFieldHighlight: true,
+    subtitle: {
+      field: 'siteCityStateSubtitle',
+      bodyTemplate: EDataType.TEXT,
+    },
+    showSort: false,
+  },
+  {
     field: 'jmcNumber',
     header: 'JMC Number',
     bodyTemplate: EDataType.TEXT,
@@ -58,10 +84,9 @@ export const JMC_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
-    field: 'totalAmount',
-    header: 'Amounts',
+    field: 'po.poNumber',
+    header: 'PO Number',
     bodyTemplate: EDataType.TEXT,
-    customTemplateKey: 'jmcAmountBreakdown',
     showSort: false,
   },
   {
@@ -81,13 +106,6 @@ export const JMC_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
     header: 'Lock status',
     bodyTemplate: EDataType.TEXT,
     customTemplateKey: 'jmcLockStatus',
-    showSort: false,
-  },
-  {
-    field: 'invoicedTotal',
-    header: 'Invoice & payment',
-    bodyTemplate: EDataType.TEXT,
-    customTemplateKey: 'jmcInvoicePaymentSummary',
     showSort: false,
   },
 ];
@@ -133,6 +151,12 @@ const JMC_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'Grant unlock JMC',
     disableWhen: shouldDisableJmcUnlockGrant,
     disableReason: jmcUnlockGrantDisableReason,
+  },
+  {
+    id: EButtonActionType.UNLOCK_REQUEST_REJECT,
+    tooltip: 'Reject unlock request',
+    disableWhen: shouldDisableJmcUnlockRequestReject,
+    disableReason: jmcUnlockRequestRejectDisableReason,
   },
 ];
 

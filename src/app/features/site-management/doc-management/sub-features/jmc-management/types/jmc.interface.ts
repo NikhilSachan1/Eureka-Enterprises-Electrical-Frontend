@@ -6,23 +6,21 @@ export interface IJmc
     | 'id'
     | 'jmcNumber'
     | 'jmcDate'
-    | 'taxableAmount'
-    | 'gstAmount'
-    | 'totalAmount'
     | 'fileKey'
     | 'approvalStatus'
     | 'isLocked'
     | 'unlockRequestedAt'
-    | 'unlockRequestedBy'
+    | 'unlockRequestedByUser'
     | 'unlockReason'
-    | 'invoicedTotal'
-    | 'bookedTotal'
-    | 'paidTotal'
-    | 'lastInvoiceAt'
-    | 'lastPaymentAt'
     | 'contractor'
     | 'vendor'
+    | 'site'
+    | 'po'
   > {
+  company: {
+    name: string;
+  };
+  siteCityStateSubtitle: string;
   fileKeys: string[];
   originalRawData: IJmcGetBaseResponseDto;
 }

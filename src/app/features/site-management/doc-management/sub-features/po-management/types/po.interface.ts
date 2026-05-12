@@ -14,7 +14,7 @@ export interface IPo
     | 'approvalStatus'
     | 'isLocked'
     | 'unlockRequestedAt'
-    | 'unlockRequestedBy'
+    | 'unlockRequestedByUser'
     | 'unlockReason'
     | 'invoicedTotal'
     | 'bookedTotal'

@@ -19,7 +19,7 @@ export interface IProject
 }
 
 export interface IProjectWorkspaceSearchFilterFormDto {
-  projectName?: string[];
+  projectName?: string;
   contractorName?: string[];
   vendorName?: string[];
   approvalStatus?: string[];

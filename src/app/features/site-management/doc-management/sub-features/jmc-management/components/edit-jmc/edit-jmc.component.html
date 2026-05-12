@@ -1,1 +1,29 @@
-<p>edit-jmc works!</p>
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.poNumber"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.jmcNumber"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.jmcDate"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.jmcAttachment"
+  />
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.remarks"
+  />
+</form>

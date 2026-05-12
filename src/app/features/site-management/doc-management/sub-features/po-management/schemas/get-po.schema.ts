@@ -13,7 +13,7 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const PoGetRequestSchema = z
   .object({
-    projectName: z.array(uuidField).nullable().optional(),
+    projectName: uuidField.nullable().optional(),
     docType: z.enum(EDocContext).optional(),
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
