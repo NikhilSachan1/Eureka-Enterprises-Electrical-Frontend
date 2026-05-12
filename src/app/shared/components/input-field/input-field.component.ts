@@ -61,6 +61,7 @@ import { APP_CONFIG } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import {
   CONFIGURATION_KEYS,
+  DROPDOWN_DISABLED_PLACEHOLDER_ROW_VALUE,
   ICONS,
   invalidCharsPatternFromStrip,
   MODULE_NAMES,
@@ -78,12 +79,6 @@ import {
 } from '@shared/utility';
 import { ImageModule } from 'primeng/image';
 import { NgClass } from '@angular/common';
-
-/**
- * Value for disabled-only dropdown rows (hints / "No data found").
- * Must not equal a cleared control (`''` or `null`) or PrimeNG shows the hint as the selected label.
- */
-const DROPDOWN_DISABLED_ROW_VALUE = '__ee_dropdown_hint__';
 
 @Component({
   selector: 'app-input-field',
@@ -396,29 +391,33 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
 
     this.dependentDropdownParentValue.set(parentControl.value);
 
-    // Check if the method exists on AppConfigurationService
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const serviceMethod = (this.appConfigurationService as any)[
-      optionsProviderMethod
-    ];
-    if (typeof serviceMethod !== 'function') {
-      console.warn(
-        `Dependent dropdown: Method '${optionsProviderMethod}' not found on AppConfigurationService`
-      );
-      return;
+    let serviceMethod:
+      | ((this: unknown, value: string) => IOptionDropdown[])
+      | undefined;
+
+    if (optionsProviderMethod) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const method = (this.appConfigurationService as any)[
+        optionsProviderMethod
+      ];
+      if (typeof method !== 'function') {
+        console.warn(
+          `Dependent dropdown: Method '${optionsProviderMethod}' not found on AppConfigurationService`
+        );
+        return;
+      }
+      serviceMethod = method;
     }
 
-    // Set initial options if parent already has a value
     const initialParentValue = parentControl.value;
-    if (initialParentValue) {
-      const initialOptions = (
-        serviceMethod as (value: string) => IOptionDropdown[]
-      ).call(this.appConfigurationService, initialParentValue);
+    if (serviceMethod && initialParentValue) {
+      const initialOptions = serviceMethod.call(
+        this.appConfigurationService,
+        initialParentValue as string
+      );
       this.dependentDropdownOptions.set(initialOptions);
     }
 
-    // Subscribe to parent field changes - only reset child when parent value actually changed
-    // (form.disable() / enable() also emit valueChanges; we must not clear city on that)
     let previousParentValue: unknown = initialParentValue ?? null;
 
     parentControl.valueChanges
@@ -426,17 +425,16 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       .subscribe((parentValue: unknown) => {
         this.dependentDropdownParentValue.set(parentValue);
 
-        // Get new options based on parent value
-        const newOptions = parentValue
-          ? (serviceMethod as (value: string) => IOptionDropdown[]).call(
-              this.appConfigurationService,
-              parentValue as string
-            )
-          : [];
+        if (serviceMethod) {
+          const newOptions = parentValue
+            ? serviceMethod.call(
+                this.appConfigurationService,
+                parentValue as string
+              )
+            : [];
+          this.dependentDropdownOptions.set(newOptions);
+        }
 
-        this.dependentDropdownOptions.set(newOptions);
-
-        // Reset current field only when parent value actually changed (not on disable/enable etc.)
         const parentValueChanged = previousParentValue !== parentValue;
         previousParentValue = parentValue;
 
@@ -462,7 +460,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   /** Shared options resolution for SELECT, MULTI_SELECT, and AUTOCOMPLETE */
   private getOptionsFromDropdownLikeConfig(
     dropdownConfig: {
-      dependentDropdown?: unknown;
+      dependentDropdown?: { optionsProviderMethod?: string };
       dynamicDropdown?: {
         moduleName: string;
         dropdownName: string;
@@ -479,7 +477,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     let options: IOptionDropdown[] = [];
 
     if (dropdownConfig.dependentDropdown) {
-      options = dependentOptions;
+      options = dropdownConfig.dependentDropdown.optionsProviderMethod
+        ? dependentOptions
+        : (dropdownConfig.optionsDropdown ?? []);
     } else if (dropdownConfig.dynamicDropdown) {
       const { moduleName, dropdownName, filterByRole } =
         dropdownConfig.dynamicDropdown;
@@ -739,7 +739,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     if (this.isDynamicDropdownLoading()) {
       return {
         label: this.getDynamicDropdownLoadingLabel(),
-        value: DROPDOWN_DISABLED_ROW_VALUE,
+        value: DROPDOWN_DISABLED_PLACEHOLDER_ROW_VALUE,
         disabled: true,
       };
     }
@@ -751,11 +751,20 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         : config.fieldType === EDataType.MULTI_SELECT
           ? config.multiSelectConfig
           : undefined;
+
+    if (dropdownConfig?.loading === true) {
+      return {
+        label: 'Loading options...',
+        value: DROPDOWN_DISABLED_PLACEHOLDER_ROW_VALUE,
+        disabled: true,
+      };
+    }
+
     const dd = dropdownConfig?.dependentDropdown;
     if (!dd || !this.formGroup()) {
       return {
         label: 'No data found',
-        value: DROPDOWN_DISABLED_ROW_VALUE,
+        value: DROPDOWN_DISABLED_PLACEHOLDER_ROW_VALUE,
         disabled: true,
       };
     }
@@ -767,13 +776,13 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       );
       return {
         label: `Please select ${parentName} first`,
-        value: DROPDOWN_DISABLED_ROW_VALUE,
+        value: DROPDOWN_DISABLED_PLACEHOLDER_ROW_VALUE,
         disabled: true,
       };
     }
     return {
       label: 'No data found',
-      value: DROPDOWN_DISABLED_ROW_VALUE,
+      value: DROPDOWN_DISABLED_PLACEHOLDER_ROW_VALUE,
       disabled: true,
     };
   }

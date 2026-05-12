@@ -104,8 +104,12 @@ export interface ISelectFieldConfig {
     dependsOnField: string;
     /** Optional: parent field label for empty-state hint (e.g. "State"). Falls back from `dependsOnField` if omitted. */
     dependsOnFieldLabel?: string;
-    /** The method name in AppConfigurationService to get options (e.g., 'getCitiesByState') */
-    optionsProviderMethod: string;
+    /**
+     * AppConfigurationService method for options when the parent changes (e.g. `getCitiesByState`).
+     * Omit when options are supplied only via `optionsDropdown` (e.g. API): empty parent shows
+     * "Please select … first" in the panel like City depends on State.
+     */
+    optionsProviderMethod?: string;
     /** Whether to reset this field when parent field changes (default: true) */
     resetOnParentChange?: boolean;
   };
@@ -167,8 +171,12 @@ export interface IMultiSelectFieldConfig {
     dependsOnField: string;
     /** Optional: parent field label for empty-state hint (e.g. "State"). Falls back from `dependsOnField` if omitted. */
     dependsOnFieldLabel?: string;
-    /** The method name in AppConfigurationService to get options (e.g., 'getCitiesByState') */
-    optionsProviderMethod: string;
+    /**
+     * AppConfigurationService method for options when the parent changes (e.g. `getCitiesByState`).
+     * Omit when options are supplied only via `optionsDropdown` (e.g. API): empty parent shows
+     * "Please select … first" in the panel like City depends on State.
+     */
+    optionsProviderMethod?: string;
     /** Whether to reset this field when parent field changes (default: true) */
     resetOnParentChange?: boolean;
   };

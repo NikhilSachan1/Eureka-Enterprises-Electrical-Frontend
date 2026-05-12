@@ -5,28 +5,31 @@ import {
   input,
   OnInit,
 } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, switchMap } from 'rxjs';
+
 import { FormBase } from '@shared/base/form.base';
+import {
+  IDialogActionHandler,
+  IFinancialFileUploadResponseDto,
+  IInputFieldsConfig,
+} from '@shared/types';
+import {
+  AttachmentsService,
+  ConfirmationDialogService,
+} from '@shared/services';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+
+import { EDIT_JMC_FORM_CONFIG } from '../../config';
+import { JmcService } from '../../services/jmc.service';
 import {
   IEditJmcFormDto,
   IEditJmcResponseDto,
   IEditJmcUIFormDto,
   IJmcGetBaseResponseDto,
 } from '../../types/jmc.dto';
-import {
-  IDialogActionHandler,
-  IFinancialFileUploadResponseDto,
-} from '@shared/types';
-import { JmcService } from '../../services/jmc.service';
-import {
-  AttachmentsService,
-  ConfirmationDialogService,
-} from '@shared/services';
-import { EDIT_JMC_FORM_CONFIG } from '../../config';
-import { finalize, switchMap } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 
 @Component({
   selector: 'app-edit-jmc',
@@ -60,12 +63,15 @@ export class EditJmcComponent
       return;
     }
 
+    const poNumber = record.po?.poNumber ?? '';
+
     this.form = this.formService.createForm<IEditJmcUIFormDto>(
       EDIT_JMC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
         defaultValues: {
-          poNumber: record.po.poNumber,
+          projectName: record.siteId,
+          poNumber,
           jmcNumber: record.jmcNumber,
           jmcDate: new Date(record.jmcDate),
           jmcAttachment: [],
@@ -74,7 +80,25 @@ export class EditJmcComponent
       }
     );
 
+    this.seedPoOption(poNumber);
+
     this.loadPrefillAttachmentFromKey(record.fileKey);
+  }
+
+  private seedPoOption(poNumber: string): void {
+    const base = this.form.fieldConfigs.poNumber;
+    this.form.fieldConfigs.poNumber = {
+      ...base,
+      selectConfig: {
+        ...base.selectConfig,
+        optionsDropdown: [
+          {
+            label: poNumber,
+            value: poNumber,
+          },
+        ],
+      },
+    } as IInputFieldsConfig;
   }
 
   private loadPrefillAttachmentFromKey(fileKey: string): void {
@@ -164,6 +188,7 @@ export class EditJmcComponent
     const record = { ...formData };
     delete (record as Record<string, unknown>)['jmcAttachment'];
     delete (record as Record<string, unknown>)['poNumber'];
+    delete (record as Record<string, unknown>)['projectName'];
     return {
       ...record,
       jmcFileKey: attachmentResponse.fileKey,

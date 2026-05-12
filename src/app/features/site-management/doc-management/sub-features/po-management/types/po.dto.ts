@@ -8,6 +8,9 @@ import {
   ApprovePoResponseSchema,
   DeletePoResponseSchema,
   PoDetailGetResponseSchema,
+  PoDropdownGetRequestSchema,
+  PoDropdownGetResponseSchema,
+  PoDropdownRecordSchema,
   PoGetBaseResponseSchema,
   PoGetRequestSchema,
   PoGetResponseSchema,
@@ -111,3 +114,14 @@ export type IEditPoUIFormDto = Omit<
   vendorName: string;
 };
 export type IEditPoResponseDto = z.infer<typeof EditPoResponseSchema>;
+
+/**
+ * PO Dropdown
+ */
+export type IPoDropdownGetRequestDto = z.input<
+  typeof PoDropdownGetRequestSchema
+>;
+export type IPoDropdownRecordDto = z.infer<typeof PoDropdownRecordSchema>;
+export type IPoDropdownGetResponseDto = z.infer<
+  typeof PoDropdownGetResponseSchema
+>;

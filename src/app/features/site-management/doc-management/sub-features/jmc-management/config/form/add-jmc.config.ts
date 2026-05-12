@@ -1,6 +1,10 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
-import { TEXT_INPUT_ACCEPT_STRIP } from '@shared/constants';
+import {
+  CONFIGURATION_KEYS,
+  MODULE_NAMES,
+  TEXT_INPUT_ACCEPT_STRIP,
+} from '@shared/constants';
 import {
   EDataType,
   ETextCase,
@@ -10,14 +14,30 @@ import {
 import { IAddJmcUIFormDto } from '../../types/jmc.dto';
 
 const ADD_JMC_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddJmcUIFormDto> = {
+  projectName: {
+    fieldType: EDataType.SELECT,
+    id: 'projectName',
+    fieldName: 'projectName',
+    label: 'Project Name',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.PROJECT,
+        dropdownName: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
+      },
+    },
+    validators: [Validators.required],
+  },
   poNumber: {
-    fieldType: EDataType.TEXT,
+    fieldType: EDataType.SELECT,
     id: 'poNumber',
     fieldName: 'poNumber',
     label: 'PO Number',
-    textConfig: {
-      textCase: ETextCase.UPPERCASE,
-      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPECIAL_CHARS,
+    selectConfig: {
+      optionsDropdown: [],
+      dependentDropdown: {
+        dependsOnField: 'projectName',
+        dependsOnFieldLabel: 'a project',
+      },
     },
     validators: [Validators.required],
   },

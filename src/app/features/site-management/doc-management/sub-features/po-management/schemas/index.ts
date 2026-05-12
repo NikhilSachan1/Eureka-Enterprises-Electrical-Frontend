@@ -25,3 +25,8 @@ export { DeletePoResponseSchema } from './delete-po.schema';
 export { UnlockRejectPoResponseSchema } from './unlock-reject-po.schema';
 export { AddPoRequestSchema, AddPoResponseSchema } from './add-po.schema';
 export { EditPoRequestSchema, EditPoResponseSchema } from './edit-po.schema';
+export {
+  PoDropdownGetRequestSchema,
+  PoDropdownGetResponseSchema,
+  PoDropdownRecordSchema,
+} from './get-po-dropdown.schema';

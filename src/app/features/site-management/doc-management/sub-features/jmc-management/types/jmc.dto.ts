@@ -93,6 +93,7 @@ export type IAddJmcUIFormDto = Omit<
   'jmcFileKey' | 'jmcFileName'
 > & {
   jmcAttachment: File[];
+  projectName: string;
 };
 export type IAddJmcResponseDto = z.infer<typeof AddJmcResponseSchema>;
 
@@ -107,5 +108,6 @@ export type IEditJmcUIFormDto = Omit<
 > & {
   jmcAttachment: File[];
   poNumber: string;
+  projectName: string;
 };
 export type IEditJmcResponseDto = z.infer<typeof EditJmcResponseSchema>;

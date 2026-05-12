@@ -215,6 +215,7 @@ export const API_ROUTES = {
         ADD: 'purchase-orders',
         EDIT: (poId: string) => `purchase-orders/${poId}`,
         LIST: 'purchase-orders',
+        DROPDOWN: 'purchase-orders/dropdown',
         GET_PO_BY_ID: (poId: string) => `purchase-orders/${poId}`,
         APPROVE: (poId: string) => `purchase-orders/${poId}/approve`,
         REJECT: (poId: string) => `purchase-orders/${poId}/reject`,

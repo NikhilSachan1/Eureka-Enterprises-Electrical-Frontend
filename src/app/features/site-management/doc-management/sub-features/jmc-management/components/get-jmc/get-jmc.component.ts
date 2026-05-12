@@ -202,6 +202,7 @@ export class GetJmcComponent implements OnInit {
       false,
       false,
       {
+        docContext: this.docRouteContext(),
         onSuccess: () => {
           this.loadJmcList();
         },

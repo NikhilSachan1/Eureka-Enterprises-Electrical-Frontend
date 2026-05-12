@@ -7,6 +7,8 @@ import {
   ApprovePoResponseSchema,
   DeletePoResponseSchema,
   PoDetailGetResponseSchema,
+  PoDropdownGetRequestSchema,
+  PoDropdownGetResponseSchema,
   RejectPoRequestSchema,
   RejectPoResponseSchema,
   PoGetRequestSchema,
@@ -24,6 +26,8 @@ import {
   IApprovePoFormDto,
   IApprovePoResponseDto,
   IPoDetailGetResponseDto,
+  IPoDropdownGetRequestDto,
+  IPoDropdownGetResponseDto,
   IPoGetFormDto,
   IPoGetResponseDto,
   IRejectPoFormDto,
@@ -289,6 +293,35 @@ export class PoService {
             this.logger.logDtoValidationErrors('Get PO List Error', error);
           } else {
             this.logger.logUserAction('Get PO List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getPoDropdown(
+    params: IPoDropdownGetRequestDto
+  ): Observable<IPoDropdownGetResponseDto> {
+    this.logger.logUserAction('Get PO Dropdown Request', params);
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.DOCUMENT.PO.DROPDOWN,
+        {
+          response: PoDropdownGetResponseSchema,
+          request: PoDropdownGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IPoDropdownGetResponseDto) => {
+          this.logger.logUserAction('Get PO Dropdown Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Get PO Dropdown Error', error);
+          } else {
+            this.logger.logUserAction('Get PO Dropdown Error', error);
           }
           return throwError(() => error);
         })
