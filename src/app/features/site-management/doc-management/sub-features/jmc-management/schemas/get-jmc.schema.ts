@@ -48,20 +48,14 @@ export const JmcGetBaseResponseSchema = z.looseObject({
   po: z.looseObject({
     poNumber: z.string(),
   }),
-  site: z
-    .looseObject({
+  site: z.looseObject({
+    name: z.string(),
+    city: z.string(),
+    state: z.string(),
+    company: z.looseObject({
       name: z.string(),
-      city: z.string(),
-      state: z.string(),
-    })
-    .nullable()
-    .optional(),
-  company: z
-    .looseObject({
-      name: z.string(),
-    })
-    .nullable()
-    .optional(),
+    }),
+  }),
   contractor: z
     .looseObject({
       name: z.string(),

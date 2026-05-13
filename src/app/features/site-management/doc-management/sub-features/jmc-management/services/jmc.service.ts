@@ -19,6 +19,8 @@ import {
   AddJmcRequestSchema,
   EditJmcRequestSchema,
   EditJmcResponseSchema,
+  JmcDropdownGetRequestSchema,
+  JmcDropdownGetResponseSchema,
 } from '../schemas';
 import {
   IApproveJmcFormDto,
@@ -37,6 +39,8 @@ import {
   IAddJmcResponseDto,
   IEditJmcFormDto,
   IEditJmcResponseDto,
+  IJmcDropdownGetRequestDto,
+  IJmcDropdownGetResponseDto,
 } from '../types/jmc.dto';
 
 @Injectable({
@@ -267,6 +271,35 @@ export class JmcService {
             this.logger.logDtoValidationErrors('Delete JMC Error', error);
           } else {
             this.logger.logUserAction('Delete JMC Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getJmcDropdown(
+    params: IJmcDropdownGetRequestDto
+  ): Observable<IJmcDropdownGetResponseDto> {
+    this.logger.logUserAction('Get JMC Dropdown Request', params);
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.DOCUMENT.JMC.DROPDOWN,
+        {
+          response: JmcDropdownGetResponseSchema,
+          request: JmcDropdownGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IJmcDropdownGetResponseDto) => {
+          this.logger.logUserAction('Get JMC Dropdown Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Get JMC Dropdown Error', error);
+          } else {
+            this.logger.logUserAction('Get JMC Dropdown Error', error);
           }
           return throwError(() => error);
         })

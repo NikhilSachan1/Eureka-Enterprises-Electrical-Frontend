@@ -63,15 +63,13 @@ export class EditJmcComponent
       return;
     }
 
-    const poNumber = record.po?.poNumber ?? '';
-
     this.form = this.formService.createForm<IEditJmcUIFormDto>(
       EDIT_JMC_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
         defaultValues: {
           projectName: record.siteId,
-          poNumber,
+          poNumber: record.po.poNumber,
           jmcNumber: record.jmcNumber,
           jmcDate: new Date(record.jmcDate),
           jmcAttachment: [],
@@ -80,7 +78,7 @@ export class EditJmcComponent
       }
     );
 
-    this.seedPoOption(poNumber);
+    this.seedPoOption(record.po.poNumber);
 
     this.loadPrefillAttachmentFromKey(record.fileKey);
   }

@@ -167,9 +167,7 @@ export class GetPoComponent implements OnInit {
       const { site } = record;
       return {
         id: record.id,
-        company: {
-          name: 'ABC Company',
-        },
+        company: record.site.company,
         site,
         siteCityStateSubtitle: `${site?.city}, ${site?.state}`,
         poDate: record.poDate,

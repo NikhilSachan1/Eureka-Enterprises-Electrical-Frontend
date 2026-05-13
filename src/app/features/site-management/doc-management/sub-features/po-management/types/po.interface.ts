@@ -24,10 +24,8 @@ export interface IPo
     | 'contractor'
     | 'vendor'
     | 'site'
+    | 'company'
   > {
-  company: {
-    name: string;
-  };
   siteCityStateSubtitle: string;
   fileKeys: string[];
   originalRawData: IPoGetBaseResponseDto;

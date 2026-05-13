@@ -54,13 +54,10 @@ export const PoGetBaseResponseSchema = z.looseObject({
     name: z.string(),
     city: z.string(),
     state: z.string(),
-  }),
-  company: z
-    .looseObject({
+    company: z.looseObject({
       name: z.string(),
-    })
-    .nullable()
-    .optional(),
+    }),
+  }),
   contractor: z
     .looseObject({
       name: z.string(),

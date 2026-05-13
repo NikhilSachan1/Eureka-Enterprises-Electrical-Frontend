@@ -158,9 +158,7 @@ export class GetJmcComponent implements OnInit {
       const { site } = record;
       return {
         id: record.id,
-        company: {
-          name: 'ABC Company',
-        },
+        company: record.site.company,
         site,
         siteCityStateSubtitle: site ? `${site.city}, ${site.state}` : '',
         jmcDate: record.jmcDate,

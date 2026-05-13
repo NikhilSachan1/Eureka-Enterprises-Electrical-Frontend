@@ -93,11 +93,11 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Company Name',
-        value: record.company?.name ?? 'N/A',
+        value: record.site.company.name,
       },
       {
         label: 'Site Name',
-        value: record.site?.name ?? 'N/A',
+        value: record.site.name,
         suffix: this.buildSiteLocationSuffix(record.site),
       },
       {
@@ -108,7 +108,7 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
       },
       {
         label: 'PO Number',
-        value: record.po?.poNumber ?? 'N/A',
+        value: record.po.poNumber,
       },
       {
         label: 'Lock status',

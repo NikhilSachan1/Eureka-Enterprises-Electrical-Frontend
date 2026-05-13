@@ -25,3 +25,8 @@ export { DeleteJmcResponseSchema } from './delete-jmc.schema';
 export { UnlockRejectJmcResponseSchema } from './unlock-reject-jmc.schema';
 export { AddJmcRequestSchema, AddJmcResponseSchema } from './add-jmc.schema';
 export { EditJmcRequestSchema, EditJmcResponseSchema } from './edit-jmc.schema';
+export {
+  JmcDropdownGetRequestSchema,
+  JmcDropdownGetResponseSchema,
+  JmcDropdownRecordSchema,
+} from './get-jmc-dropdown.schema';

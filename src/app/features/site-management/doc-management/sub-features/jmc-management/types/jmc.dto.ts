@@ -17,6 +17,9 @@ import {
   UnlockRejectJmcResponseSchema,
   UnlockRequestJmcRequestSchema,
   UnlockRequestJmcResponseSchema,
+  JmcDropdownGetRequestSchema,
+  JmcDropdownGetResponseSchema,
+  JmcDropdownRecordSchema,
 } from '../schemas';
 import { JmcDetailGetRequestSchema } from '../schemas/get-jmc-detail.schema';
 
@@ -111,3 +114,12 @@ export type IEditJmcUIFormDto = Omit<
   projectName: string;
 };
 export type IEditJmcResponseDto = z.infer<typeof EditJmcResponseSchema>;
+
+/** JMC dropdown (reports, etc.) */
+export type IJmcDropdownGetRequestDto = z.input<
+  typeof JmcDropdownGetRequestSchema
+>;
+export type IJmcDropdownGetResponseDto = z.infer<
+  typeof JmcDropdownGetResponseSchema
+>;
+export type IJmcDropdownRecordDto = z.infer<typeof JmcDropdownRecordSchema>;

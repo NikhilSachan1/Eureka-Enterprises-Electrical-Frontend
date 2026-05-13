@@ -94,11 +94,11 @@ export class GetPoDetailComponent extends DrawerDetailBase {
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Company Name',
-        value: record.company?.name ?? 'N/A',
+        value: record.site.company.name,
       },
       {
         label: 'Site Name',
-        value: record.site?.name ?? 'N/A',
+        value: record.site.name,
         suffix: this.buildSiteLocationSuffix(record.site),
       },
       {

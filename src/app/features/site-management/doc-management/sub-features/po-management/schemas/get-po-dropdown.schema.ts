@@ -16,7 +16,6 @@ export const PoDropdownGetRequestSchema = z
 
 const PoDropdownMetaSchema = z.looseObject({
   poNumber: z.string(),
-  partyName: z.string(),
   totalAmount: z.number(),
   invoicedTotal: z.number(),
   remaining: z.number(),

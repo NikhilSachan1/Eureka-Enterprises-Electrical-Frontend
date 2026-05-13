@@ -16,10 +16,8 @@ export interface IJmc
     | 'vendor'
     | 'site'
     | 'po'
+    | 'company'
   > {
-  company: {
-    name: string;
-  };
   siteCityStateSubtitle: string;
   fileKeys: string[];
   originalRawData: IJmcGetBaseResponseDto;
