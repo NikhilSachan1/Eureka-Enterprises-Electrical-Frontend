@@ -10,6 +10,13 @@
   />
 </ng-template>
 
+<ng-template
+  #documentReferenceChain
+  let-row
+>
+  <app-doc-reference [segments]="documentReferenceSegmentsFromJmc(row)" />
+</ng-template>
+
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
   (headerButtonClick)="onHeaderButtonClick($event)"
@@ -25,6 +32,7 @@
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
     jmcLockStatus: jmcLockStatus,
+    documentReferenceChain: documentReferenceChain,
   }"
   (rowActionClick)="handleJmcTableActionClick($any($event))"
   (filterData)="onTableStateChange($event)"

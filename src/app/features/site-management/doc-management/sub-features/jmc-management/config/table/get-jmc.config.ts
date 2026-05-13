@@ -77,16 +77,17 @@ export const JMC_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'documentReferenceChain',
+    header: 'Document reference',
+    bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'documentReferenceChain',
+    showSort: false,
+  },
+  {
     field: 'jmcDate',
     header: 'JMC Date',
     bodyTemplate: EDataType.DATE,
     dataType: EDataType.DATE,
-    showSort: false,
-  },
-  {
-    field: 'po.poNumber',
-    header: 'PO Number',
-    bodyTemplate: EDataType.TEXT,
     showSort: false,
   },
   {

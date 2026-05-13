@@ -1,1 +1,11 @@
-<app-view-detail [drawerDetails]="_reportDetails()" />
+<ng-template
+  #documentReferenceHierarchy
+  let-entry
+>
+  <app-doc-reference [segments]="$any(entry.value)" />
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_reportDetails()"
+  [customTemplates]="{ documentReferenceHierarchy: documentReferenceHierarchy }"
+/>

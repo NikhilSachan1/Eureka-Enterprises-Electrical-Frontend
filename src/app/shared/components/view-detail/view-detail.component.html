@@ -73,7 +73,10 @@
             @if (entry.type !== ALL_DATA_TYPES.ATTACHMENTS) {
               <div
                 class="view-detail-field flex flex-col gap-1"
-                [class.sm:col-span-2]="entry.type === ALL_DATA_TYPES.CHIP_LIST || entry.customTemplateKey"
+                [class.sm:col-span-2]="
+                  entry.type === ALL_DATA_TYPES.CHIP_LIST ||
+                  (entry.customTemplateKey && entry.detailTemplateFullRow !== false)
+                "
               >
                 <span class="view-detail-label text-xs font-semibold uppercase tracking-wider">{{ entry.label }}</span>
                 <span class="view-detail-value text-sm font-medium">

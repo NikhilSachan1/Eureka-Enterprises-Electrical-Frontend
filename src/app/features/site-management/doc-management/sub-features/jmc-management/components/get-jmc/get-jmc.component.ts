@@ -48,11 +48,18 @@ import { GetJmcDetailComponent } from '../get-jmc-detail/get-jmc-detail.componen
 import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
+import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
+import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 
 @Component({
   selector: 'app-get-jmc',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PageHeaderComponent, DataTableComponent, UnlockRequestComponent],
+  imports: [
+    PageHeaderComponent,
+    DataTableComponent,
+    UnlockRequestComponent,
+    DocReferenceComponent,
+  ],
   templateUrl: './get-jmc.component.html',
   styleUrl: './get-jmc.component.scss',
 })
@@ -288,6 +295,17 @@ export class GetJmcComponent implements OnInit {
         jmc: rowData,
       },
     });
+  }
+
+  protected documentReferenceSegmentsFromJmc(
+    row: IJmcGetBaseResponseDto
+  ): IDocReferenceSegment[] {
+    const segments: IDocReferenceSegment[] = [];
+    segments.push({
+      label: 'PO',
+      value: row.po.poNumber,
+    });
+    return segments;
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

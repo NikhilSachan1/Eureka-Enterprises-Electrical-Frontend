@@ -43,6 +43,9 @@ export const ReportGetBaseResponseSchema = z.looseObject({
   }),
   jmc: z.looseObject({
     jmcNumber: z.string(),
+    po: z.looseObject({
+      poNumber: z.string(),
+    }),
   }),
   contractor: z
     .looseObject({

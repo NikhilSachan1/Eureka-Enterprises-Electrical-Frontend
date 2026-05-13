@@ -56,9 +56,10 @@ export const REPORT_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
-    field: 'jmc.jmcNumber',
-    header: 'JMC Number',
+    field: 'documentReferenceChain',
+    header: 'Document reference',
     bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'documentReferenceChain',
     showSort: false,
   },
   {

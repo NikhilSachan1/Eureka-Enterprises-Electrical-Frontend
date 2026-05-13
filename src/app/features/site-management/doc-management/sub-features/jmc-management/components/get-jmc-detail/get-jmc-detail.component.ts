@@ -24,11 +24,13 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
+import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 
 @Component({
   selector: 'app-get-jmc-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ViewDetailComponent],
+  imports: [ViewDetailComponent, DocReferenceComponent],
   templateUrl: './get-jmc-detail.component.html',
   styleUrl: './get-jmc-detail.component.scss',
 })
@@ -107,8 +109,10 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {
-        label: 'PO Number',
-        value: record.po.poNumber,
+        label: 'Document reference',
+        value: this.documentReferenceSegmentsForJmcDetail(record),
+        customTemplateKey: 'documentReferenceHierarchy',
+        detailTemplateFullRow: false,
       },
       {
         label: 'Lock status',
@@ -161,6 +165,13 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
       name: parts.length > 0 ? parts.join(' · ') : 'Job material certificate',
       subtitle: jmcNumber,
     };
+  }
+
+  private documentReferenceSegmentsForJmcDetail(
+    record: IJmcDetailGetResponseDto
+  ): IDocReferenceSegment[] {
+    const po = record.po?.poNumber?.trim();
+    return po ? [{ label: 'PO', value: po }] : [];
   }
 
   private buildSiteLocationSuffix(

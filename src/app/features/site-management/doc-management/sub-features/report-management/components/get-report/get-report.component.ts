@@ -48,11 +48,13 @@ import { GetReportDetailComponent } from '../get-report-detail/get-report-detail
 import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
+import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
+import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 
 @Component({
   selector: 'app-get-report',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PageHeaderComponent, DataTableComponent],
+  imports: [PageHeaderComponent, DataTableComponent, DocReferenceComponent],
   templateUrl: './get-report.component.html',
   styleUrl: './get-report.component.scss',
 })
@@ -277,6 +279,23 @@ export class GetReportComponent implements OnInit {
         report: rowData,
       },
     });
+  }
+
+  protected documentReferenceSegmentsFromReport(
+    row: IReportGetBaseResponseDto
+  ): IDocReferenceSegment[] {
+    const segments: IDocReferenceSegment[] = [];
+    segments.push(
+      {
+        label: 'PO',
+        value: row.jmc.po.poNumber,
+      },
+      {
+        label: 'JMC',
+        value: row.jmc.jmcNumber,
+      }
+    );
+    return segments;
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

@@ -26,6 +26,7 @@ export interface IDetailEntryData {
   /** Date/number format string (e.g., 'dd MMM yyyy', '1.0-2'). */
   format?: string;
   customTemplateKey?: string;
+  detailTemplateFullRow?: boolean;
   metadata?: {
     transactionType?:
       | EExpenseTransactionType

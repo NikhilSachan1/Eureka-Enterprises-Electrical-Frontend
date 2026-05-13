@@ -23,11 +23,13 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
+import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
+import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 
 @Component({
   selector: 'app-get-report-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ViewDetailComponent],
+  imports: [ViewDetailComponent, DocReferenceComponent],
   templateUrl: './get-report-detail.component.html',
   styleUrl: './get-report-detail.component.scss',
 })
@@ -100,18 +102,16 @@ export class GetReportDetailComponent extends DrawerDetailBase {
         suffix: this.buildSiteLocationSuffix(record.site),
       },
       {
-        label: 'JMC Number',
-        value: record.jmc.jmcNumber,
+        label: 'Document reference',
+        value: this.documentReferenceSegmentsForReportDetail(record),
+        customTemplateKey: 'documentReferenceHierarchy',
+        detailTemplateFullRow: false,
       },
       {
         label: 'Report Date',
         value: record.reportDate,
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
-      },
-      {
-        label: 'Report Number',
-        value: record.reportNumber,
       },
     ];
 
@@ -150,6 +150,21 @@ export class GetReportDetailComponent extends DrawerDetailBase {
       name: parts.length > 0 ? parts.join(' · ') : 'Report',
       subtitle: reportNumber,
     };
+  }
+
+  private documentReferenceSegmentsForReportDetail(
+    record: IReportDetailGetResponseDto
+  ): IDocReferenceSegment[] {
+    const segments: IDocReferenceSegment[] = [];
+    const po = record.jmc?.po?.poNumber?.trim();
+    if (po) {
+      segments.push({ label: 'PO', value: po });
+    }
+    const jmcNo = record.jmc?.jmcNumber?.trim();
+    if (jmcNo) {
+      segments.push({ label: 'JMC', value: jmcNo });
+    }
+    return segments;
   }
 
   private buildSiteLocationSuffix(

@@ -185,7 +185,7 @@ export class EditReportComponent
     const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['reportAttachment'];
-    delete (record as Record<string, unknown>)['jmcId'];
+    delete (record as Record<string, unknown>)['jmcNumber'];
     delete (record as Record<string, unknown>)['projectName'];
     return {
       ...record,
