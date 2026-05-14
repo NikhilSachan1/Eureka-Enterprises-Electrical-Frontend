@@ -58,8 +58,8 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
     label: 'Vendor Name',
     selectConfig: {
       dynamicDropdown: {
-        moduleName: MODULE_NAMES.CONTRACTOR,
-        dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+        moduleName: MODULE_NAMES.VENDOR,
+        dropdownName: CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
       },
     },
     conditionalValidators: [

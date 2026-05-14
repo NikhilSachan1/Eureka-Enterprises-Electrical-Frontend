@@ -193,6 +193,13 @@ export const API_ROUTES = {
       GET_CONTRACTOR_BY_ID: (contractorId: string) =>
         `contractors/${contractorId}`,
     },
+    VENDOR: {
+      LIST: 'vendors',
+      ADD: 'vendors',
+      DELETE: 'vendors',
+      EDIT: (vendorId: string) => `vendors/${vendorId}`,
+      GET_VENDOR_BY_ID: (vendorId: string) => `vendors/${vendorId}`,
+    },
     PROJECT: {
       LIST: 'sites',
       ADD: 'sites',
@@ -280,6 +287,7 @@ export const GET_ENDPOINT_PATHS_WITHOUT_ERROR_TOAST = new Set<string>([
   API_ROUTES.PETRO_CARD.LIST,
   API_ROUTES.SITE.COMPANY.LIST,
   API_ROUTES.SITE.CONTRACTOR.LIST,
+  API_ROUTES.SITE.VENDOR.LIST,
 ]);
 
 export const SKIP_AUTH_ENDPOINTS = [

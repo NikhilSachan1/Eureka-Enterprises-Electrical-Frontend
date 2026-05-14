@@ -17,7 +17,7 @@ import {
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
-import { ContractorService } from '../../services/contractor.service';
+import { VendorService } from '../../services/vendor.service';
 import {
   EButtonActionType,
   IDataViewDetails,
@@ -30,21 +30,21 @@ import {
 } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
-  IContractorGetBaseResponseDto,
-  IContractorGetFormDto,
-  IContractorGetResponseDto,
-  IContractorGetStatsResponseDto,
-} from '../../types/contractor.dto';
+  IVendorGetBaseResponseDto,
+  IVendorGetFormDto,
+  IVendorGetResponseDto,
+  IVendorGetStatsResponseDto,
+} from '../../types/vendor.dto';
 import {
-  CONTRACTOR_ACTION_CONFIG_MAP,
-  CONTRACTOR_TABLE_ENHANCED_CONFIG,
-  SEARCH_FILTER_CONTRACTOR_FORM_CONFIG,
+  VENDOR_ACTION_CONFIG_MAP,
+  VENDOR_TABLE_ENHANCED_CONFIG,
+  SEARCH_FILTER_VENDOR_FORM_CONFIG,
 } from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IContractor } from '../../types/contractor.interface';
-import { EContractorStatus } from '../../types/contractor.enum';
-import { GetContractorDetailComponent } from '../get-contractor-detail/get-contractor-detail.component';
+import { IVendor } from '../../types/vendor.interface';
+import { EVendorStatus } from '../../types/vendor.enum';
+import { GetVendorDetailComponent } from '../get-vendor-detail/get-vendor-detail.component';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -52,26 +52,26 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+// import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
-  selector: 'app-get-contractor',
+  selector: 'app-get-vendor',
   imports: [
     PageHeaderComponent,
     MetricsCardComponent,
     SearchFilterComponent,
     DataTableComponent,
   ],
-  templateUrl: './get-contractor.component.html',
-  styleUrl: './get-contractor.component.scss',
+  templateUrl: './get-vendor.component.html',
+  styleUrl: './get-vendor.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GetContractorComponent implements OnInit {
+export class GetVendorComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
-  private readonly contractorService = inject(ContractorService);
+  private readonly vendorService = inject(VendorService);
   private readonly loadingService = inject(LoadingService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -85,30 +85,31 @@ export class GetContractorComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
-  private readonly contractorStats =
-    signal<IContractorGetStatsResponseDto | null>(null);
+  private readonly vendorStats = signal<IVendorGetStatsResponseDto | null>(
+    null
+  );
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected metricGroups = computed(() => this.getMetricGroups());
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
-      CONTRACTOR_TABLE_ENHANCED_CONFIG
+      VENDOR_TABLE_ENHANCED_CONFIG
     );
-    this.searchFilterConfig = SEARCH_FILTER_CONTRACTOR_FORM_CONFIG;
+    this.searchFilterConfig = SEARCH_FILTER_VENDOR_FORM_CONFIG;
   }
 
-  private loadContractorList(): void {
+  private loadVendorList(): void {
     this.table.setLoading(true);
     this.loadingService.show({
-      title: 'Loading Contractor',
-      message: "We're loading the contractor. This will just take a moment.",
+      title: 'Loading Vendor',
+      message: "We're loading the vendor. This will just take a moment.",
     });
 
     const paramData = this.prepareParamData();
 
-    this.contractorService
-      .getContractorList(paramData)
+    this.vendorService
+      .getVendorList(paramData)
       .pipe(
         finalize(() => {
           this.table.setLoading(false);
@@ -117,45 +118,48 @@ export class GetContractorComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IContractorGetResponseDto) => {
+        next: (response: IVendorGetResponseDto) => {
           const { records, overallStats: stats, totalRecords } = response;
 
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.contractorStats.set(stats);
-          this.logger.logUserAction('Contractor records loaded successfully');
+          this.vendorStats.set(stats);
+          this.logger.logUserAction('Vendor records loaded successfully');
         },
         error: error => {
           this.table.setData([]);
-          this.contractorStats.set(null);
-          this.logger.logUserAction('Failed to load contractor records', error);
+          this.vendorStats.set(null);
+          this.logger.logUserAction('Failed to load vendor records', error);
         },
       });
   }
 
-  private prepareParamData(): IContractorGetFormDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IContractorGetFormDto>(
+  private prepareParamData(): IVendorGetFormDto {
+    return this.tableServerSideFilterAndSortService.buildQueryParams<IVendorGetFormDto>(
       this.tableFilterData,
       this.table.getHeaders()
     );
   }
 
-  private mapTableData(
-    response: IContractorGetBaseResponseDto[]
-  ): IContractor[] {
-    return response.map((record: IContractorGetBaseResponseDto) => {
+  private mapTableData(response: IVendorGetBaseResponseDto[]): IVendor[] {
+    return response.map((record: IVendorGetBaseResponseDto) => {
       return {
         id: record.id,
         name: record.name,
-        gstNumber: record.gstNumber,
+        vendorType:
+          record.vendorType !== null && record.vendorType !== ''
+            ? getMappedValueFromArrayOfObjects(
+                this.appConfigurationService.vendorTypes(),
+                record.vendorType
+              )
+            : '—',
+        gstNumber: record.gstNumber ?? '—',
         contactNumber: record.contactNumber,
-        emailAddress: record.email,
+        email: record.email,
         status: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.contractorStatus(),
-          record.isActive
-            ? EContractorStatus.ACTIVE
-            : EContractorStatus.ARCHIVED
+          record.isActive ? EVendorStatus.ACTIVE : EVendorStatus.ARCHIVED
         ),
         stateCity: `${getMappedValueFromArrayOfObjects(this.appConfigurationService.states(), record.state)}, ${getMappedValueFromArrayOfObjects(this.appConfigurationService.cities(), record.city)}`,
         pincode: record.pincode,
@@ -166,11 +170,11 @@ export class GetContractorComponent implements OnInit {
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
     this.tableFilterData = tableFilterData;
-    this.loadContractorList();
+    this.loadVendorList();
   }
 
   private getMetricGroups(): IMetricGroup[] {
-    const stats = this.contractorStats();
+    const stats = this.vendorStats();
     if (!stats) {
       return [];
     }
@@ -179,33 +183,44 @@ export class GetContractorComponent implements OnInit {
       {
         id: 'overview',
         title: 'Overview',
-        metrics: [{ label: 'Total', value: stats.totalContractors }],
+        metrics: [{ label: 'Total', value: stats.totalVendors }],
       },
       {
         id: 'status',
         title: 'Status',
         metrics: [
-          { label: 'Active', value: stats.activeContractors },
-          { label: 'Inactive', value: stats.inactiveContractors },
+          { label: 'Active', value: stats.activeVendors },
+          { label: 'Inactive', value: stats.inactiveVendors },
+        ],
+      },
+      {
+        id: 'vendorTypes',
+        title: 'Vendor types',
+        metrics: [
+          { label: 'Freelancers', value: stats.freelancerVendors ?? 0 },
+          {
+            label: 'GST registered',
+            value: stats.gstRegisteredVendors ?? 0,
+          },
         ],
       },
     ];
   }
 
-  protected handleContractorTableActionClick(
-    event: ITableActionClickEvent<IContractorGetBaseResponseDto>,
+  protected handleVendorTableActionClick(
+    event: ITableActionClickEvent<IVendorGetBaseResponseDto>,
     isBulk: boolean
   ): void {
     const { actionType, selectedRows } = event;
     const [selectedFirstRow] = selectedRows;
 
     if (actionType === EButtonActionType.VIEW) {
-      this.showContractorDetailsDrawer(selectedFirstRow);
+      this.showVendorDetailsDrawer(selectedFirstRow);
       return;
     }
 
     if (actionType === EButtonActionType.EDIT) {
-      this.navigateToEditContractor(selectedFirstRow.id);
+      this.navigateToEditVendor(selectedFirstRow.id);
       return;
     }
 
@@ -213,15 +228,15 @@ export class GetContractorComponent implements OnInit {
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
       onSuccess: () => {
-        this.loadContractorList();
+        this.loadVendorList();
       },
     };
 
-    const recordDetail = this.prepareContractorRecordDetail(selectedFirstRow);
+    const recordDetail = this.prepareVendorRecordDetail(selectedFirstRow);
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      CONTRACTOR_ACTION_CONFIG_MAP[actionType],
+      VENDOR_ACTION_CONFIG_MAP[actionType],
       recordDetail,
       isBulk,
       !isBulk,
@@ -229,8 +244,8 @@ export class GetContractorComponent implements OnInit {
     );
   }
 
-  private prepareContractorRecordDetail(
-    selectedRow: IContractorGetBaseResponseDto
+  private prepareVendorRecordDetail(
+    selectedRow: IVendorGetBaseResponseDto
   ): IDataViewDetailsWithEntity {
     const entryData: IDataViewDetails['entryData'] = [
       {
@@ -253,8 +268,8 @@ export class GetContractorComponent implements OnInit {
             approvalStatus: getMappedValueFromArrayOfObjects(
               this.appConfigurationService.contractorStatus(),
               selectedRow.isActive
-                ? EContractorStatus.ACTIVE
-                : EContractorStatus.ARCHIVED
+                ? EVendorStatus.ACTIVE
+                : EVendorStatus.ARCHIVED
             ),
           },
           entryData,
@@ -266,45 +281,40 @@ export class GetContractorComponent implements OnInit {
     };
   }
 
-  private showContractorDetailsDrawer(
-    rowData: IContractorGetBaseResponseDto
-  ): void {
-    this.logger.logUserAction('Opening contractor details drawer', rowData);
+  private showVendorDetailsDrawer(rowData: IVendorGetBaseResponseDto): void {
+    this.logger.logUserAction('Opening vendor details drawer', rowData);
 
-    this.drawerService.showDrawer(GetContractorDetailComponent, {
-      header: `Contractor Details`,
-      subtitle: `Detailed view of contractor`,
+    this.drawerService.showDrawer(GetVendorDetailComponent, {
+      header: `Vendor Details`,
+      subtitle: `Detailed view of vendor`,
       componentData: {
-        contractor: rowData,
+        vendor: rowData,
       },
     });
   }
 
-  private navigateToEditContractor(contractorId: string): void {
+  private navigateToEditVendor(vendorId: string): void {
     try {
       const routeSegments = [
         ROUTE_BASE_PATHS.SITE.BASE,
-        ROUTE_BASE_PATHS.SITE.CONTRACTOR,
-        ROUTES.SITE.CONTRACTOR.EDIT,
-        contractorId,
+        ROUTE_BASE_PATHS.SITE.VENDOR,
+        ROUTES.SITE.VENDOR.EDIT,
+        vendorId,
       ];
 
       void this.routerNavigationService.navigateToRoute(routeSegments);
     } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while editing contractor',
-        error
-      );
+      this.logger.logUserAction('Navigation error while editing vendor', error);
     }
   }
 
   protected onHeaderButtonClick(actionName: string): void {
     let navigationRoute: string[] = [];
-    if (actionName === 'addContractor') {
+    if (actionName === 'addVendor') {
       navigationRoute = [
         ROUTE_BASE_PATHS.SITE.BASE,
-        ROUTE_BASE_PATHS.SITE.CONTRACTOR,
-        ROUTES.SITE.CONTRACTOR.ADD,
+        ROUTE_BASE_PATHS.SITE.VENDOR,
+        ROUTES.SITE.VENDOR.ADD,
       ];
     }
     const success =
@@ -320,15 +330,15 @@ export class GetContractorComponent implements OnInit {
 
   private getPageHeaderConfig(): IPageHeaderConfig {
     return {
-      title: 'Contractor Management',
-      subtitle: 'Manage contractor records',
+      title: 'Vendor Management',
+      subtitle: 'Manage vendor records',
       showHeaderButton: true,
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
-          label: 'Add Contractor',
-          actionName: 'addContractor',
-          permission: [APP_PERMISSION.CONTRACTOR.ADD],
+          label: 'Add Vendor',
+          actionName: 'addVendor',
+          // permission: [APP_PERMISSION.VENDOR.ADD],
         },
       ],
     };

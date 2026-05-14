@@ -47,6 +47,8 @@ import { ICompanyGetResponseDto } from '@features/site-management/company-manage
 import { CompanyService } from '@features/site-management/company-management/services/company.service';
 import { IContractorGetResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
 import { ContractorService } from '@features/site-management/contractor-management/services/contractor.service';
+import { IVendorGetResponseDto } from '@features/site-management/vendor-management/types/vendor.dto';
+import { VendorService } from '@features/site-management/vendor-management/services/vendor.service';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import {
   IProjectGetFormDto,
@@ -79,6 +81,7 @@ export class AppConfigurationService {
   private readonly vehicleService = inject(VehicleService);
   private readonly companyService = inject(CompanyService);
   private readonly contractorService = inject(ContractorService);
+  private readonly vendorService = inject(VendorService);
   private readonly projectService = inject(ProjectService);
   private readonly petroCardService = inject(PetroCardService);
   private readonly fuelExpenseService = inject(FuelExpenseService);
@@ -103,6 +106,7 @@ export class AppConfigurationService {
   private petroCardListCache$?: Observable<IPetroCardGetResponseDto>;
   private companyListCache$?: Observable<ICompanyGetResponseDto>;
   private contractorListCache$?: Observable<IContractorGetResponseDto>;
+  private vendorListCache$?: Observable<IVendorGetResponseDto>;
   private projectListCache$?: Observable<IProjectGetResponseDto>;
   private linkedUserVehicleDetailCache$?: Observable<ILinkedUserVehicleDetailGetResponseDto | null>;
   private readonly _dropdownLoadingState = signal<Record<string, boolean>>({});
@@ -160,6 +164,8 @@ export class AppConfigurationService {
   private readonly _companyStatus = signal<IOptionDropdown[]>([]);
   private readonly _contractorList = signal<IOptionDropdown[]>([]);
   private readonly _contractorStatus = signal<IOptionDropdown[]>([]);
+  private readonly _vendorList = signal<IOptionDropdown[]>([]);
+  private readonly _vendorTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectStatus = signal<IOptionDropdown[]>([]);
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectDocumentTypes = signal<IOptionDropdown[]>([]);
@@ -226,6 +232,8 @@ export class AppConfigurationService {
   readonly companyStatus = this._companyStatus.asReadonly();
   readonly contractorList = this._contractorList.asReadonly();
   readonly contractorStatus = this._contractorStatus.asReadonly();
+  readonly vendorList = this._vendorList.asReadonly();
+  readonly vendorTypes = this._vendorTypes.asReadonly();
   readonly projectStatus = this._projectStatus.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
   readonly projectDocumentTypes = this._projectDocumentTypes.asReadonly();
@@ -443,6 +451,16 @@ export class AppConfigurationService {
         signal: this._contractorStatus,
       },
     ],
+    [MODULE_NAMES.VENDOR]: [
+      {
+        key: CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
+        signal: this._vendorList,
+      },
+      {
+        key: CONFIGURATION_KEYS.VENDOR.VENDOR_TYPES,
+        signal: this._vendorTypes,
+      },
+    ],
     [MODULE_NAMES.PROJECT]: [
       {
         key: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
@@ -508,6 +526,7 @@ export class AppConfigurationService {
     this.petroCardListCache$ = undefined;
     this.companyListCache$ = undefined;
     this.contractorListCache$ = undefined;
+    this.vendorListCache$ = undefined;
     this.projectListCache$ = undefined;
     this.linkedUserVehicleDetailCache$ = undefined;
     this.lazyReferenceDropdownLoadScheduledKeys.clear();
@@ -573,6 +592,18 @@ export class AppConfigurationService {
       .subscribe({
         error: err =>
           this.logger.error('Contractor dropdown refetch failed', err),
+      });
+  }
+
+  refreshVendorDropdowns(): void {
+    this.vendorListCache$ = undefined;
+    this.lazyReferenceDropdownLoadScheduledKeys.delete(
+      CONFIGURATION_KEYS.VENDOR.VENDOR_LIST
+    );
+    this.loadVendorList()
+      .pipe(take(1))
+      .subscribe({
+        error: err => this.logger.error('Vendor dropdown refetch failed', err),
       });
   }
 
@@ -802,6 +833,7 @@ export class AppConfigurationService {
       CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
       CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
       CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+      CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
       CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
     ]);
 
@@ -845,6 +877,7 @@ export class AppConfigurationService {
       [CONFIGURATION_KEYS.COMPANY.COMPANY_LIST]: () => this.loadCompanyList(),
       [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST]: () =>
         this.loadContractorList(),
+      [CONFIGURATION_KEYS.VENDOR.VENDOR_LIST]: () => this.loadVendorList(),
       [CONFIGURATION_KEYS.PROJECT.PROJECT_LIST]: () => this.loadProjectList(),
     };
 
@@ -944,6 +977,7 @@ export class AppConfigurationService {
             dropdown.key === CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST ||
             dropdown.key === CONFIGURATION_KEYS.COMPANY.COMPANY_LIST ||
             dropdown.key === CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST ||
+            dropdown.key === CONFIGURATION_KEYS.VENDOR.VENDOR_LIST ||
             dropdown.key === CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS
           ) {
             return;
@@ -1252,6 +1286,53 @@ export class AppConfigurationService {
     );
   }
 
+  loadVendorList(): Observable<IVendorGetResponseDto> {
+    return (this.vendorListCache$ ??= this.fetchVendorList().pipe(
+      this.shareAppDataCache()
+    ));
+  }
+
+  private fetchVendorList(): Observable<IVendorGetResponseDto> {
+    this.logger.logUserAction('Loading app data - Vendor List');
+
+    return this.withDropdownLoading(
+      CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
+      this.vendorService.getVendorList().pipe(
+        tap(response => {
+          this.logger.logUserAction('Vendor List loaded successfully', {
+            count: response.totalRecords,
+          });
+
+          const vendorList: IOptionDropdown[] = response.records
+            .map(vendor => {
+              const rawName = vendor.name?.trim() ?? '';
+              const gst = vendor.gstNumber?.trim();
+              const subtitle = gst
+                ? `GST ${gst}`
+                : [vendor.city, vendor.state].filter(Boolean).join(', ') ||
+                  (vendor.email?.trim() ?? '') ||
+                  `ID ${vendor.id.slice(0, 8)}`;
+              return {
+                label: toTitleCase(rawName),
+                subtitle,
+                initial: this.initialsForDropdownLabel(rawName),
+                value: vendor.id,
+                data: vendor,
+              };
+            })
+            .sort(this.sortByLabel);
+
+          this._vendorList.set(vendorList);
+        }),
+        catchError(error => {
+          this.vendorListCache$ = undefined;
+          this.logger.logUserAction('Failed to load Vendor List', error);
+          return throwError(() => error);
+        })
+      )
+    );
+  }
+
   loadProjectList(): Observable<IProjectGetResponseDto> {
     return (this.projectListCache$ ??= this.fetchProjectList().pipe(
       this.shareAppDataCache()
@@ -1444,6 +1525,7 @@ export class AppConfigurationService {
     petroCardList: IPetroCardGetResponseDto;
     companyList: ICompanyGetResponseDto;
     contractorList: IContractorGetResponseDto;
+    vendorList: IVendorGetResponseDto;
     linkedUserVehicleForCurrentUser: ILinkedUserVehicleDetailGetResponseDto | null;
   }> {
     return forkJoin({
@@ -1453,6 +1535,7 @@ export class AppConfigurationService {
       petroCardList: this.loadPetroCardList(),
       companyList: this.loadCompanyList(),
       contractorList: this.loadContractorList(),
+      vendorList: this.loadVendorList(),
       linkedUserVehicleForCurrentUser:
         this.loadLinkedUserVehicleDetailForCurrentUser(),
     });
@@ -1468,6 +1551,7 @@ export class AppConfigurationService {
     petroCardList: IPetroCardGetResponseDto;
     companyList: ICompanyGetResponseDto;
     contractorList: IContractorGetResponseDto;
+    vendorList: IVendorGetResponseDto;
     linkedUserVehicleForCurrentUser: ILinkedUserVehicleDetailGetResponseDto | null;
   }> {
     this.logger.info('Loading all app data...');
@@ -1492,6 +1576,7 @@ export class AppConfigurationService {
           petroCardList: this.loadPetroCardList(),
           companyList: this.loadCompanyList(),
           contractorList: this.loadContractorList(),
+          vendorList: this.loadVendorList(),
           linkedUserVehicleForCurrentUser:
             this.loadLinkedUserVehicleDetailForCurrentUser(),
         }).pipe(

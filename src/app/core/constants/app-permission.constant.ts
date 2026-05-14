@@ -54,6 +54,15 @@ export const APP_PERMISSION = {
     DELETE: 'delete_contractor',
     CHANGE_STATUS: 'change_status_contractor',
   },
+  VENDOR: {
+    VIEW_DETAIL: 'view_detail_vendor',
+    TABLE_VIEW: 'table_view_vendor',
+    CARD_VIEW: 'card_view_vendor',
+    ADD: 'add_vendor',
+    EDIT: 'edit_vendor',
+    DELETE: 'delete_vendor',
+    CHANGE_STATUS: 'change_status_vendor',
+  },
   EMPLOYEE: {
     VIEW_DETAIL: 'view_detail_employee',
     TABLE_VIEW: 'table_view_employee',

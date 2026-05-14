@@ -306,6 +306,25 @@ export const appMenu: ApplicationMenu = {
               ],
             },
             {
+              label: 'Vendor',
+              icon: ICONS.COMMON.BRIEFCASE,
+              basePath: ROUTE_BASE_PATHS.SITE.VENDOR,
+              children: [
+                {
+                  label: 'Vendor List',
+                  icon: ICONS.COMMON.VIEW,
+                  routerLink: ROUTES.SITE.VENDOR.LIST,
+                  // permission: [APP_PERMISSION.VENDOR.TABLE_VIEW],
+                },
+                {
+                  label: 'Add Vendor',
+                  icon: ICONS.COMMON.PLUS,
+                  routerLink: ROUTES.SITE.VENDOR.ADD,
+                  // permission: [APP_PERMISSION.VENDOR.ADD],
+                },
+              ],
+            },
+            {
               label: 'Project',
               icon: ICONS.COMMON.BRIEFCASE,
               basePath: ROUTE_BASE_PATHS.SITE.PROJECT,

@@ -16,12 +16,18 @@ const CONTRACTOR_TABLE_CONFIG: Partial<IDataTableConfig> = {
 
 const CONTRACTOR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
-    field: 'contractorName',
+    field: 'name',
     header: 'Contractor Name',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
     showImage: true,
-    dummyImageField: 'contractorName',
+    dummyImageField: 'name',
     primaryFieldHighlight: true,
+  },
+  {
+    field: 'gstNumber',
+    header: 'GST Number',
+    bodyTemplate: EDataType.TEXT,
+    showSort: false,
   },
   {
     field: 'status',
@@ -43,7 +49,7 @@ const CONTRACTOR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
-    field: 'emailAddress',
+    field: 'email',
     header: 'Contact',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
     subtitle: { field: 'contactNumber' },

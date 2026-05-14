@@ -1,0 +1,87 @@
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.vendorType"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.vendorName"
+    />
+  </div>
+
+  <div
+    class="grid grid-cols-1"
+    [ngClass]="{
+      'md:grid-cols-3': showVendorGstField(),
+      'md:grid-cols-2': !showVendorGstField(),
+    }"
+  >
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.contactNumber"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.emailAddress"
+    />
+
+    @if (showVendorGstField()) {
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.vendorGSTNumber"
+      />
+    }
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-3">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.blockNumber"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.streetName"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.landmark"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.state"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.city"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.pincode"
+    />
+  </div>
+
+  <div class="button-container">
+    <app-button
+      [buttonConfig]="form.buttonConfigs['reset']"
+      (onButtonClick)="onReset()"
+    />
+
+    <app-button
+      [buttonConfig]="form.buttonConfigs['submit']"
+      [showButtonLoader]="isSubmitting()"
+    />
+  </div>
+</form>

@@ -22,6 +22,13 @@ export const SITE_MANAGEMENT_ROUTES: Routes = [
       ),
   },
   {
+    path: ROUTE_BASE_PATHS.SITE.VENDOR,
+    loadChildren: () =>
+      import('./vendor-management/vendor.routes').then(
+        m => m.VENDOR_MANAGEMENT_ROUTES
+      ),
+  },
+  {
     path: ROUTE_BASE_PATHS.SITE.PROJECT,
     loadChildren: () =>
       import('./project-management/project.routes').then(

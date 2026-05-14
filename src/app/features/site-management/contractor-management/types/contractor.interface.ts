@@ -1,11 +1,11 @@
 import { IContractorGetBaseResponseDto } from './contractor.dto';
 
 export interface IContractor
-  extends Pick<IContractorGetBaseResponseDto, 'id' | 'contactNumber'> {
-  contractorName: string;
-  emailAddress: string | null;
+  extends Pick<
+    IContractorGetBaseResponseDto,
+    'id' | 'contactNumber' | 'pincode' | 'emailAddress' | 'gstNumber' | 'name'
+  > {
   status: string;
   stateCity: string;
-  pincode: string;
   originalRawData: IContractorGetBaseResponseDto;
 }

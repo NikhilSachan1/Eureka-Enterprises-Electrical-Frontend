@@ -636,6 +636,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
       CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
       CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+      CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
       CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
       CONFIGURATION_KEYS.COMMON.ROLE_LIST,
       CONFIGURATION_KEYS.EMPLOYEE.PASSING_YEARS,
@@ -668,6 +669,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     const loadingLabelByDropdownName: Partial<Record<string, string>> = {
       [CONFIGURATION_KEYS.COMPANY.COMPANY_LIST]: 'Loading companies...',
       [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST]: 'Loading contractors...',
+      [CONFIGURATION_KEYS.VENDOR.VENDOR_LIST]: 'Loading vendors...',
       [CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST]: 'Loading employees...',
       [CONFIGURATION_KEYS.ASSET.ASSET_LIST]: 'Loading assets...',
       [CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST]: 'Loading vehicles...',

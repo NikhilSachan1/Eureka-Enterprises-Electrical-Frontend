@@ -10,6 +10,7 @@ export const MODULE_NAMES = {
   PAYROLL: 'payroll',
   COMPANY: 'company',
   CONTRACTOR: 'contractor',
+  VENDOR: 'VENDOR',
   PROJECT: 'site',
   PERMISSION: 'permission',
   ANNOUNCEMENT: 'announcement',
@@ -89,6 +90,10 @@ export const CONFIGURATION_KEYS = {
   CONTRACTOR: {
     CONTRACTOR_LIST: 'contractor_list',
     CONTRACTOR_STATUS: 'contractor_status_dropdown',
+  },
+  VENDOR: {
+    VENDOR_LIST: 'vendor_list',
+    VENDOR_TYPES: 'VENDOR_TYPES',
   },
   PROJECT: {
     PROJECT_LIST: 'project_list',
