@@ -1,6 +1,7 @@
 import { EButtonActionType, IDialogActionConfig } from '@shared/types';
 import {
   APPROVE_CONFIRMATION_DIALOG_CONFIG,
+  DELETE_CONFIRMATION_DIALOG_CONFIG,
   REJECT_CONFIRMATION_DIALOG_CONFIG,
 } from '@shared/config';
 import { ApproveJmcComponent } from '../../components/approve-jmc/approve-jmc.component';
@@ -10,6 +11,7 @@ import { UnlockGrantJmcComponent } from '../../components/unlock-grant-jmc/unloc
 import { UnlockRequestRejectJmcComponent } from '../../components/unlock-request-reject-jmc/unlock-request-reject-jmc.component';
 import { AddJmcComponent } from '../../components/add-jmc/add-jmc.component';
 import { EditJmcComponent } from '../../components/edit-jmc/edit-jmc.component';
+import { DeleteJmcComponent } from '../../components/delete-jmc/delete-jmc.component';
 
 export const JMC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.ADD]: {
@@ -36,6 +38,11 @@ export const JMC_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.REJECT]: {
     dialogConfig: REJECT_CONFIRMATION_DIALOG_CONFIG,
     dynamicComponent: RejectJmcComponent,
+  },
+
+  [EButtonActionType.DELETE]: {
+    dialogConfig: DELETE_CONFIRMATION_DIALOG_CONFIG,
+    dynamicComponent: DeleteJmcComponent,
   },
 
   [EButtonActionType.UNLOCK_REQUEST]: {

@@ -1,1 +1,55 @@
-<p>get-invoice works!</p>
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [bulkActionButtons]="table.bulkActions()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    invoiceAmountBreakdown: invoiceAmountBreakdown,
+    invoiceBookedPaidSummary: invoiceBookedPaidSummary,
+    invoiceLockStatus: invoiceLockStatus,
+    documentReferenceChain: documentReferenceChain,
+  }"
+  (rowActionClick)="handleInvoiceTableActionClick($any($event))"
+  (filterData)="onTableStateChange($event)"
+/>
+
+<ng-template
+  #invoiceAmountBreakdown
+  let-row
+>
+  <app-doc-amount [segments]="docInvoiceTaxGstSegments(row)" />
+</ng-template>
+
+<ng-template
+  #invoiceBookedPaidSummary
+  let-row
+>
+  <app-doc-amount [segments]="docInvoiceBookedPaidSegments(row)" />
+</ng-template>
+
+<ng-template
+  #invoiceLockStatus
+  let-row
+>
+  <app-unlock-request
+    [isLocked]="row.isLocked"
+    [requestedAt]="row.unlockRequestedAt"
+    [requestedByUser]="row.unlockRequestedByUser"
+    [reason]="row.unlockReason"
+  />
+</ng-template>
+
+<ng-template
+  #documentReferenceChain
+  let-row
+>
+  <app-doc-reference [segments]="documentReferenceSegmentsFromInvoice(row)" />
+</ng-template>

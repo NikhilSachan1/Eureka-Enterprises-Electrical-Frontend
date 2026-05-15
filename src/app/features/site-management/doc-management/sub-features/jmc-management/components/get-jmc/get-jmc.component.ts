@@ -162,12 +162,11 @@ export class GetJmcComponent implements OnInit {
 
   private mapTableData(response: IJmcGetBaseResponseDto[]): IJmc[] {
     return response.map((record: IJmcGetBaseResponseDto) => {
-      const { site } = record;
       return {
         id: record.id,
         company: record.site.company,
-        site,
-        siteCityStateSubtitle: site ? `${site.city}, ${site.state}` : '',
+        site: record.site,
+        siteCityStateSubtitle: `${record.site.city}, ${record.site.state}`,
         jmcDate: record.jmcDate,
         jmcNumber: record.jmcNumber,
         po: record.po,

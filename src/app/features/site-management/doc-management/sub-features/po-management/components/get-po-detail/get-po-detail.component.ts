@@ -1,4 +1,3 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -25,11 +24,13 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
+import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 
 @Component({
   selector: 'app-get-po-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ViewDetailComponent, CurrencyPipe, DatePipe],
+  imports: [ViewDetailComponent, DocAmountComponent],
   templateUrl: './get-po-detail.component.html',
   styleUrl: './get-po-detail.component.scss',
 })
@@ -47,7 +48,6 @@ export class GetPoDetailComponent extends DrawerDetailBase {
 
   protected readonly ALL_DATA_TYPES = EDataType;
   protected readonly APP_CONFIG = APP_CONFIG;
-
   override onDrawerShow(): void {
     this.loadPoDetails();
   }
@@ -179,6 +179,68 @@ export class GetPoDetailComponent extends DrawerDetailBase {
       name: parts.length > 0 ? parts.join(' · ') : 'Purchase order',
       subtitle: poNumber,
     };
+  }
+
+  protected docPoDrawerTaxGstSegments(v: {
+    taxableAmount: string;
+    gstAmount: string;
+    totalAmount: string;
+    gstPercentage: string;
+  }): IDocAmountSegment[] {
+    return [
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Taxable',
+        value: v.taxableAmount,
+      },
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'GST',
+        value: v.gstAmount,
+        suffix: `(${v.gstPercentage})`,
+      },
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Total',
+        value: v.totalAmount,
+      },
+    ];
+  }
+
+  protected docPoDrawerInvoicePaymentSegments(v: {
+    invoicedTotal: string;
+    bookedTotal: string;
+    paidTotal: string;
+    lastInvoiceAt: string | null | undefined;
+    lastPaymentAt: string | null | undefined;
+  }): IDocAmountSegment[] {
+    return [
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Invoiced',
+        value: v.invoicedTotal,
+      },
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Booked',
+        value: v.bookedTotal,
+      },
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Paid',
+        value: v.paidTotal,
+      },
+      {
+        dataType: EDataType.DATE,
+        label: 'Last invoice',
+        value: v.lastInvoiceAt,
+      },
+      {
+        dataType: EDataType.DATE,
+        label: 'Last payment',
+        value: v.lastPaymentAt,
+      },
+    ];
   }
 
   private buildSiteLocationSuffix(

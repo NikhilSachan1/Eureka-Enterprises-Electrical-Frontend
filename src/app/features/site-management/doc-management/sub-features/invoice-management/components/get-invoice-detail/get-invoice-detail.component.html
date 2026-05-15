@@ -1,1 +1,22 @@
-<p>get-invoice-detail works!</p>
+<ng-template
+  #documentReferenceHierarchy
+  let-entry
+>
+  <app-doc-reference [segments]="$any(entry.value)" />
+</ng-template>
+
+<ng-template
+  #invoiceDetailAmounts
+  let-entry
+>
+  @let v = $any(entry.value);
+  <app-doc-amount [segments]="docInvoiceDrawerTaxGstSegments(v)" />
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_invoiceDetails()"
+  [customTemplates]="{
+    documentReferenceHierarchy: documentReferenceHierarchy,
+    invoiceDetailAmounts: invoiceDetailAmounts,
+  }"
+/>

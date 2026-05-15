@@ -156,12 +156,11 @@ export class GetReportComponent implements OnInit {
 
   private mapTableData(response: IReportGetBaseResponseDto[]): IReport[] {
     return response.map((record: IReportGetBaseResponseDto) => {
-      const { site } = record;
       return {
         id: record.id,
         company: record.site.company,
-        site,
-        siteCityStateSubtitle: site ? `${site.city}, ${site.state}` : '',
+        site: record.site,
+        siteCityStateSubtitle: `${record.site.city}, ${record.site.state}`,
         reportDate: record.reportDate,
         reportNumber: record.reportNumber,
         jmc: record.jmc,

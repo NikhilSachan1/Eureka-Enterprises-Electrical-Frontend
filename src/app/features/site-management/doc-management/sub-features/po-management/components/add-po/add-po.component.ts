@@ -28,6 +28,7 @@ import { finalize, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { roundCurrencyAmount } from '@shared/utility';
 
 @Component({
   selector: 'app-add-po',
@@ -101,8 +102,8 @@ export class AddPoComponent
       return;
     }
 
-    const gst = taxable * (gstPercentValue / 100);
-    const total = taxable + gst;
+    const gst = roundCurrencyAmount(taxable * (gstPercentValue / 100));
+    const total = roundCurrencyAmount(taxable + gst);
     this.form.formGroup.patchValue({
       gstAmount: gst,
       totalAmount: total,
@@ -164,6 +165,9 @@ export class AddPoComponent
     delete (record as Record<string, unknown>)['poAttachment'];
     return {
       ...record,
+      taxableAmount: roundCurrencyAmount(Number(record.taxableAmount)),
+      gstAmount: roundCurrencyAmount(Number(record.gstAmount)),
+      totalAmount: roundCurrencyAmount(Number(record.totalAmount)),
       docType: this.docContext(),
       poFileKey: attachmentResponse.fileKey,
       poFileName: attachmentResponse.fileName,

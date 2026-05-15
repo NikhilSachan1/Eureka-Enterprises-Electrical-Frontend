@@ -40,4 +40,8 @@ export { getMediaTypeFromUrl, getFileExtension } from './media.util';
 export { filterOptionsByIncludeExclude } from './component.util';
 export { StatusUtil } from './status.util';
 export { makeFieldsNullable } from './zod.util';
-export { parseAmount } from './number.util';
+export {
+  parseAmount,
+  roundCurrencyAmount,
+  roundToDecimalPlaces,
+} from './number.util';

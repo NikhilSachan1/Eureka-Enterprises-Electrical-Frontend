@@ -2,78 +2,14 @@
   #poAmountBreakdown
   let-row
 >
-  @let cur = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
-  @let fmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
-  @let loc = APP_CONFIG.NUMBER_FORMATS.LOCALE;
-  <div class="flex flex-col gap-1 text-sm min-w-0">
-    <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-      <span class="font-medium text-sky-700 shrink-0">Taxable:</span>
-      <span class="tabular-nums font-semibold text-sky-900">
-        {{ +row.taxableAmount | currency: cur : 'symbol' : fmt : loc }}
-      </span>
-    </div>
-    <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-      <span class="font-medium text-amber-700 shrink-0">GST:</span>
-      <span class="tabular-nums font-semibold text-amber-900">
-        {{ +row.gstAmount | currency: cur : 'symbol' : fmt : loc }}
-      </span>
-      @if (row.gstPercentage) {
-        <span class="text-xs font-semibold text-amber-800/90 tabular-nums shrink-0">({{ row.gstPercentage }})</span>
-      }
-    </div>
-    <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-      <span class="font-medium text-slate-700 shrink-0">Total:</span>
-      <span class="tabular-nums font-bold text-slate-900">
-        {{ +row.totalAmount | currency: cur : 'symbol' : fmt : loc }}
-      </span>
-    </div>
-  </div>
+  <app-doc-amount [segments]="docPoTaxGstSegments(row)" />
 </ng-template>
 
 <ng-template
   #poInvoicePaymentSummary
   let-row
 >
-  @let cur = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
-  @let fmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
-  @let loc = APP_CONFIG.NUMBER_FORMATS.LOCALE;
-  @let df = APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
-  <div class="flex flex-col gap-1 text-sm min-w-0">
-    <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-      <span class="font-medium text-indigo-700 shrink-0">Invoiced:</span>
-      <span class="tabular-nums font-semibold text-indigo-950">
-        {{ +row.invoicedTotal | currency: cur : 'symbol' : fmt : loc }}
-      </span>
-    </div>
-    <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-      <span class="font-medium text-teal-700 shrink-0">Booked:</span>
-      <span class="tabular-nums font-semibold text-teal-900">
-        {{ +row.bookedTotal | currency: cur : 'symbol' : fmt : loc }}
-      </span>
-    </div>
-    <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-      <span class="font-medium text-emerald-700 shrink-0">Paid:</span>
-      <span class="tabular-nums font-bold text-emerald-900">
-        {{ +row.paidTotal | currency: cur : 'symbol' : fmt : loc }}
-      </span>
-    </div>
-    <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-      <span class="text-content-secondary shrink-0">Last invoice:</span>
-      @if (row.lastInvoiceAt) {
-        <span class="text-content">{{ row.lastInvoiceAt | date: df }}</span>
-      } @else {
-        <span class="text-content-tertiary">—</span>
-      }
-    </div>
-    <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-      <span class="text-content-secondary shrink-0">Last payment:</span>
-      @if (row.lastPaymentAt) {
-        <span class="text-content">{{ row.lastPaymentAt | date: df }}</span>
-      } @else {
-        <span class="text-content-tertiary">—</span>
-      }
-    </div>
-  </div>
+  <app-doc-amount [segments]="docPoInvoicePaymentSegments(row)" />
 </ng-template>
 
 <ng-template

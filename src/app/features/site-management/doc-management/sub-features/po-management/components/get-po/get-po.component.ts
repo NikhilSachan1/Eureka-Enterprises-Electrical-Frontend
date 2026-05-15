@@ -1,4 +1,3 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,9 +10,9 @@ import {
   untracked,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { APP_CONFIG } from '@core/config';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
-import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
@@ -49,6 +48,8 @@ import { GetPoDetailComponent } from '../get-po-detail/get-po-detail.component';
 import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
+import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
+import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 
 @Component({
   selector: 'app-get-po',
@@ -56,9 +57,8 @@ import { UnlockRequestComponent } from '@features/site-management/doc-management
   imports: [
     PageHeaderComponent,
     DataTableComponent,
-    CurrencyPipe,
-    DatePipe,
     UnlockRequestComponent,
+    DocAmountComponent,
   ],
   templateUrl: './get-po.component.html',
   styleUrl: './get-po.component.scss',
@@ -114,6 +114,57 @@ export class GetPoComponent implements OnInit {
     );
   }
 
+  protected docPoTaxGstSegments(row: IPo): IDocAmountSegment[] {
+    return [
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Taxable',
+        value: row.taxableAmount,
+      },
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'GST',
+        value: row.gstAmount,
+        suffix: `(${row.gstPercentage})`,
+      },
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Total',
+        value: row.totalAmount,
+      },
+    ];
+  }
+
+  protected docPoInvoicePaymentSegments(row: IPo): IDocAmountSegment[] {
+    return [
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Invoiced',
+        value: row.invoicedTotal,
+      },
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Booked',
+        value: row.bookedTotal,
+      },
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Paid',
+        value: row.paidTotal,
+      },
+      {
+        dataType: EDataType.DATE,
+        label: 'Last invoice',
+        value: row.lastInvoiceAt,
+      },
+      {
+        dataType: EDataType.DATE,
+        label: 'Last payment',
+        value: row.lastPaymentAt,
+      },
+    ];
+  }
+
   private loadPoList(): void {
     this.table.setLoading(true);
 
@@ -164,12 +215,11 @@ export class GetPoComponent implements OnInit {
 
   private mapTableData(response: IPoGetBaseResponseDto[]): IPo[] {
     return response.map((record: IPoGetBaseResponseDto) => {
-      const { site } = record;
       return {
         id: record.id,
         company: record.site.company,
-        site,
-        siteCityStateSubtitle: `${site?.city}, ${site?.state}`,
+        site: record.site,
+        siteCityStateSubtitle: `${record.site.city}, ${record.site.state}`,
         poDate: record.poDate,
         poNumber: record.poNumber,
         taxableAmount: record.taxableAmount,

@@ -1,0 +1,35 @@
+@let cur = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
+@let fmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
+@let loc = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+@let df = APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
+
+<div class="doc-amount doc-amount--stack">
+  @for (seg of segments(); track $index) {
+    <div class="doc-amount-line">
+      <div class="doc-amount-line__body">
+        <span [class]="labelClass(segmentTone(seg))">{{ seg.label }}:</span>
+        @switch (seg.dataType) {
+          @case (EDataType.CURRENCY) {
+            @if (seg.value !== null && seg.value !== undefined && seg.value !== '') {
+              <span [class]="valueClass(segmentTone(seg))">
+                {{ +seg.value | currency: cur : 'symbol' : fmt : loc }}
+              </span>
+            } @else {
+              <span [class]="valueClass('muted')">—</span>
+            }
+            @if (seg.suffix) {
+              <span class="doc-amount__suffix">{{ seg.suffix }}</span>
+            }
+          }
+          @case (EDataType.DATE) {
+            @if (seg.value) {
+              <span [class]="valueClass('neutral')">{{ seg.value | date: df }}</span>
+            } @else {
+              <span [class]="valueClass('muted')">—</span>
+            }
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

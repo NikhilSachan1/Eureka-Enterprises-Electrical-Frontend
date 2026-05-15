@@ -91,6 +91,13 @@ export const PO_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
+    field: 'invoicedTotal',
+    header: 'Invoice & payment',
+    bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'poInvoicePaymentSummary',
+    showSort: false,
+  },
+  {
     field: 'fileKeys',
     header: 'Attachments',
     bodyTemplate: EDataType.ATTACHMENTS,
@@ -107,13 +114,6 @@ export const PO_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
     header: 'Lock status',
     bodyTemplate: EDataType.TEXT,
     customTemplateKey: 'poLockStatus',
-    showSort: false,
-  },
-  {
-    field: 'invoicedTotal',
-    header: 'Invoice & payment',
-    bodyTemplate: EDataType.TEXT,
-    customTemplateKey: 'poInvoicePaymentSummary',
     showSort: false,
   },
 ];

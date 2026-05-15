@@ -254,6 +254,21 @@ export const API_ROUTES = {
         GET_REPORT_BY_ID: (reportId: string) => `site-reports/${reportId}`,
         DELETE: (reportId: string) => `site-reports/${reportId}`,
       },
+      INVOICE: {
+        ADD: 'site-invoices',
+        EDIT: (invoiceId: string) => `site-invoices/${invoiceId}`,
+        LIST: 'site-invoices',
+        GET_INVOICE_BY_ID: (invoiceId: string) => `site-invoices/${invoiceId}`,
+        APPROVE: (invoiceId: string) => `site-invoices/${invoiceId}/approve`,
+        REJECT: (invoiceId: string) => `site-invoices/${invoiceId}/reject`,
+        UNLOCK_REQUEST: (invoiceId: string) =>
+          `site-invoices/${invoiceId}/unlock-request`,
+        UNLOCK_REQUEST_GRANT: (invoiceId: string) =>
+          `site-invoices/${invoiceId}/unlock-grant`,
+        UNLOCK_REQUEST_REJECT: (invoiceId: string) =>
+          `site-invoices/${invoiceId}/unlock-reject`,
+        DELETE: (invoiceId: string) => `site-invoices/${invoiceId}`,
+      },
     },
   },
   ANNOUNCEMENT: {

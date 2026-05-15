@@ -7,35 +7,31 @@ export const approvalStatusSchema = z.enum(EApprovalStatus);
 export const entrySourceTypeSchema = z.enum(EEntrySourceType);
 export const expenseEntryTypeSchema = z.enum(EEntryType);
 
-export const PoBaseSchema = z.looseObject({
+export const InvoiceBaseSchema = z.looseObject({
   id: uuidField,
+  jmcId: uuidField,
   siteId: uuidField,
   partyType: z.enum(EDocContext),
-  poNumber: z.string(),
-  poDate: onlyDateStringField,
+  invoiceNumber: z.string(),
+  invoiceDate: onlyDateStringField,
   taxableAmount: z.string(),
   gstPercentage: z.string(),
   gstAmount: z.string(),
   totalAmount: z.string(),
   fileKey: z.string(),
-  contractorId: uuidField.nullable(),
-  vendorId: uuidField.nullable(),
 });
 
-export const PoUpsertShapeSchema = z
+export const InvoiceUpsertShapeSchema = z
   .object({
-    projectName: uuidField,
-    docType: z.enum(EDocContext),
-    contractorName: uuidField.nullable(),
-    vendorName: uuidField.nullable(),
-    poNumber: z.string(),
-    poDate: dateField,
+    jmcNumber: z.string(),
+    invoiceNumber: z.string(),
+    invoiceDate: dateField,
     taxableAmount: z.number(),
     gstPercent: z.number(),
     gstAmount: z.number(),
     totalAmount: z.number(),
-    poFileName: z.string(),
-    poFileKey: z.string(),
+    invoiceFileName: z.string(),
+    invoiceFileKey: z.string(),
     remarks: z.string().nullable(),
   })
   .strict();

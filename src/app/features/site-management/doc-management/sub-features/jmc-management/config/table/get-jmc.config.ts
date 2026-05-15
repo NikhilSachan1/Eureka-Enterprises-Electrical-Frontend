@@ -130,6 +130,12 @@ const JMC_TABLE_ROW_ACTIONS_CONFIG: Partial<
     disableReason: () => JMC_ROW_ACTION_DISABLE_REASON.lockedNoEdit,
   },
   {
+    ...COMMON_ROW_ACTIONS.DELETE,
+    tooltip: 'Delete JMC',
+    disableWhen: shouldDisableJmcEditOrDelete,
+    disableReason: () => JMC_ROW_ACTION_DISABLE_REASON.lockedNoDelete,
+  },
+  {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve JMC',
     disableWhen: shouldDisableJmcApprove,
