@@ -130,7 +130,7 @@ export class AddJmcComponent
   ): IOptionDropdown[] {
     return records.map(record => ({
       label: record.label,
-      value: record.meta.poNumber,
+      value: record.id,
       disabled: !record.eligible,
       disabledReason: record.reason ?? undefined,
     }));
