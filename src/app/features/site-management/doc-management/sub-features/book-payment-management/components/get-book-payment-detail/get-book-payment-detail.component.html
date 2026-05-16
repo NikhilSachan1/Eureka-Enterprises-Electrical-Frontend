@@ -1,1 +1,22 @@
-<p>get-book-payment-detail works!</p>
+<ng-template
+  #documentReferenceHierarchy
+  let-entry
+>
+  <app-doc-reference [root]="$any(entry.value)" />
+</ng-template>
+
+<ng-template
+  #bookPaymentDetailAmounts
+  let-entry
+>
+  @let v = $any(entry.value);
+  <app-doc-amount [segments]="docBookPaymentDrawerAmountSegments(v)" />
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_bookPaymentDetails()"
+  [customTemplates]="{
+    documentReferenceHierarchy: documentReferenceHierarchy,
+    bookPaymentDetailAmounts: bookPaymentDetailAmounts,
+  }"
+/>

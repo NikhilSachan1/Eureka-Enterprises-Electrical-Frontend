@@ -14,7 +14,7 @@
   #documentReferenceChain
   let-row
 >
-  <app-doc-reference [segments]="documentReferenceSegmentsFromJmc(row)" />
+  <app-doc-reference [root]="row.documentReferenceHierarchy" />
 </ng-template>
 
 <app-page-header

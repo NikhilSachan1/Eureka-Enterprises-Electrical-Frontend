@@ -53,6 +53,18 @@
   color: var(--text-secondary-color);
 }
 
+/** Subtle panel behind drawer custom templates (doc reference, stacked amounts). */
+.view-detail-custom-template {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-top: 0.125rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-main-color);
+  background-color: var(--surface-100);
+}
+
 // Attachment block — theme-aware
 .view-detail-attachment {
   border-color: var(--border-main-color);

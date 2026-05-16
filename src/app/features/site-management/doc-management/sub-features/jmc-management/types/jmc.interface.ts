@@ -1,3 +1,5 @@
+import type { IDocReferenceHierarchyNode } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+
 import { IJmcGetBaseResponseDto } from './jmc.dto';
 
 export interface IJmc
@@ -20,5 +22,6 @@ export interface IJmc
   > {
   siteCityStateSubtitle: string;
   fileKeys: string[];
+  documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   originalRawData: IJmcGetBaseResponseDto;
 }

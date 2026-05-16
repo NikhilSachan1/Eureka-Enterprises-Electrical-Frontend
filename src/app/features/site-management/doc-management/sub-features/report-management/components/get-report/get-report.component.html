@@ -2,7 +2,7 @@
   #documentReferenceChain
   let-row
 >
-  <app-doc-reference [segments]="documentReferenceSegmentsFromReport(row)" />
+  <app-doc-reference [root]="row.documentReferenceHierarchy" />
 </ng-template>
 
 <app-page-header

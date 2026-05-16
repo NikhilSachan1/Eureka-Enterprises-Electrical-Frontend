@@ -46,3 +46,9 @@ export { UnlockGrantInvoiceResponseSchema } from './unlock-grant-invoice.schema'
 export { UnlockRejectInvoiceResponseSchema } from './unlock-reject-invoice.schema';
 
 export { DeleteInvoiceResponseSchema } from './delete-invoice.schema';
+
+export {
+  InvoiceDropdownGetRequestSchema,
+  InvoiceDropdownRecordSchema,
+  InvoiceDropdownGetResponseSchema,
+} from './get-invoice-dropdown.schema';

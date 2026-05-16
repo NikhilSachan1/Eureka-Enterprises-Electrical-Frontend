@@ -11,6 +11,8 @@ import {
   RejectInvoiceResponseSchema,
   InvoiceGetRequestSchema,
   InvoiceGetResponseSchema,
+  InvoiceDropdownGetRequestSchema,
+  InvoiceDropdownGetResponseSchema,
   UnlockRequestInvoiceResponseSchema,
   UnlockRequestInvoiceRequestSchema,
   UnlockGrantInvoiceResponseSchema,
@@ -26,6 +28,8 @@ import {
   IInvoiceDetailGetResponseDto,
   IInvoiceGetFormDto,
   IInvoiceGetResponseDto,
+  IInvoiceDropdownGetRequestDto,
+  IInvoiceDropdownGetResponseDto,
   IRejectInvoiceFormDto,
   IRejectInvoiceResponseDto,
   IDeleteInvoiceResponseDto,
@@ -310,6 +314,38 @@ export class InvoiceService {
             this.logger.logDtoValidationErrors('Get Invoice List Error', error);
           } else {
             this.logger.logUserAction('Get Invoice List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getInvoiceDropdown(
+    params: IInvoiceDropdownGetRequestDto
+  ): Observable<IInvoiceDropdownGetResponseDto> {
+    this.logger.logUserAction('Get Invoice Dropdown Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.DOCUMENT.INVOICE.DROPDOWN,
+        {
+          response: InvoiceDropdownGetResponseSchema,
+          request: InvoiceDropdownGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IInvoiceDropdownGetResponseDto) => {
+          this.logger.logUserAction('Get Invoice Dropdown Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Invoice Dropdown Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Invoice Dropdown Error', error);
           }
           return throwError(() => error);
         })

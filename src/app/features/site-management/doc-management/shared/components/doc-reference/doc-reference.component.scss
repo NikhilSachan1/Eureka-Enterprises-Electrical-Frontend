@@ -68,6 +68,21 @@ $doc-ref-muted: var(--text-color-secondary, #64748b);
   margin-top: 0.0625rem;
 }
 
+.doc-ref__branch-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+  min-width: 0;
+  gap: 0;
+}
+
+.doc-ref__branch-children {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.0625rem;
+}
+
 .doc-ref__join {
   display: flex;
   flex-direction: column;

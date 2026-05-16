@@ -79,12 +79,14 @@
                 "
               >
                 <span class="view-detail-label text-xs font-semibold uppercase tracking-wider">{{ entry.label }}</span>
-                <span class="view-detail-value text-sm font-medium">
+                <div class="view-detail-value text-sm font-medium">
                   @if (entry.customTemplateKey && customTemplates()[entry.customTemplateKey]) {
-                    <ng-container
-                      [ngTemplateOutlet]="customTemplates()[entry.customTemplateKey]"
-                      [ngTemplateOutletContext]="{ $implicit: entry }"
-                    />
+                    <div class="view-detail-custom-template">
+                      <ng-container
+                        [ngTemplateOutlet]="customTemplates()[entry.customTemplateKey]"
+                        [ngTemplateOutletContext]="{ $implicit: entry }"
+                      />
+                    </div>
                   } @else if (entry.value !== null && entry.value !== undefined) {
                     @if (entry.prefix) {
                       <span class="view-detail-prefix">{{ entry.prefix }}</span>
@@ -147,7 +149,7 @@
                   } @else {
                     N/A
                   }
-                </span>
+                </div>
               </div>
             }
           }

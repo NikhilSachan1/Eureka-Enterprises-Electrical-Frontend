@@ -8,6 +8,8 @@ import {
   ApproveInvoiceResponseSchema,
   DeleteInvoiceResponseSchema,
   InvoiceDetailGetResponseSchema,
+  InvoiceDropdownGetRequestSchema,
+  InvoiceDropdownGetResponseSchema,
   InvoiceGetBaseResponseSchema,
   InvoiceGetRequestSchema,
   InvoiceGetResponseSchema,
@@ -17,6 +19,7 @@ import {
   UnlockRejectInvoiceResponseSchema,
   UnlockRequestInvoiceRequestSchema,
   UnlockRequestInvoiceResponseSchema,
+  InvoiceDropdownRecordSchema,
 } from '../schemas';
 import { InvoiceDetailGetRequestSchema } from '../schemas/get-invoice-detail.schema';
 
@@ -30,6 +33,16 @@ export type IInvoiceGetBaseResponseDto = z.infer<
 export type IInvoiceGetResponseDto = z.infer<typeof InvoiceGetResponseSchema>;
 export type IInvoiceGetRequestDto = z.infer<typeof InvoiceGetRequestSchema>;
 export type IInvoiceGetFormDto = z.input<typeof InvoiceGetRequestSchema>;
+
+export type IInvoiceDropdownRecordDto = z.infer<
+  typeof InvoiceDropdownRecordSchema
+>;
+export type IInvoiceDropdownGetRequestDto = z.input<
+  typeof InvoiceDropdownGetRequestSchema
+>;
+export type IInvoiceDropdownGetResponseDto = z.infer<
+  typeof InvoiceDropdownGetResponseSchema
+>;
 
 /*
   Invoice Detail Get

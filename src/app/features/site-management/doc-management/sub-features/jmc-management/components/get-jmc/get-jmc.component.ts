@@ -49,7 +49,7 @@ import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
-import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
   selector: 'app-get-jmc',
@@ -182,6 +182,9 @@ export class GetJmcComponent implements OnInit {
         unlockReason: record.unlockReason,
         contractor: record.contractor,
         vendor: record.vendor,
+        documentReferenceHierarchy: DocReferenceHierarchy.forJmc(
+          record.po.poNumber
+        ),
         originalRawData: record,
       } satisfies IJmc;
     });
@@ -258,10 +261,6 @@ export class GetJmcComponent implements OnInit {
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {
-        label: 'PO Number',
-        value: selectedRow.po?.poNumber ?? 'N/A',
-      },
-      {
         label: 'Attachment(s)',
         value: [selectedRow.fileKey],
         type: EDataType.ATTACHMENTS,
@@ -294,17 +293,6 @@ export class GetJmcComponent implements OnInit {
         jmc: rowData,
       },
     });
-  }
-
-  protected documentReferenceSegmentsFromJmc(
-    row: IJmcGetBaseResponseDto
-  ): IDocReferenceSegment[] {
-    const segments: IDocReferenceSegment[] = [];
-    segments.push({
-      label: 'PO',
-      value: row.po.poNumber,
-    });
-    return segments;
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

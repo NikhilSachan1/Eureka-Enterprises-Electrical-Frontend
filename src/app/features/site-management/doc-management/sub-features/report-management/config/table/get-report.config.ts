@@ -56,7 +56,7 @@ export const REPORT_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
-    field: 'documentReferenceChain',
+    field: 'documentReferenceHierarchy',
     header: 'Document reference',
     bodyTemplate: EDataType.TEXT,
     customTemplateKey: 'documentReferenceChain',

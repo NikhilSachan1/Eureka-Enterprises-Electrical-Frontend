@@ -258,6 +258,7 @@ export const API_ROUTES = {
         ADD: 'site-invoices',
         EDIT: (invoiceId: string) => `site-invoices/${invoiceId}`,
         LIST: 'site-invoices',
+        DROPDOWN: 'site-invoices/dropdown',
         GET_INVOICE_BY_ID: (invoiceId: string) => `site-invoices/${invoiceId}`,
         APPROVE: (invoiceId: string) => `site-invoices/${invoiceId}/approve`,
         REJECT: (invoiceId: string) => `site-invoices/${invoiceId}/reject`,
@@ -268,6 +269,13 @@ export const API_ROUTES = {
         UNLOCK_REQUEST_REJECT: (invoiceId: string) =>
           `site-invoices/${invoiceId}/unlock-reject`,
         DELETE: (invoiceId: string) => `site-invoices/${invoiceId}`,
+      },
+      BOOK_PAYMENT: {
+        ADD: 'book-payments',
+        EDIT: (id: string) => `book-payments/${id}`,
+        LIST: 'book-payments',
+        GET_BY_ID: (id: string) => `book-payments/${id}`,
+        DELETE: (id: string) => `book-payments/${id}`,
       },
     },
   },

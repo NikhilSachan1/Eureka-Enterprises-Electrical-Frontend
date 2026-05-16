@@ -94,6 +94,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // ═══════════════════════════════════════════════════════════════════════════
   approved: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   approve: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
+  done: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   pending: { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
   'pending approval': {
     icon: ICONS.ATTENDANCE.REGULARIZE,

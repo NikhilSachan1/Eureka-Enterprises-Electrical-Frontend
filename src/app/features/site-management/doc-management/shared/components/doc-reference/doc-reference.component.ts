@@ -1,51 +1,59 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+import {
+  IDocReferenceHierarchyNode,
+  EDocReferenceHierarchyKind,
+} from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+import { DOC_REFERENCE_KIND_LABELS } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
   selector: 'app-doc-reference',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [NgTemplateOutlet],
   templateUrl: './doc-reference.component.html',
   styleUrl: './doc-reference.component.scss',
 })
 export class DocReferenceComponent {
-  readonly segments = input<IDocReferenceSegment[]>([]);
+  /**
+   * Tree produced by `DocReferenceHierarchy` (canonical PO → … chain); callers
+   * pass only values/DTO extracts — ordering and tiers live in shared code.
+   */
+  readonly root = input<IDocReferenceHierarchyNode | null>(null);
 
-  protected reversedSegments(): IDocReferenceSegment[] {
-    const raw = this.segments();
-    return raw?.length ? [...raw].reverse() : [];
+  protected nodeTplContext(
+    node: IDocReferenceHierarchyNode,
+    isRoot: boolean
+  ): { node: IDocReferenceHierarchyNode; isRoot: boolean } {
+    return { node, isRoot };
   }
 
-  protected docKindTone(label: string): string {
-    const k = label.trim().toLowerCase();
-    if (
-      k.includes('purchase') ||
-      k === 'po' ||
-      (k.includes('order') && k.includes('purchase'))
-    ) {
-      return 'po';
+  protected label(node: IDocReferenceHierarchyNode): string {
+    return node.labelOverride ?? DOC_REFERENCE_KIND_LABELS[node.kind];
+  }
+
+  protected nextNode(
+    node: IDocReferenceHierarchyNode
+  ): IDocReferenceHierarchyNode | null {
+    const c = node.child;
+    return c?.value?.trim() ? c : null;
+  }
+
+  protected tone(kind: EDocReferenceHierarchyKind): string {
+    switch (kind) {
+      case EDocReferenceHierarchyKind.Po:
+        return 'po';
+      case EDocReferenceHierarchyKind.Jmc:
+        return 'jmc';
+      case EDocReferenceHierarchyKind.Report:
+        return 'report';
+      case EDocReferenceHierarchyKind.Invoice:
+        return 'invoice';
+      case EDocReferenceHierarchyKind.BookPayment:
+      case EDocReferenceHierarchyKind.BankTransfer:
+        return 'payment';
+      default:
+        return 'x0';
     }
-    if (k.includes('jmc')) {
-      return 'jmc';
-    }
-    if (k.includes('report')) {
-      return 'report';
-    }
-    if (k.includes('invoice')) {
-      return 'invoice';
-    }
-    if (
-      k.includes('payment') ||
-      k.includes('advice') ||
-      k.includes('transfer')
-    ) {
-      return 'payment';
-    }
-    let h = 0;
-    for (let i = 0; i < k.length; i++) {
-      h = (Math.imul(31, h) + k.charCodeAt(i)) | 0;
-    }
-    return `x${Math.abs(h) % 4}`;
   }
 }

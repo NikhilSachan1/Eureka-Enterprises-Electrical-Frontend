@@ -24,10 +24,10 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
+import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
-import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
   selector: 'app-get-invoice-detail',
@@ -112,7 +112,11 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
       },
       {
         label: 'Document reference',
-        value: this.documentReferenceSegmentsForInvoiceDetail(record),
+        value: DocReferenceHierarchy.forInvoiceDetail({
+          poNumber: record.jmc.po.poNumber,
+          jmcNumber: record.jmc.jmcNumber,
+          invoiceNumber: record.invoiceNumber,
+        }),
         customTemplateKey: 'documentReferenceHierarchy',
         detailTemplateFullRow: false,
       },
@@ -125,6 +129,7 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
           totalAmount: record.totalAmount,
         },
         customTemplateKey: 'invoiceDetailAmounts',
+        detailTemplateFullRow: false,
       },
       {
         label: 'Lock status',
@@ -206,21 +211,6 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
         value: v.totalAmount,
       },
     ];
-  }
-
-  private documentReferenceSegmentsForInvoiceDetail(
-    record: IInvoiceDetailGetResponseDto
-  ): IDocReferenceSegment[] {
-    const jmc = record.jmc?.jmcNumber?.trim();
-    const po = record.jmc?.po?.poNumber?.trim();
-    const segments: IDocReferenceSegment[] = [];
-    if (jmc) {
-      segments.push({ label: 'JMC', value: jmc });
-    }
-    if (po) {
-      segments.push({ label: 'PO', value: po });
-    }
-    return segments;
   }
 
   private buildSiteLocationSuffix(

@@ -49,7 +49,7 @@ import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
-import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
   selector: 'app-get-report',
@@ -167,6 +167,10 @@ export class GetReportComponent implements OnInit {
         fileKeys: record.fileKey ? [record.fileKey] : [],
         contractor: record.contractor,
         vendor: record.vendor,
+        documentReferenceHierarchy: DocReferenceHierarchy.forReportRow({
+          poNumber: record.jmc.po.poNumber,
+          jmcNumber: record.jmc.jmcNumber,
+        }),
         originalRawData: record,
       } satisfies IReport;
     });
@@ -243,10 +247,6 @@ export class GetReportComponent implements OnInit {
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {
-        label: 'JMC Number',
-        value: selectedRow.jmc?.jmcNumber ?? 'N/A',
-      },
-      {
         label: 'Attachment(s)',
         value: [selectedRow.fileKey],
         type: EDataType.ATTACHMENTS,
@@ -278,23 +278,6 @@ export class GetReportComponent implements OnInit {
         report: rowData,
       },
     });
-  }
-
-  protected documentReferenceSegmentsFromReport(
-    row: IReportGetBaseResponseDto
-  ): IDocReferenceSegment[] {
-    const segments: IDocReferenceSegment[] = [];
-    segments.push(
-      {
-        label: 'PO',
-        value: row.jmc.po.poNumber,
-      },
-      {
-        label: 'JMC',
-        value: row.jmc.jmcNumber,
-      }
-    );
-    return segments;
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

@@ -50,11 +50,11 @@ import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-ac
 import { GetInvoiceDetailComponent } from '../get-invoice-detail/get-invoice-detail.component';
 import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
-import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
+import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
+import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
-import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
   selector: 'app-get-invoice',
@@ -232,6 +232,11 @@ export class GetInvoiceComponent implements OnInit {
         unlockReason: record.unlockReason,
         contractor: record.contractor,
         vendor: record.vendor,
+        documentReferenceHierarchy:
+          DocReferenceHierarchy.forInvoiceOrJmcParentRow({
+            poNumber: record.jmc.po.poNumber,
+            jmcNumber: record.jmc.jmcNumber,
+          }),
         originalRawData: record,
       } satisfies IInvoice;
     });
@@ -308,14 +313,6 @@ export class GetInvoiceComponent implements OnInit {
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {
-        label: 'PO Number',
-        value: selectedRow.jmc?.po?.poNumber ?? 'N/A',
-      },
-      {
-        label: 'JMC Number',
-        value: selectedRow.jmc?.jmcNumber ?? 'N/A',
-      },
-      {
         label: 'Attachment(s)',
         value: [selectedRow.fileKey],
         type: EDataType.ATTACHMENTS,
@@ -348,21 +345,6 @@ export class GetInvoiceComponent implements OnInit {
         invoice: rowData,
       },
     });
-  }
-
-  protected documentReferenceSegmentsFromInvoice(
-    row: IInvoiceGetBaseResponseDto | IInvoice
-  ): IDocReferenceSegment[] {
-    const jmcNumber = row.jmc?.jmcNumber?.trim();
-    const poNumber = row.jmc?.po?.poNumber?.trim();
-    const segments: IDocReferenceSegment[] = [];
-    if (jmcNumber) {
-      segments.push({ label: 'JMC', value: jmcNumber });
-    }
-    if (poNumber) {
-      segments.push({ label: 'PO', value: poNumber });
-    }
-    return segments;
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

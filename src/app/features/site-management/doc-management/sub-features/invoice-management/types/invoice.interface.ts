@@ -1,3 +1,5 @@
+import type { IDocReferenceHierarchyNode } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+
 import { IInvoiceGetBaseResponseDto } from './invoice.dto';
 
 export interface IInvoice
@@ -26,5 +28,6 @@ export interface IInvoice
   > {
   siteCityStateSubtitle: string;
   fileKeys: string[];
+  documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   originalRawData: IInvoiceGetBaseResponseDto;
 }

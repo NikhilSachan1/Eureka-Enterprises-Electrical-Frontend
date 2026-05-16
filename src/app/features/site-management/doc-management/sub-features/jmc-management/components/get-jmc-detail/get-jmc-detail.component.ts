@@ -25,7 +25,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
-import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
   selector: 'app-get-jmc-detail',
@@ -110,7 +110,10 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
       },
       {
         label: 'Document reference',
-        value: this.documentReferenceSegmentsForJmcDetail(record),
+        value: DocReferenceHierarchy.forInvoiceOrJmcParentRow({
+          poNumber: record.po.poNumber,
+          jmcNumber: record.jmcNumber,
+        }),
         customTemplateKey: 'documentReferenceHierarchy',
         detailTemplateFullRow: false,
       },
@@ -165,13 +168,6 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
       name: parts.length > 0 ? parts.join(' · ') : 'Job material certificate',
       subtitle: jmcNumber,
     };
-  }
-
-  private documentReferenceSegmentsForJmcDetail(
-    record: IJmcDetailGetResponseDto
-  ): IDocReferenceSegment[] {
-    const po = record.po?.poNumber?.trim();
-    return po ? [{ label: 'PO', value: po }] : [];
   }
 
   private buildSiteLocationSuffix(

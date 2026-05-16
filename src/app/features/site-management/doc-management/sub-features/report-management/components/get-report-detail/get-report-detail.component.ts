@@ -24,7 +24,7 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
-import type { IDocReferenceSegment } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
   selector: 'app-get-report-detail',
@@ -103,7 +103,10 @@ export class GetReportDetailComponent extends DrawerDetailBase {
       },
       {
         label: 'Document reference',
-        value: this.documentReferenceSegmentsForReportDetail(record),
+        value: DocReferenceHierarchy.forReportDetail({
+          poNumber: record.jmc.po.poNumber,
+          jmcNumber: record.jmc.jmcNumber,
+        }),
         customTemplateKey: 'documentReferenceHierarchy',
         detailTemplateFullRow: false,
       },
@@ -150,21 +153,6 @@ export class GetReportDetailComponent extends DrawerDetailBase {
       name: parts.length > 0 ? parts.join(' · ') : 'Report',
       subtitle: reportNumber,
     };
-  }
-
-  private documentReferenceSegmentsForReportDetail(
-    record: IReportDetailGetResponseDto
-  ): IDocReferenceSegment[] {
-    const segments: IDocReferenceSegment[] = [];
-    const po = record.jmc?.po?.poNumber?.trim();
-    if (po) {
-      segments.push({ label: 'PO', value: po });
-    }
-    const jmcNo = record.jmc?.jmcNumber?.trim();
-    if (jmcNo) {
-      segments.push({ label: 'JMC', value: jmcNo });
-    }
-    return segments;
   }
 
   private buildSiteLocationSuffix(

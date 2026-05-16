@@ -1,5 +1,5 @@
-@let segs = reversedSegments();
-@if (segs.length === 0) {
+@let hierarchy = root();
+@if (!hierarchy) {
   <span class="doc-ref__empty">—</span>
 } @else {
   <div
@@ -7,66 +7,74 @@
     role="group"
     aria-label="Document references"
   >
-    @for (seg of segs; track seg.label + seg.value + $index; let i = $index) {
-      @if (i === 0) {
-        <div
-          class="doc-ref__level"
-          [class.doc-ref__level--has-downstream]="segs.length > 1"
-          role="group"
-          [attr.aria-label]="seg.label + ' ' + seg.value"
-        >
-          <div
-            class="doc-ref__kind"
-            [attr.data-tone]="docKindTone(seg.label)"
-          >
-            {{ seg.label }}
-          </div>
-          <div class="doc-ref__val">{{ seg.value }}</div>
-        </div>
-      } @else {
-        <div
-          class="doc-ref__branch"
-          role="group"
-          [attr.aria-label]="seg.label + ' ' + seg.value"
-        >
-          <div
-            class="doc-ref__join"
-            aria-hidden="true"
-          >
-            <svg
-              class="doc-ref__join-graphic"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 40 28"
-              shape-rendering="geometricPrecision"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                class="doc-ref__join-stroke"
-                d="M 10 1 L 10 17.95 Q 10 21.45 13.05 21.45 H 23.78"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                class="doc-ref__join-head"
-                d="M 23.85 18.92 L 33.45 21.45 L 23.85 23.98 Z"
-              />
-            </svg>
-          </div>
-          <div class="doc-ref__level doc-ref__level--nested">
-            <div
-              class="doc-ref__kind"
-              [attr.data-tone]="docKindTone(seg.label)"
-            >
-              {{ seg.label }}
-            </div>
-            <div class="doc-ref__val">{{ seg.value }}</div>
-          </div>
-        </div>
-      }
-    }
+    <ng-container
+      [ngTemplateOutlet]="nodeTpl"
+      [ngTemplateOutletContext]="nodeTplContext(hierarchy, true)"
+    />
   </div>
 }
+
+<ng-template
+  #nodeTpl
+  let-node="node"
+  let-isRoot="isRoot"
+>
+  @let child = nextNode(node);
+  <div
+    class="doc-ref__level"
+    [class.doc-ref__level--nested]="!isRoot"
+    [class.doc-ref__level--has-downstream]="!!child"
+    role="group"
+    [attr.aria-label]="label(node) + ' ' + node.value"
+  >
+    <div
+      class="doc-ref__kind"
+      [attr.data-tone]="tone(node.kind)"
+    >
+      {{ label(node) }}
+    </div>
+    <div class="doc-ref__val">{{ node.value }}</div>
+  </div>
+
+  @if (child) {
+    <div
+      class="doc-ref__branch"
+      role="group"
+      [attr.aria-label]="label(child) + ' ' + child.value"
+    >
+      <div
+        class="doc-ref__join"
+        aria-hidden="true"
+      >
+        <svg
+          class="doc-ref__join-graphic"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 40 28"
+          shape-rendering="geometricPrecision"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            class="doc-ref__join-stroke"
+            d="M 10 1 L 10 17.95 Q 10 21.45 13.05 21.45 H 23.78"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            class="doc-ref__join-head"
+            d="M 23.85 18.92 L 33.45 21.45 L 23.85 23.98 Z"
+          />
+        </svg>
+      </div>
+      <div class="doc-ref__branch-body">
+        <ng-container
+          [ngTemplateOutlet]="nodeTpl"
+          [ngTemplateOutletContext]="nodeTplContext(child, false)"
+        />
+      </div>
+    </div>
+  }
+</ng-template>
