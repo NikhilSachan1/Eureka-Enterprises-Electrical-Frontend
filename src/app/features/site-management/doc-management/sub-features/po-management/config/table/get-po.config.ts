@@ -1,5 +1,4 @@
 import { COMMON_ROW_ACTIONS } from '@shared/config';
-import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
   EButtonActionType,
   EDataType,
@@ -28,46 +27,12 @@ export const PO_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No PO record found.',
 };
 
-const PO_TABLE_PARTY_CONTRACTOR: Partial<IDataTableHeaderConfig> = {
-  field: 'contractor.name',
-  header: 'Contractor Name',
-  dummyImageField: 'contractor.name',
-  bodyTemplate: EDataType.TEXT,
-  showImage: true,
-  primaryFieldHighlight: true,
-  showSort: false,
-};
-
-const PO_TABLE_PARTY_VENDOR: Partial<IDataTableHeaderConfig> = {
-  ...PO_TABLE_PARTY_CONTRACTOR,
-  field: 'vendor.name',
-  header: 'Vendor Name',
-  dummyImageField: 'vendor.name',
-};
-
-export const PO_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
+export const PO_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
-    field: 'company.name',
-    header: 'Company',
-    dummyImageField: 'company.name',
+    field: 'docWorkspaceContext',
+    header: 'Workspace overview',
     bodyTemplate: EDataType.TEXT,
-    showImage: true,
-    primaryFieldHighlight: true,
-    showSort: false,
-  },
-  {
-    field: 'site.name',
-    header: 'Site',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    dataType: EDataType.TEXT,
-    showImage: true,
-    icon: 'pi pi-building',
-    dummyImageField: 'site.name',
-    primaryFieldHighlight: true,
-    subtitle: {
-      field: 'siteCityStateSubtitle',
-      bodyTemplate: EDataType.TEXT,
-    },
+    customTemplateKey: 'docWorkspaceContext',
     showSort: false,
   },
   {
@@ -116,11 +81,6 @@ export const PO_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
     customTemplateKey: 'poLockStatus',
     showSort: false,
   },
-];
-
-export const PO_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
-  PO_TABLE_PARTY_CONTRACTOR,
-  ...PO_TABLE_HEADERS_SHARED,
 ];
 
 const PO_TABLE_ROW_ACTIONS_CONFIG: Partial<
@@ -182,17 +142,10 @@ const PO_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
 ];
 
-export const PO_TABLE_ENHANCED_CONFIG = (
-  docContext?: EDocContext | null
-): IEnhancedTableConfig<IPoGetResponseDto['records'][number]> => {
-  const partyColumn =
-    docContext === EDocContext.PURCHASE
-      ? PO_TABLE_PARTY_VENDOR
-      : PO_TABLE_PARTY_CONTRACTOR;
-
-  return {
-    tableConfig: PO_TABLE_CONFIG,
-    headers: [partyColumn, ...PO_TABLE_HEADERS_SHARED],
-    rowActions: PO_TABLE_ROW_ACTIONS_CONFIG,
-  };
+export const PO_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
+  IPoGetResponseDto['records'][number]
+> = {
+  tableConfig: PO_TABLE_CONFIG,
+  headers: PO_TABLE_HEADERS_CONFIG,
+  rowActions: PO_TABLE_ROW_ACTIONS_CONFIG,
 };

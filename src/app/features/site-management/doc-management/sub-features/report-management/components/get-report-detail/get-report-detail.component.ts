@@ -24,12 +24,17 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
+import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
   selector: 'app-get-report-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ViewDetailComponent, DocReferenceComponent],
+  imports: [
+    ViewDetailComponent,
+    DocReferenceComponent,
+    DocWorkspaceContextComponent,
+  ],
   templateUrl: './get-report-detail.component.html',
   styleUrl: './get-report-detail.component.scss',
 })
@@ -93,13 +98,17 @@ export class GetReportDetailComponent extends DrawerDetailBase {
 
     const entryData: IDataViewDetails['entryData'] = [
       {
-        label: 'Company Name',
-        value: record.site.company.name,
-      },
-      {
-        label: 'Site Name',
-        value: record.site.name,
-        suffix: this.buildSiteLocationSuffix(record.site),
+        label: 'Workspace overview',
+        value: {
+          companyName: record.site.company.name,
+          partyName: [record.contractor?.name, record.vendor?.name]
+            .filter((n): n is string => Boolean(n))
+            .join(' · '),
+          projectName: record.site.name,
+          siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
+        },
+        customTemplateKey: 'docWorkspaceContextDetail',
+        detailTemplateFullRow: true,
       },
       {
         label: 'Document reference',
@@ -153,17 +162,5 @@ export class GetReportDetailComponent extends DrawerDetailBase {
       name: parts.length > 0 ? parts.join(' · ') : 'Report',
       subtitle: reportNumber,
     };
-  }
-
-  private buildSiteLocationSuffix(
-    site: IReportDetailGetResponseDto['site'] | null | undefined
-  ): string | undefined {
-    if (!site) {
-      return undefined;
-    }
-    const parts = [site.city, site.state].filter(
-      (part): part is string => !!part && part.trim().length > 0
-    );
-    return parts.length > 0 ? ` · ${parts.join(', ')}` : undefined;
   }
 }

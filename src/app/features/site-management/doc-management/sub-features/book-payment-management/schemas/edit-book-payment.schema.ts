@@ -4,6 +4,7 @@ import { BookPaymentUpsertShapeSchema } from './base-book-payment.schema';
 
 export const EditBookPaymentRequestSchema = BookPaymentUpsertShapeSchema.omit({
   invoiceNumber: true,
+  paymentTotalAmount: true,
 }).transform(data => ({
   bookingDate: transformDateFormat(data.bookingDate),
   taxableAmount: data.taxableAmount,
@@ -11,7 +12,6 @@ export const EditBookPaymentRequestSchema = BookPaymentUpsertShapeSchema.omit({
   gstPercentage: data.gstPercentage,
   tdsDeductionAmount: data.tdsDeductionAmount,
   tdsPercentage: data.tdsPercentage,
-  paymentTotalAmount: data.paymentTotalAmount,
   paymentHoldReason: data.paymentHoldReason ?? null,
   remarks: data.remarks ?? null,
 }));

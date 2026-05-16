@@ -48,6 +48,7 @@ import { GetJmcDetailComponent } from '../get-jmc-detail/get-jmc-detail.componen
 import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
+import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
@@ -59,6 +60,7 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
     DataTableComponent,
     UnlockRequestComponent,
     DocReferenceComponent,
+    DocWorkspaceContextComponent,
   ],
   templateUrl: './get-jmc.component.html',
   styleUrl: './get-jmc.component.scss',
@@ -107,9 +109,7 @@ export class GetJmcComponent implements OnInit {
       'docContext'
     ] as EDocContext;
     this.docRouteContext.set(docContext);
-    this.table = this.dataTableService.createTable(
-      JMC_TABLE_ENHANCED_CONFIG(this.docRouteContext())
-    );
+    this.table = this.dataTableService.createTable(JMC_TABLE_ENHANCED_CONFIG);
   }
 
   private loadJmcList(): void {
@@ -164,9 +164,14 @@ export class GetJmcComponent implements OnInit {
     return response.map((record: IJmcGetBaseResponseDto) => {
       return {
         id: record.id,
-        company: record.site.company,
-        site: record.site,
-        siteCityStateSubtitle: `${record.site.city}, ${record.site.state}`,
+        docWorkspaceContext: {
+          companyName: record.site.company.name,
+          partyName: [record.contractor?.name, record.vendor?.name]
+            .filter((n): n is string => Boolean(n))
+            .join(' · '),
+          projectName: record.site.name,
+          siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
+        },
         jmcDate: record.jmcDate,
         jmcNumber: record.jmcNumber,
         po: record.po,
@@ -181,7 +186,6 @@ export class GetJmcComponent implements OnInit {
         unlockRequestedByUser: record.unlockRequestedByUser,
         unlockReason: record.unlockReason,
         contractor: record.contractor,
-        vendor: record.vendor,
         documentReferenceHierarchy: DocReferenceHierarchy.forJmc(
           record.po.poNumber
         ),

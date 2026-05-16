@@ -1,3 +1,4 @@
+import type { IDocWorkspaceContextView } from '@features/site-management/doc-management/shared/types/doc-workspace-context.interface';
 import type { IDocReferenceHierarchyNode } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 
 import { IInvoiceGetBaseResponseDto } from './invoice.dto';
@@ -20,13 +21,10 @@ export interface IInvoice
     | 'unlockRequestedByUser'
     | 'unlockReason'
     | 'contractor'
-    | 'vendor'
-    | 'site'
     | 'jmc'
     | 'gstPercentage'
-    | 'company'
   > {
-  siteCityStateSubtitle: string;
+  docWorkspaceContext: IDocWorkspaceContextView;
   fileKeys: string[];
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   originalRawData: IInvoiceGetBaseResponseDto;

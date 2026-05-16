@@ -53,7 +53,9 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
+import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
+
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
@@ -65,6 +67,7 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
     UnlockRequestComponent,
     DocAmountComponent,
     DocReferenceComponent,
+    DocWorkspaceContextComponent,
   ],
   templateUrl: './get-invoice.component.html',
   styleUrl: './get-invoice.component.scss',
@@ -116,7 +119,7 @@ export class GetInvoiceComponent implements OnInit {
     ] as EDocContext;
     this.docRouteContext.set(docContext);
     this.table = this.dataTableService.createTable(
-      INVOICE_TABLE_ENHANCED_CONFIG(this.docRouteContext())
+      INVOICE_TABLE_ENHANCED_CONFIG
     );
   }
 
@@ -208,9 +211,14 @@ export class GetInvoiceComponent implements OnInit {
     return response.map((record: IInvoiceGetBaseResponseDto) => {
       return {
         id: record.id,
-        company: record.site.company,
-        site: record.site,
-        siteCityStateSubtitle: `${record.site.city}, ${record.site.state}`,
+        docWorkspaceContext: {
+          companyName: record.site.company.name,
+          partyName: [record.contractor?.name, record.vendor?.name]
+            .filter((n): n is string => Boolean(n))
+            .join(' · '),
+          projectName: record.site.name,
+          siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
+        },
         invoiceDate: record.invoiceDate,
         invoiceNumber: record.invoiceNumber,
         taxableAmount: record.taxableAmount,
@@ -231,7 +239,6 @@ export class GetInvoiceComponent implements OnInit {
         unlockRequestedByUser: record.unlockRequestedByUser,
         unlockReason: record.unlockReason,
         contractor: record.contractor,
-        vendor: record.vendor,
         documentReferenceHierarchy:
           DocReferenceHierarchy.forInvoiceOrJmcParentRow({
             poNumber: record.jmc.po.poNumber,

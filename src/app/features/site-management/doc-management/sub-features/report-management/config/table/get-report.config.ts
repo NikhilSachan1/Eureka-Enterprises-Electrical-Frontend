@@ -1,5 +1,4 @@
 import { COMMON_ROW_ACTIONS } from '@shared/config';
-import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
   EDataType,
   IDataTableConfig,
@@ -13,46 +12,12 @@ export const REPORT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No report record found.',
 };
 
-const REPORT_TABLE_PARTY_CONTRACTOR: Partial<IDataTableHeaderConfig> = {
-  field: 'contractor.name',
-  header: 'Contractor Name',
-  dummyImageField: 'contractor.name',
-  bodyTemplate: EDataType.TEXT,
-  showImage: true,
-  primaryFieldHighlight: true,
-  showSort: false,
-};
-
-const REPORT_TABLE_PARTY_VENDOR: Partial<IDataTableHeaderConfig> = {
-  ...REPORT_TABLE_PARTY_CONTRACTOR,
-  field: 'vendor.name',
-  header: 'Vendor Name',
-  dummyImageField: 'vendor.name',
-};
-
-export const REPORT_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
+export const REPORT_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
-    field: 'company.name',
-    header: 'Company',
-    dummyImageField: 'company.name',
+    field: 'docWorkspaceContext',
+    header: 'Workspace overview',
     bodyTemplate: EDataType.TEXT,
-    showImage: true,
-    primaryFieldHighlight: true,
-    showSort: false,
-  },
-  {
-    field: 'site.name',
-    header: 'Site',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    dataType: EDataType.TEXT,
-    showImage: true,
-    icon: 'pi pi-building',
-    dummyImageField: 'site.name',
-    primaryFieldHighlight: true,
-    subtitle: {
-      field: 'siteCityStateSubtitle',
-      bodyTemplate: EDataType.TEXT,
-    },
+    customTemplateKey: 'docWorkspaceContext',
     showSort: false,
   },
   {
@@ -100,17 +65,10 @@ const REPORT_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
 ];
 
-export const REPORT_TABLE_ENHANCED_CONFIG = (
-  docContext?: EDocContext | null
-): IEnhancedTableConfig<IReportGetResponseDto['records'][number]> => {
-  const partyColumn =
-    docContext === EDocContext.PURCHASE
-      ? REPORT_TABLE_PARTY_VENDOR
-      : REPORT_TABLE_PARTY_CONTRACTOR;
-
-  return {
-    tableConfig: REPORT_TABLE_CONFIG,
-    headers: [partyColumn, ...REPORT_TABLE_HEADERS_SHARED],
-    rowActions: REPORT_TABLE_ROW_ACTIONS_CONFIG,
-  };
+export const REPORT_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
+  IReportGetResponseDto['records'][number]
+> = {
+  tableConfig: REPORT_TABLE_CONFIG,
+  headers: REPORT_TABLE_HEADERS_CONFIG,
+  rowActions: REPORT_TABLE_ROW_ACTIONS_CONFIG,
 };

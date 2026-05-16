@@ -49,12 +49,18 @@ import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
+import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
   selector: 'app-get-report',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PageHeaderComponent, DataTableComponent, DocReferenceComponent],
+  imports: [
+    PageHeaderComponent,
+    DataTableComponent,
+    DocReferenceComponent,
+    DocWorkspaceContextComponent,
+  ],
   templateUrl: './get-report.component.html',
   styleUrl: './get-report.component.scss',
 })
@@ -102,7 +108,7 @@ export class GetReportComponent implements OnInit {
     ] as EDocContext;
     this.docRouteContext.set(docContext);
     this.table = this.dataTableService.createTable(
-      REPORT_TABLE_ENHANCED_CONFIG(this.docRouteContext())
+      REPORT_TABLE_ENHANCED_CONFIG
     );
   }
 
@@ -158,15 +164,19 @@ export class GetReportComponent implements OnInit {
     return response.map((record: IReportGetBaseResponseDto) => {
       return {
         id: record.id,
-        company: record.site.company,
-        site: record.site,
-        siteCityStateSubtitle: `${record.site.city}, ${record.site.state}`,
+        docWorkspaceContext: {
+          companyName: record.site.company.name,
+          partyName: [record.contractor?.name, record.vendor?.name]
+            .filter((n): n is string => Boolean(n))
+            .join(' · '),
+          projectName: record.site.name,
+          siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
+        },
         reportDate: record.reportDate,
         reportNumber: record.reportNumber,
         jmc: record.jmc,
         fileKeys: record.fileKey ? [record.fileKey] : [],
         contractor: record.contractor,
-        vendor: record.vendor,
         documentReferenceHierarchy: DocReferenceHierarchy.forReportRow({
           poNumber: record.jmc.po.poNumber,
           jmcNumber: record.jmc.jmcNumber,

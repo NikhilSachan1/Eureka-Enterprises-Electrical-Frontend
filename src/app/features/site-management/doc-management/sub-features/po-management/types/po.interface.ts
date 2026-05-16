@@ -1,3 +1,5 @@
+import type { IDocWorkspaceContextView } from '@features/site-management/doc-management/shared/types/doc-workspace-context.interface';
+
 import { IPoGetBaseResponseDto } from './po.dto';
 
 export interface IPo
@@ -22,11 +24,8 @@ export interface IPo
     | 'lastInvoiceAt'
     | 'lastPaymentAt'
     | 'contractor'
-    | 'vendor'
-    | 'site'
-    | 'company'
   > {
-  siteCityStateSubtitle: string;
+  docWorkspaceContext: IDocWorkspaceContextView;
   fileKeys: string[];
   originalRawData: IPoGetBaseResponseDto;
 }

@@ -1,5 +1,4 @@
 import { COMMON_ROW_ACTIONS } from '@shared/config';
-import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
   EButtonActionType,
   EDataType,
@@ -28,46 +27,12 @@ export const INVOICE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No invoice record found.',
 };
 
-const INVOICE_TABLE_PARTY_CONTRACTOR: Partial<IDataTableHeaderConfig> = {
-  field: 'contractor.name',
-  header: 'Contractor Name',
-  dummyImageField: 'contractor.name',
-  bodyTemplate: EDataType.TEXT,
-  showImage: true,
-  primaryFieldHighlight: true,
-  showSort: false,
-};
-
-const INVOICE_TABLE_PARTY_VENDOR: Partial<IDataTableHeaderConfig> = {
-  ...INVOICE_TABLE_PARTY_CONTRACTOR,
-  field: 'vendor.name',
-  header: 'Vendor Name',
-  dummyImageField: 'vendor.name',
-};
-
-export const INVOICE_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
+export const INVOICE_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
-    field: 'company.name',
-    header: 'Company',
-    dummyImageField: 'company.name',
+    field: 'docWorkspaceContext',
+    header: 'Workspace overview',
     bodyTemplate: EDataType.TEXT,
-    showImage: true,
-    primaryFieldHighlight: true,
-    showSort: false,
-  },
-  {
-    field: 'site.name',
-    header: 'Site',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    dataType: EDataType.TEXT,
-    showImage: true,
-    icon: 'pi pi-building',
-    dummyImageField: 'site.name',
-    primaryFieldHighlight: true,
-    subtitle: {
-      field: 'siteCityStateSubtitle',
-      bodyTemplate: EDataType.TEXT,
-    },
+    customTemplateKey: 'docWorkspaceContext',
     showSort: false,
   },
   {
@@ -125,11 +90,6 @@ export const INVOICE_TABLE_HEADERS_SHARED: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-export const INVOICE_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
-  INVOICE_TABLE_PARTY_CONTRACTOR,
-  ...INVOICE_TABLE_HEADERS_SHARED,
-];
-
 const INVOICE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IInvoiceGetResponseDto['records'][number]>
 >[] = [
@@ -181,17 +141,10 @@ const INVOICE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
 ];
 
-export const INVOICE_TABLE_ENHANCED_CONFIG = (
-  docContext?: EDocContext | null
-): IEnhancedTableConfig<IInvoiceGetResponseDto['records'][number]> => {
-  const partyColumn =
-    docContext === EDocContext.PURCHASE
-      ? INVOICE_TABLE_PARTY_VENDOR
-      : INVOICE_TABLE_PARTY_CONTRACTOR;
-
-  return {
-    tableConfig: INVOICE_TABLE_CONFIG,
-    headers: [partyColumn, ...INVOICE_TABLE_HEADERS_SHARED],
-    rowActions: INVOICE_TABLE_ROW_ACTIONS_CONFIG,
-  };
+export const INVOICE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
+  IInvoiceGetResponseDto['records'][number]
+> = {
+  tableConfig: INVOICE_TABLE_CONFIG,
+  headers: INVOICE_TABLE_HEADERS_CONFIG,
+  rowActions: INVOICE_TABLE_ROW_ACTIONS_CONFIG,
 };

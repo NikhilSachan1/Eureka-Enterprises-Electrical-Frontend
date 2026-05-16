@@ -1,5 +1,4 @@
 import { COMMON_ROW_ACTIONS } from '@shared/config';
-import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
   EDataType,
   IDataTableConfig,
@@ -16,36 +15,10 @@ export const BOOK_PAYMENT_TABLE_CONFIG: Partial<IDataTableConfig> = {
 export const BOOK_PAYMENT_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] =
   [
     {
-      field: 'vendor.name',
-      header: 'Vendor Name',
-      dummyImageField: 'vendor.name',
+      field: 'docWorkspaceContext',
+      header: 'Workspace overview',
       bodyTemplate: EDataType.TEXT,
-      showImage: true,
-      primaryFieldHighlight: true,
-      showSort: false,
-    },
-    {
-      field: 'company.name',
-      header: 'Company',
-      dummyImageField: 'company.name',
-      bodyTemplate: EDataType.TEXT,
-      showImage: true,
-      primaryFieldHighlight: true,
-      showSort: false,
-    },
-    {
-      field: 'site.name',
-      header: 'Site',
-      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-      dataType: EDataType.TEXT,
-      showImage: true,
-      icon: 'pi pi-building',
-      dummyImageField: 'site.name',
-      primaryFieldHighlight: true,
-      subtitle: {
-        field: 'siteCityStateSubtitle',
-        bodyTemplate: EDataType.TEXT,
-      },
+      customTemplateKey: 'docWorkspaceContext',
       showSort: false,
     },
     {
@@ -101,13 +74,9 @@ const BOOK_PAYMENT_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
 ];
 
-/** Purchase (vendor) only — table always shows vendor column. */
-export const BOOK_PAYMENT_TABLE_ENHANCED_CONFIG = (
-  _docContext?: EDocContext | null
-): IEnhancedTableConfig<IBookPayment> => {
-  return {
+export const BOOK_PAYMENT_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IBookPayment> =
+  {
     tableConfig: BOOK_PAYMENT_TABLE_CONFIG,
     headers: BOOK_PAYMENT_TABLE_HEADERS_CONFIG,
     rowActions: BOOK_PAYMENT_TABLE_ROW_ACTIONS_CONFIG,
   };
-};

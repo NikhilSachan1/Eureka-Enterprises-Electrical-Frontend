@@ -1,4 +1,11 @@
 <ng-template
+  #docWorkspaceContextDetail
+  let-entry
+>
+  <app-doc-workspace-context [view]="$any(entry.value)" />
+</ng-template>
+
+<ng-template
   #documentReferenceHierarchy
   let-entry
 >
@@ -7,5 +14,8 @@
 
 <app-view-detail
   [drawerDetails]="_jmcDetails()"
-  [customTemplates]="{ documentReferenceHierarchy: documentReferenceHierarchy }"
+  [customTemplates]="{
+    docWorkspaceContextDetail: docWorkspaceContextDetail,
+    documentReferenceHierarchy: documentReferenceHierarchy,
+  }"
 />

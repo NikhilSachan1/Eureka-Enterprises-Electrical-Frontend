@@ -12,6 +12,7 @@
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
+    docWorkspaceContext: docWorkspaceContext,
     invoiceAmountBreakdown: invoiceAmountBreakdown,
     invoiceBookedPaidSummary: invoiceBookedPaidSummary,
     invoiceLockStatus: invoiceLockStatus,
@@ -20,6 +21,13 @@
   (rowActionClick)="handleInvoiceTableActionClick($any($event))"
   (filterData)="onTableStateChange($event)"
 />
+
+<ng-template
+  #docWorkspaceContext
+  let-row
+>
+  <app-doc-workspace-context [view]="row.docWorkspaceContext" />
+</ng-template>
 
 <ng-template
   #invoiceAmountBreakdown

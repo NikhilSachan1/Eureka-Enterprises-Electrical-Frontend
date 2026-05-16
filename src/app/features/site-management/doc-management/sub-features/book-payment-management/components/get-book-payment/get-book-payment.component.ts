@@ -50,6 +50,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
+import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
@@ -60,6 +61,7 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
     PageHeaderComponent,
     DataTableComponent,
     DocReferenceComponent,
+    DocWorkspaceContextComponent,
     DocAmountComponent,
   ],
   templateUrl: './get-book-payment.component.html',
@@ -109,7 +111,7 @@ export class GetBookPaymentComponent implements OnInit {
     ] as EDocContext;
     this.docRouteContext.set(docContext);
     this.table = this.dataTableService.createTable(
-      BOOK_PAYMENT_TABLE_ENHANCED_CONFIG(this.docRouteContext())
+      BOOK_PAYMENT_TABLE_ENHANCED_CONFIG
     );
   }
 
@@ -187,7 +189,6 @@ export class GetBookPaymentComponent implements OnInit {
     return response.map(record => ({
       id: record.id,
       bookingDate: record.bookingDate,
-      invoiceId: record.invoiceId,
       invoice: record.invoice,
       taxableAmount: record.taxableAmount,
       gstAmount: record.gstAmount,
@@ -199,10 +200,12 @@ export class GetBookPaymentComponent implements OnInit {
       transferStatusLabel: record.hasTransfer === true ? 'Done' : 'Pending',
       paymentHoldReasonDisplay: record.paymentHoldReason?.trim() ?? '—',
       paymentHoldReason: record.paymentHoldReason,
-      vendor: record.vendor,
-      site: record.site,
-      company: record.site.company,
-      siteCityStateSubtitle: `${record.site.city}, ${record.site.state}`,
+      docWorkspaceContext: {
+        companyName: record.site.company.name,
+        partyName: record.vendor.name,
+        projectName: record.site.name,
+        siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
+      },
       documentReferenceHierarchy: DocReferenceHierarchy.forBookPaymentRow({
         poNumber: record.invoice.jmc.po.poNumber,
         jmcNumber: record.invoice.jmc.jmcNumber,

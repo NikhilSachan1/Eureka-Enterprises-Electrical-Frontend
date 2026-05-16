@@ -26,13 +26,19 @@ import { APP_CONFIG } from '@core/config';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
+import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
   selector: 'app-get-invoice-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ViewDetailComponent, DocReferenceComponent, DocAmountComponent],
+  imports: [
+    ViewDetailComponent,
+    DocReferenceComponent,
+    DocAmountComponent,
+    DocWorkspaceContextComponent,
+  ],
   templateUrl: './get-invoice-detail.component.html',
   styleUrl: './get-invoice-detail.component.scss',
 })
@@ -96,13 +102,17 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
 
     const entryData: IDataViewDetails['entryData'] = [
       {
-        label: 'Company Name',
-        value: record.site.company.name,
-      },
-      {
-        label: 'Site Name',
-        value: record.site.name,
-        suffix: this.buildSiteLocationSuffix(record.site),
+        label: 'Workspace overview',
+        value: {
+          companyName: record.site.company.name,
+          partyName: [record.contractor?.name, record.vendor?.name]
+            .filter((n): n is string => Boolean(n))
+            .join(' · '),
+          projectName: record.site.name,
+          siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
+        },
+        customTemplateKey: 'docWorkspaceContextDetail',
+        detailTemplateFullRow: true,
       },
       {
         label: 'Invoice Date',
@@ -211,17 +221,5 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
         value: v.totalAmount,
       },
     ];
-  }
-
-  private buildSiteLocationSuffix(
-    site: IInvoiceDetailGetResponseDto['site'] | null | undefined
-  ): string | undefined {
-    if (!site) {
-      return undefined;
-    }
-    const parts = [site.city, site.state].filter(
-      (part): part is string => !!part && part.trim().length > 0
-    );
-    return parts.length > 0 ? ` · ${parts.join(', ')}` : undefined;
   }
 }

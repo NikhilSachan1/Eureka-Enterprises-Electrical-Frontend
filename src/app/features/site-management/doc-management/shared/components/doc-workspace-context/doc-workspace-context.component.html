@@ -1,0 +1,42 @@
+@let ctx = view();
+
+<div class="doc-ws-ctx">
+  <div class="doc-ws-primary">
+    <div
+      class="doc-ws-lead doc-ws-lead--site flex size-8 shrink-0 items-center justify-center rounded-lg text-white"
+      [style.background-color]="leadBackground()"
+      aria-hidden="true"
+    >
+      <i class="pi pi-building text-[0.875rem] leading-none"></i>
+    </div>
+    <div class="doc-ws-primary-text">
+      <span class="doc-ws-site-title">{{ ctx.projectName }}</span>
+      @if (ctx.siteLocationSubtitle) {
+        <span class="doc-ws-loc">{{ ctx.siteLocationSubtitle }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="doc-ws-meta">
+    <span class="doc-ws-meta-chunk">
+      <i
+        class="pi pi-map-marker doc-ws-ico-plain"
+        aria-hidden="true"
+      ></i>
+      {{ ctx.companyName }}
+    </span>
+    <span
+      class="doc-ws-meta-sep"
+      aria-hidden="true"
+    >
+      |
+    </span>
+    <span class="doc-ws-meta-chunk">
+      <i
+        class="pi pi-user doc-ws-ico-plain"
+        aria-hidden="true"
+      ></i>
+      {{ ctx.partyName }}
+    </span>
+  </div>
+</div>

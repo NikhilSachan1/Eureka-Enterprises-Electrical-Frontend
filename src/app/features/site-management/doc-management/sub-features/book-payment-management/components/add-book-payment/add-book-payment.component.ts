@@ -245,6 +245,7 @@ export class AddBookPaymentComponent
     const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['projectName'];
+    delete (record as Record<string, unknown>)['paymentTotalAmount'];
     return record;
   }
 }

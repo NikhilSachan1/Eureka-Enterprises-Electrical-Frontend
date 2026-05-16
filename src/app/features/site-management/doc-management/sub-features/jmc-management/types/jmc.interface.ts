@@ -1,3 +1,4 @@
+import type { IDocWorkspaceContextView } from '@features/site-management/doc-management/shared/types/doc-workspace-context.interface';
 import type { IDocReferenceHierarchyNode } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 
 import { IJmcGetBaseResponseDto } from './jmc.dto';
@@ -15,12 +16,9 @@ export interface IJmc
     | 'unlockRequestedByUser'
     | 'unlockReason'
     | 'contractor'
-    | 'vendor'
-    | 'site'
     | 'po'
-    | 'company'
   > {
-  siteCityStateSubtitle: string;
+  docWorkspaceContext: IDocWorkspaceContextView;
   fileKeys: string[];
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   originalRawData: IJmcGetBaseResponseDto;

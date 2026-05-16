@@ -49,6 +49,7 @@ import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
+import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 
 @Component({
@@ -59,6 +60,7 @@ import type { IDocAmountSegment } from '@features/site-management/doc-management
     DataTableComponent,
     UnlockRequestComponent,
     DocAmountComponent,
+    DocWorkspaceContextComponent,
   ],
   templateUrl: './get-po.component.html',
   styleUrl: './get-po.component.scss',
@@ -109,9 +111,7 @@ export class GetPoComponent implements OnInit {
       'docContext'
     ] as EDocContext;
     this.docRouteContext.set(docContext);
-    this.table = this.dataTableService.createTable(
-      PO_TABLE_ENHANCED_CONFIG(this.docRouteContext())
-    );
+    this.table = this.dataTableService.createTable(PO_TABLE_ENHANCED_CONFIG);
   }
 
   protected docPoTaxGstSegments(row: IPo): IDocAmountSegment[] {
@@ -217,9 +217,14 @@ export class GetPoComponent implements OnInit {
     return response.map((record: IPoGetBaseResponseDto) => {
       return {
         id: record.id,
-        company: record.site.company,
-        site: record.site,
-        siteCityStateSubtitle: `${record.site.city}, ${record.site.state}`,
+        docWorkspaceContext: {
+          companyName: record.site.company.name,
+          partyName: [record.contractor?.name, record.vendor?.name]
+            .filter((n): n is string => Boolean(n))
+            .join(' · '),
+          projectName: record.site.name,
+          siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
+        },
         poDate: record.poDate,
         poNumber: record.poNumber,
         taxableAmount: record.taxableAmount,
@@ -242,7 +247,6 @@ export class GetPoComponent implements OnInit {
         lastInvoiceAt: record.lastInvoiceAt,
         lastPaymentAt: record.lastPaymentAt,
         contractor: record.contractor,
-        vendor: record.vendor,
         originalRawData: record,
       } satisfies IPo;
     });

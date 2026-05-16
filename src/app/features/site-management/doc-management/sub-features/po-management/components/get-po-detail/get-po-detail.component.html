@@ -1,4 +1,11 @@
 <ng-template
+  #docWorkspaceContextDetail
+  let-entry
+>
+  <app-doc-workspace-context [view]="$any(entry.value)" />
+</ng-template>
+
+<ng-template
   #poDetailPoAmounts
   let-entry
 >
@@ -17,6 +24,7 @@
 <app-view-detail
   [drawerDetails]="_poDetails()"
   [customTemplates]="{
+    docWorkspaceContextDetail: docWorkspaceContextDetail,
     poDetailPoAmounts: poDetailPoAmounts,
     poDetailInvoiceTotals: poDetailInvoiceTotals,
   }"
