@@ -64,12 +64,6 @@ export class DocIntegrationComponent {
         label: 'Bank Transfer',
         icon: ICONS.COMMON.ARROW_RIGHT_LEFT,
       },
-      {
-        route: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PAYMENT_ADVICE,
-        label: 'Payment Advice',
-        icon: ICONS.COMMON.EMAIL,
-        visible: ctx === EDocContext.PURCHASE,
-      },
     ];
   }
 }

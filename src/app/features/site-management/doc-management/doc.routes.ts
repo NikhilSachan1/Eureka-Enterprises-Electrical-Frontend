@@ -95,13 +95,6 @@ const DOC_WORKSPACE_PURCHASE_CHILDREN: Routes = [
         './sub-features/bank-transfer-management/components/get-bank-transfer/get-bank-transfer.component'
       ).then(m => m.GetBankTransferComponent),
   },
-  {
-    path: ROUTES.SITE.PROJECT.WORKSPACE_DOC.PAYMENT_ADVICE,
-    loadComponent: () =>
-      import(
-        './sub-features/payment-advice-management/components/get-payment-advice/get-payment-advice.component'
-      ).then(m => m.GetPaymentAdviceComponent),
-  },
 ];
 
 /** Project workspace: contractor (sales) documents. */

@@ -127,7 +127,6 @@ export const ROUTES = {
         REPORT: `report`,
         BOOK_PAYMENT: `book-payment`,
         BANK_TRANSFER: `bank-transfer`,
-        PAYMENT_ADVICE: `payment-advice`,
       },
     },
     DSR: {
