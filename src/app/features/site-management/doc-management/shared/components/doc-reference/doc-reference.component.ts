@@ -1,5 +1,9 @@
-import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from '@angular/core';
 
 import {
   IDocReferenceHierarchyNode,
@@ -10,33 +14,28 @@ import { DOC_REFERENCE_KIND_LABELS } from '@features/site-management/doc-managem
 @Component({
   selector: 'app-doc-reference',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet],
+  imports: [],
   templateUrl: './doc-reference.component.html',
   styleUrl: './doc-reference.component.scss',
 })
 export class DocReferenceComponent {
-  /**
-   * Tree produced by `DocReferenceHierarchy` (canonical PO → … chain); callers
-   * pass only values/DTO extracts — ordering and tiers live in shared code.
-   */
   readonly root = input<IDocReferenceHierarchyNode | null>(null);
 
-  protected nodeTplContext(
-    node: IDocReferenceHierarchyNode,
-    isRoot: boolean
-  ): { node: IDocReferenceHierarchyNode; isRoot: boolean } {
-    return { node, isRoot };
-  }
+  /** Flatten the linked-list into a plain array for the horizontal chain. */
+  protected readonly flatNodes = computed<IDocReferenceHierarchyNode[]>(() => {
+    const result: IDocReferenceHierarchyNode[] = [];
+    let node: IDocReferenceHierarchyNode | null | undefined = this.root();
+    while (node) {
+      if (node.value?.trim()) {
+        result.push(node);
+      }
+      node = node.child ?? null;
+    }
+    return result;
+  });
 
   protected label(node: IDocReferenceHierarchyNode): string {
     return node.labelOverride ?? DOC_REFERENCE_KIND_LABELS[node.kind];
-  }
-
-  protected nextNode(
-    node: IDocReferenceHierarchyNode
-  ): IDocReferenceHierarchyNode | null {
-    const c = node.child;
-    return c?.value?.trim() ? c : null;
   }
 
   protected tone(kind: EDocReferenceHierarchyKind): string {
