@@ -1,3 +1,5 @@
+import { formatDate } from '@angular/common';
+import { APP_CONFIG } from '@core/config';
 import {
   type IDocReferenceHierarchyNode,
   EDocReferenceHierarchyKind,
@@ -127,5 +129,48 @@ export class DocReferenceHierarchy {
         value: context.invoiceNumber,
       },
     ]);
+  }
+
+  /**
+   * Bank transfer (list + detail doc-ref): **PO → JMC → Invoice** → optional **Book payment** only (no bank-transfer leaf).
+   *
+   * `bookPayment` is the **raw** datetime for that tier (e.g. bank transfer `record.createdAt`); pass `null` / omit for sales.
+   * It is formatted inside; unparseable / empty values omit the book-payment link.
+   */
+  static forBankTransferDetailReference(context: {
+    poNumber?: string | null;
+    jmcNumber?: string | null;
+    invoiceNumber?: string | null;
+    bookPayment?: string | Date | null;
+  }): IDocReferenceHierarchyNode | null {
+    const bookPaymentDisplay =
+      DocReferenceHierarchy.formatBankTransferBookPaymentTier(
+        context.bookPayment
+      );
+    return DocReferenceHierarchy.link([
+      { kind: EDocReferenceHierarchyKind.Po, value: context.poNumber },
+      { kind: EDocReferenceHierarchyKind.Jmc, value: context.jmcNumber },
+      {
+        kind: EDocReferenceHierarchyKind.Invoice,
+        value: context.invoiceNumber,
+      },
+      {
+        kind: EDocReferenceHierarchyKind.BookPayment,
+        value: bookPaymentDisplay,
+      },
+    ]);
+  }
+
+  private static formatBankTransferBookPaymentTier(
+    value?: string | Date | null
+  ): string | null {
+    if (value === undefined || value === null || String(value).length === 0) {
+      return null;
+    }
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return null;
+    }
+    return formatDate(parsed, APP_CONFIG.DATE_FORMATS.DEFAULT, 'en-IN');
   }
 }

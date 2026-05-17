@@ -22,3 +22,9 @@ export {
 } from './get-book-payment-detail.schema';
 
 export { DeleteBookPaymentResponseSchema } from './delete-book-payment.schema';
+
+export {
+  BookPaymentDropdownGetRequestSchema,
+  BookPaymentDropdownRecordSchema,
+  BookPaymentDropdownGetResponseSchema,
+} from './get-book-payment-dropdown.schema';

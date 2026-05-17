@@ -1,1 +1,34 @@
-<p>get-bank-transfer works!</p>
+<ng-template
+  #docWorkspaceContext
+  let-row
+>
+  <app-doc-workspace-context [view]="row.docWorkspaceContext" />
+</ng-template>
+
+<ng-template
+  #bankTransferDocumentReference
+  let-row
+>
+  <app-doc-reference [root]="row.documentReferenceHierarchy" />
+</ng-template>
+
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [bulkActionButtons]="table.bulkActions()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    docWorkspaceContext: docWorkspaceContext,
+    bankTransferDocumentReference: bankTransferDocumentReference,
+  }"
+  (rowActionClick)="handleTableActionClick($any($event))"
+  (filterData)="onTableStateChange($event)"
+/>

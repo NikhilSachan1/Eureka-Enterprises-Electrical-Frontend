@@ -10,6 +10,9 @@ import {
   BookPaymentGetRequestSchema,
   BookPaymentGetResponseSchema,
   DeleteBookPaymentResponseSchema,
+  BookPaymentDropdownGetRequestSchema,
+  BookPaymentDropdownGetResponseSchema,
+  BookPaymentDropdownRecordSchema,
 } from '../schemas';
 
 export type IBookPaymentGetBaseResponseDto = z.infer<
@@ -54,4 +57,14 @@ export type IEditBookPaymentResponseDto = z.infer<
 
 export type IDeleteBookPaymentResponseDto = z.infer<
   typeof DeleteBookPaymentResponseSchema
+>;
+
+export type IBookPaymentDropdownRecordDto = z.infer<
+  typeof BookPaymentDropdownRecordSchema
+>;
+export type IBookPaymentDropdownGetRequestDto = z.input<
+  typeof BookPaymentDropdownGetRequestSchema
+>;
+export type IBookPaymentDropdownGetResponseDto = z.infer<
+  typeof BookPaymentDropdownGetResponseSchema
 >;

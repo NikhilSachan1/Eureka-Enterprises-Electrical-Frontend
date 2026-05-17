@@ -1,3 +1,4 @@
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { FilterSchema, onlyDateStringField, uuidField } from '@shared/schemas';
 import z from 'zod';
 
@@ -8,6 +9,7 @@ export const BookPaymentGetRequestSchema = z
     projectName: uuidField.nullable().optional(),
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
+    docType: z.enum(EDocContext).optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -15,12 +17,15 @@ export const BookPaymentGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ projectName, contractorName, vendorName, ...rest }) => ({
-    ...rest,
-    siteId: projectName,
-    contractorId: contractorName,
-    vendorId: vendorName,
-  }));
+  .transform(
+    ({ projectName, contractorName, vendorName, docType, ...rest }) => ({
+      ...rest,
+      siteId: projectName,
+      contractorId: contractorName,
+      vendorId: vendorName,
+      partyType: docType,
+    })
+  );
 
 export const BookPaymentGetBaseResponseSchema = z.looseObject({
   id: uuidField,

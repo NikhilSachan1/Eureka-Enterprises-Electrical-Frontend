@@ -1,1 +1,21 @@
-<p>get-bank-transfer-detail works!</p>
+<ng-template
+  #docWorkspaceContextDetail
+  let-entry
+>
+  <app-doc-workspace-context [view]="$any(entry.value)" />
+</ng-template>
+
+<ng-template
+  #documentReferenceHierarchy
+  let-entry
+>
+  <app-doc-reference [root]="$any(entry.value)" />
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_details()"
+  [customTemplates]="{
+    docWorkspaceContextDetail: docWorkspaceContextDetail,
+    documentReferenceHierarchy: documentReferenceHierarchy,
+  }"
+/>

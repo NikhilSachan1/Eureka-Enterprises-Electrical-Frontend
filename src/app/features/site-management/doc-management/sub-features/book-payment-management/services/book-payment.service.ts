@@ -11,6 +11,8 @@ import {
   DeleteBookPaymentResponseSchema,
   EditBookPaymentRequestSchema,
   EditBookPaymentResponseSchema,
+  BookPaymentDropdownGetRequestSchema,
+  BookPaymentDropdownGetResponseSchema,
 } from '../schemas';
 import {
   IAddBookPaymentFormDto,
@@ -21,6 +23,8 @@ import {
   IDeleteBookPaymentResponseDto,
   IEditBookPaymentFormDto,
   IEditBookPaymentResponseDto,
+  IBookPaymentDropdownGetRequestDto,
+  IBookPaymentDropdownGetResponseDto,
 } from '../types/book-payment.dto';
 
 @Injectable({
@@ -183,6 +187,41 @@ export class BookPaymentService {
             );
           } else {
             this.logger.logUserAction('Get Book Payment Detail Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getBookPaymentDropdown(
+    params: IBookPaymentDropdownGetRequestDto
+  ): Observable<IBookPaymentDropdownGetResponseDto> {
+    this.logger.logUserAction('Get Book Payment Dropdown Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.DOCUMENT.BOOK_PAYMENT.DROPDOWN,
+        {
+          response: BookPaymentDropdownGetResponseSchema,
+          request: BookPaymentDropdownGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IBookPaymentDropdownGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Book Payment Dropdown Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Book Payment Dropdown Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Book Payment Dropdown Error', error);
           }
           return throwError(() => error);
         })
