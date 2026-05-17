@@ -192,6 +192,7 @@
   @case (ALL_DATA_TYPES.AUTOCOMPLETE) {
     <p-floatlabel [variant]="config.floatLabelVariant">
       @let autocompleteConfig = config.autocompleteConfig;
+      @let isMultiple = autocompleteConfig?.multiple ?? false;
       <p-autocomplete
         [inputId]="config.id"
         [fluid]="config.haveFullWidth"
@@ -200,16 +201,22 @@
         [suggestions]="autocompleteSuggestions()"
         (completeMethod)="onAutocompleteComplete($event)"
         (onSelect)="onAutocompleteSelect($event)"
-        [optionLabel]="autocompleteConfig?.optionLabel ?? 'label'"
-        [optionValue]="autocompleteConfig?.optionValue ?? 'value'"
+        [optionLabel]="isMultiple ? '' : (autocompleteConfig?.optionLabel ?? 'label')"
+        [optionValue]="isMultiple ? '' : (autocompleteConfig?.optionValue ?? 'value')"
         [forceSelection]="autocompleteConfig?.forceSelection ?? false"
         [showClear]="autocompleteConfig?.showClearButton ?? true"
         [appendTo]="'body'"
         [disabled]="config.disabledInput || false"
+        [multiple]="isMultiple"
+        [addOnBlur]="autocompleteConfig?.addOnBlur ?? false"
+        [addOnTab]="autocompleteConfig?.addOnTab ?? false"
+        [separator]="autocompleteConfig?.separator ?? ''"
+        [typeahead]="!isMultiple"
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
         [class]="invalidClass"
-        (onChange)="onValueChange($event)"
+        (ngModelChange)="isMultiple ? onChipValuesChange($event) : null"
+        (onChange)="!isMultiple && onValueChange($event)"
         (onBlur)="onAutocompleteBlur($event)"
       />
       @if (!showStandardLabel) {

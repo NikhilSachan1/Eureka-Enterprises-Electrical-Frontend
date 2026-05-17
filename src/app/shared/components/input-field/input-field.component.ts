@@ -885,7 +885,8 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     const config = this.inputFieldConfig();
     if (
       config.fieldType !== EDataType.AUTOCOMPLETE ||
-      config.autocompleteConfig?.forceSelection
+      config.autocompleteConfig?.forceSelection ||
+      config.autocompleteConfig?.multiple
     ) {
       return;
     }
@@ -899,6 +900,28 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       }
     } else {
       this.onValueChange(typedValue);
+    }
+  }
+
+  onChipValuesChange(chips: unknown[]): void {
+    const config = this.inputFieldConfig();
+    if (!config.autocompleteConfig?.multiple) {
+      return;
+    }
+    const values = Array.isArray(chips) ? chips : [];
+    if (this.isFormMode()) {
+      const control = this.formGroup()?.get(config.fieldName);
+      if (control) {
+        control.setValue(values);
+        control.markAsDirty();
+        control.markAsTouched();
+        control.updateValueAndValidity();
+        this.formControlValue.set(values);
+        this.validationTrigger.update(v => v + 1);
+        this.onFieldChange.emit(true);
+      }
+    } else {
+      this.onValueChange(values);
     }
   }
 

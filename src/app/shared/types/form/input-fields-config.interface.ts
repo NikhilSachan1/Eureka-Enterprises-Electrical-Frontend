@@ -126,6 +126,10 @@ export interface IAutocompleteFieldConfig {
   filterBy: string;
   showClearButton: boolean;
   forceSelection?: boolean;
+  multiple?: boolean;
+  addOnBlur?: boolean;
+  addOnTab?: boolean;
+  separator?: string;
   dynamicDropdown?: {
     moduleName: string;
     dropdownName: string;
