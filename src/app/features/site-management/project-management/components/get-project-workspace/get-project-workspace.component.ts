@@ -25,6 +25,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG } from '../../config';
 import { IProjectWorkspaceSearchFilterFormDto } from '../../types/project.interface';
 import { ProjectWorkspaceContextService } from '../../services/project-workspace-context.service';
+import { ProjectWorkspaceInfoCardComponent } from '../project-workspace-info-card/project-workspace-info-card.component';
 
 @Component({
   selector: 'app-get-project-workspace',
@@ -34,6 +35,7 @@ import { ProjectWorkspaceContextService } from '../../services/project-workspace
     GetProjectTimelineComponent,
     PageHeaderComponent,
     SearchFilterComponent,
+    ProjectWorkspaceInfoCardComponent,
   ],
   templateUrl: './get-project-workspace.component.html',
   styleUrl: './get-project-workspace.component.scss',

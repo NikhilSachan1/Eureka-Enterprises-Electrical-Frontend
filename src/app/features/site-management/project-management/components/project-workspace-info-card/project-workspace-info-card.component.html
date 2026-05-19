@@ -1,0 +1,87 @@
+@if (isLoading()) {
+  <div class="info-card info-card--loading">
+    <div class="info-card__skeleton">
+      <div class="skeleton-bar skeleton-bar--wide"></div>
+      <div class="skeleton-bar skeleton-bar--medium"></div>
+    </div>
+  </div>
+}
+
+@if (!isLoading() && projectDetail(); as project) {
+  <div class="info-card">
+    <!-- Project name + status -->
+    <div class="info-card__header">
+      <div class="info-card__title-group">
+        <i class="pi pi-building text-primary-500 text-sm"></i>
+        <span class="info-card__title">{{ project.name }}</span>
+      </div>
+      <span
+        class="info-card__status-badge"
+        [class]="'info-card__status-badge--' + project.status.toLowerCase()"
+      >
+        {{ project.status }}
+      </span>
+    </div>
+
+    <!-- Detail grid -->
+    <div class="info-card__grid">
+      @if (project.company) {
+        <div class="info-card__item">
+          <i class="pi pi-briefcase info-card__icon"></i>
+          <div>
+            <span class="info-card__label">Company</span>
+            <span class="info-card__value">{{ project.company.name }}</span>
+          </div>
+        </div>
+      }
+
+      <div class="info-card__item">
+        <i class="pi pi-user info-card__icon"></i>
+        <div>
+          <span class="info-card__label">Site Manager</span>
+          <span class="info-card__value">{{ project.managerName }}</span>
+        </div>
+      </div>
+
+      @if (project.siteContractors?.length) {
+        <div class="info-card__item">
+          <i class="pi pi-users info-card__icon"></i>
+          <div>
+            <span class="info-card__label">Contractors</span>
+            <span class="info-card__value">{{ contractors }}</span>
+          </div>
+        </div>
+      }
+
+      <div class="info-card__item">
+        <i class="pi pi-calendar info-card__icon"></i>
+        <div>
+          <span class="info-card__label">Timeline</span>
+          <span class="info-card__value">
+            {{ project.startDate | date: dateFormat }}
+            &nbsp;→&nbsp;
+            {{ project.endDate | date: dateFormat }}
+          </span>
+        </div>
+      </div>
+
+      <div class="info-card__item">
+        <i class="pi pi-map-marker info-card__icon"></i>
+        <div>
+          <span class="info-card__label">Location</span>
+          <span class="info-card__value">{{ project.city }}, {{ project.state }}</span>
+        </div>
+      </div>
+
+      @if (project.estimatedBudget) {
+        <div class="info-card__item">
+          <i class="pi pi-wallet info-card__icon"></i>
+          <div>
+            <span class="info-card__label">Est. Budget</span>
+            <span class="info-card__value">₹{{ project.estimatedBudget | number: '1.0-0' }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

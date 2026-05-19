@@ -1,0 +1,132 @@
+.info-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 0.75rem;
+
+  &--loading {
+    padding: 0.875rem 1.25rem;
+  }
+
+  &__skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.625rem;
+  }
+
+  &__title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__status-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    background: var(--surface-100);
+    color: var(--text-color-secondary);
+
+    &--ongoing {
+      background: #dcfce7;
+      color: #166534;
+    }
+    &--upcoming {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    &--completed {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    &--hold {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+    &--inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+  }
+
+  &__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    min-width: 140px;
+  }
+
+  &__icon {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    margin-top: 0.15rem;
+  }
+
+  &__label {
+    display: block;
+    font-size: 0.6875rem;
+    color: var(--text-color-secondary);
+    line-height: 1.2;
+  }
+
+  &__value {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-color);
+    line-height: 1.3;
+  }
+}
+
+.skeleton-bar {
+  height: 0.875rem;
+  border-radius: 0.25rem;
+  background: var(--surface-200);
+  animation: pulse 1.4s ease-in-out infinite;
+
+  &--wide {
+    width: 60%;
+  }
+  &--medium {
+    width: 40%;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
