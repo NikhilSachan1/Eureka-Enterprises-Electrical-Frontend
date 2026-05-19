@@ -302,6 +302,7 @@ export class GetBankTransferComponent implements OnInit {
         label: 'Amount',
         value: row.transferAmount,
         type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
     ];
     return {
