@@ -11,5 +11,7 @@ export interface IBankTransfer
   docWorkspaceContext: IDocWorkspaceContextView;
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   transferProofAttachmentKeys: string[];
+  paymentAdviceReferenceNumber: string | null;
+  paymentAdvicePdfKeys: string[];
   originalRawData: IBankTransferGetBaseResponseDto;
 }

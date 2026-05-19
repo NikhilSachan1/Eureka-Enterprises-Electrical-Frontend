@@ -11,6 +11,8 @@ import {
   DeleteBankTransferResponseSchema,
   EditBankTransferRequestSchema,
   EditBankTransferResponseSchema,
+  SendEmailBankTransferRequestSchema,
+  SendEmailBankTransferResponseSchema,
 } from '../schemas';
 import {
   IAddBankTransferFormDto,
@@ -21,6 +23,8 @@ import {
   IDeleteBankTransferResponseDto,
   IEditBankTransferFormDto,
   IEditBankTransferResponseDto,
+  ISendEmailBankTransferFormDto,
+  ISendEmailBankTransferResponseDto,
 } from '../types/bank-transfer.dto';
 
 @Injectable({
@@ -156,6 +160,44 @@ export class BankTransferService {
             );
           } else {
             this.logger.logUserAction('Get Bank Transfer List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  sendPaymentAdviceEmail(
+    paymentAdviceId: string,
+    formData: ISendEmailBankTransferFormDto
+  ): Observable<ISendEmailBankTransferResponseDto> {
+    this.logger.logUserAction('Send Payment Advice Email Request', {
+      paymentAdviceId,
+    });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.PAYMENT_ADVICE.EMAIL(paymentAdviceId),
+        {
+          response: SendEmailBankTransferResponseSchema,
+          request: SendEmailBankTransferRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: ISendEmailBankTransferResponseDto) => {
+          this.logger.logUserAction(
+            'Send Payment Advice Email Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Send Payment Advice Email Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Send Payment Advice Email Error', error);
           }
           return throwError(() => error);
         })

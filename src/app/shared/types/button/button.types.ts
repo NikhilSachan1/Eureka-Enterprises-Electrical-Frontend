@@ -84,4 +84,5 @@ export enum EButtonActionType {
   UNLOCK_REQUEST = 'unlockRequest',
   UNLOCK_GRANT = 'unlockGrant',
   UNLOCK_REQUEST_REJECT = 'unlockRequestReject',
+  SEND_EMAIL = 'sendEmail',
 }

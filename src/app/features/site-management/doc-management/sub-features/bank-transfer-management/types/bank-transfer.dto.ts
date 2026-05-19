@@ -10,6 +10,8 @@ import {
   DeleteBankTransferResponseSchema,
   EditBankTransferRequestSchema,
   EditBankTransferResponseSchema,
+  SendEmailBankTransferRequestSchema,
+  SendEmailBankTransferResponseSchema,
 } from '../schemas';
 
 export type IBankTransferGetBaseResponseDto = z.infer<
@@ -69,3 +71,22 @@ export type IEditBankTransferResponseDto = z.infer<
 export type IDeleteBankTransferResponseDto = z.infer<
   typeof DeleteBankTransferResponseSchema
 >;
+
+export type ISendEmailBankTransferFormDto = z.input<
+  typeof SendEmailBankTransferRequestSchema
+>;
+export type ISendEmailBankTransferUIFormDto = Omit<
+  ISendEmailBankTransferFormDto,
+  'attachmentKeys'
+>;
+export type ISendEmailBankTransferResponseDto = z.infer<
+  typeof SendEmailBankTransferResponseSchema
+>;
+
+/** Minimal record shape needed by the send-email dialog (from bank transfer list row). */
+export interface ISendEmailPaymentAdviceRecordDto {
+  id: string;
+  referenceNumber: string;
+  pdfKey: string | null;
+  vendor: { email?: string | null };
+}

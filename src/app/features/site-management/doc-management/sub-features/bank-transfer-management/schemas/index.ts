@@ -25,3 +25,8 @@ export {
 } from './get-bank-transfer-detail.schema';
 
 export { DeleteBankTransferResponseSchema } from './delete-bank-transfer.schema';
+
+export {
+  SendEmailBankTransferRequestSchema,
+  SendEmailBankTransferResponseSchema,
+} from './send-email-bank-transfer.schema';

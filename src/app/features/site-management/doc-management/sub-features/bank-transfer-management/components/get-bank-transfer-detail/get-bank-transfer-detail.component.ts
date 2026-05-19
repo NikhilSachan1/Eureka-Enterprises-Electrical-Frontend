@@ -135,6 +135,15 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
         value: proofAttachmentKeysForBankTransferDetail(record),
         type: EDataType.ATTACHMENTS,
       },
+      {
+        label: 'Payment Advice',
+        value: record.paymentAdvice.referenceNumber,
+      },
+      {
+        label: 'PA Attachment',
+        value: record.paymentAdvice.pdfKey ? [record.paymentAdvice.pdfKey] : [],
+        type: EDataType.ATTACHMENTS,
+      },
     ];
 
     const detail: IDataViewDetails = {

@@ -1,5 +1,6 @@
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
+  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -54,6 +55,18 @@ export const BANK_TRANSFER_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>
       bodyTemplate: EDataType.ATTACHMENTS,
       showSort: false,
     },
+    {
+      field: 'paymentAdviceReferenceNumber',
+      header: 'Payment Advice',
+      bodyTemplate: EDataType.TEXT,
+      showSort: false,
+    },
+    {
+      field: 'paymentAdvicePdfKeys',
+      header: 'PA Attachment',
+      bodyTemplate: EDataType.ATTACHMENTS,
+      showSort: false,
+    },
   ];
 
 const BANK_TRANSFER_TABLE_ROW_ACTIONS_CONFIG: Partial<
@@ -70,6 +83,10 @@ const BANK_TRANSFER_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete bank transfer',
+  },
+  {
+    id: EButtonActionType.SEND_EMAIL,
+    tooltip: 'Mail Payment Advice',
   },
 ];
 

@@ -40,6 +40,7 @@ import {
   IAddBankTransferResponseDto,
   IAddBankTransferUIFormDto,
 } from '../../types/bank-transfer.dto';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-add-bank-transfer',
@@ -69,6 +70,9 @@ export class AddBankTransferComponent
   protected readonly docContext = input.required<EDocContext>();
 
   protected transferAmount: number | null = null;
+  private bookPaymentOptions: IOptionDropdown<{
+    paymentTotalAmount: number;
+  }>[] = [];
 
   constructor() {
     super();
@@ -97,6 +101,26 @@ export class AddBankTransferComponent
         );
       }
     });
+
+    effect(() => {
+      if (
+        this.trackedBankTransferInputs &&
+        this.trackedBankTransferInputs.bookPaymentNumber
+      ) {
+        const selectedId = this.trackedBankTransferInputs.bookPaymentNumber();
+        if (typeof selectedId === 'string' && selectedId.length > 0) {
+          const matched = getMappedValueFromArrayOfObjects(
+            this.bookPaymentOptions,
+            selectedId,
+            'value',
+            'data'
+          ) as { paymentTotalAmount: number } | undefined;
+          this.transferAmount = matched?.paymentTotalAmount ?? null;
+        } else {
+          this.transferAmount = null;
+        }
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -116,6 +140,7 @@ export class AddBankTransferComponent
     const trackedFields: (keyof IAddBankTransferUIFormDto)[] = [
       'projectName',
       'invoiceNumber',
+      'bookPaymentNumber',
     ];
 
     this.trackedBankTransferInputs =
@@ -150,11 +175,12 @@ export class AddBankTransferComponent
   }
 
   private loadBookPaymentOptions(invoiceId: string | null | undefined): void {
+    this.bookPaymentOptions = [];
+    this.transferAmount = null;
     if (!invoiceId || typeof invoiceId !== 'string') {
       this.applySelectOptions('bookPaymentNumber', [], false);
       return;
     }
-
     this.applySelectOptions('bookPaymentNumber', [], true);
 
     this.bookPaymentService
@@ -165,9 +191,8 @@ export class AddBankTransferComponent
       .subscribe({
         next: response => {
           const opts = this.mapBookPaymentRecordToOption(response.records);
+          this.bookPaymentOptions = opts;
           this.applySelectOptions('bookPaymentNumber', opts, false);
-          this.transferAmount =
-            response.records[0].meta?.paymentTotalAmount ?? null;
         },
         error: error => {
           this.logger.error('Failed to load book payment dropdown', error);
@@ -201,12 +226,13 @@ export class AddBankTransferComponent
 
   private mapBookPaymentRecordToOption(
     records: IBookPaymentDropdownRecordDto[]
-  ): IOptionDropdown[] {
+  ): IOptionDropdown<{ paymentTotalAmount: number }>[] {
     return records.map(record => ({
       label: record.label,
       value: record.id,
       disabled: !record.eligible,
       disabledReason: record.reason ?? undefined,
+      data: { paymentTotalAmount: record.meta.paymentTotalAmount },
     }));
   }
 

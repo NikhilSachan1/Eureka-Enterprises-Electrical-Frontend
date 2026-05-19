@@ -230,6 +230,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   delete: { icon: ICONS.ACTIONS.TRASH, severity: 'danger' },
   deallocate: { icon: ICONS.ACTIONS.TRASH, severity: 'danger' },
   sendpasswordlink: { icon: ICONS.ACTIONS.SEND, severity: 'warning' },
+  sendemail: { icon: ICONS.COMMON.EMAIL, severity: 'info' },
   changestatus: { icon: ICONS.COMMON.SYNC, severity: 'warning' },
   changeuserrole: { icon: ICONS.COMMON.SYNC, severity: 'warning' },
   eventhistory: { icon: ICONS.COMMON.LIST, severity: 'info' },

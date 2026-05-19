@@ -38,7 +38,7 @@ export const BankTransferGetBaseResponseSchema = z.looseObject({
       name: z.string(),
     }),
   }),
-  vendor: z.looseObject({ name: z.string() }).nullable(),
+  vendor: z.looseObject({ name: z.string(), email: z.string() }).nullable(),
   contractor: z.looseObject({ name: z.string() }).nullable(),
   invoice: z
     .looseObject({
@@ -72,6 +72,11 @@ export const BankTransferGetBaseResponseSchema = z.looseObject({
         .nullable(),
     })
     .nullable(),
+  paymentAdvice: z.looseObject({
+    id: uuidField,
+    referenceNumber: z.string(),
+    pdfKey: z.string().nullable(),
+  }),
 });
 
 export const BankTransferGetResponseSchema = z.looseObject({

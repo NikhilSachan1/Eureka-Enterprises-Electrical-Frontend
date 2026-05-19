@@ -184,6 +184,10 @@ export class GetBankTransferComponent implements OnInit {
                 : null,
           }),
         transferProofAttachmentKeys: this.proofKeysForBankTransferRow(record),
+        paymentAdviceReferenceNumber: record.paymentAdvice.referenceNumber,
+        paymentAdvicePdfKeys: record.paymentAdvice.pdfKey
+          ? [record.paymentAdvice.pdfKey]
+          : [],
         originalRawData: record,
       };
     });
@@ -245,9 +249,23 @@ export class GetBankTransferComponent implements OnInit {
       return;
     }
 
+    const selectedRecord =
+      actionType === EButtonActionType.SEND_EMAIL && raw.paymentAdvice
+        ? [
+            {
+              id: raw.paymentAdvice.id,
+              referenceNumber: raw.paymentAdvice.referenceNumber,
+              pdfKey: raw.paymentAdvice.pdfKey,
+              vendor: { email: raw.vendor?.email ?? null },
+            },
+          ]
+        : [raw];
+
     const dynamicComponentInputs: Record<string, unknown> = {
-      selectedRecord: [raw],
-      docContext: this.docRouteContext(),
+      selectedRecord,
+      ...(actionType === EButtonActionType.EDIT
+        ? { docContext: this.docRouteContext() }
+        : {}),
       onSuccess: () => this.loadBankTransferList(),
     };
 

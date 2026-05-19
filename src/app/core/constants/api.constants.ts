@@ -285,6 +285,9 @@ export const API_ROUTES = {
         GET_BY_ID: (id: string) => `bank-transfers/${id}`,
         DELETE: (id: string) => `bank-transfers/${id}`,
       },
+      PAYMENT_ADVICE: {
+        EMAIL: (id: string) => `payment-advices/${id}/email`,
+      },
     },
   },
   ANNOUNCEMENT: {

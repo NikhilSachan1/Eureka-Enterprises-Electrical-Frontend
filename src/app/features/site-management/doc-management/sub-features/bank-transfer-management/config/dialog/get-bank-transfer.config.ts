@@ -3,6 +3,7 @@ import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
 import { AddBankTransferComponent } from '../../components/add-bank-transfer/add-bank-transfer.component';
 import { EditBankTransferComponent } from '../../components/edit-bank-transfer/edit-bank-transfer.component';
 import { DeleteBankTransferComponent } from '../../components/delete-bank-transfer/delete-bank-transfer.component';
+import { SendEmailPaymentAdviceComponent } from '../../components/send-email-payment-advice/send-email-payment-advice.component';
 
 export const BANK_TRANSFER_ACTION_CONFIG_MAP: Record<
   string,
@@ -28,5 +29,13 @@ export const BANK_TRANSFER_ACTION_CONFIG_MAP: Record<
   [EButtonActionType.DELETE]: {
     dialogConfig: DELETE_CONFIRMATION_DIALOG_CONFIG,
     dynamicComponent: DeleteBankTransferComponent,
+  },
+
+  [EButtonActionType.SEND_EMAIL]: {
+    dialogConfig: {
+      header: 'Send Payment Advice',
+      message: 'Send payment advice email.',
+    },
+    dynamicComponent: SendEmailPaymentAdviceComponent,
   },
 };
