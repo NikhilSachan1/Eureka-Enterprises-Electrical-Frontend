@@ -30,7 +30,7 @@ import {
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   BANK_TRANSFER_ACTION_CONFIG_MAP,
-  BANK_TRANSFER_TABLE_ENHANCED_CONFIG,
+  getBankTransferTableConfig,
 } from '../../config';
 import {
   IBankTransferGetBaseResponseDto,
@@ -108,7 +108,7 @@ export class GetBankTransferComponent implements OnInit {
     ] as EDocContext;
     this.docRouteContext.set(docContext);
     this.table = this.dataTableService.createTable(
-      BANK_TRANSFER_TABLE_ENHANCED_CONFIG
+      getBankTransferTableConfig(docContext)
     );
   }
 
