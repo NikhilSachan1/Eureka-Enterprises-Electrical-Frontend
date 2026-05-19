@@ -72,11 +72,13 @@ export const BankTransferGetBaseResponseSchema = z.looseObject({
         .nullable(),
     })
     .nullable(),
-  paymentAdvice: z.looseObject({
-    id: uuidField,
-    referenceNumber: z.string(),
-    pdfKey: z.string().nullable(),
-  }),
+  paymentAdvice: z
+    .looseObject({
+      id: uuidField,
+      referenceNumber: z.string(),
+      pdfKey: z.string().nullable(),
+    })
+    .nullable(),
 });
 
 export const BankTransferGetResponseSchema = z.looseObject({

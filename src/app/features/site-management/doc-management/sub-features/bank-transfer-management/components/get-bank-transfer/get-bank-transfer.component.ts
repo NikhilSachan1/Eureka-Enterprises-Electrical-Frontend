@@ -184,8 +184,9 @@ export class GetBankTransferComponent implements OnInit {
                 : null,
           }),
         transferProofAttachmentKeys: this.proofKeysForBankTransferRow(record),
-        paymentAdviceReferenceNumber: record.paymentAdvice.referenceNumber,
-        paymentAdvicePdfKeys: record.paymentAdvice.pdfKey
+        paymentAdviceReferenceNumber:
+          record.paymentAdvice?.referenceNumber ?? null,
+        paymentAdvicePdfKeys: record.paymentAdvice?.pdfKey
           ? [record.paymentAdvice.pdfKey]
           : [],
         originalRawData: record,
