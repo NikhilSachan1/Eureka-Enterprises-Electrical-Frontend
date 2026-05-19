@@ -39,7 +39,7 @@ import {
 } from '../../types/book-payment.dto';
 import { IBookPayment } from '../../types/book-payment.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { BookPaymentService } from '../../services/book-payment.service';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -85,6 +85,7 @@ export class GetBookPaymentComponent implements OnInit {
   );
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(() =>
     this.getPageHeaderConfig()
@@ -104,6 +105,7 @@ export class GetBookPaymentComponent implements OnInit {
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
+  private readonly loadTrigger$ = new Subject<void>();
 
   ngOnInit(): void {
     const docContext = this.route.parent?.snapshot.data[
@@ -113,6 +115,35 @@ export class GetBookPaymentComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       BOOK_PAYMENT_TABLE_ENHANCED_CONFIG
     );
+
+    this.loadTrigger$
+      .pipe(
+        switchMap(() => {
+          this.table.setLoading(true);
+          return this.bookPaymentService
+            .getBookPaymentList(this.prepareParamData())
+            .pipe(
+              finalize(() => this.table.setLoading(false)),
+              catchError(error => {
+                this.table.setData([]);
+                this.logger.logUserAction(
+                  'Failed to load book payments',
+                  error
+                );
+                return EMPTY;
+              })
+            );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IBookPaymentGetResponseDto) => {
+          const { records, totalRecords } = response;
+          this.table.setData(this.mapTableData(records));
+          this.table.updateTableConfig({ totalRecords });
+          this.logger.logUserAction('Book payments loaded');
+        },
+      });
   }
 
   protected docBookPaymentAmountSegments(
@@ -145,27 +176,7 @@ export class GetBookPaymentComponent implements OnInit {
   }
 
   private loadBookPaymentList(): void {
-    this.table.setLoading(true);
-    const paramData = this.prepareParamData();
-
-    this.bookPaymentService
-      .getBookPaymentList(paramData)
-      .pipe(
-        finalize(() => this.table.setLoading(false)),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response: IBookPaymentGetResponseDto) => {
-          const { records, totalRecords } = response;
-          this.table.setData(this.mapTableData(records));
-          this.table.updateTableConfig({ totalRecords });
-          this.logger.logUserAction('Book payments loaded');
-        },
-        error: error => {
-          this.table.setData([]);
-          this.logger.logUserAction('Failed to load book payments', error);
-        },
-      });
+    this.loadTrigger$.next();
   }
 
   private prepareParamData(): IBookPaymentGetFormDto {
@@ -180,7 +191,13 @@ export class GetBookPaymentComponent implements OnInit {
     return {
       ...workspaceParams,
       ...base,
+      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
+  }
+
+  protected onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    this.loadBookPaymentList();
   }
 
   private mapTableData(
@@ -332,6 +349,8 @@ export class GetBookPaymentComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showSearch: true,
+      searchPlaceholder: 'Search by Book Payment Number',
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,

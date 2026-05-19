@@ -41,7 +41,7 @@ import {
   IInvoiceGetResponseDto,
 } from '../../types/invoice.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { InvoiceService } from '../../services/invoice.service';
 import { IInvoice } from '../../types/invoice.interface';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
@@ -93,6 +93,7 @@ export class GetInvoiceComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -112,6 +113,7 @@ export class GetInvoiceComponent implements OnInit {
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
+  private readonly loadTrigger$ = new Subject<void>();
 
   ngOnInit(): void {
     const docContext = this.route.parent?.snapshot.data[
@@ -121,6 +123,35 @@ export class GetInvoiceComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       INVOICE_TABLE_ENHANCED_CONFIG
     );
+
+    this.loadTrigger$
+      .pipe(
+        switchMap(() => {
+          this.table.setLoading(true);
+          return this.invoiceService
+            .getInvoiceList(this.prepareParamData())
+            .pipe(
+              finalize(() => this.table.setLoading(false)),
+              catchError(error => {
+                this.table.setData([]);
+                this.logger.logUserAction(
+                  'Failed to load invoice records',
+                  error
+                );
+                return EMPTY;
+              })
+            );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IInvoiceGetResponseDto) => {
+          const { records, totalRecords } = response;
+          this.table.setData(this.mapTableData(records));
+          this.table.updateTableConfig({ totalRecords });
+          this.logger.logUserAction('Invoice records loaded successfully');
+        },
+      });
   }
 
   protected docInvoiceTaxGstSegments(row: IInvoice): IDocAmountSegment[] {
@@ -160,33 +191,7 @@ export class GetInvoiceComponent implements OnInit {
   }
 
   private loadInvoiceList(): void {
-    this.table.setLoading(true);
-
-    const paramData = this.prepareParamData();
-
-    this.invoiceService
-      .getInvoiceList(paramData)
-      .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response: IInvoiceGetResponseDto) => {
-          const { records, totalRecords } = response;
-
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
-          this.table.updateTableConfig({ totalRecords });
-
-          this.logger.logUserAction('Invoice records loaded successfully');
-        },
-        error: error => {
-          this.table.setData([]);
-          this.logger.logUserAction('Failed to load invoice records', error);
-        },
-      });
+    this.loadTrigger$.next();
   }
 
   private prepareParamData(): IInvoiceGetFormDto {
@@ -204,7 +209,13 @@ export class GetInvoiceComponent implements OnInit {
       ...workspaceParams,
       ...base,
       ...(docType ? { docType } : {}),
+      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
+  }
+
+  protected onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    this.loadInvoiceList();
   }
 
   private mapTableData(response: IInvoiceGetBaseResponseDto[]): IInvoice[] {
@@ -360,6 +371,8 @@ export class GetInvoiceComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showSearch: true,
+      searchPlaceholder: 'Search by Invoice Number',
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,

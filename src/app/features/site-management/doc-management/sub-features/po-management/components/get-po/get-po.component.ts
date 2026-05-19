@@ -38,7 +38,7 @@ import {
   IPoGetResponseDto,
 } from '../../types/po.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { PoService } from '../../services/po.service';
 import { IPo } from '../../types/po.interface';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
@@ -86,6 +86,7 @@ export class GetPoComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -105,6 +106,7 @@ export class GetPoComponent implements OnInit {
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
+  private readonly loadTrigger$ = new Subject<void>();
 
   ngOnInit(): void {
     const docContext = this.route.parent?.snapshot.data[
@@ -112,6 +114,30 @@ export class GetPoComponent implements OnInit {
     ] as EDocContext;
     this.docRouteContext.set(docContext);
     this.table = this.dataTableService.createTable(PO_TABLE_ENHANCED_CONFIG);
+
+    this.loadTrigger$
+      .pipe(
+        switchMap(() => {
+          this.table.setLoading(true);
+          return this.poService.getPoList(this.prepareParamData()).pipe(
+            finalize(() => this.table.setLoading(false)),
+            catchError(error => {
+              this.table.setData([]);
+              this.logger.logUserAction('Failed to load PO records', error);
+              return EMPTY;
+            })
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IPoGetResponseDto) => {
+          const { records, totalRecords } = response;
+          this.table.setData(this.mapTableData(records));
+          this.table.updateTableConfig({ totalRecords });
+          this.logger.logUserAction('PO records loaded successfully');
+        },
+      });
   }
 
   protected docPoTaxGstSegments(row: IPo): IDocAmountSegment[] {
@@ -166,33 +192,7 @@ export class GetPoComponent implements OnInit {
   }
 
   private loadPoList(): void {
-    this.table.setLoading(true);
-
-    const paramData = this.prepareParamData();
-
-    this.poService
-      .getPoList(paramData)
-      .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response: IPoGetResponseDto) => {
-          const { records, totalRecords } = response;
-
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
-          this.table.updateTableConfig({ totalRecords });
-
-          this.logger.logUserAction('PO records loaded successfully');
-        },
-        error: error => {
-          this.table.setData([]);
-          this.logger.logUserAction('Failed to load PO records', error);
-        },
-      });
+    this.loadTrigger$.next();
   }
 
   private prepareParamData(): IPoGetFormDto {
@@ -210,7 +210,13 @@ export class GetPoComponent implements OnInit {
       ...workspaceParams,
       ...base,
       ...(docType ? { docType } : {}),
+      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
+  }
+
+  protected onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    this.loadPoList();
   }
 
   private mapTableData(response: IPoGetBaseResponseDto[]): IPo[] {
@@ -382,6 +388,8 @@ export class GetPoComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showSearch: true,
+      searchPlaceholder: 'Search by PO Number',
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,

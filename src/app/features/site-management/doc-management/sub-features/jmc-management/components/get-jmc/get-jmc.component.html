@@ -27,6 +27,7 @@
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
   (headerButtonClick)="onHeaderButtonClick($event)"
+  (onSearch)="onSearchChange($event)"
 />
 
 <app-data-table

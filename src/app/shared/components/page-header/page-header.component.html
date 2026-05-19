@@ -1,30 +1,58 @@
 @let finalPageHeader = finalPageHeaderConfig();
 
-<div class="page-header-root relative mb-6 w-full max-w-full px-4 py-5 sm:px-6 overflow-hidden">
+<div
+  class="page-header-root relative mb-6 w-full max-w-full overflow-hidden"
+  [ngClass]="
+    finalPageHeader.showSearch && !finalPageHeader.title && !finalPageHeader.showGoBackButton
+      ? 'px-0 py-2'
+      : 'px-4 py-5 sm:px-6'
+  "
+>
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-40"></div>
 
   <div class="relative flex items-center justify-between gap-4 flex-wrap">
     <!-- Left Section -->
-    <div class="flex items-center gap-3.5 min-w-0">
-      @if (finalPageHeader.showGoBackButton) {
-        <app-button
-          [buttonConfig]="goBackButtonConfig()"
-          (onButtonClick)="onGoBackClick()"
-        />
-      }
+    @if (finalPageHeader.showGoBackButton || finalPageHeader.title) {
+      <div class="flex items-center gap-3.5 min-w-0">
+        @if (finalPageHeader.showGoBackButton) {
+          <app-button
+            [buttonConfig]="goBackButtonConfig()"
+            (onButtonClick)="onGoBackClick()"
+          />
+        }
 
-      <div class="min-w-0">
-        <h1 class="text-xl sm:text-2xl font-bold m-0 leading-tight tracking-tight">
-          {{ finalPageHeader.title }}
-        </h1>
-        @if (finalPageHeader.subtitle) {
-          <p class="text-[0.8125rem] mt-1 leading-snug">
-            {{ finalPageHeader.subtitle }}
-          </p>
+        @if (finalPageHeader.title) {
+          <div class="min-w-0">
+            <h1 class="text-xl sm:text-2xl font-bold m-0 leading-tight tracking-tight">
+              {{ finalPageHeader.title }}
+            </h1>
+            @if (finalPageHeader.subtitle) {
+              <p class="text-[0.8125rem] mt-1 leading-snug">
+                {{ finalPageHeader.subtitle }}
+              </p>
+            }
+          </div>
         }
       </div>
-    </div>
+    }
+
+    <!-- Centre Section - Search Bar -->
+    @if (finalPageHeader.showSearch) {
+      <div class="flex-1 min-w-0">
+        <p-iconfield class="w-full">
+          <p-inputicon class="pi pi-search" />
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="searchValue"
+            (ngModelChange)="onSearchInput($event)"
+            [placeholder]="finalPageHeader.searchPlaceholder || 'Search...'"
+            class="w-full"
+          />
+        </p-iconfield>
+      </div>
+    }
 
     <!-- Right Section - Action Buttons (filtered by user permissions) -->
     @if (finalPageHeader.showHeaderButton && permittedHeaderButtons().length) {

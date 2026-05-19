@@ -38,7 +38,7 @@ import {
   IReportGetResponseDto,
 } from '../../types/report.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { ReportService } from '../../services/report.service';
 import { IReport } from '../../types/report.interface';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
@@ -82,6 +82,7 @@ export class GetReportComponent implements OnInit {
   );
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -101,6 +102,7 @@ export class GetReportComponent implements OnInit {
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
+  private readonly loadTrigger$ = new Subject<void>();
 
   ngOnInit(): void {
     const docContext = this.route.parent?.snapshot.data[
@@ -110,36 +112,34 @@ export class GetReportComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       REPORT_TABLE_ENHANCED_CONFIG
     );
-  }
 
-  private loadReportList(): void {
-    this.table.setLoading(true);
-
-    const paramData = this.prepareParamData();
-
-    this.reportService
-      .getReportList(paramData)
+    this.loadTrigger$
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
+        switchMap(() => {
+          this.table.setLoading(true);
+          return this.reportService.getReportList(this.prepareParamData()).pipe(
+            finalize(() => this.table.setLoading(false)),
+            catchError(error => {
+              this.table.setData([]);
+              this.logger.logUserAction('Failed to load report records', error);
+              return EMPTY;
+            })
+          );
         }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response: IReportGetResponseDto) => {
           const { records, totalRecords } = response;
-
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.table.setData(this.mapTableData(records));
           this.table.updateTableConfig({ totalRecords });
-
           this.logger.logUserAction('Report records loaded successfully');
         },
-        error: error => {
-          this.table.setData([]);
-          this.logger.logUserAction('Failed to load report records', error);
-        },
       });
+  }
+
+  private loadReportList(): void {
+    this.loadTrigger$.next();
   }
 
   private prepareParamData(): IReportGetFormDto {
@@ -157,7 +157,13 @@ export class GetReportComponent implements OnInit {
       ...workspaceParams,
       ...base,
       ...(docType ? { docType } : {}),
+      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
+  }
+
+  protected onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    this.loadReportList();
   }
 
   private mapTableData(response: IReportGetBaseResponseDto[]): IReport[] {
@@ -296,6 +302,8 @@ export class GetReportComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showSearch: true,
+      searchPlaceholder: 'Search by Report Number',
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,

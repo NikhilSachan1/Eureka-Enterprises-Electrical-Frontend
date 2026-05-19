@@ -38,7 +38,7 @@ import {
   IJmcGetResponseDto,
 } from '../../types/jmc.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { JmcService } from '../../services/jmc.service';
 import { IJmc } from '../../types/jmc.interface';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
@@ -84,6 +84,7 @@ export class GetJmcComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -103,6 +104,7 @@ export class GetJmcComponent implements OnInit {
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
+  private readonly loadTrigger$ = new Subject<void>();
 
   ngOnInit(): void {
     const docContext = this.route.parent?.snapshot.data[
@@ -110,36 +112,34 @@ export class GetJmcComponent implements OnInit {
     ] as EDocContext;
     this.docRouteContext.set(docContext);
     this.table = this.dataTableService.createTable(JMC_TABLE_ENHANCED_CONFIG);
-  }
 
-  private loadJmcList(): void {
-    this.table.setLoading(true);
-
-    const paramData = this.prepareParamData();
-
-    this.jmcService
-      .getJmcList(paramData)
+    this.loadTrigger$
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
+        switchMap(() => {
+          this.table.setLoading(true);
+          return this.jmcService.getJmcList(this.prepareParamData()).pipe(
+            finalize(() => this.table.setLoading(false)),
+            catchError(error => {
+              this.table.setData([]);
+              this.logger.logUserAction('Failed to load JMC records', error);
+              return EMPTY;
+            })
+          );
         }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response: IJmcGetResponseDto) => {
           const { records, totalRecords } = response;
-
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
+          this.table.setData(this.mapTableData(records));
           this.table.updateTableConfig({ totalRecords });
-
           this.logger.logUserAction('JMC records loaded successfully');
         },
-        error: error => {
-          this.table.setData([]);
-          this.logger.logUserAction('Failed to load JMC records', error);
-        },
       });
+  }
+
+  private loadJmcList(): void {
+    this.loadTrigger$.next();
   }
 
   private prepareParamData(): IJmcGetFormDto {
@@ -157,7 +157,13 @@ export class GetJmcComponent implements OnInit {
       ...workspaceParams,
       ...base,
       ...(docType ? { docType } : {}),
+      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
+  }
+
+  protected onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    this.loadJmcList();
   }
 
   private mapTableData(response: IJmcGetBaseResponseDto[]): IJmc[] {
@@ -305,6 +311,8 @@ export class GetJmcComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showSearch: true,
+      searchPlaceholder: 'Search by JMC Number',
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,

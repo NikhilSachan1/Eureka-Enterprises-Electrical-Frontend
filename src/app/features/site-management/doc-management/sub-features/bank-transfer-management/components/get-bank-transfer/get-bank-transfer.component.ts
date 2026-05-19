@@ -39,7 +39,7 @@ import {
 } from '../../types/bank-transfer.dto';
 import { IBankTransfer } from '../../types/bank-transfer.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { BankTransferService } from '../../services/bank-transfer.service';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -82,6 +82,7 @@ export class GetBankTransferComponent implements OnInit {
   );
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
+  protected readonly searchTerm = signal<string>('');
 
   protected readonly pageHeaderConfig = computed(() =>
     this.getPageHeaderConfig()
@@ -101,6 +102,7 @@ export class GetBankTransferComponent implements OnInit {
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
+  private readonly loadTrigger$ = new Subject<void>();
 
   ngOnInit(): void {
     const docContext = this.route.parent?.snapshot.data[
@@ -110,16 +112,25 @@ export class GetBankTransferComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       getBankTransferTableConfig(docContext)
     );
-  }
 
-  private loadBankTransferList(): void {
-    this.table.setLoading(true);
-    const paramData = this.prepareParamData();
-
-    this.bankTransferService
-      .getBankTransferList(paramData)
+    this.loadTrigger$
       .pipe(
-        finalize(() => this.table.setLoading(false)),
+        switchMap(() => {
+          this.table.setLoading(true);
+          return this.bankTransferService
+            .getBankTransferList(this.prepareParamData())
+            .pipe(
+              finalize(() => this.table.setLoading(false)),
+              catchError(error => {
+                this.table.setData([]);
+                this.logger.logUserAction(
+                  'Failed to load bank transfers',
+                  error
+                );
+                return EMPTY;
+              })
+            );
+        }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -129,11 +140,11 @@ export class GetBankTransferComponent implements OnInit {
           this.table.updateTableConfig({ totalRecords });
           this.logger.logUserAction('Bank transfers loaded');
         },
-        error: error => {
-          this.table.setData([]);
-          this.logger.logUserAction('Failed to load bank transfers', error);
-        },
       });
+  }
+
+  private loadBankTransferList(): void {
+    this.loadTrigger$.next();
   }
 
   private prepareParamData(): IBankTransferGetFormDto {
@@ -150,7 +161,13 @@ export class GetBankTransferComponent implements OnInit {
       ...workspaceParams,
       ...base,
       ...(docType ? { docType } : {}),
+      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
+  }
+
+  protected onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    this.loadBankTransferList();
   }
 
   private mapTableData(
@@ -335,6 +352,8 @@ export class GetBankTransferComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
+      showSearch: true,
+      searchPlaceholder: 'Search by UTR / Reference',
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
