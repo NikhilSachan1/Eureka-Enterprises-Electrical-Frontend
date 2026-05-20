@@ -5,11 +5,15 @@ import {
   MyFilesBreadcrumbResponseSchema,
   MyFilesListRequestSchema,
   MyFilesListResponseSchema,
+  MyFilesRenameRequestSchema,
+  MyFilesRenameResponseSchema,
 } from '../schemas';
 import {
   IMyFilesBreadcrumbResponseDto,
   IMyFilesListFormDto,
   IMyFilesListResponseDto,
+  IMyFilesRenameFormDto,
+  IMyFilesRenameResponseDto,
 } from '../types/my-files.dto';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
@@ -76,6 +80,36 @@ export class MyFilesService {
             );
           } else {
             this.logger.logUserAction('Get My Files Breadcrumb Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  renameMyFile(
+    fileId: string,
+    formData: IMyFilesRenameFormDto
+  ): Observable<IMyFilesRenameResponseDto> {
+    this.logger.logUserAction('Rename My File Request');
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.MY_FILES.RENAME(fileId),
+        {
+          response: MyFilesRenameResponseSchema,
+          request: MyFilesRenameRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IMyFilesRenameResponseDto) => {
+          this.logger.logUserAction('Rename My File Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Rename My File Error', error);
+          } else {
+            this.logger.logUserAction('Rename My File Error', error);
           }
           return throwError(() => error);
         })

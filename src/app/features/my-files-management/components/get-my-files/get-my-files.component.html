@@ -10,6 +10,7 @@
   [loading]="table.loading()"
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{ myFileName: myFileName }"
+  (rowActionClick)="handleMyFilesTableActionClick($any($event))"
   (filterData)="onTableStateChange($event)"
 />
 

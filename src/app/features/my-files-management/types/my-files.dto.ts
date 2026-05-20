@@ -4,7 +4,9 @@ import {
   MyFilesBreadcrumbResponseSchema,
   MyFilesListRequestSchema,
   MyFilesListResponseSchema,
-} from '../schemas/my-files.schema';
+  MyFilesRenameRequestSchema,
+  MyFilesRenameResponseSchema,
+} from '../schemas';
 import z from 'zod';
 
 /**
@@ -23,4 +25,15 @@ export type IMyFilesBreadcrumbItemDto = z.infer<
 >;
 export type IMyFilesBreadcrumbResponseDto = z.infer<
   typeof MyFilesBreadcrumbResponseSchema
+>;
+
+/**
+ * My Files Rename
+ */
+export type IMyFilesRenameFormDto = z.input<typeof MyFilesRenameRequestSchema>;
+export type IMyFilesRenameUIFormDto = z.infer<
+  typeof MyFilesRenameRequestSchema
+>;
+export type IMyFilesRenameResponseDto = z.infer<
+  typeof MyFilesRenameResponseSchema
 >;

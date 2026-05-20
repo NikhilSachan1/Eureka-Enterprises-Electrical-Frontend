@@ -1,4 +1,5 @@
 import { ICONS } from '@shared/constants';
+import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
   EDataType,
   IDataTableConfig,
@@ -48,7 +49,12 @@ const MY_FILES_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
 
 const MY_FILES_TABLE_ROW_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IMyFile>
->[] = [];
+>[] = [
+  {
+    ...COMMON_ROW_ACTIONS.EDIT,
+    tooltip: 'Rename',
+  },
+];
 
 export const MY_FILES_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IMyFile> = {
   tableConfig: MY_FILES_TABLE_CONFIG,

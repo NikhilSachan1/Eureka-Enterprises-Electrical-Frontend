@@ -10,19 +10,27 @@ import { ActivatedRoute } from '@angular/router';
 import { LoggerService } from '@core/services';
 import {
   LoadingService,
+  ConfirmationDialogService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
 import { MyFilesService } from '../../services/my-files.service';
-import { IEnhancedTable, IPageHeaderConfig } from '@shared/types';
+import {
+  IEnhancedTable,
+  IPageHeaderConfig,
+  ITableActionClickEvent,
+} from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   IMyFileBaseResponseDto,
   IMyFilesListFormDto,
   IMyFilesListResponseDto,
 } from '../../types/my-files.dto';
-import { MY_FILES_TABLE_ENHANCED_CONFIG } from '../../config';
+import {
+  MY_FILES_ACTION_CONFIG_MAP,
+  MY_FILES_TABLE_ENHANCED_CONFIG,
+} from '../../config';
 import { distinctUntilChanged, finalize, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IMyFile } from '../../types/my-files.interface';
@@ -52,6 +60,9 @@ export class GetMyFilesComponent implements OnInit {
   private readonly myFilesService = inject(MyFilesService);
   private readonly loadingService = inject(LoadingService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
   private readonly tableServerSideParamsBuilderService = inject(
     TableServerSideParamsBuilderService
   );
@@ -166,6 +177,28 @@ export class GetMyFilesComponent implements OnInit {
     void this.routerNavigationService.navigateWithQueryParams(
       [ROUTE_BASE_PATHS.MY_FILES, ROUTES.MY_FILES.LIST],
       { parentId: row.id }
+    );
+  }
+
+  protected handleMyFilesTableActionClick(
+    event: ITableActionClickEvent<IMyFile>
+  ): void {
+    const { actionType, selectedRows } = event;
+
+    const dynamicComponentInputs: Record<string, unknown> = {
+      selectedRecord: selectedRows,
+      onSuccess: () => {
+        this.loadMyFilesList();
+      },
+    };
+
+    this.confirmationDialogService.showConfirmationDialog(
+      actionType,
+      MY_FILES_ACTION_CONFIG_MAP[actionType],
+      null,
+      false,
+      false,
+      dynamicComponentInputs
     );
   }
 
