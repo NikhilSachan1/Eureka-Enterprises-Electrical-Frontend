@@ -5,7 +5,11 @@
 <div class="flex w-full justify-end items-center gap-3 mb-4">
   <app-button
     [buttonConfig]="getCreateFolderButtonConfig()"
-    (onButtonClick)="openCreateFolderDialog()"
+    (onButtonClick)="openMyFilesActionDialog(EButtonActionType.CREATE_FOLDER)"
+  />
+  <app-button
+    [buttonConfig]="getUploadMyFileButtonConfig()"
+    (onButtonClick)="openMyFilesActionDialog(EButtonActionType.UPLOAD)"
   />
 </div>
 

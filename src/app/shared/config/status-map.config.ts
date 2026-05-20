@@ -52,6 +52,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // ═══════════════════════════════════════════════════════════════════════════
   /** Toolbar / row “add” action (`EButtonActionType.ADD` → key `add`). */
   add: { icon: ICONS.COMMON.PLUS, severity: 'success' },
+  /** My Files: create folder (`EButtonActionType.CREATE_FOLDER` → key `createfolder`). */
+  createfolder: { icon: ICONS.COMMON.FOLDER, severity: 'success' },
+  /** My Files: upload files (`EButtonActionType.UPLOAD` → key `upload`). */
+  upload: { icon: ICONS.COMMON.UPLOAD, severity: 'info' },
   total: { icon: ICONS.STATUS.TOTAL, severity: 'info' },
   available: { icon: ICONS.STATUS.AVAILABLE, severity: 'success' },
   assigned: { icon: ICONS.STATUS.ASSIGNED, severity: 'info' },

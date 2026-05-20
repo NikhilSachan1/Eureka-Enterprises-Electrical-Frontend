@@ -9,6 +9,8 @@ import {
   MyFilesListResponseSchema,
   MyFilesRenameRequestSchema,
   MyFilesRenameResponseSchema,
+  MyFilesUploadRequestSchema,
+  MyFilesUploadResponseSchema,
 } from '../schemas';
 import {
   IMyFilesBreadcrumbResponseDto,
@@ -18,6 +20,8 @@ import {
   IMyFilesListResponseDto,
   IMyFilesRenameFormDto,
   IMyFilesRenameResponseDto,
+  IMyFilesUploadFormDto,
+  IMyFilesUploadResponseDto,
 } from '../types/my-files.dto';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
@@ -146,6 +150,36 @@ export class MyFilesService {
             );
           } else {
             this.logger.logUserAction('Create My File Folder Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  uploadMyFile(
+    formData: IMyFilesUploadFormDto
+  ): Observable<IMyFilesUploadResponseDto> {
+    this.logger.logUserAction('Upload My File Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.MY_FILES.UPLOAD,
+        {
+          response: MyFilesUploadResponseSchema,
+          request: MyFilesUploadRequestSchema,
+        },
+        formData,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: IMyFilesUploadResponseDto) => {
+          this.logger.logUserAction('Upload My File Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Upload My File Error', error);
+          } else {
+            this.logger.logUserAction('Upload My File Error', error);
           }
           return throwError(() => error);
         })

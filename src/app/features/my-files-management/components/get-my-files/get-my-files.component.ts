@@ -206,10 +206,12 @@ export class GetMyFilesComponent implements OnInit {
     );
   }
 
-  protected openCreateFolderDialog(): void {
+  protected readonly EButtonActionType = EButtonActionType;
+
+  protected openMyFilesActionDialog(actionType: EButtonActionType): void {
     this.confirmationDialogService.showConfirmationDialog(
-      EButtonActionType.ADD,
-      MY_FILES_ACTION_CONFIG_MAP[EButtonActionType.ADD],
+      actionType,
+      MY_FILES_ACTION_CONFIG_MAP[actionType],
       null,
       false,
       false,
@@ -231,9 +233,15 @@ export class GetMyFilesComponent implements OnInit {
 
   protected getCreateFolderButtonConfig(): Partial<IButtonConfig> {
     return {
-      id: EButtonActionType.ADD,
+      id: EButtonActionType.CREATE_FOLDER,
       label: 'New Folder',
-      icon: ICONS.COMMON.FOLDER,
+    };
+  }
+
+  protected getUploadMyFileButtonConfig(): Partial<IButtonConfig> {
+    return {
+      id: EButtonActionType.UPLOAD,
+      label: 'Upload Files',
     };
   }
 }

@@ -15,3 +15,8 @@ export {
   MyFilesCreateFolderRequestSchema,
   MyFilesCreateFolderResponseSchema,
 } from './create-my-file-folder.schema';
+
+export {
+  MyFilesUploadRequestSchema,
+  MyFilesUploadResponseSchema,
+} from './upload-my-file.schema';
