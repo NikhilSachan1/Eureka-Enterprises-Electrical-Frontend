@@ -144,6 +144,10 @@ export class GetMyFilesComponent implements OnInit {
           record.type === EMyFileType.FOLDER
             ? '-'
             : formatFileSize(Number(record.size)),
+        documentKeys:
+          record.type === EMyFileType.FILE && record.storageKey
+            ? [record.storageKey]
+            : [],
         originalRawData: record,
       } satisfies IMyFile;
     });

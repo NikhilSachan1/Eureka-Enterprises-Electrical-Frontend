@@ -38,6 +38,12 @@ const MY_FILES_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     bodyTemplate: EDataType.TEXT,
     showSort: false,
   },
+  {
+    field: 'documentKeys',
+    header: 'Attachments',
+    bodyTemplate: EDataType.ATTACHMENTS,
+    showSort: false,
+  },
 ];
 
 const MY_FILES_TABLE_ROW_ACTIONS_CONFIG: Partial<
