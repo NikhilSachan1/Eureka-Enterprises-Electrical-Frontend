@@ -20,3 +20,5 @@ export {
   MyFilesUploadRequestSchema,
   MyFilesUploadResponseSchema,
 } from './upload-my-file.schema';
+
+export { MyFilesDeleteResponseSchema } from './delete-my-file.schema';

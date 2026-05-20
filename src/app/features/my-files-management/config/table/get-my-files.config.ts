@@ -54,6 +54,10 @@ const MY_FILES_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Rename',
   },
+  {
+    ...COMMON_ROW_ACTIONS.DELETE,
+    tooltip: 'Delete',
+  },
 ];
 
 export const MY_FILES_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IMyFile> = {

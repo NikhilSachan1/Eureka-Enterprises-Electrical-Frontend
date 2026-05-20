@@ -10,6 +10,7 @@ import {
   MyFilesRenameResponseSchema,
   MyFilesUploadRequestSchema,
   MyFilesUploadResponseSchema,
+  MyFilesDeleteResponseSchema,
 } from '../schemas';
 import z from 'zod';
 
@@ -65,4 +66,11 @@ export type IMyFilesUploadFormDto = z.input<typeof MyFilesUploadRequestSchema>;
 export type IMyFilesUploadUIFormDto = Omit<IMyFilesUploadFormDto, 'parentId'>;
 export type IMyFilesUploadResponseDto = z.infer<
   typeof MyFilesUploadResponseSchema
+>;
+
+/**
+ * My Files Delete
+ */
+export type IMyFilesDeleteResponseDto = z.infer<
+  typeof MyFilesDeleteResponseSchema
 >;

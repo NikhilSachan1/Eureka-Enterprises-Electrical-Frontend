@@ -11,11 +11,13 @@ import {
   MyFilesRenameResponseSchema,
   MyFilesUploadRequestSchema,
   MyFilesUploadResponseSchema,
+  MyFilesDeleteResponseSchema,
 } from '../schemas';
 import {
   IMyFilesBreadcrumbResponseDto,
   IMyFilesCreateFolderFormDto,
   IMyFilesCreateFolderResponseDto,
+  IMyFilesDeleteResponseDto,
   IMyFilesListFormDto,
   IMyFilesListResponseDto,
   IMyFilesRenameFormDto,
@@ -180,6 +182,28 @@ export class MyFilesService {
             this.logger.logDtoValidationErrors('Upload My File Error', error);
           } else {
             this.logger.logUserAction('Upload My File Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteMyFile(fileId: string): Observable<IMyFilesDeleteResponseDto> {
+    this.logger.logUserAction('Delete My File Request');
+
+    return this.apiService
+      .deleteValidated(API_ROUTES.MY_FILES.DELETE(fileId), {
+        response: MyFilesDeleteResponseSchema,
+      })
+      .pipe(
+        tap((response: IMyFilesDeleteResponseDto) => {
+          this.logger.logUserAction('Delete My File Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Delete My File Error', error);
+          } else {
+            this.logger.logUserAction('Delete My File Error', error);
           }
           return throwError(() => error);
         })
