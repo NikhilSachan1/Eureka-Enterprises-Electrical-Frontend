@@ -22,3 +22,18 @@ export function roundToDecimalPlaces(
 export function roundCurrencyAmount(value: number): number {
   return roundToDecimalPlaces(value, 2);
 }
+
+export function formatFileSize(bytes: number | null | undefined): string {
+  const value = bytes ?? 0;
+
+  if (value === 0) {
+    return '0 B';
+  }
+
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const k = 1024;
+  const i = Math.floor(Math.log(value) / Math.log(k));
+  const size = value / Math.pow(k, i);
+
+  return `${size.toFixed(2)} ${units[i]}`;
+}

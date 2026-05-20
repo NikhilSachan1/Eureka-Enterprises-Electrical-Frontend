@@ -12,6 +12,15 @@ export const APP_PERMISSION = {
     EDIT: 'edit_announcement',
     DELETE: 'delete_announcement',
   },
+  MY_FILES: {
+    VIEW: 'view_my_files',
+    UPLOAD: 'upload_my_files',
+    CREATE_FOLDER: 'create_folder_my_files',
+    RENAME: 'rename_my_files',
+    MOVE: 'move_my_files',
+    DELETE: 'delete_my_files',
+    DOWNLOAD: 'download_my_files',
+  },
   ASSET: {
     VIEW_DETAIL: 'view_detail_asset',
     TABLE_VIEW: 'table_view_asset',

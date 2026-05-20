@@ -190,7 +190,8 @@
           @let bodyTemplate = column.bodyTemplate;
 
           @if (shouldShowColumn) {
-            @let hasLead = column.icon || (column.showImage && column.dummyImageField);
+            @let hasLead =
+              column.icon || column.iconField || (column.showImage && (column.dummyImageField || column.iconField));
             @let isReadMoreCol = column.bodyTemplate === ALL_DATA_TYPES.TEXT_WITH_READ_MORE;
             @let t = customBodyTemplates();
             <td [class.cell-allow-wrap]="hasLead || isReadMoreCol">
@@ -330,7 +331,8 @@
               @let bodyTemplate = column.bodyTemplate;
 
               @if (shouldShowColumn) {
-                @let hasLead = column.icon || (column.showImage && column.dummyImageField);
+                @let hasLead =
+                  column.icon || column.iconField || (column.showImage && (column.dummyImageField || column.iconField));
                 @let isReadMoreCol = column.bodyTemplate === ALL_DATA_TYPES.TEXT_WITH_READ_MORE;
                 <div class="mb-4 last:mb-0">
                   <div class="text-xs font-semibold mb-2 uppercase tracking-wider">{{ column.header }}</div>
@@ -655,16 +657,19 @@
   @let cellVal = resolveNestedProperty(row, col.field);
   @let hasData = cellVal !== null && cellVal !== undefined && cellVal !== '';
   @if (hasData) {
-    @if (col.icon) {
+    @if (col.icon || col.iconField) {
+      @let rowIcon = col.iconField ? $any(resolveNestedProperty(row, col.iconField)) : col.icon;
       @let seedField = col.backgroundSeedField ?? col.field ?? col.dummyImageField;
       @let seedValue = $any(resolveNestedProperty(row, seedField)) ?? '';
       @let bgColor = getBackgroundColorForSeed(seedValue);
-      <div
-        class="flex w-9 h-9 shrink-0 items-center justify-center rounded-lg text-white"
-        [style.background-color]="'#' + bgColor"
-      >
-        <i [class]="col.icon + ' text-base'"></i>
-      </div>
+      @if (rowIcon) {
+        <div
+          class="flex w-9 h-9 shrink-0 items-center justify-center rounded-lg text-white"
+          [style.background-color]="'#' + bgColor"
+        >
+          <i [class]="rowIcon + ' text-base'"></i>
+        </div>
+      }
     } @else if (col.showImage && col.dummyImageField) {
       @let imageName = $any(resolveNestedProperty(row, col.dummyImageField));
       @if (imageName !== null && imageName !== '') {

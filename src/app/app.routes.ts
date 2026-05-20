@@ -108,6 +108,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.MY_FILES,
+        loadChildren: () =>
+          import('./features/my-files-management/my-files.routes').then(
+            m => m.MY_FILES_MANAGEMENT_ROUTES
+          ),
+      },
+      {
         path: ROUTE_BASE_PATHS.PAYROLL,
         loadChildren: () =>
           import('./features/payroll-management/payroll.routes').then(

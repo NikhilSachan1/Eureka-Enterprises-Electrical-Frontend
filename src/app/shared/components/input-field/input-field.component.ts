@@ -71,6 +71,7 @@ import { AppConfigurationService, GalleryService } from '@shared/services';
 import {
   arrayToString,
   filterOptionsByIncludeExclude,
+  formatFileSize,
   stringToArray,
   toLowerCase,
   toSentenceCase,
@@ -1337,20 +1338,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     return imageExtensions.includes(extension);
   }
 
-  formatSize(bytes: number | null | undefined): string {
-    const value = bytes ?? 0;
-
-    if (value === 0) {
-      return '0 B';
-    }
-
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    const k = 1024;
-    const i = Math.floor(Math.log(value) / Math.log(k));
-    const size = value / Math.pow(k, i);
-
-    return `${size.toFixed(2)} ${units[i]}`;
-  }
+  protected formatSize = formatFileSize;
 
   getFileUploadButtonConfig(buttonName: string): Partial<IButtonConfig> {
     const config: Record<string, Partial<IButtonConfig>> = {

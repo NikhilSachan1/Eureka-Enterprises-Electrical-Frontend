@@ -290,6 +290,16 @@ export const API_ROUTES = {
       },
     },
   },
+  MY_FILES: {
+    LIST: 'org-files',
+    CREATE_FOLDER: 'org-files/folder',
+    UPLOAD: 'org-files/upload',
+    RENAME: (fileId: string) => `org-files/${fileId}/rename`,
+    MOVE: (fileId: string) => `org-files/${fileId}/move`,
+    DELETE: (fileId: string) => `org-files/${fileId}`,
+    DOWNLOAD: (fileId: string) => `org-files/${fileId}/download`,
+    BREADCRUMBS: (folderId: string) => `org-files/${folderId}/breadcrumb`,
+  },
   ANNOUNCEMENT: {
     ADD: 'announcement',
     LIST: 'announcement',

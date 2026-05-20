@@ -20,6 +20,7 @@ export const ROUTE_BASE_PATHS = {
   PETRO_CARD: 'petro-card',
   TRANSPORT: 'transport',
   ANNOUNCEMENT: 'announcement',
+  MY_FILES: 'my-files',
   SITE: {
     BASE: 'site',
     COMPANY: 'company',
@@ -180,6 +181,10 @@ export const ROUTES = {
     ADD: `add`,
     EDIT: `edit`,
     SHOW: `show`,
+  },
+
+  MY_FILES: {
+    LIST: `list`,
   },
 
   PAYROLL: {

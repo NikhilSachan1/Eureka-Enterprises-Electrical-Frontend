@@ -352,6 +352,11 @@ export const appMenu: ApplicationMenu = {
           ],
         },
         {
+          label: 'My Files',
+          icon: ICONS.COMMON.FOLDER,
+          routerLink: ROUTE_BASE_PATHS.MY_FILES,
+        },
+        {
           label: 'Announcement',
           icon: ICONS.COMMON.MEGAPHONE,
           basePath: ROUTE_BASE_PATHS.ANNOUNCEMENT,

@@ -44,4 +44,5 @@ export {
   parseAmount,
   roundCurrencyAmount,
   roundToDecimalPlaces,
+  formatFileSize,
 } from './number.util';

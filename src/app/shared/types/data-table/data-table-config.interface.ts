@@ -54,6 +54,10 @@ export interface IDataTableHeaderConfig {
   dummyImageField?: string;
   /** Icon class (e.g. 'pi pi-car'). When set with showImage, renders icon with colored background instead of avatar. */
   icon?: string;
+  /** Row field for per-row icon class (e.g. 'itemIcon'). Used with showImage instead of a static icon. */
+  iconField?: string;
+  /** Row field used to seed the icon background color. Defaults to field or dummyImageField. */
+  backgroundSeedField?: string;
   /** Whether to highlight the primary field (bold). */
   primaryFieldHighlight?: boolean;
   /** Subtitle config (field, bodyTemplate, label). */

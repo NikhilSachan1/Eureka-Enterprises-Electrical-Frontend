@@ -52,6 +52,11 @@ export const ICONS = {
     HISTORY: 'pi pi-history',
     MEGAPHONE: 'pi pi-megaphone',
     INBOX: 'pi pi-inbox',
+    FOLDER: 'pi pi-folder',
+    FOLDER_OPEN: 'pi pi-folder-open',
+    UPLOAD: 'pi pi-upload',
+    COPY: 'pi pi-copy',
+    REFRESH: 'pi pi-refresh',
     /** Train / direction (dropdowns). */
     COMPASS: 'pi pi-compass',
     TAG: 'pi pi-tag',

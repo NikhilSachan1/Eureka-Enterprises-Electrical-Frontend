@@ -1,0 +1,29 @@
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{ myFileName: myFileName }"
+  (filterData)="onTableStateChange($event)"
+/>
+
+<ng-template
+  #myFileName
+  let-row
+>
+  @if (isFolder(row)) {
+    <button
+      type="button"
+      class="data-table-link cursor-pointer font-semibold text-left"
+      (click)="onFolderNameClick(row)"
+    >
+      {{ row.name }}
+    </button>
+  } @else {
+    <span class="font-semibold">{{ row.name }}</span>
+  }
+</ng-template>
