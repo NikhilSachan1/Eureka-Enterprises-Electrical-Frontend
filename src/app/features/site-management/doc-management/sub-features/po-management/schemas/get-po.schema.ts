@@ -1,4 +1,5 @@
 import {
+  dateField,
   FilterSchema,
   isoDateTimeField,
   UserSchema,
@@ -7,17 +8,19 @@ import {
 import z from 'zod';
 import { PoBaseSchema } from './base-po.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { makeFieldsNullable } from '@shared/utility';
+import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const PoGetRequestSchema = z
   .object({
     projectName: uuidField.nullable().optional(),
+    companyName: z.array(uuidField).nullable().optional(),
     docType: z.enum(EDocContext).optional(),
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
     approvalStatus: z.array(z.string()).nullable().optional(),
+    dateRange: z.array(dateField).nullable().optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -26,13 +29,25 @@ export const PoGetRequestSchema = z
   })
   .strict()
   .transform(
-    ({ projectName, docType, contractorName, vendorName, ...rest }) => {
+    ({
+      projectName,
+      companyName,
+      docType,
+      contractorName,
+      vendorName,
+      dateRange,
+      ...rest
+    }) => {
+      const [start, end] = dateRange ?? [];
       return {
         ...rest,
         siteId: projectName,
+        companyId: companyName,
         partyType: docType,
         contractorId: contractorName,
         vendorId: vendorName,
+        dateFrom: transformDateFormat(start),
+        dateTo: transformDateFormat(end),
       };
     }
   );

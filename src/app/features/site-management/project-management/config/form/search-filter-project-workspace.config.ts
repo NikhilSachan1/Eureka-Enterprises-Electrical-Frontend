@@ -1,4 +1,5 @@
 import { COMMON_FORM_ACTIONS } from '@shared/config';
+import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
@@ -19,6 +20,18 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: ITableSearchFilterInpu
         dynamicDropdown: {
           moduleName: MODULE_NAMES.PROJECT,
           dropdownName: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
+        },
+      },
+    },
+    companyName: {
+      fieldType: EDataType.MULTI_SELECT,
+      id: 'companyName',
+      fieldName: 'companyName',
+      label: 'Company Name',
+      multiSelectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.COMPANY,
+          dropdownName: CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
         },
       },
     },
@@ -57,6 +70,14 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: ITableSearchFilterInpu
           dropdownName:
             CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_APPROVAL_STATUSES,
         },
+      },
+    },
+    dateRange: {
+      ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
+      label: 'start - end date',
+      dateConfig: {
+        ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange.dateConfig,
+        maxDate: new Date(),
       },
     },
     search: {

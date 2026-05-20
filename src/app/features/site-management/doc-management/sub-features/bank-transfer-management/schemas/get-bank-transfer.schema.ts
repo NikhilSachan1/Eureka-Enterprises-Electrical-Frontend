@@ -1,16 +1,24 @@
-import { FilterSchema, isoDateTimeField, uuidField } from '@shared/schemas';
+import {
+  dateField,
+  FilterSchema,
+  isoDateTimeField,
+  uuidField,
+} from '@shared/schemas';
 import z from 'zod';
 
 import { BankTransferBaseSchema } from './base-bank-transfer.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import { transformDateFormat } from '@shared/utility';
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const BankTransferGetRequestSchema = z
   .object({
     projectName: uuidField.nullable().optional(),
+    companyName: z.array(uuidField).nullable().optional(),
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
     docType: z.enum(EDocContext).optional(),
+    dateRange: z.array(dateField).nullable().optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -19,13 +27,27 @@ export const BankTransferGetRequestSchema = z
   })
   .strict()
   .transform(
-    ({ projectName, contractorName, vendorName, docType, ...rest }) => ({
-      ...rest,
-      siteId: projectName,
-      contractorId: contractorName,
-      vendorId: vendorName,
-      partyType: docType,
-    })
+    ({
+      projectName,
+      companyName,
+      contractorName,
+      vendorName,
+      docType,
+      dateRange,
+      ...rest
+    }) => {
+      const [start, end] = dateRange ?? [];
+      return {
+        ...rest,
+        siteId: projectName,
+        companyId: companyName,
+        contractorId: contractorName,
+        vendorId: vendorName,
+        partyType: docType,
+        dateFrom: transformDateFormat(start),
+        dateTo: transformDateFormat(end),
+      };
+    }
   );
 
 export const BankTransferGetBaseResponseSchema = z.looseObject({

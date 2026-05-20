@@ -1,5 +1,11 @@
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { FilterSchema, onlyDateStringField, uuidField } from '@shared/schemas';
+import {
+  dateField,
+  FilterSchema,
+  onlyDateStringField,
+  uuidField,
+} from '@shared/schemas';
+import { transformDateFormat } from '@shared/utility';
 import z from 'zod';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
@@ -7,9 +13,11 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 export const BookPaymentGetRequestSchema = z
   .object({
     projectName: uuidField.nullable().optional(),
+    companyName: z.array(uuidField).nullable().optional(),
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
     docType: z.enum(EDocContext).optional(),
+    dateRange: z.array(dateField).nullable().optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -18,13 +26,27 @@ export const BookPaymentGetRequestSchema = z
   })
   .strict()
   .transform(
-    ({ projectName, contractorName, vendorName, docType, ...rest }) => ({
-      ...rest,
-      siteId: projectName,
-      contractorId: contractorName,
-      vendorId: vendorName,
-      partyType: docType,
-    })
+    ({
+      projectName,
+      companyName,
+      contractorName,
+      vendorName,
+      docType,
+      dateRange,
+      ...rest
+    }) => {
+      const [start, end] = dateRange ?? [];
+      return {
+        ...rest,
+        siteId: projectName,
+        companyId: companyName,
+        contractorId: contractorName,
+        vendorId: vendorName,
+        partyType: docType,
+        dateFrom: transformDateFormat(start),
+        dateTo: transformDateFormat(end),
+      };
+    }
   );
 
 export const BookPaymentGetBaseResponseSchema = z.looseObject({

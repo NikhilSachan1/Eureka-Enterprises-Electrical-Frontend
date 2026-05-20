@@ -1,16 +1,19 @@
-import { FilterSchema, uuidField } from '@shared/schemas';
+import { dateField, FilterSchema, uuidField } from '@shared/schemas';
 import z from 'zod';
 import { ReportBaseSchema } from './base-report.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import { transformDateFormat } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const ReportGetRequestSchema = z
   .object({
     projectName: uuidField.nullable().optional(),
+    companyName: z.array(uuidField).nullable().optional(),
     docType: z.enum(EDocContext).optional(),
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
+    dateRange: z.array(dateField).nullable().optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -19,13 +22,25 @@ export const ReportGetRequestSchema = z
   })
   .strict()
   .transform(
-    ({ projectName, docType, contractorName, vendorName, ...rest }) => {
+    ({
+      projectName,
+      companyName,
+      docType,
+      contractorName,
+      vendorName,
+      dateRange,
+      ...rest
+    }) => {
+      const [start, end] = dateRange ?? [];
       return {
         ...rest,
         siteId: projectName,
+        companyId: companyName,
         partyType: docType,
         contractorId: contractorName,
         vendorId: vendorName,
+        dateFrom: transformDateFormat(start),
+        dateTo: transformDateFormat(end),
       };
     }
   );

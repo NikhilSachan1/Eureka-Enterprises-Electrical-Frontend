@@ -154,8 +154,10 @@ export class GetBankTransferComponent implements OnInit {
         this.table.getHeaders()
       );
     const docType = this.docRouteContext();
-    const workspaceParams =
-      this.projectWorkspaceContext.docWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { approvalStatus: _approvalStatus, ...workspaceParams } =
+      (this.projectWorkspaceContext.docWorkspaceFilter() ??
+        {}) as IProjectWorkspaceSearchFilterFormDto;
 
     return {
       ...workspaceParams,
