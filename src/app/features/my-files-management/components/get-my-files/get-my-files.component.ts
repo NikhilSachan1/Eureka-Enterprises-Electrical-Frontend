@@ -19,6 +19,7 @@ import { MyFilesService } from '../../services/my-files.service';
 import {
   EButtonActionType,
   IButtonConfig,
+  IDialogActionConfig,
   IEnhancedTable,
   IPageHeaderConfig,
   ITableActionClickEvent,
@@ -198,12 +199,40 @@ export class GetMyFilesComponent implements OnInit {
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      MY_FILES_ACTION_CONFIG_MAP[actionType],
+      this.resolveMyFilesDialogConfig(
+        actionType,
+        selectedRows as unknown as IMyFileBaseResponseDto[]
+      ),
       null,
       false,
       false,
       dynamicComponentInputs
     );
+  }
+
+  private resolveMyFilesDialogConfig(
+    actionType: EButtonActionType,
+    selectedRows: IMyFileBaseResponseDto[]
+  ): IDialogActionConfig {
+    const baseConfig = MY_FILES_ACTION_CONFIG_MAP[actionType];
+
+    if (actionType !== EButtonActionType.EDIT) {
+      return baseConfig;
+    }
+
+    const [record] = selectedRows;
+    const isFolder = record?.type === EMyFileType.FOLDER;
+    const itemLabel = isFolder ? 'folder' : 'file';
+    const itemLabelTitle = isFolder ? 'Folder' : 'File';
+
+    return {
+      ...baseConfig,
+      dialogConfig: {
+        ...baseConfig.dialogConfig,
+        header: `Rename ${itemLabelTitle}`,
+        message: `Update the ${itemLabel} name.`,
+      },
+    };
   }
 
   protected readonly EButtonActionType = EButtonActionType;

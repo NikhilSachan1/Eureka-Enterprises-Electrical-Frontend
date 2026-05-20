@@ -21,6 +21,7 @@ import {
   IMyFilesRenameResponseDto,
   IMyFilesRenameUIFormDto,
 } from '../../types/my-files.dto';
+import { EMyFileType } from '../../types/my-files.enum';
 
 @Component({
   selector: 'app-rename-my-file',
@@ -61,6 +62,18 @@ export class RenameMyFileComponent
         },
       }
     );
+
+    this.updateRenameFieldLabel(record.type);
+  }
+
+  private updateRenameFieldLabel(type: EMyFileType): void {
+    const isFolder = type === EMyFileType.FOLDER;
+    const base = this.form.fieldConfigs.name;
+
+    this.form.fieldConfigs.name = {
+      ...base,
+      label: isFolder ? 'Folder Name' : 'File Name',
+    };
   }
 
   onDialogAccept(): void {
@@ -77,11 +90,15 @@ export class RenameMyFileComponent
   }
 
   private executeRenameAction(fileId: string): void {
+    const [selectedRecord] = this.selectedRecord();
+    const isFolder = selectedRecord?.type === EMyFileType.FOLDER;
     const formData = this.prepareFormData();
 
     this.loadingService.show({
-      title: 'Renaming',
-      message: "We're updating the name. This will just take a moment.",
+      title: isFolder ? 'Renaming Folder' : 'Renaming File',
+      message: isFolder
+        ? "We're updating the folder name. This will just take a moment."
+        : "We're updating the file name. This will just take a moment.",
     });
     this.form.disable();
 
@@ -104,7 +121,9 @@ export class RenameMyFileComponent
         error: error => {
           this.logger.logUserAction('Failed to rename file or folder', error);
           this.notificationService.error(
-            'Could not rename the file or folder. Please try again.'
+            isFolder
+              ? 'Could not rename the folder. Please try again.'
+              : 'Could not rename the file. Please try again.'
           );
         },
       });
