@@ -54,8 +54,8 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: ITableSearchFilterInpu
       label: 'Vendor Name',
       multiSelectConfig: {
         dynamicDropdown: {
-          moduleName: MODULE_NAMES.CONTRACTOR,
-          dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
+          moduleName: MODULE_NAMES.VENDOR,
+          dropdownName: CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
         },
       },
     },
