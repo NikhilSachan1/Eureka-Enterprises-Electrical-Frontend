@@ -2,6 +2,8 @@ import {
   MyFileItemSchema,
   MyFilesBreadcrumbItemSchema,
   MyFilesBreadcrumbResponseSchema,
+  MyFilesCreateFolderRequestSchema,
+  MyFilesCreateFolderResponseSchema,
   MyFilesListRequestSchema,
   MyFilesListResponseSchema,
   MyFilesRenameRequestSchema,
@@ -36,4 +38,20 @@ export type IMyFilesRenameUIFormDto = z.infer<
 >;
 export type IMyFilesRenameResponseDto = z.infer<
   typeof MyFilesRenameResponseSchema
+>;
+
+/**
+ * My Files Create Folder
+ */
+export type IMyFilesCreateFolderFormDto = z.input<
+  typeof MyFilesCreateFolderRequestSchema
+>;
+
+export type IMyFilesCreateFolderUIFormDto = Omit<
+  IMyFilesCreateFolderFormDto,
+  'parentId'
+>;
+
+export type IMyFilesCreateFolderResponseDto = z.infer<
+  typeof MyFilesCreateFolderResponseSchema
 >;

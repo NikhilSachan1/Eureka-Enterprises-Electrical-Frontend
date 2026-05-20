@@ -17,6 +17,8 @@ import {
 } from '@shared/services';
 import { MyFilesService } from '../../services/my-files.service';
 import {
+  EButtonActionType,
+  IButtonConfig,
   IEnhancedTable,
   IPageHeaderConfig,
   ITableActionClickEvent,
@@ -38,6 +40,7 @@ import { EMyFileType } from '../../types/my-files.enum';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { formatFileSize } from '@shared/utility';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { MyFilesBreadcrumbComponent } from '../my-files-breadcrumb/my-files-breadcrumb.component';
 
@@ -46,6 +49,7 @@ import { MyFilesBreadcrumbComponent } from '../my-files-breadcrumb/my-files-brea
   imports: [
     PageHeaderComponent,
     MyFilesBreadcrumbComponent,
+    ButtonComponent,
     DataTableComponent,
   ],
   templateUrl: './get-my-files.component.html',
@@ -202,10 +206,34 @@ export class GetMyFilesComponent implements OnInit {
     );
   }
 
+  protected openCreateFolderDialog(): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.ADD,
+      MY_FILES_ACTION_CONFIG_MAP[EButtonActionType.ADD],
+      null,
+      false,
+      false,
+      {
+        parentId: this.getCurrentParentId(),
+        onSuccess: () => {
+          this.loadMyFilesList();
+        },
+      }
+    );
+  }
+
   private getPageHeaderConfig(): IPageHeaderConfig {
     return {
       title: 'My Files',
       subtitle: 'Browse and download your public files and folders',
+    };
+  }
+
+  protected getCreateFolderButtonConfig(): Partial<IButtonConfig> {
+    return {
+      id: EButtonActionType.ADD,
+      label: 'New Folder',
+      icon: ICONS.COMMON.FOLDER,
     };
   }
 }

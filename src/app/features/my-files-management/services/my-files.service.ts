@@ -3,6 +3,8 @@ import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
 import {
   MyFilesBreadcrumbResponseSchema,
+  MyFilesCreateFolderRequestSchema,
+  MyFilesCreateFolderResponseSchema,
   MyFilesListRequestSchema,
   MyFilesListResponseSchema,
   MyFilesRenameRequestSchema,
@@ -10,6 +12,8 @@ import {
 } from '../schemas';
 import {
   IMyFilesBreadcrumbResponseDto,
+  IMyFilesCreateFolderFormDto,
+  IMyFilesCreateFolderResponseDto,
   IMyFilesListFormDto,
   IMyFilesListResponseDto,
   IMyFilesRenameFormDto,
@@ -110,6 +114,38 @@ export class MyFilesService {
             this.logger.logDtoValidationErrors('Rename My File Error', error);
           } else {
             this.logger.logUserAction('Rename My File Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  createMyFileFolder(
+    formData: IMyFilesCreateFolderFormDto
+  ): Observable<IMyFilesCreateFolderResponseDto> {
+    this.logger.logUserAction('Create My File Folder Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.MY_FILES.CREATE_FOLDER,
+        {
+          response: MyFilesCreateFolderResponseSchema,
+          request: MyFilesCreateFolderRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IMyFilesCreateFolderResponseDto) => {
+          this.logger.logUserAction('Create My File Folder Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Create My File Folder Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Create My File Folder Error', error);
           }
           return throwError(() => error);
         })

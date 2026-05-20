@@ -10,3 +10,8 @@ export {
   MyFilesRenameRequestSchema,
   MyFilesRenameResponseSchema,
 } from './rename-my-file.schema';
+
+export {
+  MyFilesCreateFolderRequestSchema,
+  MyFilesCreateFolderResponseSchema,
+} from './create-my-file-folder.schema';
