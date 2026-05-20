@@ -46,7 +46,9 @@ export const PO_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'PO Date',
     bodyTemplate: EDataType.DATE,
     dataType: EDataType.DATE,
-    showSort: false,
+    serverSideFilterAndSortConfig: {
+      sortField: 'poDate',
+    },
   },
   {
     field: 'totalAmount',
