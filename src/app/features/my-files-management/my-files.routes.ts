@@ -14,11 +14,4 @@ export const MY_FILES_MANAGEMENT_ROUTES: Routes = [
         '@features/my-files-management/components/get-my-files/get-my-files.component'
       ).then(m => m.GetMyFilesComponent),
   },
-  {
-    path: `${ROUTES.MY_FILES.LIST}/:parentId`,
-    loadComponent: () =>
-      import(
-        '@features/my-files-management/components/get-my-files/get-my-files.component'
-      ).then(m => m.GetMyFilesComponent),
-  },
 ];

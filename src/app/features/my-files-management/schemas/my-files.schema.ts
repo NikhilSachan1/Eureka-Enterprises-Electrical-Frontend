@@ -31,3 +31,17 @@ export const MyFilesListResponseSchema = z
     totalRecords: z.number().int().nonnegative(),
   })
   .strip();
+
+export const MyFilesBreadcrumbItemSchema = z
+  .object({
+    id: uuidField,
+    name: z.string(),
+    type: z.enum(EMyFileType),
+  })
+  .strip();
+
+export const MyFilesBreadcrumbResponseSchema = z
+  .object({
+    data: z.array(MyFilesBreadcrumbItemSchema),
+  })
+  .strip();

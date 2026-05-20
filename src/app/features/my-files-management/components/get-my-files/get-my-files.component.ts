@@ -23,7 +23,7 @@ import {
   IMyFilesListResponseDto,
 } from '../../types/my-files.dto';
 import { MY_FILES_TABLE_ENHANCED_CONFIG } from '../../config';
-import { finalize } from 'rxjs';
+import { distinctUntilChanged, finalize, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IMyFile } from '../../types/my-files.interface';
 import { EMyFileType } from '../../types/my-files.enum';
@@ -31,10 +31,15 @@ import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { formatFileSize } from '@shared/utility';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { MyFilesBreadcrumbComponent } from '../my-files-breadcrumb/my-files-breadcrumb.component';
 
 @Component({
   selector: 'app-get-my-files',
-  imports: [PageHeaderComponent, DataTableComponent],
+  imports: [
+    PageHeaderComponent,
+    MyFilesBreadcrumbComponent,
+    DataTableComponent,
+  ],
   templateUrl: './get-my-files.component.html',
   styleUrl: './get-my-files.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,6 +65,18 @@ export class GetMyFilesComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       MY_FILES_TABLE_ENHANCED_CONFIG
     );
+
+    this.activatedRoute.queryParamMap
+      .pipe(
+        map(params => params.get('parentId')),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        if (this.tableFilterData) {
+          this.loadMyFilesList();
+        }
+      });
   }
 
   private loadMyFilesList(): void {
@@ -108,7 +125,7 @@ export class GetMyFilesComponent implements OnInit {
   }
 
   private getCurrentParentId(): string | null {
-    return this.activatedRoute.snapshot.paramMap.get('parentId');
+    return this.activatedRoute.snapshot.queryParamMap.get('parentId');
   }
 
   private mapTableData(records: IMyFileBaseResponseDto[]): IMyFile[] {
@@ -142,11 +159,10 @@ export class GetMyFilesComponent implements OnInit {
   }
 
   protected onFolderNameClick(row: IMyFile): void {
-    void this.routerNavigationService.navigateToRoute([
-      ROUTE_BASE_PATHS.MY_FILES,
-      ROUTES.MY_FILES.LIST,
-      row.id,
-    ]);
+    void this.routerNavigationService.navigateWithQueryParams(
+      [ROUTE_BASE_PATHS.MY_FILES, ROUTES.MY_FILES.LIST],
+      { parentId: row.id }
+    );
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
