@@ -50,7 +50,10 @@ import { IExpense } from '@features/expense-management/types/expense.interface';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { GetExpenseDetailComponent } from '../get-expense-detail/get-expense-detail.component';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { CurrencyPipe } from '@angular/common';
@@ -232,20 +235,18 @@ export class GetExpenseComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.expenseStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'approval',
         title: 'Approval Status',
         icon: ICONS.ACTIONS.CHECK_CIRCLE,
         metrics: [
-          { label: 'Total', value: stats.approval.total },
-          { label: 'Approved', value: stats.approval.approved },
-          { label: 'Pending', value: stats.approval.pending },
-          { label: 'Rejected', value: stats.approval.rejected },
+          { label: 'Total', value: stats?.approval?.total ?? 0 },
+          { label: 'Approved', value: stats?.approval?.approved ?? 0 },
+          { label: 'Pending', value: stats?.approval?.pending ?? 0 },
+          { label: 'Rejected', value: stats?.approval?.rejected ?? 0 },
         ],
       },
       {
@@ -255,33 +256,41 @@ export class GetExpenseComponent implements OnInit {
         metrics: [
           {
             label: 'Opening Balance',
-            value: Math.abs(stats.projectedBalances.openingBalance),
-            subtitle: this.balanceAmountSubtitle(
-              stats.projectedBalances.openingBalance
-            ),
+            value: Math.abs(stats?.projectedBalances?.openingBalance ?? 0),
+            subtitle: stats
+              ? this.balanceAmountSubtitle(
+                  stats.projectedBalances.openingBalance
+                )
+              : undefined,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Closing Balance',
-            value: Math.abs(stats.projectedBalances.closingBalance),
-            subtitle: this.balanceAmountSubtitle(
-              stats.projectedBalances.closingBalance
-            ),
+            value: Math.abs(stats?.projectedBalances?.closingBalance ?? 0),
+            subtitle: stats
+              ? this.balanceAmountSubtitle(
+                  stats.projectedBalances.closingBalance
+                )
+              : undefined,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Approved Opening Balance',
-            value: Math.abs(stats.balances.openingBalance),
-            subtitle: this.balanceAmountSubtitle(stats.balances.openingBalance),
+            value: Math.abs(stats?.balances?.openingBalance ?? 0),
+            subtitle: stats
+              ? this.balanceAmountSubtitle(stats.balances.openingBalance)
+              : undefined,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Approved Closing Balance',
-            value: Math.abs(stats.balances.closingBalance),
-            subtitle: this.balanceAmountSubtitle(stats.balances.closingBalance),
+            value: Math.abs(stats?.balances?.closingBalance ?? 0),
+            subtitle: stats
+              ? this.balanceAmountSubtitle(stats.balances.closingBalance)
+              : undefined,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
@@ -294,25 +303,27 @@ export class GetExpenseComponent implements OnInit {
         metrics: [
           {
             label: 'Total Debit',
-            value: stats.projectedBalances.periodDebit,
+            value: stats?.projectedBalances?.periodDebit ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Total Credit',
-            value: stats.projectedBalances.periodCredit,
+            value: stats?.projectedBalances?.periodCredit ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Approved Debit',
-            value: stats.balances.periodDebit,
+            value: stats?.balances?.periodDebit ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleExpenseTableActionClick(

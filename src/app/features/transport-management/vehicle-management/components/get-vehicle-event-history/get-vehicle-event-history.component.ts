@@ -36,7 +36,10 @@ import {
 } from '../../config';
 import { finalize } from 'rxjs';
 import { IVehicleEventHistory } from '../../types/vehicle.interface';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
@@ -195,18 +198,16 @@ export class GetVehicleEventHistoryComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.vehicleEventHistoryStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'status',
         title: 'Status Events',
         icon: ICONS.COMMON.CAR,
         metrics: [
-          { label: 'Available', value: stats.byEventType.AVAILABLE },
-          { label: 'Assigned', value: stats.byEventType.ASSIGNED },
+          { label: 'Available', value: stats?.byEventType?.AVAILABLE ?? 0 },
+          { label: 'Assigned', value: stats?.byEventType?.ASSIGNED ?? 0 },
         ],
       },
       {
@@ -216,27 +217,29 @@ export class GetVehicleEventHistoryComponent implements OnInit {
         metrics: [
           {
             label: 'Handover Initiated',
-            value: stats.byEventType.HANDOVER_INITIATED,
+            value: stats?.byEventType?.HANDOVER_INITIATED ?? 0,
           },
           {
             label: 'Handover Accepted',
-            value: stats.byEventType.HANDOVER_ACCEPTED,
+            value: stats?.byEventType?.HANDOVER_ACCEPTED ?? 0,
           },
           {
             label: 'Handover Rejected',
-            value: stats.byEventType.HANDOVER_REJECTED,
+            value: stats?.byEventType?.HANDOVER_REJECTED ?? 0,
           },
           {
             label: 'Handover Cancelled',
-            value: stats.byEventType.HANDOVER_CANCELLED,
+            value: stats?.byEventType?.HANDOVER_CANCELLED ?? 0,
           },
           {
             label: 'Deallocated',
-            value: stats.byEventType.DEALLOCATED,
+            value: stats?.byEventType?.DEALLOCATED ?? 0,
           },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

@@ -54,7 +54,10 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
@@ -225,28 +228,29 @@ export class GetAssetComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.assetStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'overview',
         title: 'Overview',
         metrics: [
-          { label: 'Total', value: stats.total },
-          { label: 'Available', value: stats.byStatus.available },
-          { label: 'Assigned', value: stats.byStatus.assigned },
+          { label: 'Total', value: stats?.total ?? 0 },
+          { label: 'Available', value: stats?.byStatus?.available ?? 0 },
+          { label: 'Assigned', value: stats?.byStatus?.assigned ?? 0 },
         ],
       },
       {
         id: 'asset-type',
         title: 'Asset Type',
         metrics: [
-          { label: 'Calibrated Assets', value: stats.byAssetType.calibrated },
+          {
+            label: 'Calibrated Assets',
+            value: stats?.byAssetType?.calibrated ?? 0,
+          },
           {
             label: 'Non Calibrated Assets',
-            value: stats.byAssetType.nonCalibrated,
+            value: stats?.byAssetType?.nonCalibrated ?? 0,
           },
         ],
       },
@@ -256,9 +260,12 @@ export class GetAssetComponent implements OnInit {
         metrics: [
           {
             label: 'Calibration Expiring Soon',
-            value: stats.calibration.expiringSoon,
+            value: stats?.calibration?.expiringSoon ?? 0,
           },
-          { label: 'Calibration Expired', value: stats.calibration.expired },
+          {
+            label: 'Calibration Expired',
+            value: stats?.calibration?.expired ?? 0,
+          },
         ],
       },
       {
@@ -267,12 +274,14 @@ export class GetAssetComponent implements OnInit {
         metrics: [
           {
             label: 'Warranty Expiring Soon',
-            value: stats.warranty.expiringSoon,
+            value: stats?.warranty?.expiringSoon ?? 0,
           },
-          { label: 'Warranty Expired', value: stats.warranty.expired },
+          { label: 'Warranty Expired', value: stats?.warranty?.expired ?? 0 },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleAssetTableActionClick(

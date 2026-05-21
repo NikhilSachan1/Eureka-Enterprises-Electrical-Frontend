@@ -16,7 +16,10 @@ import {
   TableService,
 } from '@shared/services';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { PetroCardService } from '../../services/petro-card.service';
 import {
   EButtonActionType,
@@ -159,22 +162,22 @@ export class GetPetroCardComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.petroCardStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'status',
         title: 'Card Status',
         icon: ICONS.COMMON.CREDIT_CARD,
         metrics: [
-          { label: 'Total', value: stats.total },
-          { label: 'Available', value: stats.available },
-          { label: 'Assigned', value: stats.allocated },
+          { label: 'Total', value: stats?.total ?? 0 },
+          { label: 'Available', value: stats?.available ?? 0 },
+          { label: 'Assigned', value: stats?.allocated ?? 0 },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handlePetroCardTableActionClick(

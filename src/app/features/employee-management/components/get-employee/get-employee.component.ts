@@ -53,7 +53,11 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { getMappedValueFromArrayOfObjects, toTitleCase } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+  toTitleCase,
+} from '@shared/utility';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { GetEmployeeDetailComponent } from '../get-employee-detail/get-employee-detail.component';
@@ -173,19 +177,16 @@ export class GetEmployeeComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.employeeStats();
+    const loading = this.table.loading();
 
-    if (!stats) {
-      return [];
-    }
-
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'employee-counts',
         title: 'Employee Counts',
         metrics: [
-          { label: 'Total Employees', value: stats.total },
-          { label: 'Active Employees', value: stats.active },
-          { label: 'Inactive Employees', value: stats.inactive },
+          { label: 'Total Employees', value: stats?.total ?? 0 },
+          { label: 'Active Employees', value: stats?.active ?? 0 },
+          { label: 'Inactive Employees', value: stats?.inactive ?? 0 },
         ],
       },
       {
@@ -194,7 +195,7 @@ export class GetEmployeeComponent implements OnInit {
         metrics: [
           {
             label: 'New Joiners Last 30 Days',
-            value: stats.newJoinersLast30Days,
+            value: stats?.newJoinersLast30Days ?? 0,
           },
         ],
       },
@@ -202,12 +203,14 @@ export class GetEmployeeComponent implements OnInit {
         id: 'by-gender',
         title: 'By Gender',
         metrics: [
-          { label: 'Male', value: stats.byGender['male'] ?? 0 },
-          { label: 'Female', value: stats.byGender['female'] ?? 0 },
-          { label: 'Other', value: stats.byGender['other'] ?? 0 },
+          { label: 'Male', value: stats?.byGender?.['male'] ?? 0 },
+          { label: 'Female', value: stats?.byGender?.['female'] ?? 0 },
+          { label: 'Other', value: stats?.byGender?.['other'] ?? 0 },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleEmployeeTableActionClick(

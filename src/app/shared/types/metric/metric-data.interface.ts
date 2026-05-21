@@ -12,6 +12,8 @@ export interface IMetric {
   permission?: string[];
   metricType?: EDataType;
   knobConfig?: Partial<IKnobConfig>;
+  /** When true, value column shows a spinner while backing data is loading. */
+  valueLoading?: boolean;
 }
 
 /** `kpi` = one centered figure, no panel header / list rows (same grid cell as other panels). */

@@ -46,3 +46,7 @@ export {
   roundToDecimalPlaces,
   formatFileSize,
 } from './number.util';
+export {
+  applyGroupMetricValueLoading,
+  applyMetricValueLoading,
+} from './metric.util';

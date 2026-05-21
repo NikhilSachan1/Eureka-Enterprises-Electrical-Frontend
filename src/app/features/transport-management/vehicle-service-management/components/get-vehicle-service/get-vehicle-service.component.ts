@@ -49,7 +49,10 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 import { GetVehicleServiceDetailComponent } from '../get-vehicle-service-detail/get-vehicle-service-detail.component';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -195,26 +198,26 @@ export class GetVehicleServiceComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.vehicleServiceStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'overview',
         title: 'Overview',
         icon: ICONS.COMMON.CHART,
         metrics: [
-          { label: 'Total Services', value: stats.totalServices },
+          { label: 'Total Services', value: stats?.totalServices ?? 0 },
           {
             label: 'Total Cost',
-            value: stats.totalCost,
+            value: stats?.totalCost ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleVehicleServiceTableActionClick(

@@ -51,7 +51,10 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { ChipComponent } from '@shared/components/chip/chip.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PopoverModule } from 'primeng/popover';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -189,27 +192,27 @@ export class GetProjectComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.projectStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'overview',
         title: 'Overview',
-        metrics: [{ label: 'Total', value: stats.totalSites }],
+        metrics: [{ label: 'Total', value: stats?.totalSites ?? 0 }],
       },
       {
         id: 'status',
         title: 'By Status',
         metrics: [
-          { label: 'Upcoming', value: stats.upcomingSites },
-          { label: 'Ongoing', value: stats.ongoingSites },
-          { label: 'Hold', value: stats.holdSites },
-          { label: 'Completed', value: stats.completedSites },
+          { label: 'Upcoming', value: stats?.upcomingSites ?? 0 },
+          { label: 'Ongoing', value: stats?.ongoingSites ?? 0 },
+          { label: 'Hold', value: stats?.holdSites ?? 0 },
+          { label: 'Completed', value: stats?.completedSites ?? 0 },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleProjectTableActionClick(

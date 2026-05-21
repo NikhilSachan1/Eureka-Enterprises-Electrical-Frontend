@@ -53,7 +53,10 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
@@ -168,9 +171,7 @@ export class GetLeaveComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.leaveStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
     const groups: IMetricGroup[] = [
       {
@@ -178,11 +179,11 @@ export class GetLeaveComponent implements OnInit {
         title: 'Approval Status',
         icon: ICONS.ACTIONS.CHECK_CIRCLE,
         metrics: [
-          { label: 'Total', value: stats.approval.total },
-          { label: 'Approved', value: stats.approval.approved },
-          { label: 'Pending', value: stats.approval.pending },
-          { label: 'Rejected', value: stats.approval.rejected },
-          { label: 'Cancelled', value: stats.approval.cancelled },
+          { label: 'Total', value: stats?.approval?.total ?? 0 },
+          { label: 'Approved', value: stats?.approval?.approved ?? 0 },
+          { label: 'Pending', value: stats?.approval?.pending ?? 0 },
+          { label: 'Rejected', value: stats?.approval?.rejected ?? 0 },
+          { label: 'Cancelled', value: stats?.approval?.cancelled ?? 0 },
         ],
       },
     ];
@@ -195,24 +196,24 @@ export class GetLeaveComponent implements OnInit {
         metrics: [
           {
             label: 'Total Credited',
-            value: stats.leaveBalance.totalCredited,
+            value: stats?.leaveBalance?.totalCredited ?? 0,
             icon: ICONS.COMMON.ARROW_UP,
           },
           {
             label: 'Total Consumed',
-            value: stats.leaveBalance.totalConsumed,
+            value: stats?.leaveBalance?.totalConsumed ?? 0,
             icon: ICONS.COMMON.ARROW_DOWN,
           },
           {
             label: 'Total Balance',
-            value: stats.leaveBalance.totalBalance,
+            value: stats?.leaveBalance?.totalBalance ?? 0,
             icon: ICONS.COMMON.CHART_LINE,
           },
         ],
       });
     }
 
-    return groups;
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   /**

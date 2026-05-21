@@ -23,6 +23,7 @@ import { StatusUtil } from '@shared/utility';
 import { AppPermissionService } from '@core/services';
 import { KnobComponent } from '@shared/components/knob/knob.component';
 import { TooltipModule } from 'primeng/tooltip';
+import { ICONS } from '@shared/constants';
 
 @Component({
   selector: 'app-metrics-card',
@@ -42,6 +43,7 @@ export class MetricsCardComponent {
   metricGroups = input<IMetricGroup[]>();
 
   protected readonly ALL_DATA_TYPES = EDataType;
+  protected readonly ICONS = ICONS;
 
   // Check if using grouped layout
   protected isGrouped = computed(() => {

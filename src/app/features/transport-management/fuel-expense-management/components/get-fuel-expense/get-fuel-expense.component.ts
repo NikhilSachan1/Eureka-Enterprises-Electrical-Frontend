@@ -51,7 +51,10 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { AuthService } from '@features/auth-management/services/auth.service';
@@ -267,20 +270,18 @@ export class GetFuelExpenseComponent implements OnInit {
   // Grouped metrics layout
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.fuelExpenseStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'approval',
         title: 'Approval Status',
         icon: ICONS.ACTIONS.CHECK_CIRCLE,
         metrics: [
-          { label: 'Total', value: stats.approval.total },
-          { label: 'Approved', value: stats.approval.approved },
-          { label: 'Pending', value: stats.approval.pending },
-          { label: 'Rejected', value: stats.approval.rejected },
+          { label: 'Total', value: stats?.approval?.total ?? 0 },
+          { label: 'Approved', value: stats?.approval?.approved ?? 0 },
+          { label: 'Pending', value: stats?.approval?.pending ?? 0 },
+          { label: 'Rejected', value: stats?.approval?.rejected ?? 0 },
         ],
       },
       {
@@ -290,33 +291,41 @@ export class GetFuelExpenseComponent implements OnInit {
         metrics: [
           {
             label: 'Opening Balance',
-            value: Math.abs(stats.projectedBalances.openingBalance),
-            subtitle: this.balanceAmountSubtitle(
-              stats.projectedBalances.openingBalance
-            ),
+            value: Math.abs(stats?.projectedBalances?.openingBalance ?? 0),
+            subtitle: stats
+              ? this.balanceAmountSubtitle(
+                  stats.projectedBalances.openingBalance
+                )
+              : undefined,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Closing Balance',
-            value: Math.abs(stats.projectedBalances.closingBalance),
-            subtitle: this.balanceAmountSubtitle(
-              stats.projectedBalances.closingBalance
-            ),
+            value: Math.abs(stats?.projectedBalances?.closingBalance ?? 0),
+            subtitle: stats
+              ? this.balanceAmountSubtitle(
+                  stats.projectedBalances.closingBalance
+                )
+              : undefined,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Approved Opening Balance',
-            value: Math.abs(stats.balances.openingBalance),
-            subtitle: this.balanceAmountSubtitle(stats.balances.openingBalance),
+            value: Math.abs(stats?.balances?.openingBalance ?? 0),
+            subtitle: stats
+              ? this.balanceAmountSubtitle(stats.balances.openingBalance)
+              : undefined,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Approved Closing Balance',
-            value: Math.abs(stats.balances.closingBalance),
-            subtitle: this.balanceAmountSubtitle(stats.balances.closingBalance),
+            value: Math.abs(stats?.balances?.closingBalance ?? 0),
+            subtitle: stats
+              ? this.balanceAmountSubtitle(stats.balances.closingBalance)
+              : undefined,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
@@ -329,37 +338,39 @@ export class GetFuelExpenseComponent implements OnInit {
         metrics: [
           {
             label: 'Total Debit',
-            value: stats.projectedBalances.periodDebit,
+            value: stats?.projectedBalances?.periodDebit ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Total Credit',
-            value: stats.projectedBalances.periodCredit,
+            value: stats?.projectedBalances?.periodCredit ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Approved Debit',
-            value: stats.balances.periodDebit,
+            value: stats?.balances?.periodDebit ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Total Petro Card Debit Approved',
-            value: stats.balances.totalPetroCardDebitApproved,
+            value: stats?.balances?.totalPetroCardDebitApproved ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
             label: 'Total Petro Card Debit',
-            value: stats.balances.totalPetroCardExpense,
+            value: stats?.balances?.totalPetroCardExpense ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleFuelExpenseTableActionClick(

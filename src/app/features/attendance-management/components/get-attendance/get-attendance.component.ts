@@ -48,7 +48,10 @@ import {
 import { IAttendance } from '../../types/attendance.interface';
 import { EAttendanceStatus } from '../../types/attendance.enum';
 import { MetricsCardComponent } from '../../../../shared/components/metrics-card/metrics-card.component';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
 import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
@@ -193,17 +196,15 @@ export class GetAttendanceComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.attendanceStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'total-records',
         title: 'Total attendance records',
         layout: 'kpi',
         metrics: [
-          { label: 'Total records', value: stats.attendance.total || 0 },
+          { label: 'Total records', value: stats?.attendance?.total ?? 0 },
         ],
       },
       {
@@ -211,10 +212,10 @@ export class GetAttendanceComponent implements OnInit {
         title: 'Attendance overview',
         icon: ICONS.ATTENDANCE.CALENDAR,
         metrics: [
-          { label: 'Present', value: stats.attendance.present },
-          { label: 'Absent', value: stats.attendance.absent },
-          { label: 'Leave', value: stats.attendance.leave },
-          { label: 'Holiday', value: stats.attendance.holiday },
+          { label: 'Present', value: stats?.attendance?.present ?? 0 },
+          { label: 'Absent', value: stats?.attendance?.absent ?? 0 },
+          { label: 'Leave', value: stats?.attendance?.leave ?? 0 },
+          { label: 'Holiday', value: stats?.attendance?.holiday ?? 0 },
         ],
       },
       {
@@ -222,12 +223,12 @@ export class GetAttendanceComponent implements OnInit {
         title: 'Check-in status',
         icon: ICONS.ATTENDANCE.CHECK_IN,
         metrics: [
-          { label: 'Checked In', value: stats.attendance.checkedIn },
+          { label: 'Checked In', value: stats?.attendance?.checkedIn ?? 0 },
           {
             label: 'Not Checked In Yet',
-            value: stats.attendance.notCheckedInYet,
+            value: stats?.attendance?.notCheckedInYet ?? 0,
           },
-          { label: 'Checked Out', value: stats.attendance.checkedOut },
+          { label: 'Checked Out', value: stats?.attendance?.checkedOut ?? 0 },
         ],
       },
       {
@@ -237,14 +238,16 @@ export class GetAttendanceComponent implements OnInit {
         metrics: [
           {
             label: 'Approval Pending',
-            value: stats.attendance.approvalPending,
+            value: stats?.attendance?.approvalPending ?? 0,
           },
-          { label: 'Pending', value: stats.approval.pending },
-          { label: 'Approved', value: stats.approval.approved },
-          { label: 'Rejected', value: stats.approval.rejected },
+          { label: 'Pending', value: stats?.approval?.pending ?? 0 },
+          { label: 'Approved', value: stats?.approval?.approved ?? 0 },
+          { label: 'Rejected', value: stats?.approval?.rejected ?? 0 },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleAttendanceTableActionClick(

@@ -52,7 +52,10 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
@@ -166,22 +169,22 @@ export class GetAnnouncementComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.announcementStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'acknowledgment',
         title: 'Acknowledgment Status',
         icon: ICONS.COMMON.MEGAPHONE,
         metrics: [
-          { label: 'Total', value: stats.total },
-          { label: 'Acknowledged', value: stats.acknowledged },
-          { label: 'Pending', value: stats.pending },
+          { label: 'Total', value: stats?.total ?? 0 },
+          { label: 'Acknowledged', value: stats?.acknowledged ?? 0 },
+          { label: 'Pending', value: stats?.pending ?? 0 },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleAnnouncementTableActionClick(

@@ -50,7 +50,10 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
@@ -161,25 +164,25 @@ export class GetContractorComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.contractorStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'overview',
         title: 'Overview',
-        metrics: [{ label: 'Total', value: stats.totalContractors }],
+        metrics: [{ label: 'Total', value: stats?.totalContractors ?? 0 }],
       },
       {
         id: 'status',
         title: 'Status',
         metrics: [
-          { label: 'Active', value: stats.activeContractors },
-          { label: 'Inactive', value: stats.inactiveContractors },
+          { label: 'Active', value: stats?.activeContractors ?? 0 },
+          { label: 'Inactive', value: stats?.inactiveContractors ?? 0 },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleContractorTableActionClick(

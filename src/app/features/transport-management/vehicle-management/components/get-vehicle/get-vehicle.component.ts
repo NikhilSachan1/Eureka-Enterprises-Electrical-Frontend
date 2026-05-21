@@ -48,7 +48,10 @@ import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IVehicle } from '../../types/vehicle.interface';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { GetVehicleDetailComponent } from '../get-vehicle-detail/get-vehicle-detail.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -229,19 +232,17 @@ export class GetVehicleComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.vehicleStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'vehicle-overview',
         title: 'Vehicle Overview',
         icon: ICONS.COMMON.CAR,
         metrics: [
-          { label: 'Total', value: stats.total },
-          { label: 'Available', value: stats.byStatus.available },
-          { label: 'Assigned', value: stats.byStatus.assigned },
+          { label: 'Total', value: stats?.total ?? 0 },
+          { label: 'Available', value: stats?.byStatus?.available ?? 0 },
+          { label: 'Assigned', value: stats?.byStatus?.assigned ?? 0 },
         ],
       },
       {
@@ -249,8 +250,11 @@ export class GetVehicleComponent implements OnInit {
         title: 'PUC Status',
         icon: ICONS.COMMON.FILE,
         metrics: [
-          { label: 'PUC Expiring Soon', value: stats.pucStatus.expiringSoon },
-          { label: 'PUC Expired', value: stats.pucStatus.expired },
+          {
+            label: 'PUC Expiring Soon',
+            value: stats?.pucStatus?.expiringSoon ?? 0,
+          },
+          { label: 'PUC Expired', value: stats?.pucStatus?.expired ?? 0 },
         ],
       },
       {
@@ -260,9 +264,12 @@ export class GetVehicleComponent implements OnInit {
         metrics: [
           {
             label: 'Insurance Expiring Soon',
-            value: stats.insuranceStatus.expiringSoon,
+            value: stats?.insuranceStatus?.expiringSoon ?? 0,
           },
-          { label: 'Insurance Expired', value: stats.insuranceStatus.expired },
+          {
+            label: 'Insurance Expired',
+            value: stats?.insuranceStatus?.expired ?? 0,
+          },
         ],
       },
       {
@@ -270,14 +277,19 @@ export class GetVehicleComponent implements OnInit {
         title: 'Service Status',
         icon: ICONS.SETTINGS.WRENCH,
         metrics: [
-          { label: 'Service Due Soon', value: stats.serviceDueStatus.dueSoon },
+          {
+            label: 'Service Due Soon',
+            value: stats?.serviceDueStatus?.dueSoon ?? 0,
+          },
           {
             label: 'Service Due Overdue',
-            value: stats.serviceDueStatus.overdue,
+            value: stats?.serviceDueStatus?.overdue ?? 0,
           },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleVehicleTableActionClick(

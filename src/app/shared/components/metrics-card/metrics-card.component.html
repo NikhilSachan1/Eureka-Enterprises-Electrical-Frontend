@@ -30,8 +30,17 @@
             <div class="metric-panel__body">
               <div class="metric-panel__kpi">
                 <p class="metric-panel__kpi-label">{{ kpiMetric.label }}</p>
-                <p class="metric-panel__kpi-value">
-                  @if (kpiMetric.type === ALL_DATA_TYPES.CURRENCY && kpiMetric.format) {
+                <p
+                  class="metric-panel__kpi-value"
+                  [attr.aria-busy]="kpiMetric.valueLoading ? 'true' : null"
+                >
+                  @if (kpiMetric.valueLoading) {
+                    <span
+                      [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' metric-row__value-loader'"
+                      aria-hidden="true"
+                    ></span>
+                    <span class="metric-row__sr-only">Loading value</span>
+                  } @else if (kpiMetric.type === ALL_DATA_TYPES.CURRENCY && kpiMetric.format) {
                     {{ kpiMetric.value | currency: kpiMetric.format }}
                   } @else {
                     {{ kpiMetric.value }}
@@ -157,8 +166,15 @@
       <span
         class="metric-row__value"
         [class.metric-row__value--currency]="metric.type === ALL_DATA_TYPES.CURRENCY && metric.format"
+        [attr.aria-busy]="metric.valueLoading ? 'true' : null"
       >
-        @if (metric.type === ALL_DATA_TYPES.CURRENCY && metric.format) {
+        @if (metric.valueLoading) {
+          <span
+            [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN + ' metric-row__value-loader'"
+            aria-hidden="true"
+          ></span>
+          <span class="metric-row__sr-only">Loading value</span>
+        } @else if (metric.type === ALL_DATA_TYPES.CURRENCY && metric.format) {
           {{ metric.value | currency: metric.format }}
         } @else {
           {{ metric.value }}

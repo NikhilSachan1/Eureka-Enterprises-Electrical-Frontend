@@ -50,7 +50,10 @@ import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-ca
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { ECompanyStatus } from '../../types/company.enum';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
@@ -158,28 +161,28 @@ export class GetCompanyComponent implements OnInit {
 
   private getMetricGroups(): IMetricGroup[] {
     const stats = this.companyStats();
-    if (!stats) {
-      return [];
-    }
+    const loading = this.table.loading();
 
-    return [
+    const groups: IMetricGroup[] = [
       {
         id: 'overview',
         title: 'Overview',
         icon: ICONS.SITE.BUILDING,
-        metrics: [{ label: 'Total', value: stats.totalCompanies }],
+        metrics: [{ label: 'Total', value: stats?.totalCompanies ?? 0 }],
       },
       {
         id: 'status',
         title: 'Status',
         icon: ICONS.COMMON.CHART,
         metrics: [
-          { label: 'Active', value: stats.activeCompanies },
-          { label: 'Inactive', value: stats.inactiveCompanies },
-          { label: 'Archived', value: stats.archivedCompanies },
+          { label: 'Active', value: stats?.activeCompanies ?? 0 },
+          { label: 'Inactive', value: stats?.inactiveCompanies ?? 0 },
+          { label: 'Archived', value: stats?.archivedCompanies ?? 0 },
         ],
       },
     ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   protected handleCompanyTableActionClick(
