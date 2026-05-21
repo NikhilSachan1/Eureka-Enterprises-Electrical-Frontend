@@ -11,6 +11,8 @@ import {
   MyFilesUploadRequestSchema,
   MyFilesUploadResponseSchema,
   MyFilesDeleteResponseSchema,
+  MyFilesMoveRequestSchema,
+  MyFilesMoveResponseSchema,
 } from '../schemas';
 import z from 'zod';
 
@@ -74,3 +76,9 @@ export type IMyFilesUploadResponseDto = z.infer<
 export type IMyFilesDeleteResponseDto = z.infer<
   typeof MyFilesDeleteResponseSchema
 >;
+
+/**
+ * My Files Move
+ */
+export type IMyFilesMoveFormDto = z.input<typeof MyFilesMoveRequestSchema>;
+export type IMyFilesMoveResponseDto = z.infer<typeof MyFilesMoveResponseSchema>;

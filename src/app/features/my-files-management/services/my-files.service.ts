@@ -12,6 +12,8 @@ import {
   MyFilesUploadRequestSchema,
   MyFilesUploadResponseSchema,
   MyFilesDeleteResponseSchema,
+  MyFilesMoveRequestSchema,
+  MyFilesMoveResponseSchema,
 } from '../schemas';
 import {
   IMyFilesBreadcrumbResponseDto,
@@ -24,8 +26,12 @@ import {
   IMyFilesRenameResponseDto,
   IMyFilesUploadFormDto,
   IMyFilesUploadResponseDto,
+  IMyFilesMoveFormDto,
+  IMyFilesMoveResponseDto,
 } from '../types/my-files.dto';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { IMyFilesMoveFolderTreeItem } from '../types/my-files.interface';
+import { EMyFileType } from '../types/my-files.enum';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -208,5 +214,55 @@ export class MyFilesService {
           return throwError(() => error);
         })
       );
+  }
+
+  moveMyFile(
+    fileId: string,
+    formData: IMyFilesMoveFormDto
+  ): Observable<IMyFilesMoveResponseDto> {
+    this.logger.logUserAction('Move My File Request');
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.MY_FILES.MOVE(fileId),
+        {
+          response: MyFilesMoveResponseSchema,
+          request: MyFilesMoveRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IMyFilesMoveResponseDto) => {
+          this.logger.logUserAction('Move My File Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Move My File Error', error);
+          } else {
+            this.logger.logUserAction('Move My File Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getMoveFolderTreeItems(
+    parentId: string | null,
+    excludeFolderId?: string
+  ): Observable<IMyFilesMoveFolderTreeItem[]> {
+    return this.getMyFilesList({ parentId }).pipe(
+      map(response =>
+        response.records
+          .filter(
+            record =>
+              record.type === EMyFileType.FOLDER &&
+              record.id !== excludeFolderId
+          )
+          .map(folder => ({
+            id: folder.id,
+            name: folder.name,
+          }))
+      )
+    );
   }
 }

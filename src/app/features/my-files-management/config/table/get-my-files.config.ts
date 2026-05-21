@@ -55,6 +55,10 @@ const MY_FILES_TABLE_ROW_ACTIONS_CONFIG: Partial<
     tooltip: 'Rename',
   },
   {
+    ...COMMON_ROW_ACTIONS.MOVE,
+    tooltip: 'Move',
+  },
+  {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete',
   },

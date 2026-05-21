@@ -1,0 +1,10 @@
+<p-tree
+  class="w-full"
+  [value]="folderTreeNodes()"
+  selectionMode="single"
+  [(selection)]="selectedFolder"
+  loadingMode="icon"
+  emptyMessage="No folders available."
+  (onNodeExpand)="nodeExpand($event)"
+  (onNodeSelect)="nodeSelect($event)"
+/>

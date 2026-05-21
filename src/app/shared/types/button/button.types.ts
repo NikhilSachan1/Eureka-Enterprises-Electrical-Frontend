@@ -87,4 +87,5 @@ export enum EButtonActionType {
   SEND_EMAIL = 'sendEmail',
   UPLOAD = 'upload',
   CREATE_FOLDER = 'createFolder',
+  MOVE = 'move',
 }

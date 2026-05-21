@@ -1,0 +1,26 @@
+:host ::ng-deep .app-drawer-bottom-sheet.p-drawer.p-drawer-bottom {
+  inset: auto 0 0 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 60vh !important;
+  border-top-left-radius: var(--p-border-radius-xl);
+  border-top-right-radius: var(--p-border-radius-xl);
+}
+
+:host ::ng-deep .app-drawer-bottom-sheet .p-drawer-header {
+  flex-shrink: 0;
+  padding: 1rem 1.25rem 0.75rem;
+}
+
+:host ::ng-deep .app-drawer-bottom-sheet .p-drawer-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 1.25rem 1rem;
+}
+
+:host ::ng-deep .app-drawer-top-sheet.p-drawer {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 60vh !important;
+}

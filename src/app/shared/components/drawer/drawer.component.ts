@@ -122,8 +122,24 @@ export class DrawerComponent implements OnInit {
   }
 
   protected getDrawerStyle(): Record<string, string> | null {
-    const size = this.currentConfig()?.size ?? EDrawerSize.DEFAULT;
-    const sizeConfig = this.DRAWER_SIZES.find(config => config.size === size);
+    const config = this.currentConfig();
+    const position = config?.position ?? EDrawerPosition.RIGHT;
+    const size = config?.size ?? EDrawerSize.DEFAULT;
+
+    if (
+      position === EDrawerPosition.BOTTOM ||
+      position === EDrawerPosition.TOP
+    ) {
+      return {
+        height: '60vh',
+        width: '100%',
+        maxWidth: '100%',
+      };
+    }
+
+    const sizeConfig = this.DRAWER_SIZES.find(
+      sizeOption => sizeOption.size === size
+    );
 
     if (this.isMobile() || size === EDrawerSize.DEFAULT || !sizeConfig) {
       return null;
@@ -133,6 +149,20 @@ export class DrawerComponent implements OnInit {
       width: sizeConfig.width,
       maxWidth: sizeConfig.maxWidth,
     };
+  }
+
+  protected getDrawerStyleClass(): string {
+    const position = this.currentConfig()?.position ?? EDrawerPosition.RIGHT;
+
+    if (position === EDrawerPosition.BOTTOM) {
+      return 'app-drawer-bottom-sheet';
+    }
+
+    if (position === EDrawerPosition.TOP) {
+      return 'app-drawer-top-sheet';
+    }
+
+    return '';
   }
 
   private readonly DRAWER_SIZES = [

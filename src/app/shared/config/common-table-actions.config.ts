@@ -16,6 +16,11 @@ export const COMMON_ROW_ACTIONS = {
     tooltip: 'Delete',
   },
 
+  MOVE: {
+    id: EButtonActionType.MOVE,
+    tooltip: 'Move',
+  },
+
   APPROVE: {
     id: EButtonActionType.APPROVE,
     tooltip: 'Approve',

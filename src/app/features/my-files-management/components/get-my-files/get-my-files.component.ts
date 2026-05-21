@@ -11,6 +11,7 @@ import { LoggerService } from '@core/services';
 import {
   LoadingService,
   ConfirmationDialogService,
+  DrawerService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -18,6 +19,7 @@ import {
 import { MyFilesService } from '../../services/my-files.service';
 import {
   EButtonActionType,
+  EDrawerPosition,
   IButtonConfig,
   IDialogActionConfig,
   IEnhancedTable,
@@ -44,6 +46,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { MyFilesBreadcrumbComponent } from '../my-files-breadcrumb/my-files-breadcrumb.component';
+import { MoveMyFileComponent } from '../move-my-file/move-my-file.component';
 
 @Component({
   selector: 'app-get-my-files',
@@ -71,6 +74,7 @@ export class GetMyFilesComponent implements OnInit {
   private readonly tableServerSideParamsBuilderService = inject(
     TableServerSideParamsBuilderService
   );
+  private readonly drawerService = inject(DrawerService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -185,10 +189,49 @@ export class GetMyFilesComponent implements OnInit {
     );
   }
 
+  protected startMoveDrawer(record: IMyFileBaseResponseDto): void {
+    const itemLabel = record.type === EMyFileType.FOLDER ? 'folder' : 'file';
+
+    this.drawerService.showDrawer(MoveMyFileComponent, {
+      header: 'Move to Folder',
+      subtitle: `Select a folder for this ${itemLabel}`,
+      position: EDrawerPosition.BOTTOM,
+      dismissible: true,
+      componentData: {
+        itemToMove: record,
+        onSuccess: (destinationParentId: string | null) => {
+          this.handleMoveSuccess(destinationParentId);
+        },
+      },
+    });
+  }
+
+  private handleMoveSuccess(destinationParentId: string | null): void {
+    const currentParentId = this.getCurrentParentId();
+
+    if (currentParentId === destinationParentId) {
+      this.loadMyFilesList();
+      return;
+    }
+
+    void this.routerNavigationService.navigateWithQueryParams(
+      [ROUTE_BASE_PATHS.MY_FILES, ROUTES.MY_FILES.LIST],
+      { parentId: destinationParentId }
+    );
+  }
+
   protected handleMyFilesTableActionClick(
-    event: ITableActionClickEvent<IMyFile>
+    event: ITableActionClickEvent<IMyFileBaseResponseDto>
   ): void {
     const { actionType, selectedRows } = event;
+
+    if (actionType === EButtonActionType.MOVE) {
+      const [row] = selectedRows;
+      if (row) {
+        this.startMoveDrawer(row);
+      }
+      return;
+    }
 
     const dynamicComponentInputs: Record<string, unknown> = {
       selectedRecord: selectedRows,
@@ -215,24 +258,34 @@ export class GetMyFilesComponent implements OnInit {
     selectedRows: IMyFileBaseResponseDto[]
   ): IDialogActionConfig {
     const baseConfig = MY_FILES_ACTION_CONFIG_MAP[actionType];
-
-    if (actionType !== EButtonActionType.EDIT) {
-      return baseConfig;
-    }
-
     const [record] = selectedRows;
     const isFolder = record?.type === EMyFileType.FOLDER;
     const itemLabel = isFolder ? 'folder' : 'file';
     const itemLabelTitle = isFolder ? 'Folder' : 'File';
 
-    return {
-      ...baseConfig,
-      dialogConfig: {
-        ...baseConfig.dialogConfig,
-        header: `Rename ${itemLabelTitle}`,
-        message: `Update the ${itemLabel} name.`,
-      },
-    };
+    if (actionType === EButtonActionType.EDIT) {
+      return {
+        ...baseConfig,
+        dialogConfig: {
+          ...baseConfig.dialogConfig,
+          header: `Rename ${itemLabelTitle}`,
+          message: `Update the ${itemLabel} name.`,
+        },
+      };
+    }
+
+    if (actionType === EButtonActionType.DELETE) {
+      return {
+        ...baseConfig,
+        dialogConfig: {
+          ...baseConfig.dialogConfig,
+          header: `Delete ${itemLabelTitle}`,
+          message: `Delete the ${itemLabel}?`,
+        },
+      };
+    }
+
+    return baseConfig;
   }
 
   protected readonly EButtonActionType = EButtonActionType;

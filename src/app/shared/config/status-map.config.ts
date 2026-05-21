@@ -56,6 +56,8 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   createfolder: { icon: ICONS.COMMON.FOLDER, severity: 'success' },
   /** My Files: upload files (`EButtonActionType.UPLOAD` → key `upload`). */
   upload: { icon: ICONS.COMMON.UPLOAD, severity: 'info' },
+  /** My Files: move file or folder (`EButtonActionType.MOVE` → key `move`). */
+  move: { icon: ICONS.COMMON.ARROW_RIGHT_LEFT, severity: 'info' },
   total: { icon: ICONS.STATUS.TOTAL, severity: 'info' },
   available: { icon: ICONS.STATUS.AVAILABLE, severity: 'success' },
   assigned: { icon: ICONS.STATUS.ASSIGNED, severity: 'info' },
