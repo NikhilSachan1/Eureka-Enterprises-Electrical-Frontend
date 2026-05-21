@@ -1,0 +1,12 @@
+<div
+  class="section-loader"
+  role="status"
+  aria-live="polite"
+  aria-busy="true"
+>
+  <i [class]="icons.COMMON.SPINNER + ' section-loader__icon pi-spin'"></i>
+
+  @if (message()) {
+    <p class="section-loader__message">{{ message() }}</p>
+  }
+</div>

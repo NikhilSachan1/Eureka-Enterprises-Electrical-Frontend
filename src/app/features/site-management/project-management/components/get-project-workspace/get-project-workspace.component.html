@@ -9,25 +9,35 @@
   />
 </div>
 
-<app-project-workspace-info-card />
+@if (selectedProjectId()) {
+  <section
+    class="workspace-overview-panel"
+    [class.workspace-overview-panel--with-timeline]="showTimeline()"
+  >
+    <div class="workspace-overview-panel__body">
+      <div class="workspace-overview-panel__detail">
+        <app-project-workspace-info-card />
+      </div>
 
-<div
-  class="project-workspace-main-grid"
-  [class.project-workspace-main-grid--with-timeline]="showTimeline()"
->
-  @defer (when showTimeline()) {
-    <p-card class="workspace-timeline-card min-w-0">
-      <app-get-project-timeline />
-    </p-card>
+      @if (showTimeline()) {
+        <div
+          class="workspace-overview-panel__divider"
+          aria-hidden="true"
+        ></div>
+        <div class="workspace-overview-panel__timeline">
+          <app-get-project-timeline />
+        </div>
+      }
+    </div>
+  </section>
+}
+
+<div class="project-workspace-main min-w-0 max-w-full">
+  @if (visibleWorkspaceTabs().length) {
+    <app-nav-tabs
+      class="block min-w-0 max-w-full"
+      [tabs]="visibleWorkspaceTabs()"
+      [tabMode]="tabModeType"
+    />
   }
-
-  <div class="min-w-0 max-w-full">
-    @if (visibleWorkspaceTabs().length) {
-      <app-nav-tabs
-        class="block min-w-0 max-w-full"
-        [tabs]="visibleWorkspaceTabs()"
-        [tabMode]="tabModeType"
-      />
-    }
-  </div>
 </div>

@@ -1,5 +1,7 @@
 <div class="project-timeline">
-  @if (timelinePage(); as vm) {
+  @if (isLoading()) {
+    <app-section-loader message="Loading site timeline..." />
+  } @else {
     <section class="hero-card">
       <div class="hero-content">
         <div class="hero-main">
@@ -9,22 +11,16 @@
           <div>
             <p class="eyebrow">Project activity</p>
             <h2>Site timeline</h2>
-            <p class="subtle-text">Scroll the list below.</p>
           </div>
         </div>
         <div class="hero-stat">
           <span class="hero-stat__label">Events</span>
-          <span class="hero-stat__value">{{ vm.eventCount }}</span>
+          <span class="hero-stat__value">{{ events().length }}</span>
         </div>
       </div>
     </section>
 
-    @if (vm.eventCount === 0) {
-      <section class="empty-panel">
-        <i [class]="icons.COMMON.INFO_CIRCLE"></i>
-        <p>No timeline events recorded for this project yet.</p>
-      </section>
-    } @else {
+    @if (events().length > 0) {
       <div class="timeline-scroll">
         <div class="timeline-shell">
           <app-timeline [config]="timelineConfig()">
@@ -61,10 +57,12 @@
           </app-timeline>
         </div>
       </div>
+    } @else {
+      <section class="timeline-empty">
+        <i [class]="icons.COMMON.INFO_CIRCLE"></i>
+        <p class="timeline-empty__title">No timeline found</p>
+        <p class="timeline-empty__text">No site activity has been recorded for this project yet.</p>
+      </section>
     }
-  } @else {
-    <section class="hero-card hero-card--muted">
-      <p class="subtle-text subtle-text--solo">Timeline will appear here once loaded.</p>
-    </section>
   }
 </div>

@@ -72,6 +72,21 @@ export const ProjectGetBaseResponseSchema = ProjectBaseSchema.extend({
       })
     )
     .nullable(),
+  siteVendors: z
+    .array(
+      z.object({
+        id: uuidField,
+        siteId: uuidField,
+        vendorId: uuidField,
+        vendor: z.looseObject({
+          id: uuidField,
+          name: z.string(),
+          fullAddress: z.string().nullable(),
+        }),
+      })
+    )
+    .nullable()
+    .optional(),
   fullAddress: z.string().nullable(),
   totalSpent: z.number().int().nonnegative().optional().nullable(),
   profitPercentage: z.number().optional().nullable(),

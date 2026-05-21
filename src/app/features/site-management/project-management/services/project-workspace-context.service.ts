@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectWorkspaceContextService {
@@ -7,6 +7,9 @@ export class ProjectWorkspaceContextService {
   );
 
   readonly docWorkspaceFilter = this._docWorkspaceFilter.asReadonly();
+  readonly selectedProjectId = computed(() =>
+    extractWorkspaceProjectId(this._docWorkspaceFilter())
+  );
 
   setDocWorkspaceFilter(filter: Record<string, unknown> | null): void {
     this._docWorkspaceFilter.set(filter);
@@ -15,4 +18,16 @@ export class ProjectWorkspaceContextService {
   clear(): void {
     this._docWorkspaceFilter.set(null);
   }
+}
+
+function extractWorkspaceProjectId(
+  filter: Record<string, unknown> | null
+): string | undefined {
+  const raw = filter?.['projectName'] as string | string[] | undefined;
+
+  if (!raw) {
+    return undefined;
+  }
+
+  return Array.isArray(raw) ? raw[0] : raw;
 }

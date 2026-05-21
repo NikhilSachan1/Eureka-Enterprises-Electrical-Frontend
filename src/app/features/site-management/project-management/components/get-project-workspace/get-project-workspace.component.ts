@@ -7,7 +7,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CardModule } from 'primeng/card';
 import {
   ETabMode,
   IPageHeaderConfig,
@@ -18,7 +17,7 @@ import { ICONS } from '@shared/constants';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { LoggerService, AppPermissionService } from '@core/services';
+import { AppPermissionService } from '@core/services';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { RouterNavigationService } from '@shared/services';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
@@ -30,7 +29,6 @@ import { ProjectWorkspaceInfoCardComponent } from '../project-workspace-info-car
 @Component({
   selector: 'app-get-project-workspace',
   imports: [
-    CardModule,
     NavTabsComponent,
     GetProjectTimelineComponent,
     PageHeaderComponent,
@@ -43,7 +41,6 @@ import { ProjectWorkspaceInfoCardComponent } from '../project-workspace-info-car
 })
 export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly logger = inject(LoggerService);
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly projectWorkspaceContext = inject(
     ProjectWorkspaceContextService
@@ -57,6 +54,8 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
   protected readonly showTimeline = computed(() => this.getShowTimeline());
   protected readonly visibleWorkspaceTabs = computed(() => this.getTabs());
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly selectedProjectId =
+    this.projectWorkspaceContext.selectedProjectId;
 
   protected readonly searchFilterPrefill = signal<
     Record<string, unknown> | undefined
