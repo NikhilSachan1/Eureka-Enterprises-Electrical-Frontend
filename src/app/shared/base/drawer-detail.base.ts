@@ -59,4 +59,8 @@ export abstract class DrawerDetailBase implements OnInit {
   protected onDrawerVisibleChange(visible: boolean): void {
     this.logger.logUserAction(`drawer visibility changed to: ${visible}`);
   }
+
+  protected setDrawerLoading(loading: boolean): void {
+    this.drawerService.setLoading(loading);
+  }
 }

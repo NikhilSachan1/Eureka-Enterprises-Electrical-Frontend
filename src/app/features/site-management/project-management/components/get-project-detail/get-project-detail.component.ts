@@ -12,7 +12,7 @@ import {
   IProjectGetBaseResponseDto,
 } from '../../types/project.dto';
 import { ProjectService } from '../../services/project.service';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -37,7 +37,6 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
     project: IProjectGetBaseResponseDto;
   };
   private readonly projectService = inject(ProjectService);
-  private readonly loadingService = inject(LoadingService);
   protected readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _projectDetails = signal<
@@ -49,19 +48,14 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
   }
 
   private loadProjectDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Project Details',
-      message:
-        "We're loading the project details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.projectService
       .getProjectDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

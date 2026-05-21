@@ -17,7 +17,7 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { ICONS } from '@shared/constants';
 import { DEFAULT_INPUT_FIELD_CONFIG } from '@shared/config/input-field.config';
-import { LoadingService, NotificationService } from '@shared/services';
+import { NotificationService } from '@shared/services';
 import { EDataType, IInputFieldsConfig } from '@shared/types';
 import { MyFilesService } from '../../services/my-files.service';
 import {
@@ -42,7 +42,6 @@ const ROOT_FOLDER_TREE_KEY = 'root';
 export class MoveMyFileComponent extends DrawerDetailBase {
   private readonly drawerData = inject(DRAWER_DATA) as IMoveMyFileDrawerData;
   private readonly myFilesService = inject(MyFilesService);
-  private readonly loadingService = inject(LoadingService);
   private readonly notificationService = inject(NotificationService);
   private readonly searchInputChanges$ = new Subject<string>();
 
@@ -113,13 +112,7 @@ export class MoveMyFileComponent extends DrawerDetailBase {
     const isFolder = record.type === EMyFileType.FOLDER;
 
     this.moving.set(true);
-    this.loadingService.show({
-      title: isFolder ? 'Moving Folder' : 'Moving File',
-      message: isFolder
-        ? "We're moving the folder. This will just take a moment."
-        : "We're moving the file. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const formData: IMyFilesMoveFormDto = { parentId: destinationParentId };
 
     this.myFilesService
@@ -127,7 +120,7 @@ export class MoveMyFileComponent extends DrawerDetailBase {
       .pipe(
         finalize(() => {
           this.moving.set(false);
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

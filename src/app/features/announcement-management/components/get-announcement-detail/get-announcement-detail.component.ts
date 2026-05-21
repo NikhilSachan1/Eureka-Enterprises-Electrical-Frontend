@@ -14,11 +14,7 @@ import {
 } from '@features/announcement-management/types/announcement.dto';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import {
-  AppConfigurationService,
-  AvatarService,
-  LoadingService,
-} from '@shared/services';
+import { AppConfigurationService, AvatarService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -41,7 +37,6 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
     announcement: IAnnouncementGetBaseResponseDto;
   };
   private readonly announcementService = inject(AnnouncementService);
-  private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigurationService);
   private readonly avatarService = inject(AvatarService);
 
@@ -60,19 +55,14 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
   }
 
   private loadAnnouncementDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Announcement Details',
-      message:
-        "We're loading the announcement details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.announcementService
       .getAnnouncementDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

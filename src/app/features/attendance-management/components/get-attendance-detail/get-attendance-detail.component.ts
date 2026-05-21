@@ -7,7 +7,6 @@ import {
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { AttendanceService } from '../../services/attendance.service';
-import { LoadingService } from '@shared/services/loading.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -40,7 +39,6 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
     attendance: IAttendanceGetBaseResponseDto;
   };
   private readonly attendanceService = inject(AttendanceService);
-  private readonly loadingService = inject(LoadingService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _attendanceDetails = signal<
@@ -55,19 +53,14 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
   }
 
   private loadAttendanceDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Attendance Details',
-      message:
-        "We're loading this attendance record. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.attendanceService
       .getAttendanceHistory(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

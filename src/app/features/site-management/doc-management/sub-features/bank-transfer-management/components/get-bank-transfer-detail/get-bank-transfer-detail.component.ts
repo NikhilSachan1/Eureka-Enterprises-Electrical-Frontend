@@ -12,7 +12,6 @@ import {
 } from '../../types/bank-transfer.dto';
 import { BankTransferService } from '../../services/bank-transfer.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { LoadingService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -44,7 +43,6 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
     bankTransfer: IBankTransferGetBaseResponseDto;
   };
   private readonly bankTransferService = inject(BankTransferService);
-  private readonly loadingService = inject(LoadingService);
 
   protected readonly _details = signal<IDataViewDetailsWithEntity | undefined>(
     undefined
@@ -58,18 +56,14 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
   }
 
   private loadDetails(): void {
-    this.loadingService.show({
-      title: 'Loading details',
-      message: 'Fetching bank transfer…',
-    });
-
+    this.setDrawerLoading(true);
     const { id } = this.drawerData.bankTransfer;
 
     this.bankTransferService
       .getBankTransferDetailById(id)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

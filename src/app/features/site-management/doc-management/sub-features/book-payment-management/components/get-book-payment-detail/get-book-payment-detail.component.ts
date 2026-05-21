@@ -12,7 +12,6 @@ import {
 } from '../../types/book-payment.dto';
 import { BookPaymentService } from '../../services/book-payment.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { LoadingService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -46,7 +45,6 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
     bookPayment: IBookPaymentGetBaseResponseDto;
   };
   private readonly bookPaymentService = inject(BookPaymentService);
-  private readonly loadingService = inject(LoadingService);
 
   protected readonly _bookPaymentDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -60,18 +58,14 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
   }
 
   private loadBookPaymentDetails(): void {
-    this.loadingService.show({
-      title: 'Loading details',
-      message: 'Fetching book payment…',
-    });
-
+    this.setDrawerLoading(true);
     const { id } = this.drawerData.bookPayment;
 
     this.bookPaymentService
       .getBookPaymentDetailById(id)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

@@ -13,7 +13,7 @@ import {
 } from '../../types/jmc.dto';
 import { JmcService } from '../../services/jmc.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -44,7 +44,6 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
     jmc: IJmcGetBaseResponseDto;
   };
   private readonly jmcService = inject(JmcService);
-  private readonly loadingService = inject(LoadingService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _jmcDetails = signal<
@@ -59,18 +58,14 @@ export class GetJmcDetailComponent extends DrawerDetailBase {
   }
 
   private loadJmcDetails(): void {
-    this.loadingService.show({
-      title: 'Loading JMC Details',
-      message: "We're loading the JMC details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.jmcService
       .getJmcDetailById(paramData.id)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

@@ -11,7 +11,7 @@ import {
   IFuelExpenseDetailGetResponseDto,
   IFuelExpenseGetBaseResponseDto,
 } from '../../types/fuel-expense.dto';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
 import {
   EDataType,
@@ -37,7 +37,6 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
     fuelExpense: IFuelExpenseGetBaseResponseDto;
   };
   private readonly fuelExpenseService = inject(FuelExpenseService);
-  private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigurationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
@@ -52,19 +51,14 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
   }
 
   private loadFuelExpenseDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Fuel Expense Details',
-      message:
-        "We're loading the fuel expense details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.fuelExpenseService
       .getFuelExpenseDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

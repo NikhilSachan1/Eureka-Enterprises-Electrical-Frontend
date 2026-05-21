@@ -12,7 +12,7 @@ import {
   IVehicleServiceGetBaseResponseDto,
 } from '../../types/vehicle-service.dto';
 import { VehicleServiceService } from '../../services/vehicle-service.service';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -37,7 +37,6 @@ export class GetVehicleServiceDetailComponent extends DrawerDetailBase {
     vehicleService: IVehicleServiceGetBaseResponseDto;
   };
   private readonly vehicleServiceService = inject(VehicleServiceService);
-  private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigurationService);
 
   protected readonly _vehicleServiceDetails = signal<
@@ -51,19 +50,14 @@ export class GetVehicleServiceDetailComponent extends DrawerDetailBase {
   }
 
   private loadVehicleServiceDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Vehicle Service Details',
-      message:
-        "We're loading the vehicle service details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.vehicleServiceService
       .getVehicleServiceDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

@@ -22,7 +22,6 @@ import {
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { toTitleCase } from '@shared/utility';
 import { ConfigurationService } from '../../services/configuration.service';
-import { LoadingService } from '@shared/services';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -37,7 +36,6 @@ type ConfigurationValueKind = 'nullish' | 'primitive' | 'array' | 'object';
 })
 export class GetConfigurationDetailComponent extends DrawerDetailBase {
   private readonly configurationService = inject(ConfigurationService);
-  private readonly loadingService = inject(LoadingService);
 
   protected readonly APP_CONFIG = APP_CONFIG;
 
@@ -59,19 +57,14 @@ export class GetConfigurationDetailComponent extends DrawerDetailBase {
   }
 
   private loadConfigurationDetails(): void {
-    this.loadingService.show({
-      title: 'Loading configuration details',
-      message:
-        "We're loading the configuration details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.configurationService
       .getConfigurationDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

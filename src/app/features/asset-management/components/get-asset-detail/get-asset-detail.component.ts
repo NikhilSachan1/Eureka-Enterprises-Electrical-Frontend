@@ -13,7 +13,7 @@ import {
 } from '@features/asset-management/types/asset.dto';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -37,7 +37,6 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
     asset: IAssetGetBaseResponseDto;
   };
   private readonly assetService = inject(AssetService);
-  private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigurationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
@@ -52,18 +51,14 @@ export class GetAssetDetailComponent extends DrawerDetailBase {
   }
 
   private loadAssetDetails(): void {
-    this.loadingService.show({
-      title: 'Loading asset details',
-      message: "We're loading this asset. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.assetService
       .getAssetDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

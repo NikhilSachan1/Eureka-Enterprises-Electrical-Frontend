@@ -25,7 +25,6 @@ import {
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { ICONS } from '@shared/constants';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { LoadingService } from '@shared/services/loading.service';
 import { EMPLOYEE_MESSAGES } from '../../constants';
 import {
   EDataType,
@@ -85,7 +84,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
   private readonly route = inject(ActivatedRoute);
 
   private readonly employeeService = inject(EmployeeService);
-  private readonly loadingService = inject(LoadingService);
+
   protected readonly appConfigService = inject(AppConfigurationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly avatarService = inject(AvatarService);
@@ -125,18 +124,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
   }
 
   private loadEmployeeDetails(): void {
-    const title = this.isRouteMode
-      ? EMPLOYEE_MESSAGES.LOADING.GET_PROFILE
-      : EMPLOYEE_MESSAGES.LOADING.GET_DETAIL;
-    const message = this.isRouteMode
-      ? EMPLOYEE_MESSAGES.LOADING_MESSAGES.GET_PROFILE
-      : EMPLOYEE_MESSAGES.LOADING_MESSAGES.GET_DETAIL;
-
-    this.loadingService.show({
-      title,
-      message,
-    });
-
+    this.setDrawerLoading(true);
     let paramData: IEmployeeDetailGetRequestDto =
       {} as IEmployeeDetailGetRequestDto;
     if (!this.isRouteMode) {
@@ -176,7 +164,7 @@ export class GetEmployeeDetailComponent extends DrawerDetailBase {
             .pipe(catchError(() => of(null)));
         }),
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

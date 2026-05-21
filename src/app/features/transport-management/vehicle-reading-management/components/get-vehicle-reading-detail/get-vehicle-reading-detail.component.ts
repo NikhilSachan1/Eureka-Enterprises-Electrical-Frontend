@@ -7,7 +7,7 @@ import {
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { VehicleReadingService } from '../../services/vehicle-reading.service';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   IvehicleReadingDetailGetFormDto,
   IVehicleReadingDetailGetResponseDto,
@@ -37,7 +37,6 @@ export class GetVehicleReadingDetailComponent extends DrawerDetailBase {
     vehicleReading: IVehicleReadingGetBaseResponseDto;
   };
   private readonly vehicleReadingService = inject(VehicleReadingService);
-  private readonly loadingService = inject(LoadingService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _vehicleReadingDetails = signal<
@@ -51,19 +50,14 @@ export class GetVehicleReadingDetailComponent extends DrawerDetailBase {
   }
 
   private loadVehicleReadingDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Vehicle Reading Details',
-      message:
-        "We're loading the vehicle reading details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.vehicleReadingService
       .getVehicleReadingDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

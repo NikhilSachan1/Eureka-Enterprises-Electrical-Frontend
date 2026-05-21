@@ -13,7 +13,7 @@ import {
 } from '@features/payroll-management/types/payroll.dto';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -38,7 +38,7 @@ export class GetPayslipDetailComponent extends DrawerDetailBase {
     payslip: IPayslipGetBaseResponseDto;
   };
   private readonly payrollService = inject(PayrollService);
-  private readonly loadingService = inject(LoadingService);
+
   protected readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _payslipDetails = signal<
@@ -52,18 +52,14 @@ export class GetPayslipDetailComponent extends DrawerDetailBase {
   }
 
   private loadPayslipDetails(): void {
-    this.loadingService.show({
-      title: PAYROLL_MESSAGES.LOADING.PAYSLIP_DETAILS,
-      message: PAYROLL_MESSAGES.LOADING_MESSAGES.PAYSLIP_DETAILS,
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.payrollService
       .getPayslipDetailById(paramData.payslipId)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

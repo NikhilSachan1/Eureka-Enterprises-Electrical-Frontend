@@ -13,7 +13,7 @@ import {
 } from '../../types/po.dto';
 import { PoService } from '../../services/po.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -44,7 +44,6 @@ export class GetPoDetailComponent extends DrawerDetailBase {
     po: IPoGetBaseResponseDto;
   };
   private readonly poService = inject(PoService);
-  private readonly loadingService = inject(LoadingService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _poDetails = signal<
@@ -58,18 +57,14 @@ export class GetPoDetailComponent extends DrawerDetailBase {
   }
 
   private loadPoDetails(): void {
-    this.loadingService.show({
-      title: 'Loading PO Details',
-      message: "We're loading the PO details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.poService
       .getPoDetailById(paramData.id)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

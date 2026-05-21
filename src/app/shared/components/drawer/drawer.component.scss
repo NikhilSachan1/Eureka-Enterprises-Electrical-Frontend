@@ -24,3 +24,30 @@
   max-width: 100% !important;
   height: 60vh !important;
 }
+
+.app-drawer-content-shell {
+  position: relative;
+  height: 100%;
+  min-height: 12rem;
+}
+
+.app-drawer-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+:host-context(.dark-theme) .app-drawer-loader {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+.app-drawer-loader__icon {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--primary-color);
+}

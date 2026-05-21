@@ -20,11 +20,17 @@ export class DrawerService {
 
   private readonly _config = signal<IDrawerConfig>({} as IDrawerConfig);
   private readonly _visible = signal<boolean>(false);
+  private readonly _loading = signal<boolean>(false);
 
   private readonly drawerEvents$ = new Subject<IDrawerEvent>();
 
   readonly config = computed(() => this._config());
   readonly visible = computed(() => this._visible());
+  readonly loading = this._loading.asReadonly();
+
+  setLoading(loading: boolean): void {
+    this._loading.set(loading);
+  }
 
   getDrawerState(): Observable<IDrawerState> {
     return this.drawerState$.asObservable();
@@ -36,6 +42,7 @@ export class DrawerService {
   }
 
   emitDrawerShow(): void {
+    this._loading.set(false);
     const currentConfig = this._config();
     this.drawerEvents$.next({
       type: 'show',
@@ -81,6 +88,7 @@ export class DrawerService {
 
       hide: (): void => {
         const currentConfig = this._config();
+        this._loading.set(false);
         this._visible.set(false);
         this.drawerState$.next({
           config: currentConfig,

@@ -13,7 +13,7 @@ import {
 } from '@features/site-management/dsr-management/types/dsr.dto';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -35,7 +35,6 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
     dsr: IDsrGetBaseResponseDto;
   };
   private readonly dsrService = inject(DsrService);
-  private readonly loadingService = inject(LoadingService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _dsrDetails = signal<
@@ -49,18 +48,14 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
   }
 
   private loadDsrDetails(): void {
-    this.loadingService.show({
-      title: 'Loading DSR Details',
-      message: "We're loading the DSR details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.dsrService
       .getDsrDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

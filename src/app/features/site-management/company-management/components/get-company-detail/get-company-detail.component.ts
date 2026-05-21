@@ -12,7 +12,7 @@ import {
   ICompanyGetBaseResponseDto,
 } from '../../types/company.dto';
 import { CompanyService } from '../../services/company.service';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -36,7 +36,6 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
     company: ICompanyGetBaseResponseDto;
   };
   private readonly companyService = inject(CompanyService);
-  private readonly loadingService = inject(LoadingService);
   protected readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _companyDetails = signal<
@@ -48,19 +47,14 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
   }
 
   private loadCompanyDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Company Details',
-      message:
-        "We're loading the company details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.companyService
       .getCompanyDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

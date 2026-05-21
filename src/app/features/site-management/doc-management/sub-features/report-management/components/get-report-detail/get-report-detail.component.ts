@@ -13,7 +13,6 @@ import {
 } from '../../types/report.dto';
 import { ReportService } from '../../services/report.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { LoadingService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -43,7 +42,6 @@ export class GetReportDetailComponent extends DrawerDetailBase {
     report: IReportGetBaseResponseDto;
   };
   private readonly reportService = inject(ReportService);
-  private readonly loadingService = inject(LoadingService);
 
   protected readonly _reportDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -57,19 +55,14 @@ export class GetReportDetailComponent extends DrawerDetailBase {
   }
 
   private loadReportDetails(): void {
-    this.loadingService.show({
-      title: 'Loading report details',
-      message:
-        "We're loading the report details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.reportService
       .getReportDetailById(paramData.id)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

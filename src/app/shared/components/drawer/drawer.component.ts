@@ -10,10 +10,11 @@ import {
   HostListener,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgComponentOutlet } from '@angular/common';
+import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
 import { DrawerModule } from 'primeng/drawer';
 
 import { DrawerService } from '@shared/services/drawer.service';
+import { ICONS } from '@shared/constants';
 import {
   IDrawerConfig,
   IDrawerPageHeaderConfig,
@@ -26,7 +27,7 @@ import { EDrawerPosition, EDrawerSize } from '@shared/types';
 @Component({
   selector: 'app-drawer',
   standalone: true,
-  imports: [DrawerModule, NgComponentOutlet],
+  imports: [DrawerModule, NgComponentOutlet, NgTemplateOutlet],
   templateUrl: './drawer.component.html',
   styleUrls: ['./drawer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +40,7 @@ export class DrawerComponent implements OnInit {
 
   protected readonly visible = signal<boolean>(false);
   protected readonly currentConfig = signal<IDrawerConfig>({} as IDrawerConfig);
+  protected readonly drawerLoading = this.drawerService.loading;
   protected readonly _componentInjector = computed(() =>
     this.componentInjector()
   );
@@ -48,6 +50,7 @@ export class DrawerComponent implements OnInit {
   protected readonly isMobile = signal(window.innerWidth <= 768);
 
   protected readonly ALL_DRAWER_POSITIONS = EDrawerPosition;
+  protected readonly ICONS = ICONS;
 
   @HostListener('window:resize')
   onResize(): void {

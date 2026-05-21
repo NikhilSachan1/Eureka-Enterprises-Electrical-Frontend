@@ -13,7 +13,7 @@ import {
 } from '../../types/invoice.dto';
 import { InvoiceService } from '../../services/invoice.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -47,7 +47,6 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
     invoice: IInvoiceGetBaseResponseDto;
   };
   private readonly invoiceService = inject(InvoiceService);
-  private readonly loadingService = inject(LoadingService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _invoiceDetails = signal<
@@ -61,19 +60,14 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
   }
 
   private loadInvoiceDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Invoice Details',
-      message:
-        "We're loading the invoice details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.invoiceService
       .getInvoiceDetailById(paramData.id)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

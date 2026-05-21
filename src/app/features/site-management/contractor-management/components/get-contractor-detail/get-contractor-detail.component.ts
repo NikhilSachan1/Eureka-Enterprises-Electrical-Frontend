@@ -12,7 +12,7 @@ import {
   IContractorGetBaseResponseDto,
 } from '../../types/contractor.dto';
 import { ContractorService } from '../../services/contractor.service';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -36,7 +36,6 @@ export class GetContractorDetailComponent extends DrawerDetailBase {
     contractor: IContractorGetBaseResponseDto;
   };
   private readonly contractorService = inject(ContractorService);
-  private readonly loadingService = inject(LoadingService);
   protected readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _contractorDetails = signal<
@@ -48,19 +47,14 @@ export class GetContractorDetailComponent extends DrawerDetailBase {
   }
 
   private loadContractorDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Contractor Details',
-      message:
-        "We're loading the contractor details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.contractorService
       .getContractorDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

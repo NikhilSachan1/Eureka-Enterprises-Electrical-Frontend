@@ -16,7 +16,7 @@ import { IEmployeeSalaryRevisionHistoryItem } from '@features/payroll-management
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { ICONS } from '@shared/constants';
-import { AvatarService, LoadingService } from '@shared/services';
+import { AvatarService } from '@shared/services';
 import { parseAmount } from '@shared/utility';
 import { APP_CONFIG } from '@core/config/app.config';
 import { IEntityViewDetails } from '@shared/types';
@@ -49,7 +49,7 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
     salaryStructure: ISalaryStructureGetBaseResponseDto;
   };
   private readonly payrollService = inject(PayrollService);
-  private readonly loadingService = inject(LoadingService);
+
   private readonly avatarService = inject(AvatarService);
 
   protected readonly _salaryDetails = signal<
@@ -67,18 +67,14 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
   }
 
   private loadSalaryDetails(): void {
-    this.loadingService.show({
-      title: PAYROLL_MESSAGES.LOADING.SALARY_REVISION_HISTORY,
-      message: PAYROLL_MESSAGES.LOADING_MESSAGES.SALARY_REVISION_HISTORY,
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.payrollService
       .getSalaryStructureHistory(paramData.salaryStructureId)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

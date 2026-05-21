@@ -1,5 +1,21 @@
 @let drawerConfig = currentConfig();
 
+<ng-template #drawerContent>
+  <div class="app-drawer-content-shell">
+    <ng-container *ngComponentOutlet="currentConfig().component; injector: _componentInjector()"></ng-container>
+    @if (drawerLoading()) {
+      <div
+        class="app-drawer-loader"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <i [class]="ICONS.COMMON.SPINNER + ' app-drawer-loader__icon pi-spin'"></i>
+      </div>
+    }
+  </div>
+</ng-template>
+
 @if (drawerConfig.fullScreen) {
   <p-drawer
     [(visible)]="visible"
@@ -20,7 +36,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content">
-      <ng-container *ngComponentOutlet="currentConfig().component; injector: _componentInjector()"></ng-container>
+      <ng-container *ngTemplateOutlet="drawerContent" />
     </ng-template>
   </p-drawer>
 } @else {
@@ -45,7 +61,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content">
-      <ng-container *ngComponentOutlet="currentConfig().component; injector: _componentInjector()"></ng-container>
+      <ng-container *ngTemplateOutlet="drawerContent" />
     </ng-template>
   </p-drawer>
 }

@@ -12,7 +12,7 @@ import {
 } from '@features/expense-management/types/expense.dto';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -37,7 +37,6 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
     expense: IExpenseGetBaseResponseDto;
   };
   private readonly expenseService = inject(ExpenseService);
-  private readonly loadingService = inject(LoadingService);
   protected readonly appConfigService = inject(AppConfigurationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
@@ -52,19 +51,14 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
   }
 
   private loadExpenseDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Expense Details',
-      message:
-        "We're loading the expense details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.expenseService
       .getExpenseDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

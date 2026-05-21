@@ -12,7 +12,7 @@ import {
   IVendorGetBaseResponseDto,
 } from '../../types/vendor.dto';
 import { VendorService } from '../../services/vendor.service';
-import { AppConfigurationService, LoadingService } from '@shared/services';
+import { AppConfigurationService } from '@shared/services';
 import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -36,7 +36,6 @@ export class GetVendorDetailComponent extends DrawerDetailBase {
     vendor: IVendorGetBaseResponseDto;
   };
   private readonly vendorService = inject(VendorService);
-  private readonly loadingService = inject(LoadingService);
   protected readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _vendorDetails = signal<
@@ -48,19 +47,14 @@ export class GetVendorDetailComponent extends DrawerDetailBase {
   }
 
   private loadVendorDetails(): void {
-    this.loadingService.show({
-      title: 'Loading Vendor Details',
-      message:
-        "We're loading the vendor details. This will just take a moment.",
-    });
-
+    this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
 
     this.vendorService
       .getVendorDetailById(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.setDrawerLoading(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )
