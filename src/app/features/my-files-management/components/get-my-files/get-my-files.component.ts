@@ -5,6 +5,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LoggerService } from '@core/services';
@@ -19,10 +20,12 @@ import {
 import { MyFilesService } from '../../services/my-files.service';
 import {
   EButtonActionType,
+  EDataType,
   EDrawerPosition,
   IButtonConfig,
   IDialogActionConfig,
   IEnhancedTable,
+  IInputFieldsConfig,
   IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/types';
@@ -36,14 +39,22 @@ import {
   MY_FILES_ACTION_CONFIG_MAP,
   MY_FILES_TABLE_ENHANCED_CONFIG,
 } from '../../config';
-import { distinctUntilChanged, finalize, map } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  map,
+  Subject,
+} from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IMyFile } from '../../types/my-files.interface';
 import { EMyFileType } from '../../types/my-files.enum';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { DEFAULT_INPUT_FIELD_CONFIG } from '@shared/config/input-field.config';
 import { formatFileSize } from '@shared/utility';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { MyFilesBreadcrumbComponent } from '../my-files-breadcrumb/my-files-breadcrumb.component';
 import { MoveMyFileComponent } from '../move-my-file/move-my-file.component';
@@ -53,6 +64,7 @@ import { MoveMyFileComponent } from '../move-my-file/move-my-file.component';
   imports: [
     PageHeaderComponent,
     MyFilesBreadcrumbComponent,
+    InputFieldComponent,
     ButtonComponent,
     DataTableComponent,
   ],
@@ -75,9 +87,20 @@ export class GetMyFilesComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly drawerService = inject(DrawerService);
+  private readonly searchInputChanges$ = new Subject<string>();
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
+  protected readonly searchFieldConfig: IInputFieldsConfig = {
+    ...DEFAULT_INPUT_FIELD_CONFIG,
+    fieldType: EDataType.TEXT,
+    id: 'search',
+    fieldName: 'search',
+    label: 'Search',
+    placeholder: 'Search files and folders',
+  } as IInputFieldsConfig;
+  protected readonly searchInput = signal('');
+  protected readonly searchTerm = signal('');
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
@@ -85,6 +108,19 @@ export class GetMyFilesComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       MY_FILES_TABLE_ENHANCED_CONFIG
     );
+
+    this.searchInputChanges$
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(term => {
+        this.searchTerm.set(term.trim());
+        if (this.tableFilterData) {
+          this.loadMyFilesList();
+        }
+      });
 
     this.activatedRoute.queryParamMap
       .pipe(
@@ -97,6 +133,12 @@ export class GetMyFilesComponent implements OnInit {
           this.loadMyFilesList();
         }
       });
+  }
+
+  protected onSearchFieldChange(value: unknown): void {
+    const term = String(value ?? '');
+    this.searchInput.set(term);
+    this.searchInputChanges$.next(term);
   }
 
   private loadMyFilesList(): void {
@@ -141,8 +183,11 @@ export class GetMyFilesComponent implements OnInit {
         this.table.getHeaders()
       ),
       parentId: this.getCurrentParentId(),
+      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
   }
+
+  protected readonly EButtonActionType = EButtonActionType;
 
   private getCurrentParentId(): string | null {
     return this.activatedRoute.snapshot.queryParamMap.get('parentId');
@@ -288,8 +333,6 @@ export class GetMyFilesComponent implements OnInit {
     return baseConfig;
   }
 
-  protected readonly EButtonActionType = EButtonActionType;
-
   protected openMyFilesActionDialog(actionType: EButtonActionType): void {
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
@@ -317,6 +360,7 @@ export class GetMyFilesComponent implements OnInit {
     return {
       id: EButtonActionType.CREATE_FOLDER,
       label: 'New Folder',
+      icon: ICONS.COMMON.FOLDER,
     };
   }
 
@@ -324,6 +368,7 @@ export class GetMyFilesComponent implements OnInit {
     return {
       id: EButtonActionType.UPLOAD,
       label: 'Upload Files',
+      icon: ICONS.COMMON.UPLOAD,
     };
   }
 }

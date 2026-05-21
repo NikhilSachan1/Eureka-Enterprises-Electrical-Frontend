@@ -248,9 +248,13 @@ export class MyFilesService {
 
   getMoveFolderTreeItems(
     parentId: string | null,
-    excludeFolderId?: string
+    excludeFolderId?: string,
+    search?: string
   ): Observable<IMyFilesMoveFolderTreeItem[]> {
-    return this.getMyFilesList({ parentId }).pipe(
+    return this.getMyFilesList({
+      parentId,
+      ...(search ? { search } : {}),
+    }).pipe(
       map(response =>
         response.records
           .filter(

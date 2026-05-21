@@ -1,10 +1,20 @@
-<p-tree
-  class="w-full"
-  [value]="folderTreeNodes()"
-  selectionMode="single"
-  [(selection)]="selectedFolder"
-  loadingMode="icon"
-  emptyMessage="No folders available."
-  (onNodeExpand)="nodeExpand($event)"
-  (onNodeSelect)="nodeSelect($event)"
-/>
+<div class="folder-picker">
+  <div class="folder-picker__search">
+    <app-input-field
+      [inputFieldConfig]="searchFieldConfig"
+      [fieldValue]="searchInput()"
+      (onFieldChange)="onSearchFieldChange($event)"
+    />
+  </div>
+
+  <p-tree
+    class="w-full flex-1 min-h-0"
+    [value]="folderTreeNodes()"
+    selectionMode="single"
+    [(selection)]="selectedFolder"
+    loadingMode="icon"
+    emptyMessage="No folders available."
+    (onNodeExpand)="nodeExpand($event)"
+    (onNodeSelect)="nodeSelect($event)"
+  />
+</div>

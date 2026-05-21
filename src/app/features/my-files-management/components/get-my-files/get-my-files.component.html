@@ -2,15 +2,25 @@
 
 <app-my-files-breadcrumb />
 
-<div class="flex w-full justify-end items-center gap-3 mb-4">
-  <app-button
-    [buttonConfig]="getCreateFolderButtonConfig()"
-    (onButtonClick)="openMyFilesActionDialog(EButtonActionType.CREATE_FOLDER)"
-  />
-  <app-button
-    [buttonConfig]="getUploadMyFileButtonConfig()"
-    (onButtonClick)="openMyFilesActionDialog(EButtonActionType.UPLOAD)"
-  />
+<div class="my-files-toolbar">
+  <div class="my-files-toolbar__search">
+    <app-input-field
+      [inputFieldConfig]="searchFieldConfig"
+      [fieldValue]="searchInput()"
+      (onFieldChange)="onSearchFieldChange($event)"
+    />
+  </div>
+
+  <div class="my-files-toolbar__actions">
+    <app-button
+      [buttonConfig]="getCreateFolderButtonConfig()"
+      (onButtonClick)="openMyFilesActionDialog(EButtonActionType.CREATE_FOLDER)"
+    />
+    <app-button
+      [buttonConfig]="getUploadMyFileButtonConfig()"
+      (onButtonClick)="openMyFilesActionDialog(EButtonActionType.UPLOAD)"
+    />
+  </div>
 </div>
 
 <app-data-table

@@ -5,7 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
 import { TreeNode } from 'primeng/api';
 import {
   TreeModule,
@@ -13,9 +13,12 @@ import {
   TreeNodeSelectEvent,
 } from 'primeng/tree';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { ICONS } from '@shared/constants';
+import { DEFAULT_INPUT_FIELD_CONFIG } from '@shared/config/input-field.config';
 import { LoadingService, NotificationService } from '@shared/services';
+import { EDataType, IInputFieldsConfig } from '@shared/types';
 import { MyFilesService } from '../../services/my-files.service';
 import {
   IMoveMyFileDrawerData,
@@ -32,23 +35,58 @@ const ROOT_FOLDER_TREE_KEY = 'root';
 @Component({
   selector: 'app-move-my-file',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TreeModule],
+  imports: [InputFieldComponent, TreeModule],
   templateUrl: './move-my-file.component.html',
+  styleUrl: './move-my-file.component.scss',
 })
 export class MoveMyFileComponent extends DrawerDetailBase {
   private readonly drawerData = inject(DRAWER_DATA) as IMoveMyFileDrawerData;
   private readonly myFilesService = inject(MyFilesService);
   private readonly loadingService = inject(LoadingService);
   private readonly notificationService = inject(NotificationService);
+  private readonly searchInputChanges$ = new Subject<string>();
 
   private excludeFolderId?: string;
 
+  protected readonly searchFieldConfig: IInputFieldsConfig = {
+    ...DEFAULT_INPUT_FIELD_CONFIG,
+    fieldType: EDataType.TEXT,
+    id: 'search',
+    fieldName: 'search',
+    label: 'Search folders',
+    placeholder: 'Search folders...',
+  } as IInputFieldsConfig;
+  protected readonly searchInput = signal('');
+  protected readonly searchTerm = signal('');
   protected readonly folderTreeNodes = signal<TreeNode[]>([]);
   protected selectedFolder: TreeNode | null = null;
   protected readonly moving = signal(false);
 
+  override ngOnInit(): void {
+    super.ngOnInit();
+
+    this.searchInputChanges$
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(term => {
+        this.searchTerm.set(term.trim());
+        this.initFolderTree();
+      });
+  }
+
   override onDrawerShow(): void {
+    this.searchInput.set('');
+    this.searchTerm.set('');
     this.initFolderTree();
+  }
+
+  protected onSearchFieldChange(value: unknown): void {
+    const term = String(value ?? '');
+    this.searchInput.set(term);
+    this.searchInputChanges$.next(term);
   }
 
   protected nodeExpand(event: TreeNodeExpandEvent): void {
@@ -133,7 +171,7 @@ export class MoveMyFileComponent extends DrawerDetailBase {
   }
 
   private loadFolderTreeChildren(node: TreeNode): void {
-    if (node.data?.childrenLoaded || node.children) {
+    if (node.data?.childrenLoaded) {
       return;
     }
 
@@ -143,7 +181,11 @@ export class MoveMyFileComponent extends DrawerDetailBase {
       node.key === ROOT_FOLDER_TREE_KEY ? null : String(node.key);
 
     this.myFilesService
-      .getMoveFolderTreeItems(parentId, this.excludeFolderId)
+      .getMoveFolderTreeItems(
+        parentId,
+        this.excludeFolderId,
+        this.searchTerm() || undefined
+      )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: items => {
