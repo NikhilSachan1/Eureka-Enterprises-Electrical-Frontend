@@ -10,7 +10,6 @@ import {
 import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -64,7 +63,6 @@ export class GetVehicleEventHistoryComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly vehicleService = inject(VehicleService);
-  private readonly loadingService = inject(LoadingService);
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
@@ -105,21 +103,12 @@ export class GetVehicleEventHistoryComponent implements OnInit {
     }
 
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading Vehicle Event History',
-      message:
-        "We're loading the vehicle event history. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.vehicleService
       .getVehicleEventHistory(paramData, this.vehicleId())
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

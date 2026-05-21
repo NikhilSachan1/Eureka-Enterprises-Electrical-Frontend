@@ -11,7 +11,6 @@ import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -70,7 +69,6 @@ export class GetPetroCardComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly petroCardService = inject(PetroCardService);
-  private readonly loadingService = inject(LoadingService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -97,20 +95,12 @@ export class GetPetroCardComponent implements OnInit {
 
   private loadPetroCardList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading petro cards',
-      message: "We're loading petro cards. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.petroCardService
       .getPetroCardList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

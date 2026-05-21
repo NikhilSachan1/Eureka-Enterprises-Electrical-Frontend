@@ -12,7 +12,6 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -72,7 +71,6 @@ export class GetVendorComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly vendorService = inject(VendorService);
-  private readonly loadingService = inject(LoadingService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -101,20 +99,12 @@ export class GetVendorComponent implements OnInit {
 
   private loadVendorList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading Vendor',
-      message: "We're loading the vendor. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.vendorService
       .getVendorList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

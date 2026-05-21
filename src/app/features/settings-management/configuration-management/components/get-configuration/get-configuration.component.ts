@@ -10,7 +10,6 @@ import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
   DrawerService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -63,7 +62,6 @@ export class GetConfigurationComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly configurationService = inject(ConfigurationService);
-  private readonly loadingService = inject(LoadingService);
   private readonly drawerService = inject(DrawerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -87,21 +85,12 @@ export class GetConfigurationComponent implements OnInit {
 
   private loadConfigurationList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading configuration',
-      message:
-        "We're loading configuration entries. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.configurationService
       .getConfigurationList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

@@ -30,7 +30,6 @@ import { EMPLOYEE_MESSAGES } from '../../constants';
 import {
   ConfirmationDialogService,
   DrawerService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -77,7 +76,7 @@ export class GetEmployeeComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly employeeService = inject(EmployeeService);
-  private readonly loadingService = inject(LoadingService);
+
   private readonly drawerService = inject(DrawerService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -107,20 +106,12 @@ export class GetEmployeeComponent implements OnInit {
 
   private loadEmployeeList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: EMPLOYEE_MESSAGES.LOADING.GET_LIST,
-      message: EMPLOYEE_MESSAGES.LOADING_MESSAGES.GET_LIST,
-    });
-
     const paramData = this.prepareParamData();
 
     this.employeeService
       .getEmployeeList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

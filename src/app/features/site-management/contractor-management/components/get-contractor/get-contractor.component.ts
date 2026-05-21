@@ -12,7 +12,6 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -72,7 +71,6 @@ export class GetContractorComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly contractorService = inject(ContractorService);
-  private readonly loadingService = inject(LoadingService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -100,20 +98,12 @@ export class GetContractorComponent implements OnInit {
 
   private loadContractorList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading Contractor',
-      message: "We're loading the contractor. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.contractorService
       .getContractorList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

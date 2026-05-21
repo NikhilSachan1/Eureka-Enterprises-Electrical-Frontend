@@ -9,7 +9,6 @@ import { UserService } from '../../services/user.service';
 import { LoggerService } from '@core/services';
 import {
   RouterNavigationService,
-  LoadingService,
   ConfirmationDialogService,
   TableService,
   TableServerSideParamsBuilderService,
@@ -64,7 +63,6 @@ export class GetUserComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly userService = inject(UserService);
-  private readonly loadingService = inject(LoadingService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -86,21 +84,12 @@ export class GetUserComponent implements OnInit {
 
   private loadUserList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading users and permissions',
-      message:
-        "We're loading users and permissions. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.userService
       .getUserList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

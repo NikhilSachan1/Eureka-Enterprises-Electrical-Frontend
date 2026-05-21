@@ -12,7 +12,6 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -77,7 +76,6 @@ export class GetProjectComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly projectService = inject(ProjectService);
-  private readonly loadingService = inject(LoadingService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -109,20 +107,12 @@ export class GetProjectComponent implements OnInit {
 
   private loadProjectList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading projects',
-      message: "We're loading projects. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.projectService
       .getProjectList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

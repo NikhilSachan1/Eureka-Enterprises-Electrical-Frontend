@@ -10,11 +10,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { LoggerService } from '@core/services';
-import {
-  ConfirmationDialogService,
-  LoadingService,
-  TableService,
-} from '@shared/services';
+import { ConfirmationDialogService, TableService } from '@shared/services';
 import { CronService } from '../../services/cron.service';
 import {
   EDataType,
@@ -48,7 +44,6 @@ export class GetCronComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly cronService = inject(CronService);
-  private readonly loadingService = inject(LoadingService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -66,18 +61,10 @@ export class GetCronComponent implements OnInit {
 
   private loadCronJobList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading scheduled jobs',
-      message: "We're loading scheduled jobs. This will just take a moment.",
-    });
-
     this.cronService
       .getCronJobList()
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

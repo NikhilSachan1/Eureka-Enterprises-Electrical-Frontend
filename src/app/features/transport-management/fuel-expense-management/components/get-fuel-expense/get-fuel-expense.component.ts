@@ -12,7 +12,6 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -77,7 +76,7 @@ export class GetFuelExpenseComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly fuelExpenseService = inject(FuelExpenseService);
-  private readonly loadingService = inject(LoadingService);
+
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -154,20 +153,12 @@ export class GetFuelExpenseComponent implements OnInit {
     this.payNowClosingBalance.set(null);
     this.payNowEmployeeId.set(null);
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading fuel expenses',
-      message: "We're loading fuel expenses. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.fuelExpenseService
       .getFuelExpenseList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

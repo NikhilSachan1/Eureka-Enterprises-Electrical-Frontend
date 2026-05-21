@@ -23,7 +23,6 @@ import {
 import { IAssetEventHistory } from '@features/asset-management/types/asset.interface';
 import {
   AppConfigurationService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -64,7 +63,6 @@ export class GetAssetEventHistoryComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly assetService = inject(AssetService);
-  private readonly loadingService = inject(LoadingService);
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
@@ -105,21 +103,12 @@ export class GetAssetEventHistoryComponent implements OnInit {
     }
 
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading event history',
-      message:
-        "We're loading the history for this asset. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.assetService
       .getAssetEventHistory(paramData, this.assetId())
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

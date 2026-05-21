@@ -10,7 +10,6 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { LoggerService } from '@core/services';
 import {
-  LoadingService,
   ConfirmationDialogService,
   DrawerService,
   RouterNavigationService,
@@ -40,11 +39,14 @@ import {
   MY_FILES_TABLE_ENHANCED_CONFIG,
 } from '../../config';
 import {
+  catchError,
   debounceTime,
   distinctUntilChanged,
+  EMPTY,
   finalize,
   map,
   Subject,
+  switchMap,
 } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IMyFile } from '../../types/my-files.interface';
@@ -78,7 +80,6 @@ export class GetMyFilesComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dataTableService = inject(TableService);
   private readonly myFilesService = inject(MyFilesService);
-  private readonly loadingService = inject(LoadingService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -88,6 +89,7 @@ export class GetMyFilesComponent implements OnInit {
   );
   private readonly drawerService = inject(DrawerService);
   private readonly searchInputChanges$ = new Subject<string>();
+  private readonly listLoadTrigger$ = new Subject<void>();
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -108,6 +110,35 @@ export class GetMyFilesComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       MY_FILES_TABLE_ENHANCED_CONFIG
     );
+
+    this.listLoadTrigger$
+      .pipe(
+        switchMap(() => {
+          this.table.setLoading(true);
+          return this.myFilesService
+            .getMyFilesList(this.prepareParamData())
+            .pipe(
+              finalize(() => this.table.setLoading(false)),
+              catchError(error => {
+                this.table.setData([]);
+                this.table.updateTableConfig({ totalRecords: 0 });
+                this.logger.logUserAction('Failed to load my files', error);
+                return EMPTY;
+              })
+            );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IMyFilesListResponseDto) => {
+          const { records, totalRecords } = response;
+
+          const mappedData = this.mapTableData(records);
+          this.table.setData(mappedData);
+          this.table.updateTableConfig({ totalRecords });
+          this.logger.logUserAction('My files loaded successfully');
+        },
+      });
 
     this.searchInputChanges$
       .pipe(
@@ -142,38 +173,7 @@ export class GetMyFilesComponent implements OnInit {
   }
 
   private loadMyFilesList(): void {
-    this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading Files',
-      message: "We're loading your files. This will just take a moment.",
-    });
-
-    const paramData = this.prepareParamData();
-
-    this.myFilesService
-      .getMyFilesList(paramData)
-      .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response: IMyFilesListResponseDto) => {
-          const { records, totalRecords } = response;
-
-          const mappedData = this.mapTableData(records);
-          this.table.setData(mappedData);
-          this.table.updateTableConfig({ totalRecords });
-          this.logger.logUserAction('My files loaded successfully');
-        },
-        error: error => {
-          this.table.setData([]);
-          this.table.updateTableConfig({ totalRecords: 0 });
-          this.logger.logUserAction('Failed to load my files', error);
-        },
-      });
+    this.listLoadTrigger$.next();
   }
 
   private prepareParamData(): IMyFilesListFormDto {

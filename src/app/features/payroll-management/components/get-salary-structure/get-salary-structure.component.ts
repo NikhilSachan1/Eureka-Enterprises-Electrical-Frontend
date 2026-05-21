@@ -109,13 +109,19 @@ export class GetSalaryStructureComponent implements OnInit {
     this.employeeAnnexureData.set(null);
 
     if (isTableVisible) {
-      this.table.setLoading(true);
       this.checkEmployeeNameFilter();
     }
-    this.loadingService.show({
-      title: PAYROLL_MESSAGES.LOADING.SALARY_STRUCTURE_LIST,
-      message: PAYROLL_MESSAGES.LOADING_MESSAGES.SALARY_STRUCTURE_LIST,
-    });
+
+    const useTableLoader = isTableVisible && !this.hasEmployeeNameFilter();
+
+    if (useTableLoader) {
+      this.table.setLoading(true);
+    } else {
+      this.loadingService.show({
+        title: PAYROLL_MESSAGES.LOADING.SALARY_STRUCTURE_LIST,
+        message: PAYROLL_MESSAGES.LOADING_MESSAGES.SALARY_STRUCTURE_LIST,
+      });
+    }
 
     const paramData = isTableVisible ? this.prepareParamData() : undefined;
 
@@ -123,10 +129,11 @@ export class GetSalaryStructureComponent implements OnInit {
       .getSalaryStructureList(paramData)
       .pipe(
         finalize(() => {
-          if (isTableVisible) {
+          if (useTableLoader) {
             this.table.setLoading(false);
+          } else {
+            this.loadingService.hide();
           }
-          this.loadingService.hide();
         }),
         takeUntilDestroyed(this.destroyRef)
       )

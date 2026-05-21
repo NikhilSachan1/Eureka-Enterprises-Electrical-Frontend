@@ -13,7 +13,6 @@ import {
   ConfirmationDialogService,
   DrawerService,
   GalleryService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -100,7 +99,7 @@ export class GetVehicleComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly vehicleService = inject(VehicleService);
-  private readonly loadingService = inject(LoadingService);
+
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -134,20 +133,12 @@ export class GetVehicleComponent implements OnInit {
 
   private loadVehicleList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading Vehicle',
-      message: "We're loading the vehicle. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.vehicleService
       .getVehicleList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

@@ -101,19 +101,12 @@ export class GetPayslipComponent implements OnInit {
 
   private loadPayslipList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: PAYROLL_MESSAGES.LOADING.PAYSLIP_LIST,
-      message: PAYROLL_MESSAGES.LOADING_MESSAGES.PAYSLIP_LIST,
-    });
     const paramData = this.prepareParamData();
 
     this.payrollService
       .getPayslipList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

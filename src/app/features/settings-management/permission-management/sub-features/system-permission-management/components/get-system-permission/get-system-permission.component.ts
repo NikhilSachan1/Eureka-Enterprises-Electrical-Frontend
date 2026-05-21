@@ -8,7 +8,6 @@ import {
 import {
   TableService,
   RouterNavigationService,
-  LoadingService,
   ConfirmationDialogService,
   TableServerSideParamsBuilderService,
 } from '@shared/services/';
@@ -60,7 +59,7 @@ export class GetSystemPermissionComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly systemPermissionService = inject(SystemPermissionService);
-  private readonly loadingService = inject(LoadingService);
+
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -81,21 +80,12 @@ export class GetSystemPermissionComponent implements OnInit {
 
   private loadSystemPermissionList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading System Permissions',
-      message:
-        "We're loading the system permissions. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.systemPermissionService
       .getSystemPermissionList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

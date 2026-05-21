@@ -27,7 +27,6 @@ import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
   DrawerService,
-  LoadingService,
   RouterNavigationService,
   TableService,
   TableServerSideParamsBuilderService,
@@ -76,7 +75,7 @@ export class GetAttendanceComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly attendanceService = inject(AttendanceService);
-  private readonly loadingService = inject(LoadingService);
+
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -105,21 +104,12 @@ export class GetAttendanceComponent implements OnInit {
 
   private loadAttendanceList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading attendance',
-      message:
-        "We're loading the attendance records. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.attendanceService
       .getAttendanceList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

@@ -26,7 +26,6 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -75,7 +74,7 @@ export class GetLeaveComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly leaveService = inject(LeaveService);
-  private readonly loadingService = inject(LoadingService);
+
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -105,21 +104,12 @@ export class GetLeaveComponent implements OnInit {
 
   private loadLeaveList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading Leave',
-      message:
-        "We're loading the leave applications. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.leaveService
       .getLeaveList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

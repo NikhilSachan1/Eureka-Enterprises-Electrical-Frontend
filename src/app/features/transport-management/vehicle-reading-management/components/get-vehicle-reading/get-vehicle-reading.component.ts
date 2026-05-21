@@ -11,7 +11,6 @@ import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
   DrawerService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -66,7 +65,7 @@ export class GetVehicleReadingComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly vehicleReadingService = inject(VehicleReadingService);
-  private readonly loadingService = inject(LoadingService);
+
   private readonly drawerService = inject(DrawerService);
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
@@ -105,20 +104,12 @@ export class GetVehicleReadingComponent implements OnInit {
 
   private loadVehicleReadingList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading vehicle readings',
-      message: "We're loading vehicle readings. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.vehicleReadingService
       .getVehicleReadingList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

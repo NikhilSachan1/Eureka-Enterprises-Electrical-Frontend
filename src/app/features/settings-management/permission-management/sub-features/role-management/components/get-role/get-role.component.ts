@@ -20,7 +20,6 @@ import { LoggerService } from '@core/services';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   ConfirmationDialogService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -56,7 +55,7 @@ export class GetRoleComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly roleService = inject(RoleService);
-  private readonly loadingService = inject(LoadingService);
+
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -77,20 +76,12 @@ export class GetRoleComponent implements OnInit {
 
   private loadRoleList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading Roles',
-      message: "We're loading the roles. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.roleService
       .getRoleList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

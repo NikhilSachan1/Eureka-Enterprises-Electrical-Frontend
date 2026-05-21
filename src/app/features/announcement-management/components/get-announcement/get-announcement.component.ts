@@ -21,7 +21,6 @@ import {
   AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
-  LoadingService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -75,7 +74,6 @@ export class GetAnnouncementComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly announcementService = inject(AnnouncementService);
-  private readonly loadingService = inject(LoadingService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -103,20 +101,12 @@ export class GetAnnouncementComponent implements OnInit {
 
   private loadAnnouncementList(): void {
     this.table.setLoading(true);
-    this.loadingService.show({
-      title: 'Loading Announcement',
-      message: "We're loading the announcement. This will just take a moment.",
-    });
-
     const paramData = this.prepareParamData();
 
     this.announcementService
       .getAnnouncementList(paramData)
       .pipe(
-        finalize(() => {
-          this.table.setLoading(false);
-          this.loadingService.hide();
-        }),
+        finalize(() => this.table.setLoading(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
