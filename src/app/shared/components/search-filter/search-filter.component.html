@@ -7,13 +7,13 @@
     >
       <!-- Custom Header -->
       <ng-template pTemplate="header">
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5">
           <div class="search-filter-header-icon">
-            <i [class]="ICONS.COMMON.FILTER + ' text-white text-sm'"></i>
+            <i [class]="ICONS.COMMON.FILTER + ' text-white text-xs'"></i>
           </div>
-          <div class="flex-1">
-            <h3 class="font-bold text-lg leading-tight">Search & Filter</h3>
-            <p class="text-xs mt-0.5">Find exactly what you need</p>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-base leading-tight">Search & Filter</h3>
+            <p class="text-xs mt-0.5 text-text-secondary">Find exactly what you need</p>
           </div>
         </div>
       </ng-template>
@@ -23,8 +23,7 @@
         (ngSubmit)="onSubmit()"
         [formGroup]="form.formGroup"
       >
-        <!-- Filter Fields -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div class="search-filter-grid">
           @for (field of form.fieldConfigs | keyvalue: customSort; track field.key) {
             <div class="filter-field-wrapper">
               <app-input-field
@@ -35,8 +34,7 @@
           }
         </div>
 
-        <!-- Action Bar -->
-        <div class="flex items-center justify-end gap-3 mt-6 pt-5 border-t">
+        <div class="search-filter-actions">
           <app-button
             [buttonConfig]="form.buttonConfigs['reset']"
             [showDisabledButton]="!form.formGroup.dirty && !hasSearched && !hasPrefillValues"

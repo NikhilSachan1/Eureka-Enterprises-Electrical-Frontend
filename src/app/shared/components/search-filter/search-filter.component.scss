@@ -1,9 +1,7 @@
-// === SEARCH FILTER PANEL STYLING ===
 .search-filter-container {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
-// Dark mode: no white/primary-50 wash - subtle dark shades (sidebar/role-switcher jaisa)
 :host-context(.dark-theme) {
   ::ng-deep .search-filter-panel {
     &:hover {
@@ -17,19 +15,19 @@
 }
 
 .search-filter-header-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.625rem;
   background: linear-gradient(to bottom right, var(--primary-color), var(--primary-dark-color));
-  box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--primary-color) 25%, transparent);
+  box-shadow: 0 6px 12px -4px color-mix(in srgb, var(--primary-color) 25%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 ::ng-deep .search-filter-panel {
-  border-radius: 1rem !important;
+  border-radius: 0.875rem !important;
   border: 1px solid var(--border-light-color) !important;
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.05),
@@ -44,24 +42,20 @@
     border-color: var(--primary-200) !important;
   }
 
-  // Panel Header – rounded top corners to match panel
   .p-panel-header {
-    padding: 1.25rem 1.5rem !important;
+    padding: 0.75rem 1rem !important;
     background: linear-gradient(to right, var(--primary-50), var(--background-default-color)) !important;
     border-bottom: 1px solid var(--border-light-color) !important;
-    border-radius: 1rem 1rem 0 0 !important;
-    transition: all 0.2s ease !important;
+    border-radius: 0.875rem 0.875rem 0 0 !important;
 
-    // Toggle icon styling
     .p-panel-header-icon {
       color: var(--primary-color) !important;
-      transition: all 0.2s ease !important;
-      width: 2rem !important;
-      height: 2rem !important;
+      width: 1.75rem !important;
+      height: 1.75rem !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      border-radius: 0.5rem !important;
+      border-radius: 0.375rem !important;
 
       &:hover {
         background: var(--primary-100) !important;
@@ -70,62 +64,63 @@
     }
   }
 
-  // Panel Content – rounded bottom corners; overflow visible so datepicker is not cropped
   .p-panel-content {
-    padding: 1.5rem !important;
+    padding: 0.875rem 1rem 1rem !important;
     background: var(--background-default-color) !important;
-    border-radius: 0 0 1rem 1rem !important;
+    border-radius: 0 0 0.875rem 0.875rem !important;
   }
 
-  // Collapsed state – header shows all rounded corners
   &.p-panel-collapsed {
     .p-panel-header {
       border-bottom: none !important;
-      border-radius: 1rem !important;
+      border-radius: 0.875rem !important;
     }
   }
 }
 
-// === FILTER FIELDS GRID ===
-.search-filter-container {
-  .grid {
-    // Smooth transitions for grid items
-    .filter-field-wrapper {
-      transition: all 0.2s ease;
-      border-radius: 0.5rem;
-      padding: 0.25rem;
+.search-filter-grid {
+  --search-filter-gap: 0.75rem;
+  --search-filter-max-cols: 1;
 
-      &:hover {
-        background: var(--primary-50);
-      }
-    }
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--search-filter-gap);
+
+  @media (min-width: 640px) {
+    --search-filter-max-cols: 2;
+  }
+
+  @media (min-width: 1024px) {
+    --search-filter-max-cols: 4;
+  }
+
+  .filter-field-wrapper {
+    flex: 1 1
+      calc((100% - (var(--search-filter-max-cols) - 1) * var(--search-filter-gap)) / var(--search-filter-max-cols));
+    min-width: min(
+      100%,
+      max(
+        10.5rem,
+        calc((100% - (var(--search-filter-max-cols) - 1) * var(--search-filter-gap)) / var(--search-filter-max-cols))
+      )
+    );
   }
 }
 
-// === ACTION BAR STYLING ===
 .search-filter-container {
-  // Action bar border styling
-  .border-t {
-    border-color: rgba(226, 232, 240, 0.8) !important;
-    position: relative;
-
-    // Subtle gradient line effect
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(to right, transparent, var(--primary-200), transparent);
-    }
+  .filter-field-wrapper {
+    min-width: 0;
+    border-radius: 0.375rem;
+    padding: 0.125rem;
   }
+}
 
-  app-button {
-    transition: all 0.2s ease;
-
-    &:hover {
-      opacity: 0.95;
-    }
-  }
+.search-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid color-mix(in srgb, var(--border-light-color) 85%, transparent);
 }
