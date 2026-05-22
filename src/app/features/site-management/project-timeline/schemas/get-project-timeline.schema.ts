@@ -3,13 +3,11 @@ import { z } from 'zod';
 
 export const ProjectTimelineGetRequestSchema = z
   .object({
-    projectName: uuidField,
+    limit: z.number().default(50),
   })
   .strict()
-  .transform(({ projectName }) => {
-    return {
-      siteId: projectName,
-    };
+  .transform(({ limit }) => {
+    return { limit };
   });
 
 export const ProjectTimelineGetResponseSchema = z.looseObject({

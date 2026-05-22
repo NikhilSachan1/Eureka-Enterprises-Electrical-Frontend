@@ -6,7 +6,10 @@ import {
   IProjectTimelineGetFormDto,
   IProjectTimelineGetResponseDto,
 } from '../types/project-timeline.dto';
-import { ProjectTimelineGetResponseSchema } from '../schemas/get-project-timeline.schema';
+import {
+  ProjectTimelineGetRequestSchema,
+  ProjectTimelineGetResponseSchema,
+} from '../schemas/get-project-timeline.schema';
 
 @Injectable({
   providedIn: 'root',
@@ -16,14 +19,20 @@ export class ProjectTimelineService {
   private readonly apiService = inject(ApiService);
 
   getProjectTimeline(
+    projectName: string,
     params: IProjectTimelineGetFormDto
   ): Observable<IProjectTimelineGetResponseDto> {
     this.logger.logUserAction('Get Project Timeline Request');
 
     return this.apiService
-      .getValidated(API_ROUTES.SITE.TIMELINE.GET(params.projectName), {
-        response: ProjectTimelineGetResponseSchema,
-      })
+      .getValidated(
+        API_ROUTES.SITE.TIMELINE.GET(projectName),
+        {
+          response: ProjectTimelineGetResponseSchema,
+          request: ProjectTimelineGetRequestSchema,
+        },
+        params
+      )
       .pipe(
         tap((response: IProjectTimelineGetResponseDto) => {
           this.logger.logUserAction('Get Project Timeline Response', response);

@@ -75,10 +75,10 @@ export class GetProjectTimelineComponent {
     this.isLoading.set(true);
     this.events.set([]);
 
-    const paramData = this.prepareParamData(projectId);
+    const paramData = this.prepareParamData();
 
     this.projectTimelineService
-      .getProjectTimeline(paramData)
+      .getProjectTimeline(projectId, paramData)
       .pipe(
         finalize(() => {
           this.isLoading.set(false);
@@ -96,9 +96,9 @@ export class GetProjectTimelineComponent {
       });
   }
 
-  private prepareParamData(projectName: string): IProjectTimelineGetFormDto {
+  private prepareParamData(): IProjectTimelineGetFormDto {
     return {
-      projectName,
+      limit: 50,
     };
   }
 
