@@ -31,7 +31,11 @@ import {
   ITableActionClickEvent,
 } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
-import { JMC_ACTION_CONFIG_MAP, JMC_TABLE_ENHANCED_CONFIG } from '../../config';
+import {
+  JMC_ACTION_CONFIG_MAP,
+  createJmcTableEnhancedConfig,
+} from '../../config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import {
   IJmcGetBaseResponseDto,
   IJmcGetFormDto,
@@ -82,6 +86,7 @@ export class GetJmcComponent implements OnInit {
     ProjectWorkspaceContextService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly authService = inject(AuthService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
@@ -111,7 +116,10 @@ export class GetJmcComponent implements OnInit {
       'docContext'
     ] as EDocContext;
     this.docRouteContext.set(docContext);
-    this.table = this.dataTableService.createTable(JMC_TABLE_ENHANCED_CONFIG);
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
+    this.table = this.dataTableService.createTable(
+      createJmcTableEnhancedConfig(loggedInUserId)
+    );
 
     this.loadTrigger$
       .pipe(

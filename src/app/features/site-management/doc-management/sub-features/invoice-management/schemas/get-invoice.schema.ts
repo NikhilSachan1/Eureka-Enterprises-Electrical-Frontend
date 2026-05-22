@@ -1,5 +1,6 @@
 import {
   dateField,
+  AuditSchema,
   FilterSchema,
   isoDateTimeField,
   UserSchema,
@@ -11,6 +12,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
+const { createdBy } = AuditSchema.shape;
 
 export const InvoiceGetRequestSchema = z
   .object({
@@ -60,6 +62,7 @@ export const InvoiceGetBaseResponseSchema = z.looseObject({
   unlockReason: z.string().nullable(),
   remarks: z.string().nullable(),
   approvalStatus: z.string(),
+  createdBy,
   bookedTotal: z.string(),
   paidTotal: z.string(),
   jmc: z.looseObject({

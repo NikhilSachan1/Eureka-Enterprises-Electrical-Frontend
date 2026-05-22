@@ -1,10 +1,16 @@
-import { dateField, FilterSchema, uuidField } from '@shared/schemas';
+import {
+  dateField,
+  AuditSchema,
+  FilterSchema,
+  uuidField,
+} from '@shared/schemas';
 import z from 'zod';
 import { ReportBaseSchema } from './base-report.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { transformDateFormat } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
+const { createdBy } = AuditSchema.shape;
 
 export const ReportGetRequestSchema = z
   .object({
@@ -48,6 +54,7 @@ export const ReportGetRequestSchema = z
 export const ReportGetBaseResponseSchema = z.looseObject({
   ...ReportBaseSchema.shape,
   remarks: z.string().nullable(),
+  createdBy,
   site: z.looseObject({
     name: z.string(),
     city: z.string(),

@@ -1,5 +1,6 @@
 import {
   dateField,
+  AuditSchema,
   FilterSchema,
   isoDateTimeField,
   UserSchema,
@@ -11,6 +12,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
+const { createdBy } = AuditSchema.shape;
 
 export const PoGetRequestSchema = z
   .object({
@@ -65,6 +67,7 @@ export const PoGetBaseResponseSchema = z.looseObject({
   lastPaymentAt: isoDateTimeField.nullable(),
   remarks: z.string().nullable(),
   approvalStatus: z.string(),
+  createdBy,
   site: z.looseObject({
     name: z.string(),
     city: z.string(),

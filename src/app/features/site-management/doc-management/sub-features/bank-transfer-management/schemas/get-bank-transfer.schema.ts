@@ -1,4 +1,5 @@
 import {
+  AuditSchema,
   dateField,
   FilterSchema,
   isoDateTimeField,
@@ -10,6 +11,7 @@ import { BankTransferBaseSchema } from './base-bank-transfer.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { transformDateFormat } from '@shared/utility';
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
+const { createdBy } = AuditSchema.shape;
 
 export const BankTransferGetRequestSchema = z
   .object({
@@ -101,6 +103,7 @@ export const BankTransferGetBaseResponseSchema = z.looseObject({
       pdfKey: z.string().nullable(),
     })
     .nullable(),
+  createdBy,
 });
 
 export const BankTransferGetResponseSchema = z.looseObject({

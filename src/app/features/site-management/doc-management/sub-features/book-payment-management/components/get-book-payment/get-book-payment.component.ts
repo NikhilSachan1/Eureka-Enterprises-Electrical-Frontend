@@ -30,8 +30,9 @@ import {
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   BOOK_PAYMENT_ACTION_CONFIG_MAP,
-  BOOK_PAYMENT_TABLE_ENHANCED_CONFIG,
+  createBookPaymentTableEnhancedConfig,
 } from '../../config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import {
   IBookPaymentGetBaseResponseDto,
   IBookPaymentGetFormDto,
@@ -83,6 +84,7 @@ export class GetBookPaymentComponent implements OnInit {
   private readonly projectWorkspaceContext = inject(
     ProjectWorkspaceContextService
   );
+  private readonly authService = inject(AuthService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
@@ -112,8 +114,9 @@ export class GetBookPaymentComponent implements OnInit {
       'docContext'
     ] as EDocContext;
     this.docRouteContext.set(docContext);
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      BOOK_PAYMENT_TABLE_ENHANCED_CONFIG
+      createBookPaymentTableEnhancedConfig(loggedInUserId)
     );
 
     this.loadTrigger$

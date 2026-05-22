@@ -33,8 +33,9 @@ import {
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   INVOICE_ACTION_CONFIG_MAP,
-  INVOICE_TABLE_ENHANCED_CONFIG,
+  createInvoiceTableEnhancedConfig,
 } from '../../config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import {
   IInvoiceGetBaseResponseDto,
   IInvoiceGetFormDto,
@@ -91,6 +92,7 @@ export class GetInvoiceComponent implements OnInit {
     ProjectWorkspaceContextService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly authService = inject(AuthService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
@@ -120,8 +122,9 @@ export class GetInvoiceComponent implements OnInit {
       'docContext'
     ] as EDocContext;
     this.docRouteContext.set(docContext);
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      INVOICE_TABLE_ENHANCED_CONFIG
+      createInvoiceTableEnhancedConfig(loggedInUserId)
     );
 
     this.loadTrigger$

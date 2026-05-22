@@ -1,6 +1,7 @@
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
   dateField,
+  AuditSchema,
   FilterSchema,
   onlyDateStringField,
   uuidField,
@@ -9,6 +10,7 @@ import { transformDateFormat } from '@shared/utility';
 import z from 'zod';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
+const { createdBy } = AuditSchema.shape;
 
 export const BookPaymentGetRequestSchema = z
   .object({
@@ -63,6 +65,7 @@ export const BookPaymentGetBaseResponseSchema = z.looseObject({
   paymentHoldReason: z.string().nullable(),
   remarks: z.string().nullable(),
   hasTransfer: z.boolean(),
+  createdBy,
   invoice: z.looseObject({
     invoiceNumber: z.string(),
     jmc: z.looseObject({

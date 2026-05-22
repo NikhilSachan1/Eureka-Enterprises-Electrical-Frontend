@@ -7,7 +7,11 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IPoGetResponseDto } from '../../types/po.dto';
+import {
+  isNotRecordCreator,
+  recordCreatorDisableReason,
+} from '@shared/utility';
+import { IPoGetBaseResponseDto, IPoGetResponseDto } from '../../types/po.dto';
 import {
   PO_ROW_ACTION_DISABLE_REASON,
   poApproveDisableReason,
@@ -85,9 +89,9 @@ export const PO_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-const PO_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IPoGetResponseDto['records'][number]>
->[] = [
+const buildPoTableRowActionsConfig = (
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IPoGetResponseDto['records'][number]>>[] => [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View PO Details',
@@ -96,15 +100,27 @@ const PO_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit PO',
-    disableWhen: shouldDisablePoEditOrDelete,
-    disableReason: () => PO_ROW_ACTION_DISABLE_REASON.lockedNoEdit,
+    disableWhen: (row: IPoGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId) ||
+      shouldDisablePoEditOrDelete(row),
+    disableReason: (row: IPoGetBaseResponseDto) =>
+      recordCreatorDisableReason('PO', row.createdBy, loggedInUserId) ??
+      (shouldDisablePoEditOrDelete(row)
+        ? PO_ROW_ACTION_DISABLE_REASON.lockedNoEdit
+        : undefined),
     // permission: [APP_PERMISSION.PO_DOC.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete PO',
-    disableWhen: shouldDisablePoEditOrDelete,
-    disableReason: () => PO_ROW_ACTION_DISABLE_REASON.lockedNoDelete,
+    disableWhen: (row: IPoGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId) ||
+      shouldDisablePoEditOrDelete(row),
+    disableReason: (row: IPoGetBaseResponseDto) =>
+      recordCreatorDisableReason('PO', row.createdBy, loggedInUserId) ??
+      (shouldDisablePoEditOrDelete(row)
+        ? PO_ROW_ACTION_DISABLE_REASON.lockedNoDelete
+        : undefined),
     // permission: [APP_PERMISSION.PO_DOC.DELETE],
   },
   {
@@ -144,10 +160,12 @@ const PO_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
 ];
 
-export const PO_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
-  IPoGetResponseDto['records'][number]
-> = {
-  tableConfig: PO_TABLE_CONFIG,
-  headers: PO_TABLE_HEADERS_CONFIG,
-  rowActions: PO_TABLE_ROW_ACTIONS_CONFIG,
-};
+export function createPoTableEnhancedConfig(
+  loggedInUserId: string | undefined | null
+): IEnhancedTableConfig<IPoGetResponseDto['records'][number]> {
+  return {
+    tableConfig: PO_TABLE_CONFIG,
+    headers: PO_TABLE_HEADERS_CONFIG,
+    rowActions: buildPoTableRowActionsConfig(loggedInUserId),
+  };
+}

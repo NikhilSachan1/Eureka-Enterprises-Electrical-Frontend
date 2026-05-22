@@ -7,6 +7,10 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
+import {
+  isNotRecordCreator,
+  recordCreatorDisableReason,
+} from '@shared/utility';
 import { IDsrGetResponseDto } from '@features/site-management/dsr-management/types/dsr.dto';
 
 export const DSR_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -75,9 +79,9 @@ export const DSR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-export const DSR_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IDsrGetResponseDto['records'][number]>
->[] = [
+const buildDsrTableRowActionsConfig = (
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IDsrGetResponseDto['records'][number]>>[] => [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View DSR Details',
@@ -87,18 +91,28 @@ export const DSR_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit DSR',
     permission: [APP_PERMISSION.PROJECT.EDIT],
+    disableWhen: row =>
+      isNotRecordCreator(row.createdByUser?.id, loggedInUserId),
+    disableReason: row =>
+      recordCreatorDisableReason('DSR', row.createdByUser?.id, loggedInUserId),
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete DSR',
     permission: [APP_PERMISSION.PROJECT.DELETE],
+    disableWhen: row =>
+      isNotRecordCreator(row.createdByUser?.id, loggedInUserId),
+    disableReason: row =>
+      recordCreatorDisableReason('DSR', row.createdByUser?.id, loggedInUserId),
   },
 ];
 
-export const DSR_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
-  IDsrGetResponseDto['records'][number]
-> = {
-  tableConfig: DSR_TABLE_CONFIG,
-  headers: DSR_TABLE_HEADER_CONFIG,
-  rowActions: DSR_TABLE_ROW_ACTIONS_CONFIG,
-};
+export function createDsrTableEnhancedConfig(
+  loggedInUserId: string | undefined | null
+): IEnhancedTableConfig<IDsrGetResponseDto['records'][number]> {
+  return {
+    tableConfig: DSR_TABLE_CONFIG,
+    headers: DSR_TABLE_HEADER_CONFIG,
+    rowActions: buildDsrTableRowActionsConfig(loggedInUserId),
+  };
+}

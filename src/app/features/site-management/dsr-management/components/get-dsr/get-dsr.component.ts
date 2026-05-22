@@ -21,7 +21,6 @@ import { DsrService } from '@features/site-management/dsr-management/services/ds
 import {
   EButtonActionType,
   IEnhancedTable,
-  IEnhancedTableConfig,
   IInputFieldsConfig,
   IPageHeaderConfig,
   ITableActionClickEvent,
@@ -39,8 +38,9 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import {
   DSR_ACTION_CONFIG_MAP,
   DSR_EMPLOYEE_FILTER_FIELD_CONFIG,
-  DSR_TABLE_ENHANCED_CONFIG,
+  createDsrTableEnhancedConfig,
 } from '@features/site-management/dsr-management/config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { IDsr } from '@features/site-management/dsr-management/types/dsr.interface';
 import { ChipComponent } from '@shared/components/chip/chip.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
@@ -80,6 +80,7 @@ export class GetDsrComponent implements OnInit {
   private readonly projectWorkspaceContext = inject(
     ProjectWorkspaceContextService
   );
+  private readonly authService = inject(AuthService);
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -106,8 +107,9 @@ export class GetDsrComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      DSR_TABLE_ENHANCED_CONFIG as IEnhancedTableConfig
+      createDsrTableEnhancedConfig(loggedInUserId)
     );
 
     this.loadTrigger$

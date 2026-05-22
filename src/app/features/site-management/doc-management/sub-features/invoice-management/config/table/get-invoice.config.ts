@@ -7,7 +7,14 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IInvoiceGetResponseDto } from '../../types/invoice.dto';
+import {
+  isNotRecordCreator,
+  recordCreatorDisableReason,
+} from '@shared/utility';
+import {
+  IInvoiceGetBaseResponseDto,
+  IInvoiceGetResponseDto,
+} from '../../types/invoice.dto';
 import {
   INVOICE_ROW_ACTION_DISABLE_REASON,
   invoiceApproveDisableReason,
@@ -90,9 +97,9 @@ export const INVOICE_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-const INVOICE_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IInvoiceGetResponseDto['records'][number]>
->[] = [
+const buildInvoiceTableRowActionsConfig = (
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IInvoiceGetResponseDto['records'][number]>>[] => [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Invoice Details',
@@ -100,14 +107,26 @@ const INVOICE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Invoice',
-    disableWhen: shouldDisableInvoiceEditOrDelete,
-    disableReason: () => INVOICE_ROW_ACTION_DISABLE_REASON.lockedNoEdit,
+    disableWhen: (row: IInvoiceGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId) ||
+      shouldDisableInvoiceEditOrDelete(row),
+    disableReason: (row: IInvoiceGetBaseResponseDto) =>
+      recordCreatorDisableReason('invoice', row.createdBy, loggedInUserId) ??
+      (shouldDisableInvoiceEditOrDelete(row)
+        ? INVOICE_ROW_ACTION_DISABLE_REASON.lockedNoEdit
+        : undefined),
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Invoice',
-    disableWhen: shouldDisableInvoiceEditOrDelete,
-    disableReason: () => INVOICE_ROW_ACTION_DISABLE_REASON.lockedNoDelete,
+    disableWhen: (row: IInvoiceGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId) ||
+      shouldDisableInvoiceEditOrDelete(row),
+    disableReason: (row: IInvoiceGetBaseResponseDto) =>
+      recordCreatorDisableReason('invoice', row.createdBy, loggedInUserId) ??
+      (shouldDisableInvoiceEditOrDelete(row)
+        ? INVOICE_ROW_ACTION_DISABLE_REASON.lockedNoDelete
+        : undefined),
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
@@ -141,10 +160,12 @@ const INVOICE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
 ];
 
-export const INVOICE_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
-  IInvoiceGetResponseDto['records'][number]
-> = {
-  tableConfig: INVOICE_TABLE_CONFIG,
-  headers: INVOICE_TABLE_HEADERS_CONFIG,
-  rowActions: INVOICE_TABLE_ROW_ACTIONS_CONFIG,
-};
+export function createInvoiceTableEnhancedConfig(
+  loggedInUserId: string | undefined | null
+): IEnhancedTableConfig<IInvoiceGetResponseDto['records'][number]> {
+  return {
+    tableConfig: INVOICE_TABLE_CONFIG,
+    headers: INVOICE_TABLE_HEADERS_CONFIG,
+    rowActions: buildInvoiceTableRowActionsConfig(loggedInUserId),
+  };
+}

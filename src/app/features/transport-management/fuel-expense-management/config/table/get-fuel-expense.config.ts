@@ -15,6 +15,12 @@ import {
 import { ICONS } from '@shared/constants';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { disableFuelExpenseWhenNotPendingApproval } from '../../utils';
+import {
+  isNotRecordCreator,
+  isRecordCreator,
+  recordCreatorBulkDisableReason,
+  recordCreatorDisableReason,
+} from '@shared/utility';
 
 export const FUEL_EXPENSE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No fuel expense record found.',
@@ -110,30 +116,34 @@ export function buildFuelExpenseTableRowActionsConfig(
       tooltip: 'Edit Fuel Expense',
       permission: [APP_PERMISSION.FUEL_EXPENSE.EDIT],
       disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
-        !loggedInUserId ||
-        row.createdBy !== loggedInUserId ||
+        isNotRecordCreator(row.createdBy, loggedInUserId) ||
         disableFuelExpenseWhenNotPendingApproval(row),
       disableReason: (row: IFuelExpenseGetBaseResponseDto) =>
-        !loggedInUserId || row.createdBy !== loggedInUserId
-          ? 'You are not the owner of this fuel expense.'
-          : disableFuelExpenseWhenNotPendingApproval(row)
-            ? 'Fuel expense is not in pending approval.'
-            : undefined,
+        recordCreatorDisableReason(
+          'fuel expense',
+          row.createdBy,
+          loggedInUserId
+        ) ??
+        (disableFuelExpenseWhenNotPendingApproval(row)
+          ? 'Fuel expense is not in pending approval.'
+          : undefined),
     },
     {
       ...COMMON_ROW_ACTIONS.DELETE,
       tooltip: 'Delete Fuel Expense',
       permission: [APP_PERMISSION.FUEL_EXPENSE.DELETE],
       disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
-        !loggedInUserId ||
-        row.createdBy !== loggedInUserId ||
+        isNotRecordCreator(row.createdBy, loggedInUserId) ||
         disableFuelExpenseWhenNotPendingApproval(row),
       disableReason: (row: IFuelExpenseGetBaseResponseDto) =>
-        !loggedInUserId || row.createdBy !== loggedInUserId
-          ? 'You are not the owner of this fuel expense.'
-          : disableFuelExpenseWhenNotPendingApproval(row)
-            ? 'Fuel expense is not in pending approval.'
-            : undefined,
+        recordCreatorDisableReason(
+          'fuel expense',
+          row.createdBy,
+          loggedInUserId
+        ) ??
+        (disableFuelExpenseWhenNotPendingApproval(row)
+          ? 'Fuel expense is not in pending approval.'
+          : undefined),
     },
     {
       ...COMMON_ROW_ACTIONS.APPROVE,
@@ -141,11 +151,11 @@ export function buildFuelExpenseTableRowActionsConfig(
       permission: [APP_PERMISSION.FUEL_EXPENSE.APPROVE],
       disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
         row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED ||
-        row.createdBy === loggedInUserId,
+        isRecordCreator(row.createdBy, loggedInUserId),
       disableReason: (row: IFuelExpenseGetBaseResponseDto) =>
         row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED
           ? 'Fuel expense is already approved.'
-          : row.createdBy === loggedInUserId
+          : isRecordCreator(row.createdBy, loggedInUserId)
             ? 'You cannot approve your own added fuel expense.'
             : undefined,
     },
@@ -155,11 +165,11 @@ export function buildFuelExpenseTableRowActionsConfig(
       permission: [APP_PERMISSION.FUEL_EXPENSE.REJECT],
       disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
         row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED ||
-        row.createdBy === loggedInUserId,
+        isRecordCreator(row.createdBy, loggedInUserId),
       disableReason: (row: IFuelExpenseGetBaseResponseDto) =>
         row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED
           ? 'Fuel expense is already rejected.'
-          : row.createdBy === loggedInUserId
+          : isRecordCreator(row.createdBy, loggedInUserId)
             ? 'You cannot reject your own added fuel expense.'
             : undefined,
     },
@@ -177,15 +187,17 @@ export function buildFuelExpenseTableBulkActionsConfig(
       tooltip: 'Delete Selected Fuel Expense',
       permission: [APP_PERMISSION.FUEL_EXPENSE.DELETE],
       disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
-        !loggedInUserId ||
-        row.createdBy !== loggedInUserId ||
+        isNotRecordCreator(row.createdBy, loggedInUserId) ||
         disableFuelExpenseWhenNotPendingApproval(row),
       disableReason: (row: IFuelExpenseGetBaseResponseDto) =>
-        !loggedInUserId || row.createdBy !== loggedInUserId
-          ? 'You are not the owner of the some of the selected fuel expenses.'
-          : disableFuelExpenseWhenNotPendingApproval(row)
-            ? 'Some of the selected fuel expenses are not in pending approval.'
-            : undefined,
+        recordCreatorBulkDisableReason(
+          'fuel expenses',
+          row.createdBy,
+          loggedInUserId
+        ) ??
+        (disableFuelExpenseWhenNotPendingApproval(row)
+          ? 'Some of the selected fuel expenses are not in pending approval.'
+          : undefined),
     },
     {
       ...COMMON_BULK_ACTIONS.APPROVE,
@@ -193,11 +205,11 @@ export function buildFuelExpenseTableBulkActionsConfig(
       permission: [APP_PERMISSION.FUEL_EXPENSE.APPROVE],
       disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
         row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED ||
-        row.createdBy === loggedInUserId,
+        isRecordCreator(row.createdBy, loggedInUserId),
       disableReason: (row: IFuelExpenseGetBaseResponseDto) =>
         row.approvalStatus.toLowerCase() === EApprovalStatus.APPROVED
           ? 'Some of the selected fuel expenses are already approved.'
-          : row.createdBy === loggedInUserId
+          : isRecordCreator(row.createdBy, loggedInUserId)
             ? 'You cannot approve your own added fuel expenses.'
             : undefined,
     },
@@ -207,11 +219,11 @@ export function buildFuelExpenseTableBulkActionsConfig(
       permission: [APP_PERMISSION.FUEL_EXPENSE.REJECT],
       disableWhen: (row: IFuelExpenseGetBaseResponseDto) =>
         row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED ||
-        row.createdBy === loggedInUserId,
+        isRecordCreator(row.createdBy, loggedInUserId),
       disableReason: (row: IFuelExpenseGetBaseResponseDto) =>
         row.approvalStatus.toLowerCase() === EApprovalStatus.REJECTED
           ? 'Some of the selected fuel expenses are already rejected.'
-          : row.createdBy === loggedInUserId
+          : isRecordCreator(row.createdBy, loggedInUserId)
             ? 'You cannot reject your own added fuel expenses.'
             : undefined,
     },

@@ -30,8 +30,9 @@ import {
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
   REPORT_ACTION_CONFIG_MAP,
-  REPORT_TABLE_ENHANCED_CONFIG,
+  createReportTableEnhancedConfig,
 } from '../../config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import {
   IReportGetBaseResponseDto,
   IReportGetFormDto,
@@ -80,6 +81,7 @@ export class GetReportComponent implements OnInit {
   private readonly projectWorkspaceContext = inject(
     ProjectWorkspaceContextService
   );
+  private readonly authService = inject(AuthService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
@@ -109,8 +111,9 @@ export class GetReportComponent implements OnInit {
       'docContext'
     ] as EDocContext;
     this.docRouteContext.set(docContext);
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      REPORT_TABLE_ENHANCED_CONFIG
+      createReportTableEnhancedConfig(loggedInUserId)
     );
 
     this.loadTrigger$

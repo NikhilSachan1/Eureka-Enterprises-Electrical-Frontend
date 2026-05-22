@@ -7,8 +7,12 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
+import {
+  isNotRecordCreator,
+  recordCreatorDisableReason,
+} from '@shared/utility';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { IBankTransfer } from '../../types/bank-transfer.interface';
+import { IBankTransferGetBaseResponseDto } from '../../types/bank-transfer.dto';
 
 export const BANK_TRANSFER_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No bank transfer record found.',
@@ -74,8 +78,9 @@ export const createBankTransferTableHeadersConfig = (
 ];
 
 const buildBankTransferTableRowActionsConfig = (
-  isPurchase: boolean
-): Partial<ITableActionConfig<IBankTransfer>>[] => [
+  isPurchase: boolean,
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IBankTransferGetBaseResponseDto>>[] => [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View bank transfer details',
@@ -83,10 +88,26 @@ const buildBankTransferTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit bank transfer',
+    disableWhen: (row: IBankTransferGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId),
+    disableReason: (row: IBankTransferGetBaseResponseDto) =>
+      recordCreatorDisableReason(
+        'bank transfer',
+        row.createdBy,
+        loggedInUserId
+      ),
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete bank transfer',
+    disableWhen: (row: IBankTransferGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId),
+    disableReason: (row: IBankTransferGetBaseResponseDto) =>
+      recordCreatorDisableReason(
+        'bank transfer',
+        row.createdBy,
+        loggedInUserId
+      ),
   },
   {
     id: EButtonActionType.SEND_EMAIL,
@@ -96,13 +117,17 @@ const buildBankTransferTableRowActionsConfig = (
 ];
 
 export const getBankTransferTableConfig = (
-  docContext: EDocContext
-): IEnhancedTableConfig<IBankTransfer> =>
-  ((): IEnhancedTableConfig<IBankTransfer> => {
+  docContext: EDocContext,
+  loggedInUserId: string | undefined | null
+): IEnhancedTableConfig<IBankTransferGetBaseResponseDto> =>
+  ((): IEnhancedTableConfig<IBankTransferGetBaseResponseDto> => {
     const isPurchase = docContext === EDocContext.PURCHASE;
     return {
       tableConfig: BANK_TRANSFER_TABLE_CONFIG,
       headers: createBankTransferTableHeadersConfig(isPurchase),
-      rowActions: buildBankTransferTableRowActionsConfig(isPurchase),
+      rowActions: buildBankTransferTableRowActionsConfig(
+        isPurchase,
+        loggedInUserId
+      ),
     };
   })();

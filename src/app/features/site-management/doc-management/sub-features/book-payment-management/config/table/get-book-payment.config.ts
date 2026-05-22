@@ -6,7 +6,11 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IBookPayment } from '../../types/book-payment.interface';
+import {
+  isNotRecordCreator,
+  recordCreatorDisableReason,
+} from '@shared/utility';
+import { IBookPaymentGetBaseResponseDto } from '../../types/book-payment.dto';
 
 export const BOOK_PAYMENT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No book payment record found.',
@@ -57,9 +61,9 @@ export const BOOK_PAYMENT_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[
     },
   ];
 
-const BOOK_PAYMENT_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IBookPayment>
->[] = [
+const buildBookPaymentTableRowActionsConfig = (
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IBookPaymentGetBaseResponseDto>>[] => [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View book payment details',
@@ -67,16 +71,27 @@ const BOOK_PAYMENT_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit book payment',
+    disableWhen: (row: IBookPaymentGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId),
+    disableReason: (row: IBookPaymentGetBaseResponseDto) =>
+      recordCreatorDisableReason('book payment', row.createdBy, loggedInUserId),
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete book payment',
+    disableWhen: (row: IBookPaymentGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId),
+    disableReason: (row: IBookPaymentGetBaseResponseDto) =>
+      recordCreatorDisableReason('book payment', row.createdBy, loggedInUserId),
   },
 ];
 
-export const BOOK_PAYMENT_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IBookPayment> =
-  {
+export function createBookPaymentTableEnhancedConfig(
+  loggedInUserId: string | undefined | null
+): IEnhancedTableConfig<IBookPaymentGetBaseResponseDto> {
+  return {
     tableConfig: BOOK_PAYMENT_TABLE_CONFIG,
     headers: BOOK_PAYMENT_TABLE_HEADERS_CONFIG,
-    rowActions: BOOK_PAYMENT_TABLE_ROW_ACTIONS_CONFIG,
+    rowActions: buildBookPaymentTableRowActionsConfig(loggedInUserId),
   };
+}

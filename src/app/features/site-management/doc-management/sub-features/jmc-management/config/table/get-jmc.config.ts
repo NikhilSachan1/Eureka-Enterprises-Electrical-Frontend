@@ -7,7 +7,14 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IJmcGetResponseDto } from '../../types/jmc.dto';
+import {
+  isNotRecordCreator,
+  recordCreatorDisableReason,
+} from '@shared/utility';
+import {
+  IJmcGetBaseResponseDto,
+  IJmcGetResponseDto,
+} from '../../types/jmc.dto';
 import {
   JMC_ROW_ACTION_DISABLE_REASON,
   jmcApproveDisableReason,
@@ -76,9 +83,9 @@ export const JMC_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-const JMC_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IJmcGetResponseDto['records'][number]>
->[] = [
+const buildJmcTableRowActionsConfig = (
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IJmcGetResponseDto['records'][number]>>[] => [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View JMC Details',
@@ -86,14 +93,26 @@ const JMC_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit JMC',
-    disableWhen: shouldDisableJmcEditOrDelete,
-    disableReason: () => JMC_ROW_ACTION_DISABLE_REASON.lockedNoEdit,
+    disableWhen: (row: IJmcGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId) ||
+      shouldDisableJmcEditOrDelete(row),
+    disableReason: (row: IJmcGetBaseResponseDto) =>
+      recordCreatorDisableReason('JMC', row.createdBy, loggedInUserId) ??
+      (shouldDisableJmcEditOrDelete(row)
+        ? JMC_ROW_ACTION_DISABLE_REASON.lockedNoEdit
+        : undefined),
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete JMC',
-    disableWhen: shouldDisableJmcEditOrDelete,
-    disableReason: () => JMC_ROW_ACTION_DISABLE_REASON.lockedNoDelete,
+    disableWhen: (row: IJmcGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId) ||
+      shouldDisableJmcEditOrDelete(row),
+    disableReason: (row: IJmcGetBaseResponseDto) =>
+      recordCreatorDisableReason('JMC', row.createdBy, loggedInUserId) ??
+      (shouldDisableJmcEditOrDelete(row)
+        ? JMC_ROW_ACTION_DISABLE_REASON.lockedNoDelete
+        : undefined),
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
@@ -127,10 +146,12 @@ const JMC_TABLE_ROW_ACTIONS_CONFIG: Partial<
   },
 ];
 
-export const JMC_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
-  IJmcGetResponseDto['records'][number]
-> = {
-  tableConfig: JMC_TABLE_CONFIG,
-  headers: JMC_TABLE_HEADERS_CONFIG,
-  rowActions: JMC_TABLE_ROW_ACTIONS_CONFIG,
-};
+export function createJmcTableEnhancedConfig(
+  loggedInUserId: string | undefined | null
+): IEnhancedTableConfig<IJmcGetResponseDto['records'][number]> {
+  return {
+    tableConfig: JMC_TABLE_CONFIG,
+    headers: JMC_TABLE_HEADERS_CONFIG,
+    rowActions: buildJmcTableRowActionsConfig(loggedInUserId),
+  };
+}

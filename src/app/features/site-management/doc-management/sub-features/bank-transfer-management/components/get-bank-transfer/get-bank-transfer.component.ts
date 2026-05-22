@@ -32,6 +32,7 @@ import {
   BANK_TRANSFER_ACTION_CONFIG_MAP,
   getBankTransferTableConfig,
 } from '../../config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import {
   IBankTransferGetBaseResponseDto,
   IBankTransferGetFormDto,
@@ -80,6 +81,7 @@ export class GetBankTransferComponent implements OnInit {
   private readonly projectWorkspaceContext = inject(
     ProjectWorkspaceContextService
   );
+  private readonly authService = inject(AuthService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
@@ -109,8 +111,9 @@ export class GetBankTransferComponent implements OnInit {
       'docContext'
     ] as EDocContext;
     this.docRouteContext.set(docContext);
+    const loggedInUserId = this.authService.getCurrentUser()?.userId;
     this.table = this.dataTableService.createTable(
-      getBankTransferTableConfig(docContext)
+      getBankTransferTableConfig(docContext, loggedInUserId)
     );
 
     this.loadTrigger$

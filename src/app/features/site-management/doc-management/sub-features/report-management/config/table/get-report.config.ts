@@ -6,7 +6,11 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IReportGetResponseDto } from '../../types/report.dto';
+import {
+  isNotRecordCreator,
+  recordCreatorDisableReason,
+} from '@shared/utility';
+import { IReportGetBaseResponseDto } from '../../types/report.dto';
 
 export const REPORT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No report record found.',
@@ -48,9 +52,9 @@ export const REPORT_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
 ];
 
-const REPORT_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IReportGetResponseDto['records'][number]>
->[] = [
+const buildReportTableRowActionsConfig = (
+  loggedInUserId: string | undefined | null
+): Partial<ITableActionConfig<IReportGetBaseResponseDto>>[] => [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View report details',
@@ -58,17 +62,27 @@ const REPORT_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit report',
+    disableWhen: (row: IReportGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId),
+    disableReason: (row: IReportGetBaseResponseDto) =>
+      recordCreatorDisableReason('report', row.createdBy, loggedInUserId),
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete report',
+    disableWhen: (row: IReportGetBaseResponseDto) =>
+      isNotRecordCreator(row.createdBy, loggedInUserId),
+    disableReason: (row: IReportGetBaseResponseDto) =>
+      recordCreatorDisableReason('report', row.createdBy, loggedInUserId),
   },
 ];
 
-export const REPORT_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
-  IReportGetResponseDto['records'][number]
-> = {
-  tableConfig: REPORT_TABLE_CONFIG,
-  headers: REPORT_TABLE_HEADERS_CONFIG,
-  rowActions: REPORT_TABLE_ROW_ACTIONS_CONFIG,
-};
+export function createReportTableEnhancedConfig(
+  loggedInUserId: string | undefined | null
+): IEnhancedTableConfig<IReportGetBaseResponseDto> {
+  return {
+    tableConfig: REPORT_TABLE_CONFIG,
+    headers: REPORT_TABLE_HEADERS_CONFIG,
+    rowActions: buildReportTableRowActionsConfig(loggedInUserId),
+  };
+}
