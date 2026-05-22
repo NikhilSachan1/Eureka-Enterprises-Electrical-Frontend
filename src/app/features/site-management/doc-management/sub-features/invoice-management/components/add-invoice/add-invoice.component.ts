@@ -39,6 +39,7 @@ import {
   IJmcDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/jmc-management/types/jmc.dto';
 import { roundCurrencyAmount } from '@shared/utility';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 
 @Component({
   selector: 'app-add-invoice',
@@ -58,6 +59,9 @@ export class AddInvoiceComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly projectWorkspaceContext = inject(
+    ProjectWorkspaceContextService
+  );
 
   private trackedInvoiceInputs!: ITrackedFields<IAddInvoiceUIFormDto>;
 
@@ -72,6 +76,11 @@ export class AddInvoiceComponent
         const siteId = this.trackedInvoiceInputs.projectName();
         if (siteId && typeof siteId === 'string') {
           this.loadJmcOptions(siteId);
+          this.projectWorkspaceContext.patchDateField(
+            this.form.fieldConfigs,
+            'invoiceDate',
+            this.changeDetectorRef
+          );
         }
       }
     });
@@ -100,6 +109,11 @@ export class AddInvoiceComponent
         ['taxableAmount', 'gstPercent', 'projectName'],
         this.destroyRef
       );
+    this.projectWorkspaceContext.patchDateField(
+      this.form.fieldConfigs,
+      'invoiceDate',
+      this.changeDetectorRef
+    );
   }
 
   private loadJmcOptions(siteId: string): void {

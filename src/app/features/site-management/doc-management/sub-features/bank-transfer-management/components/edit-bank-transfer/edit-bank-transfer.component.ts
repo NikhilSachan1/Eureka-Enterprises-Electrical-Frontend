@@ -25,6 +25,7 @@ import {
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 
 import { EDIT_BANK_TRANSFER_FORM_CONFIG } from '../../config';
 import { BankTransferService } from '../../services/bank-transfer.service';
@@ -55,6 +56,9 @@ export class EditBankTransferComponent
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly currencyPipe = inject(CurrencyPipe);
   private readonly datePipe = inject(DatePipe);
+  private readonly projectWorkspaceContext = inject(
+    ProjectWorkspaceContextService
+  );
 
   protected readonly EDocContext = EDocContext;
 
@@ -102,6 +106,11 @@ export class EditBankTransferComponent
     if (this.docContext() === EDocContext.PURCHASE) {
       this.seedBookPaymentNumberOption(record);
     }
+    this.projectWorkspaceContext.patchDateField(
+      this.form.fieldConfigs,
+      'transferDate',
+      this.changeDetectorRef
+    );
   }
 
   private seedInvoiceNumberOption(

@@ -34,6 +34,7 @@ import {
   IAddJmcUIFormDto,
 } from '../../types/jmc.dto';
 import { PoService } from '@features/site-management/doc-management/sub-features/po-management/services/po.service';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import {
   IPoDropdownGetRequestDto,
   IPoDropdownRecordDto,
@@ -57,6 +58,9 @@ export class AddJmcComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly projectWorkspaceContext = inject(
+    ProjectWorkspaceContextService
+  );
 
   private trackedJmcUiFields!: ITrackedFields<IAddJmcUIFormDto>;
 
@@ -71,6 +75,11 @@ export class AddJmcComponent
         const siteId = this.trackedJmcUiFields.projectName();
         if (siteId && typeof siteId === 'string') {
           this.loadPoOptions(siteId);
+          this.projectWorkspaceContext.patchDateField(
+            this.form.fieldConfigs,
+            'jmcDate',
+            this.changeDetectorRef
+          );
         }
       }
     });
@@ -95,6 +104,11 @@ export class AddJmcComponent
         trackedFields,
         this.destroyRef
       );
+    this.projectWorkspaceContext.patchDateField(
+      this.form.fieldConfigs,
+      'jmcDate',
+      this.changeDetectorRef
+    );
   }
 
   private loadPoOptions(siteId: string): void {

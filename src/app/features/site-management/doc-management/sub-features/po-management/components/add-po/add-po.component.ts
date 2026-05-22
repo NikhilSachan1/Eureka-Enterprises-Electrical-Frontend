@@ -32,6 +32,7 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ReactiveFormsModule } from '@angular/forms';
 import { roundCurrencyAmount } from '@shared/utility';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
 
 type AddPoStakeholderField = 'contractorName' | 'vendorName';
@@ -49,6 +50,9 @@ export class AddPoComponent
 {
   private readonly poService = inject(PoService);
   private readonly projectService = inject(ProjectService);
+  private readonly projectWorkspaceContext = inject(
+    ProjectWorkspaceContextService
+  );
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -101,6 +105,11 @@ export class AddPoComponent
         ['projectName', 'taxableAmount', 'gstPercent'],
         this.destroyRef
       );
+    this.projectWorkspaceContext.patchDateField(
+      this.form.fieldConfigs,
+      'poDate',
+      this.changeDetectorRef
+    );
   }
 
   private loadProjectStakeholderOptions(projectId: string): void {
@@ -132,6 +141,14 @@ export class AddPoComponent
           }
           if (this.docContext() === EDocContext.PURCHASE) {
             this.applyStakeholderOptions('vendorName', vendorIds, false);
+          }
+          if (response.site) {
+            this.projectWorkspaceContext.patchDateField(
+              this.form.fieldConfigs,
+              'poDate',
+              this.changeDetectorRef,
+              response.site
+            );
           }
         },
         error: error => {

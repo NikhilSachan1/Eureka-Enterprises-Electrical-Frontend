@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   effect,
   inject,
@@ -31,6 +32,7 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ReactiveFormsModule } from '@angular/forms';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { roundCurrencyAmount } from '@shared/utility';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 
 @Component({
   selector: 'app-edit-po',
@@ -47,6 +49,10 @@ export class EditPoComponent
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
+  );
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly projectWorkspaceContext = inject(
+    ProjectWorkspaceContextService
   );
 
   private trackedGstInputs!: ITrackedFields<IEditPoUIFormDto>;
@@ -137,6 +143,11 @@ export class EditPoComponent
         : Number(gstPercent);
 
     this.loadPrefillAttachmentFromKey(record.fileKey);
+    this.projectWorkspaceContext.patchDateField(
+      this.form.fieldConfigs,
+      'poDate',
+      this.changeDetectorRef
+    );
   }
 
   private loadPrefillAttachmentFromKey(fileKey: string): void {

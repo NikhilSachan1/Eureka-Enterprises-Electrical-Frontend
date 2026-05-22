@@ -9,7 +9,6 @@ import { Validators } from '@angular/forms';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IDsrAddUIFormDto } from '@features/site-management/dsr-management/types/dsr.dto';
 import { APP_CONFIG } from '@core/config';
-import { getDateBeforeXDays } from '@shared/utility';
 
 const ADD_DSR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDsrAddUIFormDto> = {
   projectName: {
@@ -31,7 +30,6 @@ const ADD_DSR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDsrAddUIFormDto> = {
     fieldName: 'statusDate',
     label: 'Status Date',
     dateConfig: {
-      minDate: getDateBeforeXDays(6),
       maxDate: new Date(),
       touchUI: false,
     },

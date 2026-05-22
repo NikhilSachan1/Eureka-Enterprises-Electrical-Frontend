@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   inject,
   input,
@@ -21,6 +22,7 @@ import {
 } from '@shared/services';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 
 import { EDIT_REPORT_FORM_CONFIG } from '../../config';
 import { ReportService } from '../../services/report.service';
@@ -46,6 +48,10 @@ export class EditReportComponent
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
+  );
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly projectWorkspaceContext = inject(
+    ProjectWorkspaceContextService
   );
 
   protected readonly selectedRecord =
@@ -81,6 +87,11 @@ export class EditReportComponent
     this.seedJmcOption(record.jmc.jmcNumber);
 
     this.loadPrefillAttachmentFromKey(record.fileKey);
+    this.projectWorkspaceContext.patchDateField(
+      this.form.fieldConfigs,
+      'reportDate',
+      this.changeDetectorRef
+    );
   }
 
   private seedJmcOption(jmcNumber: string): void {

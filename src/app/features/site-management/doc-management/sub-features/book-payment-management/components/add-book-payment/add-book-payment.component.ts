@@ -27,6 +27,7 @@ import {
   IInvoiceDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/invoice-management/types/invoice.dto';
 import { roundCurrencyAmount } from '@shared/utility';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 
 import { ADD_BOOK_PAYMENT_FORM_CONFIG } from '../../config';
 import { BookPaymentService } from '../../services/book-payment.service';
@@ -53,6 +54,9 @@ export class AddBookPaymentComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly projectWorkspaceContext = inject(
+    ProjectWorkspaceContextService
+  );
 
   private trackedBookPaymentInputs!: ITrackedFields<IAddBookPaymentUIFormDto>;
 
@@ -70,6 +74,11 @@ export class AddBookPaymentComponent
         const siteId = this.trackedBookPaymentInputs.projectName();
         if (siteId && typeof siteId === 'string') {
           this.loadInvoiceOptions(siteId);
+          this.projectWorkspaceContext.patchDateField(
+            this.form.fieldConfigs,
+            'bookingDate',
+            this.changeDetectorRef
+          );
         }
       }
     });
@@ -106,6 +115,11 @@ export class AddBookPaymentComponent
         trackedFields,
         this.destroyRef
       );
+    this.projectWorkspaceContext.patchDateField(
+      this.form.fieldConfigs,
+      'bookingDate',
+      this.changeDetectorRef
+    );
   }
 
   private loadInvoiceOptions(siteId: string): void {

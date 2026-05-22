@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   effect,
   inject,
@@ -28,6 +29,7 @@ import { IDialogActionHandler, ITrackedFields } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 
 @Component({
   selector: 'app-edit-dsr',
@@ -45,6 +47,10 @@ export class EditDsrComponent
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
+  );
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly projectWorkspaceContext = inject(
+    ProjectWorkspaceContextService
   );
 
   private trackedEditDsrFields!: ITrackedFields<IDsrEditUIFormDto>;
@@ -98,6 +104,11 @@ export class EditDsrComponent
       );
 
     this.loadPrefillAttachments(record.documentKeys);
+    this.projectWorkspaceContext.patchDateField(
+      this.form.fieldConfigs,
+      'statusDate',
+      this.changeDetectorRef
+    );
   }
 
   private preparePrefilledFormData(
