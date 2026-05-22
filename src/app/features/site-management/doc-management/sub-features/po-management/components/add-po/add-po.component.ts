@@ -33,7 +33,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { roundCurrencyAmount } from '@shared/utility';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
-import { getPrefilledProjectNameFormDefaults } from '@features/site-management/project-management/utility/project-workspace-dialog.util';
 
 type AddPoStakeholderField = 'contractorName' | 'vendorName';
 
@@ -60,7 +59,7 @@ export class AddPoComponent
 
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
-  protected readonly prefilledProjectId = input<string>();
+  protected readonly projectName = input<string>();
 
   readonly EDocContext = EDocContext;
 
@@ -90,9 +89,9 @@ export class AddPoComponent
         context: {
           docContext: this.docContext(),
         },
-        defaultValues: getPrefilledProjectNameFormDefaults(
-          this.prefilledProjectId()
-        ),
+        defaultValues: {
+          projectName: this.projectName(),
+        },
       }
     );
 

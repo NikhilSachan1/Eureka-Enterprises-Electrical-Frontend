@@ -214,6 +214,7 @@ export class GetReportComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
+        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadReportList();
         },

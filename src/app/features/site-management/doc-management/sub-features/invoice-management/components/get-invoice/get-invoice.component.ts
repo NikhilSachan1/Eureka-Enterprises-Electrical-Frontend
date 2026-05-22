@@ -280,6 +280,7 @@ export class GetInvoiceComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
+        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadInvoiceList();
         },

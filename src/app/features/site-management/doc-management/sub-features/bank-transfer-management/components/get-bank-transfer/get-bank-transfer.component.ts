@@ -246,6 +246,7 @@ export class GetBankTransferComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
+        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => this.loadBankTransferList(),
       }
     );

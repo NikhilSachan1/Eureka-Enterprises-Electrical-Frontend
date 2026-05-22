@@ -278,6 +278,7 @@ export class GetPoComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
+        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadPoList();
         },

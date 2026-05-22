@@ -62,6 +62,7 @@ export class AddReportComponent
 
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
+  protected readonly projectName = input<string>();
 
   constructor() {
     super();
@@ -80,6 +81,9 @@ export class AddReportComponent
       ADD_REPORT_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        defaultValues: {
+          projectName: this.projectName(),
+        },
       }
     );
 

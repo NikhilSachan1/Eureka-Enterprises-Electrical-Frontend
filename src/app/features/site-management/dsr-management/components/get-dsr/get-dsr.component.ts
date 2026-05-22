@@ -244,6 +244,7 @@ export class GetDsrComponent implements OnInit {
       false,
       false,
       {
+        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadDsrList();
         },
@@ -259,6 +260,7 @@ export class GetDsrComponent implements OnInit {
       false,
       false,
       {
+        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadDsrList();
         },

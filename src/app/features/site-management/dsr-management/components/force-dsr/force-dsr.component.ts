@@ -21,7 +21,6 @@ import {
 } from '@features/site-management/dsr-management/types/dsr.dto';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
-import { getPrefilledProjectNameFormDefaults } from '@features/site-management/project-management/utility/project-workspace-dialog.util';
 import { FormBase } from '@shared/base/form.base';
 import { ConfirmationDialogService } from '@shared/services';
 import {
@@ -53,7 +52,7 @@ export class ForceDsrComponent
   private trackedForceDsrFields!: ITrackedFields<IDsrForceUIFormDto>;
 
   protected readonly onSuccess = input.required<() => void>();
-  protected readonly prefilledProjectId = input<string>();
+  protected readonly projectName = input<string>();
 
   constructor() {
     super();
@@ -72,9 +71,9 @@ export class ForceDsrComponent
       FORCE_DSR_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
-        defaultValues: getPrefilledProjectNameFormDefaults(
-          this.prefilledProjectId()
-        ),
+        defaultValues: {
+          projectName: this.projectName(),
+        },
       }
     );
 

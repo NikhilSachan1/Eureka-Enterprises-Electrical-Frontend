@@ -220,6 +220,7 @@ export class GetJmcComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
+        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadJmcList();
         },

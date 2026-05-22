@@ -68,6 +68,7 @@ export class AddBankTransferComponent
 
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
+  protected readonly projectName = input<string>();
 
   protected transferAmount: number | null = null;
   private bookPaymentOptions: IOptionDropdown<{
@@ -129,6 +130,7 @@ export class AddBankTransferComponent
       {
         destroyRef: this.destroyRef,
         defaultValues: {
+          projectName: this.projectName(),
           invoiceNumber: null,
           bookPaymentNumber: null,
           remarks: null,

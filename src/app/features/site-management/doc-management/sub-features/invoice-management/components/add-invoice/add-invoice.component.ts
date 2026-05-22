@@ -63,6 +63,7 @@ export class AddInvoiceComponent
 
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
+  protected readonly projectName = input<string>();
 
   constructor() {
     super();
@@ -87,6 +88,9 @@ export class AddInvoiceComponent
       ADD_INVOICE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        defaultValues: {
+          projectName: this.projectName(),
+        },
       }
     );
 
