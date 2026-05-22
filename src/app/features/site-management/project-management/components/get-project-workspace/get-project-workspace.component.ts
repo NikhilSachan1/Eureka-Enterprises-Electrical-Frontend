@@ -97,7 +97,7 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
 
     if (projectIdFromState) {
       this.projectWorkspaceContext.setDocWorkspaceFilter({
-        projectName: [projectIdFromState],
+        projectName: projectIdFromState,
       });
     }
   }
