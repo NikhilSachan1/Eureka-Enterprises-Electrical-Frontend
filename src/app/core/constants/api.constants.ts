@@ -211,6 +211,7 @@ export const API_ROUTES = {
     },
     DSR: {
       ADD: 'daily-status-reports',
+      FORCE: 'daily-status-reports/force',
       EDIT: (dsrId: string) => `daily-status-reports/${dsrId}`,
       DELETE: (dsrId: string) => `daily-status-reports/${dsrId}`,
       LIST: 'daily-status-reports',

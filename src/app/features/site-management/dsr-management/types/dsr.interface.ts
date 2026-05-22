@@ -1,4 +1,5 @@
 import { IDsrDetailGetResponseDto, IDsrGetBaseResponseDto } from './dsr.dto';
+import type { IDocWorkspaceContextView } from '@features/site-management/doc-management/shared/types/doc-workspace-context.interface';
 
 export interface IDsr
   extends Pick<
@@ -10,6 +11,7 @@ export interface IDsr
     | 'reportingEngineerContact'
     | 'remarks'
   > {
+  docWorkspaceContext: IDocWorkspaceContextView;
   createdByUser: IDsrGetBaseResponseDto['createdByUser'] & {
     fullName: string;
   };

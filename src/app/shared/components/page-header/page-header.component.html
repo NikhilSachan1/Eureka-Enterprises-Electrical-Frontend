@@ -3,7 +3,9 @@
 <div
   class="page-header-root relative mb-6 w-full max-w-full overflow-hidden"
   [ngClass]="
-    finalPageHeader.showSearch && !finalPageHeader.title && !finalPageHeader.showGoBackButton
+    (finalPageHeader.showSearch || finalPageHeader.showHeaderFilter) &&
+    !finalPageHeader.title &&
+    !finalPageHeader.showGoBackButton
       ? 'px-0 py-2'
       : 'px-4 py-5 sm:px-6'
   "
@@ -37,7 +39,7 @@
       </div>
     }
 
-    <!-- Centre Section - Search Bar -->
+    <!-- Centre Section - Search or custom header filter -->
     @if (finalPageHeader.showSearch) {
       <div class="flex-1 min-w-0">
         <p-iconfield class="w-full">
@@ -51,6 +53,10 @@
             class="w-full"
           />
         </p-iconfield>
+      </div>
+    } @else if (finalPageHeader.showHeaderFilter) {
+      <div class="flex-1 min-w-0">
+        <ng-content select="[headerFilter]" />
       </div>
     }
 

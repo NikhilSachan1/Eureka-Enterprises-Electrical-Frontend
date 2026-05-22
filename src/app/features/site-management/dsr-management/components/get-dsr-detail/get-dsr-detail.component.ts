@@ -13,7 +13,6 @@ import {
 } from '@features/site-management/dsr-management/types/dsr.dto';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -35,7 +34,6 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
     dsr: IDsrGetBaseResponseDto;
   };
   private readonly dsrService = inject(DsrService);
-  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _dsrDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -66,7 +64,7 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
           this.logger.logUserAction('DSR details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load DSR details', error);
         },
       });
   }
@@ -80,61 +78,45 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
   private mapDetailData(
     response: IDsrDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
-    const mappedDetails = response.editHistory?.map(record => {
-      //eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const mappedDetails = response.map(record => {
       const entryData: IDataViewDetails['entryData'] = [
-        // {
-        //   label: 'Date',
-        //   value: record.reportDate,
-        //   type: EDataType.DATE,
-        //   format: APP_CONFIG.DATE_FORMATS.DEFAULT,
-        // },
-        // {
-        //   label: 'Work Types',
-        //   value: record.workTypes.join(', '),
-        // },
-        // {
-        //   label: 'Amount',
-        //   value: record.amount,
-        //   type: EDataType.CURRENCY,
-        //   format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-        //   metadata: {
-        //     transactionType: record.transactionType,
-        //   },
-        // },
-        // {
-        //   label: 'Payment Mode',
-        //   value: getMappedValueFromArrayOfObjects(
-        //     this.appConfigurationService.expensePaymentMethods(),
-        //     record.paymentMode
-        //   ),
-        // },
-        // {
-        //   label: 'Transaction ID',
-        //   value: record.transactionId,
-        // },
-        // {
-        //   label: 'Attachment(s)',
-        //   value: record.fileKeys,
-        //   type: EDataType.ATTACHMENTS,
-        // },
+        {
+          label: 'Work Types',
+          value: record.workTypes.join(', '),
+        },
+        {
+          label: 'Work Description',
+          value: record.workDescription,
+        },
+        {
+          label: 'Remarks',
+          value: record.remarks,
+        },
+        {
+          label: 'Attachment(s)',
+          value: record.fileKeys,
+          type: EDataType.ATTACHMENTS,
+        },
       ];
 
       return {
         status: {
-          entryType: record.expenseEntryType,
+          entryType: record.dsrEntryType,
         },
-        entryData: [],
+        entryData,
         createdBy: {
-          user: record.createdByUser,
+          user: record.createdBy,
           date: record.createdAt,
-          notes: record.remarks,
+        },
+        updatedBy: {
+          user: record.updatedBy,
+          date: record.updatedAt,
         },
       };
     });
 
     return {
-      details: mappedDetails ?? [],
+      details: mappedDetails,
       entity: this.getEmployeeDetails(),
     };
   }

@@ -1,5 +1,9 @@
 export { DsrBaseSchema, DsrUpsertShapeSchema } from './base-dsr.schema';
 export { DsrAddRequestSchema, DsrAddResponseSchema } from './add-dsr.schema';
+export {
+  DsrForceRequestSchema,
+  DsrForceResponseSchema,
+} from './force-dsr.schema';
 export { DsrEditRequestSchema, DsrEditResponseSchema } from './edit-dsr.schema';
 export { DsrDeleteResponseSchema } from './delete.dsr.schema';
 export {

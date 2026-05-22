@@ -12,6 +12,19 @@ import { APP_CONFIG } from '@core/config';
 import { getDateBeforeXDays } from '@shared/utility';
 
 const ADD_DSR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDsrAddUIFormDto> = {
+  projectName: {
+    fieldType: EDataType.SELECT,
+    id: 'projectName',
+    fieldName: 'projectName',
+    label: 'Project Name',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.PROJECT,
+        dropdownName: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
+      },
+    },
+    validators: [Validators.required],
+  },
   statusDate: {
     fieldType: EDataType.DATE,
     id: 'statusDate',
@@ -20,6 +33,7 @@ const ADD_DSR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDsrAddUIFormDto> = {
     dateConfig: {
       minDate: getDateBeforeXDays(6),
       maxDate: new Date(),
+      touchUI: false,
     },
     validators: [Validators.required],
   },
@@ -84,7 +98,6 @@ const ADD_DSR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDsrAddUIFormDto> = {
     id: 'note',
     fieldName: 'note',
     label: 'Note',
-    validators: [Validators.required],
   },
 };
 

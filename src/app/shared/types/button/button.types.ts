@@ -53,6 +53,7 @@ export enum EButtonActionType {
   CLEAR_SELECTION = 'clearSelection',
   VIEW = 'view',
   ADD = 'add',
+  FORCE = 'force',
   EDIT = 'edit',
   SET_PERMISSIONS = 'setPermissions',
   DELETE_PERMISSIONS = 'deletePermissions',

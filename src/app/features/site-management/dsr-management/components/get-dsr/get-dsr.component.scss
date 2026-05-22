@@ -12,3 +12,13 @@
     line-height: 1.2;
   }
 }
+
+.dsr-header-employee-filter {
+  width: 100%;
+
+  ::ng-deep .p-floatlabel,
+  ::ng-deep .p-multiselect,
+  ::ng-deep .p-inputwrapper {
+    width: 100%;
+  }
+}

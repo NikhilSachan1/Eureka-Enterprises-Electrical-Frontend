@@ -5,6 +5,8 @@ import { API_ROUTES } from '@core/constants';
 import {
   DsrAddRequestSchema,
   DsrAddResponseSchema,
+  DsrForceRequestSchema,
+  DsrForceResponseSchema,
   DsrDeleteResponseSchema,
   DsrEditRequestSchema,
   DsrEditResponseSchema,
@@ -19,6 +21,8 @@ import {
   IDsrDetailGetResponseDto,
   IDsrEditFormDto,
   IDsrEditResponseDto,
+  IDsrForceFormDto,
+  IDsrForceResponseDto,
   IDsrGetFormDto,
   IDsrGetResponseDto,
 } from '../types/dsr.dto';
@@ -53,6 +57,34 @@ export class DsrService {
             this.logger.logDtoValidationErrors('Add Dsr Error', error);
           } else {
             this.logger.logUserAction('Add Dsr Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  forceDsr(formData: IDsrForceFormDto): Observable<IDsrForceResponseDto> {
+    this.logger.logUserAction('Force Dsr Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DSR.FORCE,
+        {
+          response: DsrForceResponseSchema,
+          request: DsrForceRequestSchema,
+        },
+        formData,
+        { multipart: true }
+      )
+      .pipe(
+        tap((response: IDsrForceResponseDto) => {
+          this.logger.logUserAction('Force Dsr Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Force Dsr Error', error);
+          } else {
+            this.logger.logUserAction('Force Dsr Error', error);
           }
           return throwError(() => error);
         })

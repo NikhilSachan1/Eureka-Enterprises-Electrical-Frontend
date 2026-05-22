@@ -14,7 +14,7 @@ export const DsrBaseSchema = z.looseObject({
   workDescription: z.string().nullable(),
   reportingEngineerName: z.string(),
   reportingEngineerContact: z.string(),
-  remarks: z.string(),
+  remarks: z.string().nullable(),
 });
 
 const { siteId, workTypes, remarks, reportingEngineerName } =
@@ -24,7 +24,7 @@ export const DsrUpsertShapeSchema = z
   .object({
     projectName: siteId,
     statusDate: dateField,
-    note: remarks,
+    note: remarks.nullable(),
     workDone: workTypes,
     reportedEngineerName: reportingEngineerName,
     reportedEngineerContact: z.number().nullable(),

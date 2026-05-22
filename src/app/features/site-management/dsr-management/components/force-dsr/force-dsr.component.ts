@@ -7,12 +7,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ADD_DSR_FORM_CONFIG } from '@features/site-management/dsr-management/config';
+import { FORCE_DSR_FORM_CONFIG } from '@features/site-management/dsr-management/config';
 import { DsrService } from '@features/site-management/dsr-management/services/dsr.service';
 import {
-  IDsrAddFormDto,
-  IDsrAddResponseDto,
-  IDsrAddUIFormDto,
+  IDsrForceFormDto,
+  IDsrForceResponseDto,
+  IDsrForceUIFormDto,
 } from '@features/site-management/dsr-management/types/dsr.dto';
 import { FormBase } from '@shared/base/form.base';
 import { ConfirmationDialogService } from '@shared/services';
@@ -21,14 +21,14 @@ import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 
 @Component({
-  selector: 'app-add-dsr',
+  selector: 'app-force-dsr',
   imports: [InputFieldComponent, ReactiveFormsModule],
-  templateUrl: './add-dsr.component.html',
-  styleUrl: './add-dsr.component.scss',
+  templateUrl: './force-dsr.component.html',
+  styleUrl: './force-dsr.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddDsrComponent
-  extends FormBase<IDsrAddUIFormDto>
+export class ForceDsrComponent
+  extends FormBase<IDsrForceUIFormDto>
   implements OnInit, IDialogActionHandler
 {
   private readonly dsrService = inject(DsrService);
@@ -39,8 +39,8 @@ export class AddDsrComponent
   protected readonly onSuccess = input.required<() => void>();
 
   ngOnInit(): void {
-    this.form = this.formService.createForm<IDsrAddUIFormDto>(
-      ADD_DSR_FORM_CONFIG,
+    this.form = this.formService.createForm<IDsrForceUIFormDto>(
+      FORCE_DSR_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
       }
@@ -52,19 +52,19 @@ export class AddDsrComponent
   }
 
   protected override handleSubmit(): void {
-    this.executeAddDsr(this.form.getData());
+    this.executeForceDsr(this.form.getData());
   }
 
-  private executeAddDsr(formData: IDsrAddFormDto): void {
+  private executeForceDsr(formData: IDsrForceFormDto): void {
     this.loadingService.show({
-      title: 'Adding DSR',
+      title: 'Force DSR',
       message:
-        "Please wait while we're adding the DSR. This will just take a moment.",
+        "Please wait while we're adding the DSR on behalf of the employee. This will just take a moment.",
     });
     this.form.disable();
 
     this.dsrService
-      .addDsr(formData)
+      .forceDsr(formData)
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
@@ -74,14 +74,14 @@ export class AddDsrComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IDsrAddResponseDto) => {
+        next: (response: IDsrForceResponseDto) => {
           this.notificationService.success(response.message);
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
         error: error => {
-          this.logger.error('Failed to add DSR', error);
-          this.notificationService.error('Failed to add DSR.');
+          this.logger.error('Failed to force DSR', error);
+          this.notificationService.error('Failed to force DSR.');
         },
       });
   }

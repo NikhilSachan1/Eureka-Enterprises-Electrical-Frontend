@@ -7,13 +7,14 @@ import {
 } from '@shared/schemas';
 import { transformDateFormat } from '@shared/utility';
 import { DsrBaseSchema } from './base-dsr.schema';
+import { ProjectGetBaseResponseSchema } from '@features/site-management/project-management/schemas';
 
 const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
 
 export const DsrGetRequestSchema = z
   .object({
     projectName: z.string().nullable().optional(),
-    employeeName: z.array(z.string()).nullable().optional(),
+    employeeNames: z.array(uuidField).optional(),
     dateRange: z.array(dateField).nullable().optional(),
     sortOrder,
     sortField,
@@ -21,16 +22,16 @@ export const DsrGetRequestSchema = z
     page,
   })
   .strict()
-  .transform(({ projectName, employeeName, dateRange, ...rest }) => {
+  .transform(({ projectName, employeeNames, dateRange, ...rest }) => {
     const [start, end] = dateRange ?? [];
     return {
       ...rest,
       siteId: projectName,
-      userId: employeeName,
+      userId: employeeNames,
       reportDateFrom: transformDateFormat(start),
       reportDateTo: transformDateFormat(end),
       includeFiles: true,
-      inscludeSites: true,
+      includeSite: true,
     };
   });
 
@@ -43,6 +44,12 @@ export const DsrGetBaseResponseSchema = DsrBaseSchema.extend({
       fileName: z.string().nullable(),
     })
   ),
+  site: ProjectGetBaseResponseSchema.pick({
+    id: true,
+    name: true,
+    // city: true,
+    // state: true,
+  }),
   createdByUser: UserSchema,
   editHistory: z.array(z.any()).nullable(),
 })

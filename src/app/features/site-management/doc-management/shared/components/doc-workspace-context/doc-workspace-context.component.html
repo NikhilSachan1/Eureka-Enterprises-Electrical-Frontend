@@ -17,26 +17,34 @@
     </div>
   </div>
 
-  <div class="doc-ws-meta">
-    <span class="doc-ws-meta-chunk">
-      <i
-        class="pi pi-map-marker doc-ws-ico-plain"
-        aria-hidden="true"
-      ></i>
-      {{ ctx.companyName }}
-    </span>
-    <span
-      class="doc-ws-meta-sep"
-      aria-hidden="true"
-    >
-      |
-    </span>
-    <span class="doc-ws-meta-chunk">
-      <i
-        class="pi pi-user doc-ws-ico-plain"
-        aria-hidden="true"
-      ></i>
-      {{ ctx.partyName }}
-    </span>
-  </div>
+  @if (hasCompanyName() || hasPartyName()) {
+    <div class="doc-ws-meta">
+      @if (hasCompanyName()) {
+        <span class="doc-ws-meta-chunk">
+          <i
+            class="pi pi-map-marker doc-ws-ico-plain"
+            aria-hidden="true"
+          ></i>
+          {{ ctx.companyName }}
+        </span>
+      }
+      @if (hasCompanyName() && hasPartyName()) {
+        <span
+          class="doc-ws-meta-sep"
+          aria-hidden="true"
+        >
+          |
+        </span>
+      }
+      @if (hasPartyName()) {
+        <span class="doc-ws-meta-chunk">
+          <i
+            class="pi pi-user doc-ws-ico-plain"
+            aria-hidden="true"
+          ></i>
+          {{ ctx.partyName }}
+        </span>
+      }
+    </div>
+  }
 </div>

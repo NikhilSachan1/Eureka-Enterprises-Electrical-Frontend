@@ -1,19 +1,19 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   effect,
   inject,
   OnInit,
+  signal,
   untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoggerService } from '@core/services';
 import {
-  AppConfigurationService,
   ConfirmationDialogService,
   DrawerService,
-  RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
@@ -22,6 +22,8 @@ import {
   EButtonActionType,
   IEnhancedTable,
   IEnhancedTableConfig,
+  IInputFieldsConfig,
+  IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -33,27 +35,38 @@ import {
   IDsrGetResponseDto,
 } from '@features/site-management/dsr-management/types/dsr.dto';
 import { GetDsrDetailComponent } from '../get-dsr-detail/get-dsr-detail.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import {
   DSR_ACTION_CONFIG_MAP,
+  DSR_EMPLOYEE_FILTER_FIELD_CONFIG,
   DSR_TABLE_ENHANCED_CONFIG,
 } from '@features/site-management/dsr-management/config';
 import { IDsr } from '@features/site-management/dsr-management/types/dsr.interface';
 import { ChipComponent } from '@shared/components/chip/chip.component';
+import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { ICONS } from '@shared/constants';
 
 @Component({
   selector: 'app-get-dsr',
-  imports: [CommonModule, DataTableComponent, ChipComponent],
+  imports: [
+    CommonModule,
+    PageHeaderComponent,
+    InputFieldComponent,
+    DataTableComponent,
+    ChipComponent,
+    DocWorkspaceContextComponent,
+  ],
   templateUrl: './get-dsr.component.html',
   styleUrl: './get-dsr.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetDsrComponent implements OnInit {
   private readonly logger = inject(LoggerService);
-  private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly dsrService = inject(DsrService);
@@ -64,10 +77,17 @@ export class GetDsrComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
-  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly projectWorkspaceContext = inject(
     ProjectWorkspaceContextService
   );
+
+  protected readonly pageHeaderConfig = computed(
+    (): IPageHeaderConfig => this.getPageHeaderConfig()
+  );
+
+  protected readonly employeeFilterFieldConfig: IInputFieldsConfig =
+    DSR_EMPLOYEE_FILTER_FIELD_CONFIG;
+  protected readonly selectedEmployeeNames = signal<string[]>([]);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -133,14 +153,22 @@ export class GetDsrComponent implements OnInit {
     return {
       projectName,
       dateRange,
+      employeeNames: this.selectedEmployeeNames(),
       ...base,
     };
   }
 
   private mapTableData(response: IDsrGetBaseResponseDto[]): IDsr[] {
     return response.map((record: IDsrGetBaseResponseDto) => {
+      const { site } = record;
+
       return {
         id: record.id,
+        docWorkspaceContext: {
+          projectName: site.name,
+          // siteLocationSubtitle: `${site.city}, ${site.state}`,
+          siteLocationSubtitle: '',
+        },
         reportDate: record.reportDate,
         createdByUser: {
           ...record.createdByUser,
@@ -161,6 +189,11 @@ export class GetDsrComponent implements OnInit {
     this.loadDsrList();
   }
 
+  protected onEmployeeFilterChange(value: unknown): void {
+    this.selectedEmployeeNames.set(value as string[]);
+    this.loadDsrList();
+  }
+
   protected handleDsrTableActionClick(
     event: ITableActionClickEvent<IDsrGetBaseResponseDto>,
     isBulk: boolean
@@ -173,27 +206,87 @@ export class GetDsrComponent implements OnInit {
       return;
     }
 
-    if (actionType === EButtonActionType.EDIT) {
-      this.navigateToEditDsr(selectedFirstRow.id);
-      return;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const dynamicComponentInputs: any = {
+    const dynamicComponentInputs: Record<string, unknown> = {
       selectedRecord: selectedRows,
       onSuccess: () => {
         this.loadDsrList();
       },
     };
 
+    const showRecordSummary = actionType !== EButtonActionType.EDIT;
+
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
       DSR_ACTION_CONFIG_MAP[actionType],
       null,
       isBulk,
-      !isBulk,
+      showRecordSummary,
       dynamicComponentInputs
     );
+  }
+
+  protected onHeaderButtonClick(actionName: string): void {
+    if (actionName === 'addDsr') {
+      this.openAddDsrDialog();
+      return;
+    }
+
+    if (actionName === 'forceDsr') {
+      this.openForceDsrDialog();
+    }
+  }
+
+  private openAddDsrDialog(): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.ADD,
+      DSR_ACTION_CONFIG_MAP[EButtonActionType.ADD],
+      null,
+      false,
+      false,
+      {
+        onSuccess: () => {
+          this.loadDsrList();
+        },
+      }
+    );
+  }
+
+  private openForceDsrDialog(): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.FORCE,
+      DSR_ACTION_CONFIG_MAP[EButtonActionType.FORCE],
+      null,
+      false,
+      false,
+      {
+        onSuccess: () => {
+          this.loadDsrList();
+        },
+      }
+    );
+  }
+
+  private getPageHeaderConfig(): IPageHeaderConfig {
+    return {
+      title: '',
+      subtitle: '',
+      showHeaderButton: true,
+      showHeaderFilter: true,
+      showGoBackButton: false,
+      headerButtonConfig: [
+        {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_2,
+          label: 'Force DSR',
+          icon: ICONS.COMMON.FORCE,
+          actionName: 'forceDsr',
+        },
+        {
+          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+          label: 'Add DSR',
+          actionName: 'addDsr',
+        },
+      ],
+    };
   }
 
   private showDsrDetailsDrawer(rowData: IDsrGetBaseResponseDto): void {
@@ -206,20 +299,5 @@ export class GetDsrComponent implements OnInit {
         dsr: rowData,
       },
     });
-  }
-
-  private navigateToEditDsr(dsrId: string): void {
-    try {
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SITE.BASE,
-        ROUTE_BASE_PATHS.SITE.DSR,
-        ROUTES.SITE.DSR.EDIT,
-        dsrId,
-      ];
-
-      void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction('Navigation error while editing DSR', error);
-    }
   }
 }

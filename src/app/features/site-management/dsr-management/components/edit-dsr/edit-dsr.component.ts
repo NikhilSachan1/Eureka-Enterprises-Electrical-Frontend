@@ -1,133 +1,148 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
+  input,
   OnInit,
-  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 import { EDIT_DSR_FORM_CONFIG } from '@features/site-management/dsr-management/config';
 import { DsrService } from '@features/site-management/dsr-management/services/dsr.service';
 import {
   IDsrEditFormDto,
+  IDsrEditResponseDto,
   IDsrEditUIFormDto,
+  IDsrGetBaseResponseDto,
 } from '@features/site-management/dsr-management/types/dsr.dto';
-import { IDsrDetailResolverResponse } from '@features/site-management/dsr-management/types/dsr.interface';
 import { FormBase } from '@shared/base/form.base';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { RouterNavigationService } from '@shared/services';
-import { IPageHeaderConfig } from '@shared/types';
+import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import {
+  AttachmentsService,
+  ConfirmationDialogService,
+} from '@shared/services';
+import { IDialogActionHandler } from '@shared/types';
 import { finalize } from 'rxjs';
-import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
-import { ButtonComponent } from '@shared/components/button/button.component';
-import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-edit-dsr',
-  imports: [
-    PageHeaderComponent,
-    InputFieldComponent,
-    ButtonComponent,
-    ReactiveFormsModule,
-  ],
+  imports: [InputFieldComponent, ReactiveFormsModule],
   templateUrl: './edit-dsr.component.html',
   styleUrl: './edit-dsr.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditDsrComponent
   extends FormBase<IDsrEditUIFormDto>
-  implements OnInit
+  implements OnInit, IDialogActionHandler
 {
   private readonly dsrService = inject(DsrService);
-  private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly attachmentsService = inject(AttachmentsService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
 
-  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly initialDsrData = signal<IDsrEditUIFormDto | null>(null);
-  private projectId = '';
+  protected readonly selectedRecord =
+    input.required<IDsrGetBaseResponseDto[]>();
+  protected readonly onSuccess = input.required<() => void>();
 
   ngOnInit(): void {
-    // this.loadDsrDataFromRoute();
+    const record = this.selectedRecord()[0];
+    if (!record) {
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
+      this.logger.error('Edit DSR: selected record was not provided');
+      return;
+    }
+
+    const prefilledDsrData = this.preparePrefilledFormData(record);
 
     this.form = this.formService.createForm<IDsrEditUIFormDto>(
       EDIT_DSR_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
-        defaultValues: this.initialDsrData(),
+        defaultValues: prefilledDsrData,
       }
     );
-  }
 
-  private loadDsrDataFromRoute(): void {
-    const dsrDetailFromResolver = this.activatedRoute.snapshot.data[
-      'dsrDetail'
-    ] as IDsrDetailResolverResponse | null;
-
-    if (!dsrDetailFromResolver) {
-      this.logger.logUserAction('No dsr data found in route');
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SITE.BASE,
-        ROUTE_BASE_PATHS.SITE.PROJECT,
-        ROUTES.SITE.PROJECT.WORKSPACE,
-        this.projectId,
-      ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
-      return;
-    }
-
-    this.projectId = dsrDetailFromResolver.siteId;
-
-    const prefilledDsrData = this.preparePrefilledFormData(
-      dsrDetailFromResolver
-    );
-    this.initialDsrData.set(prefilledDsrData);
+    this.loadPrefillAttachments(record.documentKeys);
   }
 
   private preparePrefilledFormData(
-    dsrDetailFromResolver: IDsrDetailResolverResponse
+    record: IDsrGetBaseResponseDto
   ): IDsrEditUIFormDto {
-    const preloadedFiles = dsrDetailFromResolver.preloadedFiles ?? [];
-    const {
-      reportDate,
-      workTypes,
-      workDescription,
-      reportingEngineerName,
-      reportingEngineerContact,
-    } = dsrDetailFromResolver;
     return {
-      statusDate: new Date(reportDate),
-      note: workDescription ?? '',
-      workDone: workTypes,
-      reportedEngineerName: reportingEngineerName,
-      reportedEngineerContact: reportingEngineerContact
-        ? Number(reportingEngineerContact)
+      projectName: record.siteId,
+      statusDate: new Date(record.reportDate),
+      note: record.workDescription ?? record.remarks ?? '',
+      workDone: record.workTypes,
+      reportedEngineerName: record.reportingEngineerName,
+      reportedEngineerContact: record.reportingEngineerContact
+        ? Number(record.reportingEngineerContact)
         : null,
-      dsrAttachments: preloadedFiles,
+      dsrAttachments: [],
     };
   }
 
-  protected override handleSubmit(): void {
-    const dsrId = this.activatedRoute.snapshot.params['dsrId'] as string;
-    if (!dsrId) {
+  private loadPrefillAttachments(documentKeys: string[]): void {
+    if (!documentKeys.length) {
       return;
     }
 
-    const formData = this.prepareFormData();
-    this.executeEditDsr(formData, dsrId);
+    this.loadingService.show({
+      title: 'Loading DSR data',
+      message: 'Fetching DSR attachments. Please wait…',
+    });
+
+    this.attachmentsService
+      .loadFilesFromKeys(documentKeys)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: files => {
+          this.form.patch({ dsrAttachments: files });
+        },
+        error: error => {
+          this.logger.error('Failed to prefetch DSR attachments', error);
+          this.notificationService.error(
+            'Could not load attachments. You can upload new files.'
+          );
+        },
+      });
+  }
+
+  onDialogAccept(): void {
+    super.onSubmit();
+  }
+
+  protected override handleSubmit(): void {
+    const record = this.selectedRecord()[0];
+    if (!record.id) {
+      this.notificationService.error(
+        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+      );
+      return;
+    }
+
+    this.executeEditDsr(this.prepareFormData(), record.id);
   }
 
   private prepareFormData(): IDsrEditFormDto {
-    const formData = this.form.getData();
-    return formData;
+    const record = { ...this.form.getData() };
+    delete (record as Record<string, unknown>)['projectName'];
+    return record;
   }
 
   private executeEditDsr(formData: IDsrEditFormDto, dsrId: string): void {
     this.loadingService.show({
       title: 'Updating DSR',
-      message: "We're updating the DSR. This will just take a moment.",
+      message:
+        'Please wait while we update the DSR. This will just take a moment.',
     });
     this.form.disable();
 
@@ -142,30 +157,15 @@ export class EditDsrComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: () => {
-          this.notificationService.success('DSR updated successfully');
-          const routeSegments = [
-            ROUTE_BASE_PATHS.SITE.BASE,
-            ROUTE_BASE_PATHS.SITE.PROJECT,
-            ROUTES.SITE.PROJECT.WORKSPACE,
-            this.projectId,
-          ];
-          void this.routerNavigationService.navigateToRoute(routeSegments);
+        next: (response: IDsrEditResponseDto) => {
+          this.notificationService.success(response.message);
+          this.onSuccess()();
+          this.confirmationDialogService.closeDialog();
         },
-        error: () => {
-          this.notificationService.error('Failed to update DSR');
+        error: error => {
+          this.logger.error('Failed to update DSR', error);
+          this.notificationService.error('Failed to update DSR.');
         },
       });
-  }
-
-  protected onReset(): void {
-    this.onResetSingleForm(this.initialDsrData() ?? {});
-  }
-
-  private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
-    return {
-      title: 'Edit DSR',
-      subtitle: 'Edit a DSR',
-    };
   }
 }

@@ -1,16 +1,39 @@
 import { z } from 'zod';
-import { uuidField } from '@shared/schemas';
-import { DsrGetBaseResponseSchema } from './get-dsr.schema';
+import { UserSchema, uuidField } from '@shared/schemas';
+import { makeFieldsNullable } from '@shared/utility';
 
 export const DsrDetailGetRequestSchema = z
   .object({
     dsrId: uuidField,
   })
   .strict()
-  .transform(data => {
-    return {
-      id: data.dsrId,
-    };
-  });
+  .transform(data => ({
+    id: data.dsrId,
+  }));
 
-export const DsrDetailGetResponseSchema = DsrGetBaseResponseSchema;
+const DsrDetailFileSchema = z.looseObject({
+  id: uuidField,
+  fileKey: z.string(),
+  fileName: z.string(),
+  fileType: z.string(),
+});
+
+export const DsrDetailHistoryRecordSchema = z
+  .looseObject({
+    id: uuidField,
+    dsrEntryType: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    createdBy: UserSchema,
+    updatedBy: makeFieldsNullable(UserSchema),
+    workTypes: z.array(z.string()),
+    workDescription: z.string().nullable(),
+    remarks: z.string().nullable(),
+    files: z.array(DsrDetailFileSchema),
+  })
+  .transform(({ files, ...rest }) => ({
+    ...rest,
+    fileKeys: files.map(file => file.fileKey),
+  }));
+
+export const DsrDetailGetResponseSchema = z.array(DsrDetailHistoryRecordSchema);

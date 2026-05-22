@@ -1,3 +1,26 @@
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+>
+  <div
+    headerFilter
+    class="dsr-header-employee-filter"
+  >
+    <app-input-field
+      [inputFieldConfig]="employeeFilterFieldConfig"
+      [fieldValue]="selectedEmployeeNames()"
+      (onFieldChange)="onEmployeeFilterChange($event)"
+    />
+  </div>
+</app-page-header>
+
+<ng-template
+  #docWorkspaceContext
+  let-row
+>
+  <app-doc-workspace-context [view]="row.docWorkspaceContext" />
+</ng-template>
+
 <ng-template
   #projectWorkTypes
   let-row
@@ -26,6 +49,7 @@
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
+    docWorkspaceContext: docWorkspaceContext,
     projectWorkTypes: projectWorkTypes,
   }"
   (rowActionClick)="handleDsrTableActionClick($any($event), false)"

@@ -24,4 +24,17 @@ export class DocWorkspaceContextComponent {
     const seed = raw !== '' && raw !== '—' ? raw : '';
     return `#${this.avatarService.getConsistentColor(seed)}`;
   });
+
+  protected readonly hasCompanyName = computed(() =>
+    this.hasMetaValue(this.view().companyName)
+  );
+
+  protected readonly hasPartyName = computed(() =>
+    this.hasMetaValue(this.view().partyName)
+  );
+
+  private hasMetaValue(value: string | null | undefined): boolean {
+    const trimmed = value?.trim();
+    return !!trimmed && trimmed !== '—';
+  }
 }

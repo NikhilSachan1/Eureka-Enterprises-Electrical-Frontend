@@ -8,4 +8,5 @@ export interface IPageHeaderConfig {
   showGoBackButton?: boolean;
   showSearch?: boolean;
   searchPlaceholder?: string;
+  showHeaderFilter?: boolean;
 }

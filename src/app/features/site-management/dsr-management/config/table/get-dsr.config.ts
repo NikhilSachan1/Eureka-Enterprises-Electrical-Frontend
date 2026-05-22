@@ -15,6 +15,13 @@ export const DSR_TABLE_CONFIG: Partial<IDataTableConfig> = {
 
 export const DSR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
+    field: 'docWorkspaceContext',
+    header: 'Workspace overview',
+    bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'docWorkspaceContext',
+    showSort: false,
+  },
+  {
     field: 'createdByUser.fullName',
     header: 'Employee Name',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
