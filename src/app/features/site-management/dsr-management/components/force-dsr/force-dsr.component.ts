@@ -22,7 +22,10 @@ import {
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
 import { FormBase } from '@shared/base/form.base';
-import { ConfirmationDialogService } from '@shared/services';
+import {
+  AppConfigurationService,
+  ConfirmationDialogService,
+} from '@shared/services';
 import {
   IDialogActionHandler,
   IInputFieldsConfig,
@@ -30,6 +33,8 @@ import {
 } from '@shared/types';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-force-dsr',
@@ -44,6 +49,7 @@ export class ForceDsrComponent
 {
   private readonly dsrService = inject(DsrService);
   private readonly projectService = inject(ProjectService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -64,6 +70,14 @@ export class ForceDsrComponent
         }
       }
     });
+    effect(() => {
+      if (this.trackedForceDsrFields?.reportedEngineerName) {
+        const engineerName = this.trackedForceDsrFields.reportedEngineerName();
+        if (engineerName && typeof engineerName === 'string') {
+          this.prefillReportedEngineerContact(engineerName);
+        }
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -80,9 +94,26 @@ export class ForceDsrComponent
     this.trackedForceDsrFields =
       this.formService.trackMultipleFieldChanges<IDsrForceUIFormDto>(
         this.form.formGroup,
-        ['projectName'],
+        ['projectName', 'reportedEngineerName'],
         this.destroyRef
       );
+  }
+
+  private prefillReportedEngineerContact(engineerName: string): void {
+    const employee = getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.employeeList(),
+      engineerName,
+      'label',
+      'data'
+    ) as IEmployeeGetBaseResponseDto | string;
+
+    if (!employee || typeof employee !== 'object' || !employee.contactNumber) {
+      return;
+    }
+
+    this.form.patch({
+      reportedEngineerContact: Number(employee.contactNumber),
+    });
   }
 
   onDialogAccept(): void {

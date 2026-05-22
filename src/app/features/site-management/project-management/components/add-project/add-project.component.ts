@@ -14,6 +14,7 @@ import {
 } from '@shared/services';
 import { ProjectService } from '../../services/project.service';
 import type { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
+import type { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
 import { ADD_PROJECT_FORM_CONFIG } from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -24,6 +25,7 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ADD_PROJECT_PREFILLED_DATA } from '@shared/mock-data/add-project.mock-data';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-add-project',
@@ -59,6 +61,17 @@ export class AddProjectComponent
         }
       }
     });
+    effect(() => {
+      if (
+        this.trackedProjectFields &&
+        this.trackedProjectFields.siteManagerName
+      ) {
+        const siteManagerName = this.trackedProjectFields.siteManagerName();
+        if (siteManagerName && typeof siteManagerName === 'string') {
+          this.prefillSiteManagerContact(siteManagerName);
+        }
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -74,9 +87,26 @@ export class AddProjectComponent
     this.trackedProjectFields =
       this.formService.trackMultipleFieldChanges<IProjectAddFormDto>(
         this.form.formGroup,
-        ['companyName'],
+        ['companyName', 'siteManagerName'],
         this.destroyRef
       );
+  }
+
+  private prefillSiteManagerContact(siteManagerName: string): void {
+    const employee = getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.employeeList(),
+      siteManagerName,
+      'label',
+      'data'
+    ) as IEmployeeGetBaseResponseDto | string;
+
+    if (!employee || typeof employee !== 'object' || !employee.contactNumber) {
+      return;
+    }
+
+    this.form.patch({
+      siteManagerContact: employee.contactNumber,
+    });
   }
 
   private loadCompanyDetail(companyId: string): void {

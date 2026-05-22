@@ -28,6 +28,8 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
+import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-edit-project',
@@ -52,6 +54,7 @@ export class EditProjectComponent
 
   private trackedProjectFields!: ITrackedFields<IProjectEditFormDto>;
   private isInitialCompanyLoad = true;
+  private isInitialSiteManagerLoad = true;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly initialProjectData = signal<IProjectEditFormDto | null>(
@@ -72,6 +75,21 @@ export class EditProjectComponent
         }
       }
     });
+    effect(() => {
+      if (
+        this.trackedProjectFields &&
+        this.trackedProjectFields.siteManagerName
+      ) {
+        const siteManagerName = this.trackedProjectFields.siteManagerName();
+        if (siteManagerName && typeof siteManagerName === 'string') {
+          if (this.isInitialSiteManagerLoad) {
+            this.isInitialSiteManagerLoad = false;
+            return;
+          }
+          this.prefillSiteManagerContact(siteManagerName);
+        }
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -88,7 +106,7 @@ export class EditProjectComponent
     this.trackedProjectFields =
       this.formService.trackMultipleFieldChanges<IProjectEditFormDto>(
         this.form.formGroup,
-        ['companyName'],
+        ['companyName', 'siteManagerName'],
         this.destroyRef
       );
   }
@@ -185,6 +203,23 @@ export class EditProjectComponent
       state: company.state ?? '',
       pincode: company.pincode ?? '',
     };
+  }
+
+  private prefillSiteManagerContact(siteManagerName: string): void {
+    const employee = getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.employeeList(),
+      siteManagerName,
+      'label',
+      'data'
+    ) as IEmployeeGetBaseResponseDto | string;
+
+    if (!employee || typeof employee !== 'object' || !employee.contactNumber) {
+      return;
+    }
+
+    this.form.patch({
+      siteManagerContact: employee.contactNumber,
+    });
   }
 
   protected override handleSubmit(): void {

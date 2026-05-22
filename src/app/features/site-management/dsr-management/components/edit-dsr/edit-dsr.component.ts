@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   input,
   OnInit,
@@ -15,13 +16,16 @@ import {
   IDsrEditUIFormDto,
   IDsrGetBaseResponseDto,
 } from '@features/site-management/dsr-management/types/dsr.dto';
+import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
 import { FormBase } from '@shared/base/form.base';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import {
+  AppConfigurationService,
   AttachmentsService,
   ConfirmationDialogService,
 } from '@shared/services';
-import { IDialogActionHandler } from '@shared/types';
+import { IDialogActionHandler, ITrackedFields } from '@shared/types';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 
@@ -38,13 +42,33 @@ export class EditDsrComponent
 {
   private readonly dsrService = inject(DsrService);
   private readonly attachmentsService = inject(AttachmentsService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
 
+  private trackedEditDsrFields!: ITrackedFields<IDsrEditUIFormDto>;
+  private isInitialEngineerLoad = true;
+
   protected readonly selectedRecord =
     input.required<IDsrGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
+
+  constructor() {
+    super();
+    effect(() => {
+      if (this.trackedEditDsrFields?.reportedEngineerName) {
+        const engineerName = this.trackedEditDsrFields.reportedEngineerName();
+        if (engineerName && typeof engineerName === 'string') {
+          if (this.isInitialEngineerLoad) {
+            this.isInitialEngineerLoad = false;
+            return;
+          }
+          this.prefillReportedEngineerContact(engineerName);
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     const record = this.selectedRecord()[0];
@@ -66,6 +90,13 @@ export class EditDsrComponent
       }
     );
 
+    this.trackedEditDsrFields =
+      this.formService.trackMultipleFieldChanges<IDsrEditUIFormDto>(
+        this.form.formGroup,
+        ['reportedEngineerName'],
+        this.destroyRef
+      );
+
     this.loadPrefillAttachments(record.documentKeys);
   }
 
@@ -83,6 +114,23 @@ export class EditDsrComponent
         : null,
       dsrAttachments: [],
     };
+  }
+
+  private prefillReportedEngineerContact(engineerName: string): void {
+    const employee = getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.employeeList(),
+      engineerName,
+      'label',
+      'data'
+    ) as IEmployeeGetBaseResponseDto | string;
+
+    if (!employee || typeof employee !== 'object' || !employee.contactNumber) {
+      return;
+    }
+
+    this.form.patch({
+      reportedEngineerContact: Number(employee.contactNumber),
+    });
   }
 
   private loadPrefillAttachments(documentKeys: string[]): void {
