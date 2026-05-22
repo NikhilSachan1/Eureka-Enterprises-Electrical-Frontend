@@ -46,7 +46,8 @@ export const ProjectUpsertShapeSchema = z
   .object({
     projectName: name,
     companyName: companyId,
-    contractorNames: z.array(uuidField),
+    contractorNames: z.array(uuidField).nullable(),
+    vendorNames: z.array(uuidField).nullable(),
     siteManagerName: managerName,
     siteManagerContact: managerContact,
     timeline: z.array(dateField),

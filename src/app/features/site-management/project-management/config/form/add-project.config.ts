@@ -53,7 +53,18 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
           dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
         },
       },
-      validators: [Validators.required],
+    },
+    vendorNames: {
+      id: 'vendorNames',
+      fieldName: 'vendorNames',
+      label: 'Vendor Names',
+      fieldType: EDataType.MULTI_SELECT,
+      multiSelectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.VENDOR,
+          dropdownName: CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
+        },
+      },
     },
     siteManagerName: {
       id: 'siteManagerName',

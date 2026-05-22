@@ -18,6 +18,7 @@ export const ADD_PROJECT_PREFILLED_DATA: IProjectAddFormDto = {
   projectName: getRandomItem(TEST_PROJECT_NAMES),
   companyName: getRandomItem(TEST_COMPANY_NAMES),
   contractorNames: [getRandomItem(TEST_CONTRACTOR_NAMES)],
+  vendorNames: [],
   siteManagerName: getRandomItem(TEST_EMPLOYEE_NAMES),
   siteManagerContact: `${getRandomNumber(10, 'exact')}`,
   timeline: [getRandomDate(365 * 2, 365), getRandomDate(365 * 1, 365)],
