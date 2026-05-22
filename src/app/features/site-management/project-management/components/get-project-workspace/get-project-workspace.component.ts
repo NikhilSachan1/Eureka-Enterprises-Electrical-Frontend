@@ -10,7 +10,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, map, startWith, distinctUntilChanged } from 'rxjs/operators';
+import {
+  filter,
+  map,
+  startWith,
+  distinctUntilChanged,
+  finalize,
+} from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -211,6 +217,9 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   private loadProjectStakeholderFilters(projectId: string): void {
+    this.projectWorkspaceContext.setProjectOverviewLoading(true);
+    this.projectWorkspaceContext.setProjectOverview(null);
+
     this.applyMultiSelectStakeholderFilter(
       'companyName',
       [],
@@ -232,9 +241,16 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
 
     this.projectService
       .getProjectOverview(projectId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => {
+          this.projectWorkspaceContext.setProjectOverviewLoading(false);
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: (response: IProjectOverviewGetResponseDto) => {
+          this.projectWorkspaceContext.setProjectOverview(response);
+
           const companyId = response.site?.company?.id;
           const companyIds = companyId ? [companyId] : [];
           const contractorIds = (response.contractors ?? [])
@@ -264,6 +280,7 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
           );
         },
         error: error => {
+          this.projectWorkspaceContext.setProjectOverview(null);
           this.logger.error('Failed to load project overview', error);
           this.notificationService.error(
             'Could not load project details. Please try again.'
@@ -291,6 +308,9 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   private resetStakeholderFilters(): void {
+    this.projectWorkspaceContext.setProjectOverview(null);
+    this.projectWorkspaceContext.setProjectOverviewLoading(false);
+
     STAKEHOLDER_FILTER_FIELDS.forEach(fieldName => {
       const baseConfig = this.searchFilterForm?.fieldConfigs[fieldName];
       const defaultMultiSelectConfig =

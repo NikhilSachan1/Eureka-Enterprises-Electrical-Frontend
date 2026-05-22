@@ -2,24 +2,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
-  effect,
   inject,
-  signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
 import { APP_CONFIG } from '@core/config';
-import { LoggerService } from '@core/services';
 import { ChipComponent } from '@shared/components/chip/chip.component';
 import { SectionLoaderComponent } from '@shared/components/section-loader/section-loader.component';
 import { ICONS } from '@shared/constants/icon.constants';
 import { AppConfigurationService } from '@shared/services';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { ProjectService } from '../../services/project.service';
 import { ProjectWorkspaceContextService } from '../../services/project-workspace-context.service';
-import { IProjectDetailGetResponseDto } from '../../types/project.dto';
 
 @Component({
   selector: 'app-project-workspace-info-card',
@@ -29,41 +21,34 @@ import { IProjectDetailGetResponseDto } from '../../types/project.dto';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectWorkspaceInfoCardComponent {
-  private readonly projectService = inject(ProjectService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
   private readonly appConfigurationService = inject(AppConfigurationService);
-  private readonly logger = inject(LoggerService);
-  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly projectDetail =
-    signal<IProjectDetailGetResponseDto | null>(null);
-  protected readonly isLoading = signal(false);
+  protected readonly projectOverview = this.workspaceContext.projectOverview;
+  protected readonly isLoading = this.workspaceContext.projectOverviewLoading;
+  protected readonly site = computed(
+    () => this.projectOverview()?.site ?? null
+  );
 
   readonly dateFormat = APP_CONFIG.DATE_FORMATS.DEFAULT;
   protected readonly icons = ICONS;
 
   protected readonly contractorNames = computed(() => {
-    const list = this.projectDetail()?.siteContractors;
-    if (!list?.length) {
-      return [];
-    }
-    return list.map(item => item.contractor.name);
+    const contractors = this.projectOverview()?.contractors ?? [];
+    return contractors
+      .map(contractor => contractor?.name?.trim() ?? '')
+      .filter(name => name.length > 0);
   });
 
   protected readonly vendorNames = computed(() => {
-    const list = this.projectDetail()?.siteVendors;
-    if (!list?.length) {
-      return [];
-    }
-    return list.map(item => item.vendor.name);
+    const vendors = this.projectOverview()?.vendors ?? [];
+    return vendors
+      .map(vendor => vendor?.name?.trim() ?? '')
+      .filter(name => name.length > 0);
   });
 
   protected readonly workTypeLabels = computed(() => {
-    const workTypes = this.projectDetail()?.workTypes;
-    if (!workTypes?.length) {
-      return [];
-    }
-
+    const workTypes = this.site()?.workTypes ?? [];
     return workTypes.map(workType =>
       String(
         getMappedValueFromArrayOfObjects(
@@ -73,41 +58,4 @@ export class ProjectWorkspaceInfoCardComponent {
       )
     );
   });
-
-  constructor() {
-    effect(() => {
-      const projectId = this.workspaceContext.selectedProjectId();
-
-      if (!projectId) {
-        this.isLoading.set(false);
-        this.projectDetail.set(null);
-        return;
-      }
-
-      this.loadProjectDetail(projectId);
-    });
-  }
-
-  private loadProjectDetail(projectId: string): void {
-    this.isLoading.set(true);
-    this.projectDetail.set(null);
-
-    this.projectService
-      .getProjectDetailById({ projectId })
-      .pipe(
-        finalize(() => {
-          this.isLoading.set(false);
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (detail: IProjectDetailGetResponseDto) => {
-          this.projectDetail.set(detail);
-        },
-        error: error => {
-          this.projectDetail.set(null);
-          this.logger.error('Failed to load project detail', error);
-        },
-      });
-  }
 }

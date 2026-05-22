@@ -1,13 +1,21 @@
-import { uuidField } from '@shared/schemas';
+import { onlyDateStringField, uuidField } from '@shared/schemas';
 import { z } from 'zod';
 
 const SiteOverviewCompanySchema = z.looseObject({
   id: uuidField,
+  name: z.string(),
 });
 
 const SiteOverviewSiteSchema = z.looseObject({
-  company: SiteOverviewCompanySchema.nullable(),
+  name: z.string(),
+  status: z.string(),
+  city: z.string(),
+  state: z.string(),
+  managerName: z.string(),
+  startDate: onlyDateStringField,
+  endDate: onlyDateStringField,
   workTypes: z.array(z.string()),
+  company: SiteOverviewCompanySchema.nullable(),
 });
 
 const SiteOverviewEmployeeSchema = z
@@ -19,12 +27,14 @@ const SiteOverviewEmployeeSchema = z
 const SiteOverviewContractorSchema = z
   .looseObject({
     id: uuidField,
+    name: z.string(),
   })
   .nullable();
 
 const SiteOverviewVendorSchema = z
   .looseObject({
     id: uuidField,
+    name: z.string(),
   })
   .nullable();
 
