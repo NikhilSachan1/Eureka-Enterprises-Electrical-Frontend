@@ -5,7 +5,6 @@ import {
   inject,
   OnDestroy,
   OnInit,
-  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
@@ -61,9 +60,19 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
   protected readonly selectedProjectId =
     this.projectWorkspaceContext.selectedProjectId;
 
-  protected readonly searchFilterPrefill = signal<
-    Record<string, unknown> | undefined
-  >(undefined);
+  protected readonly searchFilterPrefill = computed(() => {
+    const workspaceFilter = this.projectWorkspaceContext.docWorkspaceFilter();
+    if (!workspaceFilter) {
+      return undefined;
+    }
+
+    const visibleFilter = this.pickFilterForTab(
+      this.activeFilterTab(),
+      workspaceFilter
+    );
+
+    return Object.keys(visibleFilter).length ? visibleFilter : undefined;
+  });
 
   private readonly routerUrl = toSignal(
     this.router.events.pipe(
@@ -87,9 +96,9 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
       this.routerNavigationService.getRouterStateData<string>('projectId');
 
     if (projectIdFromState) {
-      const seed = { projectName: [projectIdFromState] };
-      this.projectWorkspaceContext.setDocWorkspaceFilter(seed);
-      this.searchFilterPrefill.set(seed);
+      this.projectWorkspaceContext.setDocWorkspaceFilter({
+        projectName: [projectIdFromState],
+      });
     }
   }
 
@@ -139,7 +148,10 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   protected onWorkspaceFilterSubmit(filterData: Record<string, unknown>): void {
-    this.projectWorkspaceContext.setDocWorkspaceFilter(filterData);
+    this.projectWorkspaceContext.setDocWorkspaceFilter({
+      ...(this.projectWorkspaceContext.docWorkspaceFilter() ?? {}),
+      ...filterData,
+    });
   }
 
   protected onWorkspaceFilterReset(): void {
@@ -195,6 +207,29 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
       ...SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG,
       fields,
     };
+  }
+
+  private pickFilterForTab(
+    tab: string,
+    workspaceFilter: Record<string, unknown>
+  ): Record<string, unknown> {
+    return Object.fromEntries(
+      Object.entries(workspaceFilter).filter(([key]) => {
+        const field =
+          SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG.fields[
+            key as keyof IProjectWorkspaceSearchFilterFormDto
+          ];
+
+        if (!field) {
+          return false;
+        }
+
+        return this.isFieldVisibleForTab(
+          field as { visibleOnTabs?: string[] },
+          tab
+        );
+      })
+    );
   }
 
   private isFieldVisibleForTab(

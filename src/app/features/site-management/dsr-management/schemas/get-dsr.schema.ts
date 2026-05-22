@@ -13,7 +13,6 @@ const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
 export const DsrGetRequestSchema = z
   .object({
     projectName: z.string().nullable().optional(),
-    companyName: z.array(uuidField).nullable().optional(),
     employeeName: z.array(z.string()).nullable().optional(),
     dateRange: z.array(dateField).nullable().optional(),
     sortOrder,
@@ -22,20 +21,18 @@ export const DsrGetRequestSchema = z
     page,
   })
   .strict()
-  .transform(
-    ({ projectName, companyName, employeeName, dateRange, ...rest }) => {
-      const [start, end] = dateRange ?? [];
-      return {
-        ...rest,
-        siteId: projectName,
-        companyId: companyName,
-        userId: employeeName,
-        reportDateFrom: transformDateFormat(start),
-        reportDateTo: transformDateFormat(end),
-        includeFiles: true,
-      };
-    }
-  );
+  .transform(({ projectName, employeeName, dateRange, ...rest }) => {
+    const [start, end] = dateRange ?? [];
+    return {
+      ...rest,
+      siteId: projectName,
+      userId: employeeName,
+      reportDateFrom: transformDateFormat(start),
+      reportDateTo: transformDateFormat(end),
+      includeFiles: true,
+      inscludeSites: true,
+    };
+  });
 
 export const DsrGetBaseResponseSchema = DsrBaseSchema.extend({
   files: z.array(

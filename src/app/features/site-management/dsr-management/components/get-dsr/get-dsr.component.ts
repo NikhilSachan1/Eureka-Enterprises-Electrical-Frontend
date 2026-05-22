@@ -126,11 +126,13 @@ export class GetDsrComponent implements OnInit {
         this.table.getHeaders()
       );
 
-    const workspaceParams =
-      this.projectWorkspaceContext.docWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
+    const { projectName, dateRange } =
+      (this.projectWorkspaceContext.docWorkspaceFilter() ??
+        {}) as IProjectWorkspaceSearchFilterFormDto;
 
     return {
-      ...workspaceParams,
+      projectName,
+      dateRange,
       ...base,
     };
   }
