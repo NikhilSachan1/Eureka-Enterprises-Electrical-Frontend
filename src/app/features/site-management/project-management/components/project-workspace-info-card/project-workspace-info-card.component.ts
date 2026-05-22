@@ -15,6 +15,8 @@ import { LoggerService } from '@core/services';
 import { ChipComponent } from '@shared/components/chip/chip.component';
 import { SectionLoaderComponent } from '@shared/components/section-loader/section-loader.component';
 import { ICONS } from '@shared/constants/icon.constants';
+import { AppConfigurationService } from '@shared/services';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { ProjectService } from '../../services/project.service';
 import { ProjectWorkspaceContextService } from '../../services/project-workspace-context.service';
 import { IProjectDetailGetResponseDto } from '../../types/project.dto';
@@ -29,6 +31,7 @@ import { IProjectDetailGetResponseDto } from '../../types/project.dto';
 export class ProjectWorkspaceInfoCardComponent {
   private readonly projectService = inject(ProjectService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -53,6 +56,22 @@ export class ProjectWorkspaceInfoCardComponent {
       return [];
     }
     return list.map(item => item.vendor.name);
+  });
+
+  protected readonly workTypeLabels = computed(() => {
+    const workTypes = this.projectDetail()?.workTypes;
+    if (!workTypes?.length) {
+      return [];
+    }
+
+    return workTypes.map(workType =>
+      String(
+        getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.projectWorkTypes(),
+          workType
+        )
+      )
+    );
   });
 
   constructor() {

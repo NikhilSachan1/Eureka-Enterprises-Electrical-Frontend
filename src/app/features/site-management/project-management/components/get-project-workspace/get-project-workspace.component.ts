@@ -2,31 +2,49 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   OnDestroy,
   OnInit,
+  viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, map, startWith } from 'rxjs/operators';
+import { filter, map, startWith, distinctUntilChanged } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+import { AppPermissionService, LoggerService } from '@core/services';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
+import { ICONS, ROUTES } from '@shared/constants';
+import { NotificationService, RouterNavigationService } from '@shared/services';
 import {
   ETabMode,
+  IEnhancedForm,
+  IInputFieldsConfig,
   IPageHeaderConfig,
   ITabItem,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
-import { ICONS, ROUTES } from '@shared/constants';
-import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
-import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
-import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { AppPermissionService } from '@core/services';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
-import { RouterNavigationService } from '@shared/services';
-import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG } from '../../config/form/search-filter-project-workspace.config';
-import { IProjectWorkspaceSearchFilterFormDto } from '../../types/project.interface';
+import { ProjectService } from '../../services/project.service';
 import { ProjectWorkspaceContextService } from '../../services/project-workspace-context.service';
+import { IProjectOverviewGetResponseDto } from '../../types/project.dto';
+import { IProjectWorkspaceSearchFilterFormDto } from '../../types/project.interface';
 import { ProjectWorkspaceInfoCardComponent } from '../project-workspace-info-card/project-workspace-info-card.component';
+
+type ProjectStakeholderFilterField = Extract<
+  keyof IProjectWorkspaceSearchFilterFormDto,
+  'companyName' | 'contractorName' | 'vendorName'
+>;
+
+const STAKEHOLDER_FILTER_FIELDS: ProjectStakeholderFilterField[] = [
+  'companyName',
+  'contractorName',
+  'vendorName',
+];
 
 @Component({
   selector: 'app-get-project-workspace',
@@ -48,8 +66,17 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
   private readonly projectWorkspaceContext = inject(
     ProjectWorkspaceContextService
   );
+  private readonly projectService = inject(ProjectService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly logger = inject(LoggerService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly uiProjectWorkspace = APP_PERMISSION.UI.PROJECT_WORKSPACE;
+  private projectNameFilterSub?: Subscription;
+  private searchFilterForm?: IEnhancedForm<Record<string, unknown>>;
+  private lastSyncedProjectId?: string;
+
+  private readonly searchFilterRef = viewChild(SearchFilterComponent);
 
   readonly tabModeType = ETabMode.ROUTER_OUTLET;
   icons = ICONS;
@@ -100,6 +127,225 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
         projectName: projectIdFromState,
       });
     }
+  }
+
+  protected onSearchFilterReady(
+    form: IEnhancedForm<Record<string, unknown>>
+  ): void {
+    this.projectNameFilterSub?.unsubscribe();
+    this.searchFilterForm = form;
+    this.lastSyncedProjectId = undefined;
+
+    const projectControl = form.formGroup.get('projectName');
+    if (!projectControl) {
+      return;
+    }
+
+    const contextProjectId = this.projectWorkspaceContext.selectedProjectId();
+    if (!projectControl.value && contextProjectId) {
+      projectControl.setValue(contextProjectId, { emitEvent: false });
+    }
+
+    this.projectNameFilterSub = projectControl.valueChanges
+      .pipe(startWith(projectControl.value), distinctUntilChanged())
+      .subscribe(projectId => {
+        const resolvedProjectId =
+          typeof projectId === 'string' && projectId ? projectId : undefined;
+
+        if (resolvedProjectId) {
+          this.syncWorkspaceProjectId(resolvedProjectId);
+
+          if (
+            this.lastSyncedProjectId !== undefined &&
+            this.lastSyncedProjectId !== resolvedProjectId
+          ) {
+            this.resetStakeholderFieldValues(form);
+          }
+
+          this.loadProjectStakeholderFilters(resolvedProjectId);
+        } else {
+          if (this.lastSyncedProjectId) {
+            this.resetStakeholderFieldValues(form);
+            this.syncWorkspaceProjectId(undefined);
+          }
+
+          this.resetStakeholderFilters();
+        }
+
+        this.lastSyncedProjectId = resolvedProjectId;
+      });
+  }
+
+  private syncWorkspaceProjectId(projectId: string | undefined): void {
+    const current = this.projectWorkspaceContext.docWorkspaceFilter();
+
+    if (projectId) {
+      if (current?.['projectName'] === projectId) {
+        return;
+      }
+
+      this.projectWorkspaceContext.setDocWorkspaceFilter({
+        ...(current ?? {}),
+        projectName: projectId,
+      });
+      return;
+    }
+
+    if (!current?.['projectName']) {
+      return;
+    }
+
+    const rest = { ...current };
+    delete rest['projectName'];
+    this.projectWorkspaceContext.setDocWorkspaceFilter(
+      Object.keys(rest).length ? rest : null
+    );
+  }
+
+  private resetStakeholderFieldValues(
+    form: IEnhancedForm<Record<string, unknown>>
+  ): void {
+    STAKEHOLDER_FILTER_FIELDS.forEach(fieldName => {
+      form.formGroup.get(fieldName)?.reset(null, { emitEvent: false });
+    });
+  }
+
+  private loadProjectStakeholderFilters(projectId: string): void {
+    this.applyMultiSelectStakeholderFilter(
+      'companyName',
+      [],
+      true,
+      'No company found'
+    );
+    this.applyMultiSelectStakeholderFilter(
+      'contractorName',
+      [],
+      true,
+      'No contractor found'
+    );
+    this.applyMultiSelectStakeholderFilter(
+      'vendorName',
+      [],
+      true,
+      'No vendor found'
+    );
+
+    this.projectService
+      .getProjectOverview(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: IProjectOverviewGetResponseDto) => {
+          const companyId = response.site?.company?.id;
+          const companyIds = companyId ? [companyId] : [];
+          const contractorIds = (response.contractors ?? [])
+            .map(contractor => contractor?.id)
+            .filter((id): id is string => !!id);
+          const vendorIds = (response.vendors ?? [])
+            .map(vendor => vendor?.id)
+            .filter((id): id is string => !!id);
+
+          this.applyMultiSelectStakeholderFilter(
+            'companyName',
+            companyIds,
+            false,
+            'No company found'
+          );
+          this.applyMultiSelectStakeholderFilter(
+            'contractorName',
+            contractorIds,
+            false,
+            'No contractor found'
+          );
+          this.applyMultiSelectStakeholderFilter(
+            'vendorName',
+            vendorIds,
+            false,
+            'No vendor found'
+          );
+        },
+        error: error => {
+          this.logger.error('Failed to load project overview', error);
+          this.notificationService.error(
+            'Could not load project details. Please try again.'
+          );
+          this.applyMultiSelectStakeholderFilter(
+            'companyName',
+            [],
+            false,
+            'No company found'
+          );
+          this.applyMultiSelectStakeholderFilter(
+            'contractorName',
+            [],
+            false,
+            'No contractor found'
+          );
+          this.applyMultiSelectStakeholderFilter(
+            'vendorName',
+            [],
+            false,
+            'No vendor found'
+          );
+        },
+      });
+  }
+
+  private resetStakeholderFilters(): void {
+    STAKEHOLDER_FILTER_FIELDS.forEach(fieldName => {
+      const baseConfig = this.searchFilterForm?.fieldConfigs[fieldName];
+      const defaultMultiSelectConfig =
+        this.searchFilterConfig().fields[fieldName]?.multiSelectConfig;
+      if (!baseConfig || !defaultMultiSelectConfig) {
+        return;
+      }
+
+      this.searchFilterRef()?.updateFieldConfig(fieldName, {
+        ...baseConfig,
+        multiSelectConfig: {
+          ...defaultMultiSelectConfig,
+          filterOptions: undefined,
+          optionsDropdown: undefined,
+          emptyMessage: undefined,
+          loading: false,
+        },
+      } as IInputFieldsConfig);
+    });
+  }
+
+  private applyMultiSelectStakeholderFilter(
+    fieldName: ProjectStakeholderFilterField,
+    availableIds: string[],
+    loading: boolean,
+    emptyMessage: string
+  ): void {
+    const baseConfig = this.searchFilterForm?.fieldConfigs[fieldName];
+    const defaultMultiSelectConfig =
+      this.searchFilterConfig().fields[fieldName]?.multiSelectConfig;
+    if (!baseConfig || !defaultMultiSelectConfig) {
+      return;
+    }
+
+    const hasOptions = availableIds.length > 0;
+
+    this.searchFilterRef()?.updateFieldConfig(fieldName, {
+      ...baseConfig,
+      multiSelectConfig: {
+        ...defaultMultiSelectConfig,
+        ...(hasOptions
+          ? {
+              filterOptions: {
+                include: availableIds,
+              },
+            }
+          : {
+              optionsDropdown: [],
+              dynamicDropdown: undefined,
+              filterOptions: undefined,
+              emptyMessage,
+            }),
+        loading,
+      },
+    } as IInputFieldsConfig);
   }
 
   private getShowTimeline(): boolean {
@@ -155,10 +401,12 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   protected onWorkspaceFilterReset(): void {
+    this.resetStakeholderFilters();
     this.projectWorkspaceContext.clear();
   }
 
   ngOnDestroy(): void {
+    this.projectNameFilterSub?.unsubscribe();
     this.projectWorkspaceContext.clear();
   }
 

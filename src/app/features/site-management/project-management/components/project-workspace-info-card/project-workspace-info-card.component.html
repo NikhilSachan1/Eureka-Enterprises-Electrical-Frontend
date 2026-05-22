@@ -49,6 +49,23 @@
     </div>
 
     <div class="info-card__stakeholders">
+      <div class="info-card__stakeholder-group info-card__stakeholder-group--wide">
+        <span class="info-card__label">Work types</span>
+        @if (workTypeLabels().length) {
+          <div class="info-card__chips">
+            @for (label of workTypeLabels(); track label) {
+              <app-chip
+                [label]="label"
+                icon="pi pi-briefcase"
+                styleClass="info-card__chip info-card__chip--work-type"
+              />
+            }
+          </div>
+        } @else {
+          <span class="info-card__empty">No work types assigned</span>
+        }
+      </div>
+
       <div class="info-card__stakeholder-group">
         <span class="info-card__label">Contractors</span>
         @if (contractorNames().length) {

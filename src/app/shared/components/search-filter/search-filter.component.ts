@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   inject,
@@ -11,6 +12,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import {
   IEnhancedForm,
   IFormConfig,
+  IInputFieldsConfig,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { FormService } from '@shared/services';
@@ -40,6 +42,7 @@ export class SearchFilterComponent implements OnInit {
   private readonly formService = inject(FormService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly permissionService = inject(AppPermissionService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   searchFilterConfig = input.required<ITableSearchFilterFormConfig>();
   /** When omitted, filter panel is UI-only (no PrimeNG table filters applied). */
@@ -49,6 +52,7 @@ export class SearchFilterComponent implements OnInit {
   onSearchFilterChange = output<Record<string, unknown>>();
   onFilterSubmit = output<Record<string, unknown>>();
   onFilterReset = output<void>();
+  formReady = output<IEnhancedForm<Record<string, unknown>>>();
 
   protected form!: IEnhancedForm<Record<string, unknown>>;
   protected hasSearched = false;
@@ -70,6 +74,17 @@ export class SearchFilterComponent implements OnInit {
       this.hasPrefillValues = true;
       this.form.formGroup.markAsDirty();
     }
+
+    queueMicrotask(() => this.formReady.emit(this.form));
+  }
+
+  updateFieldConfig(fieldName: string, fieldConfig: IInputFieldsConfig): void {
+    if (!this.form?.fieldConfigs[fieldName]) {
+      return;
+    }
+
+    this.form.fieldConfigs[fieldName] = fieldConfig;
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private getPermissionFilteredConfig(): ITableSearchFilterFormConfig {

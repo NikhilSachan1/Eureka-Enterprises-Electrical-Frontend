@@ -169,6 +169,10 @@
 
   &__stakeholder-group {
     min-width: 0;
+
+    &--wide {
+      grid-column: 1 / -1;
+    }
   }
 
   &__chips {
@@ -202,5 +206,10 @@
   .info-card__chip--vendor.p-chip {
     background: color-mix(in srgb, #6366f1 8%, var(--surface-card));
     border-color: color-mix(in srgb, #6366f1 18%, var(--surface-border));
+  }
+
+  .info-card__chip--work-type.p-chip {
+    background: color-mix(in srgb, #0d9488 8%, var(--surface-card));
+    border-color: color-mix(in srgb, #0d9488 18%, var(--surface-border));
   }
 }

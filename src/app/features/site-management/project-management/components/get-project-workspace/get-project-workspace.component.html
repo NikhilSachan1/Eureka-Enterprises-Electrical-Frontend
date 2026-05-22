@@ -5,6 +5,7 @@
     <app-search-filter
       [searchFilterConfig]="searchFilterConfig()"
       [prefillValues]="searchFilterPrefill()"
+      (formReady)="onSearchFilterReady($event)"
       (onFilterSubmit)="onWorkspaceFilterSubmit($event)"
       (onFilterReset)="onWorkspaceFilterReset()"
     />
