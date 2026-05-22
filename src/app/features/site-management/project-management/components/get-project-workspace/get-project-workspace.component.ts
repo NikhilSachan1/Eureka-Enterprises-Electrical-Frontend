@@ -7,13 +7,16 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter, map, startWith } from 'rxjs/operators';
 import {
   ETabMode,
   IPageHeaderConfig,
   ITabItem,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
-import { ICONS } from '@shared/constants';
+import { ICONS, ROUTES } from '@shared/constants';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -21,7 +24,7 @@ import { AppPermissionService } from '@core/services';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { RouterNavigationService } from '@shared/services';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
-import { SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG } from '../../config';
+import { SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG } from '../../config/form/search-filter-project-workspace.config';
 import { IProjectWorkspaceSearchFilterFormDto } from '../../types/project.interface';
 import { ProjectWorkspaceContextService } from '../../services/project-workspace-context.service';
 import { ProjectWorkspaceInfoCardComponent } from '../project-workspace-info-card/project-workspace-info-card.component';
@@ -40,6 +43,7 @@ import { ProjectWorkspaceInfoCardComponent } from '../project-workspace-info-car
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
+  private readonly router = inject(Router);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly projectWorkspaceContext = inject(
@@ -61,8 +65,22 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
     Record<string, unknown> | undefined
   >(undefined);
 
-  protected readonly searchFilterConfig: ITableSearchFilterFormConfig<IProjectWorkspaceSearchFilterFormDto> =
-    SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG;
+  private readonly routerUrl = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(event => event.urlAfterRedirects),
+      startWith(this.router.url)
+    ),
+    { initialValue: this.router.url }
+  );
+
+  protected readonly activeFilterTab = computed(() =>
+    this.resolveProjectWorkspaceFilterTab(this.routerUrl())
+  );
+
+  protected readonly searchFilterConfig = computed(() =>
+    this.buildProjectWorkspaceSearchFilterConfig(this.activeFilterTab())
+  );
 
   ngOnInit(): void {
     const projectIdFromState =
@@ -130,5 +148,59 @@ export class GetProjectWorkspaceComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.projectWorkspaceContext.clear();
+  }
+
+  private resolveProjectWorkspaceFilterTab(url: string): string {
+    const { PROFITABILITY, DAILY_PROGRESS, WORKSPACE_DOC } =
+      ROUTES.SITE.PROJECT;
+    const filterTabKeys = new Set<string>([
+      PROFITABILITY,
+      DAILY_PROGRESS,
+      ...Object.values(WORKSPACE_DOC),
+    ]);
+    const segments = url.split('?')[0].split('/').filter(Boolean);
+
+    for (let i = segments.length - 1; i >= 0; i--) {
+      if (filterTabKeys.has(segments[i])) {
+        return segments[i];
+      }
+    }
+
+    return PROFITABILITY;
+  }
+
+  private buildProjectWorkspaceSearchFilterConfig(
+    tab: string
+  ): ITableSearchFilterFormConfig<IProjectWorkspaceSearchFilterFormDto> {
+    interface WorkspaceField {
+      visibleOnTabs?: string[];
+    }
+
+    const fields = Object.fromEntries(
+      Object.entries(SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG.fields)
+        .filter(([, field]) =>
+          this.isFieldVisibleForTab(field as WorkspaceField, tab)
+        )
+        .map(([key, field]) => [
+          key,
+          Object.fromEntries(
+            Object.entries(field as Record<string, unknown>).filter(
+              ([propKey]) => propKey !== 'visibleOnTabs'
+            )
+          ),
+        ])
+    ) as ITableSearchFilterFormConfig<IProjectWorkspaceSearchFilterFormDto>['fields'];
+
+    return {
+      ...SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG,
+      fields,
+    };
+  }
+
+  private isFieldVisibleForTab(
+    field: { visibleOnTabs?: string[] },
+    tab: string
+  ): boolean {
+    return !field.visibleOnTabs?.length || field.visibleOnTabs.includes(tab);
   }
 }

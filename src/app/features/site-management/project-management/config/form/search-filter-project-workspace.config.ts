@@ -1,6 +1,6 @@
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import { CONFIGURATION_KEYS, MODULE_NAMES, ROUTES } from '@shared/constants';
 import {
   EDataType,
   IFormButtonConfig,
@@ -9,7 +9,19 @@ import {
 } from '@shared/types';
 import { IProjectWorkspaceSearchFilterFormDto } from '../../types/project.interface';
 
-const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<IProjectWorkspaceSearchFilterFormDto> =
+type WorkspaceSearchFilterFieldConfig =
+  ITableSearchFilterInputFieldsConfig<IProjectWorkspaceSearchFilterFormDto>[keyof IProjectWorkspaceSearchFilterFormDto] & {
+    visibleOnTabs?: string[];
+  };
+
+type WorkspaceSearchFilterFieldsConfig = {
+  [K in keyof IProjectWorkspaceSearchFilterFormDto]: WorkspaceSearchFilterFieldConfig;
+};
+
+const { PROFITABILITY, WORKSPACE_DOC } = ROUTES.SITE.PROJECT;
+const ALL_DOC_TABS = Object.values(WORKSPACE_DOC);
+
+const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterFieldsConfig =
   {
     projectName: {
       fieldType: EDataType.SELECT,
@@ -28,6 +40,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: ITableSearchFilterInpu
       id: 'companyName',
       fieldName: 'companyName',
       label: 'Company Name',
+      visibleOnTabs: [PROFITABILITY, ...ALL_DOC_TABS],
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.COMPANY,
@@ -40,6 +53,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: ITableSearchFilterInpu
       id: 'contractorName',
       fieldName: 'contractorName',
       label: 'Contractor Name',
+      visibleOnTabs: [PROFITABILITY, ...ALL_DOC_TABS],
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.CONTRACTOR,
@@ -52,6 +66,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: ITableSearchFilterInpu
       id: 'vendorName',
       fieldName: 'vendorName',
       label: 'Vendor Name',
+      visibleOnTabs: [PROFITABILITY, ...ALL_DOC_TABS],
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.VENDOR,
@@ -64,6 +79,11 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: ITableSearchFilterInpu
       id: 'approvalStatus',
       fieldName: 'approvalStatus',
       label: 'Approval Status',
+      visibleOnTabs: [
+        WORKSPACE_DOC.PO,
+        WORKSPACE_DOC.JMC,
+        WORKSPACE_DOC.INVOICE,
+      ],
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.FINANCIAL,
@@ -85,6 +105,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: ITableSearchFilterInpu
       id: 'search',
       fieldName: 'search',
       label: 'Search',
+      visibleOnTabs: ALL_DOC_TABS,
     },
   };
 
