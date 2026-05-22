@@ -1,22 +1,34 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  effect,
   inject,
   input,
   OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FORCE_DSR_FORM_CONFIG } from '@features/site-management/dsr-management/config';
+import {
+  ADD_DSR_FORM_CONFIG,
+  FORCE_DSR_FORM_CONFIG,
+} from '@features/site-management/dsr-management/config';
 import { DsrService } from '@features/site-management/dsr-management/services/dsr.service';
 import {
   IDsrForceFormDto,
   IDsrForceResponseDto,
   IDsrForceUIFormDto,
 } from '@features/site-management/dsr-management/types/dsr.dto';
+import { ProjectService } from '@features/site-management/project-management/services/project.service';
+import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
+import { getPrefilledProjectNameFormDefaults } from '@features/site-management/project-management/utility/project-workspace-dialog.util';
 import { FormBase } from '@shared/base/form.base';
 import { ConfirmationDialogService } from '@shared/services';
-import { IDialogActionHandler } from '@shared/types';
+import {
+  IDialogActionHandler,
+  IInputFieldsConfig,
+  ITrackedFields,
+} from '@shared/types';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 
@@ -32,19 +44,46 @@ export class ForceDsrComponent
   implements OnInit, IDialogActionHandler
 {
   private readonly dsrService = inject(DsrService);
+  private readonly projectService = inject(ProjectService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+
+  private trackedForceDsrFields!: ITrackedFields<IDsrForceUIFormDto>;
 
   protected readonly onSuccess = input.required<() => void>();
+  protected readonly prefilledProjectId = input<string>();
+
+  constructor() {
+    super();
+    effect(() => {
+      if (this.trackedForceDsrFields?.projectName) {
+        const projectId = this.trackedForceDsrFields.projectName();
+        if (projectId && typeof projectId === 'string') {
+          this.loadProjectOverviewOptions(projectId);
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.form = this.formService.createForm<IDsrForceUIFormDto>(
       FORCE_DSR_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        defaultValues: getPrefilledProjectNameFormDefaults(
+          this.prefilledProjectId()
+        ),
       }
     );
+
+    this.trackedForceDsrFields =
+      this.formService.trackMultipleFieldChanges<IDsrForceUIFormDto>(
+        this.form.formGroup,
+        ['projectName'],
+        this.destroyRef
+      );
   }
 
   onDialogAccept(): void {
@@ -53,6 +92,108 @@ export class ForceDsrComponent
 
   protected override handleSubmit(): void {
     this.executeForceDsr(this.form.getData());
+  }
+
+  private loadProjectOverviewOptions(projectId: string): void {
+    this.applyEmployeeOptions([], true);
+    this.applyWorkDoneOptions([], true);
+
+    this.projectService
+      .getProjectOverview(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: IProjectOverviewGetResponseDto) => {
+          const allocatedEmployees = response.employees?.allocated ?? [];
+          const deallocatedEmployees = response.employees?.deallocated ?? [];
+          const availableEmployeeNames = [
+            ...allocatedEmployees,
+            ...deallocatedEmployees,
+          ]
+            .map(employee => employee?.userId)
+            .filter((userId): userId is string => !!userId);
+          const workTypes = response.site?.workTypes ?? [];
+
+          this.applyEmployeeOptions(availableEmployeeNames, false);
+          this.applyWorkDoneOptions(workTypes, false);
+        },
+        error: error => {
+          this.logger.error('Failed to load project overview', error);
+          this.notificationService.error(
+            'Could not load project details. Please try again.'
+          );
+          this.applyEmployeeOptions([], false);
+          this.applyWorkDoneOptions([], false);
+        },
+      });
+  }
+
+  private applyEmployeeOptions(
+    availableEmployeeNames: string[],
+    loading: boolean
+  ): void {
+    const defaultSelectConfig =
+      FORCE_DSR_FORM_CONFIG.fields.employeeName.selectConfig;
+    if (!defaultSelectConfig) {
+      return;
+    }
+
+    const hasEmployees = availableEmployeeNames.length > 0;
+    const base = this.form.fieldConfigs.employeeName;
+
+    this.form.fieldConfigs.employeeName = {
+      ...base,
+      selectConfig: {
+        ...defaultSelectConfig,
+        ...(hasEmployees
+          ? {
+              filterOptions: {
+                include: availableEmployeeNames,
+              },
+            }
+          : {
+              optionsDropdown: [],
+              dynamicDropdown: undefined,
+              filterOptions: undefined,
+              emptyMessage: 'No employee found',
+            }),
+        loading,
+      },
+    } as IInputFieldsConfig;
+
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
+  private applyWorkDoneOptions(workTypes: string[], loading: boolean): void {
+    const defaultMultiSelectConfig =
+      ADD_DSR_FORM_CONFIG.fields.workDone.multiSelectConfig;
+    if (!defaultMultiSelectConfig) {
+      return;
+    }
+
+    const hasWorkTypes = workTypes.length > 0;
+    const base = this.form.fieldConfigs.workDone;
+
+    this.form.fieldConfigs.workDone = {
+      ...base,
+      multiSelectConfig: {
+        ...defaultMultiSelectConfig,
+        ...(hasWorkTypes
+          ? {
+              filterOptions: {
+                include: workTypes,
+              },
+            }
+          : {
+              optionsDropdown: [],
+              dynamicDropdown: undefined,
+              filterOptions: undefined,
+              emptyMessage: 'No work type found',
+            }),
+        loading,
+      },
+    } as IInputFieldsConfig;
+
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private executeForceDsr(formData: IDsrForceFormDto): void {

@@ -47,6 +47,10 @@ const ADD_DSR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDsrAddUIFormDto> = {
         moduleName: MODULE_NAMES.PROJECT,
         dropdownName: CONFIGURATION_KEYS.PROJECT.PROJECT_WORK_TYPES,
       },
+      dependentDropdown: {
+        dependsOnField: 'projectName',
+        dependsOnFieldLabel: 'a project',
+      },
     },
     validators: [Validators.required],
   },

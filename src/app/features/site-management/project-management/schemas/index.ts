@@ -32,3 +32,4 @@ export {
   AllocateDeallocateEmployeeRequestSchema,
   AllocateDeallocateEmployeeResponseSchema,
 } from './allocate-deallocate-employee.schema';
+export { ProjectOverviewGetResponseSchema } from './get-project-overview.schema';

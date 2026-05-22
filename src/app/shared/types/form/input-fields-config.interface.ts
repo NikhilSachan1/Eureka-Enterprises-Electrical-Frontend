@@ -85,6 +85,8 @@ export interface ISelectFieldConfig {
   virtualScrollItemSize: number;
   loading?: boolean;
   optionDisabled?: string;
+  /** Shown in the panel when options are empty (after parent is selected for dependent dropdowns). */
+  emptyMessage?: string;
   dynamicDropdown?: {
     moduleName: string;
     dropdownName: string;
@@ -156,6 +158,7 @@ export interface IMultiSelectFieldConfig {
   display: string | EMultiSelectDisplayType;
   showClearButton: boolean;
   optionDisabled?: string;
+  emptyMessage?: string;
   virtualScroll?: boolean;
   virtualScrollItemSize?: number;
   dynamicDropdown?: {

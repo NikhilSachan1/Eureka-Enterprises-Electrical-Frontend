@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   effect,
   inject,
@@ -15,6 +16,7 @@ import {
 import {
   IDialogActionHandler,
   IFinancialFileUploadResponseDto,
+  IInputFieldsConfig,
   ITrackedFields,
 } from '@shared/types';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
@@ -29,6 +31,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { roundCurrencyAmount } from '@shared/utility';
+import { ProjectService } from '@features/site-management/project-management/services/project.service';
+import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
+import { getPrefilledProjectNameFormDefaults } from '@features/site-management/project-management/utility/project-workspace-dialog.util';
+
+type AddPoStakeholderField = 'contractorName' | 'vendorName';
 
 @Component({
   selector: 'app-add-po',
@@ -42,25 +49,36 @@ export class AddPoComponent
   implements OnInit, IDialogActionHandler
 {
   private readonly poService = inject(PoService);
+  private readonly projectService = inject(ProjectService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
-  private trackedGstInputs!: ITrackedFields<IAddPoUIFormDto>;
+  private trackedPoInputs!: ITrackedFields<IAddPoUIFormDto>;
 
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
+  protected readonly prefilledProjectId = input<string>();
 
   readonly EDocContext = EDocContext;
 
   constructor() {
     super();
     effect(() => {
-      const tracked = this.trackedGstInputs;
-      tracked.taxableAmount?.();
-      tracked.gstPercent?.();
+      const tracked = this.trackedPoInputs;
+      tracked?.taxableAmount?.();
+      tracked?.gstPercent?.();
       this.recalcGstAndTotal();
+    });
+    effect(() => {
+      if (this.trackedPoInputs?.projectName) {
+        const projectId = this.trackedPoInputs.projectName();
+        if (projectId && typeof projectId === 'string') {
+          this.loadProjectStakeholderOptions(projectId);
+        }
+      }
     });
   }
 
@@ -72,19 +90,109 @@ export class AddPoComponent
         context: {
           docContext: this.docContext(),
         },
+        defaultValues: getPrefilledProjectNameFormDefaults(
+          this.prefilledProjectId()
+        ),
       }
     );
 
-    this.trackedGstInputs =
+    this.trackedPoInputs =
       this.formService.trackMultipleFieldChanges<IAddPoUIFormDto>(
         this.form.formGroup,
-        ['taxableAmount', 'gstPercent'],
+        ['projectName', 'taxableAmount', 'gstPercent'],
         this.destroyRef
       );
   }
 
+  private loadProjectStakeholderOptions(projectId: string): void {
+    if (this.docContext() === EDocContext.SALES) {
+      this.applyStakeholderOptions('contractorName', [], true);
+    }
+    if (this.docContext() === EDocContext.PURCHASE) {
+      this.applyStakeholderOptions('vendorName', [], true);
+    }
+
+    this.projectService
+      .getProjectOverview(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: IProjectOverviewGetResponseDto) => {
+          const contractorIds = (response.contractors ?? [])
+            .map(contractor => contractor?.id)
+            .filter((id): id is string => !!id);
+          const vendorIds = (response.vendors ?? [])
+            .map(vendor => vendor?.id)
+            .filter((id): id is string => !!id);
+
+          if (this.docContext() === EDocContext.SALES) {
+            this.applyStakeholderOptions(
+              'contractorName',
+              contractorIds,
+              false
+            );
+          }
+          if (this.docContext() === EDocContext.PURCHASE) {
+            this.applyStakeholderOptions('vendorName', vendorIds, false);
+          }
+        },
+        error: error => {
+          this.logger.error('Failed to load project overview', error);
+          this.notificationService.error(
+            'Could not load project details. Please try again.'
+          );
+          if (this.docContext() === EDocContext.SALES) {
+            this.applyStakeholderOptions('contractorName', [], false);
+          }
+          if (this.docContext() === EDocContext.PURCHASE) {
+            this.applyStakeholderOptions('vendorName', [], false);
+          }
+        },
+      });
+  }
+
+  private applyStakeholderOptions(
+    fieldName: AddPoStakeholderField,
+    availableIds: string[],
+    loading: boolean
+  ): void {
+    const defaultSelectConfig =
+      ADD_PO_FORM_CONFIG.fields[fieldName].selectConfig;
+    if (!defaultSelectConfig) {
+      return;
+    }
+
+    const hasOptions = availableIds.length > 0;
+    const emptyMessage =
+      fieldName === 'contractorName'
+        ? 'No contractor found'
+        : 'No vendor found';
+    const base = this.form.fieldConfigs[fieldName];
+
+    this.form.fieldConfigs[fieldName] = {
+      ...base,
+      selectConfig: {
+        ...defaultSelectConfig,
+        ...(hasOptions
+          ? {
+              filterOptions: {
+                include: availableIds,
+              },
+            }
+          : {
+              optionsDropdown: [],
+              dynamicDropdown: undefined,
+              filterOptions: undefined,
+              emptyMessage,
+            }),
+        loading,
+      },
+    } as IInputFieldsConfig;
+
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
   private recalcGstAndTotal(): void {
-    const tracked = this.trackedGstInputs;
+    const tracked = this.trackedPoInputs;
     if (!tracked) {
       return;
     }

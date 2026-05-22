@@ -13,7 +13,6 @@ export const DSR_EMPLOYEE_FILTER_FIELD_CONFIG: IInputFieldsConfig = {
     dynamicDropdown: {
       moduleName: MODULE_NAMES.EMPLOYEE,
       dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-      employeeStatusFilter: ['ACTIVE'],
     },
   },
 } as IInputFieldsConfig;

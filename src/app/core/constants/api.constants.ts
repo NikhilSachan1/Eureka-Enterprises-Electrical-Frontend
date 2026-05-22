@@ -206,6 +206,8 @@ export const API_ROUTES = {
       DELETE: 'sites',
       EDIT: (projectId: string) => `sites/${projectId}`,
       GET_PROJECT_BY_ID: (projectId: string) => `sites/${projectId}`,
+      GET_PROJECT_OVERVIEW: (projectId: string) =>
+        `sites/${projectId}/overview`,
       CHANGE_STATUS: (projectId: string) => `sites/${projectId}/status`,
       ALLOCATE_DEALLOCATE_EMPLOYEES: 'site-allocations/manage',
     },

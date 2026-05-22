@@ -16,6 +16,7 @@ import {
   ProjectGetStatsResponseSchema,
   AllocateDeallocateEmployeeRequestSchema,
   AllocateDeallocateEmployeeResponseSchema,
+  ProjectOverviewGetResponseSchema,
 } from '../schemas';
 /*
   Project Add
@@ -99,4 +100,11 @@ export type IProjectAllocateDeallocateEmployeeRequestFormDto = z.input<
 >;
 export type IProjectAllocateDeallocateEmployeeResponseDto = z.infer<
   typeof AllocateDeallocateEmployeeResponseSchema
+>;
+
+/*
+  Project Overview Get
+*/
+export type IProjectOverviewGetResponseDto = z.infer<
+  typeof ProjectOverviewGetResponseSchema
 >;

@@ -21,7 +21,10 @@ const FORCE_DSR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IDsrForceUIFormDto> =
         dynamicDropdown: {
           moduleName: MODULE_NAMES.EMPLOYEE,
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-          employeeStatusFilter: ['ACTIVE'],
+        },
+        dependentDropdown: {
+          dependsOnField: 'projectName',
+          dependsOnFieldLabel: 'a project',
         },
       },
       validators: [Validators.required],

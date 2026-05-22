@@ -480,25 +480,11 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     if (dropdownConfig.dependentDropdown) {
       options = dropdownConfig.dependentDropdown.optionsProviderMethod
         ? dependentOptions
-        : (dropdownConfig.optionsDropdown ?? []);
+        : dropdownConfig.dynamicDropdown
+          ? this.getDynamicDropdownOptions(dropdownConfig.dynamicDropdown)
+          : (dropdownConfig.optionsDropdown ?? []);
     } else if (dropdownConfig.dynamicDropdown) {
-      const { moduleName, dropdownName, filterByRole } =
-        dropdownConfig.dynamicDropdown;
-      if (filterByRole?.length) {
-        const employeeMap = new Map<string, IOptionDropdown>();
-        filterByRole.forEach(role =>
-          this.appConfigurationService
-            .getEmployeesByRole(role)
-            .forEach(employee => employeeMap.set(employee.value, employee))
-        );
-        options = Array.from(employeeMap.values());
-      } else {
-        options =
-          this.appConfigurationService.getDropdown(
-            moduleName,
-            dropdownName
-          )() ?? [];
-      }
+      options = this.getDynamicDropdownOptions(dropdownConfig.dynamicDropdown);
     } else {
       options = dropdownConfig.optionsDropdown ?? [];
     }
@@ -524,6 +510,27 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     );
 
     return options;
+  }
+
+  private getDynamicDropdownOptions(dynamicDropdown: {
+    moduleName: string;
+    dropdownName: string;
+    filterByRole?: string[];
+  }): IOptionDropdown[] {
+    const { moduleName, dropdownName, filterByRole } = dynamicDropdown;
+    if (filterByRole?.length) {
+      const employeeMap = new Map<string, IOptionDropdown>();
+      filterByRole.forEach(role =>
+        this.appConfigurationService
+          .getEmployeesByRole(role)
+          .forEach(employee => employeeMap.set(employee.value, employee))
+      );
+      return Array.from(employeeMap.values());
+    }
+
+    return (
+      this.appConfigurationService.getDropdown(moduleName, dropdownName)() ?? []
+    );
   }
 
   private applyEmployeeDropdownOptionRules(
@@ -601,6 +608,16 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     if (!dropdownConfig) {
       return [];
     }
+
+    const dependentConfig = dropdownConfig.dependentDropdown;
+    if (dependentConfig && this.formGroup()) {
+      if (
+        this.isDependentParentValueEmpty(this.dependentDropdownParentValue())
+      ) {
+        return [];
+      }
+    }
+
     return this.getOptionsFromDropdownLikeConfig(
       dropdownConfig,
       this.dependentDropdownOptions()
@@ -686,16 +703,17 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       | Partial<{
           dynamicDropdown?: { dropdownName: string };
           loading?: boolean;
+          emptyMessage?: string;
         }>
       | undefined
   ): string {
-    if (!multiSelectConfig?.dynamicDropdown) {
-      return 'No data found';
+    if (multiSelectConfig?.loading) {
+      return multiSelectConfig.dynamicDropdown
+        ? this.getDynamicDropdownLoadingLabel()
+        : 'Loading options...';
     }
 
-    return multiSelectConfig.loading
-      ? this.getDynamicDropdownLoadingLabel()
-      : 'No data found';
+    return multiSelectConfig?.emptyMessage ?? 'No data found';
   }
 
   shouldShowMultiSelectToggleAll(
@@ -766,7 +784,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     const dd = dropdownConfig?.dependentDropdown;
     if (!dd || !this.formGroup()) {
       return {
-        label: 'No data found',
+        label: dropdownConfig?.emptyMessage ?? 'No data found',
         value: DROPDOWN_DISABLED_PLACEHOLDER_ROW_VALUE,
         disabled: true,
       };
@@ -784,7 +802,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
       };
     }
     return {
-      label: 'No data found',
+      label: dropdownConfig?.emptyMessage ?? 'No data found',
       value: DROPDOWN_DISABLED_PLACEHOLDER_ROW_VALUE,
       disabled: true,
     };

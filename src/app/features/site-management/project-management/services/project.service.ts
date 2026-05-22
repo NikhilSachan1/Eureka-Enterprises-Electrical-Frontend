@@ -16,6 +16,7 @@ import {
   ProjectGetResponseSchema,
   AllocateDeallocateEmployeeRequestSchema,
   AllocateDeallocateEmployeeResponseSchema,
+  ProjectOverviewGetResponseSchema,
 } from '../schemas';
 import {
   IProjectAddFormDto,
@@ -32,6 +33,7 @@ import {
   IProjectGetResponseDto,
   IProjectAllocateDeallocateEmployeeRequestFormDto,
   IProjectAllocateDeallocateEmployeeResponseDto,
+  IProjectOverviewGetResponseDto,
 } from '../types/project.dto';
 
 @Injectable({
@@ -221,6 +223,33 @@ export class ProjectService {
             this.logger.logDtoValidationErrors('Get Project List Error', error);
           } else {
             this.logger.logUserAction('Get Project List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getProjectOverview(
+    projectId: string
+  ): Observable<IProjectOverviewGetResponseDto> {
+    this.logger.logUserAction('Get Project Overview Request');
+
+    return this.apiService
+      .getValidated(API_ROUTES.SITE.PROJECT.GET_PROJECT_OVERVIEW(projectId), {
+        response: ProjectOverviewGetResponseSchema,
+      })
+      .pipe(
+        tap((response: IProjectOverviewGetResponseDto) => {
+          this.logger.logUserAction('Get Project Overview Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Project Overview Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Project Overview Error', error);
           }
           return throwError(() => error);
         })

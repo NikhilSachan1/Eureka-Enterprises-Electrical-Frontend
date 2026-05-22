@@ -41,6 +41,10 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
         moduleName: MODULE_NAMES.CONTRACTOR,
         dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
       },
+      dependentDropdown: {
+        dependsOnField: 'projectName',
+        dependsOnFieldLabel: 'a project',
+      },
     },
     conditionalValidators: [
       {
@@ -60,6 +64,10 @@ const ADD_PO_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddPoUIFormDto> = {
       dynamicDropdown: {
         moduleName: MODULE_NAMES.VENDOR,
         dropdownName: CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
+      },
+      dependentDropdown: {
+        dependsOnField: 'projectName',
+        dependsOnFieldLabel: 'a project',
       },
     },
     conditionalValidators: [
