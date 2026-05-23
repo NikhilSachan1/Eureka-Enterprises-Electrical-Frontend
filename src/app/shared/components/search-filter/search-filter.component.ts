@@ -8,6 +8,7 @@ import {
   OnInit,
   output,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import {
   IEnhancedForm,
@@ -72,10 +73,21 @@ export class SearchFilterComponent implements OnInit {
 
     if (prefillData && Object.keys(prefillData).length > 0) {
       this.hasPrefillValues = true;
-      this.form.formGroup.markAsDirty();
     }
 
+    this.form.formGroup.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.changeDetectorRef.markForCheck());
+
     queueMicrotask(() => this.formReady.emit(this.form));
+  }
+
+  protected isSearchDisabled(): boolean {
+    return !this.form?.formGroup.dirty;
+  }
+
+  protected isResetDisabled(): boolean {
+    return !this.form?.formGroup.dirty && !this.hasSearched;
   }
 
   updateFieldConfig(fieldName: string, fieldConfig: IInputFieldsConfig): void {
@@ -112,7 +124,9 @@ export class SearchFilterComponent implements OnInit {
     }
     this.form.formGroup.markAsPristine();
     this.hasSearched = true;
+    this.hasPrefillValues = false;
     this.onFilterSubmit.emit(this.form.getData());
+    this.changeDetectorRef.markForCheck();
   }
 
   protected setFilterInTable(table: Table): void {
@@ -144,6 +158,7 @@ export class SearchFilterComponent implements OnInit {
     }
     this.hasSearched = false;
     this.hasPrefillValues = false;
+    this.changeDetectorRef.markForCheck();
   }
 
   protected customSort(): number {

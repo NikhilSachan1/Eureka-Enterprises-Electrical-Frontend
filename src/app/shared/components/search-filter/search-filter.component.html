@@ -37,12 +37,12 @@
         <div class="search-filter-actions">
           <app-button
             [buttonConfig]="form.buttonConfigs['reset']"
-            [showDisabledButton]="!form.formGroup.dirty && !hasSearched && !hasPrefillValues"
+            [showDisabledButton]="isResetDisabled()"
             (onButtonClick)="onReset()"
           />
           <app-button
             [buttonConfig]="form.buttonConfigs['submit']"
-            [showDisabledButton]="!form.formGroup.dirty && !hasPrefillValues"
+            [showDisabledButton]="isSearchDisabled()"
           />
         </div>
       </form>
