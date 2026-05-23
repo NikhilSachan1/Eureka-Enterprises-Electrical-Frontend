@@ -263,7 +263,7 @@ export const appMenu: ApplicationMenu = {
           ],
         },
         {
-          label: 'Site',
+          label: 'Project Management',
           icon: ICONS.SITE.BUILDING,
           basePath: ROUTE_BASE_PATHS.SITE.BASE,
           children: [
