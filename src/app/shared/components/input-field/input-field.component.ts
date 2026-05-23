@@ -50,6 +50,7 @@ import {
   ETextCase,
   IEditorFieldConfig,
   IInputFieldsConfig,
+  IMultiSelectFieldConfig,
   ITextFieldConfig,
   IGalleryInputData,
   IButtonConfig,
@@ -66,7 +67,10 @@ import {
   invalidCharsPatternFromStrip,
   MODULE_NAMES,
 } from '@shared/constants';
-import { COMMON_ROW_ACTIONS } from '@shared/config';
+import {
+  COMMON_ROW_ACTIONS,
+  DEFAULT_MULTI_SELECT_MAX_VISIBLE_LABELS,
+} from '@shared/config';
 import { AppConfigurationService, GalleryService } from '@shared/services';
 import {
   arrayToString,
@@ -151,6 +155,53 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     const key = (optionLabelKey ?? 'label') as keyof IOptionDropdown;
     const raw = option[key];
     return typeof raw === 'string' ? raw : String(raw ?? '');
+  }
+
+  resolveMultiSelectOptionLabel(
+    option: unknown,
+    options: IOptionDropdown[],
+    optionLabelKey: string | undefined,
+    optionValueKey: string | undefined
+  ): string {
+    if (option && typeof option === 'object') {
+      return this.getDropdownOptionLabel(
+        option as IOptionDropdown,
+        optionLabelKey
+      );
+    }
+
+    const valueKey = (optionValueKey ?? 'value') as keyof IOptionDropdown;
+    const match = options.find(
+      item => item[valueKey] === option || item.label === option
+    );
+
+    return match
+      ? this.getDropdownOptionLabel(match, optionLabelKey)
+      : String(option ?? '');
+  }
+
+  getMultiSelectMaxVisibleLabels(
+    multiSelectConfig: Partial<IMultiSelectFieldConfig> | undefined
+  ): number {
+    return (
+      multiSelectConfig?.maxSelectedLabels ??
+      DEFAULT_MULTI_SELECT_MAX_VISIBLE_LABELS
+    );
+  }
+
+  getMultiSelectVisibleOptions(
+    selectedOptions: unknown[] | null | undefined,
+    multiSelectConfig: Partial<IMultiSelectFieldConfig> | undefined
+  ): unknown[] {
+    const maxVisible = this.getMultiSelectMaxVisibleLabels(multiSelectConfig);
+    return (selectedOptions ?? []).slice(0, maxVisible);
+  }
+
+  getMultiSelectOverflowCount(
+    selectedCount: number,
+    visibleCount = DEFAULT_MULTI_SELECT_MAX_VISIBLE_LABELS
+  ): number {
+    return Math.max(0, selectedCount - visibleCount);
   }
 
   effectiveDropdownFilterBy(

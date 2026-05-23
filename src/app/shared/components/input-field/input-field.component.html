@@ -229,6 +229,7 @@
       @let multiSelectConfig = config.multiSelectConfig;
       @let multiOpts = multiSelectConfig?.optionsDropdown ?? [];
       @let optionsDropdownLengthMs = multiOpts.length;
+      @let maxVisibleLabels = getMultiSelectMaxVisibleLabels(multiSelectConfig);
       <p-multiselect
         [id]="config.id"
         [fluid]="config.haveFullWidth"
@@ -239,7 +240,8 @@
         [optionLabel]="multiSelectConfig?.optionLabel ?? 'label'"
         [optionValue]="multiSelectConfig?.optionValue ?? 'value'"
         [optionDisabled]="multiSelectConfig?.optionDisabled"
-        [maxSelectedLabels]="multiSelectConfig?.maxSelectedLabels"
+        [maxSelectedLabels]="maxVisibleLabels"
+        [selectedItemsLabel]="multiSelectConfig?.selectedItemsLabel ?? '+{0}'"
         [filter]="
           multiSelectConfig?.haveFilter && (optionsDropdownLengthMs ?? 0) > ALL_DROPDOWN_CONFIG.DEFAULT_FILTER_LENGTH
         "
@@ -293,6 +295,49 @@
             <span class="ee-dropdown-option__plain">
               {{ getDropdownOptionLabel(option, multiSelectConfig?.optionLabel) }}
             </span>
+          }
+        </ng-template>
+        <ng-template
+          #selecteditems
+          let-selectedOptions
+        >
+          @if (selectedOptions?.length) {
+            <div class="ee-multiselect-summary">
+              @for (
+                option of getMultiSelectVisibleOptions(selectedOptions, multiSelectConfig);
+                track $index;
+                let last = $last
+              ) {
+                <span
+                  class="ee-multiselect-summary__primary"
+                  [attr.title]="
+                    resolveMultiSelectOptionLabel(
+                      option,
+                      multiOpts,
+                      multiSelectConfig?.optionLabel,
+                      multiSelectConfig?.optionValue
+                    )
+                  "
+                >
+                  {{
+                    resolveMultiSelectOptionLabel(
+                      option,
+                      multiOpts,
+                      multiSelectConfig?.optionLabel,
+                      multiSelectConfig?.optionValue
+                    )
+                  }}
+                </span>
+                @if (!last) {
+                  <span class="ee-multiselect-summary__sep">,</span>
+                }
+              }
+              @if (getMultiSelectOverflowCount(selectedOptions.length, maxVisibleLabels) > 0) {
+                <span class="ee-multiselect-summary__more">
+                  +{{ getMultiSelectOverflowCount(selectedOptions.length, maxVisibleLabels) }}
+                </span>
+              }
+            </div>
           }
         </ng-template>
       </p-multiselect>

@@ -17,6 +17,8 @@ import {
   IInputFieldsConfig,
 } from '@shared/types';
 
+export const DEFAULT_MULTI_SELECT_MAX_VISIBLE_LABELS = 2;
+
 export const DEFAULT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig> = {
   autocomplete: EAutocomplete.Off,
   haveFullWidth: true,
@@ -79,6 +81,8 @@ export const DEFAULT_MULTI_SELECT_INPUT_FIELD_CONFIG: Partial<IInputFieldsConfig
       showClearButton: true,
       showToggleAll: true,
       display: EMultiSelectDisplayType.Chip,
+      maxSelectedLabels: DEFAULT_MULTI_SELECT_MAX_VISIBLE_LABELS,
+      selectedItemsLabel: '+{0}',
       optionLabel: 'label',
       optionValue: 'value',
       loading: false,

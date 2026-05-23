@@ -150,7 +150,8 @@ export interface IMultiSelectFieldConfig {
   optionsDropdown?: IOptionDropdown[];
   optionLabel: string;
   optionValue?: string;
-  maxSelectedLabels: number;
+  maxSelectedLabels?: number;
+  selectedItemsLabel?: string;
   haveFilter: boolean;
   filterBy: string;
   loading?: boolean;
