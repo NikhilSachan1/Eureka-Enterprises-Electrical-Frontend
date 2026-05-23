@@ -39,6 +39,13 @@ import {
   IJmcDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/jmc-management/types/jmc.dto';
 import { roundCurrencyAmount } from '@shared/utility';
+import { ProjectService } from '@features/site-management/project-management/services/project.service';
+import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
+import {
+  applyProjectDateRangeFromOverview,
+  resetProjectDateField,
+  setProjectDateFieldLoading,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 @Component({
   selector: 'app-add-invoice',
@@ -53,6 +60,7 @@ export class AddInvoiceComponent
 {
   private readonly invoiceService = inject(InvoiceService);
   private readonly jmcService = inject(JmcService);
+  private readonly projectService = inject(ProjectService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -71,8 +79,12 @@ export class AddInvoiceComponent
       if (this.trackedInvoiceInputs && this.trackedInvoiceInputs.projectName) {
         const siteId = this.trackedInvoiceInputs.projectName();
         if (siteId && typeof siteId === 'string') {
+          this.loadProjectDateRange(siteId);
           this.loadJmcOptions(siteId);
+          return;
         }
+
+        this.resetInvoiceDateField();
       }
     });
     effect(() => {
@@ -100,6 +112,39 @@ export class AddInvoiceComponent
         ['taxableAmount', 'gstPercent', 'projectName'],
         this.destroyRef
       );
+  }
+
+  private loadProjectDateRange(projectId: string): void {
+    setProjectDateFieldLoading(this.form, 'invoiceDate', true);
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+
+    this.projectService
+      .getProjectOverview(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: IProjectOverviewGetResponseDto) => {
+          applyProjectDateRangeFromOverview(
+            this.form,
+            'invoiceDate',
+            ADD_INVOICE_FORM_CONFIG.fields.invoiceDate.dateConfig,
+            response
+          );
+          queueMicrotask(() => this.changeDetectorRef.detectChanges());
+        },
+        error: error => {
+          this.logger.error('Failed to load project overview', error);
+          this.resetInvoiceDateField();
+        },
+      });
+  }
+
+  private resetInvoiceDateField(): void {
+    resetProjectDateField(
+      this.form,
+      'invoiceDate',
+      ADD_INVOICE_FORM_CONFIG.fields.invoiceDate.dateConfig
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private loadJmcOptions(siteId: string): void {

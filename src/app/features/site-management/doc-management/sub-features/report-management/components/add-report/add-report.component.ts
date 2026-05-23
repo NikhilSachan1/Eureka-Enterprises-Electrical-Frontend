@@ -38,6 +38,13 @@ import {
   IJmcDropdownGetRequestDto,
   IJmcDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/jmc-management/types/jmc.dto';
+import { ProjectService } from '@features/site-management/project-management/services/project.service';
+import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
+import {
+  applyProjectDateRangeFromOverview,
+  resetProjectDateField,
+  setProjectDateFieldLoading,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 @Component({
   selector: 'app-add-report',
@@ -52,6 +59,7 @@ export class AddReportComponent
 {
   private readonly reportService = inject(ReportService);
   private readonly jmcService = inject(JmcService);
+  private readonly projectService = inject(ProjectService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -70,8 +78,12 @@ export class AddReportComponent
       if (this.trackedUiFields && this.trackedUiFields.projectName) {
         const siteId = this.trackedUiFields.projectName();
         if (siteId && typeof siteId === 'string') {
+          this.loadProjectDateRange(siteId);
           this.loadJmcOptions(siteId);
+          return;
         }
+
+        this.resetReportDateField();
       }
     });
   }
@@ -95,6 +107,39 @@ export class AddReportComponent
         trackedFields,
         this.destroyRef
       );
+  }
+
+  private loadProjectDateRange(projectId: string): void {
+    setProjectDateFieldLoading(this.form, 'reportDate', true);
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+
+    this.projectService
+      .getProjectOverview(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: IProjectOverviewGetResponseDto) => {
+          applyProjectDateRangeFromOverview(
+            this.form,
+            'reportDate',
+            ADD_REPORT_FORM_CONFIG.fields.reportDate.dateConfig,
+            response
+          );
+          queueMicrotask(() => this.changeDetectorRef.detectChanges());
+        },
+        error: error => {
+          this.logger.error('Failed to load project overview', error);
+          this.resetReportDateField();
+        },
+      });
+  }
+
+  private resetReportDateField(): void {
+    resetProjectDateField(
+      this.form,
+      'reportDate',
+      ADD_REPORT_FORM_CONFIG.fields.reportDate.dateConfig
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private loadJmcOptions(siteId: string): void {

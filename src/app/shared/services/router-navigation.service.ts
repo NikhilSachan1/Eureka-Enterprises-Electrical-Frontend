@@ -129,6 +129,27 @@ export class RouterNavigationService {
     }
   }
 
+  /** State from the in-flight navigation only (not persisted history on refresh). */
+  getCurrentNavigationStateData<T = unknown>(key: string): T | null {
+    try {
+      const state = this.router.getCurrentNavigation()?.extras?.state;
+
+      if (state && typeof state === 'object' && key in state) {
+        this.logger.logUserAction(
+          `Navigation state data retrieved for key: ${key}`
+        );
+        return state[key] as T;
+      }
+
+      return null;
+    } catch (error: unknown) {
+      this.logger.logUserAction(
+        `Error retrieving navigation state data for key ${key}: ${error}`
+      );
+      return null;
+    }
+  }
+
   getRouterStateData<T = unknown>(key: string): T | null {
     try {
       const navigation = this.router.getCurrentNavigation();

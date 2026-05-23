@@ -31,6 +31,10 @@ import {
   IEditReportUIFormDto,
   IReportGetBaseResponseDto,
 } from '../../types/report.dto';
+import {
+  applyProjectDateRangeFromSite,
+  IProjectSiteDateRange,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 @Component({
   selector: 'app-edit-report',
@@ -81,6 +85,14 @@ export class EditReportComponent
     );
 
     this.seedJmcOption(record.jmc.jmcNumber);
+
+    applyProjectDateRangeFromSite(
+      this.form,
+      'reportDate',
+      EDIT_REPORT_FORM_CONFIG.fields.reportDate.dateConfig,
+      record.site as IProjectSiteDateRange
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
     this.loadPrefillAttachmentFromKey(record.fileKey);
   }

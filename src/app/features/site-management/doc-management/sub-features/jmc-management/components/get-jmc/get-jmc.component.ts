@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnInit,
   signal,
@@ -49,6 +50,7 @@ import { GetJmcDetailComponent } from '../get-jmc-detail/get-jmc-detail.componen
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
@@ -80,6 +82,7 @@ export class GetJmcComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
+  private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
@@ -91,6 +94,15 @@ export class GetJmcComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   private readonly loadTrigger$ = new Subject<void>();
+
+  constructor() {
+    effect(() => {
+      this.workspaceContext.filterSubmitVersion();
+      if (this.tableFilterData) {
+        this.loadJmcList();
+      }
+    });
+  }
 
   ngOnInit(): void {
     const docContext = this.route.parent?.snapshot.data[
@@ -141,6 +153,7 @@ export class GetJmcComponent implements OnInit {
     const docType = this.docRouteContext();
 
     return {
+      ...this.workspaceContext.filters(),
       ...base,
       ...(docType ? { docType } : {}),
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
@@ -206,6 +219,7 @@ export class GetJmcComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
+        projectName: this.workspaceContext.activeProjectId(),
         onSuccess: () => {
           this.loadJmcList();
         },

@@ -304,34 +304,46 @@
   @case (ALL_DATA_TYPES.DATE) {
     <p-floatlabel [variant]="config.floatLabelVariant">
       @let dateConfig = config.dateConfig;
-      <p-datepicker
-        [id]="config.id"
-        [fluid]="config.haveFullWidth"
-        [size]="config.fieldSize"
-        [attr.placeholder]="effectivePlaceholder || null"
-        [dateFormat]="dateConfig?.dateFormat"
-        [showIcon]="dateConfig?.showCalendarIcon"
-        [iconDisplay]="dateConfig?.iconDisplay || ALL_DATE_ICON_DISPLAY_TYPES.Input"
-        [timeOnly]="dateConfig?.timeOnly"
-        [minDate]="dateConfig?.minDate"
-        [maxDate]="dateConfig?.maxDate"
-        [showButtonBar]="dateConfig?.showButtonBar"
-        [selectionMode]="dateConfig?.selectionMode || ALL_DATE_SELECTION_MODES.Single"
-        [showTime]="dateConfig?.showTime || false"
-        [hourFormat]="dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve"
-        [view]="dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date"
-        [numberOfMonths]="dateConfig?.numberOfMonths || 1"
-        [touchUI]="dateConfig?.touchUI"
-        [appendTo]="dateConfig?.touchUI ? undefined : 'body'"
-        [readonlyInput]="config.readonlyInput"
-        [disabled]="config.disabledInput || false"
-        [ngModel]="effectiveValue()"
-        [ngModelOptions]="{ standalone: true }"
-        [class]="invalidClass"
-        (ngModelChange)="onValueChange($event)"
-        (onBlur)="onBlur()"
-        (onClose)="onDateRangePanelClose()"
-      />
+      @let isDateLoading = dateConfig?.loading ?? false;
+      <div
+        class="input-field-date-wrapper"
+        [class.input-field-date-wrapper--loading]="isDateLoading"
+      >
+        <p-datepicker
+          [id]="config.id"
+          [fluid]="config.haveFullWidth"
+          [size]="config.fieldSize"
+          [attr.placeholder]="effectivePlaceholder || null"
+          [dateFormat]="dateConfig?.dateFormat"
+          [showIcon]="!isDateLoading && !!dateConfig?.showCalendarIcon"
+          [iconDisplay]="dateConfig?.iconDisplay || ALL_DATE_ICON_DISPLAY_TYPES.Input"
+          [timeOnly]="dateConfig?.timeOnly"
+          [minDate]="dateConfig?.minDate"
+          [maxDate]="dateConfig?.maxDate"
+          [showButtonBar]="dateConfig?.showButtonBar"
+          [selectionMode]="dateConfig?.selectionMode || ALL_DATE_SELECTION_MODES.Single"
+          [showTime]="dateConfig?.showTime || false"
+          [hourFormat]="dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve"
+          [view]="dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date"
+          [numberOfMonths]="dateConfig?.numberOfMonths || 1"
+          [touchUI]="dateConfig?.touchUI"
+          [appendTo]="dateConfig?.touchUI ? undefined : 'body'"
+          [readonlyInput]="config.readonlyInput || isDateLoading"
+          [disabled]="config.disabledInput || false"
+          [ngModel]="effectiveValue()"
+          [ngModelOptions]="{ standalone: true }"
+          [class]="invalidClass"
+          (ngModelChange)="onValueChange($event)"
+          (onBlur)="onBlur()"
+          (onClose)="onDateRangePanelClose()"
+        />
+        @if (isDateLoading) {
+          <i
+            class="pi pi-spin pi-spinner input-field-date-wrapper__loader"
+            aria-hidden="true"
+          ></i>
+        }
+      </div>
       @if (!showStandardLabel) {
         <label [for]="config.id">{{ config.label }}</label>
       }

@@ -27,6 +27,13 @@ import {
   IInvoiceDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/invoice-management/types/invoice.dto';
 import { roundCurrencyAmount } from '@shared/utility';
+import { ProjectService } from '@features/site-management/project-management/services/project.service';
+import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
+import {
+  applyProjectDateRangeFromOverview,
+  resetProjectDateField,
+  setProjectDateFieldLoading,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 import { ADD_BOOK_PAYMENT_FORM_CONFIG } from '../../config';
 import { BookPaymentService } from '../../services/book-payment.service';
@@ -49,6 +56,7 @@ export class AddBookPaymentComponent
 {
   private readonly bookPaymentService = inject(BookPaymentService);
   private readonly invoiceService = inject(InvoiceService);
+  private readonly projectService = inject(ProjectService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
@@ -69,8 +77,12 @@ export class AddBookPaymentComponent
       ) {
         const siteId = this.trackedBookPaymentInputs.projectName();
         if (siteId && typeof siteId === 'string') {
+          this.loadProjectDateRange(siteId);
           this.loadInvoiceOptions(siteId);
+          return;
         }
+
+        this.resetBookingDateField();
       }
     });
     effect(() => {
@@ -106,6 +118,39 @@ export class AddBookPaymentComponent
         trackedFields,
         this.destroyRef
       );
+  }
+
+  private loadProjectDateRange(projectId: string): void {
+    setProjectDateFieldLoading(this.form, 'bookingDate', true);
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+
+    this.projectService
+      .getProjectOverview(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: IProjectOverviewGetResponseDto) => {
+          applyProjectDateRangeFromOverview(
+            this.form,
+            'bookingDate',
+            ADD_BOOK_PAYMENT_FORM_CONFIG.fields.bookingDate.dateConfig,
+            response
+          );
+          queueMicrotask(() => this.changeDetectorRef.detectChanges());
+        },
+        error: error => {
+          this.logger.error('Failed to load project overview', error);
+          this.resetBookingDateField();
+        },
+      });
+  }
+
+  private resetBookingDateField(): void {
+    resetProjectDateField(
+      this.form,
+      'bookingDate',
+      ADD_BOOK_PAYMENT_FORM_CONFIG.fields.bookingDate.dateConfig
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private loadInvoiceOptions(siteId: string): void {

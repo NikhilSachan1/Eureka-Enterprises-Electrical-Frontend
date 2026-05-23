@@ -28,6 +28,10 @@ import {
   IInvoiceDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/invoice-management/types/invoice.dto';
 import { roundCurrencyAmount } from '@shared/utility';
+import {
+  applyProjectDateRangeFromSite,
+  IProjectSiteDateRange,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 import { EDIT_BOOK_PAYMENT_FORM_CONFIG } from '../../config';
 import { BookPaymentService } from '../../services/book-payment.service';
@@ -141,6 +145,14 @@ export class EditBookPaymentComponent
     );
 
     this.seedInvoiceNumberOption(record);
+
+    applyProjectDateRangeFromSite(
+      this.form,
+      'bookingDate',
+      EDIT_BOOK_PAYMENT_FORM_CONFIG.fields.bookingDate.dateConfig,
+      record.site as IProjectSiteDateRange
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
     const trackedFields: (keyof IEditBookPaymentUIFormDto)[] = [
       'projectName',

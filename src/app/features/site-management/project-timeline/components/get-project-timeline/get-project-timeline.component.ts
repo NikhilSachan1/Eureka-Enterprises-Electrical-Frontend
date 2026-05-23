@@ -6,6 +6,7 @@ import {
   DestroyRef,
   effect,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -35,6 +36,8 @@ import { ProjectTimelineService } from '../../services/project-timeline.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetProjectTimelineComponent {
+  readonly projectId = input.required<string>();
+
   private readonly destroyRef = inject(DestroyRef);
   private readonly logger = inject(LoggerService);
   private readonly projectTimelineService = inject(ProjectTimelineService);
@@ -55,7 +58,13 @@ export class GetProjectTimelineComponent {
 
   constructor() {
     effect(() => {
-      this.loadTimeline('');
+      const projectId = this.projectId()?.trim();
+      if (!projectId) {
+        this.events.set([]);
+        return;
+      }
+
+      this.loadTimeline(projectId);
     });
   }
 

@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnInit,
   signal,
@@ -42,6 +43,7 @@ import { AuthService } from '@features/auth-management/services/auth.service';
 import { IDsr } from '@features/site-management/dsr-management/types/dsr.interface';
 import { ChipComponent } from '@shared/components/chip/chip.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -74,6 +76,7 @@ export class GetDsrComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly authService = inject(AuthService);
+  private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -87,6 +90,15 @@ export class GetDsrComponent implements OnInit {
   protected tableFilterData!: TableLazyLoadEvent;
 
   private readonly loadTrigger$ = new Subject<void>();
+
+  constructor() {
+    effect(() => {
+      this.workspaceContext.filterSubmitVersion();
+      if (this.tableFilterData) {
+        this.loadDsrList();
+      }
+    });
+  }
 
   ngOnInit(): void {
     const loggedInUserId = this.authService.getCurrentUser()?.userId;
@@ -131,6 +143,7 @@ export class GetDsrComponent implements OnInit {
       );
 
     return {
+      ...this.workspaceContext.filters(),
       employeeNames: this.selectedEmployeeNames(),
       ...base,
     };
@@ -221,6 +234,7 @@ export class GetDsrComponent implements OnInit {
       false,
       false,
       {
+        projectName: this.workspaceContext.activeProjectId(),
         onSuccess: () => {
           this.loadDsrList();
         },
@@ -236,6 +250,7 @@ export class GetDsrComponent implements OnInit {
       false,
       false,
       {
+        projectName: this.workspaceContext.activeProjectId(),
         onSuccess: () => {
           this.loadDsrList();
         },

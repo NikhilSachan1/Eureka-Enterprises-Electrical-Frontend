@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnInit,
   signal,
@@ -51,6 +52,7 @@ import { DocAmountComponent } from '@features/site-management/doc-management/sha
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
@@ -86,6 +88,7 @@ export class GetInvoiceComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
+  private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
@@ -97,6 +100,15 @@ export class GetInvoiceComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   private readonly loadTrigger$ = new Subject<void>();
+
+  constructor() {
+    effect(() => {
+      this.workspaceContext.filterSubmitVersion();
+      if (this.tableFilterData) {
+        this.loadInvoiceList();
+      }
+    });
+  }
 
   ngOnInit(): void {
     const docContext = this.route.parent?.snapshot.data[
@@ -188,6 +200,7 @@ export class GetInvoiceComponent implements OnInit {
     const docType = this.docRouteContext();
 
     return {
+      ...this.workspaceContext.filters(),
       ...base,
       ...(docType ? { docType } : {}),
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
@@ -261,6 +274,7 @@ export class GetInvoiceComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
+        projectName: this.workspaceContext.activeProjectId(),
         onSuccess: () => {
           this.loadInvoiceList();
         },

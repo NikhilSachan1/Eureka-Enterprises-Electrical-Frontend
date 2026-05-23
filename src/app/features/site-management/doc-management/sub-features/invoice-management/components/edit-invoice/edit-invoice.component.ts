@@ -25,6 +25,10 @@ import {
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { roundCurrencyAmount } from '@shared/utility';
+import {
+  applyProjectDateRangeFromSite,
+  IProjectSiteDateRange,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 import { EDIT_INVOICE_FORM_CONFIG } from '../../config';
 import { InvoiceService } from '../../services/invoice.service';
@@ -119,6 +123,14 @@ export class EditInvoiceComponent
     );
 
     this.seedJmcOption(record.jmc.jmcNumber, record.jmcId);
+
+    applyProjectDateRangeFromSite(
+      this.form,
+      'invoiceDate',
+      EDIT_INVOICE_FORM_CONFIG.fields.invoiceDate.dateConfig,
+      record.site as IProjectSiteDateRange
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
     this.trackedGstInputs =
       this.formService.trackMultipleFieldChanges<IEditInvoiceUIFormDto>(

@@ -21,6 +21,11 @@ import {
 } from '@features/site-management/dsr-management/types/dsr.dto';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
+import {
+  applyProjectDateRangeFromOverview,
+  resetProjectDateField,
+  setProjectDateFieldLoading,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 import { FormBase } from '@shared/base/form.base';
 import {
   AppConfigurationService,
@@ -67,7 +72,10 @@ export class ForceDsrComponent
         const projectId = this.trackedForceDsrFields.projectName();
         if (projectId && typeof projectId === 'string') {
           this.loadProjectOverviewOptions(projectId);
+          return;
         }
+
+        this.resetStatusDateField();
       }
     });
     effect(() => {
@@ -125,6 +133,8 @@ export class ForceDsrComponent
   }
 
   private loadProjectOverviewOptions(projectId: string): void {
+    setProjectDateFieldLoading(this.form, 'statusDate', true);
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
     this.applyEmployeeOptions([], true);
     this.applyWorkDoneOptions([], true);
 
@@ -145,6 +155,13 @@ export class ForceDsrComponent
 
           this.applyEmployeeOptions(availableEmployeeNames, false);
           this.applyWorkDoneOptions(workTypes, false);
+          applyProjectDateRangeFromOverview(
+            this.form,
+            'statusDate',
+            ADD_DSR_FORM_CONFIG.fields.statusDate.dateConfig,
+            response
+          );
+          queueMicrotask(() => this.changeDetectorRef.detectChanges());
         },
         error: error => {
           this.logger.error('Failed to load project overview', error);
@@ -153,8 +170,18 @@ export class ForceDsrComponent
           );
           this.applyEmployeeOptions([], false);
           this.applyWorkDoneOptions([], false);
+          this.resetStatusDateField();
         },
       });
+  }
+
+  private resetStatusDateField(): void {
+    resetProjectDateField(
+      this.form,
+      'statusDate',
+      ADD_DSR_FORM_CONFIG.fields.statusDate.dateConfig
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private applyEmployeeOptions(

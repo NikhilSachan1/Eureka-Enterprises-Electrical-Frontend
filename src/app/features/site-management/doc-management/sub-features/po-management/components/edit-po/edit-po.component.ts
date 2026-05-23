@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   effect,
   inject,
@@ -31,6 +32,10 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ReactiveFormsModule } from '@angular/forms';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { roundCurrencyAmount } from '@shared/utility';
+import {
+  applyProjectDateRangeFromSite,
+  IProjectSiteDateRange,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 @Component({
   selector: 'app-edit-po',
@@ -48,6 +53,7 @@ export class EditPoComponent
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private trackedGstInputs!: ITrackedFields<IEditPoUIFormDto>;
 
   private allowGstAutoRecalc = false;
@@ -124,6 +130,14 @@ export class EditPoComponent
         ['taxableAmount', 'gstPercent'],
         this.destroyRef
       );
+
+    applyProjectDateRangeFromSite(
+      this.form,
+      'poDate',
+      EDIT_PO_FORM_CONFIG.fields.poDate.dateConfig,
+      record.site as IProjectSiteDateRange
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
     const { taxableAmount, gstPercent } = this.trackedGstInputs.getValues();
     this.prefilledTaxableAmount =

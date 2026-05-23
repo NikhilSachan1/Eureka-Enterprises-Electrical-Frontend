@@ -3,14 +3,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  effect,
   inject,
-  OnInit,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { LoadingService } from '@shared/services/loading.service';
 import { finalize } from 'rxjs';
 import {
@@ -31,39 +31,40 @@ import { ProjectProfitabilityService } from '../../services/project-profitabilit
   styleUrl: './get-profitability.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GetProfitabilityComponent implements OnInit {
+export class GetProfitabilityComponent {
   private readonly loadingService = inject(LoadingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly logger = inject(LoggerService);
   private readonly projectProfitabilityService = inject(
     ProjectProfitabilityService
   );
-  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
   protected readonly APP_CONFIG = APP_CONFIG;
-  private readonly projectId = signal<string>('');
   protected readonly report = signal<IProjectProfitabilityReport | null>(null);
 
-  ngOnInit(): void {
-    const projectId = this.activatedRoute.snapshot.params[
-      'projectId'
-    ] as string;
-    if (!projectId) {
-      throw new Error('Project ID is required');
-    }
+  constructor() {
+    effect(() => {
+      const projectId = this.workspaceContext.selectedProjectId();
+      this.workspaceContext.filterSubmitVersion();
 
-    this.projectId.set(projectId);
-    this.loadProjectProfitability();
+      if (!projectId) {
+        this.report.set(null);
+        return;
+      }
+
+      this.loadProjectProfitability(projectId);
+    });
   }
 
-  private loadProjectProfitability(): void {
+  private loadProjectProfitability(projectId: string): void {
     this.loadingService.show({
       title: 'Loading Project Profitability',
       message:
         "We're loading the project profitability. This will just take a moment.",
     });
 
-    const paramData = this.prepareParamData();
+    const paramData = this.prepareParamData(projectId);
 
     this.projectProfitabilityService
       .getProjectProfitability(paramData)
@@ -90,9 +91,9 @@ export class GetProfitabilityComponent implements OnInit {
       });
   }
 
-  private prepareParamData(): IProjectProfitabilityGetFormDto {
+  private prepareParamData(projectId: string): IProjectProfitabilityGetFormDto {
     return {
-      projectName: this.projectId(),
+      projectName: projectId,
     };
   }
 

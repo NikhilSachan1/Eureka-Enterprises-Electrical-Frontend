@@ -98,6 +98,13 @@ export class SearchFilterComponent implements OnInit {
     };
   }
 
+  submitFilter(): void {
+    if (!this.form) {
+      return;
+    }
+    this.onSubmit();
+  }
+
   protected onSubmit(): void {
     const table = this.tableRef();
     if (table) {

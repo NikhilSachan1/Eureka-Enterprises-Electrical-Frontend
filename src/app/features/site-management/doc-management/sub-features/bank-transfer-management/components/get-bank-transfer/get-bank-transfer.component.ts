@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnInit,
   signal,
@@ -47,6 +48,7 @@ import { GetBankTransferDetailComponent } from '../get-bank-transfer-detail/get-
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
@@ -75,6 +77,7 @@ export class GetBankTransferComponent implements OnInit {
   private readonly bankTransferService = inject(BankTransferService);
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
+  private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
@@ -86,6 +89,15 @@ export class GetBankTransferComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   private readonly loadTrigger$ = new Subject<void>();
+
+  constructor() {
+    effect(() => {
+      this.workspaceContext.filterSubmitVersion();
+      if (this.tableFilterData) {
+        this.loadBankTransferList();
+      }
+    });
+  }
 
   ngOnInit(): void {
     const docContext = this.route.parent?.snapshot.data[
@@ -140,6 +152,7 @@ export class GetBankTransferComponent implements OnInit {
     const docType = this.docRouteContext();
 
     return {
+      ...this.workspaceContext.filters(),
       ...base,
       ...(docType ? { docType } : {}),
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
@@ -225,6 +238,7 @@ export class GetBankTransferComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
+        projectName: this.workspaceContext.activeProjectId(),
         onSuccess: () => this.loadBankTransferList(),
       }
     );

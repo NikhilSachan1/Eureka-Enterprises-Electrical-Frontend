@@ -1,45 +1,93 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
+  DestroyRef,
+  effect,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
-import { AppPermissionService } from '@core/services';
+import { LoggerService } from '@core/services';
 import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { ICONS, ROUTES } from '@shared/constants';
 import {
+  FormService,
+  InputFieldConfigService,
+  RouterNavigationService,
+} from '@shared/services';
+import {
+  EDataType,
   ETabMode,
+  IEnhancedForm,
+  IInputFieldsConfig,
   IPageHeaderConfig,
   ITabItem,
   ITableSearchFilterFormConfig,
+  ITrackedFields,
 } from '@shared/types';
 import { SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG } from '../../config/form/search-filter-project-workspace.config';
+import { ProjectService } from '../../services/project.service';
+import { ProjectWorkspaceContextService } from '../../services/project-workspace-context.service';
+import { IProjectOverviewGetResponseDto } from '../../types/project.dto';
 import { IProjectWorkspaceSearchFilterFormDto } from '../../types/project.interface';
+import { ProjectWorkspaceInfoCardComponent } from '../project-workspace-info-card/project-workspace-info-card.component';
+import {
+  applyProjectDateRangeFromOverview,
+  resetProjectDateField,
+  setProjectDateFieldLoading,
+} from '../../utility/project-overview-date.util';
 
 @Component({
   selector: 'app-get-project-workspace',
   imports: [
     NavTabsComponent,
     GetProjectTimelineComponent,
+    ProjectWorkspaceInfoCardComponent,
     PageHeaderComponent,
     SearchFilterComponent,
   ],
+  providers: [ProjectWorkspaceContextService],
   templateUrl: './get-project-workspace.component.html',
   styleUrl: './get-project-workspace.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetProjectWorkspaceComponent {
   private readonly router = inject(Router);
-  private readonly appPermissionService = inject(AppPermissionService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly logger = inject(LoggerService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly projectService = inject(ProjectService);
+  private readonly formService = inject(FormService);
+  private readonly inputFieldConfigService = inject(InputFieldConfigService);
+  protected readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
-  protected readonly selectedProjectId = signal<string | undefined>(undefined);
+  private readonly searchFilterRef = viewChild<SearchFilterComponent>(
+    SearchFilterComponent
+  );
+  private workspaceFilterForm?: IEnhancedForm<IProjectWorkspaceSearchFilterFormDto>;
+  private pendingAutoSearchProjectId: string | undefined;
+  private readonly trackedWorkspaceFields = signal<
+    ITrackedFields<IProjectWorkspaceSearchFilterFormDto> | undefined
+  >(undefined);
+
+  protected readonly selectedProjectId =
+    this.workspaceContext.selectedProjectId;
+  protected readonly projectOverview = this.workspaceContext.projectOverview;
+  protected readonly filterPrefillValues = signal<
+    Partial<IProjectWorkspaceSearchFilterFormDto>
+  >({});
+  protected readonly showOverviewPanel = signal(false);
+
+  private readonly overviewProjectId = signal<string | undefined>(undefined);
 
   readonly tabModeType = ETabMode.ROUTER_OUTLET;
   icons = ICONS;
@@ -68,6 +116,298 @@ export class GetProjectWorkspaceComponent {
   protected readonly pageHeaderConfig = computed(() =>
     this.buildPageHeaderConfig()
   );
+
+  constructor() {
+    const projectId =
+      this.routerNavigationService.getCurrentNavigationStateData<string>(
+        'projectId'
+      );
+    if (projectId) {
+      this.filterPrefillValues.set({ projectName: projectId });
+      this.workspaceContext.setActiveProjectId(projectId);
+      this.pendingAutoSearchProjectId = projectId;
+    }
+
+    effect(() => {
+      const trackedProjectId = this.trackedWorkspaceFields()?.projectName?.();
+      this.onProjectChange(
+        typeof trackedProjectId === 'string' ? trackedProjectId : undefined
+      );
+    });
+  }
+
+  protected onFilterFormReady(
+    form: IEnhancedForm<Record<string, unknown>>
+  ): void {
+    this.workspaceFilterForm =
+      form as IEnhancedForm<IProjectWorkspaceSearchFilterFormDto>;
+
+    this.trackedWorkspaceFields.set(
+      this.formService.trackMultipleFieldChanges<IProjectWorkspaceSearchFilterFormDto>(
+        this.workspaceFilterForm.formGroup,
+        ['projectName'],
+        this.destroyRef
+      )
+    );
+
+    const overview = this.workspaceContext.projectOverview();
+    if (this.overviewProjectId() && overview) {
+      this.bindOverviewDropdownOptions(overview);
+      this.patchWorkspaceDateRangeField(overview);
+    }
+
+    if (this.pendingAutoSearchProjectId) {
+      this.pendingAutoSearchProjectId = undefined;
+      queueMicrotask(() => {
+        const searchFilter = this.searchFilterRef();
+        if (searchFilter) {
+          searchFilter.submitFilter();
+          return;
+        }
+
+        if (this.workspaceFilterForm) {
+          this.onFilterSubmit(
+            this.workspaceFilterForm.getData() as Record<string, unknown>
+          );
+        }
+      });
+    }
+  }
+
+  protected onFilterSubmit(data: Record<string, unknown>): void {
+    const filters = data as IProjectWorkspaceSearchFilterFormDto;
+    this.workspaceContext.applyFilters(filters);
+    this.showOverviewPanel.set(!!filters.projectName);
+  }
+
+  protected onFilterReset(): void {
+    this.showOverviewPanel.set(false);
+    this.clearProjectOverviewState();
+    this.workspaceContext.resetFilters();
+  }
+
+  private onProjectChange(projectId: string | undefined): void {
+    this.workspaceContext.setActiveProjectId(projectId);
+
+    if (!projectId) {
+      this.showOverviewPanel.set(false);
+      this.clearProjectOverviewState();
+      return;
+    }
+
+    if (projectId !== this.workspaceContext.selectedProjectId()) {
+      this.showOverviewPanel.set(false);
+    }
+
+    if (projectId === this.overviewProjectId()) {
+      return;
+    }
+
+    this.loadProjectOverview(projectId);
+  }
+
+  private loadProjectOverview(projectId: string): void {
+    this.patchAllOverviewDropdowns(fieldName =>
+      this.buildOverviewDropdownConfig(fieldName, [], true)
+    );
+    this.setWorkspaceDateRangeLoading(true);
+
+    this.projectService
+      .getProjectOverview(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: IProjectOverviewGetResponseDto) => {
+          this.overviewProjectId.set(projectId);
+          this.workspaceContext.setProjectOverview(response);
+          this.bindOverviewDropdownOptions(response);
+          this.patchWorkspaceDateRangeField(response);
+        },
+        error: error => {
+          this.clearProjectOverviewState();
+          this.logger.error('Failed to load project overview', error);
+        },
+      });
+  }
+
+  private bindOverviewDropdownOptions(
+    overview: IProjectOverviewGetResponseDto
+  ): void {
+    const dropdownIds = this.extractOverviewDropdownIds(overview);
+
+    this.patchAllOverviewDropdowns(fieldName =>
+      this.buildOverviewDropdownConfig(fieldName, dropdownIds[fieldName], false)
+    );
+  }
+
+  private clearProjectOverviewState(): void {
+    this.overviewProjectId.set(undefined);
+    this.workspaceContext.setProjectOverview(null);
+    this.resetOverviewDropdownFields();
+    this.resetWorkspaceDateRangeField();
+  }
+
+  private resetOverviewDropdownFields(): void {
+    this.patchAllOverviewDropdowns(fieldName =>
+      this.getOverviewFieldBaseConfig(fieldName)
+    );
+  }
+
+  private getOverviewFieldBaseConfig(
+    fieldName: 'companyName' | 'contractorName' | 'vendorName'
+  ): IInputFieldsConfig {
+    const rawFieldConfig =
+      SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG.fields[fieldName];
+
+    return {
+      ...this.inputFieldConfigService.getInputFieldConfig(
+        EDataType.MULTI_SELECT,
+        rawFieldConfig
+      ),
+      haveFullWidth: true,
+    };
+  }
+
+  private patchAllOverviewDropdowns(
+    buildConfig: (
+      fieldName: 'companyName' | 'contractorName' | 'vendorName'
+    ) => IInputFieldsConfig
+  ): void {
+    const searchFilter = this.searchFilterRef();
+    if (!searchFilter) {
+      return;
+    }
+
+    (['companyName', 'contractorName', 'vendorName'] as const).forEach(
+      fieldName => {
+        searchFilter.updateFieldConfig(fieldName, buildConfig(fieldName));
+      }
+    );
+
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
+  private buildOverviewDropdownConfig(
+    fieldName: 'companyName' | 'contractorName' | 'vendorName',
+    availableIds: string[],
+    loading: boolean
+  ): IInputFieldsConfig {
+    const defaultFieldConfig = this.getOverviewFieldBaseConfig(fieldName);
+    const defaultMultiSelectConfig = defaultFieldConfig.multiSelectConfig;
+    if (!defaultMultiSelectConfig) {
+      return defaultFieldConfig;
+    }
+
+    const base =
+      this.workspaceFilterForm?.fieldConfigs[fieldName] ?? defaultFieldConfig;
+
+    return {
+      ...base,
+      haveFullWidth: true,
+      multiSelectConfig: {
+        ...defaultMultiSelectConfig,
+        ...(availableIds.length
+          ? { filterOptions: { include: availableIds } }
+          : {
+              optionsDropdown: [],
+              dynamicDropdown: undefined,
+              filterOptions: undefined,
+              emptyMessage: this.getOverviewDropdownEmptyMessage(fieldName),
+            }),
+        loading,
+      },
+    };
+  }
+
+  private extractOverviewDropdownIds(
+    overview: IProjectOverviewGetResponseDto
+  ): {
+    companyName: string[];
+    contractorName: string[];
+    vendorName: string[];
+  } {
+    return {
+      companyName: overview.site?.company?.id ? [overview.site.company.id] : [],
+      contractorName: (overview.contractors ?? [])
+        .map(contractor => contractor?.id)
+        .filter((id): id is string => !!id),
+      vendorName: (overview.vendors ?? [])
+        .map(vendor => vendor?.id)
+        .filter((id): id is string => !!id),
+    };
+  }
+
+  private getOverviewDropdownEmptyMessage(
+    fieldName: 'companyName' | 'contractorName' | 'vendorName'
+  ): string {
+    if (fieldName === 'companyName') {
+      return 'No company found';
+    }
+    if (fieldName === 'contractorName') {
+      return 'No contractor found';
+    }
+    return 'No vendor found';
+  }
+
+  private patchWorkspaceDateRangeField(
+    overview: IProjectOverviewGetResponseDto
+  ): void {
+    if (!this.workspaceFilterForm) {
+      return;
+    }
+
+    applyProjectDateRangeFromOverview(
+      this.workspaceFilterForm as unknown as IEnhancedForm<
+        Record<string, unknown>
+      >,
+      'dateRange',
+      SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG.fields.dateRange?.dateConfig,
+      overview
+    );
+
+    this.syncWorkspaceDateRangeFieldConfig();
+  }
+
+  private setWorkspaceDateRangeLoading(loading: boolean): void {
+    if (!this.workspaceFilterForm) {
+      return;
+    }
+
+    setProjectDateFieldLoading(
+      this.workspaceFilterForm as unknown as IEnhancedForm<
+        Record<string, unknown>
+      >,
+      'dateRange',
+      loading
+    );
+
+    this.syncWorkspaceDateRangeFieldConfig();
+  }
+
+  private syncWorkspaceDateRangeFieldConfig(): void {
+    const searchFilter = this.searchFilterRef();
+    const dateRangeConfig = this.workspaceFilterForm?.fieldConfigs.dateRange;
+    if (searchFilter && dateRangeConfig) {
+      searchFilter.updateFieldConfig('dateRange', dateRangeConfig);
+    }
+
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
+  private resetWorkspaceDateRangeField(): void {
+    if (!this.workspaceFilterForm) {
+      return;
+    }
+
+    resetProjectDateField(
+      this.workspaceFilterForm as unknown as IEnhancedForm<
+        Record<string, unknown>
+      >,
+      'dateRange',
+      SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG.fields.dateRange?.dateConfig
+    );
+
+    this.syncWorkspaceDateRangeFieldConfig();
+  }
 
   private resolveProjectWorkspaceFilterTab(url: string): string {
     const { PROFITABILITY, DAILY_PROGRESS, WORKSPACE_DOC } =

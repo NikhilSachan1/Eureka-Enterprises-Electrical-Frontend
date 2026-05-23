@@ -25,6 +25,10 @@ import {
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import {
+  applyProjectDateRangeFromSite,
+  IProjectSiteDateRange,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 import { EDIT_BANK_TRANSFER_FORM_CONFIG } from '../../config';
 import { BankTransferService } from '../../services/bank-transfer.service';
@@ -102,6 +106,14 @@ export class EditBankTransferComponent
     if (this.docContext() === EDocContext.PURCHASE) {
       this.seedBookPaymentNumberOption(record);
     }
+
+    applyProjectDateRangeFromSite(
+      this.form,
+      'transferDate',
+      EDIT_BANK_TRANSFER_FORM_CONFIG.fields.transferDate.dateConfig,
+      record.site as IProjectSiteDateRange
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private seedInvoiceNumberOption(

@@ -41,6 +41,13 @@ import {
   IAddBankTransferUIFormDto,
 } from '../../types/bank-transfer.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { ProjectService } from '@features/site-management/project-management/services/project.service';
+import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
+import {
+  applyProjectDateRangeFromOverview,
+  resetProjectDateField,
+  setProjectDateFieldLoading,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 @Component({
   selector: 'app-add-bank-transfer',
@@ -56,6 +63,7 @@ export class AddBankTransferComponent
   private readonly bankTransferService = inject(BankTransferService);
   private readonly invoiceService = inject(InvoiceService);
   private readonly bookPaymentService = inject(BookPaymentService);
+  private readonly projectService = inject(ProjectService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -84,8 +92,12 @@ export class AddBankTransferComponent
       ) {
         const siteId = this.trackedBankTransferInputs.projectName();
         if (siteId && typeof siteId === 'string') {
+          this.loadProjectDateRange(siteId);
           this.loadInvoiceOptions(siteId);
+          return;
         }
+
+        this.resetTransferDateField();
       }
     });
     effect(() => {
@@ -151,6 +163,39 @@ export class AddBankTransferComponent
         trackedFields,
         this.destroyRef
       );
+  }
+
+  private loadProjectDateRange(projectId: string): void {
+    setProjectDateFieldLoading(this.form, 'transferDate', true);
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+
+    this.projectService
+      .getProjectOverview(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: IProjectOverviewGetResponseDto) => {
+          applyProjectDateRangeFromOverview(
+            this.form,
+            'transferDate',
+            ADD_BANK_TRANSFER_FORM_CONFIG.fields.transferDate.dateConfig,
+            response
+          );
+          queueMicrotask(() => this.changeDetectorRef.detectChanges());
+        },
+        error: error => {
+          this.logger.error('Failed to load project overview', error);
+          this.resetTransferDateField();
+        },
+      });
+  }
+
+  private resetTransferDateField(): void {
+    resetProjectDateField(
+      this.form,
+      'transferDate',
+      ADD_BANK_TRANSFER_FORM_CONFIG.fields.transferDate.dateConfig
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private loadInvoiceOptions(siteId: string): void {

@@ -38,6 +38,13 @@ import {
   IPoDropdownGetRequestDto,
   IPoDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/po-management/types/po.dto';
+import { ProjectService } from '@features/site-management/project-management/services/project.service';
+import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
+import {
+  applyProjectDateRangeFromOverview,
+  resetProjectDateField,
+  setProjectDateFieldLoading,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 @Component({
   selector: 'app-add-jmc',
@@ -52,6 +59,7 @@ export class AddJmcComponent
 {
   private readonly jmcService = inject(JmcService);
   private readonly poService = inject(PoService);
+  private readonly projectService = inject(ProjectService);
   private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -70,8 +78,12 @@ export class AddJmcComponent
       if (this.trackedJmcUiFields && this.trackedJmcUiFields.projectName) {
         const siteId = this.trackedJmcUiFields.projectName();
         if (siteId && typeof siteId === 'string') {
+          this.loadProjectDateRange(siteId);
           this.loadPoOptions(siteId);
+          return;
         }
+
+        this.resetJmcDateField();
       }
     });
   }
@@ -95,6 +107,39 @@ export class AddJmcComponent
         trackedFields,
         this.destroyRef
       );
+  }
+
+  private loadProjectDateRange(projectId: string): void {
+    setProjectDateFieldLoading(this.form, 'jmcDate', true);
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+
+    this.projectService
+      .getProjectOverview(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: IProjectOverviewGetResponseDto) => {
+          applyProjectDateRangeFromOverview(
+            this.form,
+            'jmcDate',
+            ADD_JMC_FORM_CONFIG.fields.jmcDate.dateConfig,
+            response
+          );
+          queueMicrotask(() => this.changeDetectorRef.detectChanges());
+        },
+        error: error => {
+          this.logger.error('Failed to load project overview', error);
+          this.resetJmcDateField();
+        },
+      });
+  }
+
+  private resetJmcDateField(): void {
+    resetProjectDateField(
+      this.form,
+      'jmcDate',
+      ADD_JMC_FORM_CONFIG.fields.jmcDate.dateConfig
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private loadPoOptions(siteId: string): void {

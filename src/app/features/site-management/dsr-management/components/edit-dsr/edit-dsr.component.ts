@@ -27,6 +27,10 @@ import {
 } from '@shared/services';
 import { IDialogActionHandler, ITrackedFields } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyProjectDateRangeFromSite,
+  IProjectSiteDateRange,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 
@@ -98,6 +102,14 @@ export class EditDsrComponent
         ['reportedEngineerName'],
         this.destroyRef
       );
+
+    applyProjectDateRangeFromSite(
+      this.form,
+      'statusDate',
+      EDIT_DSR_FORM_CONFIG.fields.statusDate.dateConfig,
+      record.site as IProjectSiteDateRange
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
     this.loadPrefillAttachments(record.documentKeys);
   }

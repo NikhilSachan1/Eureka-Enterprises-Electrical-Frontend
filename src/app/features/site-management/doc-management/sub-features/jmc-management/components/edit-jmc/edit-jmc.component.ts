@@ -31,6 +31,10 @@ import {
   IEditJmcUIFormDto,
   IJmcGetBaseResponseDto,
 } from '../../types/jmc.dto';
+import {
+  applyProjectDateRangeFromSite,
+  IProjectSiteDateRange,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 @Component({
   selector: 'app-edit-jmc',
@@ -81,6 +85,14 @@ export class EditJmcComponent
     );
 
     this.seedPoOption(record.po.poNumber);
+
+    applyProjectDateRangeFromSite(
+      this.form,
+      'jmcDate',
+      EDIT_JMC_FORM_CONFIG.fields.jmcDate.dateConfig,
+      record.site as IProjectSiteDateRange
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
     this.loadPrefillAttachmentFromKey(record.fileKey);
   }

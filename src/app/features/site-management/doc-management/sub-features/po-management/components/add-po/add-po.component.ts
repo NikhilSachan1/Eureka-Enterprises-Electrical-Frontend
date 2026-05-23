@@ -33,6 +33,11 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { roundCurrencyAmount } from '@shared/utility';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
+import {
+  applyProjectDateRangeFromOverview,
+  resetProjectDateField,
+  setProjectDateFieldLoading,
+} from '@features/site-management/project-management/utility/project-overview-date.util';
 
 type AddPoStakeholderField = 'contractorName' | 'vendorName';
 
@@ -76,7 +81,10 @@ export class AddPoComponent
         const projectId = this.trackedPoInputs.projectName();
         if (projectId && typeof projectId === 'string') {
           this.loadProjectStakeholderOptions(projectId);
+          return;
         }
+
+        this.resetPoDateField();
       }
     });
   }
@@ -104,6 +112,9 @@ export class AddPoComponent
   }
 
   private loadProjectStakeholderOptions(projectId: string): void {
+    setProjectDateFieldLoading(this.form, 'poDate', true);
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+
     if (this.docContext() === EDocContext.SALES) {
       this.applyStakeholderOptions('contractorName', [], true);
     }
@@ -133,6 +144,14 @@ export class AddPoComponent
           if (this.docContext() === EDocContext.PURCHASE) {
             this.applyStakeholderOptions('vendorName', vendorIds, false);
           }
+
+          applyProjectDateRangeFromOverview(
+            this.form,
+            'poDate',
+            ADD_PO_FORM_CONFIG.fields.poDate.dateConfig,
+            response
+          );
+          queueMicrotask(() => this.changeDetectorRef.detectChanges());
         },
         error: error => {
           this.logger.error('Failed to load project overview', error);
@@ -145,8 +164,18 @@ export class AddPoComponent
           if (this.docContext() === EDocContext.PURCHASE) {
             this.applyStakeholderOptions('vendorName', [], false);
           }
+          this.resetPoDateField();
         },
       });
+  }
+
+  private resetPoDateField(): void {
+    resetProjectDateField(
+      this.form,
+      'poDate',
+      ADD_PO_FORM_CONFIG.fields.poDate.dateConfig
+    );
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private applyStakeholderOptions(

@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnInit,
   signal,
@@ -48,6 +49,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
+import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
@@ -78,6 +80,7 @@ export class GetBookPaymentComponent implements OnInit {
   private readonly bookPaymentService = inject(BookPaymentService);
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
+  private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
@@ -89,6 +92,15 @@ export class GetBookPaymentComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   private readonly loadTrigger$ = new Subject<void>();
+
+  constructor() {
+    effect(() => {
+      this.workspaceContext.filterSubmitVersion();
+      if (this.tableFilterData) {
+        this.loadBookPaymentList();
+      }
+    });
+  }
 
   ngOnInit(): void {
     const docContext = this.route.parent?.snapshot.data[
@@ -170,6 +182,7 @@ export class GetBookPaymentComponent implements OnInit {
         this.table.getHeaders()
       );
     return {
+      ...this.workspaceContext.filters(),
       ...base,
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
@@ -232,6 +245,7 @@ export class GetBookPaymentComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
+        projectName: this.workspaceContext.activeProjectId(),
         onSuccess: () => this.loadBookPaymentList(),
       }
     );
