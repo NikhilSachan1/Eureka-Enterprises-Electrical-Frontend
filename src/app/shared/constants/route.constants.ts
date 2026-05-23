@@ -22,7 +22,7 @@ export const ROUTE_BASE_PATHS = {
   ANNOUNCEMENT: 'announcement',
   MY_FILES: 'my-files',
   SITE: {
-    BASE: 'site',
+    BASE: 'project',
     COMPANY: 'company',
     CONTRACTOR: 'contractor',
     VENDOR: 'vendor',
