@@ -208,7 +208,6 @@ export class GetEmployeeComponent implements OnInit {
         metrics: [
           { label: 'Male', value: stats?.byGender?.['male'] ?? 0 },
           { label: 'Female', value: stats?.byGender?.['female'] ?? 0 },
-          { label: 'Other', value: stats?.byGender?.['other'] ?? 0 },
         ],
       },
     ];
