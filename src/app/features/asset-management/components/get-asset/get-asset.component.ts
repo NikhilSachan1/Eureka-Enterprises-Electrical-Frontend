@@ -234,6 +234,7 @@ export class GetAssetComponent implements OnInit {
       {
         id: 'overview',
         title: 'Overview',
+        icon: ICONS.ASSET.BOX,
         metrics: [
           { label: 'Total', value: stats?.total ?? 0 },
           { label: 'Available', value: stats?.byStatus?.available ?? 0 },
@@ -243,6 +244,7 @@ export class GetAssetComponent implements OnInit {
       {
         id: 'asset-type',
         title: 'Asset Type',
+        icon: ICONS.SETTINGS.WRENCH,
         metrics: [
           {
             label: 'Calibrated Assets',
@@ -257,6 +259,7 @@ export class GetAssetComponent implements OnInit {
       {
         id: 'calibration',
         title: 'Calibration',
+        icon: ICONS.COMMON.GAUGE,
         metrics: [
           {
             label: 'Calibration Expiring Soon',
@@ -271,6 +274,7 @@ export class GetAssetComponent implements OnInit {
       {
         id: 'warranty',
         title: 'Warranty',
+        icon: ICONS.SECURITY.SHIELD,
         metrics: [
           {
             label: 'Warranty Expiring Soon',

@@ -68,6 +68,7 @@ export interface IEmployeeSalarySummaryItem {
   label: string;
   value: number;
   description: string;
+  icon?: string;
 }
 
 export interface ISalaryDetailResolverResponse {

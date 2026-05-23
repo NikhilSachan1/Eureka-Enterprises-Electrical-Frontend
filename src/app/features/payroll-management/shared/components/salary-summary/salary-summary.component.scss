@@ -1,0 +1,14 @@
+.salary-summary__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.salary-summary__icon {
+  color: var(--primary-color);
+  font-size: 0.95rem;
+
+  &--ctc {
+    font-size: 1rem;
+  }
+}

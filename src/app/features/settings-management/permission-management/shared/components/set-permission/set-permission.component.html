@@ -29,6 +29,12 @@
       <div class="header-stats-block">
         @for (stat of computedGetStats().global; track stat.label) {
           <div class="header-stat">
+            @if (stat.icon) {
+              <i
+                [class]="stat.icon + ' header-stat__icon'"
+                aria-hidden="true"
+              ></i>
+            }
             <span [class]="`header-stat-value ${stat.colorClass}`">{{ stat.value }}</span>
             <span class="header-stat-label">{{ stat.label }}</span>
           </div>
@@ -105,6 +111,12 @@
                   <div class="accordion-header-stats">
                     @for (stat of rowStats; track stat.label) {
                       <span [class]="`accordion-header-stat ${stat.colorClass}`">
+                        @if (stat.icon) {
+                          <i
+                            [class]="stat.icon + ' accordion-header-stat__icon'"
+                            aria-hidden="true"
+                          ></i>
+                        }
                         <span class="accordion-header-stat-value">{{ stat.value }}</span>
                         <span class="accordion-header-stat-label">{{ stat.label }}</span>
                       </span>

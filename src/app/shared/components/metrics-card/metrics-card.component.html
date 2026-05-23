@@ -29,6 +29,14 @@
             </header>
             <div class="metric-panel__body">
               <div class="metric-panel__kpi">
+                @if (getIcon(kpiMetric); as kpiIcon) {
+                  <span
+                    class="metric-panel__kpi-icon-wrap"
+                    aria-hidden="true"
+                  >
+                    <i [ngClass]="kpiIcon"></i>
+                  </span>
+                }
                 <p class="metric-panel__kpi-label">{{ kpiMetric.label }}</p>
                 <p
                   class="metric-panel__kpi-value"

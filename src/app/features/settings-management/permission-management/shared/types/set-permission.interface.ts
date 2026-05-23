@@ -13,6 +13,7 @@ export interface IModuleStats {
   label: string;
   value: number;
   colorClass: string;
+  icon?: string;
 }
 
 export interface IPermissionCard {

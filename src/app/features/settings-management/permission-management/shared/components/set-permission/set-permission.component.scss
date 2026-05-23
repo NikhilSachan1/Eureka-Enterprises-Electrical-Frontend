@@ -235,7 +235,7 @@ $stat-value-min-width: 1.5ch;
 
 .header-stat {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.25rem;
   min-width: 0;
   padding: 0.125rem 0;
@@ -243,6 +243,12 @@ $stat-value-min-width: 1.5ch;
   @include bp($bp-lg) {
     padding: 0 $space-sm;
   }
+}
+
+.header-stat__icon {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary-color, #64748b);
 }
 
 .header-stat-value {
@@ -384,7 +390,7 @@ form {
 
 .accordion-header-stat {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.25rem;
   min-width: 0;
   padding: 0.125rem 0;
@@ -392,6 +398,12 @@ form {
 
   @include bp($bp-sm) {
     padding: 0 $space-sm;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    color: var(--text-secondary-color, #64748b);
   }
 
   .accordion-header-stat-value {

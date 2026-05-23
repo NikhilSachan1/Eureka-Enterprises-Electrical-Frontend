@@ -44,7 +44,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IVendor } from '../../types/vendor.interface';
 import { EVendorStatus } from '../../types/vendor.enum';
 import { GetVendorDetailComponent } from '../get-vendor-detail/get-vendor-detail.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
@@ -174,11 +174,13 @@ export class GetVendorComponent implements OnInit {
       {
         id: 'overview',
         title: 'Overview',
+        icon: ICONS.COMMON.BRIEFCASE,
         metrics: [{ label: 'Total', value: stats?.totalVendors ?? 0 }],
       },
       {
         id: 'status',
         title: 'Status',
+        icon: ICONS.COMMON.CHART,
         metrics: [
           { label: 'Active', value: stats?.activeVendors ?? 0 },
           { label: 'Inactive', value: stats?.inactiveVendors ?? 0 },
@@ -187,6 +189,7 @@ export class GetVendorComponent implements OnInit {
       {
         id: 'vendorTypes',
         title: 'Vendor types',
+        icon: ICONS.COMMON.TAG,
         metrics: [
           { label: 'Freelancers', value: stats?.freelancerVendors ?? 0 },
           {

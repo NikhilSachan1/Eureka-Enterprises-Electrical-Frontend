@@ -63,11 +63,24 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 0.2rem;
   padding: 0.28rem 0.55rem;
   border-radius: 0.4rem;
   background: color-mix(in srgb, var(--primary-color) 10%, #ffffff);
   border: 1px solid var(--primary-200, var(--surface-border));
   min-width: 3.75rem;
+
+  &__icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 9999px;
+    color: var(--primary-700, var(--primary-color));
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    font-size: 0.72rem;
+  }
 
   &__label {
     font-size: 0.52rem;

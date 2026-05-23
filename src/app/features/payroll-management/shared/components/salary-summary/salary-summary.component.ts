@@ -7,6 +7,7 @@ import {
 import { CurrencyPipe } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { APP_CONFIG } from '@core/config/app.config';
+import { ICONS } from '@shared/constants';
 import {
   ISalaryFields,
   IEmployeeSalarySummaryItem,
@@ -23,6 +24,7 @@ export class SalarySummaryComponent {
   readonly salaryFields = input.required<ISalaryFields>();
 
   protected readonly currencyFormat = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
+  protected readonly totalCtcIcon = ICONS.EXPENSE.MONEY;
 
   protected readonly summaryItems = computed(() =>
     this.getSalarySummaryItems()
@@ -49,21 +51,25 @@ export class SalarySummaryComponent {
         label: 'Gross Salary',
         value: grossSalary,
         description: 'Basic + HRA',
+        icon: ICONS.EXPENSE.MONEY,
       },
       {
         label: 'Deductions',
         value: totalDeductions,
         description: 'TDS + PF (Employee)',
+        icon: ICONS.COMMON.ARROW_DOWN,
       },
       {
         label: 'In-Hand Salary',
         value: inHandSalary,
         description: 'Gross - Deductions',
+        icon: ICONS.PAYROLL.WALLET,
       },
       {
         label: 'Employer Benefits',
         value: totalEmployerBenefits,
         description: 'Employer PF + Employer ESIC',
+        icon: ICONS.COMMON.GIFT,
       },
     ];
   }

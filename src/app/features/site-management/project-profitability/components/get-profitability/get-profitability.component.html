@@ -13,6 +13,12 @@
           class="net-pill"
           [class.loss]="vm.profitPanel.netProfit < 0"
         >
+          @if (getMetricIcon('Net P/L'); as netIcon) {
+            <i
+              [class]="netIcon + ' net-pill__icon'"
+              aria-hidden="true"
+            ></i>
+          }
           <span class="pill-label">Net P/L</span>
           <span
             class="pill-value"
@@ -35,6 +41,14 @@
     <section class="kpi-grid">
       @for (kpi of vm.kpiCards; track kpi.label) {
         <article class="kpi-card">
+          @if (getMetricIcon(kpi.label); as kpiIcon) {
+            <span
+              class="kpi-card__icon-wrap"
+              aria-hidden="true"
+            >
+              <i [class]="kpiIcon"></i>
+            </span>
+          }
           <p class="kpi-label">{{ kpi.label }}</p>
           @switch (kpi.display) {
             @case ('currency') {
@@ -83,6 +97,12 @@
               [class.fuel]="idx === 1"
               [class.regular]="idx === 2"
             >
+              @if (getMetricIcon(item.label); as categoryIcon) {
+                <i
+                  [class]="categoryIcon + ' category-card__icon'"
+                  aria-hidden="true"
+                ></i>
+              }
               <p>{{ item.label }}</p>
               <h4>
                 {{
@@ -141,14 +161,32 @@
 
         <div class="pl-grid">
           <div>
+            @if (getMetricIcon('Pending'); as icon) {
+              <i
+                [class]="icon + ' pl-grid__icon'"
+                aria-hidden="true"
+              ></i>
+            }
             <p>Pending</p>
             <h4>{{ vm.profitPanel.billingPendingPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%</h4>
           </div>
           <div>
+            @if (getMetricIcon('Invoiced'); as icon) {
+              <i
+                [class]="icon + ' pl-grid__icon'"
+                aria-hidden="true"
+              ></i>
+            }
             <p>Invoiced</p>
             <h4>{{ vm.profitPanel.invoiceBillingPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%</h4>
           </div>
           <div>
+            @if (getMetricIcon('Expenses / invoiced'); as icon) {
+              <i
+                [class]="icon + ' pl-grid__icon'"
+                aria-hidden="true"
+              ></i>
+            }
             <p>Expenses / invoiced</p>
             <h4>{{ vm.profitPanel.expenseToRevenuePercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%</h4>
           </div>
@@ -156,7 +194,15 @@
 
         <div class="mini-summary">
           <div>
-            <span>Invoiced</span>
+            <span class="mini-summary__label">
+              @if (getMetricIcon('Invoiced Value'); as icon) {
+                <i
+                  [class]="icon + ' mini-summary__icon'"
+                  aria-hidden="true"
+                ></i>
+              }
+              Invoiced
+            </span>
             <strong>
               {{
                 vm.profitPanel.invoicedAmount
@@ -169,7 +215,15 @@
             </strong>
           </div>
           <div>
-            <span>Expenses</span>
+            <span class="mini-summary__label">
+              @if (getMetricIcon('Expenses'); as icon) {
+                <i
+                  [class]="icon + ' mini-summary__icon'"
+                  aria-hidden="true"
+                ></i>
+              }
+              Expenses
+            </span>
             <strong class="negative">
               {{
                 vm.profitPanel.totalExpenseAmount
@@ -182,7 +236,15 @@
             </strong>
           </div>
           <div>
-            <span>Net</span>
+            <span class="mini-summary__label">
+              @if (getMetricIcon('Net P/L'); as icon) {
+                <i
+                  [class]="icon + ' mini-summary__icon'"
+                  aria-hidden="true"
+                ></i>
+              }
+              Net
+            </span>
             <strong
               [class.positive]="vm.profitPanel.netProfit >= 0"
               [class.negative]="vm.profitPanel.netProfit < 0"

@@ -71,20 +71,33 @@ function buildStatsArray(
       label: STAT_LABEL.TOTAL,
       value: total,
       colorClass: 'text-content-secondary',
+      icon: ICONS.STATUS.TOTAL,
     },
     {
       label: STAT_LABEL.GRANTED,
       value: granted,
       colorClass: 'text-emerald-600',
+      icon: ICONS.SECURITY.LOCK_OPEN,
     },
-    { label: STAT_LABEL.REVOKED, value: revoked, colorClass: 'text-red-600' },
-    { label: STAT_LABEL.NEW, value: newCount, colorClass: 'text-blue-600' },
+    {
+      label: STAT_LABEL.REVOKED,
+      value: revoked,
+      colorClass: 'text-red-600',
+      icon: ICONS.SECURITY.LOCK,
+    },
+    {
+      label: STAT_LABEL.NEW,
+      value: newCount,
+      colorClass: 'text-blue-600',
+      icon: ICONS.COMMON.PLUS,
+    },
   ];
   if (includeOverrides !== undefined) {
     arr.push({
       label: STAT_LABEL.OVERRIDES,
       value: includeOverrides,
       colorClass: 'text-purple-600',
+      icon: ICONS.SETTINGS.SLIDERS,
     });
   }
   return arr;
@@ -553,6 +566,7 @@ export class SetPermissionComponent implements OnInit {
         label: STAT_LABEL.PENDING,
         value: globalRevoked + globalNew,
         colorClass: 'text-yellow-600',
+        icon: ICONS.ATTENDANCE.REGULARIZE,
       },
     ];
 
@@ -568,6 +582,7 @@ export class SetPermissionComponent implements OnInit {
           label: STAT_LABEL.PENDING,
           value: revoked + newCount,
           colorClass: 'text-yellow-600',
+          icon: ICONS.ATTENDANCE.REGULARIZE,
         },
       ];
     });

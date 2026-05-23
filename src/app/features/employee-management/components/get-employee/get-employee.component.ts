@@ -183,6 +183,7 @@ export class GetEmployeeComponent implements OnInit {
       {
         id: 'employee-counts',
         title: 'Employee Counts',
+        icon: ICONS.EMPLOYEE.GROUP,
         metrics: [
           { label: 'Total Employees', value: stats?.total ?? 0 },
           { label: 'Active Employees', value: stats?.active ?? 0 },
@@ -192,6 +193,7 @@ export class GetEmployeeComponent implements OnInit {
       {
         id: 'recent-activity',
         title: 'Recent Activity',
+        icon: ICONS.COMMON.CALENDAR_PLUS,
         metrics: [
           {
             label: 'New Joiners Last 30 Days',
@@ -202,6 +204,7 @@ export class GetEmployeeComponent implements OnInit {
       {
         id: 'by-gender',
         title: 'By Gender',
+        icon: ICONS.COMMON.USERS,
         metrics: [
           { label: 'Male', value: stats?.byGender?.['male'] ?? 0 },
           { label: 'Female', value: stats?.byGender?.['female'] ?? 0 },

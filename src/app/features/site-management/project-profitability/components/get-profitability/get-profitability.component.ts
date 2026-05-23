@@ -12,6 +12,7 @@ import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { SectionLoaderComponent } from '@shared/components/section-loader/section-loader.component';
+import { StatusUtil } from '@shared/utility';
 import { finalize } from 'rxjs';
 import {
   IProjectProfitabilityGetFormDto,
@@ -42,6 +43,10 @@ export class GetProfitabilityComponent {
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly isLoading = signal(false);
   protected readonly report = signal<IProjectProfitabilityReport | null>(null);
+
+  protected getMetricIcon(label: string): string | null {
+    return StatusUtil.getIcon(label);
+  }
 
   constructor() {
     effect(() => {

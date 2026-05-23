@@ -14,6 +14,12 @@
           </div>
         </div>
         <div class="hero-stat">
+          <span
+            class="hero-stat__icon-wrap"
+            aria-hidden="true"
+          >
+            <i [class]="icons.COMMON.HISTORY"></i>
+          </span>
           <span class="hero-stat__label">Events</span>
           <span class="hero-stat__value">{{ events().length }}</span>
         </div>

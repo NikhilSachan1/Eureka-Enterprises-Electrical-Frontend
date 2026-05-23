@@ -229,6 +229,44 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   'total consumed': { icon: ICONS.COMMON.ARROW_DOWN, severity: 'danger' },
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // LIST / MODULE METRICS (app-metrics-card rows)
+  // ═══════════════════════════════════════════════════════════════════════════
+  'total records': { icon: ICONS.COMMON.LIST, severity: 'info' },
+  'approval pending': {
+    icon: ICONS.ATTENDANCE.REGULARIZE,
+    severity: 'warning',
+  },
+  acknowledged: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
+  freelancers: { icon: ICONS.COMMON.USER, severity: 'info' },
+  'gst registered': { icon: ICONS.COMMON.ID_CARD, severity: 'purple' },
+  granted: { icon: ICONS.SECURITY.LOCK_OPEN, severity: 'success' },
+  revoked: { icon: ICONS.SECURITY.LOCK, severity: 'danger' },
+  new: { icon: ICONS.COMMON.PLUS, severity: 'info' },
+  overrides: { icon: ICONS.SETTINGS.SLIDERS, severity: 'purple' },
+  'in-hand salary': { icon: ICONS.PAYROLL.WALLET, severity: 'success' },
+  'employer benefits': { icon: ICONS.COMMON.GIFT, severity: 'info' },
+  'total ctc': { icon: ICONS.EXPENSE.MONEY, severity: 'purple' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PROJECT PROFITABILITY
+  // ═══════════════════════════════════════════════════════════════════════════
+  'total purchase order': { icon: ICONS.COMMON.FILE, severity: 'info' },
+  'invoices raised': { icon: ICONS.COMMON.LIST, severity: 'info' },
+  'invoiced value': { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
+  invoiced: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
+  expenses: { icon: ICONS.COMMON.ARROW_DOWN, severity: 'danger' },
+  'unbilled po value': {
+    icon: ICONS.COMMON.CALENDAR_CLOCK,
+    severity: 'warning',
+  },
+  'salary & payroll': { icon: ICONS.PAYROLL.WALLET, severity: 'info' },
+  'fuel expense': { icon: ICONS.FUEL.MENU, severity: 'warning' },
+  'regular expense': { icon: ICONS.EXPENSE.MONEY, severity: 'secondary' },
+  'net p/l': { icon: ICONS.COMMON.CHART_LINE, severity: 'purple' },
+  'expenses / invoiced': { icon: ICONS.COMMON.CHART, severity: 'warning' },
+  events: { icon: ICONS.COMMON.HISTORY, severity: 'info' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // ACTIONS (for buttons/dialogs)
   // ═══════════════════════════════════════════════════════════════════════════
   view: { icon: ICONS.ACTIONS.EYE, severity: 'info' },

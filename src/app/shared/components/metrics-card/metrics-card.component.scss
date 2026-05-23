@@ -170,6 +170,19 @@
   flex: 1 1 auto;
 }
 
+.metric-panel__kpi-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 0.5rem;
+  border-radius: 9999px;
+  color: var(--mc-accent-dark, var(--primary-color));
+  background: color-mix(in srgb, var(--mc-accent, var(--primary-color)) 14%, transparent);
+  font-size: 1rem;
+}
+
 .metric-panel__kpi-label {
   margin: 0 0 0.35rem;
   font-size: 0.75rem;

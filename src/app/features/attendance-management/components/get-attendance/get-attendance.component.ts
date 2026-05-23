@@ -202,6 +202,7 @@ export class GetAttendanceComponent implements OnInit {
       {
         id: 'total-records',
         title: 'Total attendance records',
+        icon: ICONS.COMMON.LIST,
         layout: 'kpi',
         metrics: [
           { label: 'Total records', value: stats?.attendance?.total ?? 0 },

@@ -44,7 +44,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IContractor } from '../../types/contractor.interface';
 import { EContractorStatus } from '../../types/contractor.enum';
 import { GetContractorDetailComponent } from '../get-contractor-detail/get-contractor-detail.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '@shared/constants';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
@@ -170,11 +170,13 @@ export class GetContractorComponent implements OnInit {
       {
         id: 'overview',
         title: 'Overview',
+        icon: ICONS.COMMON.USERS,
         metrics: [{ label: 'Total', value: stats?.totalContractors ?? 0 }],
       },
       {
         id: 'status',
         title: 'Status',
+        icon: ICONS.COMMON.CHART,
         metrics: [
           { label: 'Active', value: stats?.activeContractors ?? 0 },
           { label: 'Inactive', value: stats?.inactiveContractors ?? 0 },

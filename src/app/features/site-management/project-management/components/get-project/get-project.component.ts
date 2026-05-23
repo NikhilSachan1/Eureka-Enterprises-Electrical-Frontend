@@ -229,11 +229,13 @@ export class GetProjectComponent implements OnInit {
       {
         id: 'overview',
         title: 'Overview',
+        icon: ICONS.SITE.BUILDING,
         metrics: [{ label: 'Total', value: stats?.totalSites ?? 0 }],
       },
       {
         id: 'status',
         title: 'By Status',
+        icon: ICONS.COMMON.CHART,
         metrics: [
           { label: 'Upcoming', value: stats?.upcomingSites ?? 0 },
           { label: 'Ongoing', value: stats?.ongoingSites ?? 0 },
