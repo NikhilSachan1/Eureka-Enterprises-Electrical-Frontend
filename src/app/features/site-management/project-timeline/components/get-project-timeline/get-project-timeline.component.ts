@@ -11,7 +11,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { TimelineComponent } from '@shared/components/timeline/timeline.component';
 import { SectionLoaderComponent } from '@shared/components/section-loader/section-loader.component';
 import { ICONS } from '@shared/constants/icon.constants';
@@ -39,9 +38,6 @@ export class GetProjectTimelineComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly logger = inject(LoggerService);
   private readonly projectTimelineService = inject(ProjectTimelineService);
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
 
   protected readonly icons = ICONS;
   protected readonly APP_CONFIG = APP_CONFIG;
@@ -59,15 +55,7 @@ export class GetProjectTimelineComponent {
 
   constructor() {
     effect(() => {
-      const projectId = this.projectWorkspaceContext.timelineProjectId();
-
-      if (!projectId) {
-        this.isLoading.set(false);
-        this.events.set([]);
-        return;
-      }
-
-      this.loadTimeline(projectId);
+      this.loadTimeline('');
     });
   }
 

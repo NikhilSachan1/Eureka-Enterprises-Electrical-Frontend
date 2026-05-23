@@ -17,7 +17,6 @@ import {
   IDsrAddUIFormDto,
 } from '@features/site-management/dsr-management/types/dsr.dto';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -47,9 +46,6 @@ export class AddDsrComponent
 {
   private readonly dsrService = inject(DsrService);
   private readonly projectService = inject(ProjectService);
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
@@ -98,11 +94,6 @@ export class AddDsrComponent
         ['projectName', 'reportedEngineerName'],
         this.destroyRef
       );
-    this.projectWorkspaceContext.patchDateField(
-      this.form.fieldConfigs,
-      'statusDate',
-      this.changeDetectorRef
-    );
   }
 
   private prefillReportedEngineerContact(engineerName: string): void {
@@ -140,14 +131,6 @@ export class AddDsrComponent
         next: (response: IProjectOverviewGetResponseDto) => {
           const workTypes = response.site?.workTypes ?? [];
           this.applyWorkDoneOptions(workTypes, false);
-          if (response.site) {
-            this.projectWorkspaceContext.patchDateField(
-              this.form.fieldConfigs,
-              'statusDate',
-              this.changeDetectorRef,
-              response.site
-            );
-          }
         },
         error: error => {
           this.logger.error('Failed to load project overview', error);

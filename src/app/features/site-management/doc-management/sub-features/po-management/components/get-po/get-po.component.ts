@@ -3,16 +3,13 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   OnInit,
   signal,
-  untracked,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
@@ -48,7 +45,6 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { GetPoDetailComponent } from '../get-po-detail/get-po-detail.component';
-import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
@@ -84,9 +80,6 @@ export class GetPoComponent implements OnInit {
   );
   private readonly poService = inject(PoService);
   private readonly route = inject(ActivatedRoute);
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
 
@@ -96,23 +89,6 @@ export class GetPoComponent implements OnInit {
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
   );
-
-  constructor() {
-    effect(() => {
-      const workspaceFilter =
-        this.projectWorkspaceContext.appliedWorkspaceFilter();
-      untracked(() => {
-        if (
-          !workspaceFilter ||
-          !this.table ||
-          this.tableFilterData === undefined
-        ) {
-          return;
-        }
-        this.loadPoList();
-      });
-    });
-  }
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -216,11 +192,8 @@ export class GetPoComponent implements OnInit {
       );
 
     const docType = this.docRouteContext();
-    const workspaceParams =
-      this.projectWorkspaceContext.appliedWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
 
     return {
-      ...workspaceParams,
       ...base,
       ...(docType ? { docType } : {}),
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
@@ -291,7 +264,6 @@ export class GetPoComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
-        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadPoList();
         },

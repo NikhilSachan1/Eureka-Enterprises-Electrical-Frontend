@@ -25,7 +25,6 @@ import {
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { roundCurrencyAmount } from '@shared/utility';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 
 import { EDIT_INVOICE_FORM_CONFIG } from '../../config';
 import { InvoiceService } from '../../services/invoice.service';
@@ -53,9 +52,6 @@ export class EditInvoiceComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
 
   private trackedGstInputs!: ITrackedFields<IEditInvoiceUIFormDto>;
 
@@ -142,11 +138,6 @@ export class EditInvoiceComponent
         : Number(gstPercent);
 
     this.loadPrefillAttachmentFromKey(record.fileKey);
-    this.projectWorkspaceContext.patchDateField(
-      this.form.fieldConfigs,
-      'invoiceDate',
-      this.changeDetectorRef
-    );
   }
 
   private seedJmcOption(jmcNumber: string, jmcId: string): void {

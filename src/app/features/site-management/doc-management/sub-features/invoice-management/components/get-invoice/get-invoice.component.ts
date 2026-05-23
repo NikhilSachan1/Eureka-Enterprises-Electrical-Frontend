@@ -3,15 +3,12 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   OnInit,
   signal,
-  untracked,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import {
@@ -49,7 +46,6 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { GetInvoiceDetailComponent } from '../get-invoice-detail/get-invoice-detail.component';
-import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
@@ -88,9 +84,6 @@ export class GetInvoiceComponent implements OnInit {
   );
   private readonly invoiceService = inject(InvoiceService);
   private readonly route = inject(ActivatedRoute);
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
 
@@ -100,23 +93,6 @@ export class GetInvoiceComponent implements OnInit {
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
   );
-
-  constructor() {
-    effect(() => {
-      const workspaceFilter =
-        this.projectWorkspaceContext.appliedWorkspaceFilter();
-      untracked(() => {
-        if (
-          !workspaceFilter ||
-          !this.table ||
-          this.tableFilterData === undefined
-        ) {
-          return;
-        }
-        this.loadInvoiceList();
-      });
-    });
-  }
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -210,11 +186,8 @@ export class GetInvoiceComponent implements OnInit {
       );
 
     const docType = this.docRouteContext();
-    const workspaceParams =
-      this.projectWorkspaceContext.appliedWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
 
     return {
-      ...workspaceParams,
       ...base,
       ...(docType ? { docType } : {}),
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
@@ -288,7 +261,6 @@ export class GetInvoiceComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
-        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadInvoiceList();
         },

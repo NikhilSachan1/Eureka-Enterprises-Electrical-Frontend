@@ -2,35 +2,16 @@
 
 <div class="search-filter-wrapper">
   @for (tab of [activeFilterTab()]; track tab) {
-    <app-search-filter
-      [searchFilterConfig]="searchFilterConfig()"
-      [prefillValues]="searchFilterPrefill()"
-      (formReady)="onSearchFilterReady($event)"
-      (onFilterSubmit)="onWorkspaceFilterSubmit($event)"
-      (onFilterReset)="onWorkspaceFilterReset()"
-    />
+    <app-search-filter [searchFilterConfig]="searchFilterConfig()" />
   }
 </div>
 
-@if (showOverviewPanel()) {
-  <section
-    class="workspace-overview-panel"
-    [class.workspace-overview-panel--with-timeline]="showTimeline()"
-  >
+@if (selectedProjectId()) {
+  <section class="workspace-overview-panel workspace-overview-panel--with-timeline">
     <div class="workspace-overview-panel__body">
-      <div class="workspace-overview-panel__detail">
-        <app-project-workspace-info-card />
+      <div class="workspace-overview-panel__timeline">
+        <app-get-project-timeline />
       </div>
-
-      @if (showTimeline()) {
-        <div
-          class="workspace-overview-panel__divider"
-          aria-hidden="true"
-        ></div>
-        <div class="workspace-overview-panel__timeline">
-          <app-get-project-timeline />
-        </div>
-      }
     </div>
   </section>
 }

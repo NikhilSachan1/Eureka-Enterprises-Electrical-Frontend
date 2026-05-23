@@ -3,11 +3,9 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   OnInit,
   signal,
-  untracked,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
@@ -46,9 +44,7 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { GetBankTransferDetailComponent } from '../get-bank-transfer-detail/get-bank-transfer-detail.component';
-import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
@@ -78,9 +74,6 @@ export class GetBankTransferComponent implements OnInit {
   );
   private readonly bankTransferService = inject(BankTransferService);
   private readonly route = inject(ActivatedRoute);
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
   private readonly authService = inject(AuthService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
@@ -89,23 +82,6 @@ export class GetBankTransferComponent implements OnInit {
   protected readonly pageHeaderConfig = computed(() =>
     this.getPageHeaderConfig()
   );
-
-  constructor() {
-    effect(() => {
-      const workspaceFilter =
-        this.projectWorkspaceContext.appliedWorkspaceFilter();
-      untracked(() => {
-        if (
-          !workspaceFilter ||
-          !this.table ||
-          this.tableFilterData === undefined
-        ) {
-          return;
-        }
-        this.loadBankTransferList();
-      });
-    });
-  }
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -162,13 +138,8 @@ export class GetBankTransferComponent implements OnInit {
         this.table.getHeaders()
       );
     const docType = this.docRouteContext();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { approvalStatus: _approvalStatus, ...workspaceParams } =
-      (this.projectWorkspaceContext.appliedWorkspaceFilter() ??
-        {}) as IProjectWorkspaceSearchFilterFormDto;
 
     return {
-      ...workspaceParams,
       ...base,
       ...(docType ? { docType } : {}),
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
@@ -254,7 +225,6 @@ export class GetBankTransferComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
-        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => this.loadBankTransferList(),
       }
     );

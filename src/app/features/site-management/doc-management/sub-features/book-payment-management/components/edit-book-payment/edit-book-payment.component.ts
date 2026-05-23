@@ -28,7 +28,6 @@ import {
   IInvoiceDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/invoice-management/types/invoice.dto';
 import { roundCurrencyAmount } from '@shared/utility';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 
 import { EDIT_BOOK_PAYMENT_FORM_CONFIG } from '../../config';
 import { BookPaymentService } from '../../services/book-payment.service';
@@ -56,9 +55,6 @@ export class EditBookPaymentComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
 
   private trackedBookPaymentInputs!: ITrackedFields<IEditBookPaymentUIFormDto>;
 
@@ -174,11 +170,6 @@ export class EditBookPaymentComponent
       tdsPercentage === null || tdsPercentage === undefined
         ? null
         : Number(tdsPercentage);
-    this.projectWorkspaceContext.patchDateField(
-      this.form.fieldConfigs,
-      'bookingDate',
-      this.changeDetectorRef
-    );
   }
 
   private seedInvoiceNumberOption(

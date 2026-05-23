@@ -3,11 +3,9 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   OnInit,
   signal,
-  untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoggerService } from '@core/services';
@@ -44,8 +42,6 @@ import { AuthService } from '@features/auth-management/services/auth.service';
 import { IDsr } from '@features/site-management/dsr-management/types/dsr.interface';
 import { ChipComponent } from '@shared/components/chip/chip.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
-import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -77,9 +73,6 @@ export class GetDsrComponent implements OnInit {
   private readonly tableServerSideFilterAndSortService = inject(
     TableServerSideParamsBuilderService
   );
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
   private readonly authService = inject(AuthService);
 
   protected readonly pageHeaderConfig = computed(
@@ -94,19 +87,6 @@ export class GetDsrComponent implements OnInit {
   protected tableFilterData!: TableLazyLoadEvent;
 
   private readonly loadTrigger$ = new Subject<void>();
-
-  constructor() {
-    effect(() => {
-      const workspaceFilter =
-        this.projectWorkspaceContext.appliedWorkspaceFilter();
-      untracked(() => {
-        if (!workspaceFilter || !this.tableFilterData) {
-          return;
-        }
-        this.loadDsrList();
-      });
-    });
-  }
 
   ngOnInit(): void {
     const loggedInUserId = this.authService.getCurrentUser()?.userId;
@@ -150,13 +130,7 @@ export class GetDsrComponent implements OnInit {
         this.table.getHeaders()
       );
 
-    const { projectName, dateRange } =
-      (this.projectWorkspaceContext.appliedWorkspaceFilter() ??
-        {}) as IProjectWorkspaceSearchFilterFormDto;
-
     return {
-      projectName,
-      dateRange,
       employeeNames: this.selectedEmployeeNames(),
       ...base,
     };
@@ -247,7 +221,6 @@ export class GetDsrComponent implements OnInit {
       false,
       false,
       {
-        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadDsrList();
         },
@@ -263,7 +236,6 @@ export class GetDsrComponent implements OnInit {
       false,
       false,
       {
-        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadDsrList();
         },

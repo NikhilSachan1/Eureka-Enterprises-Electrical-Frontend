@@ -38,7 +38,6 @@ import {
   IJmcDropdownGetRequestDto,
   IJmcDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/jmc-management/types/jmc.dto';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 
 @Component({
   selector: 'app-add-report',
@@ -58,9 +57,6 @@ export class AddReportComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
 
   private trackedUiFields!: ITrackedFields<IAddReportUIFormDto>;
 
@@ -75,11 +71,6 @@ export class AddReportComponent
         const siteId = this.trackedUiFields.projectName();
         if (siteId && typeof siteId === 'string') {
           this.loadJmcOptions(siteId);
-          this.projectWorkspaceContext.patchDateField(
-            this.form.fieldConfigs,
-            'reportDate',
-            this.changeDetectorRef
-          );
         }
       }
     });
@@ -104,11 +95,6 @@ export class AddReportComponent
         trackedFields,
         this.destroyRef
       );
-    this.projectWorkspaceContext.patchDateField(
-      this.form.fieldConfigs,
-      'reportDate',
-      this.changeDetectorRef
-    );
   }
 
   private loadJmcOptions(siteId: string): void {

@@ -3,15 +3,12 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   OnInit,
   signal,
-  untracked,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import {
@@ -49,7 +46,6 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { GetJmcDetailComponent } from '../get-jmc-detail/get-jmc-detail.component';
-import { IProjectWorkspaceSearchFilterFormDto } from '@features/site-management/project-management/types/project.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
@@ -82,9 +78,6 @@ export class GetJmcComponent implements OnInit {
   );
   private readonly jmcService = inject(JmcService);
   private readonly route = inject(ActivatedRoute);
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly authService = inject(AuthService);
 
@@ -94,23 +87,6 @@ export class GetJmcComponent implements OnInit {
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
   );
-
-  constructor() {
-    effect(() => {
-      const workspaceFilter =
-        this.projectWorkspaceContext.appliedWorkspaceFilter();
-      untracked(() => {
-        if (
-          !workspaceFilter ||
-          !this.table ||
-          this.tableFilterData === undefined
-        ) {
-          return;
-        }
-        this.loadJmcList();
-      });
-    });
-  }
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -163,11 +139,8 @@ export class GetJmcComponent implements OnInit {
       );
 
     const docType = this.docRouteContext();
-    const workspaceParams =
-      this.projectWorkspaceContext.appliedWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
 
     return {
-      ...workspaceParams,
       ...base,
       ...(docType ? { docType } : {}),
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
@@ -233,7 +206,6 @@ export class GetJmcComponent implements OnInit {
       false,
       {
         docContext: this.docRouteContext(),
-        projectName: this.projectWorkspaceContext.selectedProjectId(),
         onSuccess: () => {
           this.loadJmcList();
         },

@@ -41,7 +41,6 @@ import {
   IAddBankTransferUIFormDto,
 } from '../../types/bank-transfer.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 
 @Component({
   selector: 'app-add-bank-transfer',
@@ -62,9 +61,6 @@ export class AddBankTransferComponent
     ConfirmationDialogService
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  private readonly projectWorkspaceContext = inject(
-    ProjectWorkspaceContextService
-  );
 
   private trackedBankTransferInputs!: ITrackedFields<IAddBankTransferUIFormDto>;
 
@@ -89,11 +85,6 @@ export class AddBankTransferComponent
         const siteId = this.trackedBankTransferInputs.projectName();
         if (siteId && typeof siteId === 'string') {
           this.loadInvoiceOptions(siteId);
-          this.projectWorkspaceContext.patchDateField(
-            this.form.fieldConfigs,
-            'transferDate',
-            this.changeDetectorRef
-          );
         }
       }
     });
@@ -160,11 +151,6 @@ export class AddBankTransferComponent
         trackedFields,
         this.destroyRef
       );
-    this.projectWorkspaceContext.patchDateField(
-      this.form.fieldConfigs,
-      'transferDate',
-      this.changeDetectorRef
-    );
   }
 
   private loadInvoiceOptions(siteId: string): void {
