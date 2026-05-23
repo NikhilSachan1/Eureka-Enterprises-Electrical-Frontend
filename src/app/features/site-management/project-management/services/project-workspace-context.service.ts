@@ -28,6 +28,9 @@ export class ProjectWorkspaceContextService {
   private readonly _projectOverview =
     signal<IProjectOverviewGetResponseDto | null>(null);
   private readonly _overviewProjectId = signal<string | undefined>(undefined);
+  /** Set on Search only — stays visible when dropdown project changes. */
+  private readonly _displayedProjectOverview =
+    signal<IProjectOverviewGetResponseDto | null>(null);
   private readonly _projectOverviewLoading = signal(false);
 
   private inFlightId?: string;
@@ -45,14 +48,8 @@ export class ProjectWorkspaceContextService {
     extractWorkspaceProjectId(this._appliedWorkspaceFilter())
   );
 
-  /** Info card — visible only after search when overview matches applied project. */
-  readonly displayedProjectOverview = computed(() => {
-    const appliedId = extractWorkspaceProjectId(this._appliedWorkspaceFilter());
-    if (!appliedId || appliedId !== this._overviewProjectId()) {
-      return null;
-    }
-    return this._projectOverview();
-  });
+  readonly displayedProjectOverview =
+    this._displayedProjectOverview.asReadonly();
 
   readonly projectDateBounds = computed((): ProjectDateBounds | null => {
     const site = this._projectOverview()?.site;
@@ -70,6 +67,22 @@ export class ProjectWorkspaceContextService {
 
   applyWorkspaceFilter(filterData: Record<string, unknown>): void {
     this._appliedWorkspaceFilter.set(filterData);
+
+    const projectId =
+      extractWorkspaceProjectId(filterData) ?? this._selectedProjectId();
+    if (!projectId) {
+      return;
+    }
+
+    const overview = this._projectOverview();
+    if (overview && this._overviewProjectId() === projectId) {
+      this._displayedProjectOverview.set(overview);
+      return;
+    }
+
+    this.loadOverview(projectId).subscribe(response => {
+      this._displayedProjectOverview.set(response);
+    });
   }
 
   loadOverview(projectId: string): Observable<IProjectOverviewGetResponseDto> {
@@ -121,6 +134,7 @@ export class ProjectWorkspaceContextService {
   clear(): void {
     this._selectedProjectId.set(undefined);
     this._appliedWorkspaceFilter.set(null);
+    this._displayedProjectOverview.set(null);
     this.resetOverview();
   }
 
