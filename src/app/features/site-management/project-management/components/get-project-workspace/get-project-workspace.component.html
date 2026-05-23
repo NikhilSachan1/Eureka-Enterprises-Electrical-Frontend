@@ -1,22 +1,24 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
 <div class="search-filter-wrapper">
-  @for (tab of [activeFilterTab()]; track tab) {
-    <app-search-filter
-      [searchFilterConfig]="searchFilterConfig()"
-      [prefillValues]="filterPrefillValues()"
-      (formReady)="onFilterFormReady($event)"
-      (onFilterSubmit)="onFilterSubmit($event)"
-      (onFilterReset)="onFilterReset()"
-    />
-  }
+  <app-search-filter
+    [searchFilterConfig]="searchFilterConfig()"
+    [visibleFieldNames]="visibleFilterFieldNames()"
+    [prefillValues]="filterPrefillValues()"
+    (formReady)="onFilterFormReady($event)"
+    (onFilterSubmit)="onFilterSubmit($event)"
+    (onFilterReset)="onFilterReset()"
+  />
 </div>
 
 @if (showOverviewPanel() && selectedProjectId()) {
   <section class="workspace-overview-panel workspace-overview-panel--with-timeline">
     <div class="workspace-overview-panel__body">
       <div class="workspace-overview-panel__detail">
-        <app-project-workspace-info-card [overview]="projectOverview()" />
+        <app-project-workspace-info-card
+          [overview]="projectOverview()"
+          [loading]="isProjectOverviewLoading()"
+        />
       </div>
       <div
         class="workspace-overview-panel__divider"

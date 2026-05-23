@@ -49,6 +49,8 @@ export class SearchFilterComponent implements OnInit {
   /** When omitted, filter panel is UI-only (no PrimeNG table filters applied). */
   tableRef = input<Table | undefined>(undefined);
   prefillValues = input<Record<string, unknown>>();
+  /** When set, only these field names are shown; form still keeps all field values. */
+  visibleFieldNames = input<string[] | undefined>(undefined);
 
   onSearchFilterChange = output<Record<string, unknown>>();
   onFilterSubmit = output<Record<string, unknown>>();
@@ -88,6 +90,22 @@ export class SearchFilterComponent implements OnInit {
 
   protected isResetDisabled(): boolean {
     return !this.form?.formGroup.dirty && !this.hasSearched;
+  }
+
+  protected isFieldVisible(fieldName: string): boolean {
+    const visibleFieldNames = this.visibleFieldNames();
+    return !visibleFieldNames?.length || visibleFieldNames.includes(fieldName);
+  }
+
+  markFilterSubmitted(): void {
+    if (!this.form) {
+      return;
+    }
+
+    this.form.formGroup.markAsPristine();
+    this.hasSearched = true;
+    this.hasPrefillValues = false;
+    this.changeDetectorRef.markForCheck();
   }
 
   updateFieldConfig(fieldName: string, fieldConfig: IInputFieldsConfig): void {

@@ -7,18 +7,20 @@ import {
 } from '@angular/core';
 import { APP_CONFIG } from '@core/config';
 import { ChipComponent } from '@shared/components/chip/chip.component';
+import { SectionLoaderComponent } from '@shared/components/section-loader/section-loader.component';
 import { ICONS } from '@shared/constants';
 import { IProjectOverviewGetResponseDto } from '../../types/project.dto';
 
 @Component({
   selector: 'app-project-workspace-info-card',
-  imports: [CommonModule, ChipComponent, DatePipe],
+  imports: [CommonModule, ChipComponent, DatePipe, SectionLoaderComponent],
   templateUrl: './project-workspace-info-card.component.html',
   styleUrl: './project-workspace-info-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectWorkspaceInfoCardComponent {
   readonly overview = input<IProjectOverviewGetResponseDto | null>(null);
+  readonly loading = input(false);
 
   protected readonly icons = ICONS;
   protected readonly dateFormat = APP_CONFIG.DATE_FORMATS.DEFAULT;

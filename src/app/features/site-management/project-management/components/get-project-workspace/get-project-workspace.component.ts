@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, map, startWith } from 'rxjs/operators';
+import { filter, finalize, map, startWith } from 'rxjs/operators';
 import { LoggerService } from '@core/services';
 import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
@@ -86,6 +86,7 @@ export class GetProjectWorkspaceComponent {
     Partial<IProjectWorkspaceSearchFilterFormDto>
   >({});
   protected readonly showOverviewPanel = signal(false);
+  protected readonly isProjectOverviewLoading = signal(false);
 
   private readonly overviewProjectId = signal<string | undefined>(undefined);
 
@@ -106,7 +107,11 @@ export class GetProjectWorkspaceComponent {
   );
 
   protected readonly searchFilterConfig = computed(() =>
-    this.buildProjectWorkspaceSearchFilterConfig(this.activeFilterTab())
+    this.buildProjectWorkspaceSearchFilterConfig()
+  );
+
+  protected readonly visibleFilterFieldNames = computed(() =>
+    this.getVisibleFilterFieldNames(this.activeFilterTab())
   );
 
   protected readonly visibleWorkspaceTabs = computed((): ITabItem[] =>
@@ -134,6 +139,11 @@ export class GetProjectWorkspaceComponent {
         typeof trackedProjectId === 'string' ? trackedProjectId : undefined
       );
     });
+
+    effect(() => {
+      const tab = this.activeFilterTab();
+      this.syncAppliedFiltersToActiveTab(tab);
+    });
   }
 
   protected onFilterFormReady(
@@ -149,6 +159,15 @@ export class GetProjectWorkspaceComponent {
         this.destroyRef
       )
     );
+
+    const appliedFilters = this.workspaceContext.filters();
+    if (Object.keys(appliedFilters).length > 0) {
+      this.workspaceFilterForm.patch(
+        appliedFilters as Partial<IProjectWorkspaceSearchFilterFormDto>
+      );
+      this.searchFilterRef()?.markFilterSubmitted();
+      this.showOverviewPanel.set(!!appliedFilters.projectName);
+    }
 
     const overview = this.workspaceContext.projectOverview();
     if (this.overviewProjectId() && overview) {
@@ -175,12 +194,20 @@ export class GetProjectWorkspaceComponent {
   }
 
   protected onFilterSubmit(data: Record<string, unknown>): void {
-    const filters = data as IProjectWorkspaceSearchFilterFormDto;
-    this.workspaceContext.applyFilters(filters);
-    this.showOverviewPanel.set(!!filters.projectName);
+    const visibleFilters = this.pickVisibleFilterValues(
+      data,
+      this.visibleFilterFieldNames()
+    );
+
+    this.filterPrefillValues.set({
+      ...(data as IProjectWorkspaceSearchFilterFormDto),
+    });
+    this.workspaceContext.applyFilters(visibleFilters);
+    this.showOverviewPanel.set(!!visibleFilters.projectName);
   }
 
   protected onFilterReset(): void {
+    this.filterPrefillValues.set({});
     this.showOverviewPanel.set(false);
     this.clearProjectOverviewState();
     this.workspaceContext.resetFilters();
@@ -207,6 +234,7 @@ export class GetProjectWorkspaceComponent {
   }
 
   private loadProjectOverview(projectId: string): void {
+    this.isProjectOverviewLoading.set(true);
     this.patchAllOverviewDropdowns(fieldName =>
       this.buildOverviewDropdownConfig(fieldName, [], true)
     );
@@ -214,7 +242,10 @@ export class GetProjectWorkspaceComponent {
 
     this.projectService
       .getProjectOverview(projectId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.isProjectOverviewLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: (response: IProjectOverviewGetResponseDto) => {
           this.overviewProjectId.set(projectId);
@@ -428,22 +459,96 @@ export class GetProjectWorkspaceComponent {
     return PROFITABILITY;
   }
 
-  private buildProjectWorkspaceSearchFilterConfig(
-    tab: string
-  ): ITableSearchFilterFormConfig<IProjectWorkspaceSearchFilterFormDto> {
+  private buildProjectWorkspaceSearchFilterConfig(): ITableSearchFilterFormConfig<IProjectWorkspaceSearchFilterFormDto> {
     const fields = Object.fromEntries(
-      Object.entries(SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG.fields)
-        .filter(([, field]) =>
-          this.isFieldVisibleForTab(field as { visibleOnTabs?: string[] }, tab)
-        )
-        .map(([key, field]) => {
+      Object.entries(SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG.fields).map(
+        ([key, field]) => {
           const rest = { ...(field as Record<string, unknown>) };
           delete rest['visibleOnTabs'];
           return [key, rest];
-        })
+        }
+      )
     ) as ITableSearchFilterFormConfig<IProjectWorkspaceSearchFilterFormDto>['fields'];
 
     return { ...SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG, fields };
+  }
+
+  private getVisibleFilterFieldNames(tab: string): string[] {
+    return Object.entries(SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG.fields)
+      .filter(([, field]) =>
+        this.isFieldVisibleForTab(field as { visibleOnTabs?: string[] }, tab)
+      )
+      .map(([fieldName]) => fieldName);
+  }
+
+  private pickVisibleFilterValues(
+    data: Record<string, unknown>,
+    visibleFieldNames: string[]
+  ): IProjectWorkspaceSearchFilterFormDto {
+    const filters: IProjectWorkspaceSearchFilterFormDto = {};
+
+    visibleFieldNames.forEach(fieldName => {
+      const value = data[fieldName];
+      if (!this.hasFilterValue(value)) {
+        return;
+      }
+
+      filters[fieldName as keyof IProjectWorkspaceSearchFilterFormDto] =
+        value as never;
+    });
+
+    return filters;
+  }
+
+  private hasFilterValue(value: unknown): boolean {
+    if (value === null || value === undefined || value === '') {
+      return false;
+    }
+
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return true;
+  }
+
+  private syncAppliedFiltersToActiveTab(tab: string): void {
+    const appliedFilters = this.workspaceContext.filters();
+    if (!Object.keys(appliedFilters).length) {
+      return;
+    }
+
+    const visibleFilters = this.pickVisibleFilterValues(
+      appliedFilters as Record<string, unknown>,
+      this.getVisibleFilterFieldNames(tab)
+    );
+
+    if (this.areWorkspaceFiltersEqual(appliedFilters, visibleFilters)) {
+      return;
+    }
+
+    this.workspaceContext.applyFilters(visibleFilters);
+  }
+
+  private areWorkspaceFiltersEqual(
+    current: IProjectWorkspaceSearchFilterFormDto,
+    next: IProjectWorkspaceSearchFilterFormDto
+  ): boolean {
+    const keys = new Set([
+      ...Object.keys(current),
+      ...Object.keys(next),
+    ]) as Set<keyof IProjectWorkspaceSearchFilterFormDto>;
+
+    for (const key of keys) {
+      if (
+        JSON.stringify(current[key] ?? null) !==
+        JSON.stringify(next[key] ?? null)
+      ) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private isFieldVisibleForTab(

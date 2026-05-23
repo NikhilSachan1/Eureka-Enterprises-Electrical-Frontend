@@ -25,12 +25,14 @@
       >
         <div class="search-filter-grid">
           @for (field of form.fieldConfigs | keyvalue: customSort; track field.key) {
-            <div class="filter-field-wrapper">
-              <app-input-field
-                [formGroup]="form.formGroup"
-                [inputFieldConfig]="field.value"
-              />
-            </div>
+            @if (isFieldVisible(field.key)) {
+              <div class="filter-field-wrapper">
+                <app-input-field
+                  [formGroup]="form.formGroup"
+                  [inputFieldConfig]="field.value"
+                />
+              </div>
+            }
           }
         </div>
 
