@@ -1,1 +1,13 @@
-<app-view-detail [drawerDetails]="_dsrDetails()" />
+<ng-template
+  #docWorkspaceContextDetail
+  let-entry
+>
+  <app-doc-workspace-context [view]="$any(entry.value)" />
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_dsrDetails()"
+  [customTemplates]="{
+    docWorkspaceContextDetail: docWorkspaceContextDetail,
+  }"
+/>

@@ -56,6 +56,7 @@ import {
   getMappedValueFromArrayOfObjects,
 } from '@shared/utility';
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
+import { EVendorType } from '@features/site-management/vendor-management/types/vendor.enum';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
@@ -178,6 +179,7 @@ export class GetProjectComponent implements OnInit {
         stakeholders: {
           company: record.company,
           siteContractors: record.siteContractors,
+          vendors: record.vendors,
           allocatedEmployees: record.allocatedEmployees,
         },
         originalRawData: record,
@@ -188,6 +190,35 @@ export class GetProjectComponent implements OnInit {
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
     this.tableFilterData = tableFilterData;
     this.loadProjectList();
+  }
+
+  protected stakeholderContactSubtitle(
+    email: string | null | undefined,
+    gstNumber: string | null | undefined,
+    vendorType?: string | null
+  ): string | null {
+    const parts: string[] = [];
+    const normalizedEmail = email?.trim();
+
+    if (normalizedEmail) {
+      parts.push(normalizedEmail);
+    }
+
+    const normalizedGst = gstNumber?.trim();
+    if (normalizedGst) {
+      parts.push(normalizedGst);
+    } else if (vendorType === EVendorType.FREELANCER) {
+      parts.push(
+        String(
+          getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.vendorTypes(),
+            vendorType
+          ) || 'Freelancer'
+        )
+      );
+    }
+
+    return parts.length ? parts.join(' | ') : null;
   }
 
   private getMetricGroups(): IMetricGroup[] {

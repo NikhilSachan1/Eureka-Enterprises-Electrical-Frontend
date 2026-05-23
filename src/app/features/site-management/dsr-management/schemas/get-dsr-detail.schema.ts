@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { UserSchema, uuidField } from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
+import { ProjectGetBaseResponseSchema } from '@features/site-management/project-management/schemas/get-project.schema';
 
 export const DsrDetailGetRequestSchema = z
   .object({
@@ -25,11 +26,18 @@ export const DsrDetailHistoryRecordSchema = z
     createdAt: z.string(),
     updatedAt: z.string(),
     createdBy: UserSchema,
-    updatedBy: makeFieldsNullable(UserSchema),
+    updatedBy: makeFieldsNullable(UserSchema).nullable(),
     workTypes: z.array(z.string()),
     workDescription: z.string().nullable(),
     remarks: z.string().nullable(),
     files: z.array(DsrDetailFileSchema),
+    site: ProjectGetBaseResponseSchema.pick({
+      id: true,
+      name: true,
+      city: true,
+      state: true,
+      company: true,
+    }),
   })
   .transform(({ files, ...rest }) => ({
     ...rest,

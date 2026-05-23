@@ -3,6 +3,7 @@ import { IProjectGetBaseResponseDto } from './project.dto';
 export interface IProjectStakeholders {
   company: IProjectGetBaseResponseDto['company'];
   siteContractors: IProjectGetBaseResponseDto['siteContractors'];
+  vendors: IProjectGetBaseResponseDto['vendors'];
   allocatedEmployees: IProjectGetBaseResponseDto['allocatedEmployees'];
 }
 

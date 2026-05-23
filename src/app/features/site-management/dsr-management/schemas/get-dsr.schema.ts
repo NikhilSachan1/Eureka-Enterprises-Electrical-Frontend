@@ -47,8 +47,8 @@ export const DsrGetBaseResponseSchema = DsrBaseSchema.extend({
   site: ProjectGetBaseResponseSchema.pick({
     id: true,
     name: true,
-    // city: true,
-    // state: true,
+    city: true,
+    state: true,
   }),
   createdByUser: UserSchema,
   editHistory: z.array(z.any()).nullable(),

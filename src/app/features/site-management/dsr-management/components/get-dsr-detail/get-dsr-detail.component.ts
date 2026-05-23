@@ -21,10 +21,11 @@ import {
 } from '@shared/types';
 import { finalize } from 'rxjs';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
+import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 
 @Component({
   selector: 'app-get-dsr-detail',
-  imports: [ViewDetailComponent],
+  imports: [ViewDetailComponent, DocWorkspaceContextComponent],
   templateUrl: './get-dsr-detail.component.html',
   styleUrl: './get-dsr-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,7 +80,19 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
     response: IDsrDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
     const mappedDetails = response.map(record => {
+      const { site } = record;
+
       const entryData: IDataViewDetails['entryData'] = [
+        {
+          label: 'Workspace overview',
+          value: {
+            companyName: site.company?.name,
+            projectName: site.name,
+            siteLocationSubtitle: `${site.city}, ${site.state}`,
+          },
+          customTemplateKey: 'docWorkspaceContextDetail',
+          detailTemplateFullRow: true,
+        },
         {
           label: 'Work Types',
           value: record.workTypes.join(', '),

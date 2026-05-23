@@ -140,7 +140,7 @@ export class EditProjectComponent
       name,
       companyId,
       siteContractors,
-      siteVendors,
+      vendors,
       managerName,
       managerContact,
       startDate,
@@ -162,7 +162,7 @@ export class EditProjectComponent
       companyName: companyId,
       contractorNames:
         siteContractors?.map(contractor => contractor.contractorId) ?? [],
-      vendorNames: siteVendors?.map(vendor => vendor.vendorId) ?? [],
+      vendorNames: vendors?.map(vendor => vendor.id) ?? [],
       siteManagerName: managerName,
       siteManagerContact: managerContact,
       timeline: [new Date(startDate), new Date(endDate)],

@@ -104,6 +104,7 @@
   @let r = $any(row);
   @let s = r.stakeholders;
   @let contractors = s?.siteContractors ?? [];
+  @let vendors = s?.vendors ?? [];
   @let teamCount = s?.allocatedEmployees?.length ?? 0;
   <div class="project-stakeholders-cell">
     <div class="project-stakeholders-cell__block">
@@ -134,6 +135,23 @@
         >
           {{ contractors.length }}
           {{ contractors.length === 1 ? 'contractor' : 'contractors' }}
+        </button>
+      } @else {
+        <span class="project-stakeholders-cell__dash">—</span>
+      }
+    </div>
+
+    <div class="project-stakeholders-cell__block">
+      <span class="project-stakeholders-cell__label">Vendors</span>
+      @if (vendors.length > 0) {
+        <button
+          type="button"
+          class="project-stakeholders-cell__link-btn"
+          (click)="vendorsPopover.toggle($event)"
+          [attr.aria-label]="'View ' + vendors.length + ' vendors'"
+        >
+          {{ vendors.length }}
+          {{ vendors.length === 1 ? 'vendor' : 'vendors' }}
         </button>
       } @else {
         <span class="project-stakeholders-cell__dash">—</span>
@@ -209,6 +227,34 @@
         @for (c of contractors; track c.id) {
           <div class="project-stakeholders-popover__row">
             <div class="project-stakeholders-popover__name">{{ c.contractor.name }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  </p-popover>
+
+  <p-popover
+    #vendorsPopover
+    styleClass="project-stakeholders-popover-panel"
+    [dismissable]="true"
+    [appendTo]="'body'"
+  >
+    <div class="project-stakeholders-popover">
+      <div class="project-stakeholders-popover__head">
+        <div class="project-stakeholders-popover__head-title">Vendors</div>
+        <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
+        <div class="project-stakeholders-popover__head-count">
+          {{ vendors.length }}
+          {{ vendors.length === 1 ? 'vendor' : 'vendors' }}
+        </div>
+      </div>
+      <div class="project-stakeholders-popover__list">
+        @for (v of vendors; track v.id) {
+          <div class="project-stakeholders-popover__row">
+            <div class="project-stakeholders-popover__name">{{ v.name }}</div>
+            @if (stakeholderContactSubtitle(v.email, v.gstNumber, v.vendorType); as subtitle) {
+              <div class="project-stakeholders-popover__meta">{{ subtitle }}</div>
+            }
           </div>
         }
       </div>

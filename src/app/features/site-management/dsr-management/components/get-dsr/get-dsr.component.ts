@@ -170,8 +170,7 @@ export class GetDsrComponent implements OnInit {
         id: record.id,
         docWorkspaceContext: {
           projectName: site.name,
-          // siteLocationSubtitle: `${site.city}, ${site.state}`,
-          siteLocationSubtitle: '',
+          siteLocationSubtitle: `${site.city}, ${site.state}`,
         },
         reportDate: record.reportDate,
         createdByUser: {

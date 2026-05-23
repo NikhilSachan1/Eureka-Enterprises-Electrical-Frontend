@@ -7,6 +7,7 @@ import {
 } from '@shared/schemas';
 import { ProjectBaseSchema } from './base-project.schema';
 import { CompanyGetBaseResponseSchema } from '@features/site-management/company-management/schemas';
+import { VendorBaseSchema } from '@features/site-management/vendor-management/schemas/base-vendor.schema';
 import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
@@ -72,21 +73,17 @@ export const ProjectGetBaseResponseSchema = ProjectBaseSchema.extend({
       })
     )
     .nullable(),
-  siteVendors: z
+  vendors: z
     .array(
-      z.object({
-        id: uuidField,
-        siteId: uuidField,
-        vendorId: uuidField,
-        vendor: z.looseObject({
-          id: uuidField,
-          name: z.string(),
-          fullAddress: z.string().nullable(),
-        }),
+      VendorBaseSchema.pick({
+        id: true,
+        name: true,
+        email: true,
+        vendorType: true,
+        gstNumber: true,
       })
     )
-    .nullable()
-    .optional(),
+    .nullable(),
   fullAddress: z.string().nullable(),
   totalSpent: z.number().int().nonnegative().optional().nullable(),
   profitPercentage: z.number().optional().nullable(),
