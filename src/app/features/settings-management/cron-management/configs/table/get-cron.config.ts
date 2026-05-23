@@ -7,6 +7,7 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { ICONS } from '@shared/constants';
+import { APP_CONFIG } from '@core/config';
 import { ICronGetJobDto } from '../../types/cron.dto';
 import { APP_PERMISSION } from '@core/constants';
 
@@ -37,6 +38,20 @@ const CRON_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     header: 'Description',
     bodyTemplate: EDataType.TEXT_WITH_READ_MORE,
     showSort: false,
+  },
+  {
+    field: 'schedule',
+    header: 'Schedule',
+    bodyTemplate: EDataType.TEXT,
+    customTemplateKey: 'cronSchedule',
+    showSort: false,
+  },
+  {
+    field: 'nextRunAt',
+    header: 'Next run',
+    bodyTemplate: EDataType.DATE,
+    dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME,
+    showSort: true,
   },
   {
     field: 'requiredParameters',

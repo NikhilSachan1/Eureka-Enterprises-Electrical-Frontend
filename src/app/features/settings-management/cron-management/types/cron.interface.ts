@@ -5,6 +5,9 @@ export interface ICron {
   cronJobTitle: string;
   cronJobName: string;
   cronJobDescription: string;
+  schedule: string;
+  cronExpression: string;
+  nextRunAt: string | null;
   requiredParameters: string[];
   dependencies: string[];
   originalRawData: ICronGetJobDto;

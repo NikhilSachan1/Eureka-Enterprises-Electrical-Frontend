@@ -61,3 +61,28 @@
     background: #d97706;
   }
 }
+
+.cron-schedule-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: min(22rem, 100%);
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--p-text-color);
+  }
+}
+
+.cron-expression {
+  display: inline-block;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--p-text-color);
+  background: color-mix(in srgb, var(--p-surface-200) 65%, transparent);
+}

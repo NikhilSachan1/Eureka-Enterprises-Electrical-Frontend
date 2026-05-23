@@ -18,6 +18,7 @@
   [customBodyTemplates]="{
     cronRequiredParameters: cronRequiredParameters,
     cronDependencies: cronDependencies,
+    cronSchedule: cronSchedule,
   }"
   (rowActionClick)="handleCronTableActionClick($any($event), false)"
   (bulkActionClick)="handleCronTableActionClick($any($event), true)"
@@ -87,4 +88,26 @@
   } @else {
     <span class="cron-value-stack__empty">N/A</span>
   }
+</ng-template>
+
+<ng-template
+  #cronSchedule
+  let-row
+>
+  <div class="cron-schedule-cell">
+    @if (row.schedule && row.schedule !== 'N/A') {
+      <span
+        class="cron-schedule-cell__label"
+        [attr.title]="row.schedule"
+      >
+        {{ row.schedule }}
+      </span>
+    } @else if (!row.cronExpression || row.cronExpression === 'N/A') {
+      <span class="cron-value-stack__empty">N/A</span>
+    }
+
+    @if (row.cronExpression && row.cronExpression !== 'N/A') {
+      <code class="cron-expression">{{ row.cronExpression }}</code>
+    }
+  </div>
 </ng-template>

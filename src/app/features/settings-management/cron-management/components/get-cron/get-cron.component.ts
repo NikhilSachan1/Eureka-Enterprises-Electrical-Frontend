@@ -88,6 +88,9 @@ export class GetCronComponent implements OnInit {
       cronJobTitle: this.formatCronLabel(job.name),
       cronJobName: job.name,
       cronJobDescription: job.description,
+      schedule: job.schedule,
+      cronExpression: job.cronExpression,
+      nextRunAt: job.nextRunAt,
       requiredParameters: job.requiredParameters,
       dependencies: job.dependencies,
       originalRawData: job,
@@ -132,6 +135,11 @@ export class GetCronComponent implements OnInit {
       {
         label: 'Description',
         value: selectedRow.description,
+        type: EDataType.TEXT,
+      },
+      {
+        label: 'Cron expression',
+        value: selectedRow.cronExpression?.trim() || 'N/A',
         type: EDataType.TEXT,
       },
       {
