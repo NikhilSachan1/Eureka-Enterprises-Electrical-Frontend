@@ -97,11 +97,13 @@ export class GetDsrComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      this.projectWorkspaceContext.docWorkspaceFilter();
+      const workspaceFilter =
+        this.projectWorkspaceContext.appliedWorkspaceFilter();
       untracked(() => {
-        if (this.tableFilterData) {
-          this.loadDsrList();
+        if (!workspaceFilter || !this.tableFilterData) {
+          return;
         }
+        this.loadDsrList();
       });
     });
   }
@@ -149,7 +151,7 @@ export class GetDsrComponent implements OnInit {
       );
 
     const { projectName, dateRange } =
-      (this.projectWorkspaceContext.docWorkspaceFilter() ??
+      (this.projectWorkspaceContext.appliedWorkspaceFilter() ??
         {}) as IProjectWorkspaceSearchFilterFormDto;
 
     return {

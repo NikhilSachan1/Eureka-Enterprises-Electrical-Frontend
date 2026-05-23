@@ -59,7 +59,7 @@ export class GetProjectTimelineComponent {
 
   constructor() {
     effect(() => {
-      const projectId = this.projectWorkspaceContext.selectedProjectId();
+      const projectId = this.projectWorkspaceContext.timelineProjectId();
 
       if (!projectId) {
         this.isLoading.set(false);

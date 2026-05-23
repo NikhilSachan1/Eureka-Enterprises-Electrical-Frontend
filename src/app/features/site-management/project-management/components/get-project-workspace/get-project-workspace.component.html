@@ -12,7 +12,7 @@
   }
 </div>
 
-@if (selectedProjectId()) {
+@if (showOverviewPanel()) {
   <section
     class="workspace-overview-panel"
     [class.workspace-overview-panel--with-timeline]="showTimeline()"

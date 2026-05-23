@@ -92,9 +92,14 @@ export class GetReportComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      this.projectWorkspaceContext.docWorkspaceFilter();
+      const workspaceFilter =
+        this.projectWorkspaceContext.appliedWorkspaceFilter();
       untracked(() => {
-        if (!this.table || this.tableFilterData === undefined) {
+        if (
+          !workspaceFilter ||
+          !this.table ||
+          this.tableFilterData === undefined
+        ) {
           return;
         }
         this.loadReportList();
@@ -155,7 +160,7 @@ export class GetReportComponent implements OnInit {
     const docType = this.docRouteContext();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { approvalStatus: _approvalStatus, ...workspaceParams } =
-      (this.projectWorkspaceContext.docWorkspaceFilter() ??
+      (this.projectWorkspaceContext.appliedWorkspaceFilter() ??
         {}) as IProjectWorkspaceSearchFilterFormDto;
 
     return {

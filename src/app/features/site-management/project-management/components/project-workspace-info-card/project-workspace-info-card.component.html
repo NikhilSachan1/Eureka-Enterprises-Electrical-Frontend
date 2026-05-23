@@ -1,103 +1,99 @@
-@if (isLoading()) {
-  <app-section-loader message="Loading project details..." />
-} @else {
-  @if (site(); as project) {
-    <div class="info-card">
-      <header class="info-card__header">
-        <div class="info-card__hero-main">
-          <div class="info-card__icon-wrap">
-            <i [class]="icons.SITE.BUILDING"></i>
-          </div>
-          <div class="info-card__title-block">
-            <span class="info-card__eyebrow">Project overview</span>
-            <h3 class="info-card__title">{{ project.name }}</h3>
-          </div>
+@if (site(); as project) {
+  <div class="info-card">
+    <header class="info-card__header">
+      <div class="info-card__hero-main">
+        <div class="info-card__icon-wrap">
+          <i [class]="icons.SITE.BUILDING"></i>
         </div>
-        <span [class]="'info-card__status-badge info-card__status-badge--' + project.status.toLowerCase()">
-          {{ project.status }}
-        </span>
-      </header>
-
-      <p class="info-card__location">
-        <i class="pi pi-map-marker"></i>
-        <span>{{ project.city }}, {{ project.state }}</span>
-      </p>
-
-      <div class="info-card__meta-grid">
-        @if (project.company) {
-          <div class="info-card__meta">
-            <span class="info-card__label">Company</span>
-            <span class="info-card__value">{{ project.company.name }}</span>
-          </div>
-        }
-
-        <div class="info-card__meta">
-          <span class="info-card__label">Site manager</span>
-          <span class="info-card__value">{{ project.managerName }}</span>
-        </div>
-
-        <div class="info-card__meta info-card__meta--wide">
-          <span class="info-card__label">Schedule</span>
-          <span class="info-card__value">
-            {{ project.startDate | date: dateFormat }}
-            <span class="info-card__range-sep">→</span>
-            {{ project.endDate | date: dateFormat }}
-          </span>
+        <div class="info-card__title-block">
+          <span class="info-card__eyebrow">Project overview</span>
+          <h3 class="info-card__title">{{ project.name }}</h3>
         </div>
       </div>
+      <span [class]="'info-card__status-badge info-card__status-badge--' + project.status.toLowerCase()">
+        {{ project.status }}
+      </span>
+    </header>
 
-      <div class="info-card__stakeholders">
-        <div class="info-card__stakeholder-group info-card__stakeholder-group--wide">
-          <span class="info-card__label">Work types</span>
-          @if (workTypeLabels().length) {
-            <div class="info-card__chips">
-              @for (label of workTypeLabels(); track label) {
-                <app-chip
-                  [label]="label"
-                  icon="pi pi-briefcase"
-                  styleClass="info-card__chip info-card__chip--work-type"
-                />
-              }
-            </div>
-          } @else {
-            <span class="info-card__empty">No work types assigned</span>
-          }
-        </div>
+    <p class="info-card__location">
+      <i class="pi pi-map-marker"></i>
+      <span>{{ project.city }}, {{ project.state }}</span>
+    </p>
 
-        <div class="info-card__stakeholder-group">
-          <span class="info-card__label">Contractors</span>
-          @if (contractorNames().length) {
-            <div class="info-card__chips">
-              @for (name of contractorNames(); track name) {
-                <app-chip
-                  [label]="name"
-                  icon="pi pi-users"
-                  styleClass="info-card__chip info-card__chip--contractor"
-                />
-              }
-            </div>
-          } @else {
-            <span class="info-card__empty">No contractors linked</span>
-          }
+    <div class="info-card__meta-grid">
+      @if (project.company) {
+        <div class="info-card__meta">
+          <span class="info-card__label">Company</span>
+          <span class="info-card__value">{{ project.company.name }}</span>
         </div>
+      }
 
-        <div class="info-card__stakeholder-group">
-          <span class="info-card__label">Vendors</span>
-          @if (vendorNames().length) {
-            <div class="info-card__chips">
-              @for (name of vendorNames(); track name) {
-                <app-chip
-                  [label]="name"
-                  icon="pi pi-truck"
-                  styleClass="info-card__chip info-card__chip--vendor"
-                />
-              }
-            </div>
-          } @else {
-            <span class="info-card__empty">No vendors linked</span>
-          }
-        </div>
+      <div class="info-card__meta">
+        <span class="info-card__label">Site manager</span>
+        <span class="info-card__value">{{ project.managerName }}</span>
+      </div>
+
+      <div class="info-card__meta info-card__meta--wide">
+        <span class="info-card__label">Schedule</span>
+        <span class="info-card__value">
+          {{ project.startDate | date: dateFormat }}
+          <span class="info-card__range-sep">→</span>
+          {{ project.endDate | date: dateFormat }}
+        </span>
       </div>
     </div>
-  }
+
+    <div class="info-card__stakeholders">
+      <div class="info-card__stakeholder-group info-card__stakeholder-group--wide">
+        <span class="info-card__label">Work types</span>
+        @if (workTypeLabels().length) {
+          <div class="info-card__chips">
+            @for (label of workTypeLabels(); track label) {
+              <app-chip
+                [label]="label"
+                icon="pi pi-briefcase"
+                styleClass="info-card__chip info-card__chip--work-type"
+              />
+            }
+          </div>
+        } @else {
+          <span class="info-card__empty">No work types assigned</span>
+        }
+      </div>
+
+      <div class="info-card__stakeholder-group">
+        <span class="info-card__label">Contractors</span>
+        @if (contractorNames().length) {
+          <div class="info-card__chips">
+            @for (name of contractorNames(); track name) {
+              <app-chip
+                [label]="name"
+                icon="pi pi-users"
+                styleClass="info-card__chip info-card__chip--contractor"
+              />
+            }
+          </div>
+        } @else {
+          <span class="info-card__empty">No contractors linked</span>
+        }
+      </div>
+
+      <div class="info-card__stakeholder-group">
+        <span class="info-card__label">Vendors</span>
+        @if (vendorNames().length) {
+          <div class="info-card__chips">
+            @for (name of vendorNames(); track name) {
+              <app-chip
+                [label]="name"
+                icon="pi pi-truck"
+                styleClass="info-card__chip info-card__chip--vendor"
+              />
+            }
+          </div>
+        } @else {
+          <span class="info-card__empty">No vendors linked</span>
+        }
+      </div>
+    </div>
+  </div>
 }

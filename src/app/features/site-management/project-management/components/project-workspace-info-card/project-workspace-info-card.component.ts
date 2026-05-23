@@ -7,7 +7,6 @@ import {
 import { DatePipe } from '@angular/common';
 import { APP_CONFIG } from '@core/config';
 import { ChipComponent } from '@shared/components/chip/chip.component';
-import { SectionLoaderComponent } from '@shared/components/section-loader/section-loader.component';
 import { ICONS } from '@shared/constants/icon.constants';
 import { AppConfigurationService } from '@shared/services';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
@@ -15,7 +14,7 @@ import { ProjectWorkspaceContextService } from '../../services/project-workspace
 
 @Component({
   selector: 'app-project-workspace-info-card',
-  imports: [DatePipe, ChipComponent, SectionLoaderComponent],
+  imports: [DatePipe, ChipComponent],
   templateUrl: './project-workspace-info-card.component.html',
   styleUrl: './project-workspace-info-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,8 +23,8 @@ export class ProjectWorkspaceInfoCardComponent {
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
   private readonly appConfigurationService = inject(AppConfigurationService);
 
-  protected readonly projectOverview = this.workspaceContext.projectOverview;
-  protected readonly isLoading = this.workspaceContext.projectOverviewLoading;
+  protected readonly projectOverview =
+    this.workspaceContext.displayedProjectOverview;
   protected readonly site = computed(
     () => this.projectOverview()?.site ?? null
   );

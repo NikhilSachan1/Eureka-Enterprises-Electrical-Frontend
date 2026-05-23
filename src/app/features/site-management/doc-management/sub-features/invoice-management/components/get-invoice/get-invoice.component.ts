@@ -103,9 +103,14 @@ export class GetInvoiceComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      this.projectWorkspaceContext.docWorkspaceFilter();
+      const workspaceFilter =
+        this.projectWorkspaceContext.appliedWorkspaceFilter();
       untracked(() => {
-        if (!this.table || this.tableFilterData === undefined) {
+        if (
+          !workspaceFilter ||
+          !this.table ||
+          this.tableFilterData === undefined
+        ) {
           return;
         }
         this.loadInvoiceList();
@@ -206,7 +211,7 @@ export class GetInvoiceComponent implements OnInit {
 
     const docType = this.docRouteContext();
     const workspaceParams =
-      this.projectWorkspaceContext.docWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
+      this.projectWorkspaceContext.appliedWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
 
     return {
       ...workspaceParams,

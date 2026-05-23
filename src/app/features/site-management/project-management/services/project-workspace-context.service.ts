@@ -5,7 +5,7 @@ import {
   Injectable,
   signal,
 } from '@angular/core';
-import { finalize, Observable, tap } from 'rxjs';
+import { finalize, Observable, of, shareReplay, Subscription, tap } from 'rxjs';
 import { IInputFieldsConfig } from '@shared/types';
 import { toLocalCalendarDate } from '@shared/utility';
 import { ProjectService } from './project.service';
@@ -20,19 +20,40 @@ export interface ProjectDateBounds {
 export class ProjectWorkspaceContextService {
   private readonly projectService = inject(ProjectService);
 
-  private readonly _docWorkspaceFilter = signal<Record<string, unknown> | null>(
-    null
-  );
+  private readonly _selectedProjectId = signal<string | undefined>(undefined);
+  private readonly _appliedWorkspaceFilter = signal<Record<
+    string,
+    unknown
+  > | null>(null);
   private readonly _projectOverview =
     signal<IProjectOverviewGetResponseDto | null>(null);
+  private readonly _overviewProjectId = signal<string | undefined>(undefined);
   private readonly _projectOverviewLoading = signal(false);
 
-  readonly docWorkspaceFilter = this._docWorkspaceFilter.asReadonly();
+  private inFlightId?: string;
+  private inFlight$?: Observable<IProjectOverviewGetResponseDto>;
+  private inFlightSub?: Subscription;
+
+  readonly appliedWorkspaceFilter = this._appliedWorkspaceFilter.asReadonly();
   readonly projectOverview = this._projectOverview.asReadonly();
+  readonly overviewProjectId = this._overviewProjectId.asReadonly();
   readonly projectOverviewLoading = this._projectOverviewLoading.asReadonly();
-  readonly selectedProjectId = computed(() =>
-    extractWorkspaceProjectId(this._docWorkspaceFilter())
+  readonly selectedProjectId = this._selectedProjectId.asReadonly();
+
+  /** Timeline loads only when this project id changes (not on company/date search). */
+  readonly timelineProjectId = computed(() =>
+    extractWorkspaceProjectId(this._appliedWorkspaceFilter())
   );
+
+  /** Info card — visible only after search when overview matches applied project. */
+  readonly displayedProjectOverview = computed(() => {
+    const appliedId = extractWorkspaceProjectId(this._appliedWorkspaceFilter());
+    if (!appliedId || appliedId !== this._overviewProjectId()) {
+      return null;
+    }
+    return this._projectOverview();
+  });
+
   readonly projectDateBounds = computed((): ProjectDateBounds | null => {
     const site = this._projectOverview()?.site;
     return site?.startDate && site?.endDate
@@ -40,57 +61,66 @@ export class ProjectWorkspaceContextService {
       : null;
   });
 
-  setDocWorkspaceFilter(filter: Record<string, unknown> | null): void {
-    this._docWorkspaceFilter.set(filter);
-  }
-
   setSelectedProject(projectId: string | undefined): void {
-    const current = this._docWorkspaceFilter();
-
-    if (projectId) {
-      if (current?.['projectName'] === projectId) {
-        return;
-      }
-      this._docWorkspaceFilter.set({
-        ...(current ?? {}),
-        projectName: projectId,
-      });
+    if (this._selectedProjectId() === projectId) {
       return;
     }
-
-    if (!current?.['projectName']) {
-      return;
-    }
-
-    const rest = { ...current };
-    delete rest['projectName'];
-    this._docWorkspaceFilter.set(Object.keys(rest).length ? rest : null);
+    this._selectedProjectId.set(projectId);
   }
 
-  mergeWorkspaceFilter(filterData: Record<string, unknown>): void {
-    this._docWorkspaceFilter.set({
-      ...(this._docWorkspaceFilter() ?? {}),
-      ...filterData,
-    });
+  applyWorkspaceFilter(filterData: Record<string, unknown>): void {
+    this._appliedWorkspaceFilter.set(filterData);
   }
 
   loadOverview(projectId: string): Observable<IProjectOverviewGetResponseDto> {
+    const overview = this._projectOverview();
+    if (overview && this._overviewProjectId() === projectId) {
+      return of(overview);
+    }
+
+    if (this.inFlightId === projectId && this.inFlight$) {
+      return this.inFlight$;
+    }
+
+    this.inFlightSub?.unsubscribe();
+    this.inFlightId = projectId;
     this._projectOverviewLoading.set(true);
     this._projectOverview.set(null);
+    this._overviewProjectId.set(undefined);
 
-    return this.projectService.getProjectOverview(projectId).pipe(
-      tap(response => this._projectOverview.set(response)),
-      finalize(() => this._projectOverviewLoading.set(false))
+    this.inFlight$ = this.projectService.getProjectOverview(projectId).pipe(
+      tap(response => {
+        this._projectOverview.set(response);
+        this._overviewProjectId.set(projectId);
+      }),
+      finalize(() => {
+        this._projectOverviewLoading.set(false);
+        if (this.inFlightId === projectId) {
+          this.inFlightId = undefined;
+          this.inFlight$ = undefined;
+          this.inFlightSub = undefined;
+        }
+      }),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
+    this.inFlightSub = this.inFlight$.subscribe();
+
+    return this.inFlight$;
   }
 
   resetOverview(): void {
+    this.inFlightSub?.unsubscribe();
+    this.inFlightId = undefined;
+    this.inFlight$ = undefined;
+    this.inFlightSub = undefined;
     this._projectOverview.set(null);
+    this._overviewProjectId.set(undefined);
     this._projectOverviewLoading.set(false);
   }
 
   clear(): void {
-    this._docWorkspaceFilter.set(null);
+    this._selectedProjectId.set(undefined);
+    this._appliedWorkspaceFilter.set(null);
     this.resetOverview();
   }
 
@@ -125,14 +155,17 @@ export class ProjectWorkspaceContextService {
   }
 }
 
-function extractWorkspaceProjectId(
-  filter: Record<string, unknown> | null
+export function extractWorkspaceProjectId(
+  filter: Record<string, unknown> | null | undefined
 ): string | undefined {
-  const raw = filter?.['projectName'] as string | string[] | undefined;
-  if (!raw) {
-    return undefined;
+  const raw = filter?.['projectName'];
+  if (typeof raw === 'string' && raw) {
+    return raw;
   }
-  return Array.isArray(raw) ? raw[0] : raw;
+  if (Array.isArray(raw) && typeof raw[0] === 'string' && raw[0]) {
+    return raw[0];
+  }
+  return undefined;
 }
 
 function resolveProjectDateBounds(

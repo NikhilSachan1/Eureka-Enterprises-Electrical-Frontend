@@ -99,9 +99,14 @@ export class GetPoComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      this.projectWorkspaceContext.docWorkspaceFilter();
+      const workspaceFilter =
+        this.projectWorkspaceContext.appliedWorkspaceFilter();
       untracked(() => {
-        if (!this.table || this.tableFilterData === undefined) {
+        if (
+          !workspaceFilter ||
+          !this.table ||
+          this.tableFilterData === undefined
+        ) {
           return;
         }
         this.loadPoList();
@@ -212,7 +217,7 @@ export class GetPoComponent implements OnInit {
 
     const docType = this.docRouteContext();
     const workspaceParams =
-      this.projectWorkspaceContext.docWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
+      this.projectWorkspaceContext.appliedWorkspaceFilter() as IProjectWorkspaceSearchFilterFormDto;
 
     return {
       ...workspaceParams,

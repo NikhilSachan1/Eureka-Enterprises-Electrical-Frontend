@@ -94,15 +94,11 @@ export class GetProjectWorkspaceComponent implements OnInit {
 
   private unsubscribeProjectFilter?: () => void;
   private searchFilterForm?: IEnhancedForm<Record<string, unknown>>;
-  private lastSyncedProjectId?: string;
 
   private readonly searchFilterRef = viewChild(SearchFilterComponent);
 
   readonly tabModeType = ETabMode.ROUTER_OUTLET;
   icons = ICONS;
-
-  protected readonly selectedProjectId =
-    this.projectWorkspaceContext.selectedProjectId;
 
   private readonly routerUrl = toSignal(
     this.router.events.pipe(
@@ -122,7 +118,8 @@ export class GetProjectWorkspaceComponent implements OnInit {
   );
 
   protected readonly searchFilterPrefill = computed(() => {
-    const workspaceFilter = this.projectWorkspaceContext.docWorkspaceFilter();
+    const workspaceFilter =
+      this.projectWorkspaceContext.appliedWorkspaceFilter();
     if (!workspaceFilter) {
       return undefined;
     }
@@ -134,6 +131,10 @@ export class GetProjectWorkspaceComponent implements OnInit {
 
     return Object.keys(visibleFilter).length ? visibleFilter : undefined;
   });
+
+  protected readonly showOverviewPanel = computed(
+    () => !!this.projectWorkspaceContext.displayedProjectOverview()
+  );
 
   protected readonly showTimeline = computed(() =>
     this.appPermissionService.hasPermission(WORKSPACE_UI.TIMELINE)
@@ -186,9 +187,7 @@ export class GetProjectWorkspaceComponent implements OnInit {
       this.routerNavigationService.getRouterStateData<string>('projectId');
 
     if (projectIdFromState) {
-      this.projectWorkspaceContext.setDocWorkspaceFilter({
-        projectName: projectIdFromState,
-      });
+      this.projectWorkspaceContext.setSelectedProject(projectIdFromState);
     }
   }
 
@@ -197,7 +196,6 @@ export class GetProjectWorkspaceComponent implements OnInit {
   ): void {
     this.unsubscribeProjectFilter?.();
     this.searchFilterForm = form;
-    this.lastSyncedProjectId = undefined;
 
     const projectControl = form.formGroup.get('projectName');
     if (!projectControl) {
@@ -212,62 +210,63 @@ export class GetProjectWorkspaceComponent implements OnInit {
     const sub = projectControl.valueChanges
       .pipe(startWith(projectControl.value), distinctUntilChanged())
       .subscribe(projectId => {
-        const resolvedProjectId =
+        const id =
           typeof projectId === 'string' && projectId ? projectId : undefined;
+        const overviewId = this.projectWorkspaceContext.overviewProjectId();
 
-        if (resolvedProjectId) {
-          this.projectWorkspaceContext.setSelectedProject(resolvedProjectId);
-
-          if (
-            this.lastSyncedProjectId !== undefined &&
-            this.lastSyncedProjectId !== resolvedProjectId
-          ) {
+        if (!id) {
+          if (overviewId) {
             this.resetStakeholderFieldValues(form);
+            this.projectWorkspaceContext.setSelectedProject(undefined);
+            this.resetStakeholderFilters();
           }
-
-          this.loadProjectStakeholderFilters(resolvedProjectId);
-        } else if (this.lastSyncedProjectId) {
-          this.resetStakeholderFieldValues(form);
-          this.projectWorkspaceContext.setSelectedProject(undefined);
-          this.resetStakeholderFilters();
+          return;
         }
 
-        this.lastSyncedProjectId = resolvedProjectId;
+        const projectChanged = !!overviewId && overviewId !== id;
+        this.projectWorkspaceContext.setSelectedProject(id);
+        if (projectChanged) {
+          this.resetStakeholderFieldValues(form);
+        }
+
+        const overview = this.projectWorkspaceContext.projectOverview();
+        if (!projectChanged && overview && overviewId === id) {
+          this.applyStakeholderFilters(false, overview);
+          this.syncDateRangeFilter();
+          return;
+        }
+
+        this.applyStakeholderFilters(true);
+        this.projectWorkspaceContext
+          .loadOverview(id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: response => {
+              this.applyStakeholderFilters(false, response);
+              this.syncDateRangeFilter();
+            },
+            error: error => {
+              this.projectWorkspaceContext.resetOverview();
+              this.applyStakeholderFilters(false);
+              this.resetDateRangeFilter();
+              this.logger.error('Failed to load project overview', error);
+              this.notificationService.error(
+                'Could not load project details. Please try again.'
+              );
+            },
+          });
       });
 
     this.unsubscribeProjectFilter = (): void => sub.unsubscribe();
   }
 
   protected onWorkspaceFilterSubmit(filterData: Record<string, unknown>): void {
-    this.projectWorkspaceContext.mergeWorkspaceFilter(filterData);
+    this.projectWorkspaceContext.applyWorkspaceFilter(filterData);
   }
 
   protected onWorkspaceFilterReset(): void {
     this.resetStakeholderFilters();
     this.projectWorkspaceContext.clear();
-  }
-
-  private loadProjectStakeholderFilters(projectId: string): void {
-    this.applyStakeholderFilters(true);
-
-    this.projectWorkspaceContext
-      .loadOverview(projectId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          this.applyStakeholderFilters(false, response);
-          this.syncDateRangeFilter();
-        },
-        error: error => {
-          this.projectWorkspaceContext.resetOverview();
-          this.applyStakeholderFilters(false);
-          this.resetDateRangeFilter();
-          this.logger.error('Failed to load project overview', error);
-          this.notificationService.error(
-            'Could not load project details. Please try again.'
-          );
-        },
-      });
   }
 
   private resetStakeholderFilters(): void {
