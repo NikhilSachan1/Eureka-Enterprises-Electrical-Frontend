@@ -1,5 +1,7 @@
 <div class="profitability-report">
-  @if (report(); as vm) {
+  @if (isLoading()) {
+    <app-section-loader message="Loading project profitability..." />
+  } @else if (report(); as vm) {
     <section class="hero-card">
       <div class="hero-content">
         <div>

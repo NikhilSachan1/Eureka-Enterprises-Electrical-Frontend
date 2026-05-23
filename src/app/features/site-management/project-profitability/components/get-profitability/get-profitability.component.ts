@@ -11,7 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
-import { LoadingService } from '@shared/services/loading.service';
+import { SectionLoaderComponent } from '@shared/components/section-loader/section-loader.component';
 import { finalize } from 'rxjs';
 import {
   IProjectProfitabilityGetFormDto,
@@ -26,13 +26,12 @@ import { ProjectProfitabilityService } from '../../services/project-profitabilit
 
 @Component({
   selector: 'app-get-profitability',
-  imports: [CurrencyPipe, DecimalPipe],
+  imports: [CurrencyPipe, DecimalPipe, SectionLoaderComponent],
   templateUrl: './get-profitability.component.html',
   styleUrl: './get-profitability.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetProfitabilityComponent {
-  private readonly loadingService = inject(LoadingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly logger = inject(LoggerService);
   private readonly projectProfitabilityService = inject(
@@ -41,6 +40,7 @@ export class GetProfitabilityComponent {
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly isLoading = signal(false);
   protected readonly report = signal<IProjectProfitabilityReport | null>(null);
 
   constructor() {
@@ -58,11 +58,8 @@ export class GetProfitabilityComponent {
   }
 
   private loadProjectProfitability(projectId: string): void {
-    this.loadingService.show({
-      title: 'Loading Project Profitability',
-      message:
-        "We're loading the project profitability. This will just take a moment.",
-    });
+    this.isLoading.set(true);
+    this.report.set(null);
 
     const paramData = this.prepareParamData(projectId);
 
@@ -70,7 +67,7 @@ export class GetProfitabilityComponent {
       .getProjectProfitability(paramData)
       .pipe(
         finalize(() => {
-          this.loadingService.hide();
+          this.isLoading.set(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )

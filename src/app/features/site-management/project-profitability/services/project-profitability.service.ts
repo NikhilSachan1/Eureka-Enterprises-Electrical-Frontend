@@ -6,7 +6,10 @@ import {
   IProjectProfitabilityGetFormDto,
   IProjectProfitabilityGetResponseDto,
 } from '../types/project-profitability.dto';
-import { ProjectProfitabilityGetResponseSchema } from '../schemas/get-project-profitability.schema';
+import {
+  ProjectProfitabilityGetRequestSchema,
+  ProjectProfitabilityGetResponseSchema,
+} from '../schemas/get-project-profitability.schema';
 
 @Injectable({
   providedIn: 'root',
@@ -21,9 +24,14 @@ export class ProjectProfitabilityService {
     this.logger.logUserAction('Get Project Profitability Request');
 
     return this.apiService
-      .getValidated(API_ROUTES.SITE.PROFITABILITY.GET(params.projectName), {
-        response: ProjectProfitabilityGetResponseSchema,
-      })
+      .getValidated(
+        API_ROUTES.SITE.PROFITABILITY.GET,
+        {
+          response: ProjectProfitabilityGetResponseSchema,
+          request: ProjectProfitabilityGetRequestSchema,
+        },
+        params
+      )
       .pipe(
         tap((response: IProjectProfitabilityGetResponseDto) => {
           this.logger.logUserAction(
