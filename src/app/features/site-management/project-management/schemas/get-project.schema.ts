@@ -69,6 +69,8 @@ export const ProjectGetBaseResponseSchema = ProjectBaseSchema.extend({
           id: uuidField,
           name: z.string(),
           fullAddress: z.string().nullable(),
+          email: z.string().nullable(),
+          gstNumber: z.string().nullable(),
         }),
       })
     )

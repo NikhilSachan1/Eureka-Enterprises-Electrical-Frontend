@@ -227,6 +227,9 @@
         @for (c of contractors; track c.id) {
           <div class="project-stakeholders-popover__row">
             <div class="project-stakeholders-popover__name">{{ c.contractor.name }}</div>
+            @if (stakeholderContactSubtitle(c.contractor.email, c.contractor.gstNumber); as subtitle) {
+              <div class="project-stakeholders-popover__meta">{{ subtitle }}</div>
+            }
           </div>
         }
       </div>
