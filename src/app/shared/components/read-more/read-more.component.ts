@@ -19,16 +19,31 @@ export class ReadMoreComponent {
   readMoreConfig = input<Partial<IReadMoreConfig>>(DEFAULT_READ_MORE_CONFIG);
   text = input<string>();
 
+  private readonly mergedReadMoreConfig = computed(() => ({
+    ...DEFAULT_READ_MORE_CONFIG,
+    ...this.readMoreConfig(),
+  }));
+
   protected readonly shouldTruncate = computed(
-    () => (this.text()?.length ?? 0) > (this.readMoreConfig().maxLength ?? 0)
+    () =>
+      (this.text()?.length ?? 0) >
+      (this.mergedReadMoreConfig().maxLength ??
+        DEFAULT_READ_MORE_CONFIG.maxLength ??
+        0)
   );
   protected readonly truncatedText = computed(
-    () => this.text()?.substring(0, this.readMoreConfig().maxLength ?? 0) ?? ''
+    () =>
+      this.text()?.substring(
+        0,
+        this.mergedReadMoreConfig().maxLength ??
+          DEFAULT_READ_MORE_CONFIG.maxLength ??
+          0
+      ) ?? ''
   );
   protected readonly readMoreText = computed(
-    () => this.readMoreConfig().readMoreText
+    () => this.mergedReadMoreConfig().readMoreText
   );
   protected readonly readLessText = computed(
-    () => this.readMoreConfig().readLessText
+    () => this.mergedReadMoreConfig().readLessText
   );
 }

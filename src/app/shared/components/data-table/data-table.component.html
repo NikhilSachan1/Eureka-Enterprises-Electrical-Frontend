@@ -554,7 +554,7 @@
     @case (ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
       <app-read-more
         [text]="$any(val)"
-        [readMoreConfig]="col.readMoreConfig ?? {}"
+        [readMoreConfig]="col.readMoreConfig ?? defaultReadMoreConfig"
       />
     }
     @case (ALL_DATA_TYPES.EMAIL) {

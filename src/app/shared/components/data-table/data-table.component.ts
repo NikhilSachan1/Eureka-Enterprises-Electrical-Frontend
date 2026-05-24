@@ -59,6 +59,7 @@ import { AppPermissionService, LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
 import { ReadMoreComponent } from '../read-more/read-more.component';
 import { PaginatorComponent } from '../paginator/paginator.component';
+import { DEFAULT_READ_MORE_CONFIG } from '@shared/config';
 import { StatusUtil } from '@shared/utility';
 
 @Component({
@@ -102,6 +103,7 @@ export class DataTableComponent {
 
   protected ALL_DATA_TYPES = EDataType;
   protected icons = ICONS;
+  protected readonly defaultReadMoreConfig = DEFAULT_READ_MORE_CONFIG;
 
   /** Icon-only trigger when row actions collapse into the overflow menu (matches row action styling). */
   protected readonly rowOverflowTriggerButtonConfig: Partial<IButtonConfig> = {
