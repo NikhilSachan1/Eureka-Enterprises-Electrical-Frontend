@@ -9,6 +9,7 @@ import {
 } from '@shared/types';
 import { ISystemPermissionGetFormDto } from '../../types/system-permission.dto';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
+import { SYSTEM_PERMISSION_PLATFORM_OPTIONS } from '../system-permission.constants';
 
 const SEARCH_FILTER_SYSTEM_PERMISSION_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsConfig<
   ISystemPermissionGetFormDto & { globalSearch?: string }
@@ -25,6 +26,16 @@ const SEARCH_FILTER_SYSTEM_PERMISSION_FORM_FIELDS_CONFIG: ITableSearchFilterInpu
       },
     },
     matchmode: ETableFilterMatchMode.IN,
+  },
+  platform: {
+    fieldType: EDataType.SELECT,
+    id: 'platform',
+    fieldName: 'platform',
+    label: 'Platform',
+    selectConfig: {
+      optionsDropdown: SYSTEM_PERMISSION_PLATFORM_OPTIONS,
+    },
+    matchmode: ETableFilterMatchMode.EQUALS,
   },
   globalSearch: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.globalSearch,

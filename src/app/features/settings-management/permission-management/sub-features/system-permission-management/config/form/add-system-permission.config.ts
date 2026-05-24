@@ -6,8 +6,9 @@ import {
   EDataType,
 } from '@shared/types';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
-import { ISystemPermissionAddFormDto } from '../../types/system-permission.dto';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import { ISystemPermissionAddFormDto } from '../../types/system-permission.dto';
+import { SYSTEM_PERMISSION_PLATFORM_OPTIONS } from '../system-permission.constants';
 
 const ADD_SYSTEM_PERMISSION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISystemPermissionAddFormDto> =
   {
@@ -24,17 +25,28 @@ const ADD_SYSTEM_PERMISSION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISystemPe
       },
       validators: [Validators.required],
     },
-    moduleAction: {
+    platform: {
       fieldType: EDataType.SELECT,
-      id: 'moduleAction',
-      fieldName: 'moduleAction',
-      label: 'Module Action',
+      id: 'platform',
+      fieldName: 'platform',
+      label: 'Platform',
       selectConfig: {
-        dependentDropdown: {
-          dependsOnField: 'moduleName',
-          optionsProviderMethod: 'getModuleActionsByModuleName',
-        },
+        optionsDropdown: SYSTEM_PERMISSION_PLATFORM_OPTIONS,
       },
+      validators: [Validators.required],
+    },
+    permissionLabel: {
+      fieldType: EDataType.TEXT,
+      id: 'permissionLabel',
+      fieldName: 'permissionLabel',
+      label: 'Permission Label',
+      validators: [Validators.required],
+    },
+    permissionName: {
+      fieldType: EDataType.TEXT,
+      id: 'permissionName',
+      fieldName: 'permissionName',
+      label: 'Permission Code',
       validators: [Validators.required],
     },
     permissionDescription: {

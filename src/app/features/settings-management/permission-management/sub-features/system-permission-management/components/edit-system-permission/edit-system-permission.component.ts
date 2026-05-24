@@ -85,24 +85,14 @@ export class EditSystemPermissionComponent
   private preparePrefilledFormData(
     routeStateData: ISystemPermissionGetBaseResponseDto
   ): ISystemPermissionEditFormDto {
-    const { module, label, description } = routeStateData;
-    const moduleAction = this.getModuleActionFromLabel(label, module);
+    const { module, name, label, description, platform } = routeStateData;
     return {
       moduleName: module,
-      moduleAction,
+      permissionName: name,
+      permissionLabel: label,
       permissionDescription: description,
+      platform,
     };
-  }
-
-  private getModuleActionFromLabel(label: string, moduleName: string): string {
-    const escapedModule = moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const actionPart = label
-      .replace(new RegExp(`\\s+${escapedModule}$`, 'i'), '')
-      .trim();
-    return (
-      actionPart.replace(/\s+/g, '_').toLowerCase() ||
-      label.replace(/\s+/g, '_').toLowerCase()
-    );
   }
 
   protected override handleSubmit(): void {

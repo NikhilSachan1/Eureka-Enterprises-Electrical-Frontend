@@ -58,7 +58,7 @@ import { PetroCardService } from '@features/transport-management/petro-card-mana
 import { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
 import { FuelExpenseService } from '@features/transport-management/fuel-expense-management/services/fuel-expense.service';
 import { ILinkedUserVehicleDetailGetResponseDto } from '@features/transport-management/fuel-expense-management/types/fuel-expense.dto';
-import { toTitleCase } from '@shared/utility';
+import { replaceTextWithSeparator, toTitleCase } from '@shared/utility';
 import { ConfigurationService } from '@features/settings-management/configuration-management/services/configuration.service';
 import {
   IConfigurationGetFormDto,
@@ -960,7 +960,7 @@ export class AppConfigurationService {
   private populateAllModuleDropdowns(
     moduleConfigMap: Record<string, Record<string, unknown>>
   ): void {
-    // Handle modules_config_dropdown specially
+    // Handle modules config specially
     this.handleModulesConfigDropdown(moduleConfigMap);
 
     // Handle geography/location config for states and cities
@@ -1014,9 +1014,25 @@ export class AppConfigurationService {
   private handleModulesConfigDropdown(
     moduleConfigMap: Record<string, Record<string, unknown>>
   ): void {
-    const modulesConfig = moduleConfigMap[MODULE_NAMES.PERMISSION]?.[
-      CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN
-    ] as
+    const modulesValue =
+      moduleConfigMap[MODULE_NAMES.PERMISSION]?.[
+        CONFIGURATION_KEYS.PERMISSION.MODULE_CONFIG_DROPDOWN
+      ];
+
+    if (Array.isArray(modulesValue)) {
+      const moduleNameOptions: IOptionDropdown[] = modulesValue
+        .filter((item): item is string => typeof item === 'string')
+        .map(moduleName => ({
+          label: toTitleCase(replaceTextWithSeparator(moduleName, '_', ' ')),
+          value: moduleName,
+        }))
+        .sort(this.sortByLabel);
+
+      this._moduleNames.set(moduleNameOptions);
+      return;
+    }
+
+    const modulesConfig = modulesValue as
       | Record<string, { label: string; actions: IOptionDropdown[] }>
       | undefined;
 

@@ -14,8 +14,16 @@ const EDIT_SYSTEM_PERMISSION_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISystemP
       ...ADD_SYSTEM_PERMISSION_FORM_CONFIG.fields.moduleName,
       disabledInput: true,
     },
-    moduleAction: {
-      ...ADD_SYSTEM_PERMISSION_FORM_CONFIG.fields.moduleAction,
+    platform: {
+      ...ADD_SYSTEM_PERMISSION_FORM_CONFIG.fields.platform,
+      disabledInput: true,
+    },
+    permissionLabel: {
+      ...ADD_SYSTEM_PERMISSION_FORM_CONFIG.fields.permissionLabel,
+      disabledInput: true,
+    },
+    permissionName: {
+      ...ADD_SYSTEM_PERMISSION_FORM_CONFIG.fields.permissionName,
       disabledInput: true,
     },
   };

@@ -1,16 +1,15 @@
 import { SystemPermissionUpsertShapeSchema } from './base-system-permission.schema';
-import { replaceTextWithSeparator, toLowerCase } from '@shared/utility';
+import { toLowerCase } from '@shared/utility';
 import { z } from 'zod';
 
 export const SystemPermissionAddRequestSchema =
   SystemPermissionUpsertShapeSchema.strict().transform(data => {
-    const moduleAction = toLowerCase(data.moduleAction);
-    const moduleName = toLowerCase(data.moduleName);
     return {
-      module: moduleName,
-      name: `${moduleAction}_${moduleName}`,
-      label: `${replaceTextWithSeparator(moduleAction, '_', ' ')} ${moduleName}`,
+      module: toLowerCase(data.moduleName),
+      name: toLowerCase(data.permissionName),
+      label: toLowerCase(data.permissionLabel),
       description: toLowerCase(data.permissionDescription),
+      platform: toLowerCase(data.platform),
       isDeletable: true,
       isEditable: true,
     };

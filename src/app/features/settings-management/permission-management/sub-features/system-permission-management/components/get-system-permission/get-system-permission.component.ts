@@ -122,6 +122,7 @@ export class GetSystemPermissionComponent implements OnInit {
       moduleName: toTitleCase(
         replaceTextWithSeparator(record.module, '_', ' ')
       ),
+      platform: record.platform,
       permissionCode: record.name,
       isEditable: record.isEditable,
       isDeletable: record.isDeletable,
@@ -185,6 +186,11 @@ export class GetSystemPermissionComponent implements OnInit {
         value: toTitleCase(
           replaceTextWithSeparator(selectedRow.module, '_', ' ')
         ),
+        type: EDataType.TEXT,
+      },
+      {
+        label: 'Platform',
+        value: selectedRow.platform,
         type: EDataType.TEXT,
       },
       {

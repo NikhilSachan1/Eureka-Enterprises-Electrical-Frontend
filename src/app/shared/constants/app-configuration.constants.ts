@@ -104,7 +104,7 @@ export const CONFIGURATION_KEYS = {
     PARTY_TYPES: 'PARTY_TYPES',
   },
   PERMISSION: {
-    MODULE_CONFIG_DROPDOWN: 'modules_config_dropdown',
+    MODULE_CONFIG_DROPDOWN: 'modules',
   },
   ANNOUNCEMENT: {
     ANNOUNCEMENT_STATUS: 'announcement_statuses',

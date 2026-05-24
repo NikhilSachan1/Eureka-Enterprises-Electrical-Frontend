@@ -7,6 +7,7 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 export const SystemPermissionGetRequestSchema = z
   .object({
     moduleName: z.array(z.string()).optional(),
+    platform: z.enum(['web', 'mobile']).optional(),
     sortOrder,
     sortField,
     pageSize,

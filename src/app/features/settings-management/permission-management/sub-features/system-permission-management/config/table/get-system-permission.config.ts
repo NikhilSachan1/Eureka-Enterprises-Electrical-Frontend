@@ -36,6 +36,12 @@ export const SYSTEM_PERMISSION_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConf
       showSort: true,
     },
     {
+      field: 'platform',
+      header: 'Platform',
+      bodyTemplate: EDataType.TEXT,
+      showSort: false,
+    },
+    {
       field: 'permissionCode',
       header: 'Permission Code',
       showSort: false,

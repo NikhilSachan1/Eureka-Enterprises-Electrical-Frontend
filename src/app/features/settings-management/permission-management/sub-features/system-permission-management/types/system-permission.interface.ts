@@ -13,7 +13,7 @@ export interface IModulePermission {
 export interface ISystemPermission
   extends Pick<
     ISystemPermissionGetBaseResponseDto,
-    'id' | 'isEditable' | 'isDeletable'
+    'id' | 'isEditable' | 'isDeletable' | 'platform'
   > {
   permissionLabel: string;
   permissionDescription: string;
