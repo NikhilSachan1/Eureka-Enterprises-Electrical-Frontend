@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
@@ -304,6 +305,7 @@ export class GetReportComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Report',
           actionName: 'addReport',
+          permission: [APP_PERMISSION.REPORT_DOC.ADD],
         },
       ],
     };

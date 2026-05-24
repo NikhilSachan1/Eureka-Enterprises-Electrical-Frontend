@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { LoggerService } from '@core/services';
 import {
@@ -395,7 +396,7 @@ export class GetPoComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add PO',
           actionName: 'addPo',
-          // permission: [APP_PERMISSION.PO_DOC.ADD],
+          permission: [APP_PERMISSION.PO_DOC.ADD],
         },
       ],
     };

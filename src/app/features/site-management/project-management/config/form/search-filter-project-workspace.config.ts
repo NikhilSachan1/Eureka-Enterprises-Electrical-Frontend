@@ -8,6 +8,7 @@ import {
   ITableSearchFilterInputFieldsConfig,
 } from '@shared/types';
 import { IProjectWorkspaceSearchFilterFormDto } from '../../types/project.interface';
+import { APP_PERMISSION } from '@core/constants';
 
 type WorkspaceSearchFilterFieldConfig =
   ITableSearchFilterInputFieldsConfig<IProjectWorkspaceSearchFilterFormDto>[keyof IProjectWorkspaceSearchFilterFormDto] & {
@@ -43,6 +44,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       fieldName: 'companyName',
       label: 'Company Name',
       visibleOnTabs: [PROFITABILITY, ...ALL_DOC_TABS],
+      permission: [APP_PERMISSION.UI.PROJECT.SEARCH_FILTER_COMPANY_NAME],
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.COMPANY,
@@ -56,6 +58,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       fieldName: 'contractorName',
       label: 'Contractor Name',
       visibleOnTabs: [PROFITABILITY, ...GST_TDS_AND_DOC_TABS],
+      permission: [APP_PERMISSION.UI.PROJECT.SEARCH_FILTER_CONTRACTOR_NAME],
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.CONTRACTOR,
@@ -69,6 +72,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       fieldName: 'vendorName',
       label: 'Vendor Name',
       visibleOnTabs: [PROFITABILITY, ...GST_TDS_AND_DOC_TABS],
+      permission: [APP_PERMISSION.UI.PROJECT.SEARCH_FILTER_VENDOR_NAME],
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.VENDOR,

@@ -7,8 +7,8 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IVendorGetResponseDto } from '../../types/vendor.dto';
-// import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 const VENDOR_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No vendor record found.',
@@ -69,22 +69,22 @@ const VENDOR_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Vendor Details',
-    // permission: [APP_PERMISSION.VENDOR.VIEW_DETAIL],
+    permission: [APP_PERMISSION.VENDOR.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Vendor',
-    // permission: [APP_PERMISSION.VENDOR.EDIT],
+    permission: [APP_PERMISSION.VENDOR.EDIT],
   },
   {
     id: EButtonActionType.CHANGE_STATUS,
     tooltip: 'Change Vendor Status',
-    // permission: [APP_PERMISSION.VENDOR.CHANGE_STATUS],
+    permission: [APP_PERMISSION.VENDOR.CHANGE_STATUS],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Vendor',
-    // permission: [APP_PERMISSION.VENDOR.DELETE],
+    permission: [APP_PERMISSION.VENDOR.DELETE],
   },
 ];
 
@@ -94,7 +94,7 @@ const VENDOR_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Vendor',
-    // permission: [APP_PERMISSION.VENDOR.DELETE],
+    permission: [APP_PERMISSION.VENDOR.DELETE],
   },
 ];
 

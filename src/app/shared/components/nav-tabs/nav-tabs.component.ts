@@ -59,6 +59,10 @@ export class NavTabsComponent implements OnInit {
   private location = inject(Location);
   private destroyRef = inject(DestroyRef);
 
+  protected readonly visibleTabs = computed(() =>
+    this.tabs().filter(tab => tab.visible !== false)
+  );
+
   ngOnInit(): void {
     if (this.tabMode() === this.allTabMode.CONTENT) {
       const currentParams = this.route.snapshot.queryParams;
@@ -69,7 +73,7 @@ export class NavTabsComponent implements OnInit {
         if (
           !isNaN(tabIndex) &&
           tabIndex >= 0 &&
-          tabIndex < this.tabs().length
+          tabIndex < this.visibleTabs().length
         ) {
           this.selectedTabIndex.set(tabIndex);
           this.setActiveTabByIndex(tabIndex);
@@ -100,7 +104,7 @@ export class NavTabsComponent implements OnInit {
   }
 
   protected currentActiveTab = computed(() => {
-    const tabs = this.tabs();
+    const tabs = this.visibleTabs();
 
     if (this.tabMode() === this.allTabMode.ROUTER_OUTLET) {
       const path = this.currentRoute().split('?')[0];
@@ -137,7 +141,7 @@ export class NavTabsComponent implements OnInit {
   }
 
   private setActiveTabByIndex(index: number): void {
-    const tab = this.tabs()[index];
+    const tab = this.visibleTabs()[index];
     if (tab) {
       this.tabChanged.emit({ tab, index });
     }

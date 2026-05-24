@@ -12,7 +12,10 @@
 </div>
 
 @if (showOverviewPanel() && selectedProjectId()) {
-  <section class="workspace-overview-panel workspace-overview-panel--with-timeline">
+  <section
+    class="workspace-overview-panel"
+    [class.workspace-overview-panel--with-timeline]="canViewProjectTimeline()"
+  >
     <div class="workspace-overview-panel__body">
       <div class="workspace-overview-panel__detail">
         <app-project-workspace-info-card
@@ -20,23 +23,23 @@
           [loading]="isProjectOverviewLoading()"
         />
       </div>
-      <div
-        class="workspace-overview-panel__divider"
-        aria-hidden="true"
-      ></div>
-      <div class="workspace-overview-panel__timeline">
-        <app-get-project-timeline [projectId]="selectedProjectId()!" />
-      </div>
+      @if (canViewProjectTimeline()) {
+        <div
+          class="workspace-overview-panel__divider"
+          aria-hidden="true"
+        ></div>
+        <div class="workspace-overview-panel__timeline">
+          <app-get-project-timeline [projectId]="selectedProjectId()!" />
+        </div>
+      }
     </div>
   </section>
 }
 
 <div class="project-workspace-main min-w-0 max-w-full">
-  @if (visibleWorkspaceTabs().length) {
-    <app-nav-tabs
-      class="block min-w-0 max-w-full"
-      [tabs]="visibleWorkspaceTabs()"
-      [tabMode]="tabModeType"
-    />
-  }
+  <app-nav-tabs
+    class="block min-w-0 max-w-full"
+    [tabs]="visibleWorkspaceTabs()"
+    [tabMode]="tabModeType"
+  />
 </div>

@@ -6,6 +6,7 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { ITdsEntryGetBaseResponseDto } from '../../types/tds.dto';
 
 export const TDS_ENTRY_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -56,6 +57,7 @@ const buildTdsEntryTableRowActionsConfig = (): Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View TDS entry details',
+    permission: [APP_PERMISSION.TDS.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
@@ -63,6 +65,7 @@ const buildTdsEntryTableRowActionsConfig = (): Partial<
     disableWhen: (row: ITdsEntryGetBaseResponseDto) => row.isVerified,
     disableReason: (row: ITdsEntryGetBaseResponseDto) =>
       row.isVerified ? 'This entry is already approved.' : undefined,
+    permission: [APP_PERMISSION.TDS.APPROVE],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
@@ -70,6 +73,7 @@ const buildTdsEntryTableRowActionsConfig = (): Partial<
     disableWhen: (row: ITdsEntryGetBaseResponseDto) => !row.isVerified,
     disableReason: (row: ITdsEntryGetBaseResponseDto) =>
       !row.isVerified ? 'Only approved entries can be rejected.' : undefined,
+    permission: [APP_PERMISSION.TDS.REJECT],
   },
 ];
 

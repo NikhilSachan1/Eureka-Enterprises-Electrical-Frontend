@@ -28,6 +28,7 @@ import {
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   createTdsEntryTableEnhancedConfig,
   TDS_ACTION_CONFIG_MAP,
@@ -358,6 +359,7 @@ export class GetTdsEntryComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'TDS Payment Release',
           actionName: 'addTdsPaymentRelease',
+          permission: [APP_PERMISSION.TDS.RELEASE],
         },
       ],
     };

@@ -10,6 +10,7 @@ import {
   isNotRecordCreator,
   recordCreatorDisableReason,
 } from '@shared/utility';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IReportGetBaseResponseDto } from '../../types/report.dto';
 
 export const REPORT_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -58,6 +59,7 @@ const buildReportTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View report details',
+    permission: [APP_PERMISSION.REPORT_DOC.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
@@ -66,6 +68,7 @@ const buildReportTableRowActionsConfig = (
       isNotRecordCreator(row.createdBy, loggedInUserId),
     disableReason: (row: IReportGetBaseResponseDto) =>
       recordCreatorDisableReason('report', row.createdBy, loggedInUserId),
+    permission: [APP_PERMISSION.REPORT_DOC.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
@@ -74,6 +77,7 @@ const buildReportTableRowActionsConfig = (
       isNotRecordCreator(row.createdBy, loggedInUserId),
     disableReason: (row: IReportGetBaseResponseDto) =>
       recordCreatorDisableReason('report', row.createdBy, loggedInUserId),
+    permission: [APP_PERMISSION.REPORT_DOC.DELETE],
   },
 ];
 

@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
@@ -350,6 +351,7 @@ export class GetBookPaymentComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Book Payment',
           actionName: 'addBookPayment',
+          permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.ADD],
         },
       ],
     };

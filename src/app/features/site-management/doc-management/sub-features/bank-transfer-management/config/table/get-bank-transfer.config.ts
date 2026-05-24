@@ -11,6 +11,7 @@ import {
   isNotRecordCreator,
   recordCreatorDisableReason,
 } from '@shared/utility';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { IBankTransferGetBaseResponseDto } from '../../types/bank-transfer.dto';
 
@@ -84,6 +85,7 @@ const buildBankTransferTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View bank transfer details',
+    permission: [APP_PERMISSION.BANK_TRANSFER_DOC.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
@@ -96,6 +98,7 @@ const buildBankTransferTableRowActionsConfig = (
         row.createdBy,
         loggedInUserId
       ),
+    permission: [APP_PERMISSION.BANK_TRANSFER_DOC.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
@@ -108,11 +111,13 @@ const buildBankTransferTableRowActionsConfig = (
         row.createdBy,
         loggedInUserId
       ),
+    permission: [APP_PERMISSION.BANK_TRANSFER_DOC.DELETE],
   },
   {
     id: EButtonActionType.SEND_EMAIL,
     tooltip: 'Mail Payment Advice',
     hideWhen: () => !isPurchase,
+    permission: [APP_PERMISSION.BANK_TRANSFER_DOC.SEND_EMAIL],
   },
 ];
 

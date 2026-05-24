@@ -1,10 +1,10 @@
-<p-tabs
-  [scrollable]="true"
-  [value]="currentActiveTab()"
->
-  <p-tablist>
-    @for (tab of tabs(); track tab.route; let i = $index) {
-      @if (tab.visible !== false) {
+@if (visibleTabs().length) {
+  <p-tabs
+    [scrollable]="true"
+    [value]="currentActiveTab()"
+  >
+    <p-tablist>
+      @for (tab of visibleTabs(); track tab.route; let i = $index) {
         <p-tab
           [value]="tab.route"
           [routerLink]="tabMode() === allTabMode.ROUTER_OUTLET ? [tab.route] : null"
@@ -26,19 +26,19 @@
           }
         </p-tab>
       }
-    }
-  </p-tablist>
-</p-tabs>
+    </p-tablist>
+  </p-tabs>
 
-<div class="tab-content mt-4">
-  @if (tabMode() === allTabMode.ROUTER_OUTLET) {
-    <div
-      class="tab-content__outlet"
-      [@routeOutletFade]="currentRoute()"
-    >
-      <router-outlet />
-    </div>
-  } @else {
-    <ng-content />
-  }
-</div>
+  <div class="tab-content mt-4">
+    @if (tabMode() === allTabMode.ROUTER_OUTLET) {
+      <div
+        class="tab-content__outlet"
+        [@routeOutletFade]="currentRoute()"
+      >
+        <router-outlet />
+      </div>
+    } @else {
+      <ng-content />
+    }
+  </div>
+}

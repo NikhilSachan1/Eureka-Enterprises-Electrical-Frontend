@@ -11,6 +11,7 @@ import {
   isNotRecordCreator,
   recordCreatorDisableReason,
 } from '@shared/utility';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IPoGetBaseResponseDto, IPoGetResponseDto } from '../../types/po.dto';
 import {
   PO_ROW_ACTION_DISABLE_REASON,
@@ -95,7 +96,7 @@ const buildPoTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View PO Details',
-    // permission: [APP_PERMISSION.PO_DOC.TABLE_VIEW],
+    permission: [APP_PERMISSION.PO_DOC.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
@@ -108,7 +109,7 @@ const buildPoTableRowActionsConfig = (
       (shouldDisablePoEditOrDelete(row)
         ? PO_ROW_ACTION_DISABLE_REASON.lockedNoEdit
         : undefined),
-    // permission: [APP_PERMISSION.PO_DOC.EDIT],
+    permission: [APP_PERMISSION.PO_DOC.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
@@ -121,42 +122,42 @@ const buildPoTableRowActionsConfig = (
       (shouldDisablePoEditOrDelete(row)
         ? PO_ROW_ACTION_DISABLE_REASON.lockedNoDelete
         : undefined),
-    // permission: [APP_PERMISSION.PO_DOC.DELETE],
+    permission: [APP_PERMISSION.PO_DOC.DELETE],
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve PO',
     disableWhen: shouldDisablePoApprove,
     disableReason: poApproveDisableReason,
-    // permission: [APP_PERMISSION.PO_DOC.APPROVE],
+    permission: [APP_PERMISSION.PO_DOC.APPROVE],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject PO',
     disableWhen: shouldDisablePoReject,
     disableReason: poRejectDisableReason,
-    // permission: [APP_PERMISSION.PO_DOC.REJECT],
+    permission: [APP_PERMISSION.PO_DOC.REJECT],
   },
   {
     id: EButtonActionType.UNLOCK_REQUEST,
     tooltip: 'Request unlock PO',
     disableWhen: shouldDisablePoUnlockRequest,
     disableReason: poUnlockRequestDisableReason,
-    // permission: [APP_PERMISSION.PO_DOC.UNLOCK],
+    permission: [APP_PERMISSION.PO_DOC.UNLOCK],
   },
   {
     id: EButtonActionType.UNLOCK_GRANT,
     tooltip: 'Grant unlock PO',
     disableWhen: shouldDisablePoUnlockGrant,
     disableReason: poUnlockGrantDisableReason,
-    // permission: [APP_PERMISSION.PO_DOC.UNLOCK_GRANT],
+    permission: [APP_PERMISSION.PO_DOC.UNLOCK_GRANT],
   },
   {
     id: EButtonActionType.UNLOCK_REQUEST_REJECT,
     tooltip: 'Reject unlock request',
     disableWhen: shouldDisablePoUnlockRequestReject,
     disableReason: poUnlockRequestRejectDisableReason,
-    // permission: [APP_PERMISSION.PO_DOC.UNLOCK_REQUEST_REJECT],
+    permission: [APP_PERMISSION.PO_DOC.UNLOCK_REQUEST_REJECT],
   },
 ];
 

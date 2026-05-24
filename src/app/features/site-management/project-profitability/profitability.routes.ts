@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { APP_PERMISSION } from '@core/constants';
+import { permissionGuard } from '@core/guards';
 import { ROUTES } from '@shared/constants';
 
 /** Project workspace child: profitability. */
@@ -9,5 +11,9 @@ export const PROJECT_WORKSPACE_PROFITABILITY_ROUTES: Routes = [
       import('./components/get-profitability/get-profitability.component').then(
         m => m.GetProfitabilityComponent
       ),
+    canActivate: [permissionGuard],
+    data: {
+      permissions: [APP_PERMISSION.PROJECT_WORKSPACE.PROFITABILITY],
+    },
   },
 ];

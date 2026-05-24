@@ -54,7 +54,7 @@ import {
   applyGroupMetricValueLoading,
   getMappedValueFromArrayOfObjects,
 } from '@shared/utility';
-// import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-vendor',
@@ -334,7 +334,7 @@ export class GetVendorComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add Vendor',
           actionName: 'addVendor',
-          // permission: [APP_PERMISSION.VENDOR.ADD],
+          permission: [APP_PERMISSION.VENDOR.ADD],
         },
       ],
     };

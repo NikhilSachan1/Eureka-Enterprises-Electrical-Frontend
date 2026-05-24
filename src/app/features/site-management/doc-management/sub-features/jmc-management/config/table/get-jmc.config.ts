@@ -11,6 +11,7 @@ import {
   isNotRecordCreator,
   recordCreatorDisableReason,
 } from '@shared/utility';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   IJmcGetBaseResponseDto,
   IJmcGetResponseDto,
@@ -89,6 +90,7 @@ const buildJmcTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View JMC Details',
+    permission: [APP_PERMISSION.JMC_DOC.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
@@ -101,6 +103,7 @@ const buildJmcTableRowActionsConfig = (
       (shouldDisableJmcEditOrDelete(row)
         ? JMC_ROW_ACTION_DISABLE_REASON.lockedNoEdit
         : undefined),
+    permission: [APP_PERMISSION.JMC_DOC.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
@@ -113,36 +116,42 @@ const buildJmcTableRowActionsConfig = (
       (shouldDisableJmcEditOrDelete(row)
         ? JMC_ROW_ACTION_DISABLE_REASON.lockedNoDelete
         : undefined),
+    permission: [APP_PERMISSION.JMC_DOC.DELETE],
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve JMC',
     disableWhen: shouldDisableJmcApprove,
     disableReason: jmcApproveDisableReason,
+    permission: [APP_PERMISSION.JMC_DOC.APPROVE],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject JMC',
     disableWhen: shouldDisableJmcReject,
     disableReason: jmcRejectDisableReason,
+    permission: [APP_PERMISSION.JMC_DOC.REJECT],
   },
   {
     id: EButtonActionType.UNLOCK_REQUEST,
     tooltip: 'Request unlock JMC',
     disableWhen: shouldDisableJmcUnlockRequest,
     disableReason: jmcUnlockRequestDisableReason,
+    permission: [APP_PERMISSION.JMC_DOC.UNLOCK],
   },
   {
     id: EButtonActionType.UNLOCK_GRANT,
     tooltip: 'Grant unlock JMC',
     disableWhen: shouldDisableJmcUnlockGrant,
     disableReason: jmcUnlockGrantDisableReason,
+    permission: [APP_PERMISSION.JMC_DOC.UNLOCK_GRANT],
   },
   {
     id: EButtonActionType.UNLOCK_REQUEST_REJECT,
     tooltip: 'Reject unlock request',
     disableWhen: shouldDisableJmcUnlockRequestReject,
     disableReason: jmcUnlockRequestRejectDisableReason,
+    permission: [APP_PERMISSION.JMC_DOC.UNLOCK_REQUEST_REJECT],
   },
 ];
 

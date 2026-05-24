@@ -28,6 +28,7 @@ import {
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   createGstEntryTableEnhancedConfig,
   GST_ACTION_CONFIG_MAP,
@@ -356,6 +357,7 @@ export class GetGstEntryComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'GST Payment Release',
           actionName: 'addGstPaymentRelease',
+          permission: [APP_PERMISSION.GST.RELEASE],
         },
       ],
     };

@@ -10,6 +10,7 @@ import {
   isNotRecordCreator,
   recordCreatorDisableReason,
 } from '@shared/utility';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IBookPaymentGetBaseResponseDto } from '../../types/book-payment.dto';
 
 export const BOOK_PAYMENT_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -67,6 +68,7 @@ const buildBookPaymentTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View book payment details',
+    permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
@@ -75,6 +77,7 @@ const buildBookPaymentTableRowActionsConfig = (
       isNotRecordCreator(row.createdBy, loggedInUserId),
     disableReason: (row: IBookPaymentGetBaseResponseDto) =>
       recordCreatorDisableReason('book payment', row.createdBy, loggedInUserId),
+    permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
@@ -83,6 +86,7 @@ const buildBookPaymentTableRowActionsConfig = (
       isNotRecordCreator(row.createdBy, loggedInUserId),
     disableReason: (row: IBookPaymentGetBaseResponseDto) =>
       recordCreatorDisableReason('book payment', row.createdBy, loggedInUserId),
+    permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.DELETE],
   },
 ];
 

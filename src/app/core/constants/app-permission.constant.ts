@@ -7,7 +7,6 @@ export const APP_PERMISSION = {
   ANNOUNCEMENT: {
     VIEW_DETAIL: 'announcement.view.detail',
     TABLE_VIEW: 'announcement.view.table',
-    CARD_VIEW: 'announcement.view.card',
     ADD: 'announcement.add',
     EDIT: 'announcement.edit',
     DELETE: 'announcement.delete',
@@ -15,7 +14,6 @@ export const APP_PERMISSION = {
   ASSET: {
     VIEW_DETAIL: 'asset.view.detail',
     TABLE_VIEW: 'asset.view.table',
-    CARD_VIEW: 'asset.view.card',
     ADD: 'asset.add',
     EDIT: 'asset.edit',
     DELETE: 'asset.delete',
@@ -29,7 +27,6 @@ export const APP_PERMISSION = {
   ATTENDANCE: {
     VIEW_DETAIL: 'attendance.view.detail',
     TABLE_VIEW: 'attendance.view.table',
-    CARD_VIEW: 'attendance.view.card',
     APPLY: 'attendance.apply',
     FORCE: 'attendance.force',
     REGULARIZE: 'attendance.regularize',
@@ -39,7 +36,6 @@ export const APP_PERMISSION = {
   COMPANY: {
     VIEW_DETAIL: 'company.view.detail',
     TABLE_VIEW: 'company.view.table',
-    CARD_VIEW: 'company.view.card',
     ADD: 'company.add',
     EDIT: 'company.edit',
     DELETE: 'company.delete',
@@ -48,7 +44,6 @@ export const APP_PERMISSION = {
   CONTRACTOR: {
     VIEW_DETAIL: 'contractor.view.detail',
     TABLE_VIEW: 'contractor.view.table',
-    CARD_VIEW: 'contractor.view.card',
     ADD: 'contractor.add',
     EDIT: 'contractor.edit',
     DELETE: 'contractor.delete',
@@ -56,17 +51,15 @@ export const APP_PERMISSION = {
   },
   VENDOR: {
     VIEW_DETAIL: 'vendor.view.detail',
-    TABLE_VIEW: 'vendor.view.table',
-    CARD_VIEW: 'vendor.view.card',
-    ADD: 'vendor.add',
-    EDIT: 'vendor.edit',
-    DELETE: 'vendor.delete',
+    TABLE_VIEW: 'financials.vendors.view',
+    ADD: 'financials.vendors.create',
+    EDIT: 'financials.vendors.update',
+    DELETE: 'financials.vendors.delete',
     CHANGE_STATUS: 'vendor.change-status',
   },
   EMPLOYEE: {
     VIEW_DETAIL: 'employee.view.detail',
     TABLE_VIEW: 'employee.view.table',
-    CARD_VIEW: 'employee.view.card',
     ADD: 'employee.add',
     EDIT: 'employee.edit',
     DELETE: 'employee.delete',
@@ -76,7 +69,6 @@ export const APP_PERMISSION = {
   EXPENSE: {
     VIEW_DETAIL: 'expense.view.detail',
     TABLE_VIEW: 'expense.view.table',
-    CARD_VIEW: 'expense.view.card',
     ADD: 'expense.add',
     EDIT: 'expense.edit',
     DELETE: 'expense.delete',
@@ -88,7 +80,6 @@ export const APP_PERMISSION = {
   FUEL_EXPENSE: {
     VIEW_DETAIL: 'fuel.view.detail',
     TABLE_VIEW: 'fuel.view.table',
-    CARD_VIEW: 'fuel.view.card',
     ADD: 'fuel.add',
     EDIT: 'fuel.edit',
     DELETE: 'fuel.delete',
@@ -100,7 +91,6 @@ export const APP_PERMISSION = {
   LEAVE: {
     VIEW_DETAIL: 'leave.view.detail',
     TABLE_VIEW: 'leave.view.table',
-    CARD_VIEW: 'leave.view.card',
     APPLY: 'leave.apply',
     FORCE: 'leave.force',
     APPROVE: 'leave.approve',
@@ -110,7 +100,6 @@ export const APP_PERMISSION = {
   PAYROLL: {
     VIEW_DETAIL: 'payroll.view.detail',
     TABLE_VIEW: 'payroll.view.table',
-    CARD_VIEW: 'payroll.view.card',
     PAID: 'payroll.payslip.paid',
     GENERATE_PAYSLIP: 'payroll.generate.payslip',
     GENERATE: 'payroll.generate',
@@ -121,7 +110,6 @@ export const APP_PERMISSION = {
   },
   PETRO_CARD: {
     TABLE_VIEW: 'petro-card.view.table',
-    CARD_VIEW: 'petro-card.view.card',
     ADD: 'petro-card.add',
     EDIT: 'petro-card.edit',
     DELETE: 'petro-card.delete',
@@ -131,12 +119,10 @@ export const APP_PERMISSION = {
   SALARY_STRUCTURE: {
     VIEW_DETAIL: 'salary-structure.view.detail',
     TABLE_VIEW: 'salary-structure.view.table',
-    CARD_VIEW: 'salary-structure.view.card',
     EDIT: 'salary-structure.edit',
   },
   ROLE_PERMISSION: {
     TABLE_VIEW: 'permission.role.view.table',
-    CARD_VIEW: 'permission.role.view.card',
     ADD: 'permission.role.add',
     EDIT: 'permission.role.edit',
     DELETE: 'permission.role.delete',
@@ -144,15 +130,12 @@ export const APP_PERMISSION = {
   },
   SYSTEM_PERMISSION: {
     TABLE_VIEW: 'permission.system.view.table',
-    CARD_VIEW: 'permission.system.view.card',
     ADD: 'permission.system.add',
     EDIT: 'permission.system.edit',
     DELETE: 'permission.system.delete',
-    SET: 'permission.system.set-permission',
   },
   USER_PERMISSION: {
     TABLE_VIEW: 'permission.user.view.table',
-    CARD_VIEW: 'permission.user.view.card',
     DELETE: 'permission.user.delete',
     SET: 'permission.user.set-permission',
     CHANGE_ROLE: 'permission.user.change-role',
@@ -160,7 +143,6 @@ export const APP_PERMISSION = {
   VEHICLE: {
     VIEW_DETAIL: 'vehicle.view.detail',
     TABLE_VIEW: 'vehicle.view.table',
-    CARD_VIEW: 'vehicle.view.card',
     ADD: 'vehicle.add',
     EDIT: 'vehicle.edit',
     DELETE: 'vehicle.delete',
@@ -177,7 +159,6 @@ export const APP_PERMISSION = {
   VEHICLE_READING: {
     VIEW_DETAIL: 'vehicle-reading.view.detail',
     TABLE_VIEW: 'vehicle-reading.view.table',
-    CARD_VIEW: 'vehicle-reading.view.card',
     ADD: 'vehicle-reading.add',
     EDIT: 'vehicle-reading.edit',
     FORCE: 'vehicle-reading.force',
@@ -185,19 +166,16 @@ export const APP_PERMISSION = {
   VEHICLE_SERVICE: {
     VIEW_DETAIL: 'vehicle-service.view.detail',
     TABLE_VIEW: 'vehicle-service.view.table',
-    CARD_VIEW: 'vehicle-service.view.card',
     ADD: 'vehicle-service.add',
     EDIT: 'vehicle-service.edit',
     DELETE: 'vehicle-service.delete',
   },
   CRON: {
     TABLE_VIEW: 'cron.view.table',
-    CARD_VIEW: 'cron.view.card',
     RUN: 'cron.run',
   },
   CONFIGURATION: {
     TABLE_VIEW: 'configuration.view.table',
-    CARD_VIEW: 'configuration.view.card',
     ADD: 'configuration.add',
     EDIT: 'configuration.edit',
     DELETE: 'configuration.delete',
@@ -205,7 +183,6 @@ export const APP_PERMISSION = {
   PROJECT: {
     VIEW_DETAIL: 'project.view.detail',
     TABLE_VIEW: 'project.view.table',
-    CARD_VIEW: 'project.view.card',
     ADD: 'project.add',
     EDIT: 'project.edit',
     DELETE: 'project.delete',
@@ -213,12 +190,96 @@ export const APP_PERMISSION = {
     WORKSPACE: 'project.analysis',
     ALLOCATE_DEALLOCATE_EMPLOYEE: 'project.allocate-deallocate-employee',
   },
+  PROJECT_WORKSPACE: {
+    TIMELINE: 'project.analysis.timeline',
+    PROFITABILITY: 'project.analysis.profitability',
+  },
   MY_FILES: {
     TABLE_VIEW: 'my-files.view.table',
     ADD: 'my-files.add',
     EDIT: 'my-files.edit',
     DELETE: 'my-files.delete',
     MOVE: 'my-files.move',
+  },
+  PO_DOC: {
+    VIEW_DETAIL: 'financials.purchase-orders.view.detail',
+    TABLE_VIEW: 'financials.purchase-orders.view',
+    ADD: 'financials.purchase-orders.create',
+    EDIT: 'financials.purchase-orders.update',
+    DELETE: 'financials.purchase-orders.delete',
+    APPROVE: 'financials.purchase-orders.approve',
+    REJECT: 'financials.purchase-orders.revert',
+    UNLOCK: 'financials.purchase-orders.unlock',
+    UNLOCK_GRANT: 'financials.purchase-orders.unlock-grant',
+    UNLOCK_REQUEST_REJECT: 'financials.purchase-orders.unlock-request-reject',
+  },
+  JMC_DOC: {
+    VIEW_DETAIL: 'financials.jmcs.view.detail',
+    TABLE_VIEW: 'financials.jmcs.view',
+    ADD: 'financials.jmcs.create',
+    EDIT: 'financials.jmcs.update',
+    DELETE: 'financials.jmcs.delete',
+    APPROVE: 'financials.jmcs.approve',
+    REJECT: 'financials.jmcs.revert',
+    UNLOCK: 'financials.jmcs.unlock',
+    UNLOCK_GRANT: 'financials.jmcs.unlock-grant',
+    UNLOCK_REQUEST_REJECT: 'financials.jmcs.unlock-request-reject',
+  },
+  REPORT_DOC: {
+    VIEW_DETAIL: 'financials.site-reports.view.detail',
+    TABLE_VIEW: 'financials.site-reports.view',
+    ADD: 'financials.site-reports.create',
+    EDIT: 'financials.site-reports.update',
+    DELETE: 'financials.site-reports.delete',
+  },
+  INVOICE_DOC: {
+    VIEW_DETAIL: 'financials.invoices.view.detail',
+    TABLE_VIEW: 'financials.invoices.view',
+    ADD: 'financials.invoices.create',
+    EDIT: 'financials.invoices.update',
+    DELETE: 'financials.invoices.delete',
+    APPROVE: 'financials.invoices.approve',
+    REJECT: 'financials.invoices.revert',
+    UNLOCK: 'financials.invoices.unlock',
+    UNLOCK_GRANT: 'financials.invoices.unlock-grant',
+    UNLOCK_REQUEST_REJECT: 'financials.invoices.unlock-request-reject',
+  },
+  BOOK_PAYMENT_DOC: {
+    VIEW_DETAIL: 'financials.book-payments.view.detail',
+    TABLE_VIEW: 'financials.book-payments.view',
+    ADD: 'financials.book-payments.create',
+    EDIT: 'financials.book-payments.update',
+    DELETE: 'financials.book-payments.delete',
+  },
+  BANK_TRANSFER_DOC: {
+    VIEW_DETAIL: 'financials.bank-transfers.view.detail',
+    TABLE_VIEW: 'financials.bank-transfers.view',
+    ADD: 'financials.bank-transfers.create',
+    EDIT: 'financials.bank-transfers.update',
+    DELETE: 'financials.bank-transfers.delete',
+    SEND_EMAIL: 'financials.payment-advices.email',
+  },
+  DSR: {
+    VIEW_DETAIL: 'project.dsr.view.detail',
+    TABLE_VIEW: 'project.dsr.view.table',
+    ADD: 'project.dsr.add',
+    EDIT: 'project.dsr.edit',
+    DELETE: 'project.dsr.delete',
+    FORCE: 'project.dsr.force',
+  },
+  GST: {
+    VIEW_DETAIL: 'financials.gst.view.detail',
+    TABLE_VIEW: 'financials.gst.view',
+    RELEASE: 'financials.gst.release-payment',
+    APPROVE: 'financials.gst.verify',
+    REJECT: 'financials.gst.revert',
+  },
+  TDS: {
+    VIEW_DETAIL: 'financials.tds.view.detail',
+    TABLE_VIEW: 'financials.tds.view',
+    RELEASE: 'financials.tds.release-payment',
+    APPROVE: 'financials.tds.verify',
+    REJECT: 'financials.tds.revert',
   },
   UI: {
     SALARY_STRUCTURE: {
@@ -256,12 +317,7 @@ export const APP_PERMISSION = {
     PROJECT: {
       SEARCH_FILTER_COMPANY_NAME: 'ui_project_search_filter_company_name',
       SEARCH_FILTER_CONTRACTOR_NAME: 'ui_project_search_filter_contractor_name',
-    },
-    PROJECT_WORKSPACE: {
-      TIMELINE: 'ui_project_analysis_timeline',
-      PROFITABILITY: 'ui_project_analysis_profitability',
-      DOC: 'ui_project_analysis_doc',
-      DSR: 'ui_project_analysis_dsr',
+      SEARCH_FILTER_VENDOR_NAME: 'ui_project_search_filter_vendor_name',
     },
     DSR: {
       TABLE_EMPLOYEE_NAME: 'ui_dsr_table_employee_name',
@@ -391,33 +447,10 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
     },
-  },
-  PROJECT_WORKSPACE: {
-    TIMELINE: {
+    SEARCH_FILTER_VENDOR_NAME: {
       [EUserRole.ADMIN]: true,
       [EUserRole.DRIVER]: false,
       [EUserRole.EMPLOYEE]: false,
-      [EUserRole.MANAGER]: true,
-      [EUserRole.SUPER_ADMIN]: true,
-    },
-    PROFITABILITY: {
-      [EUserRole.ADMIN]: true,
-      [EUserRole.DRIVER]: false,
-      [EUserRole.EMPLOYEE]: false,
-      [EUserRole.MANAGER]: true,
-      [EUserRole.SUPER_ADMIN]: true,
-    },
-    DOC: {
-      [EUserRole.ADMIN]: true,
-      [EUserRole.DRIVER]: false,
-      [EUserRole.EMPLOYEE]: false,
-      [EUserRole.MANAGER]: true,
-      [EUserRole.SUPER_ADMIN]: true,
-    },
-    DSR: {
-      [EUserRole.ADMIN]: true,
-      [EUserRole.DRIVER]: false,
-      [EUserRole.EMPLOYEE]: true,
       [EUserRole.MANAGER]: true,
       [EUserRole.SUPER_ADMIN]: true,
     },

@@ -6,6 +6,7 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IGstEntryGetBaseResponseDto } from '../../types/gst.dto';
 
 export const GST_ENTRY_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -56,6 +57,7 @@ const buildGstEntryTableRowActionsConfig = (): Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View GST entry details',
+    permission: [APP_PERMISSION.GST.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
@@ -63,6 +65,7 @@ const buildGstEntryTableRowActionsConfig = (): Partial<
     disableWhen: (row: IGstEntryGetBaseResponseDto) => row.isVerified,
     disableReason: (row: IGstEntryGetBaseResponseDto) =>
       row.isVerified ? 'This entry is already approved.' : undefined,
+    permission: [APP_PERMISSION.GST.APPROVE],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
@@ -70,6 +73,7 @@ const buildGstEntryTableRowActionsConfig = (): Partial<
     disableWhen: (row: IGstEntryGetBaseResponseDto) => !row.isVerified,
     disableReason: (row: IGstEntryGetBaseResponseDto) =>
       !row.isVerified ? 'Only approved entries can be rejected.' : undefined,
+    permission: [APP_PERMISSION.GST.REJECT],
   },
 ];
 

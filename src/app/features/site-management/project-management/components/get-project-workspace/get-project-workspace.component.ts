@@ -12,7 +12,8 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, finalize, map, startWith } from 'rxjs/operators';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { GetProjectTimelineComponent } from '@features/site-management/project-timeline/components/get-project-timeline/get-project-timeline.component';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -68,6 +69,7 @@ export class GetProjectWorkspaceComponent {
   private readonly projectService = inject(ProjectService);
   private readonly formService = inject(FormService);
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
+  private readonly appPermissionService = inject(AppPermissionService);
   protected readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
   private readonly searchFilterRef = viewChild<SearchFilterComponent>(
@@ -116,6 +118,12 @@ export class GetProjectWorkspaceComponent {
 
   protected readonly visibleWorkspaceTabs = computed((): ITabItem[] =>
     this.buildWorkspaceTabs()
+  );
+
+  protected readonly canViewProjectTimeline = computed(() =>
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.PROJECT_WORKSPACE.TIMELINE
+    )
   );
 
   protected readonly pageHeaderConfig = computed(() =>
@@ -566,36 +574,70 @@ export class GetProjectWorkspaceComponent {
   }
 
   private buildWorkspaceTabs(): ITabItem[] {
+    const {
+      PROJECT_WORKSPACE,
+      PO_DOC,
+      JMC_DOC,
+      REPORT_DOC,
+      INVOICE_DOC,
+      BOOK_PAYMENT_DOC,
+      BANK_TRANSFER_DOC,
+      GST,
+      TDS,
+      DSR,
+    } = APP_PERMISSION;
+
     return [
       {
         route: 'profitability',
         label: 'Profitability',
         icon: this.icons.COMMON.CHART,
+        visible: this.appPermissionService.hasPermission(
+          PROJECT_WORKSPACE.PROFITABILITY
+        ),
       },
       {
         route: 'contractor-doc',
         label: 'Contractor (Sales)',
         icon: this.icons.COMMON.FILE,
+        visible: this.appPermissionService.hasAnyPermission([
+          PO_DOC.TABLE_VIEW,
+          JMC_DOC.TABLE_VIEW,
+          REPORT_DOC.TABLE_VIEW,
+          INVOICE_DOC.TABLE_VIEW,
+          BANK_TRANSFER_DOC.TABLE_VIEW,
+        ]),
       },
       {
         route: 'vendor-doc',
         label: 'Vendor (Purchase)',
         icon: this.icons.COMMON.FILE,
+        visible: this.appPermissionService.hasAnyPermission([
+          PO_DOC.TABLE_VIEW,
+          JMC_DOC.TABLE_VIEW,
+          REPORT_DOC.TABLE_VIEW,
+          INVOICE_DOC.TABLE_VIEW,
+          BANK_TRANSFER_DOC.TABLE_VIEW,
+          BOOK_PAYMENT_DOC.TABLE_VIEW,
+        ]),
       },
       {
         route: 'gst-summary',
         label: 'GST Summary',
         icon: this.icons.COMMON.TAG,
+        visible: this.appPermissionService.hasPermission(GST.TABLE_VIEW),
       },
       {
         route: 'tds-summary',
         label: 'TDS Summary',
         icon: this.icons.COMMON.TAG,
+        visible: this.appPermissionService.hasPermission(TDS.TABLE_VIEW),
       },
       {
         route: 'daily-progress',
         label: 'Daily Progress',
         icon: this.icons.COMMON.CALENDAR,
+        visible: this.appPermissionService.hasPermission(DSR.TABLE_VIEW),
       },
     ];
   }

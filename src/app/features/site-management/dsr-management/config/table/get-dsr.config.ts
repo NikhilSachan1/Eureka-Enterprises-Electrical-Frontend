@@ -85,12 +85,12 @@ const buildDsrTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View DSR Details',
-    permission: [APP_PERMISSION.PROJECT.VIEW_DETAIL],
+    permission: [APP_PERMISSION.DSR.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit DSR',
-    permission: [APP_PERMISSION.PROJECT.EDIT],
+    permission: [APP_PERMISSION.DSR.EDIT],
     disableWhen: row =>
       isNotRecordCreator(row.createdByUser?.id, loggedInUserId),
     disableReason: row =>
@@ -99,7 +99,7 @@ const buildDsrTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete DSR',
-    permission: [APP_PERMISSION.PROJECT.DELETE],
+    permission: [APP_PERMISSION.DSR.DELETE],
     disableWhen: row =>
       isNotRecordCreator(row.createdByUser?.id, loggedInUserId),
     disableReason: row =>

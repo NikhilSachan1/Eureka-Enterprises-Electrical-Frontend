@@ -11,6 +11,7 @@ import {
   isNotRecordCreator,
   recordCreatorDisableReason,
 } from '@shared/utility';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   IInvoiceGetBaseResponseDto,
   IInvoiceGetResponseDto,
@@ -103,6 +104,7 @@ const buildInvoiceTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Invoice Details',
+    permission: [APP_PERMISSION.INVOICE_DOC.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
@@ -115,6 +117,7 @@ const buildInvoiceTableRowActionsConfig = (
       (shouldDisableInvoiceEditOrDelete(row)
         ? INVOICE_ROW_ACTION_DISABLE_REASON.lockedNoEdit
         : undefined),
+    permission: [APP_PERMISSION.INVOICE_DOC.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
@@ -127,36 +130,42 @@ const buildInvoiceTableRowActionsConfig = (
       (shouldDisableInvoiceEditOrDelete(row)
         ? INVOICE_ROW_ACTION_DISABLE_REASON.lockedNoDelete
         : undefined),
+    permission: [APP_PERMISSION.INVOICE_DOC.DELETE],
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     tooltip: 'Approve Invoice',
     disableWhen: shouldDisableInvoiceApprove,
     disableReason: invoiceApproveDisableReason,
+    permission: [APP_PERMISSION.INVOICE_DOC.APPROVE],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Invoice',
     disableWhen: shouldDisableInvoiceReject,
     disableReason: invoiceRejectDisableReason,
+    permission: [APP_PERMISSION.INVOICE_DOC.REJECT],
   },
   {
     id: EButtonActionType.UNLOCK_REQUEST,
     tooltip: 'Request unlock Invoice',
     disableWhen: shouldDisableInvoiceUnlockRequest,
     disableReason: invoiceUnlockRequestDisableReason,
+    permission: [APP_PERMISSION.INVOICE_DOC.UNLOCK],
   },
   {
     id: EButtonActionType.UNLOCK_GRANT,
     tooltip: 'Grant unlock Invoice',
     disableWhen: shouldDisableInvoiceUnlockGrant,
     disableReason: invoiceUnlockGrantDisableReason,
+    permission: [APP_PERMISSION.INVOICE_DOC.UNLOCK_GRANT],
   },
   {
     id: EButtonActionType.UNLOCK_REQUEST_REJECT,
     tooltip: 'Reject unlock request',
     disableWhen: shouldDisableInvoiceUnlockRequestReject,
     disableReason: invoiceUnlockRequestRejectDisableReason,
+    permission: [APP_PERMISSION.INVOICE_DOC.UNLOCK_REQUEST_REJECT],
   },
 ];
 

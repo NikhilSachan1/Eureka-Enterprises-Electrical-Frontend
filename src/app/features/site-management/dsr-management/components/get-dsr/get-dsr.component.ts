@@ -9,7 +9,8 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LoggerService } from '@core/services';
+import { LoggerService, AppPermissionService } from '@core/services';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   ConfirmationDialogService,
   DrawerService,
@@ -76,10 +77,17 @@ export class GetDsrComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly authService = inject(AuthService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
+  );
+
+  protected readonly showEmployeeFilter = computed(() =>
+    this.appPermissionService.hasPermission(
+      APP_PERMISSION.UI.DSR.SEARCH_FILTER_EMPLOYEE_NAME
+    )
   );
 
   protected readonly employeeFilterFieldConfig: IInputFieldsConfig =
@@ -271,11 +279,13 @@ export class GetDsrComponent implements OnInit {
           label: 'Force DSR',
           icon: ICONS.COMMON.FORCE,
           actionName: 'forceDsr',
+          permission: [APP_PERMISSION.DSR.FORCE],
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add DSR',
           actionName: 'addDsr',
+          permission: [APP_PERMISSION.DSR.ADD],
         },
       ],
     };

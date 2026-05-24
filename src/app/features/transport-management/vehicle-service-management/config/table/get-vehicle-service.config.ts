@@ -7,6 +7,7 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { IVehicleServiceGetResponseDto } from '../../types/vehicle-service.dto';
+import { APP_PERMISSION } from '@core/constants';
 import { ICONS } from '@shared/constants';
 export const VEHICLE_SERVICE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No vehicle service record found.',
@@ -79,14 +80,17 @@ export const VEHICLE_SERVICE_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.VIEW,
     tooltip: 'View Vehicle Service Details',
+    permission: [APP_PERMISSION.VEHICLE_SERVICE.VIEW_DETAIL],
   },
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Edit Vehicle Service',
+    permission: [APP_PERMISSION.VEHICLE_SERVICE.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Vehicle Service',
+    permission: [APP_PERMISSION.VEHICLE_SERVICE.DELETE],
   },
 ];
 
@@ -96,6 +100,7 @@ export const VEHICLE_SERVICE_TABLE_BULK_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Vehicle Service',
+    permission: [APP_PERMISSION.VEHICLE_SERVICE.DELETE],
   },
 ];
 

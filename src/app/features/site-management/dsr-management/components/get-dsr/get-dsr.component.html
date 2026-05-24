@@ -6,11 +6,13 @@
     headerFilter
     class="dsr-header-employee-filter"
   >
-    <app-input-field
-      [inputFieldConfig]="employeeFilterFieldConfig"
-      [fieldValue]="selectedEmployeeNames()"
-      (onFieldChange)="onEmployeeFilterChange($event)"
-    />
+    @if (showEmployeeFilter()) {
+      <app-input-field
+        [inputFieldConfig]="employeeFilterFieldConfig"
+        [fieldValue]="selectedEmployeeNames()"
+        (onFieldChange)="onEmployeeFilterChange($event)"
+      />
+    }
   </div>
 </app-page-header>
 

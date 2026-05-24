@@ -11,6 +11,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { LoggerService } from '@core/services';
 import {
   AppConfigurationService,
@@ -318,6 +319,7 @@ export class GetJmcComponent implements OnInit {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add JMC',
           actionName: 'addJmc',
+          permission: [APP_PERMISSION.JMC_DOC.ADD],
         },
       ],
     };
