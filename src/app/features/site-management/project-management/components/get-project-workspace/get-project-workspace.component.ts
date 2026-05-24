@@ -441,12 +441,18 @@ export class GetProjectWorkspaceComponent {
   }
 
   private resolveProjectWorkspaceFilterTab(url: string): string {
-    const { PROFITABILITY, DAILY_PROGRESS, GST_SUMMARY, WORKSPACE_DOC } =
-      ROUTES.SITE.PROJECT;
+    const {
+      PROFITABILITY,
+      DAILY_PROGRESS,
+      GST_SUMMARY,
+      TDS_SUMMARY,
+      WORKSPACE_DOC,
+    } = ROUTES.SITE.PROJECT;
     const filterTabKeys = new Set<string>([
       PROFITABILITY,
       DAILY_PROGRESS,
       GST_SUMMARY,
+      TDS_SUMMARY,
       ...Object.values(WORKSPACE_DOC),
     ]);
     const segments = url.split('?')[0].split('/').filter(Boolean);
@@ -579,6 +585,11 @@ export class GetProjectWorkspaceComponent {
       {
         route: 'gst-summary',
         label: 'GST Summary',
+        icon: this.icons.COMMON.TAG,
+      },
+      {
+        route: 'tds-summary',
+        label: 'TDS Summary',
         icon: this.icons.COMMON.TAG,
       },
       {

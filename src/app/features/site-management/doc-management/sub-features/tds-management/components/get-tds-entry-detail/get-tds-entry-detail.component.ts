@@ -7,10 +7,10 @@ import {
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import {
-  IGstEntryDetailGetResponseDto,
-  IGstEntryGetBaseResponseDto,
-} from '../../types/gst.dto';
-import { GstService } from '../../services/gst.service';
+  ITdsEntryDetailGetResponseDto,
+  ITdsEntryGetBaseResponseDto,
+} from '../../types/tds.dto';
+import { TdsService } from '../../services/tds.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import {
   EDataType,
@@ -29,7 +29,7 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 
 @Component({
-  selector: 'app-get-gst-entry-detail',
+  selector: 'app-get-tds-entry-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ViewDetailComponent,
@@ -37,28 +37,28 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
     DocAmountComponent,
     DocWorkspaceContextComponent,
   ],
-  templateUrl: './get-gst-entry-detail.component.html',
-  styleUrl: './get-gst-entry-detail.component.scss',
+  templateUrl: './get-tds-entry-detail.component.html',
+  styleUrl: './get-tds-entry-detail.component.scss',
 })
-export class GetGstEntryDetailComponent extends DrawerDetailBase {
+export class GetTdsEntryDetailComponent extends DrawerDetailBase {
   protected readonly drawerData = inject(DRAWER_DATA) as {
-    gstEntry: IGstEntryGetBaseResponseDto;
+    tdsEntry: ITdsEntryGetBaseResponseDto;
   };
-  private readonly gstService = inject(GstService);
+  private readonly tdsService = inject(TdsService);
 
-  protected readonly _gstEntryDetails = signal<
+  protected readonly _tdsEntryDetails = signal<
     IDataViewDetailsWithEntity | undefined
   >(undefined);
 
   override onDrawerShow(): void {
-    this.loadGstEntryDetails();
+    this.loadTdsEntryDetails();
   }
 
-  private loadGstEntryDetails(): void {
+  private loadTdsEntryDetails(): void {
     this.setDrawerLoading(true);
 
-    this.gstService
-      .getGstEntryDetailById(this.drawerData.gstEntry.id)
+    this.tdsService
+      .getTdsEntryDetailById(this.drawerData.tdsEntry.id)
       .pipe(
         finalize(() => {
           this.setDrawerLoading(false);
@@ -66,18 +66,18 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IGstEntryDetailGetResponseDto) => {
-          this._gstEntryDetails.set(this.mapGstEntryDetailData(response));
-          this.logger.logUserAction('GST entry detail loaded successfully');
+        next: (response: ITdsEntryDetailGetResponseDto) => {
+          this._tdsEntryDetails.set(this.mapTdsEntryDetailData(response));
+          this.logger.logUserAction('TDS entry detail loaded successfully');
         },
         error: error => {
-          this.logger.error('Failed to load GST entry detail', error);
+          this.logger.error('Failed to load TDS entry detail', error);
         },
       });
   }
 
-  private mapGstEntryDetailData(
-    record: IGstEntryDetailGetResponseDto
+  private mapTdsEntryDetailData(
+    record: ITdsEntryDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
     const entryData: IDataViewDetails['entryData'] = [
       {
@@ -98,30 +98,27 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
       },
       {
         label: 'Document reference',
-        value: DocReferenceHierarchy.forBookPaymentRow({
-          poNumber: record.invoice.jmc?.po?.poNumber,
-          jmcNumber: record.invoice.jmc?.jmcNumber,
-          invoiceNumber: record.invoice.invoiceNumber,
+        value: DocReferenceHierarchy.forBankTransferDetailReference({
+          poNumber: record.bookPayment.invoice.jmc?.po?.poNumber,
+          jmcNumber: record.bookPayment.invoice.jmc?.jmcNumber,
+          invoiceNumber: record.bookPayment.invoice.invoiceNumber,
+          bookPayment: record.bookPayment.bookingDate,
         }),
         customTemplateKey: 'documentReferenceHierarchy',
       },
       {
-        label: 'Invoice date',
-        value: record.invoice.invoiceDate,
+        label: 'Payment date',
+        value: record.bookPayment.bookingDate,
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
-      },
-      {
-        label: 'GST type',
-        value: record.gstType,
       },
       {
         label: 'Amounts',
         value: {
           taxableAmount: record.taxableAmount,
-          gstAmount: record.gstAmount,
+          tdsAmount: record.tdsAmount,
         },
-        customTemplateKey: 'gstEntryDetailAmounts',
+        customTemplateKey: 'tdsEntryDetailAmounts',
         detailTemplateFullRow: true,
       },
       {
@@ -163,7 +160,7 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
   }
 
   private headerFromRecord(
-    record: IGstEntryDetailGetResponseDto
+    record: ITdsEntryDetailGetResponseDto
   ): IEntityViewDetails {
     const partyName =
       record.partyType === EDocContext.SALES
@@ -172,13 +169,13 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
 
     return {
       name: partyName.trim(),
-      subtitle: record.invoice.invoiceNumber,
+      subtitle: record.bookPayment.invoice.invoiceNumber,
     };
   }
 
-  protected docGstEntryDrawerAmountSegments(v: {
+  protected docTdsEntryDrawerAmountSegments(v: {
     taxableAmount: string;
-    gstAmount: string;
+    tdsAmount: string;
   }): IDocAmountSegment[] {
     return [
       {
@@ -188,8 +185,8 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
       },
       {
         dataType: EDataType.CURRENCY,
-        label: 'GST',
-        value: v.gstAmount,
+        label: 'TDS',
+        value: v.tdsAmount,
       },
     ];
   }

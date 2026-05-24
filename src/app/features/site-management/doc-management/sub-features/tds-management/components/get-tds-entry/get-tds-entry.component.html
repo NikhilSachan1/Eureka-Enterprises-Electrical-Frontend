@@ -1,0 +1,58 @@
+<ng-template
+  #docWorkspaceContext
+  let-row
+>
+  <app-doc-workspace-context [view]="row.docWorkspaceContext" />
+</ng-template>
+
+<ng-template
+  #tdsDocumentReference
+  let-row
+>
+  <app-doc-reference [root]="row.documentReferenceHierarchy" />
+</ng-template>
+
+<ng-template
+  #tdsAmountBreakdown
+  let-row
+>
+  <app-doc-amount [segments]="docTdsAmountSegments(row)" />
+</ng-template>
+
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+>
+  <div
+    headerFilter
+    class="tds-header-filters"
+  >
+    <app-input-field
+      [inputFieldConfig]="partyTypeFilterFieldConfig"
+      [fieldValue]="selectedPartyType()"
+      (onFieldChange)="onPartyTypeFilterChange($event)"
+    />
+    <app-input-field
+      [inputFieldConfig]="isVerifiedFilterFieldConfig"
+      [fieldValue]="selectedIsVerified()"
+      (onFieldChange)="onIsVerifiedFilterChange($event)"
+    />
+  </div>
+</app-page-header>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [bulkActionButtons]="table.bulkActions()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    docWorkspaceContext: docWorkspaceContext,
+    tdsDocumentReference: tdsDocumentReference,
+    tdsAmountBreakdown: tdsAmountBreakdown,
+  }"
+  (filterData)="onTableStateChange($event)"
+  (rowActionClick)="handleTdsEntryTableActionClick($any($event))"
+/>

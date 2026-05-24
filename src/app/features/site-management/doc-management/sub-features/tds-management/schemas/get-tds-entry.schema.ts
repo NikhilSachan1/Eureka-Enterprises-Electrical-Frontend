@@ -11,7 +11,7 @@ import z from 'zod';
 
 const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
 
-export const GstEntryGetRequestSchema = z
+export const TdsEntryGetRequestSchema = z
   .object({
     projectName: uuidField.nullable().optional(),
     contractorName: z.array(uuidField).nullable().optional(),
@@ -57,27 +57,28 @@ export const GstEntryGetRequestSchema = z
     }
   );
 
-export const GstEntryGetBaseResponseSchema = z.looseObject({
+export const TdsEntryGetBaseResponseSchema = z.looseObject({
   id: uuidField,
   partyType: z.enum(EDocContext),
-  gstType: z.string(),
   taxableAmount: z.string(),
-  gstAmount: z.string(),
+  tdsAmount: z.string(),
   isVerified: z.boolean(),
   verifiedAt: isoDateTimeField.nullable(),
   verifiedBy: uuidField.nullable(),
-  gstPaymentId: uuidField.nullable(),
-  invoice: z.looseObject({
-    invoiceNumber: z.string(),
-    invoiceDate: onlyDateStringField,
-    jmc: z
-      .looseObject({
-        jmcNumber: z.string(),
-        po: z.looseObject({
-          poNumber: z.string(),
-        }),
-      })
-      .optional(),
+  tdsPaymentId: uuidField.nullable(),
+  bookPayment: z.looseObject({
+    bookingDate: onlyDateStringField,
+    invoice: z.looseObject({
+      invoiceNumber: z.string(),
+      jmc: z
+        .looseObject({
+          jmcNumber: z.string(),
+          po: z.looseObject({
+            poNumber: z.string(),
+          }),
+        })
+        .optional(),
+    }),
   }),
   site: z.looseObject({
     name: z.string(),
@@ -99,7 +100,7 @@ export const GstEntryGetBaseResponseSchema = z.looseObject({
     .nullable(),
 });
 
-export const GstEntryGetResponseSchema = z.looseObject({
-  records: z.array(GstEntryGetBaseResponseSchema),
+export const TdsEntryGetResponseSchema = z.looseObject({
+  records: z.array(TdsEntryGetBaseResponseSchema),
   totalRecords: z.number().int().nonnegative(),
 });

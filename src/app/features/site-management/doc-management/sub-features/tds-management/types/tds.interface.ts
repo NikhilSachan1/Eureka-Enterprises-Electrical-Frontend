@@ -1,0 +1,16 @@
+import type { IDocWorkspaceContextView } from '@features/site-management/doc-management/shared/types/doc-workspace-context.interface';
+import type { IDocReferenceHierarchyNode } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
+
+import { ITdsEntryGetBaseResponseDto } from './tds.dto';
+
+export interface ITdsEntry
+  extends Pick<
+    ITdsEntryGetBaseResponseDto,
+    'id' | 'partyType' | 'taxableAmount' | 'tdsAmount'
+  > {
+  paymentDate: string;
+  verificationStatusLabel: string;
+  docWorkspaceContext: IDocWorkspaceContextView;
+  documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
+  originalRawData: ITdsEntryGetBaseResponseDto;
+}

@@ -1,0 +1,30 @@
+<ng-template
+  #docWorkspaceContextDetail
+  let-entry
+>
+  <app-doc-workspace-context [view]="$any(entry.value)" />
+</ng-template>
+
+<ng-template
+  #documentReferenceHierarchy
+  let-entry
+>
+  <app-doc-reference [root]="$any(entry.value)" />
+</ng-template>
+
+<ng-template
+  #tdsEntryDetailAmounts
+  let-entry
+>
+  @let v = $any(entry.value);
+  <app-doc-amount [segments]="docTdsEntryDrawerAmountSegments(v)" />
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_tdsEntryDetails()"
+  [customTemplates]="{
+    docWorkspaceContextDetail: docWorkspaceContextDetail,
+    documentReferenceHierarchy: documentReferenceHierarchy,
+    tdsEntryDetailAmounts: tdsEntryDetailAmounts,
+  }"
+/>

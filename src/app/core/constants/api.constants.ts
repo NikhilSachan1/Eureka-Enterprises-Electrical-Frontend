@@ -298,6 +298,13 @@ export const API_ROUTES = {
         REVERT: (id: string) => `gst/register/${id}/revert`,
         PAYMENT_RELEASE: 'gst/payments',
       },
+      TDS: {
+        REGISTER: 'tds/register',
+        GET_BY_ID: (id: string) => `tds/register/${id}`,
+        VERIFY: (id: string) => `tds/register/${id}/verify`,
+        REVERT: (id: string) => `tds/register/${id}/revert`,
+        PAYMENT_RELEASE: 'tds/payments',
+      },
     },
   },
   MY_FILES: {
