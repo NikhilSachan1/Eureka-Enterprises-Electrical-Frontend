@@ -436,7 +436,7 @@ export class AuthService {
     return (
       role === EUserRole.ADMIN ||
       role === EUserRole.SUPER_ADMIN ||
-      role === EUserRole.MANAGER
+      role === EUserRole.OPERATION_MANAGER
     );
   }
 
