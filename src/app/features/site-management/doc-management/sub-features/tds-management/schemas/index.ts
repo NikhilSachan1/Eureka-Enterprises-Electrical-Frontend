@@ -7,8 +7,14 @@ export {
   TdsEntryDetailGetRequestSchema,
   TdsEntryDetailGetResponseSchema,
 } from './get-tds-entry-detail.schema';
-export { VerifyTdsEntryResponseSchema } from './verify-tds-entry.schema';
-export { RevertTdsEntryResponseSchema } from './revert-tds-entry.schema';
+export {
+  VerifyTdsEntryRequestSchema,
+  VerifyTdsEntryResponseSchema,
+} from './verify-tds-entry.schema';
+export {
+  RevertTdsEntryRequestSchema,
+  RevertTdsEntryResponseSchema,
+} from './revert-tds-entry.schema';
 export {
   AddTdsPaymentReleaseRequestSchema,
   AddTdsPaymentReleaseResponseSchema,

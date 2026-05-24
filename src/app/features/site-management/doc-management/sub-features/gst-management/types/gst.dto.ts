@@ -6,7 +6,9 @@ import {
   GstEntryGetBaseResponseSchema,
   GstEntryGetRequestSchema,
   GstEntryGetResponseSchema,
+  RevertGstEntryRequestSchema,
   RevertGstEntryResponseSchema,
+  VerifyGstEntryRequestSchema,
   VerifyGstEntryResponseSchema,
 } from '../schemas';
 
@@ -27,15 +29,28 @@ export type IGstEntryDetailGetResponseDto = z.infer<
 >;
 
 /**
- * Verify GST Entry Response
+ * Verify GST Entry
  */
+export type IVerifyGstEntryFormDto = z.input<
+  typeof VerifyGstEntryRequestSchema
+>;
+export type IVerifyGstEntryUIFormDto = Omit<
+  IVerifyGstEntryFormDto,
+  'fileKey' | 'fileName'
+> & {
+  verificationAttachment: File[];
+};
+
 export type IVerifyGstEntryResponseDto = z.infer<
   typeof VerifyGstEntryResponseSchema
 >;
 
 /**
- * Revert GST Entry Response
+ * Revert GST Entry
  */
+export type IRevertGstEntryFormDto = z.input<
+  typeof RevertGstEntryRequestSchema
+>;
 export type IRevertGstEntryResponseDto = z.infer<
   typeof RevertGstEntryResponseSchema
 >;

@@ -1,53 +1,57 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
-import {
-  ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
-import { IDialogActionHandler } from '@shared/types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FormBase } from '@shared/base/form.base';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import {
+  AttachmentsService,
+  ConfirmationDialogService,
+} from '@shared/services';
+import {
+  IDialogActionHandler,
+  IFinancialFileUploadResponseDto,
+} from '@shared/types';
+import { finalize, switchMap } from 'rxjs';
+import { VERIFY_TDS_ENTRY_FORM_CONFIG } from '../../config';
 import { TdsService } from '../../services/tds.service';
 import {
   ITdsEntryGetBaseResponseDto,
+  IVerifyTdsEntryFormDto,
   IVerifyTdsEntryResponseDto,
+  IVerifyTdsEntryUIFormDto,
 } from '../../types/tds.dto';
-import { finalize } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-verify-tds-entry',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [InputFieldComponent, ReactiveFormsModule],
   templateUrl: './verify-tds-entry.component.html',
   styleUrl: './verify-tds-entry.component.scss',
 })
-export class VerifyTdsEntryComponent implements OnInit, IDialogActionHandler {
+export class VerifyTdsEntryComponent
+  extends FormBase<IVerifyTdsEntryUIFormDto>
+  implements OnInit, IDialogActionHandler
+{
   private readonly tdsService = inject(TdsService);
+  private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly loadingService = inject(LoadingService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly logger = inject(LoggerService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly selectedRecord =
     input.required<ITdsEntryGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
 
-  private tdsEntryId?: string;
-
   ngOnInit(): void {
-    const rows = this.selectedRecord();
-    if (!rows?.length) {
+    const record = this.selectedRecord();
+    if (!record) {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
@@ -56,28 +60,45 @@ export class VerifyTdsEntryComponent implements OnInit, IDialogActionHandler {
       );
       return;
     }
-    this.tdsEntryId = rows[0].id;
+
+    this.form = this.formService.createForm<IVerifyTdsEntryUIFormDto>(
+      VERIFY_TDS_ENTRY_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+      }
+    );
   }
 
   onDialogAccept(): void {
-    if (!this.tdsEntryId) {
-      return;
-    }
-    this.executeVerifyAction(this.tdsEntryId);
+    super.onSubmit();
   }
 
-  private executeVerifyAction(tdsEntryId: string): void {
+  protected override handleSubmit(): void {
+    this.executeVerifyAction();
+  }
+
+  private executeVerifyAction(): void {
+    const tdsEntryId = this.selectedRecord()[0].id;
+    const file = this.form.getFieldData('verificationAttachment');
+
     this.loadingService.show({
       title: 'Approving TDS entry',
       message:
         "We're marking this entry as verified. This will just take a moment.",
     });
+    this.form.disable();
 
-    this.tdsService
-      .verifyTdsEntry(tdsEntryId)
+    this.attachmentsService
+      .uploadFinancialDocument(file[0])
       .pipe(
+        switchMap(attachmentResponse => {
+          const formData = this.prepareFormData(attachmentResponse);
+          return this.tdsService.verifyTdsEntry(tdsEntryId, formData);
+        }),
         finalize(() => {
           this.loadingService.hide();
+          this.isSubmitting.set(false);
+          this.form.enable();
         }),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -92,5 +113,19 @@ export class VerifyTdsEntryComponent implements OnInit, IDialogActionHandler {
           this.notificationService.error('Failed to approve TDS entry.');
         },
       });
+  }
+
+  private prepareFormData(
+    attachmentResponse: IFinancialFileUploadResponseDto
+  ): IVerifyTdsEntryFormDto {
+    const formData = this.form.getData();
+    const record = { ...formData };
+    delete (record as Record<string, unknown>)['verificationAttachment'];
+    return {
+      ...record,
+      remarks: record.remarks ?? null,
+      fileKey: attachmentResponse.fileKey,
+      fileName: attachmentResponse.fileName,
+    };
   }
 }

@@ -6,7 +6,9 @@ import {
   TdsEntryGetBaseResponseSchema,
   TdsEntryGetRequestSchema,
   TdsEntryGetResponseSchema,
+  RevertTdsEntryRequestSchema,
   RevertTdsEntryResponseSchema,
+  VerifyTdsEntryRequestSchema,
   VerifyTdsEntryResponseSchema,
 } from '../schemas';
 
@@ -27,15 +29,27 @@ export type ITdsEntryDetailGetResponseDto = z.infer<
 >;
 
 /**
- * Verify TDS Entry Response
+ * Verify TDS Entry
  */
+export type IVerifyTdsEntryFormDto = z.input<
+  typeof VerifyTdsEntryRequestSchema
+>;
+export type IVerifyTdsEntryUIFormDto = Omit<
+  IVerifyTdsEntryFormDto,
+  'fileKey' | 'fileName'
+> & {
+  verificationAttachment: File[];
+};
 export type IVerifyTdsEntryResponseDto = z.infer<
   typeof VerifyTdsEntryResponseSchema
 >;
 
 /**
- * Revert TDS Entry Response
+ * Revert TDS Entry
  */
+export type IRevertTdsEntryFormDto = z.input<
+  typeof RevertTdsEntryRequestSchema
+>;
 export type IRevertTdsEntryResponseDto = z.infer<
   typeof RevertTdsEntryResponseSchema
 >;

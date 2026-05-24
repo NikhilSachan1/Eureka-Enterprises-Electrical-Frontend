@@ -8,7 +8,9 @@ import {
   TdsEntryDetailGetResponseSchema,
   TdsEntryGetRequestSchema,
   TdsEntryGetResponseSchema,
+  RevertTdsEntryRequestSchema,
   RevertTdsEntryResponseSchema,
+  VerifyTdsEntryRequestSchema,
   VerifyTdsEntryResponseSchema,
 } from '../schemas';
 import {
@@ -17,7 +19,9 @@ import {
   ITdsEntryDetailGetResponseDto,
   ITdsEntryGetFormDto,
   ITdsEntryGetResponseDto,
+  IRevertTdsEntryFormDto,
   IRevertTdsEntryResponseDto,
+  IVerifyTdsEntryFormDto,
   IVerifyTdsEntryResponseDto,
 } from '../types/tds.dto';
 
@@ -87,13 +91,21 @@ export class TdsService {
       );
   }
 
-  verifyTdsEntry(tdsEntryId: string): Observable<IVerifyTdsEntryResponseDto> {
+  verifyTdsEntry(
+    tdsEntryId: string,
+    formData: IVerifyTdsEntryFormDto
+  ): Observable<IVerifyTdsEntryResponseDto> {
     this.logger.logUserAction('Verify TDS Entry Request', { tdsEntryId });
 
     return this.apiService
-      .postValidated(API_ROUTES.SITE.DOCUMENT.TDS.VERIFY(tdsEntryId), {
-        response: VerifyTdsEntryResponseSchema,
-      })
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.TDS.VERIFY(tdsEntryId),
+        {
+          response: VerifyTdsEntryResponseSchema,
+          request: VerifyTdsEntryRequestSchema,
+        },
+        formData
+      )
       .pipe(
         tap((response: IVerifyTdsEntryResponseDto) => {
           this.logger.logUserAction('Verify TDS Entry Response', response);
@@ -144,13 +156,21 @@ export class TdsService {
       );
   }
 
-  revertTdsEntry(tdsEntryId: string): Observable<IRevertTdsEntryResponseDto> {
+  revertTdsEntry(
+    tdsEntryId: string,
+    formData: IRevertTdsEntryFormDto
+  ): Observable<IRevertTdsEntryResponseDto> {
     this.logger.logUserAction('Revert TDS Entry Request', { tdsEntryId });
 
     return this.apiService
-      .postValidated(API_ROUTES.SITE.DOCUMENT.TDS.REVERT(tdsEntryId), {
-        response: RevertTdsEntryResponseSchema,
-      })
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.TDS.REVERT(tdsEntryId),
+        {
+          response: RevertTdsEntryResponseSchema,
+          request: RevertTdsEntryRequestSchema,
+        },
+        formData
+      )
       .pipe(
         tap((response: IRevertTdsEntryResponseDto) => {
           this.logger.logUserAction('Revert TDS Entry Response', response);

@@ -1,53 +1,49 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
-import {
-  ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
-import { IDialogActionHandler } from '@shared/types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FormBase } from '@shared/base/form.base';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { ConfirmationDialogService } from '@shared/services';
+import { IDialogActionHandler } from '@shared/types';
+import { finalize } from 'rxjs';
+import { REVERT_TDS_ENTRY_FORM_CONFIG } from '../../config';
 import { TdsService } from '../../services/tds.service';
 import {
   ITdsEntryGetBaseResponseDto,
+  IRevertTdsEntryFormDto,
   IRevertTdsEntryResponseDto,
 } from '../../types/tds.dto';
-import { finalize } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-revert-tds-entry',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [InputFieldComponent, ReactiveFormsModule],
   templateUrl: './revert-tds-entry.component.html',
   styleUrl: './revert-tds-entry.component.scss',
 })
-export class RevertTdsEntryComponent implements OnInit, IDialogActionHandler {
+export class RevertTdsEntryComponent
+  extends FormBase<IRevertTdsEntryFormDto>
+  implements OnInit, IDialogActionHandler
+{
   private readonly tdsService = inject(TdsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly loadingService = inject(LoadingService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly logger = inject(LoggerService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly selectedRecord =
     input.required<ITdsEntryGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
 
-  private tdsEntryId?: string;
-
   ngOnInit(): void {
-    const rows = this.selectedRecord();
-    if (!rows?.length) {
+    const record = this.selectedRecord();
+    if (!record) {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
@@ -56,28 +52,47 @@ export class RevertTdsEntryComponent implements OnInit, IDialogActionHandler {
       );
       return;
     }
-    this.tdsEntryId = rows[0].id;
+
+    this.form = this.formService.createForm<IRevertTdsEntryFormDto>(
+      REVERT_TDS_ENTRY_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+      }
+    );
   }
 
   onDialogAccept(): void {
-    if (!this.tdsEntryId) {
-      return;
-    }
-    this.executeRevertAction(this.tdsEntryId);
+    super.onSubmit();
   }
 
-  private executeRevertAction(tdsEntryId: string): void {
+  protected override handleSubmit(): void {
+    const tdsEntryId = this.selectedRecord()[0].id;
+    const formData = this.prepareFormData();
+    this.executeRevertAction(formData, tdsEntryId);
+  }
+
+  private prepareFormData(): IRevertTdsEntryFormDto {
+    return this.form.getData();
+  }
+
+  private executeRevertAction(
+    formData: IRevertTdsEntryFormDto,
+    tdsEntryId: string
+  ): void {
     this.loadingService.show({
       title: 'Rejecting verification',
       message:
         "We're reverting verification for this entry. This will just take a moment.",
     });
+    this.form.disable();
 
     this.tdsService
-      .revertTdsEntry(tdsEntryId)
+      .revertTdsEntry(tdsEntryId, formData)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
+          this.isSubmitting.set(false);
+          this.form.enable();
         }),
         takeUntilDestroyed(this.destroyRef)
       )

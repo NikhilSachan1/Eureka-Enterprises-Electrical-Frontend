@@ -1,53 +1,57 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
-import {
-  ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
-import { IDialogActionHandler } from '@shared/types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FormBase } from '@shared/base/form.base';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import {
+  AttachmentsService,
+  ConfirmationDialogService,
+} from '@shared/services';
+import {
+  IDialogActionHandler,
+  IFinancialFileUploadResponseDto,
+} from '@shared/types';
+import { finalize, switchMap } from 'rxjs';
+import { VERIFY_GST_ENTRY_FORM_CONFIG } from '../../config';
 import { GstService } from '../../services/gst.service';
 import {
   IGstEntryGetBaseResponseDto,
+  IVerifyGstEntryFormDto,
   IVerifyGstEntryResponseDto,
+  IVerifyGstEntryUIFormDto,
 } from '../../types/gst.dto';
-import { finalize } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-verify-gst-entry',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [InputFieldComponent, ReactiveFormsModule],
   templateUrl: './verify-gst-entry.component.html',
   styleUrl: './verify-gst-entry.component.scss',
 })
-export class VerifyGstEntryComponent implements OnInit, IDialogActionHandler {
+export class VerifyGstEntryComponent
+  extends FormBase<IVerifyGstEntryUIFormDto>
+  implements OnInit, IDialogActionHandler
+{
   private readonly gstService = inject(GstService);
+  private readonly attachmentsService = inject(AttachmentsService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly loadingService = inject(LoadingService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly logger = inject(LoggerService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly selectedRecord =
     input.required<IGstEntryGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
 
-  private gstEntryId?: string;
-
   ngOnInit(): void {
-    const rows = this.selectedRecord();
-    if (!rows?.length) {
+    const record = this.selectedRecord();
+    if (!record) {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
@@ -56,28 +60,45 @@ export class VerifyGstEntryComponent implements OnInit, IDialogActionHandler {
       );
       return;
     }
-    this.gstEntryId = rows[0].id;
+
+    this.form = this.formService.createForm<IVerifyGstEntryUIFormDto>(
+      VERIFY_GST_ENTRY_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+      }
+    );
   }
 
   onDialogAccept(): void {
-    if (!this.gstEntryId) {
-      return;
-    }
-    this.executeVerifyAction(this.gstEntryId);
+    super.onSubmit();
   }
 
-  private executeVerifyAction(gstEntryId: string): void {
+  protected override handleSubmit(): void {
+    this.executeVerifyAction();
+  }
+
+  private executeVerifyAction(): void {
+    const gstEntryId = this.selectedRecord()[0].id;
+    const file = this.form.getFieldData('verificationAttachment');
+
     this.loadingService.show({
       title: 'Approving GST entry',
       message:
         "We're marking this entry as verified. This will just take a moment.",
     });
+    this.form.disable();
 
-    this.gstService
-      .verifyGstEntry(gstEntryId)
+    this.attachmentsService
+      .uploadFinancialDocument(file[0])
       .pipe(
+        switchMap(attachmentResponse => {
+          const formData = this.prepareFormData(attachmentResponse);
+          return this.gstService.verifyGstEntry(gstEntryId, formData);
+        }),
         finalize(() => {
           this.loadingService.hide();
+          this.isSubmitting.set(false);
+          this.form.enable();
         }),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -92,5 +113,19 @@ export class VerifyGstEntryComponent implements OnInit, IDialogActionHandler {
           this.notificationService.error('Failed to approve GST entry.');
         },
       });
+  }
+
+  private prepareFormData(
+    attachmentResponse: IFinancialFileUploadResponseDto
+  ): IVerifyGstEntryFormDto {
+    const formData = this.form.getData();
+    const record = { ...formData };
+    delete (record as Record<string, unknown>)['verificationAttachment'];
+    return {
+      ...record,
+      remarks: record.remarks ?? null,
+      fileKey: attachmentResponse.fileKey,
+      fileName: attachmentResponse.fileName,
+    };
   }
 }

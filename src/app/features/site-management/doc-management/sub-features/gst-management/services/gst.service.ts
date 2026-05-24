@@ -8,7 +8,9 @@ import {
   GstEntryDetailGetResponseSchema,
   GstEntryGetRequestSchema,
   GstEntryGetResponseSchema,
+  RevertGstEntryRequestSchema,
   RevertGstEntryResponseSchema,
+  VerifyGstEntryRequestSchema,
   VerifyGstEntryResponseSchema,
 } from '../schemas';
 import {
@@ -17,7 +19,9 @@ import {
   IGstEntryDetailGetResponseDto,
   IGstEntryGetFormDto,
   IGstEntryGetResponseDto,
+  IRevertGstEntryFormDto,
   IRevertGstEntryResponseDto,
+  IVerifyGstEntryFormDto,
   IVerifyGstEntryResponseDto,
 } from '../types/gst.dto';
 
@@ -87,13 +91,21 @@ export class GstService {
       );
   }
 
-  verifyGstEntry(gstEntryId: string): Observable<IVerifyGstEntryResponseDto> {
+  verifyGstEntry(
+    gstEntryId: string,
+    formData: IVerifyGstEntryFormDto
+  ): Observable<IVerifyGstEntryResponseDto> {
     this.logger.logUserAction('Verify GST Entry Request', { gstEntryId });
 
     return this.apiService
-      .postValidated(API_ROUTES.SITE.DOCUMENT.GST.VERIFY(gstEntryId), {
-        response: VerifyGstEntryResponseSchema,
-      })
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.GST.VERIFY(gstEntryId),
+        {
+          response: VerifyGstEntryResponseSchema,
+          request: VerifyGstEntryRequestSchema,
+        },
+        formData
+      )
       .pipe(
         tap((response: IVerifyGstEntryResponseDto) => {
           this.logger.logUserAction('Verify GST Entry Response', response);
@@ -144,13 +156,21 @@ export class GstService {
       );
   }
 
-  revertGstEntry(gstEntryId: string): Observable<IRevertGstEntryResponseDto> {
+  revertGstEntry(
+    gstEntryId: string,
+    formData: IRevertGstEntryFormDto
+  ): Observable<IRevertGstEntryResponseDto> {
     this.logger.logUserAction('Revert GST Entry Request', { gstEntryId });
 
     return this.apiService
-      .postValidated(API_ROUTES.SITE.DOCUMENT.GST.REVERT(gstEntryId), {
-        response: RevertGstEntryResponseSchema,
-      })
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.GST.REVERT(gstEntryId),
+        {
+          response: RevertGstEntryResponseSchema,
+          request: RevertGstEntryRequestSchema,
+        },
+        formData
+      )
       .pipe(
         tap((response: IRevertGstEntryResponseDto) => {
           this.logger.logUserAction('Revert GST Entry Response', response);

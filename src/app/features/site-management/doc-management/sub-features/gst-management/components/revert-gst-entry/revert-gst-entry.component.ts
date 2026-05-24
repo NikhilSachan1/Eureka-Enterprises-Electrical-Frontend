@@ -1,53 +1,49 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   input,
   OnInit,
 } from '@angular/core';
-import { LoggerService } from '@core/services';
-import {
-  ConfirmationDialogService,
-  LoadingService,
-  NotificationService,
-} from '@shared/services';
-import { IDialogActionHandler } from '@shared/types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FormBase } from '@shared/base/form.base';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { ConfirmationDialogService } from '@shared/services';
+import { IDialogActionHandler } from '@shared/types';
+import { finalize } from 'rxjs';
+import { REVERT_GST_ENTRY_FORM_CONFIG } from '../../config';
 import { GstService } from '../../services/gst.service';
 import {
   IGstEntryGetBaseResponseDto,
+  IRevertGstEntryFormDto,
   IRevertGstEntryResponseDto,
 } from '../../types/gst.dto';
-import { finalize } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-revert-gst-entry',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [InputFieldComponent, ReactiveFormsModule],
   templateUrl: './revert-gst-entry.component.html',
   styleUrl: './revert-gst-entry.component.scss',
 })
-export class RevertGstEntryComponent implements OnInit, IDialogActionHandler {
+export class RevertGstEntryComponent
+  extends FormBase<IRevertGstEntryFormDto>
+  implements OnInit, IDialogActionHandler
+{
   private readonly gstService = inject(GstService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly loadingService = inject(LoadingService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly logger = inject(LoggerService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly selectedRecord =
     input.required<IGstEntryGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
 
-  private gstEntryId?: string;
-
   ngOnInit(): void {
-    const rows = this.selectedRecord();
-    if (!rows?.length) {
+    const record = this.selectedRecord();
+    if (!record) {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
@@ -56,28 +52,47 @@ export class RevertGstEntryComponent implements OnInit, IDialogActionHandler {
       );
       return;
     }
-    this.gstEntryId = rows[0].id;
+
+    this.form = this.formService.createForm<IRevertGstEntryFormDto>(
+      REVERT_GST_ENTRY_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+      }
+    );
   }
 
   onDialogAccept(): void {
-    if (!this.gstEntryId) {
-      return;
-    }
-    this.executeRevertAction(this.gstEntryId);
+    super.onSubmit();
   }
 
-  private executeRevertAction(gstEntryId: string): void {
+  protected override handleSubmit(): void {
+    const gstEntryId = this.selectedRecord()[0].id;
+    const formData = this.prepareFormData();
+    this.executeRevertAction(formData, gstEntryId);
+  }
+
+  private prepareFormData(): IRevertGstEntryFormDto {
+    return this.form.getData();
+  }
+
+  private executeRevertAction(
+    formData: IRevertGstEntryFormDto,
+    gstEntryId: string
+  ): void {
     this.loadingService.show({
       title: 'Rejecting verification',
       message:
         "We're reverting verification for this entry. This will just take a moment.",
     });
+    this.form.disable();
 
     this.gstService
-      .revertGstEntry(gstEntryId)
+      .revertGstEntry(gstEntryId, formData)
       .pipe(
         finalize(() => {
           this.loadingService.hide();
+          this.isSubmitting.set(false);
+          this.form.enable();
         }),
         takeUntilDestroyed(this.destroyRef)
       )
