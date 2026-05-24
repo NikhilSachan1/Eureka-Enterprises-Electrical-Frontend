@@ -65,21 +65,21 @@ export const TdsEntryGetBaseResponseSchema = z.looseObject({
   isVerified: z.boolean(),
   verifiedAt: isoDateTimeField.nullable(),
   verifiedBy: uuidField.nullable(),
+  verifyFileKey: z.string().nullable(),
   tdsPaymentId: uuidField.nullable(),
-  bookPayment: z.looseObject({
-    bookingDate: onlyDateStringField,
-    invoice: z.looseObject({
-      invoiceNumber: z.string(),
-      jmc: z
-        .looseObject({
-          jmcNumber: z.string(),
-          po: z.looseObject({
-            poNumber: z.string(),
-          }),
-        })
-        .optional(),
-    }),
+  invoice: z.looseObject({
+    invoiceNumber: z.string(),
+    invoiceDate: onlyDateStringField,
+    jmc: z
+      .looseObject({
+        jmcNumber: z.string(),
+        po: z.looseObject({
+          poNumber: z.string(),
+        }),
+      })
+      .optional(),
   }),
+
   site: z.looseObject({
     name: z.string(),
     city: z.string(),

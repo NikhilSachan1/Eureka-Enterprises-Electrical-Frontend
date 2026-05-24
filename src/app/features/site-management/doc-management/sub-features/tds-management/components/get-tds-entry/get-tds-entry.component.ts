@@ -206,10 +206,11 @@ export class GetTdsEntryComponent implements OnInit {
         ({
           id: record.id,
           partyType: record.partyType,
-          paymentDate: record.bookPayment.bookingDate,
+          paymentDate: record.invoice.invoiceDate,
           taxableAmount: record.taxableAmount,
           tdsAmount: record.tdsAmount,
           verificationStatusLabel: record.isVerified ? 'Approved' : 'Pending',
+          verifyFileKeys: record.verifyFileKey ? [record.verifyFileKey] : [],
           docWorkspaceContext: {
             companyName: record.site.company.name,
             partyName:
@@ -221,13 +222,11 @@ export class GetTdsEntryComponent implements OnInit {
             projectName: record.site.name,
             siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
           },
-          documentReferenceHierarchy:
-            DocReferenceHierarchy.forBankTransferDetailReference({
-              poNumber: record.bookPayment.invoice.jmc?.po?.poNumber,
-              jmcNumber: record.bookPayment.invoice.jmc?.jmcNumber,
-              invoiceNumber: record.bookPayment.invoice.invoiceNumber,
-              bookPayment: record.bookPayment.bookingDate,
-            }),
+          documentReferenceHierarchy: DocReferenceHierarchy.forBookPaymentRow({
+            poNumber: record.invoice.jmc?.po?.poNumber,
+            jmcNumber: record.invoice.jmc?.jmcNumber,
+            invoiceNumber: record.invoice.invoiceNumber,
+          }),
           originalRawData: record,
         }) satisfies ITdsEntry
     );
@@ -304,7 +303,7 @@ export class GetTdsEntryComponent implements OnInit {
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Payment date',
-        value: row.bookPayment.bookingDate,
+        value: row.invoice.invoiceDate,
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
@@ -334,7 +333,7 @@ export class GetTdsEntryComponent implements OnInit {
       ],
       entity: {
         name: partyName.trim(),
-        subtitle: row.bookPayment.invoice.invoiceNumber,
+        subtitle: row.invoice.invoiceNumber,
       },
     };
   }

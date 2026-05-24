@@ -35,6 +35,22 @@
         [formGroup]="form.formGroup"
         [inputFieldConfig]="form.fieldConfigs.transferAmount"
       />
+
+      <div class="grid grid-cols-1 md:grid-cols-2">
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.tdsPercentage"
+        />
+        <app-input-field
+          [formGroup]="form.formGroup"
+          [inputFieldConfig]="form.fieldConfigs.tdsDeducted"
+        />
+      </div>
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.taxableAmount"
+      />
     }
 
     <app-input-field

@@ -97,6 +97,21 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
         detailTemplateFullRow: true,
       },
       {
+        label: 'Invoice date',
+        value: record.invoice.invoiceDate,
+        type: EDataType.DATE,
+        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+      },
+      ...(!record.isVerified && record.revertReason
+        ? [
+            {
+              label: 'Revert reason',
+              value: record.revertReason,
+              type: EDataType.TEXT_WITH_READ_MORE,
+            },
+          ]
+        : []),
+      {
         label: 'Document reference',
         value: DocReferenceHierarchy.forBookPaymentRow({
           poNumber: record.invoice.jmc?.po?.poNumber,
@@ -104,16 +119,7 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
           invoiceNumber: record.invoice.invoiceNumber,
         }),
         customTemplateKey: 'documentReferenceHierarchy',
-      },
-      {
-        label: 'Invoice date',
-        value: record.invoice.invoiceDate,
-        type: EDataType.DATE,
-        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
-      },
-      {
-        label: 'GST type',
-        value: record.gstType,
+        detailTemplateFullRow: false,
       },
       {
         label: 'Amounts',
@@ -122,15 +128,15 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
           gstAmount: record.gstAmount,
         },
         customTemplateKey: 'gstEntryDetailAmounts',
-        detailTemplateFullRow: true,
-      },
-      {
-        label: 'Verified at',
-        value: record.verifiedAt,
-        type: EDataType.DATE,
-        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        detailTemplateFullRow: false,
       },
     ];
+
+    entryData.push({
+      label: 'Attachment',
+      value: record.verifyFileKey ? [record.verifyFileKey] : [],
+      type: EDataType.ATTACHMENTS,
+    });
 
     const detail: IDataViewDetails = {
       status: {
@@ -143,17 +149,10 @@ export class GetGstEntryDetailComponent extends DrawerDetailBase {
             approvalBy: {
               user: record.verifiedByUser,
               date: record.verifiedAt,
+              notes: record.verifyRemarks,
             },
           }
         : {}),
-      createdBy: {
-        user: record.createdByUser,
-        date: record.createdAt,
-      },
-      updatedBy: {
-        user: record.updatedByUser,
-        date: record.updatedAt,
-      },
     };
 
     return {

@@ -66,6 +66,7 @@ export const GstEntryGetBaseResponseSchema = z.looseObject({
   isVerified: z.boolean(),
   verifiedAt: isoDateTimeField.nullable(),
   verifiedBy: uuidField.nullable(),
+  verifyFileKey: z.string().nullable(),
   gstPaymentId: uuidField.nullable(),
   invoice: z.looseObject({
     invoiceNumber: z.string(),

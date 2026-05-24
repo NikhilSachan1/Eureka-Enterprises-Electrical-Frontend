@@ -18,7 +18,7 @@ import {
   IDialogActionHandler,
   IFinancialFileUploadResponseDto,
 } from '@shared/types';
-import { finalize, switchMap } from 'rxjs';
+import { defer, finalize, mergeMap, of } from 'rxjs';
 import { VERIFY_GST_ENTRY_FORM_CONFIG } from '../../config';
 import { GstService } from '../../services/gst.service';
 import {
@@ -79,7 +79,9 @@ export class VerifyGstEntryComponent
 
   private executeVerifyAction(): void {
     const gstEntryId = this.selectedRecord()[0].id;
-    const file = this.form.getFieldData('verificationAttachment');
+    const file = this.form.getFieldData('verificationAttachment') as
+      | File[]
+      | undefined;
 
     this.loadingService.show({
       title: 'Approving GST entry',
@@ -88,13 +90,18 @@ export class VerifyGstEntryComponent
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    defer(() =>
+      file?.length
+        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        : of<IFinancialFileUploadResponseDto | null>(null)
+    )
       .pipe(
-        switchMap(attachmentResponse => {
-          const formData = this.prepareFormData(attachmentResponse);
-          return this.gstService.verifyGstEntry(gstEntryId, formData);
-        }),
+        mergeMap((attachmentResponse: IFinancialFileUploadResponseDto | null) =>
+          this.gstService.verifyGstEntry(
+            gstEntryId,
+            this.prepareFormData(attachmentResponse)
+          )
+        ),
         finalize(() => {
           this.loadingService.hide();
           this.isSubmitting.set(false);
@@ -108,7 +115,7 @@ export class VerifyGstEntryComponent
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
-        error: error => {
+        error: (error: unknown) => {
           this.logger.error('Failed to approve GST entry', error);
           this.notificationService.error('Failed to approve GST entry.');
         },
@@ -116,7 +123,7 @@ export class VerifyGstEntryComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    attachmentResponse?: IFinancialFileUploadResponseDto | null
   ): IVerifyGstEntryFormDto {
     const formData = this.form.getData();
     const record = { ...formData };
@@ -124,8 +131,8 @@ export class VerifyGstEntryComponent
     return {
       ...record,
       remarks: record.remarks ?? null,
-      fileKey: attachmentResponse.fileKey,
-      fileName: attachmentResponse.fileName,
+      fileKey: attachmentResponse?.fileKey ?? null,
+      fileName: attachmentResponse?.fileName ?? null,
     };
   }
 }

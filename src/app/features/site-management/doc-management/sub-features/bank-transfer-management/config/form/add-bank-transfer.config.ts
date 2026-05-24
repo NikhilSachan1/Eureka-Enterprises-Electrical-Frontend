@@ -10,6 +10,8 @@ import {
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { IAddBankTransferUIFormDto } from '../../types/bank-transfer.dto';
 
+export const ADD_BANK_TRANSFER_DEFAULT_TDS_PERCENT = 2;
+
 const ADD_BANK_TRANSFER_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBankTransferUIFormDto> =
   {
     projectName: {
@@ -77,6 +79,64 @@ const ADD_BANK_TRANSFER_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBankTrans
         touchUI: false,
       },
       validators: [Validators.required],
+    },
+    taxableAmount: {
+      fieldType: EDataType.NUMBER,
+      id: 'taxableAmount',
+      fieldName: 'taxableAmount',
+      label: 'Taxable Amount',
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+      readonlyInput: true,
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            return context.docContext === EDocContext.SALES;
+          },
+          validators: [Validators.required, Validators.min(0)],
+        },
+      ],
+    },
+    tdsPercentage: {
+      fieldType: EDataType.NUMBER,
+      id: 'tdsPercentage',
+      fieldName: 'tdsPercentage',
+      label: 'TDS %',
+      defaultValue: ADD_BANK_TRANSFER_DEFAULT_TDS_PERCENT,
+      numberConfig: {
+        mode: EInputNumberMode.Decimal,
+        allowNumberFormatting: false,
+        suffix: ' %',
+      },
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            return context.docContext === EDocContext.SALES;
+          },
+          validators: [Validators.required],
+        },
+      ],
+    },
+    tdsDeducted: {
+      fieldType: EDataType.NUMBER,
+      id: 'tdsDeducted',
+      fieldName: 'tdsDeducted',
+      label: 'TDS Deducted',
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+      readonlyInput: true,
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => {
+            return context.docContext === EDocContext.SALES;
+          },
+          validators: [Validators.required, Validators.min(0)],
+        },
+      ],
     },
     transferAmount: {
       fieldType: EDataType.NUMBER,

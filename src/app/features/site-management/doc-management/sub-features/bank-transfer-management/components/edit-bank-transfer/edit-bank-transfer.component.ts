@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  effect,
   inject,
   input,
   OnInit,
@@ -17,6 +18,7 @@ import {
   IDialogActionHandler,
   IFinancialFileUploadResponseDto,
   IInputFieldsConfig,
+  ITrackedFields,
 } from '@shared/types';
 import {
   AttachmentsService,
@@ -24,13 +26,17 @@ import {
 } from '@shared/services';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
+import { roundCurrencyAmount } from '@shared/utility';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
   applyProjectDateRangeFromSite,
   IProjectSiteDateRange,
 } from '@features/site-management/project-management/utility/project-overview-date.util';
 
-import { EDIT_BANK_TRANSFER_FORM_CONFIG } from '../../config';
+import {
+  ADD_BANK_TRANSFER_DEFAULT_TDS_PERCENT,
+  EDIT_BANK_TRANSFER_FORM_CONFIG,
+} from '../../config';
 import { BankTransferService } from '../../services/bank-transfer.service';
 import {
   IBankTransferGetBaseResponseDto,
@@ -60,12 +66,26 @@ export class EditBankTransferComponent
   private readonly currencyPipe = inject(CurrencyPipe);
   private readonly datePipe = inject(DatePipe);
 
+  private trackedBankTransferInputs!: ITrackedFields<IEditBankTransferUIFormDto>;
+
   protected readonly EDocContext = EDocContext;
 
   protected readonly selectedRecord =
     input.required<IBankTransferGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
+
+  constructor() {
+    super();
+    effect(() => {
+      if (this.docContext() !== EDocContext.SALES) {
+        return;
+      }
+      this.trackedBankTransferInputs?.transferAmount?.();
+      this.trackedBankTransferInputs?.tdsPercentage?.();
+      this.recalcSalesFromTransferAmount();
+    });
+  }
 
   ngOnInit(): void {
     const rows = this.selectedRecord();
@@ -96,11 +116,25 @@ export class EditBankTransferComponent
           utrNumber: record.utrNumber,
           transferDate: new Date(record.transferDate),
           transferAmount: Number(record.transferAmount),
+          taxableAmount: null,
+          tdsPercentage:
+            record.tdsPercentage ?? ADD_BANK_TRANSFER_DEFAULT_TDS_PERCENT,
+          tdsDeducted: null,
           remarks: record.remarks ?? null,
         },
         context: { docContext: this.docContext() },
       }
     );
+
+    if (this.docContext() === EDocContext.SALES) {
+      this.trackedBankTransferInputs =
+        this.formService.trackMultipleFieldChanges<IEditBankTransferUIFormDto>(
+          this.form.formGroup,
+          ['transferAmount', 'tdsPercentage'],
+          this.destroyRef
+        );
+      this.recalcSalesFromTransferAmount();
+    }
 
     this.seedInvoiceNumberOption(record);
     if (this.docContext() === EDocContext.PURCHASE) {
@@ -114,6 +148,38 @@ export class EditBankTransferComponent
       record.site as IProjectSiteDateRange
     );
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
+  private recalcSalesFromTransferAmount(): void {
+    if (
+      this.docContext() !== EDocContext.SALES ||
+      !this.trackedBankTransferInputs
+    ) {
+      return;
+    }
+
+    const { transferAmount, tdsPercentage } =
+      this.trackedBankTransferInputs.getValues();
+    const transfer =
+      transferAmount === null || transferAmount === undefined
+        ? NaN
+        : Number(transferAmount);
+    const tdsP =
+      tdsPercentage === null || tdsPercentage === undefined
+        ? NaN
+        : Number(tdsPercentage);
+
+    if (isNaN(transfer) || isNaN(tdsP)) {
+      return;
+    }
+
+    const taxableAmount = roundCurrencyAmount(transfer / (1 - tdsP / 100));
+    const tdsDeducted = roundCurrencyAmount(taxableAmount - transfer);
+
+    this.form.formGroup.patchValue({
+      taxableAmount,
+      tdsDeducted,
+    });
   }
 
   private seedInvoiceNumberOption(
@@ -258,6 +324,7 @@ export class EditBankTransferComponent
     delete (record as Record<string, unknown>)['proofAttachment'];
     delete (record as Record<string, unknown>)['invoiceNumber'];
     delete (record as Record<string, unknown>)['bookPaymentNumber'];
+    delete (record as Record<string, unknown>)['taxableAmount'];
 
     if (EDocContext.PURCHASE === this.docContext()) {
       delete (record as Record<string, unknown>)['transferAmount'];

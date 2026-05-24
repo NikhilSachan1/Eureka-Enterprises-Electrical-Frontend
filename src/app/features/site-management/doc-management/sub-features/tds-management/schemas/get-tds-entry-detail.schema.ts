@@ -13,6 +13,6 @@ export const TdsEntryDetailGetResponseSchema = z.looseObject({
   ...TdsEntryGetBaseResponseSchema.shape,
   ...AuditSchema.shape,
   verifiedByUser: makeFieldsNullable(UserSchema).nullable(),
-  createdByUser: UserSchema,
-  updatedByUser: makeFieldsNullable(UserSchema).nullable(),
+  verifyRemarks: z.string().nullable(),
+  revertReason: z.string().nullable(),
 });

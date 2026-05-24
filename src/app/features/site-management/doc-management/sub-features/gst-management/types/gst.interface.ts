@@ -10,6 +10,7 @@ export interface IGstEntry
   > {
   invoiceDate: string;
   verificationStatusLabel: string;
+  verifyFileKeys: string[];
   docWorkspaceContext: IDocWorkspaceContextView;
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   originalRawData: IGstEntryGetBaseResponseDto;

@@ -10,6 +10,7 @@ export interface ITdsEntry
   > {
   paymentDate: string;
   verificationStatusLabel: string;
+  verifyFileKeys: string[];
   docWorkspaceContext: IDocWorkspaceContextView;
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   originalRawData: ITdsEntryGetBaseResponseDto;

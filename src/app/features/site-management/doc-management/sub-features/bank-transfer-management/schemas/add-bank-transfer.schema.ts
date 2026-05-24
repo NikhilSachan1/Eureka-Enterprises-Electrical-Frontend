@@ -12,6 +12,12 @@ export const AddBankTransferRequestSchema =
     utrNumber: data.utrNumber,
     transferDate: transformDateFormat(data.transferDate),
     transferAmount: data.transferAmount,
+    tdsPercentage:
+      data.partyType === EDocContext.SALES
+        ? (data.tdsPercentage ?? null)
+        : null,
+    tdsDeducted:
+      data.partyType === EDocContext.SALES ? (data.tdsDeducted ?? null) : null,
     proofFileKey: data.transferProofFileKey,
     proofFileName: data.transferProofFileName,
     remarks: data.remarks,

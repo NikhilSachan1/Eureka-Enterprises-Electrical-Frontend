@@ -97,20 +97,29 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
         detailTemplateFullRow: true,
       },
       {
-        label: 'Document reference',
-        value: DocReferenceHierarchy.forBankTransferDetailReference({
-          poNumber: record.bookPayment.invoice.jmc?.po?.poNumber,
-          jmcNumber: record.bookPayment.invoice.jmc?.jmcNumber,
-          invoiceNumber: record.bookPayment.invoice.invoiceNumber,
-          bookPayment: record.bookPayment.bookingDate,
-        }),
-        customTemplateKey: 'documentReferenceHierarchy',
-      },
-      {
         label: 'Payment date',
-        value: record.bookPayment.bookingDate,
+        value: record.invoice.invoiceDate,
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+      },
+      ...(!record.isVerified && record.revertReason
+        ? [
+            {
+              label: 'Revert reason',
+              value: record.revertReason,
+              type: EDataType.TEXT_WITH_READ_MORE,
+            },
+          ]
+        : []),
+      {
+        label: 'Document reference',
+        value: DocReferenceHierarchy.forBookPaymentRow({
+          poNumber: record.invoice.jmc?.po?.poNumber,
+          jmcNumber: record.invoice.jmc?.jmcNumber,
+          invoiceNumber: record.invoice.invoiceNumber,
+        }),
+        customTemplateKey: 'documentReferenceHierarchy',
+        detailTemplateFullRow: false,
       },
       {
         label: 'Amounts',
@@ -119,15 +128,15 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
           tdsAmount: record.tdsAmount,
         },
         customTemplateKey: 'tdsEntryDetailAmounts',
-        detailTemplateFullRow: true,
-      },
-      {
-        label: 'Verified at',
-        value: record.verifiedAt,
-        type: EDataType.DATE,
-        format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        detailTemplateFullRow: false,
       },
     ];
+
+    entryData.push({
+      label: 'Attachment',
+      value: record.verifyFileKey ? [record.verifyFileKey] : [],
+      type: EDataType.ATTACHMENTS,
+    });
 
     const detail: IDataViewDetails = {
       status: {
@@ -140,17 +149,10 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
             approvalBy: {
               user: record.verifiedByUser,
               date: record.verifiedAt,
+              notes: record.verifyRemarks,
             },
           }
         : {}),
-      createdBy: {
-        user: record.createdByUser,
-        date: record.createdAt,
-      },
-      updatedBy: {
-        user: record.updatedByUser,
-        date: record.updatedAt,
-      },
     };
 
     return {
@@ -169,7 +171,7 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
 
     return {
       name: partyName.trim(),
-      subtitle: record.bookPayment.invoice.invoiceNumber,
+      subtitle: record.invoice.invoiceNumber,
     };
   }
 

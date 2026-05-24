@@ -40,7 +40,10 @@ import {
   IAddBankTransferResponseDto,
   IAddBankTransferUIFormDto,
 } from '../../types/bank-transfer.dto';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  getMappedValueFromArrayOfObjects,
+  roundCurrencyAmount,
+} from '@shared/utility';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
 import {
@@ -134,6 +137,15 @@ export class AddBankTransferComponent
         }
       }
     });
+
+    effect(() => {
+      if (this.docContext() !== EDocContext.SALES) {
+        return;
+      }
+      this.trackedBankTransferInputs?.transferAmount?.();
+      this.trackedBankTransferInputs?.tdsPercentage?.();
+      this.recalcSalesFromTransferAmount();
+    });
   }
 
   ngOnInit(): void {
@@ -151,11 +163,10 @@ export class AddBankTransferComponent
       }
     );
 
-    const trackedFields: (keyof IAddBankTransferUIFormDto)[] = [
-      'projectName',
-      'invoiceNumber',
-      'bookPaymentNumber',
-    ];
+    const trackedFields: (keyof IAddBankTransferUIFormDto)[] =
+      this.docContext() === EDocContext.SALES
+        ? ['projectName', 'invoiceNumber', 'transferAmount', 'tdsPercentage']
+        : ['projectName', 'invoiceNumber', 'bookPaymentNumber'];
 
     this.trackedBankTransferInputs =
       this.formService.trackMultipleFieldChanges<IAddBankTransferUIFormDto>(
@@ -163,6 +174,38 @@ export class AddBankTransferComponent
         trackedFields,
         this.destroyRef
       );
+  }
+
+  private recalcSalesFromTransferAmount(): void {
+    if (
+      this.docContext() !== EDocContext.SALES ||
+      !this.trackedBankTransferInputs
+    ) {
+      return;
+    }
+
+    const { transferAmount, tdsPercentage } =
+      this.trackedBankTransferInputs.getValues();
+    const transfer =
+      transferAmount === null || transferAmount === undefined
+        ? NaN
+        : Number(transferAmount);
+    const tdsP =
+      tdsPercentage === null || tdsPercentage === undefined
+        ? NaN
+        : Number(tdsPercentage);
+
+    if (isNaN(transfer) || isNaN(tdsP)) {
+      return;
+    }
+
+    const taxableAmount = roundCurrencyAmount(transfer / (1 - tdsP / 100));
+    const tdsDeducted = roundCurrencyAmount(taxableAmount - transfer);
+
+    this.form.formGroup.patchValue({
+      taxableAmount,
+      tdsDeducted,
+    });
   }
 
   private loadProjectDateRange(projectId: string): void {
@@ -361,6 +404,7 @@ export class AddBankTransferComponent
     const record = { ...formData };
     delete (record as Record<string, unknown>)['projectName'];
     delete (record as Record<string, unknown>)['proofAttachment'];
+    delete (record as Record<string, unknown>)['taxableAmount'];
     return {
       ...record,
       partyType: this.docContext(),

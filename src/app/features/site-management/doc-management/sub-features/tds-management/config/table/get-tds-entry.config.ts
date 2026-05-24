@@ -44,6 +44,12 @@ export const TDS_ENTRY_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] =
       showSort: false,
     },
     {
+      field: 'verifyFileKeys',
+      header: 'Attachment',
+      bodyTemplate: EDataType.ATTACHMENTS,
+      showSort: false,
+    },
+    {
       field: 'verificationStatusLabel',
       header: 'Verification',
       bodyTemplate: EDataType.STATUS,
@@ -69,10 +75,10 @@ const buildTdsEntryTableRowActionsConfig = (): Partial<
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
-    tooltip: 'Reject verification',
+    tooltip: 'Revert verification',
     disableWhen: (row: ITdsEntryGetBaseResponseDto) => !row.isVerified,
     disableReason: (row: ITdsEntryGetBaseResponseDto) =>
-      !row.isVerified ? 'Only approved entries can be rejected.' : undefined,
+      !row.isVerified ? 'Only verified entries can be reverted.' : undefined,
     permission: [APP_PERMISSION.TDS.REJECT],
   },
 ];

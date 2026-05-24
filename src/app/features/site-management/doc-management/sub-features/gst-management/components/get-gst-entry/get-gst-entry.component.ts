@@ -210,6 +210,7 @@ export class GetGstEntryComponent implements OnInit {
           taxableAmount: record.taxableAmount,
           gstAmount: record.gstAmount,
           verificationStatusLabel: record.isVerified ? 'Approved' : 'Pending',
+          verifyFileKeys: record.verifyFileKey ? [record.verifyFileKey] : [],
           docWorkspaceContext: {
             companyName: record.site.company.name,
             partyName:

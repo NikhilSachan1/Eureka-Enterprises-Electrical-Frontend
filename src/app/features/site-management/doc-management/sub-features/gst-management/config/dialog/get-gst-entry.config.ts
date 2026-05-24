@@ -28,7 +28,7 @@ export const GST_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
   [EButtonActionType.REJECT]: {
     dialogConfig: {
       ...REJECT_CONFIRMATION_DIALOG_CONFIG,
-      header: 'Reject verification?',
+      header: 'Revert verification?',
       message:
         'Set this entry back to pending verification? You can approve it again later.',
     },

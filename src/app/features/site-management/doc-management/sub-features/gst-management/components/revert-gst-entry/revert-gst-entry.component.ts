@@ -80,7 +80,7 @@ export class RevertGstEntryComponent
     gstEntryId: string
   ): void {
     this.loadingService.show({
-      title: 'Rejecting verification',
+      title: 'Reverting verification',
       message:
         "We're reverting verification for this entry. This will just take a moment.",
     });
@@ -103,9 +103,9 @@ export class RevertGstEntryComponent
           this.confirmationDialogService.closeDialog();
         },
         error: error => {
-          this.logger.error('Failed to reject GST entry verification', error);
+          this.logger.error('Failed to revert GST entry verification', error);
           this.notificationService.error(
-            'Failed to reject GST entry verification.'
+            'Failed to revert GST entry verification.'
           );
         },
       });

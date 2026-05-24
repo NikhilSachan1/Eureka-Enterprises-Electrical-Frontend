@@ -4,7 +4,10 @@ export const RevertGstEntryRequestSchema = z
   .object({
     remarks: z.string(),
   })
-  .strict();
+  .strict()
+  .transform(data => ({
+    reason: data.remarks ?? null,
+  }));
 
 export const RevertGstEntryResponseSchema = z.looseObject({
   message: z.string(),
