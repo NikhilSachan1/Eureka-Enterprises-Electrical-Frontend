@@ -213,6 +213,13 @@ export const APP_PERMISSION = {
     WORKSPACE: 'project.analysis',
     ALLOCATE_DEALLOCATE_EMPLOYEE: 'project.allocate-deallocate-employee',
   },
+  MY_FILES: {
+    TABLE_VIEW: 'my-files.view.table',
+    ADD: 'my-files.add',
+    EDIT: 'my-files.edit',
+    DELETE: 'my-files.delete',
+    MOVE: 'my-files.move',
+  },
   UI: {
     SALARY_STRUCTURE: {
       TABLE: 'ui_table_salary_structure',

@@ -161,8 +161,7 @@
           }
         }
 
-        @let hasRowActions = rowActions() && rowActions().length > 0;
-        @if (hasRowActions) {
+        @if (showRowActionsColumn()) {
           <th class="w-[100px]">
             <div class="flex items-center">
               <span class="font-semibold">Actions</span>
@@ -235,8 +234,7 @@
 
         @let visibleRowActions = getVisibleRowActions(rowData);
         @let useRowActionsMenuOnly = shouldShowRowActionsInMenuOnly(rowData);
-        @let shouldShowRowActions = rowActions() && rowActions().length > 0;
-        @if (shouldShowRowActions) {
+        @if (showRowActionsColumn()) {
           <td>
             <div class="flex items-center">
               @if (useRowActionsMenuOnly) {
@@ -378,7 +376,7 @@
 
             @let visibleRowActions = getVisibleRowActions(rowData);
             @let useRowActionsMenuOnly = shouldShowRowActionsInMenuOnly(rowData);
-            @if (rowActions() && rowActions().length > 0 && visibleRowActions.length > 0) {
+            @if (showRowActionsColumn() && visibleRowActions.length > 0) {
               <div class="mt-5 pt-4 border-t border-border flex items-center gap-2 flex-wrap">
                 @if (useRowActionsMenuOnly) {
                   <div

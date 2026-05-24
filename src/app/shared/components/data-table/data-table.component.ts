@@ -151,13 +151,20 @@ export class DataTableComponent {
     );
   });
 
+  /** Actions column only when at least one row action is permitted for the user. */
+  protected showRowActionsColumn = computed(() => {
+    return this.rowActions().some(action =>
+      this.hasRequiredPermissions(action)
+    );
+  });
+
   /** Colspan for empty state row: data columns + optional checkbox + optional actions */
   protected emptyMessageColSpan = computed(() => {
     let span = this.visibleTableHeaders().length;
     if (this.showBulkSelectionCheckbox()) {
       span += 1;
     }
-    if ((this.rowActions()?.length ?? 0) > 0) {
+    if (this.showRowActionsColumn()) {
       span += 1;
     }
     return span;

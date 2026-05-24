@@ -12,14 +12,12 @@
   </div>
 
   <div class="my-files-toolbar__actions">
-    <app-button
-      [buttonConfig]="getCreateFolderButtonConfig()"
-      (onButtonClick)="openMyFilesActionDialog(EButtonActionType.CREATE_FOLDER)"
-    />
-    <app-button
-      [buttonConfig]="getUploadMyFileButtonConfig()"
-      (onButtonClick)="openMyFilesActionDialog(EButtonActionType.UPLOAD)"
-    />
+    @for (button of getToolbarActionButtons(); track button.id) {
+      <app-button
+        [buttonConfig]="button"
+        (onButtonClick)="openMyFilesActionDialog($any(button.id))"
+      />
+    }
   </div>
 </div>
 

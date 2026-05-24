@@ -355,6 +355,7 @@ export const appMenu: ApplicationMenu = {
           label: 'My Files',
           icon: ICONS.COMMON.FOLDER,
           routerLink: ROUTE_BASE_PATHS.MY_FILES,
+          permission: [APP_PERMISSION.MY_FILES.TABLE_VIEW],
         },
         {
           label: 'Announcement',

@@ -8,7 +8,8 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   ConfirmationDialogService,
   DrawerService,
@@ -88,6 +89,7 @@ export class GetMyFilesComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly drawerService = inject(DrawerService);
+  private readonly appPermissionService = inject(AppPermissionService);
   private readonly searchInputChanges$ = new Subject<string>();
   private readonly listLoadTrigger$ = new Subject<void>();
 
@@ -361,6 +363,7 @@ export class GetMyFilesComponent implements OnInit {
       id: EButtonActionType.CREATE_FOLDER,
       label: 'New Folder',
       icon: ICONS.COMMON.FOLDER,
+      permission: [APP_PERMISSION.MY_FILES.ADD],
     };
   }
 
@@ -369,6 +372,14 @@ export class GetMyFilesComponent implements OnInit {
       id: EButtonActionType.UPLOAD,
       label: 'Upload Files',
       icon: ICONS.COMMON.UPLOAD,
+      permission: [APP_PERMISSION.MY_FILES.ADD],
     };
+  }
+
+  protected getToolbarActionButtons(): Partial<IButtonConfig>[] {
+    return this.appPermissionService.filterByPermission([
+      this.getCreateFolderButtonConfig(),
+      this.getUploadMyFileButtonConfig(),
+    ]);
   }
 }

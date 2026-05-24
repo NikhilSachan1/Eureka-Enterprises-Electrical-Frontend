@@ -1,3 +1,4 @@
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { ICONS } from '@shared/constants';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
@@ -53,14 +54,17 @@ const MY_FILES_TABLE_ROW_ACTIONS_CONFIG: Partial<
   {
     ...COMMON_ROW_ACTIONS.EDIT,
     tooltip: 'Rename',
+    permission: [APP_PERMISSION.MY_FILES.EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.MOVE,
     tooltip: 'Move',
+    permission: [APP_PERMISSION.MY_FILES.MOVE],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete',
+    permission: [APP_PERMISSION.MY_FILES.DELETE],
   },
 ];
 
