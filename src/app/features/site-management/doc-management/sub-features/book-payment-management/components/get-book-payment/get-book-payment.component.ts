@@ -317,6 +317,7 @@ export class GetBookPaymentComponent implements OnInit {
         label: 'Payment Total',
         value: row.paymentTotalAmount,
         type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
     ];
     return {

@@ -106,7 +106,7 @@
                               {{ $any(item) | number: entry.format }}
                             }
                             @case (ALL_DATA_TYPES.CURRENCY) {
-                              {{ $any(item) | currency: entry.format }}
+                              {{ $any(item) | currency: entry.format ?? APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
                             }
                             @default {
                               {{ item }}
@@ -136,7 +136,7 @@
                             ? 'text-red-600 font-semibold'
                             : 'view-detail-currency';
                       <span [ngClass]="colorClass">
-                        {{ entry.value.toString() | currency: entry.format }}
+                        {{ entry.value.toString() | currency: entry.format ?? APP_CONFIG.CURRENCY_CONFIG.DEFAULT }}
                       </span>
                     } @else if (entry.type === ALL_DATA_TYPES.TEXT_WITH_READ_MORE) {
                       <app-read-more [text]="entry.value.toString()" />

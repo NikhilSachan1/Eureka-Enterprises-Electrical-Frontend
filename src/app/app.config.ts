@@ -1,11 +1,16 @@
+import { registerLocaleData } from '@angular/common';
+import localeEnIn from '@angular/common/locales/en-IN';
 import {
   ApplicationConfig,
   importProvidersFrom,
   inject,
+  LOCALE_ID,
   provideAppInitializer,
   provideZoneChangeDetection,
   isDevMode,
 } from '@angular/core';
+
+registerLocaleData(localeEnIn);
 import {
   provideRouter,
   withEnabledBlockingInitialNavigation,
@@ -47,6 +52,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: LOCALE_ID, useValue: APP_CONFIG.NUMBER_FORMATS.LOCALE },
     provideAnimations(),
     importProvidersFrom(BrowserAnimationsModule),
     providePrimeNG({

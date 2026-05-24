@@ -123,6 +123,7 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
         label: 'Amount',
         value: record.transferAmount,
         type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
       {
         label: 'Proof of transfer',
