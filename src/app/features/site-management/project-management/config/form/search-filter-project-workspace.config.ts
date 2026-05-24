@@ -110,7 +110,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       fieldType: EDataType.TEXT,
       id: 'search',
       fieldName: 'search',
-      label: 'Search',
+      label: 'Search By PO Number',
       visibleOnTabs: ALL_DOC_TABS,
     },
   };
