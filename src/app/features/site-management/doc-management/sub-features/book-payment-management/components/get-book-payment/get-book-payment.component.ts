@@ -182,9 +182,13 @@ export class GetBookPaymentComponent implements OnInit {
         this.tableFilterData,
         this.table.getHeaders()
       );
+    const { search: workspaceSearch, ...workspaceFilters } =
+      this.workspaceContext.filters();
+
     return {
-      ...this.workspaceContext.filters(),
+      ...workspaceFilters,
       ...base,
+      ...(workspaceSearch ? { poNumber: workspaceSearch } : {}),
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
   }

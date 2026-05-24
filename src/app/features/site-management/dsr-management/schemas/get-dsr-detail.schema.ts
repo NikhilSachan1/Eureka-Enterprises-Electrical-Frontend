@@ -28,7 +28,6 @@ export const DsrDetailHistoryRecordSchema = z
     createdBy: UserSchema,
     updatedBy: makeFieldsNullable(UserSchema).nullable(),
     workTypes: z.array(z.string()),
-    workDescription: z.string().nullable(),
     remarks: z.string().nullable(),
     files: z.array(DsrDetailFileSchema),
     site: ProjectGetBaseResponseSchema.pick({
@@ -36,7 +35,10 @@ export const DsrDetailHistoryRecordSchema = z
       name: true,
       city: true,
       state: true,
-      company: true,
+    }).extend({
+      company: z.looseObject({
+        name: z.string(),
+      }),
     }),
   })
   .transform(({ files, ...rest }) => ({

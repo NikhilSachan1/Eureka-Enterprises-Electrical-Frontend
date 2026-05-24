@@ -98,17 +98,13 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
           value: record.workTypes.join(', '),
         },
         {
-          label: 'Work Description',
-          value: record.workDescription,
+          label: 'Attachment(s)',
+          value: record.fileKeys,
+          type: EDataType.ATTACHMENTS,
         },
         {
           label: 'Remarks',
           value: record.remarks,
-        },
-        {
-          label: 'Attachment(s)',
-          value: record.fileKeys,
-          type: EDataType.ATTACHMENTS,
         },
       ];
 

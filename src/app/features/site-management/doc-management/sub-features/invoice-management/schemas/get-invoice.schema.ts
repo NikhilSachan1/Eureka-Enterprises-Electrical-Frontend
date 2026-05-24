@@ -23,6 +23,7 @@ export const InvoiceGetRequestSchema = z
     vendorName: z.array(uuidField).nullable().optional(),
     approvalStatus: z.array(z.string()).nullable().optional(),
     dateRange: z.array(dateField).nullable().optional(),
+    poNumber: z.string().nullable().optional(),
     sortOrder,
     sortField,
     pageSize,

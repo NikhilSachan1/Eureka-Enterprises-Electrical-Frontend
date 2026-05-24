@@ -199,11 +199,14 @@ export class GetInvoiceComponent implements OnInit {
       );
 
     const docType = this.docRouteContext();
+    const { search: workspaceSearch, ...workspaceFilters } =
+      this.workspaceContext.filters();
 
     return {
-      ...this.workspaceContext.filters(),
+      ...workspaceFilters,
       ...base,
       ...(docType ? { docType } : {}),
+      ...(workspaceSearch ? { poNumber: workspaceSearch } : {}),
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
   }

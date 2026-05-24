@@ -20,6 +20,7 @@ export const BookPaymentGetRequestSchema = z
     vendorName: z.array(uuidField).nullable().optional(),
     docType: z.enum(EDocContext).optional(),
     dateRange: z.array(dateField).nullable().optional(),
+    poNumber: z.string().nullable().optional(),
     sortOrder,
     sortField,
     pageSize,

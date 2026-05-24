@@ -20,6 +20,7 @@ export const ReportGetRequestSchema = z
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
     dateRange: z.array(dateField).nullable().optional(),
+    poNumber: z.string().nullable().optional(),
     sortOrder,
     sortField,
     pageSize,
