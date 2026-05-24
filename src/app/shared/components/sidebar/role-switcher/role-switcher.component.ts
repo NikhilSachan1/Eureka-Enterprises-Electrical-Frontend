@@ -11,7 +11,6 @@ import {
   ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs/operators';
 import { PopoverModule, Popover } from 'primeng/popover';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import {
@@ -122,10 +121,7 @@ export class RoleSwitcherComponent {
     this.rolePopover.hide();
     this.executeSwitchActiveRole(role.id);
   }
-  /**
-   * Execute role switch and reload all app data
-   * Similar to login flow - new token means new permissions
-   */
+  /** Role switch API → full page refresh (permissions reload on bootstrap). */
   private executeSwitchActiveRole(targetRole: string): void {
     this.isSubmitting.set(true);
     this.loadingService.show({
@@ -133,29 +129,19 @@ export class RoleSwitcherComponent {
       message: "We're configuring your new role. This will just take a moment.",
     });
 
-    // Step 1: Call switch role API (gets new token)
-    // Step 2: Reload all app data using common service method
     this.authService
       .switchActiveRole(this.prepareFormData(targetRole))
-      .pipe(
-        finalize(() => {
-          this.isSubmitting.set(false);
-          this.loadingService.hide();
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: ISwitchActiveRoleResponseDto) => {
           this.notificationService.success(
             `Switched to role: ${toTitleCase(response.activeRole)}`
           );
-          this.logger.info('Role switch complete with app data reloaded');
-          this.logger.info(
-            'Reinitializing application with full page refresh...'
-          );
           window.location.reload();
         },
         error: error => {
+          this.isSubmitting.set(false);
+          this.loadingService.hide();
           this.logger.error('Error during switch active role', error);
           this.notificationService.error(
             'Failed to switch role. Please try again.'
