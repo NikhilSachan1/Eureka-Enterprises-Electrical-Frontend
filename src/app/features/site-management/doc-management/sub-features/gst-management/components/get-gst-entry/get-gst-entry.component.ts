@@ -28,7 +28,6 @@ import {
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { APP_CONFIG } from '@core/config';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   createGstEntryTableEnhancedConfig,
   GST_ACTION_CONFIG_MAP,
@@ -46,7 +45,6 @@ import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { GstService } from '../../services/gst.service';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
@@ -237,30 +235,9 @@ export class GetGstEntryComponent implements OnInit {
     this.loadGstEntryList();
   }
 
-  protected onHeaderButtonClick(actionName: string): void {
-    if (actionName === 'addGstPaymentRelease') {
-      this.openAddGstPaymentReleaseDialog();
-    }
-  }
-
-  private openAddGstPaymentReleaseDialog(): void {
-    this.confirmationDialogService.showConfirmationDialog(
-      EButtonActionType.ADD,
-      GST_ACTION_CONFIG_MAP[EButtonActionType.ADD],
-      null,
-      false,
-      false,
-      {
-        projectName: this.workspaceContext.activeProjectId(),
-        onSuccess: () => {
-          this.loadGstEntryList();
-        },
-      }
-    );
-  }
-
   protected handleGstEntryTableActionClick(
-    event: ITableActionClickEvent<IGstEntryGetBaseResponseDto>
+    event: ITableActionClickEvent<IGstEntryGetBaseResponseDto>,
+    isBulk = false
   ): void {
     const { actionType, selectedRows } = event;
     const selectedFirstRow = selectedRows[0];
@@ -282,12 +259,14 @@ export class GetGstEntryComponent implements OnInit {
       onSuccess: () => this.loadGstEntryList(),
     };
 
+    const recordDetail = this.prepareGstEntryRecordDetail(selectedFirstRow);
+
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
       GST_ACTION_CONFIG_MAP[actionType],
-      this.prepareGstEntryRecordDetail(selectedFirstRow),
-      false,
-      true,
+      recordDetail,
+      isBulk,
+      !isBulk,
       dynamicComponentInputs
     );
   }
@@ -350,17 +329,9 @@ export class GetGstEntryComponent implements OnInit {
     return {
       title: '',
       subtitle: '',
-      showHeaderButton: true,
+      showHeaderButton: false,
       showHeaderFilter: true,
       showGoBackButton: false,
-      headerButtonConfig: [
-        {
-          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
-          label: 'GST Payment Release',
-          actionName: 'addGstPaymentRelease',
-          permission: [APP_PERMISSION.GST.RELEASE],
-        },
-      ],
     };
   }
 }

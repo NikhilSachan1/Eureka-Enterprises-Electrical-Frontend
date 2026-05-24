@@ -8,10 +8,15 @@ import { VerifyTdsEntryComponent } from '../../components/verify-tds-entry/verif
 import { RevertTdsEntryComponent } from '../../components/revert-tds-entry/revert-tds-entry.component';
 
 export const TDS_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
-  [EButtonActionType.ADD]: {
+  [EButtonActionType.PAID]: {
     dialogConfig: {
-      header: 'TDS Payment Release',
-      message: 'Record TDS payment release against a vendor.',
+      header: 'Release TDS payment?',
+      message: 'Record TDS payment release for the selected register entries?',
+      labels: {
+        actionWord: 'release payment for',
+        singleLabel: 'Release Payment',
+        bulkLabel: 'Release Payment',
+      },
     },
     dynamicComponent: AddTdsPaymentReleaseComponent,
   },

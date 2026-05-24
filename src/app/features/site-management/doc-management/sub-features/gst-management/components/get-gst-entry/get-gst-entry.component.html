@@ -19,10 +19,7 @@
   <app-doc-amount [segments]="docGstAmountSegments(row)" />
 </ng-template>
 
-<app-page-header
-  [pageHeaderConfig]="pageHeaderConfig()"
-  (headerButtonClick)="onHeaderButtonClick($event)"
->
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()">
   <div
     headerFilter
     class="gst-header-filters"
@@ -54,5 +51,6 @@
     gstAmountBreakdown: gstAmountBreakdown,
   }"
   (filterData)="onTableStateChange($event)"
-  (rowActionClick)="handleGstEntryTableActionClick($any($event))"
+  (rowActionClick)="handleGstEntryTableActionClick($any($event), false)"
+  (bulkActionClick)="handleGstEntryTableActionClick($any($event), true)"
 />

@@ -63,7 +63,7 @@ export type IAddGstPaymentReleaseFormDto = z.input<
 >;
 export type IAddGstPaymentReleaseUIFormDto = Omit<
   IAddGstPaymentReleaseFormDto,
-  'fileKey' | 'fileName'
+  'entryIds' | 'fileKey' | 'fileName'
 > & {
   paymentAttachment: File[];
 };

@@ -1,41 +1,10 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { EDataType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
 import { IAddGstPaymentReleaseUIFormDto } from '../../types/gst.dto';
 
 const ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddGstPaymentReleaseUIFormDto> =
   {
-    projectName: {
-      fieldType: EDataType.SELECT,
-      id: 'projectName',
-      fieldName: 'projectName',
-      label: 'Project Name',
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.PROJECT,
-          dropdownName: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
-        },
-      },
-      validators: [Validators.required],
-    },
-    vendorName: {
-      fieldType: EDataType.SELECT,
-      id: 'vendorName',
-      fieldName: 'vendorName',
-      label: 'Vendor Name',
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.VENDOR,
-          dropdownName: CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
-        },
-        dependentDropdown: {
-          dependsOnField: 'projectName',
-          dependsOnFieldLabel: 'a project',
-        },
-      },
-      validators: [Validators.required],
-    },
     utrNumber: {
       fieldType: EDataType.TEXT,
       id: 'utrNumber',

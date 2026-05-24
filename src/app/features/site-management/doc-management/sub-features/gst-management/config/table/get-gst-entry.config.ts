@@ -1,5 +1,6 @@
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
+  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -81,6 +82,44 @@ const buildGstEntryTableRowActionsConfig = (): Partial<
       !row.isVerified ? 'Only verified entries can be reverted.' : undefined,
     permission: [APP_PERMISSION.GST.REJECT],
   },
+  {
+    id: EButtonActionType.PAID,
+    tooltip: 'Release payment',
+    permission: [APP_PERMISSION.GST.RELEASE],
+    disableWhen: (row: IGstEntryGetBaseResponseDto) =>
+      !row.isVerified || !!row.gstPaymentId,
+    disableReason: (row: IGstEntryGetBaseResponseDto): string | undefined => {
+      if (!row.isVerified) {
+        return 'This entry is not verified yet.';
+      }
+      if (row.gstPaymentId) {
+        return 'Payment already released for this entry.';
+      }
+      return undefined;
+    },
+  },
+];
+
+const buildGstEntryTableBulkActionsConfig = (): Partial<
+  ITableActionConfig<IGstEntryGetBaseResponseDto>
+>[] => [
+  {
+    id: EButtonActionType.PAID,
+    label: 'Release Payment',
+    tooltip: 'Release payment for selected entries',
+    permission: [APP_PERMISSION.GST.RELEASE],
+    disableWhen: (row: IGstEntryGetBaseResponseDto) =>
+      !row.isVerified || !!row.gstPaymentId,
+    disableReason: (row: IGstEntryGetBaseResponseDto): string | undefined => {
+      if (!row.isVerified) {
+        return 'Some selected entries are not verified yet.';
+      }
+      if (row.gstPaymentId) {
+        return 'Some selected entries already have payment released.';
+      }
+      return undefined;
+    },
+  },
 ];
 
 export function createGstEntryTableEnhancedConfig(): IEnhancedTableConfig<IGstEntryGetBaseResponseDto> {
@@ -88,5 +127,6 @@ export function createGstEntryTableEnhancedConfig(): IEnhancedTableConfig<IGstEn
     tableConfig: GST_ENTRY_TABLE_CONFIG,
     headers: GST_ENTRY_TABLE_HEADERS_CONFIG,
     rowActions: buildGstEntryTableRowActionsConfig(),
+    bulkActions: buildGstEntryTableBulkActionsConfig(),
   };
 }

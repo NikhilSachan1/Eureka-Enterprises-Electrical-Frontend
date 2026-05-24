@@ -4,8 +4,7 @@ import z from 'zod';
 
 export const AddTdsPaymentReleaseRequestSchema = z
   .object({
-    projectName: uuidField,
-    vendorName: uuidField,
+    entryIds: z.array(uuidField).min(1),
     utrNumber: z.string(),
     paymentDate: dateField,
     fileKey: z.string(),
@@ -13,17 +12,27 @@ export const AddTdsPaymentReleaseRequestSchema = z
     remarks: z.string().nullable(),
   })
   .strict()
-  .transform(
-    ({ projectName, vendorName, paymentDate, fileKey, fileName, ...rest }) => ({
-      siteId: projectName,
-      vendorId: vendorName,
-      paymentDate: transformDateFormat(paymentDate),
-      fileKey,
-      fileName,
-      ...rest,
-    })
-  );
+  .transform(({ paymentDate, ...rest }) => ({
+    ...rest,
+    paymentDate: transformDateFormat(paymentDate),
+  }));
 
 export const AddTdsPaymentReleaseResponseSchema = z.looseObject({
-  message: z.string(),
+  message: z.string().min(1),
+  result: z
+    .array(
+      z.looseObject({
+        message: z.string(),
+        entryId: uuidField.optional(),
+      })
+    )
+    .optional(),
+  errors: z
+    .array(
+      z.looseObject({
+        error: z.string().min(1),
+        entryId: uuidField.optional(),
+      })
+    )
+    .optional(),
 });

@@ -19,10 +19,7 @@
   <app-doc-amount [segments]="docTdsAmountSegments(row)" />
 </ng-template>
 
-<app-page-header
-  [pageHeaderConfig]="pageHeaderConfig()"
-  (headerButtonClick)="onHeaderButtonClick($event)"
->
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()">
   <div
     headerFilter
     class="tds-header-filters"
@@ -54,5 +51,6 @@
     tdsAmountBreakdown: tdsAmountBreakdown,
   }"
   (filterData)="onTableStateChange($event)"
-  (rowActionClick)="handleTdsEntryTableActionClick($any($event))"
+  (rowActionClick)="handleTdsEntryTableActionClick($any($event), false)"
+  (bulkActionClick)="handleTdsEntryTableActionClick($any($event), true)"
 />

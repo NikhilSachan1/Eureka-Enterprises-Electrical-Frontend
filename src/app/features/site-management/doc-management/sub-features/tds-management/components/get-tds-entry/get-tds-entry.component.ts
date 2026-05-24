@@ -28,7 +28,6 @@ import {
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { APP_CONFIG } from '@core/config';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   createTdsEntryTableEnhancedConfig,
   TDS_ACTION_CONFIG_MAP,
@@ -46,7 +45,6 @@ import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { TdsService } from '../../services/tds.service';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
@@ -237,30 +235,9 @@ export class GetTdsEntryComponent implements OnInit {
     this.loadTdsEntryList();
   }
 
-  protected onHeaderButtonClick(actionName: string): void {
-    if (actionName === 'addTdsPaymentRelease') {
-      this.openAddTdsPaymentReleaseDialog();
-    }
-  }
-
-  private openAddTdsPaymentReleaseDialog(): void {
-    this.confirmationDialogService.showConfirmationDialog(
-      EButtonActionType.ADD,
-      TDS_ACTION_CONFIG_MAP[EButtonActionType.ADD],
-      null,
-      false,
-      false,
-      {
-        projectName: this.workspaceContext.activeProjectId(),
-        onSuccess: () => {
-          this.loadTdsEntryList();
-        },
-      }
-    );
-  }
-
   protected handleTdsEntryTableActionClick(
-    event: ITableActionClickEvent<ITdsEntryGetBaseResponseDto>
+    event: ITableActionClickEvent<ITdsEntryGetBaseResponseDto>,
+    isBulk = false
   ): void {
     const { actionType, selectedRows } = event;
     const selectedFirstRow = selectedRows[0];
@@ -282,12 +259,14 @@ export class GetTdsEntryComponent implements OnInit {
       onSuccess: () => this.loadTdsEntryList(),
     };
 
+    const recordDetail = this.prepareTdsEntryRecordDetail(selectedFirstRow);
+
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
       TDS_ACTION_CONFIG_MAP[actionType],
-      this.prepareTdsEntryRecordDetail(selectedFirstRow),
-      false,
-      true,
+      recordDetail,
+      isBulk,
+      !isBulk,
       dynamicComponentInputs
     );
   }
@@ -350,17 +329,9 @@ export class GetTdsEntryComponent implements OnInit {
     return {
       title: '',
       subtitle: '',
-      showHeaderButton: true,
+      showHeaderButton: false,
       showHeaderFilter: true,
       showGoBackButton: false,
-      headerButtonConfig: [
-        {
-          ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
-          label: 'TDS Payment Release',
-          actionName: 'addTdsPaymentRelease',
-          permission: [APP_PERMISSION.TDS.RELEASE],
-        },
-      ],
     };
   }
 }

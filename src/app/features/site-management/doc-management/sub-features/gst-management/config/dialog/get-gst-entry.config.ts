@@ -8,10 +8,15 @@ import { VerifyGstEntryComponent } from '../../components/verify-gst-entry/verif
 import { RevertGstEntryComponent } from '../../components/revert-gst-entry/revert-gst-entry.component';
 
 export const GST_ACTION_CONFIG_MAP: Record<string, IDialogActionConfig> = {
-  [EButtonActionType.ADD]: {
+  [EButtonActionType.PAID]: {
     dialogConfig: {
-      header: 'GST Payment Release',
-      message: 'Record GST payment release against a vendor.',
+      header: 'Release GST payment?',
+      message: 'Record GST payment release for the selected register entries?',
+      labels: {
+        actionWord: 'release payment for',
+        singleLabel: 'Release Payment',
+        bulkLabel: 'Release Payment',
+      },
     },
     dynamicComponent: AddGstPaymentReleaseComponent,
   },
