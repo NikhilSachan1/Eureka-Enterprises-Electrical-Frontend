@@ -89,6 +89,7 @@ export class NavTabsComponent implements OnInit {
       }
     } else {
       this.currentRoute.set(this.router.url);
+      this.redirectToFirstVisibleTabIfAtParent(this.router.url);
 
       this.router.events
         .pipe(
@@ -99,8 +100,29 @@ export class NavTabsComponent implements OnInit {
         )
         .subscribe((event: NavigationEnd) => {
           this.currentRoute.set(event.url);
+          this.redirectToFirstVisibleTabIfAtParent(event.urlAfterRedirects);
         });
     }
+  }
+
+  /** When the URL ends at this tab host route, open the first visible child tab. */
+  private redirectToFirstVisibleTabIfAtParent(url: string): void {
+    const parentPath = this.route.snapshot.routeConfig?.path;
+    const firstTab = this.visibleTabs()[0];
+
+    if (!parentPath || !firstTab) {
+      return;
+    }
+
+    const segments = url.split('?')[0].split('/').filter(Boolean);
+    if (segments.at(-1) !== parentPath) {
+      return;
+    }
+
+    void this.router.navigate([firstTab.route], {
+      relativeTo: this.route,
+      replaceUrl: true,
+    });
   }
 
   protected currentActiveTab = computed(() => {

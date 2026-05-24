@@ -12,6 +12,7 @@ import { CardModule } from 'primeng/card';
 import { ROUTE_BASE_PATHS, ROUTES, ICONS } from '@shared/constants';
 import { filter } from 'rxjs/operators';
 import { LoggerService } from '@core/services';
+import { AppPermissionService } from '@core/services/app-permission.service';
 import { RouterNavigationService } from '@shared/services';
 import { ETabMode, IPageHeaderConfig, ITabItem } from '@shared/types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -33,6 +34,7 @@ export class PermissionListComponent implements OnInit {
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly appPermissionService = inject(AppPermissionService);
 
   readonly tabModeType = ETabMode.ROUTER_OUTLET;
 
@@ -60,18 +62,27 @@ export class PermissionListComponent implements OnInit {
         label: 'Permissions',
         icon: ICONS.SECURITY.SHIELD,
         tooltip: 'Manage system permissions',
+        visible: this.appPermissionService.hasPermission(
+          APP_PERMISSION.SYSTEM_PERMISSION.TABLE_VIEW
+        ),
       },
       {
         route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
         label: 'Roles',
         icon: ICONS.EMPLOYEE.GROUP,
         tooltip: 'Manage user roles',
+        visible: this.appPermissionService.hasPermission(
+          APP_PERMISSION.ROLE_PERMISSION.TABLE_VIEW
+        ),
       },
       {
         route: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,
         label: 'Users',
         icon: ICONS.EMPLOYEE.USER,
         tooltip: 'Manage system users',
+        visible: this.appPermissionService.hasPermission(
+          APP_PERMISSION.USER_PERMISSION.TABLE_VIEW
+        ),
       },
     ];
   }

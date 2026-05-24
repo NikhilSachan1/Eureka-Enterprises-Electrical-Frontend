@@ -10,7 +10,7 @@ export const GET_CRON_ROUTES: Routes = [
     pathMatch: 'full',
   },
   {
-    path: ROUTES.SETTINGS.CONFIGURATION.LIST,
+    path: ROUTES.SETTINGS.CRON.LIST,
     loadComponent: () =>
       import('./components/get-cron/get-cron.component').then(
         m => m.GetCronComponent

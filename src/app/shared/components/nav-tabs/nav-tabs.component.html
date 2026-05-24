@@ -28,17 +28,17 @@
       }
     </p-tablist>
   </p-tabs>
-
-  <div class="tab-content mt-4">
-    @if (tabMode() === allTabMode.ROUTER_OUTLET) {
-      <div
-        class="tab-content__outlet"
-        [@routeOutletFade]="currentRoute()"
-      >
-        <router-outlet />
-      </div>
-    } @else {
-      <ng-content />
-    }
-  </div>
 }
+
+<div class="tab-content mt-4">
+  @if (tabMode() === allTabMode.ROUTER_OUTLET) {
+    <div
+      class="tab-content__outlet"
+      [@routeOutletFade]="currentRoute()"
+    >
+      <router-outlet />
+    </div>
+  } @else {
+    <ng-content />
+  }
+</div>

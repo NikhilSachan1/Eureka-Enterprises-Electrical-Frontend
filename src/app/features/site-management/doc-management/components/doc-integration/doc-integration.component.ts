@@ -31,9 +31,7 @@ export class DocIntegrationComponent {
 
   protected readonly tabModeType = ETabMode.ROUTER_OUTLET;
 
-  protected readonly docItems = computed(() => this.getDocTabs());
-
-  private getDocTabs(): ITabItem[] {
+  protected readonly docItems = computed((): ITabItem[] => {
     const ctx = this.docContext;
     const {
       PO_DOC,
@@ -88,5 +86,5 @@ export class DocIntegrationComponent {
         ),
       },
     ];
-  }
+  });
 }

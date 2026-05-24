@@ -65,11 +65,6 @@ export const PROJECT_MANAGEMENT_ROUTES: Routes = [
       permissions: [APP_PERMISSION.PROJECT.WORKSPACE],
     },
     children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: ROUTES.SITE.PROJECT.PROFITABILITY,
-      },
       ...PROJECT_WORKSPACE_PROFITABILITY_ROUTES,
       ...DOC_MANAGEMENT_CONTRACTOR_DOC_ROUTES,
       ...DOC_MANAGEMENT_VENDOR_DOC_ROUTES,
