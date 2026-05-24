@@ -291,6 +291,13 @@ export const API_ROUTES = {
       PAYMENT_ADVICE: {
         EMAIL: (id: string) => `payment-advices/${id}/email`,
       },
+      GST: {
+        REGISTER: 'gst/register',
+        GET_BY_ID: (id: string) => `gst/register/${id}`,
+        VERIFY: (id: string) => `gst/register/${id}/verify`,
+        REVERT: (id: string) => `gst/register/${id}/revert`,
+        PAYMENT_RELEASE: 'gst/payments',
+      },
     },
   },
   MY_FILES: {

@@ -1,0 +1,18 @@
+.gst-header-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+
+  ::ng-deep .p-floatlabel,
+  ::ng-deep .p-select,
+  ::ng-deep .p-inputwrapper {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .gst-header-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

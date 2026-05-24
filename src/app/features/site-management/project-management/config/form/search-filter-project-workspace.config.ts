@@ -18,8 +18,9 @@ type WorkspaceSearchFilterFieldsConfig = {
   [K in keyof IProjectWorkspaceSearchFilterFormDto]: WorkspaceSearchFilterFieldConfig;
 };
 
-const { PROFITABILITY, WORKSPACE_DOC } = ROUTES.SITE.PROJECT;
+const { PROFITABILITY, GST_SUMMARY, WORKSPACE_DOC } = ROUTES.SITE.PROJECT;
 const ALL_DOC_TABS = Object.values(WORKSPACE_DOC);
+const GST_AND_DOC_TABS = [GST_SUMMARY, ...ALL_DOC_TABS];
 
 const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterFieldsConfig =
   {
@@ -53,7 +54,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       id: 'contractorName',
       fieldName: 'contractorName',
       label: 'Contractor Name',
-      visibleOnTabs: [PROFITABILITY, ...ALL_DOC_TABS],
+      visibleOnTabs: [PROFITABILITY, ...GST_AND_DOC_TABS],
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.CONTRACTOR,
@@ -66,7 +67,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       id: 'vendorName',
       fieldName: 'vendorName',
       label: 'Vendor Name',
-      visibleOnTabs: [PROFITABILITY, ...ALL_DOC_TABS],
+      visibleOnTabs: [PROFITABILITY, ...GST_AND_DOC_TABS],
       multiSelectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.VENDOR,

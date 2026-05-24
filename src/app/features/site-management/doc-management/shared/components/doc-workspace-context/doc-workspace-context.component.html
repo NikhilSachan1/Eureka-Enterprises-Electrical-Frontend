@@ -43,6 +43,14 @@
             aria-hidden="true"
           ></i>
           {{ ctx.partyName }}
+          @if (ctx.partyType) {
+            <span
+              class="doc-ws-party-tag"
+              [attr.data-type]="ctx.partyType.toLowerCase()"
+            >
+              {{ ctx.partyType }}
+            </span>
+          }
         </span>
       }
     </div>

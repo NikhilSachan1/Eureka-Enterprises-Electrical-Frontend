@@ -143,6 +143,7 @@ export class AppConfigurationService {
   private readonly _projectDocumentApprovalStatuses = signal<IOptionDropdown[]>(
     []
   );
+  private readonly _partyTypes = signal<IOptionDropdown[]>([]);
   private readonly _assetCategories = signal<IOptionDropdown[]>([]);
   private readonly _assetTypes = signal<IOptionDropdown[]>([]);
   private readonly _assetStatuses = signal<IOptionDropdown[]>([]);
@@ -209,6 +210,7 @@ export class AppConfigurationService {
   readonly approvalStatus = this._approvalStatus.asReadonly();
   readonly projectDocumentApprovalStatuses =
     this._projectDocumentApprovalStatuses.asReadonly();
+  readonly partyTypes = this._partyTypes.asReadonly();
   readonly assetCategories = this._assetCategories.asReadonly();
   readonly assetTypes = this._assetTypes.asReadonly();
   readonly assetStatuses = this._assetStatuses.asReadonly();
@@ -483,6 +485,10 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PROJECT.PROJECT_DOCUMENT_APPROVAL_STATUSES,
         signal: this._projectDocumentApprovalStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.PROJECT.PARTY_TYPES,
+        signal: this._partyTypes,
       },
     ],
     [MODULE_NAMES.PERMISSION]: [

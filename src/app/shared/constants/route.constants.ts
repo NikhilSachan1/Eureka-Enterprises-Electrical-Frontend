@@ -120,6 +120,7 @@ export const ROUTES = {
       PROFITABILITY: `profitability`,
       CONTRACTOR_DOC: `contractor-doc`,
       VENDOR_DOC: `vendor-doc`,
+      GST_SUMMARY: `gst-summary`,
       DAILY_PROGRESS: `daily-progress`,
       WORKSPACE_DOC: {
         PO: `po`,

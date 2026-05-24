@@ -1,0 +1,82 @@
+import { COMMON_ROW_ACTIONS } from '@shared/config';
+import {
+  EDataType,
+  IDataTableConfig,
+  IDataTableHeaderConfig,
+  IEnhancedTableConfig,
+  ITableActionConfig,
+} from '@shared/types';
+import { IGstEntryGetBaseResponseDto } from '../../types/gst.dto';
+
+export const GST_ENTRY_TABLE_CONFIG: Partial<IDataTableConfig> = {
+  emptyMessage: 'No GST register entry found.',
+};
+
+export const GST_ENTRY_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] =
+  [
+    {
+      field: 'docWorkspaceContext',
+      header: 'Workspace overview',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'docWorkspaceContext',
+      showSort: false,
+    },
+    {
+      field: 'documentReferenceHierarchy',
+      header: 'Document reference',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'gstDocumentReference',
+      showSort: false,
+    },
+    {
+      field: 'invoiceDate',
+      header: 'Invoice date',
+      bodyTemplate: EDataType.DATE,
+      dataType: EDataType.DATE,
+      showSort: false,
+    },
+    {
+      field: 'taxableAmount',
+      header: 'Amounts',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'gstAmountBreakdown',
+      showSort: false,
+    },
+    {
+      field: 'verificationStatusLabel',
+      header: 'Verification',
+      bodyTemplate: EDataType.STATUS,
+      showSort: false,
+    },
+  ];
+
+const buildGstEntryTableRowActionsConfig = (): Partial<
+  ITableActionConfig<IGstEntryGetBaseResponseDto>
+>[] => [
+  {
+    ...COMMON_ROW_ACTIONS.VIEW,
+    tooltip: 'View GST entry details',
+  },
+  {
+    ...COMMON_ROW_ACTIONS.APPROVE,
+    tooltip: 'Approve GST entry',
+    disableWhen: (row: IGstEntryGetBaseResponseDto) => row.isVerified,
+    disableReason: (row: IGstEntryGetBaseResponseDto) =>
+      row.isVerified ? 'This entry is already approved.' : undefined,
+  },
+  {
+    ...COMMON_ROW_ACTIONS.REJECT,
+    tooltip: 'Reject verification',
+    disableWhen: (row: IGstEntryGetBaseResponseDto) => !row.isVerified,
+    disableReason: (row: IGstEntryGetBaseResponseDto) =>
+      !row.isVerified ? 'Only approved entries can be rejected.' : undefined,
+  },
+];
+
+export function createGstEntryTableEnhancedConfig(): IEnhancedTableConfig<IGstEntryGetBaseResponseDto> {
+  return {
+    tableConfig: GST_ENTRY_TABLE_CONFIG,
+    headers: GST_ENTRY_TABLE_HEADERS_CONFIG,
+    rowActions: buildGstEntryTableRowActionsConfig(),
+  };
+}

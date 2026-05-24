@@ -101,6 +101,7 @@ export const CONFIGURATION_KEYS = {
     PROJECT_WORK_TYPES: 'site_work_types',
     PROJECT_DOCUMENT_TYPES: 'site_document_types',
     PROJECT_DOCUMENT_APPROVAL_STATUSES: 'FINANCIAL_APPROVAL_STATUSES',
+    PARTY_TYPES: 'PARTY_TYPES',
   },
   PERMISSION: {
     MODULE_CONFIG_DROPDOWN: 'modules_config_dropdown',
