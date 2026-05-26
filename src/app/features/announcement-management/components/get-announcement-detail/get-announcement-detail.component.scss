@@ -20,6 +20,11 @@
     border-color: var(--primary-200, #bfdbfe);
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
   }
+
+  &--acknowledged {
+    border-color: var(--green-200, #bbf7d0);
+    background: linear-gradient(135deg, var(--green-50, #f0fdf4) 0%, var(--surface-50, #f8fafc) 100%);
+  }
 }
 
 .targets-grid__avatar {
@@ -49,6 +54,13 @@
   color: var(--text-muted-color, #64748b);
   font-family: ui-monospace, monospace;
   letter-spacing: 0.02em;
+}
+
+.targets-grid__ack {
+  flex-shrink: 0;
+  margin-left: auto;
+  font-size: 1.125rem;
+  color: var(--green-500, #22c55e);
 }
 
 .targets-empty {

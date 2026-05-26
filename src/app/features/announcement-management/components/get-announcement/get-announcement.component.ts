@@ -156,7 +156,7 @@ export class GetAnnouncementComponent implements OnInit {
           this.appConfigurationService.announcementStatuses(),
           record.status
         ),
-        acknowledgmentStats: `${record.stats?.acknowledged} / ${record.stats?.total}`,
+        acknowledgmentStats: `${record.stats?.acknowledged ?? 0} / ${record.targets?.length ?? 0}`,
         originalRawData: record,
       };
     });

@@ -33,3 +33,7 @@ export {
   AnnouncementAcknowledgeRequestSchema,
   AnnouncementAcknowledgeResponseSchema,
 } from './acknowledge-announcement.schema';
+export {
+  AnnouncementAcknowledgementRecordSchema,
+  AnnouncementAcknowledgementsGetResponseSchema,
+} from './get-announcement-acknowledgements.schema';

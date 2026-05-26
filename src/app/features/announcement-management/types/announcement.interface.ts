@@ -7,3 +7,12 @@ export interface IAnnouncement
   acknowledgmentStats: string;
   originalRawData: IAnnouncementGetBaseResponseDto;
 }
+
+export interface IAnnouncementTargetWithAcknowledgement {
+  targetId: string;
+  targetType: string;
+  employeeId: string;
+  employeeName: string;
+  acknowledged: boolean;
+  acknowledgedAt: string | null;
+}

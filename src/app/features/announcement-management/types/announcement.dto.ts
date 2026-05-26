@@ -16,6 +16,8 @@ import {
   AnnouncementUpsertShapeSchema,
   AnnouncementAcknowledgeRequestSchema,
   AnnouncementAcknowledgeResponseSchema,
+  AnnouncementAcknowledgementRecordSchema,
+  AnnouncementAcknowledgementsGetResponseSchema,
 } from '../schemas';
 import { z } from 'zod';
 
@@ -121,4 +123,14 @@ export type IAnnouncementAcknowledgeFormDto = z.input<
 >;
 export type IAnnouncementAcknowledgeResponseDto = z.infer<
   typeof AnnouncementAcknowledgeResponseSchema
+>;
+
+/*
+  Announcement Acknowledgements Get
+*/
+export type IAnnouncementAcknowledgementRecordDto = z.infer<
+  typeof AnnouncementAcknowledgementRecordSchema
+>;
+export type IAnnouncementAcknowledgementsGetResponseDto = z.infer<
+  typeof AnnouncementAcknowledgementsGetResponseSchema
 >;

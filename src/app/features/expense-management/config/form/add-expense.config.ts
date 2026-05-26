@@ -40,6 +40,7 @@ const ADD_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseAddFormDto>
             'FNF_SETTLEMENT',
             'FNF_GRATUITY',
             'PERFORMANCE_BONUS',
+            'asset_loss_recovery',
           ],
         },
       },

@@ -23,6 +23,7 @@ import {
   AnnouncementGetRequestSchema,
   AnnouncementGetResponseSchema,
   AnnouncementUnacknowledgeGetResponseSchema,
+  AnnouncementAcknowledgementsGetResponseSchema,
 } from '../schemas';
 import {
   IAnnouncementAcknowledgeFormDto,
@@ -39,6 +40,7 @@ import {
   IAnnouncementGetResponseDto,
   IAnnouncementUnacknowledgeGetBaseResponseDto,
   IAnnouncementUnacknowledgeGetResponseDto,
+  IAnnouncementAcknowledgementsGetResponseDto,
 } from '../types/announcement.dto';
 import { ConfirmationDialogService } from '@shared/services';
 import { SHOW_ANNOUNCEMENT_DIALOG_ACTION_CONFIG } from '../config';
@@ -313,6 +315,42 @@ export class AnnouncementService {
           } else {
             this.logger.logUserAction(
               'Get Announcement Detail By Id Error',
+              error
+            );
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getAnnouncementAcknowledgements(
+    announcementId: string
+  ): Observable<IAnnouncementAcknowledgementsGetResponseDto> {
+    this.logger.logUserAction('Get Announcement Acknowledgements Request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.ANNOUNCEMENT.GET_ACKNOWLEDGEMENTS(announcementId),
+        {
+          response: AnnouncementAcknowledgementsGetResponseSchema,
+        }
+      )
+      .pipe(
+        tap((response: IAnnouncementAcknowledgementsGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get Announcement Acknowledgements Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Announcement Acknowledgements Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Get Announcement Acknowledgements Error',
               error
             );
           }

@@ -6,7 +6,10 @@
   @if (targets.length > 0) {
     <div class="targets-grid">
       @for (target of targets; track target.targetId) {
-        <div class="targets-grid__item">
+        <div
+          class="targets-grid__item"
+          [class.targets-grid__item--acknowledged]="target.acknowledged"
+        >
           <img
             [src]="getAvatarUrl(target.employeeName)"
             [alt]="target.employeeName"
@@ -17,6 +20,15 @@
             <span class="targets-grid__name">{{ target.employeeName }}</span>
             <span class="targets-grid__id">{{ target.employeeId }}</span>
           </div>
+          @if (target.acknowledged) {
+            <i
+              class="targets-grid__ack pi pi-check-circle"
+              [attr.title]="
+                target.acknowledgedAt ? 'Acknowledged on ' + (target.acknowledgedAt | date: dateFormat) : 'Acknowledged'
+              "
+              aria-label="Acknowledged"
+            ></i>
+          }
         </div>
       }
     </div>

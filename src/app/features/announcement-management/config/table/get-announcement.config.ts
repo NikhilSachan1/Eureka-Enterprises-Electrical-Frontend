@@ -48,7 +48,7 @@ const ANNOUNCEMENT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   },
   {
     field: 'acknowledgmentStats',
-    header: 'Acknowledged / Total',
+    header: 'Acknowledged / Target Users',
     bodyTemplate: EDataType.TEXT,
     showSort: false,
   },

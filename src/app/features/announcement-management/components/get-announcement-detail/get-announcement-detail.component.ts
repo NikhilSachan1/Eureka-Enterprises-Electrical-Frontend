@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,10 +9,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
 import {
+  IAnnouncementAcknowledgementRecordDto,
+  IAnnouncementAcknowledgementsGetResponseDto,
   IAnnouncementDetailGetFormDto,
   IAnnouncementDetailGetResponseDto,
   IAnnouncementGetBaseResponseDto,
 } from '@features/announcement-management/types/announcement.dto';
+import { IAnnouncementTargetWithAcknowledgement } from '@features/announcement-management/types/announcement.interface';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { AppConfigurationService, AvatarService } from '@shared/services';
@@ -21,13 +25,13 @@ import {
   IDataViewDetailsWithEntity,
 } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 import { AnnouncementContentPreviewComponent } from '../announcement-content-preview/announcement-content-preview.component';
 
 @Component({
   selector: 'app-get-announcement-detail',
-  imports: [ViewDetailComponent, AnnouncementContentPreviewComponent],
+  imports: [ViewDetailComponent, AnnouncementContentPreviewComponent, DatePipe],
   templateUrl: './get-announcement-detail.component.html',
   styleUrl: './get-announcement-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,6 +53,7 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
   >(undefined);
 
   protected readonly ALL_DATA_TYPES = EDataType;
+  protected readonly dateFormat = APP_CONFIG.DATE_FORMATS.DEFAULT;
 
   override onDrawerShow(): void {
     this.loadAnnouncementDetails();
@@ -57,9 +62,15 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
   private loadAnnouncementDetails(): void {
     this.setDrawerLoading(true);
     const paramData = this.prepareParamData();
+    const { announcementId } = paramData;
 
-    this.announcementService
-      .getAnnouncementDetailById(paramData)
+    forkJoin({
+      detail: this.announcementService.getAnnouncementDetailById(paramData),
+      acknowledgements:
+        this.announcementService.getAnnouncementAcknowledgements(
+          announcementId
+        ),
+    })
       .pipe(
         finalize(() => {
           this.setDrawerLoading(false);
@@ -67,13 +78,19 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IAnnouncementDetailGetResponseDto) => {
-          const mappedData = this.mapDetailData(response);
+        next: ({
+          detail,
+          acknowledgements,
+        }: {
+          detail: IAnnouncementDetailGetResponseDto;
+          acknowledgements: IAnnouncementAcknowledgementsGetResponseDto;
+        }) => {
+          const mappedData = this.mapDetailData(detail, acknowledgements);
           this._announcementDetails.set(mappedData);
           this.logger.logUserAction('Announcement details loaded successfully');
         },
         error: error => {
-          console.error('error', error);
+          this.logger.error('Failed to load announcement details', error);
         },
       });
   }
@@ -85,8 +102,14 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
   }
 
   private mapDetailData(
-    response: IAnnouncementDetailGetResponseDto
+    response: IAnnouncementDetailGetResponseDto,
+    acknowledgements: IAnnouncementAcknowledgementsGetResponseDto
   ): IDataViewDetailsWithEntity {
+    const targetsWithAcknowledgement = this.mergeTargetsWithAcknowledgements(
+      response.targets ?? [],
+      acknowledgements.records
+    );
+
     const mappedDetails = [response].map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
@@ -121,7 +144,7 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
         },
         {
           label: 'Targets',
-          value: record.targets ?? [],
+          value: targetsWithAcknowledgement,
           customTemplateKey: 'announcementTargets',
         },
       ];
@@ -148,5 +171,24 @@ export class GetAnnouncementDetailComponent extends DrawerDetailBase {
     return {
       details: mappedDetails,
     };
+  }
+
+  private mergeTargetsWithAcknowledgements(
+    targets: IAnnouncementDetailGetResponseDto['targets'],
+    acknowledgements: IAnnouncementAcknowledgementRecordDto[]
+  ): IAnnouncementTargetWithAcknowledgement[] {
+    const acknowledgementByUserId = new Map(
+      acknowledgements.map(record => [record.userId, record])
+    );
+
+    return targets.map(target => {
+      const acknowledgement = acknowledgementByUserId.get(target.targetId);
+
+      return {
+        ...target,
+        acknowledged: acknowledgement?.acknowledged ?? false,
+        acknowledgedAt: acknowledgement?.acknowledgedAt ?? null,
+      };
+    });
   }
 }
