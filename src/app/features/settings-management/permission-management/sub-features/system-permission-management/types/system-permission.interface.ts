@@ -6,7 +6,7 @@ export interface IModulePermission {
   readonly moduleName: string;
   permissions: PartialExcept<
     ISystemPermissionGetBaseResponseDto,
-    'id' | 'description' | 'label'
+    'id' | 'name' | 'description' | 'label'
   >[];
 }
 

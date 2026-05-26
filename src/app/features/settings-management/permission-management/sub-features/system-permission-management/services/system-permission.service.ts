@@ -207,6 +207,7 @@ export class SystemPermissionService {
             if (moduleMap.has(moduleKey)) {
               moduleMap.get(moduleKey)?.permissions.push({
                 id: permission.id,
+                name: permission.name,
                 label: permission.label,
                 description: permission.description,
               });
