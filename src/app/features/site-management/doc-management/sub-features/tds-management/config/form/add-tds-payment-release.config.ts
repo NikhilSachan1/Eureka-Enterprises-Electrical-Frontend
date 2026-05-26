@@ -35,7 +35,6 @@ const ADD_TDS_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddTds
           ...APP_CONFIG.MEDIA_CONFIG.PDF,
         ],
       },
-      validators: [Validators.required],
     },
     remarks: {
       fieldType: EDataType.TEXT_AREA,

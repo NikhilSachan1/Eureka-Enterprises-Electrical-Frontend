@@ -35,7 +35,6 @@ const ADD_GST_PAYMENT_RELEASE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddGst
           ...APP_CONFIG.MEDIA_CONFIG.PDF,
         ],
       },
-      validators: [Validators.required],
     },
     remarks: {
       fieldType: EDataType.TEXT_AREA,

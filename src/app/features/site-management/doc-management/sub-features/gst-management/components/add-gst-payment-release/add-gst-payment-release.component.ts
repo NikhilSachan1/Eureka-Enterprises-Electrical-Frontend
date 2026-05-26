@@ -18,7 +18,7 @@ import {
   IDialogActionHandler,
   IFinancialFileUploadResponseDto,
 } from '@shared/types';
-import { finalize, switchMap } from 'rxjs';
+import { finalize, defer, mergeMap, of } from 'rxjs';
 import { ADD_GST_PAYMENT_RELEASE_FORM_CONFIG } from '../../config/form/add-gst-payment-release.config';
 import { GstService } from '../../services/gst.service';
 import {
@@ -78,7 +78,7 @@ export class AddGstPaymentReleaseComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    attachmentResponse?: IFinancialFileUploadResponseDto | null
   ): IAddGstPaymentReleaseFormDto {
     const record = this.selectedRecord();
     const formData = this.form.getData();
@@ -88,13 +88,15 @@ export class AddGstPaymentReleaseComponent
     return {
       ...payload,
       entryIds: record.map(row => row.id),
-      fileKey: attachmentResponse.fileKey,
-      fileName: attachmentResponse.fileName,
+      fileKey: attachmentResponse?.fileKey ?? null,
+      fileName: attachmentResponse?.fileName ?? null,
     };
   }
 
   private executeAddGstPaymentReleaseAction(): void {
-    const file = this.form.getFieldData('paymentAttachment');
+    const file = this.form.getFieldData('paymentAttachment') as
+      | File[]
+      | undefined;
 
     this.loadingService.show({
       title: 'Releasing GST payment',
@@ -103,10 +105,13 @@ export class AddGstPaymentReleaseComponent
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    defer(() =>
+      file?.length
+        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        : of<IFinancialFileUploadResponseDto | null>(null)
+    )
       .pipe(
-        switchMap((attachmentResponse: IFinancialFileUploadResponseDto) =>
+        mergeMap((attachmentResponse: IFinancialFileUploadResponseDto | null) =>
           this.gstService.addGstPaymentRelease(
             this.prepareFormData(attachmentResponse)
           )

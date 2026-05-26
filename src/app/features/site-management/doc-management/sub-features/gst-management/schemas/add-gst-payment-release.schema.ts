@@ -7,8 +7,8 @@ export const AddGstPaymentReleaseRequestSchema = z
     entryIds: z.array(uuidField).min(1),
     utrNumber: z.string(),
     paymentDate: dateField,
-    fileKey: z.string(),
-    fileName: z.string(),
+    fileKey: z.string().nullable(),
+    fileName: z.string().nullable(),
     remarks: z.string().nullable(),
   })
   .strict()

@@ -18,7 +18,7 @@ import {
   IDialogActionHandler,
   IFinancialFileUploadResponseDto,
 } from '@shared/types';
-import { finalize, switchMap } from 'rxjs';
+import { finalize, defer, mergeMap, of } from 'rxjs';
 import { ADD_TDS_PAYMENT_RELEASE_FORM_CONFIG } from '../../config/form/add-tds-payment-release.config';
 import { TdsService } from '../../services/tds.service';
 import {
@@ -78,7 +78,7 @@ export class AddTdsPaymentReleaseComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    attachmentResponse?: IFinancialFileUploadResponseDto | null
   ): IAddTdsPaymentReleaseFormDto {
     const record = this.selectedRecord();
     const formData = this.form.getData();
@@ -88,13 +88,15 @@ export class AddTdsPaymentReleaseComponent
     return {
       ...payload,
       entryIds: record.map(row => row.id),
-      fileKey: attachmentResponse.fileKey,
-      fileName: attachmentResponse.fileName,
+      fileKey: attachmentResponse?.fileKey ?? null,
+      fileName: attachmentResponse?.fileName ?? null,
     };
   }
 
   private executeAddTdsPaymentReleaseAction(): void {
-    const file = this.form.getFieldData('paymentAttachment');
+    const file = this.form.getFieldData('paymentAttachment') as
+      | File[]
+      | undefined;
 
     this.loadingService.show({
       title: 'Releasing TDS payment',
@@ -103,10 +105,13 @@ export class AddTdsPaymentReleaseComponent
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    defer(() =>
+      file?.length
+        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        : of<IFinancialFileUploadResponseDto | null>(null)
+    )
       .pipe(
-        switchMap((attachmentResponse: IFinancialFileUploadResponseDto) =>
+        mergeMap((attachmentResponse: IFinancialFileUploadResponseDto | null) =>
           this.tdsService.addTdsPaymentRelease(
             this.prepareFormData(attachmentResponse)
           )
