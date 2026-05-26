@@ -1,40 +1,33 @@
-export interface IProjectProfitabilityReport {
-  kpiCards: IKpiCardView[];
-  expenseBreakdown: IExpenseBreakdownView;
-  profitPanel: IProfitPanelView;
+import { IProjectProfitabilityGetResponseDto } from './project-profitability.dto';
+
+export type IProjectProfitabilityReport = IProjectProfitabilityGetResponseDto;
+
+export type ProfitabilityDetailDialogType =
+  | 'sales-invoices'
+  | 'vendor-invoices'
+  | 'employee-cost'
+  | 'regular-expense-detail'
+  | 'fuel-employee';
+
+export type ProfitabilityDetailColumnType =
+  | 'text'
+  | 'currency'
+  | 'date'
+  | 'avatar'
+  | 'expense-category';
+
+export interface IProfitabilityDetailColumn {
+  field: string;
+  header: string;
+  type: ProfitabilityDetailColumnType;
+  amount?: boolean;
+  subtitleField?: string;
+  subtitlePrefix?: string;
 }
 
-export interface IKpiCardView {
-  label: string;
-  hint: string;
-  display: 'currency' | 'number';
-  value: number;
-}
-
-export interface IExpenseBreakdownView {
-  totalExpenseAmount: number;
-  expenseSummary: IExpenseSummaryView[];
-  expenseDetail: IExpenseDetailView[];
-}
-
-export interface IExpenseSummaryView {
-  label: string;
-  amount: number;
-  percentLabel: string;
-}
-
-export interface IExpenseDetailView {
-  label: string;
-  amount: number;
-  percentage: number;
-}
-
-export interface IProfitPanelView {
-  marginPercent: number;
-  invoiceBillingPercent: number;
-  expenseToRevenuePercent: number;
-  billingPendingPercent: number;
-  invoicedAmount: number;
-  totalExpenseAmount: number;
-  netProfit: number;
+export interface IProfitabilityDetailSection {
+  title?: string;
+  rows: Record<string, unknown>[];
+  columns: IProfitabilityDetailColumn[];
+  emptyDescription: string;
 }

@@ -5,6 +5,7 @@ import z from 'zod';
 
 export const AllocateDeallocateEmployeeRequestSchema = z
   .object({
+    projectName: uuidField,
     allocations: z.array(
       z
         .object({
@@ -23,14 +24,15 @@ export const AllocateDeallocateEmployeeRequestSchema = z
     ),
   })
   .strict()
-  .transform(data => ({
-    allocations: data.allocations.map(allocation => ({
+  .transform(({ projectName, allocations, deallocations }) => ({
+    allocations: allocations.map(allocation => ({
+      siteId: projectName,
       userId: allocation.userId,
       allocatedAt:
         transformDateFormat(allocation.date, APP_CONFIG.DATE_FORMATS.API) ||
         allocation.date,
     })),
-    deallocations: data.deallocations.map(deallocation => ({
+    deallocations: deallocations.map(deallocation => ({
       allocationId: deallocation.allocationId,
       deallocatedAt:
         transformDateFormat(deallocation.date, APP_CONFIG.DATE_FORMATS.API) ||

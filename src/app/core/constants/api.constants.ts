@@ -176,7 +176,7 @@ export const API_ROUTES = {
       GET: (siteId: string) => `analytics/sites/${siteId}/timeline`,
     },
     PROFITABILITY: {
-      GET: 'analytics/profitability',
+      GET: 'analytics/profitability/detail',
     },
     COMPANY: {
       LIST: 'companies',

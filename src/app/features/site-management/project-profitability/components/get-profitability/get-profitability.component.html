@@ -1,279 +1,531 @@
+<ng-template
+  #detailInfo
+  let-type="type"
+  let-title="title"
+>
+  <button
+    type="button"
+    class="info-btn"
+    [attr.title]="title"
+    (click)="openDetailDialog(type, title)"
+  >
+    <i [class]="icons.COMMON.INFO_CIRCLE"></i>
+  </button>
+</ng-template>
+
 <div class="profitability-report">
-  @if (isLoading()) {
+  @if (!hasSelectedProject()) {
+    <section class="empty-panel">
+      <app-empty-messages
+        [icon]="icons.COMMON.FILTER"
+        title="Select a project to view profitability"
+        description="Choose a project from the Project Name filter above. Financial summary will load once a project is selected."
+      />
+    </section>
+  } @else if (isLoading()) {
     <app-section-loader message="Loading project profitability..." />
   } @else if (report(); as vm) {
-    <section class="hero-card">
-      <div class="hero-content">
+    @let sales = vm.metaSummary.salesSummary;
+    @let purchase = vm.metaSummary.purchaseSummary;
+    @let profit = vm.profitabilitySummary;
+    @let cost = profit.projectCost;
+    @let ops = vm.expenseSummary.operationalExpense;
+    @let salesPay = vm.paymentSummary.salesPaymentSummary;
+    @let purchasePay = vm.paymentSummary.purchasePaymentSummary;
+    @let currency = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
+    @let pctFmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
+    @let locale = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+
+    <section
+      class="overview-card"
+      [class.overview-card--loss]="profit.netProfit < 0"
+    >
+      <div class="overview-card__main">
+        <div class="overview-card__icon-wrap">
+          <i [class]="icons.COMMON.CHART_LINE"></i>
+        </div>
         <div>
-          <p class="eyebrow">Project Finance Snapshot</p>
-          <h2>Profit & Loss Report</h2>
-          <p class="subtle-text">Total purchase order, invoices raised and expense utilisation at one place.</p>
+          <span class="overview-card__eyebrow">Project workspace</span>
+          <h1>Profitability report</h1>
+          <p>Revenue, costs, payments and margin for the selected project.</p>
         </div>
-        <div
-          class="net-pill"
-          [class.loss]="vm.profitPanel.netProfit < 0"
+      </div>
+      <div class="overview-card__highlight">
+        <span class="overview-card__highlight-label">Net profit</span>
+        <strong
+          class="overview-card__highlight-value"
+          [class.positive]="profit.netProfit >= 0"
+          [class.negative]="profit.netProfit < 0"
         >
-          @if (getMetricIcon('Net P/L'); as netIcon) {
-            <i
-              [class]="netIcon + ' net-pill__icon'"
-              aria-hidden="true"
-            ></i>
-          }
-          <span class="pill-label">Net P/L</span>
-          <span
-            class="pill-value"
-            [class.pill-value--negative]="vm.profitPanel.netProfit < 0"
-            [class.pill-value--positive]="vm.profitPanel.netProfit >= 0"
-          >
-            {{
-              vm.profitPanel.netProfit
-                | currency
-                  : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                  : 'symbol'
-                  : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                  : APP_CONFIG.NUMBER_FORMATS.LOCALE
-            }}
-          </span>
-        </div>
+          {{ profit.netProfit | currency: currency }}
+        </strong>
+        <span class="overview-card__highlight-sub">
+          Margin {{ profit.profitMarginPercentage | number: pctFmt : locale }}%
+        </span>
       </div>
     </section>
 
-    <section class="kpi-grid">
-      @for (kpi of vm.kpiCards; track kpi.label) {
-        <article class="kpi-card">
-          @if (getMetricIcon(kpi.label); as kpiIcon) {
-            <span
-              class="kpi-card__icon-wrap"
-              aria-hidden="true"
-            >
-              <i [class]="kpiIcon"></i>
-            </span>
-          }
-          <p class="kpi-label">{{ kpi.label }}</p>
-          @switch (kpi.display) {
-            @case ('currency') {
-              <h3 [class.positive]="kpi.label === 'Invoiced Value'">
-                {{
-                  kpi.value
-                    | currency
-                      : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                      : 'symbol'
-                      : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                      : APP_CONFIG.NUMBER_FORMATS.LOCALE
-                }}
-              </h3>
-            }
-            @case ('number') {
-              <h3>{{ kpi.value | number: APP_CONFIG.NUMBER_FORMATS.DEFAULT : APP_CONFIG.NUMBER_FORMATS.LOCALE }}</h3>
-            }
-          }
-          <small>{{ kpi.hint }}</small>
-        </article>
-      }
+    <section class="metric-grid">
+      <article class="metric-tile">
+        <span class="metric-tile__icon metric-tile__icon--revenue">
+          <i [class]="icons.EXPENSE.MONEY"></i>
+        </span>
+        <div>
+          <span class="metric-tile__label">Revenue</span>
+          <strong class="metric-tile__value">{{ profit.revenue | currency: currency }}</strong>
+        </div>
+      </article>
+      <article class="metric-tile">
+        <span class="metric-tile__icon metric-tile__icon--cost">
+          <i [class]="icons.PAYROLL.WALLET"></i>
+        </span>
+        <div>
+          <span class="metric-tile__label">Project cost</span>
+          <strong class="metric-tile__value">{{ cost.totalProjectCost | currency: currency }}</strong>
+        </div>
+      </article>
+      <article class="metric-tile">
+        <span class="metric-tile__icon metric-tile__icon--profit">
+          <i [class]="icons.COMMON.ARROW_UP"></i>
+        </span>
+        <div>
+          <span class="metric-tile__label">Gross profit</span>
+          <strong class="metric-tile__value">{{ profit.grossProfit | currency: currency }}</strong>
+        </div>
+      </article>
     </section>
 
-    <section class="report-grid">
-      <article class="panel">
-        <div class="panel-head">
-          <h3>Expense Breakdown</h3>
-          <span class="total-chip">
-            Total:
-            {{
-              vm.expenseBreakdown.totalExpenseAmount
-                | currency
-                  : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                  : 'symbol'
-                  : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                  : APP_CONFIG.NUMBER_FORMATS.LOCALE
-            }}
-          </span>
-        </div>
-
-        <div class="category-grid">
-          @for (item of vm.expenseBreakdown.expenseSummary; track item.label; let idx = $index) {
-            <div
-              class="category-card"
-              [class.salary]="idx === 0"
-              [class.fuel]="idx === 1"
-              [class.regular]="idx === 2"
-            >
-              @if (getMetricIcon(item.label); as categoryIcon) {
-                <i
-                  [class]="categoryIcon + ' category-card__icon'"
-                  aria-hidden="true"
-                ></i>
-              }
-              <p>{{ item.label }}</p>
-              <h4>
-                {{
-                  item.amount
-                    | currency
-                      : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                      : 'symbol'
-                      : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                      : APP_CONFIG.NUMBER_FORMATS.LOCALE
-                }}
-              </h4>
-              <small>{{ item.percentLabel }} of total expense</small>
+    <section class="module-grid">
+      <article class="module-card module-card--sales">
+        <header class="module-card__head">
+          <div class="module-card__title">
+            <span class="module-card__icon"><i [class]="icons.COMMON.ARROW_UP"></i></span>
+            <div>
+              <h2>Sales</h2>
+              <p>Contractor billing summary</p>
             </div>
-          }
+          </div>
+        </header>
+
+        <div class="stat-grid">
+          <div class="stat-block">
+            <span class="stat-block__label">PO value</span>
+            <strong class="stat-block__value">{{ sales.totalSalesPOValue | currency: currency }}</strong>
+            <small>{{ sales.totalSalesPOCount }} PO</small>
+          </div>
+          <div class="stat-block">
+            <span class="stat-block__label stat-block__label--action">
+              Invoiced
+              <ng-container
+                [ngTemplateOutlet]="detailInfo"
+                [ngTemplateOutletContext]="{
+                  type: 'sales-invoices',
+                  title: 'Sales invoice summary',
+                }"
+              />
+            </span>
+            <strong class="stat-block__value positive">
+              {{ sales.totalSalesInvoicedAmount | currency: currency }}
+            </strong>
+            <small>{{ sales.totalSalesInvoiceCount }} invoice(s)</small>
+          </div>
+          <div class="stat-block">
+            <span class="stat-block__label">Unbilled</span>
+            <strong class="stat-block__value">{{ sales.salesUnbilledAmount | currency: currency }}</strong>
+            <small>Pending billing</small>
+          </div>
+          <div class="stat-block">
+            <span class="stat-block__label">Billing completion</span>
+            <strong class="stat-block__value">
+              {{ sales.billingCompletionPercentage | number: pctFmt : locale }}%
+            </strong>
+            <small>Of sales PO value</small>
+          </div>
         </div>
 
-        <div class="expense-ledger">
-          <div class="ledger-head">
-            <span>Expense Head</span>
-            <span>Amount</span>
+        <div class="module-card__divider"></div>
+
+        <div class="payment-row payment-row--in">
+          <span class="payment-row__title">
+            <i [class]="icons.PAYROLL.WALLET"></i>
+            Collections
+          </span>
+          <div class="payment-row__items">
+            <div>
+              <span>Invoiced</span>
+              <strong>{{ salesPay.totalInvoicedAmount | currency: currency }}</strong>
+            </div>
+            <div>
+              <span>Received</span>
+              <strong class="positive">{{ salesPay.totalPaymentReceived | currency: currency }}</strong>
+            </div>
+            <div>
+              <span>Outstanding</span>
+              <strong class="negative">{{ salesPay.outstandingReceivableAmount | currency: currency }}</strong>
+            </div>
           </div>
-          @for (row of vm.expenseBreakdown.expenseDetail; track $index) {
-            <div class="ledger-row">
-              <span>{{ row.label }}</span>
-              <div class="ledger-amount">
-                <strong>
-                  {{
-                    row.amount
-                      | currency
-                        : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                        : 'symbol'
-                        : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                        : APP_CONFIG.NUMBER_FORMATS.LOCALE
-                  }}
-                </strong>
-                <small class="ledger-percent">
-                  {{ row.percentage | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}% of total
-                </small>
+        </div>
+      </article>
+
+      <article class="module-card module-card--purchase">
+        <header class="module-card__head">
+          <div class="module-card__title">
+            <span class="module-card__icon"><i [class]="icons.COMMON.ARROW_DOWN"></i></span>
+            <div>
+              <h2>Purchase</h2>
+              <p>Vendor billing summary</p>
+            </div>
+          </div>
+        </header>
+
+        <div class="stat-grid">
+          <div class="stat-block">
+            <span class="stat-block__label">PO value</span>
+            <strong class="stat-block__value">{{ purchase.totalPurchasePOValue | currency: currency }}</strong>
+            <small>{{ purchase.totalPurchasePOCount }} PO</small>
+          </div>
+          <div class="stat-block">
+            <span class="stat-block__label stat-block__label--action">
+              Vendor invoiced
+              <ng-container
+                [ngTemplateOutlet]="detailInfo"
+                [ngTemplateOutletContext]="{
+                  type: 'vendor-invoices',
+                  title: 'Vendor invoice summary',
+                }"
+              />
+            </span>
+            <strong class="stat-block__value">{{ purchase.totalVendorInvoicedAmount | currency: currency }}</strong>
+            <small>{{ purchase.totalVendorInvoiceCount }} invoice(s)</small>
+          </div>
+          <div class="stat-block">
+            <span class="stat-block__label">Pending billing</span>
+            <strong class="stat-block__value">{{ purchase.pendingVendorBillingAmount | currency: currency }}</strong>
+            <small>Yet to invoice</small>
+          </div>
+          <div class="stat-block">
+            <span class="stat-block__label">Billing completion</span>
+            <strong class="stat-block__value">
+              {{ purchase.purchaseBillingCompletionPercentage | number: pctFmt : locale }}%
+            </strong>
+            <small>Of purchase PO value</small>
+          </div>
+        </div>
+
+        <div class="module-card__divider"></div>
+
+        <div class="payment-row payment-row--out">
+          <span class="payment-row__title">
+            <i [class]="icons.COMMON.CREDIT_CARD"></i>
+            Payouts
+          </span>
+          <div class="payment-row__items">
+            <div>
+              <span>Vendor invoiced</span>
+              <strong>{{ purchasePay.totalVendorInvoiceAmount | currency: currency }}</strong>
+            </div>
+            <div>
+              <span>Paid</span>
+              <strong class="positive">{{ purchasePay.totalPaymentPaid | currency: currency }}</strong>
+            </div>
+            <div>
+              <span>Outstanding</span>
+              <strong class="negative">{{ purchasePay.outstandingPayableAmount | currency: currency }}</strong>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <article class="module-card module-card--pl">
+      <header class="module-card__head">
+        <div class="module-card__title">
+          <span class="module-card__icon module-card__icon--pl">
+            <i [class]="icons.COMMON.BOOK"></i>
+          </span>
+          <div>
+            <h2>Profit &amp; loss</h2>
+            <p>Project-level statement</p>
+          </div>
+        </div>
+      </header>
+
+      <div class="pl-body">
+        <div class="pl-revenue-band">
+          <div class="pl-revenue-band__lead">
+            <span class="pl-revenue-band__eyebrow">Top line</span>
+            <span class="pl-revenue-band__label">Revenue (invoiced)</span>
+          </div>
+          <strong class="pl-revenue-band__value positive">{{ profit.revenue | currency: currency }}</strong>
+        </div>
+
+        <div class="pl-layout">
+          <div class="pl-cost-panel">
+            <div class="stat-grid stat-grid--compact">
+              <div class="stat-block">
+                <span class="stat-block__label">Vendor cost</span>
+                <strong class="stat-block__value">{{ cost.vendorCost | currency: currency }}</strong>
+                <small>Purchase &amp; vendor billing</small>
+              </div>
+              <div class="stat-block">
+                <span class="stat-block__label stat-block__label--action">
+                  Employee cost
+                  <ng-container
+                    [ngTemplateOutlet]="detailInfo"
+                    [ngTemplateOutletContext]="{
+                      type: 'employee-cost',
+                      title: 'Employee cost summary',
+                    }"
+                  />
+                </span>
+                <strong class="stat-block__value">{{ cost.employeeCost | currency: currency }}</strong>
+                <small>Payroll allocation</small>
+              </div>
+              <div class="stat-block">
+                <span class="stat-block__label">Operational expense</span>
+                <strong class="stat-block__value">{{ cost.operationalExpense | currency: currency }}</strong>
+                <small>Fuel + regular expense</small>
+              </div>
+              <div class="stat-block stat-block--emphasis">
+                <span class="stat-block__label">Total project cost</span>
+                <strong class="stat-block__value">{{ cost.totalProjectCost | currency: currency }}</strong>
+                <small>All cost categories</small>
               </div>
             </div>
-          }
-        </div>
-      </article>
 
-      <article class="panel profit-panel">
-        <div class="panel-head">
-          <h3>Profitability</h3>
-          <span
-            class="margin-pill"
-            [class.margin-pill--loss]="vm.profitPanel.marginPercent < 0"
-            [class.margin-pill--gain]="vm.profitPanel.marginPercent >= 0"
-          >
-            Margin {{ vm.profitPanel.marginPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%
-          </span>
-        </div>
+            <div class="module-card__divider"></div>
 
-        <div class="pl-grid">
-          <div>
-            @if (getMetricIcon('Pending'); as icon) {
-              <i
-                [class]="icon + ' pl-grid__icon'"
-                aria-hidden="true"
-              ></i>
-            }
-            <p>Pending</p>
-            <h4>{{ vm.profitPanel.billingPendingPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%</h4>
+            <div class="payment-row payment-row--ops">
+              <span class="payment-row__title">
+                <i [class]="icons.COMMON.GAUGE"></i>
+                Operational breakdown
+              </span>
+              <div class="payment-row__items">
+                <div>
+                  <span class="stat-block__label stat-block__label--action">
+                    Fuel
+                    <ng-container
+                      [ngTemplateOutlet]="detailInfo"
+                      [ngTemplateOutletContext]="{
+                        type: 'fuel-employee',
+                        title: 'Fuel expense — employee summary',
+                      }"
+                    />
+                  </span>
+                  <strong>{{ ops.fuelExpense.totalFuelExpense | currency: currency }}</strong>
+                </div>
+                <div>
+                  <span class="stat-block__label stat-block__label--action">
+                    Expense
+                    <button
+                      type="button"
+                      class="info-btn"
+                      title="Expense breakdown — category &amp; employee summary"
+                      (click)="openRegularExpenseDetailDialog()"
+                    >
+                      <i [class]="icons.COMMON.INFO_CIRCLE"></i>
+                    </button>
+                  </span>
+                  <strong>{{ ops.regularExpense.totalRegularExpense | currency: currency }}</strong>
+                </div>
+                <div>
+                  <span>Total operational</span>
+                  <strong>{{ cost.operationalExpense | currency: currency }}</strong>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            @if (getMetricIcon('Invoiced'); as icon) {
-              <i
-                [class]="icon + ' pl-grid__icon'"
-                aria-hidden="true"
-              ></i>
-            }
-            <p>Invoiced</p>
-            <h4>{{ vm.profitPanel.invoiceBillingPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%</h4>
-          </div>
-          <div>
-            @if (getMetricIcon('Expenses / invoiced'); as icon) {
-              <i
-                [class]="icon + ' pl-grid__icon'"
-                aria-hidden="true"
-              ></i>
-            }
-            <p>Expenses / invoiced</p>
-            <h4>{{ vm.profitPanel.expenseToRevenuePercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%</h4>
-          </div>
-        </div>
 
-        <div class="mini-summary">
-          <div>
-            <span class="mini-summary__label">
-              @if (getMetricIcon('Invoiced Value'); as icon) {
-                <i
-                  [class]="icon + ' mini-summary__icon'"
-                  aria-hidden="true"
-                ></i>
-              }
-              Invoiced
-            </span>
-            <strong>
-              {{
-                vm.profitPanel.invoicedAmount
-                  | currency
-                    : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                    : 'symbol'
-                    : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                    : APP_CONFIG.NUMBER_FORMATS.LOCALE
-              }}
-            </strong>
-          </div>
-          <div>
-            <span class="mini-summary__label">
-              @if (getMetricIcon('Expenses'); as icon) {
-                <i
-                  [class]="icon + ' mini-summary__icon'"
-                  aria-hidden="true"
-                ></i>
-              }
-              Expenses
-            </span>
-            <strong class="negative">
-              {{
-                vm.profitPanel.totalExpenseAmount
-                  | currency
-                    : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                    : 'symbol'
-                    : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                    : APP_CONFIG.NUMBER_FORMATS.LOCALE
-              }}
-            </strong>
-          </div>
-          <div>
-            <span class="mini-summary__label">
-              @if (getMetricIcon('Net P/L'); as icon) {
-                <i
-                  [class]="icon + ' mini-summary__icon'"
-                  aria-hidden="true"
-                ></i>
-              }
-              Net
-            </span>
-            <strong
-              [class.positive]="vm.profitPanel.netProfit >= 0"
-              [class.negative]="vm.profitPanel.netProfit < 0"
+          <div class="pl-outcome">
+            <header class="pl-outcome__head">
+              <h3 class="pl-outcome__title">Profit summary</h3>
+              <p class="pl-outcome__subtitle">After project costs</p>
+            </header>
+
+            <article class="profit-tile profit-tile--gross">
+              <span class="profit-tile__icon profit-tile__icon--gross">
+                <i [class]="icons.COMMON.ARROW_UP"></i>
+              </span>
+              <div class="profit-tile__content">
+                <div class="profit-tile__row">
+                  <span class="profit-tile__label">Gross profit</span>
+                  <strong
+                    class="profit-tile__value"
+                    [class.positive]="profit.grossProfit >= 0"
+                    [class.negative]="profit.grossProfit < 0"
+                  >
+                    {{ profit.grossProfit | currency: currency }}
+                  </strong>
+                </div>
+                <span class="profit-tile__hint">Revenue minus total project cost</span>
+              </div>
+            </article>
+
+            <article
+              class="profit-tile profit-tile--net"
+              [class.profit-tile--loss]="profit.netProfit < 0"
             >
-              {{
-                vm.profitPanel.netProfit
-                  | currency
-                    : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                    : 'symbol'
-                    : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                    : APP_CONFIG.NUMBER_FORMATS.LOCALE
-              }}
-            </strong>
+              <span class="profit-tile__icon profit-tile__icon--net">
+                <i [class]="icons.COMMON.CHART_LINE"></i>
+              </span>
+              <div class="profit-tile__content">
+                <div class="profit-tile__row">
+                  <span class="profit-tile__label">Net profit</span>
+                  <span
+                    class="profit-tile__badge"
+                    [class.negative]="profit.netProfit < 0"
+                  >
+                    {{ profit.profitMarginPercentage | number: pctFmt : locale }}% margin
+                  </span>
+                </div>
+                <strong
+                  class="profit-tile__value profit-tile__value--hero"
+                  [class.positive]="profit.netProfit >= 0"
+                  [class.negative]="profit.netProfit < 0"
+                >
+                  {{ profit.netProfit | currency: currency }}
+                </strong>
+                <span class="profit-tile__hint">Bottom line for this project</span>
+              </div>
+            </article>
           </div>
         </div>
+      </div>
+    </article>
 
-        <div class="insight-box">
-          <span>Insight</span>
-          <p>
-            {{ vm.profitPanel.invoiceBillingPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}% of the
-            order is invoiced. Profit margin is
-            {{ vm.profitPanel.marginPercent | number: '1.1-1' : APP_CONFIG.NUMBER_FORMATS.LOCALE }}%.
-          </p>
-        </div>
-      </article>
-    </section>
+    <p-dialog
+      [header]="detailDialogTitle()"
+      [modal]="true"
+      [maximizable]="true"
+      [resizable]="false"
+      appendTo="body"
+      [style]="{ width: 'min(920px, 92vw)' }"
+      [contentStyle]="{ maxHeight: '70vh', overflow: 'auto' }"
+      [visible]="detailDialogVisible()"
+      (visibleChange)="onDetailDialogVisibilityChange($event)"
+    >
+      <div class="detail-dialog-body">
+        @if (detailDialogType() === 'regular-expense-detail') {
+          <div class="detail-dialog-toolbar">
+            <div
+              class="detail-view-toggle"
+              role="tablist"
+              aria-label="Expense breakdown view"
+            >
+              @for (option of regularExpenseViewOptions; track option.value) {
+                <button
+                  type="button"
+                  class="detail-view-toggle__btn"
+                  role="tab"
+                  [attr.aria-selected]="regularExpenseDetailView() === option.value"
+                  [class.detail-view-toggle__btn--active]="regularExpenseDetailView() === option.value"
+                  (click)="setRegularExpenseDetailView(option.value)"
+                >
+                  {{ option.label }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+        @for (section of detailSections(vm); track section.emptyDescription) {
+          @if (section.title) {
+            <h4 class="detail-dialog-sections__title">{{ section.title }}</h4>
+          }
+          @if (section.rows.length) {
+            <div class="detail-table-wrap">
+              <table class="detail-table">
+                <colgroup>
+                  @for (col of section.columns; track col.field) {
+                    <col [style.width]="detailColWidth(col)" />
+                  }
+                </colgroup>
+                <thead>
+                  <tr>
+                    @for (col of section.columns; track col.field) {
+                      <th
+                        class="detail-table__head-cell"
+                        [class.detail-table__head-cell--amount]="col.amount"
+                        scope="col"
+                      >
+                        {{ col.header }}
+                      </th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of section.rows; track $index) {
+                    <tr class="detail-table__row">
+                      @for (col of section.columns; track col.field) {
+                        <td
+                          class="detail-table__cell"
+                          [class.detail-table__cell--amount]="col.amount"
+                        >
+                          @switch (col.type) {
+                            @case ('avatar') {
+                              <div class="detail-table__entity">
+                                <img
+                                  [src]="getAvatarUrl($any(row)[col.field])"
+                                  [alt]="$any(row)[col.field]"
+                                  class="detail-table__avatar"
+                                  loading="lazy"
+                                />
+                                <div class="detail-table__entity-text">
+                                  <span class="detail-table__entity-name">
+                                    {{ $any(row)[col.field] }}
+                                  </span>
+                                  @if (col.subtitleField && $any(row)[col.subtitleField]) {
+                                    <span class="detail-table__entity-sub">
+                                      {{ col.subtitlePrefix ?? '' }}{{ $any(row)[col.subtitleField] }}
+                                    </span>
+                                  }
+                                </div>
+                              </div>
+                            }
+                            @case ('expense-category') {
+                              {{ expenseCategoryLabel($any(row)[col.field]) }}
+                            }
+                            @case ('currency') {
+                              {{ $any(row)[col.field] | currency: currency }}
+                            }
+                            @case ('date') {
+                              {{ $any(row)[col.field] | date: 'dd MMM yyyy' : undefined : locale }}
+                            }
+                            @default {
+                              {{ $any(row)[col.field] }}
+                            }
+                          }
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <app-empty-messages
+              [icon]="icons.COMMON.INFO_CIRCLE"
+              title="No records found"
+              [description]="section.emptyDescription"
+            />
+          }
+        }
+      </div>
+
+      <ng-template #footer>
+        <p-button
+          label="Close"
+          [icon]="icons.ACTIONS.CHECK"
+          (onClick)="closeDetailDialog()"
+        />
+      </ng-template>
+    </p-dialog>
   } @else {
-    <section class="hero-card">
-      <p class="subtle-text">Profitability data will appear here once loaded.</p>
+    <section class="empty-panel">
+      <app-empty-messages
+        [icon]="icons.COMMON.EXCLAMATION_TRIANGLE"
+        title="Unable to load profitability"
+        description="Something went wrong while fetching data. Re-select the project or refresh the page."
+      />
     </section>
   }
 </div>

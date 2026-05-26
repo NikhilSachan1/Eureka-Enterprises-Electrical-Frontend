@@ -484,12 +484,14 @@ export class AllocateDeallocateEmployeeComponent
   }
 
   private buildApiPayload(): IProjectAllocateDeallocateEmployeeRequestFormDto {
+    const projectId = this.selectedRecord()[0].id;
     const toApiDate = (value: unknown): string =>
       value instanceof Date && !Number.isNaN(value.getTime())
         ? transformDateFormat(value, APP_CONFIG.DATE_FORMATS.API)
         : '';
 
     return {
+      projectName: projectId,
       allocations: this.allocationsArray.getRawValue().map(row => ({
         userId: row['userId'] as string,
         date: toApiDate(row['date']),
