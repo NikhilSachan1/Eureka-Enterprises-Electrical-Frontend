@@ -19,10 +19,14 @@ type WorkspaceSearchFilterFieldsConfig = {
   [K in keyof IProjectWorkspaceSearchFilterFormDto]: WorkspaceSearchFilterFieldConfig;
 };
 
-const { PROFITABILITY, GST_SUMMARY, TDS_SUMMARY, WORKSPACE_DOC } =
+const { GST_SUMMARY, TDS_SUMMARY, WORKSPACE_DOC, DAILY_PROGRESS } =
   ROUTES.SITE.PROJECT;
 const ALL_DOC_TABS = Object.values(WORKSPACE_DOC);
 const GST_TDS_AND_DOC_TABS = [GST_SUMMARY, TDS_SUMMARY, ...ALL_DOC_TABS];
+const WORKSPACE_TABS_EXCEPT_PROFITABILITY = [
+  DAILY_PROGRESS,
+  ...GST_TDS_AND_DOC_TABS,
+];
 
 const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterFieldsConfig =
   {
@@ -43,7 +47,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       id: 'companyName',
       fieldName: 'companyName',
       label: 'Company Name',
-      visibleOnTabs: [PROFITABILITY, ...ALL_DOC_TABS],
+      visibleOnTabs: ALL_DOC_TABS,
       permission: [APP_PERMISSION.UI.PROJECT.SEARCH_FILTER_COMPANY_NAME],
       multiSelectConfig: {
         dynamicDropdown: {
@@ -57,7 +61,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       id: 'contractorName',
       fieldName: 'contractorName',
       label: 'Contractor Name',
-      visibleOnTabs: [PROFITABILITY, ...GST_TDS_AND_DOC_TABS],
+      visibleOnTabs: GST_TDS_AND_DOC_TABS,
       permission: [APP_PERMISSION.UI.PROJECT.SEARCH_FILTER_CONTRACTOR_NAME],
       multiSelectConfig: {
         dynamicDropdown: {
@@ -71,7 +75,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       id: 'vendorName',
       fieldName: 'vendorName',
       label: 'Vendor Name',
-      visibleOnTabs: [PROFITABILITY, ...GST_TDS_AND_DOC_TABS],
+      visibleOnTabs: GST_TDS_AND_DOC_TABS,
       permission: [APP_PERMISSION.UI.PROJECT.SEARCH_FILTER_VENDOR_NAME],
       multiSelectConfig: {
         dynamicDropdown: {
@@ -101,6 +105,7 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
     dateRange: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
       label: 'start - end date',
+      visibleOnTabs: WORKSPACE_TABS_EXCEPT_PROFITABILITY,
       dateConfig: {
         ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange.dateConfig,
         maxDate: new Date(),
