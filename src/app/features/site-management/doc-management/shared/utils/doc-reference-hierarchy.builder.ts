@@ -1,5 +1,6 @@
 import { formatDate } from '@angular/common';
 import { APP_CONFIG } from '@core/config';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import {
   type IDocReferenceHierarchyNode,
   EDocReferenceHierarchyKind,
@@ -164,6 +165,12 @@ export class DocReferenceHierarchy {
   private static formatBankTransferBookPaymentTier(
     value?: string | Date | null
   ): string | null {
+    return DocReferenceHierarchy.formatHierarchyDateTier(value);
+  }
+
+  private static formatHierarchyDateTier(
+    value?: string | Date | null
+  ): string | null {
     if (value === undefined || value === null || String(value).length === 0) {
       return null;
     }
@@ -172,5 +179,42 @@ export class DocReferenceHierarchy {
       return null;
     }
     return formatDate(parsed, APP_CONFIG.DATE_FORMATS.DEFAULT, 'en-IN');
+  }
+
+  /**
+   * TDS register: vendor **PO → JMC → Invoice → Book payment (date)**;
+   * contractor **Bank transfer (date) → PO → JMC → Invoice**.
+   */
+  static forTdsEntryReference(context: {
+    partyType: EDocContext;
+    poNumber?: string | null;
+    jmcNumber?: string | null;
+    invoiceNumber?: string | null;
+    bookPaymentDate?: string | Date | null;
+    bankTransferDate?: string | Date | null;
+  }): IDocReferenceHierarchyNode | null {
+    if (context.partyType === EDocContext.PURCHASE) {
+      return DocReferenceHierarchy.forBankTransferDetailReference({
+        poNumber: context.poNumber,
+        jmcNumber: context.jmcNumber,
+        invoiceNumber: context.invoiceNumber,
+        bookPayment: context.bookPaymentDate,
+      });
+    }
+
+    return DocReferenceHierarchy.link([
+      {
+        kind: EDocReferenceHierarchyKind.BankTransfer,
+        value: DocReferenceHierarchy.formatHierarchyDateTier(
+          context.bankTransferDate
+        ),
+      },
+      { kind: EDocReferenceHierarchyKind.Po, value: context.poNumber },
+      { kind: EDocReferenceHierarchyKind.Jmc, value: context.jmcNumber },
+      {
+        kind: EDocReferenceHierarchyKind.Invoice,
+        value: context.invoiceNumber,
+      },
+    ]);
   }
 }

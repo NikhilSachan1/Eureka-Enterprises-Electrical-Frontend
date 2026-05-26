@@ -67,19 +67,39 @@ export const TdsEntryGetBaseResponseSchema = z.looseObject({
   verifiedBy: uuidField.nullable(),
   verifyFileKey: z.string().nullable(),
   tdsPaymentId: uuidField.nullable(),
-  invoice: z.looseObject({
-    invoiceNumber: z.string(),
-    invoiceDate: onlyDateStringField,
-    jmc: z
-      .looseObject({
-        jmcNumber: z.string(),
-        po: z.looseObject({
-          poNumber: z.string(),
-        }),
-      })
-      .optional(),
-  }),
-
+  bankTransfer: z
+    .looseObject({
+      transferDate: onlyDateStringField,
+      invoice: z
+        .looseObject({
+          invoiceNumber: z.string(),
+          jmc: z.looseObject({
+            jmcNumber: z.string(),
+            po: z.looseObject({
+              poNumber: z.string(),
+            }),
+          }),
+        })
+        .optional(),
+    })
+    .nullable(),
+  bookPayment: z
+    .looseObject({
+      paymentTotalAmount: z.string(),
+      bookingDate: onlyDateStringField,
+      invoice: z
+        .looseObject({
+          invoiceNumber: z.string(),
+          jmc: z.looseObject({
+            jmcNumber: z.string(),
+            po: z.looseObject({
+              poNumber: z.string(),
+            }),
+          }),
+        })
+        .optional(),
+    })
+    .nullable(),
   site: z.looseObject({
     name: z.string(),
     city: z.string(),

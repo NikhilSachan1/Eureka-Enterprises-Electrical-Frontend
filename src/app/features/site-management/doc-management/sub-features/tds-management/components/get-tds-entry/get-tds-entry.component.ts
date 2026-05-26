@@ -199,35 +199,45 @@ export class GetTdsEntryComponent implements OnInit {
   }
 
   private mapTableData(response: ITdsEntryGetBaseResponseDto[]): ITdsEntry[] {
-    return response.map(
-      record =>
-        ({
-          id: record.id,
+    return response.map(record => {
+      const invoiceRef =
+        record.partyType === EDocContext.PURCHASE
+          ? (record.bookPayment?.invoice ?? null)
+          : (record.bankTransfer?.invoice ?? null);
+
+      return {
+        id: record.id,
+        partyType: record.partyType,
+        paymentDate:
+          record.partyType === EDocContext.PURCHASE
+            ? (record.bookPayment?.bookingDate ?? '')
+            : (record.bankTransfer?.transferDate ?? ''),
+        taxableAmount: record.taxableAmount,
+        tdsAmount: record.tdsAmount,
+        verificationStatusLabel: record.isVerified ? 'Approved' : 'Pending',
+        verifyFileKeys: record.verifyFileKey ? [record.verifyFileKey] : [],
+        docWorkspaceContext: {
+          companyName: record.site.company.name,
+          partyName:
+            record.partyType === EDocContext.SALES
+              ? (record.contractor?.name ?? '—')
+              : (record.vendor?.name ?? '—'),
+          partyType:
+            record.partyType === EDocContext.SALES ? 'Contractor' : 'Vendor',
+          projectName: record.site.name,
+          siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
+        },
+        documentReferenceHierarchy: DocReferenceHierarchy.forTdsEntryReference({
           partyType: record.partyType,
-          paymentDate: record.invoice.invoiceDate,
-          taxableAmount: record.taxableAmount,
-          tdsAmount: record.tdsAmount,
-          verificationStatusLabel: record.isVerified ? 'Approved' : 'Pending',
-          verifyFileKeys: record.verifyFileKey ? [record.verifyFileKey] : [],
-          docWorkspaceContext: {
-            companyName: record.site.company.name,
-            partyName:
-              record.partyType === EDocContext.SALES
-                ? (record.contractor?.name ?? '—')
-                : (record.vendor?.name ?? '—'),
-            partyType:
-              record.partyType === EDocContext.SALES ? 'Contractor' : 'Vendor',
-            projectName: record.site.name,
-            siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
-          },
-          documentReferenceHierarchy: DocReferenceHierarchy.forBookPaymentRow({
-            poNumber: record.invoice.jmc?.po?.poNumber,
-            jmcNumber: record.invoice.jmc?.jmcNumber,
-            invoiceNumber: record.invoice.invoiceNumber,
-          }),
-          originalRawData: record,
-        }) satisfies ITdsEntry
-    );
+          poNumber: invoiceRef?.jmc?.po?.poNumber,
+          jmcNumber: invoiceRef?.jmc?.jmcNumber,
+          invoiceNumber: invoiceRef?.invoiceNumber,
+          bookPaymentDate: record.bookPayment?.bookingDate,
+          bankTransferDate: record.bankTransfer?.transferDate,
+        }),
+        originalRawData: record,
+      } satisfies ITdsEntry;
+    });
   }
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
@@ -279,10 +289,18 @@ export class GetTdsEntryComponent implements OnInit {
         ? (row.contractor?.name ?? '—')
         : (row.vendor?.name ?? '—');
 
+    const invoiceRef =
+      row.partyType === EDocContext.PURCHASE
+        ? (row.bookPayment?.invoice ?? null)
+        : (row.bankTransfer?.invoice ?? null);
+
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Payment date',
-        value: row.invoice.invoiceDate,
+        value:
+          row.partyType === EDocContext.PURCHASE
+            ? (row.bookPayment?.bookingDate ?? '')
+            : (row.bankTransfer?.transferDate ?? ''),
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
@@ -312,7 +330,7 @@ export class GetTdsEntryComponent implements OnInit {
       ],
       entity: {
         name: partyName.trim(),
-        subtitle: row.invoice.invoiceNumber,
+        subtitle: invoiceRef?.invoiceNumber ?? '—',
       },
     };
   }

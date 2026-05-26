@@ -79,6 +79,11 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
   private mapTdsEntryDetailData(
     record: ITdsEntryDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
+    const invoiceRef =
+      record.partyType === EDocContext.PURCHASE
+        ? (record.bookPayment?.invoice ?? null)
+        : (record.bankTransfer?.invoice ?? null);
+
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Workspace overview',
@@ -98,7 +103,10 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
       },
       {
         label: 'Payment date',
-        value: record.invoice.invoiceDate,
+        value:
+          record.partyType === EDocContext.PURCHASE
+            ? (record.bookPayment?.bookingDate ?? '')
+            : (record.bankTransfer?.transferDate ?? ''),
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
@@ -113,10 +121,13 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
         : []),
       {
         label: 'Document reference',
-        value: DocReferenceHierarchy.forBookPaymentRow({
-          poNumber: record.invoice.jmc?.po?.poNumber,
-          jmcNumber: record.invoice.jmc?.jmcNumber,
-          invoiceNumber: record.invoice.invoiceNumber,
+        value: DocReferenceHierarchy.forTdsEntryReference({
+          partyType: record.partyType,
+          poNumber: invoiceRef?.jmc?.po?.poNumber,
+          jmcNumber: invoiceRef?.jmc?.jmcNumber,
+          invoiceNumber: invoiceRef?.invoiceNumber,
+          bookPaymentDate: record.bookPayment?.bookingDate,
+          bankTransferDate: record.bankTransfer?.transferDate,
         }),
         customTemplateKey: 'documentReferenceHierarchy',
         detailTemplateFullRow: false,
@@ -164,14 +175,17 @@ export class GetTdsEntryDetailComponent extends DrawerDetailBase {
   private headerFromRecord(
     record: ITdsEntryDetailGetResponseDto
   ): IEntityViewDetails {
-    const partyName =
-      record.partyType === EDocContext.SALES
-        ? (record.contractor?.name ?? '')
-        : (record.vendor?.name ?? '');
+    const invoiceRef =
+      record.partyType === EDocContext.PURCHASE
+        ? (record.bookPayment?.invoice ?? null)
+        : (record.bankTransfer?.invoice ?? null);
 
     return {
-      name: partyName.trim(),
-      subtitle: record.invoice.invoiceNumber,
+      name:
+        record.partyType === EDocContext.SALES
+          ? (record.contractor?.name ?? '').trim()
+          : (record.vendor?.name ?? '').trim(),
+      subtitle: invoiceRef?.invoiceNumber ?? '—',
     };
   }
 
