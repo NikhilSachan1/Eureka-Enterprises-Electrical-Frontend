@@ -17,17 +17,17 @@ import {
   ActivatedRoute,
   NavigationEnd,
 } from '@angular/router';
-import { Location } from '@angular/common';
+import { Location, NgClass } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { TabsModule } from 'primeng/tabs';
 import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
-import { ITabChange, ITabItem, ETabMode } from '@shared/types';
+import { ITabChange, ITabItem, ETabMode, ETabLayout } from '@shared/types';
 
 @Component({
   selector: 'app-nav-tabs',
   standalone: true,
-  imports: [RouterModule, TabsModule, BadgeModule, TooltipModule],
+  imports: [RouterModule, TabsModule, BadgeModule, TooltipModule, NgClass],
   templateUrl: './nav-tabs.component.html',
   styleUrl: './nav-tabs.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,7 +45,9 @@ export class NavTabsComponent implements OnInit {
   tabs = input.required<ITabItem[]>();
   activeTabIndex = input<number>(0);
   tabMode = input<ETabMode>(ETabMode.ROUTER_OUTLET);
+  layout = input<ETabLayout>(ETabLayout.HORIZONTAL);
   allTabMode = ETabMode;
+  protected readonly tabLayout = ETabLayout;
 
   tabChanged = output<ITabChange>();
 

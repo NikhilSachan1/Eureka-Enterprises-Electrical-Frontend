@@ -1,44 +1,89 @@
-@if (visibleTabs().length) {
-  <p-tabs
-    [scrollable]="true"
-    [value]="currentActiveTab()"
-  >
-    <p-tablist>
-      @for (tab of visibleTabs(); track tab.route; let i = $index) {
-        <p-tab
-          [value]="tab.route"
-          [routerLink]="tabMode() === allTabMode.ROUTER_OUTLET ? [tab.route] : null"
-          [relativeTo]="tabMode() === allTabMode.ROUTER_OUTLET ? route : undefined"
-          [disabled]="tab.disabled"
-          [pTooltip]="tab.tooltip"
-          tooltipPosition="top"
-          (click)="onTabClick(tab, i)"
-          class="flex items-center !gap-2 text-inherit"
+@if (layout() === tabLayout.VERTICAL) {
+  <div class="nav-tabs-vertical">
+    @if (visibleTabs().length) {
+      <nav
+        class="nav-tabs-vertical__sidebar"
+        aria-label="Section navigation"
+      >
+        @for (tab of visibleTabs(); track tab.route; let i = $index) {
+          <a
+            class="nav-tabs-vertical__link"
+            [class.nav-tabs-vertical__link--active]="currentActiveTab() === tab.route"
+            [routerLink]="tabMode() === allTabMode.ROUTER_OUTLET ? [tab.route] : null"
+            [relativeTo]="tabMode() === allTabMode.ROUTER_OUTLET ? route : undefined"
+            [attr.aria-current]="currentActiveTab() === tab.route ? 'page' : null"
+            [pTooltip]="tab.tooltip"
+            tooltipPosition="right"
+            (click)="onTabClick(tab, i)"
+          >
+            @if (tab.icon) {
+              <i [ngClass]="['nav-tabs-vertical__icon', tab.icon]"></i>
+            }
+            <span class="nav-tabs-vertical__label">{{ tab.label }}</span>
+            @if (tab.badge) {
+              <p-badge [value]="tab.badge.toString()" />
+            }
+          </a>
+        }
+      </nav>
+    }
+
+    <div class="nav-tabs-vertical__content">
+      @if (tabMode() === allTabMode.ROUTER_OUTLET) {
+        <div
+          class="nav-tabs-vertical__outlet"
+          [@routeOutletFade]="currentRoute()"
         >
-          @if (tab.icon) {
-            <i [class]="tab.icon"></i>
-          }
-
-          <span>{{ tab.label }}</span>
-
-          @if (tab.badge) {
-            <p-badge [value]="tab.badge.toString()" />
-          }
-        </p-tab>
+          <router-outlet />
+        </div>
+      } @else {
+        <ng-content />
       }
-    </p-tablist>
-  </p-tabs>
-}
-
-<div class="tab-content mt-4">
-  @if (tabMode() === allTabMode.ROUTER_OUTLET) {
-    <div
-      class="tab-content__outlet"
-      [@routeOutletFade]="currentRoute()"
-    >
-      <router-outlet />
     </div>
-  } @else {
-    <ng-content />
+  </div>
+} @else {
+  @if (visibleTabs().length) {
+    <p-tabs
+      [scrollable]="true"
+      [value]="currentActiveTab()"
+    >
+      <p-tablist>
+        @for (tab of visibleTabs(); track tab.route; let i = $index) {
+          <p-tab
+            [value]="tab.route"
+            [routerLink]="tabMode() === allTabMode.ROUTER_OUTLET ? [tab.route] : null"
+            [relativeTo]="tabMode() === allTabMode.ROUTER_OUTLET ? route : undefined"
+            [disabled]="tab.disabled"
+            [pTooltip]="tab.tooltip"
+            tooltipPosition="top"
+            (click)="onTabClick(tab, i)"
+            class="flex items-center !gap-2 text-inherit"
+          >
+            @if (tab.icon) {
+              <i [class]="tab.icon"></i>
+            }
+
+            <span>{{ tab.label }}</span>
+
+            @if (tab.badge) {
+              <p-badge [value]="tab.badge.toString()" />
+            }
+          </p-tab>
+        }
+      </p-tablist>
+    </p-tabs>
   }
-</div>
+
+  <div class="tab-content mt-4">
+    @if (tabMode() === allTabMode.ROUTER_OUTLET) {
+      <div
+        class="tab-content__outlet"
+        [@routeOutletFade]="currentRoute()"
+      >
+        <router-outlet />
+      </div>
+    } @else {
+      <ng-content />
+    }
+  </div>
+}

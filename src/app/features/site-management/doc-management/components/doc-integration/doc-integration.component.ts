@@ -8,7 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AppPermissionService } from '@core/services';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { ICONS, ROUTES } from '@shared/constants';
-import { ETabMode, ITabItem } from '@shared/types';
+import { ETabLayout, ETabMode, ITabItem } from '@shared/types';
 import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { EDocContext } from '../../types/doc.enum';
 
@@ -30,6 +30,7 @@ export class DocIntegrationComponent {
   ] as EDocContext;
 
   protected readonly tabModeType = ETabMode.ROUTER_OUTLET;
+  protected readonly tabLayoutType = ETabLayout.VERTICAL;
 
   protected readonly docItems = computed((): ITabItem[] => {
     const ctx = this.docContext;

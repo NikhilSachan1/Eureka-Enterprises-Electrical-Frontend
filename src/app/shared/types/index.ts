@@ -45,7 +45,7 @@ export {
   EButtonSize,
   EButtonActionType,
 } from './button/button.types';
-export { ETabMode } from './nav-tabs/tab-items.types';
+export { ETabMode, ETabLayout } from './nav-tabs/tab-items.types';
 export { EDrawerPosition, EDrawerSize } from './drawer/drawer.types';
 
 export type {
