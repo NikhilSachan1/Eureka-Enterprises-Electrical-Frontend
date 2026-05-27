@@ -1,8 +1,11 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
-<app-set-permission
-  [defaultPermissionSelected]="initialUserPermissionData()"
-  [isUserPermissionComponent]="true"
-  [isSubmitting]="isSubmitting()"
-  (modulePermissionsData)="onModulePermissionsSubmit($event)"
-/>
+@if (isPageReady()) {
+  <app-set-permission
+    [roleColumns]="userColumns()"
+    [roleDefaultPermissions]="userDefaultPermissions()"
+    [isUserPermissionMode]="true"
+    [isSubmitting]="isSubmitting()"
+    (matrixModuleSave)="onMatrixModuleSave($event)"
+  />
+}

@@ -1,5 +1,4 @@
 import {
-  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -54,12 +53,6 @@ export const ROLE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Role',
     permission: [APP_PERMISSION.ROLE_PERMISSION.DELETE],
-  },
-  {
-    id: EButtonActionType.SET_PERMISSIONS,
-    icon: ICONS.SETTINGS.COG,
-    tooltip: 'Set Role Permissions',
-    permission: [APP_PERMISSION.ROLE_PERMISSION.SET],
   },
 ];
 

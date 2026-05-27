@@ -1,4 +1,3 @@
-<!-- Header Card -->
 @let modulesPermissions = modulePermissions();
 
 @if (modulesPermissions.length === 0 && !loadingState().isLoading) {
@@ -8,204 +7,176 @@
     [description]="'No modules available'"
   />
 } @else {
-  <p-card class="header-card">
-    <div class="header-row">
-      <div class="header-title-block">
-        <div class="header-icon">
-          <i [class]="icons.SECURITY.SHIELD"></i>
-        </div>
-        <div class="header-title-col">
-          <h3 class="header-title">Manage Permissions</h3>
-          @let pendingStats = computedGetPendingCounts().global;
-          @if (pendingStats?.[0]) {
-            <div class="header-pending-row">
-              <span [class]="`header-pending-value ${pendingStats[0].colorClass}`">
-                {{ `${pendingStats[0].value} ${pendingStats[0].label}` }}
-              </span>
-            </div>
-          }
-        </div>
+  @if (roleColumns().length === 0) {
+    <app-empty-messages
+      [icon]="icons.SECURITY.SHIELD"
+      [title]="'No columns available'"
+      [description]="'Add a role or select a user to manage permissions.'"
+    />
+  } @else if (modulesPermissions.length > 0) {
+    <div class="permission-workspace">
+      <div class="module-panel-toolbar">
+        @if (globalPendingCount() > 0) {
+          <span class="module-panel-toolbar__pending">{{ globalPendingCount() }} unsaved across modules</span>
+        }
+        <app-button
+          [buttonConfig]="expandAllButtonConfig"
+          (onButtonClick)="onPanelBulkAction($event)"
+        />
+        <app-button
+          [buttonConfig]="collapseAllButtonConfig"
+          (onButtonClick)="onPanelBulkAction($event)"
+        />
       </div>
-      <div class="header-stats-block">
-        @for (stat of computedGetStats().global; track stat.label) {
-          <div class="header-stat">
-            @if (stat.icon) {
-              <i
-                [class]="stat.icon + ' header-stat__icon'"
-                aria-hidden="true"
-              ></i>
+
+      <div class="module-panels">
+        @for (module of modulesPermissions; track module.id) {
+          @let modulePendingCount = modulePendingCounts()[module.id];
+
+          <p-panel
+            [toggleable]="true"
+            [collapsed]="isModuleCollapsed(module.id)"
+            (collapsedChange)="onModuleCollapsedChange(module.id, $event)"
+            styleClass="module-panel"
+          >
+            <ng-template pTemplate="header">
+              <div class="module-panel-header">
+                <span class="module-panel-header__title">{{ module.moduleName }}</span>
+                <div class="module-panel-header__meta-row">
+                  <span class="module-panel-header__meta">{{ getModuleMetaLabel(module) }}</span>
+                  @if (modulePendingCount > 0) {
+                    <span class="module-panel-header__sep">|</span>
+                    <span class="module-panel-header__pending">{{ modulePendingCount }} unsaved</span>
+                  }
+                </div>
+              </div>
+            </ng-template>
+
+            @if (module.permissions.length) {
+              @if (isModuleLoaded(module.id) || !isModuleCollapsed(module.id)) {
+                <div
+                  class="module-panel-body"
+                  [hidden]="isModuleCollapsed(module.id)"
+                >
+                  <div class="matrix-wrapper">
+                    <div class="matrix-scroll">
+                      <table class="permission-matrix">
+                        <thead>
+                          <tr class="matrix-head-names">
+                            <th class="matrix-sticky-col matrix-corner-cell">
+                              <span class="matrix-corner-label">
+                                <i
+                                  [class]="icons.SECURITY.SHIELD"
+                                  aria-hidden="true"
+                                ></i>
+                                Permission
+                              </span>
+                            </th>
+                            @for (role of roleColumns(); track role.id) {
+                              @let roleSummary = getModuleRoleSummary(module.id, role.id);
+                              <th
+                                class="matrix-role-col matrix-role-col--header"
+                                [class.matrix-role-col--dirty]="(roleSummary?.pending ?? 0) > 0"
+                              >
+                                <div class="matrix-role-header">
+                                  <span class="matrix-role-label">{{ role.label | textCase: 'title' }}</span>
+                                  @if (roleSummary) {
+                                    <div class="matrix-role-stats">
+                                      @for (stat of roleSummary.stats; track stat.label) {
+                                        @if (stat.label !== 'Total') {
+                                          <span [class]="`matrix-role-stat ${stat.colorClass}`">
+                                            @if (stat.icon) {
+                                              <i [class]="stat.icon"></i>
+                                            }
+                                            {{ stat.value }}
+                                          </span>
+                                        }
+                                      }
+                                    </div>
+                                    @if (roleSummary.pending > 0) {
+                                      <span class="matrix-role-pending">{{ roleSummary.pending }}</span>
+                                    }
+                                  }
+                                </div>
+                              </th>
+                            }
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (permission of module.permissions; track permission.id) {
+                            @if (permission.id) {
+                              <tr>
+                                <td class="matrix-sticky-col matrix-permission-cell">
+                                  <div class="matrix-permission-info">
+                                    <div class="matrix-permission-primary">
+                                      <span class="matrix-permission-label">
+                                        {{ permission.label | textCase: 'title' }}
+                                      </span>
+                                      @if (permission.name) {
+                                        <span
+                                          class="matrix-permission-sep"
+                                          aria-hidden="true"
+                                        >
+                                          ·
+                                        </span>
+                                        <code class="matrix-permission-code">{{ permission.name }}</code>
+                                      }
+                                    </div>
+                                    @if (permission.description) {
+                                      <span class="matrix-permission-description">{{ permission.description }}</span>
+                                    }
+                                    @if (isUserPermissionMode()) {
+                                      @let source = getPermissionSource(permission.id);
+                                      @if (source) {
+                                        <span [class]="'matrix-permission-source matrix-permission-source-' + source">
+                                          {{ source === 'override' ? 'Override' : 'Role' }}
+                                        </span>
+                                      }
+                                    }
+                                  </div>
+                                </td>
+                                @for (role of roleColumns(); track role.id) {
+                                  <td
+                                    class="matrix-role-col matrix-checkbox-cell"
+                                    [ngClass]="getMatrixCellHighlightClass(module.id, role.id, permission.id)"
+                                  >
+                                    <p-checkbox
+                                      [binary]="true"
+                                      [ngModel]="isMatrixGranted(module.id, role.id, permission.id)"
+                                      [disabled]="isSubmitting()"
+                                      (ngModelChange)="
+                                        onMatrixPermissionToggle(module.id, role.id, permission.id, $event)
+                                      "
+                                    />
+                                  </td>
+                                }
+                              </tr>
+                            }
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="module-panel-footer">
+                    <app-button
+                      [buttonConfig]="moduleUpdateButtonConfigs()[module.id]"
+                      (onButtonClick)="onMatrixModuleUpdate(module)"
+                    />
+                  </div>
+                </div>
+              }
+            } @else {
+              <app-empty-messages
+                [icon]="icons.SECURITY.SHIELD"
+                [title]="'No permissions available'"
+                [description]="
+                  'This module does not have any permissions configured yet. Contact your administrator to set up permissions for this module.'
+                "
+              />
             }
-            <span [class]="`header-stat-value ${stat.colorClass}`">{{ stat.value }}</span>
-            <span class="header-stat-label">{{ stat.label }}</span>
-          </div>
+          </p-panel>
         }
       </div>
     </div>
-  </p-card>
-  <!-- Main Form -->
-  @if (form) {
-    <form
-      (ngSubmit)="onSubmit()"
-      [formGroup]="form.formGroup"
-    >
-      <!-- Expand / Collapse All (multiple mode) -->
-      @if (modulesPermissions.length > 0) {
-        <div class="accordion-actions">
-          <app-button
-            [buttonConfig]="expandAllButtonConfig"
-            (onButtonClick)="onAccordionActionClick($event)"
-          />
-          <app-button
-            [buttonConfig]="collapseAllButtonConfig"
-            (onButtonClick)="onAccordionActionClick($event)"
-          />
-        </div>
-      }
-
-      <!-- Module accordion (multiple panels can be open) -->
-      <p-accordion
-        [value]="activeTabIndex()"
-        (valueChange)="onAccordionValueChange($event)"
-        [multiple]="true"
-        class="permission-accordion"
-      >
-        @for (module of modulesPermissions; track module.id) {
-          <p-accordion-panel [value]="$index.toString()">
-            <p-accordion-header>
-              @let rowStats = computedGetStats().modules[module.id];
-              <div class="accordion-header-content">
-                <div class="accordion-header-left">
-                  <div class="accordion-header-title-row">
-                    <div
-                      tabindex="0"
-                      class="accordion-header-select"
-                      (click)="$event.stopPropagation()"
-                    >
-                      <app-input-field
-                        [inputFieldConfig]="standaloneInputFieldConfig()[module.id]"
-                        [fieldValue]="computedSelectAllValues()[module.id]"
-                        (onFieldChange)="selectAllPermissions(module.id, $event)"
-                      />
-                    </div>
-                    <div class="accordion-header-label-block">
-                      <div class="accordion-header-name-row">
-                        <span class="accordion-header-label">{{ module.moduleName }}</span>
-                        @let badge = getModuleBadgeFromStats(rowStats);
-                        @if (badge) {
-                          <app-status-tag
-                            [value]="badge"
-                            [config]="{ severity: 'secondary', rounded: true }"
-                          />
-                        }
-                      </div>
-                      @let modulePending = computedGetPendingCounts().modules[module.id];
-                      @if (modulePending?.[0]) {
-                        <span class="accordion-header-pending">
-                          {{ modulePending[0].value }} {{ modulePending[0].label }}
-                        </span>
-                      }
-                    </div>
-                  </div>
-                </div>
-                @if (rowStats) {
-                  <div class="accordion-header-stats">
-                    @for (stat of rowStats; track stat.label) {
-                      <span [class]="`accordion-header-stat ${stat.colorClass}`">
-                        @if (stat.icon) {
-                          <i
-                            [class]="stat.icon + ' accordion-header-stat__icon'"
-                            aria-hidden="true"
-                          ></i>
-                        }
-                        <span class="accordion-header-stat-value">{{ stat.value }}</span>
-                        <span class="accordion-header-stat-label">{{ stat.label }}</span>
-                      </span>
-                    }
-                  </div>
-                }
-              </div>
-            </p-accordion-header>
-            <p-accordion-content>
-              @if (module.permissions && module.permissions.length > 0) {
-                <div class="accordion-content-grid">
-                  <div class="permissions-grid">
-                    @for (permission of module.permissions; track permission.id) {
-                      @let permissionInfo = computedGetPermissionStatus(permission.id)();
-                      <p-card
-                        (click)="onClickPermissionCard(module.id, permission.id)"
-                        class="permission-card"
-                        [ngClass]="permissionInfo.cardStyle"
-                      >
-                        <div class="permission-content-row">
-                          <div
-                            class="permission-checkbox-col"
-                            (click)="$event.stopPropagation()"
-                            tabindex="0"
-                          >
-                            <app-input-field
-                              [formGroup]="form.formGroup"
-                              [inputFieldConfig]="form.fieldConfigs[permission.id]"
-                              (onFieldChange)="onPermissionChange()"
-                            />
-                          </div>
-                          <div class="permission-info-col">
-                            <div class="permission-info-row">
-                              <div class="permission-label-col">
-                                <h4 class="permission-label">{{ permission.label | textCase: 'title' }}</h4>
-                                @if (permission.name) {
-                                  <span class="permission-code">{{ permission.name }}</span>
-                                }
-                                @if (permission.description) {
-                                  <p class="permission-description line-clamp-2">
-                                    {{ permission.description | textCase: 'capitalize' }}
-                                  </p>
-                                }
-                              </div>
-                              <div class="permission-meta-col">
-                                @if (permissionInfo.source) {
-                                  <span [class]="`permission-source permission-source-${permissionInfo.source}`">
-                                    <span class="permission-source-label">
-                                      {{ permissionInfo.source === 'override' ? 'Override' : 'Role' }}
-                                    </span>
-                                  </span>
-                                }
-                                <app-status-tag [value]="permissionInfo.label" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </p-card>
-                    }
-                  </div>
-                </div>
-              } @else {
-                <app-empty-messages
-                  [icon]="icons.SECURITY.SHIELD"
-                  [title]="'No permissions available'"
-                  [description]="
-                    'This module doesn\'t have any permissions configured yet. Contact your administrator to set up permissions for this module.'
-                  "
-                />
-              }
-            </p-accordion-content>
-          </p-accordion-panel>
-        }
-      </p-accordion>
-
-      <!-- Action Buttons -->
-      @if (modulesPermissions.length > 0) {
-        <div class="button-container">
-          <app-button
-            [buttonConfig]="form.buttonConfigs['reset']"
-            (onButtonClick)="onReset()"
-          />
-
-          <app-button
-            [buttonConfig]="form.buttonConfigs['submit']"
-            [showButtonLoader]="isSubmitting()"
-          />
-        </div>
-      }
-    </form>
   }
 }

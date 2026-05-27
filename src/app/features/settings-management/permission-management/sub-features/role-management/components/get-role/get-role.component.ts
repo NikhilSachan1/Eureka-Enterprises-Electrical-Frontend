@@ -142,11 +142,6 @@ export class GetRoleComponent implements OnInit {
       return;
     }
 
-    if (actionType === EButtonActionType.SET_PERMISSIONS) {
-      this.navigateToSetRolePermissions(selectedFirstRow.id);
-      return;
-    }
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dynamicComponentInputs: any = {
       selectedRecord: selectedRows,
@@ -216,25 +211,6 @@ export class GetRoleComponent implements OnInit {
       }
     } catch (error) {
       this.logger.logUserAction('Navigation error while editing role', error);
-    }
-  }
-
-  private navigateToSetRolePermissions(roleId: string): void {
-    try {
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SETTINGS.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE_PERMISSION,
-        ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.SET_PERMISSIONS,
-        roleId,
-      ];
-
-      void this.routerNavigationService.navigateToRoute(routeSegments);
-    } catch (error) {
-      this.logger.logUserAction(
-        'Navigation error while setting role permissions',
-        error
-      );
     }
   }
 }

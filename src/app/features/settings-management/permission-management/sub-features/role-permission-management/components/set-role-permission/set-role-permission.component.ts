@@ -6,26 +6,25 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { IPageHeaderConfig } from '@shared/types';
-import { ActivatedRoute } from '@angular/router';
-import { RouterNavigationService } from '@shared/services';
-import { ROUTE_BASE_PATHS, FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { IPageHeaderConfig } from '@shared/types';
+import { RouterNavigationService } from '@shared/services';
+import { ROUTE_BASE_PATHS } from '@shared/constants';
+import { finalize, forkJoin, of, switchMap } from 'rxjs';
 import { RolePermissionService } from '../../services/role-permission.service';
-import {
-  IRolePermissionsGetResponseDto,
-  IRolePermissionsSetFormDto,
-  IRolePermissionsSetResponseDto,
-} from '../../types/role-permission.dto';
+import { IRolePermissionsSetResponseDto } from '../../types/role-permission.dto';
 import { SetPermissionComponent } from '../../../../shared/components/set-permission/set-permission.component';
 import {
-  ICategorizedPermissions,
   IDefaultPermissions,
-  ISetPermissionData,
+  IMatrixModuleSaveEvent,
+  IRolePermissionMatrixColumn,
 } from '../../../../shared/types/set-permission.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { FormBase } from '@shared/base/form.base';
+import { RoleService } from '../../../role-management/services/role.service';
+import { IRoleGetBaseResponseDto } from '../../../role-management/types/role.dto';
+
+const ROLE_LIST_PAGE_SIZE = 500;
 
 @Component({
   selector: 'app-set-role-permission',
@@ -36,99 +35,44 @@ import { FormBase } from '@shared/base/form.base';
 })
 export class SetRolePermissionComponent extends FormBase implements OnInit {
   private readonly routerNavigationService = inject(RouterNavigationService);
-  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly rolePermissionService = inject(RolePermissionService);
+  private readonly roleService = inject(RoleService);
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
-  protected readonly initialRolePermissionData =
-    signal<IDefaultPermissions | null>(null);
-  private readonly latestPermissionsData = signal<ISetPermissionData | null>(
-    null
-  );
+  protected readonly roleColumns = signal<IRolePermissionMatrixColumn[]>([]);
+  protected readonly roleDefaultPermissions = signal<
+    Record<string, IDefaultPermissions>
+  >({});
+  protected readonly isPageReady = signal(false);
 
   ngOnInit(): void {
-    this.loadRolePermissionDataFromRoute();
-  }
-
-  private loadRolePermissionDataFromRoute(): void {
-    const rolePermissionRouteData = this.activatedRoute.snapshot.data[
-      'rolePermissionData'
-    ] as IRolePermissionsGetResponseDto | null;
-
-    if (!rolePermissionRouteData) {
-      this.logger.logUserAction('No role permission data found in route');
-      const routeSegments = [
-        ROUTE_BASE_PATHS.SETTINGS.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
-        ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
-      ];
-      void this.routerNavigationService.navigateToRoute(routeSegments);
-      return;
-    }
-
-    const rolePermissionData = this.preparePrefilledFormData(
-      rolePermissionRouteData
-    );
-    this.initialRolePermissionData.set(rolePermissionData);
-  }
-
-  private preparePrefilledFormData(
-    rolePermissionRouteData: IRolePermissionsGetResponseDto
-  ): IDefaultPermissions {
-    return rolePermissionRouteData.records.reduce(
-      (acc, record) => ({
-        ...acc,
-        [record.permissionId]: {
-          value: record.isActive,
-        },
-      }),
-      {} as IDefaultPermissions
-    );
+    this.loadRolePermissionMatrixData();
   }
 
   protected override handleSubmit(): void {
-    const data = this.latestPermissionsData();
-    if (!data) {
+    // Matrix saves per module; no global submit action.
+  }
+
+  protected onMatrixModuleSave(event: IMatrixModuleSaveEvent): void {
+    if (!event.roleUpdates.length) {
       return;
     }
-    const roleId = this.activatedRoute.snapshot.paramMap.get('roleId');
-    if (!roleId) {
-      this.logger.logUserAction('No role id found in route');
-      this.notificationService.error(
-        FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
-      );
-      return;
-    }
-    const formData = this.prepareFormData(data.categorizedPermissions, roleId);
-    this.executeSetRolePermission(formData);
-  }
 
-  protected onModulePermissionsSubmit(
-    setPermissionData: ISetPermissionData
-  ): void {
-    this.latestPermissionsData.set(setPermissionData);
-    this.handleSubmit();
-  }
-
-  private prepareFormData(
-    categorizedPermissions: ICategorizedPermissions,
-    roleId: string
-  ): IRolePermissionsSetFormDto {
-    return {
-      roleId,
-      ...categorizedPermissions,
-    };
-  }
-
-  private executeSetRolePermission(formData: IRolePermissionsSetFormDto): void {
+    this.isSubmitting.set(true);
     this.loadingService.show({
       title: 'Updating role permissions',
       message:
-        "We're updating the role permission. This will just take a moment.",
+        "We're saving permission changes for the selected roles. This will just take a moment.",
     });
 
-    this.rolePermissionService
-      .setRolePermission(formData)
+    forkJoin(
+      event.roleUpdates.map(update =>
+        this.rolePermissionService.setRolePermission({
+          roleId: update.roleId,
+          ...update.categorizedPermissions,
+        })
+      )
+    )
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
@@ -137,33 +81,155 @@ export class SetRolePermissionComponent extends FormBase implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: IRolePermissionsSetResponseDto) => {
-          this.notificationService.bulkOperationFromApiResponse(
-            response,
-            'role permission',
-            'update'
+        next: responses => {
+          const failed = responses.some(
+            (response: IRolePermissionsSetResponseDto) =>
+              response.failureCount > 0
           );
-          const routeSegments = [
-            ROUTE_BASE_PATHS.SETTINGS.BASE,
-            ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
-            ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
-          ];
-          void this.routerNavigationService.navigateToRoute(routeSegments);
+
+          if (failed) {
+            this.notificationService.error(
+              'Some role permission updates failed. Please review and try again.'
+            );
+            return;
+          }
+
+          this.commitMatrixModuleSave(event);
+          this.notificationService.success(
+            'Module permissions updated successfully.'
+          );
         },
         error: () => {
-          this.notificationService.error('Failed to update role permission');
+          this.notificationService.error('Failed to update role permissions.');
         },
       });
   }
 
-  protected onReset(): void {
-    this.onResetSingleForm(this.initialRolePermissionData() ?? {});
+  private loadRolePermissionMatrixData(): void {
+    this.isPageReady.set(false);
+    this.loadingService.show({
+      title: 'Loading role permissions',
+      message:
+        "We're loading roles and permissions. This will just take a moment.",
+    });
+
+    this.roleService
+      .getRoleList({ page: 1, pageSize: ROLE_LIST_PAGE_SIZE })
+      .pipe(
+        switchMap(roleResponse => {
+          const roles = roleResponse.records.map(role =>
+            this.mapRoleColumn(role)
+          );
+
+          return forkJoin({
+            roles: of(roles),
+            rolePermissions: roles.length
+              ? forkJoin(
+                  roles.map(role =>
+                    this.rolePermissionService.getRolePermission({
+                      roleId: role.id,
+                    })
+                  )
+                )
+              : of([]),
+          });
+        }),
+        finalize(() => {
+          this.loadingService.hide();
+          this.isPageReady.set(true);
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: ({ roles, rolePermissions }) => {
+          this.roleColumns.set(roles);
+          this.roleDefaultPermissions.set(
+            this.buildRoleDefaultPermissions(roles, rolePermissions)
+          );
+          this.logger.logUserAction('Role permission matrix loaded');
+        },
+        error: error => {
+          this.roleColumns.set([]);
+          this.roleDefaultPermissions.set({});
+          this.logger.error('Failed to load role permission matrix', error);
+          this.notificationService.error(
+            'Could not load role permissions. Please try again.'
+          );
+          this.navigateBackToRoles();
+        },
+      });
+  }
+
+  private buildRoleDefaultPermissions(
+    roles: IRolePermissionMatrixColumn[],
+    rolePermissionsResponses: {
+      records: { permissionId: string; isActive: boolean }[];
+    }[]
+  ): Record<string, IDefaultPermissions> {
+    return roles.reduce<Record<string, IDefaultPermissions>>(
+      (acc, role, index) => {
+        acc[role.id] =
+          rolePermissionsResponses[index]?.records.reduce(
+            (permissions, record) => ({
+              ...permissions,
+              [record.permissionId]: { value: record.isActive },
+            }),
+            {} as IDefaultPermissions
+          ) ?? {};
+
+        return acc;
+      },
+      {}
+    );
+  }
+
+  private commitMatrixModuleSave(event: IMatrixModuleSaveEvent): void {
+    this.roleDefaultPermissions.update(current => {
+      const next = { ...current };
+
+      event.roleUpdates.forEach(({ roleId, categorizedPermissions }) => {
+        const rolePermissions = { ...(next[roleId] ?? {}) };
+
+        categorizedPermissions.newPermissions.forEach(permissionId => {
+          rolePermissions[permissionId] = { value: true };
+        });
+        categorizedPermissions.revokedPermissions.forEach(permissionId => {
+          rolePermissions[permissionId] = { value: false };
+        });
+        categorizedPermissions.defaultPermissions.forEach(permissionId => {
+          rolePermissions[permissionId] = { value: true };
+        });
+
+        next[roleId] = rolePermissions;
+      });
+
+      return next;
+    });
+  }
+
+  private mapRoleColumn(
+    role: IRoleGetBaseResponseDto
+  ): IRolePermissionMatrixColumn {
+    return {
+      id: role.id,
+      label: role.label,
+      name: role.name,
+    };
+  }
+
+  private navigateBackToRoles(): void {
+    void this.routerNavigationService.navigateToRoute([
+      ROUTE_BASE_PATHS.SETTINGS.BASE,
+      ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
+      ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE,
+    ]);
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {
     return {
       title: 'Set Role Permissions',
-      subtitle: 'Set the permissions for the role',
+      subtitle:
+        'Permissions are fixed on the left; scroll roles horizontally. Use Update on each module to save.',
     };
   }
 }

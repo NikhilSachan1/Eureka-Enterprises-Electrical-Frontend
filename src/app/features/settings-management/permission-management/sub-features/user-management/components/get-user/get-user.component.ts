@@ -152,7 +152,7 @@ export class GetUserComponent implements OnInit {
     const [selectedFirstRow] = selectedRows;
 
     if (actionType === EButtonActionType.SET_PERMISSIONS) {
-      this.navigateToSetUserPermissions(selectedFirstRow.id);
+      this.navigateToSetUserPermissions(selectedFirstRow);
       return;
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -214,17 +214,24 @@ export class GetUserComponent implements OnInit {
     };
   }
 
-  private navigateToSetUserPermissions(userId: string): void {
+  private navigateToSetUserPermissions(
+    selectedUser: IUserGetBaseResponseDto
+  ): void {
     try {
       const routeSegments = [
         ROUTE_BASE_PATHS.SETTINGS.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.BASE,
         ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER_PERMISSION,
         ROUTES.SETTINGS.PERMISSION.USER_PERMISSION.SET_PERMISSIONS,
-        userId,
+        selectedUser.id,
       ];
 
-      void this.routerNavigationService.navigateToRoute(routeSegments);
+      void this.routerNavigationService.navigateWithState(routeSegments, {
+        userPermissionContext: {
+          userLabel: `${selectedUser.firstName} ${selectedUser.lastName}`,
+          userCode: selectedUser.employeeId,
+        },
+      });
     } catch (error) {
       this.logger.logUserAction(
         'Navigation error while setting user permissions',
