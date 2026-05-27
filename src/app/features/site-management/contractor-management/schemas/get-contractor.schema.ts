@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { AuditSchema, FilterSchema } from '@shared/schemas';
 import { ContractorBaseSchema } from './base-contractor.schema';
 
-const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
+const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
 
 export const ContractorGetRequestSchema = z
   .object({
@@ -13,7 +13,6 @@ export const ContractorGetRequestSchema = z
     sortField,
     pageSize,
     page,
-    search,
   })
   .strict()
   .transform(
@@ -36,30 +35,11 @@ export const ContractorGetBaseResponseSchema = ContractorBaseSchema.extend({
 export const ContractorGetStatsResponseSchema = z.looseObject({
   totalContractors: z.number().int().nonnegative(),
   activeContractors: z.number().int().nonnegative(),
-  archivedContractors: z.number().int().nonnegative(),
   inactiveContractors: z.number().int().nonnegative(),
-  selfContractors: z.number().int().nonnegative(),
-});
-
-export const ContractorLevelGetStatsResponseSchema = z.looseObject({
-  activeSites: z.number().int().nonnegative(),
-  completedSites: z.number().int().nonnegative(),
-  holdSites: z.number().int().nonnegative(),
-  totalSites: z.number().int().nonnegative(),
-  upcomingSites: z.number().int().nonnegative(),
-  totalDocuments: z.number().int().nonnegative(),
-  totalInvoices: z.number().int().nonnegative(),
-  totalQuotations: z.number().int().nonnegative(),
-  totalAmountBilled: z.number().int().nonnegative(),
-  pendingPayments: z.number().int().nonnegative(),
 });
 
 export const ContractorGetResponseSchema = z.looseObject({
-  records: z.array(
-    ContractorGetBaseResponseSchema.extend({
-      stats: ContractorLevelGetStatsResponseSchema.nullable(),
-    }).loose()
-  ),
+  records: z.array(ContractorGetBaseResponseSchema),
   overallStats: ContractorGetStatsResponseSchema,
   totalRecords: z.number().int().nonnegative(),
 });

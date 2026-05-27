@@ -13,7 +13,7 @@ export const ContractorEditRequestSchema =
       landmark: data.landmark,
       city: data.city,
       state: data.state,
-      pincode: data.pincode?.toString(),
+      pincode: data.pincode,
       country: 'India',
     };
   });

@@ -1,5 +1,6 @@
 import z from 'zod';
 import { VendorUpsertShapeSchema } from './base-vendor.schema';
+import { EVendorType } from '../types/vendor.enum';
 
 export const VendorEditRequestSchema =
   VendorUpsertShapeSchema.strict().transform(data => {
@@ -8,7 +9,10 @@ export const VendorEditRequestSchema =
       name: data.vendorName,
       contactNumber: data.contactNumber,
       email: data.emailAddress,
-      gstNumber: data.vendorGSTNumber,
+      gstNumber:
+        data.vendorType === EVendorType.FREELANCER
+          ? null
+          : data.vendorGSTNumber,
       blockNumber: data.blockNumber,
       streetName: data.streetName,
       landmark: data.landmark,

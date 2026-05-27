@@ -7,7 +7,7 @@ import { IContractorAddFormDto } from '@features/site-management/contractor-mana
 
 export const ADD_CONTRACTOR_PREFILLED_DATA: IContractorAddFormDto = {
   contractorName: 'Test Contractor',
-  contactNumber: 1234567890,
+  contactNumber: '1234567890',
   emailAddress: 'test@example.com',
   contractorGSTNumber: '27aAACM3025E1ZZ',
   blockNumber: '123',
@@ -15,5 +15,5 @@ export const ADD_CONTRACTOR_PREFILLED_DATA: IContractorAddFormDto = {
   landmark: 'Test Landmark',
   state: getRandomItem(TEST_INDIA_STATES),
   city: getRandomItem(TEST_INDIA_CITIES),
-  pincode: 123456,
+  pincode: '123456',
 };

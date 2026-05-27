@@ -82,30 +82,6 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
     const mappedDetails = [response].map(record => {
       const entryData: IDataViewDetails['entryData'] = [
         {
-          label: 'Contact Number',
-          value: record.contactNumber,
-        },
-        {
-          label: 'Email',
-          value: record.email,
-        },
-        {
-          label: 'GST Number',
-          value: record.gstNumber,
-        },
-        {
-          label: 'Block Number',
-          value: record.blockNumber,
-        },
-        {
-          label: 'Street Name',
-          value: record.streetName,
-        },
-        {
-          label: 'Landmark',
-          value: record.landmark,
-        },
-        {
           label: 'City',
           value: getMappedValueFromArrayOfObjects(
             this.appConfigurationService.cities(),
@@ -122,10 +98,6 @@ export class GetCompanyDetailComponent extends DrawerDetailBase {
         {
           label: 'Pincode',
           value: record.pincode,
-        },
-        {
-          label: 'Full Address',
-          value: record.fullAddress,
         },
       ];
 

@@ -52,6 +52,7 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { ECompanyStatus } from '../../types/company.enum';
 import {
   applyGroupMetricValueLoading,
+  formatLocation,
   getMappedValueFromArrayOfObjects,
 } from '@shared/utility';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -140,14 +141,15 @@ export class GetCompanyComponent implements OnInit {
       return {
         id: record.id,
         companyName: record.name,
-        contactNumber: record.contactNumber,
-        emailAddress: record.email,
         status: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.companyStatus(),
           record.isActive ? ECompanyStatus.ACTIVE : ECompanyStatus.ARCHIVED
         ),
-        stateCity: `${getMappedValueFromArrayOfObjects(this.appConfigurationService.states(), record.state)}, ${getMappedValueFromArrayOfObjects(this.appConfigurationService.cities(), record.city)}`,
-        pincode: record.pincode,
+        stateCity: formatLocation(
+          record,
+          this.appConfigurationService.states(),
+          this.appConfigurationService.cities()
+        ),
         parentCompanyName: record.parentCompany?.name ?? null,
         originalRawData: record,
       };
@@ -166,9 +168,10 @@ export class GetCompanyComponent implements OnInit {
     const groups: IMetricGroup[] = [
       {
         id: 'overview',
-        title: 'Overview',
+        title: 'Total companies',
         icon: ICONS.SITE.BUILDING,
-        metrics: [{ label: 'Total', value: stats?.totalCompanies ?? 0 }],
+        layout: 'kpi',
+        metrics: [{ label: '', value: stats?.totalCompanies ?? 0 }],
       },
       {
         id: 'status',
@@ -177,7 +180,6 @@ export class GetCompanyComponent implements OnInit {
         metrics: [
           { label: 'Active', value: stats?.activeCompanies ?? 0 },
           { label: 'Inactive', value: stats?.inactiveCompanies ?? 0 },
-          { label: 'Archived', value: stats?.archivedCompanies ?? 0 },
         ],
       },
     ];
@@ -227,16 +229,12 @@ export class GetCompanyComponent implements OnInit {
   ): IDataViewDetailsWithEntity {
     const entryData: IDataViewDetails['entryData'] = [
       {
-        label: 'Contact Number',
-        value: selectedRow.contactNumber,
-      },
-      {
-        label: 'GST Number',
-        value: selectedRow.gstNumber,
-      },
-      {
         label: 'Full Address',
-        value: selectedRow.fullAddress,
+        value: formatLocation(
+          selectedRow,
+          this.appConfigurationService.states(),
+          this.appConfigurationService.cities()
+        ),
       },
     ];
     return {

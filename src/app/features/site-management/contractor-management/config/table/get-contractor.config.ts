@@ -41,8 +41,7 @@ const CONTRACTOR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'stateCity',
     header: 'Location',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    subtitle: { field: 'pincode' },
+    bodyTemplate: EDataType.TEXT,
     serverSideFilterAndSortConfig: {
       filterField: 'location',
     },

@@ -9,6 +9,8 @@ import {
 import { Validators } from '@angular/forms';
 import {
   CONFIGURATION_KEYS,
+  FORM_VALIDATION_PATTERNS,
+  GST_NUMBER_LENGTH,
   MODULE_NAMES,
   TEXT_INPUT_ACCEPT_STRIP,
 } from '@shared/constants';
@@ -64,6 +66,10 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
       textConfig: {
         textCase: ETextCase.LOWERCASE,
       },
+      validators: [
+        Validators.required,
+        Validators.pattern(FORM_VALIDATION_PATTERNS.EMAIL),
+      ],
     },
     vendorGSTNumber: {
       id: 'vendorGSTNumber',
@@ -72,8 +78,9 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.UPPERCASE,
-        minimumInputLength: 15,
-        maximumInputLength: 15,
+        minimumInputLength: GST_NUMBER_LENGTH,
+        maximumInputLength: GST_NUMBER_LENGTH,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
       },
       conditionalValidators: [
         {
@@ -82,8 +89,8 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
             vendorType !== EVendorType.FREELANCER,
           validators: [
             Validators.required,
-            Validators.minLength(15),
-            Validators.maxLength(15),
+            Validators.minLength(GST_NUMBER_LENGTH),
+            Validators.maxLength(GST_NUMBER_LENGTH),
           ],
           resetOnFalse: true,
         },
@@ -97,7 +104,6 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
       textConfig: {
         textCase: ETextCase.UPPERCASE,
       },
-      validators: [Validators.required],
     },
     streetName: {
       id: 'streetName',
@@ -107,7 +113,6 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
       textConfig: {
         textCase: ETextCase.TITLECASE,
       },
-      validators: [Validators.required],
     },
     landmark: {
       id: 'landmark',
@@ -117,7 +122,6 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
       textConfig: {
         textCase: ETextCase.TITLECASE,
       },
-      validators: [Validators.required],
     },
     state: {
       id: 'state',
@@ -148,16 +152,14 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
     pincode: {
       id: 'pincode',
       fieldName: 'pincode',
-      label: 'Pincode',
-      fieldType: EDataType.NUMBER,
-      numberConfig: {
-        allowNumberFormatting: false,
+      label: 'Pin Code',
+      fieldType: EDataType.TEXT,
+      textConfig: {
+        minimumInputLength: 6,
+        maximumInputLength: 6,
+        regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
       },
-      validators: [
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(6),
-      ],
+      validators: [Validators.minLength(6), Validators.maxLength(6)],
     },
   };
 

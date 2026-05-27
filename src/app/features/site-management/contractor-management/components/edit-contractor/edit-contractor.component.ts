@@ -104,7 +104,7 @@ export class EditContractorComponent
 
     return {
       contractorName: name,
-      contactNumber: Number(contactNumber),
+      contactNumber,
       emailAddress: email,
       contractorGSTNumber: gstNumber,
       blockNumber,
@@ -112,7 +112,7 @@ export class EditContractorComponent
       landmark,
       state,
       city,
-      pincode: Number(pincode),
+      pincode,
     };
   }
 

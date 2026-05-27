@@ -8,6 +8,7 @@ export { EUserRole, RESTRICTED_ROLES_FOR_USER_ID } from './role.constants';
 export {
   TEXT_INPUT_ACCEPT_STRIP,
   FORM_VALIDATION_PATTERNS,
+  GST_NUMBER_LENGTH,
   invalidCharsPatternFromStrip,
 } from './regex.constants';
 export {

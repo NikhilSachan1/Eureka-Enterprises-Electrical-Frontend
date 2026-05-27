@@ -46,6 +46,7 @@ export {
 } from './table-row.util';
 export { StatusUtil } from './status.util';
 export { makeFieldsNullable } from './zod.util';
+export { formatFullAddress, formatLocation } from './address.util';
 export {
   parseAmount,
   roundCurrencyAmount,

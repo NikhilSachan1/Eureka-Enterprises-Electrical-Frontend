@@ -7,26 +7,27 @@ export const VendorBaseSchema = z.looseObject({
   contactNumber: z.string().nullable(),
   email: z.string().nullable(),
   gstNumber: z.string().nullable(),
-  blockNumber: z.string(),
-  streetName: z.string(),
-  landmark: z.string(),
+  blockNumber: z.string().nullable(),
+  streetName: z.string().nullable(),
+  landmark: z.string().nullable(),
   area: z.string().nullable(),
   city: z.string(),
   state: z.string(),
-  pincode: z.string(),
+  pincode: z.string().nullable(),
   isActive: z.boolean(),
   vendorType: z.string(),
 });
 
 const {
   name,
-  email,
   gstNumber,
   blockNumber,
   streetName,
   landmark,
   state,
   city,
+  pincode,
+  email,
 } = VendorBaseSchema.shape;
 
 export const VendorUpsertShapeSchema = z
@@ -41,6 +42,6 @@ export const VendorUpsertShapeSchema = z
     landmark,
     state,
     city,
-    pincode: z.number(),
+    pincode,
   })
   .strict();

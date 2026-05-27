@@ -8,7 +8,11 @@ import {
 } from '@shared/types';
 import { ICompanyAddFormDto } from '../../types/company.dto';
 import { Validators } from '@angular/forms';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import {
+  CONFIGURATION_KEYS,
+  MODULE_NAMES,
+  TEXT_INPUT_ACCEPT_STRIP,
+} from '@shared/constants';
 
 const ADD_COMPANY_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ICompanyAddFormDto> =
   {
@@ -16,64 +20,6 @@ const ADD_COMPANY_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ICompanyAddFormDto>
       id: 'companyName',
       fieldName: 'companyName',
       label: 'Company Name',
-      fieldType: EDataType.TEXT,
-      textConfig: {
-        textCase: ETextCase.TITLECASE,
-      },
-      validators: [Validators.required],
-    },
-    contactNumber: {
-      id: 'contactNumber',
-      fieldName: 'contactNumber',
-      label: 'Contact Number',
-      fieldType: EDataType.NUMBER,
-      numberConfig: {
-        allowNumberFormatting: false,
-      },
-      validators: [Validators.minLength(10), Validators.maxLength(10)],
-    },
-    emailAddress: {
-      id: 'emailAddress',
-      fieldName: 'emailAddress',
-      label: 'Email Address',
-      fieldType: EDataType.TEXT,
-      textConfig: {
-        textCase: ETextCase.LOWERCASE,
-      },
-    },
-    companyGSTNumber: {
-      id: 'companyGSTNumber',
-      fieldName: 'companyGSTNumber',
-      label: 'Company GST Number',
-      fieldType: EDataType.TEXT,
-      textConfig: {
-        textCase: ETextCase.UPPERCASE,
-      },
-    },
-    blockNumber: {
-      id: 'blockNumber',
-      fieldName: 'blockNumber',
-      label: 'Block Number',
-      fieldType: EDataType.TEXT,
-      textConfig: {
-        textCase: ETextCase.UPPERCASE,
-      },
-      validators: [Validators.required],
-    },
-    streetName: {
-      id: 'streetName',
-      fieldName: 'streetName',
-      label: 'Street Name',
-      fieldType: EDataType.TEXT,
-      textConfig: {
-        textCase: ETextCase.TITLECASE,
-      },
-      validators: [Validators.required],
-    },
-    landmark: {
-      id: 'landmark',
-      fieldName: 'landmark',
-      label: 'Landmark',
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.TITLECASE,
@@ -109,16 +55,14 @@ const ADD_COMPANY_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ICompanyAddFormDto>
     pincode: {
       id: 'pincode',
       fieldName: 'pincode',
-      label: 'Pincode',
-      fieldType: EDataType.NUMBER,
-      numberConfig: {
-        allowNumberFormatting: false,
+      label: 'Pin Code',
+      fieldType: EDataType.TEXT,
+      textConfig: {
+        minimumInputLength: 6,
+        maximumInputLength: 6,
+        regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
       },
-      validators: [
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(6),
-      ],
+      validators: [Validators.minLength(6), Validators.maxLength(6)],
     },
     parentCompanyName: {
       id: 'parentCompanyName',

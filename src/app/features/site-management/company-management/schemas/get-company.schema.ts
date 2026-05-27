@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { AuditSchema, FilterSchema } from '@shared/schemas';
 import { CompanyBaseSchema } from './base-company.schema';
 
-const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
+const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
 
 export const CompanyGetRequestSchema = z
   .object({
@@ -14,7 +14,6 @@ export const CompanyGetRequestSchema = z
     sortField,
     pageSize,
     page,
-    search,
   })
   .strict()
   .transform(
@@ -53,27 +52,11 @@ export const CompanyGetBaseResponseSchema = CompanyBaseSchema.extend({
 export const CompanyGetStatsResponseSchema = z.looseObject({
   totalCompanies: z.number().int().nonnegative(),
   activeCompanies: z.number().int().nonnegative(),
-  archivedCompanies: z.number().int().nonnegative(),
   inactiveCompanies: z.number().int().nonnegative(),
 });
 
-export const CompanyLevelGetStatsResponseSchema = z.looseObject({
-  activeChildCompanies: z.number().int().nonnegative(),
-  activeSites: z.number().int().nonnegative(),
-  archivedChildCompanies: z.number().int().nonnegative(),
-  completedSites: z.number().int().nonnegative(),
-  holdSites: z.number().int().nonnegative(),
-  inactiveChildCompanies: z.number().int().nonnegative(),
-  totalSites: z.number().int().nonnegative(),
-  upcomingSites: z.number().int().nonnegative(),
-});
-
 export const CompanyGetResponseSchema = z.looseObject({
-  records: z.array(
-    CompanyGetBaseResponseSchema.extend({
-      stats: CompanyLevelGetStatsResponseSchema.nullable(),
-    }).loose()
-  ),
+  records: z.array(CompanyGetBaseResponseSchema),
   overallStats: CompanyGetStatsResponseSchema,
   totalRecords: z.number().int().nonnegative(),
 });

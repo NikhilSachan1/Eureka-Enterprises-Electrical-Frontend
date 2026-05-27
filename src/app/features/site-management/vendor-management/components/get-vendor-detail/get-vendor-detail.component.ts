@@ -20,7 +20,7 @@ import {
 } from '@shared/types';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { formatFullAddress } from '@shared/utility';
 import { EVendorStatus } from '../../types/vendor.enum';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 
@@ -94,38 +94,12 @@ export class GetVendorDetailComponent extends DrawerDetailBase {
           value: record.gstNumber,
         },
         {
-          label: 'Block Number',
-          value: record.blockNumber,
-        },
-        {
-          label: 'Street Name',
-          value: record.streetName,
-        },
-        {
-          label: 'Landmark',
-          value: record.landmark,
-        },
-        {
-          label: 'City',
-          value: getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.cities(),
-            record.city
-          ),
-        },
-        {
-          label: 'State',
-          value: getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.states(),
-            record.state
-          ),
-        },
-        {
-          label: 'Pincode',
-          value: record.pincode,
-        },
-        {
           label: 'Full Address',
-          value: record.fullAddress,
+          value: formatFullAddress(
+            record,
+            this.appConfigurationService.states(),
+            this.appConfigurationService.cities()
+          ),
         },
       ];
 

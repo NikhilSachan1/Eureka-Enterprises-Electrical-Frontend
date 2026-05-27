@@ -198,9 +198,6 @@ export class EditProjectComponent
     company: ICompanyGetBaseResponseDto
   ): Partial<IProjectEditFormDto> {
     return {
-      blockNumber: company.blockNumber ?? '',
-      streetName: company.streetName ?? '',
-      landmark: company.landmark ?? '',
       city: company.city ?? '',
       state: company.state ?? '',
       pincode: company.pincode ?? '',

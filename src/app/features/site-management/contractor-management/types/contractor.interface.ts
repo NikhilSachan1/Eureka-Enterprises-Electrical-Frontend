@@ -3,7 +3,7 @@ import { IContractorGetBaseResponseDto } from './contractor.dto';
 export interface IContractor
   extends Pick<
     IContractorGetBaseResponseDto,
-    'id' | 'contactNumber' | 'pincode' | 'emailAddress' | 'gstNumber' | 'name'
+    'id' | 'contactNumber' | 'gstNumber' | 'name' | 'email'
   > {
   status: string;
   stateCity: string;

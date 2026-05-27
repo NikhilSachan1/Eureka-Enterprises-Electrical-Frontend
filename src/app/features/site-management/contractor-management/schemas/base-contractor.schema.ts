@@ -4,17 +4,17 @@ import { z } from 'zod';
 export const ContractorBaseSchema = z.looseObject({
   id: uuidField,
   name: z.string(),
-  contactNumber: z.string().nullable(),
-  email: z.string().nullable(),
+  contactNumber: z.string(),
+  email: z.string(),
   gstNumber: z.string().nullable(),
-  blockNumber: z.string(),
+  blockNumber: z.string().nullable(),
   buildingName: z.string().nullable(),
-  streetName: z.string(),
-  landmark: z.string(),
+  streetName: z.string().nullable(),
+  landmark: z.string().nullable(),
   area: z.string().nullable(),
   city: z.string(),
   state: z.string(),
-  pincode: z.string(),
+  pincode: z.string().nullable(),
   country: z.string(),
   remarks: z.string().nullable(),
   bankName: z.string().nullable(),
@@ -33,12 +33,14 @@ const {
   landmark,
   state,
   city,
+  pincode,
+  contactNumber,
 } = ContractorBaseSchema.shape;
 
 export const ContractorUpsertShapeSchema = z
   .object({
     contractorName: name,
-    contactNumber: z.number().nullable(),
+    contactNumber,
     emailAddress: email,
     contractorGSTNumber: gstNumber,
     blockNumber,
@@ -46,6 +48,6 @@ export const ContractorUpsertShapeSchema = z
     landmark,
     state,
     city,
-    pincode: z.number().nullable(),
+    pincode,
   })
   .strict();

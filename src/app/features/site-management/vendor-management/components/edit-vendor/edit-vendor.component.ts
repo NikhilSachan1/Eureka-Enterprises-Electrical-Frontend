@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   OnInit,
   Signal,
@@ -53,6 +54,7 @@ export class EditVendorComponent
   private readonly activatedRoute = inject(ActivatedRoute);
 
   private vendorTypeTracked!: Signal<string | null | undefined>;
+  private initialVendorGst: string | null = null;
 
   protected readonly showVendorGstField = computed(
     () => this.vendorTypeTracked() !== EVendorType.FREELANCER
@@ -62,6 +64,21 @@ export class EditVendorComponent
   protected readonly initialVendorData = signal<IVendorEditFormDto | null>(
     null
   );
+
+  constructor() {
+    super();
+    effect(() => {
+      if (!this.vendorTypeTracked || !this.form) {
+        return;
+      }
+
+      const vendorType = this.vendorTypeTracked();
+      this.form.patch({
+        vendorGSTNumber:
+          vendorType === EVendorType.FREELANCER ? null : this.initialVendorGst,
+      });
+    });
+  }
 
   ngOnInit(): void {
     this.loadVendorDataFromRoute();
@@ -73,6 +90,8 @@ export class EditVendorComponent
         defaultValues: this.initialVendorData(),
       }
     );
+
+    this.initialVendorGst = this.initialVendorData()?.vendorGSTNumber ?? null;
 
     this.vendorTypeTracked = this.formService.trackFieldChanges(
       this.form.formGroup,
@@ -131,7 +150,7 @@ export class EditVendorComponent
       landmark,
       state,
       city,
-      pincode: Number(pincode),
+      pincode,
     };
   }
 

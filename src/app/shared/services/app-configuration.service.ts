@@ -1232,12 +1232,9 @@ export class AppConfigurationService {
           const companyList: IOptionDropdown[] = response.records
             .map(company => {
               const rawName = company.name?.trim() ?? '';
-              const gst = company.gstNumber?.trim();
-              const subtitle = gst
-                ? `GST ${gst}`
-                : [company.city, company.state].filter(Boolean).join(', ') ||
-                  (company.email?.trim() ?? '') ||
-                  `ID ${company.id.slice(0, 8)}`;
+              const subtitle =
+                [company.city, company.state].filter(Boolean).join(', ') ||
+                `ID ${company.id.slice(0, 8)}`;
               return {
                 label: toTitleCase(rawName),
                 subtitle,

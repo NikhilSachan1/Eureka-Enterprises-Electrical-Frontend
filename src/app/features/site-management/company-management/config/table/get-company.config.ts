@@ -36,18 +36,10 @@ const COMPANY_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'stateCity',
     header: 'Location',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    subtitle: { field: 'pincode' },
+    bodyTemplate: EDataType.TEXT,
     serverSideFilterAndSortConfig: {
       filterField: 'location',
     },
-    showSort: false,
-  },
-  {
-    field: 'emailAddress',
-    header: 'Contact',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    subtitle: { field: 'contactNumber' },
     showSort: false,
   },
 ];

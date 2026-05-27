@@ -90,31 +90,14 @@ export class EditCompanyComponent
   private preparePrefilledFormData(
     companyDetailFromResolver: ICompanyDetailGetResponseDto
   ): ICompanyEditFormDto {
-    const {
-      name,
-      contactNumber,
-      email,
-      gstNumber,
-      blockNumber,
-      streetName,
-      landmark,
-      state,
-      city,
-      pincode,
-      parentCompanyId,
-    } = companyDetailFromResolver;
+    const { name, state, city, pincode, parentCompanyId } =
+      companyDetailFromResolver;
 
     return {
       companyName: name,
-      contactNumber: Number(contactNumber),
-      emailAddress: email,
-      companyGSTNumber: gstNumber,
-      blockNumber,
-      streetName,
-      landmark,
       state,
       city,
-      pincode: Number(pincode),
+      pincode,
       parentCompanyName: parentCompanyId,
     };
   }

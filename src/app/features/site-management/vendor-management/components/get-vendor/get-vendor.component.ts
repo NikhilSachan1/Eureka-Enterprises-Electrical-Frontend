@@ -52,6 +52,7 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import {
   applyGroupMetricValueLoading,
+  formatFullAddress,
   getMappedValueFromArrayOfObjects,
 } from '@shared/utility';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -173,9 +174,10 @@ export class GetVendorComponent implements OnInit {
     const groups: IMetricGroup[] = [
       {
         id: 'overview',
-        title: 'Overview',
+        title: 'Total vendors',
         icon: ICONS.COMMON.BRIEFCASE,
-        metrics: [{ label: 'Total', value: stats?.totalVendors ?? 0 }],
+        layout: 'kpi',
+        metrics: [{ label: '', value: stats?.totalVendors ?? 0 }],
       },
       {
         id: 'status',
@@ -254,7 +256,11 @@ export class GetVendorComponent implements OnInit {
       },
       {
         label: 'Full Address',
-        value: selectedRow.fullAddress,
+        value: formatFullAddress(
+          selectedRow,
+          this.appConfigurationService.states(),
+          this.appConfigurationService.cities()
+        ),
       },
     ];
     return {

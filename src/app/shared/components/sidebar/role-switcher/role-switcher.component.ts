@@ -24,7 +24,7 @@ import {
   NotificationService,
 } from '@shared/services';
 import { getMappedValueFromArrayOfObjects, toTitleCase } from '@shared/utility';
-import { ICONS } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS } from '@shared/constants';
 
 export interface UserRole {
   id: string;
@@ -121,7 +121,7 @@ export class RoleSwitcherComponent {
     this.rolePopover.hide();
     this.executeSwitchActiveRole(role.id);
   }
-  /** Role switch API → full page refresh (permissions reload on bootstrap). */
+  /** Role switch API → full reload on dashboard (permissions reload on bootstrap). */
   private executeSwitchActiveRole(targetRole: string): void {
     this.isSubmitting.set(true);
     this.loadingService.show({
@@ -137,7 +137,7 @@ export class RoleSwitcherComponent {
           this.notificationService.success(
             `Switched to role: ${toTitleCase(response.activeRole)}`
           );
-          window.location.reload();
+          window.location.replace(`/${ROUTE_BASE_PATHS.DASHBOARD}`);
         },
         error: error => {
           this.isSubmitting.set(false);

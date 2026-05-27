@@ -7,7 +7,13 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 import { Validators } from '@angular/forms';
-import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
+import {
+  CONFIGURATION_KEYS,
+  FORM_VALIDATION_PATTERNS,
+  GST_NUMBER_LENGTH,
+  MODULE_NAMES,
+  TEXT_INPUT_ACCEPT_STRIP,
+} from '@shared/constants';
 import { IContractorAddFormDto } from '../../types/contractor.dto';
 
 const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFormDto> =
@@ -26,11 +32,17 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       id: 'contactNumber',
       fieldName: 'contactNumber',
       label: 'Contact Number',
-      fieldType: EDataType.NUMBER,
-      numberConfig: {
-        allowNumberFormatting: false,
+      fieldType: EDataType.TEXT,
+      textConfig: {
+        regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
+        minimumInputLength: 10,
+        maximumInputLength: 10,
       },
-      validators: [Validators.minLength(10), Validators.maxLength(10)],
+      validators: [
+        Validators.required,
+        Validators.minLength(10),
+        Validators.maxLength(10),
+      ],
     },
     emailAddress: {
       id: 'emailAddress',
@@ -40,6 +52,10 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       textConfig: {
         textCase: ETextCase.LOWERCASE,
       },
+      validators: [
+        Validators.required,
+        Validators.pattern(FORM_VALIDATION_PATTERNS.EMAIL),
+      ],
     },
     contractorGSTNumber: {
       id: 'contractorGSTNumber',
@@ -48,6 +64,9 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.UPPERCASE,
+        minimumInputLength: GST_NUMBER_LENGTH,
+        maximumInputLength: GST_NUMBER_LENGTH,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
       },
     },
     blockNumber: {
@@ -58,7 +77,6 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       textConfig: {
         textCase: ETextCase.UPPERCASE,
       },
-      validators: [Validators.required],
     },
     streetName: {
       id: 'streetName',
@@ -68,7 +86,6 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       textConfig: {
         textCase: ETextCase.TITLECASE,
       },
-      validators: [Validators.required],
     },
     landmark: {
       id: 'landmark',
@@ -78,7 +95,6 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       textConfig: {
         textCase: ETextCase.TITLECASE,
       },
-      validators: [Validators.required],
     },
     state: {
       id: 'state',
@@ -109,16 +125,14 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
     pincode: {
       id: 'pincode',
       fieldName: 'pincode',
-      label: 'Pincode',
-      fieldType: EDataType.NUMBER,
-      numberConfig: {
-        allowNumberFormatting: false,
+      label: 'Pin Code',
+      fieldType: EDataType.TEXT,
+      textConfig: {
+        minimumInputLength: 6,
+        maximumInputLength: 6,
+        regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
       },
-      validators: [
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(6),
-      ],
+      validators: [Validators.minLength(6), Validators.maxLength(6)],
     },
   };
 

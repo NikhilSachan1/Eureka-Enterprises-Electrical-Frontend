@@ -52,9 +52,12 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import {
   applyGroupMetricValueLoading,
+  formatFullAddress,
+  formatLocation,
   getMappedValueFromArrayOfObjects,
 } from '@shared/utility';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+// address formatting is centralized in shared utility
 
 @Component({
   selector: 'app-get-contractor',
@@ -143,15 +146,18 @@ export class GetContractorComponent implements OnInit {
         name: record.name,
         gstNumber: record.gstNumber,
         contactNumber: record.contactNumber,
-        emailAddress: record.email,
+        email: record.email,
         status: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.contractorStatus(),
           record.isActive
             ? EContractorStatus.ACTIVE
             : EContractorStatus.ARCHIVED
         ),
-        stateCity: `${getMappedValueFromArrayOfObjects(this.appConfigurationService.states(), record.state)}, ${getMappedValueFromArrayOfObjects(this.appConfigurationService.cities(), record.city)}`,
-        pincode: record.pincode,
+        stateCity: formatLocation(
+          record,
+          this.appConfigurationService.states(),
+          this.appConfigurationService.cities()
+        ),
         originalRawData: record,
       };
     });
@@ -169,9 +175,10 @@ export class GetContractorComponent implements OnInit {
     const groups: IMetricGroup[] = [
       {
         id: 'overview',
-        title: 'Overview',
+        title: 'Total contractors',
         icon: ICONS.COMMON.USERS,
-        metrics: [{ label: 'Total', value: stats?.totalContractors ?? 0 }],
+        layout: 'kpi',
+        metrics: [{ label: '', value: stats?.totalContractors ?? 0 }],
       },
       {
         id: 'status',
@@ -238,7 +245,11 @@ export class GetContractorComponent implements OnInit {
       },
       {
         label: 'Full Address',
-        value: selectedRow.fullAddress,
+        value: formatFullAddress(
+          selectedRow,
+          this.appConfigurationService.states(),
+          this.appConfigurationService.cities()
+        ),
       },
     ];
     return {

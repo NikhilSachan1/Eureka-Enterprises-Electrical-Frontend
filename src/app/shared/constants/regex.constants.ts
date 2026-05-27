@@ -11,6 +11,9 @@ export const TEXT_INPUT_ACCEPT_STRIP = {
     /[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};:'",.<>/?]/g,
 } as const;
 
+/** Indian GSTIN length (15 characters). */
+export const GST_NUMBER_LENGTH = 15;
+
 /** Regex for `Validators.pattern` and other validation (not input strip). */
 export const FORM_VALIDATION_PATTERNS = {
   EMAIL: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
