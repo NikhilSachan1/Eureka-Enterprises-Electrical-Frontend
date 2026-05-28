@@ -41,7 +41,6 @@ export const BankTransferUpsertShapeSchema = z
     bookPaymentNumber: uuidField.nullable(),
     utrNumber: z.string(),
     transferDate: dateField,
-    taxableAmount: bankTransferOptionalMoneyFieldSchema,
     tdsPercentage: z.coerce.number().optional(),
     tdsDeducted: bankTransferOptionalMoneyFieldSchema,
     transferAmount: bankTransferMoneyFieldSchema,

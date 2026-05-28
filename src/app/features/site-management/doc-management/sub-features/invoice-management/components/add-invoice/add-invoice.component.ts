@@ -176,6 +176,7 @@ export class AddInvoiceComponent
     return {
       projectName: siteId,
       docType: this.docContext(),
+      forDocument: 'invoice',
     };
   }
 

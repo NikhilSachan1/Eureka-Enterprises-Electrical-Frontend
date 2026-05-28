@@ -80,25 +80,6 @@ const ADD_BANK_TRANSFER_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBankTrans
       },
       validators: [Validators.required],
     },
-    taxableAmount: {
-      fieldType: EDataType.NUMBER,
-      id: 'taxableAmount',
-      fieldName: 'taxableAmount',
-      label: 'Taxable Amount',
-      numberConfig: {
-        mode: EInputNumberMode.Currency,
-        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      readonlyInput: true,
-      conditionalValidators: [
-        {
-          shouldApply: (context): boolean => {
-            return context.docContext === EDocContext.SALES;
-          },
-          validators: [Validators.required, Validators.min(0)],
-        },
-      ],
-    },
     tdsPercentage: {
       fieldType: EDataType.NUMBER,
       id: 'tdsPercentage',

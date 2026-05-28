@@ -199,13 +199,9 @@ export class AddBankTransferComponent
       return;
     }
 
-    const taxableAmount = roundCurrencyAmount(transfer / (1 - tdsP / 100));
-    const tdsDeducted = roundCurrencyAmount(taxableAmount - transfer);
+    const tdsDeducted = roundCurrencyAmount((transfer * tdsP) / (100 - tdsP));
 
-    this.form.formGroup.patchValue({
-      taxableAmount,
-      tdsDeducted,
-    });
+    this.form.formGroup.patchValue({ tdsDeducted });
   }
 
   private loadProjectDateRange(projectId: string): void {
@@ -404,7 +400,6 @@ export class AddBankTransferComponent
     const record = { ...formData };
     delete (record as Record<string, unknown>)['projectName'];
     delete (record as Record<string, unknown>)['proofAttachment'];
-    delete (record as Record<string, unknown>)['taxableAmount'];
     return {
       ...record,
       partyType: this.docContext(),

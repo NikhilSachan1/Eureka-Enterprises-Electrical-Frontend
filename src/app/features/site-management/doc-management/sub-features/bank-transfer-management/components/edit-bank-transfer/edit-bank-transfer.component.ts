@@ -116,10 +116,9 @@ export class EditBankTransferComponent
           utrNumber: record.utrNumber,
           transferDate: new Date(record.transferDate),
           transferAmount: Number(record.transferAmount),
-          taxableAmount: null,
           tdsPercentage:
             record.tdsPercentage ?? ADD_BANK_TRANSFER_DEFAULT_TDS_PERCENT,
-          tdsDeducted: null,
+          tdsDeducted: record.tdsDeducted ? Number(record.tdsDeducted) : null,
           remarks: record.remarks ?? null,
         },
         context: { docContext: this.docContext() },
@@ -173,13 +172,9 @@ export class EditBankTransferComponent
       return;
     }
 
-    const taxableAmount = roundCurrencyAmount(transfer / (1 - tdsP / 100));
-    const tdsDeducted = roundCurrencyAmount(taxableAmount - transfer);
+    const tdsDeducted = roundCurrencyAmount((transfer * tdsP) / (100 - tdsP));
 
-    this.form.formGroup.patchValue({
-      taxableAmount,
-      tdsDeducted,
-    });
+    this.form.formGroup.patchValue({ tdsDeducted });
   }
 
   private seedInvoiceNumberOption(
@@ -324,7 +319,6 @@ export class EditBankTransferComponent
     delete (record as Record<string, unknown>)['proofAttachment'];
     delete (record as Record<string, unknown>)['invoiceNumber'];
     delete (record as Record<string, unknown>)['bookPaymentNumber'];
-    delete (record as Record<string, unknown>)['taxableAmount'];
 
     if (EDocContext.PURCHASE === this.docContext()) {
       delete (record as Record<string, unknown>)['transferAmount'];

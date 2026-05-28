@@ -6,10 +6,12 @@ export const JmcDropdownGetRequestSchema = z
   .object({
     projectName: uuidField,
     docType: z.enum(EDocContext),
+    forDocument: z.enum(['invoice', 'report']),
   })
-  .transform(({ projectName, docType }) => ({
+  .transform(({ projectName, docType, forDocument }) => ({
     siteId: projectName,
     partyType: docType,
+    forDocument,
   }));
 
 const JmcDropdownMetaSchema = z.looseObject({

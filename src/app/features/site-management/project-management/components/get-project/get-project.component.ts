@@ -126,7 +126,7 @@ export class GetProjectComponent implements OnInit {
           const mappedData = this.mapTableData(records);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.projectStats.set(stats);
+          this.projectStats.set(stats ?? null);
           this.logger.logUserAction('Project records loaded successfully');
         },
         error: error => {

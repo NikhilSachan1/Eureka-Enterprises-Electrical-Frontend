@@ -116,6 +116,6 @@ export const ProjectGetStatsResponseSchema = z.looseObject({
 
 export const ProjectGetResponseSchema = z.looseObject({
   records: z.array(ProjectGetBaseResponseSchema),
-  stats: ProjectGetStatsResponseSchema,
+  stats: ProjectGetStatsResponseSchema.optional(),
   totalRecords: z.number().int().nonnegative(),
 });

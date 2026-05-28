@@ -171,6 +171,7 @@ export class AddReportComponent
     return {
       projectName: siteId,
       docType: this.docContext(),
+      forDocument: 'report',
     };
   }
 

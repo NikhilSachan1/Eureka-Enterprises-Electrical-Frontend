@@ -40,13 +40,11 @@ export type IAddBankTransferUIFormDto = Omit<
   | 'partyType'
   | 'transferProofFileKey'
   | 'transferProofFileName'
-  | 'taxableAmount'
   | 'tdsPercentage'
   | 'tdsDeducted'
 > & {
   projectName: string;
   proofAttachment: File[];
-  taxableAmount: number | null;
   tdsPercentage: number | null;
   tdsDeducted: number | null;
 };
@@ -64,7 +62,6 @@ export type IEditBankTransferUIFormDto = Omit<
   | 'transferProofFileName'
   | 'transferAmount'
   | 'partyType'
-  | 'taxableAmount'
   | 'tdsPercentage'
   | 'tdsDeducted'
 > & {
@@ -72,7 +69,6 @@ export type IEditBankTransferUIFormDto = Omit<
   invoiceNumber: string | null;
   bookPaymentNumber: string | null;
   transferAmount: number | null;
-  taxableAmount: number | null;
   tdsPercentage: number | null;
   tdsDeducted: number | null;
   proofAttachment: File[];
