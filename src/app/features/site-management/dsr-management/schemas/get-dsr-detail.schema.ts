@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { UserSchema, uuidField } from '@shared/schemas';
+import { onlyDateStringField, UserSchema, uuidField } from '@shared/schemas';
 import { makeFieldsNullable } from '@shared/utility';
 import { ProjectGetBaseResponseSchema } from '@features/site-management/project-management/schemas/get-project.schema';
 
@@ -22,6 +22,7 @@ const DsrDetailFileSchema = z.looseObject({
 export const DsrDetailHistoryRecordSchema = z
   .looseObject({
     id: uuidField,
+    reportDate: onlyDateStringField,
     dsrEntryType: z.string(),
     createdAt: z.string(),
     updatedAt: z.string(),

@@ -12,9 +12,10 @@ export interface IDsr
     | 'remarks'
   > {
   docWorkspaceContext: IDocWorkspaceContextView;
-  createdByUser: IDsrGetBaseResponseDto['createdByUser'] & {
+  user: IDsrGetBaseResponseDto['user'] & {
     fullName: string;
   };
+  createdByUser?: IDsrGetBaseResponseDto['createdByUser'];
   dsrDocuments: string[];
   originalRawData: IDsrGetBaseResponseDto;
 }

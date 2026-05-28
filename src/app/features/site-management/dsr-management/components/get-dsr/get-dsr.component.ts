@@ -200,9 +200,12 @@ export class GetDsrComponent implements OnInit {
           siteLocationSubtitle: `${site.city}, ${site.state}`,
         },
         reportDate: record.reportDate,
-        createdByUser: {
-          ...record.createdByUser,
-          fullName: `${record.createdByUser.firstName} ${record.createdByUser.lastName}`,
+        user: {
+          ...record.user,
+          fullName: [record.user.firstName, record.user.lastName]
+            .filter(Boolean)
+            .join(' ')
+            .trim(),
         },
         workTypes: record.workTypes,
         reportingEngineerName: record.reportingEngineerName,

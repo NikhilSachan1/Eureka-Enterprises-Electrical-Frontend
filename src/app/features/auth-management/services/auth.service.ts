@@ -44,6 +44,7 @@ import {
 } from '../schemas';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { EUserRole } from '@shared/constants/role.constants';
+import { AnnouncementService } from '@features/announcement-management/services/announcement.service';
 
 @Injectable({
   providedIn: 'root',
@@ -56,6 +57,7 @@ export class AuthService {
   private readonly notificationService = inject(NotificationService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly announcementService = inject(AnnouncementService);
 
   public readonly loggedInUserInitials = computed(() =>
     this.getLoggedInUserInitials()
@@ -525,6 +527,8 @@ export class AuthService {
    * Clear authentication state
    */
   private clearAuthState(): void {
+    this.announcementService.stopPeriodicUnacknowledgedCheck();
+
     // Clear signals
     this._isAuthenticated.set(false);
     this._user.set(null);

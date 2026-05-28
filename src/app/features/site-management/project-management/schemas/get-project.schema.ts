@@ -112,6 +112,7 @@ export const ProjectGetStatsResponseSchema = z.looseObject({
   completedSites: z.number().int().nonnegative(),
   inactiveSites: z.number().int().nonnegative(),
   activeSites: z.number().int().nonnegative(),
+  workCompletedSites: z.number().int().nonnegative(),
 });
 
 export const ProjectGetResponseSchema = z.looseObject({

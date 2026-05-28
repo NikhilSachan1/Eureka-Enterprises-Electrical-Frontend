@@ -26,12 +26,12 @@ export const DSR_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
-    field: 'createdByUser.fullName',
+    field: 'user.fullName',
     header: 'Employee Name',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    subtitle: { field: 'createdByUser.employeeId' },
+    subtitle: { field: 'user.employeeId' },
     showImage: true,
-    dummyImageField: 'createdByUser.fullName',
+    dummyImageField: 'user.fullName',
     primaryFieldHighlight: true,
     permission: [APP_PERMISSION.UI.DSR.TABLE_EMPLOYEE_NAME],
     serverSideFilterAndSortConfig: {

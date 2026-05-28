@@ -5,6 +5,7 @@ import {
   catchError,
   Observable,
   of,
+  Subscription,
   switchMap,
   tap,
   throwError,
@@ -49,6 +50,9 @@ import { APP_CONFIG } from '@core/config';
 
 const DIALOG_OPEN_DELAY_MS = 150; // defer so DOM/overlay is ready after app init
 
+/** Extra delay after login navigation so confirm dialog host is ready. */
+export const POST_LOGIN_ANNOUNCEMENT_DIALOG_DELAY_MS = 500;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -59,6 +63,7 @@ export class AnnouncementService {
     ConfirmationDialogService
   );
   private readonly ngZone = inject(NgZone);
+  private periodicCheckSubscription?: Subscription;
 
   addAnnouncement(
     formData: IAnnouncementAddFormDto
@@ -252,18 +257,16 @@ export class AnnouncementService {
       );
   }
 
-  loadUnacknowledgedAnnouncements(): Observable<IAnnouncementUnacknowledgeGetResponseDto> {
+  loadUnacknowledgedAnnouncements(
+    dialogOpenDelayMs = DIALOG_OPEN_DELAY_MS
+  ): Observable<IAnnouncementUnacknowledgeGetResponseDto> {
     return this.getUnacknowledgedAnnouncements().pipe(
       tap((response: IAnnouncementUnacknowledgeGetResponseDto) => {
         const { records, totalRecords } = response;
 
         if (totalRecords > 0 && records?.length) {
           const recordsCopy = records.slice();
-          this.ngZone.runOutsideAngular(() => {
-            setTimeout(() => {
-              this.ngZone.run(() => this.loadAnnouncementDialog(recordsCopy));
-            }, DIALOG_OPEN_DELAY_MS);
-          });
+          this.scheduleAnnouncementDialog(recordsCopy, dialogOpenDelayMs);
         }
 
         this.logger.logUserAction(
@@ -281,10 +284,49 @@ export class AnnouncementService {
     );
   }
 
-  startPeriodicUnacknowledgedCheck(): void {
-    timer(0, APP_CONFIG.ANNOUNCEMENT_CONFIG.UNACKNOWLEDGED_CHECK_INTERVAL_MS)
-      .pipe(switchMap(() => this.loadUnacknowledgedAnnouncements()))
-      .subscribe();
+  /**
+   * Starts periodic polling and runs an immediate check.
+   * Safe to call after login (initializer only runs when already authenticated on cold load).
+   */
+  startPeriodicUnacknowledgedCheck(options?: {
+    dialogOpenDelayMs?: number;
+  }): void {
+    const dialogOpenDelayMs =
+      options?.dialogOpenDelayMs ?? DIALOG_OPEN_DELAY_MS;
+
+    if (
+      !this.periodicCheckSubscription ||
+      this.periodicCheckSubscription.closed
+    ) {
+      this.periodicCheckSubscription = timer(
+        APP_CONFIG.ANNOUNCEMENT_CONFIG.UNACKNOWLEDGED_CHECK_INTERVAL_MS,
+        APP_CONFIG.ANNOUNCEMENT_CONFIG.UNACKNOWLEDGED_CHECK_INTERVAL_MS
+      )
+        .pipe(
+          switchMap(() =>
+            this.loadUnacknowledgedAnnouncements(dialogOpenDelayMs)
+          )
+        )
+        .subscribe();
+    }
+
+    this.loadUnacknowledgedAnnouncements(dialogOpenDelayMs).subscribe();
+  }
+
+  stopPeriodicUnacknowledgedCheck(): void {
+    this.periodicCheckSubscription?.unsubscribe();
+    this.periodicCheckSubscription = undefined;
+  }
+
+  private scheduleAnnouncementDialog(
+    records: IAnnouncementUnacknowledgeGetBaseResponseDto[],
+    delayMs: number
+  ): void {
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.ngZone.run(() => this.loadAnnouncementDialog(records));
+      }, delayMs);
+    });
   }
 
   getAnnouncementDetailById(

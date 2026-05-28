@@ -236,6 +236,7 @@ export class GetProjectComponent implements OnInit {
           { label: 'Ongoing', value: stats?.ongoingSites ?? 0 },
           { label: 'Hold', value: stats?.holdSites ?? 0 },
           { label: 'Completed', value: stats?.completedSites ?? 0 },
+          { label: 'Work Completed', value: stats?.workCompletedSites ?? 0 },
         ],
       },
     ];

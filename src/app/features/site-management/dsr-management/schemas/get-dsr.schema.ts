@@ -50,6 +50,7 @@ export const DsrGetBaseResponseSchema = DsrBaseSchema.extend({
     city: true,
     state: true,
   }),
+  user: UserSchema,
   createdByUser: UserSchema,
   editHistory: z.array(z.any()).nullable(),
 })

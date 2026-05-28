@@ -11,6 +11,7 @@ import {
   IDsrDetailGetResponseDto,
   IDsrGetBaseResponseDto,
 } from '@features/site-management/dsr-management/types/dsr.dto';
+import { APP_CONFIG } from '@core/config';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import {
@@ -93,12 +94,12 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
           customTemplateKey: 'docWorkspaceContextDetail',
           detailTemplateFullRow: true,
         },
-        // {
-        //   label: 'Status Date',
-        //   value: record.,
-        //   type: EDataType.DATE,
-        //   format: APP_CONFIG.DATE_FORMATS.DEFAULT,
-        // },
+        {
+          label: 'Status Date',
+          value: record.reportDate,
+          type: EDataType.DATE,
+          format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        },
         {
           label: 'Work Types',
           value: record.workTypes.join(', '),
@@ -137,10 +138,16 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
   }
 
   protected getEmployeeDetails(): IEntityViewDetails {
-    const { createdByUser } = this.drawerData.dsr;
+    const employee = this.drawerData.dsr.user;
+    if (!employee) {
+      return { name: '—', subtitle: 'N/A' };
+    }
     return {
-      name: `${createdByUser.firstName} ${createdByUser.lastName}`,
-      subtitle: createdByUser.employeeId ?? 'N/A',
+      name: [employee.firstName, employee.lastName]
+        .filter(Boolean)
+        .join(' ')
+        .trim(),
+      subtitle: employee.employeeId ?? 'N/A',
     };
   }
 }

@@ -23,8 +23,12 @@ import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../services/auth.service';
 import { CriticalStartupStateService } from '@core/services';
 import { ROLE_SELECTION_BUTTON_CONFIG, AUTH_MESSAGES } from '../../constants';
-import { finalize, switchMap } from 'rxjs/operators';
+import { finalize, switchMap, tap } from 'rxjs/operators';
 import { from } from 'rxjs';
+import {
+  AnnouncementService,
+  POST_LOGIN_ANNOUNCEMENT_DIALOG_DELAY_MS,
+} from '@features/announcement-management/services/announcement.service';
 import { ILoginFormDto, ILoginResponseDto } from '../../types/auth.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { FormBase } from '@shared/base/form.base';
@@ -51,6 +55,7 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly criticalStartupState = inject(CriticalStartupStateService);
+  private readonly announcementService = inject(AnnouncementService);
 
   // Role selection state
   protected readonly showRoleSelection = signal(false);
@@ -192,6 +197,11 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
             );
           }
           return from(this.navigateAfterLoginAsync());
+        }),
+        tap(() => {
+          this.announcementService.startPeriodicUnacknowledgedCheck({
+            dialogOpenDelayMs: POST_LOGIN_ANNOUNCEMENT_DIALOG_DELAY_MS,
+          });
         }),
         finalize(() => {
           this.loadingService.hide();

@@ -13,8 +13,8 @@
             <h3 class="info-card__title">{{ project.name }}</h3>
           </div>
         </div>
-        <span [class]="'info-card__status-badge info-card__status-badge--' + project.status.toLowerCase()">
-          {{ project.status }}
+        <span [class]="'info-card__status-badge info-card__status-badge--' + projectStatusCssKey()">
+          {{ projectStatusLabel() }}
         </span>
       </header>
 
