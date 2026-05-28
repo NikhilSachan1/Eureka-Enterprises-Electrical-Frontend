@@ -1,4 +1,4 @@
-import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -28,16 +28,11 @@ import {
   InputFieldConfigService,
 } from '@shared/services';
 import {
-  ECalendarView,
   EDataType,
-  EDateIconDisplay,
-  EDateSelectionMode,
-  EHourFormat,
   IDialogActionHandler,
+  IInputFieldsConfig,
 } from '@shared/types';
 import { transformDateFormat } from '@shared/utility';
-import { DatePickerModule } from 'primeng/datepicker';
-import { FloatLabelModule } from 'primeng/floatlabel';
 import {
   ALLOCATE_DEALLOCATE_EMPLOYEE_FORM_CONFIG,
   ALLOCATE_DEALLOCATE_ROW_EFFECTIVE_DATE_FIELD_OPTIONS,
@@ -67,14 +62,7 @@ function effectiveDateRequired(
 
 @Component({
   selector: 'app-allocate-deallocate-employee',
-  imports: [
-    InputFieldComponent,
-    ReactiveFormsModule,
-    NgClass,
-    NgTemplateOutlet,
-    DatePickerModule,
-    FloatLabelModule,
-  ],
+  imports: [InputFieldComponent, ReactiveFormsModule, NgTemplateOutlet],
   templateUrl: './allocate-deallocate-employee.component.html',
   styleUrl: './allocate-deallocate-employee.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -96,16 +84,14 @@ export class AllocateDeallocateEmployeeComponent
   );
   private readonly inputFieldConfigService = inject(InputFieldConfigService);
 
-  protected readonly rowEffectiveDateFieldConfig =
+  protected rowEffectiveDateFieldConfig =
     this.inputFieldConfigService.getInputFieldConfig(
       EDataType.DATE,
       ALLOCATE_DEALLOCATE_ROW_EFFECTIVE_DATE_FIELD_OPTIONS
     );
 
-  protected readonly ALL_DATE_ICON_DISPLAY_TYPES = EDateIconDisplay;
-  protected readonly ALL_DATE_SELECTION_MODES = EDateSelectionMode;
-  protected readonly ALL_CALENDAR_VIEWS = ECalendarView;
-  protected readonly ALL_HOUR_FORMATS = EHourFormat;
+  private projectMinDate?: Date;
+  private projectMaxDate?: Date;
 
   readonly actionsForm = this.fb.group({
     /** Selected employees already on project — UI only; not sent as new allocations. */
@@ -132,6 +118,7 @@ export class AllocateDeallocateEmployeeComponent
   private previousSelection = new Set<string>();
   private initialEmployeeIds = new Set<string>();
   private readonly userIdToAllocationId = new Map<string, string>();
+  private readonly allocationIdToUserId = new Map<string, string>();
   private readonly userIdToAllocatedAt = new Map<string, Date | null>();
   private readonly employeeLabels = new Map<string, string>();
 
@@ -198,6 +185,9 @@ export class AllocateDeallocateEmployeeComponent
       return;
     }
 
+    // Set project date bounds ONCE (stable refs) so calendar navigation doesn't reset.
+    this.syncProjectDateBounds(record);
+
     const allocated = record.flatMap(item => item.allocatedEmployees ?? []);
 
     for (const e of allocated) {
@@ -206,6 +196,7 @@ export class AllocateDeallocateEmployeeComponent
         this.employeeLabels.set(e.id, name);
         if (e.allocationId) {
           this.userIdToAllocationId.set(e.id, e.allocationId);
+          this.allocationIdToUserId.set(e.allocationId, e.id);
         }
         this.userIdToAllocatedAt.set(
           e.id,
@@ -309,17 +300,76 @@ export class AllocateDeallocateEmployeeComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: ({ message }: IProjectAllocateDeallocateEmployeeResponseDto) => {
-          this.notificationService.success(message);
+        next: (response: IProjectAllocateDeallocateEmployeeResponseDto) => {
+          this.showAllocateDeallocateNotification(response);
           this.onSuccess()?.();
           this.confirmationDialogService.closeDialog();
         },
       });
   }
 
-  protected showEffectiveDateError(group: AbstractControl): boolean {
-    const c = group.get('date');
-    return !!c?.invalid && c.touched;
+  private showAllocateDeallocateNotification(
+    response: IProjectAllocateDeallocateEmployeeResponseDto
+  ): void {
+    const allocationResults = response.allocations?.results ?? [];
+    const deallocationResults = response.deallocations?.results ?? [];
+
+    const failureMessages: string[] = [];
+
+    for (const r of allocationResults) {
+      if (!r.success) {
+        const uid = r.userId;
+        const name = uid ? this.resolveLabel(uid) : 'Employee';
+        const trimmed = (r.message ?? '').trim();
+        const cleaned = trimmed.replace(/^employee\b\s*/i, '').trim();
+        const reason =
+          (cleaned.length > 0 ? cleaned : undefined) ?? 'Operation failed.';
+        failureMessages.push(`${name} — ${reason}`);
+      }
+    }
+
+    for (const r of deallocationResults) {
+      if (!r.success) {
+        const uid = r.allocationId
+          ? this.allocationIdToUserId.get(r.allocationId)
+          : undefined;
+        const name = uid ? this.resolveLabel(uid) : 'Employee';
+        const trimmed = (r.message ?? '').trim();
+        const cleaned = trimmed.replace(/^employee\b\s*/i, '').trim();
+        const reason =
+          (cleaned.length > 0 ? cleaned : undefined) ?? 'Operation failed.';
+        failureMessages.push(`${name} — ${reason}`);
+      }
+    }
+
+    if (failureMessages.length > 0) {
+      this.notificationService.warningWithBulkErrorDetail(
+        response.message,
+        failureMessages,
+        'Project team update'
+      );
+      return;
+    }
+
+    this.notificationService.success(response.message, 'Project team update');
+  }
+
+  protected getRowEffectiveDateFieldConfig(
+    panelKey: string,
+    rowIndex: number,
+    label?: string,
+    readOnly = false
+  ): IInputFieldsConfig {
+    const base = this.rowEffectiveDateFieldConfig;
+    const rowLabel = label ?? base.label ?? 'Effective date';
+    return {
+      ...base,
+      fieldType: EDataType.DATE,
+      id: `${base.id}-${panelKey}-${rowIndex}`,
+      label: rowLabel,
+      disabledInput: readOnly,
+      readonlyInput: readOnly,
+    };
   }
 
   private syncActionsFormValidity(): void {
@@ -501,5 +551,54 @@ export class AllocateDeallocateEmployeeComponent
         date: toApiDate(row['date']),
       })),
     };
+  }
+
+  private parseProjectDate(
+    raw: unknown,
+    opts?: { endOfDay?: boolean }
+  ): Date | undefined {
+    if (raw === null || raw === undefined || typeof raw !== 'string') {
+      return undefined;
+    }
+    const s = raw.trim();
+    if (!s) {
+      return undefined;
+    }
+
+    // API commonly sends date-only "YYYY-MM-DD". Using "T00:00:00" forces local time (no TZ shift),
+    // while still converting via `new Date(...)`.
+    const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(s);
+    const d = new Date(isDateOnly ? `${s}T00:00:00` : s);
+    if (Number.isNaN(d.getTime())) {
+      return undefined;
+    }
+
+    if (opts?.endOfDay) {
+      d.setHours(23, 59, 59, 0);
+    }
+    return d;
+  }
+
+  private syncProjectDateBounds(record: IProjectGetBaseResponseDto[]): void {
+    const r0 = record[0];
+    this.projectMinDate = this.parseProjectDate(r0?.startDate);
+    this.projectMaxDate = this.parseProjectDate(r0?.endDate, {
+      endOfDay: true,
+    });
+
+    if (
+      this.projectMinDate &&
+      this.projectMaxDate &&
+      this.projectMinDate.getTime() <= this.projectMaxDate.getTime()
+    ) {
+      this.rowEffectiveDateFieldConfig = {
+        ...this.rowEffectiveDateFieldConfig,
+        dateConfig: {
+          ...(this.rowEffectiveDateFieldConfig.dateConfig ?? {}),
+          minDate: this.projectMinDate,
+          maxDate: this.projectMaxDate,
+        },
+      };
+    }
   }
 }

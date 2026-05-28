@@ -53,6 +53,7 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { PopoverModule } from 'primeng/popover';
 import {
   applyGroupMetricValueLoading,
+  formatLocation,
   getMappedValueFromArrayOfObjects,
 } from '@shared/utility';
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
@@ -90,7 +91,6 @@ export class GetProjectComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly APP_CONFIG = APP_CONFIG;
-  protected readonly budgetTrendIconBase = `${ICONS.COMMON.CHART_LINE} project-budget-cell__trend`;
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -146,18 +146,15 @@ export class GetProjectComponent implements OnInit {
 
   private mapTableData(response: IProjectGetBaseResponseDto[]): IProject[] {
     return response.map((record: IProjectGetBaseResponseDto) => {
-      const city = getMappedValueFromArrayOfObjects(
-        this.appConfigurationService.cities(),
-        record.city
-      );
-      const state = getMappedValueFromArrayOfObjects(
-        this.appConfigurationService.states(),
-        record.state
-      );
       return {
         id: record.id,
         projectName: record.name,
-        projectLocation: `${city} - ${state}`,
+        projectLocation: formatLocation(
+          record,
+          this.appConfigurationService.states(),
+          this.appConfigurationService.cities(),
+          { includePincode: false }
+        ),
         projectStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.projectStatus(),
           record.status
@@ -171,9 +168,6 @@ export class GetProjectComponent implements OnInit {
             )
           )
         ),
-        // estimatedBudget: record.estimatedBudget,
-        // profitPercentage: record.profitPercentage,
-        // totalSpent: record.totalSpent,
         projectManager: record.managerName,
         projectManagerContact: record.managerContact,
         stakeholders: {
@@ -228,9 +222,10 @@ export class GetProjectComponent implements OnInit {
     const groups: IMetricGroup[] = [
       {
         id: 'overview',
-        title: 'Overview',
+        title: 'Total projects',
         icon: ICONS.SITE.BUILDING,
-        metrics: [{ label: 'Total', value: stats?.totalSites ?? 0 }],
+        layout: 'kpi',
+        metrics: [{ label: '', value: stats?.totalSites ?? 0 }],
       },
       {
         id: 'status',
@@ -293,14 +288,6 @@ export class GetProjectComponent implements OnInit {
   private prepareProjectRecordDetail(
     selectedRow: IProjectGetBaseResponseDto
   ): IDataViewDetailsWithEntity {
-    const city = getMappedValueFromArrayOfObjects(
-      this.appConfigurationService.cities(),
-      selectedRow.city
-    );
-    const state = getMappedValueFromArrayOfObjects(
-      this.appConfigurationService.states(),
-      selectedRow.state
-    );
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Time Line',
@@ -310,24 +297,33 @@ export class GetProjectComponent implements OnInit {
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
       {
-        label: 'Project Budget',
-        value: selectedRow.estimatedBudget,
-        type: EDataType.CURRENCY,
-        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+        label: 'Address',
+        value: formatLocation(
+          selectedRow,
+          this.appConfigurationService.states(),
+          this.appConfigurationService.cities()
+        ),
       },
     ];
     return {
       details: [
         {
           status: {
-            approvalStatus: selectedRow.status,
+            approvalStatus: getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.projectStatus(),
+              selectedRow.status
+            ),
           },
           entryData,
         },
       ],
       entity: {
         name: selectedRow.name,
-        subtitle: `${city} - ${state}`,
+        subtitle: formatLocation(
+          selectedRow,
+          this.appConfigurationService.states(),
+          this.appConfigurationService.cities()
+        ),
       },
     };
   }

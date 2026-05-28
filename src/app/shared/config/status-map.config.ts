@@ -323,7 +323,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   upcoming: { icon: ICONS.ACTIONS.TIMES, severity: 'warning' },
   ongoing: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'info' },
   hold: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
+  'on hold': { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
   completed: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
+  'work completed': { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'purple' },
+  workcompleted: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'purple' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ANNOUNCEMENT STATUS

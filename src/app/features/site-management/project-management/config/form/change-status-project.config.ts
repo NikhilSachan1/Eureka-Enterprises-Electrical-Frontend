@@ -3,6 +3,20 @@ import { Validators } from '@angular/forms';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IProjectChangeStatusFormDto } from '../../types/project.dto';
 
+/** Statuses where remarks are optional (matches `site_statuses` dropdown values). */
+const normalizeProjectStatusKey = (status: unknown): string =>
+  typeof status === 'string'
+    ? status
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_-]+/g, '')
+    : '';
+
+const isProjectStatusWithOptionalRemarks = (status: unknown): boolean => {
+  const key = normalizeProjectStatusKey(status);
+  return key === 'completed' || key === 'workcompleted';
+};
+
 const CHANGE_STATUS_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectChangeStatusFormDto> =
   {
     projectStatus: {
@@ -15,6 +29,9 @@ const CHANGE_STATUS_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectC
           moduleName: MODULE_NAMES.PROJECT,
           dropdownName: CONFIGURATION_KEYS.PROJECT.PROJECT_STATUS,
         },
+        filterOptions: {
+          exclude: ['ongoing', 'upcoming'],
+        },
       },
       validators: [Validators.required],
     },
@@ -23,7 +40,14 @@ const CHANGE_STATUS_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectC
       fieldName: 'remarks',
       label: 'Remarks',
       fieldType: EDataType.TEXT_AREA,
-      validators: [Validators.required],
+      conditionalValidators: [
+        {
+          dependsOn: 'projectStatus',
+          validators: [Validators.required],
+          shouldApply: (projectStatus): boolean =>
+            !isProjectStatusWithOptionalRemarks(projectStatus),
+        },
+      ],
     },
   };
 

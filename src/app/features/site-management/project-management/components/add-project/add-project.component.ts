@@ -119,19 +119,12 @@ export class AddProjectComponent
       return;
     }
 
-    const prefilledCompanyAddressData =
-      this.preparePrefilledCompanyAddressData(company);
-    this.form.patch(prefilledCompanyAddressData);
-  }
-
-  private preparePrefilledCompanyAddressData(
-    company: ICompanyGetBaseResponseDto
-  ): Partial<IProjectAddFormDto> {
-    return {
-      city: company.city ?? '',
-      state: company.state ?? '',
-      pincode: company.pincode ?? '',
-    };
+    const { state, city, pincode } = company;
+    this.form.patch({
+      state,
+      pincode,
+    });
+    this.form.patch({ city });
   }
 
   protected override handleSubmit(): void {

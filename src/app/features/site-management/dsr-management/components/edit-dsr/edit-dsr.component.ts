@@ -25,7 +25,11 @@ import {
   AttachmentsService,
   ConfirmationDialogService,
 } from '@shared/services';
-import { IDialogActionHandler, ITrackedFields } from '@shared/types';
+import {
+  IDialogActionHandler,
+  IInputFieldsConfig,
+  ITrackedFields,
+} from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import {
   applyProjectDateRangeFromSite,
@@ -111,7 +115,51 @@ export class EditDsrComponent
     );
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
+    // Edit: restrict "Work Done" options without extra API calls
+    this.applyWorkDoneOptions(record.workTypes ?? []);
+
     this.loadPrefillAttachments(record.documentKeys);
+  }
+
+  private applyWorkDoneOptions(workTypes: string[]): void {
+    const defaultMultiSelectConfig =
+      EDIT_DSR_FORM_CONFIG.fields.workDone.multiSelectConfig;
+    if (!defaultMultiSelectConfig) {
+      return;
+    }
+
+    const unique = Array.from(
+      new Set(
+        (Array.isArray(workTypes) ? workTypes : []).filter(
+          (x): x is string => typeof x === 'string' && x.trim().length > 0
+        )
+      )
+    );
+
+    const hasWorkTypes = unique.length > 0;
+    const base = this.form.fieldConfigs.workDone;
+
+    this.form.fieldConfigs.workDone = {
+      ...base,
+      multiSelectConfig: {
+        ...defaultMultiSelectConfig,
+        ...(hasWorkTypes
+          ? {
+              filterOptions: {
+                include: unique,
+              },
+            }
+          : {
+              optionsDropdown: [],
+              dynamicDropdown: undefined,
+              filterOptions: undefined,
+              emptyMessage: 'No work type found',
+            }),
+        loading: false,
+      },
+    } as IInputFieldsConfig;
+
+    queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
   private preparePrefilledFormData(

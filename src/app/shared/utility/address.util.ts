@@ -18,7 +18,8 @@ export type IFullAddressParts = {
 export function formatLocation(
   record: ILocationParts,
   states: IOptionDropdown[],
-  cities: IOptionDropdown[]
+  cities: IOptionDropdown[],
+  options?: { includePincode?: boolean }
 ): string {
   const state = record.state
     ? getMappedValueFromArrayOfObjects(states, record.state)
@@ -27,7 +28,12 @@ export function formatLocation(
     ? getMappedValueFromArrayOfObjects(cities, record.city)
     : record.city;
 
-  return [state, city, record.pincode].filter(Boolean).join(', ');
+  const parts = [state, city];
+  if (options?.includePincode !== false && record.pincode) {
+    parts.push(record.pincode);
+  }
+
+  return parts.filter(Boolean).join(', ');
 }
 
 export function formatFullAddress(

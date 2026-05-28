@@ -21,7 +21,7 @@ import {
 } from '@shared/types';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { formatLocation } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 
@@ -102,40 +102,16 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
           value: record.baseDistanceKm,
         },
         {
-          label: 'Estimated Budget',
-          type: EDataType.CURRENCY,
-          format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-          value: record.estimatedBudget,
-        },
-        {
-          label: 'Expected Vehicle Daily (Km)',
-          value: record.expectedVehicleDailyKm,
-        },
-        {
           label: 'Work Types',
           value: record.workTypes.join(', '),
         },
         {
-          label: 'City',
-          value: getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.cities(),
-            record.city
-          ),
-        },
-        {
-          label: 'State',
-          value: getMappedValueFromArrayOfObjects(
+          label: 'Address',
+          value: formatLocation(
+            record,
             this.appConfigurationService.states(),
-            record.state
+            this.appConfigurationService.cities()
           ),
-        },
-        {
-          label: 'Pincode',
-          value: record.pincode,
-        },
-        {
-          label: 'Full Address',
-          value: record.fullAddress,
         },
       ];
 
@@ -162,18 +138,14 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
   }
 
   protected getProjectDetails(): IEntityViewDetails {
-    const { name, state, city } = this.drawerData.project;
-    const cityName = getMappedValueFromArrayOfObjects(
-      this.appConfigurationService.cities(),
-      city
-    );
-    const stateName = getMappedValueFromArrayOfObjects(
-      this.appConfigurationService.states(),
-      state
-    );
+    const { name } = this.drawerData.project;
     return {
       name,
-      subtitle: `${cityName} - ${stateName}`,
+      subtitle: formatLocation(
+        this.drawerData.project,
+        this.appConfigurationService.states(),
+        this.appConfigurationService.cities()
+      ),
     };
   }
 }

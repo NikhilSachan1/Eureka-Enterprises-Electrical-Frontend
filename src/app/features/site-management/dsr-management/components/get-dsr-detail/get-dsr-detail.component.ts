@@ -93,6 +93,12 @@ export class GetDsrDetailComponent extends DrawerDetailBase {
           customTemplateKey: 'docWorkspaceContextDetail',
           detailTemplateFullRow: true,
         },
+        // {
+        //   label: 'Status Date',
+        //   value: record.,
+        //   type: EDataType.DATE,
+        //   format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+        // },
         {
           label: 'Work Types',
           value: record.workTypes.join(', '),

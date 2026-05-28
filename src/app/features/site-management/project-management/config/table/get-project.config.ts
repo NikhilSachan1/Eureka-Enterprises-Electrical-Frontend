@@ -7,10 +7,58 @@ import {
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IProjectGetResponseDto } from '../../types/project.dto';
+import { IProject } from '../../types/project.interface';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { ICONS } from '@shared/constants/icon.constants';
+
+const normalizeProjectStatusKey = (status: unknown): string =>
+  typeof status === 'string'
+    ? status
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_-]+/g, '')
+    : '';
+
+const isOngoingProjectStatus = (status: unknown): boolean =>
+  normalizeProjectStatusKey(status) === 'ongoing';
+
+const isAllocateDeallocateBlockedStatus = (status: unknown): boolean => {
+  const key = normalizeProjectStatusKey(status);
+  return (
+    key === 'completed' ||
+    key === 'workcompleted' ||
+    key === 'hold' ||
+    key === 'onhold'
+  );
+};
+
+const PROJECT_DISABLED_TOOLTIP = {
+  deleteWhileOngoing:
+    'Cannot delete a project while its status is Ongoing. Change status first.',
+  allocateDeallocateCompleted:
+    'Cannot allocate/deallocate employees when project status is Completed.',
+  allocateDeallocateWorkCompleted:
+    'Cannot allocate/deallocate employees when project status is Work completed.',
+  allocateDeallocateHold:
+    'Cannot allocate/deallocate employees when project status is Hold.',
+} as const;
+
+const allocateDeallocateDisableReason = (
+  status: unknown
+): string | undefined => {
+  const key = normalizeProjectStatusKey(status);
+  if (key === 'completed') {
+    return PROJECT_DISABLED_TOOLTIP.allocateDeallocateCompleted;
+  }
+  if (key === 'workcompleted') {
+    return PROJECT_DISABLED_TOOLTIP.allocateDeallocateWorkCompleted;
+  }
+  if (key === 'hold' || key === 'onhold') {
+    return PROJECT_DISABLED_TOOLTIP.allocateDeallocateHold;
+  }
+  return undefined;
+};
 
 const PROJECT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No project record found.',
@@ -65,16 +113,10 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     customTemplateKey: 'projectWorkTypes',
     showSort: false,
   },
-  // {
-  //   field: 'estimatedBudget',
-  //   header: 'Budget',
-  //   customTemplateKey: 'projectBudget',
-  //   showSort: false,
-  // },
 ];
 
 const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IProjectGetResponseDto['records'][number]>
+  ITableActionConfig<IProject>
 >[] = [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
@@ -95,6 +137,10 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
     id: EButtonActionType.ALLOCATE_DEALLOCATE_EMPLOYEE,
     tooltip: 'Allocate/Deallocate Employee',
     permission: [APP_PERMISSION.PROJECT.ALLOCATE_DEALLOCATE_EMPLOYEE],
+    disableWhen: record =>
+      isAllocateDeallocateBlockedStatus(record?.originalRawData?.status),
+    disableReason: record =>
+      allocateDeallocateDisableReason(record?.originalRawData?.status),
   },
   {
     id: EButtonActionType.CHANGE_STATUS,
@@ -105,22 +151,26 @@ const PROJECT_TABLE_ROW_ACTIONS_CONFIG: Partial<
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Project',
     permission: [APP_PERMISSION.PROJECT.DELETE],
+    disableWhen: record =>
+      isOngoingProjectStatus(record?.originalRawData?.status),
+    disableReason: () => PROJECT_DISABLED_TOOLTIP.deleteWhileOngoing,
   },
 ];
 
 const PROJECT_TABLE_BULK_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IProjectGetResponseDto['records'][number]>
+  ITableActionConfig<IProject>
 >[] = [
   {
     ...COMMON_BULK_ACTIONS.DELETE,
     tooltip: 'Delete Selected Project',
     permission: [APP_PERMISSION.PROJECT.DELETE],
+    disableWhen: record =>
+      isOngoingProjectStatus(record?.originalRawData?.status),
+    disableReason: () => PROJECT_DISABLED_TOOLTIP.deleteWhileOngoing,
   },
 ];
 
-export const PROJECT_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<
-  IProjectGetResponseDto['records'][number]
-> = {
+export const PROJECT_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IProject> = {
   tableConfig: PROJECT_TABLE_CONFIG,
   headers: PROJECT_TABLE_HEADER_CONFIG,
   rowActions: PROJECT_TABLE_ROW_ACTIONS_CONFIG,

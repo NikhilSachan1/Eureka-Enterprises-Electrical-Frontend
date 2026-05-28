@@ -2,7 +2,6 @@ import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
   EDataType,
   EDateSelectionMode,
-  EInputNumberMode,
   ETextCase,
   IFormButtonConfig,
   IFormConfig,
@@ -15,7 +14,6 @@ import {
   TEXT_INPUT_ACCEPT_STRIP,
 } from '@shared/constants';
 import { IProjectAddFormDto } from '../../types/project.dto';
-import { APP_CONFIG } from '@core/config';
 
 const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto> =
   {
@@ -53,6 +51,7 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
           dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
         },
       },
+      validators: [Validators.required],
     },
     vendorNames: {
       id: 'vendorNames',
@@ -110,36 +109,6 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
       },
       validators: [Validators.required],
     },
-    blockNumber: {
-      id: 'blockNumber',
-      fieldName: 'blockNumber',
-      label: 'Block Number',
-      fieldType: EDataType.TEXT,
-      textConfig: {
-        textCase: ETextCase.UPPERCASE,
-      },
-      validators: [Validators.required],
-    },
-    streetName: {
-      id: 'streetName',
-      fieldName: 'streetName',
-      label: 'Street Name',
-      fieldType: EDataType.TEXT,
-      textConfig: {
-        textCase: ETextCase.TITLECASE,
-      },
-      validators: [Validators.required],
-    },
-    landmark: {
-      id: 'landmark',
-      fieldName: 'landmark',
-      label: 'Landmark',
-      fieldType: EDataType.TEXT,
-      textConfig: {
-        textCase: ETextCase.TITLECASE,
-      },
-      validators: [Validators.required],
-    },
     state: {
       id: 'state',
       fieldName: 'state',
@@ -169,16 +138,14 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
     pincode: {
       id: 'pincode',
       fieldName: 'pincode',
-      label: 'Pincode',
-      fieldType: EDataType.NUMBER,
-      numberConfig: {
-        allowNumberFormatting: false,
+      label: 'Pin Code',
+      fieldType: EDataType.TEXT,
+      textConfig: {
+        minimumInputLength: 6,
+        maximumInputLength: 6,
+        regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
       },
-      validators: [
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(6),
-      ],
+      validators: [Validators.minLength(6), Validators.maxLength(6)],
     },
     baseDistanceKm: {
       id: 'baseDistanceKm',
@@ -186,17 +153,6 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
       label: 'Base Distance (Km)',
       fieldType: EDataType.NUMBER,
       validators: [Validators.required],
-    },
-    estimatedBudget: {
-      fieldType: EDataType.NUMBER,
-      id: 'estimatedBudget',
-      fieldName: 'estimatedBudget',
-      label: 'Estimated Budget',
-      numberConfig: {
-        mode: EInputNumberMode.Currency,
-        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      validators: [Validators.required, Validators.min(1)],
     },
     workTypes: {
       id: 'workTypes',
@@ -216,7 +172,6 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
       fieldName: 'remarks',
       label: 'Remarks',
       fieldType: EDataType.TEXT_AREA,
-      validators: [Validators.required],
     },
   };
 

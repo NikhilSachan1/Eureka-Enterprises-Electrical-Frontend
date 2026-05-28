@@ -1,10 +1,4 @@
 <div class="allocate-deallocate">
-  <p class="allocate-deallocate__hint">
-    Use the list below to add or remove team members. Each change gets its own row—pick an
-    <strong>effective date</strong>
-    for every allocate or deallocate.
-  </p>
-
   <form
     [formGroup]="form.formGroup"
     class="form allocate-deallocate__multiselect"
@@ -127,48 +121,10 @@
   let-showDateErrors="showDateErrors"
   let-labelText="labelText"
 >
-  <div
-    class="allocate-deallocate__date"
-    [formGroup]="$any(group)"
-  >
-    <p-floatlabel [variant]="rowEffectiveDateFieldConfig.floatLabelVariant">
-      <p-datepicker
-        [id]="rowEffectiveDateFieldConfig.id + '-' + panelKey + '-' + rowIndex"
-        formControlName="date"
-        [fluid]="rowEffectiveDateFieldConfig.haveFullWidth"
-        [size]="rowEffectiveDateFieldConfig.fieldSize"
-        [dateFormat]="rowEffectiveDateFieldConfig.dateConfig?.dateFormat"
-        [showIcon]="rowEffectiveDateFieldConfig.dateConfig?.showCalendarIcon"
-        [iconDisplay]="rowEffectiveDateFieldConfig.dateConfig?.iconDisplay || ALL_DATE_ICON_DISPLAY_TYPES.Input"
-        [timeOnly]="rowEffectiveDateFieldConfig.dateConfig?.timeOnly"
-        [minDate]="rowEffectiveDateFieldConfig.dateConfig?.minDate"
-        [maxDate]="rowEffectiveDateFieldConfig.dateConfig?.maxDate"
-        [showButtonBar]="rowEffectiveDateFieldConfig.dateConfig?.showButtonBar"
-        [selectionMode]="rowEffectiveDateFieldConfig.dateConfig?.selectionMode || ALL_DATE_SELECTION_MODES.Single"
-        [showTime]="rowEffectiveDateFieldConfig.dateConfig?.showTime || false"
-        [hourFormat]="rowEffectiveDateFieldConfig.dateConfig?.hourFormat || ALL_HOUR_FORMATS.Twelve"
-        [view]="rowEffectiveDateFieldConfig.dateConfig?.calendarView || ALL_CALENDAR_VIEWS.Date"
-        [numberOfMonths]="rowEffectiveDateFieldConfig.dateConfig?.numberOfMonths || 1"
-        [touchUI]="rowEffectiveDateFieldConfig.dateConfig?.touchUI"
-        [appendTo]="rowEffectiveDateFieldConfig.dateConfig?.touchUI ? undefined : 'body'"
-        [readonlyInput]="rowEffectiveDateFieldConfig.readonlyInput"
-        [ngClass]="{
-          'ng-invalid ng-dirty': showDateErrors !== false && showEffectiveDateError(group),
-        }"
-      />
-      @if (!rowEffectiveDateFieldConfig.showStandardLabel) {
-        <label [for]="rowEffectiveDateFieldConfig.id + '-' + panelKey + '-' + rowIndex">
-          {{ labelText || rowEffectiveDateFieldConfig.label }}
-        </label>
-      }
-    </p-floatlabel>
-    @if (showDateErrors !== false && showEffectiveDateError(group)) {
-      <small
-        class="allocate-deallocate__field-error"
-        role="alert"
-      >
-        Effective date is required.
-      </small>
-    }
+  <div class="allocate-deallocate__date">
+    <app-input-field
+      [formGroup]="$any(group)"
+      [inputFieldConfig]="getRowEffectiveDateFieldConfig(panelKey, rowIndex, labelText, showDateErrors === false)"
+    />
   </div>
 </ng-template>

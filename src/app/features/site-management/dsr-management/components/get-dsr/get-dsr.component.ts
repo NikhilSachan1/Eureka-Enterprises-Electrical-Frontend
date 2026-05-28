@@ -84,6 +84,38 @@ export class GetDsrComponent implements OnInit {
     (): IPageHeaderConfig => this.getPageHeaderConfig()
   );
 
+  private normalizeProjectStatusKey(status: unknown): string {
+    return typeof status === 'string'
+      ? status
+          .trim()
+          .toLowerCase()
+          .replace(/[\s_-]+/g, '')
+      : '';
+  }
+
+  private dsrBlockedReason(status: unknown): string | undefined {
+    const key = this.normalizeProjectStatusKey(status);
+    if (!key) {
+      return undefined;
+    }
+    if (key === 'ongoing') {
+      return undefined;
+    }
+    if (key === 'workcompleted') {
+      return 'DSR can be added only for Ongoing sites. Current status: Work completed.';
+    }
+    if (key === 'onhold' || key === 'hold') {
+      return 'DSR can be added only for Ongoing sites. Current status: Hold.';
+    }
+    if (key === 'completed') {
+      return 'DSR can be added only for Ongoing sites. Current status: Completed.';
+    }
+    if (key === 'upcoming') {
+      return 'DSR can be added only for Ongoing sites. Current status: Upcoming.';
+    }
+    return 'DSR can be added only for Ongoing sites.';
+  }
+
   protected readonly showEmployeeFilter = computed(() =>
     this.appPermissionService.hasPermission(
       APP_PERMISSION.UI.DSR.SEARCH_FILTER_EMPLOYEE_NAME
@@ -267,6 +299,10 @@ export class GetDsrComponent implements OnInit {
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
+    const reason = this.dsrBlockedReason(
+      this.workspaceContext.projectOverview()?.site?.status
+    );
+    const disabled = !!reason;
     return {
       title: '',
       subtitle: '',
@@ -280,12 +316,16 @@ export class GetDsrComponent implements OnInit {
           icon: ICONS.COMMON.FORCE,
           actionName: 'forceDsr',
           permission: [APP_PERMISSION.DSR.FORCE],
+          disabled,
+          disabledTooltip: reason,
         },
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
           label: 'Add DSR',
           actionName: 'addDsr',
           permission: [APP_PERMISSION.DSR.ADD],
+          disabled,
+          disabledTooltip: reason,
         },
       ],
     };

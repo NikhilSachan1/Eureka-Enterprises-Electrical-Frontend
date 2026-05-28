@@ -425,6 +425,12 @@ export const appMenu: ApplicationMenu = {
                   permission: [APP_PERMISSION.ROLE_PERMISSION.TABLE_VIEW],
                 },
                 {
+                  label: 'Set Role Permission',
+                  icon: ICONS.COMMON.ID_CARD,
+                  routerLink: `${ROUTE_BASE_PATHS.SETTINGS.PERMISSION.ROLE_PERMISSION}/${ROUTES.SETTINGS.PERMISSION.ROLE_PERMISSION.SET_PERMISSIONS}`,
+                  permission: [APP_PERMISSION.ROLE_PERMISSION.SET],
+                },
+                {
                   label: 'User Permission',
                   icon: ICONS.COMMON.USERS,
                   routerLink: ROUTE_BASE_PATHS.SETTINGS.PERMISSION.USER,

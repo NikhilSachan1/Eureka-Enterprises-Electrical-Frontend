@@ -42,4 +42,34 @@ export const AllocateDeallocateEmployeeRequestSchema = z
 
 export const AllocateDeallocateEmployeeResponseSchema = z.looseObject({
   message: z.string(),
+  allocations: z
+    .looseObject({
+      totalRequested: z.number().int().nonnegative(),
+      successCount: z.number().int().nonnegative(),
+      failureCount: z.number().int().nonnegative(),
+      results: z.array(
+        z.looseObject({
+          userId: uuidField.optional(),
+          siteId: uuidField.optional(),
+          success: z.boolean(),
+          message: z.string().optional().nullable(),
+        })
+      ),
+    })
+    .optional(),
+  deallocations: z
+    .looseObject({
+      totalRequested: z.number().int().nonnegative(),
+      successCount: z.number().int().nonnegative(),
+      failureCount: z.number().int().nonnegative(),
+      results: z.array(
+        z.looseObject({
+          allocationId: uuidField.optional(),
+          siteId: uuidField.optional(),
+          success: z.boolean(),
+          message: z.string().optional().nullable(),
+        })
+      ),
+    })
+    .optional(),
 });

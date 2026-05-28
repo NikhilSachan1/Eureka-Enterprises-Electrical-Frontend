@@ -7,6 +7,7 @@ import {
 } from '@shared/types';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IAllocateDeallocateUIFormDto } from '../../types/project.dto';
+import { Validators } from '@angular/forms';
 
 const ALLOCATE_DEALLOCATE_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAllocateDeallocateUIFormDto> =
   {
@@ -22,6 +23,7 @@ const ALLOCATE_DEALLOCATE_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IA
           employeeStatusFilter: ['ACTIVE'],
         },
       },
+      validators: [Validators.required],
     },
   };
 
@@ -34,6 +36,7 @@ export const ALLOCATE_DEALLOCATE_ROW_EFFECTIVE_DATE_FIELD_OPTIONS: Partial<IInpu
   {
     id: 'allocateDeallocateRowEffectiveDate',
     fieldName: 'date',
+    fieldType: EDataType.DATE,
     label: 'Effective date',
     haveFullWidth: true,
     fieldSize: EFieldSize.Small,
@@ -41,5 +44,6 @@ export const ALLOCATE_DEALLOCATE_ROW_EFFECTIVE_DATE_FIELD_OPTIONS: Partial<IInpu
     readonlyInput: false,
     dateConfig: {
       touchUI: false,
+      showCalendarIcon: true,
     },
   };

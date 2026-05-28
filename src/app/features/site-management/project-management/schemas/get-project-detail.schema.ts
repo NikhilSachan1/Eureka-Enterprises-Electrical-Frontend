@@ -11,6 +11,18 @@ export const ProjectDetailGetRequestSchema = z
 
 export const ProjectDetailGetResponseSchema =
   ProjectGetBaseResponseSchema.extend({
+    siteContractors: z.array(
+      z.object({
+        id: uuidField,
+        siteId: uuidField,
+        contractorId: uuidField,
+        contractor: z.looseObject({
+          id: uuidField,
+          name: z.string(),
+          fullAddress: z.string().nullable(),
+        }),
+      })
+    ),
     createdByUser: makeFieldsNullable(UserSchema).nullable(),
     updatedByUser: makeFieldsNullable(UserSchema).optional(),
   }).omit({

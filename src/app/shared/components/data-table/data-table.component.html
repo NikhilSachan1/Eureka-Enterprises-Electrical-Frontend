@@ -492,6 +492,9 @@
       @let rangeNumberFormat = col.numberFormat;
       @let rangeCurrencyFormat = col.currencyFormat;
       @if (rangeValues && rangeValues.length > 0) {
+        @if (rangeDataType === ALL_DATA_TYPES.DATE) {
+          <i [class]="`${icons.COMMON.CALENDAR} text-xs`"></i>
+        }
         <span>
           @for (item of rangeValues; track $index; let isLast = $last) {
             @switch (rangeDataType) {

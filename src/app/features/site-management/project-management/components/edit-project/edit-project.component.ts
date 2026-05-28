@@ -146,10 +146,6 @@ export class EditProjectComponent
       startDate,
       endDate,
       baseDistanceKm,
-      estimatedBudget,
-      blockNumber,
-      streetName,
-      landmark,
       city,
       state,
       pincode,
@@ -167,10 +163,6 @@ export class EditProjectComponent
       siteManagerContact: managerContact,
       timeline: [new Date(startDate), new Date(endDate)],
       baseDistanceKm: Number(baseDistanceKm),
-      estimatedBudget: Number(estimatedBudget),
-      blockNumber,
-      streetName,
-      landmark,
       city,
       state,
       pincode,
@@ -189,19 +181,12 @@ export class EditProjectComponent
       return;
     }
 
-    const prefilledCompanyAddressData =
-      this.preparePrefilledCompanyAddressData(company);
-    this.form.patch(prefilledCompanyAddressData);
-  }
-
-  private preparePrefilledCompanyAddressData(
-    company: ICompanyGetBaseResponseDto
-  ): Partial<IProjectEditFormDto> {
-    return {
-      city: company.city ?? '',
-      state: company.state ?? '',
-      pincode: company.pincode ?? '',
-    };
+    const { state, city, pincode } = company;
+    this.form.patch({
+      state,
+      pincode,
+    });
+    this.form.patch({ city });
   }
 
   private prefillSiteManagerContact(siteManagerName: string): void {
