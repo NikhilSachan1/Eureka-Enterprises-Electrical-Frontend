@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { FilterSchema, onlyDateStringField, uuidField } from '@shared/schemas';
+import {
+  FilterSchema,
+  isoDateTimeField,
+  onlyDateStringField,
+  uuidField,
+} from '@shared/schemas';
 import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
 
 const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
@@ -37,6 +42,7 @@ const SiteAllocationUserSchema = EmployeeBaseSchema.pick({
 
 export const SiteAllocationGetBaseResponseSchema = z.looseObject({
   id: uuidField,
+  createdAt: isoDateTimeField,
   allocatedAt: onlyDateStringField,
   deallocatedAt: onlyDateStringField.nullable(),
   isCurrentlyAllocated: z.boolean(),

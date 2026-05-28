@@ -55,6 +55,7 @@ import { ICONS } from '@shared/constants';
 import { ButtonComponent } from '../button/button.component';
 import { StatusTagComponent } from '../status-tag/status-tag.component';
 import { EmptyMessagesComponent } from '../empty-messages/empty-messages.component';
+import { APP_CONFIG } from '@core/config';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
 import { ReadMoreComponent } from '../read-more/read-more.component';
@@ -103,6 +104,7 @@ export class DataTableComponent {
 
   protected ALL_DATA_TYPES = EDataType;
   protected icons = ICONS;
+  protected readonly appConfig = APP_CONFIG;
   protected readonly defaultReadMoreConfig = DEFAULT_READ_MORE_CONFIG;
 
   /** Icon-only trigger when row actions collapse into the overflow menu (matches row action styling). */
@@ -118,6 +120,14 @@ export class DataTableComponent {
   private galleryService = inject(GalleryService);
   private logger = inject(LoggerService);
   private permissionService = inject(AppPermissionService);
+
+  protected resolveDateLocale(col?: Partial<IDataTableHeaderConfig>): string {
+    return (
+      col?.dateLocale ??
+      APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE ??
+      APP_CONFIG.NUMBER_FORMATS.LOCALE
+    );
+  }
 
   // Input signals
   loading = input.required<boolean>();

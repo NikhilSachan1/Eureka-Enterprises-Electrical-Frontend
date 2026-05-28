@@ -24,6 +24,7 @@ export interface IAppConfig {
   DATE_FORMATS: {
     DEFAULT: string;
     DEFAULT_WITH_TIME: string;
+    DISPLAY_LOCALE: string;
     CALENDAR: string;
     API: string;
     WITH_SHORT_MONTH: string;

@@ -42,6 +42,8 @@ export interface IDataTableHeaderConfig {
   bodyTemplate?: EDataType;
   dataType?: EDataType;
   dateFormat?: string;
+  /** DatePipe locale override (defaults to APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE). */
+  dateLocale?: string;
   currencyFormat?: string;
   numberFormat?: string;
   /** Text to show before the value (e.g., '$', 'Rs.', 'Start:'). */

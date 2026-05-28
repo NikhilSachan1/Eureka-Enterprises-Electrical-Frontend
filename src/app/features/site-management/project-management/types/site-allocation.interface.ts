@@ -9,6 +9,7 @@ export interface ISiteAllocationHistory {
     employeeId: string;
   };
   allocationPeriod: Date[];
+  createdAt: Date;
   allocationStatus: string;
   originalRawData: ISiteAllocationGetBaseResponseDto;
 }

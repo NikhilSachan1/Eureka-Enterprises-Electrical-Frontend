@@ -37,6 +37,8 @@ export const APP_CONFIG = {
   DATE_FORMATS: {
     DEFAULT: 'MMM d, yyyy',
     DEFAULT_WITH_TIME: 'MMM d, yyyy hh:mm a',
+    /** Locale for DatePipe display (en-US → uppercase AM/PM). */
+    DISPLAY_LOCALE: 'en-US',
     DEFAULT_CALENDAR: 'M d, yy',
     DEFAULT_CALENDAR_MONTH_YEAR: 'M yy',
     DEFAULT_CALENDAR_MONTH: 'MM',

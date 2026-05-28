@@ -480,7 +480,7 @@
     @case (ALL_DATA_TYPES.DATE) {
       @if (val) {
         <i [class]="`${icons.COMMON.CALENDAR} text-xs`"></i>
-        <span>{{ $any(val) | date: col.dateFormat ?? 'mediumDate' }}</span>
+        <span>{{ $any(val) | date: col.dateFormat ?? 'mediumDate' : undefined : resolveDateLocale(col) }}</span>
       } @else {
         <span>-</span>
       }
@@ -499,7 +499,7 @@
           @for (item of rangeValues; track $index; let isLast = $last) {
             @switch (rangeDataType) {
               @case (ALL_DATA_TYPES.DATE) {
-                {{ item | date: rangeDateFormat }}
+                {{ item | date: rangeDateFormat : undefined : resolveDateLocale(col) }}
               }
               @case (ALL_DATA_TYPES.NUMBER) {
                 {{ item | number: rangeNumberFormat }}
@@ -642,7 +642,7 @@
     }
     @default {
       @if (col.dataType === 'date') {
-        <span>{{ $any(val) | date: col.dateFormat ?? 'mediumDate' }}</span>
+        <span>{{ $any(val) | date: col.dateFormat ?? 'mediumDate' : undefined : resolveDateLocale(col) }}</span>
       } @else {
         <span>{{ val ?? '-' }}</span>
       }

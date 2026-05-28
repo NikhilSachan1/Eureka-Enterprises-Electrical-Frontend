@@ -178,6 +178,7 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
         allocationPeriod: deallocatedAt
           ? [allocatedAt, deallocatedAt]
           : [allocatedAt],
+        createdAt: new Date(record.createdAt),
         allocationStatus: record.isCurrentlyAllocated
           ? 'Allocated'
           : 'Deallocated',

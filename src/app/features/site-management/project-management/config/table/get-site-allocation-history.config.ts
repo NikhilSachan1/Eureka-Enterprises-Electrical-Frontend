@@ -40,6 +40,14 @@ export const SITE_ALLOCATION_HISTORY_TABLE_HEADER_CONFIG: Partial<IDataTableHead
       showSort: false,
     },
     {
+      field: 'createdAt',
+      header: 'Recorded on',
+      bodyTemplate: EDataType.DATE,
+      dataType: EDataType.DATE,
+      dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME,
+      showSort: false,
+    },
+    {
       field: 'allocationStatus',
       header: 'Status',
       bodyTemplate: EDataType.STATUS,
