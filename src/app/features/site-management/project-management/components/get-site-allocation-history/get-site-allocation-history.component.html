@@ -1,0 +1,33 @@
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()">
+  <div
+    headerFilter
+    class="allocation-history-header-employee-filter"
+  >
+    @if (showEmployeeFilter()) {
+      <app-input-field
+        [inputFieldConfig]="employeeFilterFieldConfig"
+        [fieldValue]="selectedEmployeeName()"
+        (onFieldChange)="onEmployeeFilterChange($event)"
+      />
+    }
+  </div>
+</app-page-header>
+
+<ng-template
+  #docWorkspaceContext
+  let-row
+>
+  <app-doc-workspace-context [view]="row.docWorkspaceContext" />
+</ng-template>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [customBodyTemplates]="{
+    docWorkspaceContext: docWorkspaceContext,
+  }"
+  (filterData)="onTableStateChange($event)"
+/>

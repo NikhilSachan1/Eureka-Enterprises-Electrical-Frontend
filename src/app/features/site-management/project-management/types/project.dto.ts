@@ -17,6 +17,9 @@ import {
   AllocateDeallocateEmployeeRequestSchema,
   AllocateDeallocateEmployeeResponseSchema,
   ProjectOverviewGetResponseSchema,
+  SiteAllocationGetRequestSchema,
+  SiteAllocationGetBaseResponseSchema,
+  SiteAllocationGetResponseSchema,
 } from '../schemas';
 /*
   Project Add
@@ -107,4 +110,20 @@ export type IProjectAllocateDeallocateEmployeeResponseDto = z.infer<
 */
 export type IProjectOverviewGetResponseDto = z.infer<
   typeof ProjectOverviewGetResponseSchema
+>;
+
+/*
+  Site allocation history
+*/
+export type ISiteAllocationGetRequestDto = z.infer<
+  typeof SiteAllocationGetRequestSchema
+>;
+export type ISiteAllocationGetFormDto = z.input<
+  typeof SiteAllocationGetRequestSchema
+>;
+export type ISiteAllocationGetResponseDto = z.infer<
+  typeof SiteAllocationGetResponseSchema
+>;
+export type ISiteAllocationGetBaseResponseDto = z.infer<
+  typeof SiteAllocationGetBaseResponseSchema
 >;

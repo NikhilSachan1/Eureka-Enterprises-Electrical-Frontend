@@ -9,3 +9,5 @@ export {
   ALLOCATE_DEALLOCATE_ROW_EFFECTIVE_DATE_FIELD_OPTIONS,
 } from './form/allocate-deallocate-employee.config';
 export { SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG } from './form/search-filter-project-workspace.config';
+export { SITE_ALLOCATION_HISTORY_TABLE_ENHANCED_CONFIG } from './table/get-site-allocation-history.config';
+export { SITE_ALLOCATION_EMPLOYEE_FILTER_FIELD_CONFIG } from './form/site-allocation-employee-filter.config';

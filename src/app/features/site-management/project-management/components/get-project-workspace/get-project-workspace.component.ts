@@ -454,6 +454,7 @@ export class GetProjectWorkspaceComponent {
       DAILY_PROGRESS,
       GST_SUMMARY,
       TDS_SUMMARY,
+      ALLOCATION_HISTORY,
       WORKSPACE_DOC,
     } = ROUTES.SITE.PROJECT;
     const filterTabKeys = new Set<string>([
@@ -461,6 +462,7 @@ export class GetProjectWorkspaceComponent {
       DAILY_PROGRESS,
       GST_SUMMARY,
       TDS_SUMMARY,
+      ALLOCATION_HISTORY,
       ...Object.values(WORKSPACE_DOC),
     ]);
     const segments = url.split('?')[0].split('/').filter(Boolean);
@@ -589,7 +591,7 @@ export class GetProjectWorkspaceComponent {
 
     return [
       {
-        route: 'profitability',
+        route: ROUTES.SITE.PROJECT.PROFITABILITY,
         label: 'Profitability',
         icon: this.icons.COMMON.CHART,
         visible: this.appPermissionService.hasPermission(
@@ -597,7 +599,7 @@ export class GetProjectWorkspaceComponent {
         ),
       },
       {
-        route: 'contractor-doc',
+        route: ROUTES.SITE.PROJECT.CONTRACTOR_DOC,
         label: 'Contractor (Sales)',
         icon: this.icons.COMMON.FILE,
         visible: this.appPermissionService.hasAnyPermission([
@@ -609,7 +611,7 @@ export class GetProjectWorkspaceComponent {
         ]),
       },
       {
-        route: 'vendor-doc',
+        route: ROUTES.SITE.PROJECT.VENDOR_DOC,
         label: 'Vendor (Purchase)',
         icon: this.icons.COMMON.FILE,
         visible: this.appPermissionService.hasAnyPermission([
@@ -622,22 +624,30 @@ export class GetProjectWorkspaceComponent {
         ]),
       },
       {
-        route: 'gst-summary',
+        route: ROUTES.SITE.PROJECT.GST_SUMMARY,
         label: 'GST Summary',
         icon: this.icons.COMMON.TAG,
         visible: this.appPermissionService.hasPermission(GST.TABLE_VIEW),
       },
       {
-        route: 'tds-summary',
+        route: ROUTES.SITE.PROJECT.TDS_SUMMARY,
         label: 'TDS Summary',
         icon: this.icons.COMMON.TAG,
         visible: this.appPermissionService.hasPermission(TDS.TABLE_VIEW),
       },
       {
-        route: 'daily-progress',
+        route: ROUTES.SITE.PROJECT.DAILY_PROGRESS,
         label: 'Daily Progress',
         icon: this.icons.COMMON.CALENDAR,
         visible: this.appPermissionService.hasPermission(DSR.TABLE_VIEW),
+      },
+      {
+        route: ROUTES.SITE.PROJECT.ALLOCATION_HISTORY,
+        label: 'Allocation history',
+        icon: this.icons.COMMON.HISTORY,
+        visible: this.appPermissionService.hasPermission(
+          APP_PERMISSION.PROJECT.ALLOCATION_HISTORY_TABLE_VIEW
+        ),
       },
     ];
   }

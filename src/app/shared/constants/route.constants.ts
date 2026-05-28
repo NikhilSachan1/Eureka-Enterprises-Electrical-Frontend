@@ -116,6 +116,7 @@ export const ROUTES = {
       LIST: `list`,
       ADD: `add`,
       EDIT: `edit`,
+      ALLOCATION_HISTORY: `allocation-history`,
       WORKSPACE: `workspace`,
       PROFITABILITY: `profitability`,
       CONTRACTOR_DOC: `contractor-doc`,

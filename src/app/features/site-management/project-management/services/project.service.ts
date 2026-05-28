@@ -17,6 +17,8 @@ import {
   AllocateDeallocateEmployeeRequestSchema,
   AllocateDeallocateEmployeeResponseSchema,
   ProjectOverviewGetResponseSchema,
+  SiteAllocationGetRequestSchema,
+  SiteAllocationGetResponseSchema,
 } from '../schemas';
 import {
   IProjectAddFormDto,
@@ -34,6 +36,8 @@ import {
   IProjectAllocateDeallocateEmployeeRequestFormDto,
   IProjectAllocateDeallocateEmployeeResponseDto,
   IProjectOverviewGetResponseDto,
+  ISiteAllocationGetFormDto,
+  ISiteAllocationGetResponseDto,
 } from '../types/project.dto';
 
 @Injectable({
@@ -223,6 +227,44 @@ export class ProjectService {
             this.logger.logDtoValidationErrors('Get Project List Error', error);
           } else {
             this.logger.logUserAction('Get Project List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getSiteAllocationHistory(
+    params?: ISiteAllocationGetFormDto
+  ): Observable<ISiteAllocationGetResponseDto> {
+    this.logger.logUserAction('Get site allocation history request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.PROJECT.ALLOCATION_HISTORY,
+        {
+          response: SiteAllocationGetResponseSchema,
+          request: SiteAllocationGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: ISiteAllocationGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get site allocation history response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get site allocation history error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Get site allocation history error',
+              error
+            );
           }
           return throwError(() => error);
         })
