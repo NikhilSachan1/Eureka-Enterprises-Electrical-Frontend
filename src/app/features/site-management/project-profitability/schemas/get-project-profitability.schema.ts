@@ -40,6 +40,13 @@ const RegularExpenseEmployeeWiseSummarySchema = z.looseObject({
   expenseAmount: z.number(),
 });
 
+const FuelExpenseEmployeeWiseSummarySchema = z.looseObject({
+  employeeName: z.string(),
+  employeeCode: z.string(),
+  vehicleNumber: z.string(),
+  expenseAmount: z.number(),
+});
+
 const CategoryWiseSummarySchema = z.looseObject({
   categoryName: z.string(),
   amount: z.number(),
@@ -90,7 +97,7 @@ export const ProjectProfitabilityGetResponseSchema = z.looseObject({
       }),
       fuelExpense: z.looseObject({
         totalFuelExpense: z.number(),
-        employeeWiseSummary: z.array(EmployeeWiseSummarySchema),
+        employeeWiseSummary: z.array(FuelExpenseEmployeeWiseSummarySchema),
       }),
     }),
   }),

@@ -160,7 +160,7 @@ export class GetProfitabilityComponent {
     if (col.amount) {
       return '9rem';
     }
-    if (col.type === 'avatar') {
+    if (col.type === 'avatar' || col.type === 'vehicle') {
       return '34%';
     }
     if (col.type === 'date') {
@@ -233,7 +233,25 @@ export class GetProfitabilityComponent {
       {
         rows: vm.expenseSummary.operationalExpense.fuelExpense
           .employeeWiseSummary as Record<string, unknown>[],
-        columns: this.getEmployeeAmountColumns(),
+        columns: [
+          {
+            field: 'employeeName',
+            header: 'Employee',
+            type: 'avatar',
+            subtitleField: 'employeeCode',
+          },
+          {
+            field: 'vehicleNumber',
+            header: 'Vehicle',
+            type: 'vehicle',
+          },
+          {
+            field: 'expenseAmount',
+            header: 'Amount',
+            type: 'currency',
+            amount: true,
+          },
+        ],
         emptyDescription:
           'There is no fuel expense detail available for this project.',
       },

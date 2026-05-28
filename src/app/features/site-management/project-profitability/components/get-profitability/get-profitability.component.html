@@ -481,6 +481,22 @@
                                 </div>
                               </div>
                             }
+                            @case ('vehicle') {
+                              <div class="detail-table__entity">
+                                <span
+                                  class="detail-table__vehicle-icon"
+                                  aria-hidden="true"
+                                >
+                                  <i [class]="icons.COMMON.CAR"></i>
+                                </span>
+                                <div class="detail-table__entity-text">
+                                  <span class="detail-table__entity-name">
+                                    {{ $any(row)[col.field] }}
+                                  </span>
+                                  <span class="detail-table__entity-sub">Registration no.</span>
+                                </div>
+                              </div>
+                            }
                             @case ('expense-category') {
                               {{ expenseCategoryLabel($any(row)[col.field]) }}
                             }

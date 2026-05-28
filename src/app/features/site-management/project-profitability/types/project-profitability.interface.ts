@@ -14,6 +14,7 @@ export type ProfitabilityDetailColumnType =
   | 'currency'
   | 'date'
   | 'avatar'
+  | 'vehicle'
   | 'expense-category';
 
 export interface IProfitabilityDetailColumn {
