@@ -10,6 +10,7 @@ export class ProjectWorkspaceContextService {
   private readonly filterSubmitVersionSignal = signal(0);
   private readonly projectOverviewSignal =
     signal<IProjectOverviewGetResponseDto | null>(null);
+  private readonly overviewSiteIdSignal = signal<string | undefined>(undefined);
   private readonly activeProjectIdSignal = signal<string | undefined>(
     undefined
   );
@@ -17,6 +18,7 @@ export class ProjectWorkspaceContextService {
   readonly filters = this.filtersSignal.asReadonly();
   readonly filterSubmitVersion = this.filterSubmitVersionSignal.asReadonly();
   readonly projectOverview = this.projectOverviewSignal.asReadonly();
+  readonly overviewSiteId = this.overviewSiteIdSignal.asReadonly();
   readonly activeProjectId = this.activeProjectIdSignal.asReadonly();
 
   readonly selectedProjectId = signal<string | undefined>(undefined);
@@ -41,10 +43,15 @@ export class ProjectWorkspaceContextService {
     this.selectedProjectId.set(undefined);
     this.activeProjectIdSignal.set(undefined);
     this.projectOverviewSignal.set(null);
+    this.overviewSiteIdSignal.set(undefined);
     this.filterSubmitVersionSignal.update(version => version + 1);
   }
 
-  setProjectOverview(overview: IProjectOverviewGetResponseDto | null): void {
+  setProjectOverview(
+    overview: IProjectOverviewGetResponseDto | null,
+    siteId?: string
+  ): void {
     this.projectOverviewSignal.set(overview);
+    this.overviewSiteIdSignal.set(overview ? siteId : undefined);
   }
 }

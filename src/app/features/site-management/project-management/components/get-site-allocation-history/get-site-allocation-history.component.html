@@ -5,7 +5,7 @@
   >
     @if (showEmployeeFilter()) {
       <app-input-field
-        [inputFieldConfig]="employeeFilterFieldConfig"
+        [inputFieldConfig]="employeeFilterFieldConfig()"
         [fieldValue]="selectedEmployeeName()"
         (onFieldChange)="onEmployeeFilterChange($event)"
       />

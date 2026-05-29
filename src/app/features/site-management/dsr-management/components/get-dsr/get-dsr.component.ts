@@ -21,7 +21,6 @@ import { DsrService } from '@features/site-management/dsr-management/services/ds
 import {
   EButtonActionType,
   IEnhancedTable,
-  IInputFieldsConfig,
   IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/types';
@@ -45,6 +44,7 @@ import { IDsr } from '@features/site-management/dsr-management/types/dsr.interfa
 import { ChipComponent } from '@shared/components/chip/chip.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
+import { buildWorkspaceEmployeeFilterFieldConfig } from '@features/site-management/project-management/utility/project-allocated-employee-filter.util';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -79,6 +79,8 @@ export class GetDsrComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
+
+  private lastProjectIdForEmployeeFilter: string | undefined;
 
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
@@ -122,8 +124,14 @@ export class GetDsrComponent implements OnInit {
     )
   );
 
-  protected readonly employeeFilterFieldConfig: IInputFieldsConfig =
-    DSR_EMPLOYEE_FILTER_FIELD_CONFIG;
+  protected readonly employeeFilterFieldConfig = computed(() =>
+    buildWorkspaceEmployeeFilterFieldConfig(
+      DSR_EMPLOYEE_FILTER_FIELD_CONFIG,
+      this.workspaceContext.selectedProjectId(),
+      this.workspaceContext.projectOverview(),
+      this.workspaceContext.overviewSiteId()
+    )
+  );
   protected readonly selectedEmployeeNames = signal<string[]>([]);
 
   protected table!: IEnhancedTable;
@@ -133,7 +141,14 @@ export class GetDsrComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      const projectId = this.workspaceContext.selectedProjectId();
       this.workspaceContext.filterSubmitVersion();
+
+      if (projectId !== this.lastProjectIdForEmployeeFilter) {
+        this.selectedEmployeeNames.set([]);
+        this.lastProjectIdForEmployeeFilter = projectId;
+      }
+
       if (this.tableFilterData) {
         this.loadDsrList();
       }

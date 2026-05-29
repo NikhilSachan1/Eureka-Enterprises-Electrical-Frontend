@@ -257,7 +257,7 @@ export class GetProjectWorkspaceComponent {
       .subscribe({
         next: (response: IProjectOverviewGetResponseDto) => {
           this.overviewProjectId.set(projectId);
-          this.workspaceContext.setProjectOverview(response);
+          this.workspaceContext.setProjectOverview(response, projectId);
           this.bindOverviewDropdownOptions(response);
           this.patchWorkspaceDateRangeField(response);
         },

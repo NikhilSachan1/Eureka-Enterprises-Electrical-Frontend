@@ -18,6 +18,7 @@ import {
 } from '../../config';
 import { ProjectService } from '../../services/project.service';
 import { ProjectWorkspaceContextService } from '../../services/project-workspace-context.service';
+import { buildWorkspaceEmployeeFilterFieldConfig } from '../../utility/project-allocated-employee-filter.util';
 import {
   ISiteAllocationGetBaseResponseDto,
   ISiteAllocationGetFormDto,
@@ -28,11 +29,7 @@ import {
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
-import {
-  IEnhancedTable,
-  IInputFieldsConfig,
-  IPageHeaderConfig,
-} from '@shared/types';
+import { IEnhancedTable, IPageHeaderConfig } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { catchError, EMPTY, finalize, Subject, switchMap } from 'rxjs';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
@@ -62,6 +59,8 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
   private readonly appPermissionService = inject(AppPermissionService);
 
+  private lastProjectIdForEmployeeFilter: string | undefined;
+
   protected readonly pageHeaderConfig = computed(
     (): IPageHeaderConfig => this.getPageHeaderConfig()
   );
@@ -72,8 +71,14 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
     )
   );
 
-  protected readonly employeeFilterFieldConfig: IInputFieldsConfig =
-    SITE_ALLOCATION_EMPLOYEE_FILTER_FIELD_CONFIG;
+  protected readonly employeeFilterFieldConfig = computed(() =>
+    buildWorkspaceEmployeeFilterFieldConfig(
+      SITE_ALLOCATION_EMPLOYEE_FILTER_FIELD_CONFIG,
+      this.workspaceContext.selectedProjectId(),
+      this.workspaceContext.projectOverview(),
+      this.workspaceContext.overviewSiteId()
+    )
+  );
   protected readonly selectedEmployeeName = signal<string | null>(null);
 
   protected table!: IEnhancedTable;
@@ -83,7 +88,14 @@ export class GetSiteAllocationHistoryComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      const projectId = this.workspaceContext.selectedProjectId();
       this.workspaceContext.filterSubmitVersion();
+
+      if (projectId !== this.lastProjectIdForEmployeeFilter) {
+        this.selectedEmployeeName.set(null);
+        this.lastProjectIdForEmployeeFilter = projectId;
+      }
+
       if (this.tableFilterData) {
         this.loadAllocationHistory();
       }
