@@ -414,7 +414,8 @@
         [ngModel]="effectiveValue()"
         [ngModelOptions]="{ standalone: true }"
         [class]="invalidClass"
-        (onBlur)="onBlur(); onValueChange($event)"
+        (ngModelChange)="onValueChange($event)"
+        (onBlur)="onBlur()"
       />
       @if (!showStandardLabel) {
         <label [for]="config.id">{{ config.label }}</label>
