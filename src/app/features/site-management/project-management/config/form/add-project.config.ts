@@ -151,6 +151,7 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
       id: 'baseDistanceKm',
       fieldName: 'baseDistanceKm',
       label: 'Base Distance (Km)',
+      hint: 'One-way distance in km from the project site to home or office (not round trip).',
       fieldType: EDataType.NUMBER,
       validators: [Validators.required],
     },

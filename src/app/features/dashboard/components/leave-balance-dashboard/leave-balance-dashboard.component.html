@@ -11,7 +11,7 @@
         </div>
         <div>
           <h2 class="card-block__title">Leave balance</h2>
-          <p class="card-block__hint">Employee-wise remaining balance (unit per your policy)</p>
+          <p class="card-block__hint">{{ headerHint() }}</p>
         </div>
       </div>
       <app-button
@@ -20,38 +20,59 @@
       />
     </div>
 
-    @if (metrics(); as lvBal) {
-      @if (lvBal.employeeWiseLeaveBalance.length > 0) {
-        <ul
-          class="leave-employee-balance__list"
-          role="list"
-          aria-label="Employee leave balances"
-        >
-          @for (row of lvBal.employeeWiseLeaveBalance; track row.employeeCode ?? row.employeeName) {
-            <li
-              class="leave-employee-balance__row"
-              [class.leave-employee-balance__row--zero]="row.balance === 0"
-            >
-              <div class="leave-employee-balance__who">
-                <span class="leave-employee-balance__name">{{ row.employeeName }}</span>
+    @if (loading()) {
+      <div
+        class="leave-balance-dashboard__loading"
+        role="status"
+        aria-busy="true"
+      >
+        <span
+          [class]="ICONS.COMMON.SPINNER + ' ' + ICONS.COMMON.SPIN"
+          aria-hidden="true"
+        ></span>
+        <span>Loading leave balances…</span>
+      </div>
+    } @else if (loadError()) {
+      <p class="card-block__muted">Could not load leave balances. Try again later.</p>
+    } @else if (showOwnBalanceCards()) {
+      @if (ownBalance(); as balance) {
+        <app-leave-balance-cards [leaveBalance]="balance" />
+      } @else {
+        <p class="card-block__muted">No leave balance found for your account.</p>
+      }
+    } @else if (employeeRows().length > 0) {
+      <ul
+        class="leave-employee-balance__list"
+        role="list"
+        aria-label="Employee leave balances"
+      >
+        @for (row of employeeRows(); track rowTrackKey(row, $index)) {
+          <li
+            class="leave-employee-balance__row"
+            [class.leave-employee-balance__row--zero]="row.balance === 0"
+          >
+            <div class="leave-employee-balance__who">
+              <span class="leave-employee-balance__name">{{ row.employeeName }}</span>
+              <span class="leave-employee-balance__meta">
                 @if (row.employeeCode) {
                   <span class="leave-employee-balance__code">{{ row.employeeCode }}</span>
                 }
-              </div>
-              <span class="leave-employee-balance__balance">
-                <span class="leave-employee-balance__amount">
-                  {{ row.balance | number: config.WITH_DECIMALS : config.LOCALE }}
-                </span>
-                <span class="leave-employee-balance__unit">{{ row.unit ?? 'days' }}</span>
+                @if (row.leaveCategory) {
+                  <span class="leave-employee-balance__category">{{ row.leaveCategory }}</span>
+                }
               </span>
-            </li>
-          }
-        </ul>
-      } @else {
-        <p class="card-block__muted leave-employee-balance__empty">No employee leave balances.</p>
-      }
+            </div>
+            <span class="leave-employee-balance__balance">
+              <span class="leave-employee-balance__amount">
+                {{ row.balance | number: config.WITH_DECIMALS : config.LOCALE }}
+              </span>
+              <span class="leave-employee-balance__unit">{{ row.unit ?? 'days' }}</span>
+            </span>
+          </li>
+        }
+      </ul>
     } @else {
-      <p class="card-block__muted">No leave metrics loaded.</p>
+      <p class="card-block__muted leave-employee-balance__empty">No employee leave balances.</p>
     }
   </div>
 </p-card>

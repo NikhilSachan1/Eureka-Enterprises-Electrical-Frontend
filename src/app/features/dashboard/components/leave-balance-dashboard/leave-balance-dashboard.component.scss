@@ -137,11 +137,29 @@
   white-space: nowrap;
 }
 
+.leave-employee-balance__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .leave-employee-balance__code {
   font-size: 0.6875rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary-color);
+}
+
+.leave-employee-balance__category {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.3rem;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 10%, var(--background-paper-color));
+  border: 1px solid color-mix(in srgb, var(--primary-color) 18%, var(--border-light-color));
 }
 
 .leave-employee-balance__balance {
@@ -167,6 +185,22 @@
 
 .leave-employee-balance__empty {
   margin: 0;
+}
+
+.leave-balance-dashboard__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 8rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary-color);
+
+  .pi {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

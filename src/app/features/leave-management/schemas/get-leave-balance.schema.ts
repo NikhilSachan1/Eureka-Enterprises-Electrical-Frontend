@@ -8,16 +8,29 @@ export const LeaveBalanceGetRequestSchema = z
   })
   .strict()
   .transform(({ employeeName }) => {
-    return {
-      userIds: [employeeName],
-      financialYear: new FinancialYearService().getFinancialYear(),
-    };
+    const financialYear = new FinancialYearService().getFinancialYear();
+    if (employeeName) {
+      return { userIds: [employeeName], financialYear };
+    }
+    return { financialYear };
   });
 
 export const LeaveBalanceGetBaseResponseSchema = z.looseObject({
+  id: z.string().optional(),
+  userId: z.string().optional(),
+  leaveCategory: z.string().optional(),
+  financialYear: z.string().optional(),
   totalAllocated: z.string(),
   consumed: z.string(),
   availableBalance: z.string(),
+  user: z
+    .looseObject({
+      id: z.string().optional(),
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
+      employeeId: z.string().optional(),
+    })
+    .optional(),
 });
 
 export const LeaveBalanceGetResponseSchema = z.looseObject({

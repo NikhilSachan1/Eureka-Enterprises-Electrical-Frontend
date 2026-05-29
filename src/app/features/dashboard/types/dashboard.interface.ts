@@ -44,6 +44,7 @@ export interface IDashboardCelebrations {
 export interface IDashboardEmployeeLeaveBalanceRow {
   readonly employeeName: string;
   readonly employeeCode?: string;
+  readonly leaveCategory?: string;
   readonly balance: number;
   /** e.g. `days`, `hours` — optional; UI defaults to “days”. */
   readonly unit?: string;
