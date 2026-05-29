@@ -10,8 +10,6 @@ export interface IBookPayment
     | 'bookingDate'
     | 'invoice'
     | 'taxableAmount'
-    | 'gstAmount'
-    | 'gstPercentage'
     | 'tdsDeductionAmount'
     | 'tdsPercentage'
     | 'paymentTotalAmount'

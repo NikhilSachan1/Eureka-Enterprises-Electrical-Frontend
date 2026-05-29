@@ -88,9 +88,8 @@ export class AddBookPaymentComponent
     effect(() => {
       const tracked = this.trackedBookPaymentInputs;
       tracked?.taxableAmount?.();
-      tracked?.gstPercentage?.();
       tracked?.tdsPercentage?.();
-      this.recalcGstTdsAndPaymentTotal();
+      this.recalcTdsAndPaymentTotal();
     });
   }
 
@@ -108,7 +107,6 @@ export class AddBookPaymentComponent
     const trackedFields: (keyof IAddBookPaymentUIFormDto)[] = [
       'projectName',
       'taxableAmount',
-      'gstPercentage',
       'tdsPercentage',
     ];
 
@@ -213,35 +211,29 @@ export class AddBookPaymentComponent
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
-  private recalcGstTdsAndPaymentTotal(): void {
+  private recalcTdsAndPaymentTotal(): void {
     const tracked = this.trackedBookPaymentInputs;
     if (!tracked) {
       return;
     }
-    const { taxableAmount, gstPercentage, tdsPercentage } = tracked.getValues();
+    const { taxableAmount, tdsPercentage } = tracked.getValues();
     const taxable =
       taxableAmount === null || taxableAmount === undefined
         ? NaN
         : Number(taxableAmount);
-    const gstP =
-      gstPercentage === null || gstPercentage === undefined
-        ? NaN
-        : Number(gstPercentage);
     const tdsP =
       tdsPercentage === null || tdsPercentage === undefined
         ? NaN
         : Number(tdsPercentage);
 
-    if (isNaN(taxable) || isNaN(gstP) || isNaN(tdsP)) {
+    if (isNaN(taxable) || isNaN(tdsP)) {
       return;
     }
 
-    const gstAmt = roundCurrencyAmount(taxable * (gstP / 100));
     const tdsAmt = roundCurrencyAmount(taxable * (tdsP / 100));
-    const payTotal = roundCurrencyAmount(taxable - gstAmt - tdsAmt);
+    const payTotal = roundCurrencyAmount(taxable - tdsAmt);
 
     this.form.formGroup.patchValue({
-      gstAmount: gstAmt,
       tdsDeductionAmount: tdsAmt,
       paymentTotalAmount: payTotal,
     });

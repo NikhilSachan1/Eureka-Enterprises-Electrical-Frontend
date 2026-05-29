@@ -24,6 +24,7 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
@@ -129,6 +130,7 @@ export class GetPoDetailComponent extends DrawerDetailBase {
       {
         label: 'Invoice & payment',
         value: {
+          partyType: record.partyType,
           invoicedTotal: record.invoicedTotal,
           bookedTotal: record.bookedTotal,
           paidTotal: record.paidTotal,
@@ -212,23 +214,29 @@ export class GetPoDetailComponent extends DrawerDetailBase {
   }
 
   protected docPoDrawerInvoicePaymentSegments(v: {
+    partyType: EDocContext;
     invoicedTotal: string;
     bookedTotal: string;
     paidTotal: string;
     lastInvoiceAt: string | null | undefined;
     lastPaymentAt: string | null | undefined;
   }): IDocAmountSegment[] {
-    return [
+    const isSales = v.partyType === EDocContext.SALES;
+    const segments: IDocAmountSegment[] = [
       {
         dataType: EDataType.CURRENCY,
         label: 'Invoiced',
         value: v.invoicedTotal,
       },
-      {
+    ];
+    if (!isSales) {
+      segments.push({
         dataType: EDataType.CURRENCY,
         label: 'Booked',
         value: v.bookedTotal,
-      },
+      });
+    }
+    segments.push(
       {
         dataType: EDataType.CURRENCY,
         label: 'Paid',
@@ -243,7 +251,8 @@ export class GetPoDetailComponent extends DrawerDetailBase {
         dataType: EDataType.DATE,
         label: 'Last payment',
         value: v.lastPaymentAt,
-      },
-    ];
+      }
+    );
+    return segments;
   }
 }

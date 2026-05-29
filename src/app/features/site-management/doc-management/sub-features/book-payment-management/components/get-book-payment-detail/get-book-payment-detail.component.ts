@@ -115,8 +115,6 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
         label: 'Payment amounts',
         value: {
           taxableAmount: record.taxableAmount,
-          gstAmount: record.gstAmount,
-          gstPercentage: `(${record.gstPercentage}%)`,
           tdsDeductionAmount: record.tdsDeductionAmount,
           tdsPercentage: `(${record.tdsPercentage}%)`,
           paymentTotalAmount: record.paymentTotalAmount,
@@ -167,8 +165,6 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
   /** Mirrors list `docBookPaymentAmountSegments` via {@link DocAmountComponent}. */
   protected docBookPaymentDrawerAmountSegments(v: {
     taxableAmount: string;
-    gstAmount: string;
-    gstPercentage: string;
     tdsDeductionAmount: string;
     tdsPercentage: string;
     paymentTotalAmount: string;
@@ -178,12 +174,6 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
         dataType: EDataType.CURRENCY,
         label: 'Taxable',
         value: v.taxableAmount,
-      },
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'GST',
-        value: v.gstAmount,
-        suffix: v.gstPercentage,
       },
       {
         dataType: EDataType.CURRENCY,

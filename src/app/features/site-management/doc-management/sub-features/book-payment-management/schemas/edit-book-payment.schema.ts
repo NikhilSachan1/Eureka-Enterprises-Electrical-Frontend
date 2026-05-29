@@ -8,8 +8,6 @@ export const EditBookPaymentRequestSchema = BookPaymentUpsertShapeSchema.omit({
 }).transform(data => ({
   bookingDate: transformDateFormat(data.bookingDate),
   taxableAmount: data.taxableAmount,
-  gstAmount: data.gstAmount,
-  gstPercentage: data.gstPercentage,
   tdsDeductionAmount: data.tdsDeductionAmount,
   tdsPercentage: data.tdsPercentage,
   paymentHoldReason: data.paymentHoldReason ?? null,

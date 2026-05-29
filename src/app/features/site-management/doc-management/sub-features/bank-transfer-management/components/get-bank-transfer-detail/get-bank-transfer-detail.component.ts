@@ -22,8 +22,10 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 
+import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
+import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 
@@ -32,6 +34,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ViewDetailComponent,
+    DocAmountComponent,
     DocReferenceComponent,
     DocWorkspaceContextComponent,
   ],
@@ -119,12 +122,31 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
         label: 'UTR / Reference',
         value: record.utrNumber,
       },
-      {
-        label: 'Amount',
-        value: record.transferAmount,
-        type: EDataType.CURRENCY,
-        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
+      ...(record.partyType === EDocContext.SALES
+        ? [
+            {
+              label: 'Transfer amounts',
+              value: {
+                transferAmount: record.transferAmount,
+                tdsDeducted: record.tdsDeducted ?? null,
+                tdsPercentage:
+                  record.tdsPercentage !== null &&
+                  record.tdsPercentage !== undefined
+                    ? `(${record.tdsPercentage}%)`
+                    : null,
+              },
+              customTemplateKey: 'bankTransferDetailAmounts',
+              detailTemplateFullRow: true,
+            },
+          ]
+        : [
+            {
+              label: 'Amount',
+              value: record.transferAmount,
+              type: EDataType.CURRENCY,
+              format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+            },
+          ]),
       {
         label: 'Proof of transfer',
         value: proofAttachmentKeysForBankTransferDetail(record),
@@ -172,6 +194,29 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
     return {
       name: record.utrNumber,
     };
+  }
+
+  protected docBankTransferDrawerAmountSegments(v: {
+    transferAmount: string;
+    tdsDeducted: string | null;
+    tdsPercentage: string | null;
+  }): IDocAmountSegment[] {
+    const segments: IDocAmountSegment[] = [
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Transfer',
+        value: v.transferAmount,
+      },
+    ];
+    if (v.tdsDeducted) {
+      segments.push({
+        dataType: EDataType.CURRENCY,
+        label: 'TDS',
+        value: v.tdsDeducted,
+        suffix: v.tdsPercentage ?? undefined,
+      });
+    }
+    return segments;
   }
 }
 

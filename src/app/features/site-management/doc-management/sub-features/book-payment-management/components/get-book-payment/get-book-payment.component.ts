@@ -154,12 +154,6 @@ export class GetBookPaymentComponent implements OnInit {
       },
       {
         dataType: EDataType.CURRENCY,
-        label: 'GST',
-        value: row.gstAmount,
-        suffix: row.gstPercentage,
-      },
-      {
-        dataType: EDataType.CURRENCY,
         label: 'TDS',
         value: row.tdsDeductionAmount,
         suffix: row.tdsPercentage,
@@ -206,8 +200,6 @@ export class GetBookPaymentComponent implements OnInit {
       bookingDate: record.bookingDate,
       invoice: record.invoice,
       taxableAmount: record.taxableAmount,
-      gstAmount: record.gstAmount,
-      gstPercentage: `(${record.gstPercentage}%)`,
       tdsDeductionAmount: record.tdsDeductionAmount,
       tdsPercentage: `(${record.tdsPercentage}%)`,
       paymentTotalAmount: record.paymentTotalAmount,

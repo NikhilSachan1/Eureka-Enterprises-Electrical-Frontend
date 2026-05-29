@@ -164,17 +164,22 @@ export class GetPoComponent implements OnInit {
   }
 
   protected docPoInvoicePaymentSegments(row: IPo): IDocAmountSegment[] {
-    return [
+    const isSales = this.isPoSalesParty(row);
+    const segments: IDocAmountSegment[] = [
       {
         dataType: EDataType.CURRENCY,
         label: 'Invoiced',
         value: row.invoicedTotal,
       },
-      {
+    ];
+    if (!isSales) {
+      segments.push({
         dataType: EDataType.CURRENCY,
         label: 'Booked',
         value: row.bookedTotal,
-      },
+      });
+    }
+    segments.push(
       {
         dataType: EDataType.CURRENCY,
         label: 'Paid',
@@ -189,8 +194,16 @@ export class GetPoComponent implements OnInit {
         dataType: EDataType.DATE,
         label: 'Last payment',
         value: row.lastPaymentAt,
-      },
-    ];
+      }
+    );
+    return segments;
+  }
+
+  private isPoSalesParty(row: IPo): boolean {
+    return (
+      row.originalRawData.partyType === EDocContext.SALES ||
+      this.docRouteContext() === EDocContext.SALES
+    );
   }
 
   private loadPoList(): void {

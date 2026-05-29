@@ -173,18 +173,21 @@ export class GetInvoiceComponent implements OnInit {
   }
 
   protected docInvoiceBookedPaidSegments(row: IInvoice): IDocAmountSegment[] {
-    return [
-      {
+    const isSales = this.docRouteContext() === EDocContext.SALES;
+    const segments: IDocAmountSegment[] = [];
+    if (!isSales) {
+      segments.push({
         dataType: EDataType.CURRENCY,
         label: 'Booked',
         value: row.bookedTotal,
-      },
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'Paid',
-        value: row.paidTotal,
-      },
-    ];
+      });
+    }
+    segments.push({
+      dataType: EDataType.CURRENCY,
+      label: 'Paid',
+      value: row.paidTotal,
+    });
+    return segments;
   }
 
   private loadInvoiceList(): void {

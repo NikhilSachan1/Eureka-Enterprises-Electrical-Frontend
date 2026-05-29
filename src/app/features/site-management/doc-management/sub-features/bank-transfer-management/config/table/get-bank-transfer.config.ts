@@ -51,9 +51,10 @@ export const createBankTransferTableHeadersConfig = (
   },
   {
     field: 'transferAmount',
-    header: 'Amount',
-    bodyTemplate: EDataType.CURRENCY,
-    dataType: EDataType.CURRENCY,
+    header: isPurchase ? 'Amount' : 'Amounts',
+    bodyTemplate: isPurchase ? EDataType.CURRENCY : EDataType.TEXT,
+    dataType: isPurchase ? EDataType.CURRENCY : undefined,
+    customTemplateKey: isPurchase ? undefined : 'bankTransferAmountBreakdown',
     showSort: false,
   },
   {

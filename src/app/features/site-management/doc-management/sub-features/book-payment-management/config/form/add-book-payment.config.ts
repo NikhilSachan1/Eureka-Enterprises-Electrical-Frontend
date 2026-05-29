@@ -9,7 +9,6 @@ import {
 } from '@shared/types';
 import { IAddBookPaymentUIFormDto } from '../../types/book-payment.dto';
 
-export const ADD_BOOK_PAYMENT_DEFAULT_GST_PERCENT = 18;
 export const ADD_BOOK_PAYMENT_DEFAULT_TDS_PERCENT = 2;
 
 const ADD_BOOK_PAYMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBookPaymentUIFormDto> =
@@ -61,31 +60,6 @@ const ADD_BOOK_PAYMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBookPaymen
         mode: EInputNumberMode.Currency,
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
-      validators: [Validators.required, Validators.min(0)],
-    },
-    gstPercentage: {
-      fieldType: EDataType.NUMBER,
-      id: 'gstPercentage',
-      fieldName: 'gstPercentage',
-      label: 'GST %',
-      defaultValue: ADD_BOOK_PAYMENT_DEFAULT_GST_PERCENT,
-      numberConfig: {
-        mode: EInputNumberMode.Decimal,
-        allowNumberFormatting: false,
-        suffix: ' %',
-      },
-      validators: [Validators.required],
-    },
-    gstAmount: {
-      fieldType: EDataType.NUMBER,
-      id: 'gstAmount',
-      fieldName: 'gstAmount',
-      label: 'GST Amount',
-      numberConfig: {
-        mode: EInputNumberMode.Currency,
-        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      readonlyInput: true,
       validators: [Validators.required, Validators.min(0)],
     },
     tdsPercentage: {

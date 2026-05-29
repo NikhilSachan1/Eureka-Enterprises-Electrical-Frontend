@@ -47,8 +47,10 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { GetBankTransferDetailComponent } from '../get-bank-transfer-detail/get-bank-transfer-detail.component';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
+import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
@@ -58,6 +60,7 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
   imports: [
     PageHeaderComponent,
     DataTableComponent,
+    DocAmountComponent,
     DocReferenceComponent,
     DocWorkspaceContextComponent,
   ],
@@ -168,16 +171,48 @@ export class GetBankTransferComponent implements OnInit {
     this.loadBankTransferList();
   }
 
+  protected docBankTransferAmountSegments(
+    row: IBankTransfer
+  ): IDocAmountSegment[] {
+    const segments: IDocAmountSegment[] = [
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'Transfer',
+        value: row.transferAmount,
+      },
+    ];
+    if (row.tdsDeducted) {
+      segments.push({
+        dataType: EDataType.CURRENCY,
+        label: 'TDS',
+        value: row.tdsDeducted,
+        suffix: row.tdsPercentage ?? undefined,
+      });
+    }
+    return segments;
+  }
+
   private mapTableData(
     response: IBankTransferGetBaseResponseDto[]
   ): IBankTransfer[] {
     return response.map(record => {
       const invoiceRef = record.invoice ?? record.bookPayment?.invoice ?? null;
+      const isSales = record.partyType === EDocContext.SALES;
       return {
         id: record.id,
         transferDate: record.transferDate,
         utrNumber: record.utrNumber,
         transferAmount: record.transferAmount,
+        ...(isSales
+          ? {
+              tdsDeducted: record.tdsDeducted ?? null,
+              tdsPercentage:
+                record.tdsPercentage !== null &&
+                record.tdsPercentage !== undefined
+                  ? `(${record.tdsPercentage}%)`
+                  : null,
+            }
+          : {}),
         remarks: record.remarks,
         docWorkspaceContext: {
           companyName: record.site.company.name,
@@ -321,6 +356,23 @@ export class GetBankTransferComponent implements OnInit {
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
+      ...(row.partyType === EDocContext.SALES && row.tdsDeducted
+        ? [
+            {
+              label: 'TDS',
+              value: row.tdsDeducted,
+              type: EDataType.CURRENCY,
+              format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+            },
+            {
+              label: 'TDS %',
+              value:
+                row.tdsPercentage !== null && row.tdsPercentage !== undefined
+                  ? `${row.tdsPercentage}%`
+                  : '—',
+            },
+          ]
+        : []),
     ];
     return {
       details: [

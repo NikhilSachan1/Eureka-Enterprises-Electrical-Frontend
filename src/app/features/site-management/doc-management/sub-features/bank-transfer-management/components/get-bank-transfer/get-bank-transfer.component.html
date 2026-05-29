@@ -12,6 +12,13 @@
   <app-doc-reference [root]="row.documentReferenceHierarchy" />
 </ng-template>
 
+<ng-template
+  #bankTransferAmountBreakdown
+  let-row
+>
+  <app-doc-amount [segments]="docBankTransferAmountSegments(row)" />
+</ng-template>
+
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
   (headerButtonClick)="onHeaderButtonClick($event)"
@@ -29,6 +36,7 @@
   [customBodyTemplates]="{
     docWorkspaceContext: docWorkspaceContext,
     bankTransferDocumentReference: bankTransferDocumentReference,
+    bankTransferAmountBreakdown: bankTransferAmountBreakdown,
   }"
   (rowActionClick)="handleTableActionClick($any($event))"
   (filterData)="onTableStateChange($event)"

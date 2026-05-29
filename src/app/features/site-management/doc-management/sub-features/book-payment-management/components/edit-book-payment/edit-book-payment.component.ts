@@ -62,10 +62,9 @@ export class EditBookPaymentComponent
 
   private trackedBookPaymentInputs!: ITrackedFields<IEditBookPaymentUIFormDto>;
 
-  private allowGstTdsAutoRecalc = false;
+  private allowTdsAutoRecalc = false;
 
   private prefilledTaxableAmount: number | null = null;
-  private prefilledGstPercentage: number | null = null;
   private prefilledTdsPercentage: number | null = null;
 
   protected readonly selectedRecord =
@@ -89,26 +88,22 @@ export class EditBookPaymentComponent
     effect(() => {
       const tracked = this.trackedBookPaymentInputs;
       const taxable = tracked?.taxableAmount?.();
-      const gstPercentage = tracked?.gstPercentage?.();
       const tdsPercentage = tracked?.tdsPercentage?.();
       const { prefilledTaxableAmount } = this;
-      const { prefilledGstPercentage } = this;
       const { prefilledTdsPercentage } = this;
       if (
         prefilledTaxableAmount !== null &&
-        prefilledGstPercentage !== null &&
         prefilledTdsPercentage !== null &&
         tracked !== undefined
       ) {
         if (
           taxable !== prefilledTaxableAmount ||
-          gstPercentage !== prefilledGstPercentage ||
           tdsPercentage !== prefilledTdsPercentage
         ) {
-          this.allowGstTdsAutoRecalc = true;
+          this.allowTdsAutoRecalc = true;
         }
       }
-      this.recalcGstTdsAndPaymentTotal();
+      this.recalcTdsAndPaymentTotal();
     });
   }
 
@@ -133,8 +128,6 @@ export class EditBookPaymentComponent
           invoiceNumber: record.invoiceId,
           bookingDate: new Date(record.bookingDate),
           taxableAmount: Number(record.taxableAmount),
-          gstPercentage: Number(record.gstPercentage),
-          gstAmount: Number(record.gstAmount),
           tdsPercentage: Number(record.tdsPercentage),
           tdsDeductionAmount: Number(record.tdsDeductionAmount),
           paymentTotalAmount: Number(record.paymentTotalAmount),
@@ -157,7 +150,6 @@ export class EditBookPaymentComponent
     const trackedFields: (keyof IEditBookPaymentUIFormDto)[] = [
       'projectName',
       'taxableAmount',
-      'gstPercentage',
       'tdsPercentage',
     ];
 
@@ -168,16 +160,12 @@ export class EditBookPaymentComponent
         this.destroyRef
       );
 
-    const { taxableAmount, gstPercentage, tdsPercentage } =
+    const { taxableAmount, tdsPercentage } =
       this.trackedBookPaymentInputs.getValues();
     this.prefilledTaxableAmount =
       taxableAmount === null || taxableAmount === undefined
         ? null
         : Number(taxableAmount);
-    this.prefilledGstPercentage =
-      gstPercentage === null || gstPercentage === undefined
-        ? null
-        : Number(gstPercentage);
     this.prefilledTdsPercentage =
       tdsPercentage === null || tdsPercentage === undefined
         ? null
@@ -263,39 +251,33 @@ export class EditBookPaymentComponent
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
-  private recalcGstTdsAndPaymentTotal(): void {
+  private recalcTdsAndPaymentTotal(): void {
     if (!this.form) {
       return;
     }
     const tracked = this.trackedBookPaymentInputs;
-    if (!tracked || !this.allowGstTdsAutoRecalc) {
+    if (!tracked || !this.allowTdsAutoRecalc) {
       return;
     }
 
-    const { taxableAmount, gstPercentage, tdsPercentage } = tracked.getValues();
+    const { taxableAmount, tdsPercentage } = tracked.getValues();
     const taxable =
       taxableAmount === null || taxableAmount === undefined
         ? NaN
         : Number(taxableAmount);
-    const gstP =
-      gstPercentage === null || gstPercentage === undefined
-        ? NaN
-        : Number(gstPercentage);
     const tdsP =
       tdsPercentage === null || tdsPercentage === undefined
         ? NaN
         : Number(tdsPercentage);
 
-    if (isNaN(taxable) || isNaN(gstP) || isNaN(tdsP)) {
+    if (isNaN(taxable) || isNaN(tdsP)) {
       return;
     }
 
-    const gstAmt = roundCurrencyAmount(taxable * (gstP / 100));
     const tdsAmt = roundCurrencyAmount(taxable * (tdsP / 100));
-    const payTotal = roundCurrencyAmount(taxable - gstAmt - tdsAmt);
+    const payTotal = roundCurrencyAmount(taxable - tdsAmt);
 
     this.form.formGroup.patchValue({
-      gstAmount: gstAmt,
       tdsDeductionAmount: tdsAmt,
       paymentTotalAmount: payTotal,
     });

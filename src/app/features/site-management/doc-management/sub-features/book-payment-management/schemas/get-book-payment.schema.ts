@@ -58,8 +58,6 @@ export const BookPaymentGetBaseResponseSchema = z.looseObject({
   invoiceId: uuidField,
   bookingDate: onlyDateStringField,
   taxableAmount: z.string(),
-  gstAmount: z.string(),
-  gstPercentage: z.string(),
   tdsDeductionAmount: z.string(),
   tdsPercentage: z.string(),
   paymentTotalAmount: z.string(),
