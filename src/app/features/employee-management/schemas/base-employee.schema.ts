@@ -23,7 +23,7 @@ export const EmployeeBaseSchema = z.looseObject({
   bloodGroup: z.string().min(1),
   houseNumber: z.string(),
   streetName: z.string(),
-  landmark: z.string(),
+  landmark: z.string().nullable(),
   city: z.string().min(1),
   state: z.string().min(1),
   pincode: z.string(),

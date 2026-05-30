@@ -5,8 +5,14 @@
 export const TEXT_INPUT_ACCEPT_STRIP = {
   DIGITS: /\D/g,
   ALPHANUMERIC_WITH_SPACES: /[^a-zA-Z0-9\s]/g,
+  /** Street, landmark, etc. (e.g. "MG Road, Sector 5"). */
+  ADDRESS_WITH_SPACES: /[^a-zA-Z0-9\s,]/g,
   ALPHABETS_WITH_SPACES: /[^a-zA-Z\s]/g,
   ALPHANUMERIC: /[^a-zA-Z0-9]/g,
+  /** Block/plot numbers (e.g. A-101, 12/34, Wing A, Block 2). */
+  ALPHANUMERIC_WITH_SLASH_AND_HYPHEN: /[^a-zA-Z0-9/\-,]/g,
+  /** House/flat numbers with spaces (e.g. FLAT 12 A, 12/34, 42-A). */
+  ALPHANUMERIC_WITH_SLASH_HYPHEN_AND_SPACES: /[^a-zA-Z0-9\s/\-,]/g,
   ALPHANUMERIC_WITH_SPECIAL_CHARS:
     /[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};:'",.<>/?]/g,
 } as const;

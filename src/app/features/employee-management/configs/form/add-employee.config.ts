@@ -150,7 +150,7 @@ export const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfi
     fieldType: EDataType.TEXT,
     textConfig: {
       textCase: ETextCase.UPPERCASE,
-      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SLASH_HYPHEN_AND_SPACES,
     },
     validators: [Validators.required],
   },
@@ -161,7 +161,7 @@ export const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfi
     fieldType: EDataType.TEXT,
     textConfig: {
       textCase: ETextCase.TITLECASE,
-      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+      regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS_WITH_SPACES,
     },
     validators: [Validators.required],
   },
@@ -172,9 +172,8 @@ export const PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfi
     fieldType: EDataType.TEXT,
     textConfig: {
       textCase: ETextCase.TITLECASE,
-      regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPACES,
+      regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS_WITH_SPACES,
     },
-    validators: [Validators.required],
   },
   state: {
     id: 'state',
