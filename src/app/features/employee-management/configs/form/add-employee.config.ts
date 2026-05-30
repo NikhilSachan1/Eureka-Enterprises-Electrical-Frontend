@@ -1,6 +1,9 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
-import { IEmployeeAddFormDto } from '@features/employee-management/types/employee.dto';
+import {
+  IEmployeeAddFormDto,
+  IEmployeeAddUiFormDto,
+} from '@features/employee-management/types/employee.dto';
 import { EDIT_SALARY_FORM_CONFIG } from '@features/payroll-management/config';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
 import {
@@ -627,26 +630,29 @@ const DOCUMENTS_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<
 // Step 6: Salary Details Form Config
 
 const {
+  grossSalary,
   basicSalary,
   hra,
-  tds,
+  specialAllowance,
   employerEsicContribution,
   employeePfContribution,
   foodAllowance,
 } = EDIT_SALARY_FORM_CONFIG.fields;
 
 export const SALARY_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<
-  Partial<IEmployeeAddFormDto>
+  Partial<IEmployeeAddUiFormDto>
 > = {
+  grossSalary,
   basicSalary,
   hra,
-  tds,
+  specialAllowance,
   employerEsicContribution,
   employeePfContribution,
   foodAllowance,
 };
 
 export const ADD_EMPLOYEE_STEPPER_CONFIG: IStepperConfig = {
+  linear: false,
   steps: [
     {
       value: 1,
@@ -710,7 +716,7 @@ const ADD_EMPLOYEE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const ADD_EMPLOYEE_FORM_CONFIG: IMultiStepFormConfig<IEmployeeAddFormDto> =
+export const ADD_EMPLOYEE_FORM_CONFIG: IMultiStepFormConfig<IEmployeeAddUiFormDto> =
   {
     fields: {
       1: PERSONAL_DETAILS_EMPLOYEE_FORM_FIELDS_CONFIG,

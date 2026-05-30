@@ -13,7 +13,7 @@ export const EmployeeAddRequestSchema =
       dateOfBirth,
       basicSalary,
       hra,
-      tds,
+      specialAllowance,
       employerEsicContribution,
       employeePfContribution,
       foodAllowance,
@@ -53,7 +53,8 @@ export const EmployeeAddRequestSchema =
       salary: {
         basic: basicSalary,
         hra,
-        tds,
+        specialAllowance,
+        tds: 0,
         esic: employerEsicContribution,
         employeePf: employeePfContribution,
         foodAllowance,

@@ -11,6 +11,7 @@ import { ADD_SALARY_INCREMENT_FORM_CONFIG } from '@features/payroll-management/c
 import { PayrollService } from '@features/payroll-management/services/payroll.service';
 import {
   ISalaryIncrementAddFormDto,
+  ISalaryIncrementAddUiFormDto,
   ISalaryStructureGetFormDto,
   ISalaryStructureGetResponseDto,
 } from '@features/payroll-management/types/payroll.dto';
@@ -18,7 +19,19 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { RouterNavigationService } from '@shared/services';
 import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { ISalaryFields } from '@features/payroll-management/types/payroll.interface';
-import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
+import {
+  PAYROLL_MESSAGES,
+  MONTHLY_FOOD_ALLOWANCE_AMOUNT,
+} from '@features/payroll-management/constants';
+import {
+  calculateEmployeeEsic,
+  calculateEmployeePf,
+  deriveGrossFromEarnings,
+  omitGrossSalaryFromFormData,
+  syncDeductionsFromBasic,
+  syncFoodAllowance,
+  syncSalaryFieldsFromGross,
+} from '@features/payroll-management/shared/utils/salary-calculation.util';
 import { finalize } from 'rxjs';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -41,13 +54,13 @@ import { FormBase } from '@shared/base/form.base';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddSalaryIncrementComponent
-  extends FormBase<ISalaryIncrementAddFormDto>
+  extends FormBase<ISalaryIncrementAddUiFormDto>
   implements OnInit
 {
   private readonly payrollService = inject(PayrollService);
   private readonly routerNavigationService = inject(RouterNavigationService);
 
-  private trackedSalaryFields!: ITrackedFields<ISalaryIncrementAddFormDto>;
+  private trackedSalaryFields!: ITrackedFields<ISalaryIncrementAddUiFormDto>;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly summaryCalculationFields = computed(() =>
@@ -57,37 +70,66 @@ export class AddSalaryIncrementComponent
   constructor() {
     super();
     effect(() => {
-      if (this.trackedSalaryFields && this.trackedSalaryFields.employeeName) {
-        const employeeName = this.trackedSalaryFields.employeeName();
+      if (
+        this.trackedSalaryFields &&
+        this.trackedSalaryFields['employeeName']
+      ) {
+        const employeeName = this.trackedSalaryFields['employeeName']();
         if (employeeName && typeof employeeName === 'string') {
           this.loadEmployeeSalaryDetail(employeeName);
         }
       }
     });
+    effect(() => {
+      const tracked = this.trackedSalaryFields;
+      if (!tracked?.['grossSalary'] || !this.form) {
+        return;
+      }
+
+      syncSalaryFieldsFromGross(
+        this.form.formGroup,
+        Number(tracked['grossSalary']())
+      );
+    });
+
+    effect(() => {
+      const tracked = this.trackedSalaryFields;
+      if (!tracked?.['basicSalary'] || !this.form) {
+        return;
+      }
+
+      syncDeductionsFromBasic(
+        this.form.formGroup,
+        Number(tracked['basicSalary']())
+      );
+    });
   }
 
   ngOnInit(): void {
-    this.form = this.formService.createForm<ISalaryIncrementAddFormDto>(
+    this.form = this.formService.createForm<ISalaryIncrementAddUiFormDto>(
       ADD_SALARY_INCREMENT_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
       }
     );
 
-    const trackedFields: (keyof ISalaryIncrementAddFormDto)[] = [
+    const trackedFields: string[] = [
+      'grossSalary',
       'basicSalary',
       'hra',
-      'tds',
+      'specialAllowance',
       'employerEsicContribution',
       'employeePfContribution',
       'employeeName',
     ];
     this.trackedSalaryFields =
-      this.formService.trackMultipleFieldChanges<ISalaryIncrementAddFormDto>(
+      this.formService.trackMultipleFieldChanges<ISalaryIncrementAddUiFormDto>(
         this.form.formGroup,
         trackedFields,
         this.destroyRef
       );
+
+    syncFoodAllowance(this.form.formGroup);
   }
 
   private loadEmployeeSalaryDetail(userId: string): void {
@@ -137,16 +179,21 @@ export class AddSalaryIncrementComponent
   private preparePrefilledFormData(
     salaryDetail: ISalaryStructureGetResponseDto['records'],
     userId: string
-  ): Partial<ISalaryIncrementAddFormDto> {
+  ): Partial<ISalaryIncrementAddUiFormDto> {
     const salaryDetailData = salaryDetail[0];
+    const basicSalary = Number(salaryDetailData.basic);
+    const hra = Number(salaryDetailData.hra);
+    const specialAllowance = Number(salaryDetailData.specialAllowance ?? 0);
+
     return {
       employeeName: userId,
-      basicSalary: Number(salaryDetailData.basic),
-      hra: Number(salaryDetailData.hra),
-      tds: Number(salaryDetailData.tds ?? 0),
-      employerEsicContribution: Number(salaryDetailData.esic ?? 0),
-      employeePfContribution: Number(salaryDetailData.employeePf ?? 0),
-      foodAllowance: Number(salaryDetailData.foodAllowance ?? 0),
+      grossSalary: deriveGrossFromEarnings(basicSalary, hra, specialAllowance),
+      basicSalary,
+      hra,
+      specialAllowance,
+      employerEsicContribution: calculateEmployeeEsic(basicSalary),
+      employeePfContribution: calculateEmployeePf(basicSalary),
+      foodAllowance: MONTHLY_FOOD_ALLOWANCE_AMOUNT,
     };
   }
 
@@ -156,8 +203,9 @@ export class AddSalaryIncrementComponent
   }
 
   private prepareFormData(): ISalaryIncrementAddFormDto {
-    const formData = this.form.getData();
-    return formData;
+    return omitGrossSalaryFromFormData(
+      this.form.getRawData()
+    ) as ISalaryIncrementAddFormDto;
   }
 
   private executeAddSalaryIncrement(
@@ -202,17 +250,17 @@ export class AddSalaryIncrementComponent
     const {
       basicSalary,
       hra,
-      tds,
+      specialAllowance,
       employerEsicContribution,
       employeePfContribution,
     } = this.trackedSalaryFields.getValues();
 
     return {
-      basic: basicSalary ?? 0,
-      hra: hra ?? 0,
-      tds: tds ?? 0,
-      esic: employerEsicContribution ?? 0,
-      employeePf: employeePfContribution ?? 0,
+      basic: Number(basicSalary ?? 0),
+      hra: Number(hra ?? 0),
+      specialAllowance: Number(specialAllowance ?? 0),
+      esic: Number(employerEsicContribution ?? 0),
+      employeePf: Number(employeePfContribution ?? 0),
     };
   }
 

@@ -5,6 +5,7 @@ import {
   OnInit,
   inject,
   computed,
+  effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -26,6 +27,7 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { EMPLOYEE_MESSAGES, EMPLOYEE_FORM_STEPS } from '../../constants';
 import {
   IEmployeeAddFormDto,
+  IEmployeeAddUiFormDto,
   IEmployeeGetNextEmployeeIdResponseDto,
 } from '@features/employee-management/types/employee.dto';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
@@ -33,6 +35,12 @@ import { ActivatedRoute } from '@angular/router';
 import { ADD_EMPLOYEE_PREFILLED_DATA } from '@shared/mock-data/add-employee.mock-data';
 import { SalarySummaryComponent } from '@features/payroll-management/shared/components/salary-summary/salary-summary.component';
 import { ISalaryFields } from '@features/payroll-management/types/payroll.interface';
+import {
+  omitGrossSalaryFromFormData,
+  syncDeductionsFromBasic,
+  syncFoodAllowance,
+  syncSalaryFieldsFromGross,
+} from '@features/payroll-management/shared/utils/salary-calculation.util';
 import { FormBase } from '@shared/base/form.base';
 
 @Component({
@@ -50,28 +58,67 @@ import { FormBase } from '@shared/base/form.base';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddEmployeeComponent
-  extends FormBase<IEmployeeAddFormDto>
+  extends FormBase<IEmployeeAddUiFormDto>
   implements OnInit
 {
   private readonly employeeService = inject(EmployeeService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private trackedSalaryFields!: ITrackedFields<IEmployeeAddFormDto>;
+  private trackedSalaryFields!: ITrackedFields<IEmployeeAddUiFormDto>;
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly initialEmployeeData = signal<Record<
     string,
-    Partial<IEmployeeAddFormDto>
+    Partial<IEmployeeAddUiFormDto>
   > | null>(null);
   private readonly employeeId = signal<string>('');
   protected readonly salaryFields = computed(() => this.getSalaryFields());
+
+  constructor() {
+    super();
+    effect(() => {
+      const tracked = this.trackedSalaryFields;
+      if (!tracked?.['grossSalary']) {
+        return;
+      }
+
+      const grossSalary = tracked['grossSalary']();
+      const salaryForm =
+        this.multiStepForm?.forms[EMPLOYEE_FORM_STEPS.SALARY.toString()];
+
+      if (!salaryForm) {
+        return;
+      }
+
+      syncSalaryFieldsFromGross(salaryForm.formGroup, Number(grossSalary));
+    });
+
+    effect(() => {
+      const tracked = this.trackedSalaryFields;
+      if (!tracked?.['basicSalary']) {
+        return;
+      }
+
+      const salaryForm =
+        this.multiStepForm?.forms[EMPLOYEE_FORM_STEPS.SALARY.toString()];
+
+      if (!salaryForm) {
+        return;
+      }
+
+      syncDeductionsFromBasic(
+        salaryForm.formGroup,
+        Number(tracked['basicSalary']())
+      );
+    });
+  }
 
   ngOnInit(): void {
     this.loadEmployeeDataFromRoute();
 
     this.stepperConfig = ADD_EMPLOYEE_STEPPER_CONFIG;
     this.multiStepForm =
-      this.formService.createMultiStepForm<IEmployeeAddFormDto>(
+      this.formService.createMultiStepForm<IEmployeeAddUiFormDto>(
         ADD_EMPLOYEE_FORM_CONFIG,
         this.destroyRef,
         this.initialEmployeeData()
@@ -79,20 +126,25 @@ export class AddEmployeeComponent
 
     this.loadMockData(ADD_EMPLOYEE_PREFILLED_DATA);
 
-    const trackedFields: (keyof IEmployeeAddFormDto)[] = [
+    const trackedFields: (keyof IEmployeeAddUiFormDto)[] = [
+      'grossSalary',
       'employerEsicContribution',
       'employeePfContribution',
-      'tds',
       'basicSalary',
       'hra',
+      'specialAllowance',
     ];
     this.trackedSalaryFields =
-      this.formService.trackMultipleFieldChanges<IEmployeeAddFormDto>(
+      this.formService.trackMultipleFieldChanges<IEmployeeAddUiFormDto>(
         this.multiStepForm.forms[EMPLOYEE_FORM_STEPS.SALARY.toString()]
           .formGroup,
         trackedFields,
         this.destroyRef
       );
+
+    syncFoodAllowance(
+      this.multiStepForm.forms[EMPLOYEE_FORM_STEPS.SALARY.toString()].formGroup
+    );
   }
 
   private loadEmployeeDataFromRoute(): void {
@@ -115,7 +167,7 @@ export class AddEmployeeComponent
 
   private preparePrefilledFormData(
     nextEmployeeCodeFromResolver: IEmployeeGetNextEmployeeIdResponseDto
-  ): Record<string, Partial<IEmployeeAddFormDto>> {
+  ): Record<string, Partial<IEmployeeAddUiFormDto>> {
     const employmentStep = EMPLOYEE_FORM_STEPS.EMPLOYMENT_INFO.toString();
     const { employeeId } = nextEmployeeCodeFromResolver.data;
     this.employeeId.set(employeeId);
@@ -132,12 +184,12 @@ export class AddEmployeeComponent
   }
 
   private prepareFormData(): IEmployeeAddFormDto {
-    let formData = this.multiStepForm.getData();
+    let formData = omitGrossSalaryFromFormData(this.multiStepForm.getRawData());
     formData = {
       ...formData,
       employeeId: this.employeeId(),
     };
-    return formData;
+    return formData as IEmployeeAddFormDto;
   }
 
   private executeAddEmployee(formData: IEmployeeAddFormDto): void {
@@ -175,20 +227,30 @@ export class AddEmployeeComponent
   }
 
   private getSalaryFields(): ISalaryFields {
+    if (!this.trackedSalaryFields) {
+      return {
+        basic: 0,
+        hra: 0,
+        specialAllowance: 0,
+        esic: 0,
+        employeePf: 0,
+      };
+    }
+
     const {
       employerEsicContribution,
       employeePfContribution,
-      tds,
       basicSalary,
       hra,
+      specialAllowance,
     } = this.trackedSalaryFields.getValues();
 
     return {
-      basic: basicSalary ?? 0,
-      hra: hra ?? 0,
-      tds: tds ?? 0,
-      esic: employerEsicContribution ?? 0,
-      employeePf: employeePfContribution ?? 0,
+      basic: Number(basicSalary ?? 0),
+      hra: Number(hra ?? 0),
+      specialAllowance: Number(specialAllowance ?? 0),
+      esic: Number(employerEsicContribution ?? 0),
+      employeePf: Number(employeePfContribution ?? 0),
     };
   }
 
@@ -197,7 +259,7 @@ export class AddEmployeeComponent
   }
 
   protected override onResetParticularForm(
-    initialData?: Partial<IEmployeeAddFormDto>
+    initialData?: Partial<IEmployeeAddUiFormDto>
   ): void {
     const stepInitialData =
       initialData ?? this.initialEmployeeData()?.[this.activeStep().toString()];

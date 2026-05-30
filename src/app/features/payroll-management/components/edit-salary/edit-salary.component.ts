@@ -5,13 +5,17 @@ import {
   inject,
   signal,
   OnInit,
+  effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { EDIT_SALARY_FORM_CONFIG } from '@features/payroll-management/config';
 import { PayrollService } from '@features/payroll-management/services/payroll.service';
-import { ISalaryEditFormDto } from '@features/payroll-management/types/payroll.dto';
+import {
+  ISalaryEditFormDto,
+  ISalaryEditUiFormDto,
+} from '@features/payroll-management/types/payroll.dto';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -21,7 +25,10 @@ import {
   ROUTES,
 } from '@shared/constants';
 import { RouterNavigationService } from '@shared/services';
-import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
+import {
+  PAYROLL_MESSAGES,
+  MONTHLY_FOOD_ALLOWANCE_AMOUNT,
+} from '@features/payroll-management/constants';
 import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { finalize } from 'rxjs';
 import { SalarySummaryComponent } from '@features/payroll-management/shared/components/salary-summary/salary-summary.component';
@@ -29,6 +36,15 @@ import {
   ISalaryDetailResolverResponse,
   ISalaryFields,
 } from '@features/payroll-management/types/payroll.interface';
+import {
+  calculateEmployeeEsic,
+  calculateEmployeePf,
+  deriveGrossFromEarnings,
+  omitGrossSalaryFromFormData,
+  syncDeductionsFromBasic,
+  syncFoodAllowance,
+  syncSalaryFieldsFromGross,
+} from '@features/payroll-management/shared/utils/salary-calculation.util';
 import { FormBase } from '@shared/base/form.base';
 
 @Component({
@@ -45,27 +61,54 @@ import { FormBase } from '@shared/base/form.base';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditSalaryComponent
-  extends FormBase<ISalaryEditFormDto>
+  extends FormBase<ISalaryEditUiFormDto>
   implements OnInit
 {
   private readonly payrollService = inject(PayrollService);
   private readonly routerNavigationService = inject(RouterNavigationService);
   private readonly activatedRoute = inject(ActivatedRoute);
 
-  private trackedSalaryFields!: ITrackedFields<ISalaryEditFormDto>;
+  private trackedSalaryFields!: ITrackedFields<ISalaryEditUiFormDto>;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected readonly summaryCalculationFields = computed(() =>
     this.getSummaryCalculationFields()
   );
-  protected readonly initialSalaryData = signal<ISalaryEditFormDto | null>(
+  protected readonly initialSalaryData = signal<ISalaryEditUiFormDto | null>(
     null
   );
+
+  constructor() {
+    super();
+    effect(() => {
+      const tracked = this.trackedSalaryFields;
+      if (!tracked?.['grossSalary'] || !this.form) {
+        return;
+      }
+
+      syncSalaryFieldsFromGross(
+        this.form.formGroup,
+        Number(tracked['grossSalary']())
+      );
+    });
+
+    effect(() => {
+      const tracked = this.trackedSalaryFields;
+      if (!tracked?.['basicSalary'] || !this.form) {
+        return;
+      }
+
+      syncDeductionsFromBasic(
+        this.form.formGroup,
+        Number(tracked['basicSalary']())
+      );
+    });
+  }
 
   ngOnInit(): void {
     this.loadSalaryDataFromRoute();
 
-    this.form = this.formService.createForm<ISalaryEditFormDto>(
+    this.form = this.formService.createForm<ISalaryEditUiFormDto>(
       EDIT_SALARY_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
@@ -73,19 +116,22 @@ export class EditSalaryComponent
       }
     );
 
-    const trackedFields: (keyof ISalaryEditFormDto)[] = [
+    const trackedFields: (keyof ISalaryEditUiFormDto)[] = [
+      'grossSalary',
       'basicSalary',
       'hra',
-      'tds',
+      'specialAllowance',
       'employerEsicContribution',
       'employeePfContribution',
     ];
     this.trackedSalaryFields =
-      this.formService.trackMultipleFieldChanges<ISalaryEditFormDto>(
+      this.formService.trackMultipleFieldChanges<ISalaryEditUiFormDto>(
         this.form.formGroup,
         trackedFields,
         this.destroyRef
       );
+
+    syncFoodAllowance(this.form.formGroup);
   }
 
   private loadSalaryDataFromRoute(): void {
@@ -111,18 +157,19 @@ export class EditSalaryComponent
 
   private preparePrefilledFormData(
     salaryDetailFromResolver: ISalaryDetailResolverResponse
-  ): ISalaryEditFormDto {
+  ): ISalaryEditUiFormDto {
+    const basicSalary = Number(salaryDetailFromResolver.basicSalary);
+    const hra = Number(salaryDetailFromResolver.hra);
+    const specialAllowance = Number(salaryDetailFromResolver.specialAllowance);
+
     return {
-      basicSalary: Number(salaryDetailFromResolver.basicSalary),
-      hra: Number(salaryDetailFromResolver.hra),
-      tds: Number(salaryDetailFromResolver.tds),
-      employerEsicContribution: Number(
-        salaryDetailFromResolver.employerEsicContribution
-      ),
-      employeePfContribution: Number(
-        salaryDetailFromResolver.employeePfContribution
-      ),
-      foodAllowance: Number(salaryDetailFromResolver.foodAllowance),
+      grossSalary: deriveGrossFromEarnings(basicSalary, hra, specialAllowance),
+      basicSalary,
+      hra,
+      specialAllowance,
+      employerEsicContribution: calculateEmployeeEsic(basicSalary),
+      employeePfContribution: calculateEmployeePf(basicSalary),
+      foodAllowance: MONTHLY_FOOD_ALLOWANCE_AMOUNT,
       comments: '',
     };
   }
@@ -143,8 +190,9 @@ export class EditSalaryComponent
   }
 
   private prepareFormData(): ISalaryEditFormDto {
-    const formData = this.form.getData();
-    return formData;
+    return omitGrossSalaryFromFormData(
+      this.form.getRawData()
+    ) as ISalaryEditFormDto;
   }
 
   private executeEditSalary(
@@ -188,17 +236,17 @@ export class EditSalaryComponent
     const {
       basicSalary,
       hra,
-      tds,
+      specialAllowance,
       employerEsicContribution,
       employeePfContribution,
     } = this.trackedSalaryFields.getValues();
 
     return {
-      basic: basicSalary ?? 0,
-      hra: hra ?? 0,
-      tds: tds ?? 0,
-      esic: employerEsicContribution ?? 0,
-      employeePf: employeePfContribution ?? 0,
+      basic: Number(basicSalary ?? 0),
+      hra: Number(hra ?? 0),
+      specialAllowance: Number(specialAllowance ?? 0),
+      esic: Number(employerEsicContribution ?? 0),
+      employeePf: Number(employeePfContribution ?? 0),
     };
   }
 

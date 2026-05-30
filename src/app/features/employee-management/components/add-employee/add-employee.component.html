@@ -350,7 +350,13 @@
         <h3 class="form-section__title">Earnings</h3>
       </div>
       <div class="form-section__content">
-        <div class="grid grid-cols-1 md:grid-cols-2">
+        <div class="grid grid-cols-1">
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs.grossSalary"
+          />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3">
           <app-input-field
             [formGroup]="form.formGroup"
             [inputFieldConfig]="form.fieldConfigs.basicSalary"
@@ -359,6 +365,11 @@
           <app-input-field
             [formGroup]="form.formGroup"
             [inputFieldConfig]="form.fieldConfigs.hra"
+          />
+
+          <app-input-field
+            [formGroup]="form.formGroup"
+            [inputFieldConfig]="form.fieldConfigs.specialAllowance"
           />
         </div>
       </div>
@@ -370,12 +381,7 @@
         <h3 class="form-section__title">Deductions</h3>
       </div>
       <div class="form-section__content">
-        <div class="grid grid-cols-1 md:grid-cols-3">
-          <app-input-field
-            [formGroup]="form.formGroup"
-            [inputFieldConfig]="form.fieldConfigs.tds"
-          />
-
+        <div class="grid grid-cols-1 md:grid-cols-2">
           <app-input-field
             [formGroup]="form.formGroup"
             [inputFieldConfig]="form.fieldConfigs.employerEsicContribution"
@@ -389,12 +395,12 @@
       </div>
     </div>
 
-    <!-- Food Allowance Section -->
+    <!-- Monthly Fooding Section -->
     <div class="form-section">
       <div
         class="form-section__header form-section__header--bordered form-section__header form-section__header--bordered--bordered"
       >
-        <h3 class="form-section__title">Food Allowance</h3>
+        <h3 class="form-section__title">Monthly Fooding</h3>
         <span class="form-section__subtitle">(Not part of CTC)</span>
       </div>
       <div class="form-section__content">

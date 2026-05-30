@@ -7,10 +7,10 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { ISalaryIncrementAddFormDto } from '@features/payroll-management/types/payroll.dto';
+import { ISalaryIncrementAddUiFormDto } from '@features/payroll-management/types/payroll.dto';
 import { EDIT_SALARY_FORM_CONFIG } from './edit-salary.config';
 
-const ADD_SALARY_INCREMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISalaryIncrementAddFormDto> =
+const ADD_SALARY_INCREMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<ISalaryIncrementAddUiFormDto> =
   {
     employeeName: {
       fieldType: EDataType.SELECT,
@@ -51,7 +51,7 @@ const ADD_SALARY_INCREMENT_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
   },
 };
 
-export const ADD_SALARY_INCREMENT_FORM_CONFIG: IFormConfig<ISalaryIncrementAddFormDto> =
+export const ADD_SALARY_INCREMENT_FORM_CONFIG: IFormConfig<ISalaryIncrementAddUiFormDto> =
   {
     fields: ADD_SALARY_INCREMENT_FORM_FIELDS_CONFIG,
     buttons: ADD_SALARY_INCREMENT_FORM_BUTTONS_CONFIG,

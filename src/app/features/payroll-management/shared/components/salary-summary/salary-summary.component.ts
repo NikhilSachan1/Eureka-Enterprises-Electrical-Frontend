@@ -36,27 +36,27 @@ export class SalarySummaryComponent {
     const fields = this.salaryFields();
     const basic = fields.basic ?? 0;
     const hra = fields.hra ?? 0;
-    const tds = fields.tds ?? 0;
+    const specialAllowance = fields.specialAllowance ?? 0;
     const esic = fields.esic ?? 0;
     const employeePf = fields.employeePf ?? 0;
     const employerPf = fields.employeePf ?? 0;
 
-    const grossSalary = basic + hra;
-    const totalDeductions = tds + employeePf;
+    const grossSalary = basic + hra + specialAllowance;
+    const totalDeductions = employeePf + esic;
     const inHandSalary = grossSalary - totalDeductions;
-    const totalEmployerBenefits = esic + employerPf;
+    const totalEmployerBenefits = employerPf;
 
     return [
       {
         label: 'Gross Salary',
         value: grossSalary,
-        description: 'Basic + HRA',
+        description: 'Basic + HRA + Special Allowance',
         icon: ICONS.EXPENSE.MONEY,
       },
       {
         label: 'Deductions',
         value: totalDeductions,
-        description: 'TDS + PF (Employee)',
+        description: 'PF (Employee) + ESIC',
         icon: ICONS.COMMON.ARROW_DOWN,
       },
       {
@@ -68,7 +68,7 @@ export class SalarySummaryComponent {
       {
         label: 'Employer Benefits',
         value: totalEmployerBenefits,
-        description: 'Employer PF + Employer ESIC',
+        description: 'Employer PF',
         icon: ICONS.COMMON.GIFT,
       },
     ];
@@ -78,12 +78,11 @@ export class SalarySummaryComponent {
     const fields = this.salaryFields();
     const basic = fields.basic ?? 0;
     const hra = fields.hra ?? 0;
-    const esic = fields.esic ?? 0;
+    const specialAllowance = fields.specialAllowance ?? 0;
     const employerPf = fields.employeePf ?? 0;
 
-    const grossSalary = basic + hra;
-    const totalEmployerBenefits = employerPf + esic;
+    const grossSalary = basic + hra + specialAllowance;
 
-    return grossSalary + totalEmployerBenefits;
+    return grossSalary + employerPf;
   }
 }

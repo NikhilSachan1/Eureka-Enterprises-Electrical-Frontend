@@ -115,6 +115,10 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
             items: [
               { label: 'Basic Salary', value: parseAmount(newValues.basic) },
               { label: 'HRA', value: parseAmount(newValues.hra) },
+              {
+                label: 'Special Allowance',
+                value: parseAmount(newValues.specialAllowance),
+              },
             ],
             total: parseAmount(newValues.grossSalary),
           },
@@ -124,7 +128,6 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
                 label: 'Employee PF',
                 value: parseAmount(newValues.employeePf),
               },
-              { label: 'TDS', value: parseAmount(newValues.tds) },
               { label: 'ESIC', value: parseAmount(newValues.esic) },
             ],
             total: parseAmount(newValues.totalDeductions),

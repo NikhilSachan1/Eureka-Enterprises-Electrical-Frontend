@@ -6,7 +6,7 @@ import z from 'zod';
 export const EmployeeEditRequestSchema = EmployeeUpsertShapeSchema.omit({
   basicSalary: true,
   hra: true,
-  tds: true,
+  specialAllowance: true,
   employerEsicContribution: true,
   employeePfContribution: true,
   foodAllowance: true,

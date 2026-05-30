@@ -18,12 +18,16 @@ import {
   EmployeeSendPasswordLinkRequestSchema,
   EmployeeSendPasswordLinkResponseSchema,
 } from '../schemas';
+import { ISalaryGrossUiFormField } from '@features/payroll-management/types/payroll.interface';
 
 /*
   Employee Add
 */
 export type IEmployeeAddRequestDto = z.infer<typeof EmployeeAddRequestSchema>;
 export type IEmployeeAddFormDto = z.input<typeof EmployeeAddRequestSchema>;
+export type IEmployeeAddUiFormDto = IEmployeeAddFormDto &
+  ISalaryGrossUiFormField &
+  Record<string, unknown>;
 export type IEmployeeAddResponseDto = z.infer<typeof EmployeeAddResponseSchema>;
 
 /*

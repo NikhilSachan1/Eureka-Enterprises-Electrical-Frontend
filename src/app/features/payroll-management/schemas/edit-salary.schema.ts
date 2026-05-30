@@ -10,7 +10,7 @@ export const SalaryEditRequestSchema = z
   .transform(data => ({
     basic: data.basicSalary,
     hra: data.hra,
-    tds: data.tds,
+    tds: 0,
     esic: data.employerEsicContribution,
     employeePf: data.employeePfContribution,
     employerPf: data.employeePfContribution,
@@ -20,7 +20,7 @@ export const SalaryEditRequestSchema = z
     // To be removed after testing
     conveyanceAllowance: 0,
     medicalAllowance: 0,
-    specialAllowance: 0,
+    specialAllowance: data.specialAllowance,
     professionalTax: 0,
   }));
 

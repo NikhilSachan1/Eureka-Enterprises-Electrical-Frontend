@@ -21,6 +21,7 @@ import {
   SalaryStructureHistoryGetRequestSchema,
   SalaryStructureHistoryGetResponseSchema,
 } from '../schemas/get-salary-change-history.schema';
+import { ISalaryGrossUiFormField } from './payroll.interface';
 
 /**
  * Salary Structure History
@@ -70,7 +71,13 @@ export type ISalaryIncrementAddResponseDto = z.infer<
  */
 export type ISalaryEditRequestDto = z.infer<typeof SalaryEditRequestSchema>;
 export type ISalaryEditFormDto = z.input<typeof SalaryEditRequestSchema>;
+export type ISalaryEditUiFormDto = ISalaryEditFormDto &
+  ISalaryGrossUiFormField &
+  Record<string, unknown>;
 export type ISalaryEditResponseDto = z.infer<typeof SalaryEditResponseSchema>;
+export type ISalaryIncrementAddUiFormDto = ISalaryIncrementAddFormDto &
+  ISalaryGrossUiFormField &
+  Record<string, unknown>;
 
 /**
  * Payslip

@@ -56,10 +56,14 @@ export interface IEmployeeSalaryRevisionHistoryItem
   changeType: string;
 }
 
+export interface ISalaryGrossUiFormField {
+  grossSalary: number;
+}
+
 export interface ISalaryFields {
   basic: number;
   hra: number;
-  tds: number;
+  specialAllowance: number;
   esic: number;
   employeePf: number;
 }
@@ -74,6 +78,7 @@ export interface IEmployeeSalarySummaryItem {
 export interface ISalaryDetailResolverResponse {
   basicSalary: string;
   hra: string;
+  specialAllowance: string;
   tds: string;
   employerEsicContribution: string;
   employeePfContribution: string;

@@ -1,4 +1,4 @@
-﻿import { IEmployeeAddFormDto } from '@features/employee-management/types/employee.dto';
+import { IEmployeeAddUiFormDto } from '@features/employee-management/types/employee.dto';
 import {
   TEST_FIRST_NAMES,
   TEST_LAST_NAMES,
@@ -33,7 +33,7 @@ const contactNumber = getRandomItem(TEST_MOBILE_NUMBERS);
 
 export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
   number,
-  Partial<IEmployeeAddFormDto>
+  Partial<IEmployeeAddUiFormDto>
 > = {
   // Step 1: Personal Details
   1: {
@@ -109,11 +109,6 @@ export const ADD_EMPLOYEE_PREFILLED_DATA: Record<
 
   // Step 6: Salary Details
   6: {
-    basicSalary: getRandomNumber(5, 'exact'),
-    hra: getRandomNumber(4, 'exact'),
-    foodAllowance: getRandomNumber(3, 'exact'),
-    tds: getRandomNumber(2, 'exact'),
-    employerEsicContribution: getRandomNumber(2, 'exact'),
-    employeePfContribution: getRandomNumber(2, 'exact'),
+    grossSalary: 30000,
   },
 };

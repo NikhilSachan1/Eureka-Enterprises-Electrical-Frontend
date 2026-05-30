@@ -60,6 +60,8 @@ export class GetLatestSalaryDetailResolver
           return of({
             basicSalary: latestHistoryItem.newValues.basic,
             hra: latestHistoryItem.newValues.hra,
+            specialAllowance:
+              latestHistoryItem.newValues.specialAllowance ?? '0',
             tds: latestHistoryItem.newValues.tds ?? '0',
             employerEsicContribution: latestHistoryItem.newValues.esic ?? '0',
             employeePfContribution:

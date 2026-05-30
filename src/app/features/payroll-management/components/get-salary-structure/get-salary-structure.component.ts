@@ -197,13 +197,16 @@ export class GetSalaryStructureComponent implements OnInit {
         items: [
           { label: 'Basic Salary', value: parseAmount(response.basic) },
           { label: 'HRA', value: parseAmount(response.hra) },
+          {
+            label: 'Special Allowance',
+            value: parseAmount(response.specialAllowance),
+          },
         ],
         total: parseAmount(response.grossSalary),
       },
       deductions: {
         items: [
           { label: 'Employee PF', value: parseAmount(response.employeePf) },
-          { label: 'TDS', value: parseAmount(response.tds) },
           { label: 'ESIC', value: parseAmount(response.esic) },
         ],
         total: parseAmount(response.totalDeductions),
