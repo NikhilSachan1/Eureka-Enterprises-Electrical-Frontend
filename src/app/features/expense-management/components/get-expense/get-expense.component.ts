@@ -302,19 +302,19 @@ export class GetExpenseComponent implements OnInit {
         icon: ICONS.COMMON.ARROW_RIGHT_LEFT,
         metrics: [
           {
-            label: 'Total Debit',
+            label: 'Expense',
             value: stats?.projectedBalances?.periodDebit ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
-            label: 'Total Credit',
+            label: 'Reimbursement',
             value: stats?.projectedBalances?.periodCredit ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
           },
           {
-            label: 'Approved Debit',
+            label: 'Approved Expense',
             value: stats?.balances?.periodDebit ?? 0,
             type: EDataType.CURRENCY,
             format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
