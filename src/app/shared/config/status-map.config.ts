@@ -226,6 +226,9 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   },
   'approved debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'period debit': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
+  expense: { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
+  reimbursement: { icon: ICONS.COMMON.ARROW_UP, severity: 'success' },
+  'approved expense': { icon: ICONS.EXPENSE.MONEY, severity: 'danger' },
   'total consumed': { icon: ICONS.COMMON.ARROW_DOWN, severity: 'danger' },
 
   // ═══════════════════════════════════════════════════════════════════════════
