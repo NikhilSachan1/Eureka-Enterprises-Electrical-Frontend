@@ -1,24 +1,19 @@
-# ---- Development Stage ----
-    FROM node:22.14.0-alpine3.21 AS dev
+FROM node:22-alpine AS builder
 
-    # Set working directory inside container
-    WORKDIR /app
-    
-    # Copy package files first (better caching)
-    COPY package.json package-lock.json ./
-    
-    # Install dependencies
-    RUN npm ci
-    
-    # Install Angular CLI locally (avoid global installation)
-    RUN npm install -g @angular/cli@19
-    
-    # Copy the entire project
-    COPY . .
-    
-    # Expose port 4200 for Angular live server
-    EXPOSE 4200
-    
-    # Start the Angular app in development mode
-    CMD ["npx", "ng", "serve", "--host", "0.0.0.0"]
-    
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run build:prod
+
+FROM nginx:alpine
+
+COPY --from=builder /app/dist/eureka-enterprises-electrical-frontend/browser /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

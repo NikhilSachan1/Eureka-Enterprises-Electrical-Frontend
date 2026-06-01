@@ -5,13 +5,7 @@ node_modules
 dist
 .tmp
 out-tsc
-
-# Environment files (avoid exposing secrets)
-*.env
-.env.local
-.env.development
-.env.production
-src/environments/environment*.ts
+.angular
 
 # Editor & OS-specific files
 .vscode
@@ -27,6 +21,7 @@ Thumbs.db
 # Git-related files
 .git
 .gitignore
+.github
 
 # Docker-related files (optional)
 docker-compose.override.yml
