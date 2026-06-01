@@ -6,12 +6,12 @@ export const InvoiceDropdownGetRequestSchema = z
   .object({
     projectName: uuidField,
     docType: z.enum(EDocContext),
+    forDocument: z.enum(['book-payment', 'bank-transfer']),
   })
-  .transform(({ projectName, docType }) => ({
+  .transform(({ projectName, docType, forDocument }) => ({
     siteId: projectName,
     partyType: docType,
-    forDocument:
-      docType === EDocContext.SALES ? 'bank-transfer' : 'book-payment',
+    forDocument,
   }));
 
 const InvoiceDropdownMetaSchema = z.looseObject({

@@ -180,6 +180,7 @@ export class AddBookPaymentComponent
     return {
       projectName: siteId,
       docType: this.docContext(),
+      forDocument: 'book-payment',
     };
   }
 

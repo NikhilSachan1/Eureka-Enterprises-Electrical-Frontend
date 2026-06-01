@@ -221,6 +221,7 @@ export class EditBookPaymentComponent
     return {
       projectName: siteId,
       docType: this.docContext(),
+      forDocument: 'book-payment',
     };
   }
 

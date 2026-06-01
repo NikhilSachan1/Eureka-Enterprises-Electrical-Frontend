@@ -296,6 +296,7 @@ export class AddBankTransferComponent
     return {
       projectName: siteId,
       docType: this.docContext(),
+      forDocument: 'bank-transfer',
     };
   }
 
