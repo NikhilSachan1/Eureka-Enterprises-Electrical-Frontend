@@ -7,7 +7,7 @@ export const environment: Environment = {
   ENVIRONMENT: EEnvironment.PRODUCTION,
 
   // API Configuration (environment-specific)
-  API_BASE_URL: '/api/v1',
+  API_BASE_URL: 'https://api.eurekaenterprises.org/api/v1',
 
   // Feature Flags (environment-specific)
   ENABLE_LOGGING: true, // Disable logging in production
