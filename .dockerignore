@@ -7,6 +7,11 @@ dist
 out-tsc
 .angular
 
+# Tests & coverage
+coverage
+**/*.spec.ts
+karma.conf.js
+
 # Editor & OS-specific files
 .vscode
 .idea
@@ -23,5 +28,11 @@ Thumbs.db
 .gitignore
 .github
 
-# Docker-related files (optional)
+# Docker-related files
+Dockerfile
 docker-compose.override.yml
+
+# Docs & misc
+README.md
+*.md
+!docker/**

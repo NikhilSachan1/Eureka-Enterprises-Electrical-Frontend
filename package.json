@@ -7,7 +7,7 @@
     "start:dev": "ng serve --configuration development",
     "start:local": "ng serve --configuration local",
     "start:prod": "ng serve --configuration production",
-    "build:dev": "ng build --configuration development",
+    "build:uat": "ng build --configuration development",
     "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
