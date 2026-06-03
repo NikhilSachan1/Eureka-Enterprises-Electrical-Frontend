@@ -35,4 +35,9 @@ export class AppComponent {
   protected readonly galleryService = inject(GalleryService);
   protected readonly networkMonitor = inject(NetworkMonitorService); // Make public for template
   protected readonly criticalStartupState = inject(CriticalStartupStateService);
+
+  constructor() {
+    // eslint-disable-next-line no-alert
+    alert('HEllo good morning from UAT');
+  }
 }
