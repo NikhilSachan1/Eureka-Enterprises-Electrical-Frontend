@@ -1,7 +1,7 @@
 name: Build & Publish Docker Frontend PROD Image
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   deploy:
