@@ -1,4 +1,4 @@
-name: Build & Publish Docker Frontend PROD Image
+name: Build & Publish Docker Frontend UAT Image
 
 on:
   workflow_dispatch:
@@ -39,8 +39,8 @@ jobs:
           provenance: false
           sbom: false
           tags: |
-            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
-            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ steps.vars.outputs.SHA_TAG }}
+            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.UAT_ECR_REPOSITORY }}:latest
+            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.UAT_ECR_REPOSITORY }}:${{ steps.vars.outputs.SHA_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
