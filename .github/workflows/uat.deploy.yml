@@ -1,4 +1,4 @@
-name: Deploy Frontend UAT
+name: Build & Publish Docker UAT Image
 
 on:
   workflow_dispatch
