@@ -2,19 +2,29 @@
 
 FROM node:22.12-alpine AS builder
 
+ARG BUILD_TARGET=prod
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 
 ENV HUSKY=0 \
-    NODE_ENV=development
+    NODE_ENV=development \
+    BUILD_TARGET=${BUILD_TARGET}
 
 RUN npm ci --ignore-scripts
 
 COPY . .
 
-ARG BUILD_TARGET=prod
-RUN npm run build:${BUILD_TARGET}
+RUN echo ">>> BUILD_TARGET=${BUILD_TARGET}" \
+    && npm run "build:${BUILD_TARGET}" \
+    && if [ "${BUILD_TARGET}" = "uat" ]; then \
+         grep -rq "uat.api.eurekaenterprises.org" /app/dist \
+           || (echo "ERROR: UAT build does not contain uat.api URL" && exit 1); \
+       elif [ "${BUILD_TARGET}" = "prod" ]; then \
+         grep -rq "api.eurekaenterprises.org/api/v1" /app/dist \
+           || (echo "ERROR: PROD build does not contain prod API URL" && exit 1); \
+       fi
 
 FROM nginx:1.27-alpine AS production
 

@@ -43,8 +43,8 @@ jobs:
           tags: |
             ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.UAT_ECR_REPOSITORY }}:latest
             ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.UAT_ECR_REPOSITORY }}:${{ steps.vars.outputs.SHA_TAG }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=frontend-uat
+          cache-to: type=gha,mode=max,scope=frontend-uat
 
       - name: Print Image Details
         run: |
