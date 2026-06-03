@@ -1,4 +1,4 @@
-name: Build & Publish Docker PROD Image
+name: Build & Publish Docker Frontend PROD Image
 
 on:
   workflow_dispatch
