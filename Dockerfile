@@ -13,7 +13,8 @@ RUN npm ci --ignore-scripts
 
 COPY . .
 
-RUN npm run build:prod
+ARG BUILD_TARGET=prod
+RUN npm run build:${BUILD_TARGET}
 
 FROM nginx:1.27-alpine AS production
 
