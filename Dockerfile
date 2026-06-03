@@ -19,8 +19,8 @@ COPY . .
 RUN echo ">>> BUILD_TARGET=${BUILD_TARGET}" \
     && npm run "build:${BUILD_TARGET}" \
     && if [ "${BUILD_TARGET}" = "uat" ]; then \
-         grep -rq "uat.api.eurekaenterprises.org" /app/dist \
-           || (echo "ERROR: UAT build does not contain uat.api URL" && exit 1); \
+         grep -rq "api-uat.eurekaenterprises.org" /app/dist \
+           || (echo "ERROR: UAT build does not contain api-uat URL" && exit 1); \
        elif [ "${BUILD_TARGET}" = "prod" ]; then \
          grep -rq "api.eurekaenterprises.org/api/v1" /app/dist \
            || (echo "ERROR: PROD build does not contain prod API URL" && exit 1); \
