@@ -9,8 +9,7 @@ COPY package.json package-lock.json ./
 ENV HUSKY=0 \
     NODE_ENV=development
 
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --ignore-scripts
+RUN npm ci --ignore-scripts
 
 COPY . .
 
@@ -24,12 +23,18 @@ RUN apk add --no-cache \
     dumb-init \
     curl \
     && rm -rf /var/cache/apk/* \
-    && chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/conf.d /usr/share/nginx/html
+    && chown -R nginx:nginx \
+        /var/cache/nginx \
+        /var/log/nginx \
+        /etc/nginx/conf.d \
+        /usr/share/nginx/html
 
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=builder --chown=nginx:nginx /app/dist/eureka-enterprises-electrical-frontend/browser ./
+COPY --from=builder --chown=nginx:nginx \
+    /app/dist/eureka-enterprises-electrical-frontend/browser \
+    ./
 
 USER nginx
 
