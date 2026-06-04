@@ -1276,14 +1276,13 @@ export class AppConfigurationService {
           const contractorList: IOptionDropdown[] = response.records
             .map(contractor => {
               const rawName = contractor.name?.trim() ?? '';
-              const gst = contractor.gstNumber?.trim();
-              const subtitle = gst
-                ? `GST ${gst}`
-                : [contractor.city, contractor.state]
-                    .filter(Boolean)
-                    .join(', ') ||
-                  (contractor.email?.trim() ?? '') ||
-                  `ID ${contractor.id.slice(0, 8)}`;
+              const subtitle = this.buildContractorVendorDropdownSubtitle({
+                gstNumber: contractor.gstNumber,
+                city: contractor.city,
+                state: contractor.state,
+                email: contractor.email,
+                id: contractor.id,
+              });
               return {
                 label: toTitleCase(rawName),
                 subtitle,
@@ -1325,12 +1324,13 @@ export class AppConfigurationService {
           const vendorList: IOptionDropdown[] = response.records
             .map(vendor => {
               const rawName = vendor.name?.trim() ?? '';
-              const gst = vendor.gstNumber?.trim();
-              const subtitle = gst
-                ? `GST ${gst}`
-                : [vendor.city, vendor.state].filter(Boolean).join(', ') ||
-                  (vendor.email?.trim() ?? '') ||
-                  `ID ${vendor.id.slice(0, 8)}`;
+              const subtitle = this.buildContractorVendorDropdownSubtitle({
+                gstNumber: vendor.gstNumber,
+                city: vendor.city,
+                state: vendor.state,
+                email: vendor.email,
+                id: vendor.id,
+              });
               return {
                 label: toTitleCase(rawName),
                 subtitle,
@@ -1399,6 +1399,35 @@ export class AppConfigurationService {
         })
       )
     );
+  }
+
+  /** Rich dropdown subtitle: GST (if any) + city/state for contractor & vendor lists. */
+  private buildContractorVendorDropdownSubtitle(entity: {
+    gstNumber?: string | null;
+    city?: string | null;
+    state?: string | null;
+    email?: string | null;
+    id: string;
+  }): string {
+    const location = [entity.city?.trim(), entity.state?.trim()]
+      .filter(Boolean)
+      .join(', ');
+    const gst = entity.gstNumber?.trim();
+    const parts: string[] = [];
+    if (gst) {
+      parts.push(`GST ${gst}`);
+    }
+    if (location) {
+      parts.push(location);
+    }
+    if (parts.length > 0) {
+      return parts.join(' | ');
+    }
+    const email = entity.email?.trim();
+    if (email) {
+      return email;
+    }
+    return `ID ${entity.id.slice(0, 8)}`;
   }
 
   /** Initials for rich dropdown rows (company / contractor / asset). */

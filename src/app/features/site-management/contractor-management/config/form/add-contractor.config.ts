@@ -76,7 +76,7 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.UPPERCASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SLASH_AND_HYPHEN,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS,
       },
     },
     streetName: {
@@ -86,7 +86,7 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.TITLECASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS_WITH_SPACES,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS,
       },
     },
     landmark: {
@@ -96,7 +96,7 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       fieldType: EDataType.TEXT,
       textConfig: {
         textCase: ETextCase.TITLECASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS_WITH_SPACES,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ADDRESS,
       },
     },
     state: {
@@ -116,12 +116,16 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       id: 'city',
       fieldName: 'city',
       label: 'City',
-      fieldType: EDataType.SELECT,
-      selectConfig: {
-        dependentDropdown: {
-          dependsOnField: 'state',
-          optionsProviderMethod: 'getCitiesByState',
+      fieldType: EDataType.AUTOCOMPLETE,
+      autocompleteConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.COMMON,
+          dropdownName: CONFIGURATION_KEYS.COMMON.CITIES,
         },
+        optionLabel: 'label',
+        optionValue: 'label',
+        filterBy: 'label',
+        showClearButton: true,
       },
       validators: [Validators.required],
     },

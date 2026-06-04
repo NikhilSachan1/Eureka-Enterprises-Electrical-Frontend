@@ -21,7 +21,9 @@
       <!-- User Info - Below Avatar -->
       <div class="user-info">
         <span class="user-name">{{ user()?.fullName }}</span>
-        <span class="user-role">{{ getLoogedUserDesignation() }}</span>
+        @if (userDesignation()) {
+          <span class="user-role">{{ userDesignation() }}</span>
+        }
       </div>
     } @else {
       <!-- Bottom Section -->
@@ -47,7 +49,9 @@
         />
         <div class="user-info">
           <span class="user-name">{{ user()?.fullName }}</span>
-          <span class="user-role">{{ getLoogedUserDesignation() }}</span>
+          @if (userDesignation()) {
+            <span class="user-role">{{ userDesignation() }}</span>
+          }
         </div>
         <button
           type="button"

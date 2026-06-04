@@ -12,12 +12,14 @@ import {
   NetworkMonitorService,
 } from '@core/services';
 import { CriticalStartupErrorPageComponent } from '@shared/components/critical-startup-error-page/critical-startup-error-page.component';
+import { EnvironmentBannerComponent } from '@shared/components/environment-banner/environment-banner.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     RouterOutlet,
+    EnvironmentBannerComponent,
     LoadingOverlayComponent,
     ToastModule,
     ConfirmationDialogComponent,

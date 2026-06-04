@@ -1,5 +1,5 @@
 import { FormGroup } from '@angular/forms';
-import { roundCurrencyAmount } from '@shared/utility';
+import { parseAmount, roundCurrencyAmount } from '@shared/utility';
 import {
   EMPLOYEE_PF_AMOUNT,
   GROSS_SALARY_SPLIT_THRESHOLD,
@@ -8,7 +8,10 @@ import {
   MONTHLY_FOOD_ALLOWANCE_AMOUNT,
   PF_BASIC_THRESHOLD,
 } from '@features/payroll-management/constants';
-import { ISalaryGrossUiFormField } from '@features/payroll-management/types/payroll.interface';
+import {
+  IEmployeeAnnexure,
+  ISalaryGrossUiFormField,
+} from '@features/payroll-management/types/payroll.interface';
 
 export const ESIC_WAGE_CEILING = 21000;
 export const ESIC_EMPLOYEE_CONTRIBUTION_RATE = 0.0075;
@@ -110,4 +113,73 @@ export function omitGrossSalaryFromFormData<
   const apiPayload = { ...formData };
   delete apiPayload.grossSalary;
   return apiPayload;
+}
+
+export function buildEarningsAnnexure(amounts: {
+  basic?: string | null;
+  hra?: string | null;
+  specialAllowance?: string | null;
+  grossSalary?: string | null;
+}): IEmployeeAnnexure['earnings'] {
+  return {
+    items: [
+      { label: 'Basic Salary', value: parseAmount(amounts.basic) },
+      { label: 'HRA', value: parseAmount(amounts.hra) },
+      {
+        label: 'Special Allowance',
+        value: parseAmount(amounts.specialAllowance),
+      },
+    ],
+    total: parseAmount(amounts.grossSalary),
+  };
+}
+
+export function buildDeductionsAnnexure(amounts: {
+  employeePf?: string | null;
+  esic?: string | null;
+  totalDeductions?: string | null;
+}): IEmployeeAnnexure['deductions'] {
+  return {
+    items: [
+      { label: 'Employee PF', value: parseAmount(amounts.employeePf) },
+      { label: 'ESIC', value: parseAmount(amounts.esic) },
+    ],
+    total: parseAmount(amounts.totalDeductions),
+  };
+}
+
+/** API salary amounts (`netSalary`, `ctc`) are monthly; annual = monthly × 12. */
+function buildMonthlyAnnualSummary(amount?: string | null): {
+  monthlyValue: number;
+  annualValue: number;
+} {
+  const monthly = parseAmount(amount);
+  return {
+    monthlyValue: monthly,
+    annualValue: monthly * 12,
+  };
+}
+
+export function buildNetSalarySummary(
+  netSalary?: string | null
+): ReturnType<typeof buildMonthlyAnnualSummary> {
+  return buildMonthlyAnnualSummary(netSalary);
+}
+
+export function buildCtcSummary(
+  ctc?: string | null
+): ReturnType<typeof buildMonthlyAnnualSummary> {
+  return buildMonthlyAnnualSummary(ctc);
+}
+
+/** DB `esic` is employee deduction only; employer benefits use `employerPf`. */
+export function buildEmployerBenefitsAnnexure(
+  employerPf?: string | null
+): IEmployeeAnnexure['employerBenefits'] {
+  const pf = parseAmount(employerPf);
+
+  return {
+    items: [{ label: 'Employer PF', value: pf }],
+    total: pf,
+  };
 }

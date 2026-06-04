@@ -122,7 +122,7 @@ export class GetUserComponent implements OnInit {
       return {
         id: record.id,
         employeeName: `${record.firstName} ${record.lastName}`,
-        employeeCode: record.employeeId,
+        employeeCode: record.employeeId?.trim() ?? '—',
         employeeStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.employeeStatus(),
           record.status
@@ -209,7 +209,7 @@ export class GetUserComponent implements OnInit {
       ],
       entity: {
         name: `${selectedRow.firstName} ${selectedRow.lastName}`,
-        subtitle: selectedRow.employeeId,
+        subtitle: selectedRow.employeeId?.trim() ?? '—',
       },
     };
   }
@@ -229,7 +229,7 @@ export class GetUserComponent implements OnInit {
       void this.routerNavigationService.navigateWithState(routeSegments, {
         userPermissionContext: {
           userLabel: `${selectedUser.firstName} ${selectedUser.lastName}`,
-          userCode: selectedUser.employeeId,
+          userCode: selectedUser.employeeId?.trim() ?? '',
         },
       });
     } catch (error) {

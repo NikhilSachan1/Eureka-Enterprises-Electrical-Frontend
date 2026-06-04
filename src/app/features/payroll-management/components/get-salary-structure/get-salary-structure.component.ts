@@ -52,6 +52,13 @@ import { parseAmount } from '@shared/utility';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { SalaryAnnexureComponent } from '@features/payroll-management/shared/components/salary-annexure/salary-annexure.component';
 import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
+import {
+  buildDeductionsAnnexure,
+  buildEarningsAnnexure,
+  buildEmployerBenefitsAnnexure,
+  buildCtcSummary,
+  buildNetSalarySummary,
+} from '@features/payroll-management/shared/utils/salary-calculation.util';
 
 @Component({
   selector: 'app-get-salary-structure',
@@ -193,42 +200,18 @@ export class GetSalaryStructureComponent implements OnInit {
     response: ISalaryStructureGetBaseResponseDto
   ): IEmployeeAnnexure {
     return {
-      earnings: {
-        items: [
-          { label: 'Basic Salary', value: parseAmount(response.basic) },
-          { label: 'HRA', value: parseAmount(response.hra) },
-          {
-            label: 'Special Allowance',
-            value: parseAmount(response.specialAllowance),
-          },
-        ],
-        total: parseAmount(response.grossSalary),
-      },
-      deductions: {
-        items: [
-          { label: 'Employee PF', value: parseAmount(response.employeePf) },
-          { label: 'ESIC', value: parseAmount(response.esic) },
-        ],
-        total: parseAmount(response.totalDeductions),
-      },
-      employerBenefits: {
-        items: [
-          { label: 'Employer PF', value: parseAmount(response.employerPf) },
-          { label: 'ESIC', value: parseAmount(response.esic) },
-        ],
-        total: parseAmount(response.employerPf) + parseAmount(response.esic),
-      },
+      earnings: buildEarningsAnnexure(response),
+      deductions: buildDeductionsAnnexure(response),
+      employerBenefits: buildEmployerBenefitsAnnexure(response.employerPf),
       salarySummary: {
         items: [
           {
             title: PAYROLL_MESSAGES.SUMMARY.NET_SALARY,
-            monthlyValue: parseAmount(response.netSalary) / 12,
-            annualValue: parseAmount(response.netSalary),
+            ...buildNetSalarySummary(response.netSalary),
           },
           {
             title: PAYROLL_MESSAGES.SUMMARY.ANNUAL_CTC,
-            monthlyValue: parseAmount(response.ctc) / 12,
-            annualValue: parseAmount(response.ctc),
+            ...buildCtcSummary(response.ctc),
           },
         ],
       },

@@ -140,6 +140,12 @@ export interface IAutocompleteFieldConfig {
     archivedHandling?: 'disabled' | 'enabled' | 'hidden';
     includeLoggedInUser?: boolean;
   };
+  dependentDropdown?: {
+    dependsOnField: string;
+    dependsOnFieldLabel?: string;
+    optionsProviderMethod?: string;
+    resetOnParentChange?: boolean;
+  };
   filterOptions?: {
     include?: string[];
     exclude?: string[];

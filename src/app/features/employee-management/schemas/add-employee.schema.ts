@@ -57,6 +57,7 @@ export const EmployeeAddRequestSchema =
         tds: 0,
         esic: employerEsicContribution,
         employeePf: employeePfContribution,
+        employerPf: employeePfContribution,
         foodAllowance,
       },
       roles:

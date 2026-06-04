@@ -410,12 +410,7 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
    * Setup dependent dropdown - watches parent field and updates options accordingly
    */
   private setupDependentDropdown(config: IInputFieldsConfig): void {
-    const dropdownConfig =
-      config.fieldType === EDataType.SELECT
-        ? config.selectConfig
-        : config.fieldType === EDataType.MULTI_SELECT
-          ? config.multiSelectConfig
-          : undefined;
+    const dropdownConfig = this.getDropdownLikeConfig(config);
 
     const dependentConfig = dropdownConfig?.dependentDropdown;
     if (!dependentConfig) {
@@ -468,6 +463,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
         initialParentValue as string
       );
       this.dependentDropdownOptions.set(initialOptions);
+      if (config.fieldType === EDataType.AUTOCOMPLETE) {
+        this.autocompleteSuggestions.set(this.getAutocompleteOptions());
+      }
     }
 
     let previousParentValue: unknown = initialParentValue ?? null;
@@ -497,7 +495,30 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
             currentControl.setValue(null);
           }
         }
+
+        if (config.fieldType === EDataType.AUTOCOMPLETE) {
+          this.autocompleteSuggestions.set(this.getAutocompleteOptions());
+        }
       });
+  }
+
+  private getDropdownLikeConfig(
+    config: IInputFieldsConfig
+  ):
+    | NonNullable<IInputFieldsConfig['selectConfig']>
+    | NonNullable<IInputFieldsConfig['multiSelectConfig']>
+    | NonNullable<IInputFieldsConfig['autocompleteConfig']>
+    | undefined {
+    if (config.fieldType === EDataType.SELECT) {
+      return config.selectConfig;
+    }
+    if (config.fieldType === EDataType.MULTI_SELECT) {
+      return config.multiSelectConfig;
+    }
+    if (config.fieldType === EDataType.AUTOCOMPLETE) {
+      return config.autocompleteConfig;
+    }
+    return undefined;
   }
 
   ngAfterViewInit(): void {
@@ -864,7 +885,20 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
     if (!autocompleteConfig) {
       return [];
     }
-    return this.getOptionsFromDropdownLikeConfig(autocompleteConfig);
+
+    const dependentConfig = autocompleteConfig.dependentDropdown;
+    if (dependentConfig && this.formGroup()) {
+      if (
+        this.isDependentParentValueEmpty(this.dependentDropdownParentValue())
+      ) {
+        return [];
+      }
+    }
+
+    return this.getOptionsFromDropdownLikeConfig(
+      autocompleteConfig,
+      this.dependentDropdownOptions()
+    );
   }
 
   getEditorToolbarOptions(

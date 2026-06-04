@@ -15,6 +15,20 @@ body {
   color: var(--text-primary-color);
 }
 
+// Offset fixed chrome when environment banner is in the DOM (non-production only)
+html:has(.environment-banner) {
+  --env-banner-height: 28px;
+
+  .sidebar {
+    top: var(--env-banner-height, 28px);
+    height: calc(100vh - var(--env-banner-height, 28px));
+  }
+
+  .progress-bar-container {
+    top: var(--env-banner-height, 28px);
+  }
+}
+
 .boot-loader {
   position: fixed;
   inset: 0;

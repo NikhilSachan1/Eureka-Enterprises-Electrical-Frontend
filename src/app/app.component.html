@@ -1,6 +1,7 @@
 @if (criticalStartupState.criticalLoadFailed()) {
   <app-critical-startup-error-page />
 } @else {
+  <app-environment-banner />
   <router-outlet />
 
   <!-- General Loading Overlay -->

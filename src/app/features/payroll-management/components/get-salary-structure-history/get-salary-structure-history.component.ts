@@ -21,6 +21,13 @@ import { parseAmount } from '@shared/utility';
 import { APP_CONFIG } from '@core/config/app.config';
 import { IEntityViewDetails } from '@shared/types';
 import { PAYROLL_MESSAGES } from '@features/payroll-management/constants';
+import {
+  buildDeductionsAnnexure,
+  buildEarningsAnnexure,
+  buildEmployerBenefitsAnnexure,
+  buildCtcSummary,
+  buildNetSalarySummary,
+} from '@features/payroll-management/shared/utils/salary-calculation.util';
 
 // PrimeNG imports
 import { CardModule } from 'primeng/card';
@@ -111,49 +118,18 @@ export class GetSalaryStructureHistoryComponent extends DrawerDetailBase {
           record;
 
         return {
-          earnings: {
-            items: [
-              { label: 'Basic Salary', value: parseAmount(newValues.basic) },
-              { label: 'HRA', value: parseAmount(newValues.hra) },
-              {
-                label: 'Special Allowance',
-                value: parseAmount(newValues.specialAllowance),
-              },
-            ],
-            total: parseAmount(newValues.grossSalary),
-          },
-          deductions: {
-            items: [
-              {
-                label: 'Employee PF',
-                value: parseAmount(newValues.employeePf),
-              },
-              { label: 'ESIC', value: parseAmount(newValues.esic) },
-            ],
-            total: parseAmount(newValues.totalDeductions),
-          },
-          employerBenefits: {
-            items: [
-              {
-                label: 'Employer PF',
-                value: parseAmount(newValues.employerPf),
-              },
-              { label: 'ESIC', value: parseAmount(newValues.esic) },
-            ],
-            total:
-              parseAmount(newValues.employerPf) + parseAmount(newValues.esic),
-          },
+          earnings: buildEarningsAnnexure(newValues),
+          deductions: buildDeductionsAnnexure(newValues),
+          employerBenefits: buildEmployerBenefitsAnnexure(newValues.employerPf),
           salarySummary: {
             items: [
               {
                 title: PAYROLL_MESSAGES.SUMMARY.NET_SALARY,
-                monthlyValue: parseAmount(newValues.netSalary) / 12,
-                annualValue: parseAmount(newValues.netSalary),
+                ...buildNetSalarySummary(newValues.netSalary),
               },
               {
                 title: PAYROLL_MESSAGES.SUMMARY.ANNUAL_CTC,
-                monthlyValue: parseAmount(newValues.ctc) / 12,
-                annualValue: parseAmount(newValues.ctc),
+                ...buildCtcSummary(newValues.ctc),
               },
             ],
           },

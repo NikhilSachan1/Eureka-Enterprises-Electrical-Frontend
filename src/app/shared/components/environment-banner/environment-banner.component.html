@@ -1,0 +1,36 @@
+@if (showBanner) {
+  @switch (environment) {
+    @case (EEnvironment.LOCAL) {
+      <div
+        class="environment-banner environment-banner--local"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="environment-banner__env">Local</span>
+        <span
+          class="environment-banner__separator"
+          aria-hidden="true"
+        >
+          ·
+        </span>
+        <span class="environment-banner__hint">Non-production environment</span>
+      </div>
+    }
+    @case (EEnvironment.DEVELOPMENT) {
+      <div
+        class="environment-banner environment-banner--uat"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="environment-banner__env">UAT environment</span>
+        <span
+          class="environment-banner__separator"
+          aria-hidden="true"
+        >
+          ·
+        </span>
+        <span class="environment-banner__hint">Non-production environment</span>
+      </div>
+    }
+  }
+}

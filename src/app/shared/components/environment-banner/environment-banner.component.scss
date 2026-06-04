@@ -1,0 +1,47 @@
+.environment-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: var(--env-banner-height, 28px);
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--orange-600, #ea580c);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+  pointer-events: none;
+  user-select: none;
+
+  &--local {
+    background: var(--blue-600, #2563eb);
+  }
+
+  &--uat {
+    background: var(--orange-600, #ea580c);
+  }
+
+  &__env {
+    font-weight: 700;
+  }
+
+  &__separator {
+    opacity: 0.75;
+    font-weight: 400;
+    text-transform: none;
+  }
+
+  &__hint {
+    font-weight: 500;
+    opacity: 0.92;
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+}
