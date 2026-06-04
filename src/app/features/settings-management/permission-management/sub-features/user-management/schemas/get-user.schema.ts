@@ -28,7 +28,7 @@ export const UserGetBaseResponseSchema = z.looseObject({
   firstName: z.string(),
   lastName: z.string(),
   email: z.string(),
-  employeeId: z.string(),
+  employeeId: z.string().nullable(),
   status: z.string(),
   roles: z.array(
     z.object({
