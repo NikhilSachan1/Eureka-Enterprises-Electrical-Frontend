@@ -669,7 +669,7 @@ export class AppConfigurationService {
 
     const payload: IConfigurationGetFormDto = {
       page: 1,
-      pageSize: 100,
+      pageSize: 200,
       sortField: 'createdAt',
       sortOrder: 'DESC',
     };
