@@ -116,12 +116,16 @@ const ADD_CONTRACTOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IContractorAddFo
       id: 'city',
       fieldName: 'city',
       label: 'City',
-      fieldType: EDataType.SELECT,
-      selectConfig: {
-        dependentDropdown: {
-          dependsOnField: 'state',
-          optionsProviderMethod: 'getCitiesByState',
+      fieldType: EDataType.AUTOCOMPLETE,
+      autocompleteConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.COMMON,
+          dropdownName: CONFIGURATION_KEYS.COMMON.CITIES,
         },
+        optionLabel: 'label',
+        optionValue: 'label',
+        filterBy: 'label',
+        showClearButton: true,
       },
       validators: [Validators.required],
     },
