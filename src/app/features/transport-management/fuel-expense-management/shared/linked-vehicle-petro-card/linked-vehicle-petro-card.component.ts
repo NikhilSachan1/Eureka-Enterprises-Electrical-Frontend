@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -155,7 +156,7 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
         error: error => {
           this.linkedUserVehicleDetail.set(null);
           this.notificationService.error(
-            'Failed to load linked vehicle detail.'
+            this.getLinkedVehicleLoadErrorMessage(error)
           );
           this.logger.error('Failed to load linked user vehicle detail', error);
         },
@@ -179,6 +180,13 @@ export class LinkedVehiclePetroCardComponent implements OnInit {
     }
 
     this.linkedUserVehicleDetail.set(null);
+  }
+
+  private getLinkedVehicleLoadErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse && error.status === 404) {
+      return 'No vehicle linked for this employee.';
+    }
+    return 'Failed to load linked vehicle detail.';
   }
 
   /**
