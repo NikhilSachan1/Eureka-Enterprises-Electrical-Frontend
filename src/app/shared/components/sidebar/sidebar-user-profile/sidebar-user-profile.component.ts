@@ -64,6 +64,7 @@ export class SidebarUserProfileComponent implements OnInit {
 
   readonly user = computed(() => this.authService.user());
   readonly userAvatar = computed(() => this.authService.loggedInUserAvatar());
+  readonly userDesignation = computed(() => this.getLoogedUserDesignation());
 
   // User options from configuration
   readonly primaryOptions = primaryUserOptions;

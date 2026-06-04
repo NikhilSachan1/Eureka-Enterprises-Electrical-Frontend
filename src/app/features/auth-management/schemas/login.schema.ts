@@ -20,7 +20,7 @@ export const LoginResponseSchema = z.looseObject({
   firstName: z.string().min(1),
   lastName: z.string().min(1).max(100),
   email: z.email().toLowerCase(),
-  designation: z.string().min(1),
+  designation: z.string().nullable(),
   profilePicture: z.string().min(1).nullable(),
   roles: z.array(z.string()).min(1),
   activeRole: z.string().min(1),

@@ -378,7 +378,7 @@ export class AuthService {
         lastName,
         email,
         fullName: name,
-        designation,
+        designation: designation?.trim() ?? '',
         profilePicture: profilePicture ?? '',
         permissions: [],
         roles,
