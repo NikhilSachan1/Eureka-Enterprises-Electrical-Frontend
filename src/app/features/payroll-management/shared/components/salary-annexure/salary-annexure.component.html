@@ -50,19 +50,17 @@
             }
           "
         />
-        @if (data.employerBenefits.items && data.employerBenefits.items.length > 0) {
-          <ng-container
-            *ngTemplateOutlet="
-              sectionTemplate;
-              context: {
-                icon: ICONS.COMMON.BRIEFCASE,
-                title: 'Employer Benefits',
-                color: 'blue',
-                data: data.employerBenefits,
-              }
-            "
-          />
-        }
+        <ng-container
+          *ngTemplateOutlet="
+            sectionTemplate;
+            context: {
+              icon: ICONS.COMMON.BRIEFCASE,
+              title: 'Employer Benefits',
+              color: 'blue',
+              data: data.employerBenefits,
+            }
+          "
+        />
       </div>
     </div>
 
@@ -156,14 +154,12 @@
     </div>
     <div class="divide-y divide-border flex-1">
       @for (item of items; track item.label) {
-        @if (item.value > 0) {
-          <div [class]="`flex justify-between items-center px-5 py-3.5 ${hoverClass} transition-colors`">
-            <span class="text-sm font-medium text-content">{{ item.label }}</span>
-            <span class="text-sm font-semibold text-content">
-              {{ item.value | currency: currencyCode : 'symbol' : currencyFormat : locale }}
-            </span>
-          </div>
-        }
+        <div [class]="`flex justify-between items-center px-5 py-3.5 ${hoverClass} transition-colors`">
+          <span class="text-sm font-medium text-content">{{ item.label }}</span>
+          <span class="text-sm font-semibold text-content">
+            {{ item.value | currency: currencyCode : 'symbol' : currencyFormat : locale }}
+          </span>
+        </div>
       }
     </div>
     <div [class]="`flex justify-between items-center px-5 py-4 border-t-2 mt-auto ${totalBgClass}`">
