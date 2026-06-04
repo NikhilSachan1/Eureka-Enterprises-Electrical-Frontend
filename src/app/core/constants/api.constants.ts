@@ -335,10 +335,11 @@ export const API_ROUTES = {
 /**
  * Relative paths passed to {@link ApiService} `get` / `getValidated` / `getBlob` for which
  * global HTTP error toasts are suppressed (bootstrap, permissions, configuration details,
- * reference lists / lazy dropdown data). Exact match on the `endpoint` argument.
+ * reference lists / lazy dropdown data, missing S3 media keys). Exact match on the `endpoint` argument.
  * POST/PUT/PATCH/DELETE are unaffected unless they pass explicit `silent` in options.
  */
 export const GET_ENDPOINT_PATHS_WITHOUT_ERROR_TOAST = new Set<string>([
+  API_ROUTES.ATTACHMENTS.GET_FILE_URL,
   API_ROUTES.HEALTH.CHECK,
   API_ROUTES.SETTINGS.CONFIGURATION.LIST,
   API_ROUTES.SETTINGS.PERMISSION.ROLE.LIST,
