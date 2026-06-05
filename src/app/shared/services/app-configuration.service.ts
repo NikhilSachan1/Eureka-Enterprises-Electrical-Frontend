@@ -1267,7 +1267,7 @@ export class AppConfigurationService {
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
-      this.contractorService.getContractorList().pipe(
+      this.contractorService.getContractorList({ page: 1, pageSize: 50 }).pipe(
         tap(response => {
           this.logger.logUserAction('Contractor List loaded successfully', {
             count: response.totalRecords,
