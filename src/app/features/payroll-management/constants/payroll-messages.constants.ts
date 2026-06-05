@@ -115,7 +115,7 @@ export const PAYROLL_MESSAGES = {
   },
   SUMMARY: {
     NET_SALARY: 'Net Salary (In Hand)',
-    ANNUAL_CTC: 'Annual CTC',
+    ANNUAL_CTC: 'CTC',
   },
   ENTITY: {
     SUBTITLE_NA: 'N/A',
