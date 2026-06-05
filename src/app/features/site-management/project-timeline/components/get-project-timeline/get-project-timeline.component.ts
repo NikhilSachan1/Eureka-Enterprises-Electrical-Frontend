@@ -106,7 +106,7 @@ export class GetProjectTimelineComponent {
       id: row.id,
       title: row.title,
       description: row.description,
-      occurredAt: this.timelineOccurredAt(row.date, row.time),
+      occurredAt: this.timelineOccurredAt(row.date, row.time ?? '00:00'),
       icon: ICONS.COMMON.HISTORY,
       actor: row.actor,
     }));
