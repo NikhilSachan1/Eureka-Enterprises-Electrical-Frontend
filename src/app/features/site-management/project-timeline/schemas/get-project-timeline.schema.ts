@@ -1,4 +1,4 @@
-import { isoDateTimeField, uuidField } from '@shared/schemas';
+import { onlyDateStringField, uuidField } from '@shared/schemas';
 import { z } from 'zod';
 
 export const ProjectTimelineGetRequestSchema = z
@@ -14,8 +14,8 @@ export const ProjectTimelineGetResponseSchema = z.looseObject({
   timeline: z.array(
     z.looseObject({
       id: uuidField,
-      date: isoDateTimeField,
-      time: z.string(),
+      date: onlyDateStringField,
+      time: z.string().nullable(),
       eventType: z.string(),
       title: z.string(),
       description: z.string(),
