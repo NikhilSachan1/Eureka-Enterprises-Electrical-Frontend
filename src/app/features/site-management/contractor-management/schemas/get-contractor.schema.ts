@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { AuditSchema, FilterSchema } from '@shared/schemas';
 import { ContractorBaseSchema } from './base-contractor.schema';
 
-const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
+const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const ContractorGetRequestSchema = z
   .object({
@@ -13,6 +13,7 @@ export const ContractorGetRequestSchema = z
     sortField,
     pageSize,
     page,
+    search,
   })
   .strict()
   .transform(

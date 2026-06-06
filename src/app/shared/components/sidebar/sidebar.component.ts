@@ -1,10 +1,13 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   HostListener,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { fadeInOut } from '@shared/animations';
 import { MenuService, ThemeService } from '@core/services';
@@ -39,52 +42,64 @@ export class SidebarComponent {
   readonly menuService = inject(MenuService);
   readonly themeService = inject(ThemeService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly sidebarEl = viewChild<ElementRef<HTMLElement>>('sidebarEl');
 
-  // Reactive state with signals
   readonly sidebarVisible = signal(true);
   readonly isMobile = signal(window.innerWidth <= 768);
   readonly hoverExpanded = signal(false);
   protected transitionEnabled = signal<boolean>(false);
-  private clickInsideSidebarGuard = false;
-  private clickGuardTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  private hoverTracking = false;
+  private hoverCollapseTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  private readonly onHoverTrackMove = (event: MouseEvent): void => {
+    if (!this.isPointerInSidebar(event.clientX, event.clientY)) {
+      this.setHoverExpanded(false);
+    }
+  };
 
   constructor() {
     this.initSidebarState();
 
-    // Enable transitions after initial render to prevent page refresh animation
-    setTimeout(() => {
-      this.transitionEnabled.set(true);
-    }, 100); // Small delay to ensure initial positioning is complete
+    afterNextRender(() => this.reconcileHoverState());
+
+    this.destroyRef.onDestroy(() => {
+      this.clearHoverCollapseTimeout();
+      this.stopHoverTracking();
+    });
+
+    setTimeout(() => this.transitionEnabled.set(true), 100);
   }
 
-  /**
-   * Initialize sidebar state from localStorage
-   * Falls back to screen size based default if no saved state
-   */
   private initSidebarState(): void {
-    // On mobile, always start with sidebar hidden
     if (this.isMobile()) {
       this.sidebarVisible.set(false);
       return;
     }
 
-    // On desktop, check localStorage for saved state
     const savedState = localStorage.getItem('sidebar_visible');
-    if (savedState !== null) {
-      this.sidebarVisible.set(savedState === 'true');
-    } else {
-      // Default: visible on desktop
-      this.sidebarVisible.set(true);
+    this.sidebarVisible.set(savedState === null ? true : savedState === 'true');
+  }
+
+  private saveSidebarState(): void {
+    if (!this.isMobile()) {
+      localStorage.setItem('sidebar_visible', String(this.sidebarVisible()));
     }
   }
 
-  /**
-   * Save sidebar state to localStorage
-   */
-  private saveSidebarState(): void {
-    // Only save state on desktop
-    if (!this.isMobile()) {
-      localStorage.setItem('sidebar_visible', String(this.sidebarVisible()));
+  private isCollapsedDesktop(): boolean {
+    return !this.sidebarVisible() && !this.isMobile();
+  }
+
+  private setHoverExpanded(value: boolean): void {
+    if (this.hoverExpanded() === value) {
+      return;
+    }
+
+    this.hoverExpanded.set(value);
+
+    if (!value) {
+      this.stopHoverTracking();
     }
   }
 
@@ -93,11 +108,15 @@ export class SidebarComponent {
     const wasNotMobile = !this.isMobile();
     this.isMobile.set(window.innerWidth <= 768);
 
-    // Update sidebar visibility when transitioning between mobile/desktop
     if (wasNotMobile && this.isMobile()) {
       this.sidebarVisible.set(false);
     } else if (!wasNotMobile && !this.isMobile()) {
       this.sidebarVisible.set(true);
+    }
+
+    if (!this.isCollapsedDesktop()) {
+      this.setHoverExpanded(false);
+      this.clearHoverCollapseTimeout();
     }
   }
 
@@ -105,20 +124,16 @@ export class SidebarComponent {
     const wasVisible = this.sidebarVisible();
     this.sidebarVisible.update(value => !value);
 
-    // Jab user sidebar reopen kare to blur backdrop hata do (hoverExpanded reset)
     if (!wasVisible && this.sidebarVisible()) {
-      this.hoverExpanded.set(false);
+      this.setHoverExpanded(false);
     }
 
-    // Save state to localStorage (desktop only)
     this.saveSidebarState();
 
-    // Prevent body scrolling when sidebar is open on mobile
     if (this.isMobile()) {
       document.body.style.overflow = this.sidebarVisible() ? 'hidden' : '';
     }
 
-    // Close all submenus when closing the sidebar
     if (wasVisible) {
       this.menuService.closeAllMenuItems();
     }
@@ -128,31 +143,90 @@ export class SidebarComponent {
     this.themeService.toggleTheme();
   }
 
-  onSidebarMouseDown(): void {
-    if (this.clickGuardTimeout !== null) {
-      clearTimeout(this.clickGuardTimeout);
-    }
-    this.clickInsideSidebarGuard = true;
-    this.clickGuardTimeout = setTimeout(() => {
-      this.clickGuardTimeout = null;
-      this.clickInsideSidebarGuard = false;
-    }, 450);
-  }
-
   onSidebarMouseEnter(): void {
-    if (!this.sidebarVisible() && !this.isMobile()) {
-      this.hoverExpanded.set(true);
+    if (!this.isCollapsedDesktop()) {
+      return;
     }
+
+    this.clearHoverCollapseTimeout();
+    this.setHoverExpanded(true);
+    this.startHoverTracking();
   }
 
   onSidebarMouseLeave(): void {
-    if (this.clickInsideSidebarGuard) {
+    if (!this.isCollapsedDesktop()) {
       return;
     }
-    setTimeout(() => {
-      if (!this.sidebarVisible() && !this.isMobile()) {
-        this.hoverExpanded.set(false);
+
+    this.scheduleHoverCollapse();
+  }
+
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.hidden) {
+      this.setHoverExpanded(false);
+      this.clearHoverCollapseTimeout();
+    }
+  }
+
+  private isPointerInSidebar(clientX: number, clientY: number): boolean {
+    const sidebar = this.sidebarEl()?.nativeElement;
+    if (!sidebar) {
+      return false;
+    }
+
+    const { left, right, top, bottom } = sidebar.getBoundingClientRect();
+    return (
+      clientX >= left && clientX <= right && clientY >= top && clientY <= bottom
+    );
+  }
+
+  /** Fixes stuck blur when pointer left before initial render settled. */
+  private reconcileHoverState(): void {
+    const sidebar = this.sidebarEl()?.nativeElement;
+    if (!this.isCollapsedDesktop() || !sidebar || sidebar.matches(':hover')) {
+      return;
+    }
+
+    this.setHoverExpanded(false);
+  }
+
+  private startHoverTracking(): void {
+    if (this.hoverTracking) {
+      return;
+    }
+
+    this.hoverTracking = true;
+    document.addEventListener('mousemove', this.onHoverTrackMove, {
+      passive: true,
+    });
+  }
+
+  private stopHoverTracking(): void {
+    if (!this.hoverTracking) {
+      return;
+    }
+
+    this.hoverTracking = false;
+    document.removeEventListener('mousemove', this.onHoverTrackMove);
+  }
+
+  private clearHoverCollapseTimeout(): void {
+    if (this.hoverCollapseTimeout !== null) {
+      clearTimeout(this.hoverCollapseTimeout);
+      this.hoverCollapseTimeout = null;
+    }
+  }
+
+  private scheduleHoverCollapse(): void {
+    this.clearHoverCollapseTimeout();
+    this.hoverCollapseTimeout = setTimeout(() => {
+      this.hoverCollapseTimeout = null;
+
+      const sidebar = this.sidebarEl()?.nativeElement;
+      if (sidebar && !sidebar.matches(':hover')) {
+        this.setHoverExpanded(false);
       }
-    }, 200);
+    }, 150);
   }
 }
