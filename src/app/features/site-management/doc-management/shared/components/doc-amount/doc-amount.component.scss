@@ -1,3 +1,12 @@
+@mixin tone-label($accent) {
+  color: color-mix(in srgb, $accent 58%, var(--text-secondary-color));
+}
+
+@mixin tone-value($accent, $weight: 600) {
+  font-weight: $weight;
+  color: color-mix(in srgb, $accent 72%, var(--text-primary-color));
+}
+
 .doc-amount--stack {
   display: flex;
   flex-direction: column;
@@ -17,10 +26,108 @@
   row-gap: 0.125rem;
 }
 
+.doc-amount__label {
+  font-weight: 500;
+  flex-shrink: 0;
+
+  &--taxable {
+    @include tone-label(#059669);
+  }
+  &--deduction {
+    @include tone-label(#e11d48);
+  }
+  &--gst {
+    @include tone-label(#d97706);
+  }
+  &--total {
+    @include tone-label(#475569);
+  }
+  &--invoiced {
+    @include tone-label(#7c3aed);
+  }
+  &--booked {
+    @include tone-label(#0891b2);
+  }
+  &--paid {
+    @include tone-label(#059669);
+  }
+  &--neutral {
+    color: var(--text-secondary-color);
+  }
+  &--muted {
+    color: var(--text-disabled-color);
+  }
+}
+
+.doc-amount__value {
+  font-variant-numeric: tabular-nums;
+
+  &--taxable {
+    @include tone-value(#047857);
+  }
+  &--deduction {
+    @include tone-value(#be123c);
+  }
+  &--gst {
+    @include tone-value(#b45309);
+  }
+  &--total {
+    @include tone-value(#334155, 700);
+  }
+  &--invoiced {
+    @include tone-value(#6d28d9);
+  }
+  &--booked {
+    @include tone-value(#0e7490);
+  }
+  &--paid {
+    @include tone-value(#047857, 700);
+  }
+  &--neutral {
+    font-weight: 500;
+    color: var(--text-primary-color);
+  }
+  &--muted {
+    color: var(--text-disabled-color);
+  }
+}
+
+:host-context(.dark-theme) {
+  .doc-amount__label {
+    &--total {
+      @include tone-label(#94a3b8);
+    }
+  }
+
+  .doc-amount__value {
+    &--taxable {
+      @include tone-value(#34d399);
+    }
+    &--deduction {
+      @include tone-value(#fb7185);
+    }
+    &--gst {
+      @include tone-value(#fbbf24);
+    }
+    &--total {
+      @include tone-value(#e2e8f0, 700);
+    }
+    &--invoiced {
+      @include tone-value(#a78bfa);
+    }
+    &--booked {
+      @include tone-value(#22d3ee);
+    }
+    &--paid {
+      @include tone-value(#34d399, 700);
+    }
+  }
+}
+
 .doc-amount__suffix {
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
-  color: #b45309;
+  color: color-mix(in srgb, #d97706 65%, var(--text-secondary-color));
 }

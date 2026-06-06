@@ -1,4 +1,4 @@
-$doc-ref-muted: var(--text-color-secondary, #64748b);
+$doc-ref-muted: var(--text-secondary-color, #64748b);
 
 @mixin badge-base {
   display: inline-flex;
@@ -16,9 +16,9 @@ $doc-ref-muted: var(--text-color-secondary, #64748b);
 }
 
 @mixin badge-tone($accent) {
-  color: color-mix(in srgb, $accent 50%, var(--text-color, #0f172a));
-  background: color-mix(in srgb, $accent 12%, var(--surface-card, #ffffff));
-  border-color: color-mix(in srgb, $accent 22%, var(--surface-border, #e2e8f0));
+  color: color-mix(in srgb, $accent 50%, var(--text-primary-color, #0f172a));
+  background: color-mix(in srgb, $accent 12%, var(--background-paper-color, #ffffff));
+  border-color: color-mix(in srgb, $accent 22%, var(--border-main-color, #e2e8f0));
 }
 
 :host {
@@ -86,7 +86,7 @@ $doc-ref-muted: var(--text-color-secondary, #64748b);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: var(--text-color, #0f172a);
+  color: var(--text-primary-color, #0f172a);
   letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
