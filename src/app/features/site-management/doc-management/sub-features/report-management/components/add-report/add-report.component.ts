@@ -2,14 +2,16 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   inject,
   input,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, switchMap } from 'rxjs';
+import { defer, finalize, of, switchMap } from 'rxjs';
 
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -67,6 +69,12 @@ export class AddReportComponent
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private trackedUiFields!: ITrackedFields<IAddReportUIFormDto>;
+  private isNoReportTracked!: Signal<boolean | null | undefined>;
+
+  /** Hidden when no report is selected; shown when unset (default) or report exists. */
+  protected readonly showReportDetails = computed(
+    () => !this.isNoReportTracked()
+  );
 
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
@@ -107,6 +115,12 @@ export class AddReportComponent
         trackedFields,
         this.destroyRef
       );
+
+    this.isNoReportTracked = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'isNoReport',
+      this.destroyRef
+    );
   }
 
   private loadProjectDateRange(projectId: string): void {
@@ -209,7 +223,10 @@ export class AddReportComponent
   }
 
   private executeAddReportAction(): void {
-    const file = this.form.getFieldData('reportAttachment');
+    const isNoReport = Boolean(this.form.getFieldData('isNoReport'));
+    const file = this.form.getFieldData('reportAttachment') as
+      | File[]
+      | undefined;
 
     this.loadingService.show({
       title: 'Adding report',
@@ -218,8 +235,11 @@ export class AddReportComponent
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    defer(() =>
+      !isNoReport && file?.length
+        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        : of<IFinancialFileUploadResponseDto | null>(null)
+    )
       .pipe(
         switchMap(attachmentResponse => {
           const formData = this.prepareFormData(attachmentResponse);
@@ -248,16 +268,20 @@ export class AddReportComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    attachmentResponse: IFinancialFileUploadResponseDto | null
   ): IAddReportFormDto {
     const formData = this.form.getData();
+    const isNoReport = Boolean(formData.isNoReport);
     const record = { ...formData };
     delete (record as Record<string, unknown>)['reportAttachment'];
     delete (record as Record<string, unknown>)['projectName'];
     return {
       ...record,
-      reportFileKey: attachmentResponse.fileKey,
-      reportFileName: attachmentResponse.fileName,
+      reportNumber: isNoReport ? null : record.reportNumber,
+      reportFileKey: isNoReport ? null : (attachmentResponse?.fileKey ?? null),
+      reportFileName: isNoReport
+        ? null
+        : (attachmentResponse?.fileName ?? null),
     };
   }
 }

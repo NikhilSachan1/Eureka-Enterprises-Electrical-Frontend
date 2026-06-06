@@ -1055,6 +1055,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   onChoosingFile(chooseCallback: () => void): void {
+    if (this.inputFieldConfig().disabledInput) {
+      return;
+    }
     chooseCallback();
   }
 
@@ -1081,6 +1084,9 @@ export class InputFieldComponent implements OnInit, AfterViewInit {
   }
 
   onFilesSelected(event: FileSelectEvent): void {
+    if (this.inputFieldConfig().disabledInput) {
+      return;
+    }
     const files = event.currentFiles;
     this.totalUploadedSize = files.reduce((acc, file) => acc + file.size, 0);
     if (this.isFormMode()) {

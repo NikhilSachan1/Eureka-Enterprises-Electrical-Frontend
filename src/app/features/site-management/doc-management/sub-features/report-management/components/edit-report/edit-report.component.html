@@ -14,18 +14,27 @@
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.reportNumber"
+    [inputFieldConfig]="form.fieldConfigs.isNoReport"
   />
+
+  @if (showReportDetails()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.reportNumber"
+    />
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.reportDate"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.reportAttachment"
-  />
+  @if (showReportDetails()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.reportAttachment"
+    />
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"
