@@ -188,7 +188,6 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
       .pipe(
         switchMap(() => {
           this.criticalStartupState.clearCriticalLoadFailure();
-          this.appConfigurationService.prefetchReferenceListsInBackground();
           if (selectedRoleName) {
             this.notificationService.success(
               AUTH_MESSAGES.SUCCESS.LOGIN_WITH_ROLE(

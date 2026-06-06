@@ -10,7 +10,7 @@ import { CompanyGetBaseResponseSchema } from '@features/site-management/company-
 import { VendorBaseSchema } from '@features/site-management/vendor-management/schemas/base-vendor.schema';
 import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
 
-const { sortOrder, sortField, pageSize, page } = FilterSchema.shape;
+const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const ProjectGetRequestSchema = z
   .object({
@@ -26,6 +26,7 @@ export const ProjectGetRequestSchema = z
     sortField,
     pageSize,
     page,
+    search,
   })
   .strict()
   .transform(

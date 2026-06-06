@@ -144,8 +144,6 @@ export const appConfig: ApplicationConfig = {
         return;
       }
 
-      appConfigurationService.prefetchReferenceListsInBackground();
-
       announcementService.startPeriodicUnacknowledgedCheck();
     }),
     provideServiceWorker('ngsw-worker.js', {
