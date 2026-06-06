@@ -23,6 +23,7 @@
 
   <!-- Sidebar: hover on collapsed desktop expands as overlay -->
   <aside
+    #sidebarEl
     class="sidebar"
     [ngClass]="{
       'sidebar--expanded': sidebarVisible() || hoverExpanded(),
@@ -30,7 +31,6 @@
       'sidebar--overlay': hoverExpanded(),
     }"
     [attr.aria-hidden]="!sidebarVisible() && !hoverExpanded()"
-    (mousedown)="onSidebarMouseDown()"
     (mouseenter)="onSidebarMouseEnter()"
     (mouseleave)="onSidebarMouseLeave()"
   >
