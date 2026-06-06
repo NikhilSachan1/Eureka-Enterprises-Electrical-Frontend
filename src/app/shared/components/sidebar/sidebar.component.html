@@ -32,7 +32,7 @@
     }"
     [attr.aria-hidden]="!sidebarVisible() && !hoverExpanded()"
     (mouseenter)="onSidebarMouseEnter()"
-    (mouseleave)="onSidebarMouseLeave()"
+    (mouseleave)="onSidebarMouseLeave($event)"
   >
     <app-sidebar-header
       [sidebarVisible]="sidebarVisible()"
