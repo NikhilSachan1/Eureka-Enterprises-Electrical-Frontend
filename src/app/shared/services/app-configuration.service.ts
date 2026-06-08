@@ -30,10 +30,7 @@ import { CONFIGURATION_TYPE_DATA } from '@shared/config/static-data.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { IOptionDropdown } from '@shared/types';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
-import {
-  IEmployeeGetFormDto,
-  IEmployeeGetResponseDto,
-} from '@features/employee-management/types/employee.dto';
+import { IEmployeeGetResponseDto } from '@features/employee-management/types/employee.dto';
 import {
   IRoleGetBaseResponseDto,
   IRoleGetResponseDto,
@@ -50,10 +47,7 @@ import { ContractorService } from '@features/site-management/contractor-manageme
 import { IVendorGetResponseDto } from '@features/site-management/vendor-management/types/vendor.dto';
 import { VendorService } from '@features/site-management/vendor-management/services/vendor.service';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
-import {
-  IProjectGetFormDto,
-  IProjectGetResponseDto,
-} from '@features/site-management/project-management/types/project.dto';
+import { IProjectGetResponseDto } from '@features/site-management/project-management/types/project.dto';
 import { PetroCardService } from '@features/transport-management/petro-card-management/services/petro-card.service';
 import { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
 import { FuelExpenseService } from '@features/transport-management/fuel-expense-management/services/fuel-expense.service';
@@ -72,6 +66,7 @@ export class AppConfigurationService {
   private static readonly APP_CONFIGURATION_LOADING_KEY =
     '__app_configuration__';
   private readonly REFERENCE_PREFETCH_START_DELAY_MS = 3000;
+  private readonly referenceDropdownListPayload = { page: 1, pageSize: 50 };
   private readonly logger = inject(LoggerService);
   private readonly authService = inject(AuthService);
   private readonly employeeService = inject(EmployeeService);
@@ -705,81 +700,78 @@ export class AppConfigurationService {
   private fetchEmployeeList(): Observable<IEmployeeGetResponseDto> {
     this.logger.logUserAction('Loading app data - Employee List');
 
-    const payload: IEmployeeGetFormDto = {
-      page: 1,
-      pageSize: 100,
-    };
-
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.EMPLOYEE.EMPLOYEE_LIST,
-      this.employeeService.getEmployeeList(payload).pipe(
-        tap(response => {
-          this.logger.logUserAction('Employee List loaded successfully', {
-            count: response.totalRecords,
-          });
+      this.employeeService
+        .getEmployeeList(this.referenceDropdownListPayload)
+        .pipe(
+          tap(response => {
+            this.logger.logUserAction('Employee List loaded successfully', {
+              count: response.totalRecords,
+            });
 
-          const employeeListByRole: Record<string, IOptionDropdown[]> = {};
+            const employeeListByRole: Record<string, IOptionDropdown[]> = {};
 
-          const employeeList: IOptionDropdown[] = response.records
-            .map(employee => {
-              const first = employee.firstName?.trim() ?? '';
-              const last = employee.lastName?.trim() ?? '';
-              const employeeStatus = employee.status?.trim() ?? '';
-              const formattedEmployeeStatus = employeeStatus
-                ? toTitleCase(employeeStatus)
-                : '';
-              const employeeCode = employee.employeeId?.trim() ?? '';
-              const subtitleParts = [
-                employeeCode,
-                formattedEmployeeStatus,
-              ].filter(Boolean);
-              const initialChar =
-                first.charAt(0) ||
-                last.charAt(0) ||
-                (employee.employeeId?.trim()?.charAt(0) ?? '');
-              const dropdownItem: IOptionDropdown = {
-                label: toTitleCase(`${first} ${last}`.trim()),
-                subtitle:
-                  subtitleParts.length > 0
-                    ? subtitleParts.join(' • ')
-                    : undefined,
-                initial: initialChar ? initialChar.toUpperCase() : undefined,
-                value: employee.id,
-                disabled: employeeStatus.toLowerCase() === 'archived',
-                data: employee,
-              };
+            const employeeList: IOptionDropdown[] = response.records
+              .map(employee => {
+                const first = employee.firstName?.trim() ?? '';
+                const last = employee.lastName?.trim() ?? '';
+                const employeeStatus = employee.status?.trim() ?? '';
+                const formattedEmployeeStatus = employeeStatus
+                  ? toTitleCase(employeeStatus)
+                  : '';
+                const employeeCode = employee.employeeId?.trim() ?? '';
+                const subtitleParts = [
+                  employeeCode,
+                  formattedEmployeeStatus,
+                ].filter(Boolean);
+                const initialChar =
+                  first.charAt(0) ||
+                  last.charAt(0) ||
+                  (employee.employeeId?.trim()?.charAt(0) ?? '');
+                const dropdownItem: IOptionDropdown = {
+                  label: toTitleCase(`${first} ${last}`.trim()),
+                  subtitle:
+                    subtitleParts.length > 0
+                      ? subtitleParts.join(' • ')
+                      : undefined,
+                  initial: initialChar ? initialChar.toUpperCase() : undefined,
+                  value: employee.id,
+                  disabled: employeeStatus.toLowerCase() === 'archived',
+                  data: employee,
+                };
 
-              // Parse roles and add to role-based lists
-              const roles = employee.roles
-                .split(',')
-                .map(role => role.trim())
-                .filter(role => role.length > 0);
+                // Parse roles and add to role-based lists
+                const roles = employee.roles
+                  .split(',')
+                  .map(role => role.trim())
+                  .filter(role => role.length > 0);
 
-              roles.forEach(role => {
-                if (!employeeListByRole[role]) {
-                  employeeListByRole[role] = [];
-                }
-                employeeListByRole[role].push(dropdownItem);
-              });
+                roles.forEach(role => {
+                  if (!employeeListByRole[role]) {
+                    employeeListByRole[role] = [];
+                  }
+                  employeeListByRole[role].push(dropdownItem);
+                });
 
-              return dropdownItem;
-            })
-            .sort(this.sortByLabel);
+                return dropdownItem;
+              })
+              .sort(this.sortByLabel);
 
-          // Sort role-based lists as well
-          Object.keys(employeeListByRole).forEach(role => {
-            employeeListByRole[role].sort(this.sortByLabel);
-          });
+            // Sort role-based lists as well
+            Object.keys(employeeListByRole).forEach(role => {
+              employeeListByRole[role].sort(this.sortByLabel);
+            });
 
-          this._employeeList.set(employeeList);
-          this._employeeListByRole.set(employeeListByRole);
-        }),
-        catchError(error => {
-          this.employeeListCache$ = undefined;
-          this.logger.logUserAction('Failed to load Employee List', error);
-          return throwError(() => error);
-        })
-      )
+            this._employeeList.set(employeeList);
+            this._employeeListByRole.set(employeeListByRole);
+          }),
+          catchError(error => {
+            this.employeeListCache$ = undefined;
+            this.logger.logUserAction('Failed to load Employee List', error);
+            return throwError(() => error);
+          })
+        )
     );
   }
 
@@ -1096,7 +1088,7 @@ export class AppConfigurationService {
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.ASSET.ASSET_LIST,
-      this.assetService.getAssetList().pipe(
+      this.assetService.getAssetList(this.referenceDropdownListPayload).pipe(
         tap(response => {
           this.logger.logUserAction('Asset List loaded successfully', {
             count: response.totalRecords,
@@ -1138,40 +1130,42 @@ export class AppConfigurationService {
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
-      this.vehicleService.getVehicleList().pipe(
-        tap(response => {
-          this.logger.logUserAction('Vehicle List loaded successfully', {
-            count: response.totalRecords,
-          });
+      this.vehicleService
+        .getVehicleList(this.referenceDropdownListPayload)
+        .pipe(
+          tap(response => {
+            this.logger.logUserAction('Vehicle List loaded successfully', {
+              count: response.totalRecords,
+            });
 
-          const vehicleList: IOptionDropdown[] = response.records
-            .map(vehicle => {
-              const reg = vehicle.registrationNo?.trim() ?? '';
-              const brandModel = [vehicle.brand, vehicle.model]
-                .filter(Boolean)
-                .join(' ')
-                .trim();
-              const initialMatch = reg.match(/[A-Za-z0-9]/);
-              return {
-                label: reg,
-                subtitle: brandModel ? toTitleCase(brandModel) : undefined,
-                initial: initialMatch
-                  ? initialMatch[0].toUpperCase()
-                  : undefined,
-                value: vehicle.id,
-                data: vehicle,
-              };
-            })
-            .sort(this.sortByLabel);
+            const vehicleList: IOptionDropdown[] = response.records
+              .map(vehicle => {
+                const reg = vehicle.registrationNo?.trim() ?? '';
+                const brandModel = [vehicle.brand, vehicle.model]
+                  .filter(Boolean)
+                  .join(' ')
+                  .trim();
+                const initialMatch = reg.match(/[A-Za-z0-9]/);
+                return {
+                  label: reg,
+                  subtitle: brandModel ? toTitleCase(brandModel) : undefined,
+                  initial: initialMatch
+                    ? initialMatch[0].toUpperCase()
+                    : undefined,
+                  value: vehicle.id,
+                  data: vehicle,
+                };
+              })
+              .sort(this.sortByLabel);
 
-          this._vehicleList.set(vehicleList);
-        }),
-        catchError(error => {
-          this.vehicleListCache$ = undefined;
-          this.logger.logUserAction('Failed to load Vehicle List', error);
-          return throwError(() => error);
-        })
-      )
+            this._vehicleList.set(vehicleList);
+          }),
+          catchError(error => {
+            this.vehicleListCache$ = undefined;
+            this.logger.logUserAction('Failed to load Vehicle List', error);
+            return throwError(() => error);
+          })
+        )
     );
   }
 
@@ -1186,29 +1180,31 @@ export class AppConfigurationService {
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
-      this.petroCardService.getPetroCardList().pipe(
-        tap(response => {
-          this.logger.logUserAction('Petro Card List loaded successfully', {
-            count: response.totalRecords,
-          });
+      this.petroCardService
+        .getPetroCardList(this.referenceDropdownListPayload)
+        .pipe(
+          tap(response => {
+            this.logger.logUserAction('Petro Card List loaded successfully', {
+              count: response.totalRecords,
+            });
 
-          const petroCardList: IOptionDropdown[] = response.records
-            .map(petroCard => ({
-              label: toTitleCase(
-                `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
-              ),
-              value: petroCard.id,
-            }))
-            .sort(this.sortByLabel);
+            const petroCardList: IOptionDropdown[] = response.records
+              .map(petroCard => ({
+                label: toTitleCase(
+                  `${petroCard.cardName} (${petroCard.cardNumber})`.trim()
+                ),
+                value: petroCard.id,
+              }))
+              .sort(this.sortByLabel);
 
-          this._petroCardList.set(petroCardList);
-        }),
-        catchError(error => {
-          this.petroCardListCache$ = undefined;
-          this.logger.logUserAction('Failed to load Petro Card List', error);
-          return throwError(() => error);
-        })
-      )
+            this._petroCardList.set(petroCardList);
+          }),
+          catchError(error => {
+            this.petroCardListCache$ = undefined;
+            this.logger.logUserAction('Failed to load Petro Card List', error);
+            return throwError(() => error);
+          })
+        )
     );
   }
 
@@ -1223,36 +1219,38 @@ export class AppConfigurationService {
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
-      this.companyService.getCompanyList().pipe(
-        tap(response => {
-          this.logger.logUserAction('Company List loaded successfully', {
-            count: response.totalRecords,
-          });
+      this.companyService
+        .getCompanyList(this.referenceDropdownListPayload)
+        .pipe(
+          tap(response => {
+            this.logger.logUserAction('Company List loaded successfully', {
+              count: response.totalRecords,
+            });
 
-          const companyList: IOptionDropdown[] = response.records
-            .map(company => {
-              const rawName = company.name?.trim() ?? '';
-              const subtitle =
-                [company.city, company.state].filter(Boolean).join(', ') ||
-                `ID ${company.id.slice(0, 8)}`;
-              return {
-                label: toTitleCase(rawName),
-                subtitle,
-                initial: this.initialsForDropdownLabel(rawName),
-                value: company.id,
-                data: company,
-              };
-            })
-            .sort(this.sortByLabel);
+            const companyList: IOptionDropdown[] = response.records
+              .map(company => {
+                const rawName = company.name?.trim() ?? '';
+                const subtitle =
+                  [company.city, company.state].filter(Boolean).join(', ') ||
+                  `ID ${company.id.slice(0, 8)}`;
+                return {
+                  label: toTitleCase(rawName),
+                  subtitle,
+                  initial: this.initialsForDropdownLabel(rawName),
+                  value: company.id,
+                  data: company,
+                };
+              })
+              .sort(this.sortByLabel);
 
-          this._companyList.set(companyList);
-        }),
-        catchError(error => {
-          this.companyListCache$ = undefined;
-          this.logger.logUserAction('Failed to load Company List', error);
-          return throwError(() => error);
-        })
-      )
+            this._companyList.set(companyList);
+          }),
+          catchError(error => {
+            this.companyListCache$ = undefined;
+            this.logger.logUserAction('Failed to load Company List', error);
+            return throwError(() => error);
+          })
+        )
     );
   }
 
@@ -1267,40 +1265,42 @@ export class AppConfigurationService {
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
-      this.contractorService.getContractorList({ page: 1, pageSize: 50 }).pipe(
-        tap(response => {
-          this.logger.logUserAction('Contractor List loaded successfully', {
-            count: response.totalRecords,
-          });
+      this.contractorService
+        .getContractorList(this.referenceDropdownListPayload)
+        .pipe(
+          tap(response => {
+            this.logger.logUserAction('Contractor List loaded successfully', {
+              count: response.totalRecords,
+            });
 
-          const contractorList: IOptionDropdown[] = response.records
-            .map(contractor => {
-              const rawName = contractor.name?.trim() ?? '';
-              const subtitle = this.buildContractorVendorDropdownSubtitle({
-                gstNumber: contractor.gstNumber,
-                city: contractor.city,
-                state: contractor.state,
-                email: contractor.email,
-                id: contractor.id,
-              });
-              return {
-                label: toTitleCase(rawName),
-                subtitle,
-                initial: this.initialsForDropdownLabel(rawName),
-                value: contractor.id,
-                data: contractor,
-              };
-            })
-            .sort(this.sortByLabel);
+            const contractorList: IOptionDropdown[] = response.records
+              .map(contractor => {
+                const rawName = contractor.name?.trim() ?? '';
+                const subtitle = this.buildContractorVendorDropdownSubtitle({
+                  gstNumber: contractor.gstNumber,
+                  city: contractor.city,
+                  state: contractor.state,
+                  email: contractor.email,
+                  id: contractor.id,
+                });
+                return {
+                  label: toTitleCase(rawName),
+                  subtitle,
+                  initial: this.initialsForDropdownLabel(rawName),
+                  value: contractor.id,
+                  data: contractor,
+                };
+              })
+              .sort(this.sortByLabel);
 
-          this._contractorList.set(contractorList);
-        }),
-        catchError(error => {
-          this.contractorListCache$ = undefined;
-          this.logger.logUserAction('Failed to load Contractor List', error);
-          return throwError(() => error);
-        })
-      )
+            this._contractorList.set(contractorList);
+          }),
+          catchError(error => {
+            this.contractorListCache$ = undefined;
+            this.logger.logUserAction('Failed to load Contractor List', error);
+            return throwError(() => error);
+          })
+        )
     );
   }
 
@@ -1315,7 +1315,7 @@ export class AppConfigurationService {
 
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
-      this.vendorService.getVendorList().pipe(
+      this.vendorService.getVendorList(this.referenceDropdownListPayload).pipe(
         tap(response => {
           this.logger.logUserAction('Vendor List loaded successfully', {
             count: response.totalRecords,
@@ -1361,43 +1361,40 @@ export class AppConfigurationService {
   private fetchProjectList(): Observable<IProjectGetResponseDto> {
     this.logger.logUserAction('Loading app data - Project List');
 
-    const params: IProjectGetFormDto = {
-      page: 1,
-      pageSize: 500,
-    };
-
     return this.withDropdownLoading(
       CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
-      this.projectService.getProjectList(params).pipe(
-        tap(response => {
-          this.logger.logUserAction('Project List loaded successfully', {
-            count: response.totalRecords,
-          });
+      this.projectService
+        .getProjectList(this.referenceDropdownListPayload)
+        .pipe(
+          tap(response => {
+            this.logger.logUserAction('Project List loaded successfully', {
+              count: response.totalRecords,
+            });
 
-          const projectOptions: IOptionDropdown[] = response.records
-            .map(project => {
-              const rawName = project.name?.trim() ?? '';
-              const subtitle =
-                [project.city, project.state].filter(Boolean).join(', ') ||
-                undefined;
-              return {
-                label: toTitleCase(rawName),
-                subtitle,
-                initial: this.initialsForDropdownLabel(rawName),
-                value: project.id,
-                data: project,
-              };
-            })
-            .sort(this.sortByLabel);
+            const projectOptions: IOptionDropdown[] = response.records
+              .map(project => {
+                const rawName = project.name?.trim() ?? '';
+                const subtitle =
+                  [project.city, project.state].filter(Boolean).join(', ') ||
+                  undefined;
+                return {
+                  label: toTitleCase(rawName),
+                  subtitle,
+                  initial: this.initialsForDropdownLabel(rawName),
+                  value: project.id,
+                  data: project,
+                };
+              })
+              .sort(this.sortByLabel);
 
-          this._projectList.set(projectOptions);
-        }),
-        catchError(error => {
-          this.projectListCache$ = undefined;
-          this.logger.logUserAction('Failed to load Project List', error);
-          return throwError(() => error);
-        })
-      )
+            this._projectList.set(projectOptions);
+          }),
+          catchError(error => {
+            this.projectListCache$ = undefined;
+            this.logger.logUserAction('Failed to load Project List', error);
+            return throwError(() => error);
+          })
+        )
     );
   }
 
