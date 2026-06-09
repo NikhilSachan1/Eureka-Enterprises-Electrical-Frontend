@@ -45,7 +45,7 @@ export class AttachmentsService {
   ): Observable<IFinancialFileUploadResponseDto> {
     return this.uploadDocumentFile(
       API_ROUTES.ATTACHMENTS.REPORT_UPLOAD,
-      'reportFile',
+      'siteReportFile',
       file,
       'Report file upload'
     );
