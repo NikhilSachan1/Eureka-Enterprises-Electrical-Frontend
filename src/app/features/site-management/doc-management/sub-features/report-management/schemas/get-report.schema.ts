@@ -54,7 +54,6 @@ export const ReportGetRequestSchema = z
 
 export const ReportGetBaseResponseSchema = z.looseObject({
   ...ReportBaseSchema.shape,
-  isNoReport: z.boolean(),
   remarks: z.string().nullable(),
   createdBy,
   site: z.looseObject({

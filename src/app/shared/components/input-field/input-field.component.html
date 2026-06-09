@@ -142,8 +142,12 @@
               <span class="ee-dropdown-option__plain">
                 {{ getDropdownOptionLabel(option, selectConfig?.optionLabel) }}
               </span>
-              @if (option.disabled && option.disabledReason) {
-                <span class="text-[10px] leading-tight text-orange-500">
+              @if (option.disabledReason) {
+                <span
+                  class="text-[10px] leading-tight"
+                  [class.text-orange-500]="option.disabled"
+                  [class.text-surface-500]="!option.disabled"
+                >
                   {{ option.disabledReason }}
                 </span>
               }

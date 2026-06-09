@@ -223,10 +223,9 @@ export class AddReportComponent
   }
 
   private executeAddReportAction(): void {
-    const isNoReport = Boolean(this.form.getFieldData('isNoReport'));
-    const file = this.form.getFieldData('reportAttachment') as
-      | File[]
-      | undefined;
+    const formData = this.form.getData();
+    const isNoReport = Boolean(formData.isNoReport);
+    const file = formData.reportAttachment as File[] | undefined;
 
     this.loadingService.show({
       title: 'Adding report',
@@ -237,14 +236,15 @@ export class AddReportComponent
 
     defer(() =>
       !isNoReport && file?.length
-        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        ? this.attachmentsService.uploadReportDocument(file[0])
         : of<IFinancialFileUploadResponseDto | null>(null)
     )
       .pipe(
-        switchMap(attachmentResponse => {
-          const formData = this.prepareFormData(attachmentResponse);
-          return this.reportService.addReport(formData);
-        }),
+        switchMap(attachmentResponse =>
+          this.reportService.addReport(
+            this.prepareFormData(formData, attachmentResponse)
+          )
+        ),
         finalize(() => {
           this.loadingService.hide();
           this.isSubmitting.set(false);
@@ -268,16 +268,15 @@ export class AddReportComponent
   }
 
   private prepareFormData(
+    formData: IAddReportUIFormDto,
     attachmentResponse: IFinancialFileUploadResponseDto | null
   ): IAddReportFormDto {
-    const formData = this.form.getData();
     const isNoReport = Boolean(formData.isNoReport);
     const record = { ...formData };
     delete (record as Record<string, unknown>)['reportAttachment'];
     delete (record as Record<string, unknown>)['projectName'];
     return {
       ...record,
-      reportNumber: isNoReport ? null : record.reportNumber,
       reportFileKey: isNoReport ? null : (attachmentResponse?.fileKey ?? null),
       reportFileName: isNoReport
         ? null

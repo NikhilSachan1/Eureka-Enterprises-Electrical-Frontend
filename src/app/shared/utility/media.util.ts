@@ -1,5 +1,18 @@
 import { APP_CONFIG } from '@core/config/app.config';
 
+export const isAllowedUploadFileType = (
+  file: File,
+  allowedFileTypes: string[]
+): boolean => {
+  const extension = getFileExtension(file.name);
+  if (!extension) {
+    return false;
+  }
+
+  const allowed = allowedFileTypes.map(type => type.toLowerCase());
+  return allowed.includes(extension);
+};
+
 export const getMediaTypeFromUrl = (url: string): string => {
   const cleanUrl = url.split('?')[0];
   const urlMediaType = cleanUrl.split('.').pop()?.toLowerCase();

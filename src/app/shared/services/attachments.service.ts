@@ -32,33 +32,58 @@ export class AttachmentsService {
   uploadFinancialDocument(
     file: File
   ): Observable<IFinancialFileUploadResponseDto> {
-    this.logger.logUserAction('Financial file upload request', {
+    return this.uploadDocumentFile(
+      API_ROUTES.ATTACHMENTS.FINANCIAL_UPLOAD,
+      'financialFile',
+      file,
+      'Financial file upload'
+    );
+  }
+
+  uploadReportDocument(
+    file: File
+  ): Observable<IFinancialFileUploadResponseDto> {
+    return this.uploadDocumentFile(
+      API_ROUTES.ATTACHMENTS.REPORT_UPLOAD,
+      'siteReportFile',
+      file,
+      'Report file upload'
+    );
+  }
+
+  private uploadDocumentFile(
+    endpoint: string,
+    fieldName: string,
+    file: File,
+    logLabel: string
+  ): Observable<IFinancialFileUploadResponseDto> {
+    this.logger.logUserAction(`${logLabel} request`, {
       name: file.name,
       size: file.size,
     });
 
     return this.apiService
       .postValidated(
-        API_ROUTES.ATTACHMENTS.FINANCIAL_UPLOAD,
+        endpoint,
         {
           response: FinancialFileUploadResponseSchema,
         },
-        { financialFile: file },
+        { [fieldName]: file },
         { multipart: true }
       )
       .pipe(
         map((res: IFinancialFileUploadResponseDto) => res),
         tap((response: IFinancialFileUploadResponseDto) => {
-          this.logger.logUserAction('Financial file upload response', response);
+          this.logger.logUserAction(`${logLabel} response`, response);
         }),
         catchError(error => {
           if (error?.name === 'ZodError') {
             this.logger.logDtoValidationErrors(
-              'Financial file upload validation error',
+              `${logLabel} validation error`,
               error
             );
           } else {
-            this.logger.logUserAction('Financial file upload error', error);
+            this.logger.logUserAction(`${logLabel} error`, error);
           }
           return throwError(() => error);
         })

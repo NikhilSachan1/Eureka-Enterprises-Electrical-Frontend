@@ -84,7 +84,7 @@ export class EditReportComponent
         defaultValues: {
           projectName: record.siteId,
           jmcNumber: record.jmc.jmcNumber,
-          isNoReport: record.isNoReport ?? false,
+          isNoReport: record.reportNumber === null,
           reportNumber: record.reportNumber,
           reportDate: new Date(record.reportDate),
           reportAttachment: [],
@@ -110,7 +110,7 @@ export class EditReportComponent
 
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
-    if (!record.isNoReport && record.fileKey) {
+    if (record.reportNumber !== null && record.fileKey) {
       this.loadPrefillAttachmentFromKey(record.fileKey);
     }
   }
@@ -173,10 +173,9 @@ export class EditReportComponent
   }
 
   private executeEditReportAction(reportId: string): void {
-    const isNoReport = Boolean(this.form.getFieldData('isNoReport'));
-    const file = this.form.getFieldData('reportAttachment') as
-      | File[]
-      | undefined;
+    const formData = this.form.getData();
+    const isNoReport = Boolean(formData.isNoReport);
+    const file = formData.reportAttachment as File[] | undefined;
 
     this.loadingService.show({
       title: 'Updating report',
@@ -187,14 +186,16 @@ export class EditReportComponent
 
     defer(() =>
       !isNoReport && file?.length
-        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        ? this.attachmentsService.uploadReportDocument(file[0])
         : of<IFinancialFileUploadResponseDto | null>(null)
     )
       .pipe(
-        switchMap(attachmentResponse => {
-          const formData = this.prepareFormData(attachmentResponse);
-          return this.reportService.editReport(formData, reportId);
-        }),
+        switchMap(attachmentResponse =>
+          this.reportService.editReport(
+            this.prepareFormData(formData, attachmentResponse),
+            reportId
+          )
+        ),
         finalize(() => {
           this.loadingService.hide();
           this.isSubmitting.set(false);
@@ -218,21 +219,20 @@ export class EditReportComponent
   }
 
   private prepareFormData(
+    formData: IEditReportUIFormDto,
     attachmentResponse: IFinancialFileUploadResponseDto | null
   ): IEditReportFormDto {
-    const formData = this.form.getData();
+    const isNoReport = Boolean(formData.isNoReport);
     const record = { ...formData };
-    const isNoReport = Boolean(record.isNoReport);
     delete (record as Record<string, unknown>)['reportAttachment'];
     delete (record as Record<string, unknown>)['jmcNumber'];
     delete (record as Record<string, unknown>)['projectName'];
     return {
       ...record,
-      reportNumber: isNoReport ? null : record.reportNumber,
       reportFileKey: isNoReport ? null : (attachmentResponse?.fileKey ?? null),
       reportFileName: isNoReport
         ? null
         : (attachmentResponse?.fileName ?? null),
-    } as IEditReportFormDto;
+    };
   }
 }

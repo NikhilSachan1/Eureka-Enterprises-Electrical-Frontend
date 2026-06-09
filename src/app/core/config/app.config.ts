@@ -93,6 +93,8 @@ export const APP_CONFIG = {
     IMAGE: ['jpg', 'jpeg', 'png', 'gif', 'heic', 'heif', 'svg', 'webp', 'bmp'],
     PDF: ['pdf'],
     DOCUMENT: ['doc', 'docx', 'txt', 'rtf'],
+    WORD: ['doc', 'docx'],
+    ARCHIVE: ['zip', 'rar'],
     SPREADSHEET: ['xls', 'xlsx', 'csv'],
     PRESENTATION: ['ppt', 'pptx'],
   },

@@ -302,7 +302,7 @@ export interface IOptionDropdown<T = unknown> {
   /** PrimeIcons class(es), e.g. `pi pi-check` (status / category dropdowns). */
   icon?: string;
   disabled?: boolean;
-  /** Human-readable reason shown beneath a disabled option in the dropdown. */
+  /** Human-readable reason shown beneath the option in the dropdown (eligible or not). */
   disabledReason?: string;
   data?: T;
 }

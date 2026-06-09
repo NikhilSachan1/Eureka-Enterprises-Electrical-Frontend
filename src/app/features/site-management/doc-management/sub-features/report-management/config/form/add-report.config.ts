@@ -93,10 +93,11 @@ const ADD_REPORT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddReportUIFormDto>
       fileConfig: {
         fileLimit: 1,
         acceptFileTypes: [
-          ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
           ...APP_CONFIG.MEDIA_CONFIG.PDF,
+          ...APP_CONFIG.MEDIA_CONFIG.WORD,
+          ...APP_CONFIG.MEDIA_CONFIG.ARCHIVE,
         ],
-        maxFileSize: 1024 * 1024 * 50, // 50MB
+        maxFileSize: 1024 * 1024 * 500, // 500MB
       },
       conditionalValidators: [
         {
