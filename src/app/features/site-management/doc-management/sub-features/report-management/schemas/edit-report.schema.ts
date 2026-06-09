@@ -8,10 +8,11 @@ export const EditReportRequestSchema = ReportUpsertShapeSchema.omit({
   .strict()
   .transform(data => {
     return {
-      reportNumber: data.reportNumber,
+      isNoReport: data.isNoReport,
+      reportNumber: data.isNoReport ? null : data.reportNumber,
       reportDate: transformDateFormat(data.reportDate),
-      fileKey: data.reportFileKey,
-      fileName: data.reportFileName,
+      fileKey: data.isNoReport ? null : data.reportFileKey,
+      fileName: data.isNoReport ? null : data.reportFileName,
       remarks: data.remarks,
     };
   });

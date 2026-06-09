@@ -122,7 +122,7 @@ export class GetReportDetailComponent extends DrawerDetailBase {
 
     entryData.push({
       label: 'Attachment(s)',
-      value: record.fileKey ? [record.fileKey] : [],
+      value: [record.fileKey],
       type: EDataType.ATTACHMENTS,
     });
 
@@ -149,11 +149,12 @@ export class GetReportDetailComponent extends DrawerDetailBase {
   }
 
   protected getReportEntityHeader(): IEntityViewDetails {
-    const { contractor, vendor, reportNumber } = this.drawerData.report;
+    const { contractor, vendor, reportNumber, isNoReport } =
+      this.drawerData.report;
     const parts = [contractor?.name, vendor?.name].filter(Boolean);
     return {
       name: parts.length > 0 ? parts.join(' · ') : 'Report',
-      subtitle: reportNumber,
+      subtitle: isNoReport ? 'No Report' : (reportNumber ?? ''),
     };
   }
 }

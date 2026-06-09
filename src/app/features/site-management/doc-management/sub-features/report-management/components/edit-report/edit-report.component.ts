@@ -2,13 +2,15 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   inject,
   input,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, switchMap } from 'rxjs';
+import { defer, finalize, of, switchMap } from 'rxjs';
 
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -54,6 +56,12 @@ export class EditReportComponent
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
+  private isNoReportTracked!: Signal<boolean | null | undefined>;
+
+  protected readonly showReportDetails = computed(
+    () => !this.isNoReportTracked()
+  );
+
   protected readonly selectedRecord =
     input.required<IReportGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
@@ -76,6 +84,7 @@ export class EditReportComponent
         defaultValues: {
           projectName: record.siteId,
           jmcNumber: record.jmc.jmcNumber,
+          isNoReport: record.isNoReport ?? false,
           reportNumber: record.reportNumber,
           reportDate: new Date(record.reportDate),
           reportAttachment: [],
@@ -92,9 +101,18 @@ export class EditReportComponent
       EDIT_REPORT_FORM_CONFIG.fields.reportDate.dateConfig,
       record.site as IProjectSiteDateRange
     );
+
+    this.isNoReportTracked = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'isNoReport',
+      this.destroyRef
+    );
+
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
-    this.loadPrefillAttachmentFromKey(record.fileKey);
+    if (!record.isNoReport && record.fileKey) {
+      this.loadPrefillAttachmentFromKey(record.fileKey);
+    }
   }
 
   private seedJmcOption(jmcNumber: string): void {
@@ -155,7 +173,10 @@ export class EditReportComponent
   }
 
   private executeEditReportAction(reportId: string): void {
-    const file = this.form.getFieldData('reportAttachment');
+    const isNoReport = Boolean(this.form.getFieldData('isNoReport'));
+    const file = this.form.getFieldData('reportAttachment') as
+      | File[]
+      | undefined;
 
     this.loadingService.show({
       title: 'Updating report',
@@ -164,8 +185,11 @@ export class EditReportComponent
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    defer(() =>
+      !isNoReport && file?.length
+        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        : of<IFinancialFileUploadResponseDto | null>(null)
+    )
       .pipe(
         switchMap(attachmentResponse => {
           const formData = this.prepareFormData(attachmentResponse);
@@ -194,17 +218,21 @@ export class EditReportComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    attachmentResponse: IFinancialFileUploadResponseDto | null
   ): IEditReportFormDto {
     const formData = this.form.getData();
     const record = { ...formData };
+    const isNoReport = Boolean(record.isNoReport);
     delete (record as Record<string, unknown>)['reportAttachment'];
     delete (record as Record<string, unknown>)['jmcNumber'];
     delete (record as Record<string, unknown>)['projectName'];
     return {
       ...record,
-      reportFileKey: attachmentResponse.fileKey,
-      reportFileName: attachmentResponse.fileName,
+      reportNumber: isNoReport ? null : record.reportNumber,
+      reportFileKey: isNoReport ? null : (attachmentResponse?.fileKey ?? null),
+      reportFileName: isNoReport
+        ? null
+        : (attachmentResponse?.fileName ?? null),
     } as IEditReportFormDto;
   }
 }

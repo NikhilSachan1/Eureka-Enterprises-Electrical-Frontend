@@ -3,7 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
+  HostListener,
   inject,
   input,
   OnInit,
@@ -23,6 +23,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { PopoverModule, Popover } from 'primeng/popover';
+import { SIDEBAR_FOOTER_POPOVER_CLASS } from '../sidebar-popover.util';
 
 @Component({
   selector: 'app-sidebar-user-profile',
@@ -49,14 +50,7 @@ export class SidebarUserProfileComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly ICONS = ICONS;
-
-  constructor() {
-    effect(() => {
-      if (this.isSidebarCollapsed() && this.userPopover) {
-        this.userPopover.hide();
-      }
-    });
-  }
+  protected readonly sidebarFooterPopoverClass = SIDEBAR_FOOTER_POPOVER_CLASS;
 
   ngOnInit(): void {
     this.authService.ensureLoggedInUserProfilePictureLoaded();
@@ -86,10 +80,20 @@ export class SidebarUserProfileComponent implements OnInit {
   }
 
   toggleUserOptions(event: Event): void {
-    if (this.isSidebarCollapsed()) {
-      return;
-    }
+    event.stopPropagation();
     this.userPopover.toggle(event);
+  }
+
+  @HostListener('document:visibilitychange')
+  onDocumentVisibilityChange(): void {
+    if (document.hidden) {
+      this.userPopover?.hide();
+    }
+  }
+
+  @HostListener('window:blur')
+  onWindowBlur(): void {
+    this.userPopover?.hide();
   }
 
   toggleTheme(): void {
@@ -133,6 +137,7 @@ export class SidebarUserProfileComponent implements OnInit {
   handleOptionClick(option: UserOption): void {
     if (option.id === 'theme') {
       this.toggleTheme();
+      this.userPopover.hide();
     } else if (option.id === 'logout') {
       this.logout();
     } else if (option.path) {

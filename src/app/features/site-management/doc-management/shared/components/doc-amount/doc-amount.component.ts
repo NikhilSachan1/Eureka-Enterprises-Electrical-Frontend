@@ -20,31 +20,6 @@ export class DocAmountComponent {
 
   readonly segments = input<IDocAmountSegment[]>([]);
 
-  /** Currency / semantics from label keywords */
-  private static readonly LABEL_MAP: Record<DocAmountTone, string> = {
-    taxable: 'font-medium text-emerald-800 shrink-0',
-    deduction: 'font-medium text-rose-700 shrink-0',
-    gst: 'font-medium text-amber-700 shrink-0',
-    total: 'font-medium text-slate-700 shrink-0',
-    invoiced: 'font-medium text-violet-700 shrink-0',
-    booked: 'font-medium text-cyan-800 shrink-0',
-    paid: 'font-semibold text-emerald-800 shrink-0',
-    neutral: 'text-content-secondary shrink-0',
-    muted: 'text-content-tertiary shrink-0',
-  };
-
-  private static readonly VALUE_MAP: Record<DocAmountTone, string> = {
-    taxable: 'tabular-nums font-semibold text-emerald-900',
-    deduction: 'tabular-nums font-semibold text-rose-900',
-    gst: 'tabular-nums font-semibold text-amber-900',
-    total: 'tabular-nums font-bold text-slate-900',
-    invoiced: 'tabular-nums font-semibold text-violet-950',
-    booked: 'tabular-nums font-semibold text-cyan-950',
-    paid: 'tabular-nums font-bold text-emerald-950',
-    neutral: 'tabular-nums font-medium text-content',
-    muted: 'tabular-nums text-content-tertiary',
-  };
-
   protected segmentTone(seg: IDocAmountSegment): DocAmountTone {
     if (seg.dataType === EDataType.DATE) {
       return 'neutral';
@@ -68,11 +43,12 @@ export class DocAmountComponent {
     return map[key] ?? 'neutral';
   }
 
+  /** Semantic tone → BEM class suffix (colors in SCSS for theme-aware contrast) */
   protected labelClass(tone: DocAmountTone): string {
-    return DocAmountComponent.LABEL_MAP[tone];
+    return `doc-amount__label doc-amount__label--${tone}`;
   }
 
   protected valueClass(tone: DocAmountTone): string {
-    return DocAmountComponent.VALUE_MAP[tone];
+    return `doc-amount__value doc-amount__value--${tone}`;
   }
 }

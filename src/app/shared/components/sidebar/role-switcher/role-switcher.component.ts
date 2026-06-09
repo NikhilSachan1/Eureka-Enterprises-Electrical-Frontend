@@ -3,8 +3,8 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   HostBinding,
+  HostListener,
   inject,
   input,
   signal,
@@ -25,6 +25,7 @@ import {
 } from '@shared/services';
 import { getMappedValueFromArrayOfObjects, toTitleCase } from '@shared/utility';
 import { ICONS, ROUTE_BASE_PATHS } from '@shared/constants';
+import { SIDEBAR_FOOTER_POPOVER_CLASS } from '../sidebar-popover.util';
 
 export interface UserRole {
   id: string;
@@ -53,14 +54,7 @@ export class RoleSwitcherComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly isSubmitting = signal(false);
-
-  constructor() {
-    effect(() => {
-      if (this.isSidebarCollapsed() && this.rolePopover) {
-        this.rolePopover.hide();
-      }
-    });
-  }
+  protected readonly sidebarFooterPopoverClass = SIDEBAR_FOOTER_POPOVER_CLASS;
 
   /** Computed roles from auth service */
   readonly roles = computed<UserRole[]>(() => {
@@ -102,10 +96,20 @@ export class RoleSwitcherComponent {
   ALL_ICONS = ICONS;
 
   togglePopover(event: Event): void {
-    if (this.isSidebarCollapsed()) {
-      return;
-    }
+    event.stopPropagation();
     this.rolePopover.toggle(event);
+  }
+
+  @HostListener('document:visibilitychange')
+  onDocumentVisibilityChange(): void {
+    if (document.hidden) {
+      this.rolePopover?.hide();
+    }
+  }
+
+  @HostListener('window:blur')
+  onWindowBlur(): void {
+    this.rolePopover?.hide();
   }
 
   /**

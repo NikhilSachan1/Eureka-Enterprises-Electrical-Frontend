@@ -4,6 +4,7 @@ export enum EUserRole {
   OPERATION_MANAGER = 'OPERATION_MANAGER',
   SUPER_ADMIN = 'SUPER_ADMIN',
   ADMIN = 'ADMIN',
+  HR = 'HR',
 }
 
 export const RESTRICTED_ROLES_FOR_USER_ID: string[] = [

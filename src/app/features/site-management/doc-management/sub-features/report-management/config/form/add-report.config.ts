@@ -7,6 +7,7 @@ import {
 } from '@shared/constants';
 import {
   EDataType,
+  EFieldSize,
   ETextCase,
   IFormConfig,
   IFormInputFieldsConfig,
@@ -42,6 +43,19 @@ const ADD_REPORT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddReportUIFormDto>
       },
       validators: [Validators.required],
     },
+    isNoReport: {
+      fieldType: EDataType.CHECKBOX,
+      id: 'isNoReport',
+      fieldName: 'isNoReport',
+      fieldSize: EFieldSize.Small,
+      showStandardLabel: true,
+      defaultValue: false,
+      checkboxConfig: {
+        binary: true,
+        bordered: true,
+        options: [{ label: 'No Report', value: 'noReport' }],
+      },
+    },
     reportNumber: {
       fieldType: EDataType.TEXT,
       id: 'reportNumber',
@@ -51,7 +65,14 @@ const ADD_REPORT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddReportUIFormDto>
         textCase: ETextCase.UPPERCASE,
         regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPECIAL_CHARS,
       },
-      validators: [Validators.required],
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoReport',
+          shouldApply: (isNoReport: boolean) => !isNoReport,
+          validators: [Validators.required],
+          resetOnFalse: true,
+        },
+      ],
     },
     reportDate: {
       fieldType: EDataType.DATE,
@@ -75,14 +96,29 @@ const ADD_REPORT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddReportUIFormDto>
           ...APP_CONFIG.MEDIA_CONFIG.IMAGE,
           ...APP_CONFIG.MEDIA_CONFIG.PDF,
         ],
+        maxFileSize: 1024 * 1024 * 50, // 50MB
       },
-      validators: [Validators.required],
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoReport',
+          shouldApply: (isNoReport: boolean) => !isNoReport,
+          validators: [Validators.required],
+          resetOnFalse: true,
+        },
+      ],
     },
     remarks: {
       fieldType: EDataType.TEXT_AREA,
       id: 'remarks',
       fieldName: 'remarks',
       label: 'Remarks',
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoReport',
+          shouldApply: (isNoReport: boolean) => Boolean(isNoReport),
+          validators: [Validators.required],
+        },
+      ],
     },
   };
 

@@ -239,6 +239,7 @@ export interface ICheckboxFieldConfig {
   binary: boolean;
   indeterminate: boolean;
   align: ECheckBoxAndRadioAlign;
+  bordered?: boolean;
 }
 
 export interface IRadioFieldConfig {

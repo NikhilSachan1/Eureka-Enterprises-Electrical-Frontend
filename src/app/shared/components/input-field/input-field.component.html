@@ -427,7 +427,17 @@
       <label [for]="`checkbox-${config.id}`">{{ config.label }}</label>
     }
     @let checkboxConfig = config.checkboxConfig;
-    <div [class]="`flex flex-${checkboxConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical} gap-4`">
+    <div
+      [class]="
+        checkboxConfig?.bordered
+          ? 'checkbox-field-box flex w-full min-h-[2.75rem] items-center gap-3 rounded-md border border-border-medium bg-bg-paper px-3 py-2 shadow-sm'
+          : `flex flex-${checkboxConfig?.align || ALL_CHECKBOX_AND_RADIO_ALIGN.Vertical} gap-4`
+      "
+      [ngClass]="{
+        'border-red-500': checkboxConfig?.bordered && isFieldInvalid,
+        'pointer-events-none opacity-60': checkboxConfig?.bordered && config.disabledInput,
+      }"
+    >
       @for (option of checkboxConfig?.options; track option.value) {
         <div class="flex items-center">
           <p-checkbox
@@ -445,7 +455,7 @@
           />
           <label
             [for]="`checkbox-${option.value}`"
-            class="ml-2"
+            class="ml-2 cursor-pointer text-sm font-medium text-content"
           >
             {{ option.label }}
           </label>
@@ -485,7 +495,10 @@
     @let fileConfig = config.fileConfig;
     <div
       class="rounded-lg border border-border-medium shadow-sm"
-      [ngClass]="{ 'border-red-500': isFieldInvalid }"
+      [ngClass]="{
+        'border-red-500': isFieldInvalid,
+        'pointer-events-none opacity-60': config.disabledInput,
+      }"
     >
       <p-fileupload
         #fileUploadRef
@@ -535,17 +548,19 @@
               <div class="flex items-center gap-2">
                 <app-button
                   [buttonConfig]="getFileUploadButtonConfig('viewMedia')"
-                  [showDisabledButton]="!files || files.length === 0"
+                  [showDisabledButton]="config.disabledInput || !files || files.length === 0"
                   (onButtonClick)="openFilePreview(files)"
                 />
                 <app-button
                   [buttonConfig]="getFileUploadButtonConfig('uploadMedia')"
-                  [showDisabledButton]="!files || (files?.length ?? 0) >= (fileConfig?.fileLimit ?? 0)"
+                  [showDisabledButton]="
+                    config.disabledInput || !files || (files?.length ?? 0) >= (fileConfig?.fileLimit ?? 0)
+                  "
                   (onButtonClick)="onChoosingFile(chooseCallback)"
                 />
                 <app-button
                   [buttonConfig]="getFileUploadButtonConfig('deleteMedia')"
-                  [showDisabledButton]="!files || files.length === 0"
+                  [showDisabledButton]="config.disabledInput || !files || files.length === 0"
                   (onButtonClick)="onClearAllSelectedFiles($any($event), clearCallback)"
                 />
               </div>
@@ -624,6 +639,7 @@
                       <div class="flex items-center gap-1.5">
                         <app-button
                           [buttonConfig]="getFileUploadButtonConfig('deleteMedia')"
+                          [showDisabledButton]="config.disabledInput || false"
                           (onButtonClick)="onRemovingSelectedFile($any($event), removeFileCallback, i)"
                         />
                       </div>

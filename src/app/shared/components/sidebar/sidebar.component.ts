@@ -17,6 +17,11 @@ import { SidebarUserProfileComponent } from './sidebar-user-profile/sidebar-user
 import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
 import { ContentAreaComponent } from '../content-area/content-area.component';
 import { RoleSwitcherComponent } from './role-switcher/role-switcher.component';
+import {
+  isNodeInSidebarFooterPopover,
+  isPointerInSidebarFooterPopover,
+  isSidebarFooterPopoverOpen,
+} from './sidebar-popover.util';
 
 @Component({
   selector: 'app-sidebar',
@@ -53,6 +58,10 @@ export class SidebarComponent {
   private hoverCollapseTimeout: ReturnType<typeof setTimeout> | null = null;
 
   private readonly onHoverTrackMove = (event: MouseEvent): void => {
+    if (isSidebarFooterPopoverOpen()) {
+      return;
+    }
+
     if (!this.isPointerInSidebar(event.clientX, event.clientY)) {
       this.setHoverExpanded(false);
     }
@@ -153,8 +162,15 @@ export class SidebarComponent {
     this.startHoverTracking();
   }
 
-  onSidebarMouseLeave(): void {
+  onSidebarMouseLeave(event: MouseEvent): void {
     if (!this.isCollapsedDesktop()) {
+      return;
+    }
+
+    if (
+      isSidebarFooterPopoverOpen() ||
+      isNodeInSidebarFooterPopover(event.relatedTarget)
+    ) {
       return;
     }
 
@@ -170,6 +186,10 @@ export class SidebarComponent {
   }
 
   private isPointerInSidebar(clientX: number, clientY: number): boolean {
+    if (isPointerInSidebarFooterPopover(clientX, clientY)) {
+      return true;
+    }
+
     const sidebar = this.sidebarEl()?.nativeElement;
     if (!sidebar) {
       return false;
@@ -219,9 +239,17 @@ export class SidebarComponent {
   }
 
   private scheduleHoverCollapse(): void {
+    if (isSidebarFooterPopoverOpen()) {
+      return;
+    }
+
     this.clearHoverCollapseTimeout();
     this.hoverCollapseTimeout = setTimeout(() => {
       this.hoverCollapseTimeout = null;
+
+      if (isSidebarFooterPopoverOpen()) {
+        return;
+      }
 
       const sidebar = this.sidebarEl()?.nativeElement;
       if (sidebar && !sidebar.matches(':hover')) {
