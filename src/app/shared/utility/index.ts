@@ -36,7 +36,11 @@ export {
   formatMonthYear,
   format24hClockTimesInTextTo12h,
 } from './date-time.util';
-export { getMediaTypeFromUrl, getFileExtension } from './media.util';
+export {
+  getMediaTypeFromUrl,
+  getFileExtension,
+  isAllowedUploadFileType,
+} from './media.util';
 export { filterOptionsByIncludeExclude } from './component.util';
 export {
   isNotRecordCreator,

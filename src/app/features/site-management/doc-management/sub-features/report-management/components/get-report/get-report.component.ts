@@ -177,11 +177,12 @@ export class GetReportComponent implements OnInit {
           siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
         },
         reportDate: record.reportDate,
-        reportNumber: record.isNoReport
-          ? 'No Report'
-          : (record.reportNumber ?? ''),
+        reportNumber: record.reportNumber ?? 'NA',
         jmc: record.jmc,
-        fileKeys: record.isNoReport || !record.fileKey ? [] : [record.fileKey],
+        fileKeys:
+          record.reportNumber === null || !record.fileKey
+            ? []
+            : [record.fileKey],
         contractor: record.contractor,
         documentReferenceHierarchy: DocReferenceHierarchy.forReportRow({
           poNumber: record.jmc.po.poNumber,
@@ -280,9 +281,7 @@ export class GetReportComponent implements OnInit {
       ],
       entity: {
         name: `${selectedRow.contractor?.name ?? ''} ${selectedRow.vendor?.name ?? ''}`.trim(),
-        subtitle: selectedRow.isNoReport
-          ? 'No Report'
-          : (selectedRow.reportNumber ?? ''),
+        subtitle: selectedRow.reportNumber ?? 'NA',
       },
     };
   }

@@ -31,6 +31,7 @@ export const API_ROUTES = {
   ATTACHMENTS: {
     GET_FILE_URL: 'files',
     FINANCIAL_UPLOAD: 'files/financial-upload',
+    REPORT_UPLOAD: 'files/site-report-upload',
   },
   AUTH: {
     LOGIN: 'auth/sign-in',

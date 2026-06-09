@@ -1,5 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { stringToArray } from './string.util';
+import { isAllowedUploadFileType } from './media.util';
 
 export const noSpecialCharactersValidator = (): ValidatorFn => {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -70,10 +70,11 @@ export const fileFormatValidator = (
       return null;
     }
 
-    const fileTypes = value.map(
-      (file: File) => stringToArray(file.type, '/')[1]
+    const hasInvalidFile = (value as File[]).some(
+      file => !isAllowedUploadFileType(file, allowedFileTypes)
     );
-    return fileTypes.some((type: string) => !allowedFileTypes.includes(type))
+
+    return hasInvalidFile
       ? { fileFormat: true, fileFormatValue: allowedFileTypes }
       : null;
   };
