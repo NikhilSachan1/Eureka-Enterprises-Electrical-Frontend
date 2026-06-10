@@ -15,7 +15,6 @@ export const ReportUpsertShapeSchema = z
   .object({
     jmcNumber: z.string(),
     isNoReport: z.boolean(),
-    reportNumber: z.string().nullable(),
     reportDate: dateField,
     reportFileKey: z.string().nullable(),
     reportFileName: z.string().nullable(),

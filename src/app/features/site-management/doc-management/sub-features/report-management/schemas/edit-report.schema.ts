@@ -8,7 +8,7 @@ export const EditReportRequestSchema = ReportUpsertShapeSchema.omit({
   .strict()
   .transform(data => {
     return {
-      reportNumber: data.isNoReport ? null : data.reportNumber,
+      reportNumber: null,
       reportDate: transformDateFormat(data.reportDate),
       fileKey: data.isNoReport ? null : data.reportFileKey,
       fileName: data.isNoReport ? null : data.reportFileName,
