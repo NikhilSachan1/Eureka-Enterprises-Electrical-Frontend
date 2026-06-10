@@ -2,6 +2,19 @@
   overflow-wrap: break-word;
 }
 
+// Theme-aware card surface — avoids light status tints (e.g. pending yellow) with dark-theme text.
+:host ::ng-deep p-card.view-detail-card,
+:host ::ng-deep .view-detail-card .p-card {
+  background-color: var(--surface-100);
+  border: 1px solid var(--border-main-color);
+  color: var(--text-primary-color);
+}
+
+:host ::ng-deep .view-detail-card .p-card-body,
+:host ::ng-deep .view-detail-card .p-card-content {
+  color: var(--text-primary-color);
+}
+
 .view-detail-field:has(.configuration-settings) {
   align-items: stretch;
   width: 100%;
@@ -34,9 +47,8 @@
   letter-spacing: 0.05em;
 }
 
-// Value: card often has light bg from status (Tailwind), so use dark text so content shows in both themes
 .view-detail-value {
-  color: var(--text-primary-color) !important;
+  color: var(--text-primary-color);
 }
 
 .view-detail-prefix,
@@ -46,7 +58,7 @@
 
 .view-detail-currency {
   font-weight: 600;
-  color: var(--text-primary-color) !important;
+  color: var(--text-primary-color);
 }
 
 .view-detail-meta {

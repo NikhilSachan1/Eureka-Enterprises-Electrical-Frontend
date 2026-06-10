@@ -146,13 +146,6 @@ export class ViewDetailComponent {
     return StatusUtil.getColorClass(status);
   }
 
-  protected getDetailCardBg(detail: IDataViewDetails): string {
-    const approvalStatus = detail.status?.approvalStatus ?? '';
-    return approvalStatus !== ''
-      ? StatusUtil.getColorClass(approvalStatus).bg
-      : '!bg-gray-50';
-  }
-
   protected getAvatarUrl(name: string): string {
     return this.avatarService.getAvatarFromName(name);
   }
