@@ -248,6 +248,15 @@ export class GetProjectComponent implements OnInit {
           { label: 'Work Completed', value: stats?.workCompletedSites ?? 0 },
         ],
       },
+      {
+        id: 'projectType',
+        title: 'By Project Type',
+        icon: ICONS.COMMON.TAG,
+        metrics: [
+          { label: 'Electrical', icon: ICONS.COMMON.BOLT, value: 0 },
+          { label: 'Civil', icon: ICONS.SITE.BUILDING, value: 0 },
+        ],
+      },
     ];
 
     return applyGroupMetricValueLoading(groups, loading);
