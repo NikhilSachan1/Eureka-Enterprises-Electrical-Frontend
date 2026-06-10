@@ -91,8 +91,6 @@ export class ForceAttendanceComponent
         trackedFields,
         this.destroyRef
       );
-
-    // this.loadMockData(FORCE_ATTENDANCE_PREFILLED_DATA);
   }
 
   private loadEmployeeCurrentStatusDetail(employeeName: string): void {

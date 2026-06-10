@@ -33,21 +33,9 @@ export class EmployeeDashboardComponent {
     icon: ICONS.COMMON.ARROW_RIGHT,
   });
 
-  protected readonly metrics = signal<IDashboardEmployeeMetrics>(
-    this.buildEmployeeMock()
-  );
+  protected readonly metrics = signal<IDashboardEmployeeMetrics | null>(null);
 
   protected navigateTo(paths: string[]): void {
     void this.router.navigate(paths);
-  }
-
-  private buildEmployeeMock(): IDashboardEmployeeMetrics {
-    return {
-      total: 12,
-      active: 11,
-      inactive: 1,
-      newJoinersLast30Days: 2,
-      byGender: { male: 6, female: 4, other: 2 },
-    };
   }
 }

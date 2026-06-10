@@ -18,7 +18,6 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { RouterNavigationService } from '@shared/services/router-navigation.service';
 import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
-import { REIMBURSE_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/reimburse-expense.mock-data';
 import { FormBase } from '@shared/base/form.base';
 import { ActivatedRoute } from '@angular/router';
 
@@ -53,7 +52,6 @@ export class ReimburseExpenseComponent
       }
     );
 
-    this.loadMockData(REIMBURSE_EXPENSE_PREFILLED_DATA);
     this.applyPrefillFromQueryParams();
   }
 

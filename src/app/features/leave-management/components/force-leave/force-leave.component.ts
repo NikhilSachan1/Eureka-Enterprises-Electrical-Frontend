@@ -22,7 +22,6 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { RouterNavigationService } from '@shared/services';
 import { IPageHeaderConfig, ITrackedFields } from '@shared/types';
 import { finalize } from 'rxjs';
-import { FORCE_LEAVE_PREFILLED_DATA } from '@shared/mock-data/force-leave.mock-data';
 import { FormBase } from '@shared/base/form.base';
 import { LeaveBalanceCardsComponent } from '../../shared/components/leave-balance-cards/leave-balance-cards.component';
 
@@ -85,8 +84,6 @@ export class ForceLeaveComponent
         trackedFields,
         this.destroyRef
       );
-
-    this.loadMockData(FORCE_LEAVE_PREFILLED_DATA);
   }
 
   override handleSubmit(): void {

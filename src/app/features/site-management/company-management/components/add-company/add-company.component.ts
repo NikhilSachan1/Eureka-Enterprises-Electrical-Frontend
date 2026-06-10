@@ -17,7 +17,6 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { IPageHeaderConfig } from '@shared/types';
-import { ADD_COMPANY_PREFILLED_DATA } from '@shared/mock-data/add-company.mock-data';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -52,8 +51,6 @@ export class AddCompanyComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    this.loadMockData(ADD_COMPANY_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

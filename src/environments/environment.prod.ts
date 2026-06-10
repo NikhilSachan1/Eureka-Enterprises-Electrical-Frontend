@@ -11,9 +11,4 @@ export const environment: Environment = {
 
   // Feature Flags (environment-specific)
   ENABLE_LOGGING: true, // Disable logging in production
-
-  // Test Data Flags (environment-specific)
-  ENABLE_TEST_DATA: false,
-
-  MOCK_SYSTEM_DATE: null,
 };

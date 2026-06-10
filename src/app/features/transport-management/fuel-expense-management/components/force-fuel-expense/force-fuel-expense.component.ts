@@ -83,8 +83,6 @@ export class ForceFuelExpenseComponent
         trackedFields,
         this.destroyRef
       );
-
-    // this.loadMockData(FORCE_EXPENSE_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

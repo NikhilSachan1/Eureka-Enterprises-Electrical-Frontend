@@ -32,8 +32,6 @@ import {
 import { ILoginFormDto, ILoginResponseDto } from '../../types/auth.dto';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { FormBase } from '@shared/base/form.base';
-import { LOGIN_PREFILLED_DATA } from '@shared/mock-data/auth.mock-data';
-
 @Component({
   selector: 'app-login',
   imports: [
@@ -73,8 +71,6 @@ export class LoginComponent extends FormBase<ILoginFormDto> implements OnInit {
     this.form = this.formService.createForm<ILoginFormDto>(LOGIN_FORM_CONFIG, {
       destroyRef: this.destroyRef,
     });
-
-    this.loadMockData(LOGIN_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

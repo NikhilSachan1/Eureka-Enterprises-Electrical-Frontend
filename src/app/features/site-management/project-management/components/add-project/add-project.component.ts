@@ -24,7 +24,6 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ADD_PROJECT_PREFILLED_DATA } from '@shared/mock-data/add-project.mock-data';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
@@ -81,8 +80,6 @@ export class AddProjectComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    this.loadMockData(ADD_PROJECT_PREFILLED_DATA);
 
     this.trackedProjectFields =
       this.formService.trackMultipleFieldChanges<IProjectAddFormDto>(

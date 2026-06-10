@@ -50,7 +50,6 @@ export class ReimburseFuelExpenseComponent
       }
     );
 
-    // this.loadMockData(REIMBURSE_EXPENSE_PREFILLED_DATA);
     this.applyPrefillFromQueryParams();
   }
 

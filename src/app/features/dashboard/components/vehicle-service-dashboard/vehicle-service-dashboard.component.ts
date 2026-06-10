@@ -37,37 +37,7 @@ export class VehicleServiceDashboardComponent {
     null
   );
 
-  constructor() {
-    this.metrics.set(this.buildMock());
-  }
-
   protected navigateTo(paths: string[]): void {
     void this.router.navigate(paths);
-  }
-
-  private buildMock(): IDashboardVehicleServiceMetrics {
-    const upcomingItems = [
-      { vehicleName: 'Tata Ace Gold', vehicleNumber: 'MH12 AB 1234' },
-      { vehicleName: 'Ashok Leyland Dost', vehicleNumber: 'MH12 AB 5678' },
-      { vehicleName: 'Mahindra Jeeto', vehicleNumber: 'DL01 CD 1111' },
-      { vehicleName: 'Mahindra Bolero Pik-Up', vehicleNumber: 'MH14 CD 9012' },
-      { vehicleName: 'Maruti Eeco Cargo', vehicleNumber: 'GJ01 EF 5566' },
-    ] as const;
-    const dueSoonItems = [
-      { vehicleName: 'Tata Intra V30', vehicleNumber: 'MH12 AB 9999' },
-      { vehicleName: 'Force Traveller', vehicleNumber: 'KA03 GH 2244' },
-    ] as const;
-    const overdueItems = [
-      { vehicleName: 'Tata 407', vehicleNumber: 'MH12 AB 4321' },
-    ] as const;
-
-    return {
-      upcoming: upcomingItems.length,
-      dueSoon: dueSoonItems.length,
-      overdue: overdueItems.length,
-      upcomingItems,
-      dueSoonItems,
-      overdueItems,
-    };
   }
 }

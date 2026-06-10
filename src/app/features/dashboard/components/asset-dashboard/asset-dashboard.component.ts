@@ -35,40 +35,7 @@ export class AssetDashboardComponent {
 
   protected readonly metrics = signal<IDashboardAssetMetrics | null>(null);
 
-  constructor() {
-    this.metrics.set(this.buildMock());
-  }
-
   protected navigateTo(paths: string[]): void {
     void this.router.navigate(paths);
-  }
-
-  private buildMock(): IDashboardAssetMetrics {
-    const calibrationExpiringSoonItems = [
-      { name: 'Digital multimeter Fluke 87V', assetId: 'AST-10442' },
-      { name: 'Insulation tester Megger', assetId: 'AST-08917' },
-      { name: 'Earth tester', assetId: 'AST-22003' },
-    ] as const;
-    const calibrationExpiredItems = [
-      { name: 'Clamp meter Uni-T', assetId: 'AST-05102' },
-    ] as const;
-    const warrantyExpiringSoonItems = [
-      { name: 'Portable DG set 5kVA', assetId: 'AST-30011' },
-      { name: 'Hydraulic crimping tool', assetId: 'AST-17765' },
-    ] as const;
-    const warrantyExpiredItems = [] as const;
-
-    return {
-      total: 48,
-      free: 9,
-      calibrationExpiringSoon: calibrationExpiringSoonItems.length,
-      calibrationExpired: calibrationExpiredItems.length,
-      warrantyExpiringSoon: warrantyExpiringSoonItems.length,
-      warrantyExpired: warrantyExpiredItems.length,
-      calibrationExpiringSoonItems,
-      calibrationExpiredItems,
-      warrantyExpiringSoonItems,
-      warrantyExpiredItems,
-    };
   }
 }

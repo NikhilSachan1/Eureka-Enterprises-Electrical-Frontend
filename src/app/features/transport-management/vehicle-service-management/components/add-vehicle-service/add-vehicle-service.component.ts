@@ -47,8 +47,6 @@ export class AddVehicleServiceComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    // this.loadMockData(ADD_VEHICLE_SERVICE_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

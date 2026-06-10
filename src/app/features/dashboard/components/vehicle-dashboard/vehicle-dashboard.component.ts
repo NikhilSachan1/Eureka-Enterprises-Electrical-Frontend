@@ -37,36 +37,7 @@ export class VehicleDashboardComponent {
     null
   );
 
-  constructor() {
-    this.metrics.set(this.buildMock());
-  }
-
   protected navigateTo(paths: string[]): void {
     void this.router.navigate(paths);
-  }
-
-  private buildMock(): IDashboardVehicleFleetMetrics {
-    const complianceExpiringSoonItems = [
-      { vehicleName: 'Tata Ace Gold', vehicleNumber: 'MH12 AB 1234' },
-      { vehicleName: 'Mahindra Bolero Pik-Up', vehicleNumber: 'MH14 CD 9012' },
-    ] as const;
-    const complianceExpiredItems = [] as const;
-    const warrantyExpiringSoonItems = [
-      { vehicleName: 'Maruti Eeco Cargo', vehicleNumber: 'GJ01 EF 5566' },
-    ] as const;
-    const warrantyExpiredItems = [] as const;
-
-    return {
-      total: 14,
-      free: 3,
-      complianceExpiringSoon: complianceExpiringSoonItems.length,
-      complianceExpired: complianceExpiredItems.length,
-      warrantyExpiringSoon: warrantyExpiringSoonItems.length,
-      warrantyExpired: warrantyExpiredItems.length,
-      complianceExpiringSoonItems,
-      complianceExpiredItems,
-      warrantyExpiringSoonItems,
-      warrantyExpiredItems,
-    };
   }
 }
