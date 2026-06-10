@@ -7,6 +7,7 @@ export const ProjectEditRequestSchema =
     const [startDate, endDate] = data.timeline ?? [];
     return {
       name: data.projectName,
+      siteTypes: data.projectType,
       companyId: data.companyName,
       contractorIds: data.contractorNames,
       vendorIds: data.vendorNames,

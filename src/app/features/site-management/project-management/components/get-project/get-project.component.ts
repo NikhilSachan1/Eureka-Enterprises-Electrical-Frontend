@@ -6,6 +6,8 @@ import {
   inject,
   OnInit,
   signal,
+  TemplateRef,
+  viewChild,
 } from '@angular/core';
 import { LoggerService } from '@core/services';
 import {
@@ -57,6 +59,7 @@ import {
   getMappedValueFromArrayOfObjects,
 } from '@shared/utility';
 import { SEARCH_FILTER_PROJECT_FORM_CONFIG } from '../../config/form/search-filter-project.config';
+import { ProjectSiteTypeChipsComponent } from '../project-site-type-chips/project-site-type-chips.component';
 import { EVendorType } from '@features/site-management/vendor-management/types/vendor.enum';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -70,6 +73,7 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     ChipComponent,
     DataTableComponent,
     PopoverModule,
+    ProjectSiteTypeChipsComponent,
   ],
   templateUrl: './get-project.component.html',
   styleUrl: './get-project.component.scss',
@@ -91,6 +95,10 @@ export class GetProjectComponent implements OnInit {
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly APP_CONFIG = APP_CONFIG;
+
+  private readonly projectSiteTypesDetailTpl = viewChild<TemplateRef<unknown>>(
+    'projectSiteTypesDetail'
+  );
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -149,6 +157,7 @@ export class GetProjectComponent implements OnInit {
       return {
         id: record.id,
         projectName: record.name,
+        siteTypes: record.siteTypes ?? [],
         projectLocation: formatLocation(
           record,
           this.appConfigurationService.states(),
@@ -275,10 +284,20 @@ export class GetProjectComponent implements OnInit {
     };
 
     const recordDetail = this.prepareProjectRecordDetail(selectedFirstRow);
+    const detailTpl = this.projectSiteTypesDetailTpl();
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      PROJECT_ACTION_CONFIG_MAP[actionType],
+      {
+        ...PROJECT_ACTION_CONFIG_MAP[actionType],
+        ...(detailTpl
+          ? {
+              detailViewCustomTemplates: {
+                projectSiteTypes: detailTpl,
+              },
+            }
+          : {}),
+      },
       recordDetail,
       isBulk,
       !isBulk,
@@ -290,6 +309,11 @@ export class GetProjectComponent implements OnInit {
     selectedRow: IProjectGetBaseResponseDto
   ): IDataViewDetailsWithEntity {
     const entryData: IDataViewDetails['entryData'] = [
+      {
+        label: 'Project Type',
+        value: selectedRow.siteTypes ?? [],
+        customTemplateKey: 'projectSiteTypes',
+      },
       {
         label: 'Time Line',
         value: [selectedRow.startDate, selectedRow.endDate],

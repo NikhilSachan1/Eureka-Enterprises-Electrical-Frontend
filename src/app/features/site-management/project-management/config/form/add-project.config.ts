@@ -27,6 +27,19 @@ const ADD_PROJECT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IProjectAddFormDto>
       },
       validators: [Validators.required],
     },
+    projectType: {
+      id: 'projectType',
+      fieldName: 'projectType',
+      label: 'Project Type',
+      fieldType: EDataType.MULTI_SELECT,
+      multiSelectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.PROJECT,
+          dropdownName: CONFIGURATION_KEYS.PROJECT.PROJECT_TYPES,
+        },
+      },
+      validators: [Validators.required],
+    },
     companyName: {
       id: 'companyName',
       fieldName: 'companyName',

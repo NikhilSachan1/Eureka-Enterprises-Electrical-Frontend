@@ -138,6 +138,7 @@ export class EditProjectComponent
   ): IProjectEditFormDto {
     const {
       name,
+      siteTypes,
       companyId,
       siteContractors,
       vendors,
@@ -155,6 +156,7 @@ export class EditProjectComponent
 
     return {
       projectName: name,
+      projectType: siteTypes ?? [],
       companyName: companyId,
       contractorNames:
         siteContractors?.map(contractor => contractor.contractorId) ?? [],

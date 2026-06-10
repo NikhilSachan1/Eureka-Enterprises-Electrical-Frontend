@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const ProjectBaseSchema = z.looseObject({
   id: uuidField,
   name: z.string(),
+  siteTypes: z.array(z.string()),
   companyId: uuidField,
   managerName: z.string(),
   managerContact: z.string().nullable(),
@@ -35,6 +36,7 @@ const {
 export const ProjectUpsertShapeSchema = z
   .object({
     projectName: name,
+    projectType: z.array(z.string()).min(1),
     companyName: companyId,
     contractorNames: z.array(uuidField).min(1),
     vendorNames: z.array(uuidField).nullable(),

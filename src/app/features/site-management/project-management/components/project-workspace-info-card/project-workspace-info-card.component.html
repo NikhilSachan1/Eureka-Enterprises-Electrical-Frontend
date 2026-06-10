@@ -32,6 +32,13 @@
         }
 
         <div class="info-card__meta">
+          <span class="info-card__label">Project Type</span>
+          <span class="info-card__value">
+            <app-project-site-type-chips [siteTypes]="site()?.siteTypes ?? []" />
+          </span>
+        </div>
+
+        <div class="info-card__meta">
           <span class="info-card__label">Site manager</span>
           <span class="info-card__value">{{ project.managerName }}</span>
         </div>

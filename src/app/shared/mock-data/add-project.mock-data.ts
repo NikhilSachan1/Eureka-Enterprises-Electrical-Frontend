@@ -14,6 +14,7 @@ import { IProjectAddFormDto } from '@features/site-management/project-management
 
 export const ADD_PROJECT_PREFILLED_DATA: IProjectAddFormDto = {
   projectName: getRandomItem(TEST_PROJECT_NAMES),
+  projectType: [getRandomItem(['Electrical', 'Civil'])],
   companyName: getRandomItem(TEST_COMPANY_NAMES),
   contractorNames: [getRandomItem(TEST_CONTRACTOR_NAMES)],
   vendorNames: [],

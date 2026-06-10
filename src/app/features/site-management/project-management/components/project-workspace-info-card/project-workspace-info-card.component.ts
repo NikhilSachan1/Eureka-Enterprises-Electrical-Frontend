@@ -12,11 +12,18 @@ import { SectionLoaderComponent } from '@shared/components/section-loader/sectio
 import { ICONS } from '@shared/constants';
 import { AppConfigurationService } from '@shared/services';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { ProjectSiteTypeChipsComponent } from '../project-site-type-chips/project-site-type-chips.component';
 import { IProjectOverviewGetResponseDto } from '../../types/project.dto';
 
 @Component({
   selector: 'app-project-workspace-info-card',
-  imports: [CommonModule, ChipComponent, DatePipe, SectionLoaderComponent],
+  imports: [
+    CommonModule,
+    ChipComponent,
+    DatePipe,
+    SectionLoaderComponent,
+    ProjectSiteTypeChipsComponent,
+  ],
   templateUrl: './project-workspace-info-card.component.html',
   styleUrl: './project-workspace-info-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

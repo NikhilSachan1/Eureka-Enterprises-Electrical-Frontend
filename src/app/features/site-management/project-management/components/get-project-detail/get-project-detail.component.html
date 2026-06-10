@@ -1,1 +1,11 @@
-<app-view-detail [drawerDetails]="_projectDetails()" />
+<ng-template
+  #projectSiteTypes
+  let-entry
+>
+  <app-project-site-type-chips [siteTypes]="$any(entry).value ?? []" />
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_projectDetails()"
+  [customTemplates]="{ projectSiteTypes: projectSiteTypes }"
+/>
