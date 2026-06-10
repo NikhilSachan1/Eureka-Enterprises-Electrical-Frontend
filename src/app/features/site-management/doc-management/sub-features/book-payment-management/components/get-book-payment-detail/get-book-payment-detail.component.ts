@@ -115,17 +115,16 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
       {
-        label: 'Bank transfer',
-        value: record.hasTransfer === true ? 'Done' : 'Pending',
-        type: EDataType.STATUS,
-      },
-      {
         label: 'Payment Hold Reason',
         value: record.paymentHoldReason ?? '—',
       },
     ];
 
     const detail: IDataViewDetails = {
+      status: {
+        entryType: 'Bank Transfer',
+        approvalStatus: record.hasTransfer === true ? 'Done' : 'Pending',
+      },
       entryData,
       createdBy: {
         user: record.createdByUser,
