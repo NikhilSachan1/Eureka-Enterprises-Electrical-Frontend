@@ -80,9 +80,7 @@ export type IAttendanceApplyUIFormDto = Pick<
   'remark'
 > & {
   company: NonNullable<IAttendanceApplyFormDto['company']>['id'] | null;
-  contractors: NonNullable<
-    IAttendanceApplyFormDto['contractors'][number]
-  >['id'][];
+  contractor: NonNullable<IAttendanceApplyFormDto['contractor']>['id'] | null;
   vehicle: NonNullable<IAttendanceApplyFormDto['vehicle']>['id'] | null;
   assignedEngineer:
     | NonNullable<IAttendanceApplyFormDto['assignedEngineer']>['id']
@@ -125,9 +123,7 @@ export type IAttendanceForceUIFormDto = Pick<
   'employeeName' | 'attendanceDate' | 'attendanceStatus' | 'remark'
 > & {
   company: NonNullable<IAttendanceForceFormDto['company']>['id'] | null;
-  contractors: NonNullable<
-    IAttendanceForceFormDto['contractors'][number]
-  >['id'][];
+  contractor: NonNullable<IAttendanceForceFormDto['contractor']>['id'] | null;
   vehicle: NonNullable<IAttendanceForceFormDto['vehicle']>['id'] | null;
   assignedEngineer:
     | NonNullable<IAttendanceForceFormDto['assignedEngineer']>['id']

@@ -25,12 +25,12 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
         },
       },
     },
-    contractors: {
-      fieldType: EDataType.MULTI_SELECT,
-      id: 'contractors',
-      fieldName: 'contractors',
-      label: 'Contractors',
-      multiSelectConfig: {
+    contractor: {
+      fieldType: EDataType.SELECT,
+      id: 'contractor',
+      fieldName: 'contractor',
+      label: 'Contractor',
+      selectConfig: {
         dynamicDropdown: {
           moduleName: MODULE_NAMES.CONTRACTOR,
           dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,

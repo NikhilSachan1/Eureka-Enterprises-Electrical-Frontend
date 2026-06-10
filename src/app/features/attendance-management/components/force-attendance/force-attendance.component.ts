@@ -140,7 +140,7 @@ export class ForceAttendanceComponent
   ): Partial<IAttendanceForceUIFormDto> {
     return {
       company: response.company?.id ?? null,
-      contractors: response.contractors?.map(c => c?.id ?? '') ?? [],
+      contractor: response.contractor?.id ?? null,
       vehicle: response.vehicle?.id ?? null,
     };
   }
@@ -153,6 +153,7 @@ export class ForceAttendanceComponent
   private prepareFormData(): IAttendanceForceFormDto {
     const formData = this.form.getData();
     const companyId = formData.company;
+    const contractorId = formData.contractor;
     const vehicleId = formData.vehicle;
     const engineerId = formData.assignedEngineer;
 
@@ -167,16 +168,14 @@ export class ForceAttendanceComponent
             'value',
             'data'
           ) as ICompanyGetBaseResponseDto) ?? null),
-      contractors: formData.contractors.map(c =>
-        this.isBlankId(c)
-          ? null
-          : ((getMappedValueFromArrayOfObjects(
-              this.appConfigurationService.contractorList(),
-              c,
-              'value',
-              'data'
-            ) as IContractorGetBaseResponseDto) ?? null)
-      ),
+      contractor: this.isBlankId(contractorId)
+        ? null
+        : ((getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.contractorList(),
+            contractorId,
+            'value',
+            'data'
+          ) as IContractorGetBaseResponseDto) ?? null),
       vehicle: this.isBlankId(vehicleId)
         ? null
         : ((getMappedValueFromArrayOfObjects(

@@ -31,10 +31,10 @@ export const AttendanceForceRequestSchema = AttendanceUpsertShapeSchema.extend({
         name: data.company?.name,
         fullAddress: data.company?.fullAddress,
       },
-      contractors: data.contractors.map(c => ({
-        id: c?.id,
-        name: c?.name,
-      })),
+      contractors: {
+        id: data.contractor?.id,
+        name: data.contractor?.name,
+      },
       vehicle: {
         id: data.vehicle?.id,
         registrationNo: data.vehicle?.registrationNo,

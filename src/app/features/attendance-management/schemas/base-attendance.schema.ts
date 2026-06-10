@@ -44,16 +44,11 @@ export const AttendanceBaseSchema = z.looseObject({
         })
         .optional()
         .nullable(),
-      contractors: z
-        .array(
-          z
-            .looseObject({
-              id: uuidField,
-              name: z.string(),
-            })
-            .optional()
-            .nullable()
-        )
+      contractor: z
+        .looseObject({
+          id: uuidField,
+          name: z.string(),
+        })
         .optional()
         .nullable(),
       vehicle: z
@@ -80,7 +75,7 @@ export const AttendanceBaseSchema = z.looseObject({
 export const AttendanceUpsertShapeSchema = z
   .object({
     company: CompanyGetBaseResponseSchema.nullable(),
-    contractors: z.array(ContractorGetBaseResponseSchema.nullable()),
+    contractor: ContractorGetBaseResponseSchema.nullable(),
     vehicle: VehicleBaseSchema.nullable(),
     assignedEngineer: z
       .looseObject({

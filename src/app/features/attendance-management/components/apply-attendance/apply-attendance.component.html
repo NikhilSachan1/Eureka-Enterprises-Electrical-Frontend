@@ -73,8 +73,8 @@
                 - The company (and location) where you are required to report for this assignment.
               </li>
               <li>
-                <b>Contractors</b>
-                - The contractor(s) you are working for on this assignment.
+                <b>Contractor</b>
+                - The contractor you are working for on this assignment.
               </li>
               <li>
                 <b>Assigned Engineer</b>
@@ -142,7 +142,7 @@
                   <div class="assignment-row__content assignment-row__content--full">
                     <app-input-field
                       [formGroup]="form.formGroup"
-                      [inputFieldConfig]="form.fieldConfigs.contractors"
+                      [inputFieldConfig]="form.fieldConfigs.contractor"
                     />
                   </div>
                 } @else {
@@ -150,9 +150,9 @@
                     <i [class]="ALL_ICONS.COMMON.USER"></i>
                   </div>
                   <div class="assignment-row__content">
-                    <span class="assignment-row__label">Contractors</span>
+                    <span class="assignment-row__label">Contractor</span>
                     <span class="assignment-row__value">
-                      {{ assignmentDisplayLabels().contractors | textCase: 'title' }}
+                      {{ assignmentDisplayLabels().contractorName | textCase: 'title' }}
                     </span>
                   </div>
                 }

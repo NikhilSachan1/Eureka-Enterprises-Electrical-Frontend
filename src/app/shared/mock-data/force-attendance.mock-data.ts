@@ -15,7 +15,7 @@ export const FORCE_ATTENDANCE_PREFILLED_DATA: IAttendanceForceFormDto = {
   ) as EAttendanceStatus,
   remark: 'System regularization - Employee was on field duty',
   company: null,
-  contractors: [],
+  contractor: null,
   vehicle: null,
   assignedEngineer: null,
 };

@@ -46,12 +46,12 @@
         <i [class]="ALL_ICONS.SITE.BUILDING"></i>
       </span>
       <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Contractors</span>
+        <span class="attendance-assignment-details__label">Contractor</span>
         <span
           class="attendance-assignment-details__value"
-          [title]="row.assignmentSnapshot?.contractorsDisplay || '—'"
+          [title]="row.assignmentSnapshot?.contractor?.name || '—'"
         >
-          {{ row.assignmentSnapshot?.contractorsDisplay || '—' }}
+          {{ row.assignmentSnapshot?.contractor?.name || '—' }}
         </span>
       </div>
     </div>

@@ -117,7 +117,7 @@ export class ApplyAttendanceComponent
 
     const trackedFields: (keyof IAttendanceApplyUIFormDto)[] = [
       'company',
-      'contractors',
+      'contractor',
       'vehicle',
       'assignedEngineer',
     ];
@@ -133,13 +133,13 @@ export class ApplyAttendanceComponent
     companyName: string;
     companyCity: string;
     companyState: string;
-    contractors: string;
+    contractorName: string;
     engineer: string;
     vehicle: string;
   } {
     const v = this.trackedApplyAttendanceFields?.getValues();
     const companyId = v?.company;
-    const contractorIds = v?.contractors;
+    const contractorId = v?.contractor;
     const vehicleId = v?.vehicle;
     const engineerId = v?.assignedEngineer;
 
@@ -173,18 +173,15 @@ export class ApplyAttendanceComponent
         '-';
     }
 
-    let contractorsNames = '-';
-    if (contractorIds?.length) {
-      const contractorsData = contractorIds.map(
-        id =>
-          getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.contractorList(),
-            id,
-            'value',
-            'data'
-          ) as IContractorGetBaseResponseDto
-      );
-      contractorsNames = contractorsData.map(c => c.name).join(', ');
+    let contractorName = '-';
+    if (contractorId) {
+      const contractorData = getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.contractorList(),
+        contractorId,
+        'value',
+        'data'
+      ) as IContractorGetBaseResponseDto;
+      contractorName = contractorData?.name?.trim() ?? '-';
     }
 
     let engineer = '-';
@@ -213,7 +210,7 @@ export class ApplyAttendanceComponent
       companyName,
       companyCity,
       companyState,
-      contractors: contractorsNames,
+      contractorName,
       engineer,
       vehicle,
     };
@@ -243,11 +240,11 @@ export class ApplyAttendanceComponent
   private preparePrefilledFormData(
     currentStatusFromResolver: IAttendanceCurrentStatusGetResponseDto
   ): IAttendanceApplyUIFormDto {
-    const { company, contractors, vehicle, assignedEngineer } =
+    const { company, contractor, vehicle, assignedEngineer } =
       currentStatusFromResolver;
     return {
       company: company?.id ?? null,
-      contractors: contractors?.map(c => c?.id ?? '') ?? [],
+      contractor: contractor?.id ?? null,
       vehicle: vehicle?.id ?? null,
       assignedEngineer: assignedEngineer?.id ?? null,
       remark: null,
@@ -262,6 +259,7 @@ export class ApplyAttendanceComponent
   private prepareFormData(): IAttendanceApplyFormDto {
     const formData = this.form.getData();
     const companyId = formData.company;
+    const contractorId = formData.contractor;
     const vehicleId = formData.vehicle;
     const engineerId = formData.assignedEngineer;
 
@@ -276,16 +274,14 @@ export class ApplyAttendanceComponent
             'value',
             'data'
           ) as ICompanyGetBaseResponseDto) ?? null),
-      contractors: formData.contractors.map(c =>
-        this.isBlankId(c)
-          ? null
-          : ((getMappedValueFromArrayOfObjects(
-              this.appConfigurationService.contractorList(),
-              c,
-              'value',
-              'data'
-            ) as IContractorGetBaseResponseDto) ?? null)
-      ),
+      contractor: this.isBlankId(contractorId)
+        ? null
+        : ((getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.contractorList(),
+            contractorId,
+            'value',
+            'data'
+          ) as IContractorGetBaseResponseDto) ?? null),
       vehicle: this.isBlankId(vehicleId)
         ? null
         : ((getMappedValueFromArrayOfObjects(
