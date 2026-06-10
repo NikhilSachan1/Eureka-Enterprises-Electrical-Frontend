@@ -30,6 +30,17 @@
   <div class="grid grid-cols-1 md:grid-cols-2">
     <app-input-field
       [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.tdsPercent"
+    />
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.tdsAmount"
+    />
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs.gstPercent"
     />
     <app-input-field

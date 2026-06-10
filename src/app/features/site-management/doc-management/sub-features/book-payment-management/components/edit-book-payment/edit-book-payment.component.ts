@@ -27,7 +27,6 @@ import {
   IInvoiceDropdownGetRequestDto,
   IInvoiceDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/invoice-management/types/invoice.dto';
-import { roundCurrencyAmount } from '@shared/utility';
 import {
   applyProjectDateRangeFromSite,
   IProjectSiteDateRange,
@@ -62,11 +61,6 @@ export class EditBookPaymentComponent
 
   private trackedBookPaymentInputs!: ITrackedFields<IEditBookPaymentUIFormDto>;
 
-  private allowTdsAutoRecalc = false;
-
-  private prefilledTaxableAmount: number | null = null;
-  private prefilledTdsPercentage: number | null = null;
-
   protected readonly selectedRecord =
     input.required<IBookPaymentGetBaseResponseDto[]>();
   protected readonly onSuccess = input.required<() => void>();
@@ -84,26 +78,6 @@ export class EditBookPaymentComponent
           this.loadInvoiceOptions(siteId);
         }
       }
-    });
-    effect(() => {
-      const tracked = this.trackedBookPaymentInputs;
-      const taxable = tracked?.taxableAmount?.();
-      const tdsPercentage = tracked?.tdsPercentage?.();
-      const { prefilledTaxableAmount } = this;
-      const { prefilledTdsPercentage } = this;
-      if (
-        prefilledTaxableAmount !== null &&
-        prefilledTdsPercentage !== null &&
-        tracked !== undefined
-      ) {
-        if (
-          taxable !== prefilledTaxableAmount ||
-          tdsPercentage !== prefilledTdsPercentage
-        ) {
-          this.allowTdsAutoRecalc = true;
-        }
-      }
-      this.recalcTdsAndPaymentTotal();
     });
   }
 
@@ -128,9 +102,6 @@ export class EditBookPaymentComponent
           invoiceNumber: record.invoiceId,
           bookingDate: new Date(record.bookingDate),
           taxableAmount: Number(record.taxableAmount),
-          tdsPercentage: Number(record.tdsPercentage),
-          tdsDeductionAmount: Number(record.tdsDeductionAmount),
-          paymentTotalAmount: Number(record.paymentTotalAmount),
           paymentHoldReason: record.paymentHoldReason ?? null,
           remarks: record.remarks ?? null,
         },
@@ -147,29 +118,12 @@ export class EditBookPaymentComponent
     );
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
-    const trackedFields: (keyof IEditBookPaymentUIFormDto)[] = [
-      'projectName',
-      'taxableAmount',
-      'tdsPercentage',
-    ];
-
     this.trackedBookPaymentInputs =
       this.formService.trackMultipleFieldChanges<IEditBookPaymentUIFormDto>(
         this.form.formGroup,
-        trackedFields,
+        ['projectName'],
         this.destroyRef
       );
-
-    const { taxableAmount, tdsPercentage } =
-      this.trackedBookPaymentInputs.getValues();
-    this.prefilledTaxableAmount =
-      taxableAmount === null || taxableAmount === undefined
-        ? null
-        : Number(taxableAmount);
-    this.prefilledTdsPercentage =
-      tdsPercentage === null || tdsPercentage === undefined
-        ? null
-        : Number(tdsPercentage);
   }
 
   private seedInvoiceNumberOption(
@@ -250,38 +204,6 @@ export class EditBookPaymentComponent
       },
     } as IInputFieldsConfig;
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
-  }
-
-  private recalcTdsAndPaymentTotal(): void {
-    if (!this.form) {
-      return;
-    }
-    const tracked = this.trackedBookPaymentInputs;
-    if (!tracked || !this.allowTdsAutoRecalc) {
-      return;
-    }
-
-    const { taxableAmount, tdsPercentage } = tracked.getValues();
-    const taxable =
-      taxableAmount === null || taxableAmount === undefined
-        ? NaN
-        : Number(taxableAmount);
-    const tdsP =
-      tdsPercentage === null || tdsPercentage === undefined
-        ? NaN
-        : Number(tdsPercentage);
-
-    if (isNaN(taxable) || isNaN(tdsP)) {
-      return;
-    }
-
-    const tdsAmt = roundCurrencyAmount(taxable * (tdsP / 100));
-    const payTotal = roundCurrencyAmount(taxable - tdsAmt);
-
-    this.form.formGroup.patchValue({
-      tdsDeductionAmount: tdsAmt,
-      paymentTotalAmount: payTotal,
-    });
   }
 
   onDialogAccept(): void {

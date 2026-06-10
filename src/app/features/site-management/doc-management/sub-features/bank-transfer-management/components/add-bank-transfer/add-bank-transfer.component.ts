@@ -40,10 +40,7 @@ import {
   IAddBankTransferResponseDto,
   IAddBankTransferUIFormDto,
 } from '../../types/bank-transfer.dto';
-import {
-  getMappedValueFromArrayOfObjects,
-  roundCurrencyAmount,
-} from '@shared/utility';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
 import {
@@ -137,15 +134,6 @@ export class AddBankTransferComponent
         }
       }
     });
-
-    effect(() => {
-      if (this.docContext() !== EDocContext.SALES) {
-        return;
-      }
-      this.trackedBankTransferInputs?.transferAmount?.();
-      this.trackedBankTransferInputs?.tdsPercentage?.();
-      this.recalcSalesFromTransferAmount();
-    });
   }
 
   ngOnInit(): void {
@@ -165,7 +153,7 @@ export class AddBankTransferComponent
 
     const trackedFields: (keyof IAddBankTransferUIFormDto)[] =
       this.docContext() === EDocContext.SALES
-        ? ['projectName', 'invoiceNumber', 'transferAmount', 'tdsPercentage']
+        ? ['projectName', 'invoiceNumber', 'transferAmount']
         : ['projectName', 'invoiceNumber', 'bookPaymentNumber'];
 
     this.trackedBankTransferInputs =
@@ -174,34 +162,6 @@ export class AddBankTransferComponent
         trackedFields,
         this.destroyRef
       );
-  }
-
-  private recalcSalesFromTransferAmount(): void {
-    if (
-      this.docContext() !== EDocContext.SALES ||
-      !this.trackedBankTransferInputs
-    ) {
-      return;
-    }
-
-    const { transferAmount, tdsPercentage } =
-      this.trackedBankTransferInputs.getValues();
-    const transfer =
-      transferAmount === null || transferAmount === undefined
-        ? NaN
-        : Number(transferAmount);
-    const tdsP =
-      tdsPercentage === null || tdsPercentage === undefined
-        ? NaN
-        : Number(tdsPercentage);
-
-    if (isNaN(transfer) || isNaN(tdsP)) {
-      return;
-    }
-
-    const tdsDeducted = roundCurrencyAmount((transfer * tdsP) / (100 - tdsP));
-
-    this.form.formGroup.patchValue({ tdsDeducted });
   }
 
   private loadProjectDateRange(projectId: string): void {

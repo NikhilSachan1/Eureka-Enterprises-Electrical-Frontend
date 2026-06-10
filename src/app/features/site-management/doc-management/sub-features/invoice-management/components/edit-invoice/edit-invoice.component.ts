@@ -57,11 +57,12 @@ export class EditInvoiceComponent
   );
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
-  private trackedGstInputs!: ITrackedFields<IEditInvoiceUIFormDto>;
+  private trackedInvoiceInputs!: ITrackedFields<IEditInvoiceUIFormDto>;
 
   private allowAmountAutoRecalc = false;
 
   private prefilledTaxableAmount: number | null = null;
+  private prefilledTdsPercent: number | null = null;
   private prefilledGstPercent: number | null = null;
 
   protected readonly selectedRecord =
@@ -71,24 +72,28 @@ export class EditInvoiceComponent
   constructor() {
     super();
     effect(() => {
-      const tracked = this.trackedGstInputs;
+      const tracked = this.trackedInvoiceInputs;
       const taxable = tracked?.taxableAmount?.();
+      const tdsPercent = tracked?.tdsPercent?.();
       const gstPercent = tracked?.gstPercent?.();
       const { prefilledTaxableAmount } = this;
+      const { prefilledTdsPercent } = this;
       const { prefilledGstPercent } = this;
       if (
         prefilledTaxableAmount !== null &&
+        prefilledTdsPercent !== null &&
         prefilledGstPercent !== null &&
         tracked !== undefined
       ) {
         if (
           taxable !== prefilledTaxableAmount ||
+          tdsPercent !== prefilledTdsPercent ||
           gstPercent !== prefilledGstPercent
         ) {
           this.allowAmountAutoRecalc = true;
         }
       }
-      this.recalcGstAndTotal();
+      this.recalcTdsAndAmounts();
     });
   }
 
@@ -113,6 +118,8 @@ export class EditInvoiceComponent
           invoiceNumber: record.invoiceNumber,
           invoiceDate: new Date(record.invoiceDate),
           taxableAmount: Number(record.taxableAmount),
+          tdsPercent: Number(record.tdsPercentage),
+          tdsAmount: Number(record.tdsAmount),
           gstPercent: Number(record.gstPercentage),
           gstAmount: Number(record.gstAmount),
           totalAmount: Number(record.totalAmount),
@@ -132,18 +139,23 @@ export class EditInvoiceComponent
     );
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
-    this.trackedGstInputs =
+    this.trackedInvoiceInputs =
       this.formService.trackMultipleFieldChanges<IEditInvoiceUIFormDto>(
         this.form.formGroup,
-        ['taxableAmount', 'gstPercent'],
+        ['taxableAmount', 'tdsPercent', 'gstPercent'],
         this.destroyRef
       );
 
-    const { taxableAmount, gstPercent } = this.trackedGstInputs.getValues();
+    const { taxableAmount, tdsPercent, gstPercent } =
+      this.trackedInvoiceInputs.getValues();
     this.prefilledTaxableAmount =
       taxableAmount === null || taxableAmount === undefined
         ? null
         : Number(taxableAmount);
+    this.prefilledTdsPercent =
+      tdsPercent === null || tdsPercent === undefined
+        ? null
+        : Number(tdsPercent);
     this.prefilledGstPercent =
       gstPercent === null || gstPercent === undefined
         ? null
@@ -194,31 +206,53 @@ export class EditInvoiceComponent
       });
   }
 
-  private recalcGstAndTotal(): void {
-    const tracked = this.trackedGstInputs;
+  private recalcTdsAndAmounts(): void {
+    const tracked = this.trackedInvoiceInputs;
     if (!tracked || !this.allowAmountAutoRecalc) {
       return;
     }
-    const { taxableAmount, gstPercent } = tracked.getValues();
-    const taxable =
-      taxableAmount === null || taxableAmount === undefined
+    const { taxableAmount, tdsPercent, gstPercent } = tracked.getValues();
+
+    if (this.isEmptyNumberInput(taxableAmount)) {
+      this.form.formGroup.patchValue({
+        tdsAmount: null,
+        gstAmount: null,
+        totalAmount: null,
+      });
+      return;
+    }
+
+    const taxable = Number(taxableAmount);
+    const tdsPercentValue =
+      tdsPercent === null || tdsPercent === undefined
         ? NaN
-        : Number(taxableAmount);
+        : Number(tdsPercent);
     const gstPercentValue =
       gstPercent === null || gstPercent === undefined
         ? NaN
         : Number(gstPercent);
 
-    if (isNaN(taxable) || isNaN(gstPercentValue)) {
+    if (isNaN(taxable) || isNaN(tdsPercentValue) || isNaN(gstPercentValue)) {
+      this.form.formGroup.patchValue({
+        tdsAmount: null,
+        gstAmount: null,
+        totalAmount: null,
+      });
       return;
     }
 
+    const tds = roundCurrencyAmount(taxable * (tdsPercentValue / 100));
     const gst = roundCurrencyAmount(taxable * (gstPercentValue / 100));
     const total = roundCurrencyAmount(taxable + gst);
     this.form.formGroup.patchValue({
+      tdsAmount: tds,
       gstAmount: gst,
       totalAmount: total,
     });
+  }
+
+  private isEmptyNumberInput(value: unknown): boolean {
+    return value === null || value === undefined || value === '';
   }
 
   onDialogAccept(): void {
@@ -286,6 +320,7 @@ export class EditInvoiceComponent
     return {
       ...record,
       taxableAmount: roundCurrencyAmount(Number(record.taxableAmount)),
+      tdsAmount: roundCurrencyAmount(Number(record.tdsAmount)),
       gstAmount: roundCurrencyAmount(Number(record.gstAmount)),
       totalAmount: roundCurrencyAmount(Number(record.totalAmount)),
       invoiceFileKey: attachmentResponse.fileKey,

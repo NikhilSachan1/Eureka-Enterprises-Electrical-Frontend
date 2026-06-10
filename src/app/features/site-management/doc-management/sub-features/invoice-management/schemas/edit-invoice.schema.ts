@@ -11,6 +11,8 @@ export const EditInvoiceRequestSchema = InvoiceUpsertShapeSchema.omit({
       invoiceNumber: data.invoiceNumber,
       invoiceDate: transformDateFormat(data.invoiceDate),
       taxableAmount: data.taxableAmount,
+      tdsPercentage: data.tdsPercent,
+      tdsAmount: data.tdsAmount,
       gstAmount: data.gstAmount,
       gstPercentage: data.gstPercent,
       totalAmount: data.totalAmount,

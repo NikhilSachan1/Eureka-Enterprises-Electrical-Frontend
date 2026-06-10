@@ -160,6 +160,12 @@ export class GetInvoiceComponent implements OnInit {
       },
       {
         dataType: EDataType.CURRENCY,
+        label: 'TDS',
+        value: row.tdsAmount,
+        suffix: row.tdsPercentage,
+      },
+      {
+        dataType: EDataType.CURRENCY,
         label: 'GST',
         value: row.gstAmount,
         suffix: row.gstPercentage,
@@ -234,6 +240,8 @@ export class GetInvoiceComponent implements OnInit {
         invoiceDate: record.invoiceDate,
         invoiceNumber: record.invoiceNumber,
         taxableAmount: record.taxableAmount,
+        tdsAmount: record.tdsAmount,
+        tdsPercentage: `(${record.tdsPercentage}%)`,
         gstPercentage: `(${record.gstPercentage}%)`,
         gstAmount: record.gstAmount,
         totalAmount: record.totalAmount,

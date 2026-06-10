@@ -128,6 +128,8 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
         label: 'Invoice amounts',
         value: {
           taxableAmount: record.taxableAmount,
+          tdsAmount: record.tdsAmount,
+          tdsPercentage: `(${record.tdsPercentage}%)`,
           gstAmount: record.gstAmount,
           gstPercentage: `${record.gstPercentage}%`,
           totalAmount: record.totalAmount,
@@ -190,6 +192,8 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
 
   protected docInvoiceDrawerTaxGstSegments(v: {
     taxableAmount: string;
+    tdsAmount: string;
+    tdsPercentage: string;
     gstAmount: string;
     totalAmount: string;
     gstPercentage: string;
@@ -202,6 +206,12 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
         dataType: EDataType.CURRENCY,
         label: 'Taxable',
         value: v.taxableAmount,
+      },
+      {
+        dataType: EDataType.CURRENCY,
+        label: 'TDS',
+        value: v.tdsAmount,
+        suffix: v.tdsPercentage,
       },
       {
         dataType: EDataType.CURRENCY,

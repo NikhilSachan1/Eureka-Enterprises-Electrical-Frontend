@@ -15,6 +15,7 @@ import {
 import { IAddInvoiceUIFormDto } from '../../types/invoice.dto';
 
 export const ADD_INVOICE_DEFAULT_GST_PERCENT = 18;
+export const ADD_INVOICE_DEFAULT_TDS_PERCENT = 2;
 
 const ADD_INVOICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddInvoiceUIFormDto> =
   {
@@ -77,6 +78,31 @@ const ADD_INVOICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddInvoiceUIFormDt
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
       validators: [Validators.required, Validators.min(1)],
+    },
+    tdsPercent: {
+      fieldType: EDataType.NUMBER,
+      id: 'tdsPercent',
+      fieldName: 'tdsPercent',
+      label: 'TDS %',
+      defaultValue: ADD_INVOICE_DEFAULT_TDS_PERCENT,
+      numberConfig: {
+        mode: EInputNumberMode.Decimal,
+        allowNumberFormatting: false,
+        suffix: ' %',
+      },
+      validators: [Validators.required],
+    },
+    tdsAmount: {
+      fieldType: EDataType.NUMBER,
+      id: 'tdsAmount',
+      fieldName: 'tdsAmount',
+      label: 'TDS Deduction',
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+      readonlyInput: true,
+      validators: [Validators.required, Validators.min(0)],
     },
     gstPercent: {
       fieldType: EDataType.NUMBER,

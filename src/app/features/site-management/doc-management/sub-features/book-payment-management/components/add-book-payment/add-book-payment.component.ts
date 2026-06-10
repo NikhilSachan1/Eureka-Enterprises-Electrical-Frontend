@@ -26,7 +26,6 @@ import {
   IInvoiceDropdownGetRequestDto,
   IInvoiceDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/invoice-management/types/invoice.dto';
-import { roundCurrencyAmount } from '@shared/utility';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
 import {
@@ -85,12 +84,6 @@ export class AddBookPaymentComponent
         this.resetBookingDateField();
       }
     });
-    effect(() => {
-      const tracked = this.trackedBookPaymentInputs;
-      tracked?.taxableAmount?.();
-      tracked?.tdsPercentage?.();
-      this.recalcTdsAndPaymentTotal();
-    });
   }
 
   ngOnInit(): void {
@@ -104,11 +97,7 @@ export class AddBookPaymentComponent
       }
     );
 
-    const trackedFields: (keyof IAddBookPaymentUIFormDto)[] = [
-      'projectName',
-      'taxableAmount',
-      'tdsPercentage',
-    ];
+    const trackedFields: (keyof IAddBookPaymentUIFormDto)[] = ['projectName'];
 
     this.trackedBookPaymentInputs =
       this.formService.trackMultipleFieldChanges<IAddBookPaymentUIFormDto>(
@@ -212,34 +201,6 @@ export class AddBookPaymentComponent
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
-  private recalcTdsAndPaymentTotal(): void {
-    const tracked = this.trackedBookPaymentInputs;
-    if (!tracked) {
-      return;
-    }
-    const { taxableAmount, tdsPercentage } = tracked.getValues();
-    const taxable =
-      taxableAmount === null || taxableAmount === undefined
-        ? NaN
-        : Number(taxableAmount);
-    const tdsP =
-      tdsPercentage === null || tdsPercentage === undefined
-        ? NaN
-        : Number(tdsPercentage);
-
-    if (isNaN(taxable) || isNaN(tdsP)) {
-      return;
-    }
-
-    const tdsAmt = roundCurrencyAmount(taxable * (tdsP / 100));
-    const payTotal = roundCurrencyAmount(taxable - tdsAmt);
-
-    this.form.formGroup.patchValue({
-      tdsDeductionAmount: tdsAmt,
-      paymentTotalAmount: payTotal,
-    });
-  }
-
   onDialogAccept(): void {
     super.onSubmit();
   }
@@ -287,7 +248,6 @@ export class AddBookPaymentComponent
     const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['projectName'];
-    delete (record as Record<string, unknown>)['paymentTotalAmount'];
     return record;
   }
 }

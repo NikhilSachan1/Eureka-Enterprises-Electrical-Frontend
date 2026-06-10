@@ -1,3 +1,4 @@
+import { APP_CONFIG } from '@core/config';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
   EDataType,
@@ -50,10 +51,11 @@ export const BOOK_PAYMENT_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[
       showSort: false,
     },
     {
-      field: 'paymentTotalAmount',
-      header: 'Amounts',
-      bodyTemplate: EDataType.TEXT,
-      customTemplateKey: 'bookPaymentAmountBreakdown',
+      field: 'taxableAmount',
+      header: 'Amount',
+      bodyTemplate: EDataType.CURRENCY,
+      dataType: EDataType.CURRENCY,
+      currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       showSort: false,
     },
     {

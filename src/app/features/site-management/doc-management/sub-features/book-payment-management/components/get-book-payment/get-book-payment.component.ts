@@ -47,11 +47,9 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { GetBookPaymentDetailComponent } from '../get-book-payment-detail/get-book-payment-detail.component';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
-import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
@@ -62,7 +60,6 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
     DataTableComponent,
     DocReferenceComponent,
     DocWorkspaceContextComponent,
-    DocAmountComponent,
   ],
   templateUrl: './get-book-payment.component.html',
   styleUrl: './get-book-payment.component.scss',
@@ -143,29 +140,6 @@ export class GetBookPaymentComponent implements OnInit {
       });
   }
 
-  protected docBookPaymentAmountSegments(
-    row: IBookPayment
-  ): IDocAmountSegment[] {
-    return [
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'Taxable',
-        value: row.taxableAmount,
-      },
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'TDS',
-        value: row.tdsDeductionAmount,
-        suffix: row.tdsPercentage,
-      },
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'Total',
-        value: row.paymentTotalAmount,
-      },
-    ];
-  }
-
   private loadBookPaymentList(): void {
     this.loadTrigger$.next();
   }
@@ -200,9 +174,6 @@ export class GetBookPaymentComponent implements OnInit {
       bookingDate: record.bookingDate,
       invoice: record.invoice,
       taxableAmount: record.taxableAmount,
-      tdsDeductionAmount: record.tdsDeductionAmount,
-      tdsPercentage: `(${record.tdsPercentage}%)`,
-      paymentTotalAmount: record.paymentTotalAmount,
       hasTransfer: record.hasTransfer ?? false,
       transferStatusLabel: record.hasTransfer === true ? 'Done' : 'Pending',
       paymentHoldReasonDisplay: record.paymentHoldReason?.trim() ?? '—',
@@ -306,8 +277,8 @@ export class GetBookPaymentComponent implements OnInit {
         value: row.paymentHoldReason ?? '-',
       },
       {
-        label: 'Payment Total',
-        value: row.paymentTotalAmount,
+        label: 'Amount',
+        value: row.taxableAmount,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },

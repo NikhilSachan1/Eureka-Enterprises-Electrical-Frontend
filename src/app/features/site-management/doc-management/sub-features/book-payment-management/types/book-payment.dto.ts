@@ -37,7 +37,6 @@ export type IAddBookPaymentFormDto = z.input<
 >;
 export type IAddBookPaymentUIFormDto = IAddBookPaymentFormDto & {
   projectName: string;
-  paymentTotalAmount: number;
 };
 export type IAddBookPaymentResponseDto = z.infer<
   typeof AddBookPaymentResponseSchema
@@ -49,7 +48,6 @@ export type IEditBookPaymentFormDto = z.input<
 export type IEditBookPaymentUIFormDto = IEditBookPaymentFormDto & {
   projectName: string;
   invoiceNumber: string;
-  paymentTotalAmount: number;
 };
 export type IEditBookPaymentResponseDto = z.infer<
   typeof EditBookPaymentResponseSchema

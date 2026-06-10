@@ -11,9 +11,6 @@ export const BookPaymentUpsertShapeSchema = z
     invoiceNumber: uuidField,
     bookingDate: dateField,
     taxableAmount: bookPaymentMoneyFieldSchema,
-    tdsDeductionAmount: bookPaymentMoneyFieldSchema,
-    tdsPercentage: z.coerce.number(),
-    paymentTotalAmount: bookPaymentMoneyFieldSchema,
     paymentHoldReason: z.string().nullable(),
     remarks: z.string().nullable(),
   })

@@ -10,6 +10,8 @@ export interface IInvoice
     | 'invoiceNumber'
     | 'invoiceDate'
     | 'taxableAmount'
+    | 'tdsAmount'
+    | 'tdsPercentage'
     | 'gstAmount'
     | 'totalAmount'
     | 'bookedTotal'
