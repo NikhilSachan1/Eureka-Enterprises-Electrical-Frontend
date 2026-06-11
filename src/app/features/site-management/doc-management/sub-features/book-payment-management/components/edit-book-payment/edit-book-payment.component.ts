@@ -302,18 +302,20 @@ export class EditBookPaymentComponent
       return;
     }
 
-    this.executeEditBookPaymentAction(record.id);
+    const formData = this.prepareFormData();
+    this.executeEditBookPaymentAction(record.id, formData);
   }
 
-  private executeEditBookPaymentAction(bookPaymentId: string): void {
+  private executeEditBookPaymentAction(
+    bookPaymentId: string,
+    formData: IEditBookPaymentFormDto
+  ): void {
     this.loadingService.show({
       title: 'Updating book payment',
       message:
         'Please wait while we update the book payment. This will just take a moment.',
     });
     this.form.disable();
-
-    const formData = this.prepareFormData();
 
     this.bookPaymentService
       .editBookPayment(formData, bookPaymentId)
