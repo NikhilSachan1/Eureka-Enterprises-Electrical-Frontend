@@ -25,6 +25,7 @@ export interface IInvoice
     | 'contractor'
     | 'jmc'
     | 'gstPercentage'
+    | 'isGstHold'
   > {
   docWorkspaceContext: IDocWorkspaceContextView;
   fileKeys: string[];

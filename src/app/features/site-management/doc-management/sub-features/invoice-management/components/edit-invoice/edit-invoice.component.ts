@@ -115,6 +115,7 @@ export class EditInvoiceComponent
         defaultValues: {
           projectName: record.siteId,
           jmcNumber: record.jmcId,
+          isGstHold: record.isGstHold ?? true,
           invoiceNumber: record.invoiceNumber,
           invoiceDate: new Date(record.invoiceDate),
           taxableAmount: Number(record.taxableAmount),

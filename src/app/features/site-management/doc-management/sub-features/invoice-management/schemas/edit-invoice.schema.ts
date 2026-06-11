@@ -16,6 +16,7 @@ export const EditInvoiceRequestSchema = InvoiceUpsertShapeSchema.omit({
       gstAmount: data.gstAmount,
       gstPercentage: data.gstPercent,
       totalAmount: data.totalAmount,
+      isGstHold: data.isGstHold,
       fileKey: data.invoiceFileKey,
       fileName: data.invoiceFileName,
       remarks: data.remarks,

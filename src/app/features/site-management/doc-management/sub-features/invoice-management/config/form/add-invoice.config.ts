@@ -7,6 +7,7 @@ import {
 } from '@shared/constants';
 import {
   EDataType,
+  EFieldSize,
   EInputNumberMode,
   ETextCase,
   IFormConfig,
@@ -45,6 +46,19 @@ const ADD_INVOICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddInvoiceUIFormDt
         },
       },
       validators: [Validators.required],
+    },
+    isGstHold: {
+      fieldType: EDataType.CHECKBOX,
+      id: 'isGstHold',
+      fieldName: 'isGstHold',
+      fieldSize: EFieldSize.Small,
+      showStandardLabel: true,
+      defaultValue: true,
+      checkboxConfig: {
+        binary: true,
+        bordered: true,
+        options: [{ label: 'GST Hold', value: 'gstHold' }],
+      },
     },
     invoiceNumber: {
       fieldType: EDataType.TEXT,

@@ -6,6 +6,7 @@ import {
   inject,
   input,
   OnInit,
+  signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -20,6 +21,7 @@ import {
 } from '@shared/types';
 import { ConfirmationDialogService } from '@shared/services';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { BookPaymentInvoiceSummaryComponent } from '../book-payment-invoice-summary/book-payment-invoice-summary.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { InvoiceService } from '@features/site-management/doc-management/sub-features/invoice-management/services/invoice.service';
@@ -40,11 +42,17 @@ import {
   IEditBookPaymentResponseDto,
   IEditBookPaymentUIFormDto,
 } from '../../types/book-payment.dto';
+import { IBookPaymentInvoiceDropdownMeta } from '../../utils/book-payment-invoice-meta.util';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-edit-book-payment',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [
+    InputFieldComponent,
+    ReactiveFormsModule,
+    BookPaymentInvoiceSummaryComponent,
+  ],
   templateUrl: './edit-book-payment.component.html',
   styleUrl: './edit-book-payment.component.scss',
 })
@@ -60,6 +68,11 @@ export class EditBookPaymentComponent
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private trackedBookPaymentInputs!: ITrackedFields<IEditBookPaymentUIFormDto>;
+  private invoiceOptions: IOptionDropdown<IBookPaymentInvoiceDropdownMeta>[] =
+    [];
+
+  protected readonly selectedInvoiceMeta =
+    signal<IBookPaymentInvoiceDropdownMeta | null>(null);
 
   protected readonly selectedRecord =
     input.required<IBookPaymentGetBaseResponseDto[]>();
@@ -78,6 +91,10 @@ export class EditBookPaymentComponent
           this.loadInvoiceOptions(siteId);
         }
       }
+    });
+    effect(() => {
+      this.trackedBookPaymentInputs?.invoiceNumber?.();
+      this.updateSelectedInvoiceMeta();
     });
   }
 
@@ -121,7 +138,7 @@ export class EditBookPaymentComponent
     this.trackedBookPaymentInputs =
       this.formService.trackMultipleFieldChanges<IEditBookPaymentUIFormDto>(
         this.form.formGroup,
-        ['projectName'],
+        ['projectName', 'invoiceNumber'],
         this.destroyRef
       );
   }
@@ -147,6 +164,7 @@ export class EditBookPaymentComponent
   }
 
   private loadInvoiceOptions(siteId: string): void {
+    this.invoiceOptions = [];
     this.applyInvoiceOptions([], true);
 
     const paramData = this.prepareParamDataForInvoiceDropdown(siteId);
@@ -157,7 +175,9 @@ export class EditBookPaymentComponent
       .subscribe({
         next: response => {
           const opts = this.mapInvoiceRecordToOption(response.records);
+          this.invoiceOptions = opts;
           this.applyInvoiceOptions(opts, false);
+          this.updateSelectedInvoiceMeta();
         },
         error: error => {
           this.logger.error('Failed to load invoice dropdown', error);
@@ -181,12 +201,13 @@ export class EditBookPaymentComponent
 
   private mapInvoiceRecordToOption(
     records: IInvoiceDropdownRecordDto[]
-  ): IOptionDropdown[] {
+  ): IOptionDropdown<IBookPaymentInvoiceDropdownMeta>[] {
     return records.map(r => ({
       label: r.label,
       value: r.id,
       disabled: !r.eligible,
       disabledReason: r.reason ?? undefined,
+      data: r.meta,
     }));
   }
 
@@ -204,6 +225,27 @@ export class EditBookPaymentComponent
       },
     } as IInputFieldsConfig;
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
+  private updateSelectedInvoiceMeta(): void {
+    const tracked = this.trackedBookPaymentInputs;
+    if (!tracked) {
+      return;
+    }
+
+    const invoiceId = tracked.getValues().invoiceNumber;
+    if (typeof invoiceId === 'string' && invoiceId.length > 0) {
+      const matched = getMappedValueFromArrayOfObjects(
+        this.invoiceOptions,
+        invoiceId,
+        'value',
+        'data'
+      ) as IBookPaymentInvoiceDropdownMeta | undefined;
+      this.selectedInvoiceMeta.set(matched ?? null);
+      return;
+    }
+
+    this.selectedInvoiceMeta.set(null);
   }
 
   onDialogAccept(): void {

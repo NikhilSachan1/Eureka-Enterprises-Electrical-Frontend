@@ -20,6 +20,7 @@ export const InvoiceBaseSchema = z.looseObject({
   gstPercentage: z.string(),
   gstAmount: z.string(),
   totalAmount: z.string(),
+  isGstHold: z.boolean(),
   fileKey: z.string(),
 });
 
@@ -34,6 +35,7 @@ export const InvoiceUpsertShapeSchema = z
     gstPercent: z.number(),
     gstAmount: z.number(),
     totalAmount: z.number(),
+    isGstHold: z.boolean(),
     invoiceFileName: z.string(),
     invoiceFileKey: z.string(),
     remarks: z.string().nullable(),

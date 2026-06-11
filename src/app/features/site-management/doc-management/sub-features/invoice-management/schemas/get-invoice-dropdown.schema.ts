@@ -15,7 +15,13 @@ export const InvoiceDropdownGetRequestSchema = z
   }));
 
 const InvoiceDropdownMetaSchema = z.looseObject({
-  invoiceNumber: z.string(),
+  taxableAmount: z.number(),
+  gstAmount: z.number(),
+  tdsAmount: z.number(),
+  totalAmount: z.number(),
+  bookedTotal: z.number().optional(),
+  paidTotal: z.number().optional(),
+  remaining: z.number().optional(),
 });
 
 export const InvoiceDropdownRecordSchema = z.looseObject({

@@ -13,6 +13,10 @@
       [inputFieldConfig]="form.fieldConfigs.invoiceNumber"
     />
 
+    @if (selectedInvoiceMeta(); as meta) {
+      <app-book-payment-invoice-summary [meta]="meta" />
+    }
+
     <app-input-field
       [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs.bookingDate"
