@@ -85,7 +85,7 @@ export class EditBookPaymentComponent
 
   protected readonly showPaymentHoldReason = computed(() => {
     const meta = this.selectedInvoiceMeta();
-    const amount = this.trackedBookPaymentInputs?.taxableAmount?.();
+    const amount = this.trackedBookPaymentInputs?.paymentTotalAmount?.();
     return isBookPaymentHoldReasonRequired(amount, meta?.remaining);
   });
 
@@ -112,7 +112,7 @@ export class EditBookPaymentComponent
       this.updateSelectedInvoiceMeta();
     });
     effect(() => {
-      this.trackedBookPaymentInputs?.taxableAmount?.();
+      this.trackedBookPaymentInputs?.paymentTotalAmount?.();
       this.selectedInvoiceMeta();
       this.refreshPaymentHoldReasonValidators();
     });
@@ -138,7 +138,7 @@ export class EditBookPaymentComponent
           projectName: record.siteId,
           invoiceNumber: record.invoiceId,
           bookingDate: new Date(record.bookingDate),
-          taxableAmount: Number(record.taxableAmount),
+          paymentTotalAmount: Number(record.paymentTotalAmount),
           paymentHoldReason: record.paymentHoldReason ?? null,
           remarks: record.remarks ?? null,
         },
@@ -159,7 +159,7 @@ export class EditBookPaymentComponent
     this.trackedBookPaymentInputs =
       this.formService.trackMultipleFieldChanges<IEditBookPaymentUIFormDto>(
         this.form.formGroup,
-        ['projectName', 'invoiceNumber', 'taxableAmount'],
+        ['projectName', 'invoiceNumber', 'paymentTotalAmount'],
         this.destroyRef
       );
   }

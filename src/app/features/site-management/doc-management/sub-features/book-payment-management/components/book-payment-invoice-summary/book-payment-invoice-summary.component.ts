@@ -43,7 +43,11 @@ export class BookPaymentInvoiceSummaryComponent {
   protected readonly breakdownMetrics = computed((): ISummaryMetric[] => {
     const meta = this.meta();
     return [
-      { label: 'Taxable', value: meta.taxableAmount, tone: 'taxable' },
+      {
+        label: 'Payment Total',
+        value: meta.paymentTotalAmount,
+        tone: 'taxable',
+      },
       { label: 'TDS', value: meta.tdsAmount, tone: 'deduction' },
       {
         label: 'GST',

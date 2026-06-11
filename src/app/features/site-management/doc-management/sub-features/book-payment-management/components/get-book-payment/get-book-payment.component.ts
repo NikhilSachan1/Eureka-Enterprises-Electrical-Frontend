@@ -173,7 +173,7 @@ export class GetBookPaymentComponent implements OnInit {
       id: record.id,
       bookingDate: record.bookingDate,
       invoice: record.invoice,
-      taxableAmount: record.taxableAmount,
+      paymentTotalAmount: record.paymentTotalAmount,
       hasTransfer: record.hasTransfer ?? false,
       transferStatusLabel: record.hasTransfer === true ? 'Done' : 'Pending',
       paymentHoldReasonDisplay: record.paymentHoldReason?.trim() ?? '—',
@@ -278,7 +278,7 @@ export class GetBookPaymentComponent implements OnInit {
       },
       {
         label: 'Amount',
-        value: row.taxableAmount,
+        value: row.paymentTotalAmount,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },

@@ -6,7 +6,7 @@ export const AddBookPaymentRequestSchema =
   BookPaymentUpsertShapeSchema.transform(data => ({
     invoiceId: data.invoiceNumber,
     bookingDate: transformDateFormat(data.bookingDate),
-    transferAmount: data.taxableAmount,
+    transferAmount: data.paymentTotalAmount,
     paymentHoldReason: data.paymentHoldReason ?? null,
     remarks: data.remarks ?? null,
   }));
