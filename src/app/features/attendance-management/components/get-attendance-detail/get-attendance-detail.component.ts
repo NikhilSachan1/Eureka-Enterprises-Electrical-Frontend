@@ -144,7 +144,7 @@ export class GetAttendanceDetailComponent extends DrawerDetailBase {
           notes: record.approvalComment,
         },
         createdBy: {
-          user: record.user,
+          user: record.createdByUser,
           date: record.createdAt,
           notes: record.notes,
         },
