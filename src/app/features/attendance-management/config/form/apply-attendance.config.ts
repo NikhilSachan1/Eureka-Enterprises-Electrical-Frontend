@@ -24,6 +24,13 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
           dropdownName: CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
         },
       },
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => context.isEmployee === true,
+          validators: [Validators.required],
+          resetOnFalse: true,
+        },
+      ],
     },
     contractor: {
       fieldType: EDataType.SELECT,
@@ -36,6 +43,13 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
           dropdownName: CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
         },
       },
+      conditionalValidators: [
+        {
+          shouldApply: (context): boolean => context.isEmployee === true,
+          validators: [Validators.required],
+          resetOnFalse: true,
+        },
+      ],
     },
     assignedEngineer: {
       fieldType: EDataType.SELECT,
@@ -52,8 +66,8 @@ const APPLY_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceApp
       conditionalValidators: [
         {
           shouldApply: (context): boolean => {
-            const { isDriver } = context;
-            return isDriver === true;
+            const { isDriver, isAssignmentApplicable = true } = context;
+            return isDriver === true && isAssignmentApplicable === true;
           },
           validators: [Validators.required],
           resetOnFalse: true,

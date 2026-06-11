@@ -44,11 +44,16 @@ export const AttendanceBaseSchema = z.looseObject({
         })
         .optional()
         .nullable(),
-      contractor: z
-        .looseObject({
-          id: uuidField,
-          name: z.string(),
-        })
+      contractors: z
+        .array(
+          z
+            .looseObject({
+              id: uuidField,
+              name: z.string(),
+            })
+            .optional()
+            .nullable()
+        )
         .optional()
         .nullable(),
       vehicle: z

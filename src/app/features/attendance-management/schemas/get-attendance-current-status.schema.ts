@@ -12,7 +12,12 @@ const {
   assignmentSnapshot,
 } = AttendanceBaseSchema.shape;
 
-const assignmentSnapshotShape = assignmentSnapshot.unwrap().shape;
+const {
+  company: companySchema,
+  contractors: contractorsSchema,
+  vehicle: vehicleSchema,
+  assignedEngineer: assignedEngineerSchema,
+} = assignmentSnapshot.unwrap().shape;
 
 export const AttendanceCurrentStatusGetFormSchema = z
   .object({
@@ -32,5 +37,8 @@ export const AttendanceCurrentStatusGetResponseSchema = z.looseObject({
   approvalStatus: approvalStatus.nullable(),
   workDuration,
   user: UserSchema,
-  ...assignmentSnapshotShape,
+  company: companySchema,
+  contractors: contractorsSchema,
+  vehicle: vehicleSchema,
+  assignedEngineer: assignedEngineerSchema,
 });

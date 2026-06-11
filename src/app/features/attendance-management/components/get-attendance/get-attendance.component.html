@@ -49,9 +49,9 @@
         <span class="attendance-assignment-details__label">Contractor</span>
         <span
           class="attendance-assignment-details__value"
-          [title]="row.assignmentSnapshot?.contractor?.name || '—'"
+          [title]="row.assignmentSnapshot?.contractorDisplay || '—'"
         >
-          {{ row.assignmentSnapshot?.contractor?.name || '—' }}
+          {{ row.assignmentSnapshot?.contractorDisplay || '—' }}
         </span>
       </div>
     </div>

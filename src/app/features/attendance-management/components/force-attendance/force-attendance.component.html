@@ -22,29 +22,31 @@
     />
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2">
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.company"
-    />
-
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.contractor"
-    />
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2">
+  @if (showDriverAssignmentFields()) {
     <app-input-field
       [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs.assignedEngineer"
     />
+  }
+
+  @if (showRoleAssignmentFields()) {
+    <div class="grid grid-cols-1 md:grid-cols-2">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.company"
+      />
+
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.contractor"
+      />
+    </div>
 
     <app-input-field
       [formGroup]="form.formGroup"
       [inputFieldConfig]="form.fieldConfigs.vehicle"
     />
-  </div>
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"

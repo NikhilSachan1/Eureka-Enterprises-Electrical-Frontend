@@ -20,19 +20,27 @@ import {
   IAttendanceForceUIFormDto,
 } from '@features/attendance-management/types/attendance.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { EUserRole, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { finalize } from 'rxjs';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBase } from '@shared/base/form.base';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  getMappedValueFromArrayOfObjects,
+  getSelectedEmployeeRole,
+} from '@shared/utility';
 import { ICompanyGetBaseResponseDto } from '@features/site-management/company-management/types/company.dto';
 import { IContractorGetBaseResponseDto } from '@features/site-management/contractor-management/types/contractor.dto';
 import { VehicleBaseSchema } from '@features/transport-management/vehicle-management/schemas/base-vehicle.schema';
 import { EmployeeBaseSchema } from '@features/employee-management/schemas/base-employee.schema';
 import type { z } from 'zod';
+import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
+import {
+  isAttendanceAssignmentApplicable,
+  NULL_ASSIGNMENT_FORM_VALUES,
+} from '@features/attendance-management/utility/attendance-assignment.util';
 
 type VehicleApplyValue = z.infer<typeof VehicleBaseSchema>;
 type EmployeeApplyValue = z.infer<typeof EmployeeBaseSchema>;
@@ -58,20 +66,135 @@ export class ForceAttendanceComponent
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   private trackedAttendanceFields!: ITrackedFields<IAttendanceForceUIFormDto>;
+  private lastLoadedStatusUserId: string | null = null;
+  private lastSelectedDriverEmployeeId: string | null = null;
+  private cachedAssignmentResponse: IAttendanceCurrentStatusGetResponseDto | null =
+    null;
+
+  private readonly formContext = {
+    isEmployee: false,
+    isDriver: false,
+    isAssignmentApplicable: false,
+  };
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected readonly showAssignmentFields = computed(() =>
+    isAttendanceAssignmentApplicable(this.getSelectedAttendanceStatus())
+  );
+  protected readonly showRoleAssignmentFields = computed(() => {
+    if (!this.showAssignmentFields()) {
+      return false;
+    }
+
+    const roles = this.employeeRoles();
+    return (
+      roles.includes(EUserRole.EMPLOYEE) || roles.includes(EUserRole.DRIVER)
+    );
+  });
+  protected readonly showDriverAssignmentFields = computed(
+    () =>
+      this.showAssignmentFields() &&
+      this.employeeRoles().includes(EUserRole.DRIVER)
+  );
+  protected readonly employeeRoles = computed(() => {
+    const employeeName = this.trackedAttendanceFields?.employeeName?.();
+    if (employeeName && typeof employeeName === 'string') {
+      return getSelectedEmployeeRole(
+        employeeName,
+        this.appConfigurationService.employeeList()
+      );
+    }
+    return [];
+  });
 
   constructor() {
     super();
     effect(() => {
+      if (!this.trackedAttendanceFields?.employeeName) {
+        return;
+      }
+
+      const employeeName = this.trackedAttendanceFields.employeeName();
+      const roles = this.employeeRoles();
+
+      if (typeof employeeName !== 'string') {
+        this.lastLoadedStatusUserId = null;
+        this.lastSelectedDriverEmployeeId = null;
+        this.cachedAssignmentResponse = null;
+        return;
+      }
+
       if (
-        this.trackedAttendanceFields &&
-        this.trackedAttendanceFields.employeeName
+        roles.includes(EUserRole.EMPLOYEE) &&
+        employeeName !== this.lastLoadedStatusUserId
       ) {
-        const employeeName = this.trackedAttendanceFields.employeeName();
-        if (employeeName && typeof employeeName === 'string') {
-          this.loadEmployeeCurrentStatusDetail(employeeName);
+        this.lastLoadedStatusUserId = employeeName;
+        this.loadCurrentStatusDetail(employeeName);
+        return;
+      }
+
+      if (
+        roles.includes(EUserRole.DRIVER) &&
+        employeeName !== this.lastSelectedDriverEmployeeId
+      ) {
+        this.lastSelectedDriverEmployeeId = employeeName;
+        this.lastLoadedStatusUserId = null;
+        this.cachedAssignmentResponse = null;
+
+        if (this.form) {
+          this.form.patch({ ...NULL_ASSIGNMENT_FORM_VALUES });
         }
+      }
+    });
+
+    effect(() => {
+      if (!this.trackedAttendanceFields?.assignedEngineer) {
+        return;
+      }
+
+      if (!this.employeeRoles().includes(EUserRole.DRIVER)) {
+        return;
+      }
+
+      const assignedEngineer = this.trackedAttendanceFields.assignedEngineer();
+
+      if (typeof assignedEngineer !== 'string' || !assignedEngineer.trim()) {
+        this.lastLoadedStatusUserId = null;
+        this.cachedAssignmentResponse = null;
+        return;
+      }
+
+      if (assignedEngineer !== this.lastLoadedStatusUserId) {
+        this.lastLoadedStatusUserId = assignedEngineer;
+        this.loadCurrentStatusDetail(assignedEngineer);
+      }
+    });
+
+    effect(() => {
+      if (!this.trackedAttendanceFields) {
+        return;
+      }
+
+      this.trackedAttendanceFields.employeeName?.();
+      this.trackedAttendanceFields.attendanceStatus?.();
+
+      const roles = this.employeeRoles();
+      this.formContext.isEmployee = roles.includes(EUserRole.EMPLOYEE);
+      this.formContext.isDriver = roles.includes(EUserRole.DRIVER);
+      this.formContext.isAssignmentApplicable = this.showAssignmentFields();
+
+      if (this.form) {
+        this.formService.refreshConditionalValidators(
+          this.form.formGroup,
+          this.form.fieldConfigs,
+          this.formContext
+        );
+      }
+
+      if (this.showAssignmentFields() && this.cachedAssignmentResponse) {
+        this.applyPrefilledAssignmentData(this.cachedAssignmentResponse);
+      } else if (!this.showAssignmentFields()) {
+        this.clearAssignmentFields();
       }
     });
   }
@@ -81,10 +204,15 @@ export class ForceAttendanceComponent
       FORCE_ATTENDANCE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
+        context: this.formContext,
       }
     );
 
-    const trackedFields: (keyof IAttendanceForceUIFormDto)[] = ['employeeName'];
+    const trackedFields: (keyof IAttendanceForceUIFormDto)[] = [
+      'employeeName',
+      'attendanceStatus',
+      'assignedEngineer',
+    ];
     this.trackedAttendanceFields =
       this.formService.trackMultipleFieldChanges<IAttendanceForceUIFormDto>(
         this.form.formGroup,
@@ -93,14 +221,19 @@ export class ForceAttendanceComponent
       );
   }
 
-  private loadEmployeeCurrentStatusDetail(employeeName: string): void {
+  private loadCurrentStatusDetail(userId: string): void {
+    const isDriver = this.employeeRoles().includes(EUserRole.DRIVER);
+
     this.loadingService.show({
-      title: 'Loading employee assignment',
-      message:
-        "We're loading the employee assignment. This will just take a moment.",
+      title: isDriver
+        ? 'Loading assigned engineer assignment'
+        : 'Loading employee assignment',
+      message: isDriver
+        ? "We're loading the assigned engineer's assignment. This will just take a moment."
+        : "We're loading the employee assignment. This will just take a moment.",
     });
 
-    const paramData = this.prepareParamDataForCurrentStatusDetail(employeeName);
+    const paramData = this.prepareParamDataForCurrentStatusDetail(userId);
 
     this.attendanceService
       .getAttendanceCurrentStatus(paramData)
@@ -112,24 +245,25 @@ export class ForceAttendanceComponent
       )
       .subscribe({
         next: (response: IAttendanceCurrentStatusGetResponseDto) => {
-          const prefilledAttendanceData =
-            this.preparePrefilledFormData(response);
-          this.form.patch(prefilledAttendanceData);
+          this.cachedAssignmentResponse = response;
+
+          if (!this.showAssignmentFields()) {
+            return;
+          }
+
+          this.applyPrefilledAssignmentData(response);
         },
         error: error => {
-          this.logger.error(
-            'Error loading employee current status detail',
-            error
-          );
+          this.logger.error('Error loading current status detail', error);
         },
       });
   }
 
   private prepareParamDataForCurrentStatusDetail(
-    employeeName: string
+    userId: string
   ): IAttendanceCurrentStatusGetFormDto {
     return {
-      employeeName,
+      employeeName: userId,
     };
   }
 
@@ -138,9 +272,19 @@ export class ForceAttendanceComponent
   ): Partial<IAttendanceForceUIFormDto> {
     return {
       company: response.company?.id ?? null,
-      contractor: response.contractor?.id ?? null,
+      contractor: response.contractors?.[0]?.id ?? null,
       vehicle: response.vehicle?.id ?? null,
     };
+  }
+
+  private applyPrefilledAssignmentData(
+    response: IAttendanceCurrentStatusGetResponseDto
+  ): void {
+    this.form.patch(this.preparePrefilledFormData(response));
+  }
+
+  private clearAssignmentFields(): void {
+    this.form.patch({ ...NULL_ASSIGNMENT_FORM_VALUES });
   }
 
   protected override handleSubmit(): void {
@@ -150,6 +294,15 @@ export class ForceAttendanceComponent
 
   private prepareFormData(): IAttendanceForceFormDto {
     const formData = this.form.getData();
+
+    if (!isAttendanceAssignmentApplicable(formData.attendanceStatus)) {
+      return {
+        ...formData,
+        remark: formData.remark?.trim() ? formData.remark.trim() : null,
+        ...NULL_ASSIGNMENT_FORM_VALUES,
+      } satisfies IAttendanceForceFormDto;
+    }
+
     const companyId = formData.company;
     const contractorId = formData.contractor;
     const vehicleId = formData.vehicle;
@@ -235,6 +388,11 @@ export class ForceAttendanceComponent
 
   protected onReset(): void {
     this.onResetSingleForm();
+  }
+
+  private getSelectedAttendanceStatus(): EAttendanceStatus | null {
+    const status = this.trackedAttendanceFields?.attendanceStatus?.();
+    return typeof status === 'string' ? (status as EAttendanceStatus) : null;
   }
 
   private getPageHeaderConfig(): Partial<IPageHeaderConfig> {

@@ -166,6 +166,8 @@ export class GetAttendanceComponent implements OnInit {
         attendanceType: record.attendanceType,
         assignmentSnapshot: {
           ...record.assignmentSnapshot,
+          contractorDisplay:
+            record.assignmentSnapshot?.contractors?.[0]?.name?.trim() ?? null,
           vehicleDisplay:
             record.assignmentSnapshot?.vehicle?.registrationNo ?? null,
           assignedEngineerDisplay: ((): string | null => {
@@ -312,7 +314,7 @@ export class GetAttendanceComponent implements OnInit {
       },
       {
         label: 'Contractor',
-        value: selectedRow.assignmentSnapshot?.contractor?.name ?? 'N/A',
+        value: selectedRow.assignmentSnapshot?.contractors?.[0]?.name ?? 'N/A',
       },
       {
         label: 'Assigned Engineer',

@@ -70,6 +70,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceFor
     vehicle,
     remark: {
       ...remark,
+      label: 'Reason for force attendance',
       validators: [Validators.required],
     },
   };

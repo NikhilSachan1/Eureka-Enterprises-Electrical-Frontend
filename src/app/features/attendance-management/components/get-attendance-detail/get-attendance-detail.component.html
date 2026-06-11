@@ -25,7 +25,7 @@
         </div>
       }
 
-      @if (snap.contractor?.name) {
+      @if (snap.contractors?.[0]?.name) {
         <div class="assignment-snapshot__tile assignment-snapshot__tile--contractor">
           <div
             class="assignment-snapshot__icon assignment-snapshot__icon--contractor"
@@ -36,7 +36,7 @@
           <div class="assignment-snapshot__body">
             <span class="assignment-snapshot__kicker">Contractor</span>
             <span class="assignment-snapshot__title">
-              {{ snap.contractor.name | textCase: 'title' }}
+              {{ snap.contractors[0].name | textCase: 'title' }}
             </span>
           </div>
         </div>
