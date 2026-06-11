@@ -6,7 +6,7 @@ export const EditBookPaymentRequestSchema = BookPaymentUpsertShapeSchema.omit({
   invoiceNumber: true,
 }).transform(data => ({
   bookingDate: transformDateFormat(data.bookingDate),
-  taxableAmount: data.taxableAmount,
+  transferAmount: data.taxableAmount,
   paymentHoldReason: data.paymentHoldReason ?? null,
   remarks: data.remarks ?? null,
 }));
