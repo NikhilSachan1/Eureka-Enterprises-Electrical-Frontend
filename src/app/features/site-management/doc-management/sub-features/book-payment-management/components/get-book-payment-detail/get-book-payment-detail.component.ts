@@ -22,10 +22,8 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 
-import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
-import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 
 @Component({
@@ -34,7 +32,6 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
   imports: [
     ViewDetailComponent,
     DocReferenceComponent,
-    DocAmountComponent,
     DocWorkspaceContextComponent,
   ],
   templateUrl: './get-book-payment-detail.component.html',
@@ -112,20 +109,10 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
         detailTemplateFullRow: false,
       },
       {
-        label: 'Payment amounts',
-        value: {
-          taxableAmount: record.taxableAmount,
-          tdsDeductionAmount: record.tdsDeductionAmount,
-          tdsPercentage: `(${record.tdsPercentage}%)`,
-          paymentTotalAmount: record.paymentTotalAmount,
-        },
-        customTemplateKey: 'bookPaymentDetailAmounts',
-        detailTemplateFullRow: true,
-      },
-      {
-        label: 'Bank transfer',
-        value: record.hasTransfer === true ? 'Done' : 'Pending',
-        type: EDataType.STATUS,
+        label: 'Amount',
+        value: record.taxableAmount,
+        type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
       {
         label: 'Payment Hold Reason',
@@ -134,6 +121,10 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
     ];
 
     const detail: IDataViewDetails = {
+      status: {
+        entryType: 'Bank Transfer',
+        approvalStatus: record.hasTransfer === true ? 'Done' : 'Pending',
+      },
       entryData,
       createdBy: {
         user: record.createdByUser,
@@ -160,32 +151,5 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
       name: vendor?.name?.trim() || 'Book payment',
       subtitle: record.invoice?.invoiceNumber ?? record.id,
     };
-  }
-
-  /** Mirrors list `docBookPaymentAmountSegments` via {@link DocAmountComponent}. */
-  protected docBookPaymentDrawerAmountSegments(v: {
-    taxableAmount: string;
-    tdsDeductionAmount: string;
-    tdsPercentage: string;
-    paymentTotalAmount: string;
-  }): IDocAmountSegment[] {
-    return [
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'Taxable',
-        value: v.taxableAmount,
-      },
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'TDS',
-        value: v.tdsDeductionAmount,
-        suffix: v.tdsPercentage,
-      },
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'Total',
-        value: v.paymentTotalAmount,
-      },
-    ];
   }
 }

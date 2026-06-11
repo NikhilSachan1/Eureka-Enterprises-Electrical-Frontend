@@ -29,6 +29,8 @@ export const APP_PERMISSION = {
     TABLE_VIEW: 'attendance.view.table',
     APPLY: 'attendance.apply',
     FORCE: 'attendance.force',
+    EDIT: 'attendance.edit',
+    DELETE: 'attendance.delete',
     REGULARIZE: 'attendance.regularize',
     APPROVE: 'attendance.approve',
     REJECT: 'attendance.reject',

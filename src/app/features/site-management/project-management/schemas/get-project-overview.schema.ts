@@ -8,6 +8,7 @@ const SiteOverviewCompanySchema = z.looseObject({
 
 const SiteOverviewSiteSchema = z.looseObject({
   name: z.string(),
+  siteTypes: z.array(z.string()),
   status: z.string(),
   city: z.string(),
   state: z.string(),

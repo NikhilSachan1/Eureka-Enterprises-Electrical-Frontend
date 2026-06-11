@@ -84,8 +84,7 @@ export class EditReportComponent
         defaultValues: {
           projectName: record.siteId,
           jmcNumber: record.jmc.jmcNumber,
-          isNoReport: record.reportNumber === null,
-          reportNumber: record.reportNumber,
+          isNoReport: !record.fileKey,
           reportDate: new Date(record.reportDate),
           reportAttachment: [],
           remarks: record.remarks ?? null,
@@ -110,7 +109,7 @@ export class EditReportComponent
 
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
 
-    if (record.reportNumber !== null && record.fileKey) {
+    if (record.fileKey) {
       this.loadPrefillAttachmentFromKey(record.fileKey);
     }
   }

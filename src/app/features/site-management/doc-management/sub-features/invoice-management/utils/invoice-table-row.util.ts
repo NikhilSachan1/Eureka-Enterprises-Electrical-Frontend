@@ -1,5 +1,6 @@
 import { IInvoiceGetBaseResponseDto } from '../types/invoice.dto';
-import { EApprovalStatus } from '@shared/types';
+import { EApprovalStatus, EDataType } from '@shared/types';
+import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 
 function normalizeInvoiceApprovalStatus(
   status: string | null | undefined
@@ -65,6 +66,62 @@ export function invoiceRejectDisableReason(
     return INVOICE_ROW_ACTION_DISABLE_REASON.rejectAlreadyRejected;
   }
   return INVOICE_ROW_ACTION_DISABLE_REASON.rejectOnlyWhilePending;
+}
+
+export function buildInvoiceGstAmountSuffix(
+  gstPercentagePart: string,
+  isGstHold: boolean | undefined | null
+): string {
+  const holdStatus = isGstHold === false ? 'No Hold' : 'Hold';
+  return `${gstPercentagePart} · ${holdStatus}`;
+}
+
+function formatInvoicePercentSuffix(
+  percentage: string | number | null | undefined
+): string {
+  const raw = String(percentage ?? '').trim();
+  if (!raw) {
+    return '';
+  }
+  return raw.startsWith('(') ? raw : `(${raw.replace(/%$/, '')}%)`;
+}
+
+export function buildInvoiceTaxGstAmountSegments(input: {
+  taxableAmount: string;
+  tdsAmount: string;
+  tdsPercentage: string | number;
+  gstAmount: string;
+  gstPercentage: string | number;
+  totalAmount: string;
+  isGstHold?: boolean | null;
+}): IDocAmountSegment[] {
+  return [
+    {
+      dataType: EDataType.CURRENCY,
+      label: 'Taxable',
+      value: input.taxableAmount,
+    },
+    {
+      dataType: EDataType.CURRENCY,
+      label: 'TDS',
+      value: input.tdsAmount,
+      suffix: formatInvoicePercentSuffix(input.tdsPercentage),
+    },
+    {
+      dataType: EDataType.CURRENCY,
+      label: 'GST',
+      value: input.gstAmount,
+      suffix: buildInvoiceGstAmountSuffix(
+        formatInvoicePercentSuffix(input.gstPercentage),
+        input.isGstHold
+      ),
+    },
+    {
+      dataType: EDataType.CURRENCY,
+      label: 'Total',
+      value: input.totalAmount,
+    },
+  ];
 }
 
 export function shouldDisableInvoiceEditOrDelete(

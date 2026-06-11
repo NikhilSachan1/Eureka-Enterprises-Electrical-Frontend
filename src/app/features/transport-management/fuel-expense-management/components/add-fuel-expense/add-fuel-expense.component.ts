@@ -24,7 +24,6 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { LinkedVehiclePetroCardComponent } from '@features/transport-management/fuel-expense-management/shared/linked-vehicle-petro-card/linked-vehicle-petro-card.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ButtonComponent } from '@shared/components/button/button.component';
-import { ADD_FUEL_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/add-fuel-expense.mock-data';
 
 @Component({
   selector: 'app-add-fuel-expense',
@@ -63,8 +62,6 @@ export class AddFuelExpenseComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    this.loadMockData(ADD_FUEL_EXPENSE_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

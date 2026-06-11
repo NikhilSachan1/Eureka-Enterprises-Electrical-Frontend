@@ -1,0 +1,52 @@
+@let cur = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
+@let fmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
+@let loc = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+
+<section class="bp-invoice-summary">
+  <div class="bp-invoice-summary__row">
+    <span class="bp-invoice-summary__row-title">Breakdown</span>
+    <div class="bp-invoice-summary__chips">
+      @for (item of breakdownMetrics(); track item.label) {
+        <span
+          class="bp-invoice-summary__chip"
+          [attr.data-tone]="item.tone"
+        >
+          <span class="bp-invoice-summary__chip-label">{{ item.label }}</span>
+          @if (item.suffix) {
+            <span class="bp-invoice-summary__chip-suffix">· {{ item.suffix }}</span>
+          }
+          <span class="bp-invoice-summary__chip-value">
+            @if (item.value !== null && item.value !== undefined) {
+              {{ item.value | currency: cur : 'symbol' : fmt : loc }}
+            } @else {
+              —
+            }
+          </span>
+        </span>
+      }
+    </div>
+  </div>
+
+  @if (showPaymentMetrics()) {
+    <div class="bp-invoice-summary__row bp-invoice-summary__row--payment">
+      <span class="bp-invoice-summary__row-title">Payment</span>
+      <div class="bp-invoice-summary__chips">
+        @for (item of paymentMetrics(); track item.label) {
+          <span
+            class="bp-invoice-summary__chip"
+            [attr.data-tone]="item.tone"
+          >
+            <span class="bp-invoice-summary__chip-label">{{ item.label }}</span>
+            <span class="bp-invoice-summary__chip-value">
+              @if (item.value !== null && item.value !== undefined) {
+                {{ item.value | currency: cur : 'symbol' : fmt : loc }}
+              } @else {
+                —
+              }
+            </span>
+          </span>
+        }
+      </div>
+    </div>
+  }
+</section>

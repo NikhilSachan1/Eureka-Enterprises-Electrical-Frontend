@@ -75,6 +75,10 @@ const DROPDOWN_OPTION_ICON_MAP: Record<string, Record<string, string>> = {
     archived: ICONS.COMMON.HISTORY,
   },
   [CONFIGURATION_KEYS.EXPENSE.CATEGORIES]: EXPENSE_CATEGORY_ICONS,
+  [CONFIGURATION_KEYS.PROJECT.PROJECT_TYPES]: {
+    electrical: ICONS.COMMON.BOLT,
+    civil: ICONS.SITE.BUILDING,
+  },
 };
 
 /**

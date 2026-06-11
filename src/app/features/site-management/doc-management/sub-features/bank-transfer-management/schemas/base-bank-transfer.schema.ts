@@ -18,8 +18,6 @@ export const BankTransferBaseSchema = z.looseObject({
   utrNumber: z.string(),
   transferDate: onlyDateStringField,
   transferAmount: z.string(),
-  tdsPercentage: z.coerce.number().nullable().optional(),
-  tdsDeducted: z.string().nullable().optional(),
   proofFileKey: z.string().nullable(),
   proofFileName: z.string().nullable(),
   remarks: z.string().nullable(),
@@ -29,11 +27,6 @@ const bankTransferMoneyFieldSchema = z.coerce
   .number()
   .transform(val => roundCurrencyAmount(val));
 
-const bankTransferOptionalMoneyFieldSchema = z.coerce
-  .number()
-  .optional()
-  .transform(val => (val === undefined ? undefined : roundCurrencyAmount(val)));
-
 export const BankTransferUpsertShapeSchema = z
   .object({
     partyType: z.enum(EDocContext),
@@ -41,8 +34,6 @@ export const BankTransferUpsertShapeSchema = z
     bookPaymentNumber: uuidField.nullable(),
     utrNumber: z.string(),
     transferDate: dateField,
-    tdsPercentage: z.coerce.number().optional(),
-    tdsDeducted: bankTransferOptionalMoneyFieldSchema,
     transferAmount: bankTransferMoneyFieldSchema,
     transferProofFileKey: z.string().nullable(),
     transferProofFileName: z.string().nullable(),

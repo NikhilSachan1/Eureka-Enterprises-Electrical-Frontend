@@ -166,11 +166,8 @@ export class GetAttendanceComponent implements OnInit {
         attendanceType: record.attendanceType,
         assignmentSnapshot: {
           ...record.assignmentSnapshot,
-          contractorsDisplay:
-            record.assignmentSnapshot?.contractors
-              ?.map(c => c?.name)
-              .filter(Boolean)
-              .join(', ') ?? null,
+          contractorDisplay:
+            record.assignmentSnapshot?.contractors?.[0]?.name?.trim() ?? null,
           vehicleDisplay:
             record.assignmentSnapshot?.vehicle?.registrationNo ?? null,
           assignedEngineerDisplay: ((): string | null => {
@@ -278,14 +275,18 @@ export class GetAttendanceComponent implements OnInit {
       dynamicComponentInputs.dialogActionType = actionType;
     }
 
-    const recordDetail = this.prepareAttendanceRecordDetail(selectedFirstRow);
+    const showRecordSummary = actionType !== EButtonActionType.EDIT && !isBulk;
+    const recordDetail =
+      showRecordSummary || isBulk
+        ? this.prepareAttendanceRecordDetail(selectedFirstRow)
+        : null;
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
       ATTENDANCE_ACTION_CONFIG_MAP[actionType],
       recordDetail,
       isBulk,
-      !isBulk,
+      showRecordSummary,
       dynamicComponentInputs
     );
   }
@@ -316,11 +317,8 @@ export class GetAttendanceComponent implements OnInit {
         value: selectedRow.assignmentSnapshot?.company?.name ?? 'N/A',
       },
       {
-        label: 'Contractors',
-        value:
-          selectedRow.assignmentSnapshot?.contractors
-            ?.map(c => c?.name)
-            .join(', ') ?? 'N/A',
+        label: 'Contractor',
+        value: selectedRow.assignmentSnapshot?.contractors?.[0]?.name ?? 'N/A',
       },
       {
         label: 'Assigned Engineer',

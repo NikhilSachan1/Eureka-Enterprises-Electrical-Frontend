@@ -12,13 +12,6 @@
   <app-doc-reference [root]="row.documentReferenceHierarchy" />
 </ng-template>
 
-<ng-template
-  #bookPaymentAmountBreakdown
-  let-row
->
-  <app-doc-amount [segments]="docBookPaymentAmountSegments(row)" />
-</ng-template>
-
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
   (headerButtonClick)="onHeaderButtonClick($event)"
@@ -36,7 +29,6 @@
   [customBodyTemplates]="{
     docWorkspaceContext: docWorkspaceContext,
     bookPaymentDocumentReference: bookPaymentDocumentReference,
-    bookPaymentAmountBreakdown: bookPaymentAmountBreakdown,
   }"
   (rowActionClick)="handleBookPaymentTableActionClick($any($event))"
   (filterData)="onTableStateChange($event)"

@@ -80,7 +80,7 @@ export const AttendanceBaseSchema = z.looseObject({
 export const AttendanceUpsertShapeSchema = z
   .object({
     company: CompanyGetBaseResponseSchema.nullable(),
-    contractors: z.array(ContractorGetBaseResponseSchema.nullable()),
+    contractor: ContractorGetBaseResponseSchema.nullable(),
     vehicle: VehicleBaseSchema.nullable(),
     assignedEngineer: z
       .looseObject({

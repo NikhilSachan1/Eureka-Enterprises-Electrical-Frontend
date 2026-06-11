@@ -16,10 +16,6 @@ export const EditBankTransferRequestSchema = BankTransferUpsertShapeSchema.omit(
   remarks: data.remarks,
   transferAmount:
     EDocContext.SALES === data.partyType ? data.transferAmount : null,
-  tdsPercentage:
-    EDocContext.SALES === data.partyType ? (data.tdsPercentage ?? null) : null,
-  tdsDeducted:
-    EDocContext.SALES === data.partyType ? (data.tdsDeducted ?? null) : null,
 }));
 
 export const EditBankTransferResponseSchema = z.looseObject({

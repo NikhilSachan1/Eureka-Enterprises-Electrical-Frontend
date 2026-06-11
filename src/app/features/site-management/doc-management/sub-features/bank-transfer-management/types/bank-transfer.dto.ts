@@ -37,16 +37,10 @@ export type IAddBankTransferFormDto = z.input<
 
 export type IAddBankTransferUIFormDto = Omit<
   IAddBankTransferFormDto,
-  | 'partyType'
-  | 'transferProofFileKey'
-  | 'transferProofFileName'
-  | 'tdsPercentage'
-  | 'tdsDeducted'
+  'partyType' | 'transferProofFileKey' | 'transferProofFileName'
 > & {
   projectName: string;
   proofAttachment: File[];
-  tdsPercentage: number | null;
-  tdsDeducted: number | null;
 };
 
 export type IAddBankTransferResponseDto = z.infer<
@@ -62,15 +56,11 @@ export type IEditBankTransferUIFormDto = Omit<
   | 'transferProofFileName'
   | 'transferAmount'
   | 'partyType'
-  | 'tdsPercentage'
-  | 'tdsDeducted'
 > & {
   projectName: string;
   invoiceNumber: string | null;
   bookPaymentNumber: string | null;
   transferAmount: number | null;
-  tdsPercentage: number | null;
-  tdsDeducted: number | null;
   proofAttachment: File[];
 };
 

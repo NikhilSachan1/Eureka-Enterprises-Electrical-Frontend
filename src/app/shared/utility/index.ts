@@ -41,7 +41,10 @@ export {
   getFileExtension,
   isAllowedUploadFileType,
 } from './media.util';
-export { filterOptionsByIncludeExclude } from './component.util';
+export {
+  filterOptionsByIncludeExclude,
+  getSelectedEmployeeRole,
+} from './component.util';
 export {
   isNotRecordCreator,
   isRecordCreator,

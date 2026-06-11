@@ -290,6 +290,12 @@
     padding-left: 0;
     padding-right: 0;
   }
+
+  &--full {
+    @media (min-width: 640px) {
+      grid-column: 1 / -1;
+    }
+  }
 }
 
 .assignment-row__icon {

@@ -16,7 +16,6 @@ import { IPetroCardAddFormDto } from '../../types/petro-card.dto';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { ADD_PETRO_CARD_PREFILLED_DATA } from '@shared/mock-data/add-petro-card.mock-data';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -52,8 +51,6 @@ export class AddPetroCardComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    this.loadMockData(ADD_PETRO_CARD_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

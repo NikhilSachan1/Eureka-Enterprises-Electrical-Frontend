@@ -8,9 +8,6 @@ export interface IBankTransfer
     IBankTransferGetBaseResponseDto,
     'id' | 'transferDate' | 'utrNumber' | 'transferAmount' | 'remarks'
   > {
-  /** Present on sales rows when API returns TDS breakdown. */
-  tdsDeducted?: string | null;
-  tdsPercentage?: string | null;
   docWorkspaceContext: IDocWorkspaceContextView;
   documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   transferProofAttachmentKeys: string[];

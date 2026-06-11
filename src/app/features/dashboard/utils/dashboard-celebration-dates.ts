@@ -1,4 +1,4 @@
-/** Local-calendar YYYY-MM-DD for dashboard celebration mocks. */
+/** Local-calendar YYYY-MM-DD for dashboard celebration dates. */
 export function dashboardTodayYmd(): string {
   const n = new Date();
   return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;

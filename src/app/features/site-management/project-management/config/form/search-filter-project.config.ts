@@ -79,6 +79,19 @@ const SEARCH_FILTER_PROJECT_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
       },
       matchmode: ETableFilterMatchMode.IN,
     },
+    projectType: {
+      fieldType: EDataType.SELECT,
+      id: 'projectType',
+      fieldName: 'projectType',
+      label: 'Project Type',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.PROJECT,
+          dropdownName: CONFIGURATION_KEYS.PROJECT.PROJECT_TYPES,
+        },
+      },
+      matchmode: ETableFilterMatchMode.IN,
+    },
   };
 
 const SEARCH_FILTER_PROJECT_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

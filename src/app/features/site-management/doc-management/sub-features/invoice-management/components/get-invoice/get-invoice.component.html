@@ -1,3 +1,11 @@
+<ng-template
+  #invoiceDialogAmounts
+  let-entry
+>
+  @let v = $any(entry.value);
+  <app-doc-amount [segments]="docInvoiceDialogAmountSegments(v)" />
+</ng-template>
+
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
   (headerButtonClick)="onHeaderButtonClick($event)"

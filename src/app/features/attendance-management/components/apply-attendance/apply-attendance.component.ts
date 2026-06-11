@@ -13,6 +13,7 @@ import { AttendanceService } from '@features/attendance-management/services/atte
 import {
   IAttendanceApplyFormDto,
   IAttendanceApplyUIFormDto,
+  IAttendanceCurrentStatusGetFormDto,
   IAttendanceCurrentStatusGetResponseDto,
 } from '@features/attendance-management/types/attendance.dto';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -52,6 +53,12 @@ import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types
 type VehicleApplyValue = z.infer<typeof VehicleBaseSchema>;
 type EmployeeApplyValue = z.infer<typeof EmployeeBaseSchema>;
 
+const EMPTY_DRIVER_ASSIGNMENT_VALUES: Partial<IAttendanceApplyUIFormDto> = {
+  company: null,
+  contractor: null,
+  vehicle: null,
+};
+
 @Component({
   selector: 'app-apply-attendance',
   imports: [
@@ -78,6 +85,12 @@ export class ApplyAttendanceComponent
   private readonly appConfigurationService = inject(AppConfigurationService);
 
   private trackedApplyAttendanceFields!: ITrackedFields<IAttendanceApplyUIFormDto>;
+  private lastLoadedEngineerStatusId: string | null = null;
+
+  private readonly formContext = {
+    isEmployee: false,
+    isDriver: false,
+  };
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
   protected assignmentHeaderButtonConfig = computed(() =>
@@ -97,27 +110,30 @@ export class ApplyAttendanceComponent
   protected readonly ALL_APPLY_ATTENDANCE_ACTIONS = EApplyAttendanceAction;
   protected readonly ALL_ICONS = ICONS;
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected isEmployeeUser = false;
+  protected isDriverUser = false;
 
   ngOnInit(): void {
-    this.loadCurrentStatusDataFromRoute();
-
     const currentUser = this.authService.getCurrentUser();
-    const isDriverUser = currentUser?.activeRole === EUserRole.DRIVER;
+    this.isEmployeeUser = currentUser?.activeRole === EUserRole.EMPLOYEE;
+    this.isDriverUser = currentUser?.activeRole === EUserRole.DRIVER;
+    this.formContext.isEmployee = this.isEmployeeUser;
+    this.formContext.isDriver = this.isDriverUser;
+
+    this.loadCurrentStatusDataFromRoute();
 
     this.form = this.formService.createForm<IAttendanceApplyUIFormDto>(
       APPLY_ATTENDANCE_FORM_CONFIG,
       {
         destroyRef: this.destroyRef,
         defaultValues: this.initialAttendanceData(),
-        context: {
-          isDriver: isDriverUser,
-        },
+        context: this.formContext,
       }
     );
 
     const trackedFields: (keyof IAttendanceApplyUIFormDto)[] = [
       'company',
-      'contractors',
+      'contractor',
       'vehicle',
       'assignedEngineer',
     ];
@@ -127,19 +143,42 @@ export class ApplyAttendanceComponent
         trackedFields,
         this.destroyRef
       );
+
+    this.restoreDriverAssignmentFromCurrentStatus();
+  }
+
+  /**
+   * Driver attendance status (status, check-in/out, work duration) comes from the
+   * driver's own current-status API via route resolver (`currentStatusData`).
+   *
+   * Assignment fields (company, contractor, vehicle) are loaded only from the
+   * selected assigned engineer's current-status API.
+   */
+  private restoreDriverAssignmentFromCurrentStatus(): void {
+    if (!this.isDriverUser) {
+      return;
+    }
+
+    const assignedEngineerId = this.initialAttendanceData()?.assignedEngineer;
+
+    if (this.isBlankId(assignedEngineerId)) {
+      return;
+    }
+
+    this.loadAssignedEngineerCurrentStatus(assignedEngineerId);
   }
 
   private getAssignmentDisplayLabels(): {
     companyName: string;
     companyCity: string;
     companyState: string;
-    contractors: string;
+    contractorName: string;
     engineer: string;
     vehicle: string;
   } {
     const v = this.trackedApplyAttendanceFields?.getValues();
     const companyId = v?.company;
-    const contractorIds = v?.contractors;
+    const contractorId = v?.contractor;
     const vehicleId = v?.vehicle;
     const engineerId = v?.assignedEngineer;
 
@@ -173,18 +212,15 @@ export class ApplyAttendanceComponent
         '-';
     }
 
-    let contractorsNames = '-';
-    if (contractorIds?.length) {
-      const contractorsData = contractorIds.map(
-        id =>
-          getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.contractorList(),
-            id,
-            'value',
-            'data'
-          ) as IContractorGetBaseResponseDto
-      );
-      contractorsNames = contractorsData.map(c => c.name).join(', ');
+    let contractorName = '-';
+    if (contractorId) {
+      const contractorData = getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.contractorList(),
+        contractorId,
+        'value',
+        'data'
+      ) as IContractorGetBaseResponseDto;
+      contractorName = contractorData?.name?.trim() ?? '-';
     }
 
     let engineer = '-';
@@ -213,7 +249,7 @@ export class ApplyAttendanceComponent
       companyName,
       companyCity,
       companyState,
-      contractors: contractorsNames,
+      contractorName,
       engineer,
       vehicle,
     };
@@ -240,17 +276,78 @@ export class ApplyAttendanceComponent
     this.initialAttendanceData.set(prefilledAttendanceData);
   }
 
+  private loadAssignedEngineerCurrentStatus(
+    assignedEngineerId: string,
+    onSuccess?: () => void
+  ): void {
+    this.loadingService.show({
+      title: 'Loading assigned engineer assignment',
+      message:
+        "We're loading the assigned engineer's assignment. This will just take a moment.",
+    });
+
+    const paramData: IAttendanceCurrentStatusGetFormDto = {
+      employeeName: assignedEngineerId,
+    };
+
+    this.attendanceService
+      .getAttendanceCurrentStatus(paramData)
+      .pipe(
+        finalize(() => {
+          this.loadingService.hide();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response: IAttendanceCurrentStatusGetResponseDto) => {
+          this.form.patch(this.preparePrefilledAssignmentData(response));
+          this.lastLoadedEngineerStatusId = assignedEngineerId;
+          onSuccess?.();
+        },
+        error: error => {
+          this.logger.error(
+            'Error loading assigned engineer current status',
+            error
+          );
+          this.notificationService.error(
+            'Failed to load assigned engineer assignment'
+          );
+        },
+      });
+  }
+
   private preparePrefilledFormData(
     currentStatusFromResolver: IAttendanceCurrentStatusGetResponseDto
   ): IAttendanceApplyUIFormDto {
+    if (this.isDriverUser) {
+      return {
+        ...EMPTY_DRIVER_ASSIGNMENT_VALUES,
+        assignedEngineer:
+          currentStatusFromResolver.assignedEngineer?.id ?? null,
+        remark: null,
+      } as IAttendanceApplyUIFormDto;
+    }
+
     const { company, contractors, vehicle, assignedEngineer } =
       currentStatusFromResolver;
     return {
       company: company?.id ?? null,
-      contractors: contractors?.map(c => c?.id ?? '') ?? [],
+      contractor: contractors?.[0]?.id ?? null,
       vehicle: vehicle?.id ?? null,
       assignedEngineer: assignedEngineer?.id ?? null,
       remark: null,
+    };
+  }
+
+  private preparePrefilledAssignmentData(
+    response: IAttendanceCurrentStatusGetResponseDto
+  ): Partial<IAttendanceApplyUIFormDto> {
+    // Assigned engineer is chosen by the driver; only load assignment details
+    // from the engineer's current-status response.
+    return {
+      company: response.company?.id ?? null,
+      contractor: response.contractors?.[0]?.id ?? null,
+      vehicle: response.vehicle?.id ?? null,
     };
   }
 
@@ -262,6 +359,7 @@ export class ApplyAttendanceComponent
   private prepareFormData(): IAttendanceApplyFormDto {
     const formData = this.form.getData();
     const companyId = formData.company;
+    const contractorId = formData.contractor;
     const vehicleId = formData.vehicle;
     const engineerId = formData.assignedEngineer;
 
@@ -276,16 +374,14 @@ export class ApplyAttendanceComponent
             'value',
             'data'
           ) as ICompanyGetBaseResponseDto) ?? null),
-      contractors: formData.contractors.map(c =>
-        this.isBlankId(c)
-          ? null
-          : ((getMappedValueFromArrayOfObjects(
-              this.appConfigurationService.contractorList(),
-              c,
-              'value',
-              'data'
-            ) as IContractorGetBaseResponseDto) ?? null)
-      ),
+      contractor: this.isBlankId(contractorId)
+        ? null
+        : ((getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.contractorList(),
+            contractorId,
+            'value',
+            'data'
+          ) as IContractorGetBaseResponseDto) ?? null),
       vehicle: this.isBlankId(vehicleId)
         ? null
         : ((getMappedValueFromArrayOfObjects(
@@ -360,11 +456,43 @@ export class ApplyAttendanceComponent
   }
 
   protected toggleAssignmentEditing(): void {
+    if (this.isDriverUser) {
+      this.toggleDriverAssignmentEditing();
+      return;
+    }
+
     this.isEditingAssignment.update(isEditing => !isEditing);
+  }
+
+  private toggleDriverAssignmentEditing(): void {
+    if (this.isEditingAssignment()) {
+      const assignedEngineerId = this.form.formGroup.get('assignedEngineer')
+        ?.value as string | null;
+
+      if (this.isBlankId(assignedEngineerId)) {
+        const engineerControl = this.form.formGroup.get('assignedEngineer');
+        engineerControl?.markAsTouched();
+        engineerControl?.updateValueAndValidity();
+        return;
+      }
+
+      if (assignedEngineerId === this.lastLoadedEngineerStatusId) {
+        this.isEditingAssignment.set(false);
+        return;
+      }
+
+      this.loadAssignedEngineerCurrentStatus(assignedEngineerId, () => {
+        this.isEditingAssignment.set(false);
+      });
+      return;
+    }
+
+    this.isEditingAssignment.set(true);
   }
 
   protected onResetAssignmentForm(): void {
     const initial = this.initialAttendanceData();
+    this.lastLoadedEngineerStatusId = null;
     this.onResetSingleForm(initial ?? undefined);
   }
 

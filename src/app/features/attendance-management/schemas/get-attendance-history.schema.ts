@@ -16,6 +16,7 @@ export const AttendanceHistoryGetResponseSchema = z.array(
   AttendanceBaseSchema.extend({
     notes: notes.nullable(), // ToDo: remove this nullable after backend is updated
     user: UserSchema,
+    createdByUser: makeFieldsNullable(UserSchema).nullable().optional(),
     updatedByUser: makeFieldsNullable(UserSchema).nullable().optional(),
     approvalByUser: makeFieldsNullable(UserSchema).nullable().optional(),
   }).loose()

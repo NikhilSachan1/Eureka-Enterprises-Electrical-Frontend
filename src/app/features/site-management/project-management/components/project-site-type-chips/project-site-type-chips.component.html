@@ -1,0 +1,12 @@
+<div class="project-site-type-chips">
+  @if (displays().length === 0) {
+    <span class="project-site-type-chips__empty">—</span>
+  } @else {
+    @for (item of displays(); track item.value) {
+      <app-chip
+        [label]="item.label"
+        [icon]="item.icon"
+      />
+    }
+  }
+</div>

@@ -62,8 +62,6 @@ export class AddVehicleReadingComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    // this.loadMockData(ADD_VEHICLE_READING_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

@@ -16,7 +16,6 @@ import { IvehicleAddFormDto } from '../../types/vehicle.dto';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { ADD_VEHICLE_PREFILLED_DATA } from '@shared/mock-data/add-vehicle.mock-data';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
@@ -52,8 +51,6 @@ export class AddVehicleComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    this.loadMockData(ADD_VEHICLE_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

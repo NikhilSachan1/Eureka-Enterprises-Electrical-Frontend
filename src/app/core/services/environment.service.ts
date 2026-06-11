@@ -63,11 +63,4 @@ export class EnvironmentService {
   get isLoggingEnabled(): boolean {
     return this._environment.ENABLE_LOGGING;
   }
-
-  /**
-   * Check if test data is enabled
-   */
-  get isTestDataEnabled(): boolean {
-    return this._environment.ENABLE_TEST_DATA;
-  }
 }

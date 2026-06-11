@@ -7,6 +7,8 @@ import {
   inject,
   OnInit,
   signal,
+  TemplateRef,
+  viewChild,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
@@ -57,6 +59,7 @@ import { ProjectWorkspaceContextService } from '@features/site-management/projec
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
+import { buildInvoiceTaxGstAmountSegments } from '../../utils/invoice-table-row.util';
 
 @Component({
   selector: 'app-get-invoice',
@@ -101,6 +104,9 @@ export class GetInvoiceComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
   private readonly loadTrigger$ = new Subject<void>();
+  private readonly invoiceDialogAmountsTpl = viewChild<TemplateRef<unknown>>(
+    'invoiceDialogAmounts'
+  );
 
   constructor() {
     effect(() => {
@@ -152,24 +158,15 @@ export class GetInvoiceComponent implements OnInit {
   }
 
   protected docInvoiceTaxGstSegments(row: IInvoice): IDocAmountSegment[] {
-    return [
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'Taxable',
-        value: row.taxableAmount,
-      },
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'GST',
-        value: row.gstAmount,
-        suffix: row.gstPercentage,
-      },
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'Total',
-        value: row.totalAmount,
-      },
-    ];
+    return buildInvoiceTaxGstAmountSegments({
+      taxableAmount: row.taxableAmount,
+      tdsAmount: row.tdsAmount,
+      tdsPercentage: row.tdsPercentage,
+      gstAmount: row.gstAmount,
+      gstPercentage: row.gstPercentage,
+      totalAmount: row.totalAmount,
+      isGstHold: row.isGstHold,
+    });
   }
 
   protected docInvoiceBookedPaidSegments(row: IInvoice): IDocAmountSegment[] {
@@ -234,8 +231,11 @@ export class GetInvoiceComponent implements OnInit {
         invoiceDate: record.invoiceDate,
         invoiceNumber: record.invoiceNumber,
         taxableAmount: record.taxableAmount,
+        tdsAmount: record.tdsAmount,
+        tdsPercentage: `(${record.tdsPercentage}%)`,
         gstPercentage: `(${record.gstPercentage}%)`,
         gstAmount: record.gstAmount,
+        isGstHold: record.isGstHold,
         totalAmount: record.totalAmount,
         bookedTotal: record.bookedTotal,
         paidTotal: record.paidTotal,
@@ -311,15 +311,37 @@ export class GetInvoiceComponent implements OnInit {
     const recordDetail = showRecordSummary
       ? this.prepareInvoiceRecordDetail(selectedFirstRow)
       : null;
+    const detailTpl = this.invoiceDialogAmountsTpl();
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      INVOICE_ACTION_CONFIG_MAP[actionType],
+      {
+        ...INVOICE_ACTION_CONFIG_MAP[actionType],
+        ...(detailTpl && showRecordSummary
+          ? {
+              detailViewCustomTemplates: {
+                invoiceDialogAmounts: detailTpl,
+              },
+            }
+          : {}),
+      },
       recordDetail,
       false,
       showRecordSummary,
       dynamicComponentInputs
     );
+  }
+
+  protected docInvoiceDialogAmountSegments(value: {
+    taxableAmount: string;
+    tdsAmount: string;
+    tdsPercentage: string | number;
+    gstAmount: string;
+    gstPercentage: string | number;
+    totalAmount: string;
+    isGstHold?: boolean | null;
+  }): IDocAmountSegment[] {
+    return buildInvoiceTaxGstAmountSegments(value);
   }
 
   private prepareInvoiceRecordDetail(
@@ -331,6 +353,19 @@ export class GetInvoiceComponent implements OnInit {
         value: selectedRow.invoiceDate,
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
+      },
+      {
+        label: 'Invoice amounts',
+        value: {
+          taxableAmount: selectedRow.taxableAmount,
+          tdsAmount: selectedRow.tdsAmount,
+          tdsPercentage: selectedRow.tdsPercentage,
+          gstAmount: selectedRow.gstAmount,
+          gstPercentage: selectedRow.gstPercentage,
+          isGstHold: selectedRow.isGstHold,
+          totalAmount: selectedRow.totalAmount,
+        },
+        customTemplateKey: 'invoiceDialogAmounts',
       },
       {
         label: 'Attachment(s)',

@@ -32,7 +32,6 @@ import {
 } from '@features/employee-management/types/employee.dto';
 import { EmployeeService } from '@features/employee-management/services/employee.service';
 import { ActivatedRoute } from '@angular/router';
-import { ADD_EMPLOYEE_PREFILLED_DATA } from '@shared/mock-data/add-employee.mock-data';
 import { SalarySummaryComponent } from '@features/payroll-management/shared/components/salary-summary/salary-summary.component';
 import { ISalaryFields } from '@features/payroll-management/types/payroll.interface';
 import {
@@ -123,8 +122,6 @@ export class AddEmployeeComponent
         this.destroyRef,
         this.initialEmployeeData()
       );
-
-    this.loadMockData(ADD_EMPLOYEE_PREFILLED_DATA);
 
     const trackedFields: (keyof IEmployeeAddUiFormDto)[] = [
       'grossSalary',

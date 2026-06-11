@@ -1,0 +1,154 @@
+@mixin chip-tone($accent) {
+  --chip-accent: #{$accent};
+  background: color-mix(in srgb, #{$accent} 9%, var(--surface-card));
+  border-color: color-mix(in srgb, #{$accent} 22%, var(--surface-border));
+
+  &::before {
+    background: #{$accent};
+  }
+
+  .bp-invoice-summary__chip-label {
+    color: color-mix(in srgb, #{$accent} 55%, var(--text-color-secondary));
+  }
+
+  .bp-invoice-summary__chip-value {
+    color: color-mix(in srgb, #{$accent} 82%, var(--text-color));
+  }
+}
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.bp-invoice-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, #6366f1 14%, var(--surface-border));
+  background: color-mix(in srgb, #6366f1 4%, var(--surface-card));
+}
+
+.bp-invoice-summary__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  min-width: 0;
+
+  &--payment {
+    padding-top: 0.3125rem;
+    border-top: 1px solid color-mix(in srgb, var(--surface-border) 90%, #06b6d4);
+  }
+}
+
+.bp-invoice-summary__row-title {
+  flex: 0 0 4.25rem;
+  padding-top: 0.125rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: var(--text-color-secondary);
+}
+
+.bp-invoice-summary__chips {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bp-invoice-summary__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  max-width: 100%;
+  padding: 0.125rem 0.375rem;
+  border: 1px solid transparent;
+  border-radius: 0.3125rem;
+  line-height: 1.2;
+
+  &::before {
+    content: "";
+    flex-shrink: 0;
+    width: 0.3125rem;
+    height: 0.3125rem;
+    border-radius: 50%;
+  }
+
+  &[data-tone="taxable"] {
+    @include chip-tone(#059669);
+  }
+  &[data-tone="deduction"] {
+    @include chip-tone(#e11d48);
+  }
+  &[data-tone="gst"] {
+    @include chip-tone(#d97706);
+  }
+  &[data-tone="total"] {
+    @include chip-tone(#475569);
+  }
+  &[data-tone="booked"] {
+    @include chip-tone(#0891b2);
+  }
+  &[data-tone="paid"] {
+    @include chip-tone(#16a34a);
+  }
+  &[data-tone="remaining"] {
+    @include chip-tone(#7c3aed);
+  }
+}
+
+.bp-invoice-summary__chip-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bp-invoice-summary__chip-suffix {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-color-secondary);
+}
+
+.bp-invoice-summary__chip-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+:host-context(.dark-theme) {
+  .bp-invoice-summary {
+    background: color-mix(in srgb, #6366f1 10%, var(--surface-card));
+  }
+
+  .bp-invoice-summary__chip {
+    &[data-tone="taxable"] {
+      @include chip-tone(#34d399);
+    }
+    &[data-tone="deduction"] {
+      @include chip-tone(#fb7185);
+    }
+    &[data-tone="gst"] {
+      @include chip-tone(#fbbf24);
+    }
+    &[data-tone="total"] {
+      @include chip-tone(#94a3b8);
+    }
+    &[data-tone="booked"] {
+      @include chip-tone(#22d3ee);
+    }
+    &[data-tone="paid"] {
+      @include chip-tone(#4ade80);
+    }
+    &[data-tone="remaining"] {
+      @include chip-tone(#a78bfa);
+    }
+  }
+}

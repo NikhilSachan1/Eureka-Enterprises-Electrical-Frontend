@@ -5,10 +5,17 @@
   [formGroup]="form.formGroup"
   class="form"
 >
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.projectName"
-  />
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.projectType"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.projectName"
+    />
+  </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3">
     <app-input-field

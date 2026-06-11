@@ -4,7 +4,7 @@ import {
   NotificationService,
   LoadingService,
 } from '@shared/services';
-import { LoggerService, EnvironmentService } from '@core/services';
+import { LoggerService } from '@core/services';
 import {
   IEnhancedMultiStepForm,
   IEnhancedForm,
@@ -25,7 +25,6 @@ export abstract class FormBase<
   protected readonly logger = inject(LoggerService);
   protected readonly notificationService = inject(NotificationService);
   protected readonly destroyRef = inject(DestroyRef);
-  protected readonly environmentService = inject(EnvironmentService);
   protected readonly loadingService = inject(LoadingService);
 
   // ---------------------------------------------------------------------
@@ -277,33 +276,6 @@ export abstract class FormBase<
   protected getFirstErrorStep(): number | null {
     const keys = Object.keys(this.stepErrors()).map(Number);
     return keys.find(step => this.stepErrors()[step]) ?? null;
-  }
-
-  /**
-   * Load mock data into the form if test data is enabled
-   * Automatically detects whether to use multi-step or single form based on what's initialized
-   * @param mockData - Mock data to load into the form
-   */
-  protected loadMockData(
-    mockData: Partial<Record<string, Partial<T>>> | Partial<TSingle>
-  ): void {
-    if (!this.environmentService.isTestDataEnabled) {
-      return;
-    }
-
-    try {
-      if (this.isMultiStepForm() && this.multiStepForm) {
-        this.multiStepForm.patch(
-          mockData as Partial<Record<string, Partial<T>>>
-        );
-        this.logger.logUserAction('Mock data loaded into multi-step form');
-      } else if (this.isSingleStepForm() && this.form) {
-        this.form.patch(mockData as Partial<TSingle>);
-        this.logger.logUserAction('Mock data loaded into single form');
-      }
-    } catch (error) {
-      this.logger.error('Error loading mock data', error);
-    }
   }
 
   // ---------------------------------------------------------------------

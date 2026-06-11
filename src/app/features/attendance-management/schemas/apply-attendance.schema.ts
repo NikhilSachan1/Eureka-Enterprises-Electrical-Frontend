@@ -17,7 +17,7 @@ export const AttendanceApplyRequestSchema =
         name: data.company?.name,
         fullAddress: data.company?.fullAddress,
       },
-      contractors: data.contractors.map(c => ({
+      contractors: (data.contractor ? [data.contractor] : []).map(c => ({
         id: c?.id,
         name: c?.name,
       })),

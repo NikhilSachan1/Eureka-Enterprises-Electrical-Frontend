@@ -17,7 +17,6 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { IPageHeaderConfig } from '@shared/types';
-import { ADD_CONTRACTOR_PREFILLED_DATA } from '@shared/mock-data/add-contractor.mock-data';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -52,8 +51,6 @@ export class AddContractorComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    this.loadMockData(ADD_CONTRACTOR_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

@@ -24,10 +24,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { formatLocation } from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
+import { ProjectSiteTypeChipsComponent } from '../project-site-type-chips/project-site-type-chips.component';
 
 @Component({
   selector: 'app-get-project-detail',
-  imports: [ViewDetailComponent],
+  imports: [ViewDetailComponent, ProjectSiteTypeChipsComponent],
   templateUrl: './get-project-detail.component.html',
   styleUrl: './get-project-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,6 +83,11 @@ export class GetProjectDetailComponent extends DrawerDetailBase {
   ): IDataViewDetailsWithEntity {
     const mappedDetails = [response].map(record => {
       const entryData: IDataViewDetails['entryData'] = [
+        {
+          label: 'Project Type',
+          value: record.siteTypes ?? [],
+          customTemplateKey: 'projectSiteTypes',
+        },
         {
           label: 'Time Line',
           value: [record.startDate, record.endDate],

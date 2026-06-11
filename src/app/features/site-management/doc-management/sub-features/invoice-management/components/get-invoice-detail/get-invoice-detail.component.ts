@@ -29,6 +29,7 @@ import { DocReferenceComponent } from '@features/site-management/doc-management/
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
+import { buildInvoiceTaxGstAmountSegments } from '../../utils/invoice-table-row.util';
 
 @Component({
   selector: 'app-get-invoice-detail',
@@ -128,8 +129,11 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
         label: 'Invoice amounts',
         value: {
           taxableAmount: record.taxableAmount,
+          tdsAmount: record.tdsAmount,
+          tdsPercentage: `(${record.tdsPercentage}%)`,
           gstAmount: record.gstAmount,
           gstPercentage: `${record.gstPercentage}%`,
+          isGstHold: record.isGstHold,
           totalAmount: record.totalAmount,
         },
         customTemplateKey: 'invoiceDetailAmounts',
@@ -190,30 +194,21 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
 
   protected docInvoiceDrawerTaxGstSegments(v: {
     taxableAmount: string;
+    tdsAmount: string;
+    tdsPercentage: string;
     gstAmount: string;
     totalAmount: string;
     gstPercentage: string;
+    isGstHold?: boolean;
   }): IDocAmountSegment[] {
-    const raw = v.gstPercentage?.trim();
-    const gstSuffix =
-      raw && !raw.startsWith('(') ? `(${raw})` : (v.gstPercentage ?? undefined);
-    return [
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'Taxable',
-        value: v.taxableAmount,
-      },
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'GST',
-        value: v.gstAmount,
-        suffix: gstSuffix,
-      },
-      {
-        dataType: EDataType.CURRENCY,
-        label: 'Total',
-        value: v.totalAmount,
-      },
-    ];
+    return buildInvoiceTaxGstAmountSegments({
+      taxableAmount: v.taxableAmount,
+      tdsAmount: v.tdsAmount,
+      tdsPercentage: v.tdsPercentage,
+      gstAmount: v.gstAmount,
+      gstPercentage: v.gstPercentage,
+      totalAmount: v.totalAmount,
+      isGstHold: v.isGstHold,
+    });
   }
 }

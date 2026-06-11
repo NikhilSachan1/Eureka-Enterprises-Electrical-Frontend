@@ -10,9 +10,6 @@ export interface IBookPayment
     | 'bookingDate'
     | 'invoice'
     | 'taxableAmount'
-    | 'tdsDeductionAmount'
-    | 'tdsPercentage'
-    | 'paymentTotalAmount'
     | 'hasTransfer'
     | 'paymentHoldReason'
   > {

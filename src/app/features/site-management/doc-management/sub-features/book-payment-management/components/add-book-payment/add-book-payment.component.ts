@@ -2,10 +2,12 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   inject,
   input,
   OnInit,
+  signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -20,13 +22,13 @@ import {
 } from '@shared/types';
 import { ConfirmationDialogService } from '@shared/services';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { BookPaymentInvoiceSummaryComponent } from '../book-payment-invoice-summary/book-payment-invoice-summary.component';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { InvoiceService } from '@features/site-management/doc-management/sub-features/invoice-management/services/invoice.service';
 import {
   IInvoiceDropdownGetRequestDto,
   IInvoiceDropdownRecordDto,
 } from '@features/site-management/doc-management/sub-features/invoice-management/types/invoice.dto';
-import { roundCurrencyAmount } from '@shared/utility';
 import { ProjectService } from '@features/site-management/project-management/services/project.service';
 import { IProjectOverviewGetResponseDto } from '@features/site-management/project-management/types/project.dto';
 import {
@@ -42,11 +44,21 @@ import {
   IAddBookPaymentResponseDto,
   IAddBookPaymentUIFormDto,
 } from '../../types/book-payment.dto';
+import {
+  BOOK_PAYMENT_FORM_CONTEXT_KEYS,
+  IBookPaymentInvoiceDropdownMeta,
+  isBookPaymentHoldReasonRequired,
+} from '../../utils/book-payment-invoice-meta.util';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
   selector: 'app-add-book-payment',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [InputFieldComponent, ReactiveFormsModule],
+  imports: [
+    InputFieldComponent,
+    ReactiveFormsModule,
+    BookPaymentInvoiceSummaryComponent,
+  ],
   templateUrl: './add-book-payment.component.html',
   styleUrl: './add-book-payment.component.scss',
 })
@@ -63,6 +75,21 @@ export class AddBookPaymentComponent
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private trackedBookPaymentInputs!: ITrackedFields<IAddBookPaymentUIFormDto>;
+  private invoiceOptions: IOptionDropdown<IBookPaymentInvoiceDropdownMeta>[] =
+    [];
+
+  private readonly formContext: Record<string, unknown> = {
+    [BOOK_PAYMENT_FORM_CONTEXT_KEYS.invoiceRemaining]: null,
+  };
+
+  protected readonly selectedInvoiceMeta =
+    signal<IBookPaymentInvoiceDropdownMeta | null>(null);
+
+  protected readonly showPaymentHoldReason = computed(() => {
+    const meta = this.selectedInvoiceMeta();
+    const amount = this.trackedBookPaymentInputs?.taxableAmount?.();
+    return isBookPaymentHoldReasonRequired(amount, meta?.remaining);
+  });
 
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
@@ -86,10 +113,13 @@ export class AddBookPaymentComponent
       }
     });
     effect(() => {
-      const tracked = this.trackedBookPaymentInputs;
-      tracked?.taxableAmount?.();
-      tracked?.tdsPercentage?.();
-      this.recalcTdsAndPaymentTotal();
+      this.trackedBookPaymentInputs?.invoiceNumber?.();
+      this.updateSelectedInvoiceMeta();
+    });
+    effect(() => {
+      this.trackedBookPaymentInputs?.taxableAmount?.();
+      this.selectedInvoiceMeta();
+      this.refreshPaymentHoldReasonValidators();
     });
   }
 
@@ -101,13 +131,14 @@ export class AddBookPaymentComponent
         defaultValues: {
           projectName: this.projectName(),
         },
+        context: this.formContext,
       }
     );
 
     const trackedFields: (keyof IAddBookPaymentUIFormDto)[] = [
       'projectName',
+      'invoiceNumber',
       'taxableAmount',
-      'tdsPercentage',
     ];
 
     this.trackedBookPaymentInputs =
@@ -152,6 +183,9 @@ export class AddBookPaymentComponent
   }
 
   private loadInvoiceOptions(siteId: string): void {
+    this.invoiceOptions = [];
+    this.selectedInvoiceMeta.set(null);
+    this.form?.patch({ invoiceNumber: undefined });
     this.applyInvoiceOptions([], true);
 
     const paramData = this.prepareParamDataForInvoiceDropdown(siteId);
@@ -162,7 +196,9 @@ export class AddBookPaymentComponent
       .subscribe({
         next: response => {
           const opts = this.mapInvoiceRecordToOption(response.records);
+          this.invoiceOptions = opts;
           this.applyInvoiceOptions(opts, false);
+          this.updateSelectedInvoiceMeta();
         },
         error: error => {
           this.logger.error('Failed to load invoice dropdown', error);
@@ -186,12 +222,13 @@ export class AddBookPaymentComponent
 
   private mapInvoiceRecordToOption(
     records: IInvoiceDropdownRecordDto[]
-  ): IOptionDropdown[] {
+  ): IOptionDropdown<IBookPaymentInvoiceDropdownMeta>[] {
     return records.map(record => ({
       label: record.label,
       value: record.id,
       disabled: !record.eligible,
       disabledReason: record.reason ?? undefined,
+      data: record.meta,
     }));
   }
 
@@ -212,32 +249,45 @@ export class AddBookPaymentComponent
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
   }
 
-  private recalcTdsAndPaymentTotal(): void {
+  private updateSelectedInvoiceMeta(): void {
     const tracked = this.trackedBookPaymentInputs;
     if (!tracked) {
       return;
     }
-    const { taxableAmount, tdsPercentage } = tracked.getValues();
-    const taxable =
-      taxableAmount === null || taxableAmount === undefined
-        ? NaN
-        : Number(taxableAmount);
-    const tdsP =
-      tdsPercentage === null || tdsPercentage === undefined
-        ? NaN
-        : Number(tdsPercentage);
 
-    if (isNaN(taxable) || isNaN(tdsP)) {
+    const invoiceId = tracked.getValues().invoiceNumber;
+    if (typeof invoiceId === 'string' && invoiceId.length > 0) {
+      const matched = getMappedValueFromArrayOfObjects(
+        this.invoiceOptions,
+        invoiceId,
+        'value',
+        'data'
+      ) as IBookPaymentInvoiceDropdownMeta | undefined;
+      this.selectedInvoiceMeta.set(matched ?? null);
+      this.syncInvoiceRemainingContext(matched?.remaining);
       return;
     }
 
-    const tdsAmt = roundCurrencyAmount(taxable * (tdsP / 100));
-    const payTotal = roundCurrencyAmount(taxable - tdsAmt);
+    this.selectedInvoiceMeta.set(null);
+    this.syncInvoiceRemainingContext(undefined);
+  }
 
-    this.form.formGroup.patchValue({
-      tdsDeductionAmount: tdsAmt,
-      paymentTotalAmount: payTotal,
-    });
+  private syncInvoiceRemainingContext(remaining: number | undefined): void {
+    this.formContext[BOOK_PAYMENT_FORM_CONTEXT_KEYS.invoiceRemaining] =
+      remaining ?? null;
+    this.refreshPaymentHoldReasonValidators();
+  }
+
+  private refreshPaymentHoldReasonValidators(): void {
+    if (!this.form?.formGroup) {
+      return;
+    }
+
+    this.formService.refreshConditionalValidators(
+      this.form.formGroup,
+      this.form.fieldConfigs,
+      this.formContext
+    );
   }
 
   onDialogAccept(): void {
@@ -287,7 +337,6 @@ export class AddBookPaymentComponent
     const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['projectName'];
-    delete (record as Record<string, unknown>)['paymentTotalAmount'];
     return record;
   }
 }

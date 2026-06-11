@@ -232,7 +232,7 @@ export interface IDashboardActiveProjectRow {
   readonly progressPercent: number;
 }
 
-/** Project pipeline + active portfolio financials (API-shaped; mock on dashboard until wired). */
+/** Project pipeline + active portfolio financials (API-shaped). */
 export interface IDashboardProjectMetrics {
   readonly total: number;
   readonly active: number;

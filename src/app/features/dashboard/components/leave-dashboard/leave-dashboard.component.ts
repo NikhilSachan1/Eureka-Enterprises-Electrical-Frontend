@@ -35,24 +35,7 @@ export class LeaveDashboardComponent {
 
   protected readonly metrics = signal<IDashboardLeaveMetrics | null>(null);
 
-  constructor() {
-    this.metrics.set(this.buildLeaveMock());
-  }
-
   protected navigateTo(paths: string[]): void {
     void this.router.navigate(paths);
-  }
-
-  private buildLeaveMock(): IDashboardLeaveMetrics {
-    return {
-      approval: {
-        pending: 4,
-        approved: 18,
-        rejected: 2,
-        cancelled: 1,
-        total: 25,
-      },
-      employeeWiseLeaveBalance: [],
-    };
   }
 }

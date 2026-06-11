@@ -1,4 +1,6 @@
 import { IOptionDropdown } from '@shared/types';
+import { getMappedValueFromArrayOfObjects } from './object.util';
+import { IEmployeeGetBaseResponseDto } from '@features/employee-management/types/employee.dto';
 
 export const filterOptionsByIncludeExclude = (
   options: IOptionDropdown[],
@@ -16,4 +18,17 @@ export const filterOptionsByIncludeExclude = (
   }
 
   return options;
+};
+
+export const getSelectedEmployeeRole = (
+  employeeId: string,
+  employeeList: IOptionDropdown[]
+): string[] => {
+  const selectedEmployee = getMappedValueFromArrayOfObjects(
+    employeeList,
+    employeeId,
+    'value',
+    'data'
+  ) as IEmployeeGetBaseResponseDto;
+  return selectedEmployee.roles?.split(',') ?? [];
 };

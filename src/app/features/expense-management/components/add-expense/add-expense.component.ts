@@ -17,7 +17,6 @@ import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { ADD_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/add-expense.mock-data';
 import { FormBase } from '@shared/base/form.base';
 
 @Component({
@@ -48,8 +47,6 @@ export class AddExpenseComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    this.loadMockData(ADD_EXPENSE_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

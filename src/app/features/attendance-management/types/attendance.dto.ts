@@ -16,6 +16,10 @@ import {
   AttendanceGetBaseResponseSchema,
   AttendanceGetStatsResponseSchema,
   AttendanceCurrentStatusGetFormSchema,
+  AttendanceEditRequestSchema,
+  AttendanceEditResponseSchema,
+  AttendanceDeleteRequestSchema,
+  AttendanceDeleteResponseSchema,
 } from '../schemas';
 
 /**
@@ -80,9 +84,7 @@ export type IAttendanceApplyUIFormDto = Pick<
   'remark'
 > & {
   company: NonNullable<IAttendanceApplyFormDto['company']>['id'] | null;
-  contractors: NonNullable<
-    IAttendanceApplyFormDto['contractors'][number]
-  >['id'][];
+  contractor: NonNullable<IAttendanceApplyFormDto['contractor']>['id'] | null;
   vehicle: NonNullable<IAttendanceApplyFormDto['vehicle']>['id'] | null;
   assignedEngineer:
     | NonNullable<IAttendanceApplyFormDto['assignedEngineer']>['id']
@@ -125,9 +127,7 @@ export type IAttendanceForceUIFormDto = Pick<
   'employeeName' | 'attendanceDate' | 'attendanceStatus' | 'remark'
 > & {
   company: NonNullable<IAttendanceForceFormDto['company']>['id'] | null;
-  contractors: NonNullable<
-    IAttendanceForceFormDto['contractors'][number]
-  >['id'][];
+  contractor: NonNullable<IAttendanceForceFormDto['contractor']>['id'] | null;
   vehicle: NonNullable<IAttendanceForceFormDto['vehicle']>['id'] | null;
   assignedEngineer:
     | NonNullable<IAttendanceForceFormDto['assignedEngineer']>['id']
@@ -149,4 +149,31 @@ export type IAttendanceActionUIFormDto = Pick<
 >;
 export type IAttendanceActionResponseDto = z.infer<
   typeof AttendanceActionResponseSchema
+>;
+
+/**
+ * Attendance Edit
+ */
+export type IAttendanceEditRequestDto = z.infer<
+  typeof AttendanceEditRequestSchema
+>;
+export type IAttendanceEditFormDto = z.input<
+  typeof AttendanceEditRequestSchema
+>;
+export type IAttendanceEditResponseDto = z.infer<
+  typeof AttendanceEditResponseSchema
+>;
+export type IAttendanceEditUIFormDto = IAttendanceForceUIFormDto;
+
+/**
+ * Attendance Delete
+ */
+export type IAttendanceDeleteRequestDto = z.infer<
+  typeof AttendanceDeleteRequestSchema
+>;
+export type IAttendanceDeleteFormDto = z.input<
+  typeof AttendanceDeleteRequestSchema
+>;
+export type IAttendanceDeleteResponseDto = z.infer<
+  typeof AttendanceDeleteResponseSchema
 >;

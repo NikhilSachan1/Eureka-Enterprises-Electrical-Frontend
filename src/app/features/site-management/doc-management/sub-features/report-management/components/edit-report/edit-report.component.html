@@ -17,13 +17,6 @@
     [inputFieldConfig]="form.fieldConfigs.isNoReport"
   />
 
-  @if (showReportDetails()) {
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.reportNumber"
-    />
-  }
-
   <app-input-field
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.reportDate"

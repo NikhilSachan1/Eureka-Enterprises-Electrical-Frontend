@@ -43,10 +43,7 @@
     @let visibleEntryData = getVisibleEntries(detail.entryData);
 
     @if (visibleEntryData && visibleEntryData.length > 0) {
-      <p-card
-        class="mb-4"
-        [ngClass]="getDetailCardBg(detail)"
-      >
+      <p-card class="mb-4 view-detail-card">
         @let entryType = detail.status?.entryType ?? '';
         @let approvalStatus = detail.status?.approvalStatus ?? '';
 

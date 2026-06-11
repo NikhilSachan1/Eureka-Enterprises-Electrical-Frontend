@@ -1,8 +1,9 @@
 import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 
+import { API_ROUTES } from '@core/constants';
 import { AuthService } from '@features/auth-management/services/auth.service';
-import { RESTRICTED_ROLES_FOR_USER_ID } from '@shared/constants';
+import { EUserRole, RESTRICTED_ROLES_FOR_USER_ID } from '@shared/constants';
 
 /**
  * Keys to strip from request body AND query params for restricted roles.
@@ -30,6 +31,10 @@ export const RolePayloadSanitizerInterceptor: HttpInterceptorFn = (
     return next(req);
   }
 
+  if (shouldAllowUserIdForRequest(req, activeRole)) {
+    return next(req);
+  }
+
   const sanitizedReq = sanitizeRequest(req);
   return next(sanitizedReq);
 };
@@ -43,6 +48,22 @@ export const RolePayloadSanitizerInterceptor: HttpInterceptorFn = (
  */
 function isRestrictedRole(role: string): boolean {
   return RESTRICTED_ROLES_FOR_USER_ID.includes(role);
+}
+
+/**
+ * DRIVER may query another user's attendance current status (assigned engineer)
+ * to load company / contractor / vehicle assignment fields.
+ */
+function shouldAllowUserIdForRequest(
+  req: HttpRequest<unknown>,
+  activeRole: string
+): boolean {
+  return (
+    activeRole === EUserRole.DRIVER &&
+    req.method === 'GET' &&
+    req.url.includes(API_ROUTES.ATTENDANCE.CURRENT_STATUS) &&
+    req.params.has('userId')
+  );
 }
 
 /**

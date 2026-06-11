@@ -35,31 +35,7 @@ export class AttendanceDashboardComponent {
 
   protected readonly metrics = signal<IDashboardAttendanceMetrics | null>(null);
 
-  constructor() {
-    this.metrics.set(this.buildAttendanceMock());
-  }
-
   protected navigateTo(paths: string[]): void {
     void this.router.navigate(paths);
-  }
-
-  private buildAttendanceMock(): IDashboardAttendanceMetrics {
-    return {
-      attendance: {
-        present: 28,
-        absent: 5,
-        leave: 2,
-        checkedIn: 24,
-        notCheckedInYet: 4,
-        holiday: 0,
-        total: 35,
-      },
-      approval: {
-        pending: 3,
-        approved: 40,
-        rejected: 1,
-        total: 44,
-      },
-    };
   }
 }

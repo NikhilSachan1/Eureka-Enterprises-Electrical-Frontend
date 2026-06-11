@@ -33,12 +33,6 @@ export const REPORT_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     showSort: false,
   },
   {
-    field: 'reportNumber',
-    header: 'Report Number',
-    bodyTemplate: EDataType.TEXT,
-    showSort: false,
-  },
-  {
     field: 'reportDate',
     header: 'Report Date',
     bodyTemplate: EDataType.DATE,

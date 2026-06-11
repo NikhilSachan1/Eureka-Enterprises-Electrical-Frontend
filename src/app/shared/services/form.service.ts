@@ -416,6 +416,69 @@ export class FormService {
     return validators;
   }
 
+  refreshConditionalValidators(
+    formGroup: FormGroup,
+    fieldConfigs: Record<string, IInputFieldsConfig>,
+    context?: Record<string, unknown>
+  ): void {
+    Object.entries(fieldConfigs).forEach(([fieldName, config]) => {
+      this.runConditionalValidatorsForField(
+        formGroup,
+        fieldName,
+        config,
+        context
+      );
+    });
+  }
+
+  private runConditionalValidatorsForField(
+    formGroup: FormGroup,
+    fieldName: string,
+    config: IInputFieldsConfig,
+    context?: Record<string, unknown>
+  ): void {
+    const control = formGroup.get(fieldName);
+
+    if (!control || !config.conditionalValidators?.length) {
+      return;
+    }
+
+    const baseValidators: ValidatorFn[] = [
+      ...(config.validators ?? []),
+      ...this.getAttachmentFileValidators(config),
+    ];
+    const extraValidators: ValidatorFn[] = [];
+    let shouldResetValue = false;
+
+    config.conditionalValidators.forEach(rule => {
+      let isActive: boolean;
+
+      if (rule.dependsOn) {
+        const dependencyControl = formGroup.get(rule.dependsOn);
+        isActive = rule.shouldApply(dependencyControl?.value, context);
+      } else if (context) {
+        isActive = rule.shouldApply(context, context);
+      } else {
+        return;
+      }
+
+      if (isActive) {
+        if (rule.validators?.length) {
+          extraValidators.push(...rule.validators);
+        }
+      } else if (rule.resetOnFalse) {
+        shouldResetValue = true;
+      }
+    });
+
+    control.setValidators([...baseValidators, ...extraValidators]);
+    control.updateValueAndValidity();
+
+    if (shouldResetValue) {
+      control.reset(undefined, { emitEvent: false });
+    }
+  }
+
   private applyConditionalValidators(
     formGroup: FormGroup,
     fieldConfigs: Record<string, IInputFieldsConfig>,
@@ -423,11 +486,7 @@ export class FormService {
     context?: Record<string, unknown>
   ): void {
     Object.entries(fieldConfigs).forEach(([fieldName, config]) => {
-      // Skip fields without conditional rules.
-      if (
-        !config.conditionalValidators ||
-        config.conditionalValidators.length === 0
-      ) {
+      if (!config.conditionalValidators?.length) {
         return;
       }
 
@@ -438,53 +497,16 @@ export class FormService {
       }
 
       const runConditionalLogic = (): void => {
-        const baseValidators: ValidatorFn[] = [
-          ...(config.validators ?? []),
-          ...this.getAttachmentFileValidators(config),
-        ];
-        const extraValidators: ValidatorFn[] = [];
-        let shouldResetValue = false;
-
-        config.conditionalValidators?.forEach(rule => {
-          let currentValue: unknown;
-          let isActive: boolean;
-
-          // Handle field-based rules
-          if (rule.dependsOn) {
-            const dependencyControl = formGroup.get(rule.dependsOn);
-            currentValue = dependencyControl?.value;
-            isActive = rule.shouldApply(currentValue, context);
-          }
-          // Handle pure context rules (no specific field dependency)
-          else if (context) {
-            isActive = rule.shouldApply(context, context);
-          } else {
-            // Skip rules without any dependency
-            return;
-          }
-
-          if (isActive) {
-            if (rule.validators?.length) {
-              extraValidators.push(...rule.validators);
-            }
-          } else {
-            if (rule.resetOnFalse) {
-              shouldResetValue = true;
-            }
-          }
-        });
-
-        control.setValidators([...baseValidators, ...extraValidators]);
-        control.updateValueAndValidity();
-
-        if (shouldResetValue) {
-          control.reset(undefined, { emitEvent: false });
-        }
+        this.runConditionalValidatorsForField(
+          formGroup,
+          fieldName,
+          config,
+          context
+        );
       };
 
       runConditionalLogic();
 
-      // Subscribe to changes on field-based dependency fields only
       const dependencyFieldNames = Array.from(
         new Set(
           config.conditionalValidators
@@ -500,7 +522,6 @@ export class FormService {
           return;
         }
 
-        // Subscribe with automatic cleanup
         dependencyControl.valueChanges
           .pipe(takeUntilDestroyed(destroyRef))
           .subscribe(() => {

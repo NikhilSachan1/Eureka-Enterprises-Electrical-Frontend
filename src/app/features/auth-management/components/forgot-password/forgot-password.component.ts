@@ -20,7 +20,6 @@ import {
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FORGOT_PASSWORD_PREFILLED_DATA } from '@shared/mock-data/auth.mock-data';
 
 @Component({
   selector: 'app-forgot-password',
@@ -48,8 +47,6 @@ export class ForgotPasswordComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    this.loadMockData(FORGOT_PASSWORD_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

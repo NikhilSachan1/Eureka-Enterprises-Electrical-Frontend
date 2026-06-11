@@ -18,7 +18,6 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FORCE_EXPENSE_PREFILLED_DATA } from '@shared/mock-data/force-expense.mock-data';
 import { FormBase } from '@shared/base/form.base';
 
 @Component({
@@ -50,8 +49,6 @@ export class ForceExpenseComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    this.loadMockData(FORCE_EXPENSE_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

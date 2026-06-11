@@ -52,6 +52,7 @@ import { PetroCardService } from '@features/transport-management/petro-card-mana
 import { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
 import { FuelExpenseService } from '@features/transport-management/fuel-expense-management/services/fuel-expense.service';
 import { ILinkedUserVehicleDetailGetResponseDto } from '@features/transport-management/fuel-expense-management/types/fuel-expense.dto';
+import { mapProjectSiteTypeDisplays } from '@features/site-management/project-management/utility/project-site-type.util';
 import { replaceTextWithSeparator, toTitleCase } from '@shared/utility';
 import { ConfigurationService } from '@features/settings-management/configuration-management/services/configuration.service';
 import {
@@ -162,6 +163,7 @@ export class AppConfigurationService {
   private readonly _contractorStatus = signal<IOptionDropdown[]>([]);
   private readonly _vendorList = signal<IOptionDropdown[]>([]);
   private readonly _vendorTypes = signal<IOptionDropdown[]>([]);
+  private readonly _projectSiteTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectStatus = signal<IOptionDropdown[]>([]);
   private readonly _projectWorkTypes = signal<IOptionDropdown[]>([]);
   private readonly _projectDocumentTypes = signal<IOptionDropdown[]>([]);
@@ -231,6 +233,7 @@ export class AppConfigurationService {
   readonly contractorStatus = this._contractorStatus.asReadonly();
   readonly vendorList = this._vendorList.asReadonly();
   readonly vendorTypes = this._vendorTypes.asReadonly();
+  readonly projectSiteTypes = this._projectSiteTypes.asReadonly();
   readonly projectStatus = this._projectStatus.asReadonly();
   readonly projectWorkTypes = this._projectWorkTypes.asReadonly();
   readonly projectDocumentTypes = this._projectDocumentTypes.asReadonly();
@@ -462,6 +465,10 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.PROJECT.PROJECT_LIST,
         signal: this._projectList,
+      },
+      {
+        key: CONFIGURATION_KEYS.PROJECT.PROJECT_TYPES,
+        signal: this._projectSiteTypes,
       },
       {
         key: CONFIGURATION_KEYS.PROJECT.PROJECT_STATUS,
@@ -1374,11 +1381,21 @@ export class AppConfigurationService {
             const projectOptions: IOptionDropdown[] = response.records
               .map(project => {
                 const rawName = project.name?.trim() ?? '';
-                const subtitle =
+                const siteTypeLabels = mapProjectSiteTypeDisplays(
+                  project.siteTypes,
+                  this._projectSiteTypes()
+                )
+                  .map(item => item.label)
+                  .join(' · ');
+                const location =
                   [project.city, project.state].filter(Boolean).join(', ') ||
                   undefined;
+                const label = toTitleCase(rawName);
+                const subtitle =
+                  [siteTypeLabels, location].filter(Boolean).join(' · ') ||
+                  undefined;
                 return {
-                  label: toTitleCase(rawName),
+                  label,
                   subtitle,
                   initial: this.initialsForDropdownLabel(rawName),
                   value: project.id,

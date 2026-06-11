@@ -113,6 +113,7 @@ export class ConfirmationDialogService {
       ...config,
       dialogConfig: { ...dialogWithoutSize, styleClass },
       recordDetails: showRecords ? (recordDetail ?? undefined) : undefined,
+      detailViewCustomTemplates: config.detailViewCustomTemplates,
       dynamicComponentInputs,
     };
   }

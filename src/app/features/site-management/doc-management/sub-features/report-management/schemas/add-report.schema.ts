@@ -6,7 +6,7 @@ export const AddReportRequestSchema = ReportUpsertShapeSchema.transform(
   data => {
     return {
       jmcId: data.jmcNumber,
-      reportNumber: data.isNoReport ? null : data.reportNumber,
+      reportNumber: null,
       reportDate: transformDateFormat(data.reportDate),
       fileKey: data.isNoReport ? null : data.reportFileKey,
       fileName: data.isNoReport ? null : data.reportFileName,

@@ -21,7 +21,6 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import { RouterNavigationService } from '@shared/services';
 import { IPageHeaderConfig } from '@shared/types';
 import { finalize } from 'rxjs';
-import { APPLY_LEAVE_PREFILLED_DATA } from '@shared/mock-data/apply-leave.mock-data';
 import { FormBase } from '@shared/base/form.base';
 import { LeaveBalanceCardsComponent } from '../../shared/components/leave-balance-cards/leave-balance-cards.component';
 
@@ -66,8 +65,6 @@ export class ApplyLeaveComponent
         destroyRef: this.destroyRef,
       }
     );
-
-    this.loadMockData(APPLY_LEAVE_PREFILLED_DATA);
   }
 
   protected override handleSubmit(): void {

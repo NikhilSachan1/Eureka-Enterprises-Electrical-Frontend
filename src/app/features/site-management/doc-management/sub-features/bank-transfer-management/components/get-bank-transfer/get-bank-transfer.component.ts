@@ -174,22 +174,13 @@ export class GetBankTransferComponent implements OnInit {
   protected docBankTransferAmountSegments(
     row: IBankTransfer
   ): IDocAmountSegment[] {
-    const segments: IDocAmountSegment[] = [
+    return [
       {
         dataType: EDataType.CURRENCY,
         label: 'Transfer',
         value: row.transferAmount,
       },
     ];
-    if (row.tdsDeducted) {
-      segments.push({
-        dataType: EDataType.CURRENCY,
-        label: 'TDS',
-        value: row.tdsDeducted,
-        suffix: row.tdsPercentage ?? undefined,
-      });
-    }
-    return segments;
   }
 
   private mapTableData(
@@ -197,22 +188,11 @@ export class GetBankTransferComponent implements OnInit {
   ): IBankTransfer[] {
     return response.map(record => {
       const invoiceRef = record.invoice ?? record.bookPayment?.invoice ?? null;
-      const isSales = record.partyType === EDocContext.SALES;
       return {
         id: record.id,
         transferDate: record.transferDate,
         utrNumber: record.utrNumber,
         transferAmount: record.transferAmount,
-        ...(isSales
-          ? {
-              tdsDeducted: record.tdsDeducted ?? null,
-              tdsPercentage:
-                record.tdsPercentage !== null &&
-                record.tdsPercentage !== undefined
-                  ? `(${record.tdsPercentage}%)`
-                  : null,
-            }
-          : {}),
         remarks: record.remarks,
         docWorkspaceContext: {
           companyName: record.site.company.name,
@@ -356,23 +336,6 @@ export class GetBankTransferComponent implements OnInit {
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
-      ...(row.partyType === EDocContext.SALES && row.tdsDeducted
-        ? [
-            {
-              label: 'TDS',
-              value: row.tdsDeducted,
-              type: EDataType.CURRENCY,
-              format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-            },
-            {
-              label: 'TDS %',
-              value:
-                row.tdsPercentage !== null && row.tdsPercentage !== undefined
-                  ? `${row.tdsPercentage}%`
-                  : '—',
-            },
-          ]
-        : []),
     ];
     return {
       details: [

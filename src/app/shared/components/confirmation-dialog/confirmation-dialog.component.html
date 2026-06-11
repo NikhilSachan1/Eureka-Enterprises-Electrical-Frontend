@@ -34,7 +34,10 @@
         <!-- Record Details Section -->
         @if (currentDialogConfig().recordDetails) {
           <div class="w-full mb-3">
-            <app-view-detail [drawerDetails]="currentDialogConfig().recordDetails" />
+            <app-view-detail
+              [drawerDetails]="currentDialogConfig().recordDetails"
+              [customTemplates]="currentDialogConfig().detailViewCustomTemplates ?? {}"
+            />
           </div>
         }
 

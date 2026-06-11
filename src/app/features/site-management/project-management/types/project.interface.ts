@@ -8,7 +8,7 @@ export interface IProjectStakeholders {
 }
 
 export interface IProject
-  extends Pick<IProjectGetBaseResponseDto, 'id' | 'workTypes'> {
+  extends Pick<IProjectGetBaseResponseDto, 'id' | 'workTypes' | 'siteTypes'> {
   projectName: string;
   projectLocation: string | null;
   projectStatus: string;

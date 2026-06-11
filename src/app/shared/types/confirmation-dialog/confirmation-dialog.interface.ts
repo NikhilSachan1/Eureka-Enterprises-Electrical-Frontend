@@ -1,7 +1,7 @@
 import { IDataViewDetailsWithEntity } from '@shared/types';
 import { IButtonConfig } from '@shared/types/button/button.interface';
 import { EDialogPosition, EDialogSize } from './confirmation-dialog.types';
-import { Type } from '@angular/core';
+import { TemplateRef, Type } from '@angular/core';
 
 export interface IDialogConfig {
   header: string;
@@ -34,6 +34,7 @@ export interface IDialogActionHandler {
 export interface IDialogActionConfig {
   dialogConfig: Partial<IDialogConfig>;
   recordDetails?: IDataViewDetailsWithEntity;
+  detailViewCustomTemplates?: Record<string, TemplateRef<unknown>>;
   dynamicComponent?: Type<unknown>;
   dynamicComponentInputs?: Record<string, unknown>;
 }

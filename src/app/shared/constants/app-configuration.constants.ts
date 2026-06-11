@@ -97,6 +97,7 @@ export const CONFIGURATION_KEYS = {
   },
   PROJECT: {
     PROJECT_LIST: 'project_list',
+    PROJECT_TYPES: 'site_types',
     PROJECT_STATUS: 'site_statuses',
     PROJECT_WORK_TYPES: 'site_work_types',
     PROJECT_DOCUMENT_TYPES: 'site_document_types',

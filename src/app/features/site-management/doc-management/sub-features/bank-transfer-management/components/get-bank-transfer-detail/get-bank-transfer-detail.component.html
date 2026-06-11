@@ -12,19 +12,10 @@
   <app-doc-reference [root]="$any(entry.value)" />
 </ng-template>
 
-<ng-template
-  #bankTransferDetailAmounts
-  let-entry
->
-  @let v = $any(entry.value);
-  <app-doc-amount [segments]="docBankTransferDrawerAmountSegments(v)" />
-</ng-template>
-
 <app-view-detail
   [drawerDetails]="_details()"
   [customTemplates]="{
     docWorkspaceContextDetail: docWorkspaceContextDetail,
     documentReferenceHierarchy: documentReferenceHierarchy,
-    bankTransferDetailAmounts: bankTransferDetailAmounts,
   }"
 />

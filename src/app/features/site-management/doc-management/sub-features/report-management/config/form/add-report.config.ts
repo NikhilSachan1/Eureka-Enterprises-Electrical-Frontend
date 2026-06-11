@@ -1,14 +1,9 @@
 import { Validators } from '@angular/forms';
 import { APP_CONFIG } from '@core/config';
-import {
-  CONFIGURATION_KEYS,
-  MODULE_NAMES,
-  TEXT_INPUT_ACCEPT_STRIP,
-} from '@shared/constants';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import {
   EDataType,
   EFieldSize,
-  ETextCase,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
@@ -55,24 +50,6 @@ const ADD_REPORT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddReportUIFormDto>
         bordered: true,
         options: [{ label: 'No Report', value: 'noReport' }],
       },
-    },
-    reportNumber: {
-      fieldType: EDataType.TEXT,
-      id: 'reportNumber',
-      fieldName: 'reportNumber',
-      label: 'Report Number',
-      textConfig: {
-        textCase: ETextCase.UPPERCASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPECIAL_CHARS,
-      },
-      conditionalValidators: [
-        {
-          dependsOn: 'isNoReport',
-          shouldApply: (isNoReport: boolean) => !isNoReport,
-          validators: [Validators.required],
-          resetOnFalse: true,
-        },
-      ],
     },
     reportDate: {
       fieldType: EDataType.DATE,

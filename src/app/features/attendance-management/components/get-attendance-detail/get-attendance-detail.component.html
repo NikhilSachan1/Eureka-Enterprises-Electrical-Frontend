@@ -25,23 +25,19 @@
         </div>
       }
 
-      @if (snap.contractors?.length) {
-        <div class="assignment-snapshot__tile assignment-snapshot__tile--contractors">
+      @if (snap.contractors?.[0]?.name) {
+        <div class="assignment-snapshot__tile assignment-snapshot__tile--contractor">
           <div
-            class="assignment-snapshot__icon assignment-snapshot__icon--contractors"
+            class="assignment-snapshot__icon assignment-snapshot__icon--contractor"
             aria-hidden="true"
           >
             <i [class]="ICONS.COMMON.USER"></i>
           </div>
           <div class="assignment-snapshot__body">
-            <span class="assignment-snapshot__kicker">Contractors</span>
-            <div class="assignment-snapshot__chips">
-              @for (c of snap.contractors; track c?.id ?? $index) {
-                @if (c?.name) {
-                  <span class="assignment-snapshot__chip">{{ c.name | textCase: 'title' }}</span>
-                }
-              }
-            </div>
+            <span class="assignment-snapshot__kicker">Contractor</span>
+            <span class="assignment-snapshot__title">
+              {{ snap.contractors[0].name | textCase: 'title' }}
+            </span>
           </div>
         </div>
       }

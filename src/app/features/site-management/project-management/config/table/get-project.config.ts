@@ -75,6 +75,12 @@ const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
     subtitle: { field: 'projectLocation' },
   },
   {
+    field: 'siteTypes',
+    header: 'Project Type',
+    customTemplateKey: 'projectSiteTypes',
+    showSort: false,
+  },
+  {
     field: 'projectManager',
     header: 'Project Manager',
     bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
