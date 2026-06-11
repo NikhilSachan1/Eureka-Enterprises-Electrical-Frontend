@@ -275,14 +275,18 @@ export class GetAttendanceComponent implements OnInit {
       dynamicComponentInputs.dialogActionType = actionType;
     }
 
-    const recordDetail = this.prepareAttendanceRecordDetail(selectedFirstRow);
+    const showRecordSummary = actionType !== EButtonActionType.EDIT && !isBulk;
+    const recordDetail =
+      showRecordSummary || isBulk
+        ? this.prepareAttendanceRecordDetail(selectedFirstRow)
+        : null;
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
       ATTENDANCE_ACTION_CONFIG_MAP[actionType],
       recordDetail,
       isBulk,
-      !isBulk,
+      showRecordSummary,
       dynamicComponentInputs
     );
   }

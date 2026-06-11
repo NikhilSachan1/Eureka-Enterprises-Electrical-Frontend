@@ -84,6 +84,11 @@ function isApprovalAlreadyRejected(
 const VIEW_DISABLED_NOT_MARKED_REASON =
   'View is available only after the employee checks in and attendance is recorded for the day.';
 
+const EDIT_DELETE_DISABLED_NOT_MARKED_REASON =
+  'Edit and delete are available only after the employee checks in and attendance is recorded for the day.';
+const EDIT_DELETE_DISABLED_PAYROLL_LOCKED_REASON =
+  'Edit and delete are not available because payroll has already been processed for this period.';
+
 // ─── Row tooltips: Regularize ────────────────────────────────────────────────
 
 const REGULARIZE_DISABLED_NOT_MARKED_REASON =
@@ -168,6 +173,11 @@ const BULK_REJECT_DISABLED_PAYROLL_LOCKED_REASON =
   'Some selected records fall in a payroll-locked period and cannot be rejected.';
 const BULK_REJECT_DISABLED_ALREADY_REJECTED_REASON =
   'Some selected records are already rejected.';
+
+const BULK_DELETE_DISABLED_NOT_MARKED_REASON =
+  'Some selected records do not have a check-in and cannot be deleted.';
+const BULK_DELETE_DISABLED_PAYROLL_LOCKED_REASON =
+  'Some selected records fall in a payroll-locked period and cannot be deleted.';
 
 /** Shared priority for approve/reject disable (first match wins). */
 type ApproveRejectSharedBlock =
@@ -398,6 +408,52 @@ function getViewDisableReason(
   return undefined;
 }
 
+type EditDeleteDisableBlock = 'notMarked' | 'payrollLocked';
+
+function getEditDeleteDisableBlock(
+  row: IAttendanceGetBaseResponseDto
+): EditDeleteDisableBlock | undefined {
+  if (isAttendanceNotMarkedYetForViewRegularize(row)) {
+    return 'notMarked';
+  }
+  if (isPayrollLocked(row.attendanceDate)) {
+    return 'payrollLocked';
+  }
+  return undefined;
+}
+
+function shouldDisableEditOrDelete(
+  row: IAttendanceGetBaseResponseDto
+): boolean {
+  return getEditDeleteDisableBlock(row) !== undefined;
+}
+
+function getEditDeleteDisableReason(
+  row: IAttendanceGetBaseResponseDto
+): string | undefined {
+  switch (getEditDeleteDisableBlock(row)) {
+    case 'notMarked':
+      return EDIT_DELETE_DISABLED_NOT_MARKED_REASON;
+    case 'payrollLocked':
+      return EDIT_DELETE_DISABLED_PAYROLL_LOCKED_REASON;
+    default:
+      return undefined;
+  }
+}
+
+function getBulkDeleteDisableReason(
+  row: IAttendanceGetBaseResponseDto
+): string | undefined {
+  switch (getEditDeleteDisableBlock(row)) {
+    case 'notMarked':
+      return BULK_DELETE_DISABLED_NOT_MARKED_REASON;
+    case 'payrollLocked':
+      return BULK_DELETE_DISABLED_PAYROLL_LOCKED_REASON;
+    default:
+      return undefined;
+  }
+}
+
 export const ATTENDANCE_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No attendance record found.',
   emptyMessageIcon: ICONS.COMMON.INFO_CIRCLE,
@@ -469,6 +525,20 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     disableReason: getViewDisableReason,
   },
   {
+    ...COMMON_ROW_ACTIONS.EDIT,
+    tooltip: 'Edit Attendance',
+    // permission: [APP_PERMISSION.ATTENDANCE.EDIT],
+    disableWhen: shouldDisableEditOrDelete,
+    disableReason: getEditDeleteDisableReason,
+  },
+  {
+    ...COMMON_ROW_ACTIONS.DELETE,
+    tooltip: 'Delete Attendance',
+    // permission: [APP_PERMISSION.ATTENDANCE.DELETE],
+    disableWhen: shouldDisableEditOrDelete,
+    disableReason: getEditDeleteDisableReason,
+  },
+  {
     id: EButtonActionType.REGULARIZE,
     tooltip: 'Regularize Attendance',
     permission: [APP_PERMISSION.ATTENDANCE.REGULARIZE],
@@ -494,6 +564,13 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<
 export const ATTENDANCE_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IAttendanceGetBaseResponseDto>
 >[] = [
+  {
+    ...COMMON_BULK_ACTIONS.DELETE,
+    tooltip: 'Delete Selected Attendance',
+    permission: [APP_PERMISSION.ATTENDANCE.DELETE],
+    disableWhen: shouldDisableEditOrDelete,
+    disableReason: getBulkDeleteDisableReason,
+  },
   {
     ...COMMON_BULK_ACTIONS.APPROVE,
     tooltip: 'Approve Selected Attendance',

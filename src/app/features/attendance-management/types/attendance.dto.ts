@@ -16,6 +16,10 @@ import {
   AttendanceGetBaseResponseSchema,
   AttendanceGetStatsResponseSchema,
   AttendanceCurrentStatusGetFormSchema,
+  AttendanceEditRequestSchema,
+  AttendanceEditResponseSchema,
+  AttendanceDeleteRequestSchema,
+  AttendanceDeleteResponseSchema,
 } from '../schemas';
 
 /**
@@ -145,4 +149,31 @@ export type IAttendanceActionUIFormDto = Pick<
 >;
 export type IAttendanceActionResponseDto = z.infer<
   typeof AttendanceActionResponseSchema
+>;
+
+/**
+ * Attendance Edit
+ */
+export type IAttendanceEditRequestDto = z.infer<
+  typeof AttendanceEditRequestSchema
+>;
+export type IAttendanceEditFormDto = z.input<
+  typeof AttendanceEditRequestSchema
+>;
+export type IAttendanceEditResponseDto = z.infer<
+  typeof AttendanceEditResponseSchema
+>;
+export type IAttendanceEditUIFormDto = IAttendanceForceUIFormDto;
+
+/**
+ * Attendance Delete
+ */
+export type IAttendanceDeleteRequestDto = z.infer<
+  typeof AttendanceDeleteRequestSchema
+>;
+export type IAttendanceDeleteFormDto = z.input<
+  typeof AttendanceDeleteRequestSchema
+>;
+export type IAttendanceDeleteResponseDto = z.infer<
+  typeof AttendanceDeleteResponseSchema
 >;

@@ -17,6 +17,10 @@ import {
   IAttendanceHistoryGetResponseDto,
   IAttendanceRegularizedFormDto,
   IAttendanceRegularizedResponseDto,
+  IAttendanceEditFormDto,
+  IAttendanceEditResponseDto,
+  IAttendanceDeleteFormDto,
+  IAttendanceDeleteResponseDto,
 } from '../types/attendance.dto';
 import {
   AttendanceActionRequestSchema,
@@ -33,6 +37,10 @@ import {
   AttendanceGetRequestSchema,
   AttendanceGetResponseSchema,
   AttendanceCurrentStatusGetFormSchema,
+  AttendanceEditRequestSchema,
+  AttendanceEditResponseSchema,
+  AttendanceDeleteRequestSchema,
+  AttendanceDeleteResponseSchema,
 } from '../schemas';
 
 @Injectable({
@@ -94,6 +102,68 @@ export class AttendanceService {
             this.logger.logDtoValidationErrors('Force Attendance Error', error);
           } else {
             this.logger.logUserAction('Force Attendance Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  editAttendance(
+    formData: IAttendanceEditFormDto,
+    attendanceId: string
+  ): Observable<IAttendanceEditResponseDto> {
+    this.logger.logUserAction('Edit Attendance Request');
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.ATTENDANCE.EDIT(attendanceId),
+        {
+          response: AttendanceEditResponseSchema,
+          request: AttendanceEditRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IAttendanceEditResponseDto) => {
+          this.logger.logUserAction('Edit Attendance Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors('Edit Attendance Error', error);
+          } else {
+            this.logger.logUserAction('Edit Attendance Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteAttendance(
+    formData: IAttendanceDeleteFormDto
+  ): Observable<IAttendanceDeleteResponseDto> {
+    this.logger.logUserAction('Delete Attendance Request');
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.ATTENDANCE.DELETE,
+        {
+          response: AttendanceDeleteResponseSchema,
+          request: AttendanceDeleteRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IAttendanceDeleteResponseDto) => {
+          this.logger.logUserAction('Delete Attendance Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Delete Attendance Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Delete Attendance Error', error);
           }
           return throwError(() => error);
         })
