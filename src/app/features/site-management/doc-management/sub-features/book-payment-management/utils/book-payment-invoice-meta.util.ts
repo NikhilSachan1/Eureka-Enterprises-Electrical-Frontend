@@ -7,3 +7,31 @@ export interface IBookPaymentInvoiceDropdownMeta {
   paidTotal?: number;
   remaining?: number;
 }
+
+export const BOOK_PAYMENT_FORM_CONTEXT_KEYS = {
+  invoiceRemaining: 'invoiceRemaining',
+} as const;
+
+export function isBookPaymentHoldReasonRequired(
+  amount: unknown,
+  remaining: unknown
+): boolean {
+  if (
+    remaining === null ||
+    remaining === undefined ||
+    amount === null ||
+    amount === undefined ||
+    amount === ''
+  ) {
+    return false;
+  }
+
+  const amountNum = Number(amount);
+  const remainingNum = Number(remaining);
+
+  if (Number.isNaN(amountNum) || Number.isNaN(remainingNum)) {
+    return false;
+  }
+
+  return amountNum < remainingNum;
+}

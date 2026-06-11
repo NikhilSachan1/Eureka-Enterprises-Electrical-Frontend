@@ -27,10 +27,12 @@
       [inputFieldConfig]="form.fieldConfigs.taxableAmount"
     />
 
-    <app-input-field
-      [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.paymentHoldReason"
-    />
+    @if (showPaymentHoldReason()) {
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.paymentHoldReason"
+      />
+    }
 
     <app-input-field
       [formGroup]="form.formGroup"

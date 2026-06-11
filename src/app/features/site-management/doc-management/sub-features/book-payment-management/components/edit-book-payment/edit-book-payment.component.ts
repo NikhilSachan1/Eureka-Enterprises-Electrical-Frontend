@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   inject,
   input,
@@ -42,7 +43,11 @@ import {
   IEditBookPaymentResponseDto,
   IEditBookPaymentUIFormDto,
 } from '../../types/book-payment.dto';
-import { IBookPaymentInvoiceDropdownMeta } from '../../utils/book-payment-invoice-meta.util';
+import {
+  BOOK_PAYMENT_FORM_CONTEXT_KEYS,
+  IBookPaymentInvoiceDropdownMeta,
+  isBookPaymentHoldReasonRequired,
+} from '../../utils/book-payment-invoice-meta.util';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 @Component({
@@ -71,8 +76,18 @@ export class EditBookPaymentComponent
   private invoiceOptions: IOptionDropdown<IBookPaymentInvoiceDropdownMeta>[] =
     [];
 
+  private readonly formContext: Record<string, unknown> = {
+    [BOOK_PAYMENT_FORM_CONTEXT_KEYS.invoiceRemaining]: null,
+  };
+
   protected readonly selectedInvoiceMeta =
     signal<IBookPaymentInvoiceDropdownMeta | null>(null);
+
+  protected readonly showPaymentHoldReason = computed(() => {
+    const meta = this.selectedInvoiceMeta();
+    const amount = this.trackedBookPaymentInputs?.taxableAmount?.();
+    return isBookPaymentHoldReasonRequired(amount, meta?.remaining);
+  });
 
   protected readonly selectedRecord =
     input.required<IBookPaymentGetBaseResponseDto[]>();
@@ -95,6 +110,11 @@ export class EditBookPaymentComponent
     effect(() => {
       this.trackedBookPaymentInputs?.invoiceNumber?.();
       this.updateSelectedInvoiceMeta();
+    });
+    effect(() => {
+      this.trackedBookPaymentInputs?.taxableAmount?.();
+      this.selectedInvoiceMeta();
+      this.refreshPaymentHoldReasonValidators();
     });
   }
 
@@ -122,6 +142,7 @@ export class EditBookPaymentComponent
           paymentHoldReason: record.paymentHoldReason ?? null,
           remarks: record.remarks ?? null,
         },
+        context: this.formContext,
       }
     );
 
@@ -138,7 +159,7 @@ export class EditBookPaymentComponent
     this.trackedBookPaymentInputs =
       this.formService.trackMultipleFieldChanges<IEditBookPaymentUIFormDto>(
         this.form.formGroup,
-        ['projectName', 'invoiceNumber'],
+        ['projectName', 'invoiceNumber', 'taxableAmount'],
         this.destroyRef
       );
   }
@@ -242,10 +263,30 @@ export class EditBookPaymentComponent
         'data'
       ) as IBookPaymentInvoiceDropdownMeta | undefined;
       this.selectedInvoiceMeta.set(matched ?? null);
+      this.syncInvoiceRemainingContext(matched?.remaining);
       return;
     }
 
     this.selectedInvoiceMeta.set(null);
+    this.syncInvoiceRemainingContext(undefined);
+  }
+
+  private syncInvoiceRemainingContext(remaining: number | undefined): void {
+    this.formContext[BOOK_PAYMENT_FORM_CONTEXT_KEYS.invoiceRemaining] =
+      remaining ?? null;
+    this.refreshPaymentHoldReasonValidators();
+  }
+
+  private refreshPaymentHoldReasonValidators(): void {
+    if (!this.form?.formGroup) {
+      return;
+    }
+
+    this.formService.refreshConditionalValidators(
+      this.form.formGroup,
+      this.form.fieldConfigs,
+      this.formContext
+    );
   }
 
   onDialogAccept(): void {

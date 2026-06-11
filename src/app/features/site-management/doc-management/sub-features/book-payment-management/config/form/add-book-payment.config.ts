@@ -8,6 +8,10 @@ import {
   IFormInputFieldsConfig,
 } from '@shared/types';
 import { IAddBookPaymentUIFormDto } from '../../types/book-payment.dto';
+import {
+  BOOK_PAYMENT_FORM_CONTEXT_KEYS,
+  isBookPaymentHoldReasonRequired,
+} from '../../utils/book-payment-invoice-meta.util';
 
 const ADD_BOOK_PAYMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBookPaymentUIFormDto> =
   {
@@ -65,6 +69,18 @@ const ADD_BOOK_PAYMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBookPaymen
       id: 'paymentHoldReason',
       fieldName: 'paymentHoldReason',
       label: 'Payment Hold Reason',
+      conditionalValidators: [
+        {
+          dependsOn: 'taxableAmount',
+          shouldApply: (amount, context) =>
+            isBookPaymentHoldReasonRequired(
+              amount,
+              context?.[BOOK_PAYMENT_FORM_CONTEXT_KEYS.invoiceRemaining]
+            ),
+          validators: [Validators.required],
+          resetOnFalse: true,
+        },
+      ],
     },
     remarks: {
       fieldType: EDataType.TEXT_AREA,
