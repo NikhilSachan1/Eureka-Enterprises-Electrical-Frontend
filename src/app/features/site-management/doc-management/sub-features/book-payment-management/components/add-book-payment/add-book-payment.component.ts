@@ -295,18 +295,17 @@ export class AddBookPaymentComponent
   }
 
   protected override handleSubmit(): void {
-    this.executeAddBookPaymentAction();
+    const formData = this.prepareFormData();
+    this.executeAddBookPaymentAction(formData);
   }
 
-  private executeAddBookPaymentAction(): void {
+  private executeAddBookPaymentAction(formData: IAddBookPaymentFormDto): void {
     this.loadingService.show({
       title: 'Adding book payment',
       message:
         "Please wait while we're adding the book payment. This will just take a moment.",
     });
     this.form.disable();
-
-    const formData = this.prepareFormData();
 
     this.bookPaymentService
       .addBookPayment(formData)
