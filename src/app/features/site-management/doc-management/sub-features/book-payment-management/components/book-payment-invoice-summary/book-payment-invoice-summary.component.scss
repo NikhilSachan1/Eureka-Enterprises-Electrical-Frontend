@@ -109,6 +109,13 @@
   white-space: nowrap;
 }
 
+.bp-invoice-summary__chip-suffix {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-color-secondary);
+}
+
 .bp-invoice-summary__chip-value {
   font-size: 0.75rem;
   font-weight: 700;

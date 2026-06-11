@@ -3,9 +3,16 @@ export interface IBookPaymentInvoiceDropdownMeta {
   gstAmount: number;
   tdsAmount: number;
   totalAmount: number;
+  isGstHold?: boolean | null;
   bookedTotal?: number;
   paidTotal?: number;
   remaining?: number;
+}
+
+export function getBookPaymentInvoiceGstHoldLabel(
+  isGstHold: boolean | null | undefined
+): string {
+  return isGstHold === false ? 'No Hold' : 'Hold';
 }
 
 export const BOOK_PAYMENT_FORM_CONTEXT_KEYS = {

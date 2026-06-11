@@ -7,7 +7,10 @@ import {
 } from '@angular/core';
 import { APP_CONFIG } from '@core/config';
 
-import type { IBookPaymentInvoiceDropdownMeta } from '../../utils/book-payment-invoice-meta.util';
+import {
+  getBookPaymentInvoiceGstHoldLabel,
+  type IBookPaymentInvoiceDropdownMeta,
+} from '../../utils/book-payment-invoice-meta.util';
 
 type SummaryTone =
   | 'taxable'
@@ -22,6 +25,7 @@ interface ISummaryMetric {
   label: string;
   value: number | null | undefined;
   tone: SummaryTone;
+  suffix?: string;
 }
 
 @Component({
@@ -41,7 +45,12 @@ export class BookPaymentInvoiceSummaryComponent {
     return [
       { label: 'Taxable', value: meta.taxableAmount, tone: 'taxable' },
       { label: 'TDS', value: meta.tdsAmount, tone: 'deduction' },
-      { label: 'GST', value: meta.gstAmount, tone: 'gst' },
+      {
+        label: 'GST',
+        suffix: getBookPaymentInvoiceGstHoldLabel(meta.isGstHold),
+        value: meta.gstAmount,
+        tone: 'gst',
+      },
       { label: 'Total', value: meta.totalAmount, tone: 'total' },
     ];
   });
