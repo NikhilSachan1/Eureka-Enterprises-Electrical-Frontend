@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, ActivatedRoute } from '@angular/router';
 import { filter, finalize, map, startWith } from 'rxjs/operators';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -62,6 +62,7 @@ import {
 })
 export class GetProjectWorkspaceComponent {
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly logger = inject(LoggerService);
@@ -131,10 +132,7 @@ export class GetProjectWorkspaceComponent {
   );
 
   constructor() {
-    const projectId =
-      this.routerNavigationService.getCurrentNavigationStateData<string>(
-        'projectId'
-      );
+    const projectId = this.resolveInitialProjectId();
     if (projectId) {
       this.filterPrefillValues.set({ projectName: projectId });
       this.workspaceContext.setActiveProjectId(projectId);
@@ -212,6 +210,7 @@ export class GetProjectWorkspaceComponent {
     });
     this.workspaceContext.applyFilters(visibleFilters);
     this.showOverviewPanel.set(!!visibleFilters.projectName);
+    this.syncProjectIdQueryParam(visibleFilters.projectName);
   }
 
   protected onFilterReset(): void {
@@ -219,6 +218,32 @@ export class GetProjectWorkspaceComponent {
     this.showOverviewPanel.set(false);
     this.clearProjectOverviewState();
     this.workspaceContext.resetFilters();
+    this.syncProjectIdQueryParam(undefined);
+  }
+
+  private resolveInitialProjectId(): string | undefined {
+    const fromQuery =
+      this.activatedRoute.snapshot.queryParamMap.get('projectId');
+    if (fromQuery) {
+      return fromQuery;
+    }
+
+    return (
+      this.routerNavigationService.getRouterStateData<string>('projectId') ??
+      undefined
+    );
+  }
+
+  private syncProjectIdQueryParam(projectId: string | undefined): void {
+    void this.routerNavigationService.navigateWithQueryParams(
+      [],
+      { projectId: projectId ?? null },
+      {
+        relativeTo: this.activatedRoute,
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      }
+    );
   }
 
   private onProjectChange(projectId: string | undefined): void {
