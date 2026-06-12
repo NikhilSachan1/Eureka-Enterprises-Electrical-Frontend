@@ -15,7 +15,7 @@ export const InvoiceDropdownGetRequestSchema = z
   }));
 
 const InvoiceDropdownMetaSchema = z.looseObject({
-  paymentTotalAmount: z.number(),
+  taxableAmount: z.number(),
   gstAmount: z.number(),
   tdsAmount: z.number(),
   totalAmount: z.number(),

@@ -1,5 +1,5 @@
 export interface IBookPaymentInvoiceDropdownMeta {
-  paymentTotalAmount: number;
+  taxableAmount: number;
   gstAmount: number;
   tdsAmount: number;
   totalAmount: number;
