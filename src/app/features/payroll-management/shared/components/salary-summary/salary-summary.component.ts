@@ -12,10 +12,6 @@ import {
   ISalaryFields,
   IEmployeeSalarySummaryItem,
 } from '@features/payroll-management/types/payroll.interface';
-import {
-  calculateEmployerPf,
-  calculateNetSalary,
-} from '@features/payroll-management/shared/utils/salary-calculation.util';
 
 @Component({
   selector: 'app-salary-summary',
@@ -43,11 +39,11 @@ export class SalarySummaryComponent {
     const specialAllowance = fields.specialAllowance ?? 0;
     const esic = fields.esic ?? 0;
     const employeePf = fields.employeePf ?? 0;
-    const employerPf = calculateEmployerPf(basic);
+    const employerPf = employeePf;
 
     const grossSalary = basic + hra + specialAllowance;
     const totalDeductions = employeePf + esic;
-    const inHandSalary = calculateNetSalary(grossSalary, basic);
+    const inHandSalary = grossSalary - totalDeductions;
     const totalEmployerBenefits = employerPf;
 
     return [
@@ -83,7 +79,7 @@ export class SalarySummaryComponent {
     const basic = fields.basic ?? 0;
     const hra = fields.hra ?? 0;
     const specialAllowance = fields.specialAllowance ?? 0;
-    const employerPf = calculateEmployerPf(basic);
+    const employerPf = fields.employeePf ?? 0;
     const grossSalary = basic + hra + specialAllowance;
 
     return grossSalary + employerPf;
