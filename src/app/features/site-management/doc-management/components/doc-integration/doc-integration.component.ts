@@ -80,7 +80,7 @@ export class DocIntegrationComponent {
       },
       {
         route: ROUTES.SITE.PROJECT.WORKSPACE_DOC.BANK_TRANSFER,
-        label: 'Bank Transfer',
+        label: ctx === EDocContext.SALES ? 'Bank Received' : 'Bank Transfer',
         icon: ICONS.COMMON.ARROW_RIGHT_LEFT,
         visible: this.appPermissionService.hasPermission(
           BANK_TRANSFER_DOC.TABLE_VIEW

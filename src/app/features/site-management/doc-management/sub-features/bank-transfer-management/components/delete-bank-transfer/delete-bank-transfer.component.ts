@@ -21,6 +21,7 @@ import {
   IBankTransferGetBaseResponseDto,
   IDeleteBankTransferResponseDto,
 } from '../../types/bank-transfer.dto';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 
 @Component({
   selector: 'app-delete-bank-transfer',
@@ -69,10 +70,13 @@ export class DeleteBankTransferComponent
   }
 
   private executeDeleteAction(bankTransferId: string): void {
+    const isSales = this.selectedRecord()[0]?.partyType === EDocContext.SALES;
+
     this.loadingService.show({
-      title: 'Deleting bank transfer',
-      message:
-        "We're removing the bank transfer. This will just take a moment.",
+      title: isSales ? 'Deleting bank received' : 'Deleting bank transfer',
+      message: isSales
+        ? "We're removing the bank received record. This will just take a moment."
+        : "We're removing the bank transfer. This will just take a moment.",
     });
 
     this.bankTransferService
@@ -91,7 +95,11 @@ export class DeleteBankTransferComponent
         },
         error: error => {
           this.logger.error('Failed to delete bank transfer', error);
-          this.notificationService.error('Failed to delete bank transfer.');
+          this.notificationService.error(
+            isSales
+              ? 'Failed to delete bank received.'
+              : 'Failed to delete bank transfer.'
+          );
         },
       });
   }

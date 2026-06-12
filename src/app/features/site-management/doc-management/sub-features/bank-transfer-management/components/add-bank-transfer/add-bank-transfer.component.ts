@@ -151,6 +151,21 @@ export class AddBankTransferComponent
       }
     );
 
+    if (this.docContext() === EDocContext.SALES) {
+      this.form.fieldConfigs.transferDate = {
+        ...this.form.fieldConfigs.transferDate,
+        label: 'Received Date',
+      };
+      this.form.fieldConfigs.transferAmount = {
+        ...this.form.fieldConfigs.transferAmount,
+        label: 'Received Amount',
+      };
+      this.form.fieldConfigs.proofAttachment = {
+        ...this.form.fieldConfigs.proofAttachment,
+        label: 'Proof of receipt',
+      };
+    }
+
     const trackedFields: (keyof IAddBankTransferUIFormDto)[] =
       this.docContext() === EDocContext.SALES
         ? ['projectName', 'invoiceNumber', 'transferAmount']
@@ -310,14 +325,16 @@ export class AddBankTransferComponent
   }
 
   private executeAddBankTransferAction(): void {
+    const isSales = this.docContext() === EDocContext.SALES;
     const file = this.form.getFieldData('proofAttachment') as
       | File[]
       | undefined;
 
     this.loadingService.show({
-      title: 'Adding bank transfer',
-      message:
-        "Please wait while we're recording the bank transfer. This will just take a moment.",
+      title: isSales ? 'Adding bank received' : 'Adding bank transfer',
+      message: isSales
+        ? "Please wait while we're recording the bank receipt. This will just take a moment."
+        : "Please wait while we're recording the bank transfer. This will just take a moment.",
     });
     this.form.disable();
 
@@ -348,7 +365,9 @@ export class AddBankTransferComponent
         error: (error: unknown) => {
           this.logger.error('Failed to add bank transfer', error);
           this.notificationService.error(
-            'Could not add bank transfer. Please try again.'
+            isSales
+              ? 'Could not add bank received. Please try again.'
+              : 'Could not add bank transfer. Please try again.'
           );
         },
       });
