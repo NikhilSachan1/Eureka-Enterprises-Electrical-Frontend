@@ -53,10 +53,10 @@ const ADD_BOOK_PAYMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBookPaymen
       },
       validators: [Validators.required],
     },
-    taxableAmount: {
+    paymentTotalAmount: {
       fieldType: EDataType.NUMBER,
-      id: 'taxableAmount',
-      fieldName: 'taxableAmount',
+      id: 'paymentTotalAmount',
+      fieldName: 'paymentTotalAmount',
       label: 'Amount',
       numberConfig: {
         mode: EInputNumberMode.Currency,
@@ -71,7 +71,7 @@ const ADD_BOOK_PAYMENT_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBookPaymen
       label: 'Payment Hold Reason',
       conditionalValidators: [
         {
-          dependsOn: 'taxableAmount',
+          dependsOn: 'paymentTotalAmount',
           shouldApply: (amount, context) =>
             isBookPaymentHoldReasonRequired(
               amount,

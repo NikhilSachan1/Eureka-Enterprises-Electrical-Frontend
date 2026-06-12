@@ -401,7 +401,7 @@ export class GetProjectComponent implements OnInit {
         ROUTE_BASE_PATHS.SITE.PROJECT,
         ROUTES.SITE.PROJECT.WORKSPACE,
       ];
-      void this.routerNavigationService.navigateWithState(routeSegments, {
+      void this.routerNavigationService.navigateWithQueryParams(routeSegments, {
         projectId: selectedRow.id,
       });
     } catch (error) {

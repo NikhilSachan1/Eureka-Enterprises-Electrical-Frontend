@@ -102,6 +102,21 @@ export class EditBankTransferComponent
       }
     );
 
+    if (this.docContext() === EDocContext.SALES) {
+      this.form.fieldConfigs.transferDate = {
+        ...this.form.fieldConfigs.transferDate,
+        label: 'Received Date',
+      };
+      this.form.fieldConfigs.transferAmount = {
+        ...this.form.fieldConfigs.transferAmount,
+        label: 'Received Amount',
+      };
+      this.form.fieldConfigs.proofAttachment = {
+        ...this.form.fieldConfigs.proofAttachment,
+        label: 'Proof of receipt',
+      };
+    }
+
     this.seedInvoiceNumberOption(record);
     if (this.docContext() === EDocContext.PURCHASE) {
       this.seedBookPaymentNumberOption(record);
@@ -204,14 +219,16 @@ export class EditBankTransferComponent
   }
 
   private executeEditBankTransferAction(bankTransferId: string): void {
+    const isSales = this.docContext() === EDocContext.SALES;
     const file = this.form.getFieldData('proofAttachment') as
       | File[]
       | undefined;
 
     this.loadingService.show({
-      title: 'Updating bank transfer',
-      message:
-        'Please wait while we update the bank transfer. This will just take a moment.',
+      title: isSales ? 'Updating bank received' : 'Updating bank transfer',
+      message: isSales
+        ? 'Please wait while we update the bank received details. This will just take a moment.'
+        : 'Please wait while we update the bank transfer. This will just take a moment.',
     });
     this.form.disable();
 
@@ -243,7 +260,9 @@ export class EditBankTransferComponent
         error: (error: unknown) => {
           this.logger.error('Failed to edit bank transfer', error);
           this.notificationService.error(
-            'Could not update bank transfer. Please try again.'
+            isSales
+              ? 'Could not update bank received. Please try again.'
+              : 'Could not update bank transfer. Please try again.'
           );
         },
       });

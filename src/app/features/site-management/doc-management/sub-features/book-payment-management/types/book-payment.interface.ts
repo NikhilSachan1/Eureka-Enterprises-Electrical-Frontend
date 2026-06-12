@@ -9,7 +9,7 @@ export interface IBookPayment
     | 'id'
     | 'bookingDate'
     | 'invoice'
-    | 'taxableAmount'
+    | 'paymentTotalAmount'
     | 'hasTransfer'
     | 'paymentHoldReason'
   > {

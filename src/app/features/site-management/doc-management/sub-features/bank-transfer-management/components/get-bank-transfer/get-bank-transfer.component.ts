@@ -29,7 +29,7 @@ import {
 } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
-  BANK_TRANSFER_ACTION_CONFIG_MAP,
+  getBankTransferActionConfigMap,
   getBankTransferTableConfig,
 } from '../../config';
 import { AuthService } from '@features/auth-management/services/auth.service';
@@ -174,10 +174,11 @@ export class GetBankTransferComponent implements OnInit {
   protected docBankTransferAmountSegments(
     row: IBankTransfer
   ): IDocAmountSegment[] {
+    const isSales = this.docRouteContext() === EDocContext.SALES;
     return [
       {
         dataType: EDataType.CURRENCY,
-        label: 'Transfer',
+        label: isSales ? 'Received' : 'Transfer',
         value: row.transferAmount,
       },
     ];
@@ -249,9 +250,14 @@ export class GetBankTransferComponent implements OnInit {
   }
 
   private openAddDialog(): void {
+    const docContext = this.docRouteContext();
+    if (!docContext) {
+      return;
+    }
+
     this.confirmationDialogService.showConfirmationDialog(
       EButtonActionType.ADD,
-      BANK_TRANSFER_ACTION_CONFIG_MAP[EButtonActionType.ADD],
+      getBankTransferActionConfigMap(docContext)[EButtonActionType.ADD],
       null,
       false,
       false,
@@ -306,9 +312,14 @@ export class GetBankTransferComponent implements OnInit {
       ? this.prepareRecordDetail(raw)
       : null;
 
+    const docContext = this.docRouteContext();
+    if (!docContext) {
+      return;
+    }
+
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      BANK_TRANSFER_ACTION_CONFIG_MAP[actionType],
+      getBankTransferActionConfigMap(docContext)[actionType],
       recordDetail,
       false,
       showRecordSummary,
@@ -319,9 +330,10 @@ export class GetBankTransferComponent implements OnInit {
   private prepareRecordDetail(
     row: IBankTransferGetBaseResponseDto
   ): IDataViewDetailsWithEntity {
+    const isSales = row.partyType === EDocContext.SALES;
     const entryData: IDataViewDetails['entryData'] = [
       {
-        label: 'Transfer Date',
+        label: isSales ? 'Received Date' : 'Transfer Date',
         value: row.transferDate,
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
@@ -353,14 +365,16 @@ export class GetBankTransferComponent implements OnInit {
   }
 
   private showDetailDrawer(row: IBankTransferGetBaseResponseDto): void {
+    const isSales = row.partyType === EDocContext.SALES;
     this.drawerService.showDrawer(GetBankTransferDetailComponent, {
-      header: 'Bank transfer details',
+      header: isSales ? 'Bank received details' : 'Bank transfer details',
       subtitle: 'Detailed view',
       componentData: { bankTransfer: row },
     });
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {
+    const isSales = this.docRouteContext() === EDocContext.SALES;
     return {
       title: '',
       subtitle: '',
@@ -371,7 +385,7 @@ export class GetBankTransferComponent implements OnInit {
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
-          label: 'Add Bank Transfer',
+          label: isSales ? 'Add Bank Received' : 'Add Bank Transfer',
           actionName: 'addBankTransfer',
           permission: [APP_PERMISSION.BANK_TRANSFER_DOC.ADD],
         },

@@ -87,7 +87,7 @@ export class AddBookPaymentComponent
 
   protected readonly showPaymentHoldReason = computed(() => {
     const meta = this.selectedInvoiceMeta();
-    const amount = this.trackedBookPaymentInputs?.taxableAmount?.();
+    const amount = this.trackedBookPaymentInputs?.paymentTotalAmount?.();
     return isBookPaymentHoldReasonRequired(amount, meta?.remaining);
   });
 
@@ -117,7 +117,7 @@ export class AddBookPaymentComponent
       this.updateSelectedInvoiceMeta();
     });
     effect(() => {
-      this.trackedBookPaymentInputs?.taxableAmount?.();
+      this.trackedBookPaymentInputs?.paymentTotalAmount?.();
       this.selectedInvoiceMeta();
       this.refreshPaymentHoldReasonValidators();
     });
@@ -138,7 +138,7 @@ export class AddBookPaymentComponent
     const trackedFields: (keyof IAddBookPaymentUIFormDto)[] = [
       'projectName',
       'invoiceNumber',
-      'taxableAmount',
+      'paymentTotalAmount',
     ];
 
     this.trackedBookPaymentInputs =

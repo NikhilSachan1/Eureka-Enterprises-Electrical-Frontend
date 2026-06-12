@@ -82,6 +82,7 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
     record: IBankTransferDetailGetResponseDto
   ): IDataViewDetailsWithEntity {
     const invoiceRef = invoiceRefForBankTransfer(record);
+    const isSales = record.partyType === EDocContext.SALES;
 
     const entryData: IDataViewDetails['entryData'] = [
       {
@@ -110,7 +111,7 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
         detailTemplateFullRow: false,
       },
       {
-        label: 'Transfer Date',
+        label: isSales ? 'Received Date' : 'Transfer Date',
         value: record.transferDate,
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
@@ -126,7 +127,7 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
       {
-        label: 'Proof of transfer',
+        label: isSales ? 'Proof of receipt' : 'Proof of transfer',
         value: proofAttachmentKeysForBankTransferDetail(record),
         type: EDataType.ATTACHMENTS,
       },

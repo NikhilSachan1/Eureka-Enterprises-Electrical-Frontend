@@ -124,6 +124,7 @@ export class NavTabsComponent implements OnInit {
     void this.router.navigate([firstTab.route], {
       relativeTo: this.route,
       replaceUrl: true,
+      queryParamsHandling: 'preserve',
     });
   }
 

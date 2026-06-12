@@ -51,7 +51,7 @@ export const BOOK_PAYMENT_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[
       showSort: false,
     },
     {
-      field: 'taxableAmount',
+      field: 'paymentTotalAmount',
       header: 'Amount',
       bodyTemplate: EDataType.CURRENCY,
       dataType: EDataType.CURRENCY,

@@ -10,7 +10,7 @@ export const BookPaymentUpsertShapeSchema = z
   .object({
     invoiceNumber: uuidField,
     bookingDate: dateField,
-    taxableAmount: bookPaymentMoneyFieldSchema,
+    paymentTotalAmount: bookPaymentMoneyFieldSchema,
     paymentHoldReason: z.string().nullable(),
     remarks: z.string().nullable(),
   })

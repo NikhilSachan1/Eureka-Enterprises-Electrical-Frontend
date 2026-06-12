@@ -110,7 +110,7 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
       },
       {
         label: 'Amount',
-        value: record.taxableAmount,
+        value: record.paymentTotalAmount,
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
