@@ -1,38 +1,52 @@
 import { FormGroup } from '@angular/forms';
-import { parseAmount, roundCurrencyAmount } from '@shared/utility';
+import { parseAmount } from '@shared/utility';
 import {
-  EMPLOYEE_PF_AMOUNT,
+  ESIC_EMPLOYEE_CONTRIBUTION_RATE,
+  ESIC_WAGE_CEILING,
   GROSS_SALARY_SPLIT_THRESHOLD,
-  HIGH_GROSS_EARNINGS_SPLIT,
-  LOW_GROSS_EARNINGS_SPLIT,
+  HIGH_GROSS_BASIC_RATIO,
+  LOW_GROSS_BASIC_RATIO,
   MONTHLY_FOOD_ALLOWANCE_AMOUNT,
-  PF_BASIC_THRESHOLD,
+  PF_CONTRIBUTION_RATE,
+  PF_WAGE_CAP,
 } from '@features/payroll-management/constants';
 import {
   IEmployeeAnnexure,
   ISalaryGrossUiFormField,
 } from '@features/payroll-management/types/payroll.interface';
 
-export const ESIC_WAGE_CEILING = 21000;
-export const ESIC_EMPLOYEE_CONTRIBUTION_RATE = 0.0075;
-
 export interface IEarningsFromGross {
   basicSalary: number;
   hra: number;
   specialAllowance: number;
 }
-export function calculateEmployeeEsic(basicSalary: number): number {
-  const esicWageBase = basicSalary / 2;
 
-  if (esicWageBase > ESIC_WAGE_CEILING) {
-    return 0;
-  }
+/** Standard salary round-off to nearest rupee. */
+function roundToRupee(value: number): number {
+  return Math.round(value);
+}
 
-  return roundCurrencyAmount(esicWageBase * ESIC_EMPLOYEE_CONTRIBUTION_RATE);
+function calculatePfContribution(basicSalary: number): number {
+  const pfWage = Math.min(Number(basicSalary ?? 0), PF_WAGE_CAP);
+  return roundToRupee(pfWage * PF_CONTRIBUTION_RATE);
 }
 
 export function calculateEmployeePf(basicSalary: number): number {
-  return Number(basicSalary ?? 0) > PF_BASIC_THRESHOLD ? EMPLOYEE_PF_AMOUNT : 0;
+  return calculatePfContribution(basicSalary);
+}
+
+export function calculateEmployerPf(basicSalary: number): number {
+  return calculatePfContribution(basicSalary);
+}
+
+export function calculateEmployeeEsic(basicSalary: number): number {
+  const basic = Number(basicSalary ?? 0);
+
+  if (basic > ESIC_WAGE_CEILING) {
+    return 0;
+  }
+
+  return roundToRupee(basic * ESIC_EMPLOYEE_CONTRIBUTION_RATE);
 }
 
 export function calculateEarningsFromGross(
@@ -44,16 +58,31 @@ export function calculateEarningsFromGross(
     return { basicSalary: 0, hra: 0, specialAllowance: 0 };
   }
 
-  const split =
+  const basicRatio =
     gross <= GROSS_SALARY_SPLIT_THRESHOLD
-      ? LOW_GROSS_EARNINGS_SPLIT
-      : HIGH_GROSS_EARNINGS_SPLIT;
+      ? LOW_GROSS_BASIC_RATIO
+      : HIGH_GROSS_BASIC_RATIO;
+
+  const basicSalary = roundToRupee(gross * basicRatio);
+  const remainder = gross - basicSalary;
+  const allowanceHalf = Math.floor(remainder / 2);
+  const oddRupee = remainder - allowanceHalf * 2;
 
   return {
-    basicSalary: roundCurrencyAmount(gross * split.basic),
-    hra: roundCurrencyAmount(gross * split.hra),
-    specialAllowance: roundCurrencyAmount(gross * split.specialAllowance),
+    basicSalary: basicSalary + oddRupee,
+    hra: allowanceHalf,
+    specialAllowance: allowanceHalf,
   };
+}
+
+export function calculateNetSalary(
+  grossSalary: number,
+  basicSalary: number
+): number {
+  const employeePf = calculateEmployeePf(basicSalary);
+  const esic = calculateEmployeeEsic(basicSalary);
+
+  return roundToRupee(Number(grossSalary ?? 0) - employeePf - esic);
 }
 
 export function deriveGrossFromEarnings(
@@ -61,7 +90,7 @@ export function deriveGrossFromEarnings(
   hra: number,
   specialAllowance: number
 ): number {
-  return roundCurrencyAmount(basicSalary + hra + specialAllowance);
+  return roundToRupee(basicSalary + hra + specialAllowance);
 }
 
 export function syncFoodAllowance(formGroup: FormGroup): void {

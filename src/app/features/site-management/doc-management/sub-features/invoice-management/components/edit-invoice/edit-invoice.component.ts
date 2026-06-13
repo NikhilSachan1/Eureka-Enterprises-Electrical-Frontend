@@ -2,14 +2,16 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   inject,
   input,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, switchMap } from 'rxjs';
+import { defer, finalize, of, switchMap } from 'rxjs';
 
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -24,7 +26,7 @@ import {
 } from '@shared/services';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { roundCurrencyAmount } from '@shared/utility';
+import { roundCurrencyAmount, toLocalCalendarDate } from '@shared/utility';
 import {
   applyProjectDateRangeFromSite,
   IProjectSiteDateRange,
@@ -64,6 +66,12 @@ export class EditInvoiceComponent
   private prefilledTaxableAmount: number | null = null;
   private prefilledTdsPercent: number | null = null;
   private prefilledGstPercent: number | null = null;
+
+  private isNoInvoiceTracked!: Signal<boolean | null | undefined>;
+
+  protected readonly showInvoiceDetails = computed(
+    () => !this.isNoInvoiceTracked()
+  );
 
   protected readonly selectedRecord =
     input.required<IInvoiceGetBaseResponseDto[]>();
@@ -108,6 +116,8 @@ export class EditInvoiceComponent
       return;
     }
 
+    const invoiceDate = toLocalCalendarDate(record.invoiceDate);
+
     this.form = this.formService.createForm<IEditInvoiceUIFormDto>(
       EDIT_INVOICE_FORM_CONFIG,
       {
@@ -115,9 +125,17 @@ export class EditInvoiceComponent
         defaultValues: {
           projectName: record.siteId,
           jmcNumber: record.jmcId,
+          isNoInvoice:
+            !record.invoiceNumber ||
+            record.invoiceNumber.toUpperCase() === 'NA' ||
+            !record.fileKey ||
+            record.fileKey.toUpperCase() === 'NA',
           isGstHold: record.isGstHold ?? true,
-          invoiceNumber: record.invoiceNumber,
-          invoiceDate: new Date(record.invoiceDate),
+          invoiceNumber:
+            !record.invoiceNumber || record.invoiceNumber.toUpperCase() === 'NA'
+              ? null
+              : record.invoiceNumber,
+          invoiceDate: invoiceDate ?? undefined,
           taxableAmount: Number(record.taxableAmount),
           tdsPercent: Number(record.tdsPercentage),
           tdsAmount: Number(record.tdsAmount),
@@ -138,7 +156,12 @@ export class EditInvoiceComponent
       EDIT_INVOICE_FORM_CONFIG.fields.invoiceDate.dateConfig,
       record.site as IProjectSiteDateRange
     );
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+
+    this.isNoInvoiceTracked = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'isNoInvoice',
+      this.destroyRef
+    );
 
     this.trackedInvoiceInputs =
       this.formService.trackMultipleFieldChanges<IEditInvoiceUIFormDto>(
@@ -162,7 +185,16 @@ export class EditInvoiceComponent
         ? null
         : Number(gstPercent);
 
-    this.loadPrefillAttachmentFromKey(record.fileKey);
+    queueMicrotask(() => {
+      if (invoiceDate) {
+        this.form.formGroup.patchValue({ invoiceDate }, { emitEvent: false });
+      }
+      this.changeDetectorRef.detectChanges();
+    });
+
+    if (record.fileKey && record.fileKey.toUpperCase() !== 'NA') {
+      this.loadPrefillAttachmentFromKey(record.fileKey);
+    }
   }
 
   private seedJmcOption(jmcNumber: string, jmcId: string): void {
@@ -272,7 +304,9 @@ export class EditInvoiceComponent
   }
 
   private executeEditInvoiceAction(invoiceId: string): void {
-    const file = this.form.getFieldData('invoiceAttachment');
+    const formData = this.form.getData();
+    const isNoInvoice = Boolean(formData.isNoInvoice);
+    const file = formData.invoiceAttachment as File[] | undefined;
 
     this.loadingService.show({
       title: 'Updating Invoice',
@@ -281,12 +315,15 @@ export class EditInvoiceComponent
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    defer(() =>
+      !isNoInvoice && file?.length
+        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        : of<IFinancialFileUploadResponseDto | null>(null)
+    )
       .pipe(
         switchMap(attachmentResponse => {
-          const formData = this.prepareFormData(attachmentResponse);
-          return this.invoiceService.editInvoice(formData, invoiceId);
+          const payload = this.prepareFormData(formData, attachmentResponse);
+          return this.invoiceService.editInvoice(payload, invoiceId);
         }),
         finalize(() => {
           this.loadingService.hide();
@@ -311,21 +348,17 @@ export class EditInvoiceComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    formData: IEditInvoiceUIFormDto,
+    attachmentResponse: IFinancialFileUploadResponseDto | null
   ): IEditInvoiceFormDto {
-    const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['invoiceAttachment'];
     delete (record as Record<string, unknown>)['projectName'];
     delete (record as Record<string, unknown>)['jmcNumber'];
     return {
       ...record,
-      taxableAmount: roundCurrencyAmount(Number(record.taxableAmount)),
-      tdsAmount: roundCurrencyAmount(Number(record.tdsAmount)),
-      gstAmount: roundCurrencyAmount(Number(record.gstAmount)),
-      totalAmount: roundCurrencyAmount(Number(record.totalAmount)),
-      invoiceFileKey: attachmentResponse.fileKey,
-      invoiceFileName: attachmentResponse.fileName,
+      invoiceFileKey: attachmentResponse?.fileKey ?? null,
+      invoiceFileName: attachmentResponse?.fileName ?? null,
     };
   }
 }

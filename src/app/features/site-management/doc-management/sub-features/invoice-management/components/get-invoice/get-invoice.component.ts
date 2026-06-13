@@ -229,7 +229,10 @@ export class GetInvoiceComponent implements OnInit {
           siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
         },
         invoiceDate: record.invoiceDate,
-        invoiceNumber: record.invoiceNumber,
+        invoiceNumber:
+          !record.invoiceNumber || record.invoiceNumber.toUpperCase() === 'NA'
+            ? 'No Invoice'
+            : record.invoiceNumber,
         taxableAmount: record.taxableAmount,
         tdsAmount: record.tdsAmount,
         tdsPercentage: `(${record.tdsPercentage}%)`,
@@ -241,7 +244,10 @@ export class GetInvoiceComponent implements OnInit {
         paidTotal: record.paidTotal,
         jmc: record.jmc,
         fileKey: record.fileKey,
-        fileKeys: record.fileKey ? [record.fileKey] : [],
+        fileKeys:
+          record.fileKey && record.fileKey.toUpperCase() !== 'NA'
+            ? [record.fileKey]
+            : [],
         approvalStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.projectDocumentApprovalStatuses(),
           record.approvalStatus
@@ -369,7 +375,10 @@ export class GetInvoiceComponent implements OnInit {
       },
       {
         label: 'Attachment(s)',
-        value: [selectedRow.fileKey],
+        value:
+          selectedRow.fileKey && selectedRow.fileKey.toUpperCase() !== 'NA'
+            ? [selectedRow.fileKey]
+            : [],
         type: EDataType.ATTACHMENTS,
       },
     ];
@@ -385,7 +394,11 @@ export class GetInvoiceComponent implements OnInit {
       ],
       entity: {
         name: `${selectedRow.contractor?.name ?? ''} ${selectedRow.vendor?.name ?? ''}`.trim(),
-        subtitle: `${selectedRow.invoiceNumber}`,
+        subtitle:
+          !selectedRow.invoiceNumber ||
+          selectedRow.invoiceNumber.toUpperCase() === 'NA'
+            ? 'No Invoice'
+            : selectedRow.invoiceNumber,
       },
     };
   }

@@ -39,7 +39,7 @@ export class SalarySummaryComponent {
     const specialAllowance = fields.specialAllowance ?? 0;
     const esic = fields.esic ?? 0;
     const employeePf = fields.employeePf ?? 0;
-    const employerPf = fields.employeePf ?? 0;
+    const employerPf = employeePf;
 
     const grossSalary = basic + hra + specialAllowance;
     const totalDeductions = employeePf + esic;
@@ -80,7 +80,6 @@ export class SalarySummaryComponent {
     const hra = fields.hra ?? 0;
     const specialAllowance = fields.specialAllowance ?? 0;
     const employerPf = fields.employeePf ?? 0;
-
     const grossSalary = basic + hra + specialAllowance;
 
     return grossSalary + employerPf;

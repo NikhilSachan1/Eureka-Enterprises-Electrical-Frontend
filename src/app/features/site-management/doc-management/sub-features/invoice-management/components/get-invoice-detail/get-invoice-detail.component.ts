@@ -120,7 +120,10 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
         value: DocReferenceHierarchy.forInvoiceDetail({
           poNumber: record.jmc.po.poNumber,
           jmcNumber: record.jmc.jmcNumber,
-          invoiceNumber: record.invoiceNumber,
+          invoiceNumber:
+            !record.invoiceNumber || record.invoiceNumber.toUpperCase() === 'NA'
+              ? null
+              : record.invoiceNumber,
         }),
         customTemplateKey: 'documentReferenceHierarchy',
         detailTemplateFullRow: false,
@@ -148,7 +151,10 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
 
     entryData.push({
       label: 'Attachment(s)',
-      value: record.fileKey ? [record.fileKey] : [],
+      value:
+        record.fileKey && record.fileKey.toUpperCase() !== 'NA'
+          ? [record.fileKey]
+          : [],
       type: EDataType.ATTACHMENTS,
     });
 
@@ -188,7 +194,10 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
     const parts = [contractor?.name, vendor?.name].filter(Boolean);
     return {
       name: parts.length > 0 ? parts.join(' · ') : 'Invoice',
-      subtitle: invoiceNumber,
+      subtitle:
+        !invoiceNumber || invoiceNumber.toUpperCase() === 'NA'
+          ? 'No Invoice'
+          : invoiceNumber,
     };
   }
 

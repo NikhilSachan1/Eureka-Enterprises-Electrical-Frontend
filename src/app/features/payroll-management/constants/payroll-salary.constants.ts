@@ -1,25 +1,23 @@
 /** Fixed monthly fooding amount (not part of CTC). */
 export const MONTHLY_FOOD_ALLOWANCE_AMOUNT = 9000;
 
-/** Gross salary threshold for earnings split (inclusive at or below). */
+/** Gross salary threshold for basic split (inclusive at or below). */
 export const GROSS_SALARY_SPLIT_THRESHOLD = 30000;
 
-/** Gross <= threshold: 70% basic, 15% HRA, 15% SA. */
-export const LOW_GROSS_EARNINGS_SPLIT = {
-  basic: 0.7,
-  hra: 0.15,
-  specialAllowance: 0.15,
-} as const;
+/** Gross <= threshold: basic = 70% of gross. */
+export const LOW_GROSS_BASIC_RATIO = 0.7;
 
-/** Gross > threshold: 50% basic, 25% HRA, 25% SA. */
-export const HIGH_GROSS_EARNINGS_SPLIT = {
-  basic: 0.5,
-  hra: 0.25,
-  specialAllowance: 0.25,
-} as const;
+/** Gross > threshold: basic = 50% of gross. */
+export const HIGH_GROSS_BASIC_RATIO = 0.5;
 
-/** Employee PF applies when basic exceeds this amount. */
-export const PF_BASIC_THRESHOLD = 15000;
+/** PF wage cap for employee and employer contributions. */
+export const PF_WAGE_CAP = 15000;
 
-/** Fixed employee PF amount when basic is above threshold. */
-export const EMPLOYEE_PF_AMOUNT = 1800;
+/** PF contribution rate (employee and employer). */
+export const PF_CONTRIBUTION_RATE = 0.12;
+
+/** ESIC applies when basic salary is at or below this amount. */
+export const ESIC_WAGE_CEILING = 21000;
+
+/** ESIC employee contribution rate. */
+export const ESIC_EMPLOYEE_CONTRIBUTION_RATE = 0.0075;

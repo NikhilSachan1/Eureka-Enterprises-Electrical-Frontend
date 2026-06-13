@@ -2,14 +2,16 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   inject,
   input,
   OnInit,
+  Signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, switchMap } from 'rxjs';
+import { defer, finalize, of, switchMap } from 'rxjs';
 
 import { FormBase } from '@shared/base/form.base';
 import {
@@ -68,6 +70,12 @@ export class AddInvoiceComponent
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   private trackedInvoiceInputs!: ITrackedFields<IAddInvoiceUIFormDto>;
+  private isNoInvoiceTracked!: Signal<boolean | null | undefined>;
+
+  /** Hidden when no invoice is selected; shown when unset (default) or invoice exists. */
+  protected readonly showInvoiceDetails = computed(
+    () => !this.isNoInvoiceTracked()
+  );
 
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
@@ -89,6 +97,9 @@ export class AddInvoiceComponent
     });
     effect(() => {
       const tracked = this.trackedInvoiceInputs;
+      if (!tracked || this.isNoInvoiceTracked?.()) {
+        return;
+      }
       tracked.taxableAmount?.();
       tracked.tdsPercent?.();
       tracked.gstPercent?.();
@@ -113,6 +124,12 @@ export class AddInvoiceComponent
         ['taxableAmount', 'tdsPercent', 'gstPercent', 'projectName'],
         this.destroyRef
       );
+
+    this.isNoInvoiceTracked = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'isNoInvoice',
+      this.destroyRef
+    );
   }
 
   private loadProjectDateRange(projectId: string): void {
@@ -264,7 +281,9 @@ export class AddInvoiceComponent
   }
 
   private executeAddInvoiceAction(): void {
-    const file = this.form.getFieldData('invoiceAttachment');
+    const formData = this.form.getData();
+    const isNoInvoice = Boolean(formData.isNoInvoice);
+    const file = formData.invoiceAttachment as File[] | undefined;
 
     this.loadingService.show({
       title: 'Adding Invoice',
@@ -273,12 +292,15 @@ export class AddInvoiceComponent
     });
     this.form.disable();
 
-    this.attachmentsService
-      .uploadFinancialDocument(file[0])
+    defer(() =>
+      !isNoInvoice && file?.length
+        ? this.attachmentsService.uploadFinancialDocument(file[0])
+        : of<IFinancialFileUploadResponseDto | null>(null)
+    )
       .pipe(
         switchMap(attachmentResponse => {
-          const formData = this.prepareFormData(attachmentResponse);
-          return this.invoiceService.addInvoice(formData);
+          const payload = this.prepareFormData(formData, attachmentResponse);
+          return this.invoiceService.addInvoice(payload);
         }),
         finalize(() => {
           this.loadingService.hide();
@@ -303,20 +325,16 @@ export class AddInvoiceComponent
   }
 
   private prepareFormData(
-    attachmentResponse: IFinancialFileUploadResponseDto
+    formData: IAddInvoiceUIFormDto,
+    attachmentResponse: IFinancialFileUploadResponseDto | null
   ): IAddInvoiceFormDto {
-    const formData = this.form.getData();
     const record = { ...formData };
     delete (record as Record<string, unknown>)['invoiceAttachment'];
     delete (record as Record<string, unknown>)['projectName'];
     return {
       ...record,
-      taxableAmount: roundCurrencyAmount(Number(record.taxableAmount)),
-      tdsAmount: roundCurrencyAmount(Number(record.tdsAmount)),
-      gstAmount: roundCurrencyAmount(Number(record.gstAmount)),
-      totalAmount: roundCurrencyAmount(Number(record.totalAmount)),
-      invoiceFileKey: attachmentResponse.fileKey,
-      invoiceFileName: attachmentResponse.fileName,
+      invoiceFileKey: attachmentResponse?.fileKey ?? null,
+      invoiceFileName: attachmentResponse?.fileName ?? null,
     };
   }
 }
