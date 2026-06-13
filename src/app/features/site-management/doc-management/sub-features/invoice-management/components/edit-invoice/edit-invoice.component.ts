@@ -26,7 +26,7 @@ import {
 } from '@shared/services';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { roundCurrencyAmount } from '@shared/utility';
+import { roundCurrencyAmount, toLocalCalendarDate } from '@shared/utility';
 import {
   applyProjectDateRangeFromSite,
   IProjectSiteDateRange,
@@ -116,6 +116,8 @@ export class EditInvoiceComponent
       return;
     }
 
+    const invoiceDate = toLocalCalendarDate(record.invoiceDate);
+
     this.form = this.formService.createForm<IEditInvoiceUIFormDto>(
       EDIT_INVOICE_FORM_CONFIG,
       {
@@ -123,10 +125,17 @@ export class EditInvoiceComponent
         defaultValues: {
           projectName: record.siteId,
           jmcNumber: record.jmcId,
-          isNoInvoice: !record.fileKey,
+          isNoInvoice:
+            !record.invoiceNumber ||
+            record.invoiceNumber.toUpperCase() === 'NA' ||
+            !record.fileKey ||
+            record.fileKey.toUpperCase() === 'NA',
           isGstHold: record.isGstHold ?? true,
-          invoiceNumber: record.invoiceNumber,
-          invoiceDate: new Date(record.invoiceDate),
+          invoiceNumber:
+            !record.invoiceNumber || record.invoiceNumber.toUpperCase() === 'NA'
+              ? null
+              : record.invoiceNumber,
+          invoiceDate: invoiceDate ?? undefined,
           taxableAmount: Number(record.taxableAmount),
           tdsPercent: Number(record.tdsPercentage),
           tdsAmount: Number(record.tdsAmount),
@@ -147,7 +156,12 @@ export class EditInvoiceComponent
       EDIT_INVOICE_FORM_CONFIG.fields.invoiceDate.dateConfig,
       record.site as IProjectSiteDateRange
     );
-    queueMicrotask(() => this.changeDetectorRef.detectChanges());
+
+    this.isNoInvoiceTracked = this.formService.trackFieldChanges(
+      this.form.formGroup,
+      'isNoInvoice',
+      this.destroyRef
+    );
 
     this.trackedInvoiceInputs =
       this.formService.trackMultipleFieldChanges<IEditInvoiceUIFormDto>(
@@ -171,13 +185,14 @@ export class EditInvoiceComponent
         ? null
         : Number(gstPercent);
 
-    this.isNoInvoiceTracked = this.formService.trackFieldChanges(
-      this.form.formGroup,
-      'isNoInvoice',
-      this.destroyRef
-    );
+    queueMicrotask(() => {
+      if (invoiceDate) {
+        this.form.formGroup.patchValue({ invoiceDate }, { emitEvent: false });
+      }
+      this.changeDetectorRef.detectChanges();
+    });
 
-    if (record.fileKey) {
+    if (record.fileKey && record.fileKey.toUpperCase() !== 'NA') {
       this.loadPrefillAttachmentFromKey(record.fileKey);
     }
   }

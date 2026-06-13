@@ -11,7 +11,7 @@ export const EditInvoiceRequestSchema = InvoiceUpsertShapeSchema.omit({
     const isNoInvoice = Boolean(data.isNoInvoice);
 
     return {
-      invoiceNumber: isNoInvoice ? null : data.invoiceNumber,
+      invoiceNumber: isNoInvoice ? 'NA' : data.invoiceNumber,
       invoiceDate: transformDateFormat(data.invoiceDate),
       taxableAmount: isNoInvoice
         ? 0
@@ -28,8 +28,8 @@ export const EditInvoiceRequestSchema = InvoiceUpsertShapeSchema.omit({
         ? 0
         : roundCurrencyAmount(Number(data.totalAmount ?? 0)),
       isGstHold: isNoInvoice ? false : data.isGstHold,
-      fileKey: isNoInvoice ? null : data.invoiceFileKey,
-      fileName: isNoInvoice ? null : data.invoiceFileName,
+      fileKey: isNoInvoice ? 'NA' : data.invoiceFileKey,
+      fileName: isNoInvoice ? 'NA' : data.invoiceFileName,
       remarks: data.remarks,
     };
   });
