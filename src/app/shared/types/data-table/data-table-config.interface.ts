@@ -85,6 +85,8 @@ export interface IDataTableHeaderConfig
   readMoreConfig?: Partial<IReadMoreConfig>;
   statusConfig?: IStatusConfig;
   customTemplateKey?: string;
+  /** Optional class applied to header and body cells for this column. */
+  columnStyleClass?: string;
   showFilter: boolean;
   clientSideFilterConfig?: IDataTableHeaderFilterConfig;
   showSort: boolean;

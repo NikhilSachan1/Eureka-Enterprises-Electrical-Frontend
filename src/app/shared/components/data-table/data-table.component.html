@@ -120,9 +120,9 @@
               pFrozenColumn
               [frozen]="isColumnFrozen(item)"
               [alignFrozen]="getFrozenAlign(item)"
+              [class]="item.columnStyleClass"
               [style.width]="getColumnWidth(item)"
               [style.minWidth]="getColumnWidth(item)"
-              [style.maxWidth]="getColumnWidth(item)"
             >
               <div class="flex items-center">
                 <span class="font-semibold">{{ item.header }}</span>
@@ -229,9 +229,9 @@
               pFrozenColumn
               [frozen]="isColumnFrozen(column)"
               [alignFrozen]="getFrozenAlign(column)"
+              [class]="column.columnStyleClass"
               [style.width]="getColumnWidth(column)"
               [style.minWidth]="getColumnWidth(column)"
-              [style.maxWidth]="getColumnWidth(column)"
               [class.cell-allow-wrap]="hasLead || isReadMoreCol"
             >
               <div
