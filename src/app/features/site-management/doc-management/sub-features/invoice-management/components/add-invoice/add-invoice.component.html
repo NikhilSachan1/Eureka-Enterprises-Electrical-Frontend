@@ -14,7 +14,7 @@
 
   <app-input-field
     [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.invoiceNumber"
+    [inputFieldConfig]="form.fieldConfigs.isNoInvoice"
   />
 
   <app-input-field
@@ -22,47 +22,54 @@
     [inputFieldConfig]="form.fieldConfigs.invoiceDate"
   />
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.taxableAmount"
-  />
-
-  <div class="grid grid-cols-1 md:grid-cols-2">
+  @if (showInvoiceDetails()) {
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.tdsPercent"
+      [inputFieldConfig]="form.fieldConfigs.invoiceNumber"
     />
+
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.tdsAmount"
+      [inputFieldConfig]="form.fieldConfigs.taxableAmount"
     />
-  </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2">
+    <div class="grid grid-cols-1 md:grid-cols-2">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.tdsPercent"
+      />
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.tdsAmount"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2">
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.gstPercent"
+      />
+      <app-input-field
+        [formGroup]="form.formGroup"
+        [inputFieldConfig]="form.fieldConfigs.gstAmount"
+      />
+    </div>
+
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.gstPercent"
+      [inputFieldConfig]="form.fieldConfigs.isGstHold"
     />
+
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.gstAmount"
+      [inputFieldConfig]="form.fieldConfigs.totalAmount"
     />
-  </div>
 
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.isGstHold"
-  />
-
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.totalAmount"
-  />
-
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.invoiceAttachment"
-  />
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.invoiceAttachment"
+    />
+  }
 
   <app-input-field
     [formGroup]="form.formGroup"

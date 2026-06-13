@@ -47,6 +47,140 @@ const ADD_INVOICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddInvoiceUIFormDt
       },
       validators: [Validators.required],
     },
+    isNoInvoice: {
+      fieldType: EDataType.CHECKBOX,
+      id: 'isNoInvoice',
+      fieldName: 'isNoInvoice',
+      fieldSize: EFieldSize.Small,
+      showStandardLabel: true,
+      defaultValue: false,
+      checkboxConfig: {
+        binary: true,
+        bordered: true,
+        options: [{ label: 'No Invoice', value: 'noInvoice' }],
+      },
+    },
+    invoiceDate: {
+      fieldType: EDataType.DATE,
+      id: 'invoiceDate',
+      fieldName: 'invoiceDate',
+      label: 'Invoice Date',
+      dateConfig: {
+        maxDate: new Date(),
+        touchUI: false,
+      },
+      validators: [Validators.required],
+    },
+    invoiceNumber: {
+      fieldType: EDataType.TEXT,
+      id: 'invoiceNumber',
+      fieldName: 'invoiceNumber',
+      label: 'Invoice Number',
+      textConfig: {
+        textCase: ETextCase.UPPERCASE,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPECIAL_CHARS,
+      },
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoInvoice',
+          shouldApply: (isNoInvoice: boolean) => !isNoInvoice,
+          validators: [Validators.required],
+        },
+      ],
+    },
+    taxableAmount: {
+      fieldType: EDataType.NUMBER,
+      id: 'taxableAmount',
+      fieldName: 'taxableAmount',
+      label: 'Invoice Taxable Amount',
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoInvoice',
+          shouldApply: (isNoInvoice: boolean) => !isNoInvoice,
+          validators: [Validators.required, Validators.min(0)],
+        },
+      ],
+    },
+    tdsPercent: {
+      fieldType: EDataType.NUMBER,
+      id: 'tdsPercent',
+      fieldName: 'tdsPercent',
+      label: 'TDS %',
+      defaultValue: ADD_INVOICE_DEFAULT_TDS_PERCENT,
+      numberConfig: {
+        mode: EInputNumberMode.Decimal,
+        allowNumberFormatting: false,
+        suffix: ' %',
+        minimumBoundaryValue: 0,
+      },
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoInvoice',
+          shouldApply: (isNoInvoice: boolean) => !isNoInvoice,
+          validators: [Validators.required, Validators.min(0)],
+        },
+      ],
+    },
+    tdsAmount: {
+      fieldType: EDataType.NUMBER,
+      id: 'tdsAmount',
+      fieldName: 'tdsAmount',
+      label: 'TDS Deduction',
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+      readonlyInput: true,
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoInvoice',
+          shouldApply: (isNoInvoice: boolean) => !isNoInvoice,
+          validators: [Validators.required, Validators.min(0)],
+        },
+      ],
+    },
+    gstPercent: {
+      fieldType: EDataType.NUMBER,
+      id: 'gstPercent',
+      fieldName: 'gstPercent',
+      label: 'GST %',
+      defaultValue: ADD_INVOICE_DEFAULT_GST_PERCENT,
+      numberConfig: {
+        mode: EInputNumberMode.Decimal,
+        allowNumberFormatting: false,
+        suffix: ' %',
+        minimumBoundaryValue: 0,
+      },
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoInvoice',
+          shouldApply: (isNoInvoice: boolean) => !isNoInvoice,
+          validators: [Validators.required, Validators.min(0)],
+        },
+      ],
+    },
+    gstAmount: {
+      fieldType: EDataType.NUMBER,
+      id: 'gstAmount',
+      fieldName: 'gstAmount',
+      label: 'Invoice GST Amount',
+      numberConfig: {
+        mode: EInputNumberMode.Currency,
+        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+      readonlyInput: true,
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoInvoice',
+          shouldApply: (isNoInvoice: boolean) => !isNoInvoice,
+          validators: [Validators.required, Validators.min(0)],
+        },
+      ],
+    },
     isGstHold: {
       fieldType: EDataType.CHECKBOX,
       id: 'isGstHold',
@@ -60,89 +194,6 @@ const ADD_INVOICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddInvoiceUIFormDt
         options: [{ label: 'GST Hold', value: 'gstHold' }],
       },
     },
-    invoiceNumber: {
-      fieldType: EDataType.TEXT,
-      id: 'invoiceNumber',
-      fieldName: 'invoiceNumber',
-      label: 'Invoice Number',
-      textConfig: {
-        textCase: ETextCase.UPPERCASE,
-        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC_WITH_SPECIAL_CHARS,
-      },
-      validators: [Validators.required],
-    },
-    invoiceDate: {
-      fieldType: EDataType.DATE,
-      id: 'invoiceDate',
-      fieldName: 'invoiceDate',
-      label: 'Invoice Date',
-      dateConfig: {
-        maxDate: new Date(),
-        touchUI: false,
-      },
-      validators: [Validators.required],
-    },
-    taxableAmount: {
-      fieldType: EDataType.NUMBER,
-      id: 'taxableAmount',
-      fieldName: 'taxableAmount',
-      label: 'Invoice Taxable Amount',
-      numberConfig: {
-        mode: EInputNumberMode.Currency,
-        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      validators: [Validators.required, Validators.min(1)],
-    },
-    tdsPercent: {
-      fieldType: EDataType.NUMBER,
-      id: 'tdsPercent',
-      fieldName: 'tdsPercent',
-      label: 'TDS %',
-      defaultValue: ADD_INVOICE_DEFAULT_TDS_PERCENT,
-      numberConfig: {
-        mode: EInputNumberMode.Decimal,
-        allowNumberFormatting: false,
-        suffix: ' %',
-      },
-      validators: [Validators.required],
-    },
-    tdsAmount: {
-      fieldType: EDataType.NUMBER,
-      id: 'tdsAmount',
-      fieldName: 'tdsAmount',
-      label: 'TDS Deduction',
-      numberConfig: {
-        mode: EInputNumberMode.Currency,
-        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      readonlyInput: true,
-      validators: [Validators.required, Validators.min(0)],
-    },
-    gstPercent: {
-      fieldType: EDataType.NUMBER,
-      id: 'gstPercent',
-      fieldName: 'gstPercent',
-      label: 'GST %',
-      defaultValue: ADD_INVOICE_DEFAULT_GST_PERCENT,
-      numberConfig: {
-        mode: EInputNumberMode.Decimal,
-        allowNumberFormatting: false,
-        suffix: ' %',
-      },
-      validators: [Validators.required],
-    },
-    gstAmount: {
-      fieldType: EDataType.NUMBER,
-      id: 'gstAmount',
-      fieldName: 'gstAmount',
-      label: 'Invoice GST Amount',
-      numberConfig: {
-        mode: EInputNumberMode.Currency,
-        currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      },
-      readonlyInput: true,
-      validators: [Validators.required, Validators.min(0)],
-    },
     totalAmount: {
       fieldType: EDataType.NUMBER,
       id: 'totalAmount',
@@ -153,7 +204,13 @@ const ADD_INVOICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddInvoiceUIFormDt
         currency: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
       readonlyInput: true,
-      validators: [Validators.required, Validators.min(1)],
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoInvoice',
+          shouldApply: (isNoInvoice: boolean) => !isNoInvoice,
+          validators: [Validators.required, Validators.min(0)],
+        },
+      ],
     },
     invoiceAttachment: {
       fieldType: EDataType.ATTACHMENTS,
@@ -167,13 +224,27 @@ const ADD_INVOICE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddInvoiceUIFormDt
           ...APP_CONFIG.MEDIA_CONFIG.PDF,
         ],
       },
-      validators: [Validators.required],
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoInvoice',
+          shouldApply: (isNoInvoice: boolean) => !isNoInvoice,
+          validators: [Validators.required],
+          resetOnFalse: true,
+        },
+      ],
     },
     remarks: {
       fieldType: EDataType.TEXT_AREA,
       id: 'remarks',
       fieldName: 'remarks',
       label: 'Remarks',
+      conditionalValidators: [
+        {
+          dependsOn: 'isNoInvoice',
+          shouldApply: (isNoInvoice: boolean) => Boolean(isNoInvoice),
+          validators: [Validators.required],
+        },
+      ],
     },
   };
 

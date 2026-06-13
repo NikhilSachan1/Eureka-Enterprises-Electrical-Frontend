@@ -12,7 +12,7 @@ export const InvoiceBaseSchema = z.looseObject({
   jmcId: uuidField,
   siteId: uuidField,
   partyType: z.enum(EDocContext),
-  invoiceNumber: z.string(),
+  invoiceNumber: z.string().nullable(),
   invoiceDate: onlyDateStringField,
   taxableAmount: z.string(),
   tdsPercentage: z.string(),
@@ -21,23 +21,24 @@ export const InvoiceBaseSchema = z.looseObject({
   gstAmount: z.string(),
   totalAmount: z.string(),
   isGstHold: z.boolean(),
-  fileKey: z.string(),
+  fileKey: z.string().nullable(),
 });
 
 export const InvoiceUpsertShapeSchema = z
   .object({
     jmcNumber: z.string(),
-    invoiceNumber: z.string(),
+    isNoInvoice: z.boolean(),
+    invoiceNumber: z.string().nullable(),
     invoiceDate: dateField,
-    taxableAmount: z.number(),
-    tdsPercent: z.number(),
-    tdsAmount: z.number(),
-    gstPercent: z.number(),
-    gstAmount: z.number(),
-    totalAmount: z.number(),
+    taxableAmount: z.number().nullable(),
+    tdsPercent: z.number().nullable(),
+    tdsAmount: z.number().nullable(),
+    gstPercent: z.number().nullable(),
+    gstAmount: z.number().nullable(),
+    totalAmount: z.number().nullable(),
     isGstHold: z.boolean(),
-    invoiceFileName: z.string(),
-    invoiceFileKey: z.string(),
+    invoiceFileName: z.string().nullable(),
+    invoiceFileKey: z.string().nullable(),
     remarks: z.string().nullable(),
   })
   .strict();
