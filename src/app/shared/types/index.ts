@@ -66,6 +66,7 @@ export type {
   ITableSearchFilterInputFieldsConfig,
   ITableSearchFilterFormConfig,
   IDataTableServerSideFilterAndSortConfig,
+  IDataTableFrozenColumnConfig,
 } from './data-table/data-table-config.interface';
 export type { IReadMoreConfig } from './read-more/read-more.interface';
 export type {

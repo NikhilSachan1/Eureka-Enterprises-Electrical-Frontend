@@ -34,6 +34,7 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import {
   IDataTableConfig,
+  IDataTableFrozenColumnConfig,
   IDataTableHeaderConfig,
   ITableActionConfig,
   IButtonConfig,
@@ -60,8 +61,18 @@ import { AppPermissionService, LoggerService } from '@core/services';
 import { ChipComponent } from '../chip/chip.component';
 import { ReadMoreComponent } from '../read-more/read-more.component';
 import { PaginatorComponent } from '../paginator/paginator.component';
-import { DEFAULT_READ_MORE_CONFIG } from '@shared/config';
-import { StatusUtil } from '@shared/utility';
+import {
+  DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
+  DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
+  DEFAULT_READ_MORE_CONFIG,
+} from '@shared/config';
+import {
+  StatusUtil,
+  isDataTableColumnFrozen,
+  isDataTableScrollable,
+  resolveFrozenAlign,
+  resolveColumnWidth,
+} from '@shared/utility';
 
 @Component({
   selector: 'app-data-table',
@@ -147,6 +158,45 @@ export class DataTableComponent {
   protected visibleTableHeaders = computed(() => {
     return this.permissionService.filterByPermission(this.tableHeader());
   });
+
+  protected isTableScrollable = computed(() =>
+    isDataTableScrollable(this.tableConfig(), this.visibleTableHeaders())
+  );
+
+  protected isColumnFrozen(
+    config?: Partial<
+      IDataTableFrozenColumnConfig | IDataTableHeaderConfig
+    > | null
+  ): boolean {
+    return isDataTableColumnFrozen(this.isTableScrollable(), config);
+  }
+
+  protected getFrozenAlign(
+    config?: Partial<
+      IDataTableFrozenColumnConfig | IDataTableHeaderConfig
+    > | null,
+    fallback: 'left' | 'right' = 'left'
+  ): 'left' | 'right' {
+    return resolveFrozenAlign(config, fallback);
+  }
+
+  protected readonly defaultFrozenSelectionColumn =
+    DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG;
+  protected readonly defaultFrozenActionsColumn =
+    DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG;
+
+  protected getColumnWidth(
+    config?: Partial<
+      IDataTableFrozenColumnConfig | IDataTableHeaderConfig
+    > | null,
+    defaultWhenFrozen?: Partial<IDataTableFrozenColumnConfig>
+  ): string | undefined {
+    return resolveColumnWidth(
+      this.isTableScrollable(),
+      config,
+      defaultWhenFrozen
+    );
+  }
 
   /**
    * Selection UI only when table allows it and there is at least one visible bulk action.

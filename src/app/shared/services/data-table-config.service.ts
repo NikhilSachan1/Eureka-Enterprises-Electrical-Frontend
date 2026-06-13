@@ -9,6 +9,8 @@ import {
 } from '@shared/types';
 import {
   DEFAULT_BULK_ACTION_CONFIG,
+  DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
+  DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
   DEFAULT_ROW_ACTION_CONFIG,
   DEFAULT_TABLE_CONFIG,
   DEFAULT_TABLE_HEADER_CONFIG,
@@ -49,6 +51,18 @@ export class TableService {
     return {
       ...this.defaultTableConfig,
       ...options,
+      selectionColumn: options?.selectionColumn
+        ? {
+            ...DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
+            ...options.selectionColumn,
+          }
+        : options?.selectionColumn,
+      actionsColumn: options?.actionsColumn
+        ? {
+            ...DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
+            ...options.actionsColumn,
+          }
+        : options?.actionsColumn,
     } as IDataTableConfig;
   }
 
@@ -142,7 +156,25 @@ export class TableService {
       updateTableConfig: (
         config: Partial<IDataTableConfig>
       ): WritableSignal<IDataTableConfig> => {
-        const updatedConfig = { ...tableConfigSignal(), ...config };
+        const current = tableConfigSignal();
+        const updatedConfig = {
+          ...current,
+          ...config,
+          selectionColumn: config.selectionColumn
+            ? {
+                ...DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
+                ...current.selectionColumn,
+                ...config.selectionColumn,
+              }
+            : (config.selectionColumn ?? current.selectionColumn),
+          actionsColumn: config.actionsColumn
+            ? {
+                ...DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
+                ...current.actionsColumn,
+                ...config.actionsColumn,
+              }
+            : (config.actionsColumn ?? current.actionsColumn),
+        };
         tableConfigSignal.set(updatedConfig);
         return tableConfigSignal;
       },

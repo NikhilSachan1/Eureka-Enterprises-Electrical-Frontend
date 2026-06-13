@@ -64,3 +64,11 @@ export {
   applyGroupMetricValueLoading,
   applyMetricValueLoading,
 } from './metric.util';
+export {
+  hasAnyFrozenColumn,
+  isDataTableColumnFrozen,
+  isDataTableScrollable,
+  resolveFrozenAlign,
+  resolveFrozenColumnWidth,
+  resolveColumnWidth,
+} from './data-table-frozen-column.util';

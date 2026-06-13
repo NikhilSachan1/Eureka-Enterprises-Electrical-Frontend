@@ -27,6 +27,22 @@ export interface IDataTableConfig {
   enableServerSide: boolean;
   showViewModeToggle?: boolean; // Show/hide list & card layout toggle (default: true)
   rowActionsLimit?: number;
+  /** Enables PrimeNG scrollable table (required for frozen columns). */
+  scrollable?: boolean;
+  /** Scroll viewport height, e.g. '400px' or 'calc(100vh - 12rem)'. */
+  scrollHeight?: string;
+  /** Optional class applied to the underlying p-table. */
+  tableStyleClass?: string;
+  /** Freeze config for the bulk-selection checkbox column. */
+  selectionColumn?: IDataTableFrozenColumnConfig;
+  /** Freeze config for the row actions column. */
+  actionsColumn?: IDataTableFrozenColumnConfig;
+}
+
+export interface IDataTableFrozenColumnConfig {
+  frozen?: boolean;
+  alignFrozen?: 'left' | 'right';
+  columnWidth?: string;
 }
 
 export interface IDataTableServerSideFilterAndSortConfig {
@@ -36,7 +52,8 @@ export interface IDataTableServerSideFilterAndSortConfig {
 
 export type IDataTableHeaderFilterConfig = Partial<IFilterConfig>;
 
-export interface IDataTableHeaderConfig {
+export interface IDataTableHeaderConfig
+  extends Partial<IDataTableFrozenColumnConfig> {
   field: string;
   header: string;
   bodyTemplate?: EDataType;

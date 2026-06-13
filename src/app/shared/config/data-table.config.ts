@@ -1,6 +1,7 @@
 import { APP_CONFIG } from '@core/config';
 import {
   IDataTableConfig,
+  IDataTableFrozenColumnConfig,
   IDataTableHeaderConfig,
   IFilterConfig,
   IStatusConfig,
@@ -35,6 +36,20 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   showViewModeToggle: false, // Default: show the toggle
   rowActionsLimit: 3,
 };
+
+/** Default width for the bulk-selection checkbox column when frozen. */
+export const DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG: Partial<IDataTableFrozenColumnConfig> =
+  {
+    columnWidth: '4rem',
+    alignFrozen: 'left',
+  };
+
+/** Default width/alignment for the row actions column when frozen. */
+export const DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG: Partial<IDataTableFrozenColumnConfig> =
+  {
+    columnWidth: '5rem',
+    alignFrozen: 'right',
+  };
 
 // default table header config
 export const MATCH_MODE_OPTIONS = {
