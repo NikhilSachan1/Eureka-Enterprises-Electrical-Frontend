@@ -1,0 +1,107 @@
+@use "sass:list";
+
+$register-blue-tone: (#dbeafe, #93c5fd, #1d4ed8);
+$register-tones: (
+  present: (
+    #dcfce7,
+    #86efac,
+    #166534,
+  ),
+  absent: (
+    #fee2e2,
+    #fca5a5,
+    #991b1b,
+  ),
+  leave: (
+    #fef3c7,
+    #fcd34d,
+    #92400e,
+  ),
+  holiday: (
+    #ede9fe,
+    #c4b5fd,
+    #5b21b6,
+  ),
+  checkedIn: $register-blue-tone,
+  checkedOut: $register-blue-tone,
+  notCheckedIn: (
+    #e2e8f0,
+    #cbd5e1,
+    #475569,
+  ),
+  pending: (
+    #ffedd5,
+    #fdba74,
+    #c2410c,
+  ),
+  missing: (
+    #fecaca,
+    #f87171,
+    #7f1d1d,
+  ),
+  neutral: (
+    var(--surface-100),
+    var(--surface-border),
+    var(--text-color-secondary),
+  ),
+);
+
+.attendance-register__filter {
+  margin-bottom: 1.25rem;
+}
+.attendance-register__message {
+  margin: 0;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-color-secondary);
+  border: 1px dashed var(--surface-border);
+  border-radius: 0.75rem;
+  background: var(--surface-card);
+}
+.attendance-register__code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.1rem;
+  height: 1.85rem;
+  border: 1px solid transparent;
+  border-radius: 0.4rem;
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+.attendance-register__summary {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+@each $tone, $colors in $register-tones {
+  .attendance-register__code[data-tone="#{$tone}"] {
+    background: list.nth($colors, 1);
+    border-color: list.nth($colors, 2);
+    color: list.nth($colors, 3);
+  }
+  .attendance-register__summary[data-tone="#{$tone}"] {
+    color: list.nth($colors, 3);
+  }
+}
+
+:host ::ng-deep .attendance-register-data-table {
+  th.p-datatable-frozen-column,
+  td.p-datatable-frozen-column {
+    border-right: 1px solid var(--surface-border, #e2e8f0);
+  }
+  th.register-date-column,
+  td.register-date-column,
+  th.register-summary-column,
+  td.register-summary-column {
+    text-align: left;
+    padding-inline: 0.35rem;
+  }
+  th.register-date-column .font-semibold {
+    display: block;
+    white-space: pre-line;
+    line-height: 1.15;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+}

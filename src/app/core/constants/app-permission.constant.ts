@@ -27,6 +27,7 @@ export const APP_PERMISSION = {
   ATTENDANCE: {
     VIEW_DETAIL: 'attendance.view.detail',
     TABLE_VIEW: 'attendance.view.table',
+    VIEW_REGISTER: 'attendance.view.register',
     APPLY: 'attendance.apply',
     FORCE: 'attendance.force',
     EDIT: 'attendance.edit',

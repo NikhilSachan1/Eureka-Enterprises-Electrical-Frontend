@@ -1,0 +1,52 @@
+<app-search-filter
+  class="attendance-register__filter"
+  [searchFilterConfig]="searchFilterConfig"
+  [prefillValues]="filterPrefillValues"
+  (onFilterSubmit)="onFilterSubmit($event)"
+  (onFilterReset)="onFilterReset()"
+/>
+
+@if (loading()) {
+  <p class="attendance-register__message">Loading attendance register…</p>
+} @else if (report()) {
+  <app-data-table
+    [tableConfig]="table.tableConfig()"
+    [tableHeader]="table.headers()"
+    [tableData]="table.data()"
+    [loading]="false"
+    [customBodyTemplates]="{
+      registerCell: registerCellTpl,
+      registerSummary: registerSummaryTpl,
+    }"
+  />
+} @else {
+  <p class="attendance-register__message">Select a month and click Filter to view the attendance register.</p>
+}
+
+<ng-template
+  #registerCellTpl
+  let-row
+  let-column="column"
+>
+  @let cell = getRegisterCell(row, column);
+  <span
+    class="attendance-register__code"
+    [attr.data-tone]="cell?.tone ?? 'neutral'"
+    [attr.title]="cell?.tooltip ?? ''"
+  >
+    {{ cell?.code ?? 'NA' }}
+  </span>
+</ng-template>
+
+<ng-template
+  #registerSummaryTpl
+  let-row
+  let-column="column"
+>
+  <span
+    class="attendance-register__summary"
+    [attr.data-tone]="getSummaryTone(column.field)"
+  >
+    {{ row[column.field] }}
+  </span>
+</ng-template>

@@ -10,4 +10,6 @@ export {
 
 export { FORCE_ATTENDANCE_FORM_CONFIG } from './form/force-attendance.config';
 export { SEARCH_FILTER_ATTENDANCE_FORM_CONFIG } from './form/search-filter-attendance.config';
+export { SEARCH_FILTER_ATTENDANCE_REGISTER_FORM_CONFIG } from './form/search-filter-attendance-register.config';
+export { ATTENDANCE_REGISTER_TABLE_ENHANCED_CONFIG } from './table/get-attendance-register.config';
 export { APPLY_ATTENDANCE_FORM_CONFIG } from './form/apply-attendance.config';

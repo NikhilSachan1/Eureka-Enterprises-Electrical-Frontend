@@ -3,107 +3,135 @@
   (headerButtonClick)="onHeaderButtonClick($event)"
 />
 
-<app-metrics-card
-  class="metrics-card--attendance-summary"
-  [metricGroups]="metricGroups()"
-/>
-
-<div class="search-filter-wrapper">
-  <app-search-filter
-    [tableRef]="dataTable.dt()"
-    [searchFilterConfig]="searchFilterConfig"
-  />
-</div>
-
-<ng-template
-  #attendanceAssignmentDetails
-  let-row
->
-  <div class="attendance-assignment-details">
-    <div class="attendance-assignment-details__cell">
-      <span
-        class="attendance-assignment-details__icon-wrap"
-        aria-hidden="true"
+@if (canViewRegister) {
+  <div class="attendance-view-toggle">
+    <p-selectButton
+      [options]="viewModeOptions"
+      [ngModel]="viewMode()"
+      (ngModelChange)="onViewModeChange($event)"
+      optionLabel="label"
+      optionValue="value"
+      [allowEmpty]="false"
+      styleClass="attendance-view-toggle__control"
+    >
+      <ng-template
+        let-option
+        pTemplate="item"
       >
-        <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
-      </span>
-      <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Company</span>
-        <span
-          class="attendance-assignment-details__value"
-          [title]="row.assignmentSnapshot?.company?.name || '—'"
-        >
-          {{ row.assignmentSnapshot?.company?.name || '—' }}
-        </span>
-      </div>
-    </div>
-
-    <div class="attendance-assignment-details__cell">
-      <span
-        class="attendance-assignment-details__icon-wrap"
-        aria-hidden="true"
-      >
-        <i [class]="ALL_ICONS.SITE.BUILDING"></i>
-      </span>
-      <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Contractor</span>
-        <span
-          class="attendance-assignment-details__value"
-          [title]="row.assignmentSnapshot?.contractorDisplay || '—'"
-        >
-          {{ row.assignmentSnapshot?.contractorDisplay || '—' }}
-        </span>
-      </div>
-    </div>
-
-    <div class="attendance-assignment-details__cell">
-      <span
-        class="attendance-assignment-details__icon-wrap"
-        aria-hidden="true"
-      >
-        <i [class]="ALL_ICONS.COMMON.USER"></i>
-      </span>
-      <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Assigned Engineer</span>
-        <span
-          class="attendance-assignment-details__value"
-          [title]="row.assignmentSnapshot?.assignedEngineerDisplay || '—'"
-        >
-          {{ row.assignmentSnapshot?.assignedEngineerDisplay || '—' }}
-        </span>
-      </div>
-    </div>
-
-    <div class="attendance-assignment-details__cell">
-      <span
-        class="attendance-assignment-details__icon-wrap"
-        aria-hidden="true"
-      >
-        <i [class]="ALL_ICONS.COMMON.CAR"></i>
-      </span>
-      <div class="attendance-assignment-details__text">
-        <span class="attendance-assignment-details__label">Associated Vehicle</span>
-        <span
-          class="attendance-assignment-details__value"
-          [title]="row.assignmentSnapshot?.vehicleDisplay || '—'"
-        >
-          {{ row.assignmentSnapshot?.vehicleDisplay || '—' }}
-        </span>
-      </div>
-    </div>
+        <div class="attendance-view-toggle__item">
+          <i [class]="option.icon"></i>
+          <span>{{ option.label }}</span>
+        </div>
+      </ng-template>
+    </p-selectButton>
   </div>
-</ng-template>
+}
 
-<app-data-table
-  #dataTable
-  [tableConfig]="table.tableConfig()"
-  [tableHeader]="table.headers()"
-  [tableData]="table.data()"
-  [loading]="table.loading()"
-  [bulkActionButtons]="table.bulkActions()"
-  [rowActions]="table.rowActions()"
-  [customBodyTemplates]="{ attendanceAssignmentDetails: attendanceAssignmentDetails }"
-  (rowActionClick)="handleAttendanceTableActionClick($any($event), false)"
-  (bulkActionClick)="handleAttendanceTableActionClick($any($event), true)"
-  (filterData)="onTableStateChange($event)"
-/>
+@if (isListView()) {
+  <app-metrics-card
+    class="metrics-card--attendance-summary"
+    [metricGroups]="metricGroups()"
+  />
+
+  <div class="search-filter-wrapper">
+    <app-search-filter
+      [tableRef]="dataTable.dt()"
+      [searchFilterConfig]="searchFilterConfig"
+    />
+  </div>
+
+  <ng-template
+    #attendanceAssignmentDetails
+    let-row
+  >
+    <div class="attendance-assignment-details">
+      <div class="attendance-assignment-details__cell">
+        <span
+          class="attendance-assignment-details__icon-wrap"
+          aria-hidden="true"
+        >
+          <i [class]="ALL_ICONS.COMMON.MAP_MARKER"></i>
+        </span>
+        <div class="attendance-assignment-details__text">
+          <span class="attendance-assignment-details__label">Company</span>
+          <span
+            class="attendance-assignment-details__value"
+            [title]="row.assignmentSnapshot?.company?.name || '—'"
+          >
+            {{ row.assignmentSnapshot?.company?.name || '—' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="attendance-assignment-details__cell">
+        <span
+          class="attendance-assignment-details__icon-wrap"
+          aria-hidden="true"
+        >
+          <i [class]="ALL_ICONS.SITE.BUILDING"></i>
+        </span>
+        <div class="attendance-assignment-details__text">
+          <span class="attendance-assignment-details__label">Contractor</span>
+          <span
+            class="attendance-assignment-details__value"
+            [title]="row.assignmentSnapshot?.contractorDisplay || '—'"
+          >
+            {{ row.assignmentSnapshot?.contractorDisplay || '—' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="attendance-assignment-details__cell">
+        <span
+          class="attendance-assignment-details__icon-wrap"
+          aria-hidden="true"
+        >
+          <i [class]="ALL_ICONS.COMMON.USER"></i>
+        </span>
+        <div class="attendance-assignment-details__text">
+          <span class="attendance-assignment-details__label">Assigned Engineer</span>
+          <span
+            class="attendance-assignment-details__value"
+            [title]="row.assignmentSnapshot?.assignedEngineerDisplay || '—'"
+          >
+            {{ row.assignmentSnapshot?.assignedEngineerDisplay || '—' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="attendance-assignment-details__cell">
+        <span
+          class="attendance-assignment-details__icon-wrap"
+          aria-hidden="true"
+        >
+          <i [class]="ALL_ICONS.COMMON.CAR"></i>
+        </span>
+        <div class="attendance-assignment-details__text">
+          <span class="attendance-assignment-details__label">Associated Vehicle</span>
+          <span
+            class="attendance-assignment-details__value"
+            [title]="row.assignmentSnapshot?.vehicleDisplay || '—'"
+          >
+            {{ row.assignmentSnapshot?.vehicleDisplay || '—' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <app-data-table
+    #dataTable
+    [tableConfig]="table.tableConfig()"
+    [tableHeader]="table.headers()"
+    [tableData]="table.data()"
+    [loading]="table.loading()"
+    [bulkActionButtons]="table.bulkActions()"
+    [rowActions]="table.rowActions()"
+    [customBodyTemplates]="{ attendanceAssignmentDetails: attendanceAssignmentDetails }"
+    (rowActionClick)="handleAttendanceTableActionClick($any($event), false)"
+    (bulkActionClick)="handleAttendanceTableActionClick($any($event), true)"
+    (filterData)="onTableStateChange($event)"
+  />
+} @else {
+  <app-attendance-register-panel />
+}

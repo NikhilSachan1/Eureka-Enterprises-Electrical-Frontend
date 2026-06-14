@@ -1,3 +1,20 @@
+.search-filter-wrapper {
+  margin-bottom: 1.25rem;
+}
+
+.attendance-view-toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.attendance-view-toggle__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-inline: 0.25rem;
+}
+
 // Assignment Details column — compact tiles aligned with app metrics / cards
 .attendance-assignment-details {
   display: grid;
