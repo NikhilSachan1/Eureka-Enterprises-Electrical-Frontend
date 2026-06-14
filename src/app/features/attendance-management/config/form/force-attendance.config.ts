@@ -6,7 +6,10 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { getPayslipCutoffMinDate } from '@shared/utility';
+import {
+  getForceAttendanceMaxDate,
+  getPayslipCutoffMinDate,
+} from '@shared/utility';
 import { APPLY_ATTENDANCE_FORM_CONFIG } from './apply-attendance.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
@@ -39,7 +42,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceFor
       label: 'Attendance Date',
       dateConfig: {
         minDate: getPayslipCutoffMinDate(),
-        maxDate: new Date(),
+        maxDate: getForceAttendanceMaxDate(),
       },
       validators: [Validators.required],
     },

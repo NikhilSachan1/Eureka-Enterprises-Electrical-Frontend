@@ -1,6 +1,9 @@
 import { DatePipe } from '@angular/common';
 import { APP_CONFIG } from '@core/config';
-import { PAYSLIP_DATE_DATA } from '@shared/config/static-data.config';
+import {
+  PAYSLIP_DATE_DATA,
+  SHIFT_DATA,
+} from '@shared/config/static-data.config';
 
 export const convertSecondsToDhms = (seconds: number): string => {
   if (!seconds || seconds < 0) {
@@ -70,6 +73,46 @@ export const getPayslipCutoffMinDate = (): Date => {
     return new Date(prevMonthYear, prevMonth, 1);
   }
   return new Date(currentYear, currentMonth, 1);
+};
+
+/** Whether current local time is before today's configured shift end ({@link SHIFT_DATA.END_TIME}). */
+export const isNowBeforeShiftEnd = (
+  endTime: string = SHIFT_DATA.END_TIME
+): boolean => {
+  const [hStr, mStr] = endTime.split(':');
+  const hours = Number(hStr);
+  const minutes = Number(mStr ?? 0);
+  if (Number.isNaN(hours)) {
+    return false;
+  }
+
+  const now = new Date();
+  const shiftEnd = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    hours,
+    minutes,
+    0,
+    0
+  );
+  return now < shiftEnd;
+};
+
+/**
+ * Force attendance date picker max: today only after shift end; otherwise yesterday.
+ */
+export const getForceAttendanceMaxDate = (): Date => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  if (isNowBeforeShiftEnd()) {
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    return yesterday;
+  }
+
+  return today;
 };
 
 export const getPayslipCutoffMaxDate = (): Date => {

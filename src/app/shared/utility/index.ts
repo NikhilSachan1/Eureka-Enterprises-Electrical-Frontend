@@ -25,6 +25,8 @@ export {
 export {
   convertSecondsToDhms,
   getPayslipCutoffMinDate,
+  getForceAttendanceMaxDate,
+  isNowBeforeShiftEnd,
   getPayslipCutoffMaxDate,
   getStartOfLocalDayInMonth,
   isPayrollLocked,
