@@ -168,6 +168,53 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
       },
       validators: [Validators.minLength(6), Validators.maxLength(6)],
     },
+    bankName: {
+      id: 'bankName',
+      fieldName: 'bankName',
+      label: 'Bank Name',
+      fieldType: EDataType.SELECT,
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.EMPLOYEE,
+          dropdownName: CONFIGURATION_KEYS.EMPLOYEE.BANK_NAMES,
+        },
+      },
+    },
+    accountNumber: {
+      id: 'accountNumber',
+      fieldName: 'accountNumber',
+      label: 'Account Number',
+      fieldType: EDataType.TEXT,
+      textConfig: {
+        minimumInputLength: 9,
+        maximumInputLength: 18,
+        regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
+      },
+      validators: [Validators.minLength(9), Validators.maxLength(18)],
+    },
+    ifscCode: {
+      id: 'ifscCode',
+      fieldName: 'ifscCode',
+      label: 'IFSC Code',
+      fieldType: EDataType.TEXT,
+      textConfig: {
+        textCase: ETextCase.UPPERCASE,
+        minimumInputLength: 11,
+        maximumInputLength: 11,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
+      },
+      validators: [Validators.minLength(11), Validators.maxLength(11)],
+    },
+    accountHolderName: {
+      id: 'accountHolderName',
+      fieldName: 'accountHolderName',
+      label: 'Account Holder Name',
+      fieldType: EDataType.TEXT,
+      textConfig: {
+        textCase: ETextCase.TITLECASE,
+        regex: TEXT_INPUT_ACCEPT_STRIP.ALPHABETS_WITH_SPACES,
+      },
+    },
   };
 
 const ADD_VENDOR_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

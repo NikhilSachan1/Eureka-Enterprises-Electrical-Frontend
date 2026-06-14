@@ -73,6 +73,28 @@
     />
   </div>
 
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.bankName"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.accountNumber"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.ifscCode"
+    />
+
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.accountHolderName"
+    />
+  </div>
+
   <div class="button-container">
     <app-button
       [buttonConfig]="form.buttonConfigs['reset']"

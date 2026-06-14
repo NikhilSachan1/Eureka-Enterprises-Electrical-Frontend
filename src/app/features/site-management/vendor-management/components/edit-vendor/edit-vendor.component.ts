@@ -137,6 +137,10 @@ export class EditVendorComponent
       city,
       pincode,
       vendorType,
+      bankName,
+      accountNumber,
+      ifscCode,
+      accountHolderName,
     } = vendorDetailFromResolver;
 
     return {
@@ -151,6 +155,10 @@ export class EditVendorComponent
       state,
       city,
       pincode,
+      bankName,
+      accountNumber,
+      ifscCode,
+      accountHolderName,
     };
   }
 

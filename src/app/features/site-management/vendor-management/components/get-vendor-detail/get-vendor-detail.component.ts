@@ -20,7 +20,10 @@ import {
 } from '@shared/types';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { formatFullAddress } from '@shared/utility';
+import {
+  formatFullAddress,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { EVendorStatus } from '../../types/vendor.enum';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
 
@@ -100,6 +103,27 @@ export class GetVendorDetailComponent extends DrawerDetailBase {
             this.appConfigurationService.states(),
             this.appConfigurationService.cities()
           ),
+        },
+        {
+          label: 'Bank Name',
+          value: record.bankName
+            ? getMappedValueFromArrayOfObjects(
+                this.appConfigurationService.bankNames(),
+                record.bankName
+              )
+            : null,
+        },
+        {
+          label: 'Account Holder Name',
+          value: record.accountHolderName,
+        },
+        {
+          label: 'Account Number',
+          value: record.accountNumber,
+        },
+        {
+          label: 'IFSC Code',
+          value: record.ifscCode,
         },
       ];
 

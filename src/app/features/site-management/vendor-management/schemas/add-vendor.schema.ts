@@ -15,6 +15,10 @@ export const VendorAddRequestSchema =
       city: data.city,
       state: data.state,
       pincode: data.pincode,
+      bankName: data.bankName,
+      accountNumber: data.accountNumber,
+      ifscCode: data.ifscCode,
+      accountHolderName: data.accountHolderName,
       country: 'India',
     };
   });

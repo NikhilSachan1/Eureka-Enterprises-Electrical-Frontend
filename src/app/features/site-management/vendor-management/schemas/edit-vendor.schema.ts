@@ -20,6 +20,10 @@ export const VendorEditRequestSchema =
       state: data.state,
       pincode: data.pincode,
       country: 'India',
+      bankName: data.bankName,
+      accountNumber: data.accountNumber,
+      ifscCode: data.ifscCode,
+      accountHolderName: data.accountHolderName,
     };
   });
 

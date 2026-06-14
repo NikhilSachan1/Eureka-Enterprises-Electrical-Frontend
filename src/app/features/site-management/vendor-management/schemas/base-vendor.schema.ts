@@ -14,6 +14,10 @@ export const VendorBaseSchema = z.looseObject({
   city: z.string(),
   state: z.string(),
   pincode: z.string().nullable(),
+  bankName: z.string().nullable(),
+  accountNumber: z.string().nullable(),
+  ifscCode: z.string().nullable(),
+  accountHolderName: z.string().nullable(),
   isActive: z.boolean(),
   vendorType: z.string(),
 });
@@ -28,6 +32,10 @@ const {
   city,
   pincode,
   email,
+  bankName,
+  accountNumber,
+  ifscCode,
+  accountHolderName,
 } = VendorBaseSchema.shape;
 
 export const VendorUpsertShapeSchema = z
@@ -43,5 +51,9 @@ export const VendorUpsertShapeSchema = z
     state,
     city,
     pincode,
+    bankName,
+    accountNumber,
+    ifscCode,
+    accountHolderName,
   })
   .strict();
