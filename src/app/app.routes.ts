@@ -122,6 +122,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.PAYMENT_HUB,
+        loadChildren: () =>
+          import('./features/payment-hub-management/payment-hub.routes').then(
+            m => m.PAYMENT_HUB_ROUTES
+          ),
+      },
+      {
         path: '**',
         redirectTo: ROUTE_BASE_PATHS.DASHBOARD,
       },

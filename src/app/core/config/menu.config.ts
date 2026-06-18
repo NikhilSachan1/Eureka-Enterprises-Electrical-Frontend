@@ -377,6 +377,23 @@ export const appMenu: ApplicationMenu = {
           ],
         },
         {
+          label: 'Payment Hub',
+          icon: ICONS.COMMON.CREDIT_CARD,
+          basePath: ROUTE_BASE_PATHS.PAYMENT_HUB,
+          children: [
+            {
+              label: 'Outstanding Balances',
+              icon: ICONS.COMMON.CHART_LINE,
+              routerLink: ROUTES.PAYMENT_HUB.OUTSTANDING_BALANCES,
+            },
+            {
+              label: 'Payment Sheets',
+              icon: ICONS.MEDIA.SPREADSHEET,
+              routerLink: ROUTES.PAYMENT_HUB.PAYMENT_SHEETS,
+            },
+          ],
+        },
+        {
           label: 'Payroll',
           icon: ICONS.PAYROLL.WALLET,
           basePath: ROUTE_BASE_PATHS.PAYROLL,
