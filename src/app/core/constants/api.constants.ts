@@ -335,6 +335,8 @@ export const API_ROUTES = {
   },
   CENTRALIZED_PAYMENT: {
     EXPENSE_PENDING_SETTLEMENT: 'expenses/pending-settlement',
+    FUEL_EXPENSE_PENDING_SETTLEMENT: 'fuel-expenses/pending-settlement',
+    VENDOR_PENDING_SETTLEMENT: 'vendors/pending-settlement',
   },
 } as const;
 
