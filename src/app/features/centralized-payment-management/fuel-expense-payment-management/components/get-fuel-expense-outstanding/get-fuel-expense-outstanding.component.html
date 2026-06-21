@@ -1,1 +1,35 @@
-<p>get-fuel-expense-outstanding works!</p>
+<app-payment-outstanding-section
+  [sectionConfig]="section"
+  [loading]="table.loading()"
+  [recordCount]="totalRecords()"
+  recordCountUnit="employee"
+  [totalPendingAmount]="summary()?.totalPendingAmount ?? 0"
+>
+  <div class="search-filter-wrapper">
+    <app-search-filter
+      [tableRef]="dataTable.dt()"
+      [searchFilterConfig]="searchFilterConfig"
+    />
+  </div>
+
+  <ng-template
+    #bankDetailsCell
+    let-row
+  >
+    <app-bank-details-cell [bankDetails]="row.bankDetails" />
+  </ng-template>
+
+  <app-data-table
+    #dataTable
+    [tableConfig]="table.tableConfig()"
+    [tableHeader]="table.headers()"
+    [tableData]="table.data()"
+    [loading]="table.loading()"
+    [bulkActionButtons]="table.bulkActions()"
+    [rowActions]="table.rowActions()"
+    [customBodyTemplates]="{
+      bankDetailsCell: bankDetailsCell,
+    }"
+    (filterData)="onTableStateChange($event)"
+  />
+</app-payment-outstanding-section>
