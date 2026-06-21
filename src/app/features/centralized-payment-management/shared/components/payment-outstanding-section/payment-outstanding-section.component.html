@@ -1,0 +1,64 @@
+<section class="outstanding-section">
+  <header class="outstanding-section__head">
+    <div class="outstanding-section__lead">
+      <span
+        class="outstanding-section__icon"
+        aria-hidden="true"
+      >
+        <i [class]="sectionConfig().icon"></i>
+      </span>
+      <div>
+        <h2 class="outstanding-section__title">{{ sectionConfig().title }}</h2>
+        <p class="outstanding-section__subtitle">
+          {{ sectionConfig().subtitle }}
+        </p>
+      </div>
+    </div>
+
+    @if (!loading()) {
+      <span class="outstanding-section__count">{{ recordCountLabel() }}</span>
+    } @else {
+      <span
+        class="outstanding-section__count outstanding-section__count--loading"
+        role="status"
+        aria-label="Loading employee count"
+      >
+        <i [class]="ICONS.COMMON.SPINNER + ' outstanding-section__count-spinner pi-spin'"></i>
+      </span>
+    }
+  </header>
+
+  <div
+    class="pending-strip"
+    aria-label="Total pending amount"
+  >
+    @if (loading()) {
+      <p class="pending-strip__label">Total pending</p>
+      <div
+        class="pending-strip__loader"
+        role="status"
+        aria-label="Loading total pending amount"
+      >
+        <i [class]="ICONS.COMMON.SPINNER + ' pending-strip__spinner pi-spin'"></i>
+      </div>
+    } @else {
+      <p class="pending-strip__label">Total pending</p>
+      <p
+        class="pending-strip__amount"
+        [class.pending-strip__amount--debit]="pendingTransactionType() === 'debit'"
+        [class.pending-strip__amount--credit]="pendingTransactionType() === 'credit'"
+      >
+        {{
+          totalPendingAmount()
+            | currency
+              : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+              : 'symbol'
+              : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+              : APP_CONFIG.NUMBER_FORMATS.LOCALE
+        }}
+      </p>
+    }
+  </div>
+
+  <ng-content />
+</section>

@@ -1,0 +1,133 @@
+:host {
+  display: block;
+}
+
+.outstanding-section {
+  --os-border: var(--border-light-color);
+  --os-pending-accent: #b45309;
+
+  padding: 1rem 1.1rem 1.15rem;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 10%, var(--os-border));
+  border-radius: 0.85rem;
+  background: var(--background-paper-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.outstanding-section__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.95rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--os-border) 85%, transparent);
+}
+
+.outstanding-section__lead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.outstanding-section__icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--primary-contrast-color);
+  font-size: 1rem;
+  background: var(--primary-color);
+}
+
+.outstanding-section__title {
+  margin: 0 0 0.15rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary-color);
+}
+
+.outstanding-section__subtitle {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary-color);
+}
+
+.outstanding-section__count {
+  flex-shrink: 0;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, var(--background-paper-color));
+  border: 1px solid color-mix(in srgb, var(--primary-color) 18%, transparent);
+
+  &--loading {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    min-height: 1.5rem;
+    padding-inline: 0.55rem;
+  }
+}
+
+.outstanding-section__count-spinner {
+  font-size: 0.85rem;
+  line-height: 1;
+  color: var(--primary-color);
+}
+
+.pending-strip {
+  margin-bottom: 0.95rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--os-pending-accent) 6%, var(--background-paper-color));
+  border: 1px solid color-mix(in srgb, var(--os-pending-accent) 14%, var(--os-border));
+}
+
+.pending-strip__loader {
+  display: flex;
+  align-items: center;
+  min-height: 1.85rem;
+}
+
+.pending-strip__spinner {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--os-pending-accent);
+}
+
+.pending-strip__label {
+  margin: 0 0 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary-color);
+}
+
+.pending-strip__amount {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary-color);
+
+  &--debit {
+    color: #dc2626;
+  }
+
+  &--credit {
+    color: #16a34a;
+  }
+}
+
+:host-context(.dark-theme) .outstanding-section {
+  --os-border: var(--border-dark-color);
+  --os-pending-accent: #fbbf24;
+  box-shadow: none;
+}
