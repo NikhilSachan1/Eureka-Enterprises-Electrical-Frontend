@@ -384,12 +384,7 @@ export const appMenu: ApplicationMenu = {
             {
               label: 'Outstanding Balances',
               icon: ICONS.COMMON.CHART_LINE,
-              routerLink: ROUTES.PAYMENT_HUB.OUTSTANDING_BALANCES,
-            },
-            {
-              label: 'Payment Sheets',
-              icon: ICONS.MEDIA.SPREADSHEET,
-              routerLink: ROUTES.PAYMENT_HUB.PAYMENT_SHEETS,
+              routerLink: ROUTES.CENTRALIZED_PAYMENT.OUTSTANDING_BALANCES,
             },
           ],
         },

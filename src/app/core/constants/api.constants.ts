@@ -333,6 +333,9 @@ export const API_ROUTES = {
     DELETE: 'announcement/bulk',
     ACKNOWLEDGE: 'announcement/acknowledge',
   },
+  CENTRALIZED_PAYMENT: {
+    EXPENSE_PENDING_SETTLEMENT: 'expenses/pending-settlement',
+  },
 } as const;
 
 /**

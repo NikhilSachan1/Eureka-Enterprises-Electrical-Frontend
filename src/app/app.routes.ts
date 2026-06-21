@@ -124,9 +124,9 @@ export const routes: Routes = [
       {
         path: ROUTE_BASE_PATHS.PAYMENT_HUB,
         loadChildren: () =>
-          import('./features/payment-hub-management/payment-hub.routes').then(
-            m => m.PAYMENT_HUB_ROUTES
-          ),
+          import(
+            './features/centralized-payment-management/centralized-payment.routes'
+          ).then(m => m.CENTRALIZED_PAYMENT_MANAGEMENT_ROUTES),
       },
       {
         path: '**',
