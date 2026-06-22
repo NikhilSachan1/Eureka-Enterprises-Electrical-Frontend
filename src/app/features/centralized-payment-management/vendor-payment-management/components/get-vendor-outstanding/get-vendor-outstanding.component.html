@@ -4,14 +4,9 @@
   [recordCount]="totalRecords()"
   recordCountUnit="vendor"
   [totalPendingAmount]="summary()?.totalPendingAmount ?? 0"
+  searchPlaceholder="Search by vendor name"
+  (searchChange)="onSearchChange($event)"
 >
-  <div class="search-filter-wrapper">
-    <app-search-filter
-      [tableRef]="dataTable.dt()"
-      [searchFilterConfig]="searchFilterConfig"
-    />
-  </div>
-
   <ng-template
     #bankDetailsCell
     let-row

@@ -4,14 +4,9 @@
   [recordCount]="totalRecords()"
   recordCountUnit="employee"
   [totalPendingAmount]="summary()?.totalPendingAmount ?? 0"
+  searchPlaceholder="Search by employee name or code"
+  (searchChange)="onSearchChange($event)"
 >
-  <div class="search-filter-wrapper">
-    <app-search-filter
-      [tableRef]="dataTable.dt()"
-      [searchFilterConfig]="searchFilterConfig"
-    />
-  </div>
-
   <ng-template
     #bankDetailsCell
     let-row

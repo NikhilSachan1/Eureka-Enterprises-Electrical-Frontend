@@ -17,8 +17,7 @@ export const VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCon
     {
       field: 'vendorName',
       header: 'Vendor Name',
-      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-      subtitle: { field: 'gstNumber' },
+      bodyTemplate: EDataType.TEXT,
       showImage: true,
       dummyImageField: 'vendorName',
       primaryFieldHighlight: true,

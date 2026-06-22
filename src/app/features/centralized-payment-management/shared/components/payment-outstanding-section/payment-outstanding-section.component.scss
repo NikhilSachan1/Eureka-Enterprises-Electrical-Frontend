@@ -4,7 +4,6 @@
 
 .outstanding-section {
   --os-border: var(--border-light-color);
-  --os-pending-accent: #b45309;
 
   padding: 1rem 1.1rem 1.15rem;
   border: 1px solid color-mix(in srgb, var(--primary-color) 10%, var(--os-border));
@@ -15,10 +14,10 @@
 
 .outstanding-section__head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 0.95rem;
+  margin-bottom: 0.85rem;
   padding-bottom: 0.85rem;
   border-bottom: 1px solid color-mix(in srgb, var(--os-border) 85%, transparent);
 }
@@ -56,78 +55,115 @@
   color: var(--text-secondary-color);
 }
 
-.outstanding-section__count {
-  flex-shrink: 0;
-  padding: 0.28rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--primary-color);
-  background: color-mix(in srgb, var(--primary-color) 12%, var(--background-paper-color));
-  border: 1px solid color-mix(in srgb, var(--primary-color) 18%, transparent);
-
-  &--loading {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 2.5rem;
-    min-height: 1.5rem;
-    padding-inline: 0.55rem;
-  }
-}
-
-.outstanding-section__count-spinner {
-  font-size: 0.85rem;
-  line-height: 1;
-  color: var(--primary-color);
-}
-
-.pending-strip {
-  margin-bottom: 0.95rem;
-  padding: 0.85rem 0.95rem;
-  border-radius: 0.65rem;
-  background: color-mix(in srgb, var(--os-pending-accent) 6%, var(--background-paper-color));
-  border: 1px solid color-mix(in srgb, var(--os-pending-accent) 14%, var(--os-border));
-}
-
-.pending-strip__loader {
+.outstanding-section__stats {
   display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  border-radius: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 14%, var(--os-border));
+  background: color-mix(in srgb, var(--primary-color) 5%, var(--background-paper-color));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 40%, transparent);
+  overflow: hidden;
+}
+
+.outstanding-section__stat {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  min-height: 1.85rem;
-}
+  justify-content: center;
+  gap: 0.2rem;
+  min-width: 5.25rem;
+  min-height: 3.35rem;
+  padding: 0.45rem 0.9rem;
 
-.pending-strip__spinner {
-  font-size: 1.1rem;
-  line-height: 1;
-  color: var(--os-pending-accent);
-}
+  &:not(:last-child) {
+    border-right: 1px solid color-mix(in srgb, var(--os-border) 80%, transparent);
+  }
 
-.pending-strip__label {
-  margin: 0 0 0.2rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-secondary-color);
-}
+  &--amount {
+    min-width: 6.75rem;
+    background: color-mix(in srgb, var(--primary-color) 4%, transparent);
+  }
 
-.pending-strip__amount {
-  margin: 0;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--text-primary-color);
-
-  &--debit {
+  &--debit .outstanding-section__stat-value {
     color: #dc2626;
   }
 
-  &--credit {
+  &--credit .outstanding-section__stat-value {
     color: #16a34a;
+  }
+}
+
+.outstanding-section__stat-value {
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--text-primary-color);
+}
+
+.outstanding-section__stat-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary-color);
+}
+
+.outstanding-section__stat-loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+.outstanding-section__search {
+  margin-bottom: 0.75rem;
+
+  &-field {
+    display: block;
+    width: 100%;
+  }
+
+  ::ng-deep label.text-md {
+    display: none;
+  }
+
+  ::ng-deep .p-floatlabel,
+  ::ng-deep .p-inputtext {
+    width: 100%;
+  }
+
+  ::ng-deep .p-floatlabel .p-inputtext,
+  ::ng-deep input.p-inputtext {
+    padding-left: 2.35rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .outstanding-section__head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .outstanding-section__stats {
+    width: 100%;
+  }
+
+  .outstanding-section__stat {
+    flex: 1;
   }
 }
 
 :host-context(.dark-theme) .outstanding-section {
   --os-border: var(--border-dark-color);
-  --os-pending-accent: #fbbf24;
   box-shadow: none;
+
+  .outstanding-section__stats {
+    box-shadow: none;
+  }
 }

@@ -9,25 +9,17 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import {
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
-import {
-  IEnhancedTable,
-  ISectionHeaderConfig,
-  ITableSearchFilterFormConfig,
-} from '@shared/types';
+import { IEnhancedTable, ISectionHeaderConfig } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { ICONS } from '@shared/constants';
 import { BankDetailsCellComponent } from '../../../shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
-import {
-  createExpenseOutstandingTableEnhancedConfig,
-  SEARCH_FILTER_EXPENSE_OUTSTANDING_FORM_CONFIG,
-} from '../../config';
+import { createExpenseOutstandingTableEnhancedConfig } from '../../config';
 import { ExpenseOutstandingService } from '../../services/expense-outstanding.service';
 import {
   IExpenseOutstandingGetBaseResponseDto,
@@ -42,7 +34,6 @@ import { IExpenseOutstanding } from '../../types/expense-outstanding.interface';
   imports: [
     PaymentOutstandingSectionComponent,
     BankDetailsCellComponent,
-    SearchFilterComponent,
     DataTableComponent,
   ],
   templateUrl: './get-expense-outstanding.component.html',
@@ -62,21 +53,28 @@ export class GetExpenseOutstandingComponent implements OnInit {
   protected readonly section = this.getSectionHeaderConfig();
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
-  protected searchFilterConfig!: ITableSearchFilterFormConfig;
 
   protected readonly summary =
     signal<IExpenseOutstandingGetStatsResponseDto | null>(null);
   protected readonly totalRecords = signal(0);
+  protected readonly searchTerm = signal('');
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
       createExpenseOutstandingTableEnhancedConfig()
     );
-    this.searchFilterConfig = SEARCH_FILTER_EXPENSE_OUTSTANDING_FORM_CONFIG;
   }
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
     this.tableFilterData = tableFilterData;
+    this.loadExpenseOutstandingList();
+  }
+
+  protected onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    if (this.tableFilterData) {
+      this.tableFilterData = { ...this.tableFilterData, first: 0 };
+    }
     this.loadExpenseOutstandingList();
   }
 
@@ -115,10 +113,16 @@ export class GetExpenseOutstandingComponent implements OnInit {
   }
 
   private prepareParamData(): IExpenseOutstandingGetFormDto {
-    return this.tableServerSideFilterAndSortService.buildQueryParams<IExpenseOutstandingGetFormDto>(
-      this.tableFilterData,
-      this.table.getHeaders()
-    );
+    const base =
+      this.tableServerSideFilterAndSortService.buildQueryParams<IExpenseOutstandingGetFormDto>(
+        this.tableFilterData,
+        this.table.getHeaders()
+      );
+
+    return {
+      ...base,
+      ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
+    };
   }
 
   private mapTableData(
