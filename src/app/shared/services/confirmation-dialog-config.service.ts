@@ -9,6 +9,7 @@ import {
 } from '@shared/types';
 import { StatusUtil, deepMerge } from '@shared/utility';
 import { CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
+import { clearActiveBulkTableSelection } from '@shared/components/data-table/data-table.component';
 
 @Injectable({
   providedIn: 'root',
@@ -27,13 +28,25 @@ export class ConfirmationDialogService {
     showRecords = !isBulk,
     dynamicComponentInputs?: IDialogActionConfig['dynamicComponentInputs']
   ): void {
+    let inputs = dynamicComponentInputs;
+    if (isBulk && typeof inputs?.['onSuccess'] === 'function') {
+      const onSuccess = inputs['onSuccess'] as () => void;
+      inputs = {
+        ...inputs,
+        onSuccess: (): void => {
+          onSuccess();
+          clearActiveBulkTableSelection();
+        },
+      };
+    }
+
     const dialogConfig = this.createDialogConfig(
       actionType,
       config,
       recordDetail,
       isBulk,
       showRecords,
-      dynamicComponentInputs
+      inputs
     );
 
     this.dialogState.set(dialogConfig);
