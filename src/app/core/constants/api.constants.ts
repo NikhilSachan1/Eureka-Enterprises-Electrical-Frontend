@@ -337,6 +337,7 @@ export const API_ROUTES = {
     EXPENSE_PENDING_SETTLEMENT: 'expenses/pending-settlement',
     FUEL_EXPENSE_PENDING_SETTLEMENT: 'fuel-expenses/pending-settlement',
     VENDOR_PENDING_SETTLEMENT: 'book-payments/vendor-list',
+    PAYMENT_SHEETS: 'payment-sheets',
   },
 } as const;
 

@@ -4,6 +4,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -40,6 +41,8 @@ import { IExpenseOutstanding } from '../../types/expense-outstanding.interface';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetExpenseOutstandingComponent implements OnInit {
+  selectionChange = output<IExpenseOutstandingGetBaseResponseDto[]>();
+
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -76,6 +79,12 @@ export class GetExpenseOutstandingComponent implements OnInit {
       this.tableFilterData = { ...this.tableFilterData, first: 0 };
     }
     this.loadExpenseOutstandingList();
+  }
+
+  protected onSelectionChange(selectedRows: Record<string, unknown>[]): void {
+    this.selectionChange.emit(
+      selectedRows as IExpenseOutstandingGetBaseResponseDto[]
+    );
   }
 
   private loadExpenseOutstandingList(): void {

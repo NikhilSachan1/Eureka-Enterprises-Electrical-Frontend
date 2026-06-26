@@ -1,5 +1,6 @@
 import { APP_CONFIG } from '@core/config';
 import {
+  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -54,6 +55,12 @@ export function createExpenseOutstandingTableEnhancedConfig(): IEnhancedTableCon
     tableConfig: EXPENSE_OUTSTANDING_TABLE_CONFIG,
     headers: EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG,
     rowActions: [],
-    bulkActions: [],
+    bulkActions: [
+      {
+        id: EButtonActionType.GENERATE,
+        label: 'Create Payment Sheet',
+        hideWhen: () => true,
+      },
+    ],
   };
 }

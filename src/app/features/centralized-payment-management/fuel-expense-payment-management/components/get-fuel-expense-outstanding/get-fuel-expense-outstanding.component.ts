@@ -4,6 +4,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -41,6 +42,8 @@ import { IFuelExpenseOutstanding } from '../../types/fuel-expense-outstanding.in
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetFuelExpenseOutstandingComponent implements OnInit {
+  selectionChange = output<IFuelExpenseOutstandingGetBaseResponseDto[]>();
+
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -77,6 +80,12 @@ export class GetFuelExpenseOutstandingComponent implements OnInit {
       this.tableFilterData = { ...this.tableFilterData, first: 0 };
     }
     this.loadFuelExpenseOutstandingList();
+  }
+
+  protected onSelectionChange(selectedRows: Record<string, unknown>[]): void {
+    this.selectionChange.emit(
+      selectedRows as IFuelExpenseOutstandingGetBaseResponseDto[]
+    );
   }
 
   private loadFuelExpenseOutstandingList(): void {

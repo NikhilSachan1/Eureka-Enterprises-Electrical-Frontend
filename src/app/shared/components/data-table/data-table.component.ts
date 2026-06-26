@@ -153,6 +153,7 @@ export class DataTableComponent {
   rowActionClick = output<ITableActionClickEvent>();
   filterData = output<TableLazyLoadEvent>();
   attachmentClick = output<Record<string, unknown>>();
+  selectionChange = output<Record<string, unknown>[]>();
 
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
   protected visibleTableHeaders = computed(() => {
@@ -304,6 +305,17 @@ export class DataTableComponent {
         this.selectedTableRows.set(synced);
       }
     });
+
+    effect(() => {
+      if (!this.showBulkSelectionCheckbox()) {
+        return;
+      }
+
+      const selectedRows = this.selectedTableRows().map(row =>
+        this.extractOriginalData(row)
+      );
+      this.selectionChange.emit(selectedRows);
+    });
   }
 
   /** Stable string key for row identity (matches {@link tableConfig}.tableUniqueId). */
@@ -332,6 +344,10 @@ export class DataTableComponent {
     if (table) {
       table.selection = [];
     }
+  }
+
+  getSelectedRows(): Record<string, unknown>[] {
+    return this.selectedTableRows().map(row => this.extractOriginalData(row));
   }
 
   /**
@@ -625,7 +641,7 @@ export class DataTableComponent {
    */
   protected getVisibleBulkActions(): ITableActionConfig[] {
     return this.bulkActionButtons().filter(action =>
-      this.hasRequiredPermissions(action)
+      this.isActionVisible(action)
     );
   }
 
