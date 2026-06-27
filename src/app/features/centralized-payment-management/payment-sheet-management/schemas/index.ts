@@ -3,6 +3,10 @@ export {
   CreatePaymentSheetResponseSchema,
 } from './create-payment-sheet.schema';
 export {
+  DeletePaymentSheetItemRequestSchema,
+  DeletePaymentSheetItemResponseSchema,
+} from './delete-payment-sheet-item.schema';
+export {
   PaymentSheetDetailGetRequestSchema,
   PaymentSheetDetailGetResponseSchema,
   PaymentSheetItemDetailSchema,

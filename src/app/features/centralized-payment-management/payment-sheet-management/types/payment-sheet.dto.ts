@@ -4,6 +4,10 @@ import {
   CreatePaymentSheetResponseSchema,
 } from '../schemas/create-payment-sheet.schema';
 import {
+  DeletePaymentSheetItemRequestSchema,
+  DeletePaymentSheetItemResponseSchema,
+} from '../schemas/delete-payment-sheet-item.schema';
+import {
   PaymentSheetDetailGetRequestSchema,
   PaymentSheetDetailGetResponseSchema,
   PaymentSheetItemDetailSchema,
@@ -43,4 +47,11 @@ export type IPaymentSheetDetailGetResponseDto = z.infer<
 >;
 export type IPaymentSheetItemDetailDto = z.infer<
   typeof PaymentSheetItemDetailSchema
+>;
+
+export type IDeletePaymentSheetItemFormDto = z.input<
+  typeof DeletePaymentSheetItemRequestSchema
+>;
+export type IDeletePaymentSheetItemResponseDto = z.infer<
+  typeof DeletePaymentSheetItemResponseSchema
 >;

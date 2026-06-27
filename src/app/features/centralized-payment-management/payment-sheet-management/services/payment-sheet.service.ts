@@ -5,6 +5,8 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   CreatePaymentSheetRequestSchema,
   CreatePaymentSheetResponseSchema,
+  DeletePaymentSheetItemRequestSchema,
+  DeletePaymentSheetItemResponseSchema,
   PaymentSheetDetailGetResponseSchema,
   PaymentSheetGetRequestSchema,
   PaymentSheetGetResponseSchema,
@@ -12,6 +14,8 @@ import {
 import {
   ICreatePaymentSheetFormDto,
   ICreatePaymentSheetResponseDto,
+  IDeletePaymentSheetItemFormDto,
+  IDeletePaymentSheetItemResponseDto,
   IPaymentSheetDetailGetFormDto,
   IPaymentSheetDetailGetResponseDto,
   IPaymentSheetGetFormDto,
@@ -121,6 +125,50 @@ export class PaymentSheetService {
             );
           } else {
             this.logger.logUserAction('Get Payment Sheet Detail Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deletePaymentSheetItem(
+    paymentSheetId: string,
+    itemId: string,
+    formData: IDeletePaymentSheetItemFormDto
+  ): Observable<IDeletePaymentSheetItemResponseDto> {
+    this.logger.logUserAction('Delete Payment Sheet Item Request', {
+      paymentSheetId,
+      itemId,
+      formData,
+    });
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.DELETE_PAYMENT_SHEET_ITEM_BY_ID(
+          paymentSheetId,
+          itemId
+        ),
+        {
+          response: DeletePaymentSheetItemResponseSchema,
+          request: DeletePaymentSheetItemRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction(
+            'Delete Payment Sheet Item Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Delete Payment Sheet Item Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Delete Payment Sheet Item Error', error);
           }
           return throwError(() => error);
         })

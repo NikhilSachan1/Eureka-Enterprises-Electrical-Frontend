@@ -1,9 +1,11 @@
 import { APP_CONFIG } from '@core/config';
+import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
+  ITableActionConfig,
 } from '@shared/types';
 import { IPaymentSheetDetailItemRow } from '../../types/payment-sheet-detail.interface';
 
@@ -60,11 +62,19 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG: Partial<IDataTableH
     },
   ];
 
+export const PAYMENT_SHEET_DETAIL_ITEMS_ROW_ACTIONS: Partial<
+  ITableActionConfig<IPaymentSheetDetailItemRow>
+>[] = [
+  {
+    ...COMMON_ROW_ACTIONS.DELETE,
+  },
+];
+
 export function createPaymentSheetDetailItemsTableConfig(): IEnhancedTableConfig<IPaymentSheetDetailItemRow> {
   return {
     tableConfig: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG,
     headers: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG,
-    rowActions: [],
+    rowActions: PAYMENT_SHEET_DETAIL_ITEMS_ROW_ACTIONS,
     bulkActions: [],
   };
 }

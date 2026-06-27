@@ -340,6 +340,8 @@ export const API_ROUTES = {
     PAYMENT_SHEETS: 'payment-sheets',
     PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
       `payment-sheets/${paymentSheetId}`,
+    DELETE_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
+      `payment-sheets/${paymentSheetId}/items/${itemId}`,
   },
 } as const;
 

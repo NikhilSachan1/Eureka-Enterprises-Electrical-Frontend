@@ -3,6 +3,7 @@ import { EPaymentOutstandingSourceType } from '@features/centralized-payment-man
 import { IEnhancedTable } from '@shared/types';
 
 export interface IPaymentSheetDetailItemRow {
+  id: string;
   beneficiaryName: string;
   beneficiaryCode: string;
   actualDue: number;

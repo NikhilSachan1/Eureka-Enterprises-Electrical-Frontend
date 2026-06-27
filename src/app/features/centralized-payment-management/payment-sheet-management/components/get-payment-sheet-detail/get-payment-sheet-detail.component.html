@@ -31,9 +31,11 @@
           [tableData]="group.table.data()"
           [loading]="group.table.loading()"
           [bulkActionButtons]="group.table.bulkActions()"
+          [rowActions]="group.table.rowActions()"
           [customBodyTemplates]="{
             bankDetailsCell: bankDetailsCell,
           }"
+          (rowActionClick)="handlePaymentSheetItemActionClick($any($event))"
         />
       </app-payment-outstanding-section>
     }
