@@ -21,4 +21,5 @@ export const CreatePaymentSheetRequestSchema = z
 
 export const CreatePaymentSheetResponseSchema = z.looseObject({
   message: z.string(),
+  id: uuidField,
 });

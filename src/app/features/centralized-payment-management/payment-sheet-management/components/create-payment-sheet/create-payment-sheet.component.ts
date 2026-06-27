@@ -128,6 +128,7 @@ export class CreatePaymentSheetComponent
           void this.routerNavigationService.navigateToRoute([
             ROUTE_BASE_PATHS.PAYMENT_HUB,
             ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEETS,
+            response.id,
           ]);
         },
         error: error => {
