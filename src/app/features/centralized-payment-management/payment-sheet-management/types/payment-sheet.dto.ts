@@ -25,6 +25,7 @@ import {
   UpdatePaymentSheetItemRequestSchema,
   UpdatePaymentSheetItemResponseSchema,
 } from '../schemas/update-payment-sheet-item.schema';
+import { SubmitPaymentSheetResponseSchema } from '../schemas/submit-payment-sheet.schema';
 
 export type ICreatePaymentSheetFormDto = z.input<
   typeof CreatePaymentSheetRequestSchema
@@ -76,4 +77,8 @@ export type IUpdatePaymentSheetItemFormDto = z.input<
 >;
 export type IUpdatePaymentSheetItemResponseDto = z.infer<
   typeof UpdatePaymentSheetItemResponseSchema
+>;
+
+export type ISubmitPaymentSheetResponseDto = z.infer<
+  typeof SubmitPaymentSheetResponseSchema
 >;

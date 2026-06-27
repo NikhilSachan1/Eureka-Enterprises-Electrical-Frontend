@@ -43,4 +43,11 @@
       </app-payment-outstanding-section>
     }
   </section>
+
+  <footer class="button-container ps-detail__submit">
+    <app-button
+      [buttonConfig]="submitSheetButtonConfig()"
+      (onButtonClick)="onSubmitSheetClick()"
+    />
+  </footer>
 }

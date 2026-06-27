@@ -14,6 +14,7 @@ import {
   PaymentSheetGetResponseSchema,
   UpdatePaymentSheetItemRequestSchema,
   UpdatePaymentSheetItemResponseSchema,
+  SubmitPaymentSheetResponseSchema,
 } from '../schemas';
 import {
   IAddPaymentSheetItemsFormDto,
@@ -28,6 +29,7 @@ import {
   IPaymentSheetGetResponseDto,
   IUpdatePaymentSheetItemFormDto,
   IUpdatePaymentSheetItemResponseDto,
+  ISubmitPaymentSheetResponseDto,
 } from '../types/payment-sheet.dto';
 
 @Injectable({
@@ -262,6 +264,40 @@ export class PaymentSheetService {
             );
           } else {
             this.logger.logUserAction('Delete Payment Sheet Item Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  submitPaymentSheet(
+    paymentSheetId: string
+  ): Observable<ISubmitPaymentSheetResponseDto> {
+    this.logger.logUserAction('Submit Payment Sheet Request', {
+      paymentSheetId,
+    });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.SUBMIT_PAYMENT_SHEET_BY_ID(
+          paymentSheetId
+        ),
+        {
+          response: SubmitPaymentSheetResponseSchema,
+        }
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction('Submit Payment Sheet Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Submit Payment Sheet Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Submit Payment Sheet Error', error);
           }
           return throwError(() => error);
         })

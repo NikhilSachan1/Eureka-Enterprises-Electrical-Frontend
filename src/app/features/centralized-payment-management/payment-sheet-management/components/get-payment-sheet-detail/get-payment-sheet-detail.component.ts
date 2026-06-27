@@ -18,6 +18,7 @@ import {
   EPaymentOutstandingSourceType,
 } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ICONS } from '@shared/constants';
@@ -33,6 +34,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
+  IButtonConfig,
   IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/types';
@@ -59,6 +61,7 @@ import { EPaymentSheetSourceType } from '../../types/payment-sheet.enum';
     DataTableComponent,
     BankDetailsCellComponent,
     EmptyMessagesComponent,
+    ButtonComponent,
   ],
   templateUrl: './get-payment-sheet-detail.component.html',
   styleUrl: './get-payment-sheet-detail.component.scss',
@@ -109,6 +112,15 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
   protected pageHeaderConfig = computed(() => this.buildPageHeaderConfig());
 
+  protected readonly submitSheetButtonConfig = computed<Partial<IButtonConfig>>(
+    () => ({
+      id: EButtonActionType.SUBMIT,
+      label: 'Forward to HR',
+      icon: ICONS.ACTIONS.SEND,
+      severity: EButtonSeverity.SUCCESS,
+    })
+  );
+
   ngOnInit(): void {
     for (const sourceType of this.sourceSectionOrder) {
       this.sourceTables.set(
@@ -135,6 +147,28 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       return;
     }
 
+    this.openAddBeneficiariesDialog();
+  }
+
+  protected onSubmitSheetClick(): void {
+    if (!this.paymentSheetId) {
+      return;
+    }
+
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.SUBMIT,
+      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[EButtonActionType.SUBMIT],
+      null,
+      false,
+      false,
+      {
+        paymentSheetId: this.paymentSheetId,
+        onSuccess: () => this.reloadDetail(),
+      }
+    );
+  }
+
+  private openAddBeneficiariesDialog(): void {
     this.confirmationDialogService.showConfirmationDialog(
       EButtonActionType.ADD,
       PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[EButtonActionType.ADD],
