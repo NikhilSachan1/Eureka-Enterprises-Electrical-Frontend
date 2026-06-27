@@ -13,13 +13,14 @@ import { InputFieldComponent } from '@shared/components/input-field/input-field.
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import { DEFAULT_INPUT_FIELD_CONFIG } from '@shared/config/input-field.config';
 import { ICONS } from '@shared/constants';
-import {
-  EDataType,
-  ISectionHeaderConfig,
-  IInputFieldsConfig,
-} from '@shared/types';
+import { EDataType, IInputFieldsConfig } from '@shared/types';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import {
+  EPaymentOutstandingSectionContext,
+  EPaymentOutstandingSourceType,
+  getPaymentOutstandingSourceSectionMeta,
+} from '../../config/payment-outstanding-source-section.config';
 
 @Component({
   selector: 'app-payment-outstanding-section',
@@ -37,14 +38,22 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
 
-  sectionConfig = input.required<ISectionHeaderConfig>();
+  sourceType = input.required<EPaymentOutstandingSourceType>();
+  sectionContext = input(EPaymentOutstandingSectionContext.OUTSTANDING);
   loading = input(false);
   recordCount = input(0);
-  recordCountUnit = input('record');
   totalPendingAmount = input(0);
+  showSearch = input(true);
   searchPlaceholder = input('Search...');
 
   searchChange = output<string>();
+
+  protected readonly sectionMeta = computed(() =>
+    getPaymentOutstandingSourceSectionMeta(
+      this.sourceType(),
+      this.sectionContext()
+    )
+  );
 
   protected readonly searchTerm = signal('');
   protected readonly searchFieldConfig = computed(
@@ -80,7 +89,7 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
 
   protected recordCountUnitLabel(): string {
     const count = this.recordCount();
-    const unit = this.recordCountUnit();
+    const unit = this.sectionMeta().recordCountUnit;
     const label = count === 1 ? unit : `${unit}s`;
 
     return label.charAt(0).toUpperCase() + label.slice(1);

@@ -1,8 +1,7 @@
 <app-payment-outstanding-section
-  [sectionConfig]="section"
+  [sourceType]="EPaymentOutstandingSourceType.VENDOR_PAYMENT"
   [loading]="table.loading()"
   [recordCount]="totalRecords()"
-  recordCountUnit="vendor"
   [totalPendingAmount]="summary()?.totalPendingAmount ?? 0"
   searchPlaceholder="Search by vendor name"
   (searchChange)="onSearchChange($event)"

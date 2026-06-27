@@ -59,4 +59,5 @@
     paymentSheetAmounts: paymentSheetAmounts,
   }"
   (filterData)="onTableStateChange($event)"
+  (rowActionClick)="handlePaymentSheetTableActionClick($any($event))"
 />

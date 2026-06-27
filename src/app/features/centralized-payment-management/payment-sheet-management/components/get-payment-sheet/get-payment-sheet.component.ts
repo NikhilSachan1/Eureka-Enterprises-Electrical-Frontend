@@ -13,23 +13,25 @@ import { LoggerService } from '@core/services';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
+import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   AppConfigurationService,
+  RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
 import {
+  EButtonActionType,
   IEnhancedTable,
   IPageHeaderConfig,
+  ITableActionClickEvent,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
-import {
-  createPaymentSheetTableEnhancedConfig,
-  SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG,
-} from '../../config';
+import { SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG } from '../../config/form/search-filter-payment-sheet.config';
+import { createPaymentSheetTableEnhancedConfig } from '../../config/table/get-payment-sheet.config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
   IPaymentSheetGetBaseResponseDto,
@@ -61,6 +63,7 @@ export class GetPaymentSheetComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly routerNavigationService = inject(RouterNavigationService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -86,6 +89,21 @@ export class GetPaymentSheetComponent implements OnInit {
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
     this.tableFilterData = tableFilterData;
     this.loadPaymentSheetList();
+  }
+
+  protected handlePaymentSheetTableActionClick(
+    event: ITableActionClickEvent<IPaymentSheet>
+  ): void {
+    const { actionType, selectedRows } = event;
+    const [selectedRow] = selectedRows;
+
+    if (actionType === EButtonActionType.VIEW && selectedRow?.id) {
+      void this.routerNavigationService.navigateToRoute([
+        ROUTE_BASE_PATHS.PAYMENT_HUB,
+        ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEETS,
+        selectedRow.id,
+      ]);
+    }
   }
 
   private loadPaymentSheetList(): void {

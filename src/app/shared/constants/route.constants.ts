@@ -54,6 +54,7 @@ export const ROUTES = {
   CENTRALIZED_PAYMENT: {
     OUTSTANDING_BALANCES: 'outstanding-balance',
     PAYMENT_SHEETS: 'payment-sheets',
+    PAYMENT_SHEET_DETAIL: ':paymentSheetId',
   },
   AUTH: {
     LOGIN: 'login',

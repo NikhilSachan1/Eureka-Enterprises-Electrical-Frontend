@@ -14,12 +14,12 @@ import {
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
-import { IEnhancedTable, ISectionHeaderConfig } from '@shared/types';
+import { IEnhancedTable } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
-import { ICONS } from '@shared/constants';
 import { BankDetailsCellComponent } from '../../../shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
+import { EPaymentOutstandingSourceType } from '../../../shared/config/payment-outstanding-source-section.config';
 import { createExpenseOutstandingTableEnhancedConfig } from '../../config';
 import { ExpenseOutstandingService } from '../../services/expense-outstanding.service';
 import {
@@ -43,6 +43,9 @@ import { IExpenseOutstanding } from '../../types/expense-outstanding.interface';
 export class GetExpenseOutstandingComponent implements OnInit {
   selectionChange = output<IExpenseOutstandingGetBaseResponseDto[]>();
 
+  protected readonly EPaymentOutstandingSourceType =
+    EPaymentOutstandingSourceType;
+
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -53,7 +56,6 @@ export class GetExpenseOutstandingComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
 
-  protected readonly section = this.getSectionHeaderConfig();
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
 
@@ -151,13 +153,5 @@ export class GetExpenseOutstandingComponent implements OnInit {
       bankDetails: record.bankDetails,
       originalRawData: record,
     }));
-  }
-
-  private getSectionHeaderConfig(): ISectionHeaderConfig {
-    return {
-      title: 'Expense',
-      subtitle: 'Pending expense reimbursements to be paid.',
-      icon: ICONS.EXPENSE.MONEY,
-    };
   }
 }

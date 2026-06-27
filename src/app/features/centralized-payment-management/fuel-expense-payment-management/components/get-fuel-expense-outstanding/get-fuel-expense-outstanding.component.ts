@@ -14,12 +14,12 @@ import {
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
-import { IEnhancedTable, ISectionHeaderConfig } from '@shared/types';
+import { IEnhancedTable } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
-import { ICONS } from '@shared/constants';
 import { BankDetailsCellComponent } from '../../../shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
+import { EPaymentOutstandingSourceType } from '../../../shared/config/payment-outstanding-source-section.config';
 import { createFuelExpenseOutstandingTableEnhancedConfig } from '../../config';
 import { FuelExpenseOutstandingService } from '../../services/fuel-expense-outstanding.service';
 import {
@@ -44,6 +44,9 @@ import { IFuelExpenseOutstanding } from '../../types/fuel-expense-outstanding.in
 export class GetFuelExpenseOutstandingComponent implements OnInit {
   selectionChange = output<IFuelExpenseOutstandingGetBaseResponseDto[]>();
 
+  protected readonly EPaymentOutstandingSourceType =
+    EPaymentOutstandingSourceType;
+
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -54,7 +57,6 @@ export class GetFuelExpenseOutstandingComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
 
-  protected readonly section = this.getSectionHeaderConfig();
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
 
@@ -152,13 +154,5 @@ export class GetFuelExpenseOutstandingComponent implements OnInit {
       bankDetails: record.bankDetails,
       originalRawData: record,
     }));
-  }
-
-  private getSectionHeaderConfig(): ISectionHeaderConfig {
-    return {
-      title: 'Fuel',
-      subtitle: 'Pending fuel reimbursements to be paid.',
-      icon: ICONS.FUEL.MENU,
-    };
   }
 }

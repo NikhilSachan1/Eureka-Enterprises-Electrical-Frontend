@@ -1,8 +1,7 @@
 <app-payment-outstanding-section
-  [sectionConfig]="section"
+  [sourceType]="EPaymentOutstandingSourceType.FUEL_EXPENSE"
   [loading]="table.loading()"
   [recordCount]="totalRecords()"
-  recordCountUnit="employee"
   [totalPendingAmount]="summary()?.totalPendingAmount ?? 0"
   searchPlaceholder="Search by employee name or code"
   (searchChange)="onSearchChange($event)"

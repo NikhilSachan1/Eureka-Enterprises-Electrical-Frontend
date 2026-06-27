@@ -338,6 +338,8 @@ export const API_ROUTES = {
     FUEL_EXPENSE_PENDING_SETTLEMENT: 'fuel-expenses/pending-settlement',
     VENDOR_PENDING_SETTLEMENT: 'book-payments/vendor-list',
     PAYMENT_SHEETS: 'payment-sheets',
+    PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}`,
   },
 } as const;
 

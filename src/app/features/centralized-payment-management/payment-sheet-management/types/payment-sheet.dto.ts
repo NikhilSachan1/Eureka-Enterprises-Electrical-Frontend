@@ -4,6 +4,11 @@ import {
   CreatePaymentSheetResponseSchema,
 } from '../schemas/create-payment-sheet.schema';
 import {
+  PaymentSheetDetailGetRequestSchema,
+  PaymentSheetDetailGetResponseSchema,
+  PaymentSheetItemDetailSchema,
+} from '../schemas/get-payment-sheet-detail.schema';
+import {
   PaymentSheetGetBaseResponseSchema,
   PaymentSheetGetRequestSchema,
   PaymentSheetGetResponseSchema,
@@ -28,4 +33,14 @@ export type IPaymentSheetGetFormDto = z.input<
 >;
 export type IPaymentSheetGetResponseDto = z.infer<
   typeof PaymentSheetGetResponseSchema
+>;
+
+export type IPaymentSheetDetailGetFormDto = z.input<
+  typeof PaymentSheetDetailGetRequestSchema
+>;
+export type IPaymentSheetDetailGetResponseDto = z.infer<
+  typeof PaymentSheetDetailGetResponseSchema
+>;
+export type IPaymentSheetItemDetailDto = z.infer<
+  typeof PaymentSheetItemDetailSchema
 >;

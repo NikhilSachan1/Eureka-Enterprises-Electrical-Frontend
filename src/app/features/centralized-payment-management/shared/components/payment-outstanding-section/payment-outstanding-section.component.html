@@ -5,12 +5,12 @@
         class="outstanding-section__icon"
         aria-hidden="true"
       >
-        <i [class]="sectionConfig().icon"></i>
+        <i [class]="sectionMeta().sectionConfig.icon"></i>
       </span>
       <div>
-        <h2 class="outstanding-section__title">{{ sectionConfig().title }}</h2>
+        <h2 class="outstanding-section__title">{{ sectionMeta().sectionConfig.title }}</h2>
         <p class="outstanding-section__subtitle">
-          {{ sectionConfig().subtitle }}
+          {{ sectionMeta().sectionConfig.subtitle }}
         </p>
       </div>
     </div>
@@ -69,16 +69,18 @@
     </div>
   </header>
 
-  <div class="outstanding-section__search">
-    <p-iconfield class="outstanding-section__search-field">
-      <p-inputicon [class]="ICONS.COMMON.SEARCH" />
-      <app-input-field
-        [inputFieldConfig]="searchFieldConfig()"
-        [fieldValue]="searchTerm()"
-        (onFieldChange)="onSearchFieldChange($event)"
-      />
-    </p-iconfield>
-  </div>
+  @if (showSearch()) {
+    <div class="outstanding-section__search">
+      <p-iconfield class="outstanding-section__search-field">
+        <p-inputicon [class]="ICONS.COMMON.SEARCH" />
+        <app-input-field
+          [inputFieldConfig]="searchFieldConfig()"
+          [fieldValue]="searchTerm()"
+          (onFieldChange)="onSearchFieldChange($event)"
+        />
+      </p-iconfield>
+    </div>
+  }
 
   <ng-content />
 </section>

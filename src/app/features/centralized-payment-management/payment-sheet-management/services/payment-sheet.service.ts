@@ -5,12 +5,15 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   CreatePaymentSheetRequestSchema,
   CreatePaymentSheetResponseSchema,
+  PaymentSheetDetailGetResponseSchema,
   PaymentSheetGetRequestSchema,
   PaymentSheetGetResponseSchema,
 } from '../schemas';
 import {
   ICreatePaymentSheetFormDto,
   ICreatePaymentSheetResponseDto,
+  IPaymentSheetDetailGetFormDto,
+  IPaymentSheetDetailGetResponseDto,
   IPaymentSheetGetFormDto,
   IPaymentSheetGetResponseDto,
 } from '../types/payment-sheet.dto';
@@ -83,6 +86,41 @@ export class PaymentSheetService {
             );
           } else {
             this.logger.logUserAction('Get Payment Sheet List Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getPaymentSheetDetailById(
+    params: IPaymentSheetDetailGetFormDto
+  ): Observable<IPaymentSheetDetailGetResponseDto> {
+    this.logger.logUserAction('Get Payment Sheet Detail Request', params);
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEET_BY_ID(
+          params.paymentSheetId
+        ),
+        {
+          response: PaymentSheetDetailGetResponseSchema,
+        }
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction(
+            'Get Payment Sheet Detail Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Payment Sheet Detail Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Payment Sheet Detail Error', error);
           }
           return throwError(() => error);
         })

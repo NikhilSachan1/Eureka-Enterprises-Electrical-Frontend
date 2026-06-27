@@ -1,9 +1,11 @@
 import { APP_CONFIG } from '@core/config';
+import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
+  ITableActionConfig,
 } from '@shared/types';
 import { IPaymentSheetGetBaseResponseDto } from '../../types/payment-sheet.dto';
 
@@ -55,11 +57,17 @@ export const PAYMENT_SHEET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[
     },
   ];
 
+export const PAYMENT_SHEET_LIST_ROW_ACTIONS: Partial<ITableActionConfig>[] = [
+  {
+    ...COMMON_ROW_ACTIONS.VIEW,
+  },
+];
+
 export function createPaymentSheetTableEnhancedConfig(): IEnhancedTableConfig<IPaymentSheetGetBaseResponseDto> {
   return {
     tableConfig: PAYMENT_SHEET_TABLE_CONFIG,
     headers: PAYMENT_SHEET_TABLE_HEADER_CONFIG,
-    rowActions: [],
+    rowActions: PAYMENT_SHEET_LIST_ROW_ACTIONS,
     bulkActions: [],
   };
 }
