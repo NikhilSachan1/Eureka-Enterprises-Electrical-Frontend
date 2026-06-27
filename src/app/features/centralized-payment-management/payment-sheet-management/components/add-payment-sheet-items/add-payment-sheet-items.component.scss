@@ -2,6 +2,14 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-height: 70vh;
-  overflow-y: auto;
+
+  ::ng-deep {
+    .p-datatable-wrapper,
+    .p-datatable-table-container,
+    .p-scroller {
+      overflow: visible !important;
+      max-height: none !important;
+      height: auto !important;
+    }
+  }
 }
