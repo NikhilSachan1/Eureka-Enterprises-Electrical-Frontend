@@ -14,4 +14,11 @@ export const CENTRALIZED_PAYMENT_MANAGEMENT_ROUTES: Routes = [
         './outstanding-balance-management/outstanding-balance.routes'
       ).then(m => m.OUTSTANDING_BALANCE_MANAGEMENT_ROUTES),
   },
+  {
+    path: ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEETS,
+    loadChildren: () =>
+      import('./payment-sheet-management/payment-sheet.routes').then(
+        m => m.PAYMENT_SHEET_MANAGEMENT_ROUTES
+      ),
+  },
 ];

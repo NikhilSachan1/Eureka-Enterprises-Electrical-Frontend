@@ -53,6 +53,7 @@ export const ROUTE_BASE_PATHS = {
 export const ROUTES = {
   CENTRALIZED_PAYMENT: {
     OUTSTANDING_BALANCES: 'outstanding-balance',
+    PAYMENT_SHEETS: 'payment-sheets',
   },
   AUTH: {
     LOGIN: 'login',

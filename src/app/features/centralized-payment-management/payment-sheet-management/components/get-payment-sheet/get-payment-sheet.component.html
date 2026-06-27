@@ -1,0 +1,62 @@
+<app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
+<ng-template
+  #paymentSheetAmounts
+  let-row
+>
+  @let cur = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
+  @let fmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
+  @let loc = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+  @let pending = getPendingAmount(row);
+
+  <article class="payment-sheet-amounts">
+    <div class="payment-sheet-amounts__grid">
+      <div class="payment-sheet-amounts__tile payment-sheet-amounts__tile--payable">
+        <span class="payment-sheet-amounts__tile-label">Payable</span>
+        <span class="payment-sheet-amounts__tile-value">
+          {{ row.totalCurrentAmount | currency: cur : 'symbol' : fmt : loc }}
+        </span>
+      </div>
+
+      <div class="payment-sheet-amounts__tile payment-sheet-amounts__tile--paid">
+        <span class="payment-sheet-amounts__tile-label">Paid</span>
+        <span class="payment-sheet-amounts__tile-value">
+          {{ row.totalPaidAmount | currency: cur : 'symbol' : fmt : loc }}
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="payment-sheet-amounts__footer"
+      [class.payment-sheet-amounts__footer--settled]="isFullyPaid(row)"
+    >
+      @if (isFullyPaid(row)) {
+        <span class="payment-sheet-amounts__settled">Fully paid</span>
+      } @else {
+        <span class="payment-sheet-amounts__footer-label">Pending</span>
+        <span class="payment-sheet-amounts__footer-value">{{ pending | currency: cur : 'symbol' : fmt : loc }}</span>
+      }
+    </div>
+  </article>
+</ng-template>
+
+<app-data-table
+  #dataTable
+  [tableConfig]="table.tableConfig()"
+  [tableHeader]="table.headers()"
+  [tableData]="table.data()"
+  [loading]="table.loading()"
+  [bulkActionButtons]="table.bulkActions()"
+  [rowActions]="table.rowActions()"
+  [customBodyTemplates]="{
+    paymentSheetAmounts: paymentSheetAmounts,
+  }"
+  (filterData)="onTableStateChange($event)"
+/>

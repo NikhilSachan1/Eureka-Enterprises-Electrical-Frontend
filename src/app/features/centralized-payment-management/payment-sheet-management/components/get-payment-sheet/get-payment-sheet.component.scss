@@ -1,0 +1,156 @@
+.payment-sheet-amounts {
+  --psa-border: var(--border-light-color);
+  --psa-payable-bg: color-mix(in srgb, #0891b2 8%, var(--background-paper-color));
+  --psa-payable-border: color-mix(in srgb, #0891b2 18%, var(--border-light-color));
+  --psa-paid-bg: color-mix(in srgb, #059669 8%, var(--background-paper-color));
+  --psa-paid-border: color-mix(in srgb, #059669 18%, var(--border-light-color));
+
+  min-width: 11.5rem;
+  max-width: 17rem;
+  padding: 0.62rem 0.72rem 0.68rem;
+  border-radius: 0.75rem;
+  background: var(--background-paper-color);
+  border: 1px solid var(--psa-border);
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.payment-sheet-amounts__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.payment-sheet-amounts__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.14rem;
+  min-width: 0;
+  padding: 0.42rem 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+
+  &--payable {
+    background: var(--psa-payable-bg);
+    border-color: var(--psa-payable-border);
+  }
+
+  &--paid {
+    background: var(--psa-paid-bg);
+    border-color: var(--psa-paid-border);
+  }
+}
+
+.payment-sheet-amounts__tile-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.payment-sheet-amounts__tile-value {
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.payment-sheet-amounts__tile--payable .payment-sheet-amounts__tile-value {
+  color: color-mix(in srgb, #0e7490 72%, var(--text-primary-color));
+}
+
+.payment-sheet-amounts__tile--paid .payment-sheet-amounts__tile-value {
+  color: color-mix(in srgb, #047857 72%, var(--text-primary-color));
+}
+
+.payment-sheet-amounts__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.45rem;
+  padding: 0.38rem 0.5rem;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, #b45309 8%, var(--background-paper-color));
+  border: 1px solid color-mix(in srgb, #b45309 18%, var(--border-light-color));
+
+  &--settled {
+    justify-content: center;
+    background: color-mix(in srgb, #059669 10%, var(--background-paper-color));
+    border-color: color-mix(in srgb, #059669 22%, var(--border-light-color));
+  }
+}
+
+.payment-sheet-amounts__footer-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.payment-sheet-amounts__footer-value {
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, #b45309 72%, var(--text-primary-color));
+}
+
+.payment-sheet-amounts__settled {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #047857 80%, var(--text-primary-color));
+}
+
+:host-context(.dark-theme) .payment-sheet-amounts {
+  --psa-border: var(--border-dark-color);
+  --psa-payable-bg: color-mix(in srgb, #0891b2 18%, var(--background-paper-color));
+  --psa-payable-border: color-mix(in srgb, #0891b2 28%, var(--border-dark-color));
+  --psa-paid-bg: color-mix(in srgb, #059669 18%, var(--background-paper-color));
+  --psa-paid-border: color-mix(in srgb, #059669 28%, var(--border-dark-color));
+  box-shadow: none;
+}
+
+:host-context(.dark-theme) .payment-sheet-amounts__tile--payable .payment-sheet-amounts__tile-value {
+  color: color-mix(in srgb, #22d3ee 78%, var(--text-primary-color));
+}
+
+:host-context(.dark-theme) .payment-sheet-amounts__tile--paid .payment-sheet-amounts__tile-value {
+  color: color-mix(in srgb, #34d399 78%, var(--text-primary-color));
+}
+
+:host-context(.dark-theme) .payment-sheet-amounts__footer:not(.payment-sheet-amounts__footer--settled) {
+  background: color-mix(in srgb, #b45309 18%, var(--background-paper-color));
+  border-color: color-mix(in srgb, #b45309 28%, var(--border-dark-color));
+}
+
+:host-context(.dark-theme) .payment-sheet-amounts__footer-value {
+  color: color-mix(in srgb, #fbbf24 78%, var(--text-primary-color));
+}
+
+:host-context(.dark-theme) .payment-sheet-amounts__footer--settled {
+  background: color-mix(in srgb, #059669 18%, var(--background-paper-color));
+  border-color: color-mix(in srgb, #059669 28%, var(--border-dark-color));
+}
+
+:host-context(.dark-theme) .payment-sheet-amounts__settled {
+  color: color-mix(in srgb, #34d399 82%, var(--text-primary-color));
+}
+
+@media (hover: hover) {
+  :host-context(tr:hover) .payment-sheet-amounts {
+    border-color: color-mix(in srgb, var(--primary-color) 28%, var(--psa-border));
+    box-shadow: var(--shadow-md);
+  }
+
+  :host-context(.dark-theme tr:hover) .payment-sheet-amounts {
+    box-shadow: none;
+    border-color: color-mix(in srgb, var(--primary-color) 35%, var(--border-dark-color));
+  }
+}

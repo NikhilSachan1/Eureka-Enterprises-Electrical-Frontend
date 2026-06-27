@@ -6,5 +6,5 @@ export enum EPaymentSheetBeneficiaryType {
 export enum EPaymentSheetSourceType {
   EXPENSE = 'EXPENSE',
   FUEL_EXPENSE = 'FUEL_EXPENSE',
-  BOOK_PAYMENT = 'BOOK_PAYMENT',
+  VENDOR_PAYMENT = 'VENDOR_PAYMENT',
 }

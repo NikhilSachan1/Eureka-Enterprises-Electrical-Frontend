@@ -173,6 +173,9 @@ export class AppConfigurationService {
     Record<string, { label: string; actions: IOptionDropdown[] }>
   >({});
   private readonly _announcementStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _paymentSheetStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _paymentSheetStages = signal<IOptionDropdown[]>([]);
+  private readonly _paymentSheetItemStatuses = signal<IOptionDropdown[]>([]);
   private readonly _configurationTypes = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
@@ -241,6 +244,10 @@ export class AppConfigurationService {
   readonly moduleNames = this._moduleNames.asReadonly();
   readonly modulesConfig = this._modulesConfig.asReadonly();
   readonly announcementStatuses = this._announcementStatuses.asReadonly();
+  readonly paymentSheetStatuses = this._paymentSheetStatuses.asReadonly();
+  readonly paymentSheetStages = this._paymentSheetStages.asReadonly();
+  readonly paymentSheetItemStatuses =
+    this._paymentSheetItemStatuses.asReadonly();
   readonly configurationTypes = this._configurationTypes.asReadonly();
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
@@ -503,6 +510,20 @@ export class AppConfigurationService {
       {
         key: CONFIGURATION_KEYS.ANNOUNCEMENT.ANNOUNCEMENT_STATUS,
         signal: this._announcementStatuses,
+      },
+    ],
+    [MODULE_NAMES.PAYMENTS]: [
+      {
+        key: CONFIGURATION_KEYS.PAYMENTS.SHEET_STATUSES,
+        signal: this._paymentSheetStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.PAYMENTS.SHEET_STAGES,
+        signal: this._paymentSheetStages,
+      },
+      {
+        key: CONFIGURATION_KEYS.PAYMENTS.ITEM_STATUSES,
+        signal: this._paymentSheetItemStatuses,
       },
     ],
     [MODULE_NAMES.CONFIGURATION]: [
