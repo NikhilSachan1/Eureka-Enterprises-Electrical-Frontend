@@ -16,3 +16,7 @@ export {
   PaymentSheetGetRequestSchema,
   PaymentSheetGetResponseSchema,
 } from './get-payment-sheet.schema';
+export {
+  UpdatePaymentSheetItemRequestSchema,
+  UpdatePaymentSheetItemResponseSchema,
+} from './update-payment-sheet-item.schema';

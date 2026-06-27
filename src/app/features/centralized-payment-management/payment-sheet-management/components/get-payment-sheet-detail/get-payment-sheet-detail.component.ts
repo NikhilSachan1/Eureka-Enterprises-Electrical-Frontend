@@ -35,6 +35,7 @@ import {
   ITableActionClickEvent,
 } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { finalize } from 'rxjs';
 import { PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP } from '../../config';
 import { createPaymentSheetDetailItemsTableConfig } from '../../config/table/get-payment-sheet-detail-items.config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
@@ -140,16 +141,27 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       return;
     }
 
-    if (actionType !== EButtonActionType.DELETE) {
+    if (
+      actionType !== EButtonActionType.EDIT &&
+      actionType !== EButtonActionType.DELETE
+    ) {
+      return;
+    }
+
+    const actionConfig = PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[actionType];
+
+    if (!actionConfig) {
       return;
     }
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
-      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[actionType],
-      this.prepareItemRecordDetail(selectedRow),
+      actionConfig,
+      actionType === EButtonActionType.DELETE
+        ? this.prepareItemRecordDetail(selectedRow)
+        : null,
       false,
-      true,
+      actionType === EButtonActionType.DELETE,
       {
         selectedRecord: selectedRows,
         paymentSheetId: this.paymentSheetId,
@@ -194,9 +206,14 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       return;
     }
 
+    this.setSourceTablesLoading(true);
+
     this.paymentSheetService
       .getPaymentSheetDetailById({ paymentSheetId: this.paymentSheetId })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.setSourceTablesLoading(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: detail => {
           this.applyDetail(detail);
@@ -205,6 +222,12 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           this.logger.error('Failed to reload payment sheet detail', error);
         },
       });
+  }
+
+  private setSourceTablesLoading(loading: boolean): void {
+    for (const table of this.sourceTables.values()) {
+      table.setLoading(loading);
+    }
   }
 
   private mapItems(

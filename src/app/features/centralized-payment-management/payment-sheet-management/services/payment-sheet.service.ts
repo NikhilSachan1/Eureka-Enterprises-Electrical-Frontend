@@ -10,6 +10,8 @@ import {
   PaymentSheetDetailGetResponseSchema,
   PaymentSheetGetRequestSchema,
   PaymentSheetGetResponseSchema,
+  UpdatePaymentSheetItemRequestSchema,
+  UpdatePaymentSheetItemResponseSchema,
 } from '../schemas';
 import {
   ICreatePaymentSheetFormDto,
@@ -20,6 +22,8 @@ import {
   IPaymentSheetDetailGetResponseDto,
   IPaymentSheetGetFormDto,
   IPaymentSheetGetResponseDto,
+  IUpdatePaymentSheetItemFormDto,
+  IUpdatePaymentSheetItemResponseDto,
 } from '../types/payment-sheet.dto';
 
 @Injectable({
@@ -125,6 +129,50 @@ export class PaymentSheetService {
             );
           } else {
             this.logger.logUserAction('Get Payment Sheet Detail Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  updatePaymentSheetItem(
+    paymentSheetId: string,
+    itemId: string,
+    formData: IUpdatePaymentSheetItemFormDto
+  ): Observable<IUpdatePaymentSheetItemResponseDto> {
+    this.logger.logUserAction('Update Payment Sheet Item Request', {
+      paymentSheetId,
+      itemId,
+      formData,
+    });
+
+    return this.apiService
+      .patchValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.UPDATE_PAYMENT_SHEET_ITEM_BY_ID(
+          paymentSheetId,
+          itemId
+        ),
+        {
+          response: UpdatePaymentSheetItemResponseSchema,
+          request: UpdatePaymentSheetItemRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction(
+            'Update Payment Sheet Item Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Update Payment Sheet Item Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Update Payment Sheet Item Error', error);
           }
           return throwError(() => error);
         })

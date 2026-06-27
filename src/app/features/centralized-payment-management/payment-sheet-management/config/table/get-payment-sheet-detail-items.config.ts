@@ -66,6 +66,9 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_ROW_ACTIONS: Partial<
   ITableActionConfig<IPaymentSheetDetailItemRow>
 >[] = [
   {
+    ...COMMON_ROW_ACTIONS.EDIT,
+  },
+  {
     ...COMMON_ROW_ACTIONS.DELETE,
   },
 ];
