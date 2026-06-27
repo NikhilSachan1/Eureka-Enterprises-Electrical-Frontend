@@ -16,6 +16,10 @@ export type ICreatePaymentSheetResponseDto = z.infer<
   typeof CreatePaymentSheetResponseSchema
 >;
 
+export type ICreatePaymentSheetUIFormDto = Required<
+  Pick<ICreatePaymentSheetFormDto, 'title'>
+>;
+
 export type IPaymentSheetGetBaseResponseDto = z.infer<
   typeof PaymentSheetGetBaseResponseSchema
 >;

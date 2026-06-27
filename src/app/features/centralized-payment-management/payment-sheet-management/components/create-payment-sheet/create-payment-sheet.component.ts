@@ -5,18 +5,29 @@ import {
   input,
   OnInit,
 } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/expense-payment-management/types/expense-outstanding.dto';
 import { IFuelExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/fuel-expense-payment-management/types/fuel-expense-outstanding.dto';
 import { FormBase } from '@shared/base/form.base';
-import { FORM_VALIDATION_MESSAGES } from '@shared/constants';
-import { ConfirmationDialogService } from '@shared/services';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import {
+  FORM_VALIDATION_MESSAGES,
+  ROUTE_BASE_PATHS,
+  ROUTES,
+} from '@shared/constants';
+import {
+  ConfirmationDialogService,
+  RouterNavigationService,
+} from '@shared/services';
 import { IDialogActionHandler } from '@shared/types';
 import { finalize } from 'rxjs';
+import { CREATE_PAYMENT_SHEET_FORM_CONFIG } from '../../config/form/create-payment-sheet.config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
   ICreatePaymentSheetFormDto,
   ICreatePaymentSheetResponseDto,
+  ICreatePaymentSheetUIFormDto,
 } from '../../types/payment-sheet.dto';
 import {
   EPaymentSheetBeneficiaryType,
@@ -25,18 +36,20 @@ import {
 
 @Component({
   selector: 'app-create-payment-sheet',
-  imports: [],
-  template: '',
+  imports: [InputFieldComponent, ReactiveFormsModule],
+  templateUrl: './create-payment-sheet.component.html',
+  styleUrl: './create-payment-sheet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreatePaymentSheetComponent
-  extends FormBase<ICreatePaymentSheetFormDto>
+  extends FormBase<ICreatePaymentSheetUIFormDto>
   implements IDialogActionHandler, OnInit
 {
   private readonly paymentSheetService = inject(PaymentSheetService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly routerNavigationService = inject(RouterNavigationService);
 
   protected readonly selectedExpenseRecords = input<
     IExpenseOutstandingGetBaseResponseDto[]
@@ -44,7 +57,6 @@ export class CreatePaymentSheetComponent
   protected readonly selectedFuelRecords = input<
     IFuelExpenseOutstandingGetBaseResponseDto[]
   >([]);
-  protected readonly onSuccess = input.required<() => void>();
 
   ngOnInit(): void {
     const expenseRecords = this.selectedExpenseRecords();
@@ -59,10 +71,17 @@ export class CreatePaymentSheetComponent
       );
       return;
     }
+
+    this.form = this.formService.createForm<ICreatePaymentSheetUIFormDto>(
+      CREATE_PAYMENT_SHEET_FORM_CONFIG,
+      {
+        destroyRef: this.destroyRef,
+      }
+    );
   }
 
   onDialogAccept(): void {
-    this.handleSubmit();
+    super.onSubmit();
   }
 
   protected override handleSubmit(): void {
@@ -77,6 +96,7 @@ export class CreatePaymentSheetComponent
     expenseRecords: IExpenseOutstandingGetBaseResponseDto[],
     fuelRecords: IFuelExpenseOutstandingGetBaseResponseDto[]
   ): ICreatePaymentSheetFormDto {
+    const title = this.form.getData().title?.trim();
     const expenseItems = expenseRecords.map(record => ({
       beneficiaryType: EPaymentSheetBeneficiaryType.USER,
       userId: record.userId,
@@ -92,6 +112,7 @@ export class CreatePaymentSheetComponent
     }));
 
     return {
+      title: title ?? null,
       items: [...expenseItems, ...fuelItems],
     };
   }
@@ -119,8 +140,11 @@ export class CreatePaymentSheetComponent
           this.notificationService.success(
             response.message || 'Payment sheet created successfully.'
           );
-          this.onSuccess()();
           this.confirmationDialogService.closeDialog();
+          void this.routerNavigationService.navigateToRoute([
+            ROUTE_BASE_PATHS.PAYMENT_HUB,
+            ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEETS,
+          ]);
         },
         error: error => {
           this.logger.error('Failed to create payment sheet', error);

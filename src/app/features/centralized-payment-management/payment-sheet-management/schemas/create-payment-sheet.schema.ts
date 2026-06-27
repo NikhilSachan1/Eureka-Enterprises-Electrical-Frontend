@@ -7,6 +7,7 @@ import {
 
 export const CreatePaymentSheetRequestSchema = z
   .object({
+    title: z.string().trim().max(255).nullable(),
     items: z.array(
       z.object({
         beneficiaryType: z.enum(EPaymentSheetBeneficiaryType),
