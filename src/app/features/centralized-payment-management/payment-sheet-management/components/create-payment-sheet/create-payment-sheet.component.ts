@@ -29,10 +29,7 @@ import {
   ICreatePaymentSheetResponseDto,
   ICreatePaymentSheetUIFormDto,
 } from '../../types/payment-sheet.dto';
-import {
-  EPaymentSheetBeneficiaryType,
-  EPaymentSheetSourceType,
-} from '../../types/payment-sheet.enum';
+import { buildPaymentSheetItemsFromOutstanding } from '../../utils/build-payment-sheet-items.util';
 
 @Component({
   selector: 'app-create-payment-sheet',
@@ -97,23 +94,10 @@ export class CreatePaymentSheetComponent
     fuelRecords: IFuelExpenseOutstandingGetBaseResponseDto[]
   ): ICreatePaymentSheetFormDto {
     const title = this.form.getData().title?.trim();
-    const expenseItems = expenseRecords.map(record => ({
-      beneficiaryType: EPaymentSheetBeneficiaryType.USER,
-      userId: record.userId,
-      sourceType: EPaymentSheetSourceType.EXPENSE,
-      requestedAmount: record.pendingAmount,
-    }));
-
-    const fuelItems = fuelRecords.map(record => ({
-      beneficiaryType: EPaymentSheetBeneficiaryType.USER,
-      userId: record.userId,
-      sourceType: EPaymentSheetSourceType.FUEL_EXPENSE,
-      requestedAmount: record.pendingAmount,
-    }));
 
     return {
       title: title ?? null,
-      items: [...expenseItems, ...fuelItems],
+      items: buildPaymentSheetItemsFromOutstanding(expenseRecords, fuelRecords),
     };
   }
 

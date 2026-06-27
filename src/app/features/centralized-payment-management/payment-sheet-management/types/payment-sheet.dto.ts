@@ -1,5 +1,9 @@
 import { z } from 'zod';
 import {
+  AddPaymentSheetItemsRequestSchema,
+  AddPaymentSheetItemsResponseSchema,
+} from '../schemas/add-payment-sheet-items.schema';
+import {
   CreatePaymentSheetRequestSchema,
   CreatePaymentSheetResponseSchema,
 } from '../schemas/create-payment-sheet.schema';
@@ -27,6 +31,13 @@ export type ICreatePaymentSheetFormDto = z.input<
 >;
 export type ICreatePaymentSheetResponseDto = z.infer<
   typeof CreatePaymentSheetResponseSchema
+>;
+
+export type IAddPaymentSheetItemsFormDto = z.input<
+  typeof AddPaymentSheetItemsRequestSchema
+>;
+export type IAddPaymentSheetItemsResponseDto = z.infer<
+  typeof AddPaymentSheetItemsResponseSchema
 >;
 
 export type ICreatePaymentSheetUIFormDto = Required<

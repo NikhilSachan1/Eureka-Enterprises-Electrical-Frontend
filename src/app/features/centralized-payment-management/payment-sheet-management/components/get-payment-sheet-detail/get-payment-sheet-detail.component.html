@@ -1,5 +1,8 @@
 @if (detail()) {
-  <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
+  <app-page-header
+    [pageHeaderConfig]="pageHeaderConfig()"
+    (headerButtonClick)="onHeaderButtonClick($event)"
+  />
 
   <section class="ps-detail">
     @if (!sourceGroups().length) {

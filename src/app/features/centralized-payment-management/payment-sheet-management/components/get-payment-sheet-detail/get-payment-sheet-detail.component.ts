@@ -20,6 +20,7 @@ import {
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { ICONS } from '@shared/constants';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -27,6 +28,7 @@ import {
 } from '@shared/services';
 import {
   EButtonActionType,
+  EButtonSeverity,
   EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -126,6 +128,24 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     }
 
     this.applyDetail(resolvedDetail);
+  }
+
+  protected onHeaderButtonClick(actionType: string): void {
+    if (actionType !== EButtonActionType.ADD || !this.paymentSheetId) {
+      return;
+    }
+
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.ADD,
+      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[EButtonActionType.ADD],
+      null,
+      false,
+      false,
+      {
+        paymentSheetId: this.paymentSheetId,
+        onSuccess: () => this.reloadDetail(),
+      }
+    );
   }
 
   protected handlePaymentSheetItemActionClick(
@@ -281,8 +301,17 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     return {
       title: 'Payment Sheet',
       subtitle: 'Payment sheet beneficiaries',
-      showHeaderButton: false,
+      showHeaderButton: true,
       showGoBackButton: true,
+      headerButtonConfig: [
+        {
+          id: EButtonActionType.ADD,
+          actionName: EButtonActionType.ADD,
+          label: 'Add Beneficiaries',
+          icon: ICONS.COMMON.USERS,
+          severity: EButtonSeverity.PRIMARY,
+        },
+      ],
     };
   }
 }

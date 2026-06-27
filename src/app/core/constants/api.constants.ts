@@ -344,6 +344,8 @@ export const API_ROUTES = {
       `payment-sheets/${paymentSheetId}/items/${itemId}`,
     UPDATE_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
       `payment-sheets/${paymentSheetId}/items/${itemId}`,
+    ADD_PAYMENT_SHEET_ITEMS_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/items`,
   },
 } as const;
 

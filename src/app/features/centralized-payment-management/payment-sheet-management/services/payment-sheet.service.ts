@@ -3,6 +3,8 @@ import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
+  AddPaymentSheetItemsRequestSchema,
+  AddPaymentSheetItemsResponseSchema,
   CreatePaymentSheetRequestSchema,
   CreatePaymentSheetResponseSchema,
   DeletePaymentSheetItemRequestSchema,
@@ -14,6 +16,8 @@ import {
   UpdatePaymentSheetItemResponseSchema,
 } from '../schemas';
 import {
+  IAddPaymentSheetItemsFormDto,
+  IAddPaymentSheetItemsResponseDto,
   ICreatePaymentSheetFormDto,
   ICreatePaymentSheetResponseDto,
   IDeletePaymentSheetItemFormDto,
@@ -129,6 +133,47 @@ export class PaymentSheetService {
             );
           } else {
             this.logger.logUserAction('Get Payment Sheet Detail Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  addPaymentSheetItems(
+    paymentSheetId: string,
+    formData: IAddPaymentSheetItemsFormDto
+  ): Observable<IAddPaymentSheetItemsResponseDto> {
+    this.logger.logUserAction('Add Payment Sheet Items Request', {
+      paymentSheetId,
+      formData,
+    });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.ADD_PAYMENT_SHEET_ITEMS_BY_ID(
+          paymentSheetId
+        ),
+        {
+          response: AddPaymentSheetItemsResponseSchema,
+          request: AddPaymentSheetItemsRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction(
+            'Add Payment Sheet Items Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Add Payment Sheet Items Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Add Payment Sheet Items Error', error);
           }
           return throwError(() => error);
         })

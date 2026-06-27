@@ -1,4 +1,8 @@
 export {
+  AddPaymentSheetItemsRequestSchema,
+  AddPaymentSheetItemsResponseSchema,
+} from './add-payment-sheet-items.schema';
+export {
   CreatePaymentSheetRequestSchema,
   CreatePaymentSheetResponseSchema,
 } from './create-payment-sheet.schema';
