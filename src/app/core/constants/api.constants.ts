@@ -346,6 +346,8 @@ export const API_ROUTES = {
       `payment-sheets/${paymentSheetId}/items/${itemId}`,
     REJECT_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
       `payment-sheets/${paymentSheetId}/items/${itemId}/reject`,
+    PAY_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
+      `payment-sheets/${paymentSheetId}/items/${itemId}/pay`,
     ADD_PAYMENT_SHEET_ITEMS_BY_ID: (paymentSheetId: string) =>
       `payment-sheets/${paymentSheetId}/items`,
     SUBMIT_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>

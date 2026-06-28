@@ -27,6 +27,10 @@ import {
 } from '../schemas/update-payment-sheet-item.schema';
 import { ForwardPaymentSheetResponseSchema } from '../schemas/forward-payment-sheet.schema';
 import {
+  PayPaymentSheetItemRequestSchema,
+  PayPaymentSheetItemResponseSchema,
+} from '../schemas/pay-payment-sheet-item.schema';
+import {
   RejectPaymentSheetItemRequestSchema,
   RejectPaymentSheetItemResponseSchema,
 } from '../schemas/reject-payment-sheet-item.schema';
@@ -119,4 +123,11 @@ export type IRejectPaymentSheetItemFormDto = z.input<
 >;
 export type IRejectPaymentSheetItemResponseDto = z.infer<
   typeof RejectPaymentSheetItemResponseSchema
+>;
+
+export type IPayPaymentSheetItemFormDto = z.input<
+  typeof PayPaymentSheetItemRequestSchema
+>;
+export type IPayPaymentSheetItemResponseDto = z.infer<
+  typeof PayPaymentSheetItemResponseSchema
 >;

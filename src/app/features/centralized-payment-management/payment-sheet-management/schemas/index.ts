@@ -20,6 +20,10 @@ export {
   PaymentSheetGetRequestSchema,
   PaymentSheetGetResponseSchema,
 } from './get-payment-sheet.schema';
+export {
+  PayPaymentSheetItemRequestSchema,
+  PayPaymentSheetItemResponseSchema,
+} from './pay-payment-sheet-item.schema';
 export { ForwardPaymentSheetResponseSchema } from './forward-payment-sheet.schema';
 export {
   RejectPaymentSheetItemRequestSchema,

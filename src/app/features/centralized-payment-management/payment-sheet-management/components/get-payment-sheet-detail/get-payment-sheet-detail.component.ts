@@ -211,7 +211,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     if (
       actionType !== EButtonActionType.EDIT &&
       actionType !== EButtonActionType.DELETE &&
-      actionType !== EButtonActionType.REJECT
+      actionType !== EButtonActionType.REJECT &&
+      actionType !== EButtonActionType.PAID
     ) {
       return;
     }
@@ -222,16 +223,17 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       return;
     }
 
+    const showItemDetail =
+      actionType === EButtonActionType.DELETE ||
+      actionType === EButtonActionType.REJECT ||
+      actionType === EButtonActionType.PAID;
+
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
       actionConfig,
-      actionType === EButtonActionType.DELETE ||
-        actionType === EButtonActionType.REJECT
-        ? this.prepareItemRecordDetail(selectedRow)
-        : null,
+      showItemDetail ? this.prepareItemRecordDetail(selectedRow) : null,
       false,
-      actionType === EButtonActionType.DELETE ||
-        actionType === EButtonActionType.REJECT,
+      showItemDetail,
       {
         selectedRecord: selectedRows,
         paymentSheetId: this.paymentSheetId,

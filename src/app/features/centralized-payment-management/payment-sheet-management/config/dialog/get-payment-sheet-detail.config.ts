@@ -12,6 +12,7 @@ import {
 import { AddPaymentSheetItemsComponent } from '../../components/add-payment-sheet-items/add-payment-sheet-items.component';
 import { DeletePaymentSheetItemComponent } from '../../components/delete-payment-sheet-item/delete-payment-sheet-item.component';
 import { EditPaymentSheetItemComponent } from '../../components/edit-payment-sheet-item/edit-payment-sheet-item.component';
+import { PayPaymentSheetItemComponent } from '../../components/pay-payment-sheet-item/pay-payment-sheet-item.component';
 import { RejectPaymentSheetItemComponent } from '../../components/reject-payment-sheet-item/reject-payment-sheet-item.component';
 import { SubmitPaymentSheetComponent } from '../../components/submit-payment-sheet/submit-payment-sheet.component';
 import { EPaymentSheetWorkflowActionType } from '../../types/payment-sheet.enum';
@@ -70,6 +71,21 @@ export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
       },
     },
     dynamicComponent: RejectPaymentSheetItemComponent,
+  },
+  [EButtonActionType.PAID]: {
+    dialogConfig: {
+      ...CONFIRMATION_DIALOG_CONFIG,
+      header: 'Record payment?',
+      icon: ICONS.PAYROLL.PAID,
+      message:
+        'Record payment for this beneficiary. Enter payment mode, paid date, and transaction reference.',
+      labels: {
+        actionWord: 'pay',
+        singleLabel: 'Record Payment',
+        bulkLabel: 'Record Payment',
+      },
+    },
+    dynamicComponent: PayPaymentSheetItemComponent,
   },
   [EPaymentSheetWorkflowActionType.FORWARD_TO_HR]: {
     dialogConfig: {

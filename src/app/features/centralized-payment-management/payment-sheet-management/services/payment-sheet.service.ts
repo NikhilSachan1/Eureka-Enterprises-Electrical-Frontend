@@ -13,6 +13,8 @@ import {
   PaymentSheetDetailGetResponseSchema,
   PaymentSheetGetRequestSchema,
   PaymentSheetGetResponseSchema,
+  PayPaymentSheetItemRequestSchema,
+  PayPaymentSheetItemResponseSchema,
   RejectPaymentSheetItemRequestSchema,
   RejectPaymentSheetItemResponseSchema,
   RejectPaymentSheetRequestSchema,
@@ -35,6 +37,8 @@ import {
   IPaymentSheetDetailGetResponseDto,
   IPaymentSheetGetFormDto,
   IPaymentSheetGetResponseDto,
+  IPayPaymentSheetItemFormDto,
+  IPayPaymentSheetItemResponseDto,
   IRejectPaymentSheetFormDto,
   IRejectPaymentSheetItemFormDto,
   IRejectPaymentSheetItemResponseDto,
@@ -384,6 +388,50 @@ export class PaymentSheetService {
             );
           } else {
             this.logger.logUserAction('Return Payment Sheet Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  payPaymentSheetItem(
+    paymentSheetId: string,
+    itemId: string,
+    formData: IPayPaymentSheetItemFormDto
+  ): Observable<IPayPaymentSheetItemResponseDto> {
+    this.logger.logUserAction('Pay Payment Sheet Item Request', {
+      paymentSheetId,
+      itemId,
+      formData,
+    });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.PAY_PAYMENT_SHEET_ITEM_BY_ID(
+          paymentSheetId,
+          itemId
+        ),
+        {
+          response: PayPaymentSheetItemResponseSchema,
+          request: PayPaymentSheetItemRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction(
+            'Pay Payment Sheet Item Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Pay Payment Sheet Item Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Pay Payment Sheet Item Error', error);
           }
           return throwError(() => error);
         })

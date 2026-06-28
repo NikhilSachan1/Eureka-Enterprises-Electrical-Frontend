@@ -1,5 +1,6 @@
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
+  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -65,6 +66,10 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_ROW_ACTIONS: Partial<
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject',
+  },
+  {
+    id: EButtonActionType.PAID,
+    tooltip: 'Record Payment',
   },
 ];
 
