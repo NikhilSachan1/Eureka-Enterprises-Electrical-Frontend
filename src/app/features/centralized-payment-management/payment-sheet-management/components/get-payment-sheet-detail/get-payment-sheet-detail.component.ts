@@ -93,6 +93,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   private readonly sourceSectionOrder: EPaymentSheetSourceType[] = [
     EPaymentSheetSourceType.EXPENSE,
     EPaymentSheetSourceType.FUEL_EXPENSE,
+    EPaymentSheetSourceType.VENDOR_PAYMENT,
   ];
 
   private readonly sourceTypeMap: Record<
@@ -102,6 +103,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     [EPaymentSheetSourceType.EXPENSE]: EPaymentOutstandingSourceType.EXPENSE,
     [EPaymentSheetSourceType.FUEL_EXPENSE]:
       EPaymentOutstandingSourceType.FUEL_EXPENSE,
+    [EPaymentSheetSourceType.VENDOR_PAYMENT]:
+      EPaymentOutstandingSourceType.VENDOR_PAYMENT,
   };
 
   private readonly sourceTables = new Map<
@@ -311,8 +314,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       payableAmount: item.currentAmount,
       beneficiaryName: item.user
         ? `${item.user.firstName} ${item.user.lastName}`.trim()
-        : '-',
-      beneficiaryCode: item.user?.employeeId ?? '',
+        : (item.vendor?.name ?? '-'),
+      beneficiaryCode: item.user?.employeeId ?? item.vendorId ?? '',
       itemStatus: getMappedValueFromArrayOfObjects(
         this.appConfigurationService.paymentSheetItemStatuses(),
         item.itemStatus
