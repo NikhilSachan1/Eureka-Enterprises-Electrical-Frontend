@@ -118,7 +118,9 @@ export class GetSystemPermissionComponent implements OnInit {
       permissionLabel: toTitleCase(
         replaceTextWithSeparator(record.label, '_', ' ')
       ),
-      permissionDescription: toSentenceCase(record.description),
+      permissionDescription: record.description
+        ? toSentenceCase(record.description)
+        : '',
       moduleName: toTitleCase(
         replaceTextWithSeparator(record.module, '_', ' ')
       ),
