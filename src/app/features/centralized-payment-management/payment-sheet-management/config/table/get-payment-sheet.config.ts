@@ -1,5 +1,4 @@
 import { APP_CONFIG } from '@core/config';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
@@ -72,20 +71,10 @@ export const PAYMENT_SHEET_LIST_ROW_ACTIONS: Partial<
     tooltip: 'Return Sheet',
     icon: ICONS.COMMON.ARROW_LEFT,
     severity: EButtonSeverity.WARNING,
-    permission: [
-      APP_PERMISSION.PAYMENT_SHEET.REVIEW,
-      APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
-      APP_PERMISSION.PAYMENT_SHEET.PROCESS,
-    ],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Sheet',
-    permission: [
-      APP_PERMISSION.PAYMENT_SHEET.REVIEW,
-      APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
-      APP_PERMISSION.PAYMENT_SHEET.PROCESS,
-    ],
   },
 ];
 

@@ -23,6 +23,9 @@ const SEARCH_FILTER_PAYMENT_SHEET_FORM_FIELDS_CONFIG: ITableSearchFilterInputFie
         moduleName: MODULE_NAMES.PAYMENTS,
         dropdownName: CONFIGURATION_KEYS.PAYMENTS.SHEET_STATUSES,
       },
+      filterOptions: {
+        exclude: ['CANCELLED'],
+      },
     },
     matchmode: ETableFilterMatchMode.EQUALS,
   },
