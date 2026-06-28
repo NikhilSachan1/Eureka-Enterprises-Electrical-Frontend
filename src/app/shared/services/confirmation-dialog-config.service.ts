@@ -149,7 +149,7 @@ export class ConfirmationDialogService {
     const tokens = (styleClass ?? '')
       .split(/\s+/)
       .filter(Boolean)
-      .filter(t => !/^confirmation-dialog-panel--(sm|md|lg)$/.test(t));
+      .filter(t => !/^confirmation-dialog-panel--(sm|md|lg|xl)$/.test(t));
     if (!tokens.includes('confirmation-dialog-panel')) {
       tokens.unshift('confirmation-dialog-panel');
     }

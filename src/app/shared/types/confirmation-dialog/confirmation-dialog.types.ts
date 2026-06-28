@@ -2,6 +2,7 @@ export enum EDialogSize {
   SMALL = 'sm',
   MEDIUM = 'md',
   LARGE = 'lg',
+  EXTRA_LARGE = 'xl',
 }
 
 export enum EDialogPosition {
