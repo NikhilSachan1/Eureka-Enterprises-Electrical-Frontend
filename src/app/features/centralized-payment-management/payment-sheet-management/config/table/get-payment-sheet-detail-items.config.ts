@@ -1,4 +1,3 @@
-import { APP_CONFIG } from '@core/config';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
   EDataType,
@@ -31,19 +30,11 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG: Partial<IDataTableH
       showSort: false,
     },
     {
-      field: 'actualDue',
-      header: 'Actual Due',
-      bodyTemplate: EDataType.CURRENCY,
-      dataType: EDataType.CURRENCY,
-      currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      showSort: false,
-    },
-    {
-      field: 'payableAmount',
-      header: 'Payable Amount',
-      bodyTemplate: EDataType.CURRENCY,
-      dataType: EDataType.CURRENCY,
-      currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      field: 'itemAmounts',
+      header: 'Amount',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'itemAmountsCell',
+      columnStyleClass: 'cell-allow-wrap',
       showSort: false,
     },
     {

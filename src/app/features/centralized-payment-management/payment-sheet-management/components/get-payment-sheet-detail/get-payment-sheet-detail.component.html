@@ -22,6 +22,24 @@
         [showSearch]="false"
       >
         <ng-template
+          #itemAmountsCell
+          let-row
+        >
+          <app-payment-sheet-amounts-cell
+            leftLabel="Actual Due"
+            [leftAmount]="row.actualDue"
+            leftVariant="due"
+            rightLabel="Payable"
+            [rightAmount]="row.payableAmount"
+            rightVariant="payable"
+            footerLabel="Remaining"
+            [footerAmount]="getRemainingAmount(row)"
+            settledLabel="Fully covered"
+            [isSettled]="isFullyCovered(row)"
+          />
+        </ng-template>
+
+        <ng-template
           #bankDetailsCell
           let-row
         >
@@ -36,6 +54,7 @@
           [bulkActionButtons]="group.table.bulkActions()"
           [rowActions]="group.table.rowActions()"
           [customBodyTemplates]="{
+            itemAmountsCell: itemAmountsCell,
             bankDetailsCell: bankDetailsCell,
           }"
           (rowActionClick)="handlePaymentSheetItemActionClick($any($event))"

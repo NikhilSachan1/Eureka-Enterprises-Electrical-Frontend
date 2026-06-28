@@ -12,6 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 import { LoggerService } from '@core/services';
 import { APP_CONFIG } from '@core/config';
 import { BankDetailsCellComponent } from '@features/centralized-payment-management/shared/components/bank-details-cell/bank-details-cell.component';
+import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
 import { PaymentOutstandingSectionComponent } from '@features/centralized-payment-management/shared/components/payment-outstanding-section/payment-outstanding-section.component';
 import {
   EPaymentOutstandingSectionContext,
@@ -64,6 +65,7 @@ import {
     PaymentOutstandingSectionComponent,
     DataTableComponent,
     BankDetailsCellComponent,
+    PaymentSheetAmountsCellComponent,
     EmptyMessagesComponent,
     ButtonComponent,
   ],
@@ -139,6 +141,14 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     }
 
     this.applyDetail(resolvedDetail);
+  }
+
+  protected getRemainingAmount(row: IPaymentSheetDetailItemRow): number {
+    return Math.max(0, row.actualDue - row.payableAmount);
+  }
+
+  protected isFullyCovered(row: IPaymentSheetDetailItemRow): boolean {
+    return this.getRemainingAmount(row) <= 0;
   }
 
   protected onHeaderButtonClick(actionType: string): void {

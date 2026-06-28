@@ -11,40 +11,18 @@
   #paymentSheetAmounts
   let-row
 >
-  @let cur = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
-  @let fmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
-  @let loc = APP_CONFIG.NUMBER_FORMATS.LOCALE;
-  @let pending = getPendingAmount(row);
-
-  <article class="payment-sheet-amounts">
-    <div class="payment-sheet-amounts__grid">
-      <div class="payment-sheet-amounts__tile payment-sheet-amounts__tile--payable">
-        <span class="payment-sheet-amounts__tile-label">Payable</span>
-        <span class="payment-sheet-amounts__tile-value">
-          {{ row.totalCurrentAmount | currency: cur : 'symbol' : fmt : loc }}
-        </span>
-      </div>
-
-      <div class="payment-sheet-amounts__tile payment-sheet-amounts__tile--paid">
-        <span class="payment-sheet-amounts__tile-label">Paid</span>
-        <span class="payment-sheet-amounts__tile-value">
-          {{ row.totalPaidAmount | currency: cur : 'symbol' : fmt : loc }}
-        </span>
-      </div>
-    </div>
-
-    <div
-      class="payment-sheet-amounts__footer"
-      [class.payment-sheet-amounts__footer--settled]="isFullyPaid(row)"
-    >
-      @if (isFullyPaid(row)) {
-        <span class="payment-sheet-amounts__settled">Fully paid</span>
-      } @else {
-        <span class="payment-sheet-amounts__footer-label">Pending</span>
-        <span class="payment-sheet-amounts__footer-value">{{ pending | currency: cur : 'symbol' : fmt : loc }}</span>
-      }
-    </div>
-  </article>
+  <app-payment-sheet-amounts-cell
+    leftLabel="Payable"
+    [leftAmount]="row.totalCurrentAmount"
+    leftVariant="payable"
+    rightLabel="Paid"
+    [rightAmount]="row.totalPaidAmount"
+    rightVariant="paid"
+    footerLabel="Pending"
+    [footerAmount]="getPendingAmount(row)"
+    settledLabel="Fully paid"
+    [isSettled]="isFullyPaid(row)"
+  />
 </ng-template>
 
 <app-data-table

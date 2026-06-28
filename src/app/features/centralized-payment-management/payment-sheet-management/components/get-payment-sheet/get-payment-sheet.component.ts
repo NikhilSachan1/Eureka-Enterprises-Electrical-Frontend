@@ -1,4 +1,3 @@
-import { CurrencyPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,8 +7,8 @@ import {
   OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
+import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
@@ -46,15 +45,13 @@ import { IPaymentSheet } from '../../types/payment-sheet.interface';
     PageHeaderComponent,
     SearchFilterComponent,
     DataTableComponent,
-    CurrencyPipe,
+    PaymentSheetAmountsCellComponent,
   ],
   templateUrl: './get-payment-sheet.component.html',
   styleUrl: './get-payment-sheet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetPaymentSheetComponent implements OnInit {
-  protected readonly APP_CONFIG = APP_CONFIG;
-
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
