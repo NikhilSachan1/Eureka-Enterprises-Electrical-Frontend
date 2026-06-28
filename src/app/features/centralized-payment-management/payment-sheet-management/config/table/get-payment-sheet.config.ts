@@ -1,13 +1,17 @@
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
+import { ICONS } from '@shared/constants';
 import {
+  EButtonActionType,
+  EButtonSeverity,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
   ITableActionConfig,
 } from '@shared/types';
-import { IPaymentSheetGetBaseResponseDto } from '../../types/payment-sheet.dto';
+import { IPaymentSheet } from '../../types/payment-sheet.interface';
 
 export const PAYMENT_SHEET_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No payment sheet found.',
@@ -57,13 +61,26 @@ export const PAYMENT_SHEET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[
     },
   ];
 
-export const PAYMENT_SHEET_LIST_ROW_ACTIONS: Partial<ITableActionConfig>[] = [
+export const PAYMENT_SHEET_LIST_ROW_ACTIONS: Partial<
+  ITableActionConfig<IPaymentSheet>
+>[] = [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
   },
+  {
+    id: EButtonActionType.CANCEL,
+    tooltip: 'Return Sheet',
+    icon: ICONS.COMMON.ARROW_LEFT,
+    severity: EButtonSeverity.WARNING,
+    permission: [
+      APP_PERMISSION.PAYMENT_SHEET.REVIEW,
+      APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
+      APP_PERMISSION.PAYMENT_SHEET.PROCESS,
+    ],
+  },
 ];
 
-export function createPaymentSheetTableEnhancedConfig(): IEnhancedTableConfig<IPaymentSheetGetBaseResponseDto> {
+export function createPaymentSheetTableEnhancedConfig(): IEnhancedTableConfig<IPaymentSheet> {
   return {
     tableConfig: PAYMENT_SHEET_TABLE_CONFIG,
     headers: PAYMENT_SHEET_TABLE_HEADER_CONFIG,

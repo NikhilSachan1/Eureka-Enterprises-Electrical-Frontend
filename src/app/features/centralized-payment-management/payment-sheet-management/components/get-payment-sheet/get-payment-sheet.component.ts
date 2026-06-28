@@ -7,6 +7,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
@@ -15,12 +16,16 @@ import { SearchFilterComponent } from '@shared/components/search-filter/search-f
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   AppConfigurationService,
+  ConfirmationDialogService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
 import {
   EButtonActionType,
+  EDataType,
+  IDataViewDetails,
+  IDataViewDetailsWithEntity,
   IEnhancedTable,
   IPageHeaderConfig,
   ITableActionClickEvent,
@@ -30,6 +35,7 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG } from '../../config/form/search-filter-payment-sheet.config';
+import { PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP } from '../../config/dialog/get-payment-sheet-list.config';
 import { createPaymentSheetTableEnhancedConfig } from '../../config/table/get-payment-sheet.config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
@@ -61,6 +67,9 @@ export class GetPaymentSheetComponent implements OnInit {
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly routerNavigationService = inject(RouterNavigationService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -100,7 +109,59 @@ export class GetPaymentSheetComponent implements OnInit {
         ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEETS,
         selectedRow.id,
       ]);
+      return;
     }
+
+    if (actionType === EButtonActionType.CANCEL && selectedRow?.id) {
+      const actionConfig = PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP[actionType];
+
+      if (!actionConfig) {
+        return;
+      }
+
+      this.confirmationDialogService.showConfirmationDialog(
+        actionType,
+        actionConfig,
+        this.preparePaymentSheetRecordDetail(selectedRow),
+        false,
+        true,
+        {
+          paymentSheetId: selectedRow.id,
+          onSuccess: () => this.loadPaymentSheetList(),
+        }
+      );
+    }
+  }
+
+  private preparePaymentSheetRecordDetail(
+    row: IPaymentSheet
+  ): IDataViewDetailsWithEntity {
+    const entryData: IDataViewDetails['entryData'] = [
+      {
+        label: 'Status',
+        value: row.status,
+        type: EDataType.TEXT,
+      },
+      {
+        label: 'Current Stage',
+        value: row.currentStage,
+        type: EDataType.TEXT,
+      },
+      {
+        label: 'Payable Amount',
+        value: row.totalCurrentAmount,
+        type: EDataType.CURRENCY,
+        format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
+      },
+    ];
+
+    return {
+      details: [{ entryData }],
+      entity: {
+        name: row.sheetNumber,
+        subtitle: row.title ?? '—',
+      },
+    };
   }
 
   private loadPaymentSheetList(): void {

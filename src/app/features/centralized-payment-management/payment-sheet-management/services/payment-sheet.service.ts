@@ -15,7 +15,11 @@ import {
   UpdatePaymentSheetItemRequestSchema,
   UpdatePaymentSheetItemResponseSchema,
   ForwardPaymentSheetResponseSchema,
+  RejectPaymentSheetRequestSchema,
+  RejectPaymentSheetResponseSchema,
   SubmitPaymentSheetResponseSchema,
+  ReturnPaymentSheetRequestSchema,
+  ReturnPaymentSheetResponseSchema,
 } from '../schemas';
 import {
   IAddPaymentSheetItemsFormDto,
@@ -31,6 +35,10 @@ import {
   IUpdatePaymentSheetItemFormDto,
   IUpdatePaymentSheetItemResponseDto,
   IForwardPaymentSheetResponseDto,
+  IRejectPaymentSheetFormDto,
+  IRejectPaymentSheetResponseDto,
+  IReturnPaymentSheetFormDto,
+  IReturnPaymentSheetResponseDto,
   ISubmitPaymentSheetResponseDto,
 } from '../types/payment-sheet.dto';
 
@@ -334,6 +342,82 @@ export class PaymentSheetService {
             );
           } else {
             this.logger.logUserAction('Forward Payment Sheet Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  returnPaymentSheet(
+    paymentSheetId: string,
+    formData: IReturnPaymentSheetFormDto
+  ): Observable<IReturnPaymentSheetResponseDto> {
+    this.logger.logUserAction('Return Payment Sheet Request', {
+      paymentSheetId,
+      formData,
+    });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.RETURN_PAYMENT_SHEET_BY_ID(
+          paymentSheetId
+        ),
+        {
+          response: ReturnPaymentSheetResponseSchema,
+          request: ReturnPaymentSheetRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction('Return Payment Sheet Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Return Payment Sheet Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Return Payment Sheet Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  rejectPaymentSheet(
+    paymentSheetId: string,
+    formData: IRejectPaymentSheetFormDto
+  ): Observable<IRejectPaymentSheetResponseDto> {
+    this.logger.logUserAction('Reject Payment Sheet Request', {
+      paymentSheetId,
+      formData,
+    });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.REJECT_PAYMENT_SHEET_BY_ID(
+          paymentSheetId
+        ),
+        {
+          response: RejectPaymentSheetResponseSchema,
+          request: RejectPaymentSheetRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction('Reject Payment Sheet Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Reject Payment Sheet Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Reject Payment Sheet Error', error);
           }
           return throwError(() => error);
         })
