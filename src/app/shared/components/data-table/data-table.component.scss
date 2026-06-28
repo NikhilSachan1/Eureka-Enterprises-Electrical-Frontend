@@ -177,6 +177,21 @@
   cursor: not-allowed;
 }
 
+::ng-deep tr.row-selection-disabled {
+  opacity: 0.55;
+
+  .p-checkbox,
+  .p-checkbox-box,
+  .p-checkbox-input {
+    cursor: not-allowed;
+  }
+
+  .p-checkbox.p-disabled,
+  .p-checkbox-box.p-disabled {
+    opacity: 1;
+  }
+}
+
 // SelectButton styling for view mode toggle
 ::ng-deep .view-mode-toggle {
   .p-selectbutton {

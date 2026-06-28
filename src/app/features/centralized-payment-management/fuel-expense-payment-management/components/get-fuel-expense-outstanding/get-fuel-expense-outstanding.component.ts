@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   inject,
+  input,
   OnInit,
   output,
   signal,
@@ -19,7 +20,10 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { BankDetailsCellComponent } from '../../../shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
-import { EPaymentOutstandingSourceType } from '../../../shared/config/payment-outstanding-source-section.config';
+import {
+  EPaymentOutstandingSourceType,
+  isPaymentOutstandingRowSelectionDisabled,
+} from '../../../shared/config/payment-outstanding-source-section.config';
 import { createFuelExpenseOutstandingTableEnhancedConfig } from '../../config';
 import { FuelExpenseOutstandingService } from '../../services/fuel-expense-outstanding.service';
 import {
@@ -43,6 +47,7 @@ import { IFuelExpenseOutstanding } from '../../types/fuel-expense-outstanding.in
 })
 export class GetFuelExpenseOutstandingComponent implements OnInit {
   selectionChange = output<IFuelExpenseOutstandingGetBaseResponseDto[]>();
+  excludedUserIds = input<ReadonlySet<string>>(new Set());
 
   protected readonly EPaymentOutstandingSourceType =
     EPaymentOutstandingSourceType;
@@ -69,6 +74,7 @@ export class GetFuelExpenseOutstandingComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       createFuelExpenseOutstandingTableEnhancedConfig()
     );
+    this.syncRowSelectionRules();
   }
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
@@ -88,6 +94,19 @@ export class GetFuelExpenseOutstandingComponent implements OnInit {
     this.selectionChange.emit(
       selectedRows as IFuelExpenseOutstandingGetBaseResponseDto[]
     );
+  }
+
+  private syncRowSelectionRules(): void {
+    if (!this.table) {
+      return;
+    }
+
+    const excludedUserIds = this.excludedUserIds();
+
+    this.table.updateTableConfig({
+      disableRowSelectionWhen: row =>
+        isPaymentOutstandingRowSelectionDisabled(row, excludedUserIds),
+    });
   }
 
   private loadFuelExpenseOutstandingList(): void {

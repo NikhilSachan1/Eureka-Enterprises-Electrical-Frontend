@@ -155,7 +155,22 @@ export class DataTableComponent {
   attachmentClick = output<Record<string, unknown>>();
   selectionChange = output<Record<string, unknown>[]>();
 
+  protected readonly rowSelectable = ({
+    data,
+  }: {
+    data: Record<string, unknown>;
+    index: number;
+  }): boolean => {
+    const disableWhen = this.tableConfig().disableRowSelectionWhen;
+    if (!disableWhen) {
+      return true;
+    }
+
+    return !disableWhen(this.extractOriginalData(data));
+  };
+
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
+  private lastEmittedSelectionKey = '';
   protected visibleTableHeaders = computed(() => {
     return this.permissionService.filterByPermission(this.tableHeader());
   });
@@ -311,9 +326,19 @@ export class DataTableComponent {
         return;
       }
 
-      const selectedRows = this.selectedTableRows().map(row =>
-        this.extractOriginalData(row)
-      );
+      const idPath = this.tableConfig().tableUniqueId;
+      const selectedRows = this.selectedTableRows()
+        .filter(row => !this.isRowSelectionDisabled(row))
+        .map(row => this.extractOriginalData(row));
+      const selectionKey = selectedRows
+        .map(row => String(row['userId'] ?? row[idPath] ?? ''))
+        .join('|');
+
+      if (selectionKey === this.lastEmittedSelectionKey) {
+        return;
+      }
+
+      this.lastEmittedSelectionKey = selectionKey;
       this.selectionChange.emit(selectedRows);
     });
   }
@@ -375,6 +400,11 @@ export class DataTableComponent {
     rowData: Record<string, unknown>,
     event: Event
   ): void {
+    if (this.isRowSelectionDisabled(rowData)) {
+      event.preventDefault();
+      return;
+    }
+
     const target = event.target as HTMLInputElement;
     const idPath = this.tableConfig().tableUniqueId;
     const rowId = this.normalizeRowIdForSelection(rowData, idPath);
@@ -470,6 +500,15 @@ export class DataTableComponent {
       return rowData['originalRawData'] as Record<string, unknown>;
     }
     return rowData;
+  }
+
+  protected isRowSelectionDisabled(rowData: Record<string, unknown>): boolean {
+    const disableWhen = this.tableConfig().disableRowSelectionWhen;
+    if (!disableWhen) {
+      return false;
+    }
+
+    return disableWhen(this.extractOriginalData(rowData));
   }
 
   protected isActionDisabled(

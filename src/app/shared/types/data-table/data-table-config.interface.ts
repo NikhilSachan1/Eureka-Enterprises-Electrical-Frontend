@@ -37,6 +37,8 @@ export interface IDataTableConfig {
   selectionColumn?: IDataTableFrozenColumnConfig;
   /** Freeze config for the row actions column. */
   actionsColumn?: IDataTableFrozenColumnConfig;
+  /** When true, row checkbox selection is disabled for that row. */
+  disableRowSelectionWhen?: (rowData: Record<string, unknown>) => boolean;
 }
 
 export interface IDataTableFrozenColumnConfig {

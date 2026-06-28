@@ -87,6 +87,7 @@
     [scrollable]="isTableScrollable()"
     [scrollHeight]="tableConfig().scrollHeight"
     [styleClass]="tableConfig().tableStyleClass"
+    [rowSelectable]="rowSelectable"
   >
     <ng-template
       #header
@@ -201,7 +202,7 @@
       let-rowData
       let-columns="columns"
     >
-      <tr>
+      <tr [class.row-selection-disabled]="isRowSelectionDisabled(rowData)">
         @if (showBulkSelectionCheckbox()) {
           <td
             pFrozenColumn
@@ -211,7 +212,10 @@
             [style.minWidth]="getColumnWidth(tableConfig().selectionColumn, defaultFrozenSelectionColumn)"
             [style.maxWidth]="getColumnWidth(tableConfig().selectionColumn, defaultFrozenSelectionColumn)"
           >
-            <p-tableCheckbox [value]="rowData" />
+            <p-tableCheckbox
+              [value]="rowData"
+              [disabled]="isRowSelectionDisabled(rowData)"
+            />
           </td>
         }
 
@@ -358,10 +362,15 @@
           >
             @if (showBulkSelectionCheckbox()) {
               <div class="mb-4 pb-3 border-b border-border">
-                <label class="flex items-center cursor-pointer">
+                <label
+                  class="flex items-center"
+                  [class.cursor-pointer]="!isRowSelectionDisabled(rowData)"
+                  [class.cursor-not-allowed]="isRowSelectionDisabled(rowData)"
+                >
                   <input
                     type="checkbox"
                     [checked]="isRowSelected(rowData)"
+                    [disabled]="isRowSelectionDisabled(rowData)"
                     (change)="toggleRowSelection(rowData, $event)"
                     class="w-4 h-4 text-emerald-600 bg-bg-paper border-2 border-border-medium rounded focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 cursor-pointer transition-colors"
                   />

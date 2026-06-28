@@ -79,3 +79,16 @@ export function getPaymentOutstandingSourceSectionMeta(
     recordCountUnit: RECORD_COUNT_UNIT_BY_SOURCE[sourceType],
   };
 }
+
+export function isPaymentOutstandingRowSelectionDisabled(
+  row: Record<string, unknown>,
+  excludedUserIds: ReadonlySet<string> = new Set()
+): boolean {
+  const pendingAmount = Number(row['pendingAmount'] ?? 0);
+
+  if (pendingAmount <= 0) {
+    return true;
+  }
+
+  return excludedUserIds.has(String(row['userId'] ?? ''));
+}

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   input,
@@ -24,7 +25,9 @@ import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
   IAddPaymentSheetItemsFormDto,
   IAddPaymentSheetItemsResponseDto,
+  IPaymentSheetItemDetailDto,
 } from '../../types/payment-sheet.dto';
+import { EPaymentSheetSourceType } from '../../types/payment-sheet.enum';
 import { buildPaymentSheetItemsFromOutstanding } from '../../utils/build-payment-sheet-items.util';
 
 @Component({
@@ -47,6 +50,7 @@ export class AddPaymentSheetItemsComponent
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly paymentSheetId = input.required<string>();
+  protected readonly existingItems = input<IPaymentSheetItemDetailDto[]>([]);
   protected readonly onSuccess = input.required<() => void>();
 
   protected readonly selectedExpenseRecords = signal<
@@ -55,6 +59,31 @@ export class AddPaymentSheetItemsComponent
   protected readonly selectedFuelRecords = signal<
     IFuelExpenseOutstandingGetBaseResponseDto[]
   >([]);
+
+  protected readonly excludedExpenseUserIds = computed(
+    () =>
+      new Set(
+        this.existingItems()
+          .filter(
+            item =>
+              item.sourceType === EPaymentSheetSourceType.EXPENSE && item.userId
+          )
+          .map(item => item.userId as string)
+      )
+  );
+
+  protected readonly excludedFuelUserIds = computed(
+    () =>
+      new Set(
+        this.existingItems()
+          .filter(
+            item =>
+              item.sourceType === EPaymentSheetSourceType.FUEL_EXPENSE &&
+              item.userId
+          )
+          .map(item => item.userId as string)
+      )
+  );
 
   ngOnInit(): void {
     if (!this.paymentSheetId()) {

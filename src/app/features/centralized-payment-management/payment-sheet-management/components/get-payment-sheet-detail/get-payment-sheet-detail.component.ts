@@ -179,6 +179,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       false,
       {
         paymentSheetId: this.paymentSheetId,
+        existingItems: this.detail()?.items ?? [],
         onSuccess: () => this.reloadDetail(),
       }
     );

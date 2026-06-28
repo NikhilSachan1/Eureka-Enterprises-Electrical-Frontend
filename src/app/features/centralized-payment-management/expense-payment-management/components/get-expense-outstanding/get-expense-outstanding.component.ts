@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   inject,
+  input,
   OnInit,
   output,
   signal,
@@ -19,7 +20,10 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { BankDetailsCellComponent } from '../../../shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
-import { EPaymentOutstandingSourceType } from '../../../shared/config/payment-outstanding-source-section.config';
+import {
+  EPaymentOutstandingSourceType,
+  isPaymentOutstandingRowSelectionDisabled,
+} from '../../../shared/config/payment-outstanding-source-section.config';
 import { createExpenseOutstandingTableEnhancedConfig } from '../../config';
 import { ExpenseOutstandingService } from '../../services/expense-outstanding.service';
 import {
@@ -42,6 +46,7 @@ import { IExpenseOutstanding } from '../../types/expense-outstanding.interface';
 })
 export class GetExpenseOutstandingComponent implements OnInit {
   selectionChange = output<IExpenseOutstandingGetBaseResponseDto[]>();
+  excludedUserIds = input<ReadonlySet<string>>(new Set());
 
   protected readonly EPaymentOutstandingSourceType =
     EPaymentOutstandingSourceType;
@@ -68,6 +73,7 @@ export class GetExpenseOutstandingComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       createExpenseOutstandingTableEnhancedConfig()
     );
+    this.syncRowSelectionRules();
   }
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
@@ -87,6 +93,19 @@ export class GetExpenseOutstandingComponent implements OnInit {
     this.selectionChange.emit(
       selectedRows as IExpenseOutstandingGetBaseResponseDto[]
     );
+  }
+
+  private syncRowSelectionRules(): void {
+    if (!this.table) {
+      return;
+    }
+
+    const excludedUserIds = this.excludedUserIds();
+
+    this.table.updateTableConfig({
+      disableRowSelectionWhen: row =>
+        isPaymentOutstandingRowSelectionDisabled(row, excludedUserIds),
+    });
   }
 
   private loadExpenseOutstandingList(): void {
