@@ -9,6 +9,8 @@ export interface IPaymentSheetDetailItemRow {
   actualDue: number;
   payableAmount: number;
   itemStatus: string;
+  paidAt: string | null;
+  paymentRef: string | null;
   bankDetails: IBankDetailsCellValue | null;
 }
 export interface IPaymentSheetDetailSourceGroupView {

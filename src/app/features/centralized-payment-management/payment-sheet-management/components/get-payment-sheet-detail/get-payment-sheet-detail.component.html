@@ -40,6 +40,32 @@
         </ng-template>
 
         <ng-template
+          #itemPaymentCell
+          let-row
+        >
+          @if (row.paidAt || row.paymentRef) {
+            <div class="ps-detail-payment">
+              @if (row.paidAt) {
+                <div class="ps-detail-payment__tile">
+                  <span class="ps-detail-payment__label">Paid At</span>
+                  <span class="ps-detail-payment__value">
+                    {{ row.paidAt | date: paidAtDateFormat : undefined : paidAtDateLocale }}
+                  </span>
+                </div>
+              }
+              @if (row.paymentRef) {
+                <div class="ps-detail-payment__tile">
+                  <span class="ps-detail-payment__label">Payment Ref</span>
+                  <span class="ps-detail-payment__value">{{ row.paymentRef }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <span class="ps-detail-payment__empty">-</span>
+          }
+        </ng-template>
+
+        <ng-template
           #bankDetailsCell
           let-row
         >
@@ -55,6 +81,7 @@
           [rowActions]="group.table.rowActions()"
           [customBodyTemplates]="{
             itemAmountsCell: itemAmountsCell,
+            itemPaymentCell: itemPaymentCell,
             bankDetailsCell: bankDetailsCell,
           }"
           (rowActionClick)="handlePaymentSheetItemActionClick($any($event))"

@@ -1,4 +1,4 @@
-import { uuidField } from '@shared/schemas';
+import { isoDateTimeField, uuidField } from '@shared/schemas';
 import { UserSchema } from '@shared/schemas/user.schema';
 import z from 'zod';
 import { EPaymentSheetSourceType } from '../types/payment-sheet.enum';
@@ -37,6 +37,8 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   currentAmount: z.coerce.number(),
   bankSnapshot: PaymentSheetBankSnapshotSchema,
   itemStatus: z.string(),
+  paidAt: isoDateTimeField.nullable(),
+  paymentRef: z.string().nullable(),
   user: UserSchema.nullable(),
   vendor: PaymentSheetVendorSnapshotSchema,
 });

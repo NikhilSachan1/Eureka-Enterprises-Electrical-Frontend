@@ -45,6 +45,14 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG: Partial<IDataTableH
       showSort: false,
     },
     {
+      field: 'itemPayment',
+      header: 'Payment',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'itemPaymentCell',
+      columnStyleClass: 'cell-allow-wrap',
+      showSort: false,
+    },
+    {
       field: 'bankDetails',
       header: 'Bank Details',
       bodyTemplate: EDataType.TEXT,

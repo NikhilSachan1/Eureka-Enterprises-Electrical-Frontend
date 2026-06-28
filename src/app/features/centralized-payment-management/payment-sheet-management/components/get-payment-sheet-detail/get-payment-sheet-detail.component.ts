@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+import { DatePipe } from '@angular/common';
 import { LoggerService } from '@core/services';
 import { APP_CONFIG } from '@core/config';
 import { BankDetailsCellComponent } from '@features/centralized-payment-management/shared/components/bank-details-cell/bank-details-cell.component';
@@ -61,6 +62,7 @@ import {
 @Component({
   selector: 'app-get-payment-sheet-detail',
   imports: [
+    DatePipe,
     PageHeaderComponent,
     PaymentOutstandingSectionComponent,
     DataTableComponent,
@@ -76,6 +78,10 @@ import {
 export class GetPaymentSheetDetailComponent implements OnInit {
   protected readonly EPaymentOutstandingSectionContext =
     EPaymentOutstandingSectionContext;
+
+  protected readonly paidAtDateFormat =
+    APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
+  protected readonly paidAtDateLocale = APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE;
 
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dataTableService = inject(TableService);
@@ -320,6 +326,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         this.appConfigurationService.paymentSheetItemStatuses(),
         item.itemStatus
       ),
+      paidAt: item.paidAt ?? null,
+      paymentRef: item.paymentRef ?? null,
       bankDetails: item.bankSnapshot
         ? {
             bankHolderName: item.bankSnapshot.accountHolderName,
