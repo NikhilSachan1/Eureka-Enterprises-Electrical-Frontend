@@ -44,10 +44,12 @@
     }
   </section>
 
-  <footer class="button-container ps-detail__submit">
-    <app-button
-      [buttonConfig]="submitSheetButtonConfig()"
-      (onButtonClick)="onSubmitSheetClick()"
-    />
+  <footer class="button-container ps-detail__forward">
+    @for (item of workflowButtonConfigs(); track item.actionType) {
+      <app-button
+        [buttonConfig]="item.buttonConfig"
+        (onButtonClick)="onWorkflowActionClick(item.actionType)"
+      />
+    }
   </footer>
 }

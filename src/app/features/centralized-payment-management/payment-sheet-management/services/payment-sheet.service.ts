@@ -14,6 +14,7 @@ import {
   PaymentSheetGetResponseSchema,
   UpdatePaymentSheetItemRequestSchema,
   UpdatePaymentSheetItemResponseSchema,
+  ForwardPaymentSheetResponseSchema,
   SubmitPaymentSheetResponseSchema,
 } from '../schemas';
 import {
@@ -29,6 +30,7 @@ import {
   IPaymentSheetGetResponseDto,
   IUpdatePaymentSheetItemFormDto,
   IUpdatePaymentSheetItemResponseDto,
+  IForwardPaymentSheetResponseDto,
   ISubmitPaymentSheetResponseDto,
 } from '../types/payment-sheet.dto';
 
@@ -298,6 +300,40 @@ export class PaymentSheetService {
             );
           } else {
             this.logger.logUserAction('Submit Payment Sheet Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  forwardPaymentSheet(
+    paymentSheetId: string
+  ): Observable<IForwardPaymentSheetResponseDto> {
+    this.logger.logUserAction('Forward Payment Sheet Request', {
+      paymentSheetId,
+    });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.FORWARD_PAYMENT_SHEET_BY_ID(
+          paymentSheetId
+        ),
+        {
+          response: ForwardPaymentSheetResponseSchema,
+        }
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction('Forward Payment Sheet Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Forward Payment Sheet Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Forward Payment Sheet Error', error);
           }
           return throwError(() => error);
         })

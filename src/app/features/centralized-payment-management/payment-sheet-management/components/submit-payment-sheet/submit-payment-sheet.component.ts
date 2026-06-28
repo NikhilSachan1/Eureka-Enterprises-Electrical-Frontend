@@ -15,9 +15,13 @@ import {
   NotificationService,
 } from '@shared/services';
 import { IDialogActionHandler } from '@shared/types';
-import { finalize } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
-import { ISubmitPaymentSheetResponseDto } from '../../types/payment-sheet.dto';
+import {
+  IForwardPaymentSheetResponseDto,
+  ISubmitPaymentSheetResponseDto,
+} from '../../types/payment-sheet.dto';
+import { EPaymentSheetWorkflowActionType } from '../../types/payment-sheet.enum';
 
 @Component({
   selector: 'app-submit-payment-sheet',
@@ -39,6 +43,8 @@ export class SubmitPaymentSheetComponent
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly paymentSheetId = input.required<string>();
+  protected readonly workflowActionType =
+    input.required<EPaymentSheetWorkflowActionType>();
   protected readonly onSuccess = input.required<() => void>();
 
   ngOnInit(): void {
@@ -47,7 +53,7 @@ export class SubmitPaymentSheetComponent
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
       this.logger.error(
-        'Payment sheet id is required to submit but was not provided'
+        'Payment sheet id is required for workflow action but was not provided'
       );
     }
   }
@@ -59,18 +65,64 @@ export class SubmitPaymentSheetComponent
       return;
     }
 
-    this.executeSubmitPaymentSheetAction(paymentSheetId);
+    this.executeWorkflowAction(paymentSheetId);
   }
 
-  private executeSubmitPaymentSheetAction(paymentSheetId: string): void {
+  private executeWorkflowAction(paymentSheetId: string): void {
+    switch (this.workflowActionType()) {
+      case EPaymentSheetWorkflowActionType.FORWARD_TO_HR:
+        this.runWorkflowAction({
+          loadingTitle: 'Forwarding to HR',
+          loadingMessage:
+            "We're forwarding this payment sheet to HR. This will just take a moment.",
+          errorMessage: 'Failed to forward payment sheet to HR.',
+          request$: this.paymentSheetService.submitPaymentSheet(paymentSheetId),
+        });
+        return;
+      case EPaymentSheetWorkflowActionType.FORWARD_TO_ADMIN:
+        this.runWorkflowAction({
+          loadingTitle: 'Forwarding to Admin',
+          loadingMessage:
+            "We're forwarding this payment sheet to Admin. This will just take a moment.",
+          errorMessage: 'Failed to forward payment sheet to Admin.',
+          request$:
+            this.paymentSheetService.forwardPaymentSheet(paymentSheetId),
+        });
+        return;
+      case EPaymentSheetWorkflowActionType.FORWARD_TO_ACCOUNTANT:
+        this.runWorkflowAction({
+          loadingTitle: 'Forwarding to Accountant',
+          loadingMessage:
+            "We're forwarding this payment sheet to Accountant. This will just take a moment.",
+          errorMessage: 'Failed to forward payment sheet to Accountant.',
+          request$:
+            this.paymentSheetService.forwardPaymentSheet(paymentSheetId),
+        });
+        return;
+      default:
+        this.logger.error(
+          `Unknown payment sheet workflow action type: ${this.workflowActionType()}`
+        );
+        this.notificationService.error(
+          FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
+        );
+    }
+  }
+
+  private runWorkflowAction(options: {
+    loadingTitle: string;
+    loadingMessage: string;
+    errorMessage: string;
+    request$: Observable<
+      ISubmitPaymentSheetResponseDto | IForwardPaymentSheetResponseDto
+    >;
+  }): void {
     this.loadingService.show({
-      title: 'Forwarding to HR',
-      message:
-        "We're forwarding this payment sheet to HR. This will just take a moment.",
+      title: options.loadingTitle,
+      message: options.loadingMessage,
     });
 
-    this.paymentSheetService
-      .submitPaymentSheet(paymentSheetId)
+    options.request$
       .pipe(
         finalize(() => {
           this.loadingService.hide();
@@ -78,16 +130,18 @@ export class SubmitPaymentSheetComponent
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (response: ISubmitPaymentSheetResponseDto) => {
+        next: (
+          response:
+            | ISubmitPaymentSheetResponseDto
+            | IForwardPaymentSheetResponseDto
+        ) => {
           this.notificationService.success(response.message);
           this.onSuccess()();
           this.confirmationDialogService.closeDialog();
         },
         error: error => {
-          this.logger.error('Failed to forward payment sheet to HR', error);
-          this.notificationService.error(
-            'Failed to forward payment sheet to HR.'
-          );
+          this.logger.error(options.errorMessage, error);
+          this.notificationService.error(options.errorMessage);
         },
       });
   }

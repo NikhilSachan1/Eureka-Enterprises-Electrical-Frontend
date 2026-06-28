@@ -12,26 +12,12 @@ import { AddPaymentSheetItemsComponent } from '../../components/add-payment-shee
 import { DeletePaymentSheetItemComponent } from '../../components/delete-payment-sheet-item/delete-payment-sheet-item.component';
 import { EditPaymentSheetItemComponent } from '../../components/edit-payment-sheet-item/edit-payment-sheet-item.component';
 import { SubmitPaymentSheetComponent } from '../../components/submit-payment-sheet/submit-payment-sheet.component';
+import { EPaymentSheetWorkflowActionType } from '../../types/payment-sheet.enum';
 
 export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
   string,
   IDialogActionConfig
 > = {
-  [EButtonActionType.SUBMIT]: {
-    dialogConfig: {
-      ...CONFIRMATION_DIALOG_CONFIG,
-      header: 'Forward to HR?',
-      icon: ICONS.ACTIONS.SEND,
-      message:
-        'This payment sheet will be forwarded to HR for processing. You cannot edit beneficiaries after forwarding.',
-      labels: {
-        actionWord: 'forward to HR',
-        singleLabel: 'Forward to HR',
-        bulkLabel: 'Forward to HR',
-      },
-    },
-    dynamicComponent: SubmitPaymentSheetComponent,
-  },
   [EButtonActionType.ADD]: {
     dialogConfig: {
       ...CONFIRMATION_DIALOG_CONFIG,
@@ -68,5 +54,50 @@ export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
       },
     },
     dynamicComponent: DeletePaymentSheetItemComponent,
+  },
+  [EPaymentSheetWorkflowActionType.FORWARD_TO_HR]: {
+    dialogConfig: {
+      ...CONFIRMATION_DIALOG_CONFIG,
+      header: 'Forward to HR?',
+      icon: ICONS.ACTIONS.SEND,
+      message:
+        'This payment sheet will be forwarded to HR for review. You cannot edit beneficiaries after forwarding.',
+      labels: {
+        actionWord: 'forward to HR',
+        singleLabel: 'Forward to HR',
+        bulkLabel: 'Forward to HR',
+      },
+    },
+    dynamicComponent: SubmitPaymentSheetComponent,
+  },
+  [EPaymentSheetWorkflowActionType.FORWARD_TO_ADMIN]: {
+    dialogConfig: {
+      ...CONFIRMATION_DIALOG_CONFIG,
+      header: 'Forward to Admin?',
+      icon: ICONS.ACTIONS.SEND,
+      message:
+        'This payment sheet will be forwarded to Admin for review. You cannot edit beneficiaries after forwarding.',
+      labels: {
+        actionWord: 'forward to Admin',
+        singleLabel: 'Forward to Admin',
+        bulkLabel: 'Forward to Admin',
+      },
+    },
+    dynamicComponent: SubmitPaymentSheetComponent,
+  },
+  [EPaymentSheetWorkflowActionType.FORWARD_TO_ACCOUNTANT]: {
+    dialogConfig: {
+      ...CONFIRMATION_DIALOG_CONFIG,
+      header: 'Forward to Accountant?',
+      icon: ICONS.ACTIONS.SEND,
+      message:
+        'This payment sheet will be forwarded to Accountant for processing. You cannot edit beneficiaries after forwarding.',
+      labels: {
+        actionWord: 'forward to Accountant',
+        singleLabel: 'Forward to Accountant',
+        bulkLabel: 'Forward to Accountant',
+      },
+    },
+    dynamicComponent: SubmitPaymentSheetComponent,
   },
 };

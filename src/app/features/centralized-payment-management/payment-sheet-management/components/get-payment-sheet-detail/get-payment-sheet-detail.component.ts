@@ -51,7 +51,11 @@ import {
   IPaymentSheetDetailItemRow,
   IPaymentSheetDetailSourceGroupView,
 } from '../../types/payment-sheet-detail.interface';
-import { EPaymentSheetSourceType } from '../../types/payment-sheet.enum';
+import {
+  EPaymentSheetSourceType,
+  EPaymentSheetWorkflowActionType,
+  PAYMENT_SHEET_WORKFLOW_ACTION_TYPES,
+} from '../../types/payment-sheet.enum';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
@@ -112,13 +116,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
   protected pageHeaderConfig = computed(() => this.buildPageHeaderConfig());
 
-  protected readonly submitSheetButtonConfig = computed<Partial<IButtonConfig>>(
-    () => ({
-      id: EButtonActionType.SUBMIT,
-      label: 'Forward to HR',
-      icon: ICONS.ACTIONS.SEND,
-      severity: EButtonSeverity.SUCCESS,
-    })
+  protected readonly workflowButtonConfigs = computed(() =>
+    this.buildWorkflowButtonConfigs()
   );
 
   ngOnInit(): void {
@@ -150,19 +149,22 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     this.openAddBeneficiariesDialog();
   }
 
-  protected onSubmitSheetClick(): void {
+  protected onWorkflowActionClick(
+    actionType: EPaymentSheetWorkflowActionType
+  ): void {
     if (!this.paymentSheetId) {
       return;
     }
 
     this.confirmationDialogService.showConfirmationDialog(
       EButtonActionType.SUBMIT,
-      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[EButtonActionType.SUBMIT],
+      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[actionType],
       null,
       false,
       false,
       {
         paymentSheetId: this.paymentSheetId,
+        workflowActionType: actionType,
         onSuccess: () => this.reloadDetail(),
       }
     );
@@ -347,5 +349,22 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         },
       ],
     };
+  }
+
+  private buildWorkflowButtonConfigs(): {
+    actionType: EPaymentSheetWorkflowActionType;
+    buttonConfig: Partial<IButtonConfig>;
+  }[] {
+    return PAYMENT_SHEET_WORKFLOW_ACTION_TYPES.map(actionType => ({
+      actionType,
+      buttonConfig: {
+        id: EButtonActionType.SUBMIT,
+        label:
+          PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[actionType].dialogConfig
+            ?.labels?.singleLabel ?? '',
+        icon: ICONS.ACTIONS.SEND,
+        severity: EButtonSeverity.SUCCESS,
+      },
+    }));
   }
 }
