@@ -1,6 +1,7 @@
 import {
   CONFIRMATION_DIALOG_CONFIG,
   DELETE_CONFIRMATION_DIALOG_CONFIG,
+  REJECT_CONFIRMATION_DIALOG_CONFIG,
 } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
@@ -11,6 +12,7 @@ import {
 import { AddPaymentSheetItemsComponent } from '../../components/add-payment-sheet-items/add-payment-sheet-items.component';
 import { DeletePaymentSheetItemComponent } from '../../components/delete-payment-sheet-item/delete-payment-sheet-item.component';
 import { EditPaymentSheetItemComponent } from '../../components/edit-payment-sheet-item/edit-payment-sheet-item.component';
+import { RejectPaymentSheetItemComponent } from '../../components/reject-payment-sheet-item/reject-payment-sheet-item.component';
 import { SubmitPaymentSheetComponent } from '../../components/submit-payment-sheet/submit-payment-sheet.component';
 import { EPaymentSheetWorkflowActionType } from '../../types/payment-sheet.enum';
 
@@ -54,6 +56,20 @@ export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
       },
     },
     dynamicComponent: DeletePaymentSheetItemComponent,
+  },
+  [EButtonActionType.REJECT]: {
+    dialogConfig: {
+      ...REJECT_CONFIRMATION_DIALOG_CONFIG,
+      header: 'Reject beneficiary?',
+      message:
+        'This beneficiary will be rejected on the payment sheet. Add remarks explaining why it is being rejected.',
+      labels: {
+        actionWord: 'reject',
+        singleLabel: 'Reject',
+        bulkLabel: 'Reject Selected',
+      },
+    },
+    dynamicComponent: RejectPaymentSheetItemComponent,
   },
   [EPaymentSheetWorkflowActionType.FORWARD_TO_HR]: {
     dialogConfig: {

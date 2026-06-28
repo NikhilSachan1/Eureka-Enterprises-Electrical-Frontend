@@ -62,6 +62,10 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_ROW_ACTIONS: Partial<
   {
     ...COMMON_ROW_ACTIONS.DELETE,
   },
+  {
+    ...COMMON_ROW_ACTIONS.REJECT,
+    tooltip: 'Reject',
+  },
 ];
 
 export function createPaymentSheetDetailItemsTableConfig(): IEnhancedTableConfig<IPaymentSheetDetailItemRow> {
