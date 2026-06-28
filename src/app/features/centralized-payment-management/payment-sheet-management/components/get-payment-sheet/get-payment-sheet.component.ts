@@ -112,7 +112,11 @@ export class GetPaymentSheetComponent implements OnInit {
       return;
     }
 
-    if (actionType === EButtonActionType.CANCEL && selectedRow?.id) {
+    if (
+      (actionType === EButtonActionType.CANCEL ||
+        actionType === EButtonActionType.REJECT) &&
+      selectedRow?.id
+    ) {
       const actionConfig = PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP[actionType];
 
       if (!actionConfig) {

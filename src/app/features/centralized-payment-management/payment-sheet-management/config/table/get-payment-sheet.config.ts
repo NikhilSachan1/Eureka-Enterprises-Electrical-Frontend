@@ -78,6 +78,15 @@ export const PAYMENT_SHEET_LIST_ROW_ACTIONS: Partial<
       APP_PERMISSION.PAYMENT_SHEET.PROCESS,
     ],
   },
+  {
+    ...COMMON_ROW_ACTIONS.REJECT,
+    tooltip: 'Reject Sheet',
+    permission: [
+      APP_PERMISSION.PAYMENT_SHEET.REVIEW,
+      APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
+      APP_PERMISSION.PAYMENT_SHEET.PROCESS,
+    ],
+  },
 ];
 
 export function createPaymentSheetTableEnhancedConfig(): IEnhancedTableConfig<IPaymentSheet> {

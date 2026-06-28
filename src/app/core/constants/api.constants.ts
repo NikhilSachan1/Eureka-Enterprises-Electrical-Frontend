@@ -352,6 +352,8 @@ export const API_ROUTES = {
       `payment-sheets/${paymentSheetId}/forward`,
     RETURN_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
       `payment-sheets/${paymentSheetId}/return`,
+    REJECT_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/reject`,
   },
 } as const;
 

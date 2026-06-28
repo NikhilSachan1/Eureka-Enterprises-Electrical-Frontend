@@ -22,6 +22,10 @@ export {
 } from './get-payment-sheet.schema';
 export { ForwardPaymentSheetResponseSchema } from './forward-payment-sheet.schema';
 export {
+  RejectPaymentSheetRequestSchema,
+  RejectPaymentSheetResponseSchema,
+} from './reject-payment-sheet.schema';
+export {
   ReturnPaymentSheetRequestSchema,
   ReturnPaymentSheetResponseSchema,
 } from './return-payment-sheet.schema';
