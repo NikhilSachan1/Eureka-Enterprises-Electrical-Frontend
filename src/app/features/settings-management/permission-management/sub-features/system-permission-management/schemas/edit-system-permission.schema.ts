@@ -9,7 +9,9 @@ export const SystemPermissionEditRequestSchema =
     .strict()
     .transform(data => {
       return {
-        description: toLowerCase(data.permissionDescription),
+        description: data.permissionDescription
+          ? toLowerCase(data.permissionDescription)
+          : null,
       };
     });
 

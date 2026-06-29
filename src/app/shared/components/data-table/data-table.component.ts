@@ -153,8 +153,24 @@ export class DataTableComponent {
   rowActionClick = output<ITableActionClickEvent>();
   filterData = output<TableLazyLoadEvent>();
   attachmentClick = output<Record<string, unknown>>();
+  selectionChange = output<Record<string, unknown>[]>();
+
+  protected readonly rowSelectable = ({
+    data,
+  }: {
+    data: Record<string, unknown>;
+    index: number;
+  }): boolean => {
+    const disableWhen = this.tableConfig().disableRowSelectionWhen;
+    if (!disableWhen) {
+      return true;
+    }
+
+    return !disableWhen(this.extractOriginalData(data));
+  };
 
   protected selectedTableRows = signal<Record<string, unknown>[]>([]);
+  private lastEmittedSelectionKey = '';
   protected visibleTableHeaders = computed(() => {
     return this.permissionService.filterByPermission(this.tableHeader());
   });
@@ -200,7 +216,6 @@ export class DataTableComponent {
 
   /**
    * Selection UI only when table allows it and there is at least one visible bulk action.
-   * If bulk config is empty or all actions are hidden by permissions, no checkboxes.
    */
   protected showBulkSelectionCheckbox = computed(() => {
     if (!this.tableConfig().showCheckbox) {
@@ -273,30 +288,58 @@ export class DataTableComponent {
       }
     });
 
-    /**
-     * After bulk delete (or any refresh), selected row objects can still be in the
-     * selection signal even though they no longer exist in {@link tableData}. Remove
-     * stale selections so the bulk-action bar and header checkbox stay in sync.
-     */
     effect(() => {
       if (!this.showBulkSelectionCheckbox()) {
         return;
       }
+
       const rows = this.tableData();
       const idPath = this.tableConfig().tableUniqueId;
-      const idSet = new Set(
-        rows.map(row => this.normalizeRowIdForSelection(row, idPath))
-      );
+      const rowById = new Map<string, Record<string, unknown>>();
+
+      for (const row of rows) {
+        const id = this.normalizeRowIdForSelection(row, idPath);
+        if (id !== null) {
+          rowById.set(id, row);
+        }
+      }
 
       const selected = this.selectedTableRows();
-      const pruned = selected.filter(row => {
+      const synced = selected.flatMap(row => {
         const id = this.normalizeRowIdForSelection(row, idPath);
-        return id !== null && idSet.has(id);
+        if (id === null) {
+          return [];
+        }
+        return [rowById.get(id) ?? row];
       });
 
-      if (pruned.length !== selected.length) {
-        this.selectedTableRows.set(pruned);
+      if (
+        synced.length !== selected.length ||
+        synced.some((row, index) => row !== selected[index])
+      ) {
+        this.selectedTableRows.set(synced);
       }
+    });
+
+    effect(() => {
+      if (!this.showBulkSelectionCheckbox()) {
+        return;
+      }
+
+      const idPath = this.tableConfig().tableUniqueId;
+      const selectedRows = this.selectedTableRows()
+        .filter(row => !this.isRowSelectionDisabled(row))
+        .map(row => this.extractOriginalData(row));
+      const selectionKey = selectedRows
+        .map(row => String(row['userId'] ?? row[idPath] ?? ''))
+        .join('|');
+
+      if (selectionKey === this.lastEmittedSelectionKey) {
+        return;
+      }
+
+      this.lastEmittedSelectionKey = selectionKey;
+      this.selectionChange.emit(selectedRows);
     });
   }
 
@@ -320,63 +363,69 @@ export class DataTableComponent {
     table.clear();
   }
 
-  protected clearSelection(): void {
+  clearSelection(): void {
     this.selectedTableRows.set([]);
+    const table = this.dt();
+    if (table) {
+      table.selection = [];
+    }
+  }
+
+  getSelectedRows(): Record<string, unknown>[] {
+    return this.selectedTableRows().map(row => this.extractOriginalData(row));
   }
 
   /**
    * Check if a row is selected (for card view checkbox)
    */
   protected isRowSelected(rowData: Record<string, unknown>): boolean {
-    const rowId = this.resolveNestedProperty<string>(
+    const rowId = this.normalizeRowIdForSelection(
       rowData,
       this.tableConfig().tableUniqueId
     );
+    if (rowId === null) {
+      return false;
+    }
+
     return this.selectedTableRows().some(
       row =>
-        this.resolveNestedProperty<string>(
+        this.normalizeRowIdForSelection(
           row,
           this.tableConfig().tableUniqueId
         ) === rowId
     );
   }
 
-  /**
-   * Toggle row selection (for card view checkbox)
-   */
   protected toggleRowSelection(
     rowData: Record<string, unknown>,
     event: Event
   ): void {
+    if (this.isRowSelectionDisabled(rowData)) {
+      event.preventDefault();
+      return;
+    }
+
     const target = event.target as HTMLInputElement;
+    const idPath = this.tableConfig().tableUniqueId;
+    const rowId = this.normalizeRowIdForSelection(rowData, idPath);
+    if (rowId === null) {
+      return;
+    }
+
     const currentSelection = this.selectedTableRows();
-    const rowId = this.resolveNestedProperty<string>(
-      rowData,
-      this.tableConfig().tableUniqueId
-    );
 
     if (target.checked) {
-      // Add to selection
       if (
         !currentSelection.some(
-          row =>
-            this.resolveNestedProperty<string>(
-              row,
-              this.tableConfig().tableUniqueId
-            ) === rowId
+          row => this.normalizeRowIdForSelection(row, idPath) === rowId
         )
       ) {
         this.selectedTableRows.set([...currentSelection, rowData]);
       }
     } else {
-      // Remove from selection
       this.selectedTableRows.set(
         currentSelection.filter(
-          row =>
-            this.resolveNestedProperty<string>(
-              row,
-              this.tableConfig().tableUniqueId
-            ) !== rowId
+          row => this.normalizeRowIdForSelection(row, idPath) !== rowId
         )
       );
     }
@@ -451,6 +500,15 @@ export class DataTableComponent {
       return rowData['originalRawData'] as Record<string, unknown>;
     }
     return rowData;
+  }
+
+  protected isRowSelectionDisabled(rowData: Record<string, unknown>): boolean {
+    const disableWhen = this.tableConfig().disableRowSelectionWhen;
+    if (!disableWhen) {
+      return false;
+    }
+
+    return disableWhen(this.extractOriginalData(rowData));
   }
 
   protected isActionDisabled(
@@ -622,11 +680,12 @@ export class DataTableComponent {
    */
   protected getVisibleBulkActions(): ITableActionConfig[] {
     return this.bulkActionButtons().filter(action =>
-      this.hasRequiredPermissions(action)
+      this.isActionVisible(action)
     );
   }
 
   protected onBulkActionClick(actionType: EButtonActionType): void {
+    registerActiveBulkTable(this);
     this.bulkActionClick.emit({
       actionType,
       selectedRows: this.selectedTableRows().map(row =>
@@ -685,4 +744,16 @@ export class DataTableComponent {
       this.attachmentClick.emit(rowData ?? {});
     }
   }
+}
+
+let activeBulkTable: DataTableComponent | null = null;
+
+function registerActiveBulkTable(table: DataTableComponent): void {
+  activeBulkTable = table;
+}
+
+/** Called after bulk confirmation onSuccess — clears the table that opened the dialog. */
+export function clearActiveBulkTableSelection(): void {
+  activeBulkTable?.clearSelection();
+  activeBulkTable = null;
 }

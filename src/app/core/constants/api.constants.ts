@@ -333,6 +333,32 @@ export const API_ROUTES = {
     DELETE: 'announcement/bulk',
     ACKNOWLEDGE: 'announcement/acknowledge',
   },
+  CENTRALIZED_PAYMENT: {
+    EXPENSE_PENDING_SETTLEMENT: 'expenses/pending-settlement',
+    FUEL_EXPENSE_PENDING_SETTLEMENT: 'fuel-expenses/pending-settlement',
+    VENDOR_PENDING_SETTLEMENT: 'book-payments/vendor-list',
+    PAYMENT_SHEETS: 'payment-sheets',
+    PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}`,
+    DELETE_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
+      `payment-sheets/${paymentSheetId}/items/${itemId}`,
+    UPDATE_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
+      `payment-sheets/${paymentSheetId}/items/${itemId}`,
+    REJECT_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
+      `payment-sheets/${paymentSheetId}/items/${itemId}/reject`,
+    PAY_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
+      `payment-sheets/${paymentSheetId}/items/${itemId}/pay`,
+    ADD_PAYMENT_SHEET_ITEMS_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/items`,
+    SUBMIT_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/submit`,
+    FORWARD_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/forward`,
+    RETURN_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/return`,
+    REJECT_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/reject`,
+  },
 } as const;
 
 /**

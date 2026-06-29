@@ -6,7 +6,7 @@ export const SystemPermissionBaseSchema = z.looseObject({
   name: z.string().trim().min(1),
   module: z.string().trim().min(1),
   label: z.string().trim().min(1),
-  description: z.string().trim().min(1),
+  description: z.string().trim().min(1).nullable(),
   platform: z.enum(['web', 'mobile']),
   isEditable: z.boolean(),
   isDeletable: z.boolean(),

@@ -1,0 +1,48 @@
+.ps-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ps-detail__forward {
+  margin-top: 1.25rem;
+}
+
+.ps-detail-payment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 12rem;
+  max-width: 22rem;
+  padding: 0.62rem 0.72rem;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--success-color, #22c55e) 8%, var(--background-paper-color));
+  border: 1px solid color-mix(in srgb, var(--success-color, #22c55e) 22%, var(--border-light-color));
+}
+
+.ps-detail-payment__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.14rem;
+  min-width: 0;
+}
+
+.ps-detail-payment__label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary-color);
+}
+
+.ps-detail-payment__value {
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-primary-color);
+  word-break: break-all;
+}
+
+.ps-detail-payment__empty {
+  color: var(--text-disabled-color);
+}

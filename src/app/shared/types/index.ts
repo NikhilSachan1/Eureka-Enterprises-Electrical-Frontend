@@ -146,7 +146,10 @@ export type {
   IGalleryInputData,
   IGalleryResolvedItem,
 } from './gallery/gallery.interface';
-export type { IPageHeaderConfig } from './page-header/page-header-config.interface';
+export type {
+  IPageHeaderConfig,
+  ISectionHeaderConfig,
+} from './page-header/page-header-config.interface';
 export {
   EEntrySourceType,
   EEntryType,

@@ -285,6 +285,17 @@ export const APP_PERMISSION = {
     APPROVE: 'financials.tds.verify',
     REJECT: 'financials.tds.revert',
   },
+  PAYMENT_SHEET: {
+    TABLE_VIEW: 'financials.payment-sheets.view',
+    CREATE: 'financials.payment-sheets.create',
+    HR_REVIEW: 'financials.payment-sheets.review',
+    ADMIN_REVIEW: 'financials.payment-sheets.admin-review',
+    ACCOUNTS_PROCESS: 'financials.payment-sheets.process',
+    DOWNLOAD: 'financials.payment-sheets.download',
+  },
+  OUTSTANDING_PAYMENT_SHEETS: {
+    TABLE_VIEW: 'financials.outstanding-payment-sheets.view',
+  },
   UI: {
     SALARY_STRUCTURE: {
       TABLE: 'ui_table_salary_structure',

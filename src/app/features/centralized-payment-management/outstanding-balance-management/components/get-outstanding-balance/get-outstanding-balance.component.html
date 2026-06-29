@@ -1,0 +1,7 @@
+<app-page-header
+  [pageHeaderConfig]="pageHeaderConfig()"
+  (headerButtonClick)="onHeaderButtonClick($event)"
+/>
+
+<app-get-expense-outstanding (selectionChange)="onExpenseSelectionChange($event)" />
+<app-get-fuel-expense-outstanding (selectionChange)="onFuelSelectionChange($event)" />

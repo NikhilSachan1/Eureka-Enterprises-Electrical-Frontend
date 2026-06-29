@@ -1,0 +1,41 @@
+@let cur = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
+@let fmt = APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS;
+@let loc = APP_CONFIG.NUMBER_FORMATS.LOCALE;
+
+<article class="payment-sheet-amounts">
+  <div class="payment-sheet-amounts__grid">
+    <div
+      class="payment-sheet-amounts__tile"
+      [class.payment-sheet-amounts__tile--payable]="leftVariant() === 'payable'"
+      [class.payment-sheet-amounts__tile--paid]="leftVariant() === 'paid'"
+      [class.payment-sheet-amounts__tile--due]="leftVariant() === 'due'"
+    >
+      <span class="payment-sheet-amounts__tile-label">{{ leftLabel() }}</span>
+      <span class="payment-sheet-amounts__tile-value">{{ leftAmount() | currency: cur : 'symbol' : fmt : loc }}</span>
+    </div>
+
+    <div
+      class="payment-sheet-amounts__tile"
+      [class.payment-sheet-amounts__tile--payable]="rightVariant() === 'payable'"
+      [class.payment-sheet-amounts__tile--paid]="rightVariant() === 'paid'"
+      [class.payment-sheet-amounts__tile--due]="rightVariant() === 'due'"
+    >
+      <span class="payment-sheet-amounts__tile-label">{{ rightLabel() }}</span>
+      <span class="payment-sheet-amounts__tile-value">{{ rightAmount() | currency: cur : 'symbol' : fmt : loc }}</span>
+    </div>
+  </div>
+
+  <div
+    class="payment-sheet-amounts__footer"
+    [class.payment-sheet-amounts__footer--settled]="isSettled()"
+  >
+    @if (isSettled()) {
+      <span class="payment-sheet-amounts__settled">{{ settledLabel() }}</span>
+    } @else {
+      <span class="payment-sheet-amounts__footer-label">{{ footerLabel() }}</span>
+      <span class="payment-sheet-amounts__footer-value">
+        {{ footerAmount() | currency: cur : 'symbol' : fmt : loc }}
+      </span>
+    }
+  </div>
+</article>

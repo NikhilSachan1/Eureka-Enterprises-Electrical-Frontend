@@ -35,6 +35,17 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   enableServerSide: true,
   showViewModeToggle: false, // Default: show the toggle
   rowActionsLimit: 3,
+  scrollable: false,
+  selectionColumn: {
+    columnWidth: '4rem',
+    alignFrozen: 'left',
+    frozen: false,
+  },
+  actionsColumn: {
+    columnWidth: '5rem',
+    alignFrozen: 'right',
+    frozen: false,
+  },
 };
 
 /** Default width for the bulk-selection checkbox column when frozen. */
@@ -42,6 +53,7 @@ export const DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG: Partial<IDataTableFrozenCol
   {
     columnWidth: '4rem',
     alignFrozen: 'left',
+    frozen: false,
   };
 
 /** Default width/alignment for the row actions column when frozen. */
@@ -49,6 +61,7 @@ export const DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG: Partial<IDataTableFrozenColum
   {
     columnWidth: '5rem',
     alignFrozen: 'right',
+    frozen: false,
   };
 
 // default table header config

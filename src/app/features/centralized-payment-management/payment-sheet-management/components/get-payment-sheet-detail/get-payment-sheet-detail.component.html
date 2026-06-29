@@ -1,0 +1,101 @@
+@if (detail()) {
+  <app-page-header
+    [pageHeaderConfig]="pageHeaderConfig()"
+    (headerButtonClick)="onHeaderButtonClick($event)"
+  />
+
+  <section class="ps-detail">
+    @if (!sourceGroups().length) {
+      <app-empty-messages
+        title="No beneficiaries on this payment sheet."
+        description="This payment sheet does not contain any line items yet."
+      />
+    }
+
+    @for (group of sourceGroups(); track group.sourceType) {
+      <app-payment-outstanding-section
+        class="ps-detail__section"
+        [sourceType]="group.sourceType"
+        [sectionContext]="EPaymentOutstandingSectionContext.PAYMENT_SHEET"
+        [recordCount]="group.recordCount"
+        [totalPendingAmount]="group.totalCurrentAmount"
+        [showSearch]="false"
+      >
+        <ng-template
+          #itemAmountsCell
+          let-row
+        >
+          <app-payment-sheet-amounts-cell
+            leftLabel="Actual Due"
+            [leftAmount]="row.actualDue"
+            leftVariant="due"
+            rightLabel="Payable"
+            [rightAmount]="row.payableAmount"
+            rightVariant="payable"
+            footerLabel="Remaining"
+            [footerAmount]="getRemainingAmount(row)"
+            settledLabel="Fully covered"
+            [isSettled]="isFullyCovered(row)"
+          />
+        </ng-template>
+
+        <ng-template
+          #itemPaymentCell
+          let-row
+        >
+          @if (row.paidAt || row.paymentRef) {
+            <div class="ps-detail-payment">
+              @if (row.paidAt) {
+                <div class="ps-detail-payment__tile">
+                  <span class="ps-detail-payment__label">Paid At</span>
+                  <span class="ps-detail-payment__value">
+                    {{ row.paidAt | date: paidAtDateFormat : undefined : paidAtDateLocale }}
+                  </span>
+                </div>
+              }
+              @if (row.paymentRef) {
+                <div class="ps-detail-payment__tile">
+                  <span class="ps-detail-payment__label">Payment Ref</span>
+                  <span class="ps-detail-payment__value">{{ row.paymentRef }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <span class="ps-detail-payment__empty">-</span>
+          }
+        </ng-template>
+
+        <ng-template
+          #bankDetailsCell
+          let-row
+        >
+          <app-bank-details-cell [bankDetails]="row.bankDetails" />
+        </ng-template>
+
+        <app-data-table
+          [tableConfig]="group.table.tableConfig()"
+          [tableHeader]="group.table.headers()"
+          [tableData]="group.table.data()"
+          [loading]="group.table.loading()"
+          [bulkActionButtons]="group.table.bulkActions()"
+          [rowActions]="group.table.rowActions()"
+          [customBodyTemplates]="{
+            itemAmountsCell: itemAmountsCell,
+            itemPaymentCell: itemPaymentCell,
+            bankDetailsCell: bankDetailsCell,
+          }"
+          (rowActionClick)="handlePaymentSheetItemActionClick($any($event))"
+        />
+      </app-payment-outstanding-section>
+    }
+  </section>
+
+  <footer class="button-container ps-detail__forward">
+    @for (item of workflowButtonConfigs(); track item.actionType) {
+      <app-button
+        [buttonConfig]="item.buttonConfig"
+        (onButtonClick)="onWorkflowActionClick(item.actionType)"
+      />
+    }
+  </footer>
+}

@@ -1,0 +1,10 @@
+<div class="add-payment-sheet-items">
+  <app-get-expense-outstanding
+    [excludedUserIds]="excludedExpenseUserIds()"
+    (selectionChange)="onExpenseSelectionChange($event)"
+  />
+  <app-get-fuel-expense-outstanding
+    [excludedUserIds]="excludedFuelUserIds()"
+    (selectionChange)="onFuelSelectionChange($event)"
+  />
+</div>

@@ -1,0 +1,15 @@
+.add-payment-sheet-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  ::ng-deep {
+    .p-datatable-wrapper,
+    .p-datatable-table-container,
+    .p-scroller {
+      overflow: visible !important;
+      max-height: none !important;
+      height: auto !important;
+    }
+  }
+}

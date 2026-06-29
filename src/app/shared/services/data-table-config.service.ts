@@ -51,18 +51,16 @@ export class TableService {
     return {
       ...this.defaultTableConfig,
       ...options,
-      selectionColumn: options?.selectionColumn
-        ? {
-            ...DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
-            ...options.selectionColumn,
-          }
-        : options?.selectionColumn,
-      actionsColumn: options?.actionsColumn
-        ? {
-            ...DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
-            ...options.actionsColumn,
-          }
-        : options?.actionsColumn,
+      selectionColumn: {
+        ...DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
+        ...this.defaultTableConfig.selectionColumn,
+        ...options?.selectionColumn,
+      },
+      actionsColumn: {
+        ...DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
+        ...this.defaultTableConfig.actionsColumn,
+        ...options?.actionsColumn,
+      },
     } as IDataTableConfig;
   }
 
@@ -160,20 +158,16 @@ export class TableService {
         const updatedConfig = {
           ...current,
           ...config,
-          selectionColumn: config.selectionColumn
-            ? {
-                ...DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
-                ...current.selectionColumn,
-                ...config.selectionColumn,
-              }
-            : (config.selectionColumn ?? current.selectionColumn),
-          actionsColumn: config.actionsColumn
-            ? {
-                ...DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
-                ...current.actionsColumn,
-                ...config.actionsColumn,
-              }
-            : (config.actionsColumn ?? current.actionsColumn),
+          selectionColumn: {
+            ...DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
+            ...current.selectionColumn,
+            ...config.selectionColumn,
+          },
+          actionsColumn: {
+            ...DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
+            ...current.actionsColumn,
+            ...config.actionsColumn,
+          },
         };
         tableConfigSignal.set(updatedConfig);
         return tableConfigSignal;
