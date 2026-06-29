@@ -385,11 +385,15 @@ export const appMenu: ApplicationMenu = {
               label: 'Outstanding Balances',
               icon: ICONS.COMMON.CHART_LINE,
               routerLink: ROUTES.CENTRALIZED_PAYMENT.OUTSTANDING_BALANCES,
+              permission: [
+                APP_PERMISSION.OUTSTANDING_PAYMENT_SHEETS.TABLE_VIEW,
+              ],
             },
             {
               label: 'Payment Sheets',
               icon: ICONS.COMMON.FILE,
               routerLink: ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEETS,
+              permission: [APP_PERMISSION.PAYMENT_SHEET.TABLE_VIEW],
             },
           ],
         },

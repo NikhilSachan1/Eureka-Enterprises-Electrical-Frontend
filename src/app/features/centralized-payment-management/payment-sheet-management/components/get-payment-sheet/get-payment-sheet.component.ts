@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -36,7 +36,8 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG } from '../../config/form/search-filter-payment-sheet.config';
 import { PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP } from '../../config/dialog/get-payment-sheet-list.config';
-import { createPaymentSheetTableEnhancedConfig } from '../../config/table/get-payment-sheet.config';
+import { buildPaymentSheetTableEnhancedConfig } from '../../config/table/get-payment-sheet.config';
+import { getPaymentSheetWorkflowPermissions } from '../../utils/payment-sheet-status.util';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
   IPaymentSheetGetBaseResponseDto,
@@ -70,6 +71,7 @@ export class GetPaymentSheetComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly appPermissionService = inject(AppPermissionService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -79,7 +81,9 @@ export class GetPaymentSheetComponent implements OnInit {
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
-      createPaymentSheetTableEnhancedConfig()
+      buildPaymentSheetTableEnhancedConfig(
+        getPaymentSheetWorkflowPermissions(this.appPermissionService)
+      )
     );
     this.searchFilterConfig = SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG;
   }

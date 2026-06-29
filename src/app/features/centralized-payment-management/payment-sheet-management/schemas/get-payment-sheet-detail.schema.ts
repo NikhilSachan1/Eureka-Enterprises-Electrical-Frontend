@@ -44,5 +44,7 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
 });
 
 export const PaymentSheetDetailGetResponseSchema = z.looseObject({
+  status: z.string(),
+  currentStage: z.string().nullable(),
   items: z.array(PaymentSheetItemDetailSchema),
 });

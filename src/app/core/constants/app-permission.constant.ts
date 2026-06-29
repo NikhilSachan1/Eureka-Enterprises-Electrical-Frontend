@@ -288,10 +288,13 @@ export const APP_PERMISSION = {
   PAYMENT_SHEET: {
     TABLE_VIEW: 'financials.payment-sheets.view',
     CREATE: 'financials.payment-sheets.create',
-    REVIEW: 'financials.payment-sheets.review',
+    HR_REVIEW: 'financials.payment-sheets.review',
     ADMIN_REVIEW: 'financials.payment-sheets.admin-review',
-    PROCESS: 'financials.payment-sheets.process',
+    ACCOUNTS_PROCESS: 'financials.payment-sheets.process',
     DOWNLOAD: 'financials.payment-sheets.download',
+  },
+  OUTSTANDING_PAYMENT_SHEETS: {
+    TABLE_VIEW: 'financials.outstanding-payment-sheets.view',
   },
   UI: {
     SALARY_STRUCTURE: {

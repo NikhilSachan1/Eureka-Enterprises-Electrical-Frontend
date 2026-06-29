@@ -5,6 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { LoggerService } from '@core/services';
 import { GetExpenseOutstandingComponent } from '@features/centralized-payment-management/expense-payment-management/components/get-expense-outstanding/get-expense-outstanding.component';
 import { IExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/expense-payment-management/types/expense-outstanding.dto';
@@ -109,6 +110,7 @@ export class GetOutstandingBalanceComponent {
           label: 'Create Payment Sheet',
           icon: ICONS.COMMON.FILE,
           severity: EButtonSeverity.PRIMARY,
+          permission: [APP_PERMISSION.PAYMENT_SHEET.CREATE],
           disabled: selectedCount === 0,
           disabledTooltip:
             selectedCount === 0

@@ -1,4 +1,5 @@
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   EButtonActionType,
   EDataType,
@@ -7,6 +8,10 @@ import {
   IEnhancedTableConfig,
 } from '@shared/types';
 import { IExpenseOutstandingGetBaseResponseDto } from '../../types/expense-outstanding.dto';
+
+export interface IExpenseOutstandingTableConfigOptions {
+  selectionPermissions?: string[];
+}
 
 export const EXPENSE_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No expense outstanding record found.',
@@ -50,7 +55,13 @@ export const EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCo
     },
   ];
 
-export function createExpenseOutstandingTableEnhancedConfig(): IEnhancedTableConfig<IExpenseOutstandingGetBaseResponseDto> {
+export function createExpenseOutstandingTableEnhancedConfig(
+  options?: IExpenseOutstandingTableConfigOptions
+): IEnhancedTableConfig<IExpenseOutstandingGetBaseResponseDto> {
+  const selectionPermissions = options?.selectionPermissions ?? [
+    APP_PERMISSION.PAYMENT_SHEET.CREATE,
+  ];
+
   return {
     tableConfig: EXPENSE_OUTSTANDING_TABLE_CONFIG,
     headers: EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG,
@@ -60,6 +71,9 @@ export function createExpenseOutstandingTableEnhancedConfig(): IEnhancedTableCon
         id: EButtonActionType.GENERATE,
         label: 'Create Payment Sheet',
         hideWhen: () => true,
+        ...(selectionPermissions.length
+          ? { permission: selectionPermissions }
+          : {}),
       },
     ],
   };

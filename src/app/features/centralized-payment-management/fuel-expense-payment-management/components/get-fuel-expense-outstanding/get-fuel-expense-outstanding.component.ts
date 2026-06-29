@@ -48,6 +48,7 @@ import { IFuelExpenseOutstanding } from '../../types/fuel-expense-outstanding.in
 export class GetFuelExpenseOutstandingComponent implements OnInit {
   selectionChange = output<IFuelExpenseOutstandingGetBaseResponseDto[]>();
   excludedUserIds = input<ReadonlySet<string>>(new Set());
+  selectionPermissions = input<string[] | undefined>(undefined);
 
   protected readonly EPaymentOutstandingSourceType =
     EPaymentOutstandingSourceType;
@@ -72,7 +73,9 @@ export class GetFuelExpenseOutstandingComponent implements OnInit {
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
-      createFuelExpenseOutstandingTableEnhancedConfig()
+      createFuelExpenseOutstandingTableEnhancedConfig({
+        selectionPermissions: this.selectionPermissions(),
+      })
     );
     this.syncRowSelectionRules();
   }
