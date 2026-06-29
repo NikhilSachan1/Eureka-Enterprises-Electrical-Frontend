@@ -20,6 +20,7 @@ import {
   IPageHeaderConfig,
 } from '@shared/types';
 import { PAYMENT_SHEET_ACTION_CONFIG_MAP } from '@features/centralized-payment-management/payment-sheet-management/config';
+import { GetVendorOutstandingComponent } from '@features/centralized-payment-management/vendor-payment-management/components/get-vendor-outstanding/get-vendor-outstanding.component';
 
 @Component({
   selector: 'app-get-outstanding-balance',
@@ -27,6 +28,7 @@ import { PAYMENT_SHEET_ACTION_CONFIG_MAP } from '@features/centralized-payment-m
     PageHeaderComponent,
     GetExpenseOutstandingComponent,
     GetFuelExpenseOutstandingComponent,
+    GetVendorOutstandingComponent,
   ],
   templateUrl: './get-outstanding-balance.component.html',
   styleUrl: './get-outstanding-balance.component.scss',
