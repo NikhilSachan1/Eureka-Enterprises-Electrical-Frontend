@@ -1,9 +1,4 @@
-import {
-  FilterSchema,
-  isoDateTimeField,
-  onlyDateStringField,
-  uuidField,
-} from '@shared/schemas';
+import { FilterSchema, isoDateTimeField, uuidField } from '@shared/schemas';
 import z from 'zod';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
@@ -73,7 +68,7 @@ export const VendorOutstandingBookPaymentInvoiceSchema = z.looseObject({
 
 export const VendorOutstandingBookPaymentSchema = z.looseObject({
   id: uuidField,
-  bookingDate: onlyDateStringField,
+  bookingDate: isoDateTimeField,
   paymentTotalAmount: z.number(),
   invoice: VendorOutstandingBookPaymentInvoiceSchema,
   jmc: VendorOutstandingJmcSchema,

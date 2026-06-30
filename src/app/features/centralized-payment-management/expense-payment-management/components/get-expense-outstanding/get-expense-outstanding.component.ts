@@ -18,7 +18,6 @@ import {
 import { IEnhancedTable } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
-import { BankDetailsCellComponent } from '../../../shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
 import {
   EPaymentOutstandingSourceType,
@@ -36,11 +35,7 @@ import { IExpenseOutstanding } from '../../types/expense-outstanding.interface';
 
 @Component({
   selector: 'app-get-expense-outstanding',
-  imports: [
-    PaymentOutstandingSectionComponent,
-    BankDetailsCellComponent,
-    DataTableComponent,
-  ],
+  imports: [PaymentOutstandingSectionComponent, DataTableComponent],
   templateUrl: './get-expense-outstanding.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -172,7 +167,6 @@ export class GetExpenseOutstandingComponent implements OnInit {
           : record.pendingAmount < 0
             ? 'credit'
             : undefined,
-      bankDetails: record.bankDetails,
       originalRawData: record,
     }));
   }

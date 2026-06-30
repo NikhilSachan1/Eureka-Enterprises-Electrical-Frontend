@@ -1,57 +1,81 @@
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
+  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
 } from '@shared/types';
-import { IVendorOutstandingGetBaseResponseDto } from '../../types/vendor-outstanding.dto';
+import { IVendorBookPaymentTableRow } from '../../types/vendor-outstanding.interface';
 
 export const VENDOR_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> = {
-  emptyMessage: 'No vendor outstanding record found.',
-  emptyMessageDescription: 'There are no pending vendor payments to be paid.',
+  emptyMessage: 'No book payments found for this vendor.',
+  emptyMessageDescription: 'Booked payment entries will appear here.',
+  enableServerSide: false,
+  showPaginator: false,
+  showViewModeToggle: false,
 };
 
 export const VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
   [
     {
-      field: 'vendorName',
-      header: 'Vendor Name',
+      field: 'docWorkspaceContext',
+      header: 'Workspace overview',
       bodyTemplate: EDataType.TEXT,
-      showImage: true,
-      dummyImageField: 'vendorName',
-      primaryFieldHighlight: true,
-      serverSideFilterAndSortConfig: {
-        sortField: 'vendorName',
-        filterField: 'vendorName',
-      },
-    },
-    {
-      field: 'bankDetails',
-      header: 'Bank Details',
-      bodyTemplate: EDataType.TEXT,
-      customTemplateKey: 'bankDetailsCell',
+      customTemplateKey: 'docWorkspaceContext',
       columnStyleClass: 'cell-allow-wrap',
       showSort: false,
     },
     {
-      field: 'pendingAmount',
-      header: 'Pending Amount',
+      field: 'invoiceNumber',
+      header: 'Invoice',
+      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+      subtitle: {
+        field: 'invoiceDate',
+        bodyTemplate: EDataType.DATE,
+      },
+      primaryFieldHighlight: true,
+      columnStyleClass: 'cell-allow-wrap',
+      showSort: false,
+    },
+    {
+      field: 'bookingDate',
+      header: 'Booking Date',
+      bodyTemplate: EDataType.DATE,
+      dataType: EDataType.DATE,
+      showSort: false,
+    },
+    {
+      field: 'paymentTotalAmount',
+      header: 'Booking Amount',
       bodyTemplate: EDataType.CURRENCY,
       dataType: EDataType.NUMBER,
       currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      serverSideFilterAndSortConfig: {
-        sortField: 'pendingAmount',
-      },
+      showSort: false,
+    },
+    {
+      field: 'documentReferenceHierarchy',
+      header: 'Doc Hierarchy',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'vendorDocumentReference',
+      columnStyleClass: 'cell-allow-wrap',
       showSort: false,
     },
   ];
 
-export function createVendorOutstandingTableEnhancedConfig(): IEnhancedTableConfig<IVendorOutstandingGetBaseResponseDto> {
+export function createVendorOutstandingTableEnhancedConfig(): IEnhancedTableConfig<IVendorBookPaymentTableRow> {
   return {
     tableConfig: VENDOR_OUTSTANDING_TABLE_CONFIG,
     headers: VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG,
     rowActions: [],
-    bulkActions: [],
+    bulkActions: [
+      {
+        id: EButtonActionType.GENERATE,
+        label: 'Create Payment Sheet',
+        hideWhen: () => true,
+        permission: [APP_PERMISSION.PAYMENT_SHEET.CREATE],
+      },
+    ],
   };
 }

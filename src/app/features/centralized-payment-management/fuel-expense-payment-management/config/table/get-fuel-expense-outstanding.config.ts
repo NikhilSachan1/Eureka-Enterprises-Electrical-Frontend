@@ -36,14 +36,6 @@ export const FUEL_EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHea
       },
     },
     {
-      field: 'bankDetails',
-      header: 'Bank Details',
-      bodyTemplate: EDataType.TEXT,
-      customTemplateKey: 'bankDetailsCell',
-      columnStyleClass: 'cell-allow-wrap',
-      showSort: false,
-    },
-    {
       field: 'pendingAmount',
       header: 'Pending Amount',
       bodyTemplate: EDataType.CURRENCY,
