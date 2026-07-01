@@ -136,8 +136,8 @@ export class GetVendorOutstandingComponent implements OnInit {
       total: 'total',
       'net payable': 'net',
       booked: 'booked',
-      'pending to book': 'pending',
       paid: 'paid',
+      'pending to book': 'pending',
     };
 
     return tones[key] ?? 'neutral';
