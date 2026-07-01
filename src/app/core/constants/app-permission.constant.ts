@@ -235,6 +235,11 @@ export const APP_PERMISSION = {
     ADD: 'financials.site-reports.create',
     EDIT: 'financials.site-reports.update',
     DELETE: 'financials.site-reports.delete',
+    APPROVE: 'financials.site-reports.approve',
+    REJECT: 'financials.site-reports.revert',
+    UNLOCK: 'financials.site-reports.unlock',
+    UNLOCK_GRANT: 'financials.site-reports.unlock-grant',
+    UNLOCK_REQUEST_REJECT: 'financials.site-reports.unlock-request-reject',
   },
   INVOICE_DOC: {
     VIEW_DETAIL: 'financials.invoices.view.detail',
