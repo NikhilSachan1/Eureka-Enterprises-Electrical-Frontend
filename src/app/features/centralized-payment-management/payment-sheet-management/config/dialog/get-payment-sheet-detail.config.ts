@@ -27,7 +27,7 @@ export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
       header: 'Add beneficiaries',
       icon: ICONS.COMMON.USERS,
       message:
-        'Select outstanding expense or fuel beneficiaries to add to this payment sheet.',
+        'Select outstanding expense, fuel, or vendor beneficiaries to add to this payment sheet.',
       size: EDialogSize.EXTRA_LARGE,
       labels: {
         actionWord: 'add',

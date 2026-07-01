@@ -7,4 +7,8 @@
     [excludedUserIds]="excludedFuelUserIds()"
     (selectionChange)="onFuelSelectionChange($event)"
   />
+  <app-get-vendor-outstanding
+    [excludedVendorIds]="excludedVendorIds()"
+    (selectionChange)="onVendorSelectionChange($event)"
+  />
 </div>

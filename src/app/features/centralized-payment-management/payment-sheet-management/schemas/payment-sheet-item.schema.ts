@@ -7,8 +7,9 @@ import {
 
 export const PaymentSheetItemInputSchema = z.object({
   beneficiaryType: z.enum(EPaymentSheetBeneficiaryType),
-  userId: uuidField,
+  userId: uuidField.optional(),
+  vendorId: uuidField.optional(),
   sourceType: z.enum(EPaymentSheetSourceType),
-  requestedAmount: z.number(),
+  requestedAmount: z.number().optional(),
   bookPaymentIds: z.array(uuidField).optional(),
 });

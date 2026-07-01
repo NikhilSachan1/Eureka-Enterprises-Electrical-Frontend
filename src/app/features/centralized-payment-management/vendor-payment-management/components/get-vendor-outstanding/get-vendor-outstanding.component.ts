@@ -9,7 +9,9 @@ import {
   Component,
   DestroyRef,
   inject,
+  input,
   OnInit,
+  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -62,6 +64,9 @@ type IVendorOutstandingBookPayment =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetVendorOutstandingComponent implements OnInit {
+  selectionChange = output<IVendorBookPaymentTableRow[]>();
+  excludedVendorIds = input<ReadonlySet<string>>(new Set());
+
   protected readonly EPaymentOutstandingSourceType =
     EPaymentOutstandingSourceType;
   protected readonly APP_CONFIG = APP_CONFIG;
@@ -83,6 +88,9 @@ export class GetVendorOutstandingComponent implements OnInit {
     APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE
   );
   protected readonly emptyBookPaymentsTable = this.createBookPaymentsTable();
+  private readonly selectionsByTableId = signal<
+    Record<string, IVendorBookPaymentTableRow[]>
+  >({});
 
   ngOnInit(): void {
     this.loadVendorOutstandingList();
@@ -91,6 +99,7 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected onSearchChange(term: string): void {
     this.searchTerm.set(term);
     this.paginationFirst.set(0);
+    this.clearSelections();
     this.loadVendorOutstandingList();
   }
 
@@ -99,7 +108,29 @@ export class GetVendorOutstandingComponent implements OnInit {
     this.paginationRows.set(
       event.rows ?? APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE
     );
+    this.clearSelections();
     this.loadVendorOutstandingList();
+  }
+
+  protected onBookPaymentSelectionChange(
+    tableId: string,
+    table: IEnhancedTable,
+    selectedRows: Record<string, unknown>[]
+  ): void {
+    const selectedIds = new Set(
+      selectedRows
+        .map(row => String(row['id'] ?? ''))
+        .filter(id => id.length > 0)
+    );
+    const mappedRows = (table.data() as IVendorBookPaymentTableRow[]).filter(
+      row => selectedIds.has(row.id)
+    );
+
+    this.selectionsByTableId.update(current => ({
+      ...current,
+      [tableId]: mappedRows,
+    }));
+    this.emitCombinedSelection();
   }
 
   protected hasInvoiceSiteContext(
@@ -170,6 +201,7 @@ export class GetVendorOutstandingComponent implements OnInit {
           const { records, summary, totalRecords } = response;
           const groups = records.map(record => this.mapVendorGroup(record));
 
+          this.clearSelections();
           this.vendorGroups.set(groups);
           this.summary.set(summary ?? null);
           this.totalRecords.set(totalRecords);
@@ -199,12 +231,17 @@ export class GetVendorOutstandingComponent implements OnInit {
     record: IVendorOutstandingGetBaseResponseDto
   ): IVendorOutstandingVendorGroup {
     const { vendor, vendorSummary, bookPayments } = record;
-    const invoiceGroups = this.buildVendorInvoiceGroups(bookPayments).map(
-      group => ({
-        ...group,
-        opsTable: this.createBookPaymentsTable(group.bookPayments),
-      })
-    );
+    const invoiceGroups = this.buildVendorInvoiceGroups(
+      bookPayments,
+      vendor.id
+    ).map(group => ({
+      ...group,
+      opsTable: this.createBookPaymentsTable(
+        group.bookPayments,
+        vendor.id,
+        this.excludedVendorIds()
+      ),
+    }));
 
     return {
       id: vendor.id,
@@ -216,19 +253,31 @@ export class GetVendorOutstandingComponent implements OnInit {
   }
 
   private createBookPaymentsTable(
-    bookPayments: IVendorBookPaymentTableRow[] = []
+    bookPayments: IVendorBookPaymentTableRow[] = [],
+    vendorId = '',
+    excludedVendorIds: ReadonlySet<string> = new Set()
   ): IEnhancedTable {
     const opsTable = this.dataTableService.createTable(
       createVendorOutstandingTableEnhancedConfig()
     );
 
+    opsTable.updateTableConfig({
+      disableRowSelectionWhen: row => {
+        if (vendorId && excludedVendorIds.has(vendorId)) {
+          return true;
+        }
+
+        return Number(row['paymentTotalAmount'] ?? 0) <= 0;
+      },
+    });
     opsTable.setData(bookPayments);
 
     return opsTable;
   }
 
   private buildVendorInvoiceGroups(
-    bookPayments: IVendorOutstandingBookPayment[]
+    bookPayments: IVendorOutstandingBookPayment[],
+    vendorId: string
   ): Omit<IVendorInvoiceOutstandingGroup, 'opsTable'>[] {
     const grouped = new Map<
       string,
@@ -260,17 +309,19 @@ export class GetVendorOutstandingComponent implements OnInit {
         grouped.set(invoiceId, group);
       }
 
-      group.bookPayments.push(this.mapBookPaymentRow(bookPayment));
+      group.bookPayments.push(this.mapBookPaymentRow(bookPayment, vendorId));
     }
 
     return Array.from(grouped.values());
   }
 
   private mapBookPaymentRow(
-    bookPayment: IVendorOutstandingBookPayment
+    bookPayment: IVendorOutstandingBookPayment,
+    vendorId: string
   ): IVendorBookPaymentTableRow {
     return {
       id: bookPayment.id,
+      vendorId,
       bookingDate: bookPayment.bookingDate,
       pendingAmount: bookPayment.paymentTotalAmount,
       transactionType:
@@ -281,5 +332,18 @@ export class GetVendorOutstandingComponent implements OnInit {
             : undefined,
       originalRawData: bookPayment,
     };
+  }
+
+  private emitCombinedSelection(): void {
+    const selectedBookPayments = Object.values(
+      this.selectionsByTableId()
+    ).flat();
+
+    this.selectionChange.emit(selectedBookPayments);
+  }
+
+  private clearSelections(): void {
+    this.selectionsByTableId.set({});
+    this.selectionChange.emit([]);
   }
 }

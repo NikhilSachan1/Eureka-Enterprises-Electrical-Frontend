@@ -9,6 +9,7 @@
   <ng-template
     #bookPaymentsTable
     let-table="table"
+    let-tableId="tableId"
   >
     <app-data-table
       [tableConfig]="table.tableConfig()"
@@ -16,6 +17,7 @@
       [tableData]="table.data()"
       [loading]="loading()"
       [rowActions]="table.rowActions()"
+      (selectionChange)="onBookPaymentSelectionChange(tableId, table, $event)"
     />
   </ng-template>
 
@@ -227,12 +229,19 @@
                     </div>
 
                     <div class="invoice-card__bookings">
-                      <ng-container *ngTemplateOutlet="bookPaymentsTable; context: { table: invoice.opsTable }" />
+                      <ng-container
+                        *ngTemplateOutlet="bookPaymentsTable; context: { table: invoice.opsTable, tableId: invoice.id }"
+                      />
                     </div>
                   </article>
                 }
               } @else {
-                <ng-container *ngTemplateOutlet="bookPaymentsTable; context: { table: emptyBookPaymentsTable }" />
+                <ng-container
+                  *ngTemplateOutlet="
+                    bookPaymentsTable;
+                    context: { table: emptyBookPaymentsTable, tableId: 'empty-' + group.id }
+                  "
+                />
               }
             </div>
           </section>
@@ -247,7 +256,9 @@
         (pageChange)="onPageChange($event)"
       />
     } @else {
-      <ng-container *ngTemplateOutlet="bookPaymentsTable; context: { table: emptyBookPaymentsTable }" />
+      <ng-container
+        *ngTemplateOutlet="bookPaymentsTable; context: { table: emptyBookPaymentsTable, tableId: 'page-empty' }"
+      />
     }
   </div>
 </app-payment-outstanding-section>

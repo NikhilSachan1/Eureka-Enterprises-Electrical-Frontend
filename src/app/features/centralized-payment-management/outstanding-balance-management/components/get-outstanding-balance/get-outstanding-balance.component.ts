@@ -21,6 +21,7 @@ import {
 } from '@shared/types';
 import { PAYMENT_SHEET_ACTION_CONFIG_MAP } from '@features/centralized-payment-management/payment-sheet-management/config';
 import { GetVendorOutstandingComponent } from '@features/centralized-payment-management/vendor-payment-management/components/get-vendor-outstanding/get-vendor-outstanding.component';
+import { IVendorBookPaymentTableRow } from '@features/centralized-payment-management/vendor-payment-management/types/vendor-outstanding.interface';
 
 @Component({
   selector: 'app-get-outstanding-balance',
@@ -46,10 +47,15 @@ export class GetOutstandingBalanceComponent {
   protected readonly selectedFuelRecords = signal<
     IFuelExpenseOutstandingGetBaseResponseDto[]
   >([]);
+  protected readonly selectedVendorBookPayments = signal<
+    IVendorBookPaymentTableRow[]
+  >([]);
 
   protected readonly totalSelectedCount = computed(
     () =>
-      this.selectedExpenseRecords().length + this.selectedFuelRecords().length
+      this.selectedExpenseRecords().length +
+      this.selectedFuelRecords().length +
+      this.selectedVendorBookPayments().length
   );
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
@@ -66,6 +72,12 @@ export class GetOutstandingBalanceComponent {
     this.selectedFuelRecords.set(records);
   }
 
+  protected onVendorSelectionChange(
+    records: IVendorBookPaymentTableRow[]
+  ): void {
+    this.selectedVendorBookPayments.set(records);
+  }
+
   protected onHeaderButtonClick(actionType: string): void {
     if (actionType !== EButtonActionType.GENERATE) {
       return;
@@ -77,8 +89,13 @@ export class GetOutstandingBalanceComponent {
   private openCreatePaymentSheetDialog(): void {
     const expenseRecords = this.selectedExpenseRecords();
     const fuelRecords = this.selectedFuelRecords();
+    const vendorBookPayments = this.selectedVendorBookPayments();
 
-    if (!expenseRecords.length && !fuelRecords.length) {
+    if (
+      !expenseRecords.length &&
+      !fuelRecords.length &&
+      !vendorBookPayments.length
+    ) {
       this.logger.logUserAction(
         'Create payment sheet blocked: no outstanding beneficiaries selected'
       );
@@ -94,6 +111,7 @@ export class GetOutstandingBalanceComponent {
       {
         selectedExpenseRecords: expenseRecords,
         selectedFuelRecords: fuelRecords,
+        selectedVendorBookPayments: vendorBookPayments,
       }
     );
   }
@@ -116,7 +134,7 @@ export class GetOutstandingBalanceComponent {
           disabled: selectedCount === 0,
           disabledTooltip:
             selectedCount === 0
-              ? 'Select expense or fuel outstanding beneficiaries first.'
+              ? 'Select expense, fuel, or vendor outstanding beneficiaries first.'
               : undefined,
         },
       ],

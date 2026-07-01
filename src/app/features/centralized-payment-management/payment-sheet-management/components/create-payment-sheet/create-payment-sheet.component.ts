@@ -9,6 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/expense-payment-management/types/expense-outstanding.dto';
 import { IFuelExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/fuel-expense-payment-management/types/fuel-expense-outstanding.dto';
+import { IVendorBookPaymentTableRow } from '@features/centralized-payment-management/vendor-payment-management/types/vendor-outstanding.interface';
 import { FormBase } from '@shared/base/form.base';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import {
@@ -54,12 +55,20 @@ export class CreatePaymentSheetComponent
   protected readonly selectedFuelRecords = input<
     IFuelExpenseOutstandingGetBaseResponseDto[]
   >([]);
+  protected readonly selectedVendorBookPayments = input<
+    IVendorBookPaymentTableRow[]
+  >([]);
 
   ngOnInit(): void {
     const expenseRecords = this.selectedExpenseRecords();
     const fuelRecords = this.selectedFuelRecords();
+    const vendorBookPayments = this.selectedVendorBookPayments();
 
-    if (!expenseRecords.length && !fuelRecords.length) {
+    if (
+      !expenseRecords.length &&
+      !fuelRecords.length &&
+      !vendorBookPayments.length
+    ) {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
@@ -84,20 +93,26 @@ export class CreatePaymentSheetComponent
   protected override handleSubmit(): void {
     const formData = this.prepareFormData(
       this.selectedExpenseRecords(),
-      this.selectedFuelRecords()
+      this.selectedFuelRecords(),
+      this.selectedVendorBookPayments()
     );
     this.executeCreatePaymentSheetAction(formData);
   }
 
   private prepareFormData(
     expenseRecords: IExpenseOutstandingGetBaseResponseDto[],
-    fuelRecords: IFuelExpenseOutstandingGetBaseResponseDto[]
+    fuelRecords: IFuelExpenseOutstandingGetBaseResponseDto[],
+    vendorBookPayments: IVendorBookPaymentTableRow[]
   ): ICreatePaymentSheetFormDto {
     const title = this.form.getData().title?.trim();
 
     return {
       title: title ?? null,
-      items: buildPaymentSheetItemsFromOutstanding(expenseRecords, fuelRecords),
+      items: buildPaymentSheetItemsFromOutstanding(
+        expenseRecords,
+        fuelRecords,
+        vendorBookPayments
+      ),
     };
   }
 

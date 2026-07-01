@@ -7,6 +7,7 @@ type IVendorOutstandingBookPayment =
 
 export interface IVendorBookPaymentTableRow extends Record<string, unknown> {
   id: string;
+  vendorId: string;
   bookingDate: string;
   pendingAmount: number;
   transactionType?: 'credit' | 'debit';
