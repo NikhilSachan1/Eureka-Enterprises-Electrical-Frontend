@@ -112,9 +112,18 @@ export class EditBankTransferComponent
         ...this.form.fieldConfigs.transferAmount,
         label: 'Received Amount',
       };
+      this.form.fieldConfigs.paidFromAccount = {
+        ...this.form.fieldConfigs.paidFromAccount,
+        label: 'Bank Received Account',
+      };
       this.form.fieldConfigs.proofAttachment = {
         ...this.form.fieldConfigs.proofAttachment,
         label: 'Proof of receipt',
+      };
+    } else {
+      this.form.fieldConfigs.paidFromAccount = {
+        ...this.form.fieldConfigs.paidFromAccount,
+        label: 'Bank Transfer Account',
       };
     }
 

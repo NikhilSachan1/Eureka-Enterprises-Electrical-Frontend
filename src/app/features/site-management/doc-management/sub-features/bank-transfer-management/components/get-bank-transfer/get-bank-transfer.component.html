@@ -22,8 +22,34 @@
 <app-page-header
   [pageHeaderConfig]="pageHeaderConfig()"
   (headerButtonClick)="onHeaderButtonClick($event)"
-  (onSearch)="onSearchChange($event)"
-/>
+>
+  <div
+    headerFilter
+    class="bank-transfer-header-filters"
+  >
+    <p-iconfield class="bank-transfer-header-filters__search">
+      <p-inputicon class="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        [(ngModel)]="searchInput"
+        (ngModelChange)="onSearchInput($event)"
+        placeholder="Search by UTR / Reference"
+        class="w-full"
+      />
+    </p-iconfield>
+    <app-input-field
+      [inputFieldConfig]="paidFromAccountFilterFieldConfig()"
+      [fieldValue]="selectedPaidFromAccount()"
+      (onFieldChange)="onPaidFromAccountFilterChange($event)"
+    />
+    <app-input-field
+      [inputFieldConfig]="hasPaidFromAccountFilterFieldConfig()"
+      [fieldValue]="selectedHasPaidFromAccount()"
+      (onFieldChange)="onHasPaidFromAccountFilterChange($event)"
+    />
+  </div>
+</app-page-header>
 
 <app-data-table
   #dataTable

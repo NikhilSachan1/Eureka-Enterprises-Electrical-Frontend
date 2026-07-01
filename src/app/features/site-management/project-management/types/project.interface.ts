@@ -27,6 +27,4 @@ export interface IProjectWorkspaceSearchFilterFormDto {
   approvalStatus?: string[];
   dateRange?: Date[];
   search?: string;
-  paidFromAccount?: string;
-  hasPaidFromAccount?: 'true' | 'false';
 }

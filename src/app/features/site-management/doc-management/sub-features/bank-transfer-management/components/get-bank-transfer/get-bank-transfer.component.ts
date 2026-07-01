@@ -5,9 +5,11 @@ import {
   DestroyRef,
   effect,
   inject,
+  OnDestroy,
   OnInit,
   signal,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -31,6 +33,8 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import {
   getBankTransferActionConfigMap,
   getBankTransferTableConfig,
+  getBankTransferHasPaidFromAccountFilterFieldConfig,
+  getBankTransferPaidFromAccountFilterFieldConfig,
 } from '../../config';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import {
@@ -53,12 +57,21 @@ import { DocWorkspaceContextComponent } from '@features/site-management/doc-mana
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
+import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-get-bank-transfer',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     PageHeaderComponent,
+    InputFieldComponent,
+    FormsModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
     DataTableComponent,
     DocAmountComponent,
     DocReferenceComponent,
@@ -67,7 +80,7 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
   templateUrl: './get-bank-transfer.component.html',
   styleUrl: './get-bank-transfer.component.scss',
 })
-export class GetBankTransferComponent implements OnInit {
+export class GetBankTransferComponent implements OnInit, OnDestroy {
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
@@ -83,8 +96,27 @@ export class GetBankTransferComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
 
+  private lastProjectIdForHeaderFilters: string | undefined;
+  private searchDebounceTimer?: ReturnType<typeof setTimeout>;
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
+  protected searchInput = '';
+  protected readonly selectedPaidFromAccount = signal<string | undefined>(
+    undefined
+  );
+  protected readonly selectedHasPaidFromAccount = signal<
+    'true' | 'false' | undefined
+  >(undefined);
+  protected readonly paidFromAccountFilterFieldConfig = computed(() =>
+    getBankTransferPaidFromAccountFilterFieldConfig(
+      this.docRouteContext() ?? EDocContext.PURCHASE
+    )
+  );
+  protected readonly hasPaidFromAccountFilterFieldConfig = computed(() =>
+    getBankTransferHasPaidFromAccountFilterFieldConfig(
+      this.docRouteContext() ?? EDocContext.PURCHASE
+    )
+  );
 
   protected readonly pageHeaderConfig = computed(() =>
     this.getPageHeaderConfig()
@@ -96,11 +128,23 @@ export class GetBankTransferComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      const projectId = this.workspaceContext.selectedProjectId();
       this.workspaceContext.filterSubmitVersion();
+
+      if (projectId !== this.lastProjectIdForHeaderFilters) {
+        this.selectedPaidFromAccount.set(undefined);
+        this.selectedHasPaidFromAccount.set(undefined);
+        this.lastProjectIdForHeaderFilters = projectId;
+      }
+
       if (this.tableFilterData) {
         this.loadBankTransferList();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    clearTimeout(this.searchDebounceTimer);
   }
 
   ngOnInit(): void {
@@ -163,11 +207,34 @@ export class GetBankTransferComponent implements OnInit {
       ...(docType ? { docType } : {}),
       ...(workspaceSearch ? { poNumber: workspaceSearch } : {}),
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
+      ...(this.selectedPaidFromAccount()
+        ? { paidFromAccount: this.selectedPaidFromAccount() }
+        : {}),
+      ...(this.selectedHasPaidFromAccount()
+        ? { hasPaidFromAccount: this.selectedHasPaidFromAccount() }
+        : {}),
     };
   }
 
-  protected onSearchChange(term: string): void {
-    this.searchTerm.set(term);
+  protected onSearchInput(value: string): void {
+    clearTimeout(this.searchDebounceTimer);
+    this.searchDebounceTimer = setTimeout(() => {
+      this.searchTerm.set(value.trim());
+      this.loadBankTransferList();
+    }, 400);
+  }
+
+  protected onPaidFromAccountFilterChange(value: unknown): void {
+    this.selectedPaidFromAccount.set(
+      typeof value === 'string' && value.length > 0 ? value : undefined
+    );
+    this.loadBankTransferList();
+  }
+
+  protected onHasPaidFromAccountFilterChange(value: unknown): void {
+    this.selectedHasPaidFromAccount.set(
+      value === 'true' || value === 'false' ? value : undefined
+    );
     this.loadBankTransferList();
   }
 
@@ -380,8 +447,7 @@ export class GetBankTransferComponent implements OnInit {
       subtitle: '',
       showHeaderButton: true,
       showGoBackButton: false,
-      showSearch: true,
-      searchPlaceholder: 'Search by UTR / Reference',
+      showHeaderFilter: true,
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,

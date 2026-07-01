@@ -118,33 +118,6 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
       label: 'Search By PO Number',
       visibleOnTabs: ALL_DOC_TABS,
     },
-    paidFromAccount: {
-      fieldType: EDataType.SELECT,
-      id: 'paidFromAccount',
-      fieldName: 'paidFromAccount',
-      label: 'Paid From Account',
-      visibleOnTabs: [ROUTES.SITE.PROJECT.WORKSPACE_DOC.BANK_TRANSFER],
-      selectConfig: {
-        dynamicDropdown: {
-          moduleName: MODULE_NAMES.COMPANY_BANK_ACCOUNT,
-          dropdownName:
-            CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
-        },
-      },
-    },
-    hasPaidFromAccount: {
-      fieldType: EDataType.SELECT,
-      id: 'hasPaidFromAccount',
-      fieldName: 'hasPaidFromAccount',
-      label: 'Has Paid From Account',
-      visibleOnTabs: [ROUTES.SITE.PROJECT.WORKSPACE_DOC.BANK_TRANSFER],
-      selectConfig: {
-        optionsDropdown: [
-          { label: 'Yes', value: 'true' },
-          { label: 'No', value: 'false' },
-        ],
-      },
-    },
   };
 
 const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {
