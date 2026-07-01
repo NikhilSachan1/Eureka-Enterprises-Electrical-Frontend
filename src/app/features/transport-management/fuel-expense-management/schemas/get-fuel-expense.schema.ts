@@ -23,6 +23,7 @@ export const FuelExpenseGetRequestSchema = z
     employeeName: z.array(uuidField).min(1).optional(),
     vehicleName: uuidField.optional(),
     approvalStatus: z.array(approvalStatus).min(1).optional(),
+    paidFromAccount: uuidField.optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -36,6 +37,7 @@ export const FuelExpenseGetRequestSchema = z
       employeeName,
       vehicleName,
       approvalStatus: fuelExpenseApprovalStatus,
+      paidFromAccount,
       ...rest
     }) => {
       const [start, end] = dateRange ?? [];
@@ -47,6 +49,7 @@ export const FuelExpenseGetRequestSchema = z
         approvalStatuses: fuelExpenseApprovalStatus,
         startDate: transformDateFormat(start),
         endDate: transformDateFormat(end),
+        paidFromAccountId: paidFromAccount,
       };
     }
   );

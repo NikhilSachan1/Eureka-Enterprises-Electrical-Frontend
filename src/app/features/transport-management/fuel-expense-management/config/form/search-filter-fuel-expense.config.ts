@@ -40,6 +40,22 @@ const SEARCH_FILTER_FUEL_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFiel
     },
     matchmode: ETableFilterMatchMode.IN,
   },
+  paidFromAccount: {
+    fieldType: EDataType.SELECT,
+    id: 'paidFromAccount',
+    fieldName: 'paidFromAccount',
+    label: 'Paid From Account',
+    selectConfig: {
+      dynamicDropdown: {
+        moduleName: MODULE_NAMES.COMPANY_BANK_ACCOUNT,
+        dropdownName:
+          CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
+      },
+    },
+    permission: [
+      APP_PERMISSION.UI.FUEL_EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT,
+    ],
+  },
   fuelExpenseDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
     label: 'Fuel expense start date – end date',

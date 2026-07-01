@@ -22,6 +22,7 @@ export const BankTransferGetRequestSchema = z
     docType: z.enum(EDocContext).optional(),
     dateRange: z.array(dateField).nullable().optional(),
     poNumber: z.string().nullable().optional(),
+    paidFromAccount: uuidField.optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -37,6 +38,7 @@ export const BankTransferGetRequestSchema = z
       vendorName,
       docType,
       dateRange,
+      paidFromAccount,
       ...rest
     }) => {
       const [start, end] = dateRange ?? [];
@@ -49,6 +51,7 @@ export const BankTransferGetRequestSchema = z
         partyType: docType,
         dateFrom: transformDateFormat(start),
         dateTo: transformDateFormat(end),
+        paidFromAccountId: paidFromAccount,
       };
     }
   );

@@ -327,6 +327,8 @@ export const APP_PERMISSION = {
     EXPENSE: {
       TABLE_EMPLOYEE_NAME: 'ui_expense_table_employee_name',
       SEARCH_FILTER_EMPLOYEE_NAME: 'ui_expense_search_filter_employee_name',
+      SEARCH_FILTER_PAID_FROM_ACCOUNT:
+        'ui_expense_search_filter_paid_from_account',
     },
     LEAVE: {
       TABLE_EMPLOYEE_NAME: 'ui_leave_table_employee_name',
@@ -336,6 +338,8 @@ export const APP_PERMISSION = {
       TABLE_EMPLOYEE_NAME: 'ui_fuel_expense_table_employee_name',
       SEARCH_FILTER_EMPLOYEE_NAME:
         'ui_fuel_expense_search_filter_employee_name',
+      SEARCH_FILTER_PAID_FROM_ACCOUNT:
+        'ui_fuel_expense_search_filter_paid_from_account',
     },
     VEHICLE_READING: {
       SEARCH_FILTER_EMPLOYEE_NAME:
@@ -421,6 +425,14 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
     },
+    SEARCH_FILTER_PAID_FROM_ACCOUNT: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: false,
+      [EUserRole.EMPLOYEE]: false,
+      [EUserRole.OPERATION_MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: true,
+    },
   },
   FUEL_EXPENSE: {
     TABLE_EMPLOYEE_NAME: {
@@ -432,6 +444,14 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.HR]: true,
     },
     SEARCH_FILTER_EMPLOYEE_NAME: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: false,
+      [EUserRole.EMPLOYEE]: false,
+      [EUserRole.OPERATION_MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: true,
+    },
+    SEARCH_FILTER_PAID_FROM_ACCOUNT: {
       [EUserRole.ADMIN]: true,
       [EUserRole.DRIVER]: false,
       [EUserRole.EMPLOYEE]: false,

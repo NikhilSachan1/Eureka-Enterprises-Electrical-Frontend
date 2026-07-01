@@ -23,6 +23,7 @@ export const ExpenseGetRequestSchema = z
     employeeName: z.array(uuidField).min(1).optional(),
     approvalStatus: z.array(approvalStatus).min(1).optional(),
     expenseType: z.array(category).min(1).optional(),
+    paidFromAccount: uuidField.optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -36,6 +37,7 @@ export const ExpenseGetRequestSchema = z
       employeeName,
       approvalStatus: expenseApprovalStatus,
       expenseType,
+      paidFromAccount,
       ...rest
     }) => {
       const [start, end] = dateRange ?? [];
@@ -47,6 +49,7 @@ export const ExpenseGetRequestSchema = z
         categories: expenseType,
         startDate: transformDateFormat(start),
         endDate: transformDateFormat(end),
+        paidFromAccountId: paidFromAccount,
       };
     }
   );
