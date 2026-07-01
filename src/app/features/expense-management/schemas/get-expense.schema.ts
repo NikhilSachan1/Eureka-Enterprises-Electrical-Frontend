@@ -24,6 +24,10 @@ export const ExpenseGetRequestSchema = z
     approvalStatus: z.array(approvalStatus).min(1).optional(),
     expenseType: z.array(category).min(1).optional(),
     paidFromAccount: uuidField.optional(),
+    hasPaidFromAccount: z
+      .union([z.boolean(), z.literal('true'), z.literal('false')])
+      .nullable()
+      .optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -38,6 +42,7 @@ export const ExpenseGetRequestSchema = z
       approvalStatus: expenseApprovalStatus,
       expenseType,
       paidFromAccount,
+      hasPaidFromAccount,
       ...rest
     }) => {
       const [start, end] = dateRange ?? [];
@@ -50,6 +55,12 @@ export const ExpenseGetRequestSchema = z
         startDate: transformDateFormat(start),
         endDate: transformDateFormat(end),
         paidFromAccountId: paidFromAccount,
+        hasPaidFromAccount:
+          hasPaidFromAccount === null || hasPaidFromAccount === undefined
+            ? undefined
+            : typeof hasPaidFromAccount === 'boolean'
+              ? hasPaidFromAccount
+              : hasPaidFromAccount === 'true',
       };
     }
   );

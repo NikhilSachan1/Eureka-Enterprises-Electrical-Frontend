@@ -57,6 +57,19 @@ const SEARCH_FILTER_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
       },
       permission: [APP_PERMISSION.UI.EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT],
     },
+    hasPaidFromAccount: {
+      fieldType: EDataType.SELECT,
+      id: 'hasPaidFromAccount',
+      fieldName: 'hasPaidFromAccount',
+      label: 'Has Paid From Account',
+      selectConfig: {
+        optionsDropdown: [
+          { label: 'Yes', value: 'true' },
+          { label: 'No', value: 'false' },
+        ],
+      },
+      permission: [APP_PERMISSION.UI.EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT],
+    },
     approvalStatus: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
       multiSelectConfig: {

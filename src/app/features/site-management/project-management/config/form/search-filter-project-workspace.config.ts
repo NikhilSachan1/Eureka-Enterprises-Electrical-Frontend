@@ -132,6 +132,19 @@ const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_FIELDS_CONFIG: WorkspaceSearchFilterF
         },
       },
     },
+    hasPaidFromAccount: {
+      fieldType: EDataType.SELECT,
+      id: 'hasPaidFromAccount',
+      fieldName: 'hasPaidFromAccount',
+      label: 'Has Paid From Account',
+      visibleOnTabs: [ROUTES.SITE.PROJECT.WORKSPACE_DOC.BANK_TRANSFER],
+      selectConfig: {
+        optionsDropdown: [
+          { label: 'Yes', value: 'true' },
+          { label: 'No', value: 'false' },
+        ],
+      },
+    },
   };
 
 const SEARCH_FILTER_PROJECT_WORKSPACE_FORM_BUTTONS_CONFIG: IFormButtonConfig = {

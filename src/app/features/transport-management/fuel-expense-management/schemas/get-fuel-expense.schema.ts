@@ -24,6 +24,10 @@ export const FuelExpenseGetRequestSchema = z
     vehicleName: uuidField.optional(),
     approvalStatus: z.array(approvalStatus).min(1).optional(),
     paidFromAccount: uuidField.optional(),
+    hasPaidFromAccount: z
+      .union([z.boolean(), z.literal('true'), z.literal('false')])
+      .nullable()
+      .optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -38,6 +42,7 @@ export const FuelExpenseGetRequestSchema = z
       vehicleName,
       approvalStatus: fuelExpenseApprovalStatus,
       paidFromAccount,
+      hasPaidFromAccount,
       ...rest
     }) => {
       const [start, end] = dateRange ?? [];
@@ -50,6 +55,12 @@ export const FuelExpenseGetRequestSchema = z
         startDate: transformDateFormat(start),
         endDate: transformDateFormat(end),
         paidFromAccountId: paidFromAccount,
+        hasPaidFromAccount:
+          hasPaidFromAccount === null || hasPaidFromAccount === undefined
+            ? undefined
+            : typeof hasPaidFromAccount === 'boolean'
+              ? hasPaidFromAccount
+              : hasPaidFromAccount === 'true',
       };
     }
   );

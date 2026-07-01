@@ -28,4 +28,5 @@ export interface IProjectWorkspaceSearchFilterFormDto {
   dateRange?: Date[];
   search?: string;
   paidFromAccount?: string;
+  hasPaidFromAccount?: 'true' | 'false';
 }

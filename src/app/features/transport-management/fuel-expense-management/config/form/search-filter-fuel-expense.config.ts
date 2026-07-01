@@ -56,6 +56,21 @@ const SEARCH_FILTER_FUEL_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFiel
       APP_PERMISSION.UI.FUEL_EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT,
     ],
   },
+  hasPaidFromAccount: {
+    fieldType: EDataType.SELECT,
+    id: 'hasPaidFromAccount',
+    fieldName: 'hasPaidFromAccount',
+    label: 'Has Paid From Account',
+    selectConfig: {
+      optionsDropdown: [
+        { label: 'Yes', value: 'true' },
+        { label: 'No', value: 'false' },
+      ],
+    },
+    permission: [
+      APP_PERMISSION.UI.FUEL_EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT,
+    ],
+  },
   fuelExpenseDate: {
     ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.dateRange,
     label: 'Fuel expense start date – end date',
