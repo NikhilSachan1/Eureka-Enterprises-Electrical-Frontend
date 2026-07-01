@@ -73,6 +73,7 @@ const ADD_BANK_TRANSFER_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBankTrans
         },
         showClearButton: true,
       },
+      validators: [Validators.required],
     },
     utrNumber: {
       fieldType: EDataType.TEXT,

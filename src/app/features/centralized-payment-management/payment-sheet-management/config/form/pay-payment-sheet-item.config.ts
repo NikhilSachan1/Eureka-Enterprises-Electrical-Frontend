@@ -36,6 +36,15 @@ const PAY_PAYMENT_SHEET_ITEM_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPayPaym
         },
         showClearButton: true,
       },
+      conditionalValidators: [
+        {
+          dependsOn: 'paymentMode',
+          validators: [Validators.required],
+          shouldApply: (mode: unknown): boolean =>
+            String(mode ?? '').toLowerCase() !== 'cash',
+          resetOnFalse: true,
+        },
+      ],
     },
     paidDate: {
       fieldType: EDataType.DATE,

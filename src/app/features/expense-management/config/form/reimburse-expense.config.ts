@@ -39,6 +39,15 @@ const REIMBURSE_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseReimb
         },
         showClearButton: true,
       },
+      conditionalValidators: [
+        {
+          dependsOn: 'paymentMode',
+          validators: [Validators.required],
+          shouldApply: (mode: unknown): boolean =>
+            String(mode ?? '').toLowerCase() !== 'cash',
+          resetOnFalse: true,
+        },
+      ],
     },
     expenseDate,
     expenseAmount,

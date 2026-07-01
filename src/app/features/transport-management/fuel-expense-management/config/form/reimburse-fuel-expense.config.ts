@@ -39,6 +39,15 @@ const REIMBURSE_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExp
         },
         showClearButton: true,
       },
+      conditionalValidators: [
+        {
+          dependsOn: 'paymentMode',
+          validators: [Validators.required],
+          shouldApply: (mode: unknown): boolean =>
+            String(mode ?? '').toLowerCase() !== 'cash',
+          resetOnFalse: true,
+        },
+      ],
     },
     fuelAmount,
     fuelFillDate,
