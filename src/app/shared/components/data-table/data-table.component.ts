@@ -215,14 +215,16 @@ export class DataTableComponent {
   }
 
   /**
-   * Selection UI only when table allows it and there is at least one visible bulk action.
+   * Row selection checkbox column visibility.
    */
   protected showBulkSelectionCheckbox = computed(() => {
-    if (!this.tableConfig().showCheckbox) {
-      return false;
-    }
+    return this.tableConfig().showCheckbox;
+  });
+
+  /** Bulk action bar only when at least one bulk action is visible. */
+  protected showBulkActionBar = computed(() => {
     return this.bulkActionButtons().some(action =>
-      this.hasRequiredPermissions(action)
+      this.isActionVisible(action)
     );
   });
 

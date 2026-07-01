@@ -42,7 +42,6 @@ import { IExpenseOutstanding } from '../../types/expense-outstanding.interface';
 export class GetExpenseOutstandingComponent implements OnInit {
   selectionChange = output<IExpenseOutstandingGetBaseResponseDto[]>();
   excludedUserIds = input<ReadonlySet<string>>(new Set());
-  selectionPermissions = input<string[] | undefined>(undefined);
 
   protected readonly EPaymentOutstandingSourceType =
     EPaymentOutstandingSourceType;
@@ -67,9 +66,7 @@ export class GetExpenseOutstandingComponent implements OnInit {
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
-      createExpenseOutstandingTableEnhancedConfig({
-        selectionPermissions: this.selectionPermissions(),
-      })
+      createExpenseOutstandingTableEnhancedConfig()
     );
     this.syncRowSelectionRules();
   }

@@ -7,13 +7,23 @@ type IVendorOutstandingBookPayment =
 
 export interface IVendorBookPaymentTableRow extends Record<string, unknown> {
   id: string;
-  invoiceNumber: string;
-  invoiceDate: string;
-  documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   bookingDate: string;
   pendingAmount: number;
   transactionType?: 'credit' | 'debit';
   originalRawData: IVendorOutstandingBookPayment;
+}
+
+export interface IVendorInvoiceOutstandingGroup {
+  id: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  companyName: string;
+  siteName: string;
+  siteLocation: string;
+  invoice: IVendorOutstandingBookPayment['invoice'];
+  documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
+  bookPayments: IVendorBookPaymentTableRow[];
+  opsTable: IEnhancedTable;
 }
 
 export interface IVendorOutstandingVendorGroup {
@@ -21,6 +31,5 @@ export interface IVendorOutstandingVendorGroup {
   vendorName: string;
   location: string;
   vendorSummary: IVendorOutstandingGetBaseResponseDto['vendorSummary'];
-  bookPaymentTable: IEnhancedTable;
-  originalRawData: IVendorOutstandingGetBaseResponseDto;
+  invoiceGroups: IVendorInvoiceOutstandingGroup[];
 }

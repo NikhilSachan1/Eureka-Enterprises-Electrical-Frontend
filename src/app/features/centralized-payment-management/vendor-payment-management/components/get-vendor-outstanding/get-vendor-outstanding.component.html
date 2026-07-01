@@ -1,44 +1,74 @@
-<ng-template
-  #vendorDocumentReference
-  let-row
->
-  <app-doc-reference [root]="row.documentReferenceHierarchy" />
-</ng-template>
-
-<ng-template
-  #vendorInvoiceAmountBreakdown
-  let-row
->
-  <app-doc-amount [segments]="vendorInvoiceAmountSegments(row)" />
-</ng-template>
-
 <app-payment-outstanding-section
   [sourceType]="EPaymentOutstandingSourceType.VENDOR_PAYMENT"
-  [loading]="table.loading()"
+  [loading]="loading()"
   [recordCount]="totalRecords()"
   [totalPendingAmount]="summary()?.totalPaymentAmount ?? 0"
   searchPlaceholder="Search by vendor name"
   (searchChange)="onSearchChange($event)"
 >
+  <ng-template
+    #bookPaymentsTable
+    let-table="table"
+  >
+    <app-data-table
+      [tableConfig]="table.tableConfig()"
+      [tableHeader]="table.headers()"
+      [tableData]="table.data()"
+      [loading]="loading()"
+      [rowActions]="table.rowActions()"
+    />
+  </ng-template>
+
   <div class="vendor-outstanding">
-    @if (vendorGroups().length > 0) {
+    @if (loading()) {
+      <div
+        class="vendor-outstanding__loading"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <i [class]="`${icons.COMMON.SPINNER} pi-spin vendor-outstanding__spinner`"></i>
+        <span>Loading vendor payments…</span>
+      </div>
+    } @else if (vendorGroups().length > 0) {
       <div class="vendor-outstanding__list">
         @for (group of vendorGroups(); track group.id) {
-          <article class="vendor-card">
+          <section
+            class="vendor-card"
+            [attr.aria-label]="group.vendorName + ' outstanding'"
+          >
             <header class="vendor-card__header">
-              <div class="vendor-card__identity">
+              <div>
                 <h3 class="vendor-card__name">{{ group.vendorName }}</h3>
-                @if (group.location) {
-                  <p class="vendor-card__meta">{{ group.location }}</p>
-                }
+                <p class="vendor-card__meta">
+                  @if (group.location) {
+                    <span>{{ group.location }}</span>
+                    <span
+                      class="vendor-card__sep"
+                      aria-hidden="true"
+                    >
+                      ·
+                    </span>
+                  }
+                  <span>
+                    {{ group.invoiceGroups.length }}
+                    {{ group.invoiceGroups.length === 1 ? 'invoice' : 'invoices' }}
+                  </span>
+                  <span
+                    class="vendor-card__sep"
+                    aria-hidden="true"
+                  >
+                    ·
+                  </span>
+                  <span>{{ paymentCountLabel(totalBookings(group)) }}</span>
+                </p>
               </div>
 
               <div
                 class="vendor-card__stats"
                 aria-label="Vendor payment summary"
               >
-                <div class="vendor-card__stat vendor-card__stat--due">
-                  <span class="vendor-card__stat-value">
+                <div class="vendor-card__stat vendor-card__stat--amount">
+                  <span class="vendor-card__stat-value vendor-card__stat-value--debit">
                     {{
                       group.vendorSummary.totalPaymentAmount
                         | currency
@@ -48,7 +78,7 @@
                           : APP_CONFIG.NUMBER_FORMATS.LOCALE
                     }}
                   </span>
-                  <span class="vendor-card__stat-label">Pending amount</span>
+                  <span class="vendor-card__stat-label">Pending</span>
                 </div>
                 <div class="vendor-card__stat">
                   <span class="vendor-card__stat-value">
@@ -61,26 +91,151 @@
                           : APP_CONFIG.NUMBER_FORMATS.LOCALE
                     }}
                   </span>
-                  <span class="vendor-card__stat-label">Pending to book</span>
+                  <span class="vendor-card__stat-label">To book</span>
                 </div>
               </div>
             </header>
 
-            <div class="vendor-card__table">
-              <app-data-table
-                [tableConfig]="group.bookPaymentTable.tableConfig()"
-                [tableHeader]="group.bookPaymentTable.headers()"
-                [tableData]="group.bookPaymentTable.data()"
-                [loading]="table.loading()"
-                [bulkActionButtons]="group.bookPaymentTable.bulkActions()"
-                [rowActions]="group.bookPaymentTable.rowActions()"
-                [customBodyTemplates]="{
-                  vendorDocumentReference: vendorDocumentReference,
-                  vendorInvoiceAmountBreakdown: vendorInvoiceAmountBreakdown,
-                }"
-              />
+            <div class="vendor-card__body">
+              @if (group.invoiceGroups.length > 0) {
+                @for (invoice of group.invoiceGroups; track invoice.id) {
+                  <article class="invoice-card">
+                    <header class="invoice-card__header">
+                      <div class="invoice-card__hero">
+                        <div class="invoice-card__invoice-panel">
+                          <div
+                            class="invoice-card__invoice-icon"
+                            aria-hidden="true"
+                          >
+                            <i [class]="icons.COMMON.FILE"></i>
+                          </div>
+                          <div class="invoice-card__invoice-body">
+                            <span class="invoice-card__kicker">Invoice</span>
+                            <h4 class="invoice-card__invoice-no">{{ invoice.invoiceNumber }}</h4>
+                            <time class="invoice-card__invoice-date">
+                              <i
+                                [class]="icons.COMMON.CALENDAR"
+                                aria-hidden="true"
+                              ></i>
+                              {{
+                                invoice.invoiceDate
+                                  | date
+                                    : APP_CONFIG.DATE_FORMATS.DEFAULT
+                                    : undefined
+                                    : APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE
+                              }}
+                            </time>
+                          </div>
+                        </div>
+
+                        @if (invoice.documentReferenceHierarchy) {
+                          <div class="invoice-card__doc-panel">
+                            <span class="invoice-card__kicker">Document ref</span>
+                            <app-doc-reference [root]="invoice.documentReferenceHierarchy" />
+                          </div>
+                        }
+                      </div>
+
+                      @if (hasInvoiceSiteContext(invoice)) {
+                        <div
+                          class="invoice-card__project-summary"
+                          aria-label="Project summary"
+                        >
+                          @if (invoice.siteName || invoice.siteLocation) {
+                            <div class="invoice-card__summary-panel">
+                              <div
+                                class="invoice-card__summary-icon invoice-card__summary-icon--project"
+                                aria-hidden="true"
+                              >
+                                <i [class]="icons.COMMON.BRIEFCASE"></i>
+                              </div>
+                              <div class="invoice-card__summary-body">
+                                <span class="invoice-card__kicker">Project</span>
+                                @if (invoice.siteName) {
+                                  <strong class="invoice-card__summary-title">{{ invoice.siteName }}</strong>
+                                }
+                                @if (invoice.siteLocation) {
+                                  <span class="invoice-card__summary-sub">
+                                    <i
+                                      [class]="icons.COMMON.MAP_MARKER"
+                                      aria-hidden="true"
+                                    ></i>
+                                    {{ invoice.siteLocation }}
+                                  </span>
+                                }
+                              </div>
+                            </div>
+                          }
+                          @if (invoice.companyName) {
+                            <div class="invoice-card__summary-panel invoice-card__summary-panel--company">
+                              <div
+                                class="invoice-card__summary-icon invoice-card__summary-icon--company"
+                                aria-hidden="true"
+                              >
+                                <i [class]="icons.SITE.BUILDING"></i>
+                              </div>
+                              <div class="invoice-card__summary-body">
+                                <span class="invoice-card__kicker">Company</span>
+                                <strong class="invoice-card__summary-title">{{ invoice.companyName }}</strong>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </header>
+
+                    <div class="invoice-card__ledger-head">
+                      <span class="invoice-card__ledger-head-label">Amount summary</span>
+                    </div>
+
+                    <div
+                      class="invoice-card__ledger"
+                      role="list"
+                      aria-label="Invoice amounts"
+                    >
+                      @for (segment of invoiceAmountSegments(invoice); track segment.label) {
+                        <div
+                          class="invoice-card__metric"
+                          [ngClass]="[
+                            'invoice-card__metric--' + metricTone(segment.label),
+                            segment.label === 'Pending to book' && isPositiveAmount(segment)
+                              ? 'invoice-card__metric--pending-active'
+                              : '',
+                          ]"
+                          role="listitem"
+                        >
+                          <span class="invoice-card__metric-label">{{ segment.label }}</span>
+                          <span class="invoice-card__metric-value">
+                            @if (hasSegmentValue(segment)) {
+                              {{
+                                +segment.value!
+                                  | currency
+                                    : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                                    : 'symbol'
+                                    : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                                    : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                              }}
+                            } @else {
+                              —
+                            }
+                          </span>
+                          @if (segment.suffix) {
+                            <span class="invoice-card__metric-note">{{ segment.suffix }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+
+                    <div class="invoice-card__bookings">
+                      <ng-container *ngTemplateOutlet="bookPaymentsTable; context: { table: invoice.opsTable }" />
+                    </div>
+                  </article>
+                }
+              } @else {
+                <ng-container *ngTemplateOutlet="bookPaymentsTable; context: { table: emptyBookPaymentsTable }" />
+              }
             </div>
-          </article>
+          </section>
         }
       </div>
 
@@ -91,12 +246,8 @@
         [totalRecords]="totalRecords()"
         (pageChange)="onPageChange($event)"
       />
-    } @else if (!table.loading()) {
-      <app-empty-messages
-        [icon]="listEmptyState.icon"
-        [title]="listEmptyState.title"
-        [description]="listEmptyState.description"
-      />
+    } @else {
+      <ng-container *ngTemplateOutlet="bookPaymentsTable; context: { table: emptyBookPaymentsTable }" />
     }
   </div>
 </app-payment-outstanding-section>

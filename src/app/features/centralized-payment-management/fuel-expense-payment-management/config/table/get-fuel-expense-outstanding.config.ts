@@ -1,17 +1,11 @@
 import { APP_CONFIG } from '@core/config';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
-  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
 } from '@shared/types';
 import { IFuelExpenseOutstandingGetBaseResponseDto } from '../../types/fuel-expense-outstanding.dto';
-
-export interface IFuelExpenseOutstandingTableConfigOptions {
-  selectionPermissions?: string[];
-}
 
 export const FUEL_EXPENSE_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> =
   {
@@ -48,26 +42,11 @@ export const FUEL_EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHea
     },
   ];
 
-export function createFuelExpenseOutstandingTableEnhancedConfig(
-  options?: IFuelExpenseOutstandingTableConfigOptions
-): IEnhancedTableConfig<IFuelExpenseOutstandingGetBaseResponseDto> {
-  const selectionPermissions = options?.selectionPermissions ?? [
-    APP_PERMISSION.PAYMENT_SHEET.CREATE,
-  ];
-
+export function createFuelExpenseOutstandingTableEnhancedConfig(): IEnhancedTableConfig<IFuelExpenseOutstandingGetBaseResponseDto> {
   return {
     tableConfig: FUEL_EXPENSE_OUTSTANDING_TABLE_CONFIG,
     headers: FUEL_EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG,
     rowActions: [],
-    bulkActions: [
-      {
-        id: EButtonActionType.GENERATE,
-        label: 'Create Payment Sheet',
-        hideWhen: () => true,
-        ...(selectionPermissions.length
-          ? { permission: selectionPermissions }
-          : {}),
-      },
-    ],
+    bulkActions: [],
   };
 }

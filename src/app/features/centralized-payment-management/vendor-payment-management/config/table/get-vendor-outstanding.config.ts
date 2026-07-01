@@ -1,7 +1,5 @@
 import { APP_CONFIG } from '@core/config';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
-  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -9,7 +7,7 @@ import {
 } from '@shared/types';
 import { IVendorBookPaymentTableRow } from '../../types/vendor-outstanding.interface';
 
-export const VENDOR_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> = {
+export const VENDOR_OUTSTANDING_OPS_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No book payments found for this vendor.',
   emptyMessageDescription: 'Booked payment entries will appear here.',
   enableServerSide: false,
@@ -17,28 +15,8 @@ export const VENDOR_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> = {
   showViewModeToggle: false,
 };
 
-export const VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
+export const VENDOR_OUTSTANDING_OPS_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
   [
-    {
-      field: 'invoiceNumber',
-      header: 'Invoice',
-      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-      subtitle: {
-        field: 'invoiceDate',
-        bodyTemplate: EDataType.DATE,
-      },
-      primaryFieldHighlight: true,
-      columnStyleClass: 'cell-allow-wrap',
-      showSort: false,
-    },
-    {
-      field: 'invoiceAmountBreakdown',
-      header: 'Invoice summary',
-      bodyTemplate: EDataType.TEXT,
-      customTemplateKey: 'vendorInvoiceAmountBreakdown',
-      columnStyleClass: 'cell-allow-wrap',
-      showSort: false,
-    },
     {
       field: 'bookingDate',
       header: 'Booking Date',
@@ -54,28 +32,13 @@ export const VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCon
       currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       showSort: false,
     },
-    {
-      field: 'documentReferenceHierarchy',
-      header: 'Document Reference',
-      bodyTemplate: EDataType.TEXT,
-      customTemplateKey: 'vendorDocumentReference',
-      columnStyleClass: 'cell-allow-wrap',
-      showSort: false,
-    },
   ];
 
 export function createVendorOutstandingTableEnhancedConfig(): IEnhancedTableConfig<IVendorBookPaymentTableRow> {
   return {
-    tableConfig: VENDOR_OUTSTANDING_TABLE_CONFIG,
-    headers: VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG,
+    tableConfig: VENDOR_OUTSTANDING_OPS_TABLE_CONFIG,
+    headers: VENDOR_OUTSTANDING_OPS_TABLE_HEADER_CONFIG,
     rowActions: [],
-    bulkActions: [
-      {
-        id: EButtonActionType.GENERATE,
-        label: 'Create Payment Sheet',
-        hideWhen: () => true,
-        permission: [APP_PERMISSION.PAYMENT_SHEET.CREATE],
-      },
-    ],
+    bulkActions: [],
   };
 }

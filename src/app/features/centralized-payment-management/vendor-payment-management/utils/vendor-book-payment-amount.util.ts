@@ -10,7 +10,11 @@ type IVendorOutstandingBookPaymentInvoice =
   IVendorOutstandingBookPayment['invoice'];
 
 function toAmountString(value: number | null | undefined): string {
-  return value === null ? '' : String(value);
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  return String(value);
 }
 
 export function buildVendorOutstandingInvoiceAmountSegments(
@@ -26,13 +30,12 @@ export function buildVendorOutstandingInvoiceAmountSegments(
     isGstHold: invoice.isGstHold,
   });
 
-  segments.push({
-    dataType: EDataType.CURRENCY,
-    label: 'Net payable',
-    value: invoice.netPayableAmount,
-  });
-
   segments.push(
+    {
+      dataType: EDataType.CURRENCY,
+      label: 'Net payable',
+      value: invoice.netPayableAmount,
+    },
     {
       dataType: EDataType.CURRENCY,
       label: 'Booked',

@@ -3,27 +3,46 @@
 }
 
 .vendor-outstanding {
-  --vo-border: color-mix(in srgb, var(--primary-color) 10%, var(--border-light-color));
+  --vo-border: var(--border-light-color);
   --vo-muted: var(--text-secondary-color);
-  --vo-text: var(--text-primary-color);
+  --vo-card-bg: #fff;
 
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.vendor-outstanding__list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
+.vendor-outstanding__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 10rem;
+  color: var(--vo-muted);
+  font-size: 0.875rem;
+}
+
+.vendor-outstanding__spinner {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+}
+
+.vendor-outstanding__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .vendor-card {
-  border: 1px solid var(--vo-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 10%, var(--vo-border));
   border-radius: 0.85rem;
-  overflow: hidden;
-  background: var(--background-paper-color);
-  box-shadow: var(--shadow-sm);
+  background: var(--vo-card-bg);
+  box-shadow: 0 1px 3px rgb(15 23 42 / 6%);
 }
 
 .vendor-card__header {
@@ -31,42 +50,43 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.9rem 1rem;
-  background: color-mix(in srgb, var(--primary-color) 4%, var(--background-paper-color));
-  border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 70%, transparent);
-}
-
-.vendor-card__identity {
-  min-width: 0;
-  flex: 1;
+  padding: 0 0 0.85rem;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 75%, transparent);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .vendor-card__name {
   margin: 0 0 0.2rem;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
-  line-height: 1.3;
-  color: var(--vo-text);
-  word-break: break-word;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
+  line-height: 1.35;
+  color: var(--text-primary-color);
 }
 
 .vendor-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
   margin: 0;
-  font-size: 0.78rem;
-  line-height: 1.4;
+  font-size: 0.8125rem;
   color: var(--vo-muted);
+}
+
+.vendor-card__sep {
+  opacity: 0.45;
 }
 
 .vendor-card__stats {
   display: flex;
+  align-items: stretch;
   flex-shrink: 0;
-  border-radius: 0.7rem;
+  border-radius: 0.6rem;
   border: 1px solid color-mix(in srgb, var(--primary-color) 14%, var(--vo-border));
-  background: var(--background-paper-color);
+  background: color-mix(in srgb, var(--primary-color) 4%, var(--vo-card-bg));
   overflow: hidden;
 }
 
@@ -76,49 +96,434 @@
   align-items: center;
   justify-content: center;
   gap: 0.18rem;
-  min-width: 5.25rem;
-  padding: 0.45rem 0.7rem;
+  min-width: 6rem;
+  padding: 0.45rem 0.85rem;
 
   &:not(:last-child) {
-    border-right: 1px solid color-mix(in srgb, var(--vo-border) 80%, transparent);
+    border-right: 1px solid color-mix(in srgb, var(--vo-border) 78%, transparent);
   }
 
-  &--due .vendor-card__stat-value {
-    color: #dc2626;
+  &--amount {
+    min-width: 6.75rem;
   }
 }
 
 .vendor-card__stat-value {
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
-  text-align: center;
-  color: var(--vo-text);
+  white-space: nowrap;
+  color: var(--text-primary-color);
+
+  &--debit {
+    color: #dc2626;
+  }
 }
 
 .vendor-card__stat-label {
-  font-size: 0.62rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--vo-muted);
+}
+
+.vendor-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.invoice-card {
+  border: 1px solid color-mix(in srgb, var(--vo-border) 92%, transparent);
+  border-radius: 0.65rem;
+  overflow: hidden;
+  background: var(--vo-card-bg);
+  box-shadow: 0 1px 3px rgb(15 23 42 / 6%);
+}
+
+.invoice-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--primary-color) 6%, var(--vo-card-bg)) 0%,
+    var(--vo-card-bg) 100%
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 75%, transparent);
+}
+
+.invoice-card__hero {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem 0.8rem;
+}
+
+.invoice-card__invoice-panel {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.invoice-card__invoice-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.7rem;
+  color: #fff;
+  background: linear-gradient(145deg, #047857 0%, #10b981 100%);
+  box-shadow: 0 2px 10px rgb(4 120 87 / 22%);
+
+  i {
+    font-size: 1.05rem;
+    line-height: 1;
+  }
+}
+
+.invoice-card__invoice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.14rem;
+  min-width: 0;
+}
+
+.invoice-card__kicker {
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vo-muted);
+}
+
+.invoice-card__invoice-no {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--text-primary-color);
+  overflow-wrap: anywhere;
+}
+
+.invoice-card__invoice-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--vo-muted);
+
+  i {
+    font-size: 0.72rem;
+    opacity: 0.8;
+  }
+}
+
+.invoice-card__doc-panel {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-width: 0;
+  max-width: min(100%, 16rem);
+  padding: 0.55rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 12%, var(--vo-border));
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, var(--vo-card-bg) 88%, var(--primary-color) 12%);
+}
+
+.invoice-card__project-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid color-mix(in srgb, var(--vo-border) 70%, transparent);
+}
+
+.invoice-card__summary-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.62rem;
+  min-width: 0;
+  padding: 0.78rem 1rem;
+
+  &:not(:last-child) {
+    border-right: 1px solid color-mix(in srgb, var(--vo-border) 70%, transparent);
+  }
+
+  &--company:only-child,
+  &:first-child:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+.invoice-card__summary-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.55rem;
+
+  i {
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+
+  &--project {
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 14%, var(--vo-card-bg));
+  }
+
+  &--company {
+    color: #7c3aed;
+    background: color-mix(in srgb, #7c3aed 12%, var(--vo-card-bg));
+  }
+}
+
+.invoice-card__summary-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.invoice-card__summary-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text-primary-color);
+  overflow-wrap: anywhere;
+}
+
+.invoice-card__summary-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--vo-muted);
+  overflow-wrap: anywhere;
+
+  i {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    opacity: 0.85;
+  }
+}
+
+.invoice-card__ledger-head {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem 0.35rem;
+  background: color-mix(in srgb, var(--primary-color) 3%, var(--vo-card-bg));
+  border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 60%, transparent);
+}
+
+.invoice-card__ledger-head-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--vo-muted) 90%, var(--primary-color));
+}
+
+.invoice-card__ledger {
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  background: var(--vo-card-bg);
+  border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 75%, transparent);
+}
+
+.invoice-card__metric {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18rem;
+  min-width: 5.5rem;
+  padding: 0.7rem 0.45rem;
+  text-align: center;
+  border-right: 1px solid color-mix(in srgb, var(--vo-border) 60%, transparent);
+
+  &:last-child {
+    border-right: 0;
+  }
+
+  &--taxable .invoice-card__metric-value {
+    color: #047857;
+    font-weight: 600;
+  }
+
+  &--deduction .invoice-card__metric-value {
+    color: #dc2626;
+    font-weight: 600;
+  }
+
+  &--gst .invoice-card__metric-value {
+    color: #d97706;
+    font-weight: 600;
+  }
+
+  &--total .invoice-card__metric-value {
+    color: var(--primary-color);
+    font-weight: 700;
+  }
+
+  &--net .invoice-card__metric-value {
+    color: #047857;
+    font-weight: 700;
+  }
+
+  &--booked .invoice-card__metric-value {
+    color: var(--text-primary-color);
+    font-weight: 600;
+  }
+
+  &--pending-active .invoice-card__metric-value {
+    color: #7c3aed;
+    font-weight: 700;
+  }
+
+  &--paid .invoice-card__metric-value {
+    color: var(--vo-muted);
+  }
+}
+
+.invoice-card__metric-label {
+  font-size: 0.625rem;
   font-weight: 600;
   line-height: 1.2;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--vo-muted);
-  text-align: center;
+  white-space: nowrap;
 }
 
-.vendor-card__table {
-  padding: 0.35rem 0.5rem 0.5rem;
+.invoice-card__metric-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary-color);
+  white-space: nowrap;
+}
+
+.invoice-card__metric-note {
+  font-size: 0.6rem;
+  font-weight: 500;
+  line-height: 1.15;
+  color: color-mix(in srgb, #d97706 55%, var(--vo-muted));
+  white-space: nowrap;
+}
+
+.invoice-card__bookings {
+  ::ng-deep .data-table-panel {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
 }
 
 .vendor-outstanding__paginator {
-  margin-top: 0.15rem;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 1024px) {
+  .invoice-card__hero {
+    flex-wrap: wrap;
+  }
+
+  .invoice-card__doc-panel {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .invoice-card__project-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-card__summary-panel {
+    &:not(:last-child) {
+      border-right: 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 70%, transparent);
+    }
+  }
+
+  .invoice-card__ledger {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem 0.85rem;
+    padding: 0.7rem 0.85rem;
+    overflow: visible;
+  }
+
+  .invoice-card__metric {
+    flex: unset;
+    min-width: 0;
+    align-items: flex-start;
+    gap: 0.2rem;
+    padding: 0;
+    text-align: left;
+    border: 0;
+
+    &:last-child {
+      border-right: 0;
+    }
+  }
+
+  .invoice-card__metric-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.03em;
+    white-space: normal;
+    line-height: 1.25;
+  }
+
+  .invoice-card__metric-value {
+    font-size: 0.78rem;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .invoice-card__metric-note {
+    white-space: normal;
+    line-height: 1.2;
+  }
 }
 
 @media (max-width: 768px) {
+  .vendor-card {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
   .vendor-card__header {
-    align-items: flex-start;
     flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .vendor-card__name {
+    font-size: 0.9375rem;
   }
 
   .vendor-card__stats {
@@ -128,34 +533,115 @@
   .vendor-card__stat {
     flex: 1;
     min-width: 0;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .vendor-card__stat-value {
+    font-size: 0.85rem;
+  }
+
+  .invoice-card__hero {
+    flex-direction: column;
+    padding: 0.75rem 0.75rem 0.65rem;
+  }
+
+  .invoice-card__summary-panel {
+    padding: 0.7rem 0.75rem;
+  }
+
+  .invoice-card__ledger-head {
+    padding-inline: 0.75rem;
+  }
+
+  .invoice-card__ledger {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem 0.75rem;
+    padding: 0.65rem 0.75rem;
   }
 }
 
-@media (max-width: 640px) {
-  .vendor-card__stats {
-    flex-direction: column;
+@media (max-width: 420px) {
+  .invoice-card__ledger {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
   }
 
-  .vendor-card__stat {
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
+  .invoice-card__metric {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 0.5rem;
+    row-gap: 0.12rem;
     border-right: 0 !important;
-    border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 80%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 60%, transparent) !important;
 
     &:last-child {
-      border-bottom: 0;
+      border-bottom: 0 !important;
+    }
+
+    &:last-child:nth-child(odd) {
+      grid-column: auto;
     }
   }
 
-  .vendor-card__stat-value,
-  .vendor-card__stat-label {
+  .invoice-card__metric-label {
+    grid-column: 1;
+    grid-row: 1;
+    padding-right: 0;
+  }
+
+  .invoice-card__metric-value {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+  }
+
+  .invoice-card__metric-note {
+    grid-column: 2;
+    grid-row: 2;
     text-align: right;
   }
 }
 
 :host-context(.dark-theme) {
-  .vendor-card__stat--due .vendor-card__stat-value {
+  .vendor-outstanding {
+    --vo-card-bg: var(--background-paper-color);
+  }
+
+  .vendor-card,
+  .invoice-card {
+    box-shadow: none;
+  }
+
+  .vendor-card__stat-value--debit {
     color: #f87171;
+  }
+
+  .invoice-card__invoice-icon {
+    background: linear-gradient(145deg, #059669 0%, #34d399 100%);
+    box-shadow: 0 2px 10px rgb(52 211 153 / 18%);
+  }
+
+  .invoice-card__summary-icon--company {
+    color: #a78bfa;
+    background: color-mix(in srgb, #a78bfa 14%, var(--vo-card-bg));
+  }
+
+  .invoice-card__metric {
+    &--taxable .invoice-card__metric-value,
+    &--net .invoice-card__metric-value {
+      color: #34d399;
+    }
+    &--deduction .invoice-card__metric-value {
+      color: #f87171;
+    }
+    &--gst .invoice-card__metric-value {
+      color: #fbbf24;
+    }
+    &--pending-active .invoice-card__metric-value {
+      color: #a78bfa;
+    }
   }
 }
