@@ -77,8 +77,10 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG: Partial<IDataTableH
 
 export function buildPaymentSheetDetailItemsRowActionsConfig(
   workflowPermissions: IPaymentSheetWorkflowPermissions,
-  getWorkflowRow: () => IPaymentSheetWorkflowRow
+  getWorkflowRow: () => IPaymentSheetWorkflowRow,
+  options: { includeEdit?: boolean } = {}
 ): Partial<ITableActionConfig<IPaymentSheetDetailItemRow>>[] {
+  const { includeEdit = true } = options;
   const isDisabled = (action: EPaymentSheetDetailAction): boolean =>
     isPaymentSheetDetailActionDisabled(
       getWorkflowRow(),
@@ -95,13 +97,19 @@ export function buildPaymentSheetDetailItemsRowActionsConfig(
       action
     );
 
-  return [
-    {
+  const rowActions: Partial<ITableActionConfig<IPaymentSheetDetailItemRow>>[] =
+    [];
+
+  if (includeEdit) {
+    rowActions.push({
       ...COMMON_ROW_ACTIONS.EDIT,
       permission: [...PAYMENT_SHEET_DETAIL_ITEM_EDIT_PERMISSIONS],
       disableWhen: () => isDisabled(EPaymentSheetDetailAction.EDIT_ITEM),
       disableReason: () => disableReason(EPaymentSheetDetailAction.EDIT_ITEM),
-    },
+    });
+  }
+
+  rowActions.push(
     {
       ...COMMON_ROW_ACTIONS.DELETE,
       permission: [...PAYMENT_SHEET_DETAIL_ITEM_DELETE_PERMISSIONS],
@@ -122,8 +130,10 @@ export function buildPaymentSheetDetailItemsRowActionsConfig(
       disableWhen: () => isDisabled(EPaymentSheetDetailAction.RECORD_PAYMENT),
       disableReason: () =>
         disableReason(EPaymentSheetDetailAction.RECORD_PAYMENT),
-    },
-  ];
+    }
+  );
+
+  return rowActions;
 }
 
 export function createPaymentSheetDetailItemsTableConfig(): IEnhancedTableConfig<IPaymentSheetDetailItemRow> {

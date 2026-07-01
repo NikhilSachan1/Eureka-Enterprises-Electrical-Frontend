@@ -94,16 +94,18 @@ export class AddPaymentSheetItemsComponent
       )
   );
 
-  protected readonly excludedVendorIds = computed(
+  protected readonly excludedBookPaymentIds = computed(
     () =>
       new Set(
         this.existingItems()
           .filter(
-            item =>
-              item.sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT &&
-              item.vendorId
+            item => item.sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT
           )
-          .map(item => item.vendorId as string)
+          .flatMap(item =>
+            (item.bookPaymentAllocations ?? []).map(
+              allocation => allocation.bookPaymentId
+            )
+          )
       )
   );
 

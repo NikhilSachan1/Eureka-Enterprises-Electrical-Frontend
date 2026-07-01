@@ -65,7 +65,7 @@ type IVendorOutstandingBookPayment =
 })
 export class GetVendorOutstandingComponent implements OnInit {
   selectionChange = output<IVendorBookPaymentTableRow[]>();
-  excludedVendorIds = input<ReadonlySet<string>>(new Set());
+  excludedBookPaymentIds = input<ReadonlySet<string>>(new Set());
 
   protected readonly EPaymentOutstandingSourceType =
     EPaymentOutstandingSourceType;
@@ -238,8 +238,7 @@ export class GetVendorOutstandingComponent implements OnInit {
       ...group,
       opsTable: this.createBookPaymentsTable(
         group.bookPayments,
-        vendor.id,
-        this.excludedVendorIds()
+        this.excludedBookPaymentIds()
       ),
     }));
 
@@ -254,8 +253,7 @@ export class GetVendorOutstandingComponent implements OnInit {
 
   private createBookPaymentsTable(
     bookPayments: IVendorBookPaymentTableRow[] = [],
-    vendorId = '',
-    excludedVendorIds: ReadonlySet<string> = new Set()
+    excludedBookPaymentIds: ReadonlySet<string> = new Set()
   ): IEnhancedTable {
     const opsTable = this.dataTableService.createTable(
       createVendorOutstandingTableEnhancedConfig()
@@ -263,7 +261,9 @@ export class GetVendorOutstandingComponent implements OnInit {
 
     opsTable.updateTableConfig({
       disableRowSelectionWhen: row => {
-        if (vendorId && excludedVendorIds.has(vendorId)) {
+        const bookPaymentId = String(row['id'] ?? '');
+
+        if (bookPaymentId && excludedBookPaymentIds.has(bookPaymentId)) {
           return true;
         }
 

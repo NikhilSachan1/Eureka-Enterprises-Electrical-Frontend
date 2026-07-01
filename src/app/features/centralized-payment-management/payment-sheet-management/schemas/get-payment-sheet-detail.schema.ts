@@ -23,9 +23,22 @@ const PaymentSheetBankSnapshotSchema = z
 
 const PaymentSheetVendorSnapshotSchema = z
   .looseObject({
+    id: uuidField.optional(),
     name: z.string(),
+    email: z.string().optional(),
+    contactNumber: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
   })
   .nullable();
+
+const PaymentSheetBookPaymentAllocationSchema = z.looseObject({
+  id: uuidField,
+  itemId: uuidField.optional(),
+  bookPaymentId: uuidField,
+  allocatedAmount: z.coerce.number(),
+  bankTransferId: uuidField.nullable().optional(),
+});
 
 export const PaymentSheetItemDetailSchema = z.looseObject({
   id: uuidField,
@@ -34,11 +47,15 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   vendorId: uuidField.nullable(),
   sourceType: z.enum(EPaymentSheetSourceType),
   pendingSnapshot: z.coerce.number(),
+  requestedAmount: z.coerce.number().optional(),
   currentAmount: z.coerce.number(),
   bankSnapshot: PaymentSheetBankSnapshotSchema,
   itemStatus: z.string(),
   paidAt: isoDateTimeField.nullable(),
   paymentRef: z.string().nullable(),
+  bookPaymentAllocations: z
+    .array(PaymentSheetBookPaymentAllocationSchema)
+    .nullable(),
   user: UserSchema.nullable(),
   vendor: PaymentSheetVendorSnapshotSchema,
 });

@@ -24,6 +24,7 @@ import { DataTableComponent } from '@shared/components/data-table/data-table.com
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { DEFAULT_ROW_ACTION_CONFIG } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
   AppConfigurationService,
@@ -94,6 +95,8 @@ import {
 export class GetPaymentSheetDetailComponent implements OnInit {
   protected readonly EPaymentOutstandingSectionContext =
     EPaymentOutstandingSectionContext;
+  protected readonly EPaymentOutstandingSourceType =
+    EPaymentOutstandingSourceType;
 
   protected readonly paidAtDateFormat =
     APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
@@ -307,7 +310,10 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
     for (const sourceType of this.sourceSectionOrder) {
       const sectionItems = items.filter(item => item.sourceType === sourceType);
-      const mappedItems = this.mapItems(sectionItems);
+      const mappedItems =
+        sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT
+          ? this.mapVendorAllocationRows(sectionItems)
+          : this.mapItems(sectionItems);
       const table = this.sourceTables.get(sourceType);
 
       if (table) {
@@ -332,15 +338,25 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   private updateDetailItemRowActions(): void {
-    const rowActions = buildPaymentSheetDetailItemsRowActionsConfig(
-      this.workflowPermissions,
-      () => this.getDetailWorkflowRow()
-    );
+    for (const sourceType of this.sourceSectionOrder) {
+      const table = this.sourceTables.get(sourceType);
 
-    for (const table of this.sourceTables.values()) {
-      table.updateRowActions(
-        rowActions as Parameters<typeof table.updateRowActions>[0]
-      );
+      if (table) {
+        const rowActions = buildPaymentSheetDetailItemsRowActionsConfig(
+          this.workflowPermissions,
+          () => this.getDetailWorkflowRow(),
+          {
+            includeEdit: sourceType !== EPaymentSheetSourceType.VENDOR_PAYMENT,
+          }
+        );
+
+        table.updateRowActions(
+          rowActions.map(action => ({
+            ...DEFAULT_ROW_ACTION_CONFIG,
+            ...action,
+          })) as Parameters<typeof table.updateRowActions>[0]
+        );
+      }
     }
   }
 
@@ -376,7 +392,13 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   private mapItems(
     items: IPaymentSheetItemDetailDto[]
   ): IPaymentSheetDetailItemRow[] {
-    return items.map(item => ({
+    return items.map(item => this.mapItem(item));
+  }
+
+  private mapItem(
+    item: IPaymentSheetItemDetailDto
+  ): IPaymentSheetDetailItemRow {
+    return {
       id: item.id,
       actualDue: item.pendingSnapshot,
       payableAmount: item.currentAmount,
@@ -398,7 +420,38 @@ export class GetPaymentSheetDetailComponent implements OnInit {
             ifscCode: item.bankSnapshot.ifscCode,
           }
         : null,
-    }));
+    };
+  }
+
+  private mapVendorAllocationRows(
+    items: IPaymentSheetItemDetailDto[]
+  ): IPaymentSheetDetailItemRow[] {
+    return items.flatMap(item => {
+      const itemStatus = getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.paymentSheetItemStatuses(),
+        item.itemStatus
+      );
+      const bankDetails = item.bankSnapshot
+        ? {
+            bankHolderName: item.bankSnapshot.accountHolderName,
+            bankName: item.bankSnapshot.bankName,
+            accountNumber: item.bankSnapshot.accountNumber,
+            ifscCode: item.bankSnapshot.ifscCode,
+          }
+        : null;
+
+      return (item.bookPaymentAllocations ?? []).map(allocation => ({
+        id: item.id,
+        beneficiaryName: item.vendor?.name ?? '-',
+        beneficiaryCode: item.vendorId ?? '',
+        actualDue: allocation.allocatedAmount,
+        payableAmount: allocation.allocatedAmount,
+        itemStatus,
+        paidAt: item.paidAt ?? null,
+        paymentRef: item.paymentRef ?? null,
+        bankDetails,
+      }));
+    });
   }
 
   private prepareItemRecordDetail(
