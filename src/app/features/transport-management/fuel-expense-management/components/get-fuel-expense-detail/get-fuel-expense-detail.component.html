@@ -1,1 +1,11 @@
-<app-view-detail [drawerDetails]="_fuelExpenseDetails()" />
+<ng-template
+  #paidFromAccountDetails
+  let-entry
+>
+  <app-bank-details-cell [bankDetails]="$any(entry.value)" />
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_fuelExpenseDetails()"
+  [customTemplates]="{ paidFromAccountDetails: paidFromAccountDetails }"
+/>

@@ -20,14 +20,19 @@ import {
   IEntityViewDetails,
 } from '@shared/types';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
+import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  getMappedValueFromArrayOfObjects,
+  mapPaidFromAccountToBankDetails,
+} from '@shared/utility';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 
 @Component({
   selector: 'app-get-expense-detail',
-  imports: [ViewDetailComponent],
+  imports: [ViewDetailComponent, BankDetailsCellComponent],
   templateUrl: './get-expense-detail.component.html',
   styleUrl: './get-expense-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -114,6 +119,21 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
             record.paymentMode
           ),
         },
+        ...(record.paidFromAccount
+          ? [
+              {
+                label: 'Paid From Account',
+                value: mapPaidFromAccountToBankDetails(record.paidFromAccount),
+                customTemplateKey: 'paidFromAccountDetails',
+                detailTemplateFullRow: true,
+                detailTemplatePlain: true,
+                permission: [
+                  APP_PERMISSION.UI.EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT,
+                  APP_PERMISSION.PAYMENT_SHEET.ACCOUNTS_PROCESS,
+                ],
+              },
+            ]
+          : []),
         {
           label: 'Transaction ID',
           value: record.transactionId,

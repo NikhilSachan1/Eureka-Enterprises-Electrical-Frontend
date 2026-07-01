@@ -1,6 +1,5 @@
-import { IBankDetailsCellValue } from '@features/centralized-payment-management/shared/types/bank-details-cell.interface';
+import { IBankDetailsCellValue, IEnhancedTable } from '@shared/types';
 import { EPaymentOutstandingSourceType } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
-import { IEnhancedTable } from '@shared/types';
 
 export interface IPaymentSheetDetailItemRow {
   id: string;

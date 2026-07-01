@@ -167,6 +167,10 @@ export type {
   IDetailEntryData,
   IUserInfo,
 } from './detail-display/detail-display.interface';
+export type {
+  IBankDetailsCellValue,
+  IPaidFromAccountSnapshot,
+} from './bank-details/bank-details.interface';
 export { EDataType } from './common/data-types.type';
 export { EStepperOrientation } from './stepper/stepper.types';
 export type {

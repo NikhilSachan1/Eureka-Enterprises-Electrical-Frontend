@@ -1,1 +1,11 @@
-<app-view-detail [drawerDetails]="_expenseDetails()" />
+<ng-template
+  #paidFromAccountDetails
+  let-entry
+>
+  <app-bank-details-cell [bankDetails]="$any(entry.value)" />
+</ng-template>
+
+<app-view-detail
+  [drawerDetails]="_expenseDetails()"
+  [customTemplates]="{ paidFromAccountDetails: paidFromAccountDetails }"
+/>

@@ -8,6 +8,10 @@
       <p class="bank-details-cell__bank">{{ secondary }}</p>
     }
 
+    @if (branchName(); as branch) {
+      <p class="bank-details-cell__branch">{{ branch }}</p>
+    }
+
     @if (accountNumber() || ifscCode()) {
       <div class="bank-details-cell__grid">
         @if (accountNumber(); as account) {

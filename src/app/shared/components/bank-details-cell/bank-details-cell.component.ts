@@ -6,8 +6,8 @@ import {
   input,
 } from '@angular/core';
 import { AppConfigurationService } from '@shared/services';
+import { IBankDetailsCellValue } from '@shared/types/bank-details/bank-details.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
-import { IBankDetailsCellValue } from '../../types/bank-details-cell.interface';
 
 @Component({
   selector: 'app-bank-details-cell',
@@ -31,7 +31,8 @@ export class BankDetailsCellComponent {
       (this.normalizeValue(bank.bankHolderName) ??
         this.normalizeValue(bank.bankName) ??
         this.normalizeValue(bank.accountNumber) ??
-        this.normalizeValue(bank.ifscCode)) !== null
+        this.normalizeValue(bank.ifscCode) ??
+        this.normalizeValue(bank.branchName)) !== null
     );
   });
 
@@ -64,6 +65,10 @@ export class BankDetailsCellComponent {
 
     return this.mappedBankName();
   });
+
+  protected readonly branchName = computed(
+    () => this.normalizeValue(this.bankDetails()?.branchName) ?? null
+  );
 
   protected readonly accountNumber = computed(
     () => this.normalizeValue(this.bankDetails()?.accountNumber) ?? null

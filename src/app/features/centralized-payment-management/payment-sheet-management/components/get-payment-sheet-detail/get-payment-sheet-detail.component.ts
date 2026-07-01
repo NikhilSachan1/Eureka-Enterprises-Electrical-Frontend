@@ -13,7 +13,7 @@ import { DatePipe } from '@angular/common';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { APP_CONFIG } from '@core/config';
-import { BankDetailsCellComponent } from '@features/centralized-payment-management/shared/components/bank-details-cell/bank-details-cell.component';
+import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
 import { PaymentOutstandingSectionComponent } from '@features/centralized-payment-management/shared/components/payment-outstanding-section/payment-outstanding-section.component';
 import {

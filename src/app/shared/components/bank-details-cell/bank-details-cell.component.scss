@@ -47,6 +47,15 @@
   word-break: break-word;
 }
 
+.bank-details-cell__branch {
+  margin: 0.18rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text-secondary-color);
+  word-break: break-word;
+}
+
 .bank-details-cell__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(6.75rem, 1fr));
@@ -97,6 +106,10 @@
   &.bank-details-cell--empty {
     background: color-mix(in srgb, var(--text-disabled-color) 14%, var(--background-paper-color));
   }
+}
+
+:host-context(.view-detail-custom-template) {
+  max-width: none;
 }
 
 @media (hover: hover) {
