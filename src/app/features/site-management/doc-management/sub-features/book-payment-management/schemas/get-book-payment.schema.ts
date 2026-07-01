@@ -3,10 +3,12 @@ import {
   dateField,
   AuditSchema,
   FilterSchema,
+  isoDateTimeField,
   onlyDateStringField,
+  UserSchema,
   uuidField,
 } from '@shared/schemas';
-import { transformDateFormat } from '@shared/utility';
+import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 import z from 'zod';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
@@ -18,6 +20,7 @@ export const BookPaymentGetRequestSchema = z
     companyName: z.array(uuidField).nullable().optional(),
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
+    approvalStatus: z.array(z.string()).nullable().optional(),
     docType: z.enum(EDocContext).optional(),
     dateRange: z.array(dateField).nullable().optional(),
     poNumber: z.string().nullable().optional(),
@@ -62,6 +65,11 @@ export const BookPaymentGetBaseResponseSchema = z.looseObject({
   paymentHoldReason: z.string().nullable(),
   remarks: z.string().nullable(),
   hasTransfer: z.boolean(),
+  isLocked: z.boolean(),
+  unlockRequestedAt: isoDateTimeField.nullable(),
+  unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),
+  unlockReason: z.string().nullable(),
+  approvalStatus: z.string(),
   createdBy,
   invoice: z.looseObject({
     invoiceNumber: z.string(),

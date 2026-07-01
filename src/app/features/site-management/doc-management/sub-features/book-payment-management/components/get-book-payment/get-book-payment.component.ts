@@ -15,6 +15,7 @@ import { LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
   DrawerService,
+  AppConfigurationService,
   TableServerSideParamsBuilderService,
   TableService,
 } from '@shared/services';
@@ -51,6 +52,8 @@ import { DocReferenceComponent } from '@features/site-management/doc-management/
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 
 @Component({
   selector: 'app-get-book-payment',
@@ -60,6 +63,7 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
     DataTableComponent,
     DocReferenceComponent,
     DocWorkspaceContextComponent,
+    UnlockRequestComponent,
   ],
   templateUrl: './get-book-payment.component.html',
   styleUrl: './get-book-payment.component.scss',
@@ -79,6 +83,7 @@ export class GetBookPaymentComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly workspaceContext = inject(ProjectWorkspaceContextService);
+  private readonly appConfigurationService = inject(AppConfigurationService);
 
   private readonly docRouteContext = signal<EDocContext | undefined>(undefined);
   protected readonly searchTerm = signal<string>('');
@@ -178,6 +183,14 @@ export class GetBookPaymentComponent implements OnInit {
       transferStatusLabel: record.hasTransfer === true ? 'Done' : 'Pending',
       paymentHoldReasonDisplay: record.paymentHoldReason?.trim() ?? '—',
       paymentHoldReason: record.paymentHoldReason,
+      approvalStatus: getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.projectDocumentApprovalStatuses(),
+        record.approvalStatus
+      ),
+      isLocked: record.isLocked,
+      unlockRequestedAt: record.unlockRequestedAt,
+      unlockRequestedByUser: record.unlockRequestedByUser,
+      unlockReason: record.unlockReason,
       docWorkspaceContext: {
         companyName: record.site.company.name,
         partyName: record.vendor.name,
@@ -286,6 +299,9 @@ export class GetBookPaymentComponent implements OnInit {
     return {
       details: [
         {
+          status: {
+            approvalStatus: row.approvalStatus,
+          },
           entryData,
         },
       ],

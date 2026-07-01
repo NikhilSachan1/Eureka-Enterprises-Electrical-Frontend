@@ -291,6 +291,13 @@ export const API_ROUTES = {
         LIST: 'book-payments',
         DROPDOWN: 'book-payments/dropdown',
         GET_BY_ID: (id: string) => `book-payments/${id}`,
+        APPROVE: (id: string) => `book-payments/${id}/approve`,
+        REJECT: (id: string) => `book-payments/${id}/reject`,
+        UNLOCK_REQUEST: (id: string) => `book-payments/${id}/unlock-request`,
+        UNLOCK_REQUEST_GRANT: (id: string) =>
+          `book-payments/${id}/unlock-grant`,
+        UNLOCK_REQUEST_REJECT: (id: string) =>
+          `book-payments/${id}/unlock-reject`,
         DELETE: (id: string) => `book-payments/${id}`,
       },
       BANK_TRANSFER: {

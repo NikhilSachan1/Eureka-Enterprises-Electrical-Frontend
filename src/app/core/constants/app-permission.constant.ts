@@ -259,6 +259,11 @@ export const APP_PERMISSION = {
     ADD: 'financials.book-payments.create',
     EDIT: 'financials.book-payments.update',
     DELETE: 'financials.book-payments.delete',
+    APPROVE: 'financials.book-payments.approve',
+    REJECT: 'financials.book-payments.revert',
+    UNLOCK: 'financials.book-payments.unlock',
+    UNLOCK_GRANT: 'financials.book-payments.unlock-grant',
+    UNLOCK_REQUEST_REJECT: 'financials.book-payments.unlock-request-reject',
   },
   BANK_TRANSFER_DOC: {
     VIEW_DETAIL: 'financials.bank-transfers.view.detail',

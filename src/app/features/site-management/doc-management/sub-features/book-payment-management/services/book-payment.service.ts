@@ -13,6 +13,14 @@ import {
   EditBookPaymentResponseSchema,
   BookPaymentDropdownGetRequestSchema,
   BookPaymentDropdownGetResponseSchema,
+  ApproveBookPaymentRequestSchema,
+  ApproveBookPaymentResponseSchema,
+  RejectBookPaymentRequestSchema,
+  RejectBookPaymentResponseSchema,
+  UnlockRequestBookPaymentRequestSchema,
+  UnlockRequestBookPaymentResponseSchema,
+  UnlockGrantBookPaymentResponseSchema,
+  UnlockRejectBookPaymentResponseSchema,
 } from '../schemas';
 import {
   IAddBookPaymentFormDto,
@@ -25,6 +33,14 @@ import {
   IEditBookPaymentResponseDto,
   IBookPaymentDropdownGetRequestDto,
   IBookPaymentDropdownGetResponseDto,
+  IApproveBookPaymentFormDto,
+  IApproveBookPaymentResponseDto,
+  IRejectBookPaymentFormDto,
+  IRejectBookPaymentResponseDto,
+  IUnlockRequestBookPaymentFormDto,
+  IUnlockRequestBookPaymentResponseDto,
+  IUnlockGrantBookPaymentResponseDto,
+  IUnlockRejectBookPaymentResponseDto,
 } from '../types/book-payment.dto';
 
 @Injectable({
@@ -90,6 +106,184 @@ export class BookPaymentService {
             );
           } else {
             this.logger.logUserAction('Edit Book Payment Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  approveBookPayment(
+    formData: IApproveBookPaymentFormDto,
+    bookPaymentId: string
+  ): Observable<IApproveBookPaymentResponseDto> {
+    this.logger.logUserAction('Approve Book Payment Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.BOOK_PAYMENT.APPROVE(bookPaymentId),
+        {
+          response: ApproveBookPaymentResponseSchema,
+          request: ApproveBookPaymentRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IApproveBookPaymentResponseDto) => {
+          this.logger.logUserAction('Approve Book Payment Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Approve Book Payment Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Approve Book Payment Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  rejectBookPayment(
+    formData: IRejectBookPaymentFormDto,
+    bookPaymentId: string
+  ): Observable<IRejectBookPaymentResponseDto> {
+    this.logger.logUserAction('Reject Book Payment Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.BOOK_PAYMENT.REJECT(bookPaymentId),
+        {
+          response: RejectBookPaymentResponseSchema,
+          request: RejectBookPaymentRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IRejectBookPaymentResponseDto) => {
+          this.logger.logUserAction('Reject Book Payment Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Reject Book Payment Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Reject Book Payment Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  unlockRequestBookPayment(
+    formData: IUnlockRequestBookPaymentFormDto,
+    bookPaymentId: string
+  ): Observable<IUnlockRequestBookPaymentResponseDto> {
+    this.logger.logUserAction('Unlock Request Book Payment Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.BOOK_PAYMENT.UNLOCK_REQUEST(bookPaymentId),
+        {
+          response: UnlockRequestBookPaymentResponseSchema,
+          request: UnlockRequestBookPaymentRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IUnlockRequestBookPaymentResponseDto) => {
+          this.logger.logUserAction(
+            'Unlock Request Book Payment Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Unlock Request Book Payment Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Unlock Request Book Payment Error',
+              error
+            );
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  unlockGrantBookPayment(
+    bookPaymentId: string
+  ): Observable<IUnlockGrantBookPaymentResponseDto> {
+    this.logger.logUserAction('Unlock Grant Book Payment Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.BOOK_PAYMENT.UNLOCK_REQUEST_GRANT(
+          bookPaymentId
+        ),
+        {
+          response: UnlockGrantBookPaymentResponseSchema,
+        }
+      )
+      .pipe(
+        tap((response: IUnlockGrantBookPaymentResponseDto) => {
+          this.logger.logUserAction(
+            'Unlock Grant Book Payment Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Unlock Grant Book Payment Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Unlock Grant Book Payment Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  unlockRequestRejectBookPayment(
+    bookPaymentId: string
+  ): Observable<IUnlockRejectBookPaymentResponseDto> {
+    this.logger.logUserAction('Unlock Request Reject Book Payment Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.BOOK_PAYMENT.UNLOCK_REQUEST_REJECT(
+          bookPaymentId
+        ),
+        {
+          response: UnlockRejectBookPaymentResponseSchema,
+        }
+      )
+      .pipe(
+        tap((response: IUnlockRejectBookPaymentResponseDto) => {
+          this.logger.logUserAction(
+            'Unlock Request Reject Book Payment Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Unlock Request Reject Book Payment Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Unlock Request Reject Book Payment Error',
+              error
+            );
           }
           return throwError(() => error);
         })
