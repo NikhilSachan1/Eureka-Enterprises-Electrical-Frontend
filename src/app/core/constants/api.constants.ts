@@ -124,6 +124,16 @@ export const API_ROUTES = {
     EDIT: (petroCardId: string) => `cards/${petroCardId}`,
     LINK: 'cards/action',
   },
+  COMPANY_BANK_ACCOUNT: {
+    LIST: 'company-bank-accounts',
+    ADD: 'company-bank-accounts',
+    DELETE: (companyBankAccountId: string) =>
+      `company-bank-accounts/${companyBankAccountId}`,
+    EDIT: (companyBankAccountId: string) =>
+      `company-bank-accounts/${companyBankAccountId}`,
+    GET_BY_ID: (companyBankAccountId: string) =>
+      `company-bank-accounts/${companyBankAccountId}`,
+  },
   PAYROLL: {
     GENERATE: 'payroll/generate-bulk',
     GET_PAYSLIP_LIST: 'payroll',

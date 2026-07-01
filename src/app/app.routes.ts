@@ -101,6 +101,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: ROUTE_BASE_PATHS.COMPANY_BANK_ACCOUNT,
+        loadChildren: () =>
+          import(
+            './features/company-bank-account-management/company-bank-account.routes'
+          ).then(m => m.COMPANY_BANK_ACCOUNT_MANAGEMENT_ROUTES),
+      },
+      {
         path: ROUTE_BASE_PATHS.ANNOUNCEMENT,
         loadChildren: () =>
           import('./features/announcement-management/announcement.routes').then(

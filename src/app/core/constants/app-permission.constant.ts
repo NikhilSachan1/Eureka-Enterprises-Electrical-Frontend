@@ -44,6 +44,12 @@ export const APP_PERMISSION = {
     DELETE: 'company.delete',
     CHANGE_STATUS: 'company.change-status',
   },
+  COMPANY_BANK_ACCOUNT: {
+    TABLE_VIEW: 'financials.company-bank-accounts.view',
+    ADD: 'financials.company-bank-accounts.create',
+    EDIT: 'financials.company-bank-accounts.update',
+    DELETE: 'financials.company-bank-accounts.delete',
+  },
   CONTRACTOR: {
     VIEW_DETAIL: 'contractor.view.detail',
     TABLE_VIEW: 'contractor.view.table',
