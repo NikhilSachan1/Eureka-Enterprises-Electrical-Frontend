@@ -11,10 +11,6 @@ import {
   ReportDetailGetResponseSchema,
   ReportGetRequestSchema,
   ReportGetResponseSchema,
-  ApproveReportRequestSchema,
-  ApproveReportResponseSchema,
-  RejectReportRequestSchema,
-  RejectReportResponseSchema,
   UnlockRequestReportRequestSchema,
   UnlockRequestReportResponseSchema,
   UnlockGrantReportResponseSchema,
@@ -29,10 +25,6 @@ import {
   IReportDetailGetResponseDto,
   IReportGetFormDto,
   IReportGetResponseDto,
-  IApproveReportFormDto,
-  IApproveReportResponseDto,
-  IRejectReportFormDto,
-  IRejectReportResponseDto,
   IUnlockRequestReportFormDto,
   IUnlockRequestReportResponseDto,
   IUnlockGrantReportResponseDto,
@@ -97,66 +89,6 @@ export class ReportService {
             this.logger.logDtoValidationErrors('Edit Report Error', error);
           } else {
             this.logger.logUserAction('Edit Report Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
-  }
-
-  approveReport(
-    formData: IApproveReportFormDto,
-    reportId: string
-  ): Observable<IApproveReportResponseDto> {
-    this.logger.logUserAction('Approve Report Request');
-
-    return this.apiService
-      .postValidated(
-        API_ROUTES.SITE.DOCUMENT.REPORT.APPROVE(reportId),
-        {
-          response: ApproveReportResponseSchema,
-          request: ApproveReportRequestSchema,
-        },
-        formData
-      )
-      .pipe(
-        tap((response: IApproveReportResponseDto) => {
-          this.logger.logUserAction('Approve Report Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Approve Report Error', error);
-          } else {
-            this.logger.logUserAction('Approve Report Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
-  }
-
-  rejectReport(
-    formData: IRejectReportFormDto,
-    reportId: string
-  ): Observable<IRejectReportResponseDto> {
-    this.logger.logUserAction('Reject Report Request');
-
-    return this.apiService
-      .postValidated(
-        API_ROUTES.SITE.DOCUMENT.REPORT.REJECT(reportId),
-        {
-          response: RejectReportResponseSchema,
-          request: RejectReportRequestSchema,
-        },
-        formData
-      )
-      .pipe(
-        tap((response: IRejectReportResponseDto) => {
-          this.logger.logUserAction('Reject Report Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors('Reject Report Error', error);
-          } else {
-            this.logger.logUserAction('Reject Report Error', error);
           }
           return throwError(() => error);
         })

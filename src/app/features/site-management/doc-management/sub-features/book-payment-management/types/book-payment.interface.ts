@@ -12,7 +12,6 @@ export interface IBookPayment
     | 'paymentTotalAmount'
     | 'hasTransfer'
     | 'paymentHoldReason'
-    | 'approvalStatus'
     | 'isLocked'
     | 'unlockRequestedAt'
     | 'unlockRequestedByUser'

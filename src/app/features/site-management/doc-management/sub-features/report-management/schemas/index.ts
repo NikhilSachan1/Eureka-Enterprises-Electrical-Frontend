@@ -21,14 +21,6 @@ export {
   EditReportResponseSchema,
 } from './edit-report.schema';
 export {
-  ApproveReportRequestSchema,
-  ApproveReportResponseSchema,
-} from './approve-report.schema';
-export {
-  RejectReportRequestSchema,
-  RejectReportResponseSchema,
-} from './reject-report.schema';
-export {
   UnlockRequestReportRequestSchema,
   UnlockRequestReportResponseSchema,
 } from './unlock-request-report.schema';

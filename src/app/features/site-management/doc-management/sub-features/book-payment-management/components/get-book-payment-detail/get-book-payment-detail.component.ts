@@ -12,7 +12,6 @@ import {
 } from '../../types/book-payment.dto';
 import { BookPaymentService } from '../../services/book-payment.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -22,7 +21,6 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
@@ -44,7 +42,6 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
     bookPayment: IBookPaymentGetBaseResponseDto;
   };
   private readonly bookPaymentService = inject(BookPaymentService);
-  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _bookPaymentDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -136,17 +133,8 @@ export class GetBookPaymentDetailComponent extends DrawerDetailBase {
     const detail: IDataViewDetails = {
       status: {
         entryType: 'Book Payment',
-        approvalStatus: getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.projectDocumentApprovalStatuses(),
-          record.approvalStatus
-        ),
       },
       entryData,
-      approvalBy: {
-        user: record.approvalByUser,
-        date: record.approvalAt,
-        notes: record.approvalReason,
-      },
       createdBy: {
         user: record.createdByUser,
         date: record.createdAt,

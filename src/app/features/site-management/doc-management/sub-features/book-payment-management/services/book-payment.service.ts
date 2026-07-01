@@ -13,10 +13,6 @@ import {
   EditBookPaymentResponseSchema,
   BookPaymentDropdownGetRequestSchema,
   BookPaymentDropdownGetResponseSchema,
-  ApproveBookPaymentRequestSchema,
-  ApproveBookPaymentResponseSchema,
-  RejectBookPaymentRequestSchema,
-  RejectBookPaymentResponseSchema,
   UnlockRequestBookPaymentRequestSchema,
   UnlockRequestBookPaymentResponseSchema,
   UnlockGrantBookPaymentResponseSchema,
@@ -33,10 +29,6 @@ import {
   IEditBookPaymentResponseDto,
   IBookPaymentDropdownGetRequestDto,
   IBookPaymentDropdownGetResponseDto,
-  IApproveBookPaymentFormDto,
-  IApproveBookPaymentResponseDto,
-  IRejectBookPaymentFormDto,
-  IRejectBookPaymentResponseDto,
   IUnlockRequestBookPaymentFormDto,
   IUnlockRequestBookPaymentResponseDto,
   IUnlockGrantBookPaymentResponseDto,
@@ -106,72 +98,6 @@ export class BookPaymentService {
             );
           } else {
             this.logger.logUserAction('Edit Book Payment Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
-  }
-
-  approveBookPayment(
-    formData: IApproveBookPaymentFormDto,
-    bookPaymentId: string
-  ): Observable<IApproveBookPaymentResponseDto> {
-    this.logger.logUserAction('Approve Book Payment Request');
-
-    return this.apiService
-      .postValidated(
-        API_ROUTES.SITE.DOCUMENT.BOOK_PAYMENT.APPROVE(bookPaymentId),
-        {
-          response: ApproveBookPaymentResponseSchema,
-          request: ApproveBookPaymentRequestSchema,
-        },
-        formData
-      )
-      .pipe(
-        tap((response: IApproveBookPaymentResponseDto) => {
-          this.logger.logUserAction('Approve Book Payment Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Approve Book Payment Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Approve Book Payment Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
-  }
-
-  rejectBookPayment(
-    formData: IRejectBookPaymentFormDto,
-    bookPaymentId: string
-  ): Observable<IRejectBookPaymentResponseDto> {
-    this.logger.logUserAction('Reject Book Payment Request');
-
-    return this.apiService
-      .postValidated(
-        API_ROUTES.SITE.DOCUMENT.BOOK_PAYMENT.REJECT(bookPaymentId),
-        {
-          response: RejectBookPaymentResponseSchema,
-          request: RejectBookPaymentRequestSchema,
-        },
-        formData
-      )
-      .pipe(
-        tap((response: IRejectBookPaymentResponseDto) => {
-          this.logger.logUserAction('Reject Book Payment Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Reject Book Payment Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Reject Book Payment Error', error);
           }
           return throwError(() => error);
         })

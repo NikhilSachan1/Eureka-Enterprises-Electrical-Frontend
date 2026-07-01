@@ -269,8 +269,6 @@ export const API_ROUTES = {
         EDIT: (reportId: string) => `site-reports/${reportId}`,
         LIST: 'site-reports',
         GET_REPORT_BY_ID: (reportId: string) => `site-reports/${reportId}`,
-        APPROVE: (reportId: string) => `site-reports/${reportId}/approve`,
-        REJECT: (reportId: string) => `site-reports/${reportId}/reject`,
         UNLOCK_REQUEST: (reportId: string) =>
           `site-reports/${reportId}/unlock-request`,
         UNLOCK_REQUEST_GRANT: (reportId: string) =>
@@ -301,8 +299,6 @@ export const API_ROUTES = {
         LIST: 'book-payments',
         DROPDOWN: 'book-payments/dropdown',
         GET_BY_ID: (id: string) => `book-payments/${id}`,
-        APPROVE: (id: string) => `book-payments/${id}/approve`,
-        REJECT: (id: string) => `book-payments/${id}/reject`,
         UNLOCK_REQUEST: (id: string) => `book-payments/${id}/unlock-request`,
         UNLOCK_REQUEST_GRANT: (id: string) =>
           `book-payments/${id}/unlock-grant`,

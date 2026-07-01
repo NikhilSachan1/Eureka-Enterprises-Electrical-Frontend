@@ -21,7 +21,6 @@ export const ReportGetRequestSchema = z
     docType: z.enum(EDocContext).optional(),
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
-    approvalStatus: z.array(z.string()).nullable().optional(),
     dateRange: z.array(dateField).nullable().optional(),
     poNumber: z.string().nullable().optional(),
     sortOrder,
@@ -62,7 +61,6 @@ export const ReportGetBaseResponseSchema = z.looseObject({
   unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),
   unlockReason: z.string().nullable(),
   remarks: z.string().nullable(),
-  approvalStatus: z.string(),
   createdBy,
   site: z.looseObject({
     name: z.string(),

@@ -20,7 +20,6 @@ export const BookPaymentGetRequestSchema = z
     companyName: z.array(uuidField).nullable().optional(),
     contractorName: z.array(uuidField).nullable().optional(),
     vendorName: z.array(uuidField).nullable().optional(),
-    approvalStatus: z.array(z.string()).nullable().optional(),
     docType: z.enum(EDocContext).optional(),
     dateRange: z.array(dateField).nullable().optional(),
     poNumber: z.string().nullable().optional(),
@@ -69,7 +68,6 @@ export const BookPaymentGetBaseResponseSchema = z.looseObject({
   unlockRequestedAt: isoDateTimeField.nullable(),
   unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),
   unlockReason: z.string().nullable(),
-  approvalStatus: z.string(),
   createdBy,
   invoice: z.looseObject({
     invoiceNumber: z.string(),

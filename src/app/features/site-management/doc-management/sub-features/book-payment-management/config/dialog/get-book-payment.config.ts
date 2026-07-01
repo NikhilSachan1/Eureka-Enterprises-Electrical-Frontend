@@ -1,14 +1,8 @@
 import { EButtonActionType, IDialogActionConfig } from '@shared/types';
-import {
-  DELETE_CONFIRMATION_DIALOG_CONFIG,
-  APPROVE_CONFIRMATION_DIALOG_CONFIG,
-  REJECT_CONFIRMATION_DIALOG_CONFIG,
-} from '@shared/config';
+import { DELETE_CONFIRMATION_DIALOG_CONFIG } from '@shared/config';
 import { AddBookPaymentComponent } from '../../components/add-book-payment/add-book-payment.component';
 import { EditBookPaymentComponent } from '../../components/edit-book-payment/edit-book-payment.component';
 import { DeleteBookPaymentComponent } from '../../components/delete-book-payment/delete-book-payment.component';
-import { ApproveBookPaymentComponent } from '../../components/approve-book-payment/approve-book-payment.component';
-import { RejectBookPaymentComponent } from '../../components/reject-book-payment/reject-book-payment.component';
 import { UnlockRequestBookPaymentComponent } from '../../components/unlock-request-book-payment/unlock-request-book-payment.component';
 import { UnlockGrantBookPaymentComponent } from '../../components/unlock-grant-book-payment/unlock-grant-book-payment.component';
 import { UnlockRequestRejectBookPaymentComponent } from '../../components/unlock-request-reject-book-payment/unlock-request-reject-book-payment.component';
@@ -31,16 +25,6 @@ export const BOOK_PAYMENT_ACTION_CONFIG_MAP: Record<
       message: 'Update book payment details.',
     },
     dynamicComponent: EditBookPaymentComponent,
-  },
-
-  [EButtonActionType.APPROVE]: {
-    dialogConfig: APPROVE_CONFIRMATION_DIALOG_CONFIG,
-    dynamicComponent: ApproveBookPaymentComponent,
-  },
-
-  [EButtonActionType.REJECT]: {
-    dialogConfig: REJECT_CONFIRMATION_DIALOG_CONFIG,
-    dynamicComponent: RejectBookPaymentComponent,
   },
 
   [EButtonActionType.DELETE]: {

@@ -10,7 +10,6 @@ export interface IReport
     | 'reportDate'
     | 'contractor'
     | 'jmc'
-    | 'approvalStatus'
     | 'isLocked'
     | 'unlockRequestedAt'
     | 'unlockRequestedByUser'

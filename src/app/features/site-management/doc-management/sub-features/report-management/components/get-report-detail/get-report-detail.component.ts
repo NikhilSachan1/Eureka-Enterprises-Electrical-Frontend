@@ -13,7 +13,6 @@ import {
 } from '../../types/report.dto';
 import { ReportService } from '../../services/report.service';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
-import { AppConfigurationService } from '@shared/services';
 import {
   EDataType,
   IDataViewDetails,
@@ -23,7 +22,6 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
@@ -44,7 +42,6 @@ export class GetReportDetailComponent extends DrawerDetailBase {
     report: IReportGetBaseResponseDto;
   };
   private readonly reportService = inject(ReportService);
-  private readonly appConfigurationService = inject(AppConfigurationService);
 
   protected readonly _reportDetails = signal<
     IDataViewDetailsWithEntity | undefined
@@ -137,17 +134,8 @@ export class GetReportDetailComponent extends DrawerDetailBase {
     const detail: IDataViewDetails = {
       status: {
         entryType: record.partyType,
-        approvalStatus: getMappedValueFromArrayOfObjects(
-          this.appConfigurationService.projectDocumentApprovalStatuses(),
-          record.approvalStatus
-        ),
       },
       entryData,
-      approvalBy: {
-        user: record.approvalByUser,
-        date: record.approvalAt,
-        notes: record.approvalReason,
-      },
       createdBy: {
         user: record.createdByUser,
         date: record.createdAt,

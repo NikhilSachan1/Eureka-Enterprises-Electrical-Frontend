@@ -15,16 +15,12 @@ import {
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IBookPaymentGetBaseResponseDto } from '../../types/book-payment.dto';
 import {
-  bookPaymentApproveDisableReason,
   bookPaymentDeleteDisableReason,
   bookPaymentEditDisableReason,
-  bookPaymentRejectDisableReason,
   bookPaymentUnlockGrantDisableReason,
   bookPaymentUnlockRequestDisableReason,
   bookPaymentUnlockRequestRejectDisableReason,
-  shouldDisableBookPaymentApprove,
   shouldDisableBookPaymentEditOrDelete,
-  shouldDisableBookPaymentReject,
   shouldDisableBookPaymentUnlockGrant,
   shouldDisableBookPaymentUnlockRequest,
   shouldDisableBookPaymentUnlockRequestReject,
@@ -79,12 +75,6 @@ export const BOOK_PAYMENT_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[
       showSort: false,
     },
     {
-      field: 'approvalStatus',
-      header: 'Approval Status',
-      bodyTemplate: EDataType.STATUS,
-      showSort: false,
-    },
-    {
       field: 'isLocked',
       header: 'Lock status',
       bodyTemplate: EDataType.TEXT,
@@ -128,20 +118,6 @@ const buildBookPaymentTableRowActionsConfig = (
         loggedInUserId
       ) ?? bookPaymentDeleteDisableReason(row),
     permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.DELETE],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.APPROVE,
-    tooltip: 'Approve book payment',
-    disableWhen: shouldDisableBookPaymentApprove,
-    disableReason: bookPaymentApproveDisableReason,
-    permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.APPROVE],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.REJECT,
-    tooltip: 'Reject book payment',
-    disableWhen: shouldDisableBookPaymentReject,
-    disableReason: bookPaymentRejectDisableReason,
-    permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.REJECT],
   },
   {
     id: EButtonActionType.UNLOCK_REQUEST,
