@@ -154,6 +154,7 @@ export class GetBookPaymentComponent implements OnInit {
       );
     const { search: workspaceSearch, ...workspaceFilters } =
       this.workspaceContext.filters();
+    delete workspaceFilters.approvalStatus;
 
     return {
       ...workspaceFilters,

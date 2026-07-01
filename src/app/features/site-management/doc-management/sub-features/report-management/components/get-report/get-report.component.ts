@@ -151,6 +151,7 @@ export class GetReportComponent implements OnInit {
     const docType = this.docRouteContext();
     const { search: workspaceSearch, ...workspaceFilters } =
       this.workspaceContext.filters();
+    delete workspaceFilters.approvalStatus;
 
     return {
       ...workspaceFilters,

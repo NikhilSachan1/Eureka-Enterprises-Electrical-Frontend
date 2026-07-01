@@ -74,7 +74,6 @@ export const VendorOutstandingBookPaymentInvoiceSchema = z.looseObject({
   bookedTotal: z.number(),
   paidTotal: z.number().optional(),
   pendingToBook: z.number(),
-  approvalStatus: z.string(),
 });
 
 export const VendorOutstandingBookPaymentSchema = z.looseObject({
@@ -90,7 +89,6 @@ export const VendorOutstandingBookPaymentSchema = z.looseObject({
   paymentHoldAmount: z.number(),
   paymentHoldReason: z.string().nullable(),
   remarks: z.string().nullable(),
-  approvalStatus: z.string(),
   hasTransfer: z.boolean(),
   displayName: z.string(),
   invoice: VendorOutstandingBookPaymentInvoiceSchema,
