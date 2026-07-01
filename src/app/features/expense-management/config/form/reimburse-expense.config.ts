@@ -1,9 +1,11 @@
 import {
+  EDataType,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { Validators } from '@angular/forms';
 import { FORCE_EXPENSE_FORM_CONFIG } from './force-expense.config';
 import { IExpenseReimburseFormDto } from '@features/expense-management/types/expense.dto';
@@ -24,6 +26,20 @@ const REIMBURSE_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IExpenseReimb
   {
     employeeName,
     paymentMode,
+    paidFromAccount: {
+      fieldType: EDataType.SELECT,
+      id: 'paidFromAccount',
+      fieldName: 'paidFromAccount',
+      label: 'Paid From Account',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.COMPANY_BANK_ACCOUNT,
+          dropdownName:
+            CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
+        },
+        showClearButton: true,
+      },
+    },
     expenseDate,
     expenseAmount,
     remark: {

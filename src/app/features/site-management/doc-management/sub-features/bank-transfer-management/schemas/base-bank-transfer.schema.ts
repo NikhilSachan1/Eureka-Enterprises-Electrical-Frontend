@@ -20,6 +20,7 @@ export const BankTransferBaseSchema = z.looseObject({
   transferAmount: z.string(),
   proofFileKey: z.string().nullable(),
   proofFileName: z.string().nullable(),
+  paidFromAccountId: uuidField.nullable().optional(),
   remarks: z.string().nullable(),
 });
 
@@ -37,6 +38,7 @@ export const BankTransferUpsertShapeSchema = z
     transferAmount: bankTransferMoneyFieldSchema,
     transferProofFileKey: z.string().nullable(),
     transferProofFileName: z.string().nullable(),
+    paidFromAccount: uuidField.nullable(),
     remarks: z.string().nullable(),
   })
   .strict();

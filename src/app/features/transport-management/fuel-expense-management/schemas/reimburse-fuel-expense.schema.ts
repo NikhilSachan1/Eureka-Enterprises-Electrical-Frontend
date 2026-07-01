@@ -14,6 +14,7 @@ export const FuelExpenseReimburseRequestSchema =
   })
     .extend({
       employeeName: uuidField,
+      paidFromAccount: uuidField.nullable(),
       transactionId: transactionId.unwrap(),
     })
     .strict()
@@ -22,6 +23,7 @@ export const FuelExpenseReimburseRequestSchema =
         userId: data.employeeName,
         fuelAmount: data.fuelAmount,
         paymentMode: data.paymentMode,
+        paidFromAccountId: data.paidFromAccount ?? null,
         transactionId: data.transactionId,
         description: data.remark ?? 'N/A',
         fillDate: transformDateFormat(data.fuelFillDate),

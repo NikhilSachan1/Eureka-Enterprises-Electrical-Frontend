@@ -93,6 +93,7 @@ export class EditBankTransferComponent
             EDocContext.PURCHASE === this.docContext()
               ? record.bookPaymentId
               : null,
+          paidFromAccount: record.paidFromAccountId ?? null,
           utrNumber: record.utrNumber,
           transferDate: new Date(record.transferDate),
           transferAmount: Number(record.transferAmount),

@@ -1,7 +1,11 @@
 import { Validators } from '@angular/forms';
 import { FinancialYearService } from '@core/services/financial-year.service';
 import { REIMBURSE_EXPENSE_FORM_CONFIG } from '@features/expense-management/config/form/reimburse-expense.config';
-import { TEXT_INPUT_ACCEPT_STRIP } from '@shared/constants';
+import {
+  CONFIGURATION_KEYS,
+  MODULE_NAMES,
+  TEXT_INPUT_ACCEPT_STRIP,
+} from '@shared/constants';
 import {
   EDataType,
   ETextCase,
@@ -19,6 +23,20 @@ const financialYearService = new FinancialYearService();
 const PAY_PAYMENT_SHEET_ITEM_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IPayPaymentSheetItemFormDto> =
   {
     paymentMode,
+    paidFromAccount: {
+      fieldType: EDataType.SELECT,
+      id: 'paidFromAccount',
+      fieldName: 'paidFromAccount',
+      label: 'Paid From Account',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.COMPANY_BANK_ACCOUNT,
+          dropdownName:
+            CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
+        },
+        showClearButton: true,
+      },
+    },
     paidDate: {
       fieldType: EDataType.DATE,
       id: 'paidDate',

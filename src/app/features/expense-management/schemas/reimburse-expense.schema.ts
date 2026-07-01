@@ -11,6 +11,7 @@ export const ExpenseReimburseRequestSchema = ExpenseUpsertShapeSchema.omit({
 })
   .extend({
     employeeName: uuidField,
+    paidFromAccount: uuidField.nullable(),
     transactionId: transactionId.unwrap(),
     remark: z.string().nullable(),
   })
@@ -23,6 +24,7 @@ export const ExpenseReimburseRequestSchema = ExpenseUpsertShapeSchema.omit({
       amount: data.expenseAmount,
       expenseDate: transformDateFormat(data.expenseDate),
       paymentMode: data.paymentMode,
+      paidFromAccountId: data.paidFromAccount ?? null,
       files: data.expenseAttachments,
       transactionId: data.transactionId,
     };
