@@ -23,6 +23,7 @@ import {
   IEnhancedTable,
   IPageHeaderConfig,
   ITableActionClickEvent,
+  ITableSearchFilterFormConfig,
 } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import {
@@ -33,12 +34,14 @@ import {
 import {
   COMPANY_BANK_ACCOUNT_ACTION_CONFIG_MAP,
   COMPANY_BANK_ACCOUNT_TABLE_ENHANCED_CONFIG,
+  SEARCH_FILTER_COMPANY_BANK_ACCOUNT_FORM_CONFIG,
 } from '../../config';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { ICompanyBankAccount } from '../../types/company-bank-account.interface';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
@@ -46,7 +49,7 @@ import { ECompanyBankAccountStatus } from '../../types/company-bank-account.enum
 
 @Component({
   selector: 'app-get-company-bank-account',
-  imports: [PageHeaderComponent, DataTableComponent],
+  imports: [PageHeaderComponent, SearchFilterComponent, DataTableComponent],
   templateUrl: './get-company-bank-account.component.html',
   styleUrl: './get-company-bank-account.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,6 +72,7 @@ export class GetCompanyBankAccountComponent implements OnInit {
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
+  protected searchFilterConfig!: ITableSearchFilterFormConfig;
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
@@ -76,6 +80,7 @@ export class GetCompanyBankAccountComponent implements OnInit {
     this.table = this.dataTableService.createTable(
       COMPANY_BANK_ACCOUNT_TABLE_ENHANCED_CONFIG
     );
+    this.searchFilterConfig = SEARCH_FILTER_COMPANY_BANK_ACCOUNT_FORM_CONFIG;
   }
 
   private loadCompanyBankAccountList(): void {

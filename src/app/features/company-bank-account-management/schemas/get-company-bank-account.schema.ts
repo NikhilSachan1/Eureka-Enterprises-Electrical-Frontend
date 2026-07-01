@@ -6,6 +6,9 @@ const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 
 export const CompanyBankAccountGetRequestSchema = z
   .object({
+    bankStatus: z
+      .union([z.boolean(), z.literal('true'), z.literal('false')])
+      .optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -13,11 +16,15 @@ export const CompanyBankAccountGetRequestSchema = z
     search,
   })
   .strict()
-  .transform(({ sortOrder: _sortOrder, ...rest }) => {
-    return {
-      ...rest,
-    };
-  });
+  .transform(({ bankStatus, sortOrder: _sortOrder, ...rest }) => ({
+    ...rest,
+    isActive:
+      bankStatus === undefined
+        ? undefined
+        : typeof bankStatus === 'boolean'
+          ? bankStatus
+          : bankStatus === 'true',
+  }));
 
 export const CompanyBankAccountGetBaseResponseSchema = z.looseObject({
   ...CompanyBankAccountBaseSchema.shape,

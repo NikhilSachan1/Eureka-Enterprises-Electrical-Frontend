@@ -3,6 +3,13 @@
   (headerButtonClick)="onHeaderButtonClick($event)"
 />
 
+<div class="search-filter-wrapper">
+  <app-search-filter
+    [tableRef]="dataTable.dt()"
+    [searchFilterConfig]="searchFilterConfig"
+  />
+</div>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
