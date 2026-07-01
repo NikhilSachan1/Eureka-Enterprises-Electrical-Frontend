@@ -20,14 +20,6 @@ export const VENDOR_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> = {
 export const VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
   [
     {
-      field: 'docWorkspaceContext',
-      header: 'Workspace overview',
-      bodyTemplate: EDataType.TEXT,
-      customTemplateKey: 'docWorkspaceContext',
-      columnStyleClass: 'cell-allow-wrap',
-      showSort: false,
-    },
-    {
       field: 'invoiceNumber',
       header: 'Invoice',
       bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
@@ -40,6 +32,14 @@ export const VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCon
       showSort: false,
     },
     {
+      field: 'invoiceAmountBreakdown',
+      header: 'Invoice summary',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'vendorInvoiceAmountBreakdown',
+      columnStyleClass: 'cell-allow-wrap',
+      showSort: false,
+    },
+    {
       field: 'bookingDate',
       header: 'Booking Date',
       bodyTemplate: EDataType.DATE,
@@ -47,8 +47,8 @@ export const VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCon
       showSort: false,
     },
     {
-      field: 'paymentTotalAmount',
-      header: 'Booking Amount',
+      field: 'pendingAmount',
+      header: 'Pending Amount',
       bodyTemplate: EDataType.CURRENCY,
       dataType: EDataType.NUMBER,
       currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
@@ -56,7 +56,7 @@ export const VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCon
     },
     {
       field: 'documentReferenceHierarchy',
-      header: 'Doc Hierarchy',
+      header: 'Document Reference',
       bodyTemplate: EDataType.TEXT,
       customTemplateKey: 'vendorDocumentReference',
       columnStyleClass: 'cell-allow-wrap',

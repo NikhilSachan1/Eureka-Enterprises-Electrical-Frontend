@@ -1,3 +1,4 @@
+import { CurrencyPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,16 +8,20 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
+import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
+import { DocAmountComponent } from '@features/site-management/doc-management/shared/components/doc-amount/doc-amount.component';
+import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
+import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
-import {
-  TableServerSideParamsBuilderService,
-  TableService,
-} from '@shared/services';
+import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
+import { PaginatorComponent } from '@shared/components/paginator/paginator.component';
+import { ICONS } from '@shared/constants';
+import { TableService } from '@shared/services';
 import { IEnhancedTable } from '@shared/types';
-import { TableLazyLoadEvent } from 'primeng/table';
+import { PaginatorState } from 'primeng/paginator';
 import { finalize } from 'rxjs';
-import { BankDetailsCellComponent } from '../../../shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
 import { EPaymentOutstandingSourceType } from '../../../shared/config/payment-outstanding-source-section.config';
 import { createVendorOutstandingTableEnhancedConfig } from '../../config';
@@ -27,14 +32,22 @@ import {
   IVendorOutstandingGetResponseDto,
   IVendorOutstandingGetStatsResponseDto,
 } from '../../types/vendor-outstanding.dto';
-import { IVendorOutstanding } from '../../types/vendor-outstanding.interface';
+import {
+  IVendorBookPaymentTableRow,
+  IVendorOutstandingVendorGroup,
+} from '../../types/vendor-outstanding.interface';
+import { buildVendorOutstandingInvoiceAmountSegments } from '../../utils/vendor-book-payment-amount.util';
 
 @Component({
   selector: 'app-get-vendor-outstanding',
   imports: [
     PaymentOutstandingSectionComponent,
-    BankDetailsCellComponent,
     DataTableComponent,
+    EmptyMessagesComponent,
+    PaginatorComponent,
+    DocReferenceComponent,
+    DocAmountComponent,
+    CurrencyPipe,
   ],
   templateUrl: './get-vendor-outstanding.component.html',
   styleUrl: './get-vendor-outstanding.component.scss',
@@ -43,40 +56,56 @@ import { IVendorOutstanding } from '../../types/vendor-outstanding.interface';
 export class GetVendorOutstandingComponent implements OnInit {
   protected readonly EPaymentOutstandingSourceType =
     EPaymentOutstandingSourceType;
+  protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly listEmptyState = {
+    icon: ICONS.COMMON.INBOX,
+    title: 'No vendor outstanding records found.',
+    description: 'There are no pending vendor payments to show.',
+  };
 
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly vendorOutstandingService = inject(VendorOutstandingService);
-  private readonly tableServerSideFilterAndSortService = inject(
-    TableServerSideParamsBuilderService
-  );
 
   protected table!: IEnhancedTable;
-  protected tableFilterData!: TableLazyLoadEvent;
-
+  protected readonly vendorGroups = signal<IVendorOutstandingVendorGroup[]>([]);
   protected readonly summary =
     signal<IVendorOutstandingGetStatsResponseDto | null>(null);
   protected readonly totalRecords = signal(0);
   protected readonly searchTerm = signal('');
+  protected readonly paginationFirst = signal(0);
+  protected readonly paginationRows = signal(
+    APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE
+  );
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
       createVendorOutstandingTableEnhancedConfig()
     );
-  }
-
-  protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
-    this.tableFilterData = tableFilterData;
     this.loadVendorOutstandingList();
   }
 
   protected onSearchChange(term: string): void {
     this.searchTerm.set(term);
-    if (this.tableFilterData) {
-      this.tableFilterData = { ...this.tableFilterData, first: 0 };
-    }
+    this.paginationFirst.set(0);
     this.loadVendorOutstandingList();
+  }
+
+  protected onPageChange(event: PaginatorState): void {
+    this.paginationFirst.set(event.first ?? 0);
+    this.paginationRows.set(
+      event.rows ?? APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE
+    );
+    this.loadVendorOutstandingList();
+  }
+
+  protected vendorInvoiceAmountSegments(
+    row: IVendorBookPaymentTableRow
+  ): IDocAmountSegment[] {
+    return buildVendorOutstandingInvoiceAmountSegments(
+      row.originalRawData.invoice
+    );
   }
 
   private loadVendorOutstandingList(): void {
@@ -92,17 +121,16 @@ export class GetVendorOutstandingComponent implements OnInit {
       .subscribe({
         next: (response: IVendorOutstandingGetResponseDto) => {
           const { records, summary, totalRecords } = response;
-          const mappedData = this.mapTableData(records);
+          const groups = records.map(record => this.mapVendorGroup(record));
 
-          this.table.setData(mappedData);
+          this.vendorGroups.set(groups);
           this.table.updateTableConfig({ totalRecords });
           this.summary.set(summary ?? null);
           this.totalRecords.set(totalRecords);
-
           this.logger.logUserAction('Vendor outstanding records loaded');
         },
         error: error => {
-          this.table.setData([]);
+          this.vendorGroups.set([]);
           this.summary.set(null);
           this.totalRecords.set(0);
           this.logger.logUserAction('Failed to load vendor outstanding', error);
@@ -111,33 +139,57 @@ export class GetVendorOutstandingComponent implements OnInit {
   }
 
   private prepareParamData(): IVendorOutstandingGetFormDto {
-    const base =
-      this.tableServerSideFilterAndSortService.buildQueryParams<IVendorOutstandingGetFormDto>(
-        this.tableFilterData,
-        this.table.getHeaders()
-      );
+    const rows = this.paginationRows();
+    const first = this.paginationFirst();
 
     return {
-      ...base,
+      page: Math.floor(first / rows) + 1,
+      pageSize: rows,
       ...(this.searchTerm() ? { search: this.searchTerm() } : {}),
     };
   }
 
-  private mapTableData(
-    records: IVendorOutstandingGetBaseResponseDto[]
-  ): IVendorOutstanding[] {
-    return records.map(record => ({
-      id: record.vendorId,
-      vendorName: record.vendorName,
-      pendingAmount: record.pendingAmount,
+  private mapVendorGroup(
+    record: IVendorOutstandingGetBaseResponseDto
+  ): IVendorOutstandingVendorGroup {
+    const { vendor, vendorSummary, bookPayments } = record;
+    const bookPaymentTable = this.dataTableService.createTable(
+      createVendorOutstandingTableEnhancedConfig()
+    );
+
+    bookPaymentTable.setData(this.mapBookPaymentRows(bookPayments));
+
+    return {
+      id: vendor.id,
+      vendorName: vendor.name,
+      location: [vendor.city, vendor.state].filter(Boolean).join(', '),
+      vendorSummary,
+      bookPaymentTable,
+      originalRawData: record,
+    };
+  }
+
+  private mapBookPaymentRows(
+    bookPayments: IVendorOutstandingGetBaseResponseDto['bookPayments']
+  ): IVendorBookPaymentTableRow[] {
+    return bookPayments.map(bookPayment => ({
+      id: bookPayment.id,
+      invoiceNumber: bookPayment.invoice.invoiceNumber,
+      invoiceDate: bookPayment.invoice.invoiceDate,
+      documentReferenceHierarchy:
+        DocReferenceHierarchy.forInvoiceOrJmcParentRow({
+          poNumber: bookPayment.po?.poNumber,
+          jmcNumber: bookPayment.jmc?.jmcNumber,
+        }),
+      bookingDate: bookPayment.bookingDate,
+      pendingAmount: bookPayment.paymentTotalAmount,
       transactionType:
-        record.pendingAmount > 0
+        bookPayment.paymentTotalAmount > 0
           ? 'debit'
-          : record.pendingAmount < 0
+          : bookPayment.paymentTotalAmount < 0
             ? 'credit'
             : undefined,
-      bankDetails: record.bankDetails,
-      originalRawData: record,
+      originalRawData: bookPayment,
     }));
   }
 }
