@@ -4,7 +4,8 @@
   [recordCount]="totalRecords()"
   [vendorSummaryStats]="true"
   [totalPendingToBook]="summary()?.totalPendingToBook ?? 0"
-  [totalBookPayments]="sectionTotalBookPayments()"
+  [totalBookPayments]="summary()?.totalBookPayments ?? 0"
+  [totalBookedAmount]="summary()?.totalNetPayableAmount ?? 0"
   searchPlaceholder="Search by vendor name"
   (searchChange)="onSearchChange($event)"
 >
@@ -54,35 +55,32 @@
                 class="vendor-card__stats"
                 aria-label="Vendor payment summary"
               >
-                <div class="vendor-card__stat">
-                  <span class="vendor-card__stat-value">
-                    {{ uniqueInvoiceCount(group) }}
-                  </span>
-                  <span class="vendor-card__stat-label">
-                    {{ uniqueInvoiceCount(group) === 1 ? 'Invoice' : 'Invoices' }}
-                  </span>
-                </div>
-                <div class="vendor-card__stat vendor-card__stat--amount">
-                  <span class="vendor-card__stat-value vendor-card__stat-value--debit">
-                    {{
-                      group.vendorSummary.totalPendingToBook
-                        | currency
-                          : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                          : 'symbol'
-                          : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                          : APP_CONFIG.NUMBER_FORMATS.LOCALE
-                    }}
-                  </span>
-                  <span class="vendor-card__stat-label">Pending</span>
-                </div>
-                <div class="vendor-card__stat">
-                  <span class="vendor-card__stat-value">
-                    {{ vendorBookPaymentsCount(group) }}
-                  </span>
-                  <span class="vendor-card__stat-label">
-                    {{ vendorBookPaymentsCount(group) === 1 ? 'Booking' : 'Bookings' }}
-                  </span>
-                </div>
+                @for (stat of vendorCardStats(group); track stat.label) {
+                  <div
+                    class="vendor-card__stat"
+                    [class.vendor-card__stat--amount]="stat.kind === 'currency'"
+                  >
+                    <span
+                      class="vendor-card__stat-value"
+                      [class.vendor-card__stat-value--debit]="stat.showDebit"
+                      [class.vendor-card__stat-value--to-book]="stat.showToBook"
+                    >
+                      @if (stat.kind === 'currency') {
+                        {{
+                          stat.value
+                            | currency
+                              : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                              : 'symbol'
+                              : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                              : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                        }}
+                      } @else {
+                        {{ stat.value }}
+                      }
+                    </span>
+                    <span class="vendor-card__stat-label">{{ stat.label }}</span>
+                  </div>
+                }
               </div>
             </header>
 
@@ -117,10 +115,24 @@
                         </div>
                       </div>
 
-                      @if (invoice.documentReferenceHierarchy) {
+                      @if (canBookPaymentForInvoice(invoice)) {
+                        <div class="invoice-card__actions">
+                          <ng-container *appHasPermission="bookPaymentPermission">
+                            <app-button
+                              [buttonConfig]="bookPaymentButtonConfig"
+                              [stopClickPropagation]="true"
+                              styleClass="invoice-card__book-payment-btn"
+                              (onButtonClick)="openBookPaymentDialog(invoice)"
+                            />
+                          </ng-container>
+                        </div>
+                      }
+
+                      @let docRef = invoiceDocumentReference(invoice);
+                      @if (docRef) {
                         <div class="invoice-card__doc-panel">
                           <span class="invoice-card__kicker">Document ref</span>
-                          <app-doc-reference [root]="invoice.documentReferenceHierarchy" />
+                          <app-doc-reference [root]="docRef" />
                         </div>
                       }
                     </div>
@@ -130,7 +142,7 @@
                         class="invoice-card__project-summary"
                         aria-label="Project summary"
                       >
-                        @if (invoice.siteName || invoice.siteLocation) {
+                        @if (invoice.site.name || siteLocation(invoice.site)) {
                           <div class="invoice-card__summary-panel">
                             <div
                               class="invoice-card__summary-icon invoice-card__summary-icon--project"
@@ -140,22 +152,22 @@
                             </div>
                             <div class="invoice-card__summary-body">
                               <span class="invoice-card__kicker">Project</span>
-                              @if (invoice.siteName) {
-                                <strong class="invoice-card__summary-title">{{ invoice.siteName }}</strong>
+                              @if (invoice.site.name) {
+                                <strong class="invoice-card__summary-title">{{ invoice.site.name }}</strong>
                               }
-                              @if (invoice.siteLocation) {
+                              @if (siteLocation(invoice.site)) {
                                 <span class="invoice-card__summary-sub">
                                   <i
                                     [class]="icons.COMMON.MAP_MARKER"
                                     aria-hidden="true"
                                   ></i>
-                                  {{ invoice.siteLocation }}
+                                  {{ siteLocation(invoice.site) }}
                                 </span>
                               }
                             </div>
                           </div>
                         }
-                        @if (invoice.companyName) {
+                        @if (invoice.company.name) {
                           <div class="invoice-card__summary-panel invoice-card__summary-panel--company">
                             <div
                               class="invoice-card__summary-icon invoice-card__summary-icon--company"
@@ -165,7 +177,7 @@
                             </div>
                             <div class="invoice-card__summary-body">
                               <span class="invoice-card__kicker">Company</span>
-                              <strong class="invoice-card__summary-title">{{ invoice.companyName }}</strong>
+                              <strong class="invoice-card__summary-title">{{ invoice.company.name }}</strong>
                             </div>
                           </div>
                         }
@@ -187,8 +199,11 @@
                         class="invoice-card__metric"
                         [ngClass]="[
                           'invoice-card__metric--' + metricTone(segment.label),
-                          segment.label === 'Pending to book' && isPositiveAmount(segment)
-                            ? 'invoice-card__metric--pending-active'
+                          segment.label === 'Booked' && isPositiveAmount(segment)
+                            ? 'invoice-card__metric--booked-active'
+                            : '',
+                          segment.label === 'To be booked' && isPositiveAmount(segment)
+                            ? 'invoice-card__metric--to-book-active'
                             : '',
                         ]"
                         role="listitem"

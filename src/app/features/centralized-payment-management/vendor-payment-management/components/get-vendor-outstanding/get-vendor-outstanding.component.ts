@@ -7,7 +7,6 @@ import {
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   DestroyRef,
   inject,
   input,
@@ -17,16 +16,26 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { LoggerService } from '@core/services';
 import { DocReferenceComponent } from '@features/site-management/doc-management/shared/components/doc-reference/doc-reference.component';
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
+import { BOOK_PAYMENT_ACTION_CONFIG_MAP } from '@features/site-management/doc-management/sub-features/book-payment-management/config';
+import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { PaginatorComponent } from '@shared/components/paginator/paginator.component';
+import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { ICONS } from '@shared/constants';
-import { TableService } from '@shared/services';
-import { IEnhancedTable } from '@shared/types';
+import { AppPermissionDirective } from '@shared/directives/app-permission.directive';
+import { TableService, ConfirmationDialogService } from '@shared/services';
+import {
+  EButtonActionType,
+  IEnhancedTable,
+  IButtonConfig,
+} from '@shared/types';
 import { PaginatorState } from 'primeng/paginator';
 import { finalize } from 'rxjs';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
@@ -41,6 +50,7 @@ import {
 } from '../../types/vendor-outstanding.dto';
 import {
   IVendorBookPaymentTableRow,
+  IVendorCardSummaryStat,
   IVendorInvoiceOutstandingGroup,
   IVendorOutstandingInvoiceViewType,
   IVendorOutstandingUnbookedInvoice,
@@ -59,9 +69,11 @@ type IVendorOutstandingBookPayment =
   imports: [
     PaymentOutstandingSectionComponent,
     DataTableComponent,
+    ButtonComponent,
     EmptyMessagesComponent,
     PaginatorComponent,
     DocReferenceComponent,
+    AppPermissionDirective,
     CurrencyPipe,
     DatePipe,
     NgClass,
@@ -78,12 +90,23 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected readonly EPaymentOutstandingSourceType =
     EPaymentOutstandingSourceType;
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly APP_PERMISSION = APP_PERMISSION;
   protected readonly icons = ICONS;
+  protected readonly bookPaymentPermission =
+    APP_PERMISSION.BOOK_PAYMENT_DOC.ADD;
+  protected readonly bookPaymentButtonConfig: Partial<IButtonConfig> = {
+    ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,
+    label: 'Book Payment',
+    actionName: 'bookPayment',
+  };
 
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dataTableService = inject(TableService);
   private readonly vendorOutstandingService = inject(VendorOutstandingService);
+  private readonly confirmationDialogService = inject(
+    ConfirmationDialogService
+  );
 
   protected readonly loading = signal(false);
   protected readonly vendorGroups = signal<IVendorOutstandingVendorGroup[]>([]);
@@ -98,18 +121,6 @@ export class GetVendorOutstandingComponent implements OnInit {
   private readonly selectionsByTableId = signal<
     Record<string, IVendorBookPaymentTableRow[]>
   >({});
-
-  protected readonly sectionTotalBookPayments = computed(() => {
-    const fromSummary = this.summary()?.totalBookPayments;
-    if (fromSummary !== null && fromSummary !== undefined) {
-      return fromSummary;
-    }
-
-    return this.vendorGroups().reduce(
-      (total, group) => total + this.vendorBookPaymentsCount(group),
-      0
-    );
-  });
 
   ngOnInit(): void {
     this.loadVendorOutstandingList();
@@ -156,34 +167,100 @@ export class GetVendorOutstandingComponent implements OnInit {
     invoice: IVendorInvoiceOutstandingGroup
   ): boolean {
     return Boolean(
-      invoice.siteName || invoice.siteLocation || invoice.companyName
+      invoice.site.name ||
+        invoice.site.city ||
+        invoice.site.state ||
+        invoice.company.name
     );
   }
 
-  protected uniqueInvoiceCount(group: IVendorOutstandingVendorGroup): number {
-    return new Set(group.invoiceGroups.map(invoice => invoice.invoiceId)).size;
+  protected invoiceDocumentReference(
+    invoice: IVendorInvoiceOutstandingGroup
+  ): ReturnType<typeof DocReferenceHierarchy.forInvoiceOrJmcParentRow> {
+    return DocReferenceHierarchy.forInvoiceOrJmcParentRow({
+      poNumber: invoice.po.poNumber,
+      jmcNumber: invoice.jmc.jmcNumber,
+    });
   }
 
-  protected vendorBookPaymentsCount(
+  protected siteLocation(site: IVendorInvoiceOutstandingGroup['site']): string {
+    return [site.city, site.state].filter(Boolean).join(', ');
+  }
+
+  protected canBookPaymentForInvoice(
+    invoice: IVendorInvoiceOutstandingGroup
+  ): boolean {
+    return (
+      this.resolveInvoiceSiteId(invoice).length > 0 &&
+      Number(invoice.invoice?.pendingToBook ?? 0) > 0
+    );
+  }
+
+  protected vendorCardStats(
     group: IVendorOutstandingVendorGroup
-  ): number {
-    return group.vendorSummary.totalBookPayments ?? this.totalBookings(group);
-  }
+  ): IVendorCardSummaryStat[] {
+    const { vendorSummary } = group;
+    const invoiceCount = new Set(
+      group.invoiceGroups.map(invoice => invoice.invoiceId)
+    ).size;
 
-  protected totalBookings(group: IVendorOutstandingVendorGroup): number {
-    return group.invoiceGroups.reduce(
-      (total, invoice) =>
-        invoice.viewType === 'booked'
-          ? total + invoice.bookPayments.length
-          : total,
-      0
-    );
+    return [
+      {
+        kind: 'count',
+        value: invoiceCount,
+        label: this.pluralizeStatLabel(invoiceCount, 'Invoice', 'Invoices'),
+      },
+      {
+        kind: 'currency',
+        value: vendorSummary.totalPendingToBook,
+        label: 'To be booked',
+        showToBook: vendorSummary.totalPendingToBook > 0,
+      },
+      {
+        kind: 'count',
+        value: vendorSummary.totalBookPayments,
+        label: this.pluralizeStatLabel(
+          vendorSummary.totalBookPayments,
+          'Booking'
+        ),
+      },
+      {
+        kind: 'currency',
+        value: vendorSummary.totalNetPayableAmount,
+        label: 'Booked',
+        showDebit: vendorSummary.totalNetPayableAmount > 0,
+      },
+    ];
   }
 
   protected invoiceViewLabel(
     viewType: IVendorOutstandingInvoiceViewType
   ): string {
     return viewType === 'booked' ? 'Booked' : 'Unbooked';
+  }
+
+  protected openBookPaymentDialog(
+    invoice: IVendorInvoiceOutstandingGroup
+  ): void {
+    if (!this.canBookPaymentForInvoice(invoice)) {
+      return;
+    }
+
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.ADD,
+      BOOK_PAYMENT_ACTION_CONFIG_MAP[EButtonActionType.ADD],
+      null,
+      false,
+      false,
+      {
+        docContext: EDocContext.PURCHASE,
+        projectName: this.resolveInvoiceSiteId(invoice),
+        invoiceId: invoice.invoiceId,
+        presetPaymentAmount: Number(invoice.invoice?.pendingToBook ?? 0),
+        presetBookingDateToday: true,
+        onSuccess: () => this.loadVendorOutstandingList(),
+      }
+    );
   }
 
   protected invoiceAmountSegments(
@@ -206,7 +283,7 @@ export class GetVendorOutstandingComponent implements OnInit {
       'net payable': 'net',
       booked: 'booked',
       paid: 'paid',
-      'pending to book': 'pending',
+      'to be booked': 'to-book',
     };
 
     return tones[key] ?? 'neutral';
@@ -321,7 +398,10 @@ export class GetVendorOutstandingComponent implements OnInit {
     }
 
     for (const unbookedInvoice of unbookedInvoices) {
-      if (!bookedInvoiceIds.has(unbookedInvoice.id)) {
+      if (
+        !bookedInvoiceIds.has(unbookedInvoice.id) &&
+        Number(unbookedInvoice.pendingToBook ?? 0) > 0
+      ) {
         invoiceViews.push(
           this.toUnbookedOnlyInvoiceView(
             unbookedInvoice,
@@ -363,17 +443,11 @@ export class GetVendorOutstandingComponent implements OnInit {
       viewType: 'unbooked',
       invoiceNumber: unbookedInvoice.invoiceNumber,
       invoiceDate: unbookedInvoice.invoiceDate,
-      companyName: unbookedInvoice.company?.name ?? '',
-      siteName: unbookedInvoice.site?.name ?? '',
-      siteLocation: [unbookedInvoice.site?.city, unbookedInvoice.site?.state]
-        .filter(Boolean)
-        .join(', '),
+      site: unbookedInvoice.site,
+      company: unbookedInvoice.company,
+      po: unbookedInvoice.po,
+      jmc: unbookedInvoice.jmc,
       invoice: mapVendorOutstandingUnbookedInvoiceToSummary(unbookedInvoice),
-      documentReferenceHierarchy:
-        DocReferenceHierarchy.forInvoiceOrJmcParentRow({
-          poNumber: unbookedInvoice.po?.poNumber,
-          jmcNumber: unbookedInvoice.jmc?.jmcNumber,
-        }),
       bookPayments: [],
       opsTable: this.createBookPaymentsTable([], excludedBookPaymentIds),
     };
@@ -423,17 +497,11 @@ export class GetVendorOutstandingComponent implements OnInit {
           viewType: 'booked',
           invoiceNumber: bookPayment.invoice.invoiceNumber,
           invoiceDate: bookPayment.invoice.invoiceDate,
-          companyName: bookPayment.company?.name ?? '',
-          siteName: bookPayment.site?.name ?? '',
-          siteLocation: [bookPayment.site?.city, bookPayment.site?.state]
-            .filter(Boolean)
-            .join(', '),
+          site: bookPayment.site,
+          company: bookPayment.company,
+          po: bookPayment.po,
+          jmc: bookPayment.jmc,
           invoice: bookPayment.invoice,
-          documentReferenceHierarchy:
-            DocReferenceHierarchy.forInvoiceOrJmcParentRow({
-              poNumber: bookPayment.po?.poNumber,
-              jmcNumber: bookPayment.jmc?.jmcNumber,
-            }),
           bookPayments: [],
         };
         grouped.set(invoiceId, group);
@@ -475,5 +543,24 @@ export class GetVendorOutstandingComponent implements OnInit {
   private clearSelections(): void {
     this.selectionsByTableId.set({});
     this.selectionChange.emit([]);
+  }
+
+  private resolveInvoiceSiteId(
+    invoice: IVendorInvoiceOutstandingGroup
+  ): string {
+    return (
+      invoice.site.id ??
+      invoice.bookPayments.find(row => row.originalRawData.site.id)
+        ?.originalRawData.site.id ??
+      ''
+    );
+  }
+
+  private pluralizeStatLabel(
+    count: number,
+    singular: string,
+    plural = `${singular}s`
+  ): string {
+    return count === 1 ? singular : plural;
   }
 }

@@ -92,6 +92,11 @@
   &--credit .outstanding-section__stat-value {
     color: #16a34a;
   }
+
+  &--to-book .outstanding-section__stat-value {
+    color: #d97706;
+    font-weight: 700;
+  }
 }
 
 .outstanding-section__stat-value {
@@ -165,5 +170,9 @@
 
   .outstanding-section__stats {
     box-shadow: none;
+  }
+
+  .outstanding-section__stat--to-book .outstanding-section__stat-value {
+    color: #fbbf24;
   }
 }

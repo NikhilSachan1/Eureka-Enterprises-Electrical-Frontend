@@ -44,7 +44,7 @@ export function buildVendorOutstandingInvoiceAmountSegments(
     },
     {
       dataType: EDataType.CURRENCY,
-      label: 'Pending to book',
+      label: 'To be booked',
       value: invoice.pendingToBook,
     }
   );

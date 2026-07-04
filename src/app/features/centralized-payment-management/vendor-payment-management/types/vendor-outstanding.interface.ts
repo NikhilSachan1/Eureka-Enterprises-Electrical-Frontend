@@ -1,4 +1,3 @@
-import { IDocReferenceHierarchyNode } from '@features/site-management/doc-management/shared/types/doc-reference.interface';
 import { IEnhancedTable } from '@shared/types';
 import { IVendorOutstandingGetBaseResponseDto } from './vendor-outstanding.dto';
 
@@ -25,11 +24,11 @@ export interface IVendorInvoiceOutstandingGroup {
   viewType: IVendorOutstandingInvoiceViewType;
   invoiceNumber: string;
   invoiceDate: string;
-  companyName: string;
-  siteName: string;
-  siteLocation: string;
+  site: IVendorOutstandingBookPayment['site'];
+  company: IVendorOutstandingBookPayment['company'];
+  po: IVendorOutstandingBookPayment['po'];
+  jmc: IVendorOutstandingBookPayment['jmc'];
   invoice: IVendorOutstandingBookPayment['invoice'] | null;
-  documentReferenceHierarchy: IDocReferenceHierarchyNode | null;
   bookPayments: IVendorBookPaymentTableRow[];
   opsTable: IEnhancedTable;
 }
@@ -40,4 +39,12 @@ export interface IVendorOutstandingVendorGroup {
   location: string;
   vendorSummary: IVendorOutstandingGetBaseResponseDto['vendorSummary'];
   invoiceGroups: IVendorInvoiceOutstandingGroup[];
+}
+
+export interface IVendorCardSummaryStat {
+  kind: 'count' | 'currency';
+  value: number;
+  label: string;
+  showDebit?: boolean;
+  showToBook?: boolean;
 }

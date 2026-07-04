@@ -94,6 +94,9 @@ export class AddBookPaymentComponent
   protected readonly onSuccess = input.required<() => void>();
   protected readonly docContext = input.required<EDocContext>();
   protected readonly projectName = input<string>();
+  protected readonly invoiceId = input<string>();
+  protected readonly presetPaymentAmount = input<number | null>(null);
+  protected readonly presetBookingDateToday = input(false);
 
   constructor() {
     super();
@@ -130,6 +133,8 @@ export class AddBookPaymentComponent
         destroyRef: this.destroyRef,
         defaultValues: {
           projectName: this.projectName(),
+          ...(this.invoiceId() ? { invoiceNumber: this.invoiceId() } : {}),
+          ...this.buildPresetFormValues(),
         },
         context: this.formContext,
       }
@@ -164,6 +169,7 @@ export class AddBookPaymentComponent
             ADD_BOOK_PAYMENT_FORM_CONFIG.fields.bookingDate.dateConfig,
             response
           );
+          this.applyPresetFormValues();
           queueMicrotask(() => this.changeDetectorRef.detectChanges());
         },
         error: error => {
@@ -198,6 +204,7 @@ export class AddBookPaymentComponent
           const opts = this.mapInvoiceRecordToOption(response.records);
           this.invoiceOptions = opts;
           this.applyInvoiceOptions(opts, false);
+          this.applyPresetFormValues(opts);
           this.updateSelectedInvoiceMeta();
         },
         error: error => {
@@ -247,6 +254,45 @@ export class AddBookPaymentComponent
     } as IInputFieldsConfig;
 
     queueMicrotask(() => this.changeDetectorRef.detectChanges());
+  }
+
+  private buildPresetFormValues(): Partial<IAddBookPaymentUIFormDto> {
+    const values: Partial<IAddBookPaymentUIFormDto> = {};
+    const presetAmount = this.presetPaymentAmount();
+
+    if (this.presetBookingDateToday()) {
+      values.bookingDate = new Date();
+    }
+
+    if (presetAmount !== null && presetAmount > 0) {
+      values.paymentTotalAmount = presetAmount;
+    }
+
+    return values;
+  }
+
+  private applyPresetFormValues(
+    invoiceOptions: IOptionDropdown<IBookPaymentInvoiceDropdownMeta>[] = []
+  ): void {
+    const presetValues = this.buildPresetFormValues();
+    const presetInvoiceId = this.invoiceId();
+
+    if (presetInvoiceId) {
+      const hasEligibleInvoice = invoiceOptions.some(
+        option => option.value === presetInvoiceId && !option.disabled
+      );
+
+      if (hasEligibleInvoice || invoiceOptions.length === 0) {
+        presetValues.invoiceNumber = presetInvoiceId;
+      }
+    }
+
+    if (Object.keys(presetValues).length === 0) {
+      return;
+    }
+
+    this.form.patch(presetValues);
+    this.refreshPaymentHoldReasonValidators();
   }
 
   private updateSelectedInvoiceMeta(): void {

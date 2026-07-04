@@ -21,6 +21,7 @@ import {
   EPaymentOutstandingSourceType,
   getPaymentOutstandingSourceSectionMeta,
 } from '../../config/payment-outstanding-source-section.config';
+import type { IVendorSectionSummaryStat } from '../../types/payment-outstanding-section.interface';
 
 @Component({
   selector: 'app-payment-outstanding-section',
@@ -45,6 +46,7 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
   totalPendingAmount = input(0);
   totalPendingToBook = input<number | null>(null);
   totalBookPayments = input<number | null>(null);
+  totalBookedAmount = input<number | null>(null);
   vendorSummaryStats = input(false);
   showSearch = input(true);
   searchPlaceholder = input('Search...');
@@ -62,8 +64,8 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
     this.vendorSummaryStats()
   );
 
-  protected readonly pendingToBookTransactionType = computed(() => {
-    const amount = this.totalPendingToBook() ?? 0;
+  protected readonly bookedAmountTransactionType = computed(() => {
+    const amount = this.totalBookedAmount() ?? 0;
     if (amount > 0) {
       return 'debit';
     }
@@ -75,6 +77,31 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
 
   protected readonly bookPaymentsCount = computed(
     () => this.totalBookPayments() ?? 0
+  );
+
+  protected readonly vendorSummaryStatItems = computed(
+    (): IVendorSectionSummaryStat[] => [
+      {
+        kind: 'currency',
+        value: this.totalPendingToBook() ?? 0,
+        label: 'To be booked',
+        ariaLabel: 'Total amount to be booked',
+        tone: (this.totalPendingToBook() ?? 0) > 0 ? 'to-book' : null,
+      },
+      {
+        kind: 'count',
+        value: this.bookPaymentsCount(),
+        label: this.bookPaymentsCountLabel(),
+        ariaLabel: 'Total bookings count',
+      },
+      {
+        kind: 'currency',
+        value: this.totalBookedAmount() ?? 0,
+        label: 'Booked',
+        ariaLabel: 'Total booked amount payable',
+        tone: this.bookedAmountTransactionType(),
+      },
+    ]
   );
 
   protected readonly searchTerm = signal('');
