@@ -3,6 +3,8 @@
   (headerButtonClick)="onHeaderButtonClick($event)"
 />
 
-<app-get-expense-outstanding (selectionChange)="onExpenseSelectionChange($event)" />
-<app-get-fuel-expense-outstanding (selectionChange)="onFuelSelectionChange($event)" />
+<div class="outstanding-balance__employee-row">
+  <app-get-expense-outstanding (selectionChange)="onExpenseSelectionChange($event)" />
+  <app-get-fuel-expense-outstanding (selectionChange)="onFuelSelectionChange($event)" />
+</div>
 <app-get-vendor-outstanding (selectionChange)="onVendorSelectionChange($event)" />
