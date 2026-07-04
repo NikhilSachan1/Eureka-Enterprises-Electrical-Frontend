@@ -110,10 +110,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceFor
       ...baseAssignedEngineer,
       conditionalValidators: requiredWhenPresentForDriver,
     },
-    vehicle: {
-      ...baseVehicle,
-      conditionalValidators: requiredWhenPresentForEmployeeOrDriver,
-    },
+    vehicle: baseVehicle,
     remark: {
       ...remark,
       label: 'Reason for force attendance',
