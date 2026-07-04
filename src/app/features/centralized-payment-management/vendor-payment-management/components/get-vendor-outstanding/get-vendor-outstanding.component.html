@@ -2,7 +2,9 @@
   [sourceType]="EPaymentOutstandingSourceType.VENDOR_PAYMENT"
   [loading]="loading()"
   [recordCount]="totalRecords()"
-  [totalPendingAmount]="summary()?.totalPaymentAmount ?? 0"
+  [vendorSummaryStats]="true"
+  [totalPendingToBook]="summary()?.totalPendingToBook ?? 0"
+  [totalBookPayments]="sectionTotalBookPayments()"
   searchPlaceholder="Search by vendor name"
   (searchChange)="onSearchChange($event)"
 >
@@ -44,24 +46,7 @@
                 <p class="vendor-card__meta">
                   @if (group.location) {
                     <span>{{ group.location }}</span>
-                    <span
-                      class="vendor-card__sep"
-                      aria-hidden="true"
-                    >
-                      ·
-                    </span>
                   }
-                  <span>
-                    {{ group.invoiceGroups.length }}
-                    {{ group.invoiceGroups.length === 1 ? 'invoice' : 'invoices' }}
-                  </span>
-                  <span
-                    class="vendor-card__sep"
-                    aria-hidden="true"
-                  >
-                    ·
-                  </span>
-                  <span>{{ paymentCountLabel(totalBookings(group)) }}</span>
                 </p>
               </div>
 
@@ -69,10 +54,18 @@
                 class="vendor-card__stats"
                 aria-label="Vendor payment summary"
               >
+                <div class="vendor-card__stat">
+                  <span class="vendor-card__stat-value">
+                    {{ uniqueInvoiceCount(group) }}
+                  </span>
+                  <span class="vendor-card__stat-label">
+                    {{ uniqueInvoiceCount(group) === 1 ? 'Invoice' : 'Invoices' }}
+                  </span>
+                </div>
                 <div class="vendor-card__stat vendor-card__stat--amount">
                   <span class="vendor-card__stat-value vendor-card__stat-value--debit">
                     {{
-                      group.vendorSummary.totalPaymentAmount
+                      group.vendorSummary.totalPendingToBook
                         | currency
                           : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
                           : 'symbol'
@@ -84,16 +77,11 @@
                 </div>
                 <div class="vendor-card__stat">
                   <span class="vendor-card__stat-value">
-                    {{
-                      group.vendorSummary.totalPendingToBook
-                        | currency
-                          : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                          : 'symbol'
-                          : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                          : APP_CONFIG.NUMBER_FORMATS.LOCALE
-                    }}
+                    {{ vendorBookPaymentsCount(group) }}
                   </span>
-                  <span class="vendor-card__stat-label">To book</span>
+                  <span class="vendor-card__stat-label">
+                    {{ vendorBookPaymentsCount(group) === 1 ? 'Booking' : 'Bookings' }}
+                  </span>
                 </div>
               </div>
             </header>
@@ -111,7 +99,7 @@
                           <i [class]="icons.COMMON.FILE"></i>
                         </div>
                         <div class="invoice-card__invoice-body">
-                          <span class="invoice-card__kicker">Invoice</span>
+                          <span class="invoice-card__kicker">Invoice · {{ invoiceViewLabel(invoice.viewType) }}</span>
                           <h4 class="invoice-card__invoice-no">{{ invoice.invoiceNumber }}</h4>
                           <time class="invoice-card__invoice-date">
                             <i

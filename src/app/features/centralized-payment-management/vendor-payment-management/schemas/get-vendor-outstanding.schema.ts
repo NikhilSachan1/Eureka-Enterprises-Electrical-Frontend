@@ -32,6 +32,7 @@ export const VendorOutstandingVendorSummarySchema = z.looseObject({
   totalNetPayableAmount: z.number(), //itna booked amount hai
   totalPaymentAmount: z.number(), //itna paid amount hai jo karna hai
   totalPendingToBook: z.number(),
+  totalBookPayments: z.number(),
 });
 
 export const VendorOutstandingSiteSchema = z.looseObject({
@@ -103,6 +104,16 @@ export const VendorOutstandingUnbookedInvoiceSchema = z.looseObject({
   invoiceNumber: z.string(),
   invoiceDate: isoDateTimeField,
   totalAmount: z.number(),
+  taxableAmount: z.number(),
+  gstAmount: z.number(),
+  gstPercentage: z.number(),
+  tdsAmount: z.number(),
+  tdsPercentage: z.number().optional(),
+  isGstHold: z.boolean(),
+  netPayableAmount: z.number(),
+  bookedTotal: z.number().optional(),
+  paidTotal: z.number().optional(),
+  pendingToBook: z.number(),
   jmc: VendorOutstandingJmcSchema,
   po: VendorOutstandingPoSchema,
   site: VendorOutstandingSiteSchema,
@@ -119,6 +130,7 @@ export const VendorOutstandingGetBaseResponseSchema = z.looseObject({
 export const VendorOutstandingGetStatsResponseSchema = z.looseObject({
   totalPaymentAmount: z.number(),
   totalPendingToBook: z.number(),
+  totalBookPayments: z.number(),
 });
 
 export const VendorOutstandingGetResponseSchema = z.looseObject({

@@ -43,6 +43,9 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
   loading = input(false);
   recordCount = input(0);
   totalPendingAmount = input(0);
+  totalPendingToBook = input<number | null>(null);
+  totalBookPayments = input<number | null>(null);
+  vendorSummaryStats = input(false);
   showSearch = input(true);
   searchPlaceholder = input('Search...');
 
@@ -53,6 +56,25 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
       this.sourceType(),
       this.sectionContext()
     )
+  );
+
+  protected readonly showVendorSummaryStats = computed(() =>
+    this.vendorSummaryStats()
+  );
+
+  protected readonly pendingToBookTransactionType = computed(() => {
+    const amount = this.totalPendingToBook() ?? 0;
+    if (amount > 0) {
+      return 'debit';
+    }
+    if (amount < 0) {
+      return 'credit';
+    }
+    return null;
+  });
+
+  protected readonly bookPaymentsCount = computed(
+    () => this.totalBookPayments() ?? 0
   );
 
   protected readonly searchTerm = signal('');
@@ -93,6 +115,10 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
     const label = count === 1 ? unit : `${unit}s`;
 
     return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+
+  protected bookPaymentsCountLabel(): string {
+    return this.bookPaymentsCount() === 1 ? 'Booking' : 'Bookings';
   }
 
   protected onSearchFieldChange(value: unknown): void {

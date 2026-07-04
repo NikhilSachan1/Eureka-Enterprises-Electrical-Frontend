@@ -7,6 +7,7 @@ import {
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   input,
@@ -41,9 +42,14 @@ import {
 import {
   IVendorBookPaymentTableRow,
   IVendorInvoiceOutstandingGroup,
+  IVendorOutstandingInvoiceViewType,
+  IVendorOutstandingUnbookedInvoice,
   IVendorOutstandingVendorGroup,
 } from '../../types/vendor-outstanding.interface';
-import { buildVendorOutstandingInvoiceAmountSegments } from '../../utils/vendor-book-payment-amount.util';
+import {
+  buildVendorOutstandingInvoiceAmountSegments,
+  mapVendorOutstandingUnbookedInvoiceToSummary,
+} from '../../utils/vendor-book-payment-amount.util';
 
 type IVendorOutstandingBookPayment =
   IVendorOutstandingGetBaseResponseDto['bookPayments'][number];
@@ -92,6 +98,18 @@ export class GetVendorOutstandingComponent implements OnInit {
   private readonly selectionsByTableId = signal<
     Record<string, IVendorBookPaymentTableRow[]>
   >({});
+
+  protected readonly sectionTotalBookPayments = computed(() => {
+    const fromSummary = this.summary()?.totalBookPayments;
+    if (fromSummary !== null && fromSummary !== undefined) {
+      return fromSummary;
+    }
+
+    return this.vendorGroups().reduce(
+      (total, group) => total + this.vendorBookPaymentsCount(group),
+      0
+    );
+  });
 
   ngOnInit(): void {
     this.loadVendorOutstandingList();
@@ -142,20 +160,39 @@ export class GetVendorOutstandingComponent implements OnInit {
     );
   }
 
-  protected paymentCountLabel(count: number): string {
-    return count === 1 ? '1 booking' : `${count} bookings`;
+  protected uniqueInvoiceCount(group: IVendorOutstandingVendorGroup): number {
+    return new Set(group.invoiceGroups.map(invoice => invoice.invoiceId)).size;
+  }
+
+  protected vendorBookPaymentsCount(
+    group: IVendorOutstandingVendorGroup
+  ): number {
+    return group.vendorSummary.totalBookPayments ?? this.totalBookings(group);
   }
 
   protected totalBookings(group: IVendorOutstandingVendorGroup): number {
     return group.invoiceGroups.reduce(
-      (total, invoice) => total + invoice.bookPayments.length,
+      (total, invoice) =>
+        invoice.viewType === 'booked'
+          ? total + invoice.bookPayments.length
+          : total,
       0
     );
+  }
+
+  protected invoiceViewLabel(
+    viewType: IVendorOutstandingInvoiceViewType
+  ): string {
+    return viewType === 'booked' ? 'Booked' : 'Unbooked';
   }
 
   protected invoiceAmountSegments(
     invoice: IVendorInvoiceOutstandingGroup
   ): IDocAmountSegment[] {
+    if (!invoice.invoice) {
+      return [];
+    }
+
     return buildVendorOutstandingInvoiceAmountSegments(invoice.invoice);
   }
 
@@ -233,17 +270,14 @@ export class GetVendorOutstandingComponent implements OnInit {
   private mapVendorGroup(
     record: IVendorOutstandingGetBaseResponseDto
   ): IVendorOutstandingVendorGroup {
-    const { vendor, vendorSummary, bookPayments } = record;
-    const invoiceGroups = this.buildVendorInvoiceGroups(
-      bookPayments,
-      vendor.id
-    ).map(group => ({
-      ...group,
-      opsTable: this.createBookPaymentsTable(
-        group.bookPayments,
-        this.excludedBookPaymentIds()
-      ),
-    }));
+    const { vendor, vendorSummary, bookPayments, unbookedInvoices } = record;
+    const excludedBookPaymentIds = this.excludedBookPaymentIds();
+    const bookedGroups = this.buildVendorInvoiceGroups(bookPayments, vendor.id);
+    const invoiceGroups = this.buildVendorOutstandingInvoiceViews(
+      bookedGroups,
+      unbookedInvoices,
+      excludedBookPaymentIds
+    );
 
     return {
       id: vendor.id,
@@ -251,6 +285,97 @@ export class GetVendorOutstandingComponent implements OnInit {
       location: [vendor.city, vendor.state].filter(Boolean).join(', '),
       vendorSummary,
       invoiceGroups,
+    };
+  }
+
+  private buildVendorOutstandingInvoiceViews(
+    bookedGroups: Omit<IVendorInvoiceOutstandingGroup, 'opsTable'>[],
+    unbookedInvoices: IVendorOutstandingUnbookedInvoice[],
+    excludedBookPaymentIds: ReadonlySet<string>
+  ): IVendorInvoiceOutstandingGroup[] {
+    const invoiceViews: IVendorInvoiceOutstandingGroup[] = [];
+    const bookedInvoiceIds = new Set<string>();
+
+    for (const group of bookedGroups) {
+      bookedInvoiceIds.add(group.invoiceId);
+      const hasBookedData =
+        group.bookPayments.length > 0 ||
+        Number(group.invoice?.bookedTotal ?? 0) > 0;
+      const pendingToBook = Number(group.invoice?.pendingToBook ?? 0);
+
+      if (hasBookedData) {
+        invoiceViews.push(
+          this.toInvoiceOutstandingView(group, 'booked', excludedBookPaymentIds)
+        );
+      }
+
+      if (pendingToBook > 0) {
+        invoiceViews.push(
+          this.toInvoiceOutstandingView(
+            group,
+            'unbooked',
+            excludedBookPaymentIds
+          )
+        );
+      }
+    }
+
+    for (const unbookedInvoice of unbookedInvoices) {
+      if (!bookedInvoiceIds.has(unbookedInvoice.id)) {
+        invoiceViews.push(
+          this.toUnbookedOnlyInvoiceView(
+            unbookedInvoice,
+            excludedBookPaymentIds
+          )
+        );
+      }
+    }
+
+    return invoiceViews;
+  }
+
+  private toInvoiceOutstandingView(
+    group: Omit<IVendorInvoiceOutstandingGroup, 'opsTable'>,
+    viewType: IVendorOutstandingInvoiceViewType,
+    excludedBookPaymentIds: ReadonlySet<string>
+  ): IVendorInvoiceOutstandingGroup {
+    const bookPayments = viewType === 'booked' ? group.bookPayments : [];
+
+    return {
+      ...group,
+      id: `${group.invoiceId}-${viewType}`,
+      viewType,
+      bookPayments,
+      opsTable: this.createBookPaymentsTable(
+        bookPayments,
+        excludedBookPaymentIds
+      ),
+    };
+  }
+
+  private toUnbookedOnlyInvoiceView(
+    unbookedInvoice: IVendorOutstandingUnbookedInvoice,
+    excludedBookPaymentIds: ReadonlySet<string>
+  ): IVendorInvoiceOutstandingGroup {
+    return {
+      id: `${unbookedInvoice.id}-unbooked`,
+      invoiceId: unbookedInvoice.id,
+      viewType: 'unbooked',
+      invoiceNumber: unbookedInvoice.invoiceNumber,
+      invoiceDate: unbookedInvoice.invoiceDate,
+      companyName: unbookedInvoice.company?.name ?? '',
+      siteName: unbookedInvoice.site?.name ?? '',
+      siteLocation: [unbookedInvoice.site?.city, unbookedInvoice.site?.state]
+        .filter(Boolean)
+        .join(', '),
+      invoice: mapVendorOutstandingUnbookedInvoiceToSummary(unbookedInvoice),
+      documentReferenceHierarchy:
+        DocReferenceHierarchy.forInvoiceOrJmcParentRow({
+          poNumber: unbookedInvoice.po?.poNumber,
+          jmcNumber: unbookedInvoice.jmc?.jmcNumber,
+        }),
+      bookPayments: [],
+      opsTable: this.createBookPaymentsTable([], excludedBookPaymentIds),
     };
   }
 
@@ -294,6 +419,8 @@ export class GetVendorOutstandingComponent implements OnInit {
       if (!group) {
         group = {
           id: invoiceId,
+          invoiceId,
+          viewType: 'booked',
           invoiceNumber: bookPayment.invoice.invoiceNumber,
           invoiceDate: bookPayment.invoice.invoiceDate,
           companyName: bookPayment.company?.name ?? '',

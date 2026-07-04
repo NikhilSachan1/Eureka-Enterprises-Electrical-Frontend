@@ -2,6 +2,7 @@ import type { IDocAmountSegment } from '@features/site-management/doc-management
 import { buildInvoiceTaxGstAmountSegments } from '@features/site-management/doc-management/sub-features/invoice-management/utils/invoice-table-row.util';
 import { EDataType } from '@shared/types';
 import type { IVendorOutstandingGetBaseResponseDto } from '../types/vendor-outstanding.dto';
+import type { IVendorOutstandingUnbookedInvoice } from '../types/vendor-outstanding.interface';
 
 type IVendorOutstandingBookPayment =
   IVendorOutstandingGetBaseResponseDto['bookPayments'][number];
@@ -57,4 +58,25 @@ export function buildVendorOutstandingInvoiceAmountSegments(
   }
 
   return segments;
+}
+
+export function mapVendorOutstandingUnbookedInvoiceToSummary(
+  unbookedInvoice: IVendorOutstandingUnbookedInvoice
+): IVendorOutstandingBookPaymentInvoice {
+  return {
+    id: unbookedInvoice.id,
+    invoiceNumber: unbookedInvoice.invoiceNumber,
+    invoiceDate: unbookedInvoice.invoiceDate,
+    totalAmount: unbookedInvoice.totalAmount,
+    taxableAmount: unbookedInvoice.taxableAmount,
+    gstAmount: unbookedInvoice.gstAmount,
+    gstPercentage: unbookedInvoice.gstPercentage,
+    tdsAmount: unbookedInvoice.tdsAmount,
+    tdsPercentage: unbookedInvoice.tdsPercentage,
+    isGstHold: unbookedInvoice.isGstHold,
+    netPayableAmount: unbookedInvoice.netPayableAmount,
+    bookedTotal: unbookedInvoice.bookedTotal ?? 0,
+    paidTotal: unbookedInvoice.paidTotal,
+    pendingToBook: unbookedInvoice.pendingToBook,
+  };
 }

@@ -36,36 +36,86 @@
         }
       </div>
 
-      <div
-        class="outstanding-section__stat outstanding-section__stat--amount"
-        [class.outstanding-section__stat--debit]="pendingTransactionType() === 'debit'"
-        [class.outstanding-section__stat--credit]="pendingTransactionType() === 'credit'"
-      >
-        @if (!loading()) {
-          <span
-            class="outstanding-section__stat-value"
-            aria-label="Total pending amount"
-          >
-            {{
-              totalPendingAmount()
-                | currency
-                  : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
-                  : 'symbol'
-                  : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
-                  : APP_CONFIG.NUMBER_FORMATS.LOCALE
-            }}
-          </span>
-          <span class="outstanding-section__stat-label">Pending</span>
-        } @else {
-          <span
-            class="outstanding-section__stat-loader"
-            role="status"
-            aria-label="Loading total pending amount"
-          >
-            <i [class]="ICONS.COMMON.SPINNER + ' pi-spin'"></i>
-          </span>
-        }
-      </div>
+      @if (showVendorSummaryStats()) {
+        <div
+          class="outstanding-section__stat outstanding-section__stat--amount"
+          [class.outstanding-section__stat--debit]="pendingToBookTransactionType() === 'debit'"
+          [class.outstanding-section__stat--credit]="pendingToBookTransactionType() === 'credit'"
+        >
+          @if (!loading()) {
+            <span
+              class="outstanding-section__stat-value"
+              aria-label="Total pending to book amount"
+            >
+              {{
+                totalPendingToBook() ?? 0
+                  | currency
+                    : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                    : 'symbol'
+                    : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                    : APP_CONFIG.NUMBER_FORMATS.LOCALE
+              }}
+            </span>
+            <span class="outstanding-section__stat-label">Pending</span>
+          } @else {
+            <span
+              class="outstanding-section__stat-loader"
+              role="status"
+              aria-label="Loading total pending to book amount"
+            >
+              <i [class]="ICONS.COMMON.SPINNER + ' pi-spin'"></i>
+            </span>
+          }
+        </div>
+
+        <div class="outstanding-section__stat">
+          @if (!loading()) {
+            <span class="outstanding-section__stat-value">{{ bookPaymentsCount() }}</span>
+            <span class="outstanding-section__stat-label">
+              {{ bookPaymentsCountLabel() }}
+            </span>
+          } @else {
+            <span
+              class="outstanding-section__stat-loader"
+              role="status"
+              aria-label="Loading total bookings count"
+            >
+              <i [class]="ICONS.COMMON.SPINNER + ' pi-spin'"></i>
+            </span>
+          }
+        </div>
+      } @else {
+        <div
+          class="outstanding-section__stat outstanding-section__stat--amount"
+          [class.outstanding-section__stat--debit]="pendingTransactionType() === 'debit'"
+          [class.outstanding-section__stat--credit]="pendingTransactionType() === 'credit'"
+        >
+          @if (!loading()) {
+            <span
+              class="outstanding-section__stat-value"
+              aria-label="Total pending amount"
+            >
+              {{
+                totalPendingAmount()
+                  | currency
+                    : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                    : 'symbol'
+                    : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                    : APP_CONFIG.NUMBER_FORMATS.LOCALE
+              }}
+            </span>
+            <span class="outstanding-section__stat-label">Pending</span>
+          } @else {
+            <span
+              class="outstanding-section__stat-loader"
+              role="status"
+              aria-label="Loading total pending amount"
+            >
+              <i [class]="ICONS.COMMON.SPINNER + ' pi-spin'"></i>
+            </span>
+          }
+        </div>
+      }
     </div>
   </header>
 
