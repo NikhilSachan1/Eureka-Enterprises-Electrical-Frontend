@@ -36,7 +36,7 @@ export const AttendanceCurrentStatusGetResponseSchema = z.looseObject({
   status: status.nullable(),
   approvalStatus: approvalStatus.nullable(),
   workDuration,
-  user: UserSchema,
+  user: UserSchema.nullable(),
   company: companySchema,
   contractors: contractorsSchema,
   vehicle: vehicleSchema,
