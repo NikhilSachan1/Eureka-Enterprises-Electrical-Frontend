@@ -21,7 +21,7 @@ import {
   EPaymentOutstandingSourceType,
   getPaymentOutstandingSourceSectionMeta,
 } from '../../config/payment-outstanding-source-section.config';
-import type { IVendorSectionSummaryStat } from '../../types/payment-outstanding-section.interface';
+import type { IVendorSectionSummaryStatGroup } from '../../types/payment-outstanding-section.interface';
 
 @Component({
   selector: 'app-payment-outstanding-section',
@@ -79,27 +79,43 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
     () => this.totalBookPayments() ?? 0
   );
 
-  protected readonly vendorSummaryStatItems = computed(
-    (): IVendorSectionSummaryStat[] => [
+  protected readonly vendorSummaryStatGroups = computed(
+    (): IVendorSectionSummaryStatGroup[] => [
       {
-        kind: 'currency',
-        value: this.totalPendingToBook() ?? 0,
-        label: 'To be booked',
-        ariaLabel: 'Total amount to be booked',
-        tone: (this.totalPendingToBook() ?? 0) > 0 ? 'to-book' : null,
+        title: 'Overview',
+        stats: [
+          {
+            kind: 'count',
+            value: this.recordCount(),
+            label: this.recordCountUnitLabel(),
+            ariaLabel: 'Total vendor count',
+          },
+          {
+            kind: 'count',
+            value: this.bookPaymentsCount(),
+            label: this.bookPaymentsCountLabel(),
+            ariaLabel: 'Total bookings count',
+          },
+        ],
       },
       {
-        kind: 'count',
-        value: this.bookPaymentsCount(),
-        label: this.bookPaymentsCountLabel(),
-        ariaLabel: 'Total bookings count',
-      },
-      {
-        kind: 'currency',
-        value: this.totalBookedAmount() ?? 0,
-        label: 'Booked',
-        ariaLabel: 'Total booked amount payable',
-        tone: this.bookedAmountTransactionType(),
+        title: 'Payables',
+        stats: [
+          {
+            kind: 'currency',
+            value: this.totalPendingToBook() ?? 0,
+            label: 'To be booked',
+            ariaLabel: 'Total amount to be booked',
+            tone: (this.totalPendingToBook() ?? 0) > 0 ? 'to-book' : null,
+          },
+          {
+            kind: 'currency',
+            value: this.totalBookedAmount() ?? 0,
+            label: 'Booked',
+            ariaLabel: 'Total booked amount payable',
+            tone: this.bookedAmountTransactionType(),
+          },
+        ],
       },
     ]
   );

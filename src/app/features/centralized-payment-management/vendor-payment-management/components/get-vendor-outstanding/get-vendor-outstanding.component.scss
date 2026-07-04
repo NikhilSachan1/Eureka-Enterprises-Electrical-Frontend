@@ -51,7 +51,7 @@
 
 .vendor-card__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   padding: 0 0 0.85rem;
@@ -60,6 +60,42 @@
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+}
+
+.vendor-card__identity {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.vendor-card__summary {
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  gap: 0.65rem;
+}
+
+.vendor-card__summary-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+
+  &--payables {
+    .vendor-card__stats {
+      border-color: color-mix(in srgb, #dc2626 16%, var(--vo-border));
+      background: color-mix(in srgb, #dc2626 3%, var(--vo-card-bg));
+    }
+  }
+}
+
+.vendor-card__summary-block-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vo-muted);
+  padding-left: 0.1rem;
 }
 
 .vendor-card__name {
@@ -218,6 +254,37 @@
   min-width: 0;
 }
 
+.invoice-card__invoice-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.invoice-card__status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &--booked {
+    color: #047857;
+    background: color-mix(in srgb, #10b981 14%, var(--vo-card-bg));
+    border: 1px solid color-mix(in srgb, #10b981 28%, transparent);
+  }
+
+  &--unbooked {
+    color: #b45309;
+    background: color-mix(in srgb, #f59e0b 14%, var(--vo-card-bg));
+    border: 1px solid color-mix(in srgb, #f59e0b 28%, transparent);
+  }
+}
+
 .invoice-card__kicker {
   font-size: 0.58rem;
   font-weight: 700;
@@ -346,46 +413,53 @@
   }
 }
 
-.invoice-card__ledger-head {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem 0.35rem;
-  background: color-mix(in srgb, var(--primary-color) 3%, var(--vo-card-bg));
-  border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 60%, transparent);
+.invoice-card__amount-board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 75%, transparent);
+  background: var(--vo-card-bg);
 }
 
-.invoice-card__ledger-head-label {
+.invoice-card__amount-section-title {
+  margin: 0;
+  padding: 0.45rem 0.55rem 0.35rem;
   font-size: 0.625rem;
   font-weight: 700;
   line-height: 1.2;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: color-mix(in srgb, var(--vo-muted) 90%, var(--primary-color));
-}
+  color: color-mix(in srgb, var(--vo-muted) 88%, var(--primary-color));
+  border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 60%, transparent);
+  background: color-mix(in srgb, var(--primary-color) 3%, var(--vo-card-bg));
+  grid-row: 1;
 
-.invoice-card__ledger {
-  display: flex;
-  align-items: stretch;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  background: var(--vo-card-bg);
-  border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 75%, transparent);
+  &--left {
+    grid-column: 1 / 3;
+  }
+
+  &--right {
+    grid-column: 3 / 5;
+    background: color-mix(in srgb, var(--primary-color) 4%, var(--vo-card-bg));
+  }
 }
 
 .invoice-card__metric {
   display: flex;
-  flex: 1 1 0;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 0.18rem;
-  min-width: 5.5rem;
-  padding: 0.7rem 0.45rem;
-  text-align: center;
-  border-right: 1px solid color-mix(in srgb, var(--vo-border) 60%, transparent);
+  gap: 0.16rem;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--vo-border) 70%, transparent);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--vo-card-bg) 92%, var(--primary-color) 8%);
 
-  &:last-child {
-    border-right: 0;
+  &--payment-col {
+    background: color-mix(in srgb, var(--vo-card-bg) 88%, var(--primary-color) 12%);
   }
 
   &--taxable .invoice-card__metric-value {
@@ -465,6 +539,23 @@
   white-space: nowrap;
 }
 
+.invoice-card__bookings-head {
+  display: flex;
+  align-items: center;
+  padding: 0.55rem 0.85rem 0.4rem;
+  background: color-mix(in srgb, var(--primary-color) 3%, var(--vo-card-bg));
+  border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 60%, transparent);
+}
+
+.invoice-card__bookings-head-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--vo-muted) 90%, var(--primary-color));
+}
+
 .invoice-card__bookings {
   ::ng-deep .data-table-panel {
     border: 0 !important;
@@ -498,44 +589,20 @@
     }
   }
 
-  .invoice-card__ledger {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.65rem 0.85rem;
-    padding: 0.7rem 0.85rem;
-    overflow: visible;
+  .invoice-card__amount-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .invoice-card__metric {
-    flex: unset;
-    min-width: 0;
-    align-items: flex-start;
-    gap: 0.2rem;
-    padding: 0;
-    text-align: left;
-    border: 0;
-
-    &:last-child {
-      border-right: 0;
+  .invoice-card__amount-section-title {
+    &--left,
+    &--right {
+      grid-column: 1 / -1;
     }
   }
 
-  .invoice-card__metric-label {
-    font-size: 0.58rem;
-    letter-spacing: 0.03em;
-    white-space: normal;
-    line-height: 1.25;
-  }
-
-  .invoice-card__metric-value {
-    font-size: 0.78rem;
-    white-space: normal;
-    word-break: break-word;
-  }
-
-  .invoice-card__metric-note {
-    white-space: normal;
-    line-height: 1.2;
+  .invoice-card__metric {
+    grid-column: auto !important;
+    grid-row: auto !important;
   }
 }
 
@@ -550,6 +617,11 @@
     align-items: stretch;
     gap: 0.75rem;
     padding-bottom: 0.75rem;
+  }
+
+  .vendor-card__summary {
+    flex-direction: column;
+    width: 100%;
   }
 
   .vendor-card__name {
@@ -578,25 +650,9 @@
   .invoice-card__summary-panel {
     padding: 0.7rem 0.75rem;
   }
-
-  .invoice-card__ledger-head {
-    padding-inline: 0.75rem;
-  }
-
-  .invoice-card__ledger {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.55rem 0.75rem;
-    padding: 0.65rem 0.75rem;
-  }
 }
 
 @media (max-width: 420px) {
-  .invoice-card__ledger {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-    padding: 0.6rem 0.75rem;
-  }
-
   .invoice-card__metric {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -604,22 +660,11 @@
     align-items: center;
     column-gap: 0.5rem;
     row-gap: 0.12rem;
-    border-right: 0 !important;
-    border-bottom: 1px solid color-mix(in srgb, var(--vo-border) 60%, transparent) !important;
-
-    &:last-child {
-      border-bottom: 0 !important;
-    }
-
-    &:last-child:nth-child(odd) {
-      grid-column: auto;
-    }
   }
 
   .invoice-card__metric-label {
     grid-column: 1;
     grid-row: 1;
-    padding-right: 0;
   }
 
   .invoice-card__metric-value {

@@ -55,6 +55,37 @@
   color: var(--text-secondary-color);
 }
 
+.outstanding-section__stats-groups {
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  gap: 0.65rem;
+}
+
+.outstanding-section__stats-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+
+  &--payables {
+    .outstanding-section__stats {
+      border-color: color-mix(in srgb, #dc2626 18%, var(--os-border));
+      background: color-mix(in srgb, #dc2626 3%, var(--background-paper-color));
+    }
+  }
+}
+
+.outstanding-section__stats-group-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary-color);
+  padding-left: 0.15rem;
+}
+
 .outstanding-section__stats {
   display: flex;
   align-items: stretch;
@@ -153,6 +184,11 @@
   .outstanding-section__head {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .outstanding-section__stats-groups {
+    flex-direction: column;
+    width: 100%;
   }
 
   .outstanding-section__stats {

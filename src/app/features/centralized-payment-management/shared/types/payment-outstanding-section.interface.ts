@@ -7,3 +7,8 @@ export interface IVendorSectionSummaryStat {
   ariaLabel: string;
   tone?: 'debit' | 'credit' | 'to-book' | null;
 }
+
+export interface IVendorSectionSummaryStatGroup {
+  title: string;
+  stats: IVendorSectionSummaryStat[];
+}

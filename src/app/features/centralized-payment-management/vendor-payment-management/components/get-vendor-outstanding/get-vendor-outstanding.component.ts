@@ -122,6 +122,20 @@ export class GetVendorOutstandingComponent implements OnInit {
     Record<string, IVendorBookPaymentTableRow[]>
   >({});
 
+  private readonly invoiceBreakdownLabels = new Set([
+    'Taxable',
+    'TDS',
+    'GST',
+    'Total',
+  ]);
+
+  private readonly invoicePaymentLabels = new Set([
+    'Net payable',
+    'Booked',
+    'To be booked',
+    'Paid',
+  ]);
+
   ngOnInit(): void {
     this.loadVendorOutstandingList();
   }
@@ -196,7 +210,7 @@ export class GetVendorOutstandingComponent implements OnInit {
     );
   }
 
-  protected vendorCardStats(
+  protected vendorOverviewStats(
     group: IVendorOutstandingVendorGroup
   ): IVendorCardSummaryStat[] {
     const { vendorSummary } = group;
@@ -211,18 +225,27 @@ export class GetVendorOutstandingComponent implements OnInit {
         label: this.pluralizeStatLabel(invoiceCount, 'Invoice', 'Invoices'),
       },
       {
-        kind: 'currency',
-        value: vendorSummary.totalPendingToBook,
-        label: 'To be booked',
-        showToBook: vendorSummary.totalPendingToBook > 0,
-      },
-      {
         kind: 'count',
         value: vendorSummary.totalBookPayments,
         label: this.pluralizeStatLabel(
           vendorSummary.totalBookPayments,
           'Booking'
         ),
+      },
+    ];
+  }
+
+  protected vendorPayableStats(
+    group: IVendorOutstandingVendorGroup
+  ): IVendorCardSummaryStat[] {
+    const { vendorSummary } = group;
+
+    return [
+      {
+        kind: 'currency',
+        value: vendorSummary.totalPendingToBook,
+        label: 'To be booked',
+        showToBook: vendorSummary.totalPendingToBook > 0,
       },
       {
         kind: 'currency',
@@ -231,6 +254,27 @@ export class GetVendorOutstandingComponent implements OnInit {
         showDebit: vendorSummary.totalNetPayableAmount > 0,
       },
     ];
+  }
+
+  protected invoiceAmountSectionGroups(
+    invoice: IVendorInvoiceOutstandingGroup
+  ): { title: string; segments: IDocAmountSegment[] }[] {
+    const segments = this.invoiceAmountSegments(invoice);
+
+    return [
+      {
+        title: 'Invoice breakdown',
+        segments: segments.filter(segment =>
+          this.invoiceBreakdownLabels.has(segment.label)
+        ),
+      },
+      {
+        title: 'Booking & payment',
+        segments: segments.filter(segment =>
+          this.invoicePaymentLabels.has(segment.label)
+        ),
+      },
+    ].filter(section => section.segments.length > 0);
   }
 
   protected invoiceViewLabel(
@@ -299,6 +343,17 @@ export class GetVendorOutstandingComponent implements OnInit {
       segment.value !== undefined &&
       segment.value !== ''
     );
+  }
+
+  protected amountMetricGridColumn(
+    sectionIndex: number,
+    metricIndex: number
+  ): number {
+    return sectionIndex * 2 + (metricIndex % 2) + 1;
+  }
+
+  protected amountMetricGridRow(metricIndex: number): number {
+    return Math.floor(metricIndex / 2) + 2;
   }
 
   private loadVendorOutstandingList(): void {
