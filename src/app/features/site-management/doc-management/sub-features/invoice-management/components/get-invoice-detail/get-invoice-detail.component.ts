@@ -130,9 +130,9 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
         value: {
           taxableAmount: record.taxableAmount,
           tdsAmount: record.tdsAmount,
-          tdsPercentage: `(${record.tdsPercentage}%)`,
+          tdsPercentage: record.tdsPercentage,
           gstAmount: record.gstAmount,
-          gstPercentage: `${record.gstPercentage}%`,
+          gstPercentage: record.gstPercentage,
           isGstHold: record.isGstHold,
           totalAmount: record.totalAmount,
         },
@@ -193,12 +193,12 @@ export class GetInvoiceDetailComponent extends DrawerDetailBase {
   }
 
   protected docInvoiceDrawerTaxGstSegments(v: {
-    taxableAmount: string;
-    tdsAmount: string;
-    tdsPercentage: string;
-    gstAmount: string;
-    totalAmount: string;
-    gstPercentage: string;
+    taxableAmount: string | null;
+    tdsAmount: string | null;
+    tdsPercentage: string | number | null;
+    gstAmount: string | null;
+    totalAmount: string | null;
+    gstPercentage: string | number | null;
     isGstHold?: boolean;
   }): IDocAmountSegment[] {
     return buildInvoiceTaxGstAmountSegments({

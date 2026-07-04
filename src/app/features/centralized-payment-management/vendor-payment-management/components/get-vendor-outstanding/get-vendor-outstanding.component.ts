@@ -21,6 +21,7 @@ import { DocReferenceComponent } from '@features/site-management/doc-management/
 import type { IDocAmountSegment } from '@features/site-management/doc-management/shared/types/doc-amount.interface';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { PaginatorComponent } from '@shared/components/paginator/paginator.component';
 import { ICONS } from '@shared/constants';
 import { TableService } from '@shared/services';
@@ -52,6 +53,7 @@ type IVendorOutstandingBookPayment =
   imports: [
     PaymentOutstandingSectionComponent,
     DataTableComponent,
+    EmptyMessagesComponent,
     PaginatorComponent,
     DocReferenceComponent,
     CurrencyPipe,
@@ -87,7 +89,6 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected readonly paginationRows = signal(
     APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE
   );
-  protected readonly emptyBookPaymentsTable = this.createBookPaymentsTable();
   private readonly selectionsByTableId = signal<
     Record<string, IVendorBookPaymentTableRow[]>
   >({});
@@ -199,7 +200,9 @@ export class GetVendorOutstandingComponent implements OnInit {
       .subscribe({
         next: (response: IVendorOutstandingGetResponseDto) => {
           const { records, summary, totalRecords } = response;
-          const groups = records.map(record => this.mapVendorGroup(record));
+          const groups = records
+            .map(record => this.mapVendorGroup(record))
+            .filter(group => group.invoiceGroups.length > 0);
 
           this.clearSelections();
           this.vendorGroups.set(groups);

@@ -86,28 +86,52 @@ function formatInvoicePercentSuffix(
   return raw.startsWith('(') ? raw : `(${raw.replace(/%$/, '')}%)`;
 }
 
+function shouldShowInvoiceAmountSegment(
+  value: string | number | null | undefined
+): boolean {
+  return value !== null && String(value).trim() !== '';
+}
+
+function buildInvoiceAmountEmptyPlaceholderSegment(): IDocAmountSegment {
+  return {
+    dataType: EDataType.CURRENCY,
+    label: '',
+    value: null,
+  };
+}
+
 export function buildInvoiceTaxGstAmountSegments(input: {
-  taxableAmount: string;
-  tdsAmount: string;
-  tdsPercentage: string | number;
-  gstAmount: string;
-  gstPercentage: string | number;
-  totalAmount: string;
+  taxableAmount: string | null;
+  tdsAmount: string | null;
+  tdsPercentage: string | number | null;
+  gstAmount: string | null;
+  gstPercentage: string | number | null;
+  totalAmount: string | null;
   isGstHold?: boolean | null;
 }): IDocAmountSegment[] {
-  return [
-    {
-      dataType: EDataType.CURRENCY,
-      label: 'Taxable',
-      value: input.taxableAmount,
-    },
-    {
+  if (!shouldShowInvoiceAmountSegment(input.taxableAmount)) {
+    return [buildInvoiceAmountEmptyPlaceholderSegment()];
+  }
+
+  const segments: IDocAmountSegment[] = [];
+
+  segments.push({
+    dataType: EDataType.CURRENCY,
+    label: 'Taxable',
+    value: input.taxableAmount,
+  });
+
+  if (shouldShowInvoiceAmountSegment(input.tdsAmount)) {
+    segments.push({
       dataType: EDataType.CURRENCY,
       label: 'TDS',
       value: input.tdsAmount,
       suffix: formatInvoicePercentSuffix(input.tdsPercentage),
-    },
-    {
+    });
+  }
+
+  if (shouldShowInvoiceAmountSegment(input.gstAmount)) {
+    segments.push({
       dataType: EDataType.CURRENCY,
       label: 'GST',
       value: input.gstAmount,
@@ -115,13 +139,18 @@ export function buildInvoiceTaxGstAmountSegments(input: {
         formatInvoicePercentSuffix(input.gstPercentage),
         input.isGstHold
       ),
-    },
-    {
+    });
+  }
+
+  if (shouldShowInvoiceAmountSegment(input.totalAmount)) {
+    segments.push({
       dataType: EDataType.CURRENCY,
       label: 'Total',
       value: input.totalAmount,
-    },
-  ];
+    });
+  }
+
+  return segments;
 }
 
 export function shouldDisableInvoiceEditOrDelete(

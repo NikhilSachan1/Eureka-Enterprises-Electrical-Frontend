@@ -172,18 +172,20 @@ export class GetInvoiceComponent implements OnInit {
   protected docInvoiceBookedPaidSegments(row: IInvoice): IDocAmountSegment[] {
     const isSales = this.docRouteContext() === EDocContext.SALES;
     const segments: IDocAmountSegment[] = [];
-    if (!isSales) {
+    if (!isSales && row.bookedTotal !== null) {
       segments.push({
         dataType: EDataType.CURRENCY,
         label: 'Booked',
         value: row.bookedTotal,
       });
     }
-    segments.push({
-      dataType: EDataType.CURRENCY,
-      label: 'Paid',
-      value: row.paidTotal,
-    });
+    if (row.paidTotal !== null) {
+      segments.push({
+        dataType: EDataType.CURRENCY,
+        label: 'Paid',
+        value: row.paidTotal,
+      });
+    }
     return segments;
   }
 
@@ -232,8 +234,8 @@ export class GetInvoiceComponent implements OnInit {
         invoiceNumber: record.invoiceNumber ?? 'No Invoice',
         taxableAmount: record.taxableAmount,
         tdsAmount: record.tdsAmount,
-        tdsPercentage: `(${record.tdsPercentage}%)`,
-        gstPercentage: `(${record.gstPercentage}%)`,
+        tdsPercentage: record.tdsPercentage,
+        gstPercentage: record.gstPercentage,
         gstAmount: record.gstAmount,
         isGstHold: record.isGstHold,
         totalAmount: record.totalAmount,
@@ -333,12 +335,12 @@ export class GetInvoiceComponent implements OnInit {
   }
 
   protected docInvoiceDialogAmountSegments(value: {
-    taxableAmount: string;
-    tdsAmount: string;
-    tdsPercentage: string | number;
-    gstAmount: string;
-    gstPercentage: string | number;
-    totalAmount: string;
+    taxableAmount: string | null;
+    tdsAmount: string | null;
+    tdsPercentage: string | number | null;
+    gstAmount: string | null;
+    gstPercentage: string | number | null;
+    totalAmount: string | null;
     isGstHold?: boolean | null;
   }): IDocAmountSegment[] {
     return buildInvoiceTaxGstAmountSegments(value);

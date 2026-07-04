@@ -8,8 +8,9 @@ import {
 import { IVendorBookPaymentTableRow } from '../../types/vendor-outstanding.interface';
 
 export const VENDOR_OUTSTANDING_OPS_TABLE_CONFIG: Partial<IDataTableConfig> = {
-  emptyMessage: 'No book payments found for this vendor.',
-  emptyMessageDescription: 'Booked payment entries will appear here.',
+  emptyMessage: 'No bookings found for this invoice.',
+  emptyMessageDescription:
+    'Booked payment entries for this invoice will appear here.',
   enableServerSide: false,
   showPaginator: false,
   showViewModeToggle: false,
