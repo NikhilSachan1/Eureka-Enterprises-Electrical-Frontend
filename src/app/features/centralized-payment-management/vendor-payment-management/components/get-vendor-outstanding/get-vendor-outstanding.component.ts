@@ -277,12 +277,6 @@ export class GetVendorOutstandingComponent implements OnInit {
     ].filter(section => section.segments.length > 0);
   }
 
-  protected invoiceViewLabel(
-    viewType: IVendorOutstandingInvoiceViewType
-  ): string {
-    return viewType === 'booked' ? 'Booked' : 'Unbooked';
-  }
-
   protected openBookPaymentDialog(
     invoice: IVendorInvoiceOutstandingGroup
   ): void {

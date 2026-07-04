@@ -107,16 +107,7 @@
                           <i [class]="icons.COMMON.FILE"></i>
                         </div>
                         <div class="invoice-card__invoice-body">
-                          <div class="invoice-card__invoice-title-row">
-                            <span class="invoice-card__kicker">Invoice</span>
-                            <span
-                              class="invoice-card__status-badge"
-                              [class.invoice-card__status-badge--booked]="invoice.viewType === 'booked'"
-                              [class.invoice-card__status-badge--unbooked]="invoice.viewType === 'unbooked'"
-                            >
-                              {{ invoiceViewLabel(invoice.viewType) }}
-                            </span>
-                          </div>
+                          <span class="invoice-card__kicker">Invoice</span>
                           <h4 class="invoice-card__invoice-no">{{ invoice.invoiceNumber }}</h4>
                           <time class="invoice-card__invoice-date">
                             <i
