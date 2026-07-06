@@ -19,32 +19,28 @@ import { IEnhancedTable } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
-import {
-  EPaymentOutstandingSourceType,
-  isPaymentOutstandingRowSelectionDisabled,
-} from '../../../shared/config/payment-outstanding-source-section.config';
+import { isPaymentOutstandingRowSelectionDisabled } from '../../../shared/config/payment-outstanding-source-section.config';
 import { createExpenseOutstandingTableEnhancedConfig } from '../../config';
 import { ExpenseOutstandingService } from '../../services/expense-outstanding.service';
 import {
   IExpenseOutstandingGetBaseResponseDto,
   IExpenseOutstandingGetFormDto,
   IExpenseOutstandingGetResponseDto,
-  IExpenseOutstandingGetStatsResponseDto,
 } from '../../types/expense-outstanding.dto';
 import { IExpenseOutstanding } from '../../types/expense-outstanding.interface';
+import type { IOutstandingBalanceSectionSnapshot } from '@features/centralized-payment-management/outstanding-balance-management/types/outstanding-balance-summary.interface';
 
 @Component({
   selector: 'app-get-expense-outstanding',
   imports: [PaymentOutstandingSectionComponent, DataTableComponent],
   templateUrl: './get-expense-outstanding.component.html',
+  styleUrl: './get-expense-outstanding.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetExpenseOutstandingComponent implements OnInit {
   selectionChange = output<IExpenseOutstandingGetBaseResponseDto[]>();
+  sectionSummaryChange = output<IOutstandingBalanceSectionSnapshot>();
   excludedUserIds = input<ReadonlySet<string>>(new Set());
-
-  protected readonly EPaymentOutstandingSourceType =
-    EPaymentOutstandingSourceType;
 
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
@@ -59,11 +55,7 @@ export class GetExpenseOutstandingComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
 
-  protected readonly summary =
-    signal<IExpenseOutstandingGetStatsResponseDto | null>(null);
-  protected readonly totalRecords = signal(0);
   protected readonly searchTerm = signal('');
-
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
       createExpenseOutstandingTableEnhancedConfig()
@@ -120,15 +112,19 @@ export class GetExpenseOutstandingComponent implements OnInit {
 
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.summary.set(summary ?? null);
-          this.totalRecords.set(totalRecords);
+          this.sectionSummaryChange.emit({
+            totalRecords,
+            totalPendingAmount: summary?.totalPendingAmount ?? 0,
+          });
 
           this.logger.logUserAction('Expense outstanding records loaded');
         },
         error: error => {
           this.table.setData([]);
-          this.summary.set(null);
-          this.totalRecords.set(0);
+          this.sectionSummaryChange.emit({
+            totalRecords: 0,
+            totalPendingAmount: 0,
+          });
           this.logger.logUserAction(
             'Failed to load expense outstanding',
             error

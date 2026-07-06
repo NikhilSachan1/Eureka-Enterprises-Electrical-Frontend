@@ -1,11 +1,4 @@
 <app-payment-outstanding-section
-  [sourceType]="EPaymentOutstandingSourceType.VENDOR_PAYMENT"
-  [loading]="loading()"
-  [recordCount]="totalRecords()"
-  [vendorSummaryStats]="true"
-  [totalPendingToBook]="summary()?.totalPendingToBook ?? 0"
-  [totalBookPayments]="summary()?.totalBookPayments ?? 0"
-  [totalBookedAmount]="summary()?.totalNetPayableAmount ?? 0"
   searchPlaceholder="Search by vendor name"
   (searchChange)="onSearchChange($event)"
 >

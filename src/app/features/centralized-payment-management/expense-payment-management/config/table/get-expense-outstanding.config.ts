@@ -11,6 +11,7 @@ export const EXPENSE_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No expense outstanding record found.',
   emptyMessageDescription:
     'There are no pending expense reimbursements to be paid.',
+  showCheckbox: true,
 };
 
 export const EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =

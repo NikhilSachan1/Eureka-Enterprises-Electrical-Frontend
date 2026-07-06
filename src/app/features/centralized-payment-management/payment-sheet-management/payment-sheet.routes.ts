@@ -3,7 +3,6 @@ import { APP_PERMISSION } from '@core/constants';
 import { permissionGuard } from '@core/guards';
 import { ROUTES } from '@shared/constants';
 import { GetPaymentSheetDetailResolver } from './resolvers/get-payment-sheet-detail.resolver';
-import { PAYMENT_SHEET_DETAIL_ROUTE_PERMISSIONS } from './utils/payment-sheet-status.util';
 
 export const PAYMENT_SHEET_MANAGEMENT_ROUTES: Routes = [
   {
@@ -14,7 +13,7 @@ export const PAYMENT_SHEET_MANAGEMENT_ROUTES: Routes = [
       ),
     canActivate: [permissionGuard],
     data: {
-      permissions: [APP_PERMISSION.PAYMENT_SHEET.TABLE_VIEW],
+      permissions: [APP_PERMISSION.PAYMENT_SHEET.VIEW_LIST],
     },
   },
   {
@@ -25,7 +24,7 @@ export const PAYMENT_SHEET_MANAGEMENT_ROUTES: Routes = [
       ).then(m => m.GetPaymentSheetDetailComponent),
     canActivate: [permissionGuard],
     data: {
-      permissions: [...PAYMENT_SHEET_DETAIL_ROUTE_PERMISSIONS],
+      permissions: [APP_PERMISSION.PAYMENT_SHEET.VIEW_DETAIL],
     },
     resolve: {
       paymentSheetDetail: GetPaymentSheetDetailResolver,

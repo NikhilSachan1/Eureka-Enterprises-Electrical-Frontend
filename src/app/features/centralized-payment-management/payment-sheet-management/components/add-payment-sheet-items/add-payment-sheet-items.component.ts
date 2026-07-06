@@ -5,6 +5,7 @@ import {
   DestroyRef,
   inject,
   input,
+  model,
   OnInit,
   signal,
 } from '@angular/core';
@@ -16,6 +17,9 @@ import { GetFuelExpenseOutstandingComponent } from '@features/centralized-paymen
 import { IFuelExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/fuel-expense-payment-management/types/fuel-expense-outstanding.dto';
 import { GetVendorOutstandingComponent } from '@features/centralized-payment-management/vendor-payment-management/components/get-vendor-outstanding/get-vendor-outstanding.component';
 import { IVendorBookPaymentTableRow } from '@features/centralized-payment-management/vendor-payment-management/types/vendor-outstanding.interface';
+import { PaymentOutstandingSectionComponent } from '@features/centralized-payment-management/shared/components/payment-outstanding-section/payment-outstanding-section.component';
+import { EPaymentOutstandingSourceType } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
+import { getPaymentSourceTabLabel } from '@features/centralized-payment-management/shared/utils/payment-source-tab.util';
 import {
   ConfirmationDialogService,
   LoadingService,
@@ -35,6 +39,7 @@ import { buildPaymentSheetItemsFromOutstanding } from '../../utils/build-payment
 @Component({
   selector: 'app-add-payment-sheet-items',
   imports: [
+    PaymentOutstandingSectionComponent,
     GetExpenseOutstandingComponent,
     GetFuelExpenseOutstandingComponent,
     GetVendorOutstandingComponent,
@@ -68,6 +73,30 @@ export class AddPaymentSheetItemsComponent
   protected readonly selectedVendorBookPayments = signal<
     IVendorBookPaymentTableRow[]
   >([]);
+
+  protected readonly activeTabIndex = model(0);
+
+  protected readonly beneficiaryTabs = computed(() => [
+    {
+      value: EPaymentOutstandingSourceType.EXPENSE,
+      label: getPaymentSourceTabLabel(EPaymentOutstandingSourceType.EXPENSE),
+      badgeCount: this.selectedExpenseRecords().length,
+    },
+    {
+      value: EPaymentOutstandingSourceType.FUEL_EXPENSE,
+      label: getPaymentSourceTabLabel(
+        EPaymentOutstandingSourceType.FUEL_EXPENSE
+      ),
+      badgeCount: this.selectedFuelRecords().length,
+    },
+    {
+      value: EPaymentOutstandingSourceType.VENDOR_PAYMENT,
+      label: getPaymentSourceTabLabel(
+        EPaymentOutstandingSourceType.VENDOR_PAYMENT
+      ),
+      badgeCount: this.selectedVendorBookPayments().length,
+    },
+  ]);
 
   protected readonly excludedExpenseUserIds = computed(
     () =>

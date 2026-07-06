@@ -216,9 +216,23 @@ export class DataTableComponent {
 
   /**
    * Row selection checkbox column visibility.
+   * `showCheckbox: true` forces the column on; `false` hides it;
+   * otherwise it appears when at least one bulk action is visible.
    */
   protected showBulkSelectionCheckbox = computed(() => {
-    return this.tableConfig().showCheckbox;
+    const { showCheckbox } = this.tableConfig();
+
+    if (showCheckbox === false) {
+      return false;
+    }
+
+    if (showCheckbox === true) {
+      return true;
+    }
+
+    return this.bulkActionButtons().some(action =>
+      this.isActionVisible(action)
+    );
   });
 
   /** Bulk action bar only when at least one bulk action is visible. */

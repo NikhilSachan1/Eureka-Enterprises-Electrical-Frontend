@@ -1,14 +1,36 @@
-<div class="add-payment-sheet-items">
-  <app-get-expense-outstanding
-    [excludedUserIds]="excludedExpenseUserIds()"
-    (selectionChange)="onExpenseSelectionChange($event)"
-  />
-  <app-get-fuel-expense-outstanding
-    [excludedUserIds]="excludedFuelUserIds()"
-    (selectionChange)="onFuelSelectionChange($event)"
-  />
-  <app-get-vendor-outstanding
-    [excludedBookPaymentIds]="excludedBookPaymentIds()"
-    (selectionChange)="onVendorSelectionChange($event)"
-  />
-</div>
+<app-payment-outstanding-section
+  [tabs]="beneficiaryTabs()"
+  [(activeTabIndex)]="activeTabIndex"
+  [showSearch]="false"
+  [showOverview]="false"
+>
+  <div
+    class="outstanding-tab-panel"
+    [class.outstanding-tab-panel--active]="activeTabIndex() === 0"
+  >
+    <app-get-expense-outstanding
+      [excludedUserIds]="excludedExpenseUserIds()"
+      (selectionChange)="onExpenseSelectionChange($event)"
+    />
+  </div>
+
+  <div
+    class="outstanding-tab-panel"
+    [class.outstanding-tab-panel--active]="activeTabIndex() === 1"
+  >
+    <app-get-fuel-expense-outstanding
+      [excludedUserIds]="excludedFuelUserIds()"
+      (selectionChange)="onFuelSelectionChange($event)"
+    />
+  </div>
+
+  <div
+    class="outstanding-tab-panel"
+    [class.outstanding-tab-panel--active]="activeTabIndex() === 2"
+  >
+    <app-get-vendor-outstanding
+      [excludedBookPaymentIds]="excludedBookPaymentIds()"
+      (selectionChange)="onVendorSelectionChange($event)"
+    />
+  </div>
+</app-payment-outstanding-section>

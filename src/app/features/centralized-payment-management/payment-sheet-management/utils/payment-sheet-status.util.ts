@@ -1,5 +1,3 @@
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
-import { AppPermissionService } from '@core/services';
 import {
   EPaymentSheetDetailAction,
   EPaymentSheetStage,
@@ -8,81 +6,7 @@ import {
   EPaymentSheetWorkflowActionType,
   EPaymentSheetWorkflowRole,
 } from '../types/payment-sheet.enum';
-import {
-  IPaymentSheetWorkflowPermissions,
-  IPaymentSheetWorkflowRow,
-} from '../types/payment-sheet.interface';
-
-/** Show return when user has a workflow review/process permission (not create). */
-export const PAYMENT_SHEET_RETURN_VISIBLE_PERMISSIONS = [
-  APP_PERMISSION.PAYMENT_SHEET.HR_REVIEW,
-  APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
-  APP_PERMISSION.PAYMENT_SHEET.ACCOUNTS_PROCESS,
-] as const;
-
-/** Show reject when user has any payment sheet workflow permission. */
-export const PAYMENT_SHEET_REJECT_VISIBLE_PERMISSIONS = [
-  APP_PERMISSION.PAYMENT_SHEET.CREATE,
-  APP_PERMISSION.PAYMENT_SHEET.HR_REVIEW,
-  APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
-  APP_PERMISSION.PAYMENT_SHEET.ACCOUNTS_PROCESS,
-] as const;
-
-/** Route access for payment sheet detail (any workflow participant). */
-export const PAYMENT_SHEET_DETAIL_ROUTE_PERMISSIONS = [
-  APP_PERMISSION.PAYMENT_SHEET.TABLE_VIEW,
-  APP_PERMISSION.PAYMENT_SHEET.CREATE,
-  APP_PERMISSION.PAYMENT_SHEET.HR_REVIEW,
-  APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
-  APP_PERMISSION.PAYMENT_SHEET.ACCOUNTS_PROCESS,
-] as const;
-
-/** Detail page line-item action visibility. */
-export const PAYMENT_SHEET_DETAIL_ITEM_EDIT_PERMISSIONS = [
-  APP_PERMISSION.PAYMENT_SHEET.CREATE,
-  APP_PERMISSION.PAYMENT_SHEET.HR_REVIEW,
-  APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
-] as const;
-
-export const PAYMENT_SHEET_DETAIL_ITEM_DELETE_PERMISSIONS = [
-  APP_PERMISSION.PAYMENT_SHEET.CREATE,
-] as const;
-
-export const PAYMENT_SHEET_DETAIL_ITEM_REJECT_PERMISSIONS = [
-  APP_PERMISSION.PAYMENT_SHEET.CREATE,
-  APP_PERMISSION.PAYMENT_SHEET.HR_REVIEW,
-  APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
-  APP_PERMISSION.PAYMENT_SHEET.ACCOUNTS_PROCESS,
-] as const;
-
-export const PAYMENT_SHEET_DETAIL_ITEM_RECORD_PAYMENT_PERMISSIONS = [
-  APP_PERMISSION.PAYMENT_SHEET.ACCOUNTS_PROCESS,
-] as const;
-
-/** Forward action visibility by workflow role permission. */
-export const PAYMENT_SHEET_FORWARD_ACTION_PERMISSION: Record<
-  EPaymentSheetWorkflowActionType,
-  (typeof APP_PERMISSION.PAYMENT_SHEET)[keyof typeof APP_PERMISSION.PAYMENT_SHEET]
-> = {
-  [EPaymentSheetWorkflowActionType.FORWARD_TO_HR]:
-    APP_PERMISSION.PAYMENT_SHEET.CREATE,
-  [EPaymentSheetWorkflowActionType.FORWARD_TO_ADMIN]:
-    APP_PERMISSION.PAYMENT_SHEET.HR_REVIEW,
-  [EPaymentSheetWorkflowActionType.FORWARD_TO_ACCOUNTANT]:
-    APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
-};
-
-const WORKFLOW_ROLE_PERMISSION: Record<
-  EPaymentSheetWorkflowRole,
-  (typeof APP_PERMISSION.PAYMENT_SHEET)[keyof typeof APP_PERMISSION.PAYMENT_SHEET]
-> = {
-  [EPaymentSheetWorkflowRole.OPERATION_MANAGER]:
-    APP_PERMISSION.PAYMENT_SHEET.CREATE,
-  [EPaymentSheetWorkflowRole.HR]: APP_PERMISSION.PAYMENT_SHEET.HR_REVIEW,
-  [EPaymentSheetWorkflowRole.ADMIN]: APP_PERMISSION.PAYMENT_SHEET.ADMIN_REVIEW,
-  [EPaymentSheetWorkflowRole.ACCOUNTS]:
-    APP_PERMISSION.PAYMENT_SHEET.ACCOUNTS_PROCESS,
-};
+import { IPaymentSheetWorkflowRow } from '../types/payment-sheet.interface';
 
 const WORKFLOW_ROLE_STAGE_LABEL: Record<EPaymentSheetWorkflowRole, string> = {
   [EPaymentSheetWorkflowRole.OPERATION_MANAGER]: 'operation manager',
@@ -129,6 +53,8 @@ const DETAIL_ACTION_LABEL: Record<EPaymentSheetDetailAction, string> = {
   [EPaymentSheetDetailAction.EDIT_ITEM]: 'Edit',
   [EPaymentSheetDetailAction.DELETE_ITEM]: 'Delete',
   [EPaymentSheetDetailAction.REJECT_ITEM]: 'Reject',
+  [EPaymentSheetDetailAction.VERIFY_ITEM]: 'Verify',
+  [EPaymentSheetDetailAction.UNVERIFY_ITEM]: 'Unverify',
   [EPaymentSheetDetailAction.RECORD_PAYMENT]: 'Record Payment',
   [EPaymentSheetDetailAction.FORWARD_TO_HR]: 'Forward to HR',
   [EPaymentSheetDetailAction.FORWARD_TO_ADMIN]: 'Forward to Admin',
@@ -149,43 +75,6 @@ export function toPaymentSheetDetailAction(
       throw new Error(
         `Unknown payment sheet workflow action type: ${actionType}`
       );
-  }
-}
-
-export function getPaymentSheetWorkflowPermissions(
-  permissionService: AppPermissionService
-): IPaymentSheetWorkflowPermissions {
-  return {
-    canCreate: permissionService.hasPermission(
-      WORKFLOW_ROLE_PERMISSION[EPaymentSheetWorkflowRole.OPERATION_MANAGER]
-    ),
-    canReview: permissionService.hasPermission(
-      WORKFLOW_ROLE_PERMISSION[EPaymentSheetWorkflowRole.HR]
-    ),
-    canAdminReview: permissionService.hasPermission(
-      WORKFLOW_ROLE_PERMISSION[EPaymentSheetWorkflowRole.ADMIN]
-    ),
-    canProcess: permissionService.hasPermission(
-      WORKFLOW_ROLE_PERMISSION[EPaymentSheetWorkflowRole.ACCOUNTS]
-    ),
-  };
-}
-
-function isWorkflowRoleAllowed(
-  role: EPaymentSheetWorkflowRole,
-  permissions: IPaymentSheetWorkflowPermissions
-): boolean {
-  switch (role) {
-    case EPaymentSheetWorkflowRole.OPERATION_MANAGER:
-      return permissions.canCreate;
-    case EPaymentSheetWorkflowRole.HR:
-      return permissions.canReview;
-    case EPaymentSheetWorkflowRole.ADMIN:
-      return permissions.canAdminReview;
-    case EPaymentSheetWorkflowRole.ACCOUNTS:
-      return permissions.canProcess;
-    default:
-      return false;
   }
 }
 
@@ -222,7 +111,6 @@ function getWorkflowRoleForRow(
 
 function isPaymentSheetActionAllowed(
   row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions,
   action: EPaymentSheetWorkflowAction
 ): boolean {
   const { status } = row;
@@ -235,79 +123,59 @@ function isPaymentSheetActionAllowed(
     return false;
   }
 
-  const role = getWorkflowRoleForRow(row);
-  return role !== null && isWorkflowRoleAllowed(role, permissions);
+  return getWorkflowRoleForRow(row) !== null;
 }
 
 export function isPaymentSheetReturnAllowed(
-  row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions
+  row: IPaymentSheetWorkflowRow
 ): boolean {
-  return isPaymentSheetActionAllowed(
-    row,
-    permissions,
-    EPaymentSheetWorkflowAction.RETURN
-  );
-}
-
-export function isPaymentSheetRejectAllowed(
-  row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions
-): boolean {
-  return isPaymentSheetActionAllowed(
-    row,
-    permissions,
-    EPaymentSheetWorkflowAction.REJECT
-  );
+  return isPaymentSheetActionAllowed(row, EPaymentSheetWorkflowAction.RETURN);
 }
 
 export function isPaymentSheetReturnDisabled(
-  row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions
+  row: IPaymentSheetWorkflowRow
 ): boolean {
-  return !isPaymentSheetReturnAllowed(row, permissions);
+  return !isPaymentSheetReturnAllowed(row);
+}
+
+function isPaymentSheetRejectAllowed(row: IPaymentSheetWorkflowRow): boolean {
+  return isPaymentSheetActionAllowed(row, EPaymentSheetWorkflowAction.REJECT);
 }
 
 export function isPaymentSheetRejectDisabled(
-  row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions
+  row: IPaymentSheetWorkflowRow
 ): boolean {
-  return !isPaymentSheetRejectAllowed(row, permissions);
+  return !isPaymentSheetRejectAllowed(row);
 }
 
 export function getPaymentSheetReturnDisableReason(
-  row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions
+  row: IPaymentSheetWorkflowRow
 ): string | undefined {
-  if (!isPaymentSheetReturnDisabled(row, permissions)) {
+  if (!isPaymentSheetReturnDisabled(row)) {
     return undefined;
   }
 
   return getPaymentSheetActionDisableReason(
     row,
-    permissions,
     EPaymentSheetWorkflowAction.RETURN
   );
 }
 
 export function getPaymentSheetRejectDisableReason(
-  row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions
+  row: IPaymentSheetWorkflowRow
 ): string | undefined {
-  if (!isPaymentSheetRejectDisabled(row, permissions)) {
+  if (!isPaymentSheetRejectDisabled(row)) {
     return undefined;
   }
 
   return getPaymentSheetActionDisableReason(
     row,
-    permissions,
     EPaymentSheetWorkflowAction.REJECT
   );
 }
 
 function getPaymentSheetActionDisableReason(
   row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions,
   action: EPaymentSheetWorkflowAction
 ): string {
   const actionLabel =
@@ -337,10 +205,6 @@ function getPaymentSheetActionDisableReason(
     return 'This payment sheet is already returned and cannot be returned again.';
   }
 
-  if (role && !isWorkflowRoleAllowed(role, permissions)) {
-    return `${actionLabel} is available only for ${WORKFLOW_ROLE_STAGE_LABEL[role]} at this stage.`;
-  }
-
   if (!role) {
     return `${actionLabel} is not available at the current review stage.`;
   }
@@ -349,8 +213,7 @@ function getPaymentSheetActionDisableReason(
 }
 
 function isPaymentSheetDetailEditAllowed(
-  row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions
+  row: IPaymentSheetWorkflowRow
 ): boolean {
   const { status } = row;
 
@@ -364,20 +227,23 @@ function isPaymentSheetDetailEditAllowed(
     return false;
   }
 
-  return isWorkflowRoleAllowed(role, permissions);
+  return true;
 }
 
 export function isPaymentSheetDetailActionAllowed(
   row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions,
   action: EPaymentSheetDetailAction
 ): boolean {
-  if (action === EPaymentSheetDetailAction.REJECT_ITEM) {
-    return isPaymentSheetRejectAllowed(row, permissions);
+  if (
+    action === EPaymentSheetDetailAction.REJECT_ITEM ||
+    action === EPaymentSheetDetailAction.VERIFY_ITEM ||
+    action === EPaymentSheetDetailAction.UNVERIFY_ITEM
+  ) {
+    return isPaymentSheetRejectAllowed(row);
   }
 
   if (action === EPaymentSheetDetailAction.EDIT_ITEM) {
-    return isPaymentSheetDetailEditAllowed(row, permissions);
+    return isPaymentSheetDetailEditAllowed(row);
   }
 
   const { status } = row;
@@ -393,23 +259,21 @@ export function isPaymentSheetDetailActionAllowed(
     return false;
   }
 
-  return isWorkflowRoleAllowed(currentRole, permissions);
+  return true;
 }
 
 export function isPaymentSheetDetailActionDisabled(
   row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions,
   action: EPaymentSheetDetailAction
 ): boolean {
-  return !isPaymentSheetDetailActionAllowed(row, permissions, action);
+  return !isPaymentSheetDetailActionAllowed(row, action);
 }
 
 export function getPaymentSheetDetailActionDisableReason(
   row: IPaymentSheetWorkflowRow,
-  permissions: IPaymentSheetWorkflowPermissions,
   action: EPaymentSheetDetailAction
 ): string | undefined {
-  if (!isPaymentSheetDetailActionDisabled(row, permissions, action)) {
+  if (!isPaymentSheetDetailActionDisabled(row, action)) {
     return undefined;
   }
 
@@ -421,7 +285,9 @@ export function getPaymentSheetDetailActionDisableReason(
       ? currentRole && currentRole !== EPaymentSheetWorkflowRole.ACCOUNTS
         ? currentRole
         : undefined
-      : action === EPaymentSheetDetailAction.REJECT_ITEM
+      : action === EPaymentSheetDetailAction.REJECT_ITEM ||
+          action === EPaymentSheetDetailAction.VERIFY_ITEM ||
+          action === EPaymentSheetDetailAction.UNVERIFY_ITEM
         ? (getWorkflowRoleForRow(row) ?? undefined)
         : DETAIL_ACTION_REQUIRED_ROLE[action];
 
@@ -442,14 +308,6 @@ export function getPaymentSheetDetailActionDisableReason(
 
   if (requiredRole && currentRole && currentRole !== requiredRole) {
     return `${actionLabel} is only available while the payment sheet is with ${WORKFLOW_ROLE_STAGE_LABEL[requiredRole]}.`;
-  }
-
-  if (
-    requiredRole &&
-    currentRole === requiredRole &&
-    !isWorkflowRoleAllowed(requiredRole, permissions)
-  ) {
-    return `${actionLabel} is available only for ${WORKFLOW_ROLE_STAGE_LABEL[requiredRole]} at this stage.`;
   }
 
   if (!currentRole || !requiredRole) {

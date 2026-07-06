@@ -4,6 +4,7 @@ import {
   computed,
   DestroyRef,
   inject,
+  model,
   OnInit,
   signal,
 } from '@angular/core';
@@ -19,12 +20,17 @@ import { PaymentOutstandingSectionComponent } from '@features/centralized-paymen
 import {
   EPaymentOutstandingSectionContext,
   EPaymentOutstandingSourceType,
+  getPaymentOutstandingSourceSectionMeta,
 } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
+import {
+  getPaymentSourceTabAccent,
+  getPaymentSourceTabIcon,
+  getPaymentSourceTabLabel,
+} from '@features/centralized-payment-management/shared/utils/payment-source-tab.util';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
-import { DEFAULT_ROW_ACTION_CONFIG } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
   AppConfigurationService,
@@ -44,19 +50,19 @@ import {
 } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { finalize } from 'rxjs';
-import { PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP } from '../../config';
 import {
-  buildPaymentSheetDetailItemsRowActionsConfig,
-  createPaymentSheetDetailItemsTableConfig,
-} from '../../config/table/get-payment-sheet-detail-items.config';
+  createPaymentSheetDetailItemsTableEnhancedConfig,
+  PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP,
+  PAYMENT_SHEET_FORWARD_ACTION_PERMISSION,
+} from '../../config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
-  getPaymentSheetDetailActionDisableReason,
-  getPaymentSheetWorkflowPermissions,
-  isPaymentSheetDetailActionDisabled,
-  PAYMENT_SHEET_FORWARD_ACTION_PERMISSION,
-  toPaymentSheetDetailAction,
-} from '../../utils/payment-sheet-status.util';
+  EPaymentSheetDetailAction,
+  EPaymentSheetSourceType,
+  EPaymentSheetWorkflowActionType,
+  PAYMENT_SHEET_WORKFLOW_ACTION_TYPES,
+} from '../../types/payment-sheet.enum';
+import { IPaymentSheetWorkflowRow } from '../../types/payment-sheet.interface';
 import {
   IPaymentSheetDetailGetResponseDto,
   IPaymentSheetItemDetailDto,
@@ -66,37 +72,29 @@ import {
   IPaymentSheetDetailSourceGroupView,
 } from '../../types/payment-sheet-detail.interface';
 import {
-  EPaymentSheetDetailAction,
-  EPaymentSheetSourceType,
-  EPaymentSheetWorkflowActionType,
-  PAYMENT_SHEET_WORKFLOW_ACTION_TYPES,
-} from '../../types/payment-sheet.enum';
-import {
-  IPaymentSheetWorkflowPermissions,
-  IPaymentSheetWorkflowRow,
-} from '../../types/payment-sheet.interface';
+  getPaymentSheetDetailActionDisableReason,
+  isPaymentSheetDetailActionDisabled,
+  toPaymentSheetDetailAction,
+} from '../../utils/payment-sheet-status.util';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
   imports: [
     DatePipe,
     PageHeaderComponent,
-    PaymentOutstandingSectionComponent,
     DataTableComponent,
     BankDetailsCellComponent,
     PaymentSheetAmountsCellComponent,
     EmptyMessagesComponent,
     ButtonComponent,
+    PaymentOutstandingSectionComponent,
   ],
   templateUrl: './get-payment-sheet-detail.component.html',
   styleUrl: './get-payment-sheet-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetPaymentSheetDetailComponent implements OnInit {
-  protected readonly EPaymentOutstandingSectionContext =
-    EPaymentOutstandingSectionContext;
-  protected readonly EPaymentOutstandingSourceType =
-    EPaymentOutstandingSourceType;
+  protected readonly APP_CONFIG = APP_CONFIG;
 
   protected readonly paidAtDateFormat =
     APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
@@ -112,9 +110,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appPermissionService = inject(AppPermissionService);
-
-  private readonly workflowPermissions: IPaymentSheetWorkflowPermissions =
-    getPaymentSheetWorkflowPermissions(this.appPermissionService);
 
   private readonly getDetailWorkflowRow = (): IPaymentSheetWorkflowRow => {
     const detail = this.detail();
@@ -156,6 +151,43 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     IPaymentSheetDetailSourceGroupView[]
   >([]);
 
+  protected readonly activeTabIndex = model(0);
+
+  protected readonly detailTabs = computed(() =>
+    this.sourceGroups().map(group => ({
+      value: group.sourceType,
+      label: getPaymentSourceTabLabel(group.sourceType),
+    }))
+  );
+
+  protected readonly sectionOverview = computed(() =>
+    this.sourceGroups().map(group => {
+      const accent = getPaymentSourceTabAccent(group.sourceType);
+      const recordCountLabel = this.getRecordCountLabel(group.sourceType);
+
+      return {
+        value: group.sourceType,
+        label: getPaymentSourceTabLabel(group.sourceType),
+        icon: getPaymentSourceTabIcon(group.sourceType),
+        accentLight: accent.light,
+        accentDark: accent.dark,
+        stats: [
+          {
+            kind: 'count' as const,
+            label: recordCountLabel,
+            value: group.recordCount,
+          },
+          {
+            kind: 'currency' as const,
+            label: 'Payable',
+            value: group.totalCurrentAmount,
+            tone: group.totalCurrentAmount > 0 ? ('debit' as const) : null,
+          },
+        ],
+      };
+    })
+  );
+
   protected pageHeaderConfig = computed(() => this.buildPageHeaderConfig());
 
   protected readonly workflowButtonConfigs = computed(() =>
@@ -167,7 +199,13 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       this.sourceTables.set(
         sourceType,
         this.dataTableService.createTable(
-          createPaymentSheetDetailItemsTableConfig()
+          createPaymentSheetDetailItemsTableEnhancedConfig(
+            () => this.getDetailWorkflowRow(),
+            {
+              includeEdit:
+                sourceType !== EPaymentSheetSourceType.VENDOR_PAYMENT,
+            }
+          )
         )
       );
     }
@@ -199,7 +237,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     if (
       isPaymentSheetDetailActionDisabled(
         this.getDetailWorkflowRow(),
-        this.workflowPermissions,
         EPaymentSheetDetailAction.ADD_BENEFICIARY
       )
     ) {
@@ -219,7 +256,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     if (
       isPaymentSheetDetailActionDisabled(
         this.getDetailWorkflowRow(),
-        this.workflowPermissions,
         toPaymentSheetDetailAction(actionType)
       )
     ) {
@@ -256,21 +292,29 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   protected handlePaymentSheetItemActionClick(
-    event: ITableActionClickEvent<IPaymentSheetDetailItemRow>
+    event: ITableActionClickEvent<IPaymentSheetDetailItemRow>,
+    isBulk = false
   ): void {
     const { actionType, selectedRows } = event;
     const selectedRow = selectedRows[0];
 
-    if (!selectedRow?.id || !this.paymentSheetId) {
+    if (!selectedRows.length || !this.paymentSheetId) {
       this.logger.error(
-        'Payment sheet item action: selected row or payment sheet id missing'
+        'Payment sheet item action: selected rows or payment sheet id missing'
       );
+      return;
+    }
+
+    if (!isBulk && !selectedRow?.id) {
+      this.logger.error('Payment sheet item action: selected row id missing');
       return;
     }
 
     if (
       actionType !== EButtonActionType.EDIT &&
       actionType !== EButtonActionType.DELETE &&
+      actionType !== EButtonActionType.APPROVE &&
+      actionType !== EButtonActionType.UNVERIFY &&
       actionType !== EButtonActionType.REJECT &&
       actionType !== EButtonActionType.PAID
     ) {
@@ -284,15 +328,20 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     }
 
     const showItemDetail =
-      actionType === EButtonActionType.DELETE ||
-      actionType === EButtonActionType.REJECT ||
-      actionType === EButtonActionType.PAID;
+      !isBulk &&
+      (actionType === EButtonActionType.DELETE ||
+        actionType === EButtonActionType.APPROVE ||
+        actionType === EButtonActionType.UNVERIFY ||
+        actionType === EButtonActionType.REJECT ||
+        actionType === EButtonActionType.PAID);
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
       actionConfig,
-      showItemDetail ? this.prepareItemRecordDetail(selectedRow) : null,
-      false,
+      showItemDetail && selectedRow
+        ? this.prepareItemRecordDetail(selectedRow)
+        : null,
+      isBulk,
       showItemDetail,
       {
         selectedRecord: selectedRows,
@@ -334,29 +383,9 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     }
 
     this.sourceGroups.set(groups);
-    this.updateDetailItemRowActions();
-  }
 
-  private updateDetailItemRowActions(): void {
-    for (const sourceType of this.sourceSectionOrder) {
-      const table = this.sourceTables.get(sourceType);
-
-      if (table) {
-        const rowActions = buildPaymentSheetDetailItemsRowActionsConfig(
-          this.workflowPermissions,
-          () => this.getDetailWorkflowRow(),
-          {
-            includeEdit: sourceType !== EPaymentSheetSourceType.VENDOR_PAYMENT,
-          }
-        );
-
-        table.updateRowActions(
-          rowActions.map(action => ({
-            ...DEFAULT_ROW_ACTION_CONFIG,
-            ...action,
-          })) as Parameters<typeof table.updateRowActions>[0]
-        );
-      }
+    if (this.activeTabIndex() >= groups.length) {
+      this.activeTabIndex.set(0);
     }
   }
 
@@ -400,12 +429,14 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   ): IPaymentSheetDetailItemRow {
     return {
       id: item.id,
+      beneficiaryId: item.userId ?? item.vendorId ?? '',
       actualDue: item.pendingSnapshot,
       payableAmount: item.currentAmount,
       beneficiaryName: item.user
         ? `${item.user.firstName} ${item.user.lastName}`.trim()
         : (item.vendor?.name ?? '-'),
       beneficiaryCode: item.user?.employeeId ?? item.vendorId ?? '',
+      itemStatusCode: item.itemStatus,
       itemStatus: getMappedValueFromArrayOfObjects(
         this.appConfigurationService.paymentSheetItemStatuses(),
         item.itemStatus
@@ -442,10 +473,12 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
       return (item.bookPaymentAllocations ?? []).map(allocation => ({
         id: item.id,
+        beneficiaryId: item.vendorId ?? '',
         beneficiaryName: item.vendor?.name ?? '-',
         beneficiaryCode: item.vendorId ?? '',
         actualDue: allocation.allocatedAmount,
         payableAmount: allocation.allocatedAmount,
+        itemStatusCode: item.itemStatus,
         itemStatus,
         paidAt: item.paidAt ?? null,
         paymentRef: item.paymentRef ?? null,
@@ -475,10 +508,20 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     };
   }
 
+  private getRecordCountLabel(
+    sourceType: EPaymentOutstandingSourceType
+  ): string {
+    const unit = getPaymentOutstandingSourceSectionMeta(
+      sourceType,
+      EPaymentOutstandingSectionContext.PAYMENT_SHEET
+    ).recordCountUnit;
+
+    return unit === 'vendor' ? 'Vendors' : 'Employees';
+  }
+
   private buildPageHeaderConfig(): IPageHeaderConfig {
     const addDisabled = isPaymentSheetDetailActionDisabled(
       this.getDetailWorkflowRow(),
-      this.workflowPermissions,
       EPaymentSheetDetailAction.ADD_BENEFICIARY
     );
 
@@ -494,11 +537,10 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           label: 'Add Beneficiaries',
           icon: ICONS.COMMON.USERS,
           severity: EButtonSeverity.PRIMARY,
-          permission: [APP_PERMISSION.PAYMENT_SHEET.CREATE],
+          permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_ADD],
           disabled: addDisabled,
           disabledTooltip: getPaymentSheetDetailActionDisableReason(
             this.getDetailWorkflowRow(),
-            this.workflowPermissions,
             EPaymentSheetDetailAction.ADD_BENEFICIARY
           ),
         },
@@ -522,7 +564,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     ).map(actionType => {
       const disabled = isPaymentSheetDetailActionDisabled(
         workflowRow,
-        this.workflowPermissions,
         detailAction(actionType)
       );
 
@@ -538,7 +579,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           disabled,
           disabledTooltip: getPaymentSheetDetailActionDisableReason(
             workflowRow,
-            this.workflowPermissions,
             detailAction(actionType)
           ),
         },

@@ -19,19 +19,16 @@ import { IEnhancedTable } from '@shared/types';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
-import {
-  EPaymentOutstandingSourceType,
-  isPaymentOutstandingRowSelectionDisabled,
-} from '../../../shared/config/payment-outstanding-source-section.config';
+import { isPaymentOutstandingRowSelectionDisabled } from '../../../shared/config/payment-outstanding-source-section.config';
 import { createFuelExpenseOutstandingTableEnhancedConfig } from '../../config';
 import { FuelExpenseOutstandingService } from '../../services/fuel-expense-outstanding.service';
 import {
   IFuelExpenseOutstandingGetBaseResponseDto,
   IFuelExpenseOutstandingGetFormDto,
   IFuelExpenseOutstandingGetResponseDto,
-  IFuelExpenseOutstandingGetStatsResponseDto,
 } from '../../types/fuel-expense-outstanding.dto';
 import { IFuelExpenseOutstanding } from '../../types/fuel-expense-outstanding.interface';
+import type { IOutstandingBalanceSectionSnapshot } from '@features/centralized-payment-management/outstanding-balance-management/types/outstanding-balance-summary.interface';
 
 @Component({
   selector: 'app-get-fuel-expense-outstanding',
@@ -42,10 +39,8 @@ import { IFuelExpenseOutstanding } from '../../types/fuel-expense-outstanding.in
 })
 export class GetFuelExpenseOutstandingComponent implements OnInit {
   selectionChange = output<IFuelExpenseOutstandingGetBaseResponseDto[]>();
+  sectionSummaryChange = output<IOutstandingBalanceSectionSnapshot>();
   excludedUserIds = input<ReadonlySet<string>>(new Set());
-
-  protected readonly EPaymentOutstandingSourceType =
-    EPaymentOutstandingSourceType;
 
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
@@ -60,11 +55,7 @@ export class GetFuelExpenseOutstandingComponent implements OnInit {
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
 
-  protected readonly summary =
-    signal<IFuelExpenseOutstandingGetStatsResponseDto | null>(null);
-  protected readonly totalRecords = signal(0);
   protected readonly searchTerm = signal('');
-
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
       createFuelExpenseOutstandingTableEnhancedConfig()
@@ -121,15 +112,19 @@ export class GetFuelExpenseOutstandingComponent implements OnInit {
 
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
-          this.summary.set(summary ?? null);
-          this.totalRecords.set(totalRecords);
+          this.sectionSummaryChange.emit({
+            totalRecords,
+            totalPendingAmount: summary?.totalPendingAmount ?? 0,
+          });
 
           this.logger.logUserAction('Fuel expense outstanding records loaded');
         },
         error: error => {
           this.table.setData([]);
-          this.summary.set(null);
-          this.totalRecords.set(0);
+          this.sectionSummaryChange.emit({
+            totalRecords: 0,
+            totalPendingAmount: 0,
+          });
           this.logger.logUserAction(
             'Failed to load fuel expense outstanding',
             error

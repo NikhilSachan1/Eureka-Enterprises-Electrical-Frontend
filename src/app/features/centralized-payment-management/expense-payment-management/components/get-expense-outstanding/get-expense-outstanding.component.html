@@ -1,8 +1,4 @@
 <app-payment-outstanding-section
-  [sourceType]="EPaymentOutstandingSourceType.EXPENSE"
-  [loading]="table.loading()"
-  [recordCount]="totalRecords()"
-  [totalPendingAmount]="summary()?.totalPendingAmount ?? 0"
   searchPlaceholder="Search by employee name or code"
   (searchChange)="onSearchChange($event)"
 >

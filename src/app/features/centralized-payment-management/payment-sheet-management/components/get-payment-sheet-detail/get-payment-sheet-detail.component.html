@@ -10,16 +10,13 @@
         title="No beneficiaries on this payment sheet."
         description="This payment sheet does not contain any line items yet."
       />
-    }
-
-    @for (group of sourceGroups(); track group.sourceType) {
+    } @else {
       <app-payment-outstanding-section
-        class="ps-detail__section"
-        [sourceType]="group.sourceType"
-        [sectionContext]="EPaymentOutstandingSectionContext.PAYMENT_SHEET"
-        [recordCount]="group.recordCount"
-        [totalPendingAmount]="group.totalCurrentAmount"
+        [overviewCards]="sectionOverview()"
+        [tabs]="detailTabs()"
+        [(activeTabIndex)]="activeTabIndex"
         [showSearch]="false"
+        overviewAriaLabel="Payment sheet source breakdown"
       >
         <ng-template
           #itemAmountsCell
@@ -72,20 +69,28 @@
           <app-bank-details-cell [bankDetails]="row.bankDetails" />
         </ng-template>
 
-        <app-data-table
-          [tableConfig]="group.table.tableConfig()"
-          [tableHeader]="group.table.headers()"
-          [tableData]="group.table.data()"
-          [loading]="group.table.loading()"
-          [bulkActionButtons]="group.table.bulkActions()"
-          [rowActions]="group.table.rowActions()"
-          [customBodyTemplates]="{
-            itemAmountsCell: itemAmountsCell,
-            itemPaymentCell: itemPaymentCell,
-            bankDetailsCell: bankDetailsCell,
-          }"
-          (rowActionClick)="handlePaymentSheetItemActionClick($any($event))"
-        />
+        @for (group of sourceGroups(); track group.sourceType; let tabIndex = $index) {
+          <div
+            class="outstanding-tab-panel"
+            [class.outstanding-tab-panel--active]="activeTabIndex() === tabIndex"
+          >
+            <app-data-table
+              [tableConfig]="group.table.tableConfig()"
+              [tableHeader]="group.table.headers()"
+              [tableData]="group.table.data()"
+              [loading]="group.table.loading()"
+              [bulkActionButtons]="group.table.bulkActions()"
+              [rowActions]="group.table.rowActions()"
+              [customBodyTemplates]="{
+                itemAmountsCell: itemAmountsCell,
+                itemPaymentCell: itemPaymentCell,
+                bankDetailsCell: bankDetailsCell,
+              }"
+              (rowActionClick)="handlePaymentSheetItemActionClick($any($event), false)"
+              (bulkActionClick)="handlePaymentSheetItemActionClick($any($event), true)"
+            />
+          </div>
+        }
       </app-payment-outstanding-section>
     }
   </section>

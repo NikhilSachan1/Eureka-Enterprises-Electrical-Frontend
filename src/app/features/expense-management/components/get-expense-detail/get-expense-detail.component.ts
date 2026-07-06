@@ -129,7 +129,6 @@ export class GetExpenseDetailComponent extends DrawerDetailBase {
                 detailTemplatePlain: true,
                 permission: [
                   APP_PERMISSION.UI.EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT,
-                  APP_PERMISSION.PAYMENT_SHEET.ACCOUNTS_PROCESS,
                 ],
               },
             ]

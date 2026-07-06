@@ -3,8 +3,40 @@
   (headerButtonClick)="onHeaderButtonClick($event)"
 />
 
-<div class="outstanding-balance__employee-row">
-  <app-get-expense-outstanding (selectionChange)="onExpenseSelectionChange($event)" />
-  <app-get-fuel-expense-outstanding (selectionChange)="onFuelSelectionChange($event)" />
-</div>
-<app-get-vendor-outstanding (selectionChange)="onVendorSelectionChange($event)" />
+<app-payment-outstanding-section
+  [overviewCards]="sectionOverview()"
+  [tabs]="balanceTabs()"
+  [(activeTabIndex)]="activeTabIndex"
+  [showSearch]="false"
+  overviewAriaLabel="Outstanding balance section breakdown"
+>
+  <div
+    class="outstanding-tab-panel"
+    [class.outstanding-tab-panel--active]="activeTabIndex() === 0"
+  >
+    <app-get-expense-outstanding
+      (sectionSummaryChange)="onSectionSummaryChange(sourceType.EXPENSE, $event)"
+      (selectionChange)="onExpenseSelectionChange($event)"
+    />
+  </div>
+
+  <div
+    class="outstanding-tab-panel"
+    [class.outstanding-tab-panel--active]="activeTabIndex() === 1"
+  >
+    <app-get-fuel-expense-outstanding
+      (sectionSummaryChange)="onSectionSummaryChange(sourceType.FUEL_EXPENSE, $event)"
+      (selectionChange)="onFuelSelectionChange($event)"
+    />
+  </div>
+
+  <div
+    class="outstanding-tab-panel"
+    [class.outstanding-tab-panel--active]="activeTabIndex() === 2"
+  >
+    <app-get-vendor-outstanding
+      (sectionSummaryChange)="onSectionSummaryChange(sourceType.VENDOR_PAYMENT, $event)"
+      (selectionChange)="onVendorSelectionChange($event)"
+    />
+  </div>
+</app-payment-outstanding-section>

@@ -12,17 +12,12 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { IPaymentSheetGetBaseResponseDto } from '../../types/payment-sheet.dto';
-import {
-  IPaymentSheet,
-  IPaymentSheetWorkflowPermissions,
-} from '../../types/payment-sheet.interface';
+import { IPaymentSheet } from '../../types/payment-sheet.interface';
 import {
   getPaymentSheetRejectDisableReason,
   getPaymentSheetReturnDisableReason,
   isPaymentSheetRejectDisabled,
   isPaymentSheetReturnDisabled,
-  PAYMENT_SHEET_REJECT_VISIBLE_PERMISSIONS,
-  PAYMENT_SHEET_RETURN_VISIBLE_PERMISSIONS,
 } from '../../utils/payment-sheet-status.util';
 
 export const PAYMENT_SHEET_TABLE_CONFIG: Partial<IDataTableConfig> = {
@@ -73,44 +68,38 @@ export const PAYMENT_SHEET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[
     },
   ];
 
-export function buildPaymentSheetTableRowActionsConfig(
-  workflowPermissions: IPaymentSheetWorkflowPermissions
-): Partial<ITableActionConfig<IPaymentSheet>>[] {
-  return [
-    {
-      ...COMMON_ROW_ACTIONS.VIEW,
-      permission: [APP_PERMISSION.PAYMENT_SHEET.TABLE_VIEW],
-    },
-    {
-      id: EButtonActionType.CANCEL,
-      tooltip: 'Return Sheet',
-      icon: ICONS.COMMON.ARROW_LEFT,
-      severity: EButtonSeverity.WARNING,
-      permission: [...PAYMENT_SHEET_RETURN_VISIBLE_PERMISSIONS],
-      disableWhen: (row: IPaymentSheetGetBaseResponseDto) =>
-        isPaymentSheetReturnDisabled(row, workflowPermissions),
-      disableReason: (row: IPaymentSheetGetBaseResponseDto) =>
-        getPaymentSheetReturnDisableReason(row, workflowPermissions),
-    },
-    {
-      ...COMMON_ROW_ACTIONS.REJECT,
-      tooltip: 'Reject Sheet',
-      permission: [...PAYMENT_SHEET_REJECT_VISIBLE_PERMISSIONS],
-      disableWhen: (row: IPaymentSheetGetBaseResponseDto) =>
-        isPaymentSheetRejectDisabled(row, workflowPermissions),
-      disableReason: (row: IPaymentSheetGetBaseResponseDto) =>
-        getPaymentSheetRejectDisableReason(row, workflowPermissions),
-    },
-  ];
-}
+export const PAYMENT_SHEET_TABLE_ROW_ACTIONS_CONFIG: Partial<
+  ITableActionConfig<IPaymentSheet>
+>[] = [
+  {
+    ...COMMON_ROW_ACTIONS.VIEW,
+    permission: [APP_PERMISSION.PAYMENT_SHEET.VIEW_DETAIL],
+  },
+  {
+    id: EButtonActionType.CANCEL,
+    tooltip: 'Return Sheet',
+    icon: ICONS.COMMON.ARROW_LEFT,
+    severity: EButtonSeverity.WARNING,
+    permission: [APP_PERMISSION.PAYMENT_SHEET.RETURN],
+    disableWhen: (row: IPaymentSheetGetBaseResponseDto) =>
+      isPaymentSheetReturnDisabled(row),
+    disableReason: (row: IPaymentSheetGetBaseResponseDto) =>
+      getPaymentSheetReturnDisableReason(row),
+  },
+  {
+    ...COMMON_ROW_ACTIONS.REJECT,
+    tooltip: 'Reject Sheet',
+    disableWhen: (row: IPaymentSheetGetBaseResponseDto) =>
+      isPaymentSheetRejectDisabled(row),
+    disableReason: (row: IPaymentSheetGetBaseResponseDto) =>
+      getPaymentSheetRejectDisableReason(row),
+  },
+];
 
-export function buildPaymentSheetTableEnhancedConfig(
-  workflowPermissions: IPaymentSheetWorkflowPermissions
-): IEnhancedTableConfig<IPaymentSheet> {
-  return {
+export const PAYMENT_SHEET_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IPaymentSheet> =
+  {
     tableConfig: PAYMENT_SHEET_TABLE_CONFIG,
     headers: PAYMENT_SHEET_TABLE_HEADER_CONFIG,
-    rowActions: buildPaymentSheetTableRowActionsConfig(workflowPermissions),
+    rowActions: PAYMENT_SHEET_TABLE_ROW_ACTIONS_CONFIG,
     bulkActions: [],
   };
-}

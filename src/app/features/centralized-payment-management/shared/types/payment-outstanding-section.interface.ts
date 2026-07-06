@@ -1,14 +1,22 @@
-export type TPaymentOutstandingSummaryStatKind = 'count' | 'currency';
-
-export interface IVendorSectionSummaryStat {
-  kind: TPaymentOutstandingSummaryStatKind;
-  value: number;
+export interface IPaymentOutstandingSectionStat {
   label: string;
-  ariaLabel: string;
-  tone?: 'debit' | 'credit' | 'to-book' | null;
+  kind: 'count' | 'currency';
+  value: number;
+  tone?: 'debit' | 'to-book' | null;
+  dividerBefore?: boolean;
 }
 
-export interface IVendorSectionSummaryStatGroup {
-  title: string;
-  stats: IVendorSectionSummaryStat[];
+export interface IPaymentOutstandingSectionOverview {
+  value: string;
+  label: string;
+  icon: string;
+  accentLight: string;
+  accentDark: string;
+  stats: IPaymentOutstandingSectionStat[];
+}
+
+export interface IPaymentOutstandingSectionTab {
+  value: string;
+  label: string;
+  badgeCount?: number;
 }

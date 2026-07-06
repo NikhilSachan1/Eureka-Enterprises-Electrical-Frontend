@@ -39,7 +39,6 @@ import {
 import { PaginatorState } from 'primeng/paginator';
 import { finalize } from 'rxjs';
 import { PaymentOutstandingSectionComponent } from '../../../shared/components/payment-outstanding-section/payment-outstanding-section.component';
-import { EPaymentOutstandingSourceType } from '../../../shared/config/payment-outstanding-source-section.config';
 import { createVendorOutstandingTableEnhancedConfig } from '../../config/table/get-vendor-outstanding.config';
 import { VendorOutstandingService } from '../../services/vendor-outstanding.service';
 import {
@@ -60,6 +59,7 @@ import {
   buildVendorOutstandingInvoiceAmountSegments,
   mapVendorOutstandingUnbookedInvoiceToSummary,
 } from '../../utils/vendor-book-payment-amount.util';
+import type { IOutstandingBalanceSectionSnapshot } from '@features/centralized-payment-management/outstanding-balance-management/types/outstanding-balance-summary.interface';
 
 type IVendorOutstandingBookPayment =
   IVendorOutstandingGetBaseResponseDto['bookPayments'][number];
@@ -85,10 +85,9 @@ type IVendorOutstandingBookPayment =
 })
 export class GetVendorOutstandingComponent implements OnInit {
   selectionChange = output<IVendorBookPaymentTableRow[]>();
+  sectionSummaryChange = output<IOutstandingBalanceSectionSnapshot>();
   excludedBookPaymentIds = input<ReadonlySet<string>>(new Set());
 
-  protected readonly EPaymentOutstandingSourceType =
-    EPaymentOutstandingSourceType;
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly APP_PERMISSION = APP_PERMISSION;
   protected readonly icons = ICONS;
@@ -213,10 +212,12 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected vendorOverviewStats(
     group: IVendorOutstandingVendorGroup
   ): IVendorCardSummaryStat[] {
-    const { vendorSummary } = group;
     const invoiceCount = new Set(
       group.invoiceGroups.map(invoice => invoice.invoiceId)
     ).size;
+    const bookingCount = group.invoiceGroups
+      .filter(invoice => invoice.viewType === 'booked')
+      .reduce((total, invoice) => total + invoice.bookPayments.length, 0);
 
     return [
       {
@@ -226,11 +227,8 @@ export class GetVendorOutstandingComponent implements OnInit {
       },
       {
         kind: 'count',
-        value: vendorSummary.totalBookPayments,
-        label: this.pluralizeStatLabel(
-          vendorSummary.totalBookPayments,
-          'Booking'
-        ),
+        value: bookingCount,
+        label: this.pluralizeStatLabel(bookingCount, 'Booking'),
       },
     ];
   }
@@ -238,20 +236,30 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected vendorPayableStats(
     group: IVendorOutstandingVendorGroup
   ): IVendorCardSummaryStat[] {
-    const { vendorSummary } = group;
+    const toBeBooked = group.invoiceGroups.reduce(
+      (total, invoice) => total + Number(invoice.invoice?.pendingToBook ?? 0),
+      0
+    );
+    const bookedPayable = group.invoiceGroups
+      .filter(invoice => invoice.viewType === 'booked')
+      .flatMap(invoice => invoice.bookPayments)
+      .reduce(
+        (total, bookPayment) => total + Number(bookPayment.pendingAmount ?? 0),
+        0
+      );
 
     return [
       {
         kind: 'currency',
-        value: vendorSummary.totalPendingToBook,
+        value: toBeBooked,
         label: 'To be booked',
-        showToBook: vendorSummary.totalPendingToBook > 0,
+        showToBook: toBeBooked > 0,
       },
       {
         kind: 'currency',
-        value: vendorSummary.totalNetPayableAmount,
+        value: bookedPayable,
         label: 'Booked',
-        showDebit: vendorSummary.totalNetPayableAmount > 0,
+        showDebit: bookedPayable > 0,
       },
     ];
   }
@@ -371,12 +379,14 @@ export class GetVendorOutstandingComponent implements OnInit {
           this.vendorGroups.set(groups);
           this.summary.set(summary ?? null);
           this.totalRecords.set(totalRecords);
+          this.emitSectionSummary(totalRecords, summary ?? null);
           this.logger.logUserAction('Vendor outstanding records loaded');
         },
         error: error => {
           this.vendorGroups.set([]);
           this.summary.set(null);
           this.totalRecords.set(0);
+          this.emitSectionSummary(0, null);
           this.logger.logUserAction('Failed to load vendor outstanding', error);
         },
       });
@@ -611,5 +621,16 @@ export class GetVendorOutstandingComponent implements OnInit {
     plural = `${singular}s`
   ): string {
     return count === 1 ? singular : plural;
+  }
+
+  private emitSectionSummary(
+    totalRecords: number,
+    summary: IVendorOutstandingGetStatsResponseDto | null
+  ): void {
+    this.sectionSummaryChange.emit({
+      totalRecords,
+      totalPendingToBook: summary?.totalPendingToBook ?? 0,
+      totalNetPayableAmount: summary?.totalNetPayableAmount ?? 0,
+    });
   }
 }

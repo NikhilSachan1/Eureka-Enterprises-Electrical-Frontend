@@ -123,7 +123,6 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
                 permission: [
                   APP_PERMISSION.UI.FUEL_EXPENSE
                     .SEARCH_FILTER_PAID_FROM_ACCOUNT,
-                  APP_PERMISSION.PAYMENT_SHEET.ACCOUNTS_PROCESS,
                 ],
               },
             ]

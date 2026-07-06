@@ -25,7 +25,6 @@ export const DEFAULT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   rowsPerPageOptions:
     APP_CONFIG.TABLE_PAGINATION_CONFIG.DEFAULT_PAGE_SIZE_OPTIONS,
   showPaginator: true,
-  showCheckbox: true,
   emptyMessage: 'No data found',
   emptyMessageIcon: ICONS.COMMON.INFO_CIRCLE,
   emptyMessageDescription:

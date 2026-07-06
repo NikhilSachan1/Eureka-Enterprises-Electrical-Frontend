@@ -59,6 +59,7 @@ export enum EButtonActionType {
   DELETE_PERMISSIONS = 'deletePermissions',
   DELETE = 'delete',
   APPROVE = 'approve',
+  UNVERIFY = 'unverify',
   REJECT = 'reject',
   CANCEL = 'cancel',
   REGULARIZE = 'regularize',

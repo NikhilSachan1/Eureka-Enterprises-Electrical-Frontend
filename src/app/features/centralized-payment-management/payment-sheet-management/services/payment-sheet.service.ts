@@ -24,6 +24,10 @@ import {
   SubmitPaymentSheetResponseSchema,
   UpdatePaymentSheetItemRequestSchema,
   UpdatePaymentSheetItemResponseSchema,
+  VerifyPaymentSheetItemsRequestSchema,
+  VerifyPaymentSheetItemsResponseSchema,
+  UnverifyPaymentSheetItemsRequestSchema,
+  UnverifyPaymentSheetItemsResponseSchema,
 } from '../schemas';
 import {
   IAddPaymentSheetItemsFormDto,
@@ -48,6 +52,10 @@ import {
   ISubmitPaymentSheetResponseDto,
   IUpdatePaymentSheetItemFormDto,
   IUpdatePaymentSheetItemResponseDto,
+  IVerifyPaymentSheetItemsFormDto,
+  IVerifyPaymentSheetItemsResponseDto,
+  IUnverifyPaymentSheetItemsFormDto,
+  IUnverifyPaymentSheetItemsResponseDto,
 } from '../types/payment-sheet.dto';
 
 @Injectable({
@@ -514,6 +522,94 @@ export class PaymentSheetService {
             );
           } else {
             this.logger.logUserAction('Reject Payment Sheet Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  verifyPaymentSheetItems(
+    paymentSheetId: string,
+    formData: IVerifyPaymentSheetItemsFormDto
+  ): Observable<IVerifyPaymentSheetItemsResponseDto> {
+    this.logger.logUserAction('Verify Payment Sheet Items Request', {
+      paymentSheetId,
+      formData,
+    });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.VERIFY_PAYMENT_SHEET_BY_ID(
+          paymentSheetId
+        ),
+        {
+          response: VerifyPaymentSheetItemsResponseSchema,
+          request: VerifyPaymentSheetItemsRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction(
+            'Verify Payment Sheet Items Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Verify Payment Sheet Items Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Verify Payment Sheet Items Error',
+              error
+            );
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  unverifyPaymentSheetItems(
+    paymentSheetId: string,
+    formData: IUnverifyPaymentSheetItemsFormDto
+  ): Observable<IUnverifyPaymentSheetItemsResponseDto> {
+    this.logger.logUserAction('Unverify Payment Sheet Items Request', {
+      paymentSheetId,
+      formData,
+    });
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.UNVERIFY_PAYMENT_SHEET_BY_ID(
+          paymentSheetId
+        ),
+        {
+          response: UnverifyPaymentSheetItemsResponseSchema,
+          request: UnverifyPaymentSheetItemsRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction(
+            'Unverify Payment Sheet Items Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Unverify Payment Sheet Items Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Unverify Payment Sheet Items Error',
+              error
+            );
           }
           return throwError(() => error);
         })

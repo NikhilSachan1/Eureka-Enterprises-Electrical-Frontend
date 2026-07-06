@@ -4,32 +4,37 @@ import {
   Component,
   computed,
   input,
+  model,
   OnDestroy,
   output,
   signal,
 } from '@angular/core';
 import { APP_CONFIG } from '@core/config';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import { DEFAULT_INPUT_FIELD_CONFIG } from '@shared/config/input-field.config';
 import { ICONS } from '@shared/constants';
-import { EDataType, IInputFieldsConfig } from '@shared/types';
+import { EDataType, ETabMode, IInputFieldsConfig } from '@shared/types';
+import {
+  ITabChange,
+  ITabItem,
+} from '@shared/types/nav-tabs/tab-item.interface';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import {
-  EPaymentOutstandingSectionContext,
-  EPaymentOutstandingSourceType,
-  getPaymentOutstandingSourceSectionMeta,
-} from '../../config/payment-outstanding-source-section.config';
-import type { IVendorSectionSummaryStatGroup } from '../../types/payment-outstanding-section.interface';
+  IPaymentOutstandingSectionOverview,
+  IPaymentOutstandingSectionTab,
+} from '../../types/payment-outstanding-section.interface';
 
 @Component({
   selector: 'app-payment-outstanding-section',
   imports: [
-    CurrencyPipe,
     InputFieldComponent,
     IconFieldModule,
     InputIconModule,
+    NavTabsComponent,
+    CurrencyPipe,
   ],
   templateUrl: './payment-outstanding-section.component.html',
   styleUrl: './payment-outstanding-section.component.scss',
@@ -38,86 +43,26 @@ import type { IVendorSectionSummaryStatGroup } from '../../types/payment-outstan
 export class PaymentOutstandingSectionComponent implements OnDestroy {
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
+  protected readonly tabContentMode = ETabMode.CONTENT;
 
-  sourceType = input.required<EPaymentOutstandingSourceType>();
-  sectionContext = input(EPaymentOutstandingSectionContext.OUTSTANDING);
-  loading = input(false);
-  recordCount = input(0);
-  totalPendingAmount = input(0);
-  totalPendingToBook = input<number | null>(null);
-  totalBookPayments = input<number | null>(null);
-  totalBookedAmount = input<number | null>(null);
-  vendorSummaryStats = input(false);
   showSearch = input(true);
   searchPlaceholder = input('Search...');
+  overviewCards = input<IPaymentOutstandingSectionOverview[]>([]);
+  tabs = input<IPaymentOutstandingSectionTab[]>([]);
+  activeTabIndex = model(0);
+  overviewAriaLabel = input('Payment source breakdown');
+  showOverview = input(true);
 
   searchChange = output<string>();
 
-  protected readonly sectionMeta = computed(() =>
-    getPaymentOutstandingSourceSectionMeta(
-      this.sourceType(),
-      this.sectionContext()
-    )
+  protected readonly hasOverview = computed(
+    () => this.showOverview() && this.overviewCards().length > 0
   );
 
-  protected readonly showVendorSummaryStats = computed(() =>
-    this.vendorSummaryStats()
-  );
+  protected readonly hasTabs = computed(() => this.tabs().length > 0);
 
-  protected readonly bookedAmountTransactionType = computed(() => {
-    const amount = this.totalBookedAmount() ?? 0;
-    if (amount > 0) {
-      return 'debit';
-    }
-    if (amount < 0) {
-      return 'credit';
-    }
-    return null;
-  });
-
-  protected readonly bookPaymentsCount = computed(
-    () => this.totalBookPayments() ?? 0
-  );
-
-  protected readonly vendorSummaryStatGroups = computed(
-    (): IVendorSectionSummaryStatGroup[] => [
-      {
-        title: 'Overview',
-        stats: [
-          {
-            kind: 'count',
-            value: this.recordCount(),
-            label: this.recordCountUnitLabel(),
-            ariaLabel: 'Total vendor count',
-          },
-          {
-            kind: 'count',
-            value: this.bookPaymentsCount(),
-            label: this.bookPaymentsCountLabel(),
-            ariaLabel: 'Total bookings count',
-          },
-        ],
-      },
-      {
-        title: 'Payables',
-        stats: [
-          {
-            kind: 'currency',
-            value: this.totalPendingToBook() ?? 0,
-            label: 'To be booked',
-            ariaLabel: 'Total amount to be booked',
-            tone: (this.totalPendingToBook() ?? 0) > 0 ? 'to-book' : null,
-          },
-          {
-            kind: 'currency',
-            value: this.totalBookedAmount() ?? 0,
-            label: 'Booked',
-            ariaLabel: 'Total booked amount payable',
-            tone: this.bookedAmountTransactionType(),
-          },
-        ],
-      },
-    ]
+  protected readonly navTabItems = computed(() =>
+    this.mapTabsToNavItems(this.tabs())
   );
 
   protected readonly searchTerm = signal('');
@@ -137,31 +82,8 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
 
   private searchDebounceTimer?: ReturnType<typeof setTimeout>;
 
-  protected readonly pendingTransactionType = computed(() => {
-    const amount = this.totalPendingAmount();
-    if (amount > 0) {
-      return 'debit';
-    }
-    if (amount < 0) {
-      return 'credit';
-    }
-    return null;
-  });
-
   ngOnDestroy(): void {
     clearTimeout(this.searchDebounceTimer);
-  }
-
-  protected recordCountUnitLabel(): string {
-    const count = this.recordCount();
-    const unit = this.sectionMeta().recordCountUnit;
-    const label = count === 1 ? unit : `${unit}s`;
-
-    return label.charAt(0).toUpperCase() + label.slice(1);
-  }
-
-  protected bookPaymentsCountLabel(): string {
-    return this.bookPaymentsCount() === 1 ? 'Booking' : 'Bookings';
   }
 
   protected onSearchFieldChange(value: unknown): void {
@@ -172,5 +94,21 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
     this.searchDebounceTimer = setTimeout(() => {
       this.searchChange.emit(term.trim());
     }, 400);
+  }
+
+  protected onNavTabChanged(event: ITabChange): void {
+    this.activeTabIndex.set(event.index);
+  }
+
+  private mapTabsToNavItems(tabs: IPaymentOutstandingSectionTab[]): ITabItem[] {
+    return tabs.map(tab => {
+      const count = tab.badgeCount ?? 0;
+
+      return {
+        route: tab.value,
+        label: tab.label,
+        badge: count > 0 ? count : undefined,
+      };
+    });
   }
 }

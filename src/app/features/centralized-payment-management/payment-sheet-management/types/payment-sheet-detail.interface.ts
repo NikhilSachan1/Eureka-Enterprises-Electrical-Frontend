@@ -3,11 +3,13 @@ import { EPaymentOutstandingSourceType } from '@features/centralized-payment-man
 
 export interface IPaymentSheetDetailItemRow {
   id: string;
+  beneficiaryId: string;
   beneficiaryName: string;
   beneficiaryCode: string;
   actualDue: number;
   payableAmount: number;
   itemStatus: string;
+  itemStatusCode: string;
   paidAt: string | null;
   paymentRef: string | null;
   bankDetails: IBankDetailsCellValue | null;

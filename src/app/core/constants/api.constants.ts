@@ -379,6 +379,10 @@ export const API_ROUTES = {
       `payment-sheets/${paymentSheetId}/return`,
     REJECT_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
       `payment-sheets/${paymentSheetId}/reject`,
+    VERIFY_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/verify`,
+    UNVERIFY_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/unverify`,
   },
 } as const;
 

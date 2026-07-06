@@ -43,6 +43,14 @@ import {
   ReturnPaymentSheetResponseSchema,
 } from '../schemas/return-payment-sheet.schema';
 import { SubmitPaymentSheetResponseSchema } from '../schemas/submit-payment-sheet.schema';
+import {
+  VerifyPaymentSheetItemsRequestSchema,
+  VerifyPaymentSheetItemsResponseSchema,
+} from '../schemas/verify-payment-sheet-items.schema';
+import {
+  UnverifyPaymentSheetItemsRequestSchema,
+  UnverifyPaymentSheetItemsResponseSchema,
+} from '../schemas/unverify-payment-sheet-items.schema';
 
 export type ICreatePaymentSheetFormDto = z.input<
   typeof CreatePaymentSheetRequestSchema
@@ -130,4 +138,18 @@ export type IPayPaymentSheetItemFormDto = z.input<
 >;
 export type IPayPaymentSheetItemResponseDto = z.infer<
   typeof PayPaymentSheetItemResponseSchema
+>;
+
+export type IVerifyPaymentSheetItemsFormDto = z.input<
+  typeof VerifyPaymentSheetItemsRequestSchema
+>;
+export type IVerifyPaymentSheetItemsResponseDto = z.infer<
+  typeof VerifyPaymentSheetItemsResponseSchema
+>;
+
+export type IUnverifyPaymentSheetItemsFormDto = z.input<
+  typeof UnverifyPaymentSheetItemsRequestSchema
+>;
+export type IUnverifyPaymentSheetItemsResponseDto = z.infer<
+  typeof UnverifyPaymentSheetItemsResponseSchema
 >;

@@ -1,4 +1,6 @@
-import { COMMON_ROW_ACTIONS } from '@shared/config';
+import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
+import { ICONS } from '@shared/constants';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
   EButtonActionType,
   EDataType,
@@ -9,17 +11,16 @@ import {
 } from '@shared/types';
 import { EPaymentSheetDetailAction } from '../../types/payment-sheet.enum';
 import { IPaymentSheetDetailItemRow } from '../../types/payment-sheet-detail.interface';
+import { IPaymentSheetWorkflowRow } from '../../types/payment-sheet.interface';
 import {
-  IPaymentSheetWorkflowPermissions,
-  IPaymentSheetWorkflowRow,
-} from '../../types/payment-sheet.interface';
+  getPaymentSheetItemUnverifyDisableReason,
+  getPaymentSheetItemVerifyDisableReason,
+  isPaymentSheetItemUnverifyAllowed,
+  isPaymentSheetItemVerifyAllowed,
+} from '../../utils/payment-sheet-item-status.util';
 import {
   getPaymentSheetDetailActionDisableReason,
   isPaymentSheetDetailActionDisabled,
-  PAYMENT_SHEET_DETAIL_ITEM_DELETE_PERMISSIONS,
-  PAYMENT_SHEET_DETAIL_ITEM_EDIT_PERMISSIONS,
-  PAYMENT_SHEET_DETAIL_ITEM_RECORD_PAYMENT_PERMISSIONS,
-  PAYMENT_SHEET_DETAIL_ITEM_REJECT_PERMISSIONS,
 } from '../../utils/payment-sheet-status.util';
 
 export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG: Partial<IDataTableConfig> =
@@ -75,27 +76,65 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG: Partial<IDataTableH
     },
   ];
 
-export function buildPaymentSheetDetailItemsRowActionsConfig(
-  workflowPermissions: IPaymentSheetWorkflowPermissions,
-  getWorkflowRow: () => IPaymentSheetWorkflowRow,
-  options: { includeEdit?: boolean } = {}
-): Partial<ITableActionConfig<IPaymentSheetDetailItemRow>>[] {
-  const { includeEdit = true } = options;
+interface IPaymentSheetDetailItemWorkflowActionHelpers {
+  isDisabled: (action: EPaymentSheetDetailAction) => boolean;
+  disableReason: (action: EPaymentSheetDetailAction) => string | undefined;
+  verifyDisableWhen: (row: IPaymentSheetDetailItemRow) => boolean;
+  verifyDisableReason: (row: IPaymentSheetDetailItemRow) => string | undefined;
+  unverifyDisableWhen: (row: IPaymentSheetDetailItemRow) => boolean;
+  unverifyDisableReason: (
+    row: IPaymentSheetDetailItemRow
+  ) => string | undefined;
+}
+
+function buildDetailItemWorkflowActionHelpers(
+  getWorkflowRow: () => IPaymentSheetWorkflowRow
+): IPaymentSheetDetailItemWorkflowActionHelpers {
   const isDisabled = (action: EPaymentSheetDetailAction): boolean =>
-    isPaymentSheetDetailActionDisabled(
-      getWorkflowRow(),
-      workflowPermissions,
-      action
-    );
+    isPaymentSheetDetailActionDisabled(getWorkflowRow(), action);
 
   const disableReason = (
     action: EPaymentSheetDetailAction
   ): string | undefined =>
-    getPaymentSheetDetailActionDisableReason(
-      getWorkflowRow(),
-      workflowPermissions,
-      action
-    );
+    getPaymentSheetDetailActionDisableReason(getWorkflowRow(), action);
+
+  return {
+    isDisabled,
+    disableReason,
+    verifyDisableWhen: (row: IPaymentSheetDetailItemRow): boolean =>
+      isDisabled(EPaymentSheetDetailAction.VERIFY_ITEM) ||
+      !isPaymentSheetItemVerifyAllowed(row.itemStatusCode),
+    verifyDisableReason: (
+      row: IPaymentSheetDetailItemRow
+    ): string | undefined =>
+      isDisabled(EPaymentSheetDetailAction.VERIFY_ITEM)
+        ? disableReason(EPaymentSheetDetailAction.VERIFY_ITEM)
+        : getPaymentSheetItemVerifyDisableReason(row.itemStatusCode),
+    unverifyDisableWhen: (row: IPaymentSheetDetailItemRow): boolean =>
+      isDisabled(EPaymentSheetDetailAction.UNVERIFY_ITEM) ||
+      !isPaymentSheetItemUnverifyAllowed(row.itemStatusCode),
+    unverifyDisableReason: (
+      row: IPaymentSheetDetailItemRow
+    ): string | undefined =>
+      isDisabled(EPaymentSheetDetailAction.UNVERIFY_ITEM)
+        ? disableReason(EPaymentSheetDetailAction.UNVERIFY_ITEM)
+        : getPaymentSheetItemUnverifyDisableReason(row.itemStatusCode),
+  };
+}
+
+function buildPaymentSheetDetailItemsRowActionsConfig(
+  getWorkflowRow: () => IPaymentSheetWorkflowRow,
+  options: { includeEdit?: boolean } = {}
+): Partial<ITableActionConfig<IPaymentSheetDetailItemRow>>[] {
+  const { includeEdit = true } = options;
+  const {
+    isDisabled,
+    disableReason,
+    verifyDisableWhen,
+    verifyDisableReason,
+    unverifyDisableWhen,
+    unverifyDisableReason,
+  } = buildDetailItemWorkflowActionHelpers(getWorkflowRow);
 
   const rowActions: Partial<ITableActionConfig<IPaymentSheetDetailItemRow>>[] =
     [];
@@ -103,7 +142,7 @@ export function buildPaymentSheetDetailItemsRowActionsConfig(
   if (includeEdit) {
     rowActions.push({
       ...COMMON_ROW_ACTIONS.EDIT,
-      permission: [...PAYMENT_SHEET_DETAIL_ITEM_EDIT_PERMISSIONS],
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_EDIT],
       disableWhen: () => isDisabled(EPaymentSheetDetailAction.EDIT_ITEM),
       disableReason: () => disableReason(EPaymentSheetDetailAction.EDIT_ITEM),
     });
@@ -112,21 +151,37 @@ export function buildPaymentSheetDetailItemsRowActionsConfig(
   rowActions.push(
     {
       ...COMMON_ROW_ACTIONS.DELETE,
-      permission: [...PAYMENT_SHEET_DETAIL_ITEM_DELETE_PERMISSIONS],
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_REMOVE],
       disableWhen: () => isDisabled(EPaymentSheetDetailAction.DELETE_ITEM),
       disableReason: () => disableReason(EPaymentSheetDetailAction.DELETE_ITEM),
     },
     {
+      ...COMMON_ROW_ACTIONS.APPROVE,
+      icon: ICONS.FLEET.PUC,
+      tooltip: 'Verify',
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_VERIFY],
+      disableWhen: verifyDisableWhen,
+      disableReason: verifyDisableReason,
+    },
+    {
+      id: EButtonActionType.UNVERIFY,
+      icon: ICONS.COMMON.SYNC,
+      tooltip: 'Unverify',
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_UNVERIFY],
+      disableWhen: unverifyDisableWhen,
+      disableReason: unverifyDisableReason,
+    },
+    {
       ...COMMON_ROW_ACTIONS.REJECT,
       tooltip: 'Reject',
-      permission: [...PAYMENT_SHEET_DETAIL_ITEM_REJECT_PERMISSIONS],
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_REJECT],
       disableWhen: () => isDisabled(EPaymentSheetDetailAction.REJECT_ITEM),
       disableReason: () => disableReason(EPaymentSheetDetailAction.REJECT_ITEM),
     },
     {
       id: EButtonActionType.PAID,
       tooltip: 'Record Payment',
-      permission: [...PAYMENT_SHEET_DETAIL_ITEM_RECORD_PAYMENT_PERMISSIONS],
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_PAY],
       disableWhen: () => isDisabled(EPaymentSheetDetailAction.RECORD_PAYMENT),
       disableReason: () =>
         disableReason(EPaymentSheetDetailAction.RECORD_PAYMENT),
@@ -136,11 +191,49 @@ export function buildPaymentSheetDetailItemsRowActionsConfig(
   return rowActions;
 }
 
-export function createPaymentSheetDetailItemsTableConfig(): IEnhancedTableConfig<IPaymentSheetDetailItemRow> {
+function buildPaymentSheetDetailItemsBulkActionsConfig(
+  getWorkflowRow: () => IPaymentSheetWorkflowRow
+): Partial<ITableActionConfig<IPaymentSheetDetailItemRow>>[] {
+  const {
+    verifyDisableWhen,
+    verifyDisableReason,
+    unverifyDisableWhen,
+    unverifyDisableReason,
+  } = buildDetailItemWorkflowActionHelpers(getWorkflowRow);
+
+  return [
+    {
+      ...COMMON_BULK_ACTIONS.APPROVE,
+      label: 'Verify',
+      icon: ICONS.FLEET.PUC,
+      tooltip: 'Verify Selected',
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_VERIFY],
+      disableWhen: verifyDisableWhen,
+      disableReason: verifyDisableReason,
+    },
+    {
+      id: EButtonActionType.UNVERIFY,
+      label: 'Unverify',
+      icon: ICONS.COMMON.SYNC,
+      tooltip: 'Unverify Selected',
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_UNVERIFY],
+      disableWhen: unverifyDisableWhen,
+      disableReason: unverifyDisableReason,
+    },
+  ];
+}
+
+export function createPaymentSheetDetailItemsTableEnhancedConfig(
+  getWorkflowRow: () => IPaymentSheetWorkflowRow,
+  options: { includeEdit?: boolean } = {}
+): IEnhancedTableConfig<IPaymentSheetDetailItemRow> {
   return {
     tableConfig: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG,
     headers: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG,
-    rowActions: [],
-    bulkActions: [],
+    rowActions: buildPaymentSheetDetailItemsRowActionsConfig(
+      getWorkflowRow,
+      options
+    ),
+    bulkActions: buildPaymentSheetDetailItemsBulkActionsConfig(getWorkflowRow),
   };
 }
