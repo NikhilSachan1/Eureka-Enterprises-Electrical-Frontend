@@ -11,9 +11,8 @@ export const VENDOR_OUTSTANDING_OPS_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No bookings found for this invoice.',
   emptyMessageDescription:
     'Booked payment entries for this invoice will appear here.',
-  enableServerSide: false,
+  showCheckbox: true,
   showPaginator: false,
-  showViewModeToggle: false,
 };
 
 export const VENDOR_OUTSTANDING_OPS_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =

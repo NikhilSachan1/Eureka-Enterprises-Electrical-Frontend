@@ -12,6 +12,7 @@ export const FUEL_EXPENSE_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> =
     emptyMessage: 'No fuel outstanding record found.',
     emptyMessageDescription:
       'There are no pending fuel reimbursements to be paid.',
+    showCheckbox: true,
   };
 
 export const FUEL_EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
