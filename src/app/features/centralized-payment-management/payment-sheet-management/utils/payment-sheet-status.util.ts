@@ -197,3 +197,46 @@ export function getPaymentSheetForwardActionForUserRole(
       return null;
   }
 }
+
+export function isPaymentSheetForwardActionAllowed(
+  row: IPaymentSheetWorkflowRow,
+  action: EPaymentSheetWorkflowActionType
+): boolean {
+  switch (action) {
+    case EPaymentSheetWorkflowActionType.FORWARD_TO_HR:
+      return isPaymentSheetDraftOrReturned(row);
+    case EPaymentSheetWorkflowActionType.FORWARD_TO_ADMIN:
+      return isPaymentSheetHrReview(row);
+    case EPaymentSheetWorkflowActionType.FORWARD_TO_ACCOUNTANT:
+      return isPaymentSheetAdminReview(row);
+    default:
+      return false;
+  }
+}
+
+export function isPaymentSheetForwardActionDisabled(
+  row: IPaymentSheetWorkflowRow,
+  action: EPaymentSheetWorkflowActionType
+): boolean {
+  return !isPaymentSheetForwardActionAllowed(row, action);
+}
+
+export function getPaymentSheetForwardDisableReason(
+  row: IPaymentSheetWorkflowRow,
+  action: EPaymentSheetWorkflowActionType
+): string | undefined {
+  if (!isPaymentSheetForwardActionDisabled(row, action)) {
+    return undefined;
+  }
+
+  switch (action) {
+    case EPaymentSheetWorkflowActionType.FORWARD_TO_HR:
+      return 'Forward to HR is only available while the payment sheet is in draft or returned.';
+    case EPaymentSheetWorkflowActionType.FORWARD_TO_ADMIN:
+      return 'Forward to Admin is only available while the payment sheet is in HR review.';
+    case EPaymentSheetWorkflowActionType.FORWARD_TO_ACCOUNTANT:
+      return 'Forward to Accountant is only available while the payment sheet is in Admin review.';
+    default:
+      return 'Forward is not available for this payment sheet at the current status.';
+  }
+}

@@ -71,7 +71,11 @@ import {
   IPaymentSheetOverviewView,
 } from '../../types/payment-sheet-detail.interface';
 import { APP_PERMISSION } from '@core/constants';
-import { getPaymentSheetForwardActionForUserRole } from '../../utils/payment-sheet-status.util';
+import {
+  getPaymentSheetForwardActionForUserRole,
+  getPaymentSheetForwardDisableReason,
+  isPaymentSheetForwardActionAllowed,
+} from '../../utils/payment-sheet-status.util';
 import {
   getPaymentSheetVerificationStageLabel,
   getVisiblePaymentSheetItemVerificationStages,
@@ -193,11 +197,12 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   protected readonly sheetOverview = computed(() => this.buildSheetOverview());
 
   protected readonly permittedWorkflowButtons = computed(() => {
+    const detail = this.detail();
     const allowedAction = getPaymentSheetForwardActionForUserRole(
       this.authService.user()?.activeRole
     );
 
-    if (!allowedAction) {
+    if (!allowedAction || !detail) {
       return [];
     }
 
@@ -205,7 +210,21 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       this.appPermissionService.filterRecordByPermission(
         PAYMENT_SHEET_DETAIL_WORKFLOW_BUTTONS_CONFIG
       )
-    ).filter(button => button.actionName === allowedAction);
+    )
+      .filter(button => button.actionName === allowedAction)
+      .map(button => {
+        const workflowAction =
+          button.actionName as EPaymentSheetWorkflowActionType;
+
+        return {
+          ...button,
+          disabled: !isPaymentSheetForwardActionAllowed(detail, workflowAction),
+          disabledTooltip: getPaymentSheetForwardDisableReason(
+            detail,
+            workflowAction
+          ),
+        };
+      });
   });
 
   ngOnInit(): void {
@@ -282,7 +301,15 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   protected onHeaderButtonClick(actionType: string): void {
-    if (actionType !== EButtonActionType.ADD || !this.paymentSheetId) {
+    const detail = this.detail();
+
+    if (
+      actionType !== EButtonActionType.ADD ||
+      !this.paymentSheetId ||
+      !detail ||
+      (detail.status !== EPaymentSheetStatus.DRAFT &&
+        detail.status !== EPaymentSheetStatus.RETURNED)
+    ) {
       return;
     }
 
@@ -290,11 +317,17 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   protected onWorkflowActionClick(actionType: string): void {
-    if (!this.paymentSheetId || !actionType) {
+    const detail = this.detail();
+
+    if (!this.paymentSheetId || !actionType || !detail) {
       return;
     }
 
     const workflowActionType = actionType as EPaymentSheetWorkflowActionType;
+
+    if (!isPaymentSheetForwardActionAllowed(detail, workflowActionType)) {
+      return;
+    }
 
     this.confirmationDialogService.showConfirmationDialog(
       EButtonActionType.SUBMIT,
@@ -576,6 +609,9 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
   private buildPageHeaderConfig(): IPageHeaderConfig {
     const detail = this.detail();
+    const canAddBeneficiaries =
+      detail?.status === EPaymentSheetStatus.DRAFT ||
+      detail?.status === EPaymentSheetStatus.RETURNED;
 
     return {
       title: detail?.sheetNumber ?? 'Payment Sheet Detail',
@@ -590,6 +626,10 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           label: 'Add Beneficiaries',
           icon: ICONS.COMMON.USERS,
           permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_ADD],
+          disabled: !canAddBeneficiaries,
+          disabledTooltip: canAddBeneficiaries
+            ? undefined
+            : 'Add beneficiaries is only available while the payment sheet is in draft or returned.',
         },
       ],
     };
