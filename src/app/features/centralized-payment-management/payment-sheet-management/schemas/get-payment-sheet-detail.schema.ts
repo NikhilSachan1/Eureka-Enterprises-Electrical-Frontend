@@ -89,15 +89,22 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   remainingAmount: z.coerce.number(),
   user: UserSchema.nullable(),
   vendor: PaymentSheetVendorSnapshotSchema,
-  verifications: z.array(PaymentSheetItemVerificationSchema).optional(),
-  verifiedStages: z.array(z.string()).optional(),
-  isVerifiedForCurrentStage: z.boolean().optional(),
+  verifications: z.array(PaymentSheetItemVerificationSchema),
+  verifiedStages: z.array(z.string()),
+  isVerifiedForCurrentStage: z.boolean(),
 });
 
 export const PaymentSheetDetailGetResponseSchema = z.looseObject({
+  id: uuidField,
+  sheetNumber: z.string(),
+  title: z.string().nullable(),
+  remarks: z.string().nullable(),
   status: z.string(),
   currentStage: z.string().nullable(),
+  totalRequestedAmount: z.coerce.number(),
+  totalCurrentAmount: z.coerce.number(),
+  totalPaidAmount: z.coerce.number(),
+  createdAt: isoDateTimeField,
   items: z.array(PaymentSheetItemDetailSchema),
-  verificationSummary:
-    PaymentSheetVerificationSummarySchema.nullable().optional(),
+  verificationSummary: PaymentSheetVerificationSummarySchema.nullable(),
 });

@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { APP_CONFIG } from '@core/config';
 import { AuthService } from '@features/auth-management/services/auth.service';
@@ -32,7 +32,12 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ICONS } from '@shared/constants';
-import { ConfirmationDialogService, TableService } from '@shared/services';
+import {
+  ConfirmationDialogService,
+  TableService,
+  AppConfigurationService,
+} from '@shared/services';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import {
   EButtonActionType,
   EDataType,
@@ -62,6 +67,7 @@ import {
   IPaymentSheetDetailItemRow,
   IPaymentSheetDetailSourceGroupView,
   IPaymentSheetItemVerificationView,
+  IPaymentSheetOverviewView,
 } from '../../types/payment-sheet-detail.interface';
 import { APP_PERMISSION } from '@core/constants';
 import { getPaymentSheetForwardActionForUserRole } from '../../utils/payment-sheet-status.util';
@@ -73,6 +79,7 @@ import {
 @Component({
   selector: 'app-get-payment-sheet-detail',
   imports: [
+    CurrencyPipe,
     DatePipe,
     PageHeaderComponent,
     DataTableComponent,
@@ -95,7 +102,11 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   protected readonly paidAtDateLocale = APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE;
   protected readonly verifiedAtDateFormat =
     APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
+  protected readonly overviewDateFormat =
+    APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
+  protected readonly currencyFormat = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
 
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dataTableService = inject(TableService);
   private readonly paymentSheetService = inject(PaymentSheetService);
@@ -177,6 +188,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   );
 
   protected pageHeaderConfig = computed(() => this.buildPageHeaderConfig());
+
+  protected readonly sheetOverview = computed(() => this.buildSheetOverview());
 
   protected readonly permittedWorkflowButtons = computed(() => {
     const allowedAction = getPaymentSheetForwardActionForUserRole(
@@ -476,9 +489,9 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     'verifications' | 'verifiedStages' | 'isVerifiedForCurrentStage'
   > {
     return {
-      verifications: item.verifications ?? [],
-      verifiedStages: item.verifiedStages ?? [],
-      isVerifiedForCurrentStage: item.isVerifiedForCurrentStage ?? false,
+      verifications: item.verifications,
+      verifiedStages: item.verifiedStages,
+      isVerifiedForCurrentStage: item.isVerifiedForCurrentStage,
     };
   }
 
@@ -550,21 +563,13 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     };
   }
 
-  private getRecordCountLabel(
-    sourceType: EPaymentOutstandingSourceType
-  ): string {
-    const unit = getPaymentOutstandingSourceSectionMeta(
-      sourceType,
-      EPaymentOutstandingSectionContext.PAYMENT_SHEET
-    ).recordCountUnit;
-
-    return unit === 'vendor' ? 'Vendors' : 'Employees';
-  }
-
   private buildPageHeaderConfig(): IPageHeaderConfig {
+    const detail = this.detail();
+
     return {
-      title: 'Payment Sheet',
-      subtitle: 'Payment sheet beneficiaries',
+      title: detail?.sheetNumber ?? 'Payment Sheet Detail',
+      subtitle:
+        detail?.title?.trim() ?? 'Review sheet overview and beneficiaries',
       showHeaderButton: true,
       showGoBackButton: true,
       headerButtonConfig: [
@@ -577,5 +582,54 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         },
       ],
     };
+  }
+
+  private buildSheetOverview(): IPaymentSheetOverviewView | undefined {
+    const detail = this.detail();
+
+    if (!detail) {
+      return undefined;
+    }
+
+    const { totalCurrentAmount } = detail;
+    const { totalPaidAmount } = detail;
+    const { verificationSummary } = detail;
+
+    return {
+      stageLabel: detail.currentStage
+        ? getMappedValueFromArrayOfObjects(
+            this.appConfigurationService.paymentSheetStages(),
+            detail.currentStage
+          )
+        : '—',
+      createdAt: detail.createdAt,
+      beneficiaryCount: detail.items.length,
+      verificationSummary: verificationSummary
+        ? {
+            verified: verificationSummary.verified,
+            total: verificationSummary.total,
+            allVerified: verificationSummary.allVerified,
+            stageLabel: getPaymentSheetVerificationStageLabel(
+              verificationSummary.stage
+            ),
+          }
+        : null,
+      totalRequestedAmount: detail.totalRequestedAmount,
+      totalCurrentAmount,
+      totalPaidAmount,
+      pendingAmount: Math.max(0, totalCurrentAmount - totalPaidAmount),
+      remarks: detail.remarks?.trim() ?? null,
+    };
+  }
+
+  private getRecordCountLabel(
+    sourceType: EPaymentOutstandingSourceType
+  ): string {
+    const unit = getPaymentOutstandingSourceSectionMeta(
+      sourceType,
+      EPaymentOutstandingSectionContext.PAYMENT_SHEET
+    ).recordCountUnit;
+
+    return unit === 'vendor' ? 'Vendors' : 'Employees';
   }
 }

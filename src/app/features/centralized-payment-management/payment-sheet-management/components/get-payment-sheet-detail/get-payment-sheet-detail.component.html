@@ -4,6 +4,80 @@
     (headerButtonClick)="onHeaderButtonClick($event)"
   />
 
+  @if (sheetOverview(); as overview) {
+    <section
+      class="ps-overview"
+      aria-label="Payment sheet detail"
+    >
+      <div class="ps-overview__body">
+        <div class="ps-overview__info">
+          <div class="ps-overview__facts">
+            <div class="ps-overview__fact">
+              <span class="ps-overview__fact-label">Stage</span>
+              <span class="ps-overview__fact-value">{{ overview.stageLabel }}</span>
+            </div>
+            <div class="ps-overview__fact">
+              <span class="ps-overview__fact-label">Created</span>
+              <span class="ps-overview__fact-value">
+                {{ overview.createdAt | date: overviewDateFormat : undefined : paidAtDateLocale }}
+              </span>
+            </div>
+            <div class="ps-overview__fact">
+              <span class="ps-overview__fact-label">Beneficiaries</span>
+              <span class="ps-overview__fact-value">{{ overview.beneficiaryCount }}</span>
+            </div>
+            @if (overview.verificationSummary; as verification) {
+              <div class="ps-overview__fact">
+                <span class="ps-overview__fact-label">Verified ({{ verification.stageLabel }})</span>
+                <span
+                  class="ps-overview__fact-value"
+                  [class.ps-overview__fact-value--complete]="verification.allVerified"
+                >
+                  {{ verification.verified }} / {{ verification.total }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="ps-overview__totals">
+          <div class="ps-overview__amounts">
+            <div class="ps-overview__amount">
+              <span class="ps-overview__amount-label">Requested</span>
+              <span class="ps-overview__amount-value">
+                {{ overview.totalRequestedAmount | currency: currencyFormat }}
+              </span>
+            </div>
+            <div class="ps-overview__amount">
+              <span class="ps-overview__amount-label">Payable</span>
+              <span class="ps-overview__amount-value">
+                {{ overview.totalCurrentAmount | currency: currencyFormat }}
+              </span>
+            </div>
+            <div class="ps-overview__amount">
+              <span class="ps-overview__amount-label">Paid</span>
+              <span class="ps-overview__amount-value">{{ overview.totalPaidAmount | currency: currencyFormat }}</span>
+            </div>
+            <div
+              class="ps-overview__amount"
+              [class.ps-overview__amount--pending]="overview.pendingAmount > 0"
+            >
+              <span class="ps-overview__amount-label">Pending</span>
+              <span class="ps-overview__amount-value">{{ overview.pendingAmount | currency: currencyFormat }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      @if (overview.remarks) {
+        <footer class="ps-overview__remarks">
+          <span class="ps-overview__remarks-label">Remarks</span>
+          <p class="ps-overview__remarks-text">{{ overview.remarks }}</p>
+        </footer>
+      }
+    </section>
+  }
+
   <section class="ps-detail">
     @if (!sourceGroups().length) {
       <app-empty-messages

@@ -33,3 +33,22 @@ export interface IPaymentSheetDetailSourceGroupView {
   totalCurrentAmount: number;
   table: IEnhancedTable;
 }
+
+export interface IPaymentSheetOverviewVerificationView {
+  verified: number;
+  total: number;
+  allVerified: boolean;
+  stageLabel: string;
+}
+
+export interface IPaymentSheetOverviewView {
+  stageLabel: string;
+  createdAt: string;
+  beneficiaryCount: number;
+  verificationSummary: IPaymentSheetOverviewVerificationView | null;
+  totalRequestedAmount: number;
+  totalCurrentAmount: number;
+  totalPaidAmount: number;
+  pendingAmount: number;
+  remarks: string | null;
+}
