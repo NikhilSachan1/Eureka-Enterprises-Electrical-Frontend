@@ -8,8 +8,6 @@ export interface IPaymentSheetDetailItemRow {
   beneficiaryCode: string;
   actualDue: number;
   payableAmount: number;
-  itemStatus: string;
-  itemStatusCode: string;
   paidAt: string | null;
   paymentRef: string | null;
   bankDetails: IBankDetailsCellValue | null;

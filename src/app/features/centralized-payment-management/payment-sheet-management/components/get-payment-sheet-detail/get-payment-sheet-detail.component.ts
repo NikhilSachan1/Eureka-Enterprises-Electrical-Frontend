@@ -11,7 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import { APP_CONFIG } from '@core/config';
 import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
@@ -31,33 +31,26 @@ import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ICONS } from '@shared/constants';
-import {
-  AppConfigurationService,
-  ConfirmationDialogService,
-  TableService,
-} from '@shared/services';
+import { ConfirmationDialogService, TableService } from '@shared/services';
 import {
   EButtonActionType,
-  EButtonSeverity,
   EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IButtonConfig,
   IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/types';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { finalize } from 'rxjs';
 import {
   PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP,
   PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ENHANCED_CONFIG,
+  PAYMENT_SHEET_DETAIL_WORKFLOW_BUTTONS_CONFIG,
 } from '../../config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
   EPaymentSheetSourceType,
   EPaymentSheetWorkflowActionType,
-  PAYMENT_SHEET_WORKFLOW_ACTION_TYPES,
 } from '../../types/payment-sheet.enum';
 import {
   IPaymentSheetDetailGetResponseDto,
@@ -67,6 +60,7 @@ import {
   IPaymentSheetDetailItemRow,
   IPaymentSheetDetailSourceGroupView,
 } from '../../types/payment-sheet-detail.interface';
+import { APP_PERMISSION } from '@core/constants';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
@@ -93,13 +87,13 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dataTableService = inject(TableService);
-  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly paymentSheetService = inject(PaymentSheetService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly appPermissionService = inject(AppPermissionService);
 
   private readonly paymentSheetId =
     this.activatedRoute.snapshot.paramMap.get('paymentSheetId') ?? '';
@@ -172,8 +166,12 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
   protected pageHeaderConfig = computed(() => this.buildPageHeaderConfig());
 
-  protected readonly workflowButtonConfigs = computed(() =>
-    this.buildWorkflowButtonConfigs()
+  protected readonly permittedWorkflowButtons = computed(() =>
+    Object.values(
+      this.appPermissionService.filterRecordByPermission(
+        PAYMENT_SHEET_DETAIL_WORKFLOW_BUTTONS_CONFIG
+      )
+    )
   );
 
   ngOnInit(): void {
@@ -213,22 +211,22 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     this.openAddBeneficiariesDialog();
   }
 
-  protected onWorkflowActionClick(
-    actionType: EPaymentSheetWorkflowActionType
-  ): void {
-    if (!this.paymentSheetId) {
+  protected onWorkflowActionClick(actionType: string): void {
+    if (!this.paymentSheetId || !actionType) {
       return;
     }
 
+    const workflowActionType = actionType as EPaymentSheetWorkflowActionType;
+
     this.confirmationDialogService.showConfirmationDialog(
       EButtonActionType.SUBMIT,
-      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[actionType],
+      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[workflowActionType],
       null,
       false,
       false,
       {
         paymentSheetId: this.paymentSheetId,
-        workflowActionType: actionType,
+        workflowActionType,
         onSuccess: () => this.reloadDetail(),
       }
     );
@@ -394,11 +392,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         ? `${item.user.firstName} ${item.user.lastName}`.trim()
         : (item.vendor?.name ?? '-'),
       beneficiaryCode: item.user?.employeeId ?? item.vendorId ?? '',
-      itemStatusCode: item.itemStatus,
-      itemStatus: getMappedValueFromArrayOfObjects(
-        this.appConfigurationService.paymentSheetItemStatuses(),
-        item.itemStatus
-      ),
       paidAt: item.paidAt ?? null,
       paymentRef: item.paymentRef ?? null,
       bankDetails: item.bankSnapshot
@@ -416,10 +409,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     items: IPaymentSheetItemDetailDto[]
   ): IPaymentSheetDetailItemRow[] {
     return items.flatMap(item => {
-      const itemStatus = getMappedValueFromArrayOfObjects(
-        this.appConfigurationService.paymentSheetItemStatuses(),
-        item.itemStatus
-      );
       const bankDetails = item.bankSnapshot
         ? {
             bankHolderName: item.bankSnapshot.accountHolderName,
@@ -436,8 +425,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         beneficiaryCode: item.vendorId ?? '',
         actualDue: allocation.allocatedAmount,
         payableAmount: allocation.allocatedAmount,
-        itemStatusCode: item.itemStatus,
-        itemStatus,
         paidAt: item.paidAt ?? null,
         paymentRef: item.paymentRef ?? null,
         bankDetails,
@@ -489,26 +476,9 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           actionName: EButtonActionType.ADD,
           label: 'Add Beneficiaries',
           icon: ICONS.COMMON.USERS,
-          severity: EButtonSeverity.PRIMARY,
+          permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_ADD],
         },
       ],
     };
-  }
-
-  private buildWorkflowButtonConfigs(): {
-    actionType: EPaymentSheetWorkflowActionType;
-    buttonConfig: Partial<IButtonConfig>;
-  }[] {
-    return PAYMENT_SHEET_WORKFLOW_ACTION_TYPES.map(actionType => ({
-      actionType,
-      buttonConfig: {
-        id: EButtonActionType.SUBMIT,
-        label:
-          PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[actionType].dialogConfig
-            ?.labels?.singleLabel ?? '',
-        icon: ICONS.ACTIONS.SEND,
-        severity: EButtonSeverity.SUCCESS,
-      },
-    }));
   }
 }

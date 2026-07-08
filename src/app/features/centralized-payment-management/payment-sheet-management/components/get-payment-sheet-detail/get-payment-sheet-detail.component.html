@@ -96,10 +96,10 @@
   </section>
 
   <footer class="button-container ps-detail__forward">
-    @for (item of workflowButtonConfigs(); track item.actionType) {
+    @for (buttonConfig of permittedWorkflowButtons(); track buttonConfig.actionName) {
       <app-button
-        [buttonConfig]="item.buttonConfig"
-        (onButtonClick)="onWorkflowActionClick(item.actionType)"
+        [buttonConfig]="buttonConfig"
+        (onButtonClick)="onWorkflowActionClick($event)"
       />
     }
   </footer>

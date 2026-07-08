@@ -9,6 +9,7 @@ import {
   ITableActionConfig,
 } from '@shared/types';
 import { IPaymentSheetDetailItemRow } from '../../types/payment-sheet-detail.interface';
+import { APP_PERMISSION } from '@core/constants';
 
 export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG: Partial<IDataTableConfig> =
   {
@@ -40,12 +41,6 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG: Partial<IDataTableH
       showSort: false,
     },
     {
-      field: 'itemStatus',
-      header: 'Status',
-      bodyTemplate: EDataType.STATUS,
-      showSort: false,
-    },
-    {
       field: 'itemPayment',
       header: 'Payment',
       bodyTemplate: EDataType.TEXT,
@@ -68,27 +63,33 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ROW_ACTIONS_CONFIG: Partial<
 >[] = [
   {
     ...COMMON_ROW_ACTIONS.EDIT,
+    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_EDIT],
   },
   {
     ...COMMON_ROW_ACTIONS.DELETE,
+    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_REMOVE],
   },
   {
     ...COMMON_ROW_ACTIONS.APPROVE,
     icon: ICONS.FLEET.PUC,
     tooltip: 'Verify',
+    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_VERIFY],
   },
   {
     id: EButtonActionType.UNVERIFY,
     icon: ICONS.COMMON.SYNC,
     tooltip: 'Unverify',
+    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_UNVERIFY],
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject',
+    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_REJECT],
   },
   {
     id: EButtonActionType.PAID,
     tooltip: 'Record Payment',
+    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_PAY],
   },
 ];
 
