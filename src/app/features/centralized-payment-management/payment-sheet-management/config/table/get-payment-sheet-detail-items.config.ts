@@ -12,6 +12,20 @@ import {
 import { IPaymentSheetDetailItemRow } from '../../types/payment-sheet-detail.interface';
 import { APP_PERMISSION } from '@core/constants';
 import { EPaymentSheetSourceType } from '../../types/payment-sheet.enum';
+import {
+  disablePaymentSheetDelete,
+  disablePaymentSheetEdit,
+  disablePaymentSheetRecordPayment,
+  disablePaymentSheetRejectItem,
+  disablePaymentSheetUnverify,
+  disablePaymentSheetVerify,
+  paymentSheetDeleteDisableReason,
+  paymentSheetEditDisableReason,
+  paymentSheetRecordPaymentDisableReason,
+  paymentSheetRejectItemDisableReason,
+  paymentSheetUnverifyDisableReason,
+  paymentSheetVerifyDisableReason,
+} from '../../utils/payment-sheet-table-row.util';
 
 export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG: Partial<IDataTableConfig> =
   {
@@ -95,7 +109,8 @@ export const createPaymentSheetDetailItemsTableHeadersConfig = (
 };
 
 export const createPaymentSheetDetailItemsTableRowActionsConfig = (
-  sourceType: EPaymentSheetSourceType
+  sourceType: EPaymentSheetSourceType,
+  activeRole: string | null | undefined
 ): Partial<ITableActionConfig<IPaymentSheetDetailItemRow>>[] => {
   const isVendor = sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT;
 
@@ -104,45 +119,73 @@ export const createPaymentSheetDetailItemsTableRowActionsConfig = (
       ...COMMON_ROW_ACTIONS.EDIT,
       permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_EDIT],
       hideWhen: () => isVendor,
+      disableWhen: (row: IPaymentSheetDetailItemRow) =>
+        disablePaymentSheetEdit(row, activeRole),
+      disableReason: (row: IPaymentSheetDetailItemRow) =>
+        paymentSheetEditDisableReason(row, activeRole),
     },
     {
       ...COMMON_ROW_ACTIONS.DELETE,
       permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_REMOVE],
+      disableWhen: (row: IPaymentSheetDetailItemRow) =>
+        disablePaymentSheetDelete(row, activeRole),
+      disableReason: (row: IPaymentSheetDetailItemRow) =>
+        paymentSheetDeleteDisableReason(row, activeRole),
     },
     {
       ...COMMON_ROW_ACTIONS.APPROVE,
       icon: ICONS.FLEET.PUC,
       tooltip: 'Verify',
       permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_VERIFY],
+      disableWhen: (row: IPaymentSheetDetailItemRow) =>
+        disablePaymentSheetVerify(row, activeRole),
+      disableReason: (row: IPaymentSheetDetailItemRow) =>
+        paymentSheetVerifyDisableReason(row, activeRole),
     },
     {
       id: EButtonActionType.UNVERIFY,
       icon: ICONS.COMMON.SYNC,
       tooltip: 'Unverify',
       permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_UNVERIFY],
+      disableWhen: (row: IPaymentSheetDetailItemRow) =>
+        disablePaymentSheetUnverify(row, activeRole),
+      disableReason: (row: IPaymentSheetDetailItemRow) =>
+        paymentSheetUnverifyDisableReason(row, activeRole),
     },
     {
       ...COMMON_ROW_ACTIONS.REJECT,
       tooltip: 'Reject',
       permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_REJECT],
+      disableWhen: (row: IPaymentSheetDetailItemRow) =>
+        disablePaymentSheetRejectItem(row, activeRole),
+      disableReason: (row: IPaymentSheetDetailItemRow) =>
+        paymentSheetRejectItemDisableReason(row, activeRole),
     },
     {
       id: EButtonActionType.PAID,
       tooltip: 'Record Payment',
       permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_PAY],
+      disableWhen: (row: IPaymentSheetDetailItemRow) =>
+        disablePaymentSheetRecordPayment(row, activeRole),
+      disableReason: (row: IPaymentSheetDetailItemRow) =>
+        paymentSheetRecordPaymentDisableReason(row, activeRole),
     },
   ];
 };
 
-export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_BULK_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IPaymentSheetDetailItemRow>
->[] = [
+export const createPaymentSheetDetailItemsTableBulkActionsConfig = (
+  activeRole: string | null | undefined
+): Partial<ITableActionConfig<IPaymentSheetDetailItemRow>>[] => [
   {
     ...COMMON_BULK_ACTIONS.APPROVE,
     label: 'Verify',
     icon: ICONS.FLEET.PUC,
     tooltip: 'Verify Selected',
     permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_VERIFY],
+    disableWhen: (row: IPaymentSheetDetailItemRow) =>
+      disablePaymentSheetVerify(row, activeRole),
+    disableReason: (row: IPaymentSheetDetailItemRow) =>
+      paymentSheetVerifyDisableReason(row, activeRole),
   },
   {
     id: EButtonActionType.UNVERIFY,
@@ -150,14 +193,22 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_BULK_ACTIONS_CONFIG: Partial<
     icon: ICONS.COMMON.SYNC,
     tooltip: 'Unverify Selected',
     permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_UNVERIFY],
+    disableWhen: (row: IPaymentSheetDetailItemRow) =>
+      disablePaymentSheetUnverify(row, activeRole),
+    disableReason: (row: IPaymentSheetDetailItemRow) =>
+      paymentSheetUnverifyDisableReason(row, activeRole),
   },
 ];
 
 export const getPaymentSheetDetailItemsTableConfig = (
-  sourceType: EPaymentSheetSourceType
+  sourceType: EPaymentSheetSourceType,
+  activeRole: string | null | undefined
 ): IEnhancedTableConfig<IPaymentSheetDetailItemRow> => ({
   tableConfig: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG,
   headers: createPaymentSheetDetailItemsTableHeadersConfig(sourceType),
-  rowActions: createPaymentSheetDetailItemsTableRowActionsConfig(sourceType),
-  bulkActions: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_BULK_ACTIONS_CONFIG,
+  rowActions: createPaymentSheetDetailItemsTableRowActionsConfig(
+    sourceType,
+    activeRole
+  ),
+  bulkActions: createPaymentSheetDetailItemsTableBulkActionsConfig(activeRole),
 });

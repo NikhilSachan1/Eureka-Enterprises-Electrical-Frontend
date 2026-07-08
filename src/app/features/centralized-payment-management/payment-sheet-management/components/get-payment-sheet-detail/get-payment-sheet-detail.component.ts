@@ -57,6 +57,7 @@ import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
   EPaymentSheetSourceType,
   EPaymentSheetStage,
+  EPaymentSheetStatus,
   EPaymentSheetWorkflowActionType,
 } from '../../types/payment-sheet.enum';
 import {
@@ -212,7 +213,10 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       this.sourceTables.set(
         sourceType,
         this.dataTableService.createTable(
-          getPaymentSheetDetailItemsTableConfig(sourceType)
+          getPaymentSheetDetailItemsTableConfig(
+            sourceType,
+            this.authService.user()?.activeRole
+          )
         )
       );
     }
@@ -391,8 +395,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       const sectionItems = items.filter(item => item.sourceType === sourceType);
       const mappedItems =
         sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT
-          ? this.mapVendorAllocationRows(sectionItems)
-          : this.mapItems(sectionItems);
+          ? this.mapVendorAllocationRows(sectionItems, detail)
+          : this.mapItems(sectionItems, detail);
       const table = this.sourceTables.get(sourceType);
 
       if (table) {
@@ -449,15 +453,18 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   private mapItems(
-    items: IPaymentSheetItemDetailDto[]
+    items: IPaymentSheetItemDetailDto[],
+    detail: IPaymentSheetDetailGetResponseDto
   ): IPaymentSheetDetailItemRow[] {
-    return items.map(item => this.mapItem(item));
+    return items.map(item => this.mapItem(item, detail));
   }
 
   private mapItem(
-    item: IPaymentSheetItemDetailDto
+    item: IPaymentSheetItemDetailDto,
+    detail: IPaymentSheetDetailGetResponseDto
   ): IPaymentSheetDetailItemRow {
     return {
+      ...this.getWorkflowFields(detail),
       id: item.id,
       beneficiaryId: item.userId ?? item.vendorId ?? '',
       actualDue: item.actualDueAmount,
@@ -468,6 +475,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         : (item.vendor?.name ?? '-'),
       beneficiaryCode:
         item.user?.employeeId ?? this.formatVendorLocation(item.vendor),
+      itemStatus: item.itemStatus,
       paidAt: item.paidAt ?? null,
       paymentRef: item.paymentRef ?? null,
       bankDetails: item.bankSnapshot
@@ -496,7 +504,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   private mapVendorAllocationRows(
-    items: IPaymentSheetItemDetailDto[]
+    items: IPaymentSheetItemDetailDto[],
+    detail: IPaymentSheetDetailGetResponseDto
   ): IPaymentSheetDetailItemRow[] {
     return items.flatMap(item => {
       const bankDetails = item.bankSnapshot
@@ -512,6 +521,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         const { invoice } = allocation;
 
         return {
+          ...this.getWorkflowFields(detail),
           id: item.id,
           beneficiaryId: item.vendorId ?? '',
           beneficiaryName: item.vendor?.name ?? '-',
@@ -525,6 +535,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           actualDue: invoice?.actualDueAmount ?? item.actualDueAmount,
           payableAmount: invoice?.payableAmount ?? item.payableAmount,
           remainingAmount: invoice?.remainingAmount ?? item.remainingAmount,
+          itemStatus: item.itemStatus,
           paidAt: item.paidAt ?? null,
           paymentRef: item.paymentRef ?? null,
           bankDetails,
@@ -584,6 +595,15 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     };
   }
 
+  private getWorkflowFields(
+    detail: IPaymentSheetDetailGetResponseDto
+  ): Pick<IPaymentSheetDetailItemRow, 'status' | 'currentStage'> {
+    return {
+      status: detail.status,
+      currentStage: detail.currentStage,
+    };
+  }
+
   private buildSheetOverview(): IPaymentSheetOverviewView | undefined {
     const detail = this.detail();
 
@@ -596,12 +616,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     const { verificationSummary } = detail;
 
     return {
-      stageLabel: detail.currentStage
-        ? getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.paymentSheetStages(),
-            detail.currentStage
-          )
-        : '—',
+      stageLabel: this.getDetailStageLabel(detail),
       createdAt: detail.createdAt,
       beneficiaryCount: detail.items.length,
       verificationSummary: verificationSummary
@@ -620,6 +635,29 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       pendingAmount: Math.max(0, totalCurrentAmount - totalPaidAmount),
       remarks: detail.remarks?.trim() ?? null,
     };
+  }
+
+  private getDetailStageLabel(
+    detail: IPaymentSheetDetailGetResponseDto
+  ): string {
+    if (
+      detail.status === EPaymentSheetStatus.COMPLETED ||
+      detail.status === EPaymentSheetStatus.RETURNED
+    ) {
+      return getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.paymentSheetStatuses(),
+        detail.status
+      );
+    }
+
+    if (detail.currentStage) {
+      return getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.paymentSheetStages(),
+        detail.currentStage
+      );
+    }
+
+    return '—';
   }
 
   private getRecordCountLabel(

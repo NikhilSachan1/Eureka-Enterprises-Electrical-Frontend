@@ -7,6 +7,9 @@ export type IPaymentSheetItemVerificationView = NonNullable<
 >[number];
 
 export interface IPaymentSheetDetailItemRow {
+  status: string;
+  currentStage: string | null;
+  itemStatus: string;
   id: string;
   beneficiaryId: string;
   beneficiaryName: string;
