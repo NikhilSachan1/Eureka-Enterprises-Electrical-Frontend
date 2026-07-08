@@ -3,12 +3,9 @@ import z from 'zod';
 
 export const UnverifyPaymentSheetItemsRequestSchema = z
   .object({
-    beneficiaryIds: z.array(uuidField).min(1),
+    itemIds: z.array(uuidField).min(1),
   })
-  .strict()
-  .transform(data => ({
-    itemIds: data.beneficiaryIds,
-  }));
+  .strict();
 
 export const UnverifyPaymentSheetItemsResponseSchema = z.looseObject({
   message: z.string(),

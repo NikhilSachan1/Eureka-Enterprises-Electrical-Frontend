@@ -48,34 +48,34 @@ export class UnverifyPaymentSheetItemsComponent
   protected readonly onSuccess = input.required<() => void>();
 
   ngOnInit(): void {
-    if (!this.paymentSheetId() || !this.getBeneficiaryIds().length) {
+    if (!this.paymentSheetId() || !this.getItemIds().length) {
       this.notificationService.error(
         FORM_VALIDATION_MESSAGES.SOMETHING_WENT_WRONG
       );
       this.logger.error(
-        'Payment sheet id and selected beneficiaries are required to unverify but were not provided'
+        'Payment sheet id and selected items are required to unverify but were not provided'
       );
     }
   }
 
   onDialogAccept(): void {
     const paymentSheetId = this.paymentSheetId();
-    const beneficiaryIds = this.getBeneficiaryIds();
+    const itemIds = this.getItemIds();
 
-    if (!paymentSheetId || !beneficiaryIds.length) {
+    if (!paymentSheetId || !itemIds.length) {
       return;
     }
 
     this.executeUnverifyPaymentSheetItemsAction(paymentSheetId, {
-      beneficiaryIds,
+      itemIds,
     });
   }
 
-  private getBeneficiaryIds(): string[] {
+  private getItemIds(): string[] {
     return [
       ...new Set(
         this.selectedRecord()
-          .map(row => row.beneficiaryId)
+          .map(row => row.id)
           .filter((id): id is string => Boolean(id))
       ),
     ];
