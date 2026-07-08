@@ -86,40 +86,45 @@ export const createPaymentSheetDetailItemsTableHeadersConfig = (
   ];
 };
 
-export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IPaymentSheetDetailItemRow>
->[] = [
-  {
-    ...COMMON_ROW_ACTIONS.EDIT,
-    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_EDIT],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.DELETE,
-    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_REMOVE],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.APPROVE,
-    icon: ICONS.FLEET.PUC,
-    tooltip: 'Verify',
-    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_VERIFY],
-  },
-  {
-    id: EButtonActionType.UNVERIFY,
-    icon: ICONS.COMMON.SYNC,
-    tooltip: 'Unverify',
-    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_UNVERIFY],
-  },
-  {
-    ...COMMON_ROW_ACTIONS.REJECT,
-    tooltip: 'Reject',
-    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_REJECT],
-  },
-  {
-    id: EButtonActionType.PAID,
-    tooltip: 'Record Payment',
-    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_PAY],
-  },
-];
+export const createPaymentSheetDetailItemsTableRowActionsConfig = (
+  sourceType: EPaymentSheetSourceType
+): Partial<ITableActionConfig<IPaymentSheetDetailItemRow>>[] => {
+  const isVendor = sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT;
+
+  return [
+    {
+      ...COMMON_ROW_ACTIONS.EDIT,
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_EDIT],
+      hideWhen: () => isVendor,
+    },
+    {
+      ...COMMON_ROW_ACTIONS.DELETE,
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_REMOVE],
+    },
+    {
+      ...COMMON_ROW_ACTIONS.APPROVE,
+      icon: ICONS.FLEET.PUC,
+      tooltip: 'Verify',
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_VERIFY],
+    },
+    {
+      id: EButtonActionType.UNVERIFY,
+      icon: ICONS.COMMON.SYNC,
+      tooltip: 'Unverify',
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_UNVERIFY],
+    },
+    {
+      ...COMMON_ROW_ACTIONS.REJECT,
+      tooltip: 'Reject',
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_REJECT],
+    },
+    {
+      id: EButtonActionType.PAID,
+      tooltip: 'Record Payment',
+      permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_PAY],
+    },
+  ];
+};
 
 export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_BULK_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IPaymentSheetDetailItemRow>
@@ -143,6 +148,6 @@ export const getPaymentSheetDetailItemsTableConfig = (
 ): IEnhancedTableConfig<IPaymentSheetDetailItemRow> => ({
   tableConfig: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG,
   headers: createPaymentSheetDetailItemsTableHeadersConfig(sourceType),
-  rowActions: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ROW_ACTIONS_CONFIG,
+  rowActions: createPaymentSheetDetailItemsTableRowActionsConfig(sourceType),
   bulkActions: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_BULK_ACTIONS_CONFIG,
 });
