@@ -1,3 +1,4 @@
+import { APP_CONFIG } from '@core/config';
 import { COMMON_BULK_ACTIONS, COMMON_ROW_ACTIONS } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
@@ -10,6 +11,7 @@ import {
 } from '@shared/types';
 import { IPaymentSheetDetailItemRow } from '../../types/payment-sheet-detail.interface';
 import { APP_PERMISSION } from '@core/constants';
+import { EPaymentSheetSourceType } from '../../types/payment-sheet.enum';
 
 export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG: Partial<IDataTableConfig> =
   {
@@ -20,8 +22,12 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG: Partial<IDataTableConfig> 
     enableServerSide: false,
   };
 
-export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
-  [
+export const createPaymentSheetDetailItemsTableHeadersConfig = (
+  sourceType: EPaymentSheetSourceType
+): Partial<IDataTableHeaderConfig>[] => {
+  const isVendor = sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT;
+
+  return [
     {
       field: 'beneficiaryName',
       header: 'Beneficiary',
@@ -31,6 +37,27 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG: Partial<IDataTableH
       showImage: true,
       dummyImageField: 'beneficiaryName',
       showSort: false,
+    },
+    {
+      field: 'companyProject',
+      header: 'Company & Project',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'companyProjectCell',
+      columnStyleClass: 'cell-allow-wrap',
+      showSort: false,
+      showColumn: isVendor,
+    },
+    {
+      field: 'invoiceNumber',
+      header: 'Invoice',
+      bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
+      subtitle: {
+        field: 'invoiceDate',
+        bodyTemplate: EDataType.DATE,
+        dateFormat: APP_CONFIG.DATE_FORMATS.DEFAULT,
+      },
+      showSort: false,
+      showColumn: isVendor,
     },
     {
       field: 'itemAmounts',
@@ -57,6 +84,7 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG: Partial<IDataTableH
       showSort: false,
     },
   ];
+};
 
 export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ROW_ACTIONS_CONFIG: Partial<
   ITableActionConfig<IPaymentSheetDetailItemRow>
@@ -110,10 +138,11 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_BULK_ACTIONS_CONFIG: Partial<
   },
 ];
 
-export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IPaymentSheetDetailItemRow> =
-  {
-    tableConfig: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG,
-    headers: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_HEADER_CONFIG,
-    rowActions: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ROW_ACTIONS_CONFIG,
-    bulkActions: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_BULK_ACTIONS_CONFIG,
-  };
+export const getPaymentSheetDetailItemsTableConfig = (
+  sourceType: EPaymentSheetSourceType
+): IEnhancedTableConfig<IPaymentSheetDetailItemRow> => ({
+  tableConfig: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_CONFIG,
+  headers: createPaymentSheetDetailItemsTableHeadersConfig(sourceType),
+  rowActions: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ROW_ACTIONS_CONFIG,
+  bulkActions: PAYMENT_SHEET_DETAIL_ITEMS_TABLE_BULK_ACTIONS_CONFIG,
+});

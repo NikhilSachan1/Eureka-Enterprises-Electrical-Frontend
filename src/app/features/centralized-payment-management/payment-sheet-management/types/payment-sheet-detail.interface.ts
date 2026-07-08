@@ -8,9 +8,16 @@ export interface IPaymentSheetDetailItemRow {
   beneficiaryCode: string;
   actualDue: number;
   payableAmount: number;
+  remainingAmount: number;
   paidAt: string | null;
   paymentRef: string | null;
   bankDetails: IBankDetailsCellValue | null;
+  companyName?: string;
+  projectName?: string;
+  projectCity?: string;
+  projectState?: string;
+  invoiceNumber?: string;
+  invoiceDate?: string | null;
 }
 export interface IPaymentSheetDetailSourceGroupView {
   sourceType: EPaymentOutstandingSourceType;

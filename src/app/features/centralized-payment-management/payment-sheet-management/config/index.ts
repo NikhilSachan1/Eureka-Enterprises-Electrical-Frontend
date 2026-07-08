@@ -6,8 +6,8 @@ export {
 } from './table/get-payment-sheet.config';
 export {
   PAYMENT_SHEET_DETAIL_ITEMS_TABLE_BULK_ACTIONS_CONFIG,
-  PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ENHANCED_CONFIG,
   PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ROW_ACTIONS_CONFIG,
+  getPaymentSheetDetailItemsTableConfig,
 } from './table/get-payment-sheet-detail-items.config';
 export { PAYMENT_SHEET_ACTION_CONFIG_MAP } from './dialog/create-payment-sheet.config';
 export { PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP } from './dialog/get-payment-sheet-list.config';

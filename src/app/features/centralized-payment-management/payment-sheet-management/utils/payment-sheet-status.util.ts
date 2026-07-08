@@ -6,6 +6,7 @@ import {
   EPaymentSheetWorkflowRole,
 } from '../types/payment-sheet.enum';
 import { IPaymentSheetWorkflowRow } from '../types/payment-sheet.interface';
+import { EUserRole } from '@shared/constants';
 
 function isPaymentSheetDetailMutationDisabled(
   row: IPaymentSheetWorkflowRow
@@ -394,5 +395,20 @@ export function getPaymentSheetWorkflowForwardDisableReason(
       return getPaymentSheetDetailForwardToAccountantDisableReason(row);
     default:
       return 'Forward is not available for this payment sheet at the current status.';
+  }
+}
+
+export function getPaymentSheetForwardActionForUserRole(
+  role: string | null | undefined
+): EPaymentSheetWorkflowActionType | null {
+  switch (role) {
+    case EUserRole.OPERATION_MANAGER:
+      return EPaymentSheetWorkflowActionType.FORWARD_TO_HR;
+    case EUserRole.HR:
+      return EPaymentSheetWorkflowActionType.FORWARD_TO_ADMIN;
+    case EUserRole.ADMIN:
+      return EPaymentSheetWorkflowActionType.FORWARD_TO_ACCOUNTANT;
+    default:
+      return null;
   }
 }

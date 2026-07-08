@@ -32,12 +32,26 @@ const PaymentSheetVendorSnapshotSchema = z
   })
   .nullable();
 
+const PaymentSheetBookPaymentAllocationInvoiceSchema = z.looseObject({
+  invoiceId: uuidField,
+  invoiceNumber: z.string(),
+  invoiceDate: isoDateTimeField,
+  actualDueAmount: z.coerce.number(),
+  payableAmount: z.coerce.number(),
+  remainingAmount: z.coerce.number(),
+  companyName: z.string(),
+  projectName: z.string(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+});
+
 const PaymentSheetBookPaymentAllocationSchema = z.looseObject({
   id: uuidField,
   itemId: uuidField.optional(),
   bookPaymentId: uuidField,
   allocatedAmount: z.coerce.number(),
   bankTransferId: uuidField.nullable().optional(),
+  invoice: PaymentSheetBookPaymentAllocationInvoiceSchema.optional(),
 });
 
 export const PaymentSheetItemDetailSchema = z.looseObject({
@@ -56,6 +70,9 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   bookPaymentAllocations: z
     .array(PaymentSheetBookPaymentAllocationSchema)
     .nullable(),
+  actualDueAmount: z.coerce.number(),
+  payableAmount: z.coerce.number(),
+  remainingAmount: z.coerce.number(),
   user: UserSchema.nullable(),
   vendor: PaymentSheetVendorSnapshotSchema,
 });

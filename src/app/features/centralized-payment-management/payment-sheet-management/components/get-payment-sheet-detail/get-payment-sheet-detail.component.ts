@@ -13,6 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { AppPermissionService, LoggerService } from '@core/services';
 import { APP_CONFIG } from '@core/config';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
 import { PaymentOutstandingSectionComponent } from '@features/centralized-payment-management/shared/components/payment-outstanding-section/payment-outstanding-section.component';
@@ -44,7 +45,7 @@ import {
 import { finalize } from 'rxjs';
 import {
   PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP,
-  PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ENHANCED_CONFIG,
+  getPaymentSheetDetailItemsTableConfig,
   PAYMENT_SHEET_DETAIL_WORKFLOW_BUTTONS_CONFIG,
 } from '../../config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
@@ -61,6 +62,7 @@ import {
   IPaymentSheetDetailSourceGroupView,
 } from '../../types/payment-sheet-detail.interface';
 import { APP_PERMISSION } from '@core/constants';
+import { getPaymentSheetForwardActionForUserRole } from '../../utils/payment-sheet-status.util';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
@@ -80,6 +82,7 @@ import { APP_PERMISSION } from '@core/constants';
 })
 export class GetPaymentSheetDetailComponent implements OnInit {
   protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly ICONS = ICONS;
 
   protected readonly paidAtDateFormat =
     APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
@@ -94,6 +97,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly authService = inject(AuthService);
 
   private readonly paymentSheetId =
     this.activatedRoute.snapshot.paramMap.get('paymentSheetId') ?? '';
@@ -166,20 +170,28 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
   protected pageHeaderConfig = computed(() => this.buildPageHeaderConfig());
 
-  protected readonly permittedWorkflowButtons = computed(() =>
-    Object.values(
+  protected readonly permittedWorkflowButtons = computed(() => {
+    const allowedAction = getPaymentSheetForwardActionForUserRole(
+      this.authService.user()?.activeRole
+    );
+
+    if (!allowedAction) {
+      return [];
+    }
+
+    return Object.values(
       this.appPermissionService.filterRecordByPermission(
         PAYMENT_SHEET_DETAIL_WORKFLOW_BUTTONS_CONFIG
       )
-    )
-  );
+    ).filter(button => button.actionName === allowedAction);
+  });
 
   ngOnInit(): void {
     for (const sourceType of this.sourceSectionOrder) {
       this.sourceTables.set(
         sourceType,
         this.dataTableService.createTable(
-          PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ENHANCED_CONFIG
+          getPaymentSheetDetailItemsTableConfig(sourceType)
         )
       );
     }
@@ -196,11 +208,24 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   protected getRemainingAmount(row: IPaymentSheetDetailItemRow): number {
-    return Math.max(0, row.actualDue - row.payableAmount);
+    return Math.max(0, row.remainingAmount);
   }
 
   protected isFullyCovered(row: IPaymentSheetDetailItemRow): boolean {
-    return this.getRemainingAmount(row) <= 0;
+    return row.remainingAmount <= 0;
+  }
+
+  protected hasCompanyProjectContext(row: IPaymentSheetDetailItemRow): boolean {
+    return !!(
+      row.companyName ??
+      row.projectName ??
+      row.projectCity ??
+      row.projectState
+    );
+  }
+
+  protected getProjectLocation(row: IPaymentSheetDetailItemRow): string {
+    return [row.projectCity, row.projectState].filter(Boolean).join(', ');
   }
 
   protected onHeaderButtonClick(actionType: string): void {
@@ -386,12 +411,14 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     return {
       id: item.id,
       beneficiaryId: item.userId ?? item.vendorId ?? '',
-      actualDue: item.pendingSnapshot,
-      payableAmount: item.currentAmount,
+      actualDue: item.actualDueAmount,
+      payableAmount: item.payableAmount,
+      remainingAmount: item.remainingAmount,
       beneficiaryName: item.user
         ? `${item.user.firstName} ${item.user.lastName}`.trim()
         : (item.vendor?.name ?? '-'),
-      beneficiaryCode: item.user?.employeeId ?? item.vendorId ?? '',
+      beneficiaryCode:
+        item.user?.employeeId ?? this.formatVendorLocation(item.vendor),
       paidAt: item.paidAt ?? null,
       paymentRef: item.paymentRef ?? null,
       bankDetails: item.bankSnapshot
@@ -418,18 +445,37 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           }
         : null;
 
-      return (item.bookPaymentAllocations ?? []).map(allocation => ({
-        id: item.id,
-        beneficiaryId: item.vendorId ?? '',
-        beneficiaryName: item.vendor?.name ?? '-',
-        beneficiaryCode: item.vendorId ?? '',
-        actualDue: allocation.allocatedAmount,
-        payableAmount: allocation.allocatedAmount,
-        paidAt: item.paidAt ?? null,
-        paymentRef: item.paymentRef ?? null,
-        bankDetails,
-      }));
+      return (item.bookPaymentAllocations ?? []).map(allocation => {
+        const { invoice } = allocation;
+
+        return {
+          id: item.id,
+          beneficiaryId: item.vendorId ?? '',
+          beneficiaryName: item.vendor?.name ?? '-',
+          beneficiaryCode: this.formatVendorLocation(item.vendor),
+          companyName: invoice?.companyName ?? '-',
+          projectName: invoice?.projectName ?? '-',
+          projectCity: invoice?.city,
+          projectState: invoice?.state,
+          invoiceNumber: invoice?.invoiceNumber ?? '-',
+          invoiceDate: invoice?.invoiceDate ?? null,
+          actualDue: invoice?.actualDueAmount ?? item.actualDueAmount,
+          payableAmount: invoice?.payableAmount ?? item.payableAmount,
+          remainingAmount: invoice?.remainingAmount ?? item.remainingAmount,
+          paidAt: item.paidAt ?? null,
+          paymentRef: item.paymentRef ?? null,
+          bankDetails,
+        };
+      });
     });
+  }
+
+  private formatVendorLocation(
+    vendor: IPaymentSheetItemDetailDto['vendor']
+  ): string {
+    const location = [vendor?.city, vendor?.state].filter(Boolean).join(', ');
+
+    return location || '-';
   }
 
   private prepareItemRecordDetail(

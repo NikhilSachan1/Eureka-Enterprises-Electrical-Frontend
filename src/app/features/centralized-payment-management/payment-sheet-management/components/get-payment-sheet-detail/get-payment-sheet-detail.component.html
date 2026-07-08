@@ -63,6 +63,58 @@
         </ng-template>
 
         <ng-template
+          #companyProjectCell
+          let-row
+        >
+          @if (hasCompanyProjectContext(row)) {
+            <div class="ps-detail-site">
+              @if (row.companyName) {
+                <div class="ps-detail-site__panel ps-detail-site__panel--company">
+                  <div
+                    class="ps-detail-site__icon ps-detail-site__icon--company"
+                    aria-hidden="true"
+                  >
+                    <i [class]="ICONS.SITE.BUILDING"></i>
+                  </div>
+                  <div class="ps-detail-site__body">
+                    <span class="ps-detail-site__label">Company</span>
+                    <strong class="ps-detail-site__title">{{ row.companyName }}</strong>
+                  </div>
+                </div>
+              }
+
+              @if (row.projectName || getProjectLocation(row)) {
+                <div class="ps-detail-site__panel ps-detail-site__panel--project">
+                  <div
+                    class="ps-detail-site__icon ps-detail-site__icon--project"
+                    aria-hidden="true"
+                  >
+                    <i [class]="ICONS.COMMON.BRIEFCASE"></i>
+                  </div>
+                  <div class="ps-detail-site__body">
+                    <span class="ps-detail-site__label">Project</span>
+                    @if (row.projectName) {
+                      <strong class="ps-detail-site__title">{{ row.projectName }}</strong>
+                    }
+                    @if (getProjectLocation(row)) {
+                      <span class="ps-detail-site__location">
+                        <i
+                          [class]="ICONS.COMMON.MAP_MARKER"
+                          aria-hidden="true"
+                        ></i>
+                        {{ getProjectLocation(row) }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <span class="ps-detail-site__empty">-</span>
+          }
+        </ng-template>
+
+        <ng-template
           #bankDetailsCell
           let-row
         >
@@ -84,6 +136,7 @@
               [customBodyTemplates]="{
                 itemAmountsCell: itemAmountsCell,
                 itemPaymentCell: itemPaymentCell,
+                companyProjectCell: companyProjectCell,
                 bankDetailsCell: bankDetailsCell,
               }"
               (rowActionClick)="handlePaymentSheetItemActionClick($any($event), false)"
