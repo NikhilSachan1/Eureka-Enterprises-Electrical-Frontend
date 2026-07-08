@@ -142,12 +142,14 @@ export const PAYMENT_SHEET_DETAIL_ITEMS_TABLE_BULK_ACTIONS_CONFIG: Partial<
     label: 'Verify',
     icon: ICONS.FLEET.PUC,
     tooltip: 'Verify Selected',
+    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_VERIFY],
   },
   {
     id: EButtonActionType.UNVERIFY,
     label: 'Unverify',
     icon: ICONS.COMMON.SYNC,
     tooltip: 'Unverify Selected',
+    permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_UNVERIFY],
   },
 ];
 
