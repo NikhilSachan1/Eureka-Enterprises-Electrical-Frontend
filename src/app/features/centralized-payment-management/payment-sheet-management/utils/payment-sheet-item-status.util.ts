@@ -1,4 +1,9 @@
-import { EPaymentSheetItemStatus } from '../types/payment-sheet.enum';
+import {
+  EPaymentSheetItemStatus,
+  EPaymentSheetStatus,
+} from '../types/payment-sheet.enum';
+import { IPaymentSheetDetailItemRow } from '../types/payment-sheet-detail.interface';
+import { isPaymentSheetRejectDisabled } from './payment-sheet-status.util';
 
 export function normalizePaymentSheetItemStatusCode(
   status: string | null | undefined
@@ -74,4 +79,62 @@ export function getPaymentSheetItemUnverifyDisableReason(
   }
 
   return 'Unverify is not available for this beneficiary status.';
+}
+
+export function getPaymentSheetDetailItemVerifyDisableReason(
+  itemRow: IPaymentSheetDetailItemRow
+): string | undefined {
+  if (isPaymentSheetRejectDisabled(itemRow)) {
+    const { status } = itemRow;
+
+    if (status === EPaymentSheetStatus.COMPLETED) {
+      return 'This payment sheet is completed and verify is no longer available.';
+    }
+
+    if (status === EPaymentSheetStatus.REJECTED) {
+      return 'This payment sheet is rejected and verify is no longer available.';
+    }
+
+    return 'Verify is not available at the current review stage.';
+  }
+
+  return getPaymentSheetItemVerifyDisableReason(itemRow.itemStatusCode);
+}
+
+export function isPaymentSheetDetailItemVerifyDisabled(
+  itemRow: IPaymentSheetDetailItemRow
+): boolean {
+  return (
+    isPaymentSheetRejectDisabled(itemRow) ||
+    !isPaymentSheetItemVerifyAllowed(itemRow.itemStatusCode)
+  );
+}
+
+export function isPaymentSheetDetailItemUnverifyDisabled(
+  itemRow: IPaymentSheetDetailItemRow
+): boolean {
+  return (
+    isPaymentSheetRejectDisabled(itemRow) ||
+    !isPaymentSheetItemUnverifyAllowed(itemRow.itemStatusCode)
+  );
+}
+
+export function getPaymentSheetDetailItemUnverifyDisableReason(
+  itemRow: IPaymentSheetDetailItemRow
+): string | undefined {
+  if (isPaymentSheetRejectDisabled(itemRow)) {
+    const { status } = itemRow;
+
+    if (status === EPaymentSheetStatus.COMPLETED) {
+      return 'This payment sheet is completed and unverify is no longer available.';
+    }
+
+    if (status === EPaymentSheetStatus.REJECTED) {
+      return 'This payment sheet is rejected and unverify is no longer available.';
+    }
+
+    return 'Unverify is not available at the current review stage.';
+  }
+
+  return getPaymentSheetItemUnverifyDisableReason(itemRow.itemStatusCode);
 }

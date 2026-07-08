@@ -11,8 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { AppPermissionService, LoggerService } from '@core/services';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { LoggerService } from '@core/services';
 import { APP_CONFIG } from '@core/config';
 import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
@@ -51,18 +50,15 @@ import {
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { finalize } from 'rxjs';
 import {
-  createPaymentSheetDetailItemsTableEnhancedConfig,
   PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP,
-  PAYMENT_SHEET_FORWARD_ACTION_PERMISSION,
+  PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ENHANCED_CONFIG,
 } from '../../config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
-  EPaymentSheetDetailAction,
   EPaymentSheetSourceType,
   EPaymentSheetWorkflowActionType,
   PAYMENT_SHEET_WORKFLOW_ACTION_TYPES,
 } from '../../types/payment-sheet.enum';
-import { IPaymentSheetWorkflowRow } from '../../types/payment-sheet.interface';
 import {
   IPaymentSheetDetailGetResponseDto,
   IPaymentSheetItemDetailDto,
@@ -71,11 +67,6 @@ import {
   IPaymentSheetDetailItemRow,
   IPaymentSheetDetailSourceGroupView,
 } from '../../types/payment-sheet-detail.interface';
-import {
-  getPaymentSheetDetailActionDisableReason,
-  isPaymentSheetDetailActionDisabled,
-  toPaymentSheetDetailAction,
-} from '../../utils/payment-sheet-status.util';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
@@ -109,15 +100,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   );
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly appPermissionService = inject(AppPermissionService);
-
-  private readonly getDetailWorkflowRow = (): IPaymentSheetWorkflowRow => {
-    const detail = this.detail();
-    return {
-      status: detail?.status,
-      currentStage: detail?.currentStage,
-    };
-  };
 
   private readonly paymentSheetId =
     this.activatedRoute.snapshot.paramMap.get('paymentSheetId') ?? '';
@@ -199,13 +181,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       this.sourceTables.set(
         sourceType,
         this.dataTableService.createTable(
-          createPaymentSheetDetailItemsTableEnhancedConfig(
-            () => this.getDetailWorkflowRow(),
-            {
-              includeEdit:
-                sourceType !== EPaymentSheetSourceType.VENDOR_PAYMENT,
-            }
-          )
+          PAYMENT_SHEET_DETAIL_ITEMS_TABLE_ENHANCED_CONFIG
         )
       );
     }
@@ -234,15 +210,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       return;
     }
 
-    if (
-      isPaymentSheetDetailActionDisabled(
-        this.getDetailWorkflowRow(),
-        EPaymentSheetDetailAction.ADD_BENEFICIARY
-      )
-    ) {
-      return;
-    }
-
     this.openAddBeneficiariesDialog();
   }
 
@@ -250,15 +217,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     actionType: EPaymentSheetWorkflowActionType
   ): void {
     if (!this.paymentSheetId) {
-      return;
-    }
-
-    if (
-      isPaymentSheetDetailActionDisabled(
-        this.getDetailWorkflowRow(),
-        toPaymentSheetDetailAction(actionType)
-      )
-    ) {
       return;
     }
 
@@ -520,11 +478,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   private buildPageHeaderConfig(): IPageHeaderConfig {
-    const addDisabled = isPaymentSheetDetailActionDisabled(
-      this.getDetailWorkflowRow(),
-      EPaymentSheetDetailAction.ADD_BENEFICIARY
-    );
-
     return {
       title: 'Payment Sheet',
       subtitle: 'Payment sheet beneficiaries',
@@ -537,12 +490,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           label: 'Add Beneficiaries',
           icon: ICONS.COMMON.USERS,
           severity: EButtonSeverity.PRIMARY,
-          permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_ADD],
-          disabled: addDisabled,
-          disabledTooltip: getPaymentSheetDetailActionDisableReason(
-            this.getDetailWorkflowRow(),
-            EPaymentSheetDetailAction.ADD_BENEFICIARY
-          ),
         },
       ],
     };
@@ -552,37 +499,16 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     actionType: EPaymentSheetWorkflowActionType;
     buttonConfig: Partial<IButtonConfig>;
   }[] {
-    const workflowRow = this.getDetailWorkflowRow();
-    const detailAction = (
-      actionType: EPaymentSheetWorkflowActionType
-    ): EPaymentSheetDetailAction => toPaymentSheetDetailAction(actionType);
-
-    return PAYMENT_SHEET_WORKFLOW_ACTION_TYPES.filter(actionType =>
-      this.appPermissionService.hasAnyPermission([
-        PAYMENT_SHEET_FORWARD_ACTION_PERMISSION[actionType],
-      ])
-    ).map(actionType => {
-      const disabled = isPaymentSheetDetailActionDisabled(
-        workflowRow,
-        detailAction(actionType)
-      );
-
-      return {
-        actionType,
-        buttonConfig: {
-          id: EButtonActionType.SUBMIT,
-          label:
-            PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[actionType].dialogConfig
-              ?.labels?.singleLabel ?? '',
-          icon: ICONS.ACTIONS.SEND,
-          severity: EButtonSeverity.SUCCESS,
-          disabled,
-          disabledTooltip: getPaymentSheetDetailActionDisableReason(
-            workflowRow,
-            detailAction(actionType)
-          ),
-        },
-      };
-    });
+    return PAYMENT_SHEET_WORKFLOW_ACTION_TYPES.map(actionType => ({
+      actionType,
+      buttonConfig: {
+        id: EButtonActionType.SUBMIT,
+        label:
+          PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[actionType].dialogConfig
+            ?.labels?.singleLabel ?? '',
+        icon: ICONS.ACTIONS.SEND,
+        severity: EButtonSeverity.SUCCESS,
+      },
+    }));
   }
 }

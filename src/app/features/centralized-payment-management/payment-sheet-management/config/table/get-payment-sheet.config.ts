@@ -1,5 +1,4 @@
 import { APP_CONFIG } from '@core/config';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
@@ -73,14 +72,12 @@ export const PAYMENT_SHEET_TABLE_ROW_ACTIONS_CONFIG: Partial<
 >[] = [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
-    permission: [APP_PERMISSION.PAYMENT_SHEET.VIEW_DETAIL],
   },
   {
     id: EButtonActionType.CANCEL,
     tooltip: 'Return Sheet',
     icon: ICONS.COMMON.ARROW_LEFT,
     severity: EButtonSeverity.WARNING,
-    permission: [APP_PERMISSION.PAYMENT_SHEET.RETURN],
     disableWhen: (row: IPaymentSheetGetBaseResponseDto) =>
       isPaymentSheetReturnDisabled(row),
     disableReason: (row: IPaymentSheetGetBaseResponseDto) =>
