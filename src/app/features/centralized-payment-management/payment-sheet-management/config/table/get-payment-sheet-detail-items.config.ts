@@ -68,6 +68,14 @@ export const createPaymentSheetDetailItemsTableHeadersConfig = (
       showSort: false,
     },
     {
+      field: 'itemVerification',
+      header: 'Verification',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'itemVerificationCell',
+      columnStyleClass: 'cell-allow-wrap',
+      showSort: false,
+    },
+    {
       field: 'itemPayment',
       header: 'Payment',
       bodyTemplate: EDataType.TEXT,

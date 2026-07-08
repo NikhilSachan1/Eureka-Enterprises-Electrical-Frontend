@@ -51,6 +51,7 @@ import {
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import {
   EPaymentSheetSourceType,
+  EPaymentSheetStage,
   EPaymentSheetWorkflowActionType,
 } from '../../types/payment-sheet.enum';
 import {
@@ -60,9 +61,14 @@ import {
 import {
   IPaymentSheetDetailItemRow,
   IPaymentSheetDetailSourceGroupView,
+  IPaymentSheetItemVerificationView,
 } from '../../types/payment-sheet-detail.interface';
 import { APP_PERMISSION } from '@core/constants';
 import { getPaymentSheetForwardActionForUserRole } from '../../utils/payment-sheet-status.util';
+import {
+  getPaymentSheetVerificationStageLabel,
+  getVisiblePaymentSheetItemVerificationStages,
+} from '../../utils/payment-sheet-verification.util';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
@@ -87,6 +93,8 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   protected readonly paidAtDateFormat =
     APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
   protected readonly paidAtDateLocale = APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE;
+  protected readonly verifiedAtDateFormat =
+    APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
 
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dataTableService = inject(TableService);
@@ -226,6 +234,34 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
   protected getProjectLocation(row: IPaymentSheetDetailItemRow): string {
     return [row.projectCity, row.projectState].filter(Boolean).join(', ');
+  }
+
+  protected hasVerificationContext(row: IPaymentSheetDetailItemRow): boolean {
+    return this.getVisibleVerificationStages(row).length > 0;
+  }
+
+  protected getVisibleVerificationStages(
+    row: IPaymentSheetDetailItemRow
+  ): EPaymentSheetStage[] {
+    return getVisiblePaymentSheetItemVerificationStages(
+      this.detail()?.currentStage,
+      row.verifiedStages
+    );
+  }
+
+  protected getVerificationForStage(
+    row: IPaymentSheetDetailItemRow,
+    stage: string
+  ): IPaymentSheetItemVerificationView | undefined {
+    return row.verifications.find(verification => verification.stage === stage);
+  }
+
+  protected isCurrentVerificationStage(stage: string): boolean {
+    return this.detail()?.currentStage === stage;
+  }
+
+  protected getVerificationStageLabel(stage: string): string {
+    return getPaymentSheetVerificationStageLabel(stage);
   }
 
   protected onHeaderButtonClick(actionType: string): void {
@@ -429,6 +465,20 @@ export class GetPaymentSheetDetailComponent implements OnInit {
             ifscCode: item.bankSnapshot.ifscCode,
           }
         : null,
+      ...this.mapItemVerificationFields(item),
+    };
+  }
+
+  private mapItemVerificationFields(
+    item: IPaymentSheetItemDetailDto
+  ): Pick<
+    IPaymentSheetDetailItemRow,
+    'verifications' | 'verifiedStages' | 'isVerifiedForCurrentStage'
+  > {
+    return {
+      verifications: item.verifications ?? [],
+      verifiedStages: item.verifiedStages ?? [],
+      isVerifiedForCurrentStage: item.isVerifiedForCurrentStage ?? false,
     };
   }
 
@@ -465,6 +515,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           paidAt: item.paidAt ?? null,
           paymentRef: item.paymentRef ?? null,
           bankDetails,
+          ...this.mapItemVerificationFields(item),
         };
       });
     });

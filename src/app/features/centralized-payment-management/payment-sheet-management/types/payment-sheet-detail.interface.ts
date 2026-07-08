@@ -1,5 +1,10 @@
 import { IBankDetailsCellValue, IEnhancedTable } from '@shared/types';
 import { EPaymentOutstandingSourceType } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
+import { IPaymentSheetItemDetailDto } from './payment-sheet.dto';
+
+export type IPaymentSheetItemVerificationView = NonNullable<
+  IPaymentSheetItemDetailDto['verifications']
+>[number];
 
 export interface IPaymentSheetDetailItemRow {
   id: string;
@@ -18,6 +23,9 @@ export interface IPaymentSheetDetailItemRow {
   projectState?: string;
   invoiceNumber?: string;
   invoiceDate?: string | null;
+  verifications: IPaymentSheetItemVerificationView[];
+  verifiedStages: string[];
+  isVerifiedForCurrentStage: boolean;
 }
 export interface IPaymentSheetDetailSourceGroupView {
   sourceType: EPaymentOutstandingSourceType;

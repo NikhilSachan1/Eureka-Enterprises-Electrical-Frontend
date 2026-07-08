@@ -54,6 +54,20 @@ const PaymentSheetBookPaymentAllocationSchema = z.looseObject({
   invoice: PaymentSheetBookPaymentAllocationInvoiceSchema.optional(),
 });
 
+const PaymentSheetItemVerificationSchema = z.looseObject({
+  stage: z.string(),
+  verifiedBy: uuidField,
+  verifiedByName: z.string(),
+  verifiedAt: isoDateTimeField,
+});
+
+const PaymentSheetVerificationSummarySchema = z.looseObject({
+  stage: z.string(),
+  verified: z.coerce.number(),
+  total: z.coerce.number(),
+  allVerified: z.boolean(),
+});
+
 export const PaymentSheetItemDetailSchema = z.looseObject({
   id: uuidField,
   beneficiaryType: z.string(),
@@ -75,10 +89,15 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   remainingAmount: z.coerce.number(),
   user: UserSchema.nullable(),
   vendor: PaymentSheetVendorSnapshotSchema,
+  verifications: z.array(PaymentSheetItemVerificationSchema).optional(),
+  verifiedStages: z.array(z.string()).optional(),
+  isVerifiedForCurrentStage: z.boolean().optional(),
 });
 
 export const PaymentSheetDetailGetResponseSchema = z.looseObject({
   status: z.string(),
   currentStage: z.string().nullable(),
   items: z.array(PaymentSheetItemDetailSchema),
+  verificationSummary:
+    PaymentSheetVerificationSummarySchema.nullable().optional(),
 });
