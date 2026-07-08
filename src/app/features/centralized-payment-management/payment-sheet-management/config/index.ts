@@ -1,8 +1,8 @@
 export {
   PAYMENT_SHEET_TABLE_CONFIG,
-  PAYMENT_SHEET_TABLE_ENHANCED_CONFIG,
   PAYMENT_SHEET_TABLE_HEADER_CONFIG,
-  PAYMENT_SHEET_TABLE_ROW_ACTIONS_CONFIG,
+  createPaymentSheetTableRowActionsConfig,
+  getPaymentSheetTableEnhancedConfig,
 } from './table/get-payment-sheet.config';
 export { getPaymentSheetDetailItemsTableConfig } from './table/get-payment-sheet-detail-items.config';
 export { PAYMENT_SHEET_ACTION_CONFIG_MAP } from './dialog/create-payment-sheet.config';

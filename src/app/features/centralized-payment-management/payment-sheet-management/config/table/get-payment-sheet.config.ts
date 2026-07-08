@@ -1,4 +1,5 @@
 import { APP_CONFIG } from '@core/config';
+import { APP_PERMISSION } from '@core/constants';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import { ICONS } from '@shared/constants';
 import {
@@ -67,36 +68,40 @@ export const PAYMENT_SHEET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[
     },
   ];
 
-export const PAYMENT_SHEET_TABLE_ROW_ACTIONS_CONFIG: Partial<
-  ITableActionConfig<IPaymentSheet>
->[] = [
+export const createPaymentSheetTableRowActionsConfig = (
+  activeRole: string | null | undefined
+): Partial<ITableActionConfig<IPaymentSheet>>[] => [
   {
     ...COMMON_ROW_ACTIONS.VIEW,
+    permission: [APP_PERMISSION.PAYMENT_SHEET.VIEW_DETAIL],
   },
   {
     id: EButtonActionType.CANCEL,
     tooltip: 'Return Sheet',
     icon: ICONS.COMMON.ARROW_LEFT,
     severity: EButtonSeverity.WARNING,
+    permission: [APP_PERMISSION.PAYMENT_SHEET.RETURN],
     disableWhen: (row: IPaymentSheetGetBaseResponseDto) =>
-      isPaymentSheetReturnDisabled(row),
+      isPaymentSheetReturnDisabled(row, activeRole),
     disableReason: (row: IPaymentSheetGetBaseResponseDto) =>
-      getPaymentSheetReturnDisableReason(row),
+      getPaymentSheetReturnDisableReason(row, activeRole),
   },
   {
     ...COMMON_ROW_ACTIONS.REJECT,
     tooltip: 'Reject Sheet',
+    permission: [APP_PERMISSION.PAYMENT_SHEET.REJECT],
     disableWhen: (row: IPaymentSheetGetBaseResponseDto) =>
-      isPaymentSheetRejectDisabled(row),
+      isPaymentSheetRejectDisabled(row, activeRole),
     disableReason: (row: IPaymentSheetGetBaseResponseDto) =>
-      getPaymentSheetRejectDisableReason(row),
+      getPaymentSheetRejectDisableReason(row, activeRole),
   },
 ];
 
-export const PAYMENT_SHEET_TABLE_ENHANCED_CONFIG: IEnhancedTableConfig<IPaymentSheet> =
-  {
-    tableConfig: PAYMENT_SHEET_TABLE_CONFIG,
-    headers: PAYMENT_SHEET_TABLE_HEADER_CONFIG,
-    rowActions: PAYMENT_SHEET_TABLE_ROW_ACTIONS_CONFIG,
-    bulkActions: [],
-  };
+export const getPaymentSheetTableEnhancedConfig = (
+  activeRole: string | null | undefined
+): IEnhancedTableConfig<IPaymentSheet> => ({
+  tableConfig: PAYMENT_SHEET_TABLE_CONFIG,
+  headers: PAYMENT_SHEET_TABLE_HEADER_CONFIG,
+  rowActions: createPaymentSheetTableRowActionsConfig(activeRole),
+  bulkActions: [],
+});

@@ -1,47 +1,72 @@
 import {
   EPaymentSheetStage,
   EPaymentSheetStatus,
-  EPaymentSheetWorkflowAction,
   EPaymentSheetWorkflowActionType,
   EPaymentSheetWorkflowRole,
 } from '../types/payment-sheet.enum';
 import { IPaymentSheetWorkflowRow } from '../types/payment-sheet.interface';
 import { EUserRole } from '@shared/constants';
 
+type ActiveRole = string | null | undefined;
+
+function isPaymentSheetDraftOrReturned(row: IPaymentSheetWorkflowRow): boolean {
+  const { status } = row;
+
+  return (
+    status === EPaymentSheetStatus.DRAFT ||
+    status === EPaymentSheetStatus.RETURNED
+  );
+}
+
+function isPaymentSheetHrReview(row: IPaymentSheetWorkflowRow): boolean {
+  return (
+    row.status === EPaymentSheetStatus.IN_REVIEW &&
+    row.currentStage === EPaymentSheetStage.HR_REVIEW
+  );
+}
+
+function isPaymentSheetAdminReview(row: IPaymentSheetWorkflowRow): boolean {
+  return (
+    row.status === EPaymentSheetStatus.IN_REVIEW &&
+    row.currentStage === EPaymentSheetStage.ADMIN_REVIEW
+  );
+}
+
+function isPaymentSheetProcessing(row: IPaymentSheetWorkflowRow): boolean {
+  return row.status === EPaymentSheetStatus.PROCESSING;
+}
+
 function getWorkflowRoleForRow(
   row: IPaymentSheetWorkflowRow
 ): EPaymentSheetWorkflowRole | null {
-  const { status, currentStage } = row;
-
-  if (
-    status === EPaymentSheetStatus.DRAFT ||
-    status === EPaymentSheetStatus.RETURNED
-  ) {
+  if (isPaymentSheetDraftOrReturned(row)) {
     return EPaymentSheetWorkflowRole.OPERATION_MANAGER;
   }
 
-  if (status === EPaymentSheetStatus.IN_REVIEW) {
-    if (currentStage === EPaymentSheetStage.HR_REVIEW) {
-      return EPaymentSheetWorkflowRole.HR;
-    }
-
-    if (currentStage === EPaymentSheetStage.ADMIN_REVIEW) {
-      return EPaymentSheetWorkflowRole.ADMIN;
-    }
-
-    return null;
+  if (isPaymentSheetHrReview(row)) {
+    return EPaymentSheetWorkflowRole.HR;
   }
 
-  if (status === EPaymentSheetStatus.PROCESSING) {
+  if (isPaymentSheetAdminReview(row)) {
+    return EPaymentSheetWorkflowRole.ADMIN;
+  }
+
+  if (isPaymentSheetProcessing(row)) {
     return EPaymentSheetWorkflowRole.ACCOUNTS;
   }
 
   return null;
 }
 
-function isPaymentSheetActionAllowed(
+function paymentSheetDraftOrReturnedOmDisableReason(
+  actionLabel: string
+): string {
+  return `${actionLabel} can only be performed by Operation Manager while the payment sheet is in draft or returned.`;
+}
+
+export function isPaymentSheetReturnAllowed(
   row: IPaymentSheetWorkflowRow,
-  action: EPaymentSheetWorkflowAction
+  activeRole: ActiveRole
 ): boolean {
   const { status } = row;
 
@@ -49,51 +74,54 @@ function isPaymentSheetActionAllowed(
     return false;
   }
 
-  if (action === EPaymentSheetWorkflowAction.RETURN) {
-    if (
-      status === EPaymentSheetStatus.COMPLETED ||
-      status === EPaymentSheetStatus.REJECTED ||
-      status === EPaymentSheetStatus.DRAFT ||
-      status === EPaymentSheetStatus.RETURNED
-    ) {
-      return false;
-    }
-  } else if (
+  if (
     status === EPaymentSheetStatus.COMPLETED ||
-    status === EPaymentSheetStatus.REJECTED
+    status === EPaymentSheetStatus.REJECTED ||
+    status === EPaymentSheetStatus.DRAFT ||
+    status === EPaymentSheetStatus.RETURNED
   ) {
     return false;
   }
 
-  return getWorkflowRoleForRow(row) !== null;
-}
+  const requiredRole = getWorkflowRoleForRow(row);
 
-export function isPaymentSheetReturnAllowed(
-  row: IPaymentSheetWorkflowRow
-): boolean {
-  return isPaymentSheetActionAllowed(row, EPaymentSheetWorkflowAction.RETURN);
+  if (!requiredRole) {
+    return false;
+  }
+
+  return requiredRole === activeRole;
 }
 
 export function isPaymentSheetReturnDisabled(
-  row: IPaymentSheetWorkflowRow
+  row: IPaymentSheetWorkflowRow,
+  activeRole: ActiveRole
 ): boolean {
-  return !isPaymentSheetReturnAllowed(row);
+  return !isPaymentSheetReturnAllowed(row, activeRole);
 }
 
-function isPaymentSheetRejectAllowed(row: IPaymentSheetWorkflowRow): boolean {
-  return isPaymentSheetActionAllowed(row, EPaymentSheetWorkflowAction.REJECT);
+export function isPaymentSheetRejectAllowed(
+  row: IPaymentSheetWorkflowRow,
+  activeRole: ActiveRole
+): boolean {
+  if (!isPaymentSheetDraftOrReturned(row)) {
+    return false;
+  }
+
+  return activeRole === EUserRole.OPERATION_MANAGER;
 }
 
 export function isPaymentSheetRejectDisabled(
-  row: IPaymentSheetWorkflowRow
+  row: IPaymentSheetWorkflowRow,
+  activeRole: ActiveRole
 ): boolean {
-  return !isPaymentSheetRejectAllowed(row);
+  return !isPaymentSheetRejectAllowed(row, activeRole);
 }
 
 export function getPaymentSheetReturnDisableReason(
-  row: IPaymentSheetWorkflowRow
+  row: IPaymentSheetWorkflowRow,
+  activeRole: ActiveRole
 ): string | undefined {
-  if (!isPaymentSheetReturnDisabled(row)) {
+  if (!isPaymentSheetReturnDisabled(row, activeRole)) {
     return undefined;
   }
 
@@ -115,17 +143,26 @@ export function getPaymentSheetReturnDisableReason(
     return 'This payment sheet is already returned and cannot be returned again.';
   }
 
-  if (!getWorkflowRoleForRow(row)) {
-    return 'Return is not available at the current review stage.';
+  if (isPaymentSheetHrReview(row)) {
+    return 'Return can only be performed by HR while the payment sheet is in HR review.';
+  }
+
+  if (isPaymentSheetAdminReview(row)) {
+    return 'Return can only be performed by Admin while the payment sheet is in Admin review.';
+  }
+
+  if (isPaymentSheetProcessing(row)) {
+    return 'Return can only be performed by Accounts while the payment sheet is in processing.';
   }
 
   return 'Return is not available for this payment sheet at the current status.';
 }
 
 export function getPaymentSheetRejectDisableReason(
-  row: IPaymentSheetWorkflowRow
+  row: IPaymentSheetWorkflowRow,
+  activeRole: ActiveRole
 ): string | undefined {
-  if (!isPaymentSheetRejectDisabled(row)) {
+  if (!isPaymentSheetRejectDisabled(row, activeRole)) {
     return undefined;
   }
 
@@ -139,11 +176,11 @@ export function getPaymentSheetRejectDisableReason(
     return 'This payment sheet is already rejected and cannot be rejected again.';
   }
 
-  if (!getWorkflowRoleForRow(row)) {
-    return 'Reject is not available at the current review stage.';
+  if (!isPaymentSheetDraftOrReturned(row)) {
+    return 'Reject is only available while the payment sheet is in draft or returned.';
   }
 
-  return 'Reject is not available for this payment sheet at the current status.';
+  return paymentSheetDraftOrReturnedOmDisableReason('Reject');
 }
 
 export function getPaymentSheetForwardActionForUserRole(

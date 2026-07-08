@@ -9,6 +9,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { LoggerService } from '@core/services';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
@@ -36,7 +37,7 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import {
   PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP,
-  PAYMENT_SHEET_TABLE_ENHANCED_CONFIG,
+  getPaymentSheetTableEnhancedConfig,
   SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG,
 } from '../../config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
@@ -72,6 +73,7 @@ export class GetPaymentSheetComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly authService = inject(AuthService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -81,7 +83,7 @@ export class GetPaymentSheetComponent implements OnInit {
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
-      PAYMENT_SHEET_TABLE_ENHANCED_CONFIG
+      getPaymentSheetTableEnhancedConfig(this.authService.user()?.activeRole)
     );
     this.searchFilterConfig = SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG;
   }
