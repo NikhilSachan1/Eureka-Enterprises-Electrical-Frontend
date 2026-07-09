@@ -153,6 +153,9 @@ export type IUnverifyPaymentSheetItemsFormDto = z.input<
 export type IUnverifyPaymentSheetItemsResponseDto = z.infer<
   typeof UnverifyPaymentSheetItemsResponseSchema
 >;
+export interface IDownloadPaymentSheetPdfFormDto {
+  sourceType: string;
+}
 export interface IPaymentSheetPdfFormDto {
   sourceType: string;
 }
