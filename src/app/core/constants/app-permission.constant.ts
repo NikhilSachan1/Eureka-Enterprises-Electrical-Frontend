@@ -313,6 +313,7 @@ export const APP_PERMISSION = {
     BENEFICIARY_PAY: 'financials.payment-sheets.item-pay',
     BENEFICIARY_VERIFY: 'financials.payment-sheets.beneficiary-verify',
     BENEFICIARY_UNVERIFY: 'financials.payment-sheets.beneficiary-unverify',
+    DOWNLOAD: 'financials.payment-sheets.download',
   },
   OUTSTANDING_PAYMENT_SHEETS: {
     TABLE_VIEW: 'financials.outstanding-payment-sheets.view',

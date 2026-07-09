@@ -78,6 +78,13 @@ export const createPaymentSheetTableRowActionsConfig = (
     severity: EButtonSeverity.INFO,
   },
   {
+    id: EButtonActionType.DOWNLOAD,
+    icon: ICONS.COMMON.DOWNLOAD,
+    tooltip: 'Download PDF',
+    severity: EButtonSeverity.SUCCESS,
+    permission: [APP_PERMISSION.PAYMENT_SHEET.DOWNLOAD],
+  },
+  {
     id: EButtonActionType.CANCEL,
     tooltip: 'Return Sheet',
     icon: ICONS.COMMON.ARROW_LEFT,

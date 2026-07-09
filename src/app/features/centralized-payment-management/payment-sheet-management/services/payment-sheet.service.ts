@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { API_ROUTES } from '@core/constants';
 import { ApiService, LoggerService } from '@core/services';
+import { AttachmentsGetResponseSchema } from '@shared/schemas/attachments.schema';
+import { IAttachmentsGetResponseDto } from '@shared/types';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import {
   AddPaymentSheetItemsRequestSchema,
@@ -56,6 +58,7 @@ import {
   IVerifyPaymentSheetItemsResponseDto,
   IUnverifyPaymentSheetItemsFormDto,
   IUnverifyPaymentSheetItemsResponseDto,
+  IPaymentSheetPdfFormDto,
 } from '../types/payment-sheet.dto';
 
 @Injectable({
@@ -610,6 +613,45 @@ export class PaymentSheetService {
               'Unverify Payment Sheet Items Error',
               error
             );
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getPaymentSheetPdf(
+    paymentSheetId: string,
+    params?: IPaymentSheetPdfFormDto
+  ): Observable<IAttachmentsGetResponseDto> {
+    this.logger.logUserAction('Get Payment Sheet PDF Request', {
+      paymentSheetId,
+      params,
+    });
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEET_PDF_BY_ID(paymentSheetId),
+        {
+          response: AttachmentsGetResponseSchema,
+        },
+        params
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction('Get Payment Sheet PDF Response', {
+            paymentSheetId,
+            params,
+            key: response.key,
+          });
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get Payment Sheet PDF Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Get Payment Sheet PDF Error', error);
           }
           return throwError(() => error);
         })

@@ -210,6 +210,20 @@ export class GetPaymentSheetComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.DOWNLOAD && selectedRow?.id) {
+      this.confirmationDialogService.showConfirmationDialog(
+        EButtonActionType.DOWNLOAD,
+        PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP[EButtonActionType.DOWNLOAD],
+        null,
+        false,
+        false,
+        {
+          paymentSheetId: selectedRow.id,
+        }
+      );
+      return;
+    }
+
     if (
       (actionType === EButtonActionType.CANCEL ||
         actionType === EButtonActionType.REJECT) &&

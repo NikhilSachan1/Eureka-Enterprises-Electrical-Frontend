@@ -383,6 +383,8 @@ export const API_ROUTES = {
       `payment-sheets/${paymentSheetId}/verify`,
     UNVERIFY_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
       `payment-sheets/${paymentSheetId}/unverify`,
+    PAYMENT_SHEET_PDF_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/pdf`,
   },
 } as const;
 

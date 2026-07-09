@@ -129,7 +129,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   private readonly appPermissionService = inject(AppPermissionService);
   private readonly authService = inject(AuthService);
 
-  private readonly paymentSheetId =
+  protected readonly paymentSheetId =
     this.activatedRoute.snapshot.paramMap.get('paymentSheetId') ?? '';
 
   private readonly sourceSectionOrder: EPaymentSheetSourceType[] = [
@@ -344,6 +344,15 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     const detail = this.detail();
 
     if (
+      actionType === EButtonActionType.DOWNLOAD &&
+      this.paymentSheetId &&
+      detail
+    ) {
+      this.openDownloadPdfDialog();
+      return;
+    }
+
+    if (
       actionType !== EButtonActionType.ADD ||
       !this.paymentSheetId ||
       !detail ||
@@ -354,6 +363,19 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     }
 
     this.openAddBeneficiariesDialog();
+  }
+
+  private openDownloadPdfDialog(): void {
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.DOWNLOAD,
+      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[EButtonActionType.DOWNLOAD],
+      null,
+      false,
+      false,
+      {
+        paymentSheetId: this.paymentSheetId,
+      }
+    );
   }
 
   protected onWorkflowActionClick(actionType: string): void {
@@ -686,6 +708,13 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       showHeaderButton: true,
       showGoBackButton: true,
       headerButtonConfig: [
+        {
+          id: EButtonActionType.DOWNLOAD,
+          actionName: EButtonActionType.DOWNLOAD,
+          label: 'Download PDF',
+          icon: ICONS.COMMON.DOWNLOAD,
+          permission: [APP_PERMISSION.PAYMENT_SHEET.DOWNLOAD],
+        },
         {
           id: EButtonActionType.ADD,
           actionName: EButtonActionType.ADD,

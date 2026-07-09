@@ -17,6 +17,7 @@ import { RejectPaymentSheetItemComponent } from '../../components/reject-payment
 import { SubmitPaymentSheetComponent } from '../../components/submit-payment-sheet/submit-payment-sheet.component';
 import { UnverifyPaymentSheetItemsComponent } from '../../components/unverify-payment-sheet-items/unverify-payment-sheet-items.component';
 import { VerifyPaymentSheetItemsComponent } from '../../components/verify-payment-sheet-items/verify-payment-sheet-items.component';
+import { DownloadPaymentSheetPdfComponent } from '../../components/download-payment-sheet-pdf/download-payment-sheet-pdf.component';
 import { EPaymentSheetWorkflowActionType } from '../../types/payment-sheet.enum';
 
 export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
@@ -38,6 +39,20 @@ export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
       },
     },
     dynamicComponent: AddPaymentSheetItemsComponent,
+  },
+  [EButtonActionType.DOWNLOAD]: {
+    dialogConfig: {
+      ...CONFIRMATION_DIALOG_CONFIG,
+      header: 'Download payment sheet PDF',
+      icon: ICONS.COMMON.DOWNLOAD,
+      message: 'Select the payment source you want to download as PDF.',
+      labels: {
+        actionWord: 'download',
+        singleLabel: 'Download',
+        bulkLabel: 'Download',
+      },
+    },
+    dynamicComponent: DownloadPaymentSheetPdfComponent,
   },
   [EButtonActionType.EDIT]: {
     dialogConfig: {
