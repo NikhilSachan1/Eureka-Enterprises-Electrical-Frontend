@@ -62,6 +62,12 @@ const allocateDeallocateDisableReason = (
 
 const PROJECT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No project record found.',
+  scrollable: true,
+  scrollHeight: 'calc(100vh - 22rem)',
+  actionsColumn: {
+    frozen: true,
+    alignFrozen: 'right',
+  },
 };
 
 const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [

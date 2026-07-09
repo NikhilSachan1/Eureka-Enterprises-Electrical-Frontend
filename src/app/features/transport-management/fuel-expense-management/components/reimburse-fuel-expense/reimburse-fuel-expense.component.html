@@ -30,9 +30,14 @@
 
     <app-input-field
       [formGroup]="form.formGroup"
-      [inputFieldConfig]="form.fieldConfigs.transactionId"
+      [inputFieldConfig]="form.fieldConfigs.paidFromAccount"
     />
   </div>
+
+  <app-input-field
+    [formGroup]="form.formGroup"
+    [inputFieldConfig]="form.fieldConfigs.transactionId"
+  />
 
   <app-input-field
     [formGroup]="form.formGroup"

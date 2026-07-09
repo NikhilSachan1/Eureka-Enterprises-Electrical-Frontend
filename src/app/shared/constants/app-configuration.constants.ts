@@ -17,6 +17,8 @@ export const MODULE_NAMES = {
   CONFIGURATION: 'configuration',
   GEOGRAPHY: 'geography',
   FINANCIAL: 'FINANCIALS',
+  PAYMENTS: 'payments',
+  COMPANY_BANK_ACCOUNT: 'company_bank_account',
 } as const;
 
 export const CONFIGURATION_KEYS = {
@@ -109,6 +111,14 @@ export const CONFIGURATION_KEYS = {
   },
   ANNOUNCEMENT: {
     ANNOUNCEMENT_STATUS: 'announcement_statuses',
+  },
+  PAYMENTS: {
+    SHEET_STATUSES: 'payments.sheet_statuses',
+    SHEET_STAGES: 'payments.sheet_stages',
+    ITEM_STATUSES: 'payments.item_statuses',
+  },
+  COMPANY_BANK_ACCOUNT: {
+    COMPANY_BANK_ACCOUNT_LIST: 'company_bank_account_list',
   },
   GEOGRAPHY: {
     LOCATION: 'location',

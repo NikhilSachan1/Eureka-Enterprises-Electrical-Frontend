@@ -27,6 +27,8 @@ export interface IDetailEntryData {
   format?: string;
   customTemplateKey?: string;
   detailTemplateFullRow?: boolean;
+  /** Skip bordered panel wrapper around custom template content. */
+  detailTemplatePlain?: boolean;
   metadata?: {
     transactionType?:
       | EExpenseTransactionType

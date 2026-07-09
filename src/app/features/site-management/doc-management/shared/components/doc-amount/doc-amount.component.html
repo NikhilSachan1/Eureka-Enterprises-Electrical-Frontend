@@ -7,7 +7,9 @@
   @for (seg of segments(); track $index) {
     <div class="doc-amount-line">
       <div class="doc-amount-line__body">
-        <span [class]="labelClass(segmentTone(seg))">{{ seg.label }}:</span>
+        @if (seg.label.trim()) {
+          <span [class]="labelClass(segmentTone(seg))">{{ seg.label }}:</span>
+        }
         @switch (seg.dataType) {
           @case (EDataType.CURRENCY) {
             @if (seg.value !== null && seg.value !== undefined && seg.value !== '') {

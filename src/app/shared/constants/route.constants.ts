@@ -16,11 +16,13 @@ export const ROUTE_BASE_PATHS = {
   VEHICLE_SERVICE: 'service',
   VEHICLE_READING: 'reading',
   PAYROLL: 'payroll',
+  PAYMENT_HUB: 'payment-hub',
   DASHBOARD: 'dashboard',
   PETRO_CARD: 'petro-card',
   TRANSPORT: 'transport',
   ANNOUNCEMENT: 'announcement',
   MY_FILES: 'my-files',
+  COMPANY_BANK_ACCOUNT: 'company-bank-account',
   SITE: {
     BASE: 'project',
     COMPANY: 'company',
@@ -50,6 +52,11 @@ export const ROUTE_BASE_PATHS = {
 } as const;
 
 export const ROUTES = {
+  CENTRALIZED_PAYMENT: {
+    OUTSTANDING_BALANCES: 'outstanding-balance',
+    PAYMENT_SHEETS: 'payment-sheets',
+    PAYMENT_SHEET_DETAIL: ':paymentSheetId',
+  },
   AUTH: {
     LOGIN: 'login',
     FORGOT_PASSWORD: 'forgot-password',
@@ -197,6 +204,12 @@ export const ROUTES = {
     STRUCTURE: `structure`,
   },
   PETRO_CARD: {
+    LIST: `list`,
+    ADD: `add`,
+    EDIT: `edit`,
+  },
+
+  COMPANY_BANK_ACCOUNT: {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,

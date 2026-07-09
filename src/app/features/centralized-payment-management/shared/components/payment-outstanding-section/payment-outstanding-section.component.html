@@ -1,0 +1,95 @@
+@if (hasOverview()) {
+  <section class="outstanding-section">
+    <div
+      class="outstanding-section__overview"
+      [attr.aria-label]="overviewAriaLabel()"
+    >
+      @for (section of overviewCards(); track section.value) {
+        <article
+          class="outstanding-section__card"
+          [style.--os-accent]="section.accentLight"
+          [style.--os-accent-dark]="section.accentDark"
+        >
+          <header class="outstanding-section__card-header">
+            <span
+              class="outstanding-section__card-icon"
+              aria-hidden="true"
+            >
+              <i [class]="section.icon"></i>
+            </span>
+            <h3 class="outstanding-section__card-title">{{ section.label }}</h3>
+          </header>
+          <div class="outstanding-section__card-body">
+            <div class="outstanding-section__stats">
+              @for (stat of section.stats; track stat.label) {
+                @if (stat.dividerBefore) {
+                  <span
+                    class="outstanding-section__stat-divider"
+                    aria-hidden="true"
+                  ></span>
+                }
+                <div
+                  class="outstanding-section__stat"
+                  [class.outstanding-section__stat--amount]="stat.kind === 'currency'"
+                >
+                  <span
+                    class="outstanding-section__stat-value"
+                    [class.outstanding-section__stat-value--debit]="stat.tone === 'debit'"
+                    [class.outstanding-section__stat-value--to-book]="stat.tone === 'to-book'"
+                  >
+                    @if (stat.kind === 'currency') {
+                      {{
+                        stat.value
+                          | currency
+                            : APP_CONFIG.CURRENCY_CONFIG.DEFAULT
+                            : 'symbol'
+                            : APP_CONFIG.NUMBER_FORMATS.WITH_DECIMALS
+                            : APP_CONFIG.NUMBER_FORMATS.LOCALE
+                      }}
+                    } @else {
+                      {{ stat.value }}
+                    }
+                  </span>
+                  <span class="outstanding-section__stat-label">{{ stat.label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+}
+
+@if (hasTabs()) {
+  <div
+    class="outstanding-section__tabs"
+    [class.outstanding-section__tabs--with-overview]="hasOverview()"
+  >
+    <app-nav-tabs
+      [tabs]="navTabItems()"
+      [tabMode]="tabContentMode"
+      (tabChanged)="onNavTabChanged($event)"
+    />
+  </div>
+}
+
+@if (!hasTabs() && showSearch()) {
+  <div class="outstanding-search">
+    <p-iconfield class="outstanding-search__field">
+      <p-inputicon [class]="ICONS.COMMON.SEARCH" />
+      <app-input-field
+        [inputFieldConfig]="searchFieldConfig()"
+        [fieldValue]="searchTerm()"
+        (onFieldChange)="onSearchFieldChange($event)"
+      />
+    </p-iconfield>
+  </div>
+}
+
+<div
+  class="outstanding-section__content"
+  [class.outstanding-section__content--tabs]="hasTabs()"
+>
+  <ng-content />
+</div>

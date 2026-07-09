@@ -25,6 +25,8 @@ export {
 export {
   convertSecondsToDhms,
   getPayslipCutoffMinDate,
+  getForceAttendanceMaxDate,
+  isNowBeforeShiftEnd,
   getPayslipCutoffMaxDate,
   getStartOfLocalDayInMonth,
   isPayrollLocked,
@@ -64,3 +66,12 @@ export {
   applyGroupMetricValueLoading,
   applyMetricValueLoading,
 } from './metric.util';
+export {
+  hasAnyFrozenColumn,
+  isDataTableColumnFrozen,
+  isDataTableScrollable,
+  resolveFrozenAlign,
+  resolveFrozenColumnWidth,
+  resolveColumnWidth,
+} from './data-table-frozen-column.util';
+export { mapPaidFromAccountToBankDetails } from './bank-details.util';

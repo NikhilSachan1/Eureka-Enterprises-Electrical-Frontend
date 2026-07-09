@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
+import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import {
   IBankTransferDetailGetResponseDto,
   IBankTransferGetBaseResponseDto,
@@ -26,6 +27,7 @@ import { DocReferenceComponent } from '@features/site-management/doc-management/
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
+import { mapPaidFromAccountToBankDetails } from '@shared/utility';
 
 @Component({
   selector: 'app-get-bank-transfer-detail',
@@ -34,6 +36,7 @@ import { EDocContext } from '@features/site-management/doc-management/types/doc.
     ViewDetailComponent,
     DocReferenceComponent,
     DocWorkspaceContextComponent,
+    BankDetailsCellComponent,
   ],
   templateUrl: './get-bank-transfer-detail.component.html',
   styleUrl: './get-bank-transfer-detail.component.scss',
@@ -126,6 +129,19 @@ export class GetBankTransferDetailComponent extends DrawerDetailBase {
         type: EDataType.CURRENCY,
         format: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
       },
+      ...(record.paidFromAccount
+        ? [
+            {
+              label: isSales
+                ? 'Bank Received Account'
+                : 'Bank Transfer Account',
+              value: mapPaidFromAccountToBankDetails(record.paidFromAccount),
+              customTemplateKey: 'paidFromAccountDetails',
+              detailTemplateFullRow: true,
+              detailTemplatePlain: true,
+            },
+          ]
+        : []),
       {
         label: isSales ? 'Proof of receipt' : 'Proof of transfer',
         value: proofAttachmentKeysForBankTransferDetail(record),

@@ -6,15 +6,49 @@ import {
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
-import { getPayslipCutoffMinDate } from '@shared/utility';
+import {
+  getForceAttendanceMaxDate,
+  getPayslipCutoffMinDate,
+} from '@shared/utility';
 import { APPLY_ATTENDANCE_FORM_CONFIG } from './apply-attendance.config';
 import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { EAttendanceStatus } from '@features/attendance-management/types/attendance.enum';
 import { IAttendanceForceUIFormDto } from '@features/attendance-management/types/attendance.dto';
 
 const {
-  fields: { company, contractor, assignedEngineer, vehicle, remark },
+  fields: {
+    company: baseCompany,
+    contractor: baseContractor,
+    assignedEngineer: baseAssignedEngineer,
+    vehicle: baseVehicle,
+    remark,
+  },
 } = APPLY_ATTENDANCE_FORM_CONFIG;
+
+const requiredWhenPresentForEmployeeOrDriver = [
+  {
+    shouldApply: (context: Record<string, unknown>): boolean => {
+      const { isAssignmentApplicable, isEmployee, isDriver } = context;
+      return (
+        isAssignmentApplicable === true &&
+        (isEmployee === true || isDriver === true)
+      );
+    },
+    validators: [Validators.required],
+    resetOnFalse: true,
+  },
+];
+
+const requiredWhenPresentForDriver = [
+  {
+    shouldApply: (context: Record<string, unknown>): boolean => {
+      const { isAssignmentApplicable, isDriver } = context;
+      return isAssignmentApplicable === true && isDriver === true;
+    },
+    validators: [Validators.required],
+    resetOnFalse: true,
+  },
+];
 
 const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceForceUIFormDto> =
   {
@@ -39,7 +73,7 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceFor
       label: 'Attendance Date',
       dateConfig: {
         minDate: getPayslipCutoffMinDate(),
-        maxDate: new Date(),
+        maxDate: getForceAttendanceMaxDate(),
       },
       validators: [Validators.required],
     },
@@ -64,10 +98,19 @@ const FORCE_ATTENDANCE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAttendanceFor
       },
       validators: [Validators.required],
     },
-    company,
-    contractor,
-    assignedEngineer,
-    vehicle,
+    company: {
+      ...baseCompany,
+      conditionalValidators: requiredWhenPresentForEmployeeOrDriver,
+    },
+    contractor: {
+      ...baseContractor,
+      conditionalValidators: requiredWhenPresentForEmployeeOrDriver,
+    },
+    assignedEngineer: {
+      ...baseAssignedEngineer,
+      conditionalValidators: requiredWhenPresentForDriver,
+    },
+    vehicle: baseVehicle,
     remark: {
       ...remark,
       label: 'Reason for force attendance',

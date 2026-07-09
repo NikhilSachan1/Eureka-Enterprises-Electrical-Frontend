@@ -3,3 +3,7 @@ export { getBankTransferActionConfigMap } from './dialog/get-bank-transfer.confi
 export { ADD_BANK_TRANSFER_FORM_CONFIG } from './form/add-bank-transfer.config';
 export { EDIT_BANK_TRANSFER_FORM_CONFIG } from './form/edit-bank-transfer.config';
 export { SEND_EMAIL_BANK_TRANSFER_FORM_CONFIG } from './form/send-email-bank-transfer.config';
+export {
+  getBankTransferHasPaidFromAccountFilterFieldConfig,
+  getBankTransferPaidFromAccountFilterFieldConfig,
+} from './form/bank-transfer-header-filter.config';

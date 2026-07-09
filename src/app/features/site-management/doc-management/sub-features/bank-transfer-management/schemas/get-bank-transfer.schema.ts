@@ -22,6 +22,11 @@ export const BankTransferGetRequestSchema = z
     docType: z.enum(EDocContext).optional(),
     dateRange: z.array(dateField).nullable().optional(),
     poNumber: z.string().nullable().optional(),
+    paidFromAccount: uuidField.optional(),
+    hasPaidFromAccount: z
+      .union([z.boolean(), z.literal('true'), z.literal('false')])
+      .nullable()
+      .optional(),
     sortOrder,
     sortField,
     pageSize,
@@ -37,6 +42,8 @@ export const BankTransferGetRequestSchema = z
       vendorName,
       docType,
       dateRange,
+      paidFromAccount,
+      hasPaidFromAccount,
       ...rest
     }) => {
       const [start, end] = dateRange ?? [];
@@ -49,6 +56,13 @@ export const BankTransferGetRequestSchema = z
         partyType: docType,
         dateFrom: transformDateFormat(start),
         dateTo: transformDateFormat(end),
+        paidFromAccountId: paidFromAccount,
+        hasPaidFromAccount:
+          hasPaidFromAccount === null || hasPaidFromAccount === undefined
+            ? undefined
+            : typeof hasPaidFromAccount === 'boolean'
+              ? hasPaidFromAccount
+              : hasPaidFromAccount === 'true',
       };
     }
   );

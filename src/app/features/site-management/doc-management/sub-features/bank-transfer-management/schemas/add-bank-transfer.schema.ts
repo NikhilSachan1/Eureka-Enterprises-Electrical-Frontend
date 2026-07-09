@@ -9,6 +9,7 @@ export const AddBankTransferRequestSchema =
     invoiceId: data.partyType === EDocContext.SALES ? data.invoiceNumber : null,
     bookPaymentId:
       data.partyType === EDocContext.PURCHASE ? data.bookPaymentNumber : null,
+    paidFromAccountId: data.paidFromAccount ?? null,
     utrNumber: data.utrNumber,
     transferDate: transformDateFormat(data.transferDate),
     transferAmount: data.transferAmount,

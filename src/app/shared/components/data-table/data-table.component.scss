@@ -74,6 +74,43 @@
     .p-datatable-tbody > tr:hover {
       background: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200)) !important;
     }
+
+    &.p-datatable-scrollable {
+      // PrimeNG sets frozen td background to inherit — scrolling cells show through without an opaque layer.
+      th.p-datatable-frozen-column,
+      td.p-datatable-frozen-column {
+        background-color: var(--p-content-background, var(--surface-card, #ffffff)) !important;
+        background-clip: padding-box;
+        z-index: 2;
+      }
+
+      th.p-datatable-frozen-column.p-datatable-frozen-column-left,
+      td.p-datatable-frozen-column.p-datatable-frozen-column-left {
+        box-shadow: 2px 0 4px -1px rgb(15 23 42 / 0.1);
+      }
+
+      th.p-datatable-frozen-column:not(.p-datatable-frozen-column-left),
+      td.p-datatable-frozen-column:not(.p-datatable-frozen-column-left) {
+        box-shadow: -2px 0 4px -1px rgb(15 23 42 / 0.1);
+      }
+
+      th.p-datatable-frozen-column {
+        z-index: 5;
+      }
+
+      // Paint hover per-cell so row background does not bleed under frozen columns.
+      .p-datatable-tbody > tr:hover {
+        background: transparent !important;
+      }
+
+      .p-datatable-tbody > tr:hover > td:not(.p-datatable-frozen-column) {
+        background: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200)) !important;
+      }
+
+      .p-datatable-tbody > tr:hover > td.p-datatable-frozen-column {
+        background: color-mix(in srgb, var(--primary-color) 14%, var(--surface-200)) !important;
+      }
+    }
   }
 }
 
@@ -138,6 +175,21 @@
 ::ng-deep .row-overflow-actions-menu .p-menu-item.p-disabled {
   pointer-events: auto;
   cursor: not-allowed;
+}
+
+::ng-deep tr.row-selection-disabled {
+  opacity: 0.55;
+
+  .p-checkbox,
+  .p-checkbox-box,
+  .p-checkbox-input {
+    cursor: not-allowed;
+  }
+
+  .p-checkbox.p-disabled,
+  .p-checkbox-box.p-disabled {
+    opacity: 1;
+  }
 }
 
 // SelectButton styling for view mode toggle

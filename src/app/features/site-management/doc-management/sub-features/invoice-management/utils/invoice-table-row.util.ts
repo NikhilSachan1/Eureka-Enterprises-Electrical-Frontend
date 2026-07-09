@@ -86,7 +86,16 @@ function formatInvoicePercentSuffix(
   return raw.startsWith('(') ? raw : `(${raw.replace(/%$/, '')}%)`;
 }
 
+function buildInvoiceAmountEmptyPlaceholderSegment(): IDocAmountSegment {
+  return {
+    dataType: EDataType.CURRENCY,
+    label: '',
+    value: null,
+  };
+}
+
 export function buildInvoiceTaxGstAmountSegments(input: {
+  invoiceNumber?: string | null;
   taxableAmount: string;
   tdsAmount: string;
   tdsPercentage: string | number;
@@ -95,6 +104,10 @@ export function buildInvoiceTaxGstAmountSegments(input: {
   totalAmount: string;
   isGstHold?: boolean | null;
 }): IDocAmountSegment[] {
+  if (input.invoiceNumber === null) {
+    return [buildInvoiceAmountEmptyPlaceholderSegment()];
+  }
+
   return [
     {
       dataType: EDataType.CURRENCY,

@@ -125,16 +125,9 @@ export class EditInvoiceComponent
         defaultValues: {
           projectName: record.siteId,
           jmcNumber: record.jmcId,
-          isNoInvoice:
-            !record.invoiceNumber ||
-            record.invoiceNumber.toUpperCase() === 'NA' ||
-            !record.fileKey ||
-            record.fileKey.toUpperCase() === 'NA',
+          isNoInvoice: !record.invoiceNumber || !record.fileKey,
           isGstHold: record.isGstHold ?? true,
-          invoiceNumber:
-            !record.invoiceNumber || record.invoiceNumber.toUpperCase() === 'NA'
-              ? null
-              : record.invoiceNumber,
+          invoiceNumber: record.invoiceNumber ?? null,
           invoiceDate: invoiceDate ?? undefined,
           taxableAmount: Number(record.taxableAmount),
           tdsPercent: Number(record.tdsPercentage),
@@ -192,7 +185,7 @@ export class EditInvoiceComponent
       this.changeDetectorRef.detectChanges();
     });
 
-    if (record.fileKey && record.fileKey.toUpperCase() !== 'NA') {
+    if (record.fileKey) {
       this.loadPrefillAttachmentFromKey(record.fileKey);
     }
   }

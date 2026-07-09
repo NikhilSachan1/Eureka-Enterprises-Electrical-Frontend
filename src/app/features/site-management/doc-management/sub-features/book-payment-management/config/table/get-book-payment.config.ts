@@ -1,6 +1,7 @@
 import { APP_CONFIG } from '@core/config';
 import { COMMON_ROW_ACTIONS } from '@shared/config';
 import {
+  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -13,15 +14,17 @@ import {
 } from '@shared/utility';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { IBookPaymentGetBaseResponseDto } from '../../types/book-payment.dto';
-
-const shouldDisableBookPaymentEditOrDelete = (
-  row: IBookPaymentGetBaseResponseDto
-): boolean => row.hasTransfer === true;
-
-const BOOK_PAYMENT_ROW_ACTION_DISABLE_REASON = {
-  paymentDoneNoEdit: 'Payment is already done. Edit is not allowed.',
-  paymentDoneNoDelete: 'Payment is already done. Delete is not allowed.',
-} as const;
+import {
+  bookPaymentDeleteDisableReason,
+  bookPaymentEditDisableReason,
+  bookPaymentUnlockGrantDisableReason,
+  bookPaymentUnlockRequestDisableReason,
+  bookPaymentUnlockRequestRejectDisableReason,
+  shouldDisableBookPaymentEditOrDelete,
+  shouldDisableBookPaymentUnlockGrant,
+  shouldDisableBookPaymentUnlockRequest,
+  shouldDisableBookPaymentUnlockRequestReject,
+} from '../../utils/book-payment-table-row.util';
 
 export const BOOK_PAYMENT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No book payment record found.',
@@ -71,6 +74,13 @@ export const BOOK_PAYMENT_TABLE_HEADERS_CONFIG: Partial<IDataTableHeaderConfig>[
       bodyTemplate: EDataType.TEXT,
       showSort: false,
     },
+    {
+      field: 'isLocked',
+      header: 'Lock status',
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'bookPaymentLockStatus',
+      showSort: false,
+    },
   ];
 
 const buildBookPaymentTableRowActionsConfig = (
@@ -92,10 +102,7 @@ const buildBookPaymentTableRowActionsConfig = (
         'book payment',
         row.createdBy,
         loggedInUserId
-      ) ??
-      (shouldDisableBookPaymentEditOrDelete(row)
-        ? BOOK_PAYMENT_ROW_ACTION_DISABLE_REASON.paymentDoneNoEdit
-        : undefined),
+      ) ?? bookPaymentEditDisableReason(row),
     permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.EDIT],
   },
   {
@@ -109,11 +116,29 @@ const buildBookPaymentTableRowActionsConfig = (
         'book payment',
         row.createdBy,
         loggedInUserId
-      ) ??
-      (shouldDisableBookPaymentEditOrDelete(row)
-        ? BOOK_PAYMENT_ROW_ACTION_DISABLE_REASON.paymentDoneNoDelete
-        : undefined),
+      ) ?? bookPaymentDeleteDisableReason(row),
     permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.DELETE],
+  },
+  {
+    id: EButtonActionType.UNLOCK_REQUEST,
+    tooltip: 'Request unlock book payment',
+    disableWhen: shouldDisableBookPaymentUnlockRequest,
+    disableReason: bookPaymentUnlockRequestDisableReason,
+    permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.UNLOCK],
+  },
+  {
+    id: EButtonActionType.UNLOCK_GRANT,
+    tooltip: 'Grant unlock book payment',
+    disableWhen: shouldDisableBookPaymentUnlockGrant,
+    disableReason: bookPaymentUnlockGrantDisableReason,
+    permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.UNLOCK_GRANT],
+  },
+  {
+    id: EButtonActionType.UNLOCK_REQUEST_REJECT,
+    tooltip: 'Reject unlock request',
+    disableWhen: shouldDisableBookPaymentUnlockRequestReject,
+    disableReason: bookPaymentUnlockRequestRejectDisableReason,
+    permission: [APP_PERMISSION.BOOK_PAYMENT_DOC.UNLOCK_REQUEST_REJECT],
   },
 ];
 

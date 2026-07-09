@@ -43,7 +43,6 @@ import { ITabChange, ITabItem, ETabMode, ETabLayout } from '@shared/types';
 })
 export class NavTabsComponent implements OnInit {
   tabs = input.required<ITabItem[]>();
-  activeTabIndex = input<number>(0);
   tabMode = input<ETabMode>(ETabMode.ROUTER_OUTLET);
   layout = input<ETabLayout>(ETabLayout.HORIZONTAL);
   allTabMode = ETabMode;
@@ -67,28 +66,7 @@ export class NavTabsComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.tabMode() === this.allTabMode.CONTENT) {
-      const currentParams = this.route.snapshot.queryParams;
-      const tabIndexParam = currentParams['tab'];
-
-      if (tabIndexParam !== undefined) {
-        const tabIndex = parseInt(tabIndexParam, 10);
-        if (
-          !isNaN(tabIndex) &&
-          tabIndex >= 0 &&
-          tabIndex < this.visibleTabs().length
-        ) {
-          this.selectedTabIndex.set(tabIndex);
-          this.setActiveTabByIndex(tabIndex);
-        } else {
-          this.selectedTabIndex.set(this.activeTabIndex());
-          this.setActiveTabByIndex(this.activeTabIndex());
-        }
-      } else {
-        const initialIndex = this.activeTabIndex();
-        this.selectedTabIndex.set(initialIndex);
-        this.updateUrlWithoutNavigation(initialIndex);
-        this.setActiveTabByIndex(initialIndex);
-      }
+      this.initializeContentTab();
     } else {
       this.currentRoute.set(this.router.url);
       this.redirectToFirstVisibleTabIfAtParent(this.router.url);
@@ -153,6 +131,36 @@ export class NavTabsComponent implements OnInit {
       this.updateUrlWithoutNavigation(index);
       this.tabChanged.emit({ tab, index });
     }
+  }
+
+  private initializeContentTab(): void {
+    const tabIndex = this.resolveContentTabIndex();
+    this.selectedTabIndex.set(tabIndex);
+    this.updateUrlWithoutNavigation(tabIndex);
+    this.setActiveTabByIndex(tabIndex);
+  }
+
+  private resolveContentTabIndex(): number {
+    const tabCount = this.visibleTabs().length;
+    if (tabCount === 0) {
+      return 0;
+    }
+
+    const tabIndexParam = this.route.snapshot.queryParams['tab'];
+    if (
+      tabIndexParam === undefined ||
+      tabIndexParam === null ||
+      tabIndexParam === ''
+    ) {
+      return 0;
+    }
+
+    const tabIndex = parseInt(String(tabIndexParam), 10);
+    if (isNaN(tabIndex) || tabIndex < 0 || tabIndex >= tabCount) {
+      return 0;
+    }
+
+    return tabIndex;
   }
 
   private updateUrlWithoutNavigation(tabIndex: number): void {

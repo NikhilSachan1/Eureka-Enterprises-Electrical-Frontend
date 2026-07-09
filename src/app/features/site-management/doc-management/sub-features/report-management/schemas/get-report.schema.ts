@@ -2,12 +2,14 @@ import {
   dateField,
   AuditSchema,
   FilterSchema,
+  isoDateTimeField,
+  UserSchema,
   uuidField,
 } from '@shared/schemas';
 import z from 'zod';
 import { ReportBaseSchema } from './base-report.schema';
 import { EDocContext } from '@features/site-management/doc-management/types/doc.enum';
-import { transformDateFormat } from '@shared/utility';
+import { makeFieldsNullable, transformDateFormat } from '@shared/utility';
 
 const { sortOrder, sortField, pageSize, page, search } = FilterSchema.shape;
 const { createdBy } = AuditSchema.shape;
@@ -54,6 +56,10 @@ export const ReportGetRequestSchema = z
 
 export const ReportGetBaseResponseSchema = z.looseObject({
   ...ReportBaseSchema.shape,
+  isLocked: z.boolean(),
+  unlockRequestedAt: isoDateTimeField.nullable(),
+  unlockRequestedByUser: makeFieldsNullable(UserSchema).nullable(),
+  unlockReason: z.string().nullable(),
   remarks: z.string().nullable(),
   createdBy,
   site: z.looseObject({

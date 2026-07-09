@@ -11,25 +11,25 @@ export const EditInvoiceRequestSchema = InvoiceUpsertShapeSchema.omit({
     const isNoInvoice = Boolean(data.isNoInvoice);
 
     return {
-      invoiceNumber: isNoInvoice ? 'NA' : data.invoiceNumber,
+      invoiceNumber: isNoInvoice ? null : data.invoiceNumber,
       invoiceDate: transformDateFormat(data.invoiceDate),
       taxableAmount: isNoInvoice
-        ? 0
+        ? null
         : roundCurrencyAmount(Number(data.taxableAmount ?? 0)),
-      tdsPercentage: isNoInvoice ? 0 : Number(data.tdsPercent ?? 0),
+      tdsPercentage: isNoInvoice ? null : Number(data.tdsPercent ?? 0),
       tdsAmount: isNoInvoice
-        ? 0
+        ? null
         : roundCurrencyAmount(Number(data.tdsAmount ?? 0)),
       gstAmount: isNoInvoice
-        ? 0
+        ? null
         : roundCurrencyAmount(Number(data.gstAmount ?? 0)),
-      gstPercentage: isNoInvoice ? 0 : Number(data.gstPercent ?? 0),
+      gstPercentage: isNoInvoice ? null : Number(data.gstPercent ?? 0),
       totalAmount: isNoInvoice
-        ? 0
+        ? null
         : roundCurrencyAmount(Number(data.totalAmount ?? 0)),
-      isGstHold: isNoInvoice ? false : data.isGstHold,
-      fileKey: isNoInvoice ? 'NA' : data.invoiceFileKey,
-      fileName: isNoInvoice ? 'NA' : data.invoiceFileName,
+      isGstHold: isNoInvoice ? false : Boolean(data.isGstHold),
+      fileKey: isNoInvoice ? null : data.invoiceFileKey,
+      fileName: isNoInvoice ? null : data.invoiceFileName,
       remarks: data.remarks,
     };
   });

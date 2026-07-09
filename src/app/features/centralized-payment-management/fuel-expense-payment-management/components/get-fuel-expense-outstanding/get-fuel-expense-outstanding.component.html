@@ -1,0 +1,16 @@
+<app-payment-outstanding-section
+  searchPlaceholder="Search by employee name or code"
+  (searchChange)="onSearchChange($event)"
+>
+  <app-data-table
+    #dataTable
+    [tableConfig]="table.tableConfig()"
+    [tableHeader]="table.headers()"
+    [tableData]="table.data()"
+    [loading]="table.loading()"
+    [bulkActionButtons]="table.bulkActions()"
+    [rowActions]="table.rowActions()"
+    (filterData)="onTableStateChange($event)"
+    (selectionChange)="onSelectionChange($event)"
+  />
+</app-payment-outstanding-section>

@@ -43,6 +43,33 @@ const SEARCH_FILTER_EXPENSE_FORM_FIELDS_CONFIG: ITableSearchFilterInputFieldsCon
       },
       matchmode: ETableFilterMatchMode.IN,
     },
+    paidFromAccount: {
+      fieldType: EDataType.SELECT,
+      id: 'paidFromAccount',
+      fieldName: 'paidFromAccount',
+      label: 'Paid From Account',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.COMPANY_BANK_ACCOUNT,
+          dropdownName:
+            CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
+        },
+      },
+      permission: [APP_PERMISSION.UI.EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT],
+    },
+    hasPaidFromAccount: {
+      fieldType: EDataType.SELECT,
+      id: 'hasPaidFromAccount',
+      fieldName: 'hasPaidFromAccount',
+      label: 'Has Paid From Account',
+      selectConfig: {
+        optionsDropdown: [
+          { label: 'Yes', value: 'true' },
+          { label: 'No', value: 'false' },
+        ],
+      },
+      permission: [APP_PERMISSION.UI.EXPENSE.SEARCH_FILTER_PAID_FROM_ACCOUNT],
+    },
     approvalStatus: {
       ...COMMON_SEARCH_FILTER_FIELDS_CONFIG.approvalStatus,
       multiSelectConfig: {

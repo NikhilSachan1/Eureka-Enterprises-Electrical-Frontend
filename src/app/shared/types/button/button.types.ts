@@ -59,6 +59,7 @@ export enum EButtonActionType {
   DELETE_PERMISSIONS = 'deletePermissions',
   DELETE = 'delete',
   APPROVE = 'approve',
+  UNVERIFY = 'unverify',
   REJECT = 'reject',
   CANCEL = 'cancel',
   REGULARIZE = 'regularize',
@@ -89,4 +90,5 @@ export enum EButtonActionType {
   UPLOAD = 'upload',
   CREATE_FOLDER = 'createFolder',
   MOVE = 'move',
+  WORKFLOW_JOURNEY = 'workflowJourney',
 }

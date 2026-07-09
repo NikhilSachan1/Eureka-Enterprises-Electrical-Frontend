@@ -23,7 +23,7 @@ import {
   EDataType,
 } from '@shared/types';
 import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
-import { LoggerService } from '@core/services';
+import { AppPermissionService, LoggerService } from '@core/services';
 import {
   ConfirmationDialogService,
   DrawerService,
@@ -53,11 +53,16 @@ import {
   getMappedValueFromArrayOfObjects,
 } from '@shared/utility';
 import { GetAttendanceDetailComponent } from '../get-attendance-detail/get-attendance-detail.component';
+import { AttendanceRegisterPanelComponent } from '../attendance-register-panel/attendance-register-panel.component';
 import { APP_CONFIG } from '@core/config';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { COMMON_PAGE_HEADER_ACTIONS } from '@shared/config/common-page-header-actions.config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import { FormsModule } from '@angular/forms';
+import { SelectButtonModule } from 'primeng/selectbutton';
+
+type AttendanceViewMode = 'list' | 'register';
 
 @Component({
   selector: 'app-get-attendance',
@@ -66,6 +71,9 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
     PageHeaderComponent,
     MetricsCardComponent,
     SearchFilterComponent,
+    AttendanceRegisterPanelComponent,
+    FormsModule,
+    SelectButtonModule,
   ],
   providers: [],
   templateUrl: './get-attendance.component.html',
@@ -87,6 +95,7 @@ export class GetAttendanceComponent implements OnInit {
     TableServerSideParamsBuilderService
   );
   private readonly appConfigurationService = inject(AppConfigurationService);
+  private readonly appPermissionService = inject(AppPermissionService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -94,9 +103,25 @@ export class GetAttendanceComponent implements OnInit {
   private readonly attendanceStats =
     signal<IAttendanceGetStatsResponseDto | null>(null);
   protected readonly ALL_ICONS = ICONS;
+  protected readonly viewMode = signal<AttendanceViewMode>('list');
+  protected readonly canViewRegister = this.appPermissionService.hasPermission(
+    APP_PERMISSION.ATTENDANCE.VIEW_REGISTER
+  );
+  protected readonly viewModeOptions: {
+    label: string;
+    value: AttendanceViewMode;
+    icon: string;
+  }[] = [
+    { label: 'List', value: 'list', icon: ICONS.COMMON.LIST },
+    { label: 'Register', value: 'register', icon: ICONS.COMMON.CHART },
+  ];
 
-  protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected pageHeaderConfig = computed(() => {
+    this.viewMode();
+    return this.getPageHeaderConfig();
+  });
   protected metricGroups = computed(() => this.getMetricGroups());
+  protected isListView = computed(() => this.viewMode() === 'list');
 
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
@@ -391,11 +416,18 @@ export class GetAttendanceComponent implements OnInit {
     }
   }
 
+  protected onViewModeChange(mode: AttendanceViewMode): void {
+    this.viewMode.set(mode);
+  }
+
   private getPageHeaderConfig(): IPageHeaderConfig {
     return {
       title: 'Attendance Management',
-      subtitle: 'Manage attendance records',
-      showHeaderButton: true,
+      subtitle:
+        this.viewMode() === 'register'
+          ? 'Monthly attendance register'
+          : 'Manage attendance records',
+      showHeaderButton: this.isListView(),
       headerButtonConfig: [
         {
           ...COMMON_PAGE_HEADER_ACTIONS.PAGE_HEADER_BUTTON_1,

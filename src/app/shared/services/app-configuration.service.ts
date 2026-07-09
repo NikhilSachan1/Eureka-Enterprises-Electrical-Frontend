@@ -50,6 +50,8 @@ import { ProjectService } from '@features/site-management/project-management/ser
 import { IProjectGetResponseDto } from '@features/site-management/project-management/types/project.dto';
 import { PetroCardService } from '@features/transport-management/petro-card-management/services/petro-card.service';
 import { IPetroCardGetResponseDto } from '@features/transport-management/petro-card-management/types/petro-card.dto';
+import { CompanyBankAccountService } from '@features/company-bank-account-management/services/company-bank-account.service';
+import { ICompanyBankAccountGetResponseDto } from '@features/company-bank-account-management/types/company-bank-account.dto';
 import { FuelExpenseService } from '@features/transport-management/fuel-expense-management/services/fuel-expense.service';
 import { ILinkedUserVehicleDetailGetResponseDto } from '@features/transport-management/fuel-expense-management/types/fuel-expense.dto';
 import { mapProjectSiteTypeDisplays } from '@features/site-management/project-management/utility/project-site-type.util';
@@ -80,6 +82,9 @@ export class AppConfigurationService {
   private readonly vendorService = inject(VendorService);
   private readonly projectService = inject(ProjectService);
   private readonly petroCardService = inject(PetroCardService);
+  private readonly companyBankAccountService = inject(
+    CompanyBankAccountService
+  );
   private readonly fuelExpenseService = inject(FuelExpenseService);
   private readonly configurationService = inject(ConfigurationService);
 
@@ -100,6 +105,7 @@ export class AppConfigurationService {
   private assetListCache$?: Observable<IAssetGetResponseDto>;
   private vehicleListCache$?: Observable<IVehicleGetResponseDto>;
   private petroCardListCache$?: Observable<IPetroCardGetResponseDto>;
+  private companyBankAccountListCache$?: Observable<ICompanyBankAccountGetResponseDto>;
   private companyListCache$?: Observable<ICompanyGetResponseDto>;
   private contractorListCache$?: Observable<IContractorGetResponseDto>;
   private vendorListCache$?: Observable<IVendorGetResponseDto>;
@@ -173,6 +179,9 @@ export class AppConfigurationService {
     Record<string, { label: string; actions: IOptionDropdown[] }>
   >({});
   private readonly _announcementStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _paymentSheetStatuses = signal<IOptionDropdown[]>([]);
+  private readonly _paymentSheetStages = signal<IOptionDropdown[]>([]);
+  private readonly _paymentSheetItemStatuses = signal<IOptionDropdown[]>([]);
   private readonly _configurationTypes = signal<IOptionDropdown[]>([]);
   // Load App Data
   private readonly _employeeList = signal<IOptionDropdown[]>([]);
@@ -185,6 +194,7 @@ export class AppConfigurationService {
   private readonly _assetList = signal<IOptionDropdown[]>([]);
   private readonly _vehicleList = signal<IOptionDropdown[]>([]);
   private readonly _petroCardList = signal<IOptionDropdown[]>([]);
+  private readonly _companyBankAccountList = signal<IOptionDropdown[]>([]);
   private readonly _linkedUserVehicleDetail =
     signal<ILinkedUserVehicleDetailGetResponseDto | null>(null);
   // Public readonly signals for common use
@@ -241,6 +251,10 @@ export class AppConfigurationService {
   readonly moduleNames = this._moduleNames.asReadonly();
   readonly modulesConfig = this._modulesConfig.asReadonly();
   readonly announcementStatuses = this._announcementStatuses.asReadonly();
+  readonly paymentSheetStatuses = this._paymentSheetStatuses.asReadonly();
+  readonly paymentSheetStages = this._paymentSheetStages.asReadonly();
+  readonly paymentSheetItemStatuses =
+    this._paymentSheetItemStatuses.asReadonly();
   readonly configurationTypes = this._configurationTypes.asReadonly();
   // Load App Data
   readonly employeeList = this._employeeList.asReadonly();
@@ -251,6 +265,7 @@ export class AppConfigurationService {
   readonly assetList = this._assetList.asReadonly();
   readonly vehicleList = this._vehicleList.asReadonly();
   readonly petroCardList = this._petroCardList.asReadonly();
+  readonly companyBankAccountList = this._companyBankAccountList.asReadonly();
   readonly linkedUserVehicleDetail = this._linkedUserVehicleDetail.asReadonly();
 
   private readonly STATIC_FALLBACK_DATA: Record<
@@ -425,6 +440,12 @@ export class AppConfigurationService {
         signal: this._petroCardList,
       },
     ],
+    [MODULE_NAMES.COMPANY_BANK_ACCOUNT]: [
+      {
+        key: CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
+        signal: this._companyBankAccountList,
+      },
+    ],
     [MODULE_NAMES.PAYROLL]: [
       {
         key: CONFIGURATION_KEYS.PAYROLL.STATUS,
@@ -505,6 +526,20 @@ export class AppConfigurationService {
         signal: this._announcementStatuses,
       },
     ],
+    [MODULE_NAMES.PAYMENTS]: [
+      {
+        key: CONFIGURATION_KEYS.PAYMENTS.SHEET_STATUSES,
+        signal: this._paymentSheetStatuses,
+      },
+      {
+        key: CONFIGURATION_KEYS.PAYMENTS.SHEET_STAGES,
+        signal: this._paymentSheetStages,
+      },
+      {
+        key: CONFIGURATION_KEYS.PAYMENTS.ITEM_STATUSES,
+        signal: this._paymentSheetItemStatuses,
+      },
+    ],
     [MODULE_NAMES.CONFIGURATION]: [
       {
         key: CONFIGURATION_KEYS.CONFIGURATION.CONFIGURATION_TYPE_DROPDOWN,
@@ -532,6 +567,7 @@ export class AppConfigurationService {
     this.assetListCache$ = undefined;
     this.vehicleListCache$ = undefined;
     this.petroCardListCache$ = undefined;
+    this.companyBankAccountListCache$ = undefined;
     this.companyListCache$ = undefined;
     this.contractorListCache$ = undefined;
     this.vendorListCache$ = undefined;
@@ -638,6 +674,22 @@ export class AppConfigurationService {
       .subscribe({
         error: err =>
           this.logger.error('Petro card dropdown refetch failed', err),
+      });
+  }
+
+  refreshCompanyBankAccountDropdowns(): void {
+    this.companyBankAccountListCache$ = undefined;
+    this.lazyReferenceDropdownLoadScheduledKeys.delete(
+      CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST
+    );
+    this.loadCompanyBankAccountList()
+      .pipe(take(1))
+      .subscribe({
+        error: err =>
+          this.logger.error(
+            'Company bank account dropdown refetch failed',
+            err
+          ),
       });
   }
 
@@ -836,6 +888,7 @@ export class AppConfigurationService {
       CONFIGURATION_KEYS.ASSET.ASSET_LIST,
       CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST,
       CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST,
+      CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
       CONFIGURATION_KEYS.COMPANY.COMPANY_LIST,
       CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST,
       CONFIGURATION_KEYS.VENDOR.VENDOR_LIST,
@@ -879,6 +932,8 @@ export class AppConfigurationService {
       [CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST]: () => this.loadVehicleList(),
       [CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST]: () =>
         this.loadPetroCardList(),
+      [CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST]: () =>
+        this.loadCompanyBankAccountList(),
       [CONFIGURATION_KEYS.COMPANY.COMPANY_LIST]: () => this.loadCompanyList(),
       [CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST]: () =>
         this.loadContractorList(),
@@ -980,6 +1035,9 @@ export class AppConfigurationService {
             dropdown.key === CONFIGURATION_KEYS.VEHICLE.VEHICLE_LIST ||
             dropdown.key === CONFIGURATION_KEYS.ASSET.ASSET_LIST ||
             dropdown.key === CONFIGURATION_KEYS.PETRO_CARD.PETRO_CARD_LIST ||
+            dropdown.key ===
+              CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT
+                .COMPANY_BANK_ACCOUNT_LIST ||
             dropdown.key === CONFIGURATION_KEYS.COMPANY.COMPANY_LIST ||
             dropdown.key === CONFIGURATION_KEYS.CONTRACTOR.CONTRACTOR_LIST ||
             dropdown.key === CONFIGURATION_KEYS.VENDOR.VENDOR_LIST ||
@@ -1209,6 +1267,57 @@ export class AppConfigurationService {
           catchError(error => {
             this.petroCardListCache$ = undefined;
             this.logger.logUserAction('Failed to load Petro Card List', error);
+            return throwError(() => error);
+          })
+        )
+    );
+  }
+
+  loadCompanyBankAccountList(): Observable<ICompanyBankAccountGetResponseDto> {
+    return (this.companyBankAccountListCache$ ??=
+      this.fetchCompanyBankAccountList().pipe(this.shareAppDataCache()));
+  }
+
+  private fetchCompanyBankAccountList(): Observable<ICompanyBankAccountGetResponseDto> {
+    this.logger.logUserAction('Loading app data - Company Bank Account List');
+
+    return this.withDropdownLoading(
+      CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
+      this.companyBankAccountService
+        .getCompanyBankAccountList(this.referenceDropdownListPayload)
+        .pipe(
+          tap(response => {
+            this.logger.logUserAction(
+              'Company Bank Account List loaded successfully',
+              {
+                count: response.totalRecords,
+              }
+            );
+
+            const companyBankAccountList: IOptionDropdown[] = response.records
+              .filter(account => account.isActive)
+              .map(account => {
+                const bankName = account.bankName?.trim() ?? '';
+                const accountNumber = account.accountNumber?.trim() ?? '';
+                const accountHolderName =
+                  account.accountHolderName?.trim() ?? '';
+                return {
+                  label: toTitleCase(`${bankName} (${accountNumber})`.trim()),
+                  subtitle: accountHolderName || undefined,
+                  value: account.id,
+                  data: account,
+                };
+              })
+              .sort(this.sortByLabel);
+
+            this._companyBankAccountList.set(companyBankAccountList);
+          }),
+          catchError(error => {
+            this.companyBankAccountListCache$ = undefined;
+            this.logger.logUserAction(
+              'Failed to load Company Bank Account List',
+              error
+            );
             return throwError(() => error);
           })
         )
@@ -1585,6 +1694,7 @@ export class AppConfigurationService {
     assetList: IAssetGetResponseDto;
     vehicleList: IVehicleGetResponseDto;
     petroCardList: IPetroCardGetResponseDto;
+    companyBankAccountList: ICompanyBankAccountGetResponseDto;
     companyList: ICompanyGetResponseDto;
     contractorList: IContractorGetResponseDto;
     vendorList: IVendorGetResponseDto;
@@ -1595,6 +1705,7 @@ export class AppConfigurationService {
       assetList: this.loadAssetList(),
       vehicleList: this.loadVehicleList(),
       petroCardList: this.loadPetroCardList(),
+      companyBankAccountList: this.loadCompanyBankAccountList(),
       companyList: this.loadCompanyList(),
       contractorList: this.loadContractorList(),
       vendorList: this.loadVendorList(),
@@ -1611,6 +1722,7 @@ export class AppConfigurationService {
     assetList: IAssetGetResponseDto;
     vehicleList: IVehicleGetResponseDto;
     petroCardList: IPetroCardGetResponseDto;
+    companyBankAccountList: ICompanyBankAccountGetResponseDto;
     companyList: ICompanyGetResponseDto;
     contractorList: IContractorGetResponseDto;
     vendorList: IVendorGetResponseDto;
@@ -1636,6 +1748,7 @@ export class AppConfigurationService {
           assetList: this.loadAssetList(),
           vehicleList: this.loadVehicleList(),
           petroCardList: this.loadPetroCardList(),
+          companyBankAccountList: this.loadCompanyBankAccountList(),
           companyList: this.loadCompanyList(),
           contractorList: this.loadContractorList(),
           vendorList: this.loadVendorList(),

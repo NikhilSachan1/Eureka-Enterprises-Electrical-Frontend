@@ -60,6 +60,21 @@ const ADD_BANK_TRANSFER_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IAddBankTrans
         },
       ],
     },
+    paidFromAccount: {
+      fieldType: EDataType.SELECT,
+      id: 'paidFromAccount',
+      fieldName: 'paidFromAccount',
+      label: 'Paid From Account',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.COMPANY_BANK_ACCOUNT,
+          dropdownName:
+            CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
+        },
+        showClearButton: true,
+      },
+      validators: [Validators.required],
+    },
     utrNumber: {
       fieldType: EDataType.TEXT,
       id: 'utrNumber',

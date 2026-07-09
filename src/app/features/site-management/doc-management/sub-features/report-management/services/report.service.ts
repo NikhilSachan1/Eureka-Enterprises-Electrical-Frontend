@@ -11,6 +11,10 @@ import {
   ReportDetailGetResponseSchema,
   ReportGetRequestSchema,
   ReportGetResponseSchema,
+  UnlockRequestReportRequestSchema,
+  UnlockRequestReportResponseSchema,
+  UnlockGrantReportResponseSchema,
+  UnlockRejectReportResponseSchema,
 } from '../schemas';
 import {
   IAddReportFormDto,
@@ -21,6 +25,10 @@ import {
   IReportDetailGetResponseDto,
   IReportGetFormDto,
   IReportGetResponseDto,
+  IUnlockRequestReportFormDto,
+  IUnlockRequestReportResponseDto,
+  IUnlockGrantReportResponseDto,
+  IUnlockRejectReportResponseDto,
 } from '../types/report.dto';
 
 @Injectable({
@@ -81,6 +89,105 @@ export class ReportService {
             this.logger.logDtoValidationErrors('Edit Report Error', error);
           } else {
             this.logger.logUserAction('Edit Report Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  unlockRequestReport(
+    formData: IUnlockRequestReportFormDto,
+    reportId: string
+  ): Observable<IUnlockRequestReportResponseDto> {
+    this.logger.logUserAction('Unlock Request Report Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.REPORT.UNLOCK_REQUEST(reportId),
+        {
+          response: UnlockRequestReportResponseSchema,
+          request: UnlockRequestReportRequestSchema,
+        },
+        formData
+      )
+      .pipe(
+        tap((response: IUnlockRequestReportResponseDto) => {
+          this.logger.logUserAction('Unlock Request Report Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Unlock Request Report Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Unlock Request Report Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  unlockGrantReport(
+    reportId: string
+  ): Observable<IUnlockGrantReportResponseDto> {
+    this.logger.logUserAction('Unlock Grant Report Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.REPORT.UNLOCK_REQUEST_GRANT(reportId),
+        {
+          response: UnlockGrantReportResponseSchema,
+        }
+      )
+      .pipe(
+        tap((response: IUnlockGrantReportResponseDto) => {
+          this.logger.logUserAction('Unlock Grant Report Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Unlock Grant Report Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Unlock Grant Report Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  unlockRequestRejectReport(
+    reportId: string
+  ): Observable<IUnlockRejectReportResponseDto> {
+    this.logger.logUserAction('Unlock Request Reject Report Request');
+
+    return this.apiService
+      .postValidated(
+        API_ROUTES.SITE.DOCUMENT.REPORT.UNLOCK_REQUEST_REJECT(reportId),
+        {
+          response: UnlockRejectReportResponseSchema,
+        }
+      )
+      .pipe(
+        tap((response: IUnlockRejectReportResponseDto) => {
+          this.logger.logUserAction(
+            'Unlock Request Reject Report Response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Unlock Request Reject Report Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Unlock Request Reject Report Error',
+              error
+            );
           }
           return throwError(() => error);
         })

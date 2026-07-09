@@ -159,6 +159,7 @@ export class GetInvoiceComponent implements OnInit {
 
   protected docInvoiceTaxGstSegments(row: IInvoice): IDocAmountSegment[] {
     return buildInvoiceTaxGstAmountSegments({
+      invoiceNumber: row.originalRawData.invoiceNumber,
       taxableAmount: row.taxableAmount,
       tdsAmount: row.tdsAmount,
       tdsPercentage: row.tdsPercentage,
@@ -229,10 +230,7 @@ export class GetInvoiceComponent implements OnInit {
           siteLocationSubtitle: `${record.site.city}, ${record.site.state}`,
         },
         invoiceDate: record.invoiceDate,
-        invoiceNumber:
-          !record.invoiceNumber || record.invoiceNumber.toUpperCase() === 'NA'
-            ? 'No Invoice'
-            : record.invoiceNumber,
+        invoiceNumber: record.invoiceNumber ?? 'No Invoice',
         taxableAmount: record.taxableAmount,
         tdsAmount: record.tdsAmount,
         tdsPercentage: `(${record.tdsPercentage}%)`,
@@ -244,10 +242,7 @@ export class GetInvoiceComponent implements OnInit {
         paidTotal: record.paidTotal,
         jmc: record.jmc,
         fileKey: record.fileKey,
-        fileKeys:
-          record.fileKey && record.fileKey.toUpperCase() !== 'NA'
-            ? [record.fileKey]
-            : [],
+        fileKeys: record.fileKey ? [record.fileKey] : [],
         approvalStatus: getMappedValueFromArrayOfObjects(
           this.appConfigurationService.projectDocumentApprovalStatuses(),
           record.approvalStatus
@@ -339,6 +334,7 @@ export class GetInvoiceComponent implements OnInit {
   }
 
   protected docInvoiceDialogAmountSegments(value: {
+    invoiceNumber: string | null;
     taxableAmount: string;
     tdsAmount: string;
     tdsPercentage: string | number;
@@ -363,6 +359,7 @@ export class GetInvoiceComponent implements OnInit {
       {
         label: 'Invoice amounts',
         value: {
+          invoiceNumber: selectedRow.invoiceNumber,
           taxableAmount: selectedRow.taxableAmount,
           tdsAmount: selectedRow.tdsAmount,
           tdsPercentage: selectedRow.tdsPercentage,
@@ -375,10 +372,7 @@ export class GetInvoiceComponent implements OnInit {
       },
       {
         label: 'Attachment(s)',
-        value:
-          selectedRow.fileKey && selectedRow.fileKey.toUpperCase() !== 'NA'
-            ? [selectedRow.fileKey]
-            : [],
+        value: selectedRow.fileKey ? [selectedRow.fileKey] : [],
         type: EDataType.ATTACHMENTS,
       },
     ];
@@ -394,11 +388,7 @@ export class GetInvoiceComponent implements OnInit {
       ],
       entity: {
         name: `${selectedRow.contractor?.name ?? ''} ${selectedRow.vendor?.name ?? ''}`.trim(),
-        subtitle:
-          !selectedRow.invoiceNumber ||
-          selectedRow.invoiceNumber.toUpperCase() === 'NA'
-            ? 'No Invoice'
-            : selectedRow.invoiceNumber,
+        subtitle: selectedRow.invoiceNumber ?? 'No Invoice',
       },
     };
   }

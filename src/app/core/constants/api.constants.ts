@@ -124,6 +124,16 @@ export const API_ROUTES = {
     EDIT: (petroCardId: string) => `cards/${petroCardId}`,
     LINK: 'cards/action',
   },
+  COMPANY_BANK_ACCOUNT: {
+    LIST: 'company-bank-accounts',
+    ADD: 'company-bank-accounts',
+    DELETE: (companyBankAccountId: string) =>
+      `company-bank-accounts/${companyBankAccountId}`,
+    EDIT: (companyBankAccountId: string) =>
+      `company-bank-accounts/${companyBankAccountId}`,
+    GET_BY_ID: (companyBankAccountId: string) =>
+      `company-bank-accounts/${companyBankAccountId}`,
+  },
   PAYROLL: {
     GENERATE: 'payroll/generate-bulk',
     GET_PAYSLIP_LIST: 'payroll',
@@ -259,6 +269,12 @@ export const API_ROUTES = {
         EDIT: (reportId: string) => `site-reports/${reportId}`,
         LIST: 'site-reports',
         GET_REPORT_BY_ID: (reportId: string) => `site-reports/${reportId}`,
+        UNLOCK_REQUEST: (reportId: string) =>
+          `site-reports/${reportId}/unlock-request`,
+        UNLOCK_REQUEST_GRANT: (reportId: string) =>
+          `site-reports/${reportId}/unlock-grant`,
+        UNLOCK_REQUEST_REJECT: (reportId: string) =>
+          `site-reports/${reportId}/unlock-reject`,
         DELETE: (reportId: string) => `site-reports/${reportId}`,
       },
       INVOICE: {
@@ -283,6 +299,11 @@ export const API_ROUTES = {
         LIST: 'book-payments',
         DROPDOWN: 'book-payments/dropdown',
         GET_BY_ID: (id: string) => `book-payments/${id}`,
+        UNLOCK_REQUEST: (id: string) => `book-payments/${id}/unlock-request`,
+        UNLOCK_REQUEST_GRANT: (id: string) =>
+          `book-payments/${id}/unlock-grant`,
+        UNLOCK_REQUEST_REJECT: (id: string) =>
+          `book-payments/${id}/unlock-reject`,
         DELETE: (id: string) => `book-payments/${id}`,
       },
       BANK_TRANSFER: {
@@ -332,6 +353,38 @@ export const API_ROUTES = {
     EDIT: (announcementId: string) => `announcement/${announcementId}`,
     DELETE: 'announcement/bulk',
     ACKNOWLEDGE: 'announcement/acknowledge',
+  },
+  CENTRALIZED_PAYMENT: {
+    EXPENSE_PENDING_SETTLEMENT: 'expenses/pending-settlement',
+    FUEL_EXPENSE_PENDING_SETTLEMENT: 'fuel-expenses/pending-settlement',
+    VENDOR_PENDING_SETTLEMENT: 'book-payments/vendor-list',
+    PAYMENT_SHEETS: 'payment-sheets',
+    PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}`,
+    DELETE_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
+      `payment-sheets/${paymentSheetId}/items/${itemId}`,
+    UPDATE_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
+      `payment-sheets/${paymentSheetId}/items/${itemId}`,
+    REJECT_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
+      `payment-sheets/${paymentSheetId}/items/${itemId}/reject`,
+    PAY_PAYMENT_SHEET_ITEM_BY_ID: (paymentSheetId: string, itemId: string) =>
+      `payment-sheets/${paymentSheetId}/items/${itemId}/pay`,
+    ADD_PAYMENT_SHEET_ITEMS_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/items`,
+    SUBMIT_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/submit`,
+    FORWARD_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/forward`,
+    RETURN_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/return`,
+    REJECT_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/reject`,
+    VERIFY_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/verify`,
+    UNVERIFY_PAYMENT_SHEET_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/unverify`,
+    PAYMENT_SHEET_PDF_BY_ID: (paymentSheetId: string) =>
+      `payment-sheets/${paymentSheetId}/pdf`,
   },
 } as const;
 

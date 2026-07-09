@@ -8,7 +8,9 @@ export const SystemPermissionAddRequestSchema =
       module: toLowerCase(data.moduleName),
       name: toLowerCase(data.permissionName),
       label: toLowerCase(data.permissionLabel),
-      description: toLowerCase(data.permissionDescription),
+      description: data.permissionDescription
+        ? toLowerCase(data.permissionDescription)
+        : null,
       platform: toLowerCase(data.platform),
       isDeletable: true,
       isEditable: true,

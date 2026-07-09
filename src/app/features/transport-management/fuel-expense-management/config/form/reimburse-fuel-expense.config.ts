@@ -1,9 +1,11 @@
 import {
+  EDataType,
   IFormButtonConfig,
   IFormConfig,
   IFormInputFieldsConfig,
 } from '@shared/types';
 import { COMMON_FORM_ACTIONS } from '@shared/config';
+import { CONFIGURATION_KEYS, MODULE_NAMES } from '@shared/constants';
 import { Validators } from '@angular/forms';
 import { IFuelExpenseReimburseFormDto } from '../../types/fuel-expense.dto';
 import { FORCE_FUEL_EXPENSE_FORM_CONFIG } from './force-fuel-expense.config';
@@ -24,6 +26,29 @@ const REIMBURSE_FUEL_EXPENSE_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IFuelExp
   {
     employeeName,
     paymentMode,
+    paidFromAccount: {
+      fieldType: EDataType.SELECT,
+      id: 'paidFromAccount',
+      fieldName: 'paidFromAccount',
+      label: 'Paid From Account',
+      selectConfig: {
+        dynamicDropdown: {
+          moduleName: MODULE_NAMES.COMPANY_BANK_ACCOUNT,
+          dropdownName:
+            CONFIGURATION_KEYS.COMPANY_BANK_ACCOUNT.COMPANY_BANK_ACCOUNT_LIST,
+        },
+        showClearButton: true,
+      },
+      conditionalValidators: [
+        {
+          dependsOn: 'paymentMode',
+          validators: [Validators.required],
+          shouldApply: (mode: unknown): boolean =>
+            String(mode ?? '').toLowerCase() !== 'cash',
+          resetOnFalse: true,
+        },
+      ],
+    },
     fuelAmount,
     fuelFillDate,
     remark: {

@@ -9,6 +9,8 @@ import {
 } from '@shared/types';
 import {
   DEFAULT_BULK_ACTION_CONFIG,
+  DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
+  DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
   DEFAULT_ROW_ACTION_CONFIG,
   DEFAULT_TABLE_CONFIG,
   DEFAULT_TABLE_HEADER_CONFIG,
@@ -49,6 +51,16 @@ export class TableService {
     return {
       ...this.defaultTableConfig,
       ...options,
+      selectionColumn: {
+        ...DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
+        ...this.defaultTableConfig.selectionColumn,
+        ...options?.selectionColumn,
+      },
+      actionsColumn: {
+        ...DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
+        ...this.defaultTableConfig.actionsColumn,
+        ...options?.actionsColumn,
+      },
     } as IDataTableConfig;
   }
 
@@ -142,7 +154,21 @@ export class TableService {
       updateTableConfig: (
         config: Partial<IDataTableConfig>
       ): WritableSignal<IDataTableConfig> => {
-        const updatedConfig = { ...tableConfigSignal(), ...config };
+        const current = tableConfigSignal();
+        const updatedConfig = {
+          ...current,
+          ...config,
+          selectionColumn: {
+            ...DEFAULT_FROZEN_SELECTION_COLUMN_CONFIG,
+            ...current.selectionColumn,
+            ...config.selectionColumn,
+          },
+          actionsColumn: {
+            ...DEFAULT_FROZEN_ACTIONS_COLUMN_CONFIG,
+            ...current.actionsColumn,
+            ...config.actionsColumn,
+          },
+        };
         tableConfigSignal.set(updatedConfig);
         return tableConfigSignal;
       },

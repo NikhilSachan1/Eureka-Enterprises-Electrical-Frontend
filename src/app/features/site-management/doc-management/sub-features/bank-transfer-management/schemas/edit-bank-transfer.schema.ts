@@ -9,6 +9,7 @@ export const EditBankTransferRequestSchema = BankTransferUpsertShapeSchema.omit(
     bookPaymentNumber: true,
   }
 ).transform(data => ({
+  paidFromAccountId: data.paidFromAccount ?? null,
   utrNumber: data.utrNumber,
   transferDate: transformDateFormat(data.transferDate),
   proofFileKey: data.transferProofFileKey,

@@ -14,7 +14,11 @@ import {
   COMMON_ROW_ACTIONS,
   SHIFT_DATA,
 } from '@shared/config';
-import { isPayrollLocked, toLocalCalendarDate } from '@shared/utility';
+import {
+  isPayrollLocked,
+  isNowBeforeShiftEnd,
+  toLocalCalendarDate,
+} from '@shared/utility';
 import { IAttendanceGetBaseResponseDto } from '../../types/attendance.dto';
 import { EAttendanceStatus } from '../../types/attendance.enum';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
@@ -84,10 +88,10 @@ function isApprovalAlreadyRejected(
 const VIEW_DISABLED_NOT_MARKED_REASON =
   'View is available only after the employee checks in and attendance is recorded for the day.';
 
-const EDIT_DELETE_DISABLED_NOT_MARKED_REASON =
-  'Edit and delete are available only after the employee checks in and attendance is recorded for the day.';
-const EDIT_DELETE_DISABLED_PAYROLL_LOCKED_REASON =
-  'Edit and delete are not available because payroll has already been processed for this period.';
+// const EDIT_DELETE_DISABLED_NOT_MARKED_REASON =
+//   'Edit and delete are available only after the employee checks in and attendance is recorded for the day.';
+// const EDIT_DELETE_DISABLED_PAYROLL_LOCKED_REASON =
+//   'Edit and delete are not available because payroll has already been processed for this period.';
 
 // ─── Row tooltips: Regularize ────────────────────────────────────────────────
 
@@ -339,27 +343,6 @@ function isSameLocalCalendarDayAsToday(
   return day.getTime() === todayStart.getTime();
 }
 
-/** Before configured shift end time on the given local day (uses {@link SHIFT_DATA.END_TIME}). */
-function isNowBeforeShiftEnd(): boolean {
-  const [hStr, mStr] = SHIFT_DATA.END_TIME.split(':');
-  const hours = Number(hStr);
-  const minutes = Number(mStr ?? 0);
-  if (Number.isNaN(hours)) {
-    return false;
-  }
-  const now = new Date();
-  const shiftEnd = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    hours,
-    minutes,
-    0,
-    0
-  );
-  return now < shiftEnd;
-}
-
 type RegularizeDisableBlock = 'notMarked' | 'payrollLocked' | 'beforeShiftEnd';
 
 function getRegularizeDisableBlock(
@@ -428,18 +411,18 @@ function shouldDisableEditOrDelete(
   return getEditDeleteDisableBlock(row) !== undefined;
 }
 
-function getEditDeleteDisableReason(
-  row: IAttendanceGetBaseResponseDto
-): string | undefined {
-  switch (getEditDeleteDisableBlock(row)) {
-    case 'notMarked':
-      return EDIT_DELETE_DISABLED_NOT_MARKED_REASON;
-    case 'payrollLocked':
-      return EDIT_DELETE_DISABLED_PAYROLL_LOCKED_REASON;
-    default:
-      return undefined;
-  }
-}
+// function getEditDeleteDisableReason(
+//   row: IAttendanceGetBaseResponseDto
+// ): string | undefined {
+//   switch (getEditDeleteDisableBlock(row)) {
+//     case 'notMarked':
+//       return EDIT_DELETE_DISABLED_NOT_MARKED_REASON;
+//     case 'payrollLocked':
+//       return EDIT_DELETE_DISABLED_PAYROLL_LOCKED_REASON;
+//     default:
+//       return undefined;
+//   }
+// }
 
 function getBulkDeleteDisableReason(
   row: IAttendanceGetBaseResponseDto
@@ -524,20 +507,20 @@ export const ATTENDANCE_TABLE_ROW_ACTIONS_CONFIG: Partial<
     disableWhen: isAttendanceNotMarkedYetForViewRegularize,
     disableReason: getViewDisableReason,
   },
-  {
-    ...COMMON_ROW_ACTIONS.EDIT,
-    tooltip: 'Edit Attendance',
-    // permission: [APP_PERMISSION.ATTENDANCE.EDIT],
-    disableWhen: shouldDisableEditOrDelete,
-    disableReason: getEditDeleteDisableReason,
-  },
-  {
-    ...COMMON_ROW_ACTIONS.DELETE,
-    tooltip: 'Delete Attendance',
-    // permission: [APP_PERMISSION.ATTENDANCE.DELETE],
-    disableWhen: shouldDisableEditOrDelete,
-    disableReason: getEditDeleteDisableReason,
-  },
+  // {
+  //   ...COMMON_ROW_ACTIONS.EDIT,
+  //   tooltip: 'Edit Attendance',
+  //   // permission: [APP_PERMISSION.ATTENDANCE.EDIT],
+  //   disableWhen: shouldDisableEditOrDelete,
+  //   disableReason: getEditDeleteDisableReason,
+  // },
+  // {
+  //   ...COMMON_ROW_ACTIONS.DELETE,
+  //   tooltip: 'Delete Attendance',
+  //   // permission: [APP_PERMISSION.ATTENDANCE.DELETE],
+  //   disableWhen: shouldDisableEditOrDelete,
+  //   disableReason: getEditDeleteDisableReason,
+  // },
   {
     id: EButtonActionType.REGULARIZE,
     tooltip: 'Regularize Attendance',

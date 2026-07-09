@@ -13,6 +13,10 @@ import {
   BookPaymentDropdownGetRequestSchema,
   BookPaymentDropdownGetResponseSchema,
   BookPaymentDropdownRecordSchema,
+  UnlockRequestBookPaymentRequestSchema,
+  UnlockRequestBookPaymentResponseSchema,
+  UnlockGrantBookPaymentResponseSchema,
+  UnlockRejectBookPaymentResponseSchema,
 } from '../schemas';
 
 export type IBookPaymentGetBaseResponseDto = z.infer<
@@ -65,4 +69,19 @@ export type IBookPaymentDropdownGetRequestDto = z.input<
 >;
 export type IBookPaymentDropdownGetResponseDto = z.infer<
   typeof BookPaymentDropdownGetResponseSchema
+>;
+
+export type IUnlockRequestBookPaymentFormDto = z.input<
+  typeof UnlockRequestBookPaymentRequestSchema
+>;
+export type IUnlockRequestBookPaymentResponseDto = z.infer<
+  typeof UnlockRequestBookPaymentResponseSchema
+>;
+
+export type IUnlockGrantBookPaymentResponseDto = z.infer<
+  typeof UnlockGrantBookPaymentResponseSchema
+>;
+
+export type IUnlockRejectBookPaymentResponseDto = z.infer<
+  typeof UnlockRejectBookPaymentResponseSchema
 >;

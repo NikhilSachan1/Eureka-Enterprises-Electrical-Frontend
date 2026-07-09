@@ -66,6 +66,7 @@ export type {
   ITableSearchFilterInputFieldsConfig,
   ITableSearchFilterFormConfig,
   IDataTableServerSideFilterAndSortConfig,
+  IDataTableFrozenColumnConfig,
 } from './data-table/data-table-config.interface';
 export type { IReadMoreConfig } from './read-more/read-more.interface';
 export type {
@@ -145,7 +146,10 @@ export type {
   IGalleryInputData,
   IGalleryResolvedItem,
 } from './gallery/gallery.interface';
-export type { IPageHeaderConfig } from './page-header/page-header-config.interface';
+export type {
+  IPageHeaderConfig,
+  ISectionHeaderConfig,
+} from './page-header/page-header-config.interface';
 export {
   EEntrySourceType,
   EEntryType,
@@ -163,6 +167,10 @@ export type {
   IDetailEntryData,
   IUserInfo,
 } from './detail-display/detail-display.interface';
+export type {
+  IBankDetailsCellValue,
+  IPaidFromAccountSnapshot,
+} from './bank-details/bank-details.interface';
 export { EDataType } from './common/data-types.type';
 export { EStepperOrientation } from './stepper/stepper.types';
 export type {

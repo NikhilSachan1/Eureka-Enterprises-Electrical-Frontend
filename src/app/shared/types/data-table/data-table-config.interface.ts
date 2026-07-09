@@ -18,7 +18,8 @@ export interface IDataTableConfig {
   rowsPerPageOptions: number[];
   showPaginator: boolean;
   globalFilterFields: string[];
-  showCheckbox: boolean;
+  /** When true, always show selection checkbox. When false, always hide. Otherwise auto from bulk actions. */
+  showCheckbox?: boolean;
   emptyMessage: string;
   emptyMessageIcon: string;
   emptyMessageDescription: string;
@@ -27,6 +28,24 @@ export interface IDataTableConfig {
   enableServerSide: boolean;
   showViewModeToggle?: boolean; // Show/hide list & card layout toggle (default: true)
   rowActionsLimit?: number;
+  /** Enables PrimeNG scrollable table (required for frozen columns). */
+  scrollable?: boolean;
+  /** Scroll viewport height, e.g. '400px' or 'calc(100vh - 12rem)'. */
+  scrollHeight?: string;
+  /** Optional class applied to the underlying p-table. */
+  tableStyleClass?: string;
+  /** Freeze config for the bulk-selection checkbox column. */
+  selectionColumn?: IDataTableFrozenColumnConfig;
+  /** Freeze config for the row actions column. */
+  actionsColumn?: IDataTableFrozenColumnConfig;
+  /** When true, row checkbox selection is disabled for that row. */
+  disableRowSelectionWhen?: (rowData: Record<string, unknown>) => boolean;
+}
+
+export interface IDataTableFrozenColumnConfig {
+  frozen?: boolean;
+  alignFrozen?: 'left' | 'right';
+  columnWidth?: string;
 }
 
 export interface IDataTableServerSideFilterAndSortConfig {
@@ -36,7 +55,8 @@ export interface IDataTableServerSideFilterAndSortConfig {
 
 export type IDataTableHeaderFilterConfig = Partial<IFilterConfig>;
 
-export interface IDataTableHeaderConfig {
+export interface IDataTableHeaderConfig
+  extends Partial<IDataTableFrozenColumnConfig> {
   field: string;
   header: string;
   bodyTemplate?: EDataType;
@@ -68,6 +88,8 @@ export interface IDataTableHeaderConfig {
   readMoreConfig?: Partial<IReadMoreConfig>;
   statusConfig?: IStatusConfig;
   customTemplateKey?: string;
+  /** Optional class applied to header and body cells for this column. */
+  columnStyleClass?: string;
   showFilter: boolean;
   clientSideFilterConfig?: IDataTableHeaderFilterConfig;
   showSort: boolean;

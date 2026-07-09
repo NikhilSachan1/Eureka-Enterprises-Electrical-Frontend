@@ -10,3 +10,9 @@ export interface IPageHeaderConfig {
   searchPlaceholder?: string;
   showHeaderFilter?: boolean;
 }
+
+export interface ISectionHeaderConfig {
+  title: string;
+  subtitle: string;
+  icon: string;
+}
