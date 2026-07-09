@@ -77,8 +77,9 @@ export const createPaymentSheetTableRowActionsConfig = (
   },
   {
     id: EButtonActionType.WORKFLOW_JOURNEY,
-    icon: ICONS.COMMON.FORWARD,
+    icon: ICONS.COMMON.HISTORY,
     tooltip: 'Workflow Journey',
+    severity: EButtonSeverity.INFO,
   },
   {
     id: EButtonActionType.CANCEL,

@@ -111,28 +111,100 @@
         </ng-template>
 
         <ng-template
-          #itemPaymentCell
+          #itemStatusCell
           let-row
         >
-          @if (row.paidAt || row.paymentRef) {
-            <div class="ps-detail-payment">
-              @if (row.paidAt) {
-                <div class="ps-detail-payment__tile">
-                  <span class="ps-detail-payment__label">Paid At</span>
-                  <span class="ps-detail-payment__value">
-                    {{ row.paidAt | date: paidAtDateFormat : undefined : paidAtDateLocale }}
-                  </span>
-                </div>
+          @if (hasStatusContext(row)) {
+            <div class="ps-detail-verification">
+              @for (stage of getVisibleVerificationStages(row); track stage) {
+                @if (getVerificationForStage(row, stage); as verification) {
+                  <div
+                    class="ps-detail-verification__row ps-detail-verification__row--verified"
+                    [class.ps-detail-verification__row--current]="isCurrentVerificationStage(stage)"
+                  >
+                    <i
+                      [class]="
+                        ICONS.COMMON.CHECK_TICK + ' ps-detail-verification__icon ps-detail-verification__icon--verified'
+                      "
+                      aria-hidden="true"
+                    ></i>
+                    <div class="ps-detail-verification__body">
+                      <span class="ps-detail-verification__stage">
+                        {{ getVerificationStageLabel(stage) }}
+                      </span>
+                      <div class="ps-detail-verification__meta-stack">
+                        <span class="ps-detail-verification__meta-line">
+                          {{ verification.verifiedByName }}
+                        </span>
+                        <span class="ps-detail-verification__meta-line">
+                          {{ verification.verifiedAt | date: verifiedAtDateFormat : undefined : paidAtDateLocale }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <div
+                    class="ps-detail-verification__row ps-detail-verification__row--pending"
+                    [class.ps-detail-verification__row--current]="isCurrentVerificationStage(stage)"
+                  >
+                    <i
+                      class="pi pi-circle ps-detail-verification__icon ps-detail-verification__icon--pending"
+                      aria-hidden="true"
+                    ></i>
+                    <div class="ps-detail-verification__body">
+                      <span class="ps-detail-verification__stage">
+                        {{ getVerificationStageLabel(stage) }}
+                      </span>
+                      <span class="ps-detail-verification__meta">Pending approval</span>
+                    </div>
+                  </div>
+                }
               }
-              @if (row.paymentRef) {
-                <div class="ps-detail-payment__tile">
-                  <span class="ps-detail-payment__label">Payment Ref</span>
-                  <span class="ps-detail-payment__value">{{ row.paymentRef }}</span>
-                </div>
+
+              @if (shouldShowPaymentStatus(row)) {
+                @if (isItemPaid(row)) {
+                  <div
+                    class="ps-detail-verification__row ps-detail-verification__row--verified"
+                    [class.ps-detail-verification__row--current]="isCurrentPaymentStage()"
+                  >
+                    <i
+                      [class]="
+                        ICONS.COMMON.CHECK_TICK + ' ps-detail-verification__icon ps-detail-verification__icon--verified'
+                      "
+                      aria-hidden="true"
+                    ></i>
+                    <div class="ps-detail-verification__body">
+                      <span class="ps-detail-verification__stage">Accounts</span>
+                      <div class="ps-detail-verification__meta-stack">
+                        @if (row.paidAt) {
+                          <span class="ps-detail-verification__meta-line">
+                            {{ row.paidAt | date: paidAtDateFormat : undefined : paidAtDateLocale }}
+                          </span>
+                        } @else {
+                          <span class="ps-detail-verification__meta-line">Paid</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <div
+                    class="ps-detail-verification__row ps-detail-verification__row--pending"
+                    [class.ps-detail-verification__row--current]="isCurrentPaymentStage()"
+                  >
+                    <i
+                      class="pi pi-circle ps-detail-verification__icon ps-detail-verification__icon--pending"
+                      aria-hidden="true"
+                    ></i>
+                    <div class="ps-detail-verification__body">
+                      <span class="ps-detail-verification__stage">Accounts</span>
+                      <span class="ps-detail-verification__meta">Pending payment</span>
+                    </div>
+                  </div>
+                }
               }
             </div>
           } @else {
-            <span class="ps-detail-payment__empty">-</span>
+            <span class="ps-detail-verification__empty">-</span>
           }
         </ng-template>
 
@@ -189,59 +261,6 @@
         </ng-template>
 
         <ng-template
-          #itemVerificationCell
-          let-row
-        >
-          @if (hasVerificationContext(row)) {
-            <div class="ps-detail-verification">
-              @for (stage of getVisibleVerificationStages(row); track stage) {
-                @if (getVerificationForStage(row, stage); as verification) {
-                  <div
-                    class="ps-detail-verification__row ps-detail-verification__row--verified"
-                    [class.ps-detail-verification__row--current]="isCurrentVerificationStage(stage)"
-                  >
-                    <i
-                      [class]="
-                        ICONS.COMMON.CHECK_TICK + ' ps-detail-verification__icon ps-detail-verification__icon--verified'
-                      "
-                      aria-hidden="true"
-                    ></i>
-                    <div class="ps-detail-verification__body">
-                      <span class="ps-detail-verification__stage">
-                        {{ getVerificationStageLabel(stage) }}
-                      </span>
-                      <span class="ps-detail-verification__meta">
-                        {{ verification.verifiedByName }}
-                        ·
-                        {{ verification.verifiedAt | date: verifiedAtDateFormat : undefined : paidAtDateLocale }}
-                      </span>
-                    </div>
-                  </div>
-                } @else {
-                  <div
-                    class="ps-detail-verification__row ps-detail-verification__row--pending"
-                    [class.ps-detail-verification__row--current]="isCurrentVerificationStage(stage)"
-                  >
-                    <i
-                      class="pi pi-circle ps-detail-verification__icon ps-detail-verification__icon--pending"
-                      aria-hidden="true"
-                    ></i>
-                    <div class="ps-detail-verification__body">
-                      <span class="ps-detail-verification__stage">
-                        {{ getVerificationStageLabel(stage) }}
-                      </span>
-                      <span class="ps-detail-verification__meta">Pending verification</span>
-                    </div>
-                  </div>
-                }
-              }
-            </div>
-          } @else {
-            <span class="ps-detail-verification__empty">-</span>
-          }
-        </ng-template>
-
-        <ng-template
           #bankDetailsCell
           let-row
         >
@@ -262,8 +281,7 @@
               [rowActions]="group.table.rowActions()"
               [customBodyTemplates]="{
                 itemAmountsCell: itemAmountsCell,
-                itemVerificationCell: itemVerificationCell,
-                itemPaymentCell: itemPaymentCell,
+                itemStatusCell: itemStatusCell,
                 companyProjectCell: companyProjectCell,
                 bankDetailsCell: bankDetailsCell,
               }"

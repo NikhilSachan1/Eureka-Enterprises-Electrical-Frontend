@@ -345,6 +345,12 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   unlink: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // PAYMENT SHEET STATUS (raw enum: IN_REVIEW, PROCESSING, RETURNED, …)
+  'in review': { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'purple' },
+  processing: { icon: ICONS.COMMON.SYNC, severity: 'info' },
+  returned: { icon: ICONS.COMMON.ARROW_LEFT, severity: 'warning' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // PROJECT ALLOCATION STATUS
   // ═══════════════════════════════════════════════════════════════════════════
   allocateDeallocateEmployee: {

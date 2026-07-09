@@ -84,6 +84,7 @@ import {
   getPaymentSheetVerificationStageLabel,
   getVisiblePaymentSheetItemVerificationStages,
 } from '../../utils/payment-sheet-verification.util';
+import { isPaymentSheetItemPaid } from '../../utils/payment-sheet-table-row.util';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
@@ -277,8 +278,42 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     return [row.projectCity, row.projectState].filter(Boolean).join(', ');
   }
 
+  protected hasStatusContext(row: IPaymentSheetDetailItemRow): boolean {
+    return (
+      this.hasVerificationContext(row) || this.shouldShowPaymentStatus(row)
+    );
+  }
+
   protected hasVerificationContext(row: IPaymentSheetDetailItemRow): boolean {
     return this.getVisibleVerificationStages(row).length > 0;
+  }
+
+  protected shouldShowPaymentStatus(row: IPaymentSheetDetailItemRow): boolean {
+    const detail = this.detail();
+
+    if (!detail) {
+      return false;
+    }
+
+    return (
+      detail.status === EPaymentSheetStatus.PROCESSING ||
+      detail.status === EPaymentSheetStatus.COMPLETED ||
+      detail.currentStage === EPaymentSheetStage.PROCESSING ||
+      isPaymentSheetItemPaid(row)
+    );
+  }
+
+  protected isItemPaid(row: IPaymentSheetDetailItemRow): boolean {
+    return isPaymentSheetItemPaid(row);
+  }
+
+  protected isCurrentPaymentStage(): boolean {
+    const detail = this.detail();
+
+    return (
+      detail?.status === EPaymentSheetStatus.PROCESSING &&
+      detail.currentStage === EPaymentSheetStage.PROCESSING
+    );
   }
 
   protected getVisibleVerificationStages(
