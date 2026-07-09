@@ -6,6 +6,7 @@ import {
   input,
 } from '@angular/core';
 import { AppConfigurationService } from '@shared/services';
+import { ICONS } from '@shared/constants';
 import { IBankDetailsCellValue } from '@shared/types/bank-details/bank-details.interface';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 
@@ -17,6 +18,8 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 })
 export class BankDetailsCellComponent {
   private readonly appConfigurationService = inject(AppConfigurationService);
+
+  protected readonly ICONS = ICONS;
 
   bankDetails = input<IBankDetailsCellValue | null>(null);
 

@@ -1,30 +1,47 @@
 @if (hasBankDetails()) {
   <article class="bank-details-cell">
-    @if (primaryLabel(); as primary) {
-      <p class="bank-details-cell__holder">{{ primary }}</p>
-    }
+    <div class="bank-details-cell__header">
+      <div
+        class="bank-details-cell__icon"
+        aria-hidden="true"
+      >
+        <i [class]="ICONS.PAYROLL.WALLET"></i>
+      </div>
 
-    @if (secondaryLabel(); as secondary) {
-      <p class="bank-details-cell__bank">{{ secondary }}</p>
-    }
+      <div class="bank-details-cell__identity">
+        @if (primaryLabel(); as primary) {
+          <strong class="bank-details-cell__holder">{{ primary }}</strong>
+        }
+
+        @if (secondaryLabel(); as secondary) {
+          <span class="bank-details-cell__bank">{{ secondary }}</span>
+        }
+      </div>
+    </div>
 
     @if (branchName(); as branch) {
-      <p class="bank-details-cell__branch">{{ branch }}</p>
+      <div class="bank-details-cell__branch">
+        <i
+          [class]="ICONS.COMMON.MAP_MARKER"
+          aria-hidden="true"
+        ></i>
+        <span>{{ branch }}</span>
+      </div>
     }
 
     @if (accountNumber() || ifscCode()) {
-      <div class="bank-details-cell__grid">
+      <div class="bank-details-cell__credentials">
         @if (accountNumber(); as account) {
-          <div class="bank-details-cell__tile">
-            <span class="bank-details-cell__tile-label">Account</span>
-            <span class="bank-details-cell__tile-value">{{ account }}</span>
+          <div class="bank-details-cell__field">
+            <span class="bank-details-cell__field-label">Account No.</span>
+            <span class="bank-details-cell__field-value">{{ account }}</span>
           </div>
         }
 
         @if (ifscCode(); as ifsc) {
-          <div class="bank-details-cell__tile">
-            <span class="bank-details-cell__tile-label">IFSC</span>
-            <span class="bank-details-cell__tile-value">{{ ifsc }}</span>
+          <div class="bank-details-cell__field">
+            <span class="bank-details-cell__field-label">IFSC</span>
+            <span class="bank-details-cell__field-value">{{ ifsc }}</span>
           </div>
         }
       </div>
@@ -32,6 +49,10 @@
   </article>
 } @else {
   <div class="bank-details-cell bank-details-cell--empty">
+    <i
+      [class]="ICONS.PAYROLL.WALLET"
+      aria-hidden="true"
+    ></i>
     <span class="bank-details-cell__empty-text">Not available</span>
   </div>
 }

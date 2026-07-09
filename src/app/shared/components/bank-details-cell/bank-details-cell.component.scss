@@ -5,41 +5,77 @@
 }
 
 .bank-details-cell {
-  --bdc-border: var(--border-light-color);
-  --bdc-tile-bg: color-mix(in srgb, var(--primary-color) 7%, var(--background-paper-color));
-  --bdc-tile-border: color-mix(in srgb, var(--primary-color) 14%, var(--border-light-color));
+  --bdc-accent: #0369a1;
+  --bdc-border: color-mix(in srgb, var(--bdc-accent) 18%, var(--border-light-color));
+  --bdc-surface: color-mix(in srgb, var(--bdc-accent) 6%, var(--background-paper-color));
+  --bdc-field-bg: color-mix(in srgb, var(--bdc-accent) 8%, var(--background-paper-color));
+  --bdc-field-border: color-mix(in srgb, var(--bdc-accent) 14%, var(--border-light-color));
 
-  padding: 0.62rem 0.72rem 0.68rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.62rem 0.72rem;
   border-radius: 0.75rem;
-  background: var(--background-paper-color);
+  background: var(--bdc-surface);
   border: 1px solid var(--bdc-border);
-  box-shadow: var(--shadow-sm);
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 
   &--empty {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.42rem;
     min-height: 2.75rem;
-    padding: 0.65rem 0.75rem;
-    text-align: center;
     background: color-mix(in srgb, var(--text-disabled-color) 8%, var(--background-paper-color));
-    border-style: dashed;
-    box-shadow: none;
+    border: 1px dashed color-mix(in srgb, var(--text-disabled-color) 28%, var(--border-light-color));
+
+    i {
+      font-size: 0.82rem;
+      color: var(--text-disabled-color);
+    }
   }
 }
 
+.bank-details-cell__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.bank-details-cell__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 0.45rem;
+  font-size: 0.78rem;
+  color: var(--bdc-accent);
+  background: color-mix(in srgb, var(--bdc-accent) 12%, var(--background-paper-color));
+}
+
+.bank-details-cell__identity {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
 .bank-details-cell__holder {
-  margin: 0;
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   font-weight: 700;
   line-height: 1.35;
-  letter-spacing: -0.01em;
   color: var(--text-primary-color);
   word-break: break-word;
 }
 
 .bank-details-cell__bank {
-  margin: 0.18rem 0 0;
   font-size: 0.74rem;
   font-weight: 500;
   line-height: 1.35;
@@ -48,33 +84,42 @@
 }
 
 .bank-details-cell__branch {
-  margin: 0.18rem 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding-top: 0.08rem;
   font-size: 0.72rem;
-  font-weight: 500;
   line-height: 1.35;
   color: var(--text-secondary-color);
   word-break: break-word;
+
+  i {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    color: color-mix(in srgb, var(--text-secondary-color) 85%, var(--bdc-accent));
+  }
 }
 
-.bank-details-cell__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(6.75rem, 1fr));
-  gap: 0.4rem;
-  margin-top: 0.55rem;
+.bank-details-cell__credentials {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-top: 0.42rem;
+  border-top: 1px dashed color-mix(in srgb, var(--border-light-color) 80%, transparent);
 }
 
-.bank-details-cell__tile {
+.bank-details-cell__field {
   display: flex;
   flex-direction: column;
   gap: 0.14rem;
   min-width: 0;
   padding: 0.38rem 0.48rem;
   border-radius: 0.5rem;
-  background: var(--bdc-tile-bg);
-  border: 1px solid var(--bdc-tile-border);
+  background: var(--bdc-field-bg);
+  border: 1px solid var(--bdc-field-border);
 }
 
-.bank-details-cell__tile-label {
+.bank-details-cell__field-label {
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -82,11 +127,12 @@
   color: var(--text-secondary-color);
 }
 
-.bank-details-cell__tile-value {
+.bank-details-cell__field-value {
   font-size: 0.76rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   line-height: 1.35;
+  letter-spacing: 0.02em;
   color: var(--text-primary-color);
   word-break: break-all;
 }
@@ -98,10 +144,10 @@
 }
 
 :host-context(.dark-theme) .bank-details-cell {
-  --bdc-border: var(--border-dark-color);
-  --bdc-tile-bg: color-mix(in srgb, var(--primary-color) 16%, var(--background-paper-color));
-  --bdc-tile-border: color-mix(in srgb, var(--primary-color) 22%, var(--border-dark-color));
-  box-shadow: none;
+  --bdc-border: color-mix(in srgb, var(--bdc-accent) 28%, var(--border-dark-color));
+  --bdc-surface: color-mix(in srgb, var(--bdc-accent) 14%, var(--background-paper-color));
+  --bdc-field-bg: color-mix(in srgb, var(--bdc-accent) 18%, var(--background-paper-color));
+  --bdc-field-border: color-mix(in srgb, var(--bdc-accent) 24%, var(--border-dark-color));
 
   &.bank-details-cell--empty {
     background: color-mix(in srgb, var(--text-disabled-color) 14%, var(--background-paper-color));
@@ -114,12 +160,12 @@
 
 @media (hover: hover) {
   :host-context(tr:hover) .bank-details-cell:not(.bank-details-cell--empty) {
-    border-color: color-mix(in srgb, var(--primary-color) 28%, var(--bdc-border));
-    box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--bdc-accent) 32%, var(--bdc-border));
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--bdc-accent) 12%, transparent);
   }
 
   :host-context(.dark-theme tr:hover) .bank-details-cell:not(.bank-details-cell--empty) {
     box-shadow: none;
-    border-color: color-mix(in srgb, var(--primary-color) 35%, var(--border-dark-color));
+    border-color: color-mix(in srgb, var(--bdc-accent) 38%, var(--border-dark-color));
   }
 }
