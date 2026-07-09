@@ -76,6 +76,11 @@ export const createPaymentSheetTableRowActionsConfig = (
     permission: [APP_PERMISSION.PAYMENT_SHEET.VIEW_DETAIL],
   },
   {
+    id: EButtonActionType.WORKFLOW_JOURNEY,
+    icon: ICONS.COMMON.FORWARD,
+    tooltip: 'Workflow Journey',
+  },
+  {
     id: EButtonActionType.CANCEL,
     tooltip: 'Return Sheet',
     icon: ICONS.COMMON.ARROW_LEFT,

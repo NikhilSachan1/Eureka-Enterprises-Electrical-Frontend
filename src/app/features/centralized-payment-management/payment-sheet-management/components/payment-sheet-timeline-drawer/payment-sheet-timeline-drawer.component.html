@@ -1,0 +1,109 @@
+<div class="ps-timeline-drawer">
+  <section class="ps-timeline-drawer__context">
+    <img
+      class="ps-timeline-drawer__context-avatar"
+      [src]="contextAvatarUrl()"
+      [alt]="contextSheetNumber()"
+      loading="lazy"
+    />
+    <div class="ps-timeline-drawer__context-copy">
+      <h3 class="ps-timeline-drawer__context-title">{{ contextSheetNumber() }}</h3>
+      <p class="ps-timeline-drawer__context-subtitle">{{ contextSubtitle() }}</p>
+    </div>
+  </section>
+
+  @if (events().length) {
+    <div class="ps-timeline-drawer__scroll">
+      <div class="ps-timeline-drawer__shell">
+        <app-timeline [config]="timelineConfig()">
+          <ng-template
+            #marker
+            let-event
+          >
+            <div
+              class="ps-timeline-drawer__marker"
+              [class]="'ps-timeline-drawer__marker--' + event.tone"
+            >
+              <i [class]="event.icon"></i>
+            </div>
+          </ng-template>
+
+          <ng-template
+            #content
+            let-event
+          >
+            <article
+              class="ps-timeline-drawer__card"
+              [class]="'ps-timeline-drawer__card--' + event.tone"
+            >
+              <header class="ps-timeline-drawer__card-top">
+                <h4 class="ps-timeline-drawer__title">{{ event.title }}</h4>
+
+                <p class="ps-timeline-drawer__performer">
+                  <i [class]="ICONS.COMMON.USER"></i>
+                  <span>{{ event.performedBy }}</span>
+                </p>
+
+                <time class="ps-timeline-drawer__when">
+                  {{ event.occurredAt | date: dateFormat : undefined : dateLocale }}
+                </time>
+              </header>
+
+              @if (event.details?.length) {
+                <div class="ps-timeline-drawer__body">
+                  @for (detail of event.details; track detail.label + detail.value) {
+                    @if (detail.variant === 'note') {
+                      <div
+                        class="ps-timeline-drawer__note"
+                        [class]="'ps-timeline-drawer__note--' + event.tone"
+                      >
+                        <div class="ps-timeline-drawer__note-head">
+                          @if (detail.icon) {
+                            <i [class]="detail.icon"></i>
+                          }
+                          <span>{{ detail.label }}</span>
+                        </div>
+                        <p class="ps-timeline-drawer__note-text">{{ detail.value }}</p>
+                      </div>
+                    } @else {
+                      <div
+                        class="ps-timeline-drawer__row"
+                        [class.ps-timeline-drawer__row--emphasis]="detail.variant === 'emphasis'"
+                      >
+                        @if (detail.icon) {
+                          <span
+                            class="ps-timeline-drawer__row-icon"
+                            [class]="'ps-timeline-drawer__row-icon--' + event.tone"
+                          >
+                            <i [class]="detail.icon"></i>
+                          </span>
+                        }
+                        <div class="ps-timeline-drawer__row-copy">
+                          <span class="ps-timeline-drawer__row-label">{{ detail.label }}</span>
+                          <span class="ps-timeline-drawer__row-value">{{ detail.value }}</span>
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            </article>
+          </ng-template>
+        </app-timeline>
+      </div>
+    </div>
+  } @else if (!isDrawerLoading()) {
+    <section class="ps-timeline-drawer__empty">
+      <div class="ps-timeline-drawer__empty-icon">
+        <i [class]="ICONS.COMMON.HISTORY"></i>
+      </div>
+      <p class="ps-timeline-drawer__empty-title">{{ emptyState().title }}</p>
+      <p class="ps-timeline-drawer__empty-text">{{ emptyState().text }}</p>
+    </section>
+  } @else {
+    <div
+      class="ps-timeline-drawer__loading"
+      aria-hidden="true"
+    ></div>
+  }
+</div>

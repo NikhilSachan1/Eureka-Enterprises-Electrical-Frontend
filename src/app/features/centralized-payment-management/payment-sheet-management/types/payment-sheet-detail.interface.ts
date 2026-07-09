@@ -1,6 +1,10 @@
 import { IBankDetailsCellValue, IEnhancedTable } from '@shared/types';
 import { EPaymentOutstandingSourceType } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
-import { IPaymentSheetItemDetailDto } from './payment-sheet.dto';
+import {
+  IPaymentSheetItemDetailDto,
+  IPaymentSheetDetailGetResponseDto,
+} from './payment-sheet.dto';
+import { EPaymentSheetTimelineMode } from './payment-sheet.enum';
 
 export type IPaymentSheetItemVerificationView = NonNullable<
   IPaymentSheetItemDetailDto['verifications']
@@ -55,3 +59,69 @@ export interface IPaymentSheetOverviewView {
   pendingAmount: number;
   remarks: string | null;
 }
+
+export type TPaymentSheetTimelineTone =
+  | 'primary'
+  | 'info'
+  | 'success'
+  | 'paid'
+  | 'warning'
+  | 'danger'
+  | 'neutral'
+  | 'updated'
+  | 'removed';
+
+export type TPaymentSheetTimelineDetailVariant =
+  | 'default'
+  | 'emphasis'
+  | 'note';
+
+export interface IPaymentSheetTimelineEventDetail {
+  icon?: string;
+  label: string;
+  value: string;
+  variant?: TPaymentSheetTimelineDetailVariant;
+}
+
+export interface IPaymentSheetTimelineEventView {
+  id: string;
+  occurredAt: string;
+  title: string;
+  performedBy: string;
+  details: IPaymentSheetTimelineEventDetail[];
+  icon: string;
+  tone: TPaymentSheetTimelineTone;
+}
+
+export type TPaymentSheetStageLogView = NonNullable<
+  IPaymentSheetDetailGetResponseDto['stageLogs']
+>[number];
+
+export type TPaymentSheetHistoryEntryView = NonNullable<
+  IPaymentSheetDetailGetResponseDto['history']
+>[number] & {
+  remarks?: string | null;
+};
+
+export interface IPaymentSheetTimelineDrawerContext {
+  sheetNumber: string;
+  contextSubtitle: string;
+}
+
+export interface IPaymentSheetTimelineDrawerDataWorkflow
+  extends IPaymentSheetTimelineDrawerContext {
+  mode: EPaymentSheetTimelineMode.WORKFLOW;
+  paymentSheetId: string;
+  stageLogs?: TPaymentSheetStageLogView[];
+}
+
+export interface IPaymentSheetTimelineDrawerDataItemHistory
+  extends IPaymentSheetTimelineDrawerContext {
+  mode: EPaymentSheetTimelineMode.ITEM_HISTORY;
+  itemId: string;
+  history: TPaymentSheetHistoryEntryView[];
+}
+
+export type IPaymentSheetTimelineDrawerData =
+  | IPaymentSheetTimelineDrawerDataWorkflow
+  | IPaymentSheetTimelineDrawerDataItemHistory;

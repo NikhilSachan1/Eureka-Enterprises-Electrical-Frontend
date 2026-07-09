@@ -68,6 +68,28 @@ const PaymentSheetVerificationSummarySchema = z.looseObject({
   allVerified: z.boolean(),
 });
 
+const PaymentSheetStageLogSchema = z.looseObject({
+  id: uuidField,
+  fromStage: z.string().nullable(),
+  toStage: z.string().nullable(),
+  action: z.string(),
+  actedBy: uuidField.optional(),
+  actedRole: z.string().nullable(),
+  remarks: z.string().nullable(),
+  createdAt: isoDateTimeField,
+});
+
+const PaymentSheetHistorySchema = z.looseObject({
+  id: uuidField,
+  itemId: uuidField,
+  stage: z.string(),
+  action: z.string(),
+  previousAmount: z.coerce.number().nullable(),
+  newAmount: z.coerce.number().nullable(),
+  reason: z.string().nullable(),
+  createdAt: isoDateTimeField,
+});
+
 export const PaymentSheetItemDetailSchema = z.looseObject({
   id: uuidField,
   beneficiaryType: z.string(),
@@ -107,4 +129,6 @@ export const PaymentSheetDetailGetResponseSchema = z.looseObject({
   createdAt: isoDateTimeField,
   items: z.array(PaymentSheetItemDetailSchema),
   verificationSummary: PaymentSheetVerificationSummarySchema.nullable(),
+  stageLogs: z.array(PaymentSheetStageLogSchema).optional(),
+  history: z.array(PaymentSheetHistorySchema).optional(),
 });

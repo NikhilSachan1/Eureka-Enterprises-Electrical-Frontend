@@ -116,6 +116,11 @@ export const createPaymentSheetDetailItemsTableRowActionsConfig = (
 
   return [
     {
+      id: EButtonActionType.EVENT_HISTORY,
+      icon: ICONS.COMMON.HISTORY,
+      tooltip: 'Activity History',
+    },
+    {
       ...COMMON_ROW_ACTIONS.EDIT,
       permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_EDIT],
       hideWhen: () => isVendor,

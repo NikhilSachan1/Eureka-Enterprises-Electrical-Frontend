@@ -34,6 +34,7 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { ICONS } from '@shared/constants';
 import {
   ConfirmationDialogService,
+  DrawerService,
   TableService,
   AppConfigurationService,
 } from '@shared/services';
@@ -41,6 +42,7 @@ import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import {
   EButtonActionType,
   EDataType,
+  EDrawerSize,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
@@ -54,10 +56,12 @@ import {
   PAYMENT_SHEET_DETAIL_WORKFLOW_BUTTONS_CONFIG,
 } from '../../config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
+import { PaymentSheetTimelineDrawerComponent } from '../payment-sheet-timeline-drawer/payment-sheet-timeline-drawer.component';
 import {
   EPaymentSheetSourceType,
   EPaymentSheetStage,
   EPaymentSheetStatus,
+  EPaymentSheetTimelineMode,
   EPaymentSheetWorkflowActionType,
 } from '../../types/payment-sheet.enum';
 import {
@@ -118,6 +122,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly drawerService = inject(DrawerService);
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appPermissionService = inject(AppPermissionService);
@@ -372,6 +377,15 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       return;
     }
 
+    if (
+      actionType === EButtonActionType.EVENT_HISTORY &&
+      !isBulk &&
+      selectedRow
+    ) {
+      this.openItemHistoryDrawer(selectedRow);
+      return;
+    }
+
     if (!isBulk && !selectedRow?.id) {
       this.logger.error('Payment sheet item action: selected row id missing');
       return;
@@ -416,6 +430,23 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         onSuccess: () => this.reloadDetail(),
       }
     );
+  }
+
+  private openItemHistoryDrawer(row: IPaymentSheetDetailItemRow): void {
+    const detail = this.detail();
+
+    this.drawerService.showDrawer(PaymentSheetTimelineDrawerComponent, {
+      header: 'Activity Timeline',
+      subtitle: 'View payment sheet workflow and activity history',
+      size: EDrawerSize.SMALL,
+      componentData: {
+        mode: EPaymentSheetTimelineMode.ITEM_HISTORY,
+        itemId: row.id,
+        history: detail?.history ?? [],
+        sheetNumber: detail?.sheetNumber ?? '—',
+        contextSubtitle: `${row.beneficiaryName} · ${row.beneficiaryCode}`,
+      },
+    });
   }
 
   private applyDetail(detail: IPaymentSheetDetailGetResponseDto): void {

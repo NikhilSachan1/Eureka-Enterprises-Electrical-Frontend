@@ -18,6 +18,7 @@ import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
+  DrawerService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -25,6 +26,7 @@ import {
 import {
   EButtonActionType,
   EDataType,
+  EDrawerSize,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
@@ -41,6 +43,8 @@ import {
   SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG,
 } from '../../config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
+import { PaymentSheetTimelineDrawerComponent } from '../payment-sheet-timeline-drawer/payment-sheet-timeline-drawer.component';
+import { EPaymentSheetTimelineMode } from '../../types/payment-sheet.enum';
 import {
   IPaymentSheetGetBaseResponseDto,
   IPaymentSheetGetFormDto,
@@ -73,6 +77,7 @@ export class GetPaymentSheetComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly drawerService = inject(DrawerService);
   private readonly authService = inject(AuthService);
 
   protected table!: IEnhancedTable;
@@ -116,6 +121,11 @@ export class GetPaymentSheetComponent implements OnInit {
       return;
     }
 
+    if (actionType === EButtonActionType.WORKFLOW_JOURNEY && selectedRow?.id) {
+      this.openWorkflowDrawer(selectedRow);
+      return;
+    }
+
     if (
       (actionType === EButtonActionType.CANCEL ||
         actionType === EButtonActionType.REJECT) &&
@@ -139,6 +149,22 @@ export class GetPaymentSheetComponent implements OnInit {
         }
       );
     }
+  }
+
+  private openWorkflowDrawer(row: IPaymentSheet): void {
+    const raw = row.originalRawData ?? row;
+
+    this.drawerService.showDrawer(PaymentSheetTimelineDrawerComponent, {
+      header: 'Activity Timeline',
+      subtitle: 'View payment sheet workflow and activity history',
+      size: EDrawerSize.SMALL,
+      componentData: {
+        mode: EPaymentSheetTimelineMode.WORKFLOW,
+        paymentSheetId: raw.id,
+        sheetNumber: raw.sheetNumber,
+        contextSubtitle: raw.title?.trim() ? raw.title.trim() : '—',
+      },
+    });
   }
 
   private preparePaymentSheetRecordDetail(

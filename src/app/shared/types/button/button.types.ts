@@ -90,4 +90,5 @@ export enum EButtonActionType {
   UPLOAD = 'upload',
   CREATE_FOLDER = 'createFolder',
   MOVE = 'move',
+  WORKFLOW_JOURNEY = 'workflowJourney',
 }
