@@ -51,6 +51,7 @@ import { DocReferenceComponent } from '@features/site-management/doc-management/
 import { DocWorkspaceContextComponent } from '@features/site-management/doc-management/shared/components/doc-workspace-context/doc-workspace-context.component';
 import { ProjectWorkspaceContextService } from '@features/site-management/project-management/services/project-workspace-context.service';
 import { DocReferenceHierarchy } from '@features/site-management/doc-management/shared/utils/doc-reference-hierarchy.builder';
+import { UnlockRequestComponent } from '@features/site-management/doc-management/shared/components/unlock-request/unlock-request.component';
 
 @Component({
   selector: 'app-get-report',
@@ -60,6 +61,7 @@ import { DocReferenceHierarchy } from '@features/site-management/doc-management/
     DataTableComponent,
     DocReferenceComponent,
     DocWorkspaceContextComponent,
+    UnlockRequestComponent,
   ],
   templateUrl: './get-report.component.html',
   styleUrl: './get-report.component.scss',
@@ -149,6 +151,7 @@ export class GetReportComponent implements OnInit {
     const docType = this.docRouteContext();
     const { search: workspaceSearch, ...workspaceFilters } =
       this.workspaceContext.filters();
+    delete workspaceFilters.approvalStatus;
 
     return {
       ...workspaceFilters,
@@ -179,6 +182,10 @@ export class GetReportComponent implements OnInit {
         reportDate: record.reportDate,
         jmc: record.jmc,
         fileKeys: record.fileKey ? [record.fileKey] : [],
+        isLocked: record.isLocked,
+        unlockRequestedAt: record.unlockRequestedAt,
+        unlockRequestedByUser: record.unlockRequestedByUser,
+        unlockReason: record.unlockReason,
         contractor: record.contractor,
         documentReferenceHierarchy: DocReferenceHierarchy.forReportRow({
           poNumber: record.jmc.po.poNumber,

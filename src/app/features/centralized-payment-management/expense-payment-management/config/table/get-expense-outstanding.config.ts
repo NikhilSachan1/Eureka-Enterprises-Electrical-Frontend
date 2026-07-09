@@ -1,7 +1,5 @@
 import { APP_CONFIG } from '@core/config';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
-  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -9,14 +7,11 @@ import {
 } from '@shared/types';
 import { IExpenseOutstandingGetBaseResponseDto } from '../../types/expense-outstanding.dto';
 
-export interface IExpenseOutstandingTableConfigOptions {
-  selectionPermissions?: string[];
-}
-
 export const EXPENSE_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No expense outstanding record found.',
   emptyMessageDescription:
     'There are no pending expense reimbursements to be paid.',
+  showCheckbox: true,
 };
 
 export const EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
@@ -35,14 +30,6 @@ export const EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCo
       },
     },
     {
-      field: 'bankDetails',
-      header: 'Bank Details',
-      bodyTemplate: EDataType.TEXT,
-      customTemplateKey: 'bankDetailsCell',
-      columnStyleClass: 'cell-allow-wrap',
-      showSort: false,
-    },
-    {
       field: 'pendingAmount',
       header: 'Pending Amount',
       bodyTemplate: EDataType.CURRENCY,
@@ -55,26 +42,11 @@ export const EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCo
     },
   ];
 
-export function createExpenseOutstandingTableEnhancedConfig(
-  options?: IExpenseOutstandingTableConfigOptions
-): IEnhancedTableConfig<IExpenseOutstandingGetBaseResponseDto> {
-  const selectionPermissions = options?.selectionPermissions ?? [
-    APP_PERMISSION.PAYMENT_SHEET.CREATE,
-  ];
-
+export function createExpenseOutstandingTableEnhancedConfig(): IEnhancedTableConfig<IExpenseOutstandingGetBaseResponseDto> {
   return {
     tableConfig: EXPENSE_OUTSTANDING_TABLE_CONFIG,
     headers: EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG,
     rowActions: [],
-    bulkActions: [
-      {
-        id: EButtonActionType.GENERATE,
-        label: 'Create Payment Sheet',
-        hideWhen: () => true,
-        ...(selectionPermissions.length
-          ? { permission: selectionPermissions }
-          : {}),
-      },
-    ],
+    bulkActions: [],
   };
 }

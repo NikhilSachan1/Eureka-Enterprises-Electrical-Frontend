@@ -15,6 +15,9 @@ import { EditPaymentSheetItemComponent } from '../../components/edit-payment-she
 import { PayPaymentSheetItemComponent } from '../../components/pay-payment-sheet-item/pay-payment-sheet-item.component';
 import { RejectPaymentSheetItemComponent } from '../../components/reject-payment-sheet-item/reject-payment-sheet-item.component';
 import { SubmitPaymentSheetComponent } from '../../components/submit-payment-sheet/submit-payment-sheet.component';
+import { UnverifyPaymentSheetItemsComponent } from '../../components/unverify-payment-sheet-items/unverify-payment-sheet-items.component';
+import { VerifyPaymentSheetItemsComponent } from '../../components/verify-payment-sheet-items/verify-payment-sheet-items.component';
+import { DownloadPaymentSheetPdfComponent } from '../../components/download-payment-sheet-pdf/download-payment-sheet-pdf.component';
 import { EPaymentSheetWorkflowActionType } from '../../types/payment-sheet.enum';
 
 export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
@@ -27,7 +30,7 @@ export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
       header: 'Add beneficiaries',
       icon: ICONS.COMMON.USERS,
       message:
-        'Select outstanding expense or fuel beneficiaries to add to this payment sheet.',
+        'Select outstanding expense, fuel, or vendor beneficiaries to add to this payment sheet.',
       size: EDialogSize.EXTRA_LARGE,
       labels: {
         actionWord: 'add',
@@ -36,6 +39,20 @@ export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
       },
     },
     dynamicComponent: AddPaymentSheetItemsComponent,
+  },
+  [EButtonActionType.DOWNLOAD]: {
+    dialogConfig: {
+      ...CONFIRMATION_DIALOG_CONFIG,
+      header: 'Download payment sheet PDF',
+      icon: ICONS.COMMON.DOWNLOAD,
+      message: 'Select the payment source you want to download as PDF.',
+      labels: {
+        actionWord: 'download',
+        singleLabel: 'Download',
+        bulkLabel: 'Download',
+      },
+    },
+    dynamicComponent: DownloadPaymentSheetPdfComponent,
   },
   [EButtonActionType.EDIT]: {
     dialogConfig: {
@@ -71,6 +88,36 @@ export const PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP: Record<
       },
     },
     dynamicComponent: RejectPaymentSheetItemComponent,
+  },
+  [EButtonActionType.APPROVE]: {
+    dialogConfig: {
+      ...CONFIRMATION_DIALOG_CONFIG,
+      header: 'Verify beneficiary?',
+      icon: ICONS.FLEET.PUC,
+      message:
+        'This beneficiary will be marked as verified on the payment sheet.',
+      labels: {
+        actionWord: 'verify',
+        singleLabel: 'Verify',
+        bulkLabel: 'Verify Selected',
+      },
+    },
+    dynamicComponent: VerifyPaymentSheetItemsComponent,
+  },
+  [EButtonActionType.UNVERIFY]: {
+    dialogConfig: {
+      ...CONFIRMATION_DIALOG_CONFIG,
+      header: 'Unverify beneficiary?',
+      icon: ICONS.COMMON.SYNC,
+      message:
+        'This beneficiary will be marked as unverified on the payment sheet.',
+      labels: {
+        actionWord: 'unverify',
+        singleLabel: 'Unverify',
+        bulkLabel: 'Unverify Selected',
+      },
+    },
+    dynamicComponent: UnverifyPaymentSheetItemsComponent,
   },
   [EButtonActionType.PAID]: {
     dialogConfig: {

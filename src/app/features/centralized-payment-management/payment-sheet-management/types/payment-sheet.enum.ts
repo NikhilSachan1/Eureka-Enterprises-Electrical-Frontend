@@ -46,6 +46,8 @@ export enum EPaymentSheetDetailAction {
   EDIT_ITEM = 'edit-item',
   DELETE_ITEM = 'delete-item',
   REJECT_ITEM = 'reject-item',
+  VERIFY_ITEM = 'verify-item',
+  UNVERIFY_ITEM = 'unverify-item',
   RECORD_PAYMENT = 'record-payment',
   FORWARD_TO_HR = 'forward-to-hr',
   FORWARD_TO_ADMIN = 'forward-to-admin',
@@ -56,6 +58,36 @@ export enum EPaymentSheetWorkflowActionType {
   FORWARD_TO_HR = 'forward-to-hr',
   FORWARD_TO_ADMIN = 'forward-to-admin',
   FORWARD_TO_ACCOUNTANT = 'forward-to-accountant',
+}
+
+export enum EPaymentSheetItemStatus {
+  PENDING = 'pending',
+  VERIFIED = 'verified',
+  UNVERIFIED = 'unverified',
+  REJECTED = 'rejected',
+  PAID = 'paid',
+}
+
+export enum EPaymentSheetStageLogAction {
+  SUBMIT = 'SUBMIT',
+  FORWARD = 'FORWARD',
+  RETURN = 'RETURN',
+  REJECT = 'REJECT',
+}
+
+export enum EPaymentSheetHistoryAction {
+  ITEM_ADDED = 'ITEM_ADDED',
+  ITEM_REMOVED = 'ITEM_REMOVED',
+  VERIFIED = 'VERIFIED',
+  UNVERIFIED = 'UNVERIFIED',
+  REJECTED = 'REJECTED',
+  PAID = 'PAID',
+  AMOUNT_EDIT = 'AMOUNT_EDIT',
+}
+
+export enum EPaymentSheetTimelineMode {
+  WORKFLOW = 'WORKFLOW',
+  ITEM_HISTORY = 'ITEM_HISTORY',
 }
 
 export const PAYMENT_SHEET_WORKFLOW_ACTION_TYPES = [

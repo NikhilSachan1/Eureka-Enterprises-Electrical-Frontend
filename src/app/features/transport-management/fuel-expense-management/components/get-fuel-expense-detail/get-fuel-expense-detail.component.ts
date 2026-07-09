@@ -22,12 +22,17 @@ import {
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import { APP_PERMISSION } from '@core/constants/app-permission.constant';
+import {
+  getMappedValueFromArrayOfObjects,
+  mapPaidFromAccountToBankDetails,
+} from '@shared/utility';
 import { ViewDetailComponent } from '@shared/components/view-detail/view-detail.component';
+import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 
 @Component({
   selector: 'app-get-fuel-expense-detail',
-  imports: [ViewDetailComponent],
+  imports: [ViewDetailComponent, BankDetailsCellComponent],
   templateUrl: './get-fuel-expense-detail.component.html',
   styleUrl: './get-fuel-expense-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -107,6 +112,21 @@ export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
             record.paymentMode
           ),
         },
+        ...(record.paidFromAccount
+          ? [
+              {
+                label: 'Paid From Account',
+                value: mapPaidFromAccountToBankDetails(record.paidFromAccount),
+                customTemplateKey: 'paidFromAccountDetails',
+                detailTemplateFullRow: true,
+                detailTemplatePlain: true,
+                permission: [
+                  APP_PERMISSION.UI.FUEL_EXPENSE
+                    .SEARCH_FILTER_PAID_FROM_ACCOUNT,
+                ],
+              },
+            ]
+          : []),
         {
           label: 'Transaction ID',
           value: record.transactionId,

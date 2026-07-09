@@ -118,11 +118,16 @@ export class GetReportDetailComponent extends DrawerDetailBase {
         type: EDataType.DATE,
         format: APP_CONFIG.DATE_FORMATS.DEFAULT,
       },
+      {
+        label: 'Lock status',
+        value: record.isLocked ? 'Locked' : 'Unlocked',
+        type: EDataType.STATUS,
+      },
     ];
 
     entryData.push({
       label: 'Attachment(s)',
-      value: [record.fileKey],
+      value: record.fileKey ? [record.fileKey] : [],
       type: EDataType.ATTACHMENTS,
     });
 

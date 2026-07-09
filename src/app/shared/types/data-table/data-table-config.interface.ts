@@ -18,7 +18,8 @@ export interface IDataTableConfig {
   rowsPerPageOptions: number[];
   showPaginator: boolean;
   globalFilterFields: string[];
-  showCheckbox: boolean;
+  /** When true, always show selection checkbox. When false, always hide. Otherwise auto from bulk actions. */
+  showCheckbox?: boolean;
   emptyMessage: string;
   emptyMessageIcon: string;
   emptyMessageDescription: string;

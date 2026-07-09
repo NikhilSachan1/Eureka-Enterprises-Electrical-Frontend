@@ -100,6 +100,7 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // ═══════════════════════════════════════════════════════════════════════════
   approved: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   approve: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
+  unverify: { icon: ICONS.COMMON.SYNC, severity: 'warning' },
   done: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   pending: { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
   'pending approval': {
@@ -342,6 +343,13 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   // ═══════════════════════════════════════════════════════════════════════════
   link: { icon: ICONS.ACTIONS.CHECK_CIRCLE, severity: 'success' },
   unlink: { icon: ICONS.ACTIONS.TIMES, severity: 'danger' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PAYMENT SHEET STATUS (raw enum: IN_REVIEW, PROCESSING, RETURNED, …)
+  in_review: { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
+  'in review': { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
+  processing: { icon: ICONS.COMMON.SYNC, severity: 'info' },
+  returned: { icon: ICONS.COMMON.ARROW_LEFT, severity: 'warning' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PROJECT ALLOCATION STATUS

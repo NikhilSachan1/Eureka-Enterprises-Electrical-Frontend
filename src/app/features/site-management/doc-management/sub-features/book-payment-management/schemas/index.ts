@@ -28,3 +28,10 @@ export {
   BookPaymentDropdownRecordSchema,
   BookPaymentDropdownGetResponseSchema,
 } from './get-book-payment-dropdown.schema';
+
+export {
+  UnlockRequestBookPaymentRequestSchema,
+  UnlockRequestBookPaymentResponseSchema,
+} from './unlock-request-book-payment.schema';
+export { UnlockGrantBookPaymentResponseSchema } from './unlock-grant-book-payment.schema';
+export { UnlockRejectBookPaymentResponseSchema } from './unlock-reject-book-payment.schema';

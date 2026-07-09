@@ -1,4 +1,11 @@
 <ng-template
+  #paidFromAccountDetails
+  let-entry
+>
+  <app-bank-details-cell [bankDetails]="$any(entry.value)" />
+</ng-template>
+
+<ng-template
   #docWorkspaceContextDetail
   let-entry
 >
@@ -17,5 +24,6 @@
   [customTemplates]="{
     docWorkspaceContextDetail: docWorkspaceContextDetail,
     documentReferenceHierarchy: documentReferenceHierarchy,
+    paidFromAccountDetails: paidFromAccountDetails,
   }"
 />

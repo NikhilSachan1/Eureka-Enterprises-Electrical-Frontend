@@ -1,17 +1,38 @@
-import { IBankDetailsCellValue } from '@features/centralized-payment-management/shared/types/bank-details-cell.interface';
+import { IBankDetailsCellValue, IEnhancedTable } from '@shared/types';
 import { EPaymentOutstandingSourceType } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
-import { IEnhancedTable } from '@shared/types';
+import {
+  IPaymentSheetItemDetailDto,
+  IPaymentSheetDetailGetResponseDto,
+} from './payment-sheet.dto';
+import { EPaymentSheetTimelineMode } from './payment-sheet.enum';
+
+export type IPaymentSheetItemVerificationView = NonNullable<
+  IPaymentSheetItemDetailDto['verifications']
+>[number];
 
 export interface IPaymentSheetDetailItemRow {
+  status: string;
+  currentStage: string | null;
+  itemStatus: string;
   id: string;
+  beneficiaryId: string;
   beneficiaryName: string;
   beneficiaryCode: string;
   actualDue: number;
   payableAmount: number;
-  itemStatus: string;
+  remainingAmount: number;
   paidAt: string | null;
   paymentRef: string | null;
   bankDetails: IBankDetailsCellValue | null;
+  companyName?: string;
+  projectName?: string;
+  projectCity?: string;
+  projectState?: string;
+  invoiceNumber?: string;
+  invoiceDate?: string | null;
+  verifications: IPaymentSheetItemVerificationView[];
+  verifiedStages: string[];
+  isVerifiedForCurrentStage: boolean;
 }
 export interface IPaymentSheetDetailSourceGroupView {
   sourceType: EPaymentOutstandingSourceType;
@@ -19,3 +40,88 @@ export interface IPaymentSheetDetailSourceGroupView {
   totalCurrentAmount: number;
   table: IEnhancedTable;
 }
+
+export interface IPaymentSheetOverviewVerificationView {
+  verified: number;
+  total: number;
+  allVerified: boolean;
+  stageLabel: string;
+}
+
+export interface IPaymentSheetOverviewView {
+  stageLabel: string;
+  createdAt: string;
+  beneficiaryCount: number;
+  verificationSummary: IPaymentSheetOverviewVerificationView | null;
+  totalRequestedAmount: number;
+  totalCurrentAmount: number;
+  totalPaidAmount: number;
+  pendingAmount: number;
+  remarks: string | null;
+}
+
+export type TPaymentSheetTimelineTone =
+  | 'primary'
+  | 'info'
+  | 'success'
+  | 'paid'
+  | 'warning'
+  | 'danger'
+  | 'neutral'
+  | 'updated'
+  | 'removed';
+
+export type TPaymentSheetTimelineDetailVariant =
+  | 'default'
+  | 'emphasis'
+  | 'note';
+
+export interface IPaymentSheetTimelineEventDetail {
+  icon?: string;
+  label: string;
+  value: string;
+  variant?: TPaymentSheetTimelineDetailVariant;
+}
+
+export interface IPaymentSheetTimelineEventView {
+  id: string;
+  occurredAt: string;
+  title: string;
+  performedBy: string;
+  details: IPaymentSheetTimelineEventDetail[];
+  icon: string;
+  tone: TPaymentSheetTimelineTone;
+}
+
+export type TPaymentSheetStageLogView = NonNullable<
+  IPaymentSheetDetailGetResponseDto['stageLogs']
+>[number];
+
+export type TPaymentSheetHistoryEntryView = NonNullable<
+  IPaymentSheetDetailGetResponseDto['history']
+>[number] & {
+  remarks?: string | null;
+};
+
+export interface IPaymentSheetTimelineDrawerContext {
+  sheetNumber: string;
+  contextSubtitle: string;
+}
+
+export interface IPaymentSheetTimelineDrawerDataWorkflow
+  extends IPaymentSheetTimelineDrawerContext {
+  mode: EPaymentSheetTimelineMode.WORKFLOW;
+  paymentSheetId: string;
+  stageLogs?: TPaymentSheetStageLogView[];
+}
+
+export interface IPaymentSheetTimelineDrawerDataItemHistory
+  extends IPaymentSheetTimelineDrawerContext {
+  mode: EPaymentSheetTimelineMode.ITEM_HISTORY;
+  itemId: string;
+  history: TPaymentSheetHistoryEntryView[];
+}
+
+export type IPaymentSheetTimelineDrawerData =
+  | IPaymentSheetTimelineDrawerDataWorkflow
+  | IPaymentSheetTimelineDrawerDataItemHistory;

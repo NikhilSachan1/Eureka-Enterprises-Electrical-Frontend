@@ -6,6 +6,18 @@
 </ng-template>
 
 <ng-template
+  #reportLockStatus
+  let-row
+>
+  <app-unlock-request
+    [isLocked]="row.isLocked"
+    [requestedAt]="row.unlockRequestedAt"
+    [requestedByUser]="row.unlockRequestedByUser"
+    [reason]="row.unlockReason"
+  />
+</ng-template>
+
+<ng-template
   #documentReferenceChain
   let-row
 >
@@ -28,6 +40,7 @@
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
     docWorkspaceContext: docWorkspaceContext,
+    reportLockStatus: reportLockStatus,
     documentReferenceChain: documentReferenceChain,
   }"
   (rowActionClick)="handleReportTableActionClick($any($event))"

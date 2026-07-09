@@ -12,6 +12,10 @@ export interface IBookPayment
     | 'paymentTotalAmount'
     | 'hasTransfer'
     | 'paymentHoldReason'
+    | 'isLocked'
+    | 'unlockRequestedAt'
+    | 'unlockRequestedByUser'
+    | 'unlockReason'
   > {
   transferStatusLabel: string;
   paymentHoldReasonDisplay: string;

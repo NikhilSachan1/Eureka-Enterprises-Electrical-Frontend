@@ -6,6 +6,18 @@
 </ng-template>
 
 <ng-template
+  #bookPaymentLockStatus
+  let-row
+>
+  <app-unlock-request
+    [isLocked]="row.isLocked"
+    [requestedAt]="row.unlockRequestedAt"
+    [requestedByUser]="row.unlockRequestedByUser"
+    [reason]="row.unlockReason"
+  />
+</ng-template>
+
+<ng-template
   #bookPaymentDocumentReference
   let-row
 >
@@ -29,6 +41,7 @@
   [customBodyTemplates]="{
     docWorkspaceContext: docWorkspaceContext,
     bookPaymentDocumentReference: bookPaymentDocumentReference,
+    bookPaymentLockStatus: bookPaymentLockStatus,
   }"
   (rowActionClick)="handleBookPaymentTableActionClick($any($event))"
   (filterData)="onTableStateChange($event)"

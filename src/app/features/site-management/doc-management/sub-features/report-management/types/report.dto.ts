@@ -9,6 +9,10 @@ import {
   ReportGetBaseResponseSchema,
   ReportGetRequestSchema,
   ReportGetResponseSchema,
+  UnlockRequestReportRequestSchema,
+  UnlockRequestReportResponseSchema,
+  UnlockGrantReportResponseSchema,
+  UnlockRejectReportResponseSchema,
 } from '../schemas';
 import { ReportDetailGetRequestSchema } from '../schemas/get-report-detail.schema';
 
@@ -55,3 +59,21 @@ export type IEditReportUIFormDto = Omit<
   jmcNumber: string;
 };
 export type IEditReportResponseDto = z.infer<typeof EditReportResponseSchema>;
+
+/** Unlock request */
+export type IUnlockRequestReportFormDto = z.input<
+  typeof UnlockRequestReportRequestSchema
+>;
+export type IUnlockRequestReportResponseDto = z.infer<
+  typeof UnlockRequestReportResponseSchema
+>;
+
+/** Unlock grant */
+export type IUnlockGrantReportResponseDto = z.infer<
+  typeof UnlockGrantReportResponseSchema
+>;
+
+/** Unlock request reject */
+export type IUnlockRejectReportResponseDto = z.infer<
+  typeof UnlockRejectReportResponseSchema
+>;

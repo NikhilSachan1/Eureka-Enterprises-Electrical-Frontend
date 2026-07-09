@@ -159,6 +159,7 @@ export class GetInvoiceComponent implements OnInit {
 
   protected docInvoiceTaxGstSegments(row: IInvoice): IDocAmountSegment[] {
     return buildInvoiceTaxGstAmountSegments({
+      invoiceNumber: row.originalRawData.invoiceNumber,
       taxableAmount: row.taxableAmount,
       tdsAmount: row.tdsAmount,
       tdsPercentage: row.tdsPercentage,
@@ -333,6 +334,7 @@ export class GetInvoiceComponent implements OnInit {
   }
 
   protected docInvoiceDialogAmountSegments(value: {
+    invoiceNumber: string | null;
     taxableAmount: string;
     tdsAmount: string;
     tdsPercentage: string | number;
@@ -357,6 +359,7 @@ export class GetInvoiceComponent implements OnInit {
       {
         label: 'Invoice amounts',
         value: {
+          invoiceNumber: selectedRow.invoiceNumber,
           taxableAmount: selectedRow.taxableAmount,
           tdsAmount: selectedRow.tdsAmount,
           tdsPercentage: selectedRow.tdsPercentage,

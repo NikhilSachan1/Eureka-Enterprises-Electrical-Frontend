@@ -74,3 +74,4 @@ export {
   resolveFrozenColumnWidth,
   resolveColumnWidth,
 } from './data-table-frozen-column.util';
+export { mapPaidFromAccountToBankDetails } from './bank-details.util';

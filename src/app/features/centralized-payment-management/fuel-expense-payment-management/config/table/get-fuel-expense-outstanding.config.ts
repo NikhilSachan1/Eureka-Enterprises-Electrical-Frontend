@@ -1,7 +1,5 @@
 import { APP_CONFIG } from '@core/config';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import {
-  EButtonActionType,
   EDataType,
   IDataTableConfig,
   IDataTableHeaderConfig,
@@ -9,15 +7,12 @@ import {
 } from '@shared/types';
 import { IFuelExpenseOutstandingGetBaseResponseDto } from '../../types/fuel-expense-outstanding.dto';
 
-export interface IFuelExpenseOutstandingTableConfigOptions {
-  selectionPermissions?: string[];
-}
-
 export const FUEL_EXPENSE_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> =
   {
     emptyMessage: 'No fuel outstanding record found.',
     emptyMessageDescription:
       'There are no pending fuel reimbursements to be paid.',
+    showCheckbox: true,
   };
 
 export const FUEL_EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
@@ -36,14 +31,6 @@ export const FUEL_EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHea
       },
     },
     {
-      field: 'bankDetails',
-      header: 'Bank Details',
-      bodyTemplate: EDataType.TEXT,
-      customTemplateKey: 'bankDetailsCell',
-      columnStyleClass: 'cell-allow-wrap',
-      showSort: false,
-    },
-    {
       field: 'pendingAmount',
       header: 'Pending Amount',
       bodyTemplate: EDataType.CURRENCY,
@@ -56,26 +43,11 @@ export const FUEL_EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHea
     },
   ];
 
-export function createFuelExpenseOutstandingTableEnhancedConfig(
-  options?: IFuelExpenseOutstandingTableConfigOptions
-): IEnhancedTableConfig<IFuelExpenseOutstandingGetBaseResponseDto> {
-  const selectionPermissions = options?.selectionPermissions ?? [
-    APP_PERMISSION.PAYMENT_SHEET.CREATE,
-  ];
-
+export function createFuelExpenseOutstandingTableEnhancedConfig(): IEnhancedTableConfig<IFuelExpenseOutstandingGetBaseResponseDto> {
   return {
     tableConfig: FUEL_EXPENSE_OUTSTANDING_TABLE_CONFIG,
     headers: FUEL_EXPENSE_OUTSTANDING_TABLE_HEADER_CONFIG,
     rowActions: [],
-    bulkActions: [
-      {
-        id: EButtonActionType.GENERATE,
-        label: 'Create Payment Sheet',
-        hideWhen: () => true,
-        ...(selectionPermissions.length
-          ? { permission: selectionPermissions }
-          : {}),
-      },
-    ],
+    bulkActions: [],
   };
 }

@@ -26,6 +26,16 @@ export const ExpenseDetailGetResponseSchema = z.looseObject({
   history: z.array(
     ExpenseBaseSchema.extend({
       amount: z.string(),
+      paidFromAccount: z
+        .looseObject({
+          accountHolderName: z.string().nullable(),
+          bankName: z.string().nullable(),
+          accountNumber: z.string().nullable(),
+          ifscCode: z.string().nullable(),
+          branchName: z.string().nullable(),
+        })
+        .nullable()
+        .optional(),
       createdBy: uuidField,
       updatedBy: uuidField.nullable(),
       user: UserSchema,

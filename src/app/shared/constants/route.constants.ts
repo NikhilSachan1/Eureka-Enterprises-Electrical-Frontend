@@ -22,6 +22,7 @@ export const ROUTE_BASE_PATHS = {
   TRANSPORT: 'transport',
   ANNOUNCEMENT: 'announcement',
   MY_FILES: 'my-files',
+  COMPANY_BANK_ACCOUNT: 'company-bank-account',
   SITE: {
     BASE: 'project',
     COMPANY: 'company',
@@ -203,6 +204,12 @@ export const ROUTES = {
     STRUCTURE: `structure`,
   },
   PETRO_CARD: {
+    LIST: `list`,
+    ADD: `add`,
+    EDIT: `edit`,
+  },
+
+  COMPANY_BANK_ACCOUNT: {
     LIST: `list`,
     ADD: `add`,
     EDIT: `edit`,

@@ -1,14 +1,8 @@
 import { IPaymentSheetGetBaseResponseDto } from './payment-sheet.dto';
 
 export interface IPaymentSheet extends IPaymentSheetGetBaseResponseDto {
+  statusLabel?: string;
   originalRawData: IPaymentSheetGetBaseResponseDto;
-}
-
-export interface IPaymentSheetWorkflowPermissions {
-  canCreate: boolean;
-  canReview: boolean;
-  canAdminReview: boolean;
-  canProcess: boolean;
 }
 
 export interface IPaymentSheetWorkflowRow {

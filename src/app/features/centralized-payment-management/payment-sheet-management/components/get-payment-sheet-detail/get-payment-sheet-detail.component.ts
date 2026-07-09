@@ -4,58 +4,66 @@ import {
   computed,
   DestroyRef,
   inject,
+  model,
   OnInit,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { AppPermissionService, LoggerService } from '@core/services';
-import { APP_PERMISSION } from '@core/constants/app-permission.constant';
 import { APP_CONFIG } from '@core/config';
-import { BankDetailsCellComponent } from '@features/centralized-payment-management/shared/components/bank-details-cell/bank-details-cell.component';
+import { AuthService } from '@features/auth-management/services/auth.service';
+import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
 import { PaymentOutstandingSectionComponent } from '@features/centralized-payment-management/shared/components/payment-outstanding-section/payment-outstanding-section.component';
 import {
   EPaymentOutstandingSectionContext,
   EPaymentOutstandingSourceType,
+  getPaymentOutstandingSourceSectionMeta,
 } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
+import {
+  getPaymentSourceTabAccent,
+  getPaymentSourceTabIcon,
+  getPaymentSourceTabLabel,
+} from '@features/centralized-payment-management/shared/utils/payment-source-tab.util';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { ButtonComponent } from '@shared/components/button/button.component';
 import { EmptyMessagesComponent } from '@shared/components/empty-messages/empty-messages.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { ICONS } from '@shared/constants';
 import {
-  AppConfigurationService,
   ConfirmationDialogService,
+  DrawerService,
   TableService,
+  AppConfigurationService,
 } from '@shared/services';
+import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import {
   EButtonActionType,
-  EButtonSeverity,
   EDataType,
+  EDrawerSize,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
-  IButtonConfig,
   IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/types';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { finalize } from 'rxjs';
-import { PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP } from '../../config';
 import {
-  buildPaymentSheetDetailItemsRowActionsConfig,
-  createPaymentSheetDetailItemsTableConfig,
-} from '../../config/table/get-payment-sheet-detail-items.config';
+  PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP,
+  getPaymentSheetDetailItemsTableConfig,
+  PAYMENT_SHEET_DETAIL_WORKFLOW_BUTTONS_CONFIG,
+} from '../../config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
+import { PaymentSheetTimelineDrawerComponent } from '../payment-sheet-timeline-drawer/payment-sheet-timeline-drawer.component';
 import {
-  getPaymentSheetDetailActionDisableReason,
-  getPaymentSheetWorkflowPermissions,
-  isPaymentSheetDetailActionDisabled,
-  PAYMENT_SHEET_FORWARD_ACTION_PERMISSION,
-  toPaymentSheetDetailAction,
-} from '../../utils/payment-sheet-status.util';
+  EPaymentSheetSourceType,
+  EPaymentSheetStage,
+  EPaymentSheetStatus,
+  EPaymentSheetTimelineMode,
+  EPaymentSheetWorkflowActionType,
+} from '../../types/payment-sheet.enum';
 import {
   IPaymentSheetDetailGetResponseDto,
   IPaymentSheetItemDetailDto,
@@ -63,65 +71,65 @@ import {
 import {
   IPaymentSheetDetailItemRow,
   IPaymentSheetDetailSourceGroupView,
+  IPaymentSheetItemVerificationView,
+  IPaymentSheetOverviewView,
 } from '../../types/payment-sheet-detail.interface';
+import { APP_PERMISSION } from '@core/constants';
 import {
-  EPaymentSheetDetailAction,
-  EPaymentSheetSourceType,
-  EPaymentSheetWorkflowActionType,
-  PAYMENT_SHEET_WORKFLOW_ACTION_TYPES,
-} from '../../types/payment-sheet.enum';
+  getPaymentSheetForwardActionForUserRole,
+  getPaymentSheetForwardDisableReason,
+  isPaymentSheetForwardActionAllowed,
+} from '../../utils/payment-sheet-status.util';
 import {
-  IPaymentSheetWorkflowPermissions,
-  IPaymentSheetWorkflowRow,
-} from '../../types/payment-sheet.interface';
+  getPaymentSheetVerificationStageLabel,
+  getVisiblePaymentSheetItemVerificationStages,
+} from '../../utils/payment-sheet-verification.util';
+import { isPaymentSheetItemPaid } from '../../utils/payment-sheet-table-row.util';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
   imports: [
+    CurrencyPipe,
     DatePipe,
     PageHeaderComponent,
-    PaymentOutstandingSectionComponent,
     DataTableComponent,
     BankDetailsCellComponent,
     PaymentSheetAmountsCellComponent,
     EmptyMessagesComponent,
     ButtonComponent,
+    PaymentOutstandingSectionComponent,
   ],
   templateUrl: './get-payment-sheet-detail.component.html',
   styleUrl: './get-payment-sheet-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetPaymentSheetDetailComponent implements OnInit {
-  protected readonly EPaymentOutstandingSectionContext =
-    EPaymentOutstandingSectionContext;
+  protected readonly APP_CONFIG = APP_CONFIG;
+  protected readonly ICONS = ICONS;
 
   protected readonly paidAtDateFormat =
     APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
   protected readonly paidAtDateLocale = APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE;
+  protected readonly verifiedAtDateFormat =
+    APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
+  protected readonly overviewDateFormat =
+    APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
+  protected readonly currencyFormat = APP_CONFIG.CURRENCY_CONFIG.DEFAULT;
 
+  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly dataTableService = inject(TableService);
-  private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly paymentSheetService = inject(PaymentSheetService);
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
+  private readonly drawerService = inject(DrawerService);
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appPermissionService = inject(AppPermissionService);
+  private readonly authService = inject(AuthService);
 
-  private readonly workflowPermissions: IPaymentSheetWorkflowPermissions =
-    getPaymentSheetWorkflowPermissions(this.appPermissionService);
-
-  private readonly getDetailWorkflowRow = (): IPaymentSheetWorkflowRow => {
-    const detail = this.detail();
-    return {
-      status: detail?.status,
-      currentStage: detail?.currentStage,
-    };
-  };
-
-  private readonly paymentSheetId =
+  protected readonly paymentSheetId =
     this.activatedRoute.snapshot.paramMap.get('paymentSheetId') ?? '';
 
   private readonly sourceSectionOrder: EPaymentSheetSourceType[] = [
@@ -153,18 +161,87 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     IPaymentSheetDetailSourceGroupView[]
   >([]);
 
+  protected readonly activeTabIndex = model(0);
+
+  protected readonly detailTabs = computed(() =>
+    this.sourceGroups().map(group => ({
+      value: group.sourceType,
+      label: getPaymentSourceTabLabel(group.sourceType),
+    }))
+  );
+
+  protected readonly sectionOverview = computed(() =>
+    this.sourceGroups().map(group => {
+      const accent = getPaymentSourceTabAccent(group.sourceType);
+      const recordCountLabel = this.getRecordCountLabel(group.sourceType);
+
+      return {
+        value: group.sourceType,
+        label: getPaymentSourceTabLabel(group.sourceType),
+        icon: getPaymentSourceTabIcon(group.sourceType),
+        accentLight: accent.light,
+        accentDark: accent.dark,
+        stats: [
+          {
+            kind: 'count' as const,
+            label: recordCountLabel,
+            value: group.recordCount,
+          },
+          {
+            kind: 'currency' as const,
+            label: 'Payable',
+            value: group.totalCurrentAmount,
+            tone: group.totalCurrentAmount > 0 ? ('debit' as const) : null,
+          },
+        ],
+      };
+    })
+  );
+
   protected pageHeaderConfig = computed(() => this.buildPageHeaderConfig());
 
-  protected readonly workflowButtonConfigs = computed(() =>
-    this.buildWorkflowButtonConfigs()
-  );
+  protected readonly sheetOverview = computed(() => this.buildSheetOverview());
+
+  protected readonly permittedWorkflowButtons = computed(() => {
+    const detail = this.detail();
+    const allowedAction = getPaymentSheetForwardActionForUserRole(
+      this.authService.user()?.activeRole
+    );
+
+    if (!allowedAction || !detail) {
+      return [];
+    }
+
+    return Object.values(
+      this.appPermissionService.filterRecordByPermission(
+        PAYMENT_SHEET_DETAIL_WORKFLOW_BUTTONS_CONFIG
+      )
+    )
+      .filter(button => button.actionName === allowedAction)
+      .map(button => {
+        const workflowAction =
+          button.actionName as EPaymentSheetWorkflowActionType;
+
+        return {
+          ...button,
+          disabled: !isPaymentSheetForwardActionAllowed(detail, workflowAction),
+          disabledTooltip: getPaymentSheetForwardDisableReason(
+            detail,
+            workflowAction
+          ),
+        };
+      });
+  });
 
   ngOnInit(): void {
     for (const sourceType of this.sourceSectionOrder) {
       this.sourceTables.set(
         sourceType,
         this.dataTableService.createTable(
-          createPaymentSheetDetailItemsTableConfig()
+          getPaymentSheetDetailItemsTableConfig(
+            sourceType,
+            this.authService.user()?.activeRole
+          )
         )
       );
     }
@@ -181,24 +258,106 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   protected getRemainingAmount(row: IPaymentSheetDetailItemRow): number {
-    return Math.max(0, row.actualDue - row.payableAmount);
+    return Math.max(0, row.remainingAmount);
   }
 
   protected isFullyCovered(row: IPaymentSheetDetailItemRow): boolean {
-    return this.getRemainingAmount(row) <= 0;
+    return row.remainingAmount <= 0;
+  }
+
+  protected hasCompanyProjectContext(row: IPaymentSheetDetailItemRow): boolean {
+    return !!(
+      row.companyName ??
+      row.projectName ??
+      row.projectCity ??
+      row.projectState
+    );
+  }
+
+  protected getProjectLocation(row: IPaymentSheetDetailItemRow): string {
+    return [row.projectCity, row.projectState].filter(Boolean).join(', ');
+  }
+
+  protected hasStatusContext(row: IPaymentSheetDetailItemRow): boolean {
+    return (
+      this.hasVerificationContext(row) || this.shouldShowPaymentStatus(row)
+    );
+  }
+
+  protected hasVerificationContext(row: IPaymentSheetDetailItemRow): boolean {
+    return this.getVisibleVerificationStages(row).length > 0;
+  }
+
+  protected shouldShowPaymentStatus(row: IPaymentSheetDetailItemRow): boolean {
+    const detail = this.detail();
+
+    if (!detail) {
+      return false;
+    }
+
+    return (
+      detail.status === EPaymentSheetStatus.PROCESSING ||
+      detail.status === EPaymentSheetStatus.COMPLETED ||
+      detail.currentStage === EPaymentSheetStage.PROCESSING ||
+      isPaymentSheetItemPaid(row)
+    );
+  }
+
+  protected isItemPaid(row: IPaymentSheetDetailItemRow): boolean {
+    return isPaymentSheetItemPaid(row);
+  }
+
+  protected isCurrentPaymentStage(): boolean {
+    const detail = this.detail();
+
+    return (
+      detail?.status === EPaymentSheetStatus.PROCESSING &&
+      detail.currentStage === EPaymentSheetStage.PROCESSING
+    );
+  }
+
+  protected getVisibleVerificationStages(
+    row: IPaymentSheetDetailItemRow
+  ): EPaymentSheetStage[] {
+    return getVisiblePaymentSheetItemVerificationStages(
+      this.detail()?.currentStage,
+      row.verifiedStages
+    );
+  }
+
+  protected getVerificationForStage(
+    row: IPaymentSheetDetailItemRow,
+    stage: string
+  ): IPaymentSheetItemVerificationView | undefined {
+    return row.verifications.find(verification => verification.stage === stage);
+  }
+
+  protected isCurrentVerificationStage(stage: string): boolean {
+    return this.detail()?.currentStage === stage;
+  }
+
+  protected getVerificationStageLabel(stage: string): string {
+    return getPaymentSheetVerificationStageLabel(stage);
   }
 
   protected onHeaderButtonClick(actionType: string): void {
-    if (actionType !== EButtonActionType.ADD || !this.paymentSheetId) {
+    const detail = this.detail();
+
+    if (
+      actionType === EButtonActionType.DOWNLOAD &&
+      this.paymentSheetId &&
+      detail
+    ) {
+      this.openDownloadPdfDialog();
       return;
     }
 
     if (
-      isPaymentSheetDetailActionDisabled(
-        this.getDetailWorkflowRow(),
-        this.workflowPermissions,
-        EPaymentSheetDetailAction.ADD_BENEFICIARY
-      )
+      actionType !== EButtonActionType.ADD ||
+      !this.paymentSheetId ||
+      !detail ||
+      (detail.status !== EPaymentSheetStatus.DRAFT &&
+        detail.status !== EPaymentSheetStatus.RETURNED)
     ) {
       return;
     }
@@ -206,32 +365,41 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     this.openAddBeneficiariesDialog();
   }
 
-  protected onWorkflowActionClick(
-    actionType: EPaymentSheetWorkflowActionType
-  ): void {
-    if (!this.paymentSheetId) {
-      return;
-    }
-
-    if (
-      isPaymentSheetDetailActionDisabled(
-        this.getDetailWorkflowRow(),
-        this.workflowPermissions,
-        toPaymentSheetDetailAction(actionType)
-      )
-    ) {
-      return;
-    }
-
+  private openDownloadPdfDialog(): void {
     this.confirmationDialogService.showConfirmationDialog(
-      EButtonActionType.SUBMIT,
-      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[actionType],
+      EButtonActionType.DOWNLOAD,
+      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[EButtonActionType.DOWNLOAD],
       null,
       false,
       false,
       {
         paymentSheetId: this.paymentSheetId,
-        workflowActionType: actionType,
+      }
+    );
+  }
+
+  protected onWorkflowActionClick(actionType: string): void {
+    const detail = this.detail();
+
+    if (!this.paymentSheetId || !actionType || !detail) {
+      return;
+    }
+
+    const workflowActionType = actionType as EPaymentSheetWorkflowActionType;
+
+    if (!isPaymentSheetForwardActionAllowed(detail, workflowActionType)) {
+      return;
+    }
+
+    this.confirmationDialogService.showConfirmationDialog(
+      EButtonActionType.SUBMIT,
+      PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[workflowActionType],
+      null,
+      false,
+      false,
+      {
+        paymentSheetId: this.paymentSheetId,
+        workflowActionType,
         onSuccess: () => this.reloadDetail(),
       }
     );
@@ -253,21 +421,38 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   protected handlePaymentSheetItemActionClick(
-    event: ITableActionClickEvent<IPaymentSheetDetailItemRow>
+    event: ITableActionClickEvent<IPaymentSheetDetailItemRow>,
+    isBulk = false
   ): void {
     const { actionType, selectedRows } = event;
     const selectedRow = selectedRows[0];
 
-    if (!selectedRow?.id || !this.paymentSheetId) {
+    if (!selectedRows.length || !this.paymentSheetId) {
       this.logger.error(
-        'Payment sheet item action: selected row or payment sheet id missing'
+        'Payment sheet item action: selected rows or payment sheet id missing'
       );
+      return;
+    }
+
+    if (
+      actionType === EButtonActionType.EVENT_HISTORY &&
+      !isBulk &&
+      selectedRow
+    ) {
+      this.openItemHistoryDrawer(selectedRow);
+      return;
+    }
+
+    if (!isBulk && !selectedRow?.id) {
+      this.logger.error('Payment sheet item action: selected row id missing');
       return;
     }
 
     if (
       actionType !== EButtonActionType.EDIT &&
       actionType !== EButtonActionType.DELETE &&
+      actionType !== EButtonActionType.APPROVE &&
+      actionType !== EButtonActionType.UNVERIFY &&
       actionType !== EButtonActionType.REJECT &&
       actionType !== EButtonActionType.PAID
     ) {
@@ -281,15 +466,20 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     }
 
     const showItemDetail =
-      actionType === EButtonActionType.DELETE ||
-      actionType === EButtonActionType.REJECT ||
-      actionType === EButtonActionType.PAID;
+      !isBulk &&
+      (actionType === EButtonActionType.DELETE ||
+        actionType === EButtonActionType.APPROVE ||
+        actionType === EButtonActionType.UNVERIFY ||
+        actionType === EButtonActionType.REJECT ||
+        actionType === EButtonActionType.PAID);
 
     this.confirmationDialogService.showConfirmationDialog(
       actionType,
       actionConfig,
-      showItemDetail ? this.prepareItemRecordDetail(selectedRow) : null,
-      false,
+      showItemDetail && selectedRow
+        ? this.prepareItemRecordDetail(selectedRow)
+        : null,
+      isBulk,
       showItemDetail,
       {
         selectedRecord: selectedRows,
@@ -297,6 +487,23 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         onSuccess: () => this.reloadDetail(),
       }
     );
+  }
+
+  private openItemHistoryDrawer(row: IPaymentSheetDetailItemRow): void {
+    const detail = this.detail();
+
+    this.drawerService.showDrawer(PaymentSheetTimelineDrawerComponent, {
+      header: 'Activity Timeline',
+      subtitle: 'View payment sheet workflow and activity history',
+      size: EDrawerSize.SMALL,
+      componentData: {
+        mode: EPaymentSheetTimelineMode.ITEM_HISTORY,
+        itemId: row.id,
+        history: detail?.history ?? [],
+        sheetNumber: detail?.sheetNumber ?? '—',
+        contextSubtitle: `${row.beneficiaryName} · ${row.beneficiaryCode}`,
+      },
+    });
   }
 
   private applyDetail(detail: IPaymentSheetDetailGetResponseDto): void {
@@ -307,7 +514,10 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
     for (const sourceType of this.sourceSectionOrder) {
       const sectionItems = items.filter(item => item.sourceType === sourceType);
-      const mappedItems = this.mapItems(sectionItems);
+      const mappedItems =
+        sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT
+          ? this.mapVendorAllocationRows(sectionItems, detail)
+          : this.mapItems(sectionItems, detail);
       const table = this.sourceTables.get(sourceType);
 
       if (table) {
@@ -328,19 +538,9 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     }
 
     this.sourceGroups.set(groups);
-    this.updateDetailItemRowActions();
-  }
 
-  private updateDetailItemRowActions(): void {
-    const rowActions = buildPaymentSheetDetailItemsRowActionsConfig(
-      this.workflowPermissions,
-      () => this.getDetailWorkflowRow()
-    );
-
-    for (const table of this.sourceTables.values()) {
-      table.updateRowActions(
-        rowActions as Parameters<typeof table.updateRowActions>[0]
-      );
+    if (this.activeTabIndex() >= groups.length) {
+      this.activeTabIndex.set(0);
     }
   }
 
@@ -374,20 +574,29 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   private mapItems(
-    items: IPaymentSheetItemDetailDto[]
+    items: IPaymentSheetItemDetailDto[],
+    detail: IPaymentSheetDetailGetResponseDto
   ): IPaymentSheetDetailItemRow[] {
-    return items.map(item => ({
+    return items.map(item => this.mapItem(item, detail));
+  }
+
+  private mapItem(
+    item: IPaymentSheetItemDetailDto,
+    detail: IPaymentSheetDetailGetResponseDto
+  ): IPaymentSheetDetailItemRow {
+    return {
+      ...this.getWorkflowFields(detail),
       id: item.id,
-      actualDue: item.pendingSnapshot,
-      payableAmount: item.currentAmount,
+      beneficiaryId: item.userId ?? item.vendorId ?? '',
+      actualDue: item.actualDueAmount,
+      payableAmount: item.payableAmount,
+      remainingAmount: item.remainingAmount,
       beneficiaryName: item.user
         ? `${item.user.firstName} ${item.user.lastName}`.trim()
         : (item.vendor?.name ?? '-'),
-      beneficiaryCode: item.user?.employeeId ?? item.vendorId ?? '',
-      itemStatus: getMappedValueFromArrayOfObjects(
-        this.appConfigurationService.paymentSheetItemStatuses(),
-        item.itemStatus
-      ),
+      beneficiaryCode:
+        item.user?.employeeId ?? this.formatVendorLocation(item.vendor),
+      itemStatus: item.itemStatus,
       paidAt: item.paidAt ?? null,
       paymentRef: item.paymentRef ?? null,
       bankDetails: item.bankSnapshot
@@ -398,7 +607,71 @@ export class GetPaymentSheetDetailComponent implements OnInit {
             ifscCode: item.bankSnapshot.ifscCode,
           }
         : null,
-    }));
+      ...this.mapItemVerificationFields(item),
+    };
+  }
+
+  private mapItemVerificationFields(
+    item: IPaymentSheetItemDetailDto
+  ): Pick<
+    IPaymentSheetDetailItemRow,
+    'verifications' | 'verifiedStages' | 'isVerifiedForCurrentStage'
+  > {
+    return {
+      verifications: item.verifications,
+      verifiedStages: item.verifiedStages,
+      isVerifiedForCurrentStage: item.isVerifiedForCurrentStage,
+    };
+  }
+
+  private mapVendorAllocationRows(
+    items: IPaymentSheetItemDetailDto[],
+    detail: IPaymentSheetDetailGetResponseDto
+  ): IPaymentSheetDetailItemRow[] {
+    return items.flatMap(item => {
+      const bankDetails = item.bankSnapshot
+        ? {
+            bankHolderName: item.bankSnapshot.accountHolderName,
+            bankName: item.bankSnapshot.bankName,
+            accountNumber: item.bankSnapshot.accountNumber,
+            ifscCode: item.bankSnapshot.ifscCode,
+          }
+        : null;
+
+      return (item.bookPaymentAllocations ?? []).map(allocation => {
+        const { invoice } = allocation;
+
+        return {
+          ...this.getWorkflowFields(detail),
+          id: item.id,
+          beneficiaryId: item.vendorId ?? '',
+          beneficiaryName: item.vendor?.name ?? '-',
+          beneficiaryCode: this.formatVendorLocation(item.vendor),
+          companyName: invoice?.companyName ?? '-',
+          projectName: invoice?.projectName ?? '-',
+          projectCity: invoice?.city,
+          projectState: invoice?.state,
+          invoiceNumber: invoice?.invoiceNumber ?? '-',
+          invoiceDate: invoice?.invoiceDate ?? null,
+          actualDue: invoice?.actualDueAmount ?? item.actualDueAmount,
+          payableAmount: invoice?.payableAmount ?? item.payableAmount,
+          remainingAmount: invoice?.remainingAmount ?? item.remainingAmount,
+          itemStatus: item.itemStatus,
+          paidAt: item.paidAt ?? null,
+          paymentRef: item.paymentRef ?? null,
+          bankDetails,
+          ...this.mapItemVerificationFields(item),
+        };
+      });
+    });
+  }
+
+  private formatVendorLocation(
+    vendor: IPaymentSheetItemDetailDto['vendor']
+  ): string {
+    const location = [vendor?.city, vendor?.state].filter(Boolean).join(', ');
+
+    return location || '-';
   }
 
   private prepareItemRecordDetail(
@@ -423,73 +696,113 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   }
 
   private buildPageHeaderConfig(): IPageHeaderConfig {
-    const addDisabled = isPaymentSheetDetailActionDisabled(
-      this.getDetailWorkflowRow(),
-      this.workflowPermissions,
-      EPaymentSheetDetailAction.ADD_BENEFICIARY
-    );
+    const detail = this.detail();
+    const canAddBeneficiaries =
+      detail?.status === EPaymentSheetStatus.DRAFT ||
+      detail?.status === EPaymentSheetStatus.RETURNED;
 
     return {
-      title: 'Payment Sheet',
-      subtitle: 'Payment sheet beneficiaries',
+      title: detail?.sheetNumber ?? 'Payment Sheet Detail',
+      subtitle:
+        detail?.title?.trim() ?? 'Review sheet overview and beneficiaries',
       showHeaderButton: true,
       showGoBackButton: true,
       headerButtonConfig: [
+        {
+          id: EButtonActionType.DOWNLOAD,
+          actionName: EButtonActionType.DOWNLOAD,
+          label: 'Download PDF',
+          icon: ICONS.COMMON.DOWNLOAD,
+          permission: [APP_PERMISSION.PAYMENT_SHEET.DOWNLOAD],
+        },
         {
           id: EButtonActionType.ADD,
           actionName: EButtonActionType.ADD,
           label: 'Add Beneficiaries',
           icon: ICONS.COMMON.USERS,
-          severity: EButtonSeverity.PRIMARY,
-          permission: [APP_PERMISSION.PAYMENT_SHEET.CREATE],
-          disabled: addDisabled,
-          disabledTooltip: getPaymentSheetDetailActionDisableReason(
-            this.getDetailWorkflowRow(),
-            this.workflowPermissions,
-            EPaymentSheetDetailAction.ADD_BENEFICIARY
-          ),
+          permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_ADD],
+          disabled: !canAddBeneficiaries,
+          disabledTooltip: canAddBeneficiaries
+            ? undefined
+            : 'Add beneficiaries is only available while the payment sheet is in draft or returned.',
         },
       ],
     };
   }
 
-  private buildWorkflowButtonConfigs(): {
-    actionType: EPaymentSheetWorkflowActionType;
-    buttonConfig: Partial<IButtonConfig>;
-  }[] {
-    const workflowRow = this.getDetailWorkflowRow();
-    const detailAction = (
-      actionType: EPaymentSheetWorkflowActionType
-    ): EPaymentSheetDetailAction => toPaymentSheetDetailAction(actionType);
+  private getWorkflowFields(
+    detail: IPaymentSheetDetailGetResponseDto
+  ): Pick<IPaymentSheetDetailItemRow, 'status' | 'currentStage'> {
+    return {
+      status: detail.status,
+      currentStage: detail.currentStage,
+    };
+  }
 
-    return PAYMENT_SHEET_WORKFLOW_ACTION_TYPES.filter(actionType =>
-      this.appPermissionService.hasAnyPermission([
-        PAYMENT_SHEET_FORWARD_ACTION_PERMISSION[actionType],
-      ])
-    ).map(actionType => {
-      const disabled = isPaymentSheetDetailActionDisabled(
-        workflowRow,
-        this.workflowPermissions,
-        detailAction(actionType)
+  private buildSheetOverview(): IPaymentSheetOverviewView | undefined {
+    const detail = this.detail();
+
+    if (!detail) {
+      return undefined;
+    }
+
+    const { totalCurrentAmount } = detail;
+    const { totalPaidAmount } = detail;
+    const { verificationSummary } = detail;
+
+    return {
+      stageLabel: this.getDetailStageLabel(detail),
+      createdAt: detail.createdAt,
+      beneficiaryCount: detail.items.length,
+      verificationSummary: verificationSummary
+        ? {
+            verified: verificationSummary.verified,
+            total: verificationSummary.total,
+            allVerified: verificationSummary.allVerified,
+            stageLabel: getPaymentSheetVerificationStageLabel(
+              verificationSummary.stage
+            ),
+          }
+        : null,
+      totalRequestedAmount: detail.totalRequestedAmount,
+      totalCurrentAmount,
+      totalPaidAmount,
+      pendingAmount: Math.max(0, totalCurrentAmount - totalPaidAmount),
+      remarks: detail.remarks?.trim() ?? null,
+    };
+  }
+
+  private getDetailStageLabel(
+    detail: IPaymentSheetDetailGetResponseDto
+  ): string {
+    if (
+      detail.status === EPaymentSheetStatus.COMPLETED ||
+      detail.status === EPaymentSheetStatus.RETURNED
+    ) {
+      return getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.paymentSheetStatuses(),
+        detail.status
       );
+    }
 
-      return {
-        actionType,
-        buttonConfig: {
-          id: EButtonActionType.SUBMIT,
-          label:
-            PAYMENT_SHEET_DETAIL_ACTION_CONFIG_MAP[actionType].dialogConfig
-              ?.labels?.singleLabel ?? '',
-          icon: ICONS.ACTIONS.SEND,
-          severity: EButtonSeverity.SUCCESS,
-          disabled,
-          disabledTooltip: getPaymentSheetDetailActionDisableReason(
-            workflowRow,
-            this.workflowPermissions,
-            detailAction(actionType)
-          ),
-        },
-      };
-    });
+    if (detail.currentStage) {
+      return getMappedValueFromArrayOfObjects(
+        this.appConfigurationService.paymentSheetStages(),
+        detail.currentStage
+      );
+    }
+
+    return '—';
+  }
+
+  private getRecordCountLabel(
+    sourceType: EPaymentOutstandingSourceType
+  ): string {
+    const unit = getPaymentOutstandingSourceSectionMeta(
+      sourceType,
+      EPaymentOutstandingSectionContext.PAYMENT_SHEET
+    ).recordCountUnit;
+
+    return unit === 'vendor' ? 'Vendors' : 'Employees';
   }
 }

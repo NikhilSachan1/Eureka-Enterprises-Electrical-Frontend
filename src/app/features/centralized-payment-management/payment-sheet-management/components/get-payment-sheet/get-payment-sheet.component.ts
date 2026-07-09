@@ -8,15 +8,18 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
-import { AppPermissionService, LoggerService } from '@core/services';
+import { LoggerService } from '@core/services';
+import { AuthService } from '@features/auth-management/services/auth.service';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
+import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
+  DrawerService,
   RouterNavigationService,
   TableServerSideParamsBuilderService,
   TableService,
@@ -24,6 +27,7 @@ import {
 import {
   EButtonActionType,
   EDataType,
+  EDrawerSize,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
@@ -34,17 +38,33 @@ import {
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
-import { SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG } from '../../config/form/search-filter-payment-sheet.config';
-import { PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP } from '../../config/dialog/get-payment-sheet-list.config';
-import { buildPaymentSheetTableEnhancedConfig } from '../../config/table/get-payment-sheet.config';
-import { getPaymentSheetWorkflowPermissions } from '../../utils/payment-sheet-status.util';
+import {
+  PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP,
+  getPaymentSheetTableEnhancedConfig,
+  SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG,
+} from '../../config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
+import { PaymentSheetTimelineDrawerComponent } from '../payment-sheet-timeline-drawer/payment-sheet-timeline-drawer.component';
+import {
+  EPaymentSheetStage,
+  EPaymentSheetStatus,
+  EPaymentSheetTimelineMode,
+} from '../../types/payment-sheet.enum';
 import {
   IPaymentSheetGetBaseResponseDto,
   IPaymentSheetGetFormDto,
   IPaymentSheetGetResponseDto,
 } from '../../types/payment-sheet.dto';
 import { IPaymentSheet } from '../../types/payment-sheet.interface';
+
+type TPaymentSheetWorkflowStepState = 'complete' | 'current' | 'pending';
+
+const PAYMENT_SHEET_LIST_WORKFLOW_STEPS = [
+  { stage: EPaymentSheetStage.INITIATION, shortLabel: 'Draft' },
+  { stage: EPaymentSheetStage.HR_REVIEW, shortLabel: 'HR' },
+  { stage: EPaymentSheetStage.ADMIN_REVIEW, shortLabel: 'Admin' },
+  { stage: EPaymentSheetStage.PROCESSING, shortLabel: 'Accounts' },
+] as const;
 
 @Component({
   selector: 'app-get-payment-sheet',
@@ -53,6 +73,7 @@ import { IPaymentSheet } from '../../types/payment-sheet.interface';
     SearchFilterComponent,
     DataTableComponent,
     PaymentSheetAmountsCellComponent,
+    StatusTagComponent,
   ],
   templateUrl: './get-payment-sheet.component.html',
   styleUrl: './get-payment-sheet.component.scss',
@@ -71,7 +92,8 @@ export class GetPaymentSheetComponent implements OnInit {
   private readonly confirmationDialogService = inject(
     ConfirmationDialogService
   );
-  private readonly appPermissionService = inject(AppPermissionService);
+  private readonly drawerService = inject(DrawerService);
+  private readonly authService = inject(AuthService);
 
   protected table!: IEnhancedTable;
   protected tableFilterData!: TableLazyLoadEvent;
@@ -79,11 +101,11 @@ export class GetPaymentSheetComponent implements OnInit {
 
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
 
+  protected readonly workflowSteps = PAYMENT_SHEET_LIST_WORKFLOW_STEPS;
+
   ngOnInit(): void {
     this.table = this.dataTableService.createTable(
-      buildPaymentSheetTableEnhancedConfig(
-        getPaymentSheetWorkflowPermissions(this.appPermissionService)
-      )
+      getPaymentSheetTableEnhancedConfig(this.authService.user()?.activeRole)
     );
     this.searchFilterConfig = SEARCH_FILTER_PAYMENT_SHEET_FORM_CONFIG;
   }
@@ -94,6 +116,73 @@ export class GetPaymentSheetComponent implements OnInit {
 
   protected isFullyPaid(row: IPaymentSheet): boolean {
     return row.totalCurrentAmount > 0 && this.getPendingAmount(row) <= 0;
+  }
+
+  protected shouldShowWorkflowTimeline(row: IPaymentSheet): boolean {
+    const { status, currentStage } = row;
+
+    if (
+      status === EPaymentSheetStatus.REJECTED ||
+      status === EPaymentSheetStatus.RETURNED
+    ) {
+      return Boolean(currentStage);
+    }
+
+    return true;
+  }
+
+  protected getWorkflowStepState(
+    row: IPaymentSheet,
+    stepIndex: number
+  ): TPaymentSheetWorkflowStepState {
+    const status = row.status as EPaymentSheetStatus;
+    const currentIndex = this.getWorkflowStageIndex(row.currentStage);
+
+    if (status === EPaymentSheetStatus.COMPLETED) {
+      return 'complete';
+    }
+
+    if (
+      status === EPaymentSheetStatus.DRAFT ||
+      status === EPaymentSheetStatus.RETURNED
+    ) {
+      if (currentIndex >= 0) {
+        if (stepIndex < currentIndex) {
+          return 'complete';
+        }
+        if (stepIndex === currentIndex) {
+          return 'current';
+        }
+        return 'pending';
+      }
+
+      return stepIndex === 0 ? 'current' : 'pending';
+    }
+
+    if (status === EPaymentSheetStatus.REJECTED) {
+      if (currentIndex === -1) {
+        return stepIndex === 0 ? 'current' : 'pending';
+      }
+      if (stepIndex < currentIndex) {
+        return 'complete';
+      }
+      if (stepIndex === currentIndex) {
+        return 'current';
+      }
+      return 'pending';
+    }
+
+    if (currentIndex === -1) {
+      return stepIndex === 0 ? 'current' : 'pending';
+    }
+
+    if (stepIndex < currentIndex) {
+      return 'complete';
+    }
+    if (stepIndex === currentIndex) {
+      return 'current';
+    }
+    return 'pending';
   }
 
   protected onTableStateChange(tableFilterData: TableLazyLoadEvent): void {
@@ -113,6 +202,25 @@ export class GetPaymentSheetComponent implements OnInit {
         ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEETS,
         selectedRow.id,
       ]);
+      return;
+    }
+
+    if (actionType === EButtonActionType.WORKFLOW_JOURNEY && selectedRow?.id) {
+      this.openWorkflowDrawer(selectedRow);
+      return;
+    }
+
+    if (actionType === EButtonActionType.DOWNLOAD && selectedRow?.id) {
+      this.confirmationDialogService.showConfirmationDialog(
+        EButtonActionType.DOWNLOAD,
+        PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP[EButtonActionType.DOWNLOAD],
+        null,
+        false,
+        false,
+        {
+          paymentSheetId: selectedRow.id,
+        }
+      );
       return;
     }
 
@@ -141,18 +249,42 @@ export class GetPaymentSheetComponent implements OnInit {
     }
   }
 
+  private openWorkflowDrawer(row: IPaymentSheet): void {
+    const raw = row.originalRawData ?? row;
+
+    this.drawerService.showDrawer(PaymentSheetTimelineDrawerComponent, {
+      header: 'Activity Timeline',
+      subtitle: 'View payment sheet workflow and activity history',
+      size: EDrawerSize.SMALL,
+      componentData: {
+        mode: EPaymentSheetTimelineMode.WORKFLOW,
+        paymentSheetId: raw.id,
+        sheetNumber: raw.sheetNumber,
+        contextSubtitle: raw.title?.trim() ? raw.title.trim() : '—',
+      },
+    });
+  }
+
   private preparePaymentSheetRecordDetail(
     row: IPaymentSheet
   ): IDataViewDetailsWithEntity {
     const entryData: IDataViewDetails['entryData'] = [
       {
         label: 'Status',
-        value: row.status,
+        value: getMappedValueFromArrayOfObjects(
+          this.appConfigurationService.paymentSheetStatuses(),
+          row.originalRawData?.status ?? row.status
+        ),
         type: EDataType.TEXT,
       },
       {
         label: 'Current Stage',
-        value: row.currentStage,
+        value: row.originalRawData?.currentStage
+          ? getMappedValueFromArrayOfObjects(
+              this.appConfigurationService.paymentSheetStages(),
+              row.originalRawData.currentStage
+            )
+          : '—',
         type: EDataType.TEXT,
       },
       {
@@ -214,18 +346,24 @@ export class GetPaymentSheetComponent implements OnInit {
     return records.map(record => ({
       ...record,
       title: record.title?.trim() ?? '—',
-      status: getMappedValueFromArrayOfObjects(
+      status: record.status,
+      statusLabel: getMappedValueFromArrayOfObjects(
         this.appConfigurationService.paymentSheetStatuses(),
         record.status
       ),
-      currentStage: record.currentStage
-        ? getMappedValueFromArrayOfObjects(
-            this.appConfigurationService.paymentSheetStages(),
-            record.currentStage
-          )
-        : '—',
+      currentStage: record.currentStage,
       originalRawData: record,
     }));
+  }
+
+  private getWorkflowStageIndex(stage: string | null | undefined): number {
+    if (!stage) {
+      return -1;
+    }
+
+    return PAYMENT_SHEET_LIST_WORKFLOW_STEPS.findIndex(
+      step => step.stage === stage
+    );
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

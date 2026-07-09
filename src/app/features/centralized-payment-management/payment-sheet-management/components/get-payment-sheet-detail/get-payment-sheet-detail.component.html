@@ -4,22 +4,93 @@
     (headerButtonClick)="onHeaderButtonClick($event)"
   />
 
+  @if (sheetOverview(); as overview) {
+    <section
+      class="ps-overview"
+      aria-label="Payment sheet detail"
+    >
+      <div class="ps-overview__body">
+        <div class="ps-overview__info">
+          <div class="ps-overview__facts">
+            <div class="ps-overview__fact">
+              <span class="ps-overview__fact-label">Stage</span>
+              <span class="ps-overview__fact-value">{{ overview.stageLabel }}</span>
+            </div>
+            <div class="ps-overview__fact">
+              <span class="ps-overview__fact-label">Created</span>
+              <span class="ps-overview__fact-value">
+                {{ overview.createdAt | date: overviewDateFormat : undefined : paidAtDateLocale }}
+              </span>
+            </div>
+            <div class="ps-overview__fact">
+              <span class="ps-overview__fact-label">Beneficiaries</span>
+              <span class="ps-overview__fact-value">{{ overview.beneficiaryCount }}</span>
+            </div>
+            @if (overview.verificationSummary; as verification) {
+              <div class="ps-overview__fact">
+                <span class="ps-overview__fact-label">Verified ({{ verification.stageLabel }})</span>
+                <span
+                  class="ps-overview__fact-value"
+                  [class.ps-overview__fact-value--complete]="verification.allVerified"
+                >
+                  {{ verification.verified }} / {{ verification.total }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="ps-overview__totals">
+          <div class="ps-overview__amounts">
+            <div class="ps-overview__amount">
+              <span class="ps-overview__amount-label">Requested</span>
+              <span class="ps-overview__amount-value">
+                {{ overview.totalRequestedAmount | currency: currencyFormat }}
+              </span>
+            </div>
+            <div class="ps-overview__amount">
+              <span class="ps-overview__amount-label">Payable</span>
+              <span class="ps-overview__amount-value">
+                {{ overview.totalCurrentAmount | currency: currencyFormat }}
+              </span>
+            </div>
+            <div class="ps-overview__amount">
+              <span class="ps-overview__amount-label">Paid</span>
+              <span class="ps-overview__amount-value">{{ overview.totalPaidAmount | currency: currencyFormat }}</span>
+            </div>
+            <div
+              class="ps-overview__amount"
+              [class.ps-overview__amount--pending]="overview.pendingAmount > 0"
+            >
+              <span class="ps-overview__amount-label">Pending</span>
+              <span class="ps-overview__amount-value">{{ overview.pendingAmount | currency: currencyFormat }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      @if (overview.remarks) {
+        <footer class="ps-overview__remarks">
+          <span class="ps-overview__remarks-label">Remarks</span>
+          <p class="ps-overview__remarks-text">{{ overview.remarks }}</p>
+        </footer>
+      }
+    </section>
+  }
+
   <section class="ps-detail">
     @if (!sourceGroups().length) {
       <app-empty-messages
         title="No beneficiaries on this payment sheet."
         description="This payment sheet does not contain any line items yet."
       />
-    }
-
-    @for (group of sourceGroups(); track group.sourceType) {
+    } @else {
       <app-payment-outstanding-section
-        class="ps-detail__section"
-        [sourceType]="group.sourceType"
-        [sectionContext]="EPaymentOutstandingSectionContext.PAYMENT_SHEET"
-        [recordCount]="group.recordCount"
-        [totalPendingAmount]="group.totalCurrentAmount"
+        [overviewCards]="sectionOverview()"
+        [tabs]="detailTabs()"
+        [(activeTabIndex)]="activeTabIndex"
         [showSearch]="false"
+        overviewAriaLabel="Payment sheet source breakdown"
       >
         <ng-template
           #itemAmountsCell
@@ -40,28 +111,152 @@
         </ng-template>
 
         <ng-template
-          #itemPaymentCell
+          #itemStatusCell
           let-row
         >
-          @if (row.paidAt || row.paymentRef) {
-            <div class="ps-detail-payment">
-              @if (row.paidAt) {
-                <div class="ps-detail-payment__tile">
-                  <span class="ps-detail-payment__label">Paid At</span>
-                  <span class="ps-detail-payment__value">
-                    {{ row.paidAt | date: paidAtDateFormat : undefined : paidAtDateLocale }}
-                  </span>
+          @if (hasStatusContext(row)) {
+            <div class="ps-detail-verification">
+              @for (stage of getVisibleVerificationStages(row); track stage) {
+                @if (getVerificationForStage(row, stage); as verification) {
+                  <div
+                    class="ps-detail-verification__row ps-detail-verification__row--verified"
+                    [class.ps-detail-verification__row--current]="isCurrentVerificationStage(stage)"
+                  >
+                    <i
+                      [class]="
+                        ICONS.COMMON.CHECK_TICK + ' ps-detail-verification__icon ps-detail-verification__icon--verified'
+                      "
+                      aria-hidden="true"
+                    ></i>
+                    <div class="ps-detail-verification__body">
+                      <span class="ps-detail-verification__stage">
+                        {{ getVerificationStageLabel(stage) }}
+                      </span>
+                      <div class="ps-detail-verification__meta-stack">
+                        <span class="ps-detail-verification__meta-line">
+                          {{ verification.verifiedByName }}
+                        </span>
+                        <span class="ps-detail-verification__meta-line">
+                          {{ verification.verifiedAt | date: verifiedAtDateFormat : undefined : paidAtDateLocale }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <div
+                    class="ps-detail-verification__row ps-detail-verification__row--pending"
+                    [class.ps-detail-verification__row--current]="isCurrentVerificationStage(stage)"
+                  >
+                    <i
+                      class="pi pi-circle ps-detail-verification__icon ps-detail-verification__icon--pending"
+                      aria-hidden="true"
+                    ></i>
+                    <div class="ps-detail-verification__body">
+                      <span class="ps-detail-verification__stage">
+                        {{ getVerificationStageLabel(stage) }}
+                      </span>
+                      <span class="ps-detail-verification__meta">Pending approval</span>
+                    </div>
+                  </div>
+                }
+              }
+
+              @if (shouldShowPaymentStatus(row)) {
+                @if (isItemPaid(row)) {
+                  <div
+                    class="ps-detail-verification__row ps-detail-verification__row--verified"
+                    [class.ps-detail-verification__row--current]="isCurrentPaymentStage()"
+                  >
+                    <i
+                      [class]="
+                        ICONS.COMMON.CHECK_TICK + ' ps-detail-verification__icon ps-detail-verification__icon--verified'
+                      "
+                      aria-hidden="true"
+                    ></i>
+                    <div class="ps-detail-verification__body">
+                      <span class="ps-detail-verification__stage">Accounts</span>
+                      <div class="ps-detail-verification__meta-stack">
+                        @if (row.paidAt) {
+                          <span class="ps-detail-verification__meta-line">
+                            {{ row.paidAt | date: paidAtDateFormat : undefined : paidAtDateLocale }}
+                          </span>
+                        } @else {
+                          <span class="ps-detail-verification__meta-line">Paid</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <div
+                    class="ps-detail-verification__row ps-detail-verification__row--pending"
+                    [class.ps-detail-verification__row--current]="isCurrentPaymentStage()"
+                  >
+                    <i
+                      class="pi pi-circle ps-detail-verification__icon ps-detail-verification__icon--pending"
+                      aria-hidden="true"
+                    ></i>
+                    <div class="ps-detail-verification__body">
+                      <span class="ps-detail-verification__stage">Accounts</span>
+                      <span class="ps-detail-verification__meta">Pending payment</span>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          } @else {
+            <span class="ps-detail-verification__empty">-</span>
+          }
+        </ng-template>
+
+        <ng-template
+          #companyProjectCell
+          let-row
+        >
+          @if (hasCompanyProjectContext(row)) {
+            <div class="ps-detail-site">
+              @if (row.companyName) {
+                <div class="ps-detail-site__panel ps-detail-site__panel--company">
+                  <div
+                    class="ps-detail-site__icon ps-detail-site__icon--company"
+                    aria-hidden="true"
+                  >
+                    <i [class]="ICONS.SITE.BUILDING"></i>
+                  </div>
+                  <div class="ps-detail-site__body">
+                    <span class="ps-detail-site__label">Company</span>
+                    <strong class="ps-detail-site__title">{{ row.companyName }}</strong>
+                  </div>
                 </div>
               }
-              @if (row.paymentRef) {
-                <div class="ps-detail-payment__tile">
-                  <span class="ps-detail-payment__label">Payment Ref</span>
-                  <span class="ps-detail-payment__value">{{ row.paymentRef }}</span>
+
+              @if (row.projectName || getProjectLocation(row)) {
+                <div class="ps-detail-site__panel ps-detail-site__panel--project">
+                  <div
+                    class="ps-detail-site__icon ps-detail-site__icon--project"
+                    aria-hidden="true"
+                  >
+                    <i [class]="ICONS.COMMON.BRIEFCASE"></i>
+                  </div>
+                  <div class="ps-detail-site__body">
+                    <span class="ps-detail-site__label">Project</span>
+                    @if (row.projectName) {
+                      <strong class="ps-detail-site__title">{{ row.projectName }}</strong>
+                    }
+                    @if (getProjectLocation(row)) {
+                      <span class="ps-detail-site__location">
+                        <i
+                          [class]="ICONS.COMMON.MAP_MARKER"
+                          aria-hidden="true"
+                        ></i>
+                        {{ getProjectLocation(row) }}
+                      </span>
+                    }
+                  </div>
                 </div>
               }
             </div>
           } @else {
-            <span class="ps-detail-payment__empty">-</span>
+            <span class="ps-detail-site__empty">-</span>
           }
         </ng-template>
 
@@ -72,29 +267,38 @@
           <app-bank-details-cell [bankDetails]="row.bankDetails" />
         </ng-template>
 
-        <app-data-table
-          [tableConfig]="group.table.tableConfig()"
-          [tableHeader]="group.table.headers()"
-          [tableData]="group.table.data()"
-          [loading]="group.table.loading()"
-          [bulkActionButtons]="group.table.bulkActions()"
-          [rowActions]="group.table.rowActions()"
-          [customBodyTemplates]="{
-            itemAmountsCell: itemAmountsCell,
-            itemPaymentCell: itemPaymentCell,
-            bankDetailsCell: bankDetailsCell,
-          }"
-          (rowActionClick)="handlePaymentSheetItemActionClick($any($event))"
-        />
+        @for (group of sourceGroups(); track group.sourceType; let tabIndex = $index) {
+          <div
+            class="outstanding-tab-panel"
+            [class.outstanding-tab-panel--active]="activeTabIndex() === tabIndex"
+          >
+            <app-data-table
+              [tableConfig]="group.table.tableConfig()"
+              [tableHeader]="group.table.headers()"
+              [tableData]="group.table.data()"
+              [loading]="group.table.loading()"
+              [bulkActionButtons]="group.table.bulkActions()"
+              [rowActions]="group.table.rowActions()"
+              [customBodyTemplates]="{
+                itemAmountsCell: itemAmountsCell,
+                itemStatusCell: itemStatusCell,
+                companyProjectCell: companyProjectCell,
+                bankDetailsCell: bankDetailsCell,
+              }"
+              (rowActionClick)="handlePaymentSheetItemActionClick($any($event), false)"
+              (bulkActionClick)="handlePaymentSheetItemActionClick($any($event), true)"
+            />
+          </div>
+        }
       </app-payment-outstanding-section>
     }
   </section>
 
   <footer class="button-container ps-detail__forward">
-    @for (item of workflowButtonConfigs(); track item.actionType) {
+    @for (buttonConfig of permittedWorkflowButtons(); track buttonConfig.actionName) {
       <app-button
-        [buttonConfig]="item.buttonConfig"
-        (onButtonClick)="onWorkflowActionClick(item.actionType)"
+        [buttonConfig]="buttonConfig"
+        (onButtonClick)="onWorkflowActionClick($event)"
       />
     }
   </footer>

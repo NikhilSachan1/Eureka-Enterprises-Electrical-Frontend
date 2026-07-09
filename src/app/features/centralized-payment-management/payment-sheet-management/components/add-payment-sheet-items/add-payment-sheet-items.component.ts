@@ -5,6 +5,7 @@ import {
   DestroyRef,
   inject,
   input,
+  model,
   OnInit,
   signal,
 } from '@angular/core';
@@ -14,6 +15,11 @@ import { GetExpenseOutstandingComponent } from '@features/centralized-payment-ma
 import { IExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/expense-payment-management/types/expense-outstanding.dto';
 import { GetFuelExpenseOutstandingComponent } from '@features/centralized-payment-management/fuel-expense-payment-management/components/get-fuel-expense-outstanding/get-fuel-expense-outstanding.component';
 import { IFuelExpenseOutstandingGetBaseResponseDto } from '@features/centralized-payment-management/fuel-expense-payment-management/types/fuel-expense-outstanding.dto';
+import { GetVendorOutstandingComponent } from '@features/centralized-payment-management/vendor-payment-management/components/get-vendor-outstanding/get-vendor-outstanding.component';
+import { IVendorBookPaymentTableRow } from '@features/centralized-payment-management/vendor-payment-management/types/vendor-outstanding.interface';
+import { PaymentOutstandingSectionComponent } from '@features/centralized-payment-management/shared/components/payment-outstanding-section/payment-outstanding-section.component';
+import { EPaymentOutstandingSourceType } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
+import { getPaymentSourceTabLabel } from '@features/centralized-payment-management/shared/utils/payment-source-tab.util';
 import {
   ConfirmationDialogService,
   LoadingService,
@@ -32,7 +38,12 @@ import { buildPaymentSheetItemsFromOutstanding } from '../../utils/build-payment
 
 @Component({
   selector: 'app-add-payment-sheet-items',
-  imports: [GetExpenseOutstandingComponent, GetFuelExpenseOutstandingComponent],
+  imports: [
+    PaymentOutstandingSectionComponent,
+    GetExpenseOutstandingComponent,
+    GetFuelExpenseOutstandingComponent,
+    GetVendorOutstandingComponent,
+  ],
   templateUrl: './add-payment-sheet-items.component.html',
   styleUrl: './add-payment-sheet-items.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,6 +70,33 @@ export class AddPaymentSheetItemsComponent
   protected readonly selectedFuelRecords = signal<
     IFuelExpenseOutstandingGetBaseResponseDto[]
   >([]);
+  protected readonly selectedVendorBookPayments = signal<
+    IVendorBookPaymentTableRow[]
+  >([]);
+
+  protected readonly activeTabIndex = model(0);
+
+  protected readonly beneficiaryTabs = computed(() => [
+    {
+      value: EPaymentOutstandingSourceType.EXPENSE,
+      label: getPaymentSourceTabLabel(EPaymentOutstandingSourceType.EXPENSE),
+      badgeCount: this.selectedExpenseRecords().length,
+    },
+    {
+      value: EPaymentOutstandingSourceType.FUEL_EXPENSE,
+      label: getPaymentSourceTabLabel(
+        EPaymentOutstandingSourceType.FUEL_EXPENSE
+      ),
+      badgeCount: this.selectedFuelRecords().length,
+    },
+    {
+      value: EPaymentOutstandingSourceType.VENDOR_PAYMENT,
+      label: getPaymentSourceTabLabel(
+        EPaymentOutstandingSourceType.VENDOR_PAYMENT
+      ),
+      badgeCount: this.selectedVendorBookPayments().length,
+    },
+  ]);
 
   protected readonly excludedExpenseUserIds = computed(
     () =>
@@ -85,6 +123,21 @@ export class AddPaymentSheetItemsComponent
       )
   );
 
+  protected readonly excludedBookPaymentIds = computed(
+    () =>
+      new Set(
+        this.existingItems()
+          .filter(
+            item => item.sourceType === EPaymentSheetSourceType.VENDOR_PAYMENT
+          )
+          .flatMap(item =>
+            (item.bookPaymentAllocations ?? []).map(
+              allocation => allocation.bookPaymentId
+            )
+          )
+      )
+  );
+
   ngOnInit(): void {
     if (!this.paymentSheetId()) {
       this.confirmationDialogService.closeDialog();
@@ -94,13 +147,22 @@ export class AddPaymentSheetItemsComponent
   onDialogAccept(): void {
     const expenseRecords = this.selectedExpenseRecords();
     const fuelRecords = this.selectedFuelRecords();
+    const vendorBookPayments = this.selectedVendorBookPayments();
 
-    if (!expenseRecords.length && !fuelRecords.length) {
+    if (
+      !expenseRecords.length &&
+      !fuelRecords.length &&
+      !vendorBookPayments.length
+    ) {
       return;
     }
 
     this.executeAddPaymentSheetItemsAction({
-      items: buildPaymentSheetItemsFromOutstanding(expenseRecords, fuelRecords),
+      items: buildPaymentSheetItemsFromOutstanding(
+        expenseRecords,
+        fuelRecords,
+        vendorBookPayments
+      ),
     });
   }
 
@@ -114,6 +176,12 @@ export class AddPaymentSheetItemsComponent
     records: IFuelExpenseOutstandingGetBaseResponseDto[]
   ): void {
     this.selectedFuelRecords.set(records);
+  }
+
+  protected onVendorSelectionChange(
+    records: IVendorBookPaymentTableRow[]
+  ): void {
+    this.selectedVendorBookPayments.set(records);
   }
 
   private executeAddPaymentSheetItemsAction(

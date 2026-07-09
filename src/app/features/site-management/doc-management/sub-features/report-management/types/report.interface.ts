@@ -6,7 +6,14 @@ import { IReportGetBaseResponseDto } from './report.dto';
 export interface IReport
   extends Pick<
     IReportGetBaseResponseDto,
-    'id' | 'reportDate' | 'contractor' | 'jmc'
+    | 'id'
+    | 'reportDate'
+    | 'contractor'
+    | 'jmc'
+    | 'isLocked'
+    | 'unlockRequestedAt'
+    | 'unlockRequestedByUser'
+    | 'unlockReason'
   > {
   docWorkspaceContext: IDocWorkspaceContextView;
   fileKeys: string[];

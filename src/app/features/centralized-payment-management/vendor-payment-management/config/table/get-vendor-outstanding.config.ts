@@ -5,33 +5,23 @@ import {
   IDataTableHeaderConfig,
   IEnhancedTableConfig,
 } from '@shared/types';
-import { IVendorOutstandingGetBaseResponseDto } from '../../types/vendor-outstanding.dto';
+import { IVendorBookPaymentTableRow } from '../../types/vendor-outstanding.interface';
 
-export const VENDOR_OUTSTANDING_TABLE_CONFIG: Partial<IDataTableConfig> = {
-  emptyMessage: 'No vendor outstanding record found.',
-  emptyMessageDescription: 'There are no pending vendor payments to be paid.',
+export const VENDOR_OUTSTANDING_OPS_TABLE_CONFIG: Partial<IDataTableConfig> = {
+  emptyMessage: 'No bookings found for this invoice.',
+  emptyMessageDescription:
+    'Booked payment entries for this invoice will appear here.',
+  showCheckbox: true,
+  showPaginator: false,
 };
 
-export const VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
+export const VENDOR_OUTSTANDING_OPS_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] =
   [
     {
-      field: 'vendorName',
-      header: 'Vendor Name',
-      bodyTemplate: EDataType.TEXT,
-      showImage: true,
-      dummyImageField: 'vendorName',
-      primaryFieldHighlight: true,
-      serverSideFilterAndSortConfig: {
-        sortField: 'vendorName',
-        filterField: 'vendorName',
-      },
-    },
-    {
-      field: 'bankDetails',
-      header: 'Bank Details',
-      bodyTemplate: EDataType.TEXT,
-      customTemplateKey: 'bankDetailsCell',
-      columnStyleClass: 'cell-allow-wrap',
+      field: 'bookingDate',
+      header: 'Booking Date',
+      bodyTemplate: EDataType.DATE,
+      dataType: EDataType.DATE,
       showSort: false,
     },
     {
@@ -40,17 +30,14 @@ export const VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderCon
       bodyTemplate: EDataType.CURRENCY,
       dataType: EDataType.NUMBER,
       currencyFormat: APP_CONFIG.CURRENCY_CONFIG.DEFAULT,
-      serverSideFilterAndSortConfig: {
-        sortField: 'pendingAmount',
-      },
       showSort: false,
     },
   ];
 
-export function createVendorOutstandingTableEnhancedConfig(): IEnhancedTableConfig<IVendorOutstandingGetBaseResponseDto> {
+export function createVendorOutstandingTableEnhancedConfig(): IEnhancedTableConfig<IVendorBookPaymentTableRow> {
   return {
-    tableConfig: VENDOR_OUTSTANDING_TABLE_CONFIG,
-    headers: VENDOR_OUTSTANDING_TABLE_HEADER_CONFIG,
+    tableConfig: VENDOR_OUTSTANDING_OPS_TABLE_CONFIG,
+    headers: VENDOR_OUTSTANDING_OPS_TABLE_HEADER_CONFIG,
     rowActions: [],
     bulkActions: [],
   };

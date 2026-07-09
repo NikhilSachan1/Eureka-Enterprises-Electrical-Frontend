@@ -42,3 +42,11 @@ export {
   UpdatePaymentSheetItemRequestSchema,
   UpdatePaymentSheetItemResponseSchema,
 } from './update-payment-sheet-item.schema';
+export {
+  VerifyPaymentSheetItemsRequestSchema,
+  VerifyPaymentSheetItemsResponseSchema,
+} from './verify-payment-sheet-items.schema';
+export {
+  UnverifyPaymentSheetItemsRequestSchema,
+  UnverifyPaymentSheetItemsResponseSchema,
+} from './unverify-payment-sheet-items.schema';

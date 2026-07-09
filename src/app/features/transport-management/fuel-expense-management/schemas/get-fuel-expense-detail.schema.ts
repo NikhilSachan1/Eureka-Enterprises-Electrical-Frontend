@@ -29,6 +29,16 @@ export const FuelExpenseDetailGetResponseSchema = z.looseObject({
       fuelLiters: z.string().nullable(),
       fuelAmount: z.string(),
       pumpMeterReading: z.string().nullable(),
+      paidFromAccount: z
+        .looseObject({
+          accountHolderName: z.string().nullable(),
+          bankName: z.string().nullable(),
+          accountNumber: z.string().nullable(),
+          ifscCode: z.string().nullable(),
+          branchName: z.string().nullable(),
+        })
+        .nullable()
+        .optional(),
       user: UserSchema,
       createdByUser: UserSchema,
       updatedByUser: makeFieldsNullable(UserSchema).nullable(),

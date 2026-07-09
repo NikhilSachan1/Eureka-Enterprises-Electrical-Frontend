@@ -44,6 +44,12 @@ export const APP_PERMISSION = {
     DELETE: 'company.delete',
     CHANGE_STATUS: 'company.change-status',
   },
+  COMPANY_BANK_ACCOUNT: {
+    TABLE_VIEW: 'financials.company-bank-accounts.view',
+    ADD: 'financials.company-bank-accounts.create',
+    EDIT: 'financials.company-bank-accounts.update',
+    DELETE: 'financials.company-bank-accounts.delete',
+  },
   CONTRACTOR: {
     VIEW_DETAIL: 'contractor.view.detail',
     TABLE_VIEW: 'contractor.view.table',
@@ -235,6 +241,9 @@ export const APP_PERMISSION = {
     ADD: 'financials.site-reports.create',
     EDIT: 'financials.site-reports.update',
     DELETE: 'financials.site-reports.delete',
+    UNLOCK: 'financials.site-reports.unlock',
+    UNLOCK_GRANT: 'financials.site-reports.unlock-grant',
+    UNLOCK_REQUEST_REJECT: 'financials.site-reports.unlock-request-reject',
   },
   INVOICE_DOC: {
     VIEW_DETAIL: 'financials.invoices.view.detail',
@@ -254,6 +263,9 @@ export const APP_PERMISSION = {
     ADD: 'financials.book-payments.create',
     EDIT: 'financials.book-payments.update',
     DELETE: 'financials.book-payments.delete',
+    UNLOCK: 'financials.book-payments.unlock',
+    UNLOCK_GRANT: 'financials.book-payments.unlock-grant',
+    UNLOCK_REQUEST_REJECT: 'financials.book-payments.unlock-request-reject',
   },
   BANK_TRANSFER_DOC: {
     VIEW_DETAIL: 'financials.bank-transfers.view.detail',
@@ -286,11 +298,21 @@ export const APP_PERMISSION = {
     REJECT: 'financials.tds.revert',
   },
   PAYMENT_SHEET: {
-    TABLE_VIEW: 'financials.payment-sheets.view',
+    VIEW_LIST: 'financials.payment-sheets.view-list',
+    VIEW_DETAIL: 'financials.payment-sheets.view-detail',
     CREATE: 'financials.payment-sheets.create',
-    HR_REVIEW: 'financials.payment-sheets.review',
-    ADMIN_REVIEW: 'financials.payment-sheets.admin-review',
-    ACCOUNTS_PROCESS: 'financials.payment-sheets.process',
+    UPDATE: 'financials.payment-sheets.update',
+    SUBMIT: 'financials.payment-sheets.submit',
+    FORWARD: 'financials.payment-sheets.forward',
+    RETURN: 'financials.payment-sheets.return',
+    REJECT: 'financials.payment-sheets.sheet-reject',
+    BENEFICIARY_ADD: 'financials.payment-sheets.item-add',
+    BENEFICIARY_EDIT: 'financials.payment-sheets.item-edit',
+    BENEFICIARY_REMOVE: 'financials.payment-sheets.item-remove',
+    BENEFICIARY_REJECT: 'financials.payment-sheets.item-reject',
+    BENEFICIARY_PAY: 'financials.payment-sheets.item-pay',
+    BENEFICIARY_VERIFY: 'financials.payment-sheets.beneficiary-verify',
+    BENEFICIARY_UNVERIFY: 'financials.payment-sheets.beneficiary-unverify',
     DOWNLOAD: 'financials.payment-sheets.download',
   },
   OUTSTANDING_PAYMENT_SHEETS: {
@@ -311,6 +333,8 @@ export const APP_PERMISSION = {
     EXPENSE: {
       TABLE_EMPLOYEE_NAME: 'ui_expense_table_employee_name',
       SEARCH_FILTER_EMPLOYEE_NAME: 'ui_expense_search_filter_employee_name',
+      SEARCH_FILTER_PAID_FROM_ACCOUNT:
+        'ui_expense_search_filter_paid_from_account',
     },
     LEAVE: {
       TABLE_EMPLOYEE_NAME: 'ui_leave_table_employee_name',
@@ -320,6 +344,8 @@ export const APP_PERMISSION = {
       TABLE_EMPLOYEE_NAME: 'ui_fuel_expense_table_employee_name',
       SEARCH_FILTER_EMPLOYEE_NAME:
         'ui_fuel_expense_search_filter_employee_name',
+      SEARCH_FILTER_PAID_FROM_ACCOUNT:
+        'ui_fuel_expense_search_filter_paid_from_account',
     },
     VEHICLE_READING: {
       SEARCH_FILTER_EMPLOYEE_NAME:
@@ -405,6 +431,14 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.SUPER_ADMIN]: true,
       [EUserRole.HR]: true,
     },
+    SEARCH_FILTER_PAID_FROM_ACCOUNT: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: false,
+      [EUserRole.EMPLOYEE]: false,
+      [EUserRole.OPERATION_MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: true,
+    },
   },
   FUEL_EXPENSE: {
     TABLE_EMPLOYEE_NAME: {
@@ -416,6 +450,14 @@ export const UI_PERMISSIONS_ROLE_MAP = {
       [EUserRole.HR]: true,
     },
     SEARCH_FILTER_EMPLOYEE_NAME: {
+      [EUserRole.ADMIN]: true,
+      [EUserRole.DRIVER]: false,
+      [EUserRole.EMPLOYEE]: false,
+      [EUserRole.OPERATION_MANAGER]: true,
+      [EUserRole.SUPER_ADMIN]: true,
+      [EUserRole.HR]: true,
+    },
+    SEARCH_FILTER_PAID_FROM_ACCOUNT: {
       [EUserRole.ADMIN]: true,
       [EUserRole.DRIVER]: false,
       [EUserRole.EMPLOYEE]: false,

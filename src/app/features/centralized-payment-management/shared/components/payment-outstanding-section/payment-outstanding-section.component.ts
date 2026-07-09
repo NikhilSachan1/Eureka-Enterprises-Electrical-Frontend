@@ -4,31 +4,37 @@ import {
   Component,
   computed,
   input,
+  model,
   OnDestroy,
   output,
   signal,
 } from '@angular/core';
 import { APP_CONFIG } from '@core/config';
+import { NavTabsComponent } from '@shared/components/nav-tabs/nav-tabs.component';
 import { InputFieldComponent } from '@shared/components/input-field/input-field.component';
 import { COMMON_SEARCH_FILTER_FIELDS_CONFIG } from '@shared/config/common-search-filter.config';
 import { DEFAULT_INPUT_FIELD_CONFIG } from '@shared/config/input-field.config';
 import { ICONS } from '@shared/constants';
-import { EDataType, IInputFieldsConfig } from '@shared/types';
+import { EDataType, ETabMode, IInputFieldsConfig } from '@shared/types';
+import {
+  ITabChange,
+  ITabItem,
+} from '@shared/types/nav-tabs/tab-item.interface';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import {
-  EPaymentOutstandingSectionContext,
-  EPaymentOutstandingSourceType,
-  getPaymentOutstandingSourceSectionMeta,
-} from '../../config/payment-outstanding-source-section.config';
+  IPaymentOutstandingSectionOverview,
+  IPaymentOutstandingSectionTab,
+} from '../../types/payment-outstanding-section.interface';
 
 @Component({
   selector: 'app-payment-outstanding-section',
   imports: [
-    CurrencyPipe,
     InputFieldComponent,
     IconFieldModule,
     InputIconModule,
+    NavTabsComponent,
+    CurrencyPipe,
   ],
   templateUrl: './payment-outstanding-section.component.html',
   styleUrl: './payment-outstanding-section.component.scss',
@@ -37,22 +43,26 @@ import {
 export class PaymentOutstandingSectionComponent implements OnDestroy {
   protected readonly APP_CONFIG = APP_CONFIG;
   protected readonly ICONS = ICONS;
+  protected readonly tabContentMode = ETabMode.CONTENT;
 
-  sourceType = input.required<EPaymentOutstandingSourceType>();
-  sectionContext = input(EPaymentOutstandingSectionContext.OUTSTANDING);
-  loading = input(false);
-  recordCount = input(0);
-  totalPendingAmount = input(0);
   showSearch = input(true);
   searchPlaceholder = input('Search...');
+  overviewCards = input<IPaymentOutstandingSectionOverview[]>([]);
+  tabs = input<IPaymentOutstandingSectionTab[]>([]);
+  activeTabIndex = model(0);
+  overviewAriaLabel = input('Payment source breakdown');
+  showOverview = input(true);
 
   searchChange = output<string>();
 
-  protected readonly sectionMeta = computed(() =>
-    getPaymentOutstandingSourceSectionMeta(
-      this.sourceType(),
-      this.sectionContext()
-    )
+  protected readonly hasOverview = computed(
+    () => this.showOverview() && this.overviewCards().length > 0
+  );
+
+  protected readonly hasTabs = computed(() => this.tabs().length > 0);
+
+  protected readonly navTabItems = computed(() =>
+    this.mapTabsToNavItems(this.tabs())
   );
 
   protected readonly searchTerm = signal('');
@@ -72,27 +82,8 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
 
   private searchDebounceTimer?: ReturnType<typeof setTimeout>;
 
-  protected readonly pendingTransactionType = computed(() => {
-    const amount = this.totalPendingAmount();
-    if (amount > 0) {
-      return 'debit';
-    }
-    if (amount < 0) {
-      return 'credit';
-    }
-    return null;
-  });
-
   ngOnDestroy(): void {
     clearTimeout(this.searchDebounceTimer);
-  }
-
-  protected recordCountUnitLabel(): string {
-    const count = this.recordCount();
-    const unit = this.sectionMeta().recordCountUnit;
-    const label = count === 1 ? unit : `${unit}s`;
-
-    return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
   protected onSearchFieldChange(value: unknown): void {
@@ -103,5 +94,21 @@ export class PaymentOutstandingSectionComponent implements OnDestroy {
     this.searchDebounceTimer = setTimeout(() => {
       this.searchChange.emit(term.trim());
     }, 400);
+  }
+
+  protected onNavTabChanged(event: ITabChange): void {
+    this.activeTabIndex.set(event.index);
+  }
+
+  private mapTabsToNavItems(tabs: IPaymentOutstandingSectionTab[]): ITabItem[] {
+    return tabs.map(tab => {
+      const count = tab.badgeCount ?? 0;
+
+      return {
+        route: tab.value,
+        label: tab.label,
+        badge: count > 0 ? count : undefined,
+      };
+    });
   }
 }
