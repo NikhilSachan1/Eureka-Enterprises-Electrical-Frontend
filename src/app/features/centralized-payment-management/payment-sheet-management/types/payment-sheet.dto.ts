@@ -11,6 +11,7 @@ import {
   DeletePaymentSheetItemRequestSchema,
   DeletePaymentSheetItemResponseSchema,
 } from '../schemas/delete-payment-sheet-item.schema';
+import { DownloadPaymentSheetPdfFormSchema } from '../schemas/download-payment-sheet-pdf.schema';
 import {
   PaymentSheetDetailGetRequestSchema,
   PaymentSheetDetailGetResponseSchema,
@@ -152,6 +153,9 @@ export type IUnverifyPaymentSheetItemsFormDto = z.input<
 >;
 export type IUnverifyPaymentSheetItemsResponseDto = z.infer<
   typeof UnverifyPaymentSheetItemsResponseSchema
+>;
+export type IDownloadPaymentSheetPdfFormDto = z.input<
+  typeof DownloadPaymentSheetPdfFormSchema
 >;
 export interface IPaymentSheetPdfFormDto {
   sourceType: string;

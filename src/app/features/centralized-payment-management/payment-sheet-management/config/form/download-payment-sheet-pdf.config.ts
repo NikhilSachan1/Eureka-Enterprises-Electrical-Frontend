@@ -2,15 +2,11 @@ import { Validators } from '@angular/forms';
 import { EDataType, IFormConfig, IFormInputFieldsConfig } from '@shared/types';
 import { EPaymentOutstandingSourceType } from '@features/centralized-payment-management/shared/config/payment-outstanding-source-section.config';
 import { getPaymentSourceTabLabel } from '@features/centralized-payment-management/shared/utils/payment-source-tab.util';
+import { IDownloadPaymentSheetPdfFormDto } from '../../types/payment-sheet.dto';
 import { EPaymentSheetSourceType } from '../../types/payment-sheet.enum';
 
 export const PAYMENT_SHEET_PDF_DOWNLOAD_ALL = 'ALL' as const;
-export type TPaymentSheetPdfDownloadSelection =
-  | typeof PAYMENT_SHEET_PDF_DOWNLOAD_ALL
-  | EPaymentSheetSourceType;
-export interface IDownloadPaymentSheetPdfFormDto {
-  sourceType: TPaymentSheetPdfDownloadSelection;
-}
+
 const PAYMENT_SHEET_PDF_SOURCE_OPTIONS = [
   EPaymentSheetSourceType.EXPENSE,
   EPaymentSheetSourceType.FUEL_EXPENSE,

@@ -14,10 +14,10 @@ import { IDialogActionHandler } from '@shared/types';
 import { finalize } from 'rxjs';
 import {
   DOWNLOAD_PAYMENT_SHEET_PDF_FORM_CONFIG,
-  IDownloadPaymentSheetPdfFormDto,
   PAYMENT_SHEET_PDF_DOWNLOAD_ALL,
 } from '../../config/form/download-payment-sheet-pdf.config';
 import { PaymentSheetService } from '../../services/payment-sheet.service';
+import { IDownloadPaymentSheetPdfFormDto } from '../../types/payment-sheet.dto';
 
 @Component({
   selector: 'app-download-payment-sheet-pdf',
