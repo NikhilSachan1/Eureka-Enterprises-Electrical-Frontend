@@ -25,6 +25,31 @@
   />
 </ng-template>
 
+<ng-template
+  #paymentSheetWorkflowCell
+  let-row
+>
+  <div class="ps-list-workflow">
+    <app-status-tag [value]="row.statusLabel" />
+
+    @if (shouldShowWorkflowTimeline(row)) {
+      <div class="ps-list-workflow__track">
+        @for (step of workflowSteps; track step.stage; let index = $index) {
+          <div
+            class="ps-list-workflow__step"
+            [class.ps-list-workflow__step--complete]="getWorkflowStepState(row, index) === 'complete'"
+            [class.ps-list-workflow__step--current]="getWorkflowStepState(row, index) === 'current'"
+            [class.ps-list-workflow__step--pending]="getWorkflowStepState(row, index) === 'pending'"
+          >
+            <span class="ps-list-workflow__dot"></span>
+            <span class="ps-list-workflow__label">{{ step.shortLabel }}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ng-template>
+
 <app-data-table
   #dataTable
   [tableConfig]="table.tableConfig()"
@@ -35,6 +60,7 @@
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
     paymentSheetAmounts: paymentSheetAmounts,
+    paymentSheetWorkflowCell: paymentSheetWorkflowCell,
   }"
   (filterData)="onTableStateChange($event)"
   (rowActionClick)="handlePaymentSheetTableActionClick($any($event))"

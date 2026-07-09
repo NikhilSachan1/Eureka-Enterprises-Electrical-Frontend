@@ -346,7 +346,8 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PAYMENT SHEET STATUS (raw enum: IN_REVIEW, PROCESSING, RETURNED, …)
-  'in review': { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'purple' },
+  in_review: { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
+  'in review': { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
   processing: { icon: ICONS.COMMON.SYNC, severity: 'info' },
   returned: { icon: ICONS.COMMON.ARROW_LEFT, severity: 'warning' },
 

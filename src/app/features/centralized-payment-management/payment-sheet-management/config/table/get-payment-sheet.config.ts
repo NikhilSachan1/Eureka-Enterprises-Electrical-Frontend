@@ -54,16 +54,12 @@ export const PAYMENT_SHEET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[
     {
       field: 'status',
       header: 'Status',
-      bodyTemplate: EDataType.STATUS,
+      bodyTemplate: EDataType.TEXT,
+      customTemplateKey: 'paymentSheetWorkflowCell',
+      columnStyleClass: 'cell-allow-wrap',
       serverSideFilterAndSortConfig: {
         filterField: 'status',
       },
-      showSort: false,
-    },
-    {
-      field: 'currentStage',
-      header: 'Current Stage',
-      bodyTemplate: EDataType.TEXT,
       showSort: false,
     },
   ];
