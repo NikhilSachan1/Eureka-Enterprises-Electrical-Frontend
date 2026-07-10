@@ -142,7 +142,7 @@
                       </div>
                     </div>
                   </div>
-                } @else {
+                } @else if (!hasRejectContext(row)) {
                   <div
                     class="ps-detail-verification__row ps-detail-verification__row--pending"
                     [class.ps-detail-verification__row--current]="isCurrentVerificationStage(stage)"
@@ -201,6 +201,40 @@
                     </div>
                   </div>
                 }
+              }
+
+              @if (row.rejectDetail; as rejectDetail) {
+                <div class="ps-detail-verification__row ps-detail-verification__row--rejected">
+                  <i
+                    [class]="
+                      ICONS.ACTIONS.TIMES + ' ps-detail-verification__icon ps-detail-verification__icon--rejected'
+                    "
+                    aria-hidden="true"
+                  ></i>
+                  <div class="ps-detail-verification__body">
+                    <span class="ps-detail-verification__stage">
+                      Rejected
+                      @if (rejectDetail.stage) {
+                        ({{ getVerificationStageLabel(rejectDetail.stage) }})
+                      }
+                    </span>
+                    <div class="ps-detail-verification__meta-stack">
+                      @if (rejectDetail.rejectedByName !== '—') {
+                        <span class="ps-detail-verification__meta-line">
+                          {{ rejectDetail.rejectedByName }}
+                        </span>
+                      }
+                      @if (rejectDetail.rejectedAt) {
+                        <span class="ps-detail-verification__meta-line">
+                          {{ rejectDetail.rejectedAt | date: verifiedAtDateFormat : undefined : paidAtDateLocale }}
+                        </span>
+                      }
+                      <span class="ps-detail-verification__meta-line">
+                        {{ rejectDetail.reason }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               }
             </div>
           } @else {

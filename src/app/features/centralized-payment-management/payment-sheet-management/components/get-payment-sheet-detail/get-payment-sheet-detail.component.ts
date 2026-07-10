@@ -63,6 +63,7 @@ import {
   EPaymentSheetStatus,
   EPaymentSheetTimelineMode,
   EPaymentSheetWorkflowActionType,
+  EPaymentSheetItemStatus,
 } from '../../types/payment-sheet.enum';
 import {
   IPaymentSheetDetailGetResponseDto,
@@ -71,6 +72,7 @@ import {
 import {
   IPaymentSheetDetailItemRow,
   IPaymentSheetDetailSourceGroupView,
+  IPaymentSheetItemRejectView,
   IPaymentSheetItemVerificationView,
   IPaymentSheetOverviewView,
 } from '../../types/payment-sheet-detail.interface';
@@ -84,7 +86,10 @@ import {
   getPaymentSheetVerificationStageLabel,
   getVisiblePaymentSheetItemVerificationStages,
 } from '../../utils/payment-sheet-verification.util';
-import { isPaymentSheetItemPaid } from '../../utils/payment-sheet-table-row.util';
+import {
+  isPaymentSheetItemPaid,
+  isPaymentSheetItemRejected,
+} from '../../utils/payment-sheet-table-row.util';
 
 @Component({
   selector: 'app-get-payment-sheet-detail',
@@ -280,8 +285,14 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
   protected hasStatusContext(row: IPaymentSheetDetailItemRow): boolean {
     return (
-      this.hasVerificationContext(row) || this.shouldShowPaymentStatus(row)
+      this.hasVerificationContext(row) ||
+      this.shouldShowPaymentStatus(row) ||
+      this.hasRejectContext(row)
     );
+  }
+
+  protected hasRejectContext(row: IPaymentSheetDetailItemRow): boolean {
+    return !!row.rejectDetail;
   }
 
   protected hasVerificationContext(row: IPaymentSheetDetailItemRow): boolean {
@@ -296,10 +307,12 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     }
 
     return (
-      detail.status === EPaymentSheetStatus.PROCESSING ||
-      detail.status === EPaymentSheetStatus.COMPLETED ||
-      detail.currentStage === EPaymentSheetStage.PROCESSING ||
-      isPaymentSheetItemPaid(row)
+      !isPaymentSheetItemRejected(row) &&
+      !this.hasRejectContext(row) &&
+      (detail.status === EPaymentSheetStatus.PROCESSING ||
+        detail.status === EPaymentSheetStatus.COMPLETED ||
+        detail.currentStage === EPaymentSheetStage.PROCESSING ||
+        isPaymentSheetItemPaid(row))
     );
   }
 
@@ -319,6 +332,18 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   protected getVisibleVerificationStages(
     row: IPaymentSheetDetailItemRow
   ): EPaymentSheetStage[] {
+    if (this.hasRejectContext(row)) {
+      return getVisiblePaymentSheetItemVerificationStages(
+        this.detail()?.currentStage,
+        row.verifiedStages,
+        {
+          onlyVerifiedStages: row.verifications.map(
+            verification => verification.stage
+          ),
+        }
+      );
+    }
+
     return getVisiblePaymentSheetItemVerificationStages(
       this.detail()?.currentStage,
       row.verifiedStages
@@ -329,7 +354,11 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     row: IPaymentSheetDetailItemRow,
     stage: string
   ): IPaymentSheetItemVerificationView | undefined {
-    return row.verifications.find(verification => verification.stage === stage);
+    const normalizedStage = stage.toUpperCase();
+
+    return row.verifications.find(
+      verification => verification.stage.toUpperCase() === normalizedStage
+    );
   }
 
   protected isCurrentVerificationStage(stage: string): boolean {
@@ -608,6 +637,38 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           }
         : null,
       ...this.mapItemVerificationFields(item),
+      rejectDetail: this.mapItemRejectDetail(item),
+    };
+  }
+
+  private mapItemRejectDetail(
+    item: IPaymentSheetItemDetailDto
+  ): IPaymentSheetItemRejectView | null {
+    if (item.rejectDetail) {
+      const { rejectedBy } = item.rejectDetail;
+
+      return {
+        stage: item.rejectDetail.stage ?? null,
+        rejectedByName: rejectedBy
+          ? `${rejectedBy.firstName} ${rejectedBy.lastName}`.trim()
+          : '—',
+        rejectedAt: item.rejectDetail.rejectedAt,
+        reason: item.rejectDetail.reason?.trim() || '—',
+      };
+    }
+
+    const isRejected =
+      item.itemStatus?.toLowerCase() === EPaymentSheetItemStatus.REJECTED;
+
+    if (!isRejected && !item.rejectReason?.trim() && !item.rejectedAt) {
+      return null;
+    }
+
+    return {
+      stage: item.rejectStage ?? null,
+      rejectedByName: '—',
+      rejectedAt: item.rejectedAt ?? '',
+      reason: item.rejectReason?.trim() ?? '—',
     };
   }
 
@@ -661,6 +722,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           paymentRef: item.paymentRef ?? null,
           bankDetails,
           ...this.mapItemVerificationFields(item),
+          rejectDetail: this.mapItemRejectDetail(item),
         };
       });
     });

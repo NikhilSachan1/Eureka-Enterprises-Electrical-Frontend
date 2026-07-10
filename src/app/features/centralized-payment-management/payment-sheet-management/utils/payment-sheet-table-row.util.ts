@@ -150,7 +150,11 @@ export function disablePaymentSheetEdit(
   row: PaymentSheetTableActionRow,
   activeRole: ActiveRole
 ): boolean {
-  if (isPaymentSheetCompleted(row) || isPaymentSheetItemPaid(row)) {
+  if (
+    isPaymentSheetCompleted(row) ||
+    isPaymentSheetItemPaid(row) ||
+    isPaymentSheetItemRejected(row)
+  ) {
     return true;
   }
 
@@ -173,6 +177,10 @@ export function paymentSheetEditDisableReason(
 
   if (isPaymentSheetItemPaid(row)) {
     return paymentSheetItemPaidDisableReason('Edit');
+  }
+
+  if (isPaymentSheetItemRejected(row)) {
+    return 'Rejected beneficiaries cannot be edited.';
   }
 
   if (!disablePaymentSheetEdit(row, activeRole)) {
@@ -413,7 +421,11 @@ export function disablePaymentSheetRecordPayment(
   row: PaymentSheetTableActionRow,
   activeRole: ActiveRole
 ): boolean {
-  if (isPaymentSheetCompleted(row) || isPaymentSheetItemPaid(row)) {
+  if (
+    isPaymentSheetCompleted(row) ||
+    isPaymentSheetItemPaid(row) ||
+    isPaymentSheetItemRejected(row)
+  ) {
     return true;
   }
 
@@ -433,6 +445,10 @@ export function paymentSheetRecordPaymentDisableReason(
 
   if (isPaymentSheetItemPaid(row)) {
     return paymentSheetItemPaidDisableReason('Record payment');
+  }
+
+  if (isPaymentSheetItemRejected(row)) {
+    return 'Rejected beneficiaries cannot be paid.';
   }
 
   if (!disablePaymentSheetRecordPayment(row, activeRole)) {

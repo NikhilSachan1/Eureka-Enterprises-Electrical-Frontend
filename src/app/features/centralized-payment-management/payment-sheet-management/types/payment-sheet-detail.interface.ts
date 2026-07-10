@@ -10,6 +10,13 @@ export type IPaymentSheetItemVerificationView = NonNullable<
   IPaymentSheetItemDetailDto['verifications']
 >[number];
 
+export interface IPaymentSheetItemRejectView {
+  stage: string | null;
+  rejectedByName: string;
+  rejectedAt: string;
+  reason: string;
+}
+
 export interface IPaymentSheetDetailItemRow {
   status: string;
   currentStage: string | null;
@@ -33,6 +40,7 @@ export interface IPaymentSheetDetailItemRow {
   verifications: IPaymentSheetItemVerificationView[];
   verifiedStages: string[];
   isVerifiedForCurrentStage: boolean;
+  rejectDetail: IPaymentSheetItemRejectView | null;
 }
 export interface IPaymentSheetDetailSourceGroupView {
   sourceType: EPaymentOutstandingSourceType;

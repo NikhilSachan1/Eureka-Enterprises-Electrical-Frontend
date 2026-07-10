@@ -61,6 +61,15 @@ const PaymentSheetItemVerificationSchema = z.looseObject({
   verifiedAt: isoDateTimeField,
 });
 
+const PaymentSheetItemRejectDetailSchema = z
+  .looseObject({
+    stage: z.string(),
+    rejectedBy: UserSchema,
+    rejectedAt: isoDateTimeField,
+    reason: z.string(),
+  })
+  .nullable();
+
 const PaymentSheetVerificationSummarySchema = z.looseObject({
   stage: z.string(),
   verified: z.coerce.number(),
@@ -114,6 +123,10 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   verifications: z.array(PaymentSheetItemVerificationSchema),
   verifiedStages: z.array(z.string()),
   isVerifiedForCurrentStage: z.boolean(),
+  rejectReason: z.string().nullable().optional(),
+  rejectedAt: isoDateTimeField.nullable().optional(),
+  rejectStage: z.string().nullable().optional(),
+  rejectDetail: PaymentSheetItemRejectDetailSchema.optional(),
 });
 
 export const PaymentSheetDetailGetResponseSchema = z.looseObject({
