@@ -1,9 +1,10 @@
 import { EDialogPosition } from '@shared/types';
+import packageJson from '../../../../package.json';
 
 export const APP_CONFIG = {
   // Application Information
   name: 'Eureka Enterprises',
-  version: '1.0.0',
+  version: packageJson.version,
   description: 'Electrical Management System',
 
   // API Configuration
