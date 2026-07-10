@@ -4,6 +4,100 @@
   gap: 0.75rem;
 }
 
+.ps-owner-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border-light-color);
+  border-radius: 0.625rem;
+  background: var(--background-paper-color);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.ps-owner-bar__icon {
+  font-size: 0.82rem;
+  opacity: 0.92;
+}
+
+.ps-owner-bar__prefix {
+  color: var(--text-secondary-color);
+  font-weight: 500;
+}
+
+.ps-owner-bar__owner {
+  font-weight: 700;
+  color: var(--text-primary-color);
+}
+
+.ps-owner-bar__hint {
+  color: var(--text-secondary-color);
+  font-weight: 500;
+}
+
+.ps-owner-bar--draft {
+  border-left: 3px solid #f59e0b;
+  background: color-mix(in srgb, #f59e0b 7%, var(--background-paper-color));
+
+  .ps-owner-bar__icon,
+  .ps-owner-bar__owner {
+    color: color-mix(in srgb, #d97706 82%, var(--text-primary-color));
+  }
+}
+
+.ps-owner-bar--hr {
+  border-left: 3px solid #3b82f6;
+  background: color-mix(in srgb, #3b82f6 7%, var(--background-paper-color));
+
+  .ps-owner-bar__icon,
+  .ps-owner-bar__owner {
+    color: color-mix(in srgb, #2563eb 82%, var(--text-primary-color));
+  }
+}
+
+.ps-owner-bar--admin {
+  border-left: 3px solid #a855f7;
+  background: color-mix(in srgb, #a855f7 7%, var(--background-paper-color));
+
+  .ps-owner-bar__icon,
+  .ps-owner-bar__owner {
+    color: color-mix(in srgb, #7c3aed 82%, var(--text-primary-color));
+  }
+}
+
+.ps-owner-bar--accounts {
+  border-left: 3px solid #f59e0b;
+  background: color-mix(in srgb, #f59e0b 7%, var(--background-paper-color));
+
+  .ps-owner-bar__icon,
+  .ps-owner-bar__owner {
+    color: color-mix(in srgb, #d97706 82%, var(--text-primary-color));
+  }
+}
+
+.ps-owner-bar--completed {
+  border-left: 3px solid #22c55e;
+  background: color-mix(in srgb, #22c55e 7%, var(--background-paper-color));
+
+  .ps-owner-bar__icon,
+  .ps-owner-bar__owner {
+    color: color-mix(in srgb, #047857 82%, var(--text-primary-color));
+  }
+}
+
+.ps-owner-bar--rejected {
+  border-left: 3px solid #ef4444;
+  background: color-mix(in srgb, #ef4444 7%, var(--background-paper-color));
+
+  .ps-owner-bar__icon,
+  .ps-owner-bar__owner {
+    color: color-mix(in srgb, #dc2626 82%, var(--text-primary-color));
+  }
+}
+
 .ps-overview {
   margin-bottom: 1rem;
   overflow: hidden;

@@ -4,6 +4,25 @@
     (headerButtonClick)="onHeaderButtonClick($event)"
   />
 
+  @if (currentOwnerBanner(); as ownerBanner) {
+    <div
+      [class]="'ps-owner-bar ps-owner-bar--' + ownerBanner.tone"
+      role="status"
+      aria-live="polite"
+    >
+      <i
+        class="ps-owner-bar__icon"
+        [class]="ownerBanner.icon"
+        aria-hidden="true"
+      ></i>
+      <span class="ps-owner-bar__prefix">{{ ownerBanner.prefix }}</span>
+      <strong class="ps-owner-bar__owner">{{ ownerBanner.ownerLabel }}</strong>
+      @if (ownerBanner.stageHint) {
+        <span class="ps-owner-bar__hint">· {{ ownerBanner.stageHint }}</span>
+      }
+    </div>
+  }
+
   @if (sheetOverview(); as overview) {
     <section
       class="ps-overview"
@@ -12,10 +31,6 @@
       <div class="ps-overview__body">
         <div class="ps-overview__info">
           <div class="ps-overview__facts">
-            <div class="ps-overview__fact">
-              <span class="ps-overview__fact-label">Stage</span>
-              <span class="ps-overview__fact-value">{{ overview.stageLabel }}</span>
-            </div>
             <div class="ps-overview__fact">
               <span class="ps-overview__fact-label">Created</span>
               <span class="ps-overview__fact-value">

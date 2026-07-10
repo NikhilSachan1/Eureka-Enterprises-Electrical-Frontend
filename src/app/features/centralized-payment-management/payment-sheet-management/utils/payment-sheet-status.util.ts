@@ -5,7 +5,8 @@ import {
   EPaymentSheetWorkflowRole,
 } from '../types/payment-sheet.enum';
 import { IPaymentSheetWorkflowRow } from '../types/payment-sheet.interface';
-import { EUserRole } from '@shared/constants';
+import { IPaymentSheetCurrentOwnerBanner } from '../types/payment-sheet-detail.interface';
+import { EUserRole, ICONS } from '@shared/constants';
 
 type ActiveRole = string | null | undefined;
 
@@ -62,6 +63,74 @@ function paymentSheetDraftOrReturnedOmDisableReason(
   actionLabel: string
 ): string {
   return `${actionLabel} can only be performed by Operation Manager while the payment sheet is in draft or returned.`;
+}
+
+export function getPaymentSheetCurrentOwnerBanner(
+  row: IPaymentSheetWorkflowRow
+): IPaymentSheetCurrentOwnerBanner | null {
+  const { status } = row;
+
+  if (status === EPaymentSheetStatus.COMPLETED) {
+    return {
+      prefix: 'Status',
+      ownerLabel: 'Completed',
+      stageHint: null,
+      tone: 'completed',
+      icon: ICONS.ACTIONS.CHECK_CIRCLE,
+    };
+  }
+
+  if (status === EPaymentSheetStatus.REJECTED) {
+    return {
+      prefix: 'Status',
+      ownerLabel: 'Rejected',
+      stageHint: null,
+      tone: 'rejected',
+      icon: ICONS.ACTIONS.BAN,
+    };
+  }
+
+  if (isPaymentSheetDraftOrReturned(row)) {
+    return {
+      prefix: 'Currently with',
+      ownerLabel: 'Operation Manager',
+      stageHint: status === EPaymentSheetStatus.RETURNED ? 'Returned' : 'Draft',
+      tone: 'draft',
+      icon: ICONS.COMMON.BRIEFCASE,
+    };
+  }
+
+  if (isPaymentSheetHrReview(row)) {
+    return {
+      prefix: 'Currently with',
+      ownerLabel: 'HR',
+      stageHint: 'HR Review',
+      tone: 'hr',
+      icon: ICONS.COMMON.USER,
+    };
+  }
+
+  if (isPaymentSheetAdminReview(row)) {
+    return {
+      prefix: 'Currently with',
+      ownerLabel: 'Admin',
+      stageHint: 'Admin Review',
+      tone: 'admin',
+      icon: ICONS.COMMON.USER,
+    };
+  }
+
+  if (isPaymentSheetProcessing(row)) {
+    return {
+      prefix: 'Currently with',
+      ownerLabel: 'Accounts',
+      stageHint: 'Account Review',
+      tone: 'accounts',
+      icon: ICONS.PAYROLL.WALLET,
+    };
+  }
+
+  return null;
 }
 
 export function isPaymentSheetReturnAllowed(

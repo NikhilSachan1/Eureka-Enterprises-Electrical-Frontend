@@ -86,6 +86,7 @@ import { APP_PERMISSION } from '@core/constants';
 import {
   getPaymentSheetForwardActionForUserRole,
   getPaymentSheetForwardDisableReason,
+  getPaymentSheetCurrentOwnerBanner,
   isPaymentSheetForwardActionAllowed,
 } from '../../utils/payment-sheet-status.util';
 import {
@@ -213,6 +214,16 @@ export class GetPaymentSheetDetailComponent implements OnInit {
   protected pageHeaderConfig = computed(() => this.buildPageHeaderConfig());
 
   protected readonly sheetOverview = computed(() => this.buildSheetOverview());
+
+  protected readonly currentOwnerBanner = computed(() => {
+    const detail = this.detail();
+
+    if (!detail) {
+      return null;
+    }
+
+    return getPaymentSheetCurrentOwnerBanner(this.getWorkflowFields(detail));
+  });
 
   protected readonly permittedWorkflowButtons = computed(() => {
     const detail = this.detail();
@@ -875,7 +886,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     const { verificationSummary } = detail;
 
     return {
-      stageLabel: this.getDetailStageLabel(detail),
       createdAt: detail.createdAt,
       createdByName: this.resolveCreatedByName(detail.createdByUser),
       beneficiaryCount: detail.items.length,
@@ -907,29 +917,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     const name = `${user.firstName} ${user.lastName}`.trim();
 
     return name || null;
-  }
-
-  private getDetailStageLabel(
-    detail: IPaymentSheetDetailGetResponseDto
-  ): string {
-    if (
-      detail.status === EPaymentSheetStatus.COMPLETED ||
-      detail.status === EPaymentSheetStatus.RETURNED
-    ) {
-      return getMappedValueFromArrayOfObjects(
-        this.appConfigurationService.paymentSheetStatuses(),
-        detail.status
-      );
-    }
-
-    if (detail.currentStage) {
-      return getMappedValueFromArrayOfObjects(
-        this.appConfigurationService.paymentSheetStages(),
-        detail.currentStage
-      );
-    }
-
-    return '—';
   }
 
   private getRecordCountLabel(

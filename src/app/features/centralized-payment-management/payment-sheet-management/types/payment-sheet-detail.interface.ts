@@ -64,7 +64,6 @@ export interface IPaymentSheetOverviewVerificationView {
 }
 
 export interface IPaymentSheetOverviewView {
-  stageLabel: string;
   createdAt: string;
   createdByName: string | null;
   beneficiaryCount: number;
@@ -74,6 +73,22 @@ export interface IPaymentSheetOverviewView {
   totalPaidAmount: number;
   pendingAmount: number;
   remarks: string | null;
+}
+
+export type TPaymentSheetOwnerBannerTone =
+  | 'draft'
+  | 'hr'
+  | 'admin'
+  | 'accounts'
+  | 'completed'
+  | 'rejected';
+
+export interface IPaymentSheetCurrentOwnerBanner {
+  prefix: string;
+  ownerLabel: string;
+  stageHint: string | null;
+  tone: TPaymentSheetOwnerBannerTone;
+  icon: string;
 }
 
 export type TPaymentSheetTimelineTone =
