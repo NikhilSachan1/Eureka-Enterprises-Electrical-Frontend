@@ -41,6 +41,7 @@ export class PayPaymentSheetItemComponent
   protected readonly selectedRecord =
     input.required<IPaymentSheetDetailItemRow[]>();
   protected readonly paymentSheetId = input.required<string>();
+  protected readonly bookPaymentId = input<string[]>([]);
   protected readonly onSuccess = input.required<() => void>();
 
   private itemId?: string;
@@ -89,7 +90,10 @@ export class PayPaymentSheetItemComponent
   }
 
   private prepareFormData(): IPayPaymentSheetItemFormDto {
-    return this.form.getData();
+    return {
+      ...this.form.getData(),
+      bookPaymentId: this.bookPaymentId(),
+    };
   }
 
   private executePayPaymentSheetItemAction(

@@ -45,6 +45,13 @@ const PaymentSheetBookPaymentAllocationInvoiceSchema = z.looseObject({
   state: z.string().optional(),
 });
 
+const PaymentSheetBookPaymentAllocationPaymentAdviceSchema = z.looseObject({
+  id: uuidField,
+  referenceNumber: z.string(),
+  generatedAt: isoDateTimeField.optional(),
+  pdfKey: z.string().nullable(),
+});
+
 const PaymentSheetBookPaymentAllocationSchema = z.looseObject({
   id: uuidField,
   itemId: uuidField.optional(),
@@ -52,6 +59,8 @@ const PaymentSheetBookPaymentAllocationSchema = z.looseObject({
   allocatedAmount: z.coerce.number(),
   bankTransferId: uuidField.nullable().optional(),
   invoice: PaymentSheetBookPaymentAllocationInvoiceSchema.optional(),
+  paymentAdvice:
+    PaymentSheetBookPaymentAllocationPaymentAdviceSchema.nullable().optional(),
 });
 
 const PaymentSheetItemVerificationSchema = z.looseObject({

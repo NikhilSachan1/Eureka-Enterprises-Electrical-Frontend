@@ -9,14 +9,33 @@ export const PayPaymentSheetItemRequestSchema = z
     paidFromAccount: uuidField.nullable(),
     paidDate: dateField,
     transactionId: z.string().trim().min(1),
+    bookPaymentId: z.array(uuidField).optional(),
   })
   .strict()
-  .transform(({ paidDate, paidFromAccount, ...rest }) => ({
-    ...rest,
-    paidFromAccountId: paidFromAccount ?? null,
-    category: EExpenseCategory.SETTLEMENT,
-    paidDate: transformDateFormat(paidDate),
-  }));
+  .transform(
+    ({ paidDate, paidFromAccount, transactionId, bookPaymentId, ...rest }) => {
+      const transferDate = transformDateFormat(paidDate);
+
+      if (bookPaymentId?.length) {
+        return {
+          paidFromAccountId: paidFromAccount ?? null,
+          transfers: bookPaymentId.map(id => ({
+            bookPaymentId: id,
+            utrNumber: transactionId,
+            transferDate,
+          })),
+        };
+      }
+
+      return {
+        ...rest,
+        transactionId,
+        paidFromAccountId: paidFromAccount ?? null,
+        category: EExpenseCategory.SETTLEMENT,
+        paidDate: transferDate,
+      };
+    }
+  );
 
 export const PayPaymentSheetItemResponseSchema = z.looseObject({
   message: z.string(),
