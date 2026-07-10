@@ -877,6 +877,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     return {
       stageLabel: this.getDetailStageLabel(detail),
       createdAt: detail.createdAt,
+      createdByName: this.resolveCreatedByName(detail.createdByUser),
       beneficiaryCount: detail.items.length,
       verificationSummary: verificationSummary
         ? {
@@ -894,6 +895,18 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       pendingAmount: Math.max(0, totalCurrentAmount - totalPaidAmount),
       remarks: detail.remarks?.trim() ?? null,
     };
+  }
+
+  private resolveCreatedByName(
+    user: IPaymentSheetDetailGetResponseDto['createdByUser']
+  ): string | null {
+    if (!user) {
+      return null;
+    }
+
+    const name = `${user.firstName} ${user.lastName}`.trim();
+
+    return name || null;
   }
 
   private getDetailStageLabel(

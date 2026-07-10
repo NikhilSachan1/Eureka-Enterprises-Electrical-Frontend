@@ -66,6 +66,7 @@ export interface IPaymentSheetOverviewVerificationView {
 export interface IPaymentSheetOverviewView {
   stageLabel: string;
   createdAt: string;
+  createdByName: string | null;
   beneficiaryCount: number;
   verificationSummary: IPaymentSheetOverviewVerificationView | null;
   totalRequestedAmount: number;

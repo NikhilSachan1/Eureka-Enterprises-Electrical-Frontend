@@ -22,6 +22,12 @@
                 {{ overview.createdAt | date: overviewDateFormat : undefined : paidAtDateLocale }}
               </span>
             </div>
+            @if (overview.createdByName) {
+              <div class="ps-overview__fact">
+                <span class="ps-overview__fact-label">Created by</span>
+                <span class="ps-overview__fact-value">{{ overview.createdByName }}</span>
+              </div>
+            }
             <div class="ps-overview__fact">
               <span class="ps-overview__fact-label">Beneficiaries</span>
               <span class="ps-overview__fact-value">{{ overview.beneficiaryCount }}</span>
@@ -42,28 +48,32 @@
 
         <div class="ps-overview__totals">
           <div class="ps-overview__amounts">
-            <div class="ps-overview__amount">
+            <div class="ps-overview__amount ps-overview__amount--requested">
               <span class="ps-overview__amount-label">Requested</span>
               <span class="ps-overview__amount-value">
                 {{ overview.totalRequestedAmount | currency: currencyFormat }}
               </span>
             </div>
-            <div class="ps-overview__amount">
+            <div class="ps-overview__amount ps-overview__amount--payable">
               <span class="ps-overview__amount-label">Payable</span>
               <span class="ps-overview__amount-value">
                 {{ overview.totalCurrentAmount | currency: currencyFormat }}
               </span>
             </div>
-            <div class="ps-overview__amount">
+            <div class="ps-overview__amount ps-overview__amount--paid">
               <span class="ps-overview__amount-label">Paid</span>
-              <span class="ps-overview__amount-value">{{ overview.totalPaidAmount | currency: currencyFormat }}</span>
+              <span class="ps-overview__amount-value">
+                {{ overview.totalPaidAmount | currency: currencyFormat }}
+              </span>
             </div>
             <div
-              class="ps-overview__amount"
-              [class.ps-overview__amount--pending]="overview.pendingAmount > 0"
+              class="ps-overview__amount ps-overview__amount--pending"
+              [class.ps-overview__amount--settled]="overview.pendingAmount <= 0"
             >
               <span class="ps-overview__amount-label">Pending</span>
-              <span class="ps-overview__amount-value">{{ overview.pendingAmount | currency: currencyFormat }}</span>
+              <span class="ps-overview__amount-value">
+                {{ overview.pendingAmount | currency: currencyFormat }}
+              </span>
             </div>
           </div>
         </div>

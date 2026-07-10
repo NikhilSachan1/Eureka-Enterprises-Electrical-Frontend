@@ -452,26 +452,13 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
   }
 
   private resolvePerformedByName(
-    user:
-      | {
-          firstName?: string | null;
-          lastName?: string | null;
-          fullName?: string | null;
-        }
-      | null
-      | undefined
+    user: { firstName: string; lastName: string } | null | undefined
   ): string {
     if (!user) {
       return '—';
     }
 
-    const fullName = user.fullName?.trim();
-
-    if (fullName) {
-      return fullName;
-    }
-
-    const name = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
+    const name = `${user.firstName} ${user.lastName}`.trim();
 
     return name || '—';
   }

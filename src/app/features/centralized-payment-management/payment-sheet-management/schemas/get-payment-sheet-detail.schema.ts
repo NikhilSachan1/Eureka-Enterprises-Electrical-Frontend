@@ -162,6 +162,7 @@ export const PaymentSheetDetailGetResponseSchema = z.looseObject({
   totalCurrentAmount: z.coerce.number(),
   totalPaidAmount: z.coerce.number(),
   createdAt: isoDateTimeField,
+  createdByUser: UserSchema.nullable().optional(),
   items: z.array(PaymentSheetItemDetailSchema),
   verificationSummary: PaymentSheetVerificationSummarySchema.nullable(),
   stageLogs: z.array(PaymentSheetStageLogSchema).optional(),
