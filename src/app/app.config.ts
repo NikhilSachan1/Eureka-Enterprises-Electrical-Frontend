@@ -4,7 +4,6 @@ import {
   ApplicationConfig,
   importProvidersFrom,
   inject,
-  isDevMode,
   LOCALE_ID,
   provideAppInitializer,
   provideZoneChangeDetection,
@@ -94,15 +93,11 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       inject(ThemeService);
     }),
-    provideAppInitializer(async () => {
-      if (isDevMode() || !('serviceWorker' in navigator)) {
-        return;
-      }
-
-      try {
-        await navigator.serviceWorker.register('/pwa-sw.js', { scope: '/' });
-      } catch (error) {
-        console.warn('PWA service worker registration failed:', error);
+    provideAppInitializer(() => {
+      if ('serviceWorker' in navigator) {
+        void navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(reg => reg.unregister());
+        });
       }
     }),
     provideAppInitializer(async () => {
