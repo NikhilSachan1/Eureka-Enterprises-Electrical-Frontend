@@ -41,6 +41,7 @@ export class GetExpenseOutstandingComponent implements OnInit {
   selectionChange = output<IExpenseOutstandingGetBaseResponseDto[]>();
   sectionSummaryChange = output<IOutstandingBalanceSectionSnapshot>();
   excludedUserIds = input<ReadonlySet<string>>(new Set());
+  showSelection = input(true);
 
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
@@ -90,6 +91,7 @@ export class GetExpenseOutstandingComponent implements OnInit {
     const excludedUserIds = this.excludedUserIds();
 
     this.table.updateTableConfig({
+      showCheckbox: this.showSelection(),
       disableRowSelectionWhen: row =>
         isPaymentOutstandingRowSelectionDisabled(row, excludedUserIds),
     });
