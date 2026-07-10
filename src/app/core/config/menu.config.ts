@@ -398,7 +398,7 @@ export const appMenu: ApplicationMenu = {
         },
         {
           label: 'Company Bank Account',
-          icon: ICONS.PAYROLL.WALLET,
+          icon: ICONS.BANK.ACCOUNT,
           basePath: ROUTE_BASE_PATHS.COMPANY_BANK_ACCOUNT,
           children: [
             {

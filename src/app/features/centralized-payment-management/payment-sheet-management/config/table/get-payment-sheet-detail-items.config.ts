@@ -160,6 +160,7 @@ export const createPaymentSheetDetailItemsTableRowActionsConfig = (
     },
     {
       id: EButtonActionType.PAID,
+      icon: ICONS.PAYMENT.RECORD,
       tooltip: 'Record Payment',
       permission: [APP_PERMISSION.PAYMENT_SHEET.BENEFICIARY_PAY],
       disableWhen: (row: IPaymentSheetDetailItemRow) =>

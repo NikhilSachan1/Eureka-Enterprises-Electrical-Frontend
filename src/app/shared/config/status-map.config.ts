@@ -350,6 +350,10 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   'in review': { icon: ICONS.ATTENDANCE.REGULARIZE, severity: 'warning' },
   processing: { icon: ICONS.COMMON.SYNC, severity: 'info' },
   returned: { icon: ICONS.COMMON.ARROW_LEFT, severity: 'warning' },
+  'hr review': { icon: ICONS.COMMON.USER, severity: 'info' },
+  hr_review: { icon: ICONS.COMMON.USER, severity: 'info' },
+  'admin review': { icon: ICONS.COMMON.USER, severity: 'purple' },
+  admin_review: { icon: ICONS.COMMON.USER, severity: 'purple' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PROJECT ALLOCATION STATUS

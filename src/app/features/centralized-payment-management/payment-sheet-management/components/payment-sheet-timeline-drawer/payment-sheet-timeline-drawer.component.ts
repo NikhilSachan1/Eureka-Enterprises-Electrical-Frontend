@@ -348,7 +348,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
         const details: IPaymentSheetTimelineEventDetail[] = [
           reviewStageDetail,
           {
-            icon: ICONS.PAYROLL.PAID,
+            icon: ICONS.PAYMENT.RECORD,
             label: 'Amount paid',
             value: this.formatPaymentAmount(entry.newAmount),
             variant: 'emphasis',
@@ -369,7 +369,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           this.drawerData.paidFromAccount
         ) {
           details.push({
-            icon: ICONS.PAYROLL.WALLET,
+            icon: ICONS.BANK.ACCOUNT,
             label: 'Paid from',
             bankDetails: this.drawerData.paidFromAccount,
             variant: 'paidFrom',
@@ -401,7 +401,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           id: entry.id,
           occurredAt: entry.createdAt,
           title: 'Payment recorded',
-          icon: ICONS.PAYROLL.PAID,
+          icon: ICONS.PAYMENT.RECORD,
           tone: 'paid',
           details,
           performedBy,

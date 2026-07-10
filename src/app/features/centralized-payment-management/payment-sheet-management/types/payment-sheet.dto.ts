@@ -21,6 +21,7 @@ import {
   PaymentSheetGetBaseResponseSchema,
   PaymentSheetGetRequestSchema,
   PaymentSheetGetResponseSchema,
+  PaymentSheetGetStatsSchema,
 } from '../schemas/get-payment-sheet.schema';
 import {
   UpdatePaymentSheetItemRequestSchema,
@@ -76,6 +77,9 @@ export type IPaymentSheetGetBaseResponseDto = z.infer<
 >;
 export type IPaymentSheetGetFormDto = z.input<
   typeof PaymentSheetGetRequestSchema
+>;
+export type IPaymentSheetGetStatsResponseDto = z.infer<
+  typeof PaymentSheetGetStatsSchema
 >;
 export type IPaymentSheetGetResponseDto = z.infer<
   typeof PaymentSheetGetResponseSchema
