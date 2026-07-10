@@ -179,6 +179,7 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
           dropdownName: CONFIGURATION_KEYS.EMPLOYEE.BANK_NAMES,
         },
       },
+      validators: [Validators.required],
     },
     accountNumber: {
       id: 'accountNumber',
@@ -190,7 +191,11 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
         maximumInputLength: 18,
         regex: TEXT_INPUT_ACCEPT_STRIP.DIGITS,
       },
-      validators: [Validators.minLength(9), Validators.maxLength(18)],
+      validators: [
+        Validators.required,
+        Validators.minLength(9),
+        Validators.maxLength(18),
+      ],
     },
     ifscCode: {
       id: 'ifscCode',
@@ -203,7 +208,11 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
         maximumInputLength: 11,
         regex: TEXT_INPUT_ACCEPT_STRIP.ALPHANUMERIC,
       },
-      validators: [Validators.minLength(11), Validators.maxLength(11)],
+      validators: [
+        Validators.required,
+        Validators.minLength(11),
+        Validators.maxLength(11),
+      ],
     },
     accountHolderName: {
       id: 'accountHolderName',
@@ -214,6 +223,7 @@ const ADD_VENDOR_FORM_FIELDS_CONFIG: IFormInputFieldsConfig<IVendorAddFormDto> =
         textCase: ETextCase.TITLECASE,
         regex: TEXT_INPUT_ACCEPT_STRIP.ALPHABETS_WITH_SPACES,
       },
+      validators: [Validators.required],
     },
   };
 
