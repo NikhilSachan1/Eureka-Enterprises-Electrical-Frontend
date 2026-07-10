@@ -354,6 +354,8 @@ export const STATUS_MAP: Record<string, IStatusEntry> = {
   hr_review: { icon: ICONS.COMMON.USER, severity: 'info' },
   'admin review': { icon: ICONS.COMMON.USER, severity: 'purple' },
   admin_review: { icon: ICONS.COMMON.USER, severity: 'purple' },
+  'account review': { icon: ICONS.PAYROLL.WALLET, severity: 'warning' },
+  account_review: { icon: ICONS.PAYROLL.WALLET, severity: 'warning' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PROJECT ALLOCATION STATUS

@@ -418,7 +418,7 @@ export class GetPaymentSheetComponent implements OnInit {
             icon: ICONS.COMMON.USER,
           },
           {
-            label: 'Processing',
+            label: 'Account Review',
             value: stats?.processing ?? 0,
             icon: ICONS.PAYROLL.WALLET,
           },
