@@ -104,6 +104,7 @@ const PaymentSheetStageLogSchema = z.looseObject({
   actedRole: z.string().nullable(),
   remarks: z.string().nullable(),
   createdAt: isoDateTimeField,
+  createdByUser: UserSchema.nullable().optional(),
 });
 
 const PaymentSheetHistorySchema = z.looseObject({
@@ -115,6 +116,7 @@ const PaymentSheetHistorySchema = z.looseObject({
   newAmount: z.coerce.number().nullable(),
   reason: z.string().nullable(),
   createdAt: isoDateTimeField,
+  createdByUser: UserSchema.nullable().optional(),
 });
 
 export const PaymentSheetItemDetailSchema = z.looseObject({

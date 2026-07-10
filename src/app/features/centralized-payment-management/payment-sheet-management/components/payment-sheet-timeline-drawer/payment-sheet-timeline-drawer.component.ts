@@ -44,8 +44,6 @@ import {
 } from '../../types/payment-sheet.enum';
 import { getPaymentSheetVerificationStageLabel } from '../../utils/payment-sheet-verification.util';
 
-const PAYMENT_SHEET_TIMELINE_PERFORMED_BY = 'Nikhil Sachan';
-
 const ROLE_LABELS: Record<string, string> = {
   [EPaymentSheetWorkflowRole.OPERATION_MANAGER]: 'Operation Manager',
   [EPaymentSheetWorkflowRole.HR]: 'HR',
@@ -239,6 +237,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           details,
           icon,
           tone,
+          performedBy: this.resolvePerformedByName(log.createdByUser),
         });
       });
   }
@@ -278,6 +277,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
       label: 'Review stage',
       value: stageLabel,
     };
+    const performedBy = this.resolvePerformedByName(entry.createdByUser);
     const action = this.normalizeHistoryAction(entry.action);
 
     switch (action) {
@@ -297,6 +297,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
               variant: 'emphasis',
             },
           ]),
+          performedBy,
         });
 
       case EPaymentSheetHistoryAction.ITEM_REMOVED:
@@ -307,6 +308,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.ACTIONS.TRASH,
           tone: 'removed',
           details: this.withRemarks(entry, [reviewStageDetail]),
+          performedBy,
         });
 
       case EPaymentSheetHistoryAction.VERIFIED:
@@ -317,6 +319,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.ACTIONS.CHECK,
           tone: 'success',
           details: this.withRemarks(entry, [reviewStageDetail]),
+          performedBy,
         });
 
       case EPaymentSheetHistoryAction.UNVERIFIED:
@@ -327,6 +330,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.ACTIONS.TIMES,
           tone: 'removed',
           details: this.withRemarks(entry, [reviewStageDetail]),
+          performedBy,
         });
 
       case EPaymentSheetHistoryAction.REJECTED:
@@ -337,6 +341,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.ACTIONS.BAN,
           tone: 'danger',
           details: this.withRemarks(entry, [reviewStageDetail], 'Remarks'),
+          performedBy,
         });
 
       case EPaymentSheetHistoryAction.PAID: {
@@ -399,6 +404,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.PAYROLL.PAID,
           tone: 'paid',
           details,
+          performedBy,
         });
       }
 
@@ -418,6 +424,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
               variant: 'emphasis',
             },
           ]),
+          performedBy,
         });
 
       default:
@@ -428,6 +435,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           icon: ICONS.COMMON.HISTORY,
           tone: 'neutral',
           details: this.withRemarks(entry, [reviewStageDetail]),
+          performedBy,
         });
     }
   }
@@ -439,8 +447,33 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
   ): IPaymentSheetTimelineEventView {
     return {
       ...event,
-      performedBy: event.performedBy ?? PAYMENT_SHEET_TIMELINE_PERFORMED_BY,
+      performedBy: event.performedBy ?? '—',
     };
+  }
+
+  private resolvePerformedByName(
+    user:
+      | {
+          firstName?: string | null;
+          lastName?: string | null;
+          fullName?: string | null;
+        }
+      | null
+      | undefined
+  ): string {
+    if (!user) {
+      return '—';
+    }
+
+    const fullName = user.fullName?.trim();
+
+    if (fullName) {
+      return fullName;
+    }
+
+    const name = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
+
+    return name || '—';
   }
 
   private withRemarks(
