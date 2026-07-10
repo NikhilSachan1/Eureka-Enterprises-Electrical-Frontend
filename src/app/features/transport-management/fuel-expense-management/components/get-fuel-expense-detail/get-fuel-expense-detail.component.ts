@@ -14,6 +14,7 @@ import {
 import { AppConfigurationService } from '@shared/services';
 import { FuelExpenseService } from '../../services/fuel-expense.service';
 import {
+  EBankDetailsDisplayMode,
   EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -38,6 +39,8 @@ import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/b
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetFuelExpenseDetailComponent extends DrawerDetailBase {
+  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
+
   protected readonly drawerData = inject(DRAWER_DATA) as {
     fuelExpense: IFuelExpenseGetBaseResponseDto;
   };

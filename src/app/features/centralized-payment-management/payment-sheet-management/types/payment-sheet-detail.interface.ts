@@ -30,6 +30,7 @@ export interface IPaymentSheetDetailItemRow {
   remainingAmount: number;
   paidAt: string | null;
   paymentRef: string | null;
+  paidFromAccount: IBankDetailsCellValue | null;
   bankDetails: IBankDetailsCellValue | null;
   companyName?: string;
   projectName?: string;
@@ -82,12 +83,14 @@ export type TPaymentSheetTimelineTone =
 export type TPaymentSheetTimelineDetailVariant =
   | 'default'
   | 'emphasis'
-  | 'note';
+  | 'note'
+  | 'paidFrom';
 
 export interface IPaymentSheetTimelineEventDetail {
   icon?: string;
   label: string;
-  value: string;
+  value?: string;
+  bankDetails?: IBankDetailsCellValue | null;
   variant?: TPaymentSheetTimelineDetailVariant;
 }
 
@@ -128,6 +131,7 @@ export interface IPaymentSheetTimelineDrawerDataItemHistory
   mode: EPaymentSheetTimelineMode.ITEM_HISTORY;
   itemId: string;
   history: TPaymentSheetHistoryEntryView[];
+  paidFromAccount?: IBankDetailsCellValue | null;
 }
 
 export type IPaymentSheetTimelineDrawerData =

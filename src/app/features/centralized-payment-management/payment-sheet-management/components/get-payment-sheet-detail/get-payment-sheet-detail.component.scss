@@ -318,6 +318,38 @@
   word-break: break-word;
 }
 
+.ps-detail-verification__paid-from {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
+}
+
+.ps-detail-verification__paid-from-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  color: var(--green-600, #16a34a);
+}
+
+.ps-detail-verification__paid-from-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+  min-width: 0;
+}
+
+.ps-detail-verification__paid-from-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-secondary-color);
+  line-height: 1.25;
+}
+
 .ps-detail-verification__empty {
   color: var(--text-disabled-color);
 }

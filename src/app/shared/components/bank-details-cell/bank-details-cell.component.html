@@ -1,4 +1,22 @@
-@if (hasBankDetails()) {
+@if (displayMode() === EBankDetailsDisplayMode.COMPACT) {
+  @if (hasBankDetails()) {
+    <div class="bank-details-cell bank-details-cell--compact">
+      @if (mappedBankName(); as bankName) {
+        <span class="bank-details-cell__compact-bank">{{ bankName }}</span>
+      }
+
+      @if (accountNumber(); as account) {
+        <span class="bank-details-cell__compact-line">{{ account }}</span>
+      }
+
+      @if (branchName(); as branch) {
+        <span class="bank-details-cell__compact-line">{{ branch }}</span>
+      }
+    </div>
+  } @else {
+    <span class="bank-details-cell__compact-empty">Not available</span>
+  }
+} @else if (hasBankDetails()) {
   <article class="bank-details-cell">
     <div class="bank-details-cell__header">
       <div

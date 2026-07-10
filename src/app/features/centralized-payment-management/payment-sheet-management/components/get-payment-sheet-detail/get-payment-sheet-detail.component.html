@@ -183,6 +183,22 @@
                         } @else {
                           <span class="ps-detail-verification__meta-line">Paid</span>
                         }
+                        @if (getPaidFromAccountBankName(row); as paidFromBankName) {
+                          <div class="ps-detail-verification__paid-from">
+                            <span
+                              class="ps-detail-verification__paid-from-icon"
+                              aria-hidden="true"
+                            >
+                              <i [class]="ICONS.PAYROLL.WALLET"></i>
+                            </span>
+                            <div class="ps-detail-verification__paid-from-copy">
+                              <span class="ps-detail-verification__paid-from-label">Paid from</span>
+                              <span class="ps-detail-verification__meta-line">
+                                {{ paidFromBankName }}
+                              </span>
+                            </div>
+                          </div>
+                        }
                       </div>
                     </div>
                   </div>

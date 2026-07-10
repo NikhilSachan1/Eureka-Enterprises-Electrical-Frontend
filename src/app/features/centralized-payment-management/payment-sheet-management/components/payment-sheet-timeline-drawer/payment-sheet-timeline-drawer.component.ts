@@ -9,11 +9,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
 import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
+import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/bank-details-cell.component';
 import { TimelineComponent } from '@shared/components/timeline/timeline.component';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { ICONS } from '@shared/constants';
 import { AppConfigurationService, AvatarService } from '@shared/services';
 import {
+  EBankDetailsDisplayMode,
   ETimelineAlign,
   ETimelineLayout,
   ITimelineConfig,
@@ -50,7 +52,7 @@ const REMOVED_ACTION_ALIASES = new Set(['REMOVED', 'ITEM_DELETED', 'DELETED']);
 
 @Component({
   selector: 'app-payment-sheet-timeline-drawer',
-  imports: [DatePipe, TimelineComponent],
+  imports: [DatePipe, TimelineComponent, BankDetailsCellComponent],
   templateUrl: './payment-sheet-timeline-drawer.component.html',
   styleUrl: './payment-sheet-timeline-drawer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,6 +73,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
   protected readonly isDrawerLoading = this.drawerService.loading;
 
   protected readonly ICONS = ICONS;
+  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
   protected readonly dateFormat = APP_CONFIG.DATE_FORMATS.DEFAULT_WITH_TIME;
   protected readonly dateLocale = APP_CONFIG.DATE_FORMATS.DISPLAY_LOCALE;
 
@@ -347,6 +350,18 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
             icon: ICONS.COMMON.TAG,
             label: 'Payment reference',
             value: paymentRef,
+          });
+        }
+
+        if (
+          this.drawerData.mode === EPaymentSheetTimelineMode.ITEM_HISTORY &&
+          this.drawerData.paidFromAccount
+        ) {
+          details.push({
+            icon: ICONS.PAYROLL.WALLET,
+            label: 'Paid from',
+            bankDetails: this.drawerData.paidFromAccount,
+            variant: 'paidFrom',
           });
         }
 

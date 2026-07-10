@@ -38,7 +38,10 @@ import {
   TableService,
   AppConfigurationService,
 } from '@shared/services';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  getMappedValueFromArrayOfObjects,
+  mapPaidFromAccountToBankDetails,
+} from '@shared/utility';
 import {
   EButtonActionType,
   EDataType,
@@ -320,6 +323,21 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     return isPaymentSheetItemPaid(row);
   }
 
+  protected getPaidFromAccountBankName(
+    row: IPaymentSheetDetailItemRow
+  ): string | null {
+    const bankName = row.paidFromAccount?.bankName?.trim();
+
+    if (!bankName) {
+      return null;
+    }
+
+    return getMappedValueFromArrayOfObjects(
+      this.appConfigurationService.bankNames(),
+      bankName
+    );
+  }
+
   protected isCurrentPaymentStage(): boolean {
     const detail = this.detail();
 
@@ -529,6 +547,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         mode: EPaymentSheetTimelineMode.ITEM_HISTORY,
         itemId: row.id,
         history: detail?.history ?? [],
+        paidFromAccount: row.paidFromAccount,
         sheetNumber: detail?.sheetNumber ?? '—',
         contextSubtitle: `${row.beneficiaryName} · ${row.beneficiaryCode}`,
       },
@@ -628,6 +647,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       itemStatus: item.itemStatus,
       paidAt: item.paidAt ?? null,
       paymentRef: item.paymentRef ?? null,
+      paidFromAccount: mapPaidFromAccountToBankDetails(item.paidFromAccount),
       bankDetails: item.bankSnapshot
         ? {
             bankHolderName: item.bankSnapshot.accountHolderName,
@@ -720,6 +740,9 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           itemStatus: item.itemStatus,
           paidAt: item.paidAt ?? null,
           paymentRef: item.paymentRef ?? null,
+          paidFromAccount: mapPaidFromAccountToBankDetails(
+            item.paidFromAccount
+          ),
           bankDetails,
           ...this.mapItemVerificationFields(item),
           rejectDetail: this.mapItemRejectDetail(item),

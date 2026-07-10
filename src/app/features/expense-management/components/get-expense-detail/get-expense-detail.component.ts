@@ -14,6 +14,7 @@ import { DrawerDetailBase } from '@shared/base/drawer-detail.base';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { AppConfigurationService } from '@shared/services';
 import {
+  EBankDetailsDisplayMode,
   EDataType,
   IDataViewDetails,
   IDataViewDetailsWithEntity,
@@ -38,6 +39,8 @@ import { APP_PERMISSION } from '@core/constants/app-permission.constant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GetExpenseDetailComponent extends DrawerDetailBase {
+  protected readonly EBankDetailsDisplayMode = EBankDetailsDisplayMode;
+
   protected readonly drawerData = inject(DRAWER_DATA) as {
     expense: IExpenseGetBaseResponseDto;
   };

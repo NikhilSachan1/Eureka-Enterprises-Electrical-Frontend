@@ -21,6 +21,16 @@ const PaymentSheetBankSnapshotSchema = z
   })
   .nullable();
 
+const PaymentSheetPaidFromAccountSchema = z
+  .looseObject({
+    accountHolderName: z.string(),
+    bankName: z.string(),
+    accountNumber: z.string(),
+    ifscCode: z.string(),
+    branchName: z.string(),
+  })
+  .nullable();
+
 const PaymentSheetVendorSnapshotSchema = z
   .looseObject({
     id: uuidField.optional(),
@@ -112,6 +122,8 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   itemStatus: z.string(),
   paidAt: isoDateTimeField.nullable(),
   paymentRef: z.string().nullable(),
+  paidFromAccountId: uuidField.nullable(),
+  paidFromAccount: PaymentSheetPaidFromAccountSchema,
   bookPaymentAllocations: z
     .array(PaymentSheetBookPaymentAllocationSchema)
     .nullable(),
