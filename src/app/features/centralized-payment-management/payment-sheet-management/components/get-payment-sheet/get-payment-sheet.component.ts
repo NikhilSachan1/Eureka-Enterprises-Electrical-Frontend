@@ -14,7 +14,6 @@ import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
-import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
 import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   AppConfigurationService,
@@ -46,7 +45,6 @@ import {
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import { PaymentSheetTimelineDrawerComponent } from '../payment-sheet-timeline-drawer/payment-sheet-timeline-drawer.component';
 import {
-  EPaymentSheetStage,
   EPaymentSheetStatus,
   EPaymentSheetTimelineMode,
 } from '../../types/payment-sheet.enum';
@@ -56,15 +54,10 @@ import {
   IPaymentSheetGetResponseDto,
 } from '../../types/payment-sheet.dto';
 import { IPaymentSheet } from '../../types/payment-sheet.interface';
-
-type TPaymentSheetWorkflowStepState = 'complete' | 'current' | 'pending';
-
-const PAYMENT_SHEET_LIST_WORKFLOW_STEPS = [
-  { stage: EPaymentSheetStage.INITIATION, shortLabel: 'Draft' },
-  { stage: EPaymentSheetStage.HR_REVIEW, shortLabel: 'HR' },
-  { stage: EPaymentSheetStage.ADMIN_REVIEW, shortLabel: 'Admin' },
-  { stage: EPaymentSheetStage.PROCESSING, shortLabel: 'Accounts' },
-] as const;
+import {
+  PAYMENT_SHEET_LIST_WORKFLOW_STEPS,
+  TPaymentSheetWorkflowStepState,
+} from '../../types/payment-sheet-workflow.types';
 
 @Component({
   selector: 'app-get-payment-sheet',
@@ -73,7 +66,6 @@ const PAYMENT_SHEET_LIST_WORKFLOW_STEPS = [
     SearchFilterComponent,
     DataTableComponent,
     PaymentSheetAmountsCellComponent,
-    StatusTagComponent,
   ],
   templateUrl: './get-payment-sheet.component.html',
   styleUrl: './get-payment-sheet.component.scss',

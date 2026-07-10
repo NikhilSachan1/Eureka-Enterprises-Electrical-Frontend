@@ -53,7 +53,7 @@ export const PAYMENT_SHEET_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[
     },
     {
       field: 'status',
-      header: 'Status',
+      header: 'Timeline',
       bodyTemplate: EDataType.TEXT,
       customTemplateKey: 'paymentSheetWorkflowCell',
       columnStyleClass: 'cell-allow-wrap',

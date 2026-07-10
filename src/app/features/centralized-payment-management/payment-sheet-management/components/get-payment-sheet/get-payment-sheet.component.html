@@ -30,8 +30,6 @@
   let-row
 >
   <div class="ps-list-workflow">
-    <app-status-tag [value]="row.statusLabel" />
-
     @if (shouldShowWorkflowTimeline(row)) {
       <div class="ps-list-workflow__track">
         @for (step of workflowSteps; track step.stage; let index = $index) {
