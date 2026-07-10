@@ -35,6 +35,7 @@ import { ICONS } from '@shared/constants';
 import {
   ConfirmationDialogService,
   DrawerService,
+  GalleryService,
   TableService,
   AppConfigurationService,
 } from '@shared/services';
@@ -49,6 +50,7 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
+  IGalleryInputData,
   IPageHeaderConfig,
   ITableActionClickEvent,
 } from '@shared/types';
@@ -78,6 +80,7 @@ import {
   IPaymentSheetItemRejectView,
   IPaymentSheetItemVerificationView,
   IPaymentSheetOverviewView,
+  IPaymentSheetPaymentAdviceView,
 } from '../../types/payment-sheet-detail.interface';
 import { APP_PERMISSION } from '@core/constants';
 import {
@@ -132,6 +135,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     ConfirmationDialogService
   );
   private readonly drawerService = inject(DrawerService);
+  private readonly galleryService = inject(GalleryService);
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appPermissionService = inject(AppPermissionService);
@@ -336,6 +340,23 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       this.appConfigurationService.bankNames(),
       bankName
     );
+  }
+
+  protected viewPaymentAdvicePdf(pdfKey: string | null | undefined): void {
+    const normalizedKey = pdfKey?.trim();
+
+    if (!normalizedKey) {
+      return;
+    }
+
+    const media: IGalleryInputData[] = [
+      {
+        mediaKey: normalizedKey,
+        actualMediaUrl: '',
+      },
+    ];
+
+    this.galleryService.show(media);
   }
 
   protected isCurrentPaymentStage(): boolean {
@@ -548,6 +569,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         itemId: row.id,
         history: detail?.history ?? [],
         paidFromAccount: row.paidFromAccount,
+        paymentAdvice: row.paymentAdvice,
         sheetNumber: detail?.sheetNumber ?? '—',
         contextSubtitle: `${row.beneficiaryName} · ${row.beneficiaryCode}`,
       },
@@ -648,6 +670,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       paidAt: item.paidAt ?? null,
       paymentRef: item.paymentRef ?? null,
       paidFromAccount: mapPaidFromAccountToBankDetails(item.paidFromAccount),
+      paymentAdvice: null,
       bankDetails: item.bankSnapshot
         ? {
             bankHolderName: item.bankSnapshot.accountHolderName,
@@ -743,6 +766,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           paidFromAccount: mapPaidFromAccountToBankDetails(
             item.paidFromAccount
           ),
+          paymentAdvice: this.mapPaymentAdvice(allocation.paymentAdvice),
           bankDetails,
           ...this.mapItemVerificationFields(item),
           rejectDetail: this.mapItemRejectDetail(item),
@@ -757,6 +781,21 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     const location = [vendor?.city, vendor?.state].filter(Boolean).join(', ');
 
     return location || '-';
+  }
+
+  private mapPaymentAdvice(
+    paymentAdvice: NonNullable<
+      IPaymentSheetItemDetailDto['bookPaymentAllocations']
+    >[number]['paymentAdvice']
+  ): IPaymentSheetPaymentAdviceView | null {
+    if (!paymentAdvice) {
+      return null;
+    }
+
+    return {
+      referenceNumber: paymentAdvice.referenceNumber,
+      pdfKey: paymentAdvice.pdfKey ?? null,
+    };
   }
 
   private prepareItemRecordDetail(

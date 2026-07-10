@@ -17,6 +17,11 @@ export interface IPaymentSheetItemRejectView {
   reason: string;
 }
 
+export interface IPaymentSheetPaymentAdviceView {
+  referenceNumber: string;
+  pdfKey: string | null;
+}
+
 export interface IPaymentSheetDetailItemRow {
   status: string;
   currentStage: string | null;
@@ -31,6 +36,7 @@ export interface IPaymentSheetDetailItemRow {
   paidAt: string | null;
   paymentRef: string | null;
   paidFromAccount: IBankDetailsCellValue | null;
+  paymentAdvice: IPaymentSheetPaymentAdviceView | null;
   bankDetails: IBankDetailsCellValue | null;
   companyName?: string;
   projectName?: string;
@@ -84,13 +90,15 @@ export type TPaymentSheetTimelineDetailVariant =
   | 'default'
   | 'emphasis'
   | 'note'
-  | 'paidFrom';
+  | 'paidFrom'
+  | 'attachment';
 
 export interface IPaymentSheetTimelineEventDetail {
   icon?: string;
   label: string;
   value?: string;
   bankDetails?: IBankDetailsCellValue | null;
+  attachmentKeys?: string[];
   variant?: TPaymentSheetTimelineDetailVariant;
 }
 
@@ -132,6 +140,7 @@ export interface IPaymentSheetTimelineDrawerDataItemHistory
   itemId: string;
   history: TPaymentSheetHistoryEntryView[];
   paidFromAccount?: IBankDetailsCellValue | null;
+  paymentAdvice?: IPaymentSheetPaymentAdviceView | null;
 }
 
 export type IPaymentSheetTimelineDrawerData =

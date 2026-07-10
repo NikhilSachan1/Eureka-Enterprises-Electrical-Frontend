@@ -119,40 +119,40 @@
               @for (stage of getVisibleVerificationStages(row); track stage) {
                 @if (getVerificationForStage(row, stage); as verification) {
                   <div
-                    class="ps-detail-verification__row ps-detail-verification__row--verified"
-                    [class.ps-detail-verification__row--current]="isCurrentVerificationStage(stage)"
+                    class="ps-detail-verification__step ps-detail-verification__step--done"
+                    [class.ps-detail-verification__step--current]="isCurrentVerificationStage(stage)"
                   >
-                    <i
-                      [class]="
-                        ICONS.COMMON.CHECK_TICK + ' ps-detail-verification__icon ps-detail-verification__icon--verified'
-                      "
+                    <div
+                      class="ps-detail-verification__marker"
                       aria-hidden="true"
-                    ></i>
-                    <div class="ps-detail-verification__body">
-                      <span class="ps-detail-verification__stage">
+                    >
+                      <span class="ps-detail-verification__dot ps-detail-verification__dot--success"></span>
+                    </div>
+                    <div class="ps-detail-verification__panel">
+                      <span class="ps-detail-verification__title">
                         {{ getVerificationStageLabel(stage) }}
                       </span>
-                      <div class="ps-detail-verification__meta-stack">
-                        <span class="ps-detail-verification__meta-line">
-                          {{ verification.verifiedByName }}
-                        </span>
-                        <span class="ps-detail-verification__meta-line">
-                          {{ verification.verifiedAt | date: verifiedAtDateFormat : undefined : paidAtDateLocale }}
-                        </span>
-                      </div>
+                      <span class="ps-detail-verification__meta">
+                        {{ verification.verifiedByName }}
+                      </span>
+                      <span class="ps-detail-verification__meta">
+                        {{ verification.verifiedAt | date: verifiedAtDateFormat : undefined : paidAtDateLocale }}
+                      </span>
                     </div>
                   </div>
                 } @else if (!hasRejectContext(row)) {
                   <div
-                    class="ps-detail-verification__row ps-detail-verification__row--pending"
-                    [class.ps-detail-verification__row--current]="isCurrentVerificationStage(stage)"
+                    class="ps-detail-verification__step ps-detail-verification__step--pending"
+                    [class.ps-detail-verification__step--current]="isCurrentVerificationStage(stage)"
                   >
-                    <i
-                      class="pi pi-circle ps-detail-verification__icon ps-detail-verification__icon--pending"
+                    <div
+                      class="ps-detail-verification__marker"
                       aria-hidden="true"
-                    ></i>
-                    <div class="ps-detail-verification__body">
-                      <span class="ps-detail-verification__stage">
+                    >
+                      <span class="ps-detail-verification__dot ps-detail-verification__dot--pending"></span>
+                    </div>
+                    <div class="ps-detail-verification__panel">
+                      <span class="ps-detail-verification__title">
                         {{ getVerificationStageLabel(stage) }}
                       </span>
                       <span class="ps-detail-verification__meta">Pending approval</span>
@@ -164,55 +164,68 @@
               @if (shouldShowPaymentStatus(row)) {
                 @if (isItemPaid(row)) {
                   <div
-                    class="ps-detail-verification__row ps-detail-verification__row--verified"
-                    [class.ps-detail-verification__row--current]="isCurrentPaymentStage()"
+                    class="ps-detail-verification__step ps-detail-verification__step--done"
+                    [class.ps-detail-verification__step--current]="isCurrentPaymentStage()"
                   >
-                    <i
-                      [class]="
-                        ICONS.COMMON.CHECK_TICK + ' ps-detail-verification__icon ps-detail-verification__icon--verified'
-                      "
+                    <div
+                      class="ps-detail-verification__marker"
                       aria-hidden="true"
-                    ></i>
-                    <div class="ps-detail-verification__body">
-                      <span class="ps-detail-verification__stage">Accounts</span>
-                      <div class="ps-detail-verification__meta-stack">
-                        @if (row.paidAt) {
-                          <span class="ps-detail-verification__meta-line">
-                            {{ row.paidAt | date: paidAtDateFormat : undefined : paidAtDateLocale }}
-                          </span>
-                        } @else {
-                          <span class="ps-detail-verification__meta-line">Paid</span>
-                        }
-                        @if (getPaidFromAccountBankName(row); as paidFromBankName) {
-                          <div class="ps-detail-verification__paid-from">
-                            <span
-                              class="ps-detail-verification__paid-from-icon"
-                              aria-hidden="true"
-                            >
-                              <i [class]="ICONS.PAYROLL.WALLET"></i>
-                            </span>
-                            <div class="ps-detail-verification__paid-from-copy">
-                              <span class="ps-detail-verification__paid-from-label">Paid from</span>
-                              <span class="ps-detail-verification__meta-line">
-                                {{ paidFromBankName }}
-                              </span>
-                            </div>
-                          </div>
+                    >
+                      <span class="ps-detail-verification__dot ps-detail-verification__dot--success"></span>
+                    </div>
+                    <div class="ps-detail-verification__panel">
+                      <span class="ps-detail-verification__title">Accounts</span>
+                      @if (row.paidAt) {
+                        <span class="ps-detail-verification__meta">
+                          {{ row.paidAt | date: paidAtDateFormat : undefined : paidAtDateLocale }}
+                        </span>
+                      } @else {
+                        <span class="ps-detail-verification__meta">Paid</span>
+                      }
+                      @if (getPaidFromAccountBankName(row); as paidFromBankName) {
+                        <span class="ps-detail-verification__meta">Paid from · {{ paidFromBankName }}</span>
+                      }
+                    </div>
+                  </div>
+
+                  @if (row.paymentAdvice; as paymentAdvice) {
+                    <div class="ps-detail-verification__step ps-detail-verification__step--done">
+                      <div
+                        class="ps-detail-verification__marker"
+                        aria-hidden="true"
+                      >
+                        <span class="ps-detail-verification__dot ps-detail-verification__dot--success"></span>
+                      </div>
+                      <div class="ps-detail-verification__panel">
+                        <span class="ps-detail-verification__title">Payment Advice</span>
+                        <span class="ps-detail-verification__meta ps-detail-verification__meta--strong">
+                          {{ paymentAdvice.referenceNumber }}
+                        </span>
+                        @if (paymentAdvice.pdfKey) {
+                          <button
+                            type="button"
+                            class="ps-detail-verification__link"
+                            (click)="viewPaymentAdvicePdf(paymentAdvice.pdfKey)"
+                          >
+                            View PDF
+                          </button>
                         }
                       </div>
                     </div>
-                  </div>
+                  }
                 } @else {
                   <div
-                    class="ps-detail-verification__row ps-detail-verification__row--pending"
-                    [class.ps-detail-verification__row--current]="isCurrentPaymentStage()"
+                    class="ps-detail-verification__step ps-detail-verification__step--pending"
+                    [class.ps-detail-verification__step--current]="isCurrentPaymentStage()"
                   >
-                    <i
-                      class="pi pi-circle ps-detail-verification__icon ps-detail-verification__icon--pending"
+                    <div
+                      class="ps-detail-verification__marker"
                       aria-hidden="true"
-                    ></i>
-                    <div class="ps-detail-verification__body">
-                      <span class="ps-detail-verification__stage">Accounts</span>
+                    >
+                      <span class="ps-detail-verification__dot ps-detail-verification__dot--pending"></span>
+                    </div>
+                    <div class="ps-detail-verification__panel">
+                      <span class="ps-detail-verification__title">Accounts</span>
                       <span class="ps-detail-verification__meta">Pending payment</span>
                     </div>
                   </div>
@@ -220,35 +233,32 @@
               }
 
               @if (row.rejectDetail; as rejectDetail) {
-                <div class="ps-detail-verification__row ps-detail-verification__row--rejected">
-                  <i
-                    [class]="
-                      ICONS.ACTIONS.TIMES + ' ps-detail-verification__icon ps-detail-verification__icon--rejected'
-                    "
+                <div class="ps-detail-verification__step ps-detail-verification__step--rejected">
+                  <div
+                    class="ps-detail-verification__marker"
                     aria-hidden="true"
-                  ></i>
-                  <div class="ps-detail-verification__body">
-                    <span class="ps-detail-verification__stage">
-                      Rejected
+                  >
+                    <span class="ps-detail-verification__dot ps-detail-verification__dot--rejected"></span>
+                  </div>
+                  <div class="ps-detail-verification__panel">
+                    <span class="ps-detail-verification__title">
                       @if (rejectDetail.stage) {
-                        ({{ getVerificationStageLabel(rejectDetail.stage) }})
+                        {{ getVerificationStageLabel(rejectDetail.stage) }} (Rejected)
+                      } @else {
+                        Rejected
                       }
                     </span>
-                    <div class="ps-detail-verification__meta-stack">
-                      @if (rejectDetail.rejectedByName !== '—') {
-                        <span class="ps-detail-verification__meta-line">
-                          {{ rejectDetail.rejectedByName }}
-                        </span>
-                      }
-                      @if (rejectDetail.rejectedAt) {
-                        <span class="ps-detail-verification__meta-line">
-                          {{ rejectDetail.rejectedAt | date: verifiedAtDateFormat : undefined : paidAtDateLocale }}
-                        </span>
-                      }
-                      <span class="ps-detail-verification__meta-line">
-                        {{ rejectDetail.reason }}
+                    @if (rejectDetail.rejectedByName !== '—') {
+                      <span class="ps-detail-verification__meta">
+                        {{ rejectDetail.rejectedByName }}
                       </span>
-                    </div>
+                    }
+                    @if (rejectDetail.rejectedAt) {
+                      <span class="ps-detail-verification__meta">
+                        {{ rejectDetail.rejectedAt | date: verifiedAtDateFormat : undefined : paidAtDateLocale }}
+                      </span>
+                    }
+                    <span class="ps-detail-verification__meta">{{ rejectDetail.reason }}</span>
                   </div>
                 </div>
               }

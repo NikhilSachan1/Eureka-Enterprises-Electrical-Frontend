@@ -13,11 +13,16 @@ import { BankDetailsCellComponent } from '@shared/components/bank-details-cell/b
 import { TimelineComponent } from '@shared/components/timeline/timeline.component';
 import { DRAWER_DATA } from '@shared/constants/drawer.constants';
 import { ICONS } from '@shared/constants';
-import { AppConfigurationService, AvatarService } from '@shared/services';
+import {
+  AppConfigurationService,
+  AvatarService,
+  GalleryService,
+} from '@shared/services';
 import {
   EBankDetailsDisplayMode,
   ETimelineAlign,
   ETimelineLayout,
+  IGalleryInputData,
   ITimelineConfig,
 } from '@shared/types';
 import { getMappedValueFromArrayOfObjects } from '@shared/utility';
@@ -64,6 +69,7 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
 
   private readonly appConfigurationService = inject(AppConfigurationService);
   private readonly avatarService = inject(AvatarService);
+  private readonly galleryService = inject(GalleryService);
   private readonly paymentSheetService = inject(PaymentSheetService);
 
   private readonly shouldFetchStageLogs =
@@ -365,6 +371,27 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
           });
         }
 
+        if (this.drawerData.mode === EPaymentSheetTimelineMode.ITEM_HISTORY) {
+          const { paymentAdvice } = this.drawerData;
+
+          if (paymentAdvice) {
+            details.push({
+              icon: ICONS.COMMON.FILE,
+              label: 'Payment Advice',
+              value: paymentAdvice.referenceNumber,
+            });
+
+            if (paymentAdvice.pdfKey) {
+              details.push({
+                icon: ICONS.MEDIA.PDF,
+                label: 'PA Attachment',
+                attachmentKeys: [paymentAdvice.pdfKey],
+                variant: 'attachment',
+              });
+            }
+          }
+        }
+
         return this.createTimelineEvent({
           id: entry.id,
           occurredAt: entry.createdAt,
@@ -557,6 +584,23 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
+  }
+
+  protected viewTimelineAttachments(
+    attachmentKeys: string[] | undefined
+  ): void {
+    const keys = attachmentKeys?.map(key => key.trim()).filter(Boolean) ?? [];
+
+    if (!keys.length) {
+      return;
+    }
+
+    const media: IGalleryInputData[] = keys.map(mediaKey => ({
+      mediaKey,
+      actualMediaUrl: '',
+    }));
+
+    this.galleryService.show(media);
   }
 
   private initLoadingForFetch(): null {

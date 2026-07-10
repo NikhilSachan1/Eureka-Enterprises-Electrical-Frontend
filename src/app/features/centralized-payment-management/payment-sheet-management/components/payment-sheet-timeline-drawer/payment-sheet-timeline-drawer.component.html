@@ -70,6 +70,31 @@
                           />
                         </div>
                       </div>
+                    } @else if (detail.variant === 'attachment') {
+                      <div class="ps-timeline-drawer__row">
+                        @if (detail.icon) {
+                          <span
+                            class="ps-timeline-drawer__row-icon"
+                            [class]="'ps-timeline-drawer__row-icon--' + event.tone"
+                          >
+                            <i [class]="detail.icon"></i>
+                          </span>
+                        }
+                        <div class="ps-timeline-drawer__row-copy">
+                          <span class="ps-timeline-drawer__row-label">{{ detail.label }}</span>
+                          <button
+                            type="button"
+                            class="ps-timeline-drawer__attachment-action"
+                            (click)="viewTimelineAttachments(detail.attachmentKeys)"
+                          >
+                            <i
+                              [class]="ICONS.COMMON.PAPERCLIP"
+                              aria-hidden="true"
+                            ></i>
+                            <span>View attachment</span>
+                          </button>
+                        </div>
+                      </div>
                     } @else if (detail.variant === 'note') {
                       <div
                         class="ps-timeline-drawer__note"
