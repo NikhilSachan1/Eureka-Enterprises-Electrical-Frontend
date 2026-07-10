@@ -155,10 +155,10 @@ export class EditVendorComponent
       state,
       city,
       pincode,
-      bankName,
-      accountNumber,
-      ifscCode,
-      accountHolderName,
+      bankName: bankName ?? '',
+      accountNumber: accountNumber ?? '',
+      ifscCode: ifscCode ?? '',
+      accountHolderName: accountHolderName ?? '',
     };
   }
 
