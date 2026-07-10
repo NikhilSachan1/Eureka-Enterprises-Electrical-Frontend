@@ -35,7 +35,6 @@ import { ICONS } from '@shared/constants';
 import {
   ConfirmationDialogService,
   DrawerService,
-  GalleryService,
   TableService,
   AppConfigurationService,
 } from '@shared/services';
@@ -130,7 +129,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
     ConfirmationDialogService
   );
   private readonly drawerService = inject(DrawerService);
-  private readonly galleryService = inject(GalleryService);
   private readonly logger = inject(LoggerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly appPermissionService = inject(AppPermissionService);
@@ -291,15 +289,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       this.shouldShowPaymentStatus(row) ||
       this.hasRejectContext(row)
     );
-  }
-
-  protected openPaymentAdvicePdf(pdfKey: string): void {
-    this.galleryService.show([
-      {
-        mediaKey: pdfKey,
-        actualMediaUrl: '',
-      },
-    ]);
   }
 
   protected hasRejectContext(row: IPaymentSheetDetailItemRow): boolean {
@@ -524,10 +513,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       {
         selectedRecord: selectedRows,
         paymentSheetId: this.paymentSheetId,
-        bookPaymentId:
-          actionType === EButtonActionType.PAID && selectedRow?.bookPaymentId
-            ? [selectedRow.bookPaymentId]
-            : [],
         onSuccess: () => this.reloadDetail(),
       }
     );
@@ -716,7 +701,6 @@ export class GetPaymentSheetDetailComponent implements OnInit {
 
       return (item.bookPaymentAllocations ?? []).map(allocation => {
         const { invoice } = allocation;
-        const isAllocationPaid = Boolean(allocation.bankTransferId);
 
         return {
           ...this.getWorkflowFields(detail),
@@ -733,20 +717,10 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           actualDue: invoice?.actualDueAmount ?? item.actualDueAmount,
           payableAmount: invoice?.payableAmount ?? item.payableAmount,
           remainingAmount: invoice?.remainingAmount ?? item.remainingAmount,
-          itemStatus: isAllocationPaid
-            ? EPaymentSheetItemStatus.PAID
-            : item.itemStatus,
-          paidAt: isAllocationPaid ? (item.paidAt ?? null) : null,
-          paymentRef: allocation.bankTransferId ?? null,
-          bookPaymentId: allocation.bookPaymentId,
+          itemStatus: item.itemStatus,
+          paidAt: item.paidAt ?? null,
+          paymentRef: item.paymentRef ?? null,
           bankDetails,
-          paymentAdvice: allocation.paymentAdvice
-            ? {
-                id: allocation.paymentAdvice.id,
-                referenceNumber: allocation.paymentAdvice.referenceNumber,
-                pdfKey: allocation.paymentAdvice.pdfKey ?? null,
-              }
-            : null,
           ...this.mapItemVerificationFields(item),
           rejectDetail: this.mapItemRejectDetail(item),
         };

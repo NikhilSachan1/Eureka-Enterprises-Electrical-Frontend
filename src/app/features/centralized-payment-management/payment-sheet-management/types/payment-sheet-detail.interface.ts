@@ -17,12 +17,6 @@ export interface IPaymentSheetItemRejectView {
   reason: string;
 }
 
-export interface IPaymentSheetItemPaymentAdviceView {
-  id: string;
-  referenceNumber: string;
-  pdfKey: string | null;
-}
-
 export interface IPaymentSheetDetailItemRow {
   status: string;
   currentStage: string | null;
@@ -43,8 +37,6 @@ export interface IPaymentSheetDetailItemRow {
   projectState?: string;
   invoiceNumber?: string;
   invoiceDate?: string | null;
-  bookPaymentId?: string;
-  paymentAdvice?: IPaymentSheetItemPaymentAdviceView | null;
   verifications: IPaymentSheetItemVerificationView[];
   verifiedStages: string[];
   isVerifiedForCurrentStage: boolean;

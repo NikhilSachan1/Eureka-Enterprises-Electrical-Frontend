@@ -183,22 +183,6 @@
                         } @else {
                           <span class="ps-detail-verification__meta-line">Paid</span>
                         }
-                        @if (row.paymentAdvice; as paymentAdvice) {
-                          <span class="ps-detail-verification__meta-line">PA: {{ paymentAdvice.referenceNumber }}</span>
-                          @if (paymentAdvice.pdfKey) {
-                            <button
-                              type="button"
-                              class="ps-detail-verification__link"
-                              (click)="openPaymentAdvicePdf(paymentAdvice.pdfKey)"
-                            >
-                              <i
-                                [class]="ICONS.COMMON.DOWNLOAD"
-                                aria-hidden="true"
-                              ></i>
-                              View PDF
-                            </button>
-                          }
-                        }
                       </div>
                     </div>
                   </div>
