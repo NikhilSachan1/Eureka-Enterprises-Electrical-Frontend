@@ -14,9 +14,9 @@ import {
 import { IPaymentSheetGetBaseResponseDto } from '../../types/payment-sheet.dto';
 import { IPaymentSheet } from '../../types/payment-sheet.interface';
 import {
-  getPaymentSheetRejectDisableReason,
+  getPaymentSheetDeleteDisableReason,
   getPaymentSheetReturnDisableReason,
-  isPaymentSheetRejectDisabled,
+  isPaymentSheetDeleteDisabled,
   isPaymentSheetReturnDisabled,
 } from '../../utils/payment-sheet-status.util';
 
@@ -96,13 +96,13 @@ export const createPaymentSheetTableRowActionsConfig = (
       getPaymentSheetReturnDisableReason(row, activeRole),
   },
   {
-    ...COMMON_ROW_ACTIONS.REJECT,
-    tooltip: 'Reject Sheet',
+    ...COMMON_ROW_ACTIONS.DELETE,
+    tooltip: 'Delete Sheet',
     permission: [APP_PERMISSION.PAYMENT_SHEET.REJECT],
     disableWhen: (row: IPaymentSheetGetBaseResponseDto) =>
-      isPaymentSheetRejectDisabled(row, activeRole),
+      isPaymentSheetDeleteDisabled(row, activeRole),
     disableReason: (row: IPaymentSheetGetBaseResponseDto) =>
-      getPaymentSheetRejectDisableReason(row, activeRole),
+      getPaymentSheetDeleteDisableReason(row, activeRole),
   },
 ];
 

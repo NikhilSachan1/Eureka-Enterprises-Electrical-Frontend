@@ -11,6 +11,10 @@ import {
   DeletePaymentSheetItemRequestSchema,
   DeletePaymentSheetItemResponseSchema,
 } from '../schemas/delete-payment-sheet-item.schema';
+import {
+  DeletePaymentSheetRequestSchema,
+  DeletePaymentSheetResponseSchema,
+} from '../schemas/delete-payment-sheet.schema';
 import { DownloadPaymentSheetPdfFormSchema } from '../schemas/download-payment-sheet-pdf.schema';
 import {
   PaymentSheetDetailGetRequestSchema,
@@ -36,10 +40,6 @@ import {
   RejectPaymentSheetItemRequestSchema,
   RejectPaymentSheetItemResponseSchema,
 } from '../schemas/reject-payment-sheet-item.schema';
-import {
-  RejectPaymentSheetRequestSchema,
-  RejectPaymentSheetResponseSchema,
-} from '../schemas/reject-payment-sheet.schema';
 import {
   ReturnPaymentSheetRequestSchema,
   ReturnPaymentSheetResponseSchema,
@@ -102,6 +102,13 @@ export type IDeletePaymentSheetItemResponseDto = z.infer<
   typeof DeletePaymentSheetItemResponseSchema
 >;
 
+export type IDeletePaymentSheetFormDto = z.input<
+  typeof DeletePaymentSheetRequestSchema
+>;
+export type IDeletePaymentSheetResponseDto = z.infer<
+  typeof DeletePaymentSheetResponseSchema
+>;
+
 export type IUpdatePaymentSheetItemFormDto = z.input<
   typeof UpdatePaymentSheetItemRequestSchema
 >;
@@ -122,13 +129,6 @@ export type IReturnPaymentSheetFormDto = z.input<
 >;
 export type IReturnPaymentSheetResponseDto = z.infer<
   typeof ReturnPaymentSheetResponseSchema
->;
-
-export type IRejectPaymentSheetFormDto = z.input<
-  typeof RejectPaymentSheetRequestSchema
->;
-export type IRejectPaymentSheetResponseDto = z.infer<
-  typeof RejectPaymentSheetResponseSchema
 >;
 
 export type IRejectPaymentSheetItemFormDto = z.input<
