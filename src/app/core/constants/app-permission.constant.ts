@@ -305,7 +305,7 @@ export const APP_PERMISSION = {
     SUBMIT: 'financials.payment-sheets.submit',
     FORWARD: 'financials.payment-sheets.forward',
     RETURN: 'financials.payment-sheets.return',
-    REJECT: 'financials.payment-sheets.sheet-reject',
+    DELETE: 'financials.payment-sheets.delete',
     BENEFICIARY_ADD: 'financials.payment-sheets.item-add',
     BENEFICIARY_EDIT: 'financials.payment-sheets.item-edit',
     BENEFICIARY_REMOVE: 'financials.payment-sheets.item-remove',

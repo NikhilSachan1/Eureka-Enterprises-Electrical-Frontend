@@ -98,7 +98,7 @@ export const createPaymentSheetTableRowActionsConfig = (
   {
     ...COMMON_ROW_ACTIONS.DELETE,
     tooltip: 'Delete Sheet',
-    permission: [APP_PERMISSION.PAYMENT_SHEET.REJECT],
+    permission: [APP_PERMISSION.PAYMENT_SHEET.DELETE],
     disableWhen: (row: IPaymentSheetGetBaseResponseDto) =>
       isPaymentSheetDeleteDisabled(row, activeRole),
     disableReason: (row: IPaymentSheetGetBaseResponseDto) =>
