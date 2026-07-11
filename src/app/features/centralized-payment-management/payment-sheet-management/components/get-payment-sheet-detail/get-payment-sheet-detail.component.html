@@ -200,6 +200,11 @@
                     </div>
                     <div class="ps-detail-verification__panel">
                       <span class="ps-detail-verification__title">Accounts</span>
+                      @if (row.paidByUserName) {
+                        <span class="ps-detail-verification__meta">
+                          {{ row.paidByUserName }}
+                        </span>
+                      }
                       @if (row.paidAt) {
                         <span class="ps-detail-verification__meta">
                           {{ row.paidAt | date: paidAtDateFormat : undefined : paidAtDateLocale }}

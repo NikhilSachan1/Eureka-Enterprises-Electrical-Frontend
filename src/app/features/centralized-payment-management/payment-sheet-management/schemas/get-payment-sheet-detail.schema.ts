@@ -132,6 +132,7 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   itemStatus: z.string(),
   paidAt: isoDateTimeField.nullable(),
   paymentRef: z.string().nullable(),
+  paidByUser: UserSchema.nullable().optional(),
   paidFromAccountId: uuidField.nullable(),
   paidFromAccount: PaymentSheetPaidFromAccountSchema,
   bookPaymentAllocations: z

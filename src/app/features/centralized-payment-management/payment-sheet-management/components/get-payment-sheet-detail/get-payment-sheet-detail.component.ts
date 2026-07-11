@@ -680,6 +680,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       itemStatus: item.itemStatus,
       paidAt: item.paidAt ?? null,
       paymentRef: item.paymentRef ?? null,
+      paidByUserName: this.mapPaidByUserName(item.paidByUser),
       paidFromAccount: mapPaidFromAccountToBankDetails(item.paidFromAccount),
       paymentAdvice: null,
       bankDetails: item.bankSnapshot
@@ -693,6 +694,18 @@ export class GetPaymentSheetDetailComponent implements OnInit {
       ...this.mapItemVerificationFields(item),
       rejectDetail: this.mapItemRejectDetail(item),
     };
+  }
+
+  private mapPaidByUserName(
+    paidByUser: IPaymentSheetItemDetailDto['paidByUser']
+  ): string | null {
+    if (!paidByUser) {
+      return null;
+    }
+
+    const name = `${paidByUser.firstName} ${paidByUser.lastName}`.trim();
+
+    return name || null;
   }
 
   private mapItemRejectDetail(
@@ -774,6 +787,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           itemStatus: item.itemStatus,
           paidAt: item.paidAt ?? null,
           paymentRef: item.paymentRef ?? null,
+          paidByUserName: this.mapPaidByUserName(item.paidByUser),
           paidFromAccount: mapPaidFromAccountToBankDetails(
             item.paidFromAccount
           ),

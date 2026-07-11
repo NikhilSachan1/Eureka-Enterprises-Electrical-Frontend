@@ -35,6 +35,7 @@ export interface IPaymentSheetDetailItemRow {
   remainingAmount: number;
   paidAt: string | null;
   paymentRef: string | null;
+  paidByUserName: string | null;
   paidFromAccount: IBankDetailsCellValue | null;
   paymentAdvice: IPaymentSheetPaymentAdviceView | null;
   bankDetails: IBankDetailsCellValue | null;
