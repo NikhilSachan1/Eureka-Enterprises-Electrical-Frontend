@@ -233,8 +233,8 @@ export class GetInvoiceComponent implements OnInit {
         invoiceNumber: record.invoiceNumber ?? 'No Invoice',
         taxableAmount: record.taxableAmount,
         tdsAmount: record.tdsAmount,
-        tdsPercentage: `(${record.tdsPercentage}%)`,
-        gstPercentage: `(${record.gstPercentage}%)`,
+        tdsPercentage: record.tdsPercentage ? `(${record.tdsPercentage}%)` : '',
+        gstPercentage: record.gstPercentage ? `(${record.gstPercentage}%)` : '',
         gstAmount: record.gstAmount,
         isGstHold: record.isGstHold,
         totalAmount: record.totalAmount,
@@ -335,12 +335,12 @@ export class GetInvoiceComponent implements OnInit {
 
   protected docInvoiceDialogAmountSegments(value: {
     invoiceNumber: string | null;
-    taxableAmount: string;
-    tdsAmount: string;
-    tdsPercentage: string | number;
-    gstAmount: string;
-    gstPercentage: string | number;
-    totalAmount: string;
+    taxableAmount: string | null;
+    tdsAmount: string | null;
+    tdsPercentage: string | number | null;
+    gstAmount: string | null;
+    gstPercentage: string | number | null;
+    totalAmount: string | null;
     isGstHold?: boolean | null;
   }): IDocAmountSegment[] {
     return buildInvoiceTaxGstAmountSegments(value);

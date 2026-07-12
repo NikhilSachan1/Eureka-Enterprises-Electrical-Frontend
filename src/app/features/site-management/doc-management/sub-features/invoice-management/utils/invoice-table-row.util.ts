@@ -96,12 +96,12 @@ function buildInvoiceAmountEmptyPlaceholderSegment(): IDocAmountSegment {
 
 export function buildInvoiceTaxGstAmountSegments(input: {
   invoiceNumber?: string | null;
-  taxableAmount: string;
-  tdsAmount: string;
-  tdsPercentage: string | number;
-  gstAmount: string;
-  gstPercentage: string | number;
-  totalAmount: string;
+  taxableAmount: string | null;
+  tdsAmount: string | null;
+  tdsPercentage: string | number | null;
+  gstAmount: string | null;
+  gstPercentage: string | number | null;
+  totalAmount: string | null;
   isGstHold?: boolean | null;
 }): IDocAmountSegment[] {
   if (input.invoiceNumber === null) {
