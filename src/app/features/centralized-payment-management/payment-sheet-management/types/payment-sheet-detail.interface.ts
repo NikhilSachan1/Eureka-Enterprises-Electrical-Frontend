@@ -4,7 +4,10 @@ import {
   IPaymentSheetItemDetailDto,
   IPaymentSheetDetailGetResponseDto,
 } from './payment-sheet.dto';
-import { EPaymentSheetTimelineMode } from './payment-sheet.enum';
+import {
+  EPaymentSheetSourceType,
+  EPaymentSheetTimelineMode,
+} from './payment-sheet.enum';
 
 export type IPaymentSheetItemVerificationView = NonNullable<
   IPaymentSheetItemDetailDto['verifications']
@@ -34,11 +37,13 @@ export interface IPaymentSheetDetailItemRow {
   payableAmount: number;
   remainingAmount: number;
   paidAt: string | null;
-  paymentRef: string | null;
+  utrNumber: string | null;
   paidByUserName: string | null;
   paidFromAccount: IBankDetailsCellValue | null;
   paymentAdvice: IPaymentSheetPaymentAdviceView | null;
   bankDetails: IBankDetailsCellValue | null;
+  bookPaymentId?: string;
+  sourceType?: EPaymentSheetSourceType;
   companyName?: string;
   projectName?: string;
   projectCity?: string;
@@ -158,6 +163,7 @@ export interface IPaymentSheetTimelineDrawerDataItemHistory
   history: TPaymentSheetHistoryEntryView[];
   paidFromAccount?: IBankDetailsCellValue | null;
   paymentAdvice?: IPaymentSheetPaymentAdviceView | null;
+  utrNumber?: string | null;
 }
 
 export type IPaymentSheetTimelineDrawerData =

@@ -354,13 +354,13 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
             variant: 'emphasis',
           },
         ];
-        const paymentRef = entry.reason?.trim();
+        const utrNumber = this.resolvePaidUtrNumber(entry);
 
-        if (paymentRef) {
+        if (utrNumber) {
           details.push({
             icon: ICONS.COMMON.TAG,
-            label: 'Payment reference',
-            value: paymentRef,
+            label: 'UTR Number',
+            value: utrNumber,
           });
         }
 
@@ -577,6 +577,28 @@ export class PaymentSheetTimelineDrawerComponent extends DrawerDetailBase {
     return REMOVED_ACTION_ALIASES.has(normalized)
       ? EPaymentSheetHistoryAction.ITEM_REMOVED
       : normalized;
+  }
+
+  private resolvePaidUtrNumber(
+    entry: TPaymentSheetHistoryEntryView
+  ): string | undefined {
+    const entryUtr = entry.utrNumber?.trim();
+
+    if (entryUtr) {
+      return entryUtr;
+    }
+
+    if (this.drawerData.mode !== EPaymentSheetTimelineMode.ITEM_HISTORY) {
+      return undefined;
+    }
+
+    const drawerUtr = this.drawerData.utrNumber?.trim();
+
+    if (!drawerUtr) {
+      return undefined;
+    }
+
+    return drawerUtr;
   }
 
   private resolveRemarks(

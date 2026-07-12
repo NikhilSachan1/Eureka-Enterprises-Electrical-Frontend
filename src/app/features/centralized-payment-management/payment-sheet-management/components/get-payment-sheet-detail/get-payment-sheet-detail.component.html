@@ -212,6 +212,9 @@
                       } @else {
                         <span class="ps-detail-verification__meta">Paid</span>
                       }
+                      @if (row.utrNumber; as utrNumber) {
+                        <span class="ps-detail-verification__meta">UTR · {{ utrNumber }}</span>
+                      }
                       @if (getPaidFromAccountBankName(row); as paidFromBankName) {
                         <span class="ps-detail-verification__meta">Paid from · {{ paidFromBankName }}</span>
                       }

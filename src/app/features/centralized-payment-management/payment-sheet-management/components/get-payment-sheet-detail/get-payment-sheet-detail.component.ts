@@ -581,6 +581,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         history: detail?.history ?? [],
         paidFromAccount: row.paidFromAccount,
         paymentAdvice: row.paymentAdvice,
+        utrNumber: row.utrNumber,
         sheetNumber: detail?.sheetNumber ?? '—',
         contextSubtitle: `${row.beneficiaryName} · ${row.beneficiaryCode}`,
       },
@@ -679,7 +680,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         item.user?.employeeId ?? this.formatVendorLocation(item.vendor),
       itemStatus: item.itemStatus,
       paidAt: item.paidAt ?? null,
-      paymentRef: item.paymentRef ?? null,
+      utrNumber: item.utrNumber ?? null,
       paidByUserName: this.mapPaidByUserName(item.paidByUser),
       paidFromAccount: mapPaidFromAccountToBankDetails(item.paidFromAccount),
       paymentAdvice: null,
@@ -693,6 +694,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         : null,
       ...this.mapItemVerificationFields(item),
       rejectDetail: this.mapItemRejectDetail(item),
+      sourceType: item.sourceType,
     };
   }
 
@@ -772,6 +774,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
         return {
           ...this.getWorkflowFields(detail),
           id: item.id,
+          bookPaymentId: allocation.bookPaymentId,
           beneficiaryId: item.vendorId ?? '',
           beneficiaryName: item.vendor?.name ?? '-',
           beneficiaryCode: this.formatVendorLocation(item.vendor),
@@ -786,7 +789,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           remainingAmount: invoice?.remainingAmount ?? item.remainingAmount,
           itemStatus: item.itemStatus,
           paidAt: item.paidAt ?? null,
-          paymentRef: item.paymentRef ?? null,
+          utrNumber: allocation.utrNumber ?? item.utrNumber ?? null,
           paidByUserName: this.mapPaidByUserName(item.paidByUser),
           paidFromAccount: mapPaidFromAccountToBankDetails(
             item.paidFromAccount
@@ -795,6 +798,7 @@ export class GetPaymentSheetDetailComponent implements OnInit {
           bankDetails,
           ...this.mapItemVerificationFields(item),
           rejectDetail: this.mapItemRejectDetail(item),
+          sourceType: item.sourceType,
         };
       });
     });

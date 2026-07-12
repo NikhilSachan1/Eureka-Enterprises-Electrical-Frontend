@@ -69,7 +69,7 @@ export function isPaymentSheetItemPaid(
     return true;
   }
 
-  return Boolean(row.paidAt) || Boolean(row.paymentRef);
+  return Boolean(row.paidAt) || Boolean(row.utrNumber);
 }
 
 function paymentSheetItemPaidDisableReason(actionLabel: string): string {

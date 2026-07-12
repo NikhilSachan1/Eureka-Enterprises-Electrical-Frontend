@@ -68,6 +68,7 @@ const PaymentSheetBookPaymentAllocationSchema = z.looseObject({
   bookPaymentId: uuidField,
   allocatedAmount: z.coerce.number(),
   bankTransferId: uuidField.nullable().optional(),
+  utrNumber: z.string().nullable().optional(),
   invoice: PaymentSheetBookPaymentAllocationInvoiceSchema.optional(),
   paymentAdvice: PaymentSheetPaymentAdviceSchema,
 });
@@ -115,6 +116,7 @@ const PaymentSheetHistorySchema = z.looseObject({
   previousAmount: z.coerce.number().nullable(),
   newAmount: z.coerce.number().nullable(),
   reason: z.string().nullable(),
+  utrNumber: z.string().nullable().optional(),
   createdAt: isoDateTimeField,
   createdByUser: UserSchema.nullable().optional(),
 });
@@ -131,7 +133,7 @@ export const PaymentSheetItemDetailSchema = z.looseObject({
   bankSnapshot: PaymentSheetBankSnapshotSchema,
   itemStatus: z.string(),
   paidAt: isoDateTimeField.nullable(),
-  paymentRef: z.string().nullable(),
+  utrNumber: z.string().nullable(),
   paidByUser: UserSchema.nullable().optional(),
   paidFromAccountId: uuidField.nullable(),
   paidFromAccount: PaymentSheetPaidFromAccountSchema,
