@@ -70,7 +70,6 @@ export class PayPaymentSheetItemComponent
       {
         destroyRef: this.destroyRef,
         defaultValues: {
-          ...(this.isVendorPayment() ? {} : { paymentMode: 'neft/imps' }),
           paidDate: toLocalCalendarDate(new Date()) as Date,
         },
       }
@@ -112,9 +111,7 @@ export class PayPaymentSheetItemComponent
     }
 
     return {
-      paidFromAccount: formData.paidFromAccount,
-      paidDate: formData.paidDate,
-      transactionId: formData.transactionId,
+      ...formData,
       bookPaymentId,
     };
   }
