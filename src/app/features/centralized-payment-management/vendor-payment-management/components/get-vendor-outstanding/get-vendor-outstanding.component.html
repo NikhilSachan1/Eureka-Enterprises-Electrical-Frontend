@@ -253,7 +253,7 @@
                   <div class="invoice-card__bookings">
                     <div class="invoice-card__bookings-head">
                       <span class="invoice-card__bookings-head-label">
-                        @if (invoice.viewType === 'booked') {
+                        @if (invoice.bookPayments.length > 0) {
                           Booked payment entries
                         } @else {
                           Payment entries

@@ -219,12 +219,11 @@ export class GetVendorOutstandingComponent implements OnInit {
   protected vendorOverviewStats(
     group: IVendorOutstandingVendorGroup
   ): IVendorCardSummaryStat[] {
-    const invoiceCount = new Set(
-      group.invoiceGroups.map(invoice => invoice.invoiceId)
-    ).size;
-    const bookingCount = group.invoiceGroups
-      .filter(invoice => invoice.viewType === 'booked')
-      .reduce((total, invoice) => total + invoice.bookPayments.length, 0);
+    const invoiceCount = group.invoiceGroups.length;
+    const bookingCount = group.invoiceGroups.reduce(
+      (total, invoice) => total + invoice.bookPayments.length,
+      0
+    );
 
     return [
       {
@@ -248,7 +247,6 @@ export class GetVendorOutstandingComponent implements OnInit {
       0
     );
     const bookedPayable = group.invoiceGroups
-      .filter(invoice => invoice.viewType === 'booked')
       .flatMap(invoice => invoice.bookPayments)
       .reduce(
         (total, bookPayment) => total + Number(bookPayment.pendingAmount ?? 0),
@@ -446,17 +444,11 @@ export class GetVendorOutstandingComponent implements OnInit {
         Number(group.invoice?.bookedTotal ?? 0) > 0;
       const pendingToBook = Number(group.invoice?.pendingToBook ?? 0);
 
-      if (hasBookedData) {
-        invoiceViews.push(
-          this.toInvoiceOutstandingView(group, 'booked', excludedBookPaymentIds)
-        );
-      }
-
-      if (pendingToBook > 0) {
+      if (hasBookedData || pendingToBook > 0) {
         invoiceViews.push(
           this.toInvoiceOutstandingView(
             group,
-            'unbooked',
+            hasBookedData ? 'booked' : 'unbooked',
             excludedBookPaymentIds
           )
         );
@@ -485,15 +477,13 @@ export class GetVendorOutstandingComponent implements OnInit {
     viewType: IVendorOutstandingInvoiceViewType,
     excludedBookPaymentIds: ReadonlySet<string>
   ): IVendorInvoiceOutstandingGroup {
-    const bookPayments = viewType === 'booked' ? group.bookPayments : [];
-
     return {
       ...group,
-      id: `${group.invoiceId}-${viewType}`,
+      id: group.invoiceId,
       viewType,
-      bookPayments,
+      bookPayments: group.bookPayments,
       opsTable: this.createBookPaymentsTable(
-        bookPayments,
+        group.bookPayments,
         excludedBookPaymentIds
       ),
     };
