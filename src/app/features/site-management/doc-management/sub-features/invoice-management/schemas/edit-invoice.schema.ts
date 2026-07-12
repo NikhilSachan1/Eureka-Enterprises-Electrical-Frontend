@@ -13,20 +13,12 @@ export const EditInvoiceRequestSchema = InvoiceUpsertShapeSchema.omit({
     return {
       invoiceNumber: isNoInvoice ? null : data.invoiceNumber,
       invoiceDate: transformDateFormat(data.invoiceDate),
-      taxableAmount: isNoInvoice
-        ? null
-        : roundCurrencyAmount(Number(data.taxableAmount ?? 0)),
-      tdsPercentage: isNoInvoice ? null : Number(data.tdsPercent ?? 0),
-      tdsAmount: isNoInvoice
-        ? null
-        : roundCurrencyAmount(Number(data.tdsAmount ?? 0)),
-      gstAmount: isNoInvoice
-        ? null
-        : roundCurrencyAmount(Number(data.gstAmount ?? 0)),
-      gstPercentage: isNoInvoice ? null : Number(data.gstPercent ?? 0),
-      totalAmount: isNoInvoice
-        ? null
-        : roundCurrencyAmount(Number(data.totalAmount ?? 0)),
+      taxableAmount: roundCurrencyAmount(Number(data.taxableAmount ?? 0)),
+      tdsPercentage: Number(data.tdsPercent ?? 0),
+      tdsAmount: roundCurrencyAmount(Number(data.tdsAmount ?? 0)),
+      gstAmount: roundCurrencyAmount(Number(data.gstAmount ?? 0)),
+      gstPercentage: Number(data.gstPercent ?? 0),
+      totalAmount: roundCurrencyAmount(Number(data.totalAmount ?? 0)),
       isGstHold: isNoInvoice ? false : Boolean(data.isGstHold),
       fileKey: isNoInvoice ? null : data.invoiceFileKey,
       fileName: isNoInvoice ? null : data.invoiceFileName,
