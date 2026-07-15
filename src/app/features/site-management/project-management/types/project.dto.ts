@@ -20,6 +20,10 @@ import {
   SiteAllocationGetRequestSchema,
   SiteAllocationGetBaseResponseSchema,
   SiteAllocationGetResponseSchema,
+  WorkforceAllocationGetRequestSchema,
+  WorkforceAllocationGetBaseResponseSchema,
+  WorkforceAllocationGetStatsSchema,
+  WorkforceAllocationGetResponseSchema,
 } from '../schemas';
 /*
   Project Add
@@ -121,4 +125,23 @@ export type ISiteAllocationGetResponseDto = z.infer<
 >;
 export type ISiteAllocationGetBaseResponseDto = z.infer<
   typeof SiteAllocationGetBaseResponseSchema
+>;
+
+/*
+  Workforce allocation (site-allocations/employees)
+*/
+export type IWorkforceAllocationGetRequestDto = z.infer<
+  typeof WorkforceAllocationGetRequestSchema
+>;
+export type IWorkforceAllocationGetFormDto = z.input<
+  typeof WorkforceAllocationGetRequestSchema
+>;
+export type IWorkforceAllocationGetStatsDto = z.infer<
+  typeof WorkforceAllocationGetStatsSchema
+>;
+export type IWorkforceAllocationGetBaseResponseDto = z.infer<
+  typeof WorkforceAllocationGetBaseResponseSchema
+>;
+export type IWorkforceAllocationGetResponseDto = z.infer<
+  typeof WorkforceAllocationGetResponseSchema
 >;

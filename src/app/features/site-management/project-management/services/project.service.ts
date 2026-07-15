@@ -19,6 +19,8 @@ import {
   ProjectOverviewGetResponseSchema,
   SiteAllocationGetRequestSchema,
   SiteAllocationGetResponseSchema,
+  WorkforceAllocationGetRequestSchema,
+  WorkforceAllocationGetResponseSchema,
 } from '../schemas';
 import {
   IProjectAddFormDto,
@@ -38,6 +40,8 @@ import {
   IProjectOverviewGetResponseDto,
   ISiteAllocationGetFormDto,
   ISiteAllocationGetResponseDto,
+  IWorkforceAllocationGetFormDto,
+  IWorkforceAllocationGetResponseDto,
 } from '../types/project.dto';
 
 @Injectable({
@@ -263,6 +267,44 @@ export class ProjectService {
           } else {
             this.logger.logUserAction(
               'Get site allocation history error',
+              error
+            );
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getWorkforceAllocationEmployees(
+    params?: IWorkforceAllocationGetFormDto
+  ): Observable<IWorkforceAllocationGetResponseDto> {
+    this.logger.logUserAction('Get workforce allocation employees request');
+
+    return this.apiService
+      .getValidated(
+        API_ROUTES.SITE.PROJECT.WORKFORCE_ALLOCATION_EMPLOYEES,
+        {
+          response: WorkforceAllocationGetResponseSchema,
+          request: WorkforceAllocationGetRequestSchema,
+        },
+        params
+      )
+      .pipe(
+        tap((response: IWorkforceAllocationGetResponseDto) => {
+          this.logger.logUserAction(
+            'Get workforce allocation employees response',
+            response
+          );
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Get workforce allocation employees error',
+              error
+            );
+          } else {
+            this.logger.logUserAction(
+              'Get workforce allocation employees error',
               error
             );
           }

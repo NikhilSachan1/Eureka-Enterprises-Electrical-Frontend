@@ -7,3 +7,8 @@ export { CHANGE_STATUS_PROJECT_FORM_CONFIG } from './form/change-status-project.
 export { SEARCH_FILTER_PROJECT_WORKSPACE_FORM_CONFIG } from './form/search-filter-project-workspace.config';
 export { SITE_ALLOCATION_HISTORY_TABLE_ENHANCED_CONFIG } from './table/get-site-allocation-history.config';
 export { SITE_ALLOCATION_EMPLOYEE_FILTER_FIELD_CONFIG } from './form/site-allocation-employee-filter.config';
+export { WORKFORCE_ALLOCATION_TABLE_ENHANCED_CONFIG } from './table/get-workforce-allocation.config';
+export { SEARCH_FILTER_WORKFORCE_ALLOCATION_FORM_CONFIG } from './form/search-filter-workforce-allocation.config';
+export { WORKFORCE_ALLOCATION_ACTION_CONFIG_MAP } from './dialog/get-workforce-allocation.config';
+export { WORKFORCE_ALLOCATION_ACTION_FORM_CONFIG } from './form/action-workforce-allocation.config';
+export type { IWorkforceAllocationActionFormDto } from './form/action-workforce-allocation.config';

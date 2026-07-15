@@ -18,3 +18,8 @@ export const CONFIGURATION_TYPE_DATA: IOptionDropdown[] = [
   { label: 'Array', value: 'array' },
   { label: 'JSON', value: 'json' },
 ];
+
+export const SITE_ALLOCATION_STATUS_DATA: IOptionDropdown[] = [
+  { label: 'Free', value: 'FREE' },
+  { label: 'Allocated', value: 'ALLOCATED' },
+];

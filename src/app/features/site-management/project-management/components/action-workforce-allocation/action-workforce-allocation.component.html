@@ -1,0 +1,27 @@
+<form
+  [formGroup]="form.formGroup"
+  class="form"
+>
+  @if (dialogActionType() === EButtonActionTypeEnum.ALLOCATE || dialogActionType() === EButtonActionTypeEnum.TRANSFER) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.projectName"
+    />
+  }
+
+  @if (
+    dialogActionType() === EButtonActionTypeEnum.DEALLOCATE || dialogActionType() === EButtonActionTypeEnum.TRANSFER
+  ) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.releaseDate"
+    />
+  }
+
+  @if (dialogActionType() === EButtonActionTypeEnum.ALLOCATE || dialogActionType() === EButtonActionTypeEnum.TRANSFER) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.allocateDate"
+    />
+  }
+</form>

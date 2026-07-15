@@ -38,3 +38,9 @@ export {
   SiteAllocationGetBaseResponseSchema,
   SiteAllocationGetResponseSchema,
 } from './get-site-allocation.schema';
+export {
+  WorkforceAllocationGetRequestSchema,
+  WorkforceAllocationGetBaseResponseSchema,
+  WorkforceAllocationGetStatsSchema,
+  WorkforceAllocationGetResponseSchema,
+} from './get-workforce-allocation.schema';

@@ -224,6 +224,7 @@ export const API_ROUTES = {
       CHANGE_STATUS: (projectId: string) => `sites/${projectId}/status`,
       ALLOCATE_DEALLOCATE_EMPLOYEES: 'site-allocations/manage',
       ALLOCATION_HISTORY: 'site-allocations',
+      WORKFORCE_ALLOCATION_EMPLOYEES: 'site-allocations/employees',
     },
     DSR: {
       ADD: 'daily-status-reports',
