@@ -13,6 +13,42 @@
 </div>
 
 <ng-template
+  #projectNameCell
+  let-row
+>
+  @let r = $any(row);
+  @let siteTypeTags = resolveProjectSiteTypeTags(r.siteTypes);
+  <div class="project-name-cell">
+    <div class="project-name-cell__primary">
+      @if (r.projectName) {
+        <div
+          class="project-name-cell__lead"
+          [style.background-color]="projectNameLeadBackground(r.projectName)"
+        >
+          <i [class]="ICONS.SITE.BUILDING"></i>
+        </div>
+      }
+      <div class="project-name-cell__text">
+        <div class="project-name-cell__title-row">
+          <span class="project-name-cell__title">{{ r.projectName }}</span>
+          @for (tag of siteTypeTags; track tag.value) {
+            <span
+              class="project-site-type-tag"
+              [attr.data-type]="tag.variant"
+            >
+              {{ tag.label }}
+            </span>
+          }
+        </div>
+        @if (r.projectLocation) {
+          <span class="project-name-cell__subtitle">{{ r.projectLocation }}</span>
+        }
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template
   #projectSiteTypes
   let-row
 >
@@ -54,72 +90,153 @@
   @let contractors = s?.siteContractors ?? [];
   @let vendors = s?.vendors ?? [];
   @let teamCount = s?.allocatedEmployees?.length ?? 0;
-  <div class="project-stakeholders-cell">
-    <div class="project-stakeholders-cell__block">
-      <span class="project-stakeholders-cell__label">Company</span>
+  @let employees = s?.allocatedEmployees ?? [];
+  <div class="project-stakeholders-card">
+    <div class="project-stakeholders-card__tiles">
       @if (s?.company?.name) {
         <button
           type="button"
-          class="project-stakeholders-cell__link-btn project-stakeholders-cell__link-btn--clamp"
+          class="stakeholder-tile stakeholder-tile--company stakeholder-tile--interactive"
           (click)="companyPopover.toggle($event)"
           [title]="s.company.name"
           [attr.aria-label]="'Company details: ' + s.company.name"
         >
-          {{ s.company.name }}
+          <span class="stakeholder-tile__icon-wrap">
+            <i [class]="ICONS.SITE.BUILDING"></i>
+          </span>
+          <span class="stakeholder-tile__content">
+            <span class="stakeholder-tile__title">Company</span>
+            <span class="stakeholder-tile__value">{{ s.company.name }}</span>
+          </span>
         </button>
       } @else {
-        <span class="project-stakeholders-cell__dash">—</span>
+        <div class="stakeholder-tile stakeholder-tile--company stakeholder-tile--empty">
+          <span class="stakeholder-tile__icon-wrap">
+            <i [class]="ICONS.SITE.BUILDING"></i>
+          </span>
+          <span class="stakeholder-tile__content">
+            <span class="stakeholder-tile__title">Company</span>
+            <span class="stakeholder-tile__value">Not linked</span>
+          </span>
+        </div>
       }
-    </div>
 
-    <div class="project-stakeholders-cell__block">
-      <span class="project-stakeholders-cell__label">Contractors</span>
+      @if (s?.projectManager) {
+        <button
+          type="button"
+          class="stakeholder-tile stakeholder-tile--manager stakeholder-tile--interactive"
+          (click)="projectManagerPopover.toggle($event)"
+          [title]="s.projectManager"
+          [attr.aria-label]="'Project manager details: ' + s.projectManager"
+        >
+          <span class="stakeholder-tile__icon-wrap">
+            <i [class]="ICONS.COMMON.BRIEFCASE"></i>
+          </span>
+          <span class="stakeholder-tile__content">
+            <span class="stakeholder-tile__title">Manager</span>
+            <span class="stakeholder-tile__value">{{ s.projectManager }}</span>
+          </span>
+        </button>
+      } @else {
+        <div class="stakeholder-tile stakeholder-tile--manager stakeholder-tile--empty">
+          <span class="stakeholder-tile__icon-wrap">
+            <i [class]="ICONS.COMMON.BRIEFCASE"></i>
+          </span>
+          <span class="stakeholder-tile__content">
+            <span class="stakeholder-tile__title">Manager</span>
+            <span class="stakeholder-tile__value">Not assigned</span>
+          </span>
+        </div>
+      }
+
       @if (contractors.length > 0) {
         <button
           type="button"
-          class="project-stakeholders-cell__link-btn"
+          class="stakeholder-tile stakeholder-tile--contractor stakeholder-tile--interactive"
           (click)="contractorsPopover.toggle($event)"
           [attr.aria-label]="'View ' + contractors.length + ' contractors'"
         >
-          {{ contractors.length }}
-          {{ contractors.length === 1 ? 'contractor' : 'contractors' }}
+          <span class="stakeholder-tile__icon-wrap">
+            <i [class]="ICONS.COMMON.USERS"></i>
+          </span>
+          <span class="stakeholder-tile__content">
+            <span class="stakeholder-tile__title">Contractors</span>
+            <span class="stakeholder-tile__value">
+              <span class="stakeholder-tile__count">{{ contractors.length }}</span>
+              linked
+            </span>
+          </span>
         </button>
       } @else {
-        <span class="project-stakeholders-cell__dash">—</span>
+        <div class="stakeholder-tile stakeholder-tile--contractor stakeholder-tile--empty">
+          <span class="stakeholder-tile__icon-wrap">
+            <i [class]="ICONS.COMMON.USERS"></i>
+          </span>
+          <span class="stakeholder-tile__content">
+            <span class="stakeholder-tile__title">Contractors</span>
+            <span class="stakeholder-tile__value">None</span>
+          </span>
+        </div>
       }
-    </div>
 
-    <div class="project-stakeholders-cell__block">
-      <span class="project-stakeholders-cell__label">Vendors</span>
       @if (vendors.length > 0) {
         <button
           type="button"
-          class="project-stakeholders-cell__link-btn"
+          class="stakeholder-tile stakeholder-tile--vendor stakeholder-tile--interactive"
           (click)="vendorsPopover.toggle($event)"
           [attr.aria-label]="'View ' + vendors.length + ' vendors'"
         >
-          {{ vendors.length }}
-          {{ vendors.length === 1 ? 'vendor' : 'vendors' }}
+          <span class="stakeholder-tile__icon-wrap">
+            <i class="pi pi-truck"></i>
+          </span>
+          <span class="stakeholder-tile__content">
+            <span class="stakeholder-tile__title">Vendors</span>
+            <span class="stakeholder-tile__value">
+              <span class="stakeholder-tile__count">{{ vendors.length }}</span>
+              linked
+            </span>
+          </span>
         </button>
       } @else {
-        <span class="project-stakeholders-cell__dash">—</span>
+        <div class="stakeholder-tile stakeholder-tile--vendor stakeholder-tile--empty">
+          <span class="stakeholder-tile__icon-wrap">
+            <i class="pi pi-truck"></i>
+          </span>
+          <span class="stakeholder-tile__content">
+            <span class="stakeholder-tile__title">Vendors</span>
+            <span class="stakeholder-tile__value">None</span>
+          </span>
+        </div>
       }
-    </div>
 
-    <div class="project-stakeholders-cell__block">
-      <span class="project-stakeholders-cell__label">Team</span>
       @if (teamCount > 0) {
         <button
           type="button"
-          class="project-stakeholders-cell__link-btn"
+          class="stakeholder-tile stakeholder-tile--team stakeholder-tile--interactive stakeholder-tile--wide"
           (click)="allocatedTeamPopover.toggle($event)"
           [attr.aria-label]="'View ' + teamCount + ' allocated team members'"
         >
-          {{ teamCount }}
-          {{ teamCount === 1 ? 'employee' : 'employees' }}
+          <span class="stakeholder-tile__icon-wrap">
+            <i [class]="ICONS.EMPLOYEE.GROUP"></i>
+          </span>
+          <span class="stakeholder-tile__content">
+            <span class="stakeholder-tile__title">Team</span>
+            <span class="stakeholder-tile__value">
+              <span class="stakeholder-tile__count">{{ teamCount }}</span>
+              {{ teamCount === 1 ? 'member' : 'members' }}
+            </span>
+          </span>
         </button>
       } @else {
-        <span class="project-stakeholders-cell__dash">—</span>
+        <div class="stakeholder-tile stakeholder-tile--team stakeholder-tile--empty stakeholder-tile--wide">
+          <span class="stakeholder-tile__icon-wrap">
+            <i [class]="ICONS.EMPLOYEE.GROUP"></i>
+          </span>
+          <span class="stakeholder-tile__content">
+            <span class="stakeholder-tile__title">Team</span>
+            <span class="stakeholder-tile__value">None</span>
+          </span>
+        </div>
       }
     </div>
   </div>
@@ -132,9 +249,14 @@
   >
     @if (s?.company; as co) {
       <div class="project-stakeholders-popover">
-        <div class="project-stakeholders-popover__head">
-          <div class="project-stakeholders-popover__head-title">Company</div>
-          <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
+        <div class="project-stakeholders-popover__head project-stakeholders-popover__head--company">
+          <span class="project-stakeholders-popover__head-icon">
+            <i [class]="ICONS.SITE.BUILDING"></i>
+          </span>
+          <div class="project-stakeholders-popover__head-text">
+            <div class="project-stakeholders-popover__head-title">Company</div>
+            <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
+          </div>
         </div>
         <div class="project-stakeholders-popover__company">
           @if (co.logo) {
@@ -144,11 +266,50 @@
               [alt]="co.name"
               loading="lazy"
             />
+          } @else {
+            <span class="project-stakeholders-popover__avatar project-stakeholders-popover__avatar--company">
+              {{ stakeholderInitials(co.name) }}
+            </span>
           }
           <div class="project-stakeholders-popover__company-text">
             <div class="project-stakeholders-popover__primary">{{ co.name }}</div>
             @if (co.fullAddress) {
               <div class="project-stakeholders-popover__address">{{ co.fullAddress }}</div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </p-popover>
+
+  <p-popover
+    #projectManagerPopover
+    styleClass="project-stakeholders-popover-panel"
+    [dismissable]="true"
+    [appendTo]="'body'"
+  >
+    @if (s?.projectManager; as managerName) {
+      <div class="project-stakeholders-popover">
+        <div class="project-stakeholders-popover__head project-stakeholders-popover__head--manager">
+          <span class="project-stakeholders-popover__head-icon">
+            <i [class]="ICONS.COMMON.BRIEFCASE"></i>
+          </span>
+          <div class="project-stakeholders-popover__head-text">
+            <div class="project-stakeholders-popover__head-title">Project manager</div>
+            <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
+          </div>
+        </div>
+        <div class="project-stakeholders-popover__company">
+          <span class="project-stakeholders-popover__avatar project-stakeholders-popover__avatar--manager">
+            {{ stakeholderInitials(managerName) }}
+          </span>
+          <div class="project-stakeholders-popover__company-text">
+            <div class="project-stakeholders-popover__primary">{{ managerName }}</div>
+            @if (s?.projectManagerContact) {
+              <div class="project-stakeholders-popover__address">
+                <i [class]="ICONS.COMMON.PHONE"></i>
+                {{ s.projectManagerContact }}
+              </div>
             }
           </div>
         </div>
@@ -163,21 +324,31 @@
     [appendTo]="'body'"
   >
     <div class="project-stakeholders-popover">
-      <div class="project-stakeholders-popover__head">
-        <div class="project-stakeholders-popover__head-title">Contractors</div>
-        <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
-        <div class="project-stakeholders-popover__head-count">
-          {{ contractors.length }}
-          {{ contractors.length === 1 ? 'contractor' : 'contractors' }}
+      <div class="project-stakeholders-popover__head project-stakeholders-popover__head--contractor">
+        <span class="project-stakeholders-popover__head-icon">
+          <i [class]="ICONS.COMMON.USERS"></i>
+        </span>
+        <div class="project-stakeholders-popover__head-text">
+          <div class="project-stakeholders-popover__head-title">Contractors</div>
+          <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
+          <div class="project-stakeholders-popover__head-count">
+            {{ contractors.length }}
+            {{ contractors.length === 1 ? 'contractor' : 'contractors' }}
+          </div>
         </div>
       </div>
       <div class="project-stakeholders-popover__list">
         @for (c of contractors; track c.id) {
           <div class="project-stakeholders-popover__row">
-            <div class="project-stakeholders-popover__name">{{ c.contractor.name }}</div>
-            @if (stakeholderContactSubtitle(c.contractor.email, c.contractor.gstNumber); as subtitle) {
-              <div class="project-stakeholders-popover__meta">{{ subtitle }}</div>
-            }
+            <span class="project-stakeholders-popover__avatar project-stakeholders-popover__avatar--contractor">
+              {{ stakeholderInitials(c.contractor.name) }}
+            </span>
+            <div class="project-stakeholders-popover__row-body">
+              <div class="project-stakeholders-popover__name">{{ c.contractor.name }}</div>
+              @if (stakeholderContactSubtitle(c.contractor.email, c.contractor.gstNumber); as subtitle) {
+                <div class="project-stakeholders-popover__meta">{{ subtitle }}</div>
+              }
+            </div>
           </div>
         }
       </div>
@@ -191,21 +362,31 @@
     [appendTo]="'body'"
   >
     <div class="project-stakeholders-popover">
-      <div class="project-stakeholders-popover__head">
-        <div class="project-stakeholders-popover__head-title">Vendors</div>
-        <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
-        <div class="project-stakeholders-popover__head-count">
-          {{ vendors.length }}
-          {{ vendors.length === 1 ? 'vendor' : 'vendors' }}
+      <div class="project-stakeholders-popover__head project-stakeholders-popover__head--vendor">
+        <span class="project-stakeholders-popover__head-icon">
+          <i class="pi pi-truck"></i>
+        </span>
+        <div class="project-stakeholders-popover__head-text">
+          <div class="project-stakeholders-popover__head-title">Vendors</div>
+          <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
+          <div class="project-stakeholders-popover__head-count">
+            {{ vendors.length }}
+            {{ vendors.length === 1 ? 'vendor' : 'vendors' }}
+          </div>
         </div>
       </div>
       <div class="project-stakeholders-popover__list">
         @for (v of vendors; track v.id) {
           <div class="project-stakeholders-popover__row">
-            <div class="project-stakeholders-popover__name">{{ v.name }}</div>
-            @if (stakeholderContactSubtitle(v.email, v.gstNumber, v.vendorType); as subtitle) {
-              <div class="project-stakeholders-popover__meta">{{ subtitle }}</div>
-            }
+            <span class="project-stakeholders-popover__avatar project-stakeholders-popover__avatar--vendor">
+              {{ stakeholderInitials(v.name) }}
+            </span>
+            <div class="project-stakeholders-popover__row-body">
+              <div class="project-stakeholders-popover__name">{{ v.name }}</div>
+              @if (stakeholderContactSubtitle(v.email, v.gstNumber, v.vendorType); as subtitle) {
+                <div class="project-stakeholders-popover__meta">{{ subtitle }}</div>
+              }
+            </div>
           </div>
         }
       </div>
@@ -218,21 +399,30 @@
     [dismissable]="true"
     [appendTo]="'body'"
   >
-    @let employees = s?.allocatedEmployees ?? [];
     <div class="project-stakeholders-popover">
-      <div class="project-stakeholders-popover__head">
-        <div class="project-stakeholders-popover__head-title">Allocated team</div>
-        <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
-        <div class="project-stakeholders-popover__head-count">
-          {{ employees.length }}
-          {{ employees.length === 1 ? 'person' : 'people' }}
+      <div class="project-stakeholders-popover__head project-stakeholders-popover__head--team">
+        <span class="project-stakeholders-popover__head-icon">
+          <i [class]="ICONS.EMPLOYEE.GROUP"></i>
+        </span>
+        <div class="project-stakeholders-popover__head-text">
+          <div class="project-stakeholders-popover__head-title">Allocated team</div>
+          <div class="project-stakeholders-popover__head-project">{{ r.projectName }}</div>
+          <div class="project-stakeholders-popover__head-count">
+            {{ employees.length }}
+            {{ employees.length === 1 ? 'person' : 'people' }}
+          </div>
         </div>
       </div>
       <div class="project-stakeholders-popover__list">
         @for (employee of employees; track employee.id) {
           <div class="project-stakeholders-popover__row">
-            <div class="project-stakeholders-popover__name">{{ employee.firstName }} {{ employee.lastName }}</div>
-            <div class="project-stakeholders-popover__meta">{{ employee.employeeId }} · {{ employee.role }}</div>
+            <span class="project-stakeholders-popover__avatar project-stakeholders-popover__avatar--team">
+              {{ stakeholderInitials(employee.firstName + ' ' + employee.lastName) }}
+            </span>
+            <div class="project-stakeholders-popover__row-body">
+              <div class="project-stakeholders-popover__name">{{ employee.firstName }} {{ employee.lastName }}</div>
+              <div class="project-stakeholders-popover__meta">{{ employee.employeeId }} · {{ employee.role }}</div>
+            </div>
           </div>
         }
       </div>
@@ -249,7 +439,7 @@
   [bulkActionButtons]="table.bulkActions()"
   [rowActions]="table.rowActions()"
   [customBodyTemplates]="{
-    projectSiteTypes: projectSiteTypes,
+    projectNameCell: projectNameCell,
     projectWorkTypes: projectWorkTypes,
     projectStakeholders: projectStakeholders,
   }"

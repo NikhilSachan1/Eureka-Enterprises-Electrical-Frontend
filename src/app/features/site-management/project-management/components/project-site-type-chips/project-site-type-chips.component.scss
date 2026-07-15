@@ -1,13 +1,15 @@
+/* Match compact table chips used for work types in get-project */
 .project-site-type-chips {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
-  min-width: 0;
-}
+  ::ng-deep .p-chip {
+    padding: 0.25rem 0.35rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    min-height: auto;
+    border-radius: 4px;
+  }
 
-.project-site-type-chips__empty {
-  color: var(--text-color-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
+  ::ng-deep .p-chip .p-chip-label {
+    line-height: 1.2;
+  }
 }

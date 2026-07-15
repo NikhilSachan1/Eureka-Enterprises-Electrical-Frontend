@@ -10,7 +10,6 @@ import {
 import { IProject } from '../../types/project.interface';
 import { APP_CONFIG } from '@core/config';
 import { APP_PERMISSION } from '@core/constants/app-permission.constant';
-import { ICONS } from '@shared/constants/icon.constants';
 
 const normalizeProjectStatusKey = (status: unknown): string =>
   typeof status === 'string'
@@ -30,38 +29,13 @@ const PROJECT_DISABLED_TOOLTIP = {
 
 const PROJECT_TABLE_CONFIG: Partial<IDataTableConfig> = {
   emptyMessage: 'No project record found.',
-  scrollable: true,
-  scrollHeight: 'calc(100vh - 22rem)',
-  actionsColumn: {
-    frozen: true,
-    alignFrozen: 'right',
-  },
 };
 
 const PROJECT_TABLE_HEADER_CONFIG: Partial<IDataTableHeaderConfig>[] = [
   {
     field: 'projectName',
     header: 'Project Name',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    icon: ICONS.SITE.BUILDING,
-    dummyImageField: 'projectName',
-    primaryFieldHighlight: true,
-    subtitle: { field: 'projectLocation' },
-  },
-  {
-    field: 'siteTypes',
-    header: 'Project Type',
-    customTemplateKey: 'projectSiteTypes',
-    showSort: false,
-  },
-  {
-    field: 'projectManager',
-    header: 'Project Manager',
-    bodyTemplate: EDataType.TEXT_WITH_SUBTITLE,
-    showImage: true,
-    dummyImageField: 'projectManager',
-    primaryFieldHighlight: true,
-    subtitle: { field: 'projectManagerContact' },
+    customTemplateKey: 'projectNameCell',
     showSort: false,
   },
   {
