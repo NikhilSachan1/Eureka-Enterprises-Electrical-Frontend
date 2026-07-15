@@ -1,11 +1,14 @@
 {
+  "id": "/",
   "name": "Eureka Enterprises – Electrical",
   "short_name": "Eureka Electrical",
+  "description": "Electrical Management System for Eureka Enterprises",
   "display": "standalone",
-  "scope": "./",
-  "start_url": "./",
+  "scope": "/",
+  "start_url": "/",
   "theme_color": "#0c1222",
   "background_color": "#ffffff",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "assets/logo.png",
@@ -18,6 +21,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

@@ -2,10 +2,12 @@
   [formGroup]="form.formGroup"
   class="form"
 >
-  <app-input-field
-    [formGroup]="form.formGroup"
-    [inputFieldConfig]="form.fieldConfigs.paymentMode"
-  />
+  @if (!isVendorPayment()) {
+    <app-input-field
+      [formGroup]="form.formGroup"
+      [inputFieldConfig]="form.fieldConfigs.paymentMode"
+    />
+  }
   <app-input-field
     [formGroup]="form.formGroup"
     [inputFieldConfig]="form.fieldConfigs.paidFromAccount"

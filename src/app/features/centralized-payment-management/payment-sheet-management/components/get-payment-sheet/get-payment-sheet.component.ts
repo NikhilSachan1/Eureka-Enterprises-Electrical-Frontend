@@ -5,6 +5,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { APP_CONFIG } from '@core/config';
@@ -12,10 +13,10 @@ import { LoggerService } from '@core/services';
 import { AuthService } from '@features/auth-management/services/auth.service';
 import { PaymentSheetAmountsCellComponent } from '@features/centralized-payment-management/shared/components/payment-sheet-amounts-cell/payment-sheet-amounts-cell.component';
 import { DataTableComponent } from '@shared/components/data-table/data-table.component';
+import { MetricsCardComponent } from '@shared/components/metrics-card/metrics-card.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { SearchFilterComponent } from '@shared/components/search-filter/search-filter.component';
-import { StatusTagComponent } from '@shared/components/status-tag/status-tag.component';
-import { ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
+import { ICONS, ROUTE_BASE_PATHS, ROUTES } from '@shared/constants';
 import {
   AppConfigurationService,
   ConfirmationDialogService,
@@ -31,11 +32,15 @@ import {
   IDataViewDetails,
   IDataViewDetailsWithEntity,
   IEnhancedTable,
+  IMetricGroup,
   IPageHeaderConfig,
   ITableActionClickEvent,
   ITableSearchFilterFormConfig,
 } from '@shared/types';
-import { getMappedValueFromArrayOfObjects } from '@shared/utility';
+import {
+  applyGroupMetricValueLoading,
+  getMappedValueFromArrayOfObjects,
+} from '@shared/utility';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { finalize } from 'rxjs';
 import {
@@ -46,7 +51,6 @@ import {
 import { PaymentSheetService } from '../../services/payment-sheet.service';
 import { PaymentSheetTimelineDrawerComponent } from '../payment-sheet-timeline-drawer/payment-sheet-timeline-drawer.component';
 import {
-  EPaymentSheetStage,
   EPaymentSheetStatus,
   EPaymentSheetTimelineMode,
 } from '../../types/payment-sheet.enum';
@@ -54,26 +58,22 @@ import {
   IPaymentSheetGetBaseResponseDto,
   IPaymentSheetGetFormDto,
   IPaymentSheetGetResponseDto,
+  IPaymentSheetGetStatsResponseDto,
 } from '../../types/payment-sheet.dto';
 import { IPaymentSheet } from '../../types/payment-sheet.interface';
-
-type TPaymentSheetWorkflowStepState = 'complete' | 'current' | 'pending';
-
-const PAYMENT_SHEET_LIST_WORKFLOW_STEPS = [
-  { stage: EPaymentSheetStage.INITIATION, shortLabel: 'Draft' },
-  { stage: EPaymentSheetStage.HR_REVIEW, shortLabel: 'HR' },
-  { stage: EPaymentSheetStage.ADMIN_REVIEW, shortLabel: 'Admin' },
-  { stage: EPaymentSheetStage.PROCESSING, shortLabel: 'Accounts' },
-] as const;
+import {
+  PAYMENT_SHEET_LIST_WORKFLOW_STEPS,
+  TPaymentSheetWorkflowStepState,
+} from '../../types/payment-sheet-workflow.types';
 
 @Component({
   selector: 'app-get-payment-sheet',
   imports: [
     PageHeaderComponent,
+    MetricsCardComponent,
     SearchFilterComponent,
     DataTableComponent,
     PaymentSheetAmountsCellComponent,
-    StatusTagComponent,
   ],
   templateUrl: './get-payment-sheet.component.html',
   styleUrl: './get-payment-sheet.component.scss',
@@ -99,7 +99,11 @@ export class GetPaymentSheetComponent implements OnInit {
   protected tableFilterData!: TableLazyLoadEvent;
   protected searchFilterConfig!: ITableSearchFilterFormConfig;
 
+  private readonly paymentSheetStats =
+    signal<IPaymentSheetGetStatsResponseDto | null>(null);
+
   protected pageHeaderConfig = computed(() => this.getPageHeaderConfig());
+  protected metricGroups = computed(() => this.getMetricGroups());
 
   protected readonly workflowSteps = PAYMENT_SHEET_LIST_WORKFLOW_STEPS;
 
@@ -226,7 +230,7 @@ export class GetPaymentSheetComponent implements OnInit {
 
     if (
       (actionType === EButtonActionType.CANCEL ||
-        actionType === EButtonActionType.REJECT) &&
+        actionType === EButtonActionType.DELETE) &&
       selectedRow?.id
     ) {
       const actionConfig = PAYMENT_SHEET_LIST_ACTION_CONFIG_MAP[actionType];
@@ -316,9 +320,10 @@ export class GetPaymentSheetComponent implements OnInit {
       )
       .subscribe({
         next: (response: IPaymentSheetGetResponseDto) => {
-          const { records, totalRecords } = response;
+          const { records, stats, totalRecords } = response;
           const mappedData = this.mapTableData(records);
 
+          this.paymentSheetStats.set(stats);
           this.table.setData(mappedData);
           this.table.updateTableConfig({ totalRecords });
           this.logger.logUserAction(
@@ -326,6 +331,7 @@ export class GetPaymentSheetComponent implements OnInit {
           );
         },
         error: error => {
+          this.paymentSheetStats.set(null);
           this.table.setData([]);
           this.table.updateTableConfig({ totalRecords: 0 });
           this.logger.logUserAction('Failed to load payment sheets', error);
@@ -364,6 +370,68 @@ export class GetPaymentSheetComponent implements OnInit {
     return PAYMENT_SHEET_LIST_WORKFLOW_STEPS.findIndex(
       step => step.stage === stage
     );
+  }
+
+  private getMetricGroups(): IMetricGroup[] {
+    const stats = this.paymentSheetStats();
+    const loading = this.table.loading();
+
+    const groups: IMetricGroup[] = [
+      {
+        id: 'payment-sheet-total',
+        title: 'Total',
+        icon: ICONS.COMMON.LIST,
+        layout: 'kpi',
+        metrics: [{ label: 'Payment sheets', value: stats?.total ?? 0 }],
+      },
+      {
+        id: 'payment-sheet-draft-exceptions',
+        title: 'Incomplete',
+        icon: ICONS.COMMON.FILE,
+        metrics: [
+          { label: 'Draft', value: stats?.draft ?? 0 },
+          {
+            label: 'Returned',
+            value: stats?.returned ?? 0,
+            icon: ICONS.COMMON.ARROW_LEFT,
+          },
+          {
+            label: 'Rejected',
+            value: stats?.rejected ?? 0,
+            icon: ICONS.ACTIONS.BAN,
+          },
+        ],
+      },
+      {
+        id: 'payment-sheet-workflow',
+        title: 'Workflow',
+        icon: ICONS.COMMON.BRIEFCASE,
+        metrics: [
+          {
+            label: 'HR Review',
+            value: stats?.hrReview ?? 0,
+            icon: ICONS.COMMON.USER,
+          },
+          {
+            label: 'Admin Review',
+            value: stats?.adminReview ?? 0,
+            icon: ICONS.COMMON.USER,
+          },
+          {
+            label: 'Account Review',
+            value: stats?.processing ?? 0,
+            icon: ICONS.PAYROLL.WALLET,
+          },
+          {
+            label: 'Completed',
+            value: stats?.completed ?? 0,
+            icon: ICONS.ACTIONS.CHECK_CIRCLE,
+          },
+        ],
+      },
+    ];
+
+    return applyGroupMetricValueLoading(groups, loading);
   }
 
   private getPageHeaderConfig(): IPageHeaderConfig {

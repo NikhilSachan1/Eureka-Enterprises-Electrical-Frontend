@@ -1,5 +1,7 @@
 <app-page-header [pageHeaderConfig]="pageHeaderConfig()" />
 
+<app-metrics-card [metricGroups]="metricGroups()" />
+
 <div class="search-filter-wrapper">
   <app-search-filter
     [tableRef]="dataTable.dt()"
@@ -30,8 +32,6 @@
   let-row
 >
   <div class="ps-list-workflow">
-    <app-status-tag [value]="row.statusLabel" />
-
     @if (shouldShowWorkflowTimeline(row)) {
       <div class="ps-list-workflow__track">
         @for (step of workflowSteps; track step.stage; let index = $index) {

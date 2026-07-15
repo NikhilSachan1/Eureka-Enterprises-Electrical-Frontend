@@ -11,6 +11,8 @@ import {
   CreatePaymentSheetResponseSchema,
   DeletePaymentSheetItemRequestSchema,
   DeletePaymentSheetItemResponseSchema,
+  DeletePaymentSheetRequestSchema,
+  DeletePaymentSheetResponseSchema,
   ForwardPaymentSheetResponseSchema,
   PaymentSheetDetailGetResponseSchema,
   PaymentSheetGetRequestSchema,
@@ -19,8 +21,6 @@ import {
   PayPaymentSheetItemResponseSchema,
   RejectPaymentSheetItemRequestSchema,
   RejectPaymentSheetItemResponseSchema,
-  RejectPaymentSheetRequestSchema,
-  RejectPaymentSheetResponseSchema,
   ReturnPaymentSheetRequestSchema,
   ReturnPaymentSheetResponseSchema,
   SubmitPaymentSheetResponseSchema,
@@ -38,6 +38,7 @@ import {
   ICreatePaymentSheetResponseDto,
   IDeletePaymentSheetItemFormDto,
   IDeletePaymentSheetItemResponseDto,
+  IDeletePaymentSheetResponseDto,
   IForwardPaymentSheetResponseDto,
   IPaymentSheetDetailGetFormDto,
   IPaymentSheetDetailGetResponseDto,
@@ -45,10 +46,8 @@ import {
   IPaymentSheetGetResponseDto,
   IPayPaymentSheetItemFormDto,
   IPayPaymentSheetItemResponseDto,
-  IRejectPaymentSheetFormDto,
   IRejectPaymentSheetItemFormDto,
   IRejectPaymentSheetItemResponseDto,
-  IRejectPaymentSheetResponseDto,
   IReturnPaymentSheetFormDto,
   IReturnPaymentSheetResponseDto,
   ISubmitPaymentSheetResponseDto,
@@ -449,6 +448,40 @@ export class PaymentSheetService {
       );
   }
 
+  deletePaymentSheet(
+    paymentSheetId: string
+  ): Observable<IDeletePaymentSheetResponseDto> {
+    this.logger.logUserAction('Delete Payment Sheet Request', {
+      paymentSheetId,
+    });
+
+    return this.apiService
+      .deleteValidated(
+        API_ROUTES.CENTRALIZED_PAYMENT.PAYMENT_SHEET_BY_ID(paymentSheetId),
+        {
+          response: DeletePaymentSheetResponseSchema,
+          request: DeletePaymentSheetRequestSchema,
+        },
+        {}
+      )
+      .pipe(
+        tap(response => {
+          this.logger.logUserAction('Delete Payment Sheet Response', response);
+        }),
+        catchError(error => {
+          if (error?.name === 'ZodError') {
+            this.logger.logDtoValidationErrors(
+              'Delete Payment Sheet Error',
+              error
+            );
+          } else {
+            this.logger.logUserAction('Delete Payment Sheet Error', error);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   rejectPaymentSheetItem(
     paymentSheetId: string,
     itemId: string,
@@ -487,44 +520,6 @@ export class PaymentSheetService {
             );
           } else {
             this.logger.logUserAction('Reject Payment Sheet Item Error', error);
-          }
-          return throwError(() => error);
-        })
-      );
-  }
-
-  rejectPaymentSheet(
-    paymentSheetId: string,
-    formData: IRejectPaymentSheetFormDto
-  ): Observable<IRejectPaymentSheetResponseDto> {
-    this.logger.logUserAction('Reject Payment Sheet Request', {
-      paymentSheetId,
-      formData,
-    });
-
-    return this.apiService
-      .postValidated(
-        API_ROUTES.CENTRALIZED_PAYMENT.REJECT_PAYMENT_SHEET_BY_ID(
-          paymentSheetId
-        ),
-        {
-          response: RejectPaymentSheetResponseSchema,
-          request: RejectPaymentSheetRequestSchema,
-        },
-        formData
-      )
-      .pipe(
-        tap(response => {
-          this.logger.logUserAction('Reject Payment Sheet Response', response);
-        }),
-        catchError(error => {
-          if (error?.name === 'ZodError') {
-            this.logger.logDtoValidationErrors(
-              'Reject Payment Sheet Error',
-              error
-            );
-          } else {
-            this.logger.logUserAction('Reject Payment Sheet Error', error);
           }
           return throwError(() => error);
         })

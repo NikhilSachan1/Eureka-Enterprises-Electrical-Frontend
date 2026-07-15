@@ -108,6 +108,14 @@ export const ICONS = {
     MONEY: 'pi pi-money-bill',
     CAR: 'pi pi-car',
   },
+  BANK: {
+    /** Company / beneficiary bank account (sidebar, bank-details-cell, lists). */
+    ACCOUNT: 'pi pi-building-columns',
+  },
+  PAYMENT: {
+    /** Record outbound payment (payment sheet actions, confirmation dialog). */
+    RECORD: 'pi pi-money-bill',
+  },
   /**
    * Fuel / petro (transport menu).
    * Note: `pi-tint` is not in PrimeIcons — icon would not render. Use supported glyphs from

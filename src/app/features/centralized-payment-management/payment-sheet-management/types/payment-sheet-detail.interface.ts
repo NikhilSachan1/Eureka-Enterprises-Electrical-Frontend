@@ -4,11 +4,26 @@ import {
   IPaymentSheetItemDetailDto,
   IPaymentSheetDetailGetResponseDto,
 } from './payment-sheet.dto';
-import { EPaymentSheetTimelineMode } from './payment-sheet.enum';
+import {
+  EPaymentSheetSourceType,
+  EPaymentSheetTimelineMode,
+} from './payment-sheet.enum';
 
 export type IPaymentSheetItemVerificationView = NonNullable<
   IPaymentSheetItemDetailDto['verifications']
 >[number];
+
+export interface IPaymentSheetItemRejectView {
+  stage: string | null;
+  rejectedByName: string;
+  rejectedAt: string;
+  reason: string;
+}
+
+export interface IPaymentSheetPaymentAdviceView {
+  referenceNumber: string;
+  pdfKey: string | null;
+}
 
 export interface IPaymentSheetDetailItemRow {
   status: string;
@@ -22,8 +37,13 @@ export interface IPaymentSheetDetailItemRow {
   payableAmount: number;
   remainingAmount: number;
   paidAt: string | null;
-  paymentRef: string | null;
+  utrNumber: string | null;
+  paidByUserName: string | null;
+  paidFromAccount: IBankDetailsCellValue | null;
+  paymentAdvice: IPaymentSheetPaymentAdviceView | null;
   bankDetails: IBankDetailsCellValue | null;
+  bookPaymentId?: string;
+  sourceType?: EPaymentSheetSourceType;
   companyName?: string;
   projectName?: string;
   projectCity?: string;
@@ -33,6 +53,7 @@ export interface IPaymentSheetDetailItemRow {
   verifications: IPaymentSheetItemVerificationView[];
   verifiedStages: string[];
   isVerifiedForCurrentStage: boolean;
+  rejectDetail: IPaymentSheetItemRejectView | null;
 }
 export interface IPaymentSheetDetailSourceGroupView {
   sourceType: EPaymentOutstandingSourceType;
@@ -49,8 +70,8 @@ export interface IPaymentSheetOverviewVerificationView {
 }
 
 export interface IPaymentSheetOverviewView {
-  stageLabel: string;
   createdAt: string;
+  createdByName: string | null;
   beneficiaryCount: number;
   verificationSummary: IPaymentSheetOverviewVerificationView | null;
   totalRequestedAmount: number;
@@ -58,6 +79,22 @@ export interface IPaymentSheetOverviewView {
   totalPaidAmount: number;
   pendingAmount: number;
   remarks: string | null;
+}
+
+export type TPaymentSheetOwnerBannerTone =
+  | 'draft'
+  | 'hr'
+  | 'admin'
+  | 'accounts'
+  | 'completed'
+  | 'rejected';
+
+export interface IPaymentSheetCurrentOwnerBanner {
+  prefix: string;
+  ownerLabel: string;
+  stageHint: string | null;
+  tone: TPaymentSheetOwnerBannerTone;
+  icon: string;
 }
 
 export type TPaymentSheetTimelineTone =
@@ -74,12 +111,16 @@ export type TPaymentSheetTimelineTone =
 export type TPaymentSheetTimelineDetailVariant =
   | 'default'
   | 'emphasis'
-  | 'note';
+  | 'note'
+  | 'paidFrom'
+  | 'attachment';
 
 export interface IPaymentSheetTimelineEventDetail {
   icon?: string;
   label: string;
-  value: string;
+  value?: string;
+  bankDetails?: IBankDetailsCellValue | null;
+  attachmentKeys?: string[];
   variant?: TPaymentSheetTimelineDetailVariant;
 }
 
@@ -120,6 +161,9 @@ export interface IPaymentSheetTimelineDrawerDataItemHistory
   mode: EPaymentSheetTimelineMode.ITEM_HISTORY;
   itemId: string;
   history: TPaymentSheetHistoryEntryView[];
+  paidFromAccount?: IBankDetailsCellValue | null;
+  paymentAdvice?: IPaymentSheetPaymentAdviceView | null;
+  utrNumber?: string | null;
 }
 
 export type IPaymentSheetTimelineDrawerData =

@@ -15,6 +15,7 @@
     [class.outstanding-tab-panel--active]="activeTabIndex() === 0"
   >
     <app-get-expense-outstanding
+      [showSelection]="canCreatePaymentSheet()"
       (sectionSummaryChange)="onSectionSummaryChange(sourceType.EXPENSE, $event)"
       (selectionChange)="onExpenseSelectionChange($event)"
     />
@@ -25,6 +26,7 @@
     [class.outstanding-tab-panel--active]="activeTabIndex() === 1"
   >
     <app-get-fuel-expense-outstanding
+      [showSelection]="canCreatePaymentSheet()"
       (sectionSummaryChange)="onSectionSummaryChange(sourceType.FUEL_EXPENSE, $event)"
       (selectionChange)="onFuelSelectionChange($event)"
     />
@@ -35,6 +37,7 @@
     [class.outstanding-tab-panel--active]="activeTabIndex() === 2"
   >
     <app-get-vendor-outstanding
+      [showSelection]="canCreatePaymentSheet()"
       (sectionSummaryChange)="onSectionSummaryChange(sourceType.VENDOR_PAYMENT, $event)"
       (selectionChange)="onVendorSelectionChange($event)"
     />

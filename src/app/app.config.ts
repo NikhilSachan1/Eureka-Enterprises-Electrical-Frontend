@@ -7,7 +7,6 @@ import {
   LOCALE_ID,
   provideAppInitializer,
   provideZoneChangeDetection,
-  isDevMode,
 } from '@angular/core';
 
 registerLocaleData(localeEnIn);
@@ -48,7 +47,6 @@ import { AnnouncementService } from '@features/announcement-management/services/
 import { AppConfigurationService } from '@shared/services';
 import { lastValueFrom, take } from 'rxjs';
 import { FinancialYearService } from '@core/services/financial-year.service';
-import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -94,6 +92,13 @@ export const appConfig: ApplicationConfig = {
 
     provideAppInitializer(() => {
       inject(ThemeService);
+    }),
+    provideAppInitializer(() => {
+      if ('serviceWorker' in navigator) {
+        void navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(reg => reg.unregister());
+        });
+      }
     }),
     provideAppInitializer(async () => {
       const timezoneService = inject(TimezoneService);
@@ -145,10 +150,6 @@ export const appConfig: ApplicationConfig = {
       }
 
       announcementService.startPeriodicUnacknowledgedCheck();
-    }),
-    provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000',
     }),
   ],
 };

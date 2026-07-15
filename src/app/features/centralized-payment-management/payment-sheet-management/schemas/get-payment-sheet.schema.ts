@@ -32,7 +32,20 @@ export const PaymentSheetGetBaseResponseSchema = z.looseObject({
   totalPaidAmount: z.coerce.number(),
 });
 
+export const PaymentSheetGetStatsSchema = z.looseObject({
+  draft: z.coerce.number().int().nonnegative(),
+  hrReview: z.coerce.number().int().nonnegative(),
+  adminReview: z.coerce.number().int().nonnegative(),
+  processing: z.coerce.number().int().nonnegative(),
+  completed: z.coerce.number().int().nonnegative(),
+  returned: z.coerce.number().int().nonnegative(),
+  rejected: z.coerce.number().int().nonnegative(),
+  cancelled: z.coerce.number().int().nonnegative(),
+  total: z.coerce.number().int().nonnegative(),
+});
+
 export const PaymentSheetGetResponseSchema = z.looseObject({
   records: z.array(PaymentSheetGetBaseResponseSchema),
   totalRecords: z.number().int().nonnegative(),
+  stats: PaymentSheetGetStatsSchema,
 });
